@@ -21,8 +21,8 @@
     "lint:tailwind": "node scripts/lint-tailwind-tokens.mjs",
     "lint:patterns": "node scripts/lint-banned-patterns.mjs",
     "lint": "npm run lint:tailwind && npm run lint:patterns",
-    "ci:pr": "npm run env:check && npm run lint && npm run audit:i18n && npm run audit:csp && npm run typecheck && npm run test:scripts && npm run test:bff && npm test",
-    "ci:check": "npm run env:check && npm run lint && npm run audit:i18n && npm run audit:csp && npm run audit:i18n-structure && npm run audit:pages && npm run audit:structural && npm run audit:component-contracts && npm run audit:active-docs && npm run audit:overlays && npm run audit:lookup-primitives && npm run audit:api-barrel-imports && npm run audit:ui-strings:check && npm run audit:mutations:check && npm run typecheck && npm run test:scripts && npm run test:bff && npm test",
+    "ci:pr": "npm run env:check && npm run audit:design-docs && npm run lint && npm run audit:i18n && npm run audit:csp && npm run typecheck && npm run test:scripts && npm run test:bff && npm test",
+    "ci:check": "npm run env:check && npm run audit:design-docs && npm run lint && npm run audit:i18n && npm run audit:csp && npm run audit:i18n-structure && npm run audit:pages && npm run audit:structural && npm run audit:component-contracts && npm run audit:active-docs && npm run audit:overlays && npm run audit:lookup-primitives && npm run audit:api-barrel-imports && npm run audit:ui-strings:check && npm run audit:mutations:check && npm run typecheck && npm run test:scripts && npm run test:bff && npm test",
     "rc:check": "npm run env:check && npm run ci:check && npm run e2e:smoke && npm run e2e:smoke:mobile",
     "rc:notes": "node scripts/rc-notes.mjs",
     "e2e:install": "npm run env:check && node scripts/playwright.mjs install",
@@ -53,7 +53,9 @@
     "audit:overlays": "node scripts/audit-overlay-contracts.mjs",
     "audit:lookup-primitives": "node scripts/audit-lookup-primitives.mjs",
     "audit:api-barrel-imports": "node scripts/audit-api-barrel-imports.mjs",
-    "audit:i18n-structure": "node scripts/audit-i18n-structure.mjs"
+    "audit:i18n-structure": "node scripts/audit-i18n-structure.mjs",
+    "docs:inventory": "node scripts/design-inventory.mjs --write",
+    "audit:design-docs": "node scripts/audit-design-docs.mjs"
   },
   "keywords": [],
   "author": "",

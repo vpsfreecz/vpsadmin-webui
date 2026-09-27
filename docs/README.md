@@ -1,28 +1,16 @@
 # Documentation
 
-## Canonical source of truth
+Start with the English [design and requirements handbook](design/README.md).
+It explains product scope, requirements and acceptance, interaction design,
+architecture, API contracts, workflow behavior, decision history, verification,
+operations and handover. It is self-contained within this repository.
 
-The only authoritative product / UX / implementation specification is:
+- [Requirements register](design/REQUIREMENTS.md): current intent, source, status.
+- [Generated inventory](design/IMPLEMENTATION_INVENTORY.md): routes and API adapters.
+- [Work log](../WORK_LOG.md): chronological changes and release evidence.
+- [Documentation map](CANONICAL_DOCS.md): active versus historical sources.
 
-- `../../UI_REDESIGN.md`
-
-That file owns requirements, gap tracking, rollout gates, and execution order.
-
-See `CANONICAL_DOCS.md` for the current canon / derived / historical split within this docs tree.
-
-## What remains here
-
-This `docs/` tree is now one of:
-
-1. **supporting derived documentation**
-   - helpful when it does not contradict the redesign spec
-
-2. **historical / quarantined stubs**
-   - kept only so old links do not break
-   - intentionally stripped of normative content when they contradicted the canon
-
-## Rules
-
-- Do **not** introduce new requirements anywhere under `docs/`.
-- If a topic needs a current spec, update `../../UI_REDESIGN.md` first.
-- If a historical path must stay for link compatibility, keep it as a quarantine stub only.
+Update affected requirements/design and the work log with each behavior change.
+Run `npm run docs:inventory` after route/adapter changes and
+`npm run audit:design-docs` before review. The handbook explains evidence limits;
+this documentation does not certify every live workflow or approve a release.

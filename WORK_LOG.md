@@ -27,6 +27,36 @@ complete reconstruction of the project. Missing evidence is not a passing check.
   or raw production responses. This log does not grant deployment authorization
   or enable autonomous scheduled development.
 
+## 2026-09-27 - Repository-contained design and requirements handbook
+
+**Request:** provide complete English design documentation in docs/, including
+recoverable maintainer requirements, what exists, why, how decisions evolved,
+and a maintained current list for handover.
+
+**Change:** expanded the existing documentation PR
+[#523](https://github.com/Kerrycek/clankerdev/pull/523) instead of creating duplicate
+setup work. Added the [handbook](docs/design/README.md), 66 stable requirements
+with source/acceptance/status, product and workflow design, architecture, API
+contracts, decision history, verification gates, operations and source limitations.
+The previous specification pointed outside the repository to an unavailable
+UI_REDESIGN.md; current entry points now resolve inside the repository. Historical
+fragments remain classified as archaeology, not competing requirements.
+
+Added generated inventory of 256 route entries (including layouts/index routes)
+and 63 API adapter modules. CI now checks inventory drift, handbook link targets
+and requirement references. AGENTS.md requires updates with relevant behavior
+changes. Inaccessible history, unverified legacy parity, incomplete live lifecycle
+certification and private operational handover remain explicitly identified.
+
+**Verification:** docs inventory/links/IDs and active-doc audits passed; all 135
+script tests passed, including 4 new checks of inventory extraction, drift, broken
+links/requirement references and unresolved imported route groups. No product
+runtime change; no live mutations or deployment performed.
+
+**Status / next:** prepared for review. Review the recovered requirement intent,
+assign owners to open decisions/evidence gates, and retain ongoing updates.
+The documentation does not complete the independent audit or authorize a beta.
+
 ## 2026-09-27 - Reuse the legacy favicon
 
 **Request:** bring the old UI favicon into WebUI Next.

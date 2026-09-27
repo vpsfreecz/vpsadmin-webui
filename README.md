@@ -2,11 +2,12 @@
 
 Modern responsive web UI replacing the legacy PHP webui.
 
-## Canonical spec
+## Design and requirements
 
-The source release was imported from the WebUI Next deployment that produced
-the current `clankerdev.vpsfree.cz` build. The project notes live in `SPEC.md`
-and `docs/`.
+Start with the [design handbook](docs/design/README.md) for requirements, UX,
+architecture, API contracts, decision history, verification and handover.
+The [requirements register](docs/design/REQUIREMENTS.md) tracks current intent,
+status and acceptance. The [work log](WORK_LOG.md) records what changed and why.
 
 ## Development
 
@@ -36,8 +37,8 @@ The default Playwright suite uses deterministic HaveAPI mocks and does not requi
 
 - [WORK_LOG.md](WORK_LOG.md) – ongoing work, decisions, verification and release record
 
-- `SPEC.md` – canonical-spec pointer
-- `docs/CANONICAL_DOCS.md` – canon vs derived vs historical docs map
+- [SPEC.md](SPEC.md) – specification entry point
+- [docs/CANONICAL_DOCS.md](docs/CANONICAL_DOCS.md) – current and historical documentation map
 - `docs/README.md` – docs tree rules
 - `docs/spec/README.md` – spec-fragment rules
 - `bff/README.md` – OAuth BFF details

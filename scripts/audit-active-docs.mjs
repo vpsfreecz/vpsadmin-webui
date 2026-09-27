@@ -16,7 +16,7 @@ const ACTIVE_DOCS = [
   'docs/spec/AUTH_AND_FAILURE_SURFACES.md',
 ];
 
-const SCAN_SRC_DIRS = ['src'];
+const SCAN_SRC_DIRS = ['src', 'docs/design'];
 const EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx', '.mjs', '.md']);
 const IGNORE_DIRS = new Set(['node_modules', 'dist', 'build', '.git', '.cache', 'coverage']);
 
@@ -24,7 +24,7 @@ const RULES = [
   {
     code: 'obsolete_webui_next_spec_ref',
     pattern: /WEBUI_NEXT_SPEC\.md/,
-    message: 'Active docs must not reference WEBUI_NEXT_SPEC.md; point to UI_REDESIGN.md canon or a derived appendix instead.',
+    message: 'Active docs must not reference WEBUI_NEXT_SPEC.md; point to docs/design/README.md or an active supporting document instead.',
   },
   {
     code: 'obsolete_basic_advanced_model',
@@ -49,7 +49,7 @@ const RULES = [
   {
     code: 'source_spec_md_comment',
     pattern: /SPEC\.md/,
-    message: 'Source comments should not point at SPEC.md; reference UI_REDESIGN.md canon directly.',
+    message: 'Source comments should not point at SPEC.md; reference the design handbook directly.',
     sourceOnly: true,
   },
 ];

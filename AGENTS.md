@@ -60,3 +60,17 @@ This repository is maintained through human-reviewed AI pull requests.
 - Keep secrets, personal data, raw production responses, and private operational
   details out of the log. Log maintenance does not authorize deployment or resume
   paused automation.
+
+## Design and Requirements Documentation
+
+- Read `docs/design/README.md` and relevant entries in
+  `docs/design/REQUIREMENTS.md` before changing product behavior.
+- Keep English design/workflow/contract docs and requirement status current in
+  the same PR. Reference affected requirement IDs in the PR description.
+- Recover actual user intent and record superseded choices; do not invent missing
+  historical rationale or turn observed source behavior into an approved request.
+- Regenerate `npm run docs:inventory` when routes or API adapter modules change.
+  Run `npm run audit:design-docs`; review semantic accuracy separately.
+- Preserve evidence scope and distinguish implementation, test results, merge and
+  deployment. The handbook replaces the unavailable external spec dependency;
+  old docs/spec fragments are historical, not conflicting active requirements.
