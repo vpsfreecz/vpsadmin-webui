@@ -73,6 +73,8 @@ export async function fetchHostIpAddresses(opts?: {
   location?: number;
   network?: number;
   order?: 'asc' | 'interface';
+  count?: boolean;
+  signal?: AbortSignal;
 }) {
   const params: Record<string, unknown> = {};
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
@@ -95,7 +97,11 @@ export async function fetchHostIpAddresses(opts?: {
     path: '/host_ip_addresses',
     namespace: 'host_ip_address',
     params,
-    meta: { includes: 'ip_address,ip_address.user,ip_address.network_interface,ip_address.network_interface.vps' },
+    meta: {
+      includes: 'ip_address,ip_address__user,ip_address__network_interface,ip_address__network_interface__vps',
+      ...(opts?.count ? { count: true } : {}),
+    },
+    signal: opts?.signal,
   });
   return { ...res, data: expectArray<HostIpAddress>(res.data, 'host_ip_addresses#index') };
 }

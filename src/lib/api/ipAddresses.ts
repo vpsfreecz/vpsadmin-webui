@@ -52,6 +52,7 @@ export async function fetchIpAddresses(opts?: {
   networkInterface?: number;
   assignedToInterface?: boolean;
   order?: string;
+  count?: boolean;
   signal?: AbortSignal;
 }) {
   const params: Record<string, string | number | boolean | null> = {};
@@ -77,7 +78,10 @@ export async function fetchIpAddresses(opts?: {
     path: '/ip_addresses',
     namespace: 'ip_address',
     params,
-    meta: opts?.includes ? { includes: opts.includes } : undefined,
+    meta: opts?.includes || opts?.count ? {
+      ...(opts?.includes ? { includes: opts.includes } : {}),
+      ...(opts?.count ? { count: true } : {}),
+    } : undefined,
     signal: opts?.signal,
   });
 

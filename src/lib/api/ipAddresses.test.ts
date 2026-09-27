@@ -15,6 +15,7 @@ import {
   fetchIpAddressAssignments,
   fetchNetworkInterfaceMonitor,
   freeHostIpAddress,
+  fetchHostIpAddresses,
   updateHostIpAddress,
 } from './networking';
 
@@ -114,6 +115,42 @@ describe('network address API wrappers', () => {
     await fetchIpAddresses({ signal: controller.signal });
 
     const [, init] = lastFetchCall();
+    expect(init?.signal).toBe(controller.signal);
+  });
+
+  test('ascending admin IP request keeps count metadata and the exact ID cursor', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ status: true, response: { ip_addresses: [{ id: 18 }], _meta: { total_count: 1 } } }),
+    }) as typeof fetch;
+    const controller = new AbortController();
+
+    const response = await fetchIpAddresses({ fromId: 12, limit: 250, order: 'asc', count: true, signal: controller.signal });
+
+    const [url, init] = lastFetchCall();
+    const parsed = new URL(url);
+    expect(parsed.searchParams.get('ip_address[from_id]')).toBe('12');
+    expect(parsed.searchParams.get('ip_address[order]')).toBe('asc');
+    expect(parsed.searchParams.get('_meta[count]')).toBe('true');
+    expect(init?.signal).toBe(controller.signal);
+    expect(response.data).toEqual([{ id: 18 }]);
+    expect(response.meta).toEqual({ total_count: 1 });
+  });
+
+  test('ascending host request uses supported exact filter and nested includes', async () => {
+    globalThis.fetch = mockFetchOk({ host_ip_addresses: [{ id: 18 }] }) as typeof fetch;
+    const controller = new AbortController();
+
+    await fetchHostIpAddresses({ addr: '192.0.2.4', fromId: 12, limit: 250, order: 'asc', count: true, signal: controller.signal });
+
+    const [url, init] = lastFetchCall();
+    const parsed = new URL(url);
+    expect(parsed.searchParams.get('host_ip_address[addr]')).toBe('192.0.2.4');
+    expect(parsed.searchParams.get('host_ip_address[q]')).toBeNull();
+    expect(parsed.searchParams.get('host_ip_address[from_id]')).toBe('12');
+    expect(parsed.searchParams.get('host_ip_address[order]')).toBe('asc');
+    expect(parsed.searchParams.get('_meta[count]')).toBe('true');
+    expect(parsed.searchParams.get('_meta[includes]')).toBe('ip_address,ip_address__user,ip_address__network_interface,ip_address__network_interface__vps');
     expect(init?.signal).toBe(controller.signal);
   });
 
