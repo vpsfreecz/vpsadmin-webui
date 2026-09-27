@@ -26,7 +26,10 @@ function stillCurrent(state: BffSession): boolean {
 
 /** Non-credential identity for browser-local state; stable across token rotation. */
 export function getBffSessionKey(): string | undefined {
-  return session && stillCurrent(session) ? session.key : undefined;
+  // Effective auth may be a bound impersonation token. The underlying BFF
+  // login still owns this fingerprint and the inactivity deadline.
+  return session && typeof window !== 'undefined' && window.vpsAdmin === session.runtime &&
+    window.vpsAdmin?.accessToken === session.token ? session.key : undefined;
 }
 
 /** One bounded recovery per rejected request; concurrent callers share the lookup. */

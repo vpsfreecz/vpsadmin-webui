@@ -18,7 +18,12 @@ flowchart LR
 ## Frontend composition
 
 - [bootstrap](../../src/bootstrap.ts) loads runtime configuration before the app.
-  The early `index.html` script applies locally known theme/language preferences.
+  The production build selects required BFF mode. It validates bounded,
+  same-origin `/config.json` and `/session.json` within one 15-second deadline,
+  installs them as one snapshot, and shows a bilingual retry screen on failure.
+  Standalone development and explicitly selected legacy builds retain optional
+  script loading. The early `index.html` script applies locally known
+  theme/language preferences.
 - [route providers](../../src/routes/RouteProvidersLayout.tsx) compose auth,
   settings, theme, i18n, document title/focus and toasts around routed content.
 - [router](../../src/routes/router.tsx) declares public/member/admin routes;
@@ -51,6 +56,16 @@ canonical origin, provider/API URLs, required revoke path, secrets, numeric
 limits and writable session store before listening. Read [BFF docs](../../bff/README.md),
 [auth provider](../../src/app/auth.tsx), [session helper](../../src/lib/auth/bffSession.ts),
 and [idle session model](../../src/lib/auth/idleSession.ts).
+
+In BFF mode an anonymous session cannot recover old standalone credentials.
+An API-issued impersonation token remains usable only with the noncredential
+fingerprint of the validated base BFF session that created it. Reload with the
+same fingerprint retains impersonation through OAuth token rotation; a fresh
+login, logout or malformed/unbound record clears it. New impersonation records
+become active only after the next bootstrap so the previous identity's cached
+data cannot be reused. OAuth and token-provider requests use their distinct
+HaveAPI headers. Browser detection does not revoke that separate API token in
+another running tab; server-side revocation needs its own design.
 
 The BFF serializes refresh/logout operations per verified cookie in one process.
 The queue does not make a multi-worker shared file store safe; supported deployment

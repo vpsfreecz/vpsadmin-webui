@@ -1,6 +1,6 @@
 # Verification, readiness and release evidence
 
-Requirements: REQ-039, 042–046, 056–065. Documentation coverage, implemented code,
+Requirements: REQ-039, 042–046, 056–065, 067. Documentation coverage, implemented code,
 passing fixtures and production readiness are separate claims.
 
 ## Evidence levels
@@ -42,6 +42,8 @@ structural budgets and UI strings. It does not launch a browser or build
 production assets.
 `ci:pr` and `ci:check` run the same required non-E2E sequence:
 `ci:quick`, all nonbrowser script, BFF and unit tests, then `npm run build`.
+That production build explicitly selects `VITE_RUNTIME_MODE=bff`; the separate
+`build:legacy` command is for a deliberately selected standalone artifact.
 In GitHub Actions these appear as separate nonbrowser and production-build jobs;
 the build job records `GITHUB_SHA` in its summary. Root and BFF production
 dependency audits retain their critical/high thresholds as separate online CI

@@ -27,6 +27,46 @@ complete reconstruction of the project. Missing evidence is not a passing check.
   or raw production responses. This log does not grant deployment authorization
   or enable autonomous scheduled development.
 
+## 2026-09-27 - Require validated BFF bootstrap in the production frontend
+
+**Request / reason:** optional runtime scripts and a best-effort session probe
+could mount the frontend with stale standalone credentials when a production
+BFF response was absent or invalid. The new preview needs its own explicit
+build mode and an early failure path before any application query runs.
+
+**Change:** the production build selects `VITE_RUNTIME_MODE=bff`, requiring
+same-origin `/config.json` followed by `/session.json`. Both responses use
+no-store credentials, reject redirects, wrong MIME and invalid shape, and are
+bounded to 64 KiB and one 15-second deadline including body reads. A validated
+snapshot replaces the runtime object and clears old standalone OAuth tokens.
+An anonymous BFF result also clears impersonation. The early English/Czech
+failure screen offers a GET-only retry and exposes only a fixed failure class.
+Explicit standalone builds and local development retain optional scripts.
+
+**Identity / compatibility:** API-issued impersonation tokens remain in session
+storage but acquire a noncredential BFF session fingerprint. On BFF builds an
+old, malformed, unbound or mismatched record is ineligible and cleared; a
+matching record survives reload and OAuth token rotation. A token creation
+result that arrives after the base login changes cannot be attached to the new
+login. New records become active only after navigation and a fresh bootstrap.
+The token provider uses `X-HaveAPI-Auth-Token`; BFF OAuth continues to use its
+configured OAuth header. Standalone custom-provider headers retain their
+existing behavior. The BFF must be upgraded before BFF-mode frontend assets.
+No deployed host, API, map call or NixOS module changed. Browser state cleanup
+does not revoke the separate API token in another active tab.
+
+**Localization / verification:** the locked vpsAdmin terminology input read for
+this change is `a65a4dfeb92a59df4a80a737a20bcbf8558793ff`. The early
+English/Czech copy received the lead's wording pass. Focused bootstrap,
+impersonation, header and compatibility tests passed (6 files, 80 tests).
+Typecheck, lint (1,633 files), design-doc audit (17 docs, 67 requirements,
+256 routes, 63 API modules), i18n audit (8,164 keys in each language),
+structural audit (44 raw findings, 43 accepted exceptions, no unaccepted or
+invalid entries), UI-string audit and mutation audit (219 calls, no warnings)
+passed on cached Node 24.19.0. The sandbox could not enter the pinned Nix
+shell, so a locked-toolchain build and full quick gate still need a normal
+environment run. No browser, CI, push or deployment was performed.
+
 ## 2026-09-27 - Add the BFF runtime configuration contract
 
 **Request / reason:** the production frontend needs a mandatory public JSON

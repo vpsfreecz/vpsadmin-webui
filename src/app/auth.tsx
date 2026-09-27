@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { getRuntimeConfig } from './config';
 import { fetchCurrentUser, type User } from '../lib/api/users';
@@ -8,6 +8,8 @@ import { clearStoredOAuthToken } from '../lib/auth/tokenStore';
 import { HaveApiError, isExpiredSessionError, SESSION_EXPIRED_EVENT } from '../lib/api/haveapi';
 import { markSessionExpiredNotice } from '../lib/auth/sessionExpiredNotice';
 import { getBffSessionKey } from '../lib/auth/bffSession';
+import { bindBffImpersonationToSession, browserSessionStorage } from '../lib/auth/impersonation';
+import { selectedRuntimeMode } from './runtimeMode';
 import { readSessionIdleLimitSeconds } from '../lib/auth/idleSession';
 import { useIdleSession } from '../lib/auth/useIdleSession';
 import { hardReplace } from '../lib/browserNavigation';
@@ -75,6 +77,7 @@ export function AuthProvider(props: {
   redirectExpiredSessions?: boolean;
 }) {
   const cfg = getRuntimeConfig();
+  const queryClient = useQueryClient();
   const [sessionExpired, setSessionExpired] = useState(false);
   const redirectExpiredSessions = props.redirectExpiredSessions ?? true;
 
@@ -88,6 +91,10 @@ export function AuthProvider(props: {
     if (window.vpsAdmin) {
       window.vpsAdmin.accessToken = undefined;
       window.vpsAdmin.sessionToken = undefined;
+    }
+    if (selectedRuntimeMode() === 'bff') {
+      bindBffImpersonationToSession(null, browserSessionStorage());
+      queryClient.clear();
     }
 
     if (!redirectExpiredSessions) {
@@ -103,7 +110,7 @@ export function AuthProvider(props: {
     if (current !== target) {
       hardReplace(target);
     }
-  }, [redirectExpiredSessions]);
+  }, [queryClient, redirectExpiredSessions]);
 
   useEffect(() => {
     if (!enabled) return;
@@ -149,6 +156,11 @@ export function AuthProvider(props: {
     getBffSessionKey(),
     () => {
       clearStoredOAuthToken(cfg.oauth2.storage);
+      if (selectedRuntimeMode() === 'bff') {
+        bindBffImpersonationToSession(null, browserSessionStorage());
+        if (window.vpsAdmin) window.vpsAdmin.accessToken = undefined;
+        queryClient.clear();
+      }
       markSessionExpiredNotice();
       // Use the real logout endpoint to destroy the BFF session/revoke tokens.
       hardReplace(logoutUrl);

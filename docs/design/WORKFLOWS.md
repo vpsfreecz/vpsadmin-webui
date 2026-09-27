@@ -22,7 +22,12 @@ correction exposes only the request allowed by that token.
 **Failure contract:** public API failure is not “all healthy”; unavailable heatmaps
 must not break node lists. Auth callback errors offer a way back. Expiry redirects
 preserve safe navigation context and do not loop. Check session JSON separately
-from SPA fallback. [Routes](../../src/routes/router.tsx),
+from SPA fallback. The production frontend requires valid BFF configuration and
+session JSON before mounting. Missing, redirected, malformed, oversized or
+stalled responses show an early bilingual error with a retry; no stored
+standalone token is restored. An anonymous BFF result clears old standalone
+and impersonation credentials. Retry repeats only the two bootstrap GETs, not
+an API mutation. [Routes](../../src/routes/router.tsx),
 [public adapter](../../src/lib/api/public.ts), [BFF docs](../../bff/README.md).
 
 ## VPS creation, detail and power

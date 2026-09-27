@@ -1,5 +1,6 @@
 import { readStoredOAuthToken, type StorageKind } from '../lib/auth/tokenStore';
-import { readImpersonationState } from '../lib/auth/impersonation';
+import { browserSessionStorage, getValidatedBffSessionKey, readImpersonationState } from '../lib/auth/impersonation';
+import { selectedRuntimeMode } from './runtimeMode';
 
 export type AuthConfig =
   | { kind: 'oauth2'; accessToken: string }
@@ -228,15 +229,16 @@ export function getRuntimeConfig(): RuntimeConfig {
   const windowAccessToken = win?.vpsAdmin?.accessToken;
   const windowSessionToken = win?.vpsAdmin?.sessionToken;
 
-  const impersonation = typeof window !== 'undefined' ? readImpersonationState(window.sessionStorage) : null;
-
-  const stored = readStoredOAuthToken(oauth2.storage);
+  const requiredBff = selectedRuntimeMode() === 'bff';
+  const baseSessionValid = !requiredBff || Boolean(getValidatedBffSessionKey() && windowAccessToken);
+  const impersonation = baseSessionValid ? readImpersonationState(browserSessionStorage()) : null;
+  const stored = requiredBff ? null : readStoredOAuthToken(oauth2.storage);
 
   const auth: AuthConfig = impersonation?.sessionToken
     ? { kind: 'token', sessionToken: impersonation.sessionToken }
-    : windowAccessToken
+    : baseSessionValid && windowAccessToken
       ? { kind: 'oauth2', accessToken: windowAccessToken }
-      : windowSessionToken
+      : !requiredBff && windowSessionToken
         ? { kind: 'token', sessionToken: windowSessionToken }
         : stored?.accessToken
           ? { kind: 'oauth2', accessToken: stored.accessToken }
@@ -346,7 +348,11 @@ export function getRuntimeConfig(): RuntimeConfig {
       },
     },
     haveApi: {
-      authHeader: haveApiAuthHeader,
+      // The BFF public header names the OAuth provider. API-issued
+      // impersonation tokens use the separate token-provider header.
+      authHeader: requiredBff && auth.kind === 'token'
+        ? 'X-HaveAPI-Auth-Token'
+        : haveApiAuthHeader,
       metaNamespace: haveApiMetaNamespace,
     },
     serverTimeZone: serverTimeZoneCandidate,

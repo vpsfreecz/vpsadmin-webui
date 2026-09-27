@@ -3,17 +3,21 @@ import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { UserSecurityPanel } from './UserSecurityPanel';
 
 const mocks = vi.hoisted(() => ({
   pushToast: vi.fn(),
   updateUser: vi.fn(),
+  createUserSessionToken: vi.fn(),
+  writeImpersonationState: vi.fn(),
+  authKind: 'basic',
+  bffKey: null as string | null,
 }));
 
 vi.mock('../../app/config', () => ({
-  getRuntimeConfig: () => ({ auth: { kind: 'basic' }, routerBasename: '/' }),
+  getRuntimeConfig: () => ({ auth: { kind: mocks.authKind }, routerBasename: '/' }),
 }));
 
 vi.mock('../../app/i18n', () => ({
@@ -32,10 +36,16 @@ vi.mock('../../lib/api/users', () => ({
   updateUser: mocks.updateUser,
 }));
 
+vi.mock('../../lib/api/userDossier', () => ({
+  createUserSessionToken: mocks.createUserSessionToken,
+}));
+
 vi.mock('../../lib/auth/impersonation', () => ({
+  browserSessionStorage: () => window.sessionStorage,
   clearImpersonationState: vi.fn(),
+  getValidatedBffSessionKey: () => mocks.bffKey,
   isImpersonating: () => false,
-  writeImpersonationState: vi.fn(),
+  writeImpersonationState: mocks.writeImpersonationState,
 }));
 
 vi.mock('./UserSecurityPasswordCard', () => ({ UserSecurityPasswordCard: () => null }));
@@ -66,9 +76,13 @@ function renderPanel(user: { id: number; login: string; level: number; lockout: 
   );
 }
 
+afterEach(() => { vi.unstubAllEnvs(); });
+
 describe('UserSecurityPanel account flags', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.authKind = 'basic';
+    mocks.bffKey = null;
   });
 
   it('rolls an optimistic password-reset switch back when the API rejects the update', async () => {
@@ -130,5 +144,38 @@ describe('UserSecurityPanel account flags', () => {
 
     await waitFor(() => expect(screen.queryByTestId('admin.user.security.flags.lockout.confirm')).not.toBeInTheDocument());
     expect(lockout).toBeChecked();
+  });
+});
+
+describe('UserSecurityPanel BFF impersonation binding', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.stubEnv('VITE_RUNTIME_MODE', 'bff');
+    mocks.authKind = 'oauth2';
+    mocks.bffKey = 'a'.repeat(64);
+  });
+
+  it.each([
+    ['logout or expiry', null, 'none'],
+    ['a different fresh login', 'b'.repeat(64), 'oauth2'],
+  ])('discards token creation that finishes after %s', async (_reason, nextKey, nextAuthKind) => {
+    const request = deferred<{ data: { id: number; token_full: string } }>();
+    mocks.createUserSessionToken.mockReturnValueOnce(request.promise);
+    renderPanel({ id: 42, login: 'member', level: 20, lockout: false, password_reset: false });
+
+    fireEvent.click(screen.getByTestId('admin.user.security.impersonation.open'));
+    fireEvent.change(screen.getByTestId('admin.user.security.impersonation.modal.reason_input'),
+      { target: { value: 'support request' } });
+    fireEvent.click(screen.getByTestId('admin.user.security.impersonation.modal.confirm'));
+    await waitFor(() => expect(mocks.createUserSessionToken).toHaveBeenCalledTimes(1));
+
+    mocks.bffKey = nextKey;
+    mocks.authKind = nextAuthKind;
+    await act(async () => { request.resolve({ data: { id: 17, token_full: 'private-impersonation-token' } }); });
+
+    await waitFor(() => expect(mocks.pushToast).toHaveBeenCalledWith(expect.objectContaining({
+      variant: 'danger', title: 'security.impersonation.toast.failed.title',
+    })));
+    expect(mocks.writeImpersonationState).not.toHaveBeenCalled();
   });
 });

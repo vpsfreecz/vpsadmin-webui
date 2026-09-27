@@ -10,7 +10,8 @@ import { useToasts } from '../../app/toasts';
 import { updateUser, type User } from '../../lib/api/users';
 import { createUserSessionToken } from '../../lib/api/userDossier';
 import { computeOtherModeUrl } from '../../lib/modeSwitch';
-import { clearImpersonationState, isImpersonating, writeImpersonationState } from '../../lib/auth/impersonation';
+import { browserSessionStorage, clearImpersonationState, getValidatedBffSessionKey, isImpersonating, writeImpersonationState } from '../../lib/auth/impersonation';
+import { selectedRuntimeMode } from '../../app/runtimeMode';
 import { formatErrorMessage } from '../../lib/errors';
 import { withRouterBasename } from '../../lib/routerPaths';
 
@@ -96,14 +97,19 @@ export function UserSecurityPanel(props: {
   const [impOpen, setImpOpen] = useState(false);
   const [impReason, setImpReason] = useState('');
 
-  const storage = typeof window !== 'undefined' ? window.sessionStorage : undefined;
+  const storage = browserSessionStorage();
   const alreadyImpersonating = isImpersonating(storage);
 
   const cfg = getRuntimeConfig();
-  const canImpersonate = cfg.auth.kind === 'oauth2' && !alreadyImpersonating;
+  const bffSessionKey = selectedRuntimeMode() === 'bff' ? getValidatedBffSessionKey() : null;
+  const canImpersonate = cfg.auth.kind === 'oauth2' && !alreadyImpersonating &&
+    (selectedRuntimeMode() !== 'bff' || Boolean(bffSessionKey && storage));
 
   const impM = useMutation({
     mutationFn: async () => {
+      if (selectedRuntimeMode() === 'bff' && (!bffSessionKey || !storage)) {
+        throw new Error('BFF base session is unavailable');
+      }
       const reason = impReason.trim();
       if (!reason) throw new Error(t('security.impersonation.validation.reason_required'));
 
@@ -122,11 +128,19 @@ export function UserSecurityPanel(props: {
         throw new Error(t('security.impersonation.validation.bad_token'));
       }
 
+      // Do not attach a slow token-creation result to a different BFF login or
+      // to an operator whose base session expired while the API request ran.
+      if (bffSessionKey && (getValidatedBffSessionKey() !== bffSessionKey ||
+          getRuntimeConfig().auth.kind !== 'oauth2')) {
+        throw new Error('BFF base session changed during impersonation');
+      }
+
       clearImpersonationState(storage);
 
       writeImpersonationState(
         {
           kind: 'impersonation',
+          ...(bffSessionKey ? { bffSessionKey } : {}),
           sessionId: parsedSession.sessionId,
           sessionToken: parsedSession.tokenFull,
           targetUserId: props.userId,
@@ -138,6 +152,11 @@ export function UserSecurityPanel(props: {
         },
         storage
       );
+
+      // The new token becomes eligible only after the next bootstrap. Drop
+      // operator-scoped cached data before navigating into that identity.
+      await qc.cancelQueries();
+      qc.clear();
 
       const next = computeOtherModeUrl({
         mode: 'admin',

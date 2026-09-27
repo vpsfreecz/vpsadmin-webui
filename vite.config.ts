@@ -65,8 +65,14 @@ function manualVendorChunk(id: string): string | undefined {
  * - API proxy is optional and intended only for local DX (CORS avoidance). For a production-like
  *   dev deployment, do NOT set VITE_API_PROXY_TARGET.
  */
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
+  if (env.VITE_RUNTIME_MODE && !['bff', 'legacy'].includes(env.VITE_RUNTIME_MODE)) {
+    throw new Error('VITE_RUNTIME_MODE must be bff or legacy');
+  }
+  if (command === 'build' && !env.VITE_RUNTIME_MODE) {
+    throw new Error('VITE_RUNTIME_MODE is required for a production build');
+  }
 
   // Build-time public base path for assets (must match the server mount path).
   const routerBasename = normalizeBasename(

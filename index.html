@@ -55,11 +55,9 @@
   <body>
     <div id="root"></div>
     <!--
-      Optional runtime bootstrap.
-
-      The module entry loads /config.js before React mounts so legacy/BFF runtime config
-      is available during app startup without keeping a classic script in index.html.
-      On localhost/dev it also tries /config.local.js afterwards for local overrides.
+      The build-selected BFF mode requires /config.json and /session.json before
+      React mounts. Explicit legacy/dev mode keeps optional /config.js and local
+      /config.local.js support for older standalone deployments.
     -->
     <script type="module" src="/src/bootstrap.ts"></script>
   </body>

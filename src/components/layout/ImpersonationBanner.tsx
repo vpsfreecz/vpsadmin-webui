@@ -1,12 +1,12 @@
 import React, { useMemo, useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AlertTriangle } from 'lucide-react';
 
 import { getRuntimeConfig } from '../../app/config';
 import { useI18n } from '../../app/i18n';
 import { useToasts } from '../../app/toasts';
 
-import { clearImpersonationState, readImpersonationState } from '../../lib/auth/impersonation';
+import { browserSessionStorage, clearImpersonationState, readImpersonationState } from '../../lib/auth/impersonation';
 import { closeUserSession } from '../../lib/api/userDossier';
 import { formatDateTime } from '../../lib/time';
 import { formatErrorMessage } from '../../lib/errors';
@@ -18,10 +18,10 @@ import { Button } from '../ui/Button';
 export function ImpersonationBanner() {
   const { t } = useI18n();
   const toasts = useToasts();
+  const queryClient = useQueryClient();
 
   const state = useMemo(() => {
-    const storage = typeof window !== 'undefined' ? window.sessionStorage : undefined;
-    return readImpersonationState(storage);
+    return readImpersonationState(browserSessionStorage());
   }, []);
 
   const [busy, setBusy] = useState(false);
@@ -56,8 +56,9 @@ export function ImpersonationBanner() {
         }
       }
 
-      const storage = typeof window !== 'undefined' ? window.sessionStorage : undefined;
-      clearImpersonationState(storage);
+      await queryClient.cancelQueries();
+      queryClient.clear();
+      clearImpersonationState(browserSessionStorage());
 
       // Force full reload so runtime config re-selects the original auth method.
       window.location.assign(withRouterBasename(returnPath, getRuntimeConfig().routerBasename));

@@ -11,6 +11,9 @@ import {
   requireActionStateResult,
   SESSION_EXPIRED_EVENT,
 } from './haveapi';
+import { bindBffImpersonationToSession, writeImpersonationState } from '../auth/impersonation';
+
+const BFF_KEY = 'a'.repeat(64);
 
 function makeOkResponse(body: unknown, extraHeaders?: Record<string, string>) {
   return new Response(JSON.stringify(body), {
@@ -60,6 +63,9 @@ function getFetchCall(fetchMock: ReturnType<typeof installOkFetch>, index = 0): 
 afterEach(() => {
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
+  bindBffImpersonationToSession(null);
+  sessionStorage.clear();
   window.vpsAdmin = undefined;
 });
 
@@ -151,6 +157,59 @@ describe('haveApiCall', () => {
     const [url, init] = getFetchCall(fetchMock);
     expect(String(url)).toBe('https://api.example.test/v7.0/users/current');
     expect(new Headers(init?.headers).get('X-HaveAPI-OAuth2-Token')).toBe('oauth_123');
+  });
+
+  it('sends only the configured OAuth provider header in BFF mode', async () => {
+    vi.stubEnv('VITE_RUNTIME_MODE', 'bff');
+    setStandaloneRuntime();
+    bindBffImpersonationToSession(BFF_KEY, sessionStorage);
+    const fetchMock = installOkFetch({ _meta: {}, user: { id: 1 } });
+
+    await haveApiCall<any>({ method: 'GET', path: '/users/current' });
+
+    const headers = new Headers(getFetchCall(fetchMock)[1]?.headers);
+    expect(headers.get('X-HaveAPI-OAuth2-Token')).toBe('oauth_123');
+    expect(headers.get('X-HaveAPI-Auth-Token')).toBeNull();
+    expect(headers.get('Authorization')).toBeNull();
+  });
+
+  it('sends only the token-provider header for a bound BFF impersonation', async () => {
+    vi.stubEnv('VITE_RUNTIME_MODE', 'bff');
+    setStandaloneRuntime();
+    bindBffImpersonationToSession(BFF_KEY, sessionStorage);
+    writeImpersonationState({ kind: 'impersonation', sessionId: 9,
+      sessionToken: 'impersonation-token', targetUserId: 17,
+      startedAt: Date.now(), bffSessionKey: BFF_KEY }, sessionStorage);
+    bindBffImpersonationToSession(BFF_KEY, sessionStorage); // restored after navigation
+    const fetchMock = installOkFetch({ _meta: {}, user: { id: 17 } });
+
+    await haveApiCall<any>({ method: 'GET', path: '/users/current' });
+
+    const headers = new Headers(getFetchCall(fetchMock)[1]?.headers);
+    expect(headers.get('X-HaveAPI-Auth-Token')).toBe('impersonation-token');
+    expect(headers.get('X-HaveAPI-OAuth2-Token')).toBeNull();
+    expect(headers.get('Authorization')).toBeNull();
+  });
+
+  it('does not recover or replay a rejected BFF impersonation request as base OAuth', async () => {
+    vi.stubEnv('VITE_RUNTIME_MODE', 'bff');
+    setStandaloneRuntime();
+    bindBffImpersonationToSession(BFF_KEY, sessionStorage);
+    writeImpersonationState({ kind: 'impersonation', sessionId: 9,
+      sessionToken: 'impersonation-token', targetUserId: 17,
+      startedAt: Date.now(), bffSessionKey: BFF_KEY }, sessionStorage);
+    bindBffImpersonationToSession(BFF_KEY, sessionStorage);
+    const fetchMock = vi.fn(async (..._args: Parameters<typeof fetch>) => new Response(JSON.stringify({ status: false,
+      message: 'Unauthorized', response: null }), {
+      status: 401, headers: { 'content-type': 'application/json' },
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(haveApiCall<any>({ method: 'GET', path: '/users/current' })).rejects.toMatchObject({ httpStatus: 401 });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const headers = new Headers(fetchMock.mock.calls[0]?.[1]?.headers);
+    expect(headers.get('X-HaveAPI-Auth-Token')).toBe('impersonation-token');
+    expect(headers.get('X-HaveAPI-OAuth2-Token')).toBeNull();
   });
 
   it('emits a session-expired event on HTTP 401 responses', async () => {

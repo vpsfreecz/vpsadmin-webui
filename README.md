@@ -29,6 +29,15 @@ npm run env:check
 npm run dev
 ```
 
+`npm run build` selects the required BFF runtime mode at build time. It loads
+same-origin `/config.json` and `/session.json` before React starts; a missing or
+invalid response shows a bilingual retry screen. Run `npm run build:legacy`
+only for an explicitly selected standalone deployment that uses optional
+`config.js` and local overrides. Local `npm run dev` keeps that legacy behavior
+unless `VITE_RUNTIME_MODE=bff` is set. Deploy a BFF with `/config.json` before
+serving BFF-mode assets. The build selection is part of the frontend artifact;
+it cannot change after deployment.
+
 For localization work, follow [the locked-input procedure](docs/agent-instructions/localization.md)
 and record the vpsAdmin revision it resolves. The `.nvmrc` and `.node-version`
 files select the same exact Node version for developers who use those tools;
