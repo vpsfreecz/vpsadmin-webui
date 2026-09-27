@@ -191,6 +191,26 @@ full-width decision card. The change card compares current and requested values;
 registration risk checks remain inside applicant details. The compact queue
 preference stays above the action buttons.
 
+**Registration response presets (prepared):** the individual review dialog offers
+four complete rejection reasons (nonexistent address, incorrectly filled application,
+duplicate application, existing membership) and three correction requests (incomplete
+address, unverifiable address, missing/incomplete name). The unverifiable-address
+message asks the applicant to check/correct their address and optionally send a map
+link with their house marked. Generic incorrect-application rejection needs no added
+detail. Every preset is editable, and an administrator can write an entirely custom
+reason. The final review shows exactly the reason submitted to the existing resolve
+API; no extra email request is made by the client.
+
+Preset bodies use the registration's language (Czech/English), independently of the
+administrator's interface locale. Resource-only language references are resolved
+through the language catalog, never assumed from numeric IDs. If language cannot be
+resolved, the administrator explicitly chooses a message language before using a
+preset; free text remains available. Changing the correction form's language updates
+an untouched preset. Edited/custom text is never automatically translated or
+replaced. Account-change and bulk-review reasons retain their existing free-text
+behavior. [Presets](../../src/pages/app/admin/RegistrationReasonPresets.ts),
+[fixture coverage](../../e2e/specs/admin/registration_reason_presets.spec.ts).
+
 **Failure contract:** preserve the current decision draft, stale/missing owner
 errors, and uncertain-operation guard. Already-created accounts/terminal states
 must not be duplicated. Test persisted backend state and notification/action-state
