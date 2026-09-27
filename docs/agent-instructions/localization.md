@@ -38,6 +38,14 @@ Poweroff/Vynutit vypnutí. API-provided transaction labels remain authoritative.
 This repository uses TypeScript catalogs and Node BFF strings. The vpsAdmin
 guide also describes PHP gettext and API YAML regeneration; those commands do
 not apply here. Use this repository's `audit:i18n`, tests and rendered checks.
+`audit:i18n` parses every exported literal catalog under both
+`src/i18n/locales` trees and their root aggregators before barrel spreads can
+overwrite a key. It fails on duplicate keys, en/cs key and placeholder
+differences, incomplete or mismatched plural groups, and catalog expressions it
+cannot inspect. Keep entries as quoted
+keys with literal string values; run `npm run test:scripts` when changing the
+validator. A passing catalog audit does not prove that each UI call supplies
+the required placeholders, so check affected messages in rendered tests.
 For member-facing text, follow the surrounding project voice and the applicable
 vpsFree.cz writing and KB review process. A visible label or navigation change
 may require an update in the separate KB contracts repository; fixture browser

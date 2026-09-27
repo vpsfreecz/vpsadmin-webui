@@ -27,6 +27,33 @@ complete reconstruction of the project. Missing evidence is not a passing check.
   or raw production responses. This log does not grant deployment authorization
   or enable autonomous scheduled development.
 
+## 2026-09-27 - Validate literal locale catalogs and rendered IP counts
+
+**Request / reason:** REQ-009, REQ-010 and REQ-053 need dependable catalog and
+mobile label checks. The old single-quote key scan could miss double-quoted
+entries and silently accepted overwrites. The mobile VPS network card supplied
+`n` to a message requiring `{count}`.
+
+**Change:** use the TypeScript parser on every English and Czech locale module
+before barrel spreads. Reject duplicate keys and unsupported dynamic catalog
+entries, then compare keys, placeholders and plural groups. Remove the obsolete
+`mailer.recipients.fields.label` definitions from both common modules; the mailer
+field keeps its contextual Label/Popisek wording. Supply `count` in the mobile
+network card. Fixture tests cover catalog failures, and a rendered test uses the
+real en/cs dictionaries for the IP count.
+
+**Terminology source:** `vpsadmin` flake input revision
+`a65a4dfeb92a59df4a80a737a20bcbf8558793ff`; the Nix store source read for
+`docs/i18n-cs.md` and `docs/agent-instructions/localization.md` hashes to the
+exact `flake.lock` narHash `sha256-mT3f1aRybGtZIQYRrHHEjdTp5foxhmAWu4KJogZ48Rk=`.
+Direct `nix eval` was blocked by the sandbox daemon socket; the lead had
+independently evaluated the same locked revision in the normal environment.
+
+**Verification / status:** focused catalog audit, script fixtures, rendered
+en/cs test and typecheck passed on cached Node 24.19.0. No browser suite, push,
+default-branch integration or deployment was performed. Product copy beyond the
+duplicate remains for the later editorial pass; this is local source evidence.
+
 ## 2026-09-27 - Prepare canonical WebUI repository and locked reference
 
 **Request / reason:** adopt the upstream WebUI in `vpsfreecz/vpsadmin-webui` for

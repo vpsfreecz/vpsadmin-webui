@@ -20,7 +20,6 @@ export const enCommon_cross_domain = {
   'dataset.overview.transactions.open_chains_title': 'Open transaction chains for this dataset',
   'dataset.overview.transactions.open_items': 'Open transactions',
   'dataset.overview.transactions.open_items_title': 'Open individual transactions for this dataset',
-  'mailer.recipients.fields.label': 'Recipients',
   'transactions.chains.pin.title': 'Pin chain',
   'transactions.chains.unpin.title': 'Unpin chain',
   'transactions.chains.table.pin_title': 'Pin this chain',

@@ -37,6 +37,10 @@ npm run audit:design-docs
 ```
 
 `ci:pr` includes static checks, i18n/CSP, typecheck and unit/script/BFF suites.
+The i18n audit checks all literal locale modules and root aggregators before
+spread composition for duplicate definitions, en/cs keys, placeholders and
+plural groups. Rendered tests are still needed for interpolation at call sites
+and language switching.
 PR Playwright uses deterministic fixtures. Inspect [workflows](../../.github/workflows)
 and [Playwright config](../../playwright.config.ts) for exact current selection,
 projects, timeouts and artifacts. Broad/nightly checks and optional audits are

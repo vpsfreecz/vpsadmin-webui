@@ -20,7 +20,6 @@ export const csCommon_cross_domain = {
   'dataset.overview.transactions.open_chains_title': 'Otevřít řetězce transakcí tohoto datasetu',
   'dataset.overview.transactions.open_items': 'Otevřít transakce',
   'dataset.overview.transactions.open_items_title': 'Otevřít jednotlivé transakce tohoto datasetu',
-  'mailer.recipients.fields.label': 'Příjemci',
   'transactions.chains.pin.title': 'Připnout řetězec',
   'transactions.chains.unpin.title': 'Odepnout řetězec',
   'transactions.chains.table.pin_title': 'Připnout tento řetězec',

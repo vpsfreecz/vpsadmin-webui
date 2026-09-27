@@ -69,7 +69,7 @@ export function VpsNetworkInterfacesCard(props: {
                               </Badge>
                             ) : null}
                           </div>
-                          <div className="mt-1 text-xs text-muted">{t('vps.network.interfaces.ip_count', { n: ips.length })}</div>
+                          <div className="mt-1 text-xs text-muted">{t('vps.network.interfaces.ip_count', { count: ips.length })}</div>
                         </div>
 
                         {props.canMutate ? <Button variant="secondary" size="sm" testId={`vps.network.interfaces.card.${ni.id}.edit`} onClick={() => props.onEdit(ni)}>
