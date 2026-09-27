@@ -23,19 +23,11 @@ import { Button } from '../../../components/ui/Button';
 import { LinkButton } from '../../../components/ui/LinkButton';
 import { Card } from '../../../components/ui/Card';
 import { ErrorState } from '../../../components/ui/ErrorState';
-import { Checkbox } from '../../../components/ui/Checkbox';
-import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
-import { Modal } from '../../../components/ui/Modal';
 import { LoadingState } from '../../../components/ui/LoadingState';
 import { CopyButton } from '../../../components/ui/CopyButton';
 import { LockStateStaleAlert } from '../../../components/ui/LockStateStaleAlert';
 import { gateVpsAction } from '../../../lib/gates/vps';
-import {
-  actionStateProgressLabel,
-  actionStateProgressPercent,
-  objectStateBadge,
-  runtimeStateBadge,
-} from '../../../lib/taskStatus';
+import { objectStateBadge, runtimeStateBadge } from '../../../lib/taskStatus';
 import { VpsContextProvider } from './VpsContext';
 import { preflightVpsNotBusy } from './vpsPreflight';
 import { ScopeMismatchCard } from '../../../components/layout/ScopeMismatchCard';
@@ -50,7 +42,7 @@ import {
 } from './VpsDetailVisibility';
 import { VpsActionsMenu, VpsTabsNav } from './VpsNavigation';
 import { VpsHeaderRuntime } from './VpsHeaderRuntime';
-import { VpsPowerConfirmTarget } from './VpsPowerConfirmation';
+import { VpsHeaderActionDialogs, type VpsHeaderConfirm } from './VpsHeaderActionDialogs';
 export function VpsLayout() {
   const { basePath, mode } = useAppMode();
   const auth = useAuth();
@@ -145,11 +137,7 @@ export function VpsLayout() {
     refetchInterval: tierARefetchMs,
   });
 
-  const [confirm, setConfirm] = useState<
-    | null
-    | { kind: 'stop' | 'restart'; force: boolean }
-    | { kind: 'passwd'; type: 'secure' | 'simple' }
-  >(null);
+  const [confirm, setConfirm] = useState<VpsHeaderConfirm>(null);
   const [lastAction, setLastAction] = useState<
     | null
     | {
@@ -214,15 +202,16 @@ export function VpsLayout() {
       const asId = getMetaActionStateId(res.meta);
       if (asId !== undefined) {
         const objectLabel = variables.objectLabel;
+        const actionLabelKey = variables.force ? 'action.vps.poweroff.label' : 'action.vps.stop.label';
         chrome.trackActionState(asId, {
-          actionLabelKey: 'action.vps.stop.label',
+          actionLabelKey,
           objectLabel,
           object: context?.lockRef,
           mutationGeneration: context?.mutationGeneration,
           blockUi: true,
-          progressTitleKey: 'modal.vps.stop.title',
+          progressTitleKey: variables.force ? 'modal.vps.poweroff.title' : 'modal.vps.stop.title',
         });
-        setLastAction({ actionLabelKey: 'action.vps.stop.label', objectLabel, id: asId });
+        setLastAction({ actionLabelKey, objectLabel, id: asId });
       }
       void Promise.all([qc.invalidateQueries({ queryKey: ['vps', 'show', { id: variables.vpsId }] }), qc.invalidateQueries({ queryKey: ['transaction_chain', 'list', { className: 'Vps', rowId: variables.vpsId }] })]);
     },
@@ -727,207 +716,31 @@ export function VpsLayout() {
 
         <Outlet />
 
-        <ConfirmDialog
-          open={confirm?.kind === 'stop'}
-          testId="vps.action.stop_confirm"
-          title={t('vps.power.stop.confirm_title')}
-          description={t('vps.power.stop.confirm_desc_basic')}
-          danger
-          confirmLabel={t('action.vps.stop.label')}
-          confirmLoading={stopM.isPending}
-          confirmDisabled={stopM.isPending || !stopGate.allowed}
-          onCancel={() => setConfirm(null)}
-          onConfirm={() => {
-            const force = confirm && confirm.kind === 'stop' ? confirm.force : false;
-            stopM.mutate(freezeVpsMutationSnapshot({ ...snapshotPowerVariables(), force }));
-          }}
-        >
-          <div className="space-y-3">
-            <VpsPowerConfirmTarget
-              vpsId={vps.id}
-              objectLabel={String(vps.hostname ?? t('common.vps_ref', { id: vps.id }))}
-              testId="vps.action.stop_confirm.target"
-            />
-            <Checkbox
-              checked={confirm?.kind === 'stop' ? confirm.force : false}
-              onChange={(checked) =>
-                setConfirm((prev) => (prev && prev.kind === 'stop' ? { ...prev, force: checked } : prev))
-              }
-              label={t('vps.power.stop.force.label')}
-              description={t('vps.power.stop.force.help')}
-              testId="vps.action.stop_confirm.force"
-            />
-            {stopM.isError ? (
-              <div className="rounded-md border border-danger-border bg-danger-bg px-3 py-2 text-sm text-danger" data-testid="vps.action.stop_confirm.error">
-                {isMissingActionStateError(stopM.error)
-                  ? t('vps.mutation.error.missing_action_state')
-                  : stopM.error instanceof Error
-                    ? stopM.error.message
-                    : t('common.unknown_error')}
-              </div>
-            ) : null}
-          </div>
-        </ConfirmDialog>
-
-        <ConfirmDialog
-          open={confirm?.kind === 'restart'}
-          testId="vps.action.restart_confirm"
-          title={t('vps.power.restart.confirm_title')}
-          description={t('vps.power.restart.confirm_desc_basic')}
-          confirmLabel={t('action.vps.restart.label')}
-          confirmLoading={restartM.isPending}
-          confirmDisabled={restartM.isPending || !restartGate.allowed}
-          onCancel={() => setConfirm(null)}
-          onConfirm={() => {
-            const force = confirm && confirm.kind === 'restart' ? confirm.force : false;
-            restartM.mutate(freezeVpsMutationSnapshot({ ...snapshotPowerVariables(), force }));
-          }}
-        >
-          <div className="space-y-3">
-            <VpsPowerConfirmTarget
-              vpsId={vps.id}
-              objectLabel={String(vps.hostname ?? t('common.vps_ref', { id: vps.id }))}
-              testId="vps.action.restart_confirm.target"
-            />
-            <Checkbox
-              checked={confirm?.kind === 'restart' ? confirm.force : false}
-              onChange={(checked) =>
-                setConfirm((prev) => (prev && prev.kind === 'restart' ? { ...prev, force: checked } : prev))
-              }
-              label={t('vps.power.restart.force.label')}
-              description={t('vps.power.restart.force.help')}
-              testId="vps.action.restart_confirm.force"
-            />
-            {restartM.isError ? (
-              <div className="rounded-md border border-danger-border bg-danger-bg px-3 py-2 text-sm text-danger" data-testid="vps.action.restart_confirm.error">
-                {isMissingActionStateError(restartM.error)
-                  ? t('vps.mutation.error.missing_action_state')
-                  : restartM.error instanceof Error
-                    ? restartM.error.message
-                    : t('common.unknown_error')}
-              </div>
-            ) : null}
-          </div>
-        </ConfirmDialog>
-
-        <ConfirmDialog
-          open={confirm?.kind === 'passwd'}
-          testId="vps.action.root_password_confirm"
-          title={t('action.vps.root_password.label')}
-          description={t('vps.power.root_password.confirm_desc_basic')}
-          confirmLabel={t('common.generate')}
-          confirmLoading={currentPasswdMutationPending}
-          confirmDisabled={currentPasswdMutationPending || !passwdGate.allowed}
-          onCancel={() => setConfirm(null)}
-          onConfirm={() => {
-            const type = confirm && confirm.kind === 'passwd' ? confirm.type : 'secure';
-            passwdM.mutate(freezeVpsMutationSnapshot({ ...snapshotPowerVariables(), type }));
-          }}
-        >
-          <div className="space-y-3">
-            <VpsPowerConfirmTarget
-              vpsId={vps.id}
-              objectLabel={String(vps.hostname ?? t('common.vps_ref', { id: vps.id }))}
-              testId="vps.action.root_password_confirm.target"
-            />
-            <div>
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="radio"
-                  name="passwdType"
-                  checked={confirm?.kind === 'passwd' ? confirm.type === 'secure' : true}
-                  onChange={() => setConfirm({ kind: 'passwd', type: 'secure' })}
-                />
-                <span>{t('vps.power.root_password.type.secure')}</span>
-              </label>
-              <label className="mt-2 flex items-center gap-2 text-sm">
-                <input
-                  type="radio"
-                  name="passwdType"
-                  checked={confirm?.kind === 'passwd' ? confirm.type === 'simple' : false}
-                  onChange={() => setConfirm({ kind: 'passwd', type: 'simple' })}
-                />
-                <span>{t('vps.power.root_password.type.simple')}</span>
-              </label>
-            </div>
-            {currentPasswdMutationError ? (
-              <div className="rounded-md border border-danger-border bg-danger-bg px-3 py-2 text-sm text-danger" data-testid="vps.action.root_password_confirm.error">
-                {isMissingActionStateError(currentPasswdMutationError)
-                  ? t('vps.mutation.error.missing_action_state')
-                  : currentPasswdMutationError instanceof Error
-                    ? currentPasswdMutationError.message
-                    : t('common.unknown_error')}
-              </div>
-            ) : null}
-          </div>
-        </ConfirmDialog>
-
-        <Modal
-          open={passwdWaitOpen && currentPasswdFlow !== null}
-          onClose={() => setPasswdWaitOpen(false)}
-          title={t('modal.vps.root_password.title')}
-          size="sm"
-          footer={
-            <div className="flex items-center justify-end gap-2">
-              <Button variant="secondary" onClick={() => chrome.openTasks()}>
-                {t('common.open_tasks')}
-              </Button>
-              <Button variant="secondary" onClick={() => setPasswdWaitOpen(false)}>
-                {t('common.close')}
-              </Button>
-            </div>
-          }
-        >
-          <div className="space-y-3">
-            <div className="text-sm text-muted">{t('modal.vps.root_password.body')}</div>
-            {passwdStateQ.data ? (
-              <>
-                {(() => {
-                  const pct = actionStateProgressPercent(passwdStateQ.data);
-                  const label = actionStateProgressLabel(passwdStateQ.data);
-                  return (
-                    <>
-                      {pct !== null ? (
-                        <div className="space-y-1">
-                          <div className="flex items-center justify-between text-xs text-muted">
-                            <span>{label ?? t('common.progress')}</span>
-                            <span>{pct}%</span>
-                          </div>
-                          <div className="h-2 w-full rounded bg-surface-2">
-                            <div className="h-2 rounded bg-accent" style={{ width: `${pct}%` }} />
-                          </div>
-                        </div>
-                      ) : null}
-                    </>
-                  );
-                })()}
-              </>
-            ) : (
-              <div className="flex items-center gap-2 text-sm text-muted">
-                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current/30 border-t-current" />
-                <span>{t('common.starting')}</span>
-              </div>
-            )}
-          </div>
-        </Modal>
-
-        <ConfirmDialog
-          open={currentRevealedPassword !== null}
-          title={t('modal.root_password_reveal.title')}
-          description={t('modal.root_password_reveal.body')}
-          confirmLabel={t('common.close')}
-          onCancel={() => setRevealedPassword(null)}
-          onConfirm={() => setRevealedPassword(null)}
-        >
-          <div className="mt-3 rounded-md border border-border bg-surface-2 p-3 font-mono text-sm break-all">
-            {currentRevealedPassword ?? t('common.na')}
-          </div>
-          {currentRevealedPassword ? (
-            <div className="mt-3 flex items-center gap-2">
-              <CopyButton text={currentRevealedPassword} label={t('common.copy')} />
-            </div>
-          ) : null}
-        </ConfirmDialog>
+        <VpsHeaderActionDialogs
+          vpsId={vps.id}
+          hostname={vps.hostname ? String(vps.hostname) : undefined}
+          confirm={confirm}
+          onConfirmChange={setConfirm}
+          stopAllowed={stopGate.allowed}
+          restartAllowed={restartGate.allowed}
+          passwordAllowed={passwdGate.allowed}
+          stopPending={stopM.isPending}
+          restartPending={restartM.isPending}
+          passwordPending={currentPasswdMutationPending}
+          stopError={stopM.isError ? stopM.error : null}
+          restartError={restartM.isError ? restartM.error : null}
+          passwordError={currentPasswdMutationError}
+          onStop={(force) => stopM.mutate(freezeVpsMutationSnapshot({ ...snapshotPowerVariables(), force }))}
+          onRestart={(force) => restartM.mutate(freezeVpsMutationSnapshot({ ...snapshotPowerVariables(), force }))}
+          onPassword={(type) => passwdM.mutate(freezeVpsMutationSnapshot({ ...snapshotPowerVariables(), type }))}
+          passwordWaitOpen={passwdWaitOpen}
+          passwordFlowActive={currentPasswdFlow !== null}
+          passwordState={passwdStateQ.data}
+          onPasswordWaitClose={() => setPasswdWaitOpen(false)}
+          revealedPassword={currentRevealedPassword}
+          onClearRevealedPassword={() => setRevealedPassword(null)}
+          onOpenTasks={() => chrome.openTasks()}
+        />
       </DetailShell>
     </VpsContextProvider>
   );

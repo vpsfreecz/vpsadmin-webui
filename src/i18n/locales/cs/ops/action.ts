@@ -49,6 +49,8 @@ export const csOps_action = {
   "action.vps.replace.label": "Replace VPS",
   "action.vps.root_password.label": "Vygenerovat heslo roota",
   "action.vps.start.label": "Spustit",
-  "action.vps.stop.label": "Zastavit",
+  "action.vps.stop.label": "Vypnout",
+  "action.vps.poweroff.label": "Vynutit vypnutí",
+  "operation.vps.stop.label": "Zastavit",
   "action.vps.swap.label": "Swap VPS",
 } as const;

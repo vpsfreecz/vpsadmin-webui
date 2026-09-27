@@ -27,6 +27,39 @@ complete reconstruction of the project. Missing evidence is not a passing check.
   or raw production responses. This log does not grant deployment authorization
   or enable autonomous scheduled development.
 
+## 2026-09-28 - Distinguish graceful shutdown from immediate poweroff
+
+**Request / reason:** the VPS stop request sends `force: false` for a graceful
+shutdown and `force: true` for immediate poweroff. The header, list and
+lifecycle controls previously labeled both choices as Stop, obscuring the
+different effects and their filesystem risk.
+
+**Change:** render Shutdown/Poweroff and Vypnout/Vynutit vypnutí according to
+the selected force value in confirmations, submit controls and tracked task
+labels. The lifecycle acknowledgment resets when force changes. Mutation
+identifiers, payloads, locks and retry behavior remain unchanged. Lifecycle
+failure copy follows the submitted force value rather than later form changes.
+Header confirmation/password dialogs and lifecycle action-choice rendering moved into
+focused components while mutation ownership remains in their pages. The two
+pages now meet their original line ceilings, so only their two exact-hash
+structural exceptions were removed; all other ledger entries remain intact.
+Generic historical task records do not expose force, so their Stop label
+remains neutral; newly tracked requests use the submitted force value.
+Browser fixtures assert Poweroff for newly tracked forced stops while keeping
+the force payload and rejection checks; final branch browser rerun is pending.
+The session lead reviewed the English/Czech power copy against the locked
+vpsAdmin guide at `a65a4dfeb92a59df4a80a737a20bcbf8558793ff`.
+
+**Verification / limits:** rendered bilingual force-toggle, confirmation and
+payload tests, lifecycle mutation snapshot tests, i18n and structural audits,
+TypeScript and documentation checks are the focused local gate. The structural
+audit reports 42 raw findings, 41 accepted exceptions, zero unaccepted and zero
+invalid entries. Sandbox Nix evaluation cannot connect to its daemon, so the
+locked quick gate and production build need a normal-environment run on this
+exact commit. No browser suite, live API mutation, deployment or KB write was
+performed. Power-control screenshots and member guidance may need later review;
+the current KB contract still targets the legacy PHP interface.
+
 ## 2026-09-27 - Align Czech terminology and rendered count copy
 
 **Request / reason:** the locked vpsAdmin guide distinguishes account Login from

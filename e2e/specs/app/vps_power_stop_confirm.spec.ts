@@ -119,7 +119,7 @@ test.describe('@workflow-matrix @pr-smoke @smoke VPS detail power actions', () =
     const request = await reqPromise;
     expect(request.postDataJSON()).toEqual({ vps: { force: true } });
     await expect(page.getByTestId('vps.action.stop_confirm')).toBeHidden();
-    await expectTrackedTask(page, 777, 'Stop');
+    await expectTrackedTask(page, 777, 'Poweroff');
   });
 
   test('keeps the stop confirmation and force choice available after an immediate rejection', async ({ page }) => {
@@ -152,7 +152,7 @@ test.describe('@workflow-matrix @pr-smoke @smoke VPS detail power actions', () =
 
     await page.getByTestId('vps.action.stop_confirm.confirm').click();
     await expect(page.getByTestId('vps.action.stop_confirm')).toBeHidden();
-    await expectTrackedTask(page, 781, 'Stop');
+    await expectTrackedTask(page, 781, 'Poweroff');
   });
 
   test('restarts a running VPS with force and tracks the returned action state', async ({ page }) => {

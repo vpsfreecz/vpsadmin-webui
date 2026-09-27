@@ -301,7 +301,7 @@ const RULES: OperationRule[] = [
   // VPS daily/lifecycle actions.
   { key: 'vps.create', labelKey: 'action.vps.create.label', fallbackLabel: 'Create VPS', category: 'vps', match: (ctx) => vps(ctx) && hasAny(ctx, ['create', 'new']) },
   { key: 'vps.start', labelKey: 'action.vps.start.label', fallbackLabel: 'Start', category: 'vps', match: (ctx) => vps(ctx) && hasAny(ctx, ['start']) },
-  { key: 'vps.stop', labelKey: 'action.vps.stop.label', fallbackLabel: 'Stop', category: 'vps', severity: 'risky', match: (ctx) => vps(ctx) && hasAny(ctx, ['stop', 'shutdown']) },
+  { key: 'vps.stop', labelKey: 'operation.vps.stop.label', fallbackLabel: 'Stop', category: 'vps', severity: 'risky', match: (ctx) => vps(ctx) && hasAny(ctx, ['stop', 'shutdown']) },
   { key: 'vps.restart', labelKey: 'action.vps.restart.label', fallbackLabel: 'Restart', category: 'vps', severity: 'risky', match: (ctx) => vps(ctx) && hasAny(ctx, ['restart', 'reboot']) },
   { key: 'vps.reinstall', labelKey: 'action.vps.reinstall.label', fallbackLabel: 'Reinstall VPS', category: 'vps', severity: 'destructive', match: (ctx) => vps(ctx) && hasAny(ctx, ['reinstall']) },
   { key: 'vps.delete', labelKey: 'action.vps.delete.label', fallbackLabel: 'Delete VPS', category: 'vps', severity: 'destructive', match: (ctx) => vps(ctx) && hasAny(ctx, ['delete', 'destroy', 'remove']) },

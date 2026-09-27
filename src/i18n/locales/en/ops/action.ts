@@ -49,6 +49,8 @@ export const enOps_action = {
   "action.vps.replace.label": "Replace VPS",
   "action.vps.root_password.label": "Generate root password",
   "action.vps.start.label": "Start",
-  "action.vps.stop.label": "Stop",
+  "action.vps.stop.label": "Shutdown",
+  "action.vps.poweroff.label": "Poweroff",
+  "operation.vps.stop.label": "Stop",
   "action.vps.swap.label": "Swap VPS",
 } as const;

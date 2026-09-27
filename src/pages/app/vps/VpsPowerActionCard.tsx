@@ -28,6 +28,7 @@ export function VpsPowerActionCard(props: {
   onForceChange?: (checked: boolean) => void;
   pending: boolean;
   errorMessage?: string;
+  failedForce?: boolean;
   onSubmit: () => void;
   onOpenTasks: () => void;
 }) {
@@ -57,7 +58,7 @@ export function VpsPowerActionCard(props: {
   checklist.push({
     checked: props.confirm,
     onChange: props.onConfirmChange,
-    label: t(`vps.lifecycle.power.${kind}.confirm`),
+    label: t(kind === 'stop' && props.force ? 'vps.lifecycle.power.poweroff.confirm' : `vps.lifecycle.power.${kind}.confirm`),
     testId: `vps.lifecycle.${kind}.confirm`,
   });
 
@@ -73,7 +74,7 @@ export function VpsPowerActionCard(props: {
           loading={props.pending}
           onClick={props.onSubmit}
         >
-          {t(`action.vps.${kind}.label`)}
+          {t(kind === 'stop' && props.force ? 'action.vps.poweroff.label' : `action.vps.${kind}.label`)}
         </LifecycleSubmitButton>
       }
     >
@@ -98,7 +99,7 @@ export function VpsPowerActionCard(props: {
       <ActionConfirmChecklist items={checklist} />
 
       <AsyncActionResult
-        errorTitle={t(`vps.lifecycle.power.${kind}.error`)}
+        errorTitle={t(kind === 'stop' && props.failedForce ? 'vps.lifecycle.power.poweroff.error' : `vps.lifecycle.power.${kind}.error`)}
         errorMessage={props.errorMessage}
       />
     </LifecycleActionShell>

@@ -38,8 +38,10 @@ cannot overwrite entered resources. Member scope stays owned; admins can explici
 use the appropriate wider view. Header distribution/runtime facts and equal-width
 cards make common diagnostics available without a second screen.
 
-**Actions:** start, stop/restart and supported power/lifecycle operations must name
-the target and honor live state/transaction locks. Creation and power requests may
+**Actions:** start, graceful shutdown, immediate poweroff, restart and supported
+power/lifecycle operations must name the target and honor live state/transaction
+locks. Shutdown and poweroff use the same stop request with distinct force values.
+Creation and power requests may
 be asynchronous. Preserve action-state links and reconcile uncertain submissions
 before a second attempt. [VPS adapter](../../src/lib/api/vps.ts),
 [power failure fixture](../../e2e/specs/app/vps_power_failures.spec.ts).

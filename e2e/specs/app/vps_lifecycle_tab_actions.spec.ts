@@ -370,7 +370,7 @@ test.describe('@pr-smoke VPS lifecycle tab', () => {
     await page.getByTestId('modal.action_progress.open_tasks').click();
     await expect(page.getByTestId('tasks.drawer')).toHaveAttribute('aria-modal', 'false');
     await expect(
-      page.getByTestId('tasks.row.514').getByRole('button', { name: 'Stop', exact: true }),
+      page.getByTestId('tasks.row.514').getByRole('button', { name: 'Poweroff', exact: true }),
     ).toBeVisible();
     await expect(page.getByTestId('vps.lifecycle.page')).toBeVisible();
   });

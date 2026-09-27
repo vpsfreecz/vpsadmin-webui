@@ -539,34 +539,6 @@
       }
     },
     {
-      "path": "src/pages/app/vps/VpsLayout.tsx",
-      "rule": "grown-over-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "d4a19fcbb034a9b86bd59a63f37d89c5851360b46252e912bbed9d19ad269f5e",
-      "old": 795,
-      "allowance": 935,
-      "rationale": "At the recorded source revision, this file already contained VPS layout navigation and state handling; extract the coherent section with focused behavior coverage before removing this exception.",
-      "owner": "WebUI collection and page refactor implementer",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 795
-      }
-    },
-    {
-      "path": "src/pages/app/vps/VpsLifecyclePage.tsx",
-      "rule": "grown-over-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "139b255cc62b38b4d2710ce99243bca99cc974da6d6473e797c8cca047e0dd0f",
-      "old": 862,
-      "allowance": 885,
-      "rationale": "At the recorded source revision, this file already contained VPS lifecycle requests and feedback; extract the coherent section with focused behavior coverage before removing this exception.",
-      "owner": "WebUI collection and page refactor implementer",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 862
-      }
-    },
-    {
       "path": "src/pages/app/vps/VpsNetworkPage.tsx",
       "rule": "grown-over-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",

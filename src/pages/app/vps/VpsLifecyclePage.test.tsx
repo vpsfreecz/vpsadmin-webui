@@ -88,7 +88,7 @@ describe('VpsLifecyclePage durable mutation snapshots', () => {
     testState.detailContextSearch = undefined;
     window.scrollTo = vi.fn();
     vi.clearAllMocks();
-    vpsStopMock.mockResolvedValue({ data: {}, meta: {} } as never);
+    vpsStopMock.mockResolvedValue({ data: {}, meta: { action_state_id: 501 } } as never);
     preflightMock.mockResolvedValue(undefined);
   });
 
@@ -150,7 +150,10 @@ describe('VpsLifecyclePage durable mutation snapshots', () => {
       </QueryClientProvider>,
     );
 
+    await user.click(screen.getByTestId('vps.lifecycle.stop.confirm'));
     await user.click(screen.getByTestId('vps.lifecycle.stop.force'));
+    expect(screen.getByTestId('vps.lifecycle.stop.confirm')).not.toBeChecked();
+    expect(screen.getByTestId('vps.lifecycle.stop.submit')).toHaveTextContent('action.vps.poweroff.label');
     await user.click(screen.getByTestId('vps.lifecycle.stop.confirm'));
     await user.click(screen.getByTestId('vps.lifecycle.stop.submit'));
 
@@ -172,6 +175,10 @@ describe('VpsLifecyclePage durable mutation snapshots', () => {
     });
 
     await waitFor(() => expect(vpsStopMock).toHaveBeenCalledWith(101, { force: true }));
+    expect(testState.trackActionState).toHaveBeenCalledWith(501, expect.objectContaining({
+      actionLabelKey: 'action.vps.poweroff.label',
+      progressTitleKey: 'modal.vps.poweroff.title',
+    }));
     expect(preflightMock).toHaveBeenCalledWith(expect.objectContaining({
       vpsId: 101,
       knownBusy: false,
@@ -181,5 +188,29 @@ describe('VpsLifecyclePage durable mutation snapshots', () => {
       null,
       generation,
     ));
+  });
+
+  it('keeps a failed poweroff request labeled by the submitted force after the form changes', async () => {
+    const user = userEvent.setup();
+    testState.acquireLocalLock.mockResolvedValue({} as never);
+    vpsStopMock.mockRejectedValue(new Error('request failed'));
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+    });
+    const router = createMemoryRouter([{
+      path: '/admin/vps/:vpsId/lifecycle/:lifecycleAction',
+      element: <VpsLifecyclePage />,
+    }], { initialEntries: ['/admin/vps/101/lifecycle/stop'] });
+    render(<QueryClientProvider client={queryClient}>
+      <ToastsProvider><RouterProvider router={router} /></ToastsProvider>
+    </QueryClientProvider>);
+
+    await user.click(screen.getByTestId('vps.lifecycle.stop.force'));
+    await user.click(screen.getByTestId('vps.lifecycle.stop.confirm'));
+    await user.click(screen.getByTestId('vps.lifecycle.stop.submit'));
+    await waitFor(() => expect(screen.getByText('vps.lifecycle.power.poweroff.error')).toBeInTheDocument());
+    await user.click(screen.getByTestId('vps.lifecycle.stop.force'));
+    expect(screen.getByText('vps.lifecycle.power.poweroff.error')).toBeInTheDocument();
+    expect(vpsStopMock).toHaveBeenCalledWith(101, { force: true });
   });
 });

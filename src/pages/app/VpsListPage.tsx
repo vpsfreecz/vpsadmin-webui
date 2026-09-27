@@ -197,7 +197,7 @@ export function VpsListPage() {
 
   function handleMutationSuccess(
     res: { meta?: Record<string, unknown> },
-    vars: { vpsId: number; kind: VpsListMutationKind; objectLabel?: string },
+    vars: { vpsId: number; kind: VpsListMutationKind; force?: boolean; objectLabel?: string },
     context?: DurableVpsLockContext
   ) {
     setActionError(null);
@@ -210,7 +210,7 @@ export function VpsListPage() {
         vars.kind === 'start'
           ? 'action.vps.start.label'
           : vars.kind === 'stop'
-            ? 'action.vps.stop.label'
+            ? (vars.force ? 'action.vps.poweroff.label' : 'action.vps.stop.label')
             : vars.kind === 'restart'
               ? 'action.vps.restart.label'
               : 'action.vps.delete.label';

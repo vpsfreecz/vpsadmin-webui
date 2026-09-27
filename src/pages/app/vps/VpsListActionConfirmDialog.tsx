@@ -62,10 +62,10 @@ export function VpsListActionConfirmDialog(props: {
     <ConfirmDialog
       open
       testId="vps.list.power_confirm"
-      title={confirm.kind === 'stop' ? t('vps.power.stop.confirm_title') : t('vps.power.restart.confirm_title')}
-      description={confirm.kind === 'stop' ? t('vps.power.stop.confirm_desc_basic') : t('vps.power.restart.confirm_desc_basic')}
+      title={confirm.kind === 'stop' ? t(confirm.force ? 'vps.power.poweroff.confirm_title' : 'vps.power.stop.confirm_title') : t('vps.power.restart.confirm_title')}
+      description={confirm.kind === 'stop' ? t(confirm.force ? 'vps.power.poweroff.confirm_desc' : 'vps.power.stop.confirm_desc_basic') : t('vps.power.restart.confirm_desc_basic')}
       danger={confirm.kind === 'stop'}
-      confirmLabel={confirm.kind === 'stop' ? t('action.vps.stop.label') : t('action.vps.restart.label')}
+      confirmLabel={confirm.kind === 'stop' ? t(confirm.force ? 'action.vps.poweroff.label' : 'action.vps.stop.label') : t('action.vps.restart.label')}
       confirmLoading={props.powerLoading}
       onCancel={props.onCancel}
       onConfirm={() => props.onConfirmPower({
@@ -89,7 +89,7 @@ export function VpsListActionConfirmDialog(props: {
         <Checkbox
           checked={confirm.force}
           onChange={(checked) => props.onChange((prev) => (prev && prev.kind !== 'delete' ? { ...prev, force: checked } : prev))}
-          label={t('common.force')}
+          label={t(confirm.kind === 'stop' ? 'vps.power.stop.force.label' : 'vps.power.restart.force.label')}
           testId="vps.list.power_confirm.force"
         />
       </div>

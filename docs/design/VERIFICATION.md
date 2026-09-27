@@ -94,8 +94,12 @@ records inherited exceptions by exact path, rule, source revision, SHA-256
 content hash, current metric allowance, rationale, owner and removal condition.
 Its review status starts `pending`; validated entries remain proposed and the
 audit fails until the lead explicitly accepts this exact ledger. The session
-lead accepted the 43 current exceptions after matching their hashes against the
+lead accepted the original 43 exceptions after matching their hashes against the
 recorded source revision `e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9`.
+The header and lifecycle power-control extractions reduced `VpsLayout.tsx` and
+`VpsLifecyclePage.tsx` below their historical line ceilings, so their two
+`grown-over-500` exceptions were removed. The remaining ledger has 41 accepted
+entries; their recorded hashes, metrics, allowances and baseline are unchanged.
 Raw violations, proposed/accepted exceptions, unaccepted violations and invalid
 entries are separate report fields. A changed or deleted file, resolved rule, expired
 removal condition, changed allowance or unlisted new violation fails the audit;

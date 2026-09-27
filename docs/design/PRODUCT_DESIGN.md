@@ -151,3 +151,9 @@ rendered count; key and placeholder parity alone cannot establish that. The
 early bootstrap screen remains bilingual without waiting for lazy locale chunks.
 Blank network interface rate fields omit that update and retain the current
 limit; their help text must not promise an unlimited rate.
+VPS shutdown requests distinguish a graceful shutdown (`force: false`) from
+an immediate poweroff (`force: true`). The header, list and lifecycle controls
+name the selected request and retain the same backend action identifiers.
+Changing force in the lifecycle form requires a fresh acknowledgment. Pending
+copy describes request submission, not completed shutdown. Generic historical
+task records without a force value retain a neutral Stop label.

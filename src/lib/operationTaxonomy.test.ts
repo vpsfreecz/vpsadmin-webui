@@ -15,7 +15,7 @@ const labels: Record<string, string> = {
   'action.vps.create.label': 'Create VPS',
   'action.vps.delete.label': 'Delete VPS',
   'action.vps.restart.label': 'Restart',
-  'action.vps.stop.label': 'Stop',
+  'operation.vps.stop.label': 'Stop',
   'operation.system.storage_maintenance.label': 'Storage maintenance',
 };
 

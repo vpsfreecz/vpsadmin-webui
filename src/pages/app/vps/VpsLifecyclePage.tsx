@@ -1,7 +1,7 @@
 import { vpsDeleteReceipt } from './vpsDeleteReceipt';
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useToasts } from '../../../app/toasts';
 import { useAuth } from '../../../app/auth';
 import { useAppMode } from '../../../app/appMode';
@@ -47,6 +47,7 @@ import {
   stateLabel,
 } from './VpsLifecycleModel';
 import { VpsPowerActionCard, type PowerActionKind } from './VpsPowerActionCard';
+import { VpsLifecycleActionIndex, type LifecycleActionChoice } from './VpsLifecycleActionIndex';
 import { VpsReinstallCard } from './VpsReinstallCard';
 import { buildVpsReinstallPayload, defaultReinstallForm, type ReinstallForm } from './VpsReinstallModel';
 import { VpsSwapCard } from './VpsSwapCard';
@@ -302,7 +303,11 @@ export function VpsLifecyclePage() {
     mutationFn: (variables: LifecycleMutationVariables<{ force: boolean }>) => executeLifecycleMutation(variables, vpsStop),
     onMutate: acquireMutationContext,
     onSuccess: (res, variables, context) => {
-      track(res.meta, 'action.vps.stop.label', variables, context, { blockUi: true, progressTitleKey: 'modal.vps.stop.title' });
+      const force = variables.preparedPayload.ok && variables.preparedPayload.value.force;
+      track(res.meta, force ? 'action.vps.poweroff.label' : 'action.vps.stop.label', variables, context, {
+        blockUi: true,
+        progressTitleKey: force ? 'modal.vps.poweroff.title' : 'modal.vps.stop.title',
+      });
       setPowerForm((p) => ({ ...p, stopConfirm: false }));
     },
     onError: (e: any) => {
@@ -487,7 +492,7 @@ export function VpsLifecyclePage() {
 
   const setPowerForce = (kind: PowerActionKind, checked: boolean) => {
     setPowerForm((p) => {
-      if (kind === 'stop') return { ...p, stopForce: checked };
+      if (kind === 'stop') return { ...p, stopForce: checked, stopConfirm: false };
       if (kind === 'restart') return { ...p, restartForce: checked };
       return p;
     });
@@ -501,6 +506,8 @@ export function VpsLifecyclePage() {
 
   const renderPowerCard = (kind: PowerActionKind) => {
     const mutation = powerMutation(kind);
+    const failedForce = kind === 'stop' && stopM.isError && stopM.variables?.preparedPayload.ok
+      ? stopM.variables.preparedPayload.value.force : false;
     return (
       <VpsPowerActionCard
         kind={kind}
@@ -513,7 +520,8 @@ export function VpsLifecyclePage() {
         force={powerForce(kind)}
         onForceChange={(checked) => setPowerForce(kind, checked)}
         pending={mutation.isPending}
-        errorMessage={mutation.isError ? mutationErrorMessage(mutation.error, t(`vps.lifecycle.power.${kind}.fallback_error`), t('vps.mutation.error.missing_action_state')) : undefined}
+        failedForce={failedForce}
+        errorMessage={mutation.isError ? mutationErrorMessage(mutation.error, t(failedForce ? 'vps.lifecycle.power.poweroff.fallback_error' : `vps.lifecycle.power.${kind}.fallback_error`), t('vps.mutation.error.missing_action_state')) : undefined}
         onSubmit={() => submitPower(kind)}
         onOpenTasks={() => chrome.openTasks()}
       />
@@ -678,13 +686,7 @@ export function VpsLifecyclePage() {
   const lifecycleBasePath = `${basePath}/vps/${vpsId}/lifecycle`;
   const lifecycleIndexPath = `${lifecycleBasePath}${detailContextSearch ?? ''}`;
   const lifecycleActionPath = (kind: LifecycleActionKind) => `${lifecycleBasePath}/${kind}${detailContextSearch ?? ''}`;
-  const allActionChoices: Array<{
-    kind: LifecycleActionKind;
-    title: string;
-    description: string;
-    danger?: boolean;
-    adminOnly?: boolean;
-  }> = [
+  const allActionChoices: Array<LifecycleActionChoice<LifecycleActionKind>> = [
     { kind: 'start', title: t('action.vps.start.label'), description: t('vps.lifecycle.power.start.subtitle') },
     { kind: 'stop', title: t('action.vps.stop.label'), description: t('vps.lifecycle.power.stop.subtitle'), danger: true },
     { kind: 'restart', title: t('action.vps.restart.label'), description: t('vps.lifecycle.power.restart.subtitle') },
@@ -699,26 +701,7 @@ export function VpsLifecyclePage() {
     { kind: 'migrate', title: t('vps.lifecycle.migrate.title'), description: t('vps.lifecycle.migrate.subtitle'), adminOnly: true },
   ];
   const actionChoices = allActionChoices.filter((choice) => canAdministerVps || !choice.adminOnly);
-  const dailyActionChoices = allActionChoices.filter((choice) => !choice.adminOnly);
-  const adminActionChoices = canAdministerVps ? allActionChoices.filter((choice) => choice.adminOnly) : [];
   const activeChoice = requestedAction ? actionChoices.find((choice) => choice.kind === requestedAction) : undefined;
-  const renderActionLink = (choice: (typeof allActionChoices)[number]) => (
-    <Link
-      key={choice.kind}
-      to={lifecycleActionPath(choice.kind)}
-      className={[
-        'rounded-lg border bg-surface p-4 text-left shadow-card transition hover:bg-surface-2 focus:outline-none focus:ring-2 focus:ring-focus',
-        choice.danger ? 'border-danger-border' : 'border-border',
-      ].join(' ')}
-      data-testid={`vps.lifecycle.action_link.${choice.kind}`}
-    >
-      <span className={choice.danger ? 'block text-sm font-semibold text-danger' : 'block text-sm font-semibold text-fg'}>
-        {choice.title}
-      </span>
-      <span className="mt-1 block text-xs text-muted">{choice.description}</span>
-    </Link>
-  );
-
   if (!canMutateVps || invalidAction || (requestedAction && !actionChoices.some((choice) => choice.kind === requestedAction))) {
     const noPermission = !canMutateVps;
     return (
@@ -736,41 +719,7 @@ export function VpsLifecyclePage() {
   }
 
   if (!requestedAction) {
-    return (
-      <div className="space-y-4" data-testid="vps.lifecycle.page">
-        <Card testId="vps.lifecycle.summary">
-          <CardHeader title={t('vps.lifecycle.title')} subtitle={canAdministerVps ? t('vps.lifecycle.subtitle_admin') : t('vps.lifecycle.subtitle_user')} />
-          <CardBody className="space-y-4">
-            <Alert variant="neutral">
-              {canAdministerVps ? t('vps.lifecycle.action_index.summary_admin') : t('vps.lifecycle.action_index.summary_user')}
-            </Alert>
-            <div className="space-y-4" data-testid="vps.lifecycle.action_index">
-              <section className="space-y-2" data-testid="vps.lifecycle.daily_actions">
-                <div>
-                  <h2 className="text-sm font-semibold text-fg">{t('vps.lifecycle.action_index.daily_title')}</h2>
-                  <p className="text-xs text-muted">{t('vps.lifecycle.action_index.daily_subtitle')}</p>
-                </div>
-                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                  {dailyActionChoices.map(renderActionLink)}
-                </div>
-              </section>
-
-              {adminActionChoices.length ? (
-                <section className="space-y-2 rounded-lg border border-border bg-surface p-3" data-testid="vps.lifecycle.admin_actions">
-                  <div>
-                    <h2 className="text-sm font-semibold text-fg">{t('vps.lifecycle.action_index.admin_title')}</h2>
-                    <p className="text-xs text-muted">{t('vps.lifecycle.action_index.admin_subtitle')}</p>
-                  </div>
-                  <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                    {adminActionChoices.map(renderActionLink)}
-                  </div>
-                </section>
-              ) : null}
-            </div>
-          </CardBody>
-        </Card>
-      </div>
-    );
+    return <VpsLifecycleActionIndex choices={allActionChoices} canAdministerVps={canAdministerVps} pathForChoice={lifecycleActionPath} />;
   }
 
   if (!canAdministerVps) {
