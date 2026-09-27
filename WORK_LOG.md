@@ -27,6 +27,22 @@ complete reconstruction of the project. Missing evidence is not a passing check.
   or raw production responses. This log does not grant deployment authorization
   or enable autonomous scheduled development.
 
+## 2026-09-27 - Repair PR525 documentation audit test fixtures
+
+**Failure:** CI run 36333825895 failed three script tests. The updated audit
+requires the root redesign index and scans Git-tracked paths; the isolated test
+fixture supplied neither. The failure reproduced locally. The earlier direct
+audit checks passed against the real checkout but did not cover this fixture.
+
+**Fix:** include the index and initialize/stage the temporary fixture repository.
+Keep the audit strict. Add cases proving that valid bridge links and historical
+mentions pass, external references in docs/source fail, and broken links inside
+the bridge fail. Existing inventory and requirement checks remain in place.
+
+**Verification:** all seven focused documentation tests passed. The full local
+`npm run ci:pr` passed: audits/lint/typecheck, 138 script tests, 36 BFF tests and
+1,514 unit tests. No runtime or deployment change.
+
 ## 2026-09-27 - Repair missing redesign-spec references
 
 **Request:** make the referenced UI_REDESIGN.md available to repository readers.
