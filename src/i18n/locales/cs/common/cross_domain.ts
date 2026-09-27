@@ -7,7 +7,7 @@ export const csCommon_cross_domain = {
   'audit.col.event': 'Událost',
   'audit.col.object': 'Objekt',
   'audit.col.user': 'Uživatel',
-  'audit.col.session': 'Sezení',
+  'audit.col.session': 'Relace',
   'audit.col.data': 'Data',
   'dataset.field.full_name': 'Celý název',
   'dataset.overview.space.subtitle': 'Referenční kvóta, využití a dostupné místo.',

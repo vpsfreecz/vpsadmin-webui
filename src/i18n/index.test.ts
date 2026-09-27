@@ -7,11 +7,11 @@ describe('i18n dictionaries', () => {
     expect(() => assertDictionariesHaveSameKeys()).not.toThrow();
   });
 
-  it('keeps Czech terminology aligned with the legacy WebUI guide', () => {
+  it('keeps Czech terminology aligned with the locked vpsAdmin guide', () => {
     const bannedPatterns: Array<[RegExp, string]> = [
       [/\b[Kk]lastr/u, 'Používej „Cluster“, ne „klastr“.'],
       [/\b[Uu]zel\b|\b[Uu]zly\b|\buzl[ůuey]\b/u, 'Používej „Node“/„Nody“, ne „uzel“.'],
-      [/\bpřihlašovací jméno\b/iu, 'Pole loginu je „Přezdívka“.'],
+      [/\bpřihlašovací jméno\b/iu, 'Název účtu se označuje „Login“.'],
       [/\bsecurity advisories\b|\bsecurity advisory\b/iu, 'Používej „Bezpečnostní upozornění“.'],
     ];
 
@@ -24,6 +24,18 @@ describe('i18n dictionaries', () => {
     }
 
     expect(failures).toEqual([]);
+  });
+
+  it('labels account login fields as Login, not Nickname', () => {
+    const loginKeys = Object.keys(dictionaries.cs).filter((key) =>
+      /(?:^|\.)(?:login|login_change)(?:\.|$)/u.test(key),
+    );
+    expect(loginKeys.length).toBeGreaterThan(5);
+    for (const key of loginKeys) {
+      expect((dictionaries.cs as Record<string, string>)[key]).not.toMatch(/přezdívk/iu);
+    }
+    expect(dictionaries.cs['admin.user.edit.field.login']).toBe('Login');
+    expect(dictionaries.cs['profile.user.login']).toBe('Login');
   });
 
   it('uses outage terminology for planned outage counters', () => {

@@ -68,6 +68,11 @@ The i18n audit checks all literal locale modules and root aggregators before
 spread composition for duplicate definitions, en/cs keys, placeholders and
 plural groups. Rendered tests are still needed for interpolation at call sites
 and language switching.
+For changed count copy, check rendered output in both languages at 0, 1, 2, 4,
+5 and 11, and at a fraction when the displayed value can be fractional. Check
+the early bootstrap screen and BFF OAuth error page separately: neither waits
+for the lazy application catalog. Source/catalog tests cannot certify a deployed
+login flow or the effective API locale for transaction-provided labels.
 PR Playwright uses deterministic fixtures. Inspect [workflows](../../.github/workflows)
 and [Playwright config](../../playwright.config.ts) for exact current selection,
 projects, timeouts and artifacts. Broad/nightly checks and optional audits are

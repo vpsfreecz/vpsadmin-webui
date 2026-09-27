@@ -7,7 +7,7 @@ export const csVps_access = {
   'vps.access.status.owner': 'Vlastník',
   'vps.access.status.running': 'Stav napájení',
   'vps.access.status.running_yes': 'Běží',
-  'vps.access.status.running_no': 'Zastaveno',
+  'vps.access.status.running_no': 'Vypnuto',
   'vps.access.status.password_type': 'Typ hesla',
   'vps.access.password_type.secure': 'Bezpečné',
   'vps.access.password_type.simple': 'Jednoduché',

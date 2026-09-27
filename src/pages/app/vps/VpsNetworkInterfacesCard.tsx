@@ -23,7 +23,7 @@ export function VpsNetworkInterfacesCard(props: {
   onRefresh: () => void;
   onEdit: (networkInterface: NetworkInterface) => void;
 }) {
-  const { t } = useI18n();
+  const { t, tc } = useI18n();
 
   return (
     <Card testId="vps.network.interfaces">
@@ -69,7 +69,7 @@ export function VpsNetworkInterfacesCard(props: {
                               </Badge>
                             ) : null}
                           </div>
-                          <div className="mt-1 text-xs text-muted">{t('vps.network.interfaces.ip_count', { count: ips.length })}</div>
+                          <div className="mt-1 text-xs text-muted">{tc('vps.network.interfaces.ip_count', ips.length)}</div>
                         </div>
 
                         {props.canMutate ? <Button variant="secondary" size="sm" testId={`vps.network.interfaces.card.${ni.id}.edit`} onClick={() => props.onEdit(ni)}>

@@ -142,3 +142,12 @@ label; `Europe/Prague` is an example, not a universal replacement. Use consisten
 units for MiB/GiB, duration and CPU percentage. Explicit theme/language preferences
 persist through the keyed settings API; local bootstrap avoids the wrong theme
 flash and supports public pages without requesting private settings.
+
+English and Czech catalog wording follows the vpsAdmin guide selected by this
+repository's locked `vpsadmin` flake input. Account `Login` is distinct from a
+nickname, console and audit sessions are `relace`, and VPS power state is
+`vypnuto`. The VPS address count labels use `tc` so Czech forms agree with the
+rendered count; key and placeholder parity alone cannot establish that. The
+early bootstrap screen remains bilingual without waiting for lazy locale chunks.
+Blank network interface rate fields omit that update and retain the current
+limit; their help text must not promise an unlimited rate.

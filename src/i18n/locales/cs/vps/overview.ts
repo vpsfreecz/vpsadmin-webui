@@ -6,7 +6,7 @@ export const csVps_overview = {
   'vps.header.load': 'Zátěž (1 / 5 / 15 min)',
   'vps.overview.config.title': 'Konfigurace',
   'vps.overview.config.vps_id': 'ID VPS',
-  'vps.overview.config.hostname': 'Název hostitele',
+  'vps.overview.config.hostname': 'Hostname',
   'vps.overview.config.owner': 'Vlastník',
   'vps.overview.config.os_template': 'OS šablona',
   'vps.overview.config.dns_resolver': 'Resolver DNS',

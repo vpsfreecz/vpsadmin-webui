@@ -13,7 +13,7 @@ export const csCommon_filters = {
   'filters.advanced.label': 'Pokročilé',
   'filters.smart.suggest.open_vps': 'Otevřít VPS #{id}',
   'filters.smart.suggest.open_vps.secondary': 'Přejít na detail VPS',
-  'filters.smart.suggest.hostname': 'Název hostitele obsahuje: {value}',
+  'filters.smart.suggest.hostname': 'Hostname obsahuje: {value}',
   'filters.smart.suggest.hostname.secondary': 'Filtrovat seznam',
   'filters.smart.suggest.user_id': 'Vlastník user:{id}',
   'filters.smart.suggest.user_id.secondary': 'Filtrovat podle vlastníka (admin)',

@@ -37,7 +37,7 @@ export const csCommon_palette = {
   'palette.help.examples.domain': 'Najde DNS zóny (a další objekty odkazující na doménu)',
   'palette.help.examples.user': 'Najde uživatele podle přihlašovacího jména/e-mailu/jména',
   'palette.help.keys.vps': 'VPS (ID/hostname)',
-  'palette.help.keys.user': 'Uživatelé (ID/přezdívka/e-mail)',
+  'palette.help.keys.user': 'Uživatelé (ID/login/e-mail)',
   'palette.help.keys.ip': 'IP adresy (ID/adresa)',
   'palette.help.keys.node': 'Nody (ID/název)',
   'palette.help.keys.dns': 'DNS zóny (ID/název)',

@@ -27,6 +27,46 @@ complete reconstruction of the project. Missing evidence is not a passing check.
   or raw production responses. This log does not grant deployment authorization
   or enable autonomous scheduled development.
 
+## 2026-09-27 - Align Czech terminology and rendered count copy
+
+**Request / reason:** the locked vpsAdmin guide distinguishes account Login from
+Nickname, uses Lokace, Hostname, relace and vnořený dataset, and names a powered-off
+VPS `vypnuto`. The Czech IP count labels used one form for every number. The BFF
+OAuth recovery page used formal address and described an internal response instead
+of the failed sign-in. The network rate-limit help said a blank field removed the
+limit, although the form omits blank fields from the update request.
+
+**Change:** align the affected account, location, session, dataset and VPS-state
+catalog entries with the guide. The mobile interface IP count and matching
+address-count catalog entry now use locale plural selection. Reinstall help names
+the settings sent with the request without exposing payload identifiers to
+members. The BFF recovery message uses plain English and informal Czech.
+The early bootstrap copy was reviewed in context and remains unchanged. API
+transaction labels remain API-owned; the map call and mutation behavior are
+unchanged.
+
+**Verification / limits:** the guide and localization procedure came from the
+locked vpsAdmin input at `a65a4dfeb92a59df4a80a737a20bcbf8558793ff`.
+The source was evaluated by the session lead; sandbox Nix evaluation cannot
+connect to its daemon. Parser i18n audit, focused bilingual rendered count tests
+covering 0, 1, 2, 4, 5, 11 and a decimal case, a rendered BFF recovery-page
+test, UI-string and design-doc audits, the structural audit, and TypeScript
+passed with cached Node 24.19.0. The 60 focused frontend tests include the
+unchanged bilingual early bootstrap path. The lead reviewed the proposed
+English/Czech copy. This pass checked all Czech catalog modules for the
+identified obsolete terms and the affected English counterparts; it is not
+individual linguistic certification of every catalog entry. Exact-head locked
+checks and broader browser evidence remain pending. No deployed host or live
+API was changed.
+
+**KB impact:** Login, console, VPS power-state, dataset and IP-count wording may
+affect member guidance and screenshots. Read-only inspection of the current KB
+contract points to management, KVM, IP-address, dataset and User data pages in
+both languages. That contract still targets the legacy PHP UI, so its green
+status would not certify this React preview. Review page text and fresh cs/en
+captures when the preview gains its own pinned KB binding; retain existing
+legacy evidence. No KB candidate, screenshot or production page was changed.
+
 ## 2026-09-27 - Bound host and IP address inventory to proven ordering
 
 **Request / reason:** the admin IP list used a descending display with a

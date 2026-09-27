@@ -4,14 +4,14 @@ const COPY = {
   cs: {
     lang: 'cs',
     title: 'Přihlášení se nezdařilo',
-    message: 'Odpověď přihlašovací služby se nepodařilo dokončit. Zkuste se přihlásit znovu.',
+    message: 'Přihlášení se nepodařilo dokončit. Zkus se přihlásit znovu.',
     retry: 'Přihlásit znovu',
     status: 'Přejít na stav služeb',
   },
   en: {
     lang: 'en',
     title: 'Sign-in failed',
-    message: 'The sign-in response could not be completed. Try signing in again.',
+    message: 'Sign-in could not be completed. Try signing in again.',
     retry: 'Sign in again',
     status: 'Go to service status',
   },

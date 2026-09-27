@@ -58,7 +58,7 @@ export const csOps_transactions = {
   "transactions.chains.smart_help.item.open_chain": "Otevřít detail řetězce (vyhledání podle ID)",
   "transactions.chains.smart_help.item.session": "Filtrovat podle ID relace",
   "transactions.chains.smart_help.item.state": "Filtrovat podle stavu řetězce",
-  "transactions.chains.smart_help.item.user": "Filtrovat podle vlastníka (přezdívka nebo číselné id)",
+  "transactions.chains.smart_help.item.user": "Filtrovat podle vlastníka (login nebo číselné id)",
   "transactions.chains.smart_help.section.admin": "Jen pro administrátora",
   "transactions.chains.smart_help.section.common": "Běžné",
   "transactions.chains.smart_help.title": "Nápověda chytrého filtru",

@@ -3,7 +3,7 @@ export const csAdminCluster_networks = {
   "admin.cluster.networks.action.create": "Vytvořit síť",
   "admin.cluster.networks.col.assigned": "Přiřazeno",
   "admin.cluster.networks.col.free": "Volné",
-  "admin.cluster.networks.col.locations": "Lokality",
+  "admin.cluster.networks.col.locations": "Lokace",
   "admin.cluster.networks.col.managed": "Správa",
   "admin.cluster.networks.col.network": "Síť",
   "admin.cluster.networks.col.owned": "Vlastněno",
