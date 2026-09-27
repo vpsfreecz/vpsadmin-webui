@@ -1,36 +1,37 @@
-# Canonical docs map
+# Documentation authority and migration map
 
-## Canonical
-- `../../UI_REDESIGN.md`
+## Current repository-contained specification
 
-This file is the authoritative product / UX / implementation source for WebUI Next.
-For backend prerequisites and API-change truth relevant to the redesign, use:
-- `../../UI_REDESIGN.md` (§8.3–§8.4)
+- [Design handbook](design/README.md)
+- [Requirements and acceptance](design/REQUIREMENTS.md)
+- [Decision history](design/DECISIONS.md)
+
+These replace the former external sibling UI_REDESIGN.md dependency at the
+maintainer's 2026-09-27 request. The missing file was not reconstructed verbatim.
+Latest explicit maintainer decisions take precedence; record any change here rather
+than silently treating existing code or an old document as new approval.
+
+## Active supporting sources
+
+- [Work log](../WORK_LOG.md): chronology, not a competing requirements list.
+- All chapters linked by the handbook: current design, workflow, architecture,
+  contracts, verification, operations, sources and generated inventory.
+- [BFF README](../bff/README.md) and [deployment docs](../deploy/README.md): technical
+  setup references; inspect host-specific scripts/current state before operations.
+- Source, tests and CI: implementation/evidence for their exact revision and scope.
+
+## Historical / archaeology
+
+`docs/spec/`, `docs/chat/`, `docs/haveapi/`, `docs/rc/`, old phase screenshots and
+root STATUS/ROADMAP/TODO documents are historical or unverified supporting records.
+Some are quarantine stubs, some retain useful details. Their claims must be checked
+against current source/requirements; they are not competing active specifications.
+Old external spec links may remain in those records and source comments for
+archaeology. Follow this map for current guidance. Do not restore an obsolete
+layout, permission model, contract guarantee or readiness claim from them.
 
 ## Entry points
-- `../README.md`
-- `../SPEC.md`
-- `README.md`
 
-These are pointers only. They must not introduce requirements that are not already captured in the canonical source above.
-
-## Active derived docs
-These may remain useful as appendices when they stay aligned with canon:
-- `spec/ROUTE_COVERAGE_AUDIT.md`
-- `spec/MODE_AND_ROUTE_ACCESSIBILITY.md`
-- `spec/PAGINATION_AND_SEARCH.md`
-- `spec/TEST_IDS.md`
-- `spec/AUTH_AND_FAILURE_SURFACES.md`
-
-If any of them diverge from canon, canon wins and the derived doc must be corrected or quarantined.
-
-## Historical / quarantined
-These are retained only for archaeology or old links and must not be treated as normative:
-- `../STATUS.md`
-- `../ROADMAP.md`
-- `../TODO.md`
-- `../TODO-API-EXTENSION.md`
-- `../START_NEW_SESSION.md`
-- `../work/next_session/CRITICAL_TODOS.md`
-- `chat/`
-- quarantined stubs under `spec/`
+[README](../README.md), [SPEC](../SPEC.md), and [docs README](README.md) all lead to
+the same handbook. New product requirements belong in the register with provenance,
+acceptance and status, and changes belong in the work log.

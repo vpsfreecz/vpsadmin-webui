@@ -1,12 +1,7 @@
-# Canon map (historical pointer)
+# Documentation map compatibility pointer
 
-This file is retained only so older links do not break.
-
-The active docs map now lives in:
-- `CANONICAL_DOCS.md`
-
-The authoritative product / UX / implementation source remains:
-- `../../UI_REDESIGN.md`
-
-For backend prerequisites / API-change truth related to the redesign, use:
-- `../../UI_REDESIGN.md` (§8.3–§8.4)
+This path is retained for older links. Use the current
+[documentation authority map](CANONICAL_DOCS.md) and the repository-contained
+[design handbook](design/README.md). API prerequisites and known gaps are in
+[API contracts](design/API_CONTRACTS.md) and the
+[requirements register](design/REQUIREMENTS.md).
