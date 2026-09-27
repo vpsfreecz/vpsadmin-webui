@@ -27,6 +27,24 @@ complete reconstruction of the project. Missing evidence is not a passing check.
   or raw production responses. This log does not grant deployment authorization
   or enable autonomous scheduled development.
 
+## 2026-09-27 - Repair missing redesign-spec references
+
+**Request:** make the referenced UI_REDESIGN.md available to repository readers.
+The original external file was not found in the available workspace or Clankerdev
+Git history. Its precise contents remain unknown; the existing design handbook
+is the maintained replacement, not a reconstruction of the missing document.
+
+**Change:** add a root compatibility navigation page; replace external pointers
+in historical stubs and source comments with in-repository documentation. Mark
+the March route audit as historical and replace unverifiable numbered citations
+with related current workflow links. Include the previous sidebar release receipt.
+
+**Verification / status:** 121 local links/anchors checked; design and active-doc
+audits and diff whitespace validation passed. A negative check confirmed the audit
+rejects a restored external sibling reference. No runtime behavior change or
+deployment needed.
+Prepared for review. Historical requirements are not claimed to be fully recovered.
+
 ## 2026-09-27 - Revised sidebar approved, merged and deployed
 
 **Authorization / scope:** the maintainer approved deployment and testing of the
