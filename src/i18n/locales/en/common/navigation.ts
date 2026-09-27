@@ -15,6 +15,10 @@ export const enCommon_navigation = {
   'pagination.jump_action': 'Go',
   'pagination.progressive_hint':
     'Later pages become available progressively. You can jump through page {page} now.',
+  'nav.short.security': 'Security',
+  'nav.short.namespaces': 'Namespaces',
+  'nav.short.migrations': 'Migrations',
+  'nav.short.admin': 'Admin',
   'nav.navigation': 'Navigation',
   'nav.open': 'Open navigation',
   'nav.group.services': 'Services',

@@ -15,6 +15,10 @@ export const csCommon_navigation = {
   'pagination.jump_action': 'Přejít',
   'pagination.progressive_hint':
     'Další strany se zpřístupní postupně. Teď lze přeskočit nejvýše na stranu {page}.',
+  'nav.short.security': 'Bezpečnost',
+  'nav.short.namespaces': 'Jmenné prostory',
+  'nav.short.migrations': 'Migrace',
+  'nav.short.admin': 'Správa',
   'nav.navigation': 'Navigace',
   'nav.open': 'Otevřít navigaci',
   'nav.group.services': 'Služby',
