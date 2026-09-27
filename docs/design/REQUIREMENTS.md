@@ -1,0 +1,105 @@
+# Requirements register
+
+Baseline and interpretation: [handbook](README.md). Source abbreviations:
+**U** = explicit maintainer request recovered from task history (see sources);
+**P** = linked PR decision/implementation; **C** = current source-derived behavior,
+whose original product rationale is not independently recovered. Source-derived
+requirements are preservation expectations for review, not invented user quotes.
+
+Statuses: **Baseline** = present in reviewed product source; **Delivered** = a
+specific change recorded in the deployed release history; **Pending** = open PR;
+**Open** = required work or decision lacks completion evidence; **Superseded** =
+historical choice, not current intent. None means independently certified parity.
+The Acceptance column describes what must be checked, not a claim it all passed.
+[Verification](VERIFICATION.md) separates test levels and release proof.
+
+## Shell, identity and interaction
+
+| ID | Requirement and reason | Acceptance | Source / implementation evidence | Status |
+| --- | --- | --- | --- | --- |
+| REQ-001 | Provide member and administrator views; keep backend support privileges without creating a third product mode. | Member scope stays owned; privileged links/actions follow capabilities, including direct routes. | U; [roles](../../src/lib/roles.ts), [router](../../src/routes/router.tsx) | Baseline |
+| REQ-002 | Put vpsAdmin first in browser titles for recognizability. | Public/app/admin titles retain product name and meaningful context in cs/en. | U; [PR495](https://github.com/Kerrycek/clankerdev/pull/495) | Delivered |
+| REQ-003 | Reuse the legacy favicon. | Built PNG matches legacy image; tab icon resolves on nested routes. | U; [PR524](https://github.com/Kerrycek/clankerdev/pull/524) | Pending |
+| REQ-004 | Distinguish menu destinations with icons and visible short labels. | No duplicate destination icons; compact cs/en labels fit; full accessible names retained; mobile labeled. | U; [PR522](https://github.com/Kerrycek/clankerdev/pull/522) | Pending |
+| REQ-005 | Persist theme/language/sidebar preferences across expiry and login. | Keyed settings PUT succeeds; reload and fresh login restore selection; anonymous pages do not read private settings. | U; [PR519](https://github.com/Kerrycek/clankerdev/pull/519), [fixture](../../e2e/specs/app/ui_preferences_persistence.spec.ts) | Delivered |
+| REQ-006 | Show a real session inactivity countdown. | Idle time decreases and expires; activity resets appropriately; background polling does not keep it at 40 min; reload/tab behavior tested. | U; [PR514](https://github.com/Kerrycek/clankerdev/pull/514), [idle model](../../src/lib/auth/idleSession.ts) | Delivered |
+| REQ-007 | Keep sessions usable across OAuth token rotation and make logout authoritative. | Open tabs refresh without adopting stale tokens; concurrent refresh/logout serialized; failed/expired auth clears session state. | U/P; [PR500](https://github.com/Kerrycek/clankerdev/pull/500), [PR501](https://github.com/Kerrycek/clankerdev/pull/501), [BFF](../../bff/README.md) | Delivered |
+| REQ-008 | Remove the page-wide blue outline while preserving keyboard focus. | Navigation/skip focus works; main content has no giant outline; interactive controls retain focus indicators. | U; [PR506](https://github.com/Kerrycek/clankerdev/pull/506) | Delivered |
+| REQ-009 | Support cs/en and light/dark/system without untranslated operational controls. | Locale, date/number formatting and theme persist; contrast and long-label layout checked. | U/C; [i18n](../../src/app/i18n.tsx), [theme](../../src/app/theme.tsx) | Baseline |
+| REQ-010 | Make mobile layouts usable and keyboard interactions accessible. | No viewport overflow; dialogs trap/restore focus; labels and errors readable; actions remain reachable. | U/C; [Drawer](../../src/components/ui/Drawer.tsx), [Modal](../../src/components/ui/Modal.tsx) | Baseline; toast overlap remains Open |
+| REQ-011 | Keep rejected mutations in context and distinguish uncertain outcomes. | Retain draft/error, permit safe retry for known rejection, block duplicate uncertain submission until reconciled. | P; [PR436](https://github.com/Kerrycek/clankerdev/pull/436), [mutation locks](../../src/components/layout/useLocalMutationLocks.ts) | Baseline |
+| REQ-012 | Track asynchronous work through Tasks and receipts. | Acceptance identifies target/action state; completion/failure is separate; missing receipt is not success. | U/C; [action states](../../src/lib/api/actionStates.ts), [PR518](https://github.com/Kerrycek/clankerdev/pull/518) | Baseline |
+| REQ-013 | Preserve navigable URLs and object identity. | Refresh/back/forward and direct object routes work; switching IDs clears stale drafts; invalid/missing objects have explicit states. | C; [route providers](../../src/routes/RouteProvidersLayout.tsx), [keyed routes](../../src/routes/ParamKeyedRoute.tsx) | Baseline |
+
+## VPS and infrastructure
+
+| ID | Requirement and reason | Acceptance | Source / implementation evidence | Status |
+| --- | --- | --- | --- | --- |
+| REQ-014 | Display distribution prominently in the VPS header, inspired by useful legacy information. | Distribution plus node/location visible; no guessed distribution when unknown. | U; [PR513](https://github.com/Kerrycek/clankerdev/pull/513) | Delivered |
+| REQ-015 | Include uptime, load, processes and CPU usage in the header. | Consistent units and missing-value treatment; load periods identified; no stale status portrayed as certain. | U; [PR513](https://github.com/Kerrycek/clankerdev/pull/513), [fixture](../../e2e/specs/app/vps_header_system_summary.spec.ts) | Delivered |
+| REQ-016 | Keep VPS overview cards equally wide. | Desktop paired cards use equal columns; mobile stacks without overflow. | U; [PR515](https://github.com/Kerrycek/clankerdev/pull/515) | Delivered |
+| REQ-017 | Provide one resource workspace including root dataset capacity. | CPU/memory/swap and disk reachable together; separate API mutations/reviews remain explicit, no false atomic save. | U; [PR505](https://github.com/Kerrycek/clankerdev/pull/505), [fixture](../../e2e/specs/app/vps_resource_workspace.spec.ts) | Delivered |
+| REQ-018 | Expose legacy administrator allocation overrides. | Admin can explicitly bypass allocation checks where API supports it; member cannot; VPS and dataset requests use actual contract. | U; [PR503](https://github.com/Kerrycek/clankerdev/pull/503) | Delivered |
+| REQ-019 | Preserve edited resources when asynchronous defaults arrive. | Late default lookup cannot overwrite edits; resulting request matches reviewed values. | P; [PR498](https://github.com/Kerrycek/clankerdev/pull/498) | Delivered |
+| REQ-020 | Open the console directly on entry. | Bounded/deduplicated token request; errors do not retry indefinitely; explicit revoke/replacement safeguards remain. | U; [PR517](https://github.com/Kerrycek/clankerdev/pull/517), [fixture](../../e2e/specs/app/vps_console_page.spec.ts) | Delivered |
+| REQ-021 | Support normal member deletion and explicit admin soft/hard deletion with retention. | Correct permission/endpoint per mode; future expiry only for supported soft transition; hard ignores stale expiry; clear target/receipt. | U; [PR518](https://github.com/Kerrycek/clankerdev/pull/518) | Delivered frontend; dev default retention Open |
+| REQ-022 | Diagnose dev VPS deletion failure without duplicating an uncertain operation. | Read receipt/API state first; configure missing retention only after policy decision; do not mistake request accepted for completed deletion. | U; [contracts](API_CONTRACTS.md) | Open configuration decision |
+| REQ-023 | Keep power/access/network/maintenance operations available with safeguards. | Confirm actual target and implications, honor role/state locks, show failure and successful action state; preserve draft on rejection. | C/P; [VPS adapters](../../src/lib/api/vps.ts), [PR458](https://github.com/Kerrycek/clankerdev/pull/458) | Baseline |
+| REQ-024 | Keep VPS disks in VPS detail rather than a separate member menu. | Root disk and attached datasets reachable from VPS; member NAS/backups still available. | P; [PR491](https://github.com/Kerrycek/clankerdev/pull/491) | Delivered |
+| REQ-025 | Expose node heatmaps using legacy configuration and eligibility. | Public/member/admin eligible nodes open same-origin UI dialog with configured secure external heatmap; no requests before opening. | U; [PR504](https://github.com/Kerrycek/clankerdev/pull/504), [heatmap contract](../../src/lib/nodeHeatmap.ts) | Delivered |
+| REQ-026 | Use only an icon for each node heatmap action. | Localized accessible name and tooltip remain; table heading may still name the column. | U; [PR521](https://github.com/Kerrycek/clankerdev/pull/521) | Pending |
+| REQ-027 | Provide node kernel/system history and admin configuration. | Member/admin capability difference; page history and settings preserve contract and errors. | U/P; [PR493](https://github.com/Kerrycek/clankerdev/pull/493), [node history](../../src/lib/api/nodeHistory.ts) | Delivered |
+| REQ-028 | Preserve cluster, node and migration administration. | Lists/details/actions use capability gates, target confirmation, action tracking, retry/reconciliation. | C; [infra](../../src/lib/api/infra.ts), [migrations](../../src/lib/api/migrations.ts) | Baseline |
+
+## Requests and users
+
+| ID | Requirement and reason | Acceptance | Source / implementation evidence | Status |
+| --- | --- | --- | --- | --- |
+| REQ-029 | Show effective user time zone instead of “server default”. | Resolve the actual zone (e.g. Europe/Prague); never hardcode Prague for every user. | U; [PR502](https://github.com/Kerrycek/clankerdev/pull/502) | Delivered |
+| REQ-030 | Initially expose technical metadata for account-change review. | Metadata is readable on opening; IP/timestamps/operational links remain available. | U; [request page](../../src/pages/app/admin/RequestDetailPage.tsx) | Baseline |
+| REQ-031 | Put registration technical metadata inside Applicant details. | Initially open metadata is part of applicant block, not a distant bottom section. | U; [PR516](https://github.com/Kerrycek/clankerdev/pull/516) | Delivered |
+| REQ-032 | Put IP/mail checks below applicant details, not beside them. | Tor/VPN/proxy/mail signals below applicant information, side-by-side only within that lower area on desktop; stack on mobile. | U; [PR508](https://github.com/Kerrycek/clankerdev/pull/508), [PR512](https://github.com/Kerrycek/clankerdev/pull/512) | Delivered |
+| REQ-033 | Use a wider, compact registration review layout. | Applicant card uses available width; checks belong to that block; avoid a tall empty decision sidebar. | U; [PR512](https://github.com/Kerrycek/clankerdev/pull/512) | Delivered |
+| REQ-034 | Place decision buttons below a small next-request preference. | Compact checkbox, buttons on following row; chosen preference respected; no large explanatory preference card. | U; [PR516](https://github.com/Kerrycek/clankerdev/pull/516) | Delivered |
+| REQ-035 | Allow administrators to reconsider resolved registrations as in legacy UI. | Resolved state exposes only API-supported transitions; reapproval constraints/created user handled; no invented state transition. | U; [PR510](https://github.com/Kerrycek/clankerdev/pull/510), [request model](../../src/pages/app/admin/RequestDetailModel.ts) | Delivered |
+| REQ-036 | Keep risk signals and addresses useful during review. | Score/status and summary signals readable, full checks expandable; address/map fallback/copy links usable; absent checks not “safe”. | P; [PR488](https://github.com/Kerrycek/clankerdev/pull/488) | Baseline |
+| REQ-037 | Do not restore the rejected opt-in address-map design. | No return of PR435 as accepted design; failures still give usable address text. | U; [closed PR435](https://github.com/Kerrycek/clankerdev/pull/435) | Superseded option |
+| REQ-038 | Preserve registration/profile-change review and correction workflows. | Approve/reject/ignore/request-information paths match state; public token correction validates scope; rejection/uncertainty remain explicit. | C/P; [requests API](../../src/lib/api/requests.ts), [PR487](https://github.com/Kerrycek/clankerdev/pull/487) | Baseline |
+| REQ-039 | Verify full admin account/application lifecycle against a real isolated API. | Synthetic approve/reject/state changes, authorization, errors, persisted results/action states and cleanup receipts for exact pins. | U; [verification](VERIFICATION.md) | Open certification |
+| REQ-040 | Preserve account profile, security, MFA, keys, sessions and namespaces. | Changes use actual owner/admin scope; sensitive values stay out of logs; disable/delete confirmations and retry behavior work. | C; [workflows](WORKFLOWS.md), [PR432](https://github.com/Kerrycek/clankerdev/pull/432) | Baseline |
+| REQ-041 | Register passkeys on the correct authentication origin. | Correct origin/RP contract and supported flow; no cross-origin security workaround. | U/P; [PR499](https://github.com/Kerrycek/clankerdev/pull/499) | Delivered |
+
+## Data, services and contract fidelity
+
+| ID | Requirement and reason | Acceptance | Source / implementation evidence | Status |
+| --- | --- | --- | --- | --- |
+| REQ-042 | Match user-data search/filter/pagination to real API. | Owner/format filters supported; clearly scoped local search if server lacks it; >2 pages, errors, end, no unsupported guarantee. | U; issue241, [PR496](https://github.com/Kerrycek/clankerdev/pull/496) | Pending backend dependency |
+| REQ-043 | Correct IP assignment history cursors. | Nonmonotonic IDs/times, ties, scope, errors/end; cursor matches server ordering without dropping rows. | U; issue208, [PR507](https://github.com/Kerrycek/clankerdev/pull/507) | Pending backend dependency |
+| REQ-044 | Correct dataset/snapshot cursor contracts. | Multi-page traversal agrees with actual order/ties and owner scope; do not imply minimum ID is always valid. | U; issue189, [PR509](https://github.com/Kerrycek/clankerdev/pull/509) | Pending backend dependency |
+| REQ-045 | Do not revive rejected backend work or obsolete frontend workarounds. | No merge/revival of backend44 or PR242 without a new explicit decision; payment PR43 is not evidence for user-data/IP contracts. | U; [contracts](API_CONTRACTS.md) | Constraint |
+| REQ-046 | Keep filter/page navigation consistent across back/forward/reload. | Cursor history tied to filters; reset on scope/filter changes; distinguish visited pages from random-access totals. | C/U; [pagination hook](../../src/lib/hooks/useKeysetPagination.ts) | Baseline with open cursor defects |
+| REQ-047 | Preserve backup filters when switching tabs. | Owner/location/other filters survive appropriate tab changes; no stale response overwrites current selection. | P; [PR497](https://github.com/Kerrycek/clankerdev/pull/497) | Delivered |
+| REQ-048 | Support dataset/NAS/snapshot/download/export/restore workflows. | Quota vs usage distinguished; local/remote restore sources explicit; task results and failure/cleanup verifiable. | C/U; [datasets](../../src/lib/api/datasets.ts), [exports](../../src/lib/api/exports.ts) | Baseline; certification scope recorded separately |
+| REQ-049 | Support DNS zones/records/transfers/DNSSEC/TSIG safely. | Validate actual record/API rules; preserve zone context and errors; secrets scrubbed; saved record is not proof of published DNS. | C/U; [DNS](../../src/lib/api/dns.ts), [secret scrubber](../../src/lib/api/dnsSecretScrubber.ts) | Baseline |
+| REQ-050 | Preserve network interfaces, addresses, resolvers and admin IP inventory. | Scope and address family accurate; destructive detach requires target review; history obeys REQ-043. | C; [networking](../../src/lib/api/networking.ts), [IP addresses](../../src/lib/api/ipAddresses.ts) | Baseline |
+| REQ-051 | Provide transactions, monitoring, incidents and OOM views. | Distinguish planned/running/failed/completed; filter ownership; keep long identifiers usable on mobile. | C; [monitoring](../../src/lib/api/monitoring.ts), [OOM](../../src/lib/api/oom.ts) | Baseline |
+| REQ-052 | Preserve member payments and administrator finance. | Admin-only finance gates; incoming payments are default finance destination; review mutations retained on failure. | C/P; [PR490](https://github.com/Kerrycek/clankerdev/pull/490), [finance routes](../../src/routes/adminFinanceRoutes.tsx) | Baseline |
+| REQ-053 | Preserve mail/content/help-box administration. | Templates/translations/recipients/mailboxes/news/help boxes retain scope, validation and in-context failure recovery. | C; [mailer](../../src/lib/api/mailer.ts), [help boxes](../../src/lib/api/helpBoxes.ts) | Baseline |
+| REQ-054 | Preserve public status/outages/news/security advisories without private access. | Anonymous views work independently; private settings not queried; unknown route/error states are explicit. | C; [public API](../../src/lib/api/public.ts) | Baseline |
+| REQ-055 | Preserve advisory management and audit evidence. | Privileged management gated independently of navigation; history readable and filtering supported; no exposure of sensitive secrets. | C; [advisory routes](../../src/routes/securityAdvisoryAdminRoutes.tsx), [audit](../../src/lib/api/audit.ts) | Baseline |
+
+## Quality, delivery and handover
+
+| ID | Requirement and reason | Acceptance | Source / implementation evidence | Status |
+| --- | --- | --- | --- | --- |
+| REQ-056 | Use independent UI/API pins and a disposable owned cluster for real workflow proof. | Provenance, synthetic identities, receipts and cleanup; shared VMs/data untouched; do not relabel mock tests as live. | U; [verification](VERIFICATION.md) | Required; prior scoped evidence exists |
+| REQ-057 | Integrate KB navigation, articles, page bindings and cs/en screenshots. | Both pins captured, real login/navigation, semantic IDs/fingerprints, original legacy evidence retained; publication explicitly approved. | U; [KB contract repo](https://github.com/vpsfreecz/vpsfree-kb-contracts) | Open beta minimum |
+| REQ-058 | Finish mobile error-toast/Cancel interaction. | Error notification does not obscure dialog cancellation on small viewports; keyboard dismissal preserved. | U; [verification](VERIFICATION.md) | Open targeted verification/fix |
+| REQ-059 | Audit the current session.json contract with sessionKey. | Same-origin JSON/auth controls preserved; null anonymous fields and session identity validated; audit scripts match deployed BFF. | U; [BFF](../../bff/server.js), [verification](VERIFICATION.md) | Runtime delivered; audit completion to verify |
+| REQ-060 | Require evidence-based release readiness, not a percentage. | Exact integrated candidate, role/locale/viewport regressions, live critical paths, limitations, KB minimum and rollback reviewed. | U; [release checklist](VERIFICATION.md) | Open final certification |
+| REQ-061 | Keep tests meaningful and do not bypass CI. | Correct stale assertions against actual contracts; no disabled gates/skipped failures to get green. | U; [PR520](https://github.com/Kerrycek/clankerdev/pull/520) | Ongoing constraint |
+| REQ-062 | Preserve foreign checkout changes and use reviewable isolated PRs. | Scoped branch, evidence and bilingual PR description; no unrelated backend/production changes. | U; [maintenance rules](../../AGENTS.md) | Ongoing constraint |
+| REQ-063 | Honor scoped merge/deploy authorization and stopped automation. | New implementation does not imply deployment; do not resume paused schedule or create agents/tasks without instruction. | U; [operations](OPERATIONS.md) | Ongoing constraint |
+| REQ-064 | Keep a durable work log and complete English design/requirements docs in repo. | Reasons, history, current requirements, evidence, limitations and update process available without private workspace dependencies. | U; [work log](../../WORK_LOG.md), this handbook | Prepared in this PR |
+| REQ-065 | Perform an independent audit before claiming public-beta assurance. | Reviewed findings, security/behavior scope and remediation decisions recorded; documentation is not audit completion. | Context from shared review discussion; [handover](OPERATIONS.md) | Proposed audit gate; owner/scope unassigned |
+| REQ-066 | Choose beta naming/publication approach explicitly. | Final hostname and KB transition policy selected by maintainer; no inferred DNS/domain change from informal suggestions. | Available conversation; [decisions](DECISIONS.md) | Open decision |

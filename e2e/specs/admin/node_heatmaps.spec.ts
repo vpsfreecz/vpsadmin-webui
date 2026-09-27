@@ -31,7 +31,10 @@ for (const language of ['cs', 'en'] as const) {
       await page.goto(entry);
       const trigger = page.locator('[data-testid="nodes.heatmap.open.node1.prg.example"]:visible');
       await expect(trigger).toBeVisible();
-      await expect(trigger).toHaveText(language === 'cs' ? 'Heatmapa' : 'Heatmap');
+      await expect(trigger).toHaveText('');
+      const label = `${language === 'cs' ? 'Heatmapa' : 'Heatmap'} · node1.prg.example`;
+      await expect(trigger).toHaveAccessibleName(label);
+      await expect(trigger).toHaveAttribute('title', label);
       await expect(page.locator('[data-testid="nodes.heatmap.open.backup1.prg.example"]:visible')).toBeVisible();
       await expect(page.getByTestId('nodes.heatmap.open.locked.prg.example')).toHaveCount(0);
       await expect(page.getByTestId('nodes.heatmap.open.dns.prg.example')).toHaveCount(0);

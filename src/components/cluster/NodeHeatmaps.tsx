@@ -94,7 +94,6 @@ export function NodeHeatmapButton({ node }: { node: HeatmapNode }) {
       testId={`nodes.heatmap.open.${name}`}
     >
       <Grid2X2 className="h-4 w-4 text-accent" aria-hidden="true" />
-      {t('nodes.heatmap.action')}
     </Button>
   );
 }
