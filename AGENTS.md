@@ -48,3 +48,15 @@ This repository is maintained through human-reviewed AI pull requests.
 - Do not commit secrets, tokens, local credentials, generated auth files, or
   private server backups.
 - Prefer documenting operational changes under `deploy/`.
+
+## Work Log
+
+- Read `WORK_LOG.md` before starting work and maintain it with meaningful changes,
+  investigations, decisions, verification results, blockers, and releases.
+- Update the log in the same PR as the work when practical. Link the PR/commit
+  and evidence; distinguish prepared, merged, and deployed states explicitly.
+- Record later merge/deployment outcomes as dated follow-ups. Distinguish fixture
+  browser checks from real API validation and never invent missing history.
+- Keep secrets, personal data, raw production responses, and private operational
+  details out of the log. Log maintenance does not authorize deployment or resume
+  paused automation.

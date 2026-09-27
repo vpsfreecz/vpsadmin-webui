@@ -34,6 +34,8 @@ The default Playwright suite uses deterministic HaveAPI mocks and does not requi
 
 ## Docs map
 
+- [WORK_LOG.md](WORK_LOG.md) – ongoing work, decisions, verification and release record
+
 - `SPEC.md` – canonical-spec pointer
 - `docs/CANONICAL_DOCS.md` – canon vs derived vs historical docs map
 - `docs/README.md` – docs tree rules
