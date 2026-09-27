@@ -2,28 +2,32 @@ import React from 'react';
 import { Link, useMatch } from 'react-router-dom';
 import {
   Activity,
+  Boxes,
   ClipboardList,
   CreditCard,
   Cpu,
+  Database,
   DatabaseBackup,
   FileText,
+  FolderOutput,
   Globe,
   GitMerge,
   HardDrive,
   Inbox,
   LayoutDashboard,
   Layers,
+  ListOrdered,
   Mail,
+  MemoryStick,
+  Network,
   PanelLeftClose,
   PanelLeftOpen,
   Server,
-  Settings,
-  Share2,
   Shield,
   ShieldAlert,
+  TriangleAlert,
   User,
   Users,
-  Wifi,
 } from 'lucide-react';
 
 import { Button } from '../ui/Button';
@@ -105,23 +109,23 @@ export function buildSidebarNavItems(opts: {
           id: 'datasets',
           to: `${basePath}/datasets`,
           label: t('nav.datasets'),
-          icon: <HardDrive size={18} />,
+          icon: <Database size={18} />,
           group: 'services' as const,
         }]
       : []),
-    { id: 'nas', to: `${basePath}/nas`, label: t('nav.nas'), icon: <Server size={18} />, ...adminGroup('services') },
+    { id: 'nas', to: `${basePath}/nas`, label: t('nav.nas'), icon: <HardDrive size={18} />, ...adminGroup('services') },
     ...(appMode === 'user'
       ? [{ id: 'backups', to: `${basePath}/backups`, label: t('nav.backups'), icon: <DatabaseBackup size={18} /> }]
       : []),
-    { id: 'exports', to: `${basePath}/exports`, label: t('nav.exports'), icon: <Share2 size={18} />, ...adminGroup('services') },
+    { id: 'exports', to: `${basePath}/exports`, label: t('nav.exports'), icon: <FolderOutput size={18} />, ...adminGroup('services') },
     { id: 'dns', to: `${basePath}/dns`, label: t('nav.dns'), icon: <Globe size={18} />, ...adminGroup('services') },
     ...(appMode === 'user'
-      ? [{ id: 'networking', to: `${basePath}/networking`, label: t('nav.networking'), icon: <Wifi size={18} /> }]
+      ? [{ id: 'networking', to: `${basePath}/networking`, label: t('nav.networking'), icon: <Network size={18} /> }]
       : []),
-    { id: 'transactions', to: `${basePath}/transactions`, label: t('nav.transactions'), icon: <Activity size={18} />, ...adminGroup('operations') },
+    { id: 'transactions', to: `${basePath}/transactions`, label: t('nav.transactions'), icon: <ListOrdered size={18} />, ...adminGroup('operations') },
     { id: 'monitoring', to: `${basePath}/monitoring`, label: t('nav.monitoring'), icon: <Activity size={18} />, ...adminGroup('operations') },
-    { id: 'incidents', to: `${basePath}/incidents`, label: t('nav.incidents'), icon: <Inbox size={18} />, ...adminGroup('operations') },
-    { id: 'oom-reports', to: `${basePath}/oom-reports`, label: t('nav.oom_reports'), icon: <Cpu size={18} />, ...adminGroup('operations') },
+    { id: 'incidents', to: `${basePath}/incidents`, label: t('nav.incidents'), icon: <TriangleAlert size={18} />, ...adminGroup('operations') },
+    { id: 'oom-reports', to: `${basePath}/oom-reports`, label: t('nav.oom_reports'), icon: <MemoryStick size={18} />, ...adminGroup('operations') },
   ];
 
   if (appMode === 'user') {
@@ -153,7 +157,7 @@ export function buildSidebarNavItems(opts: {
       id: 'networking',
       to: `${basePath}/networking/ip-addresses`,
       label: t('nav.networking'),
-      icon: <Wifi size={18} />,
+      icon: <Network size={18} />,
       group: 'services',
     });
     items.push({ id: 'requests', to: `${basePath}/requests`, label: t('nav.requests'), icon: <Inbox size={18} />, group: 'users-finance' });
@@ -169,7 +173,7 @@ export function buildSidebarNavItems(opts: {
         group: 'users-finance',
       });
     }
-    items.push({ id: 'cluster', to: `${basePath}/cluster/summary`, label: t('nav.cluster'), icon: <Settings size={18} />, group: 'infrastructure' });
+    items.push({ id: 'cluster', to: `${basePath}/cluster/summary`, label: t('nav.cluster'), icon: <Boxes size={18} />, group: 'infrastructure' });
     items.push({ id: 'nodes', to: `${basePath}/nodes`, label: t('nav.nodes'), icon: <Cpu size={18} />, group: 'infrastructure' });
     items.push({ id: 'migration-plans', to: `${basePath}/migration-plans`, label: t('nav.migration_plans'), icon: <GitMerge size={18} />, group: 'infrastructure' });
     items.push({ id: 'admin-info', to: `${basePath}/admin-info`, label: t('nav.admin'), icon: <Shield size={18} />, group: 'infrastructure' });
@@ -214,10 +218,11 @@ function NavigationLink(props: {
           isActive ? 'bg-accent/15 text-fg' : 'text-muted hover:bg-surface-2 hover:text-fg'
         )
       }
+      aria-label={item.label}
       title={collapsed ? item.label : undefined}
       onClick={onClick}
     >
-      <span className="shrink-0">{item.icon}</span>
+      <span className="shrink-0" aria-hidden="true">{item.icon}</span>
       {collapsed ? null : <span className="min-w-0 truncate">{item.label}</span>}
     </Link>
   );
