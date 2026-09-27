@@ -27,6 +27,22 @@ complete reconstruction of the project. Missing evidence is not a passing check.
   or raw production responses. This log does not grant deployment authorization
   or enable autonomous scheduled development.
 
+## 2026-09-27 - Reuse the legacy favicon
+
+**Request:** bring the old UI favicon into WebUI Next.
+
+**Change:** [PR #524](https://github.com/Kerrycek/clankerdev/pull/524), commit
+`77a978e3`, copies the legacy 48x46 PNG unchanged to `public/favicon.png` and adds
+an explicit root-relative favicon link in `index.html`, including nested routes.
+The original legacy UI asset is unchanged.
+
+**Verification:** production build passed; emitted HTML includes the link and
+byte comparisons confirm the built PNG matches the source and legacy image.
+
+**Status / next:** prepared, not merged or deployed. Review CI before release.
+This entry is maintained in the pending work-log PR #523 so the favicon PR can
+remain independent of the documentation setup.
+
 ## 2026-09-27 — Work log established
 
 **Request:** keep an ongoing record to support a complete project handover.
