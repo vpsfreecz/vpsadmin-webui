@@ -27,6 +27,43 @@ complete reconstruction of the project. Missing evidence is not a passing check.
   or raw production responses. This log does not grant deployment authorization
   or enable autonomous scheduled development.
 
+## 2026-09-27 - Add the BFF runtime configuration contract
+
+**Request / reason:** the production frontend needs a mandatory public JSON
+bootstrap while keeping existing `/config.js` users working. The BFF also
+accepted permissive numeric parsing and implicit production defaults for
+canonical origin, revoke URL and session state.
+
+**Change:** generate one validated public object with schema version 1, serve it
+as bounded `/config.json`, and project its API and WebUI fields through the
+existing JavaScript endpoint. Both config routes retain no-store, nosniff and
+same-origin resource policy; neither carries session state or secrets. Production
+mode validates explicit origin, API/provider/recovery/redirect URLs, version and
+HaveAPI fields, secret strength, exact bounded integers and writable file-session
+storage before listening. It requires a revoke URL and matching OAuth provider
+origins. `legacy-test` must be selected explicitly for historical local fixtures;
+there is no production fallback. Token-provider error bodies are discarded from
+the callback error path; diagnostics retain only a failure class and HTTP status.
+Trust forwarded proxy headers only from loopback. The cookie, one-use state,
+refresh/logout queue and `/session.json` shape remain unchanged.
+
+**Compatibility / next:** `/config.js` remains available for existing clients;
+the new JSON endpoint is additive, and the subsequent production frontend build
+requires it. Deploy the BFF before that frontend. The later NixOS module and
+site runbook must set `BFF_RUNTIME_MODE=production`, `PUBLIC_ORIGIN`, the other
+explicit public settings and runtime secrets, and provide the writable state
+directory. No configuration module, frontend bootstrap or deployed host was
+changed in this BFF-side update.
+
+**Verification / limits:** pure runtime-config and security tests pass on cached
+Node 24.19.0, including positive/negative startup validation and redacted
+errors. Offline `npm ci` in `bff/` succeeded. The implementer sandbox could not
+bind loopback (`listen EPERM`), so the session lead ran
+`nix develop --command npm run test:bff` in the normal environment against the
+BFF contract worktree: all 46 BFF tests passed, including HTTP config projection,
+provider redaction and session concurrency. Root lint, typecheck and design-doc
+audit passed locally. No browser, CI, push or deployment was performed.
+
 ## 2026-09-27 - Accept the exact inherited structural ledger
 
 **Decision:** the session lead matched all 43 exception hashes to adoption source

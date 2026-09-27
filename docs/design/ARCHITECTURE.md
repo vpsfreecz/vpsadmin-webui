@@ -35,8 +35,9 @@ flowchart LR
 ## Authentication and session lifecycle
 
 The BFF exists because an OAuth client secret cannot safely live in a static SPA.
-It exchanges codes and stores OAuth state/tokens on the server. `/config.js` is
-public runtime configuration, not a token transport. `/session.json` is a
+It exchanges codes and stores OAuth state/tokens on the server. `/config.json`
+is the versioned public runtime object; `/config.js` projects that same object
+for older frontends. Neither is a token transport. `/session.json` is a
 same-origin JSON endpoint supplying the access token plus stable session identity
 and expiry to an authenticated browser. The SPA calls HaveAPI directly; the BFF
 is not a general API proxy. Never describe access tokens as completely absent
@@ -45,7 +46,9 @@ requires the access token for API calls.
 
 Current session fields are `accessToken`, `sessionKey`, `sessionExpiresAt`;
 anonymous responses use null values. Stable session identity separates a logical
-session from access-token rotations. Read [BFF docs](../../bff/README.md),
+session from access-token rotations. Production BFF startup validates its
+canonical origin, provider/API URLs, required revoke path, secrets, numeric
+limits and writable session store before listening. Read [BFF docs](../../bff/README.md),
 [auth provider](../../src/app/auth.tsx), [session helper](../../src/lib/auth/bffSession.ts),
 and [idle session model](../../src/lib/auth/idleSession.ts).
 

@@ -13,6 +13,7 @@ const express = require('express');
 const { passkeyDestinations, renderPasskeyPage, setPasskeyHeaders } = require('./passkey-page');
 const session = require('express-session');
 const { createSessionQueue } = require('./session-queue');
+const { loadBffConfig, renderConfigJs } = require('./runtime-config');
 const FileStoreFactory = require('session-file-store');
 const {
   preferredLanguage,
@@ -32,86 +33,37 @@ const {
   saveSession,
   setRuntimeConfigSecurityHeaders,
   setRuntimeSessionSecurityHeaders,
-  validateSessionSecret,
   validateOAuthTokenResponse,
 } = require('./security');
 
 const FileStore = FileStoreFactory(session);
 
-// ---- Config ----
-function required(name) {
-  const v = process.env[name];
-  if (!v) {
-    throw new Error(`Missing required env var: ${name}`);
-  }
-  return v;
-}
-
-const PORT = parseInt(process.env.PORT || process.env.BFF_PORT || '3001', 10);
-
-const DOMAIN = process.env.DOMAIN || 'clankerdev.vpsfree.cz';
-
-const API_URL = process.env.API_URL || 'https://api.vpsfree.cz';
-const API_VERSION = process.env.API_VERSION || '7.0';
-
-const HAVEAPI_AUTH_HEADER = process.env.HAVEAPI_AUTH_HEADER || 'X-HaveAPI-OAuth2-Token';
-const HAVEAPI_META_NAMESPACE = process.env.HAVEAPI_META_NAMESPACE || '_meta';
-
-const OAUTH_AUTHORIZE_URL = required('OAUTH_AUTHORIZE_URL');
-const OAUTH_TOKEN_URL = required('OAUTH_TOKEN_URL');
-const OAUTH_REVOKE_URL = process.env.OAUTH_REVOKE_URL || '';
-
-const OAUTH_CLIENT_ID = required('OAUTH_CLIENT_ID');
-const OAUTH_CLIENT_SECRET = required('OAUTH_CLIENT_SECRET');
-const OAUTH_SCOPE = process.env.OAUTH_SCOPE || 'all';
-const OAUTH_TYPE = process.env.OAUTH_TYPE || 'web_server';
-
-function passwordRecoveryUrl() {
-  const configured = process.env.PASSWORD_RECOVERY_URL || '/oauth2/password-reset';
-  const url = new URL(configured, OAUTH_AUTHORIZE_URL);
-  if (!['http:', 'https:'].includes(url.protocol)) {
-    throw new Error('PASSWORD_RECOVERY_URL must use HTTP(S)');
-  }
-  if (!url.searchParams.has('client_id')) url.searchParams.set('client_id', OAUTH_CLIENT_ID);
-  return url.toString();
-}
-
-const PASSWORD_RECOVERY_URL = passwordRecoveryUrl();
-
-// Must match the OAuth client registration exactly
-const OAUTH_REDIRECT_URI =
-  process.env.OAUTH_REDIRECT_URI || `https://${DOMAIN}/oauth/callback`;
-
+// Validate all runtime settings and the writable store before constructing the
+// app or opening a listener. The explicit legacy-test mode is for old fixtures.
+const runtime = loadBffConfig(process.env);
+const {
+  port: PORT,
+  oauthAuthorizeUrl: OAUTH_AUTHORIZE_URL,
+  oauthTokenUrl: OAUTH_TOKEN_URL,
+  oauthRevokeUrl: OAUTH_REVOKE_URL,
+  oauthRedirectUri: OAUTH_REDIRECT_URI,
+  oauthClientId: OAUTH_CLIENT_ID,
+  oauthClientSecret: OAUTH_CLIENT_SECRET,
+  oauthScope: OAUTH_SCOPE,
+  oauthType: OAUTH_TYPE,
+  sessionSecret: SESSION_SECRET,
+  sessionStorePath: SESSION_STORE_PATH,
+  sessionCookieName: SESSION_COOKIE_NAME,
+  REFRESH_SKEW_MS,
+  SESSION_MAX_AGE_MS,
+  OAUTH_STATE_MAX_AGE_MS,
+  PREAUTH_SESSION_MAX_AGE_MS,
+  LOGIN_RATE_LIMIT_WINDOW_MS,
+  LOGIN_RATE_LIMIT_MAX,
+  OAUTH_FETCH_TIMEOUT_MS,
+  OAUTH_RESPONSE_MAX_BYTES,
+} = runtime;
 const PASSKEY_DESTINATIONS = passkeyDestinations(OAUTH_AUTHORIZE_URL, OAUTH_REDIRECT_URI);
-
-const SESSION_SECRET = validateSessionSecret(required('SESSION_SECRET'));
-const SESSION_STORE_PATH = process.env.SESSION_STORE_PATH || '/var/lib/webui-next-bff/sessions';
-const SESSION_COOKIE_NAME = process.env.SESSION_COOKIE_NAME || 'webui_next_sess';
-
-// Refresh access token when it will expire within this window
-const REFRESH_SKEW_MS = parseInt(process.env.REFRESH_SKEW_MS || '60000', 10); // 60s
-
-// Session lifetime
-const SESSION_MAX_AGE_MS = parseInt(process.env.SESSION_MAX_AGE_MS || String(30 * 24 * 60 * 60 * 1000), 10); // 30d
-
-// OAuth authorization responses must be completed shortly after login starts.
-const OAUTH_STATE_MAX_AGE_MS = parseInt(process.env.OAUTH_STATE_MAX_AGE_MS || String(10 * 60 * 1000), 10); // 10m
-
-// Pre-auth sessions contain no useful long-lived state. Keeping them short and
-// rate-limiting login starts prevents anonymous requests from filling the
-// file-backed session store.
-const PREAUTH_SESSION_MAX_AGE_MS = parseInt(
-  process.env.PREAUTH_SESSION_MAX_AGE_MS || String(10 * 60 * 1000),
-  10,
-);
-const LOGIN_RATE_LIMIT_WINDOW_MS = parseInt(
-  process.env.LOGIN_RATE_LIMIT_WINDOW_MS || String(10 * 60 * 1000),
-  10,
-);
-const LOGIN_RATE_LIMIT_MAX = parseInt(process.env.LOGIN_RATE_LIMIT_MAX || '20', 10);
-
-const OAUTH_FETCH_TIMEOUT_MS = parseInt(process.env.OAUTH_FETCH_TIMEOUT_MS || '10000', 10);
-const OAUTH_RESPONSE_MAX_BYTES = parseInt(process.env.OAUTH_RESPONSE_MAX_BYTES || String(64 * 1024), 10);
 
 async function oauthTokenRequest(params) {
   const body = new URLSearchParams(params);
@@ -131,21 +83,20 @@ async function oauthTokenRequest(params) {
       maxBytes: OAUTH_RESPONSE_MAX_BYTES,
     },
   );
+  if (!res.ok) {
+    // Provider bodies may contain credentials or private failure details.
+    // Only the failure class and HTTP status may reach callback diagnostics.
+    const err = new Error('OAuth token request rejected');
+    err.code = 'oauth_token_http_error';
+    err.status = res.status;
+    throw err;
+  }
+
   let data;
   try {
     data = JSON.parse(text);
   } catch {
-    data = { raw: text };
-  }
-
-  if (!res.ok) {
-    const msg = typeof data === 'object' && data && data.error_description
-      ? `${data.error}: ${data.error_description}`
-      : text;
-    const err = new Error(`OAuth token request failed (${res.status}): ${msg}`);
-    err.status = res.status;
-    err.payload = data;
-    throw err;
+    data = null;
   }
 
   return validateOAuthTokenResponse(data);
@@ -245,8 +196,8 @@ async function ensureFreshToken(req) {
 const app = express();
 app.disable('x-powered-by');
 
-// We're behind nginx, so trust X-Forwarded-* for secure cookies & redirect building if needed
-app.set('trust proxy', 1);
+// Only loopback nginx may supply the normalized forwarded scheme and client IP.
+app.set('trust proxy', 'loopback');
 
 // Serialize before loading session snapshots, through the final store write.
 app.use(createSessionQueue({ name: SESSION_COOKIE_NAME, secret: SESSION_SECRET }));
@@ -278,33 +229,16 @@ app.get('/healthz', (_req, res) => {
   res.type('text/plain').send('ok');
 });
 
-// config bootstrap for SPA
+// Both public endpoints project the same validated, bounded object. Sessions
+// and credentials remain available only through their separate protected path.
+app.get('/config.json', (_req, res) => {
+  setRuntimeConfigSecurityHeaders(res, 'application/json; charset=utf-8');
+  res.end(runtime.publicJson);
+});
+
 app.get('/config.js', (_req, res) => {
-  // Always set login/logout URLs so the SPA doesn't fall back to legacy /?page=login
-  const cfg = {
-    api: { url: API_URL, version: API_VERSION },
-    webuiNext: {
-      loginUrl: '/oauth/login',
-      logoutUrl: '/oauth/logout',
-      passwordRecoveryUrl: PASSWORD_RECOVERY_URL,
-      passkeyRegistrationUrl: '/oauth/passkey',
-      basePath: '',
-      haveApi: {
-        authHeader: HAVEAPI_AUTH_HEADER,
-        metaNamespace: HAVEAPI_META_NAMESPACE,
-      },
-    },
-  };
-
-  const js = [
-    'window.vpsAdmin = window.vpsAdmin || {};',
-    `window.vpsAdmin.api = ${JSON.stringify(cfg.api)};`,
-    'window.vpsAdmin.webuiNext = window.vpsAdmin.webuiNext || {};',
-    `Object.assign(window.vpsAdmin.webuiNext, ${JSON.stringify(cfg.webuiNext)});`,
-  ].join('\n');
-
   setRuntimeConfigSecurityHeaders(res);
-  res.send(js);
+  res.send(renderConfigJs(runtime.publicConfig));
 });
 
 // The API validates WebAuthn against its authentication origin, not the SPA.
@@ -348,6 +282,14 @@ function clearPendingOAuthAttempt(req) {
   req.session.next = undefined;
   req.session.oauth_state = undefined;
   req.session.oauth_state_issued_at = undefined;
+}
+
+function tokenFailureClass(error) {
+  if (error?.code === 'oauth_token_http_error') return 'provider_http_error';
+  if (error?.code === 'ETIMEDOUT') return 'provider_timeout';
+  if (error?.message === 'OAuth provider returned no access token') return 'provider_invalid_response';
+  if (error?.message === 'OAuth response exceeded the configured size limit') return 'provider_response_limit';
+  return 'token_exchange_error';
 }
 
 function redirectOAuthFailure(req, res) {
@@ -441,7 +383,7 @@ app.get('/oauth/callback', async (req, res) => {
     res.redirect(nextPath);
   } catch (e) {
     const status = e && Number.isInteger(e.status) ? e.status : undefined;
-    console.error('[webui-next-bff] OAuth callback failed', { status });
+    console.error('[webui-next-bff] OAuth callback failed', { failure: tokenFailureClass(e), status });
     return redirectOAuthFailure(req, res);
   }
 });

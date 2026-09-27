@@ -240,8 +240,8 @@ async function fetchLimitedResponseText(
   }
 }
 
-function setRuntimeConfigSecurityHeaders(res) {
-  res.setHeader('content-type', 'application/javascript; charset=utf-8');
+function setRuntimeConfigSecurityHeaders(res, contentType = 'application/javascript; charset=utf-8') {
+  res.setHeader('content-type', contentType);
   res.setHeader('cache-control', 'no-store');
   res.setHeader('cross-origin-resource-policy', 'same-origin');
   res.setHeader('x-content-type-options', 'nosniff');

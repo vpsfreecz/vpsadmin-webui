@@ -60,6 +60,8 @@ test.before(async () => {
   const providerOrigin = `http://127.0.0.1:${provider.address().port}`;
   directory = mkdtempSync(join(tmpdir(), 'bff-concurrency-'));
   Object.assign(process.env, {
+    BFF_RUNTIME_MODE: 'legacy-test',
+    NODE_ENV: 'test',
     OAUTH_AUTHORIZE_URL: 'https://auth.example.test/authorize',
     OAUTH_TOKEN_URL: providerOrigin + '/token', OAUTH_REVOKE_URL: providerOrigin + '/revoke',
     OAUTH_REDIRECT_URI: 'https://ui.example.test/oauth/callback',

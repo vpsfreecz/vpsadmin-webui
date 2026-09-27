@@ -7,6 +7,7 @@ const { createServer } = require('node:http');
 const { tmpdir } = require('node:os');
 const { join } = require('node:path');
 const test = require('node:test');
+const { runInNewContext } = require('node:vm');
 
 let bffOrigin;
 let bffServer;
@@ -100,6 +101,12 @@ test.before(async () => {
       return;
     }
 
+    if (parameters.get('code') === 'provider-raw-error') {
+      response.writeHead(503, { 'content-type': 'text/plain' });
+      response.end('raw-provider-credential-must-stay-private');
+      return;
+    }
+
     response.writeHead(200, { 'content-type': 'application/json' });
     response.end(JSON.stringify({
       access_token: 'test-access-token',
@@ -116,6 +123,8 @@ test.before(async () => {
 
   sessionDirectory = mkdtempSync(join(tmpdir(), 'webui-next-bff-test-'));
   Object.assign(process.env, {
+    BFF_RUNTIME_MODE: 'legacy-test',
+    NODE_ENV: 'test',
     DOMAIN: 'webui.test',
     OAUTH_AUTHORIZE_URL: 'https://identity.test/authorize',
     OAUTH_TOKEN_URL: `http://127.0.0.1:${providerAddress.port}/token`,
@@ -150,6 +159,34 @@ test('runtime config exposes the OAuth provider password recovery entry point', 
     body,
     /"passwordRecoveryUrl":"https:\/\/identity\.test\/oauth2\/password-reset\?client_id=test-client"/,
   );
+});
+
+test('config.json is bounded public JSON and config.js projects the same object', async () => {
+  const jsonResponse = await request('/config.json');
+  const jsonBody = await jsonResponse.text();
+  const jsResponse = await request('/config.js');
+  const jsBody = await jsResponse.text();
+  assert.equal(jsonResponse.status, 200);
+  assert.match(jsonResponse.headers.get('content-type'), /^application\/json(?:;|$)/);
+  assert.match(jsResponse.headers.get('content-type'), /^application\/javascript(?:;|$)/);
+  for (const response of [jsonResponse, jsResponse]) {
+    assert.equal(response.headers.get('cache-control'), 'no-store');
+    assert.equal(response.headers.get('x-content-type-options'), 'nosniff');
+    assert.equal(response.headers.get('cross-origin-resource-policy'), 'same-origin');
+    assert.equal(response.headers.get('set-cookie'), null);
+  }
+  assert.ok(Buffer.byteLength(jsonBody, 'utf8') <= 64 * 1024);
+  const payload = JSON.parse(jsonBody);
+  assert.equal(payload.schemaVersion, 1);
+  assert.deepEqual(Object.keys(payload).sort(), ['api', 'schemaVersion', 'webuiNext']);
+  const sandbox = { window: {} };
+  runInNewContext(jsBody, sandbox, { timeout: 100 });
+  assert.deepEqual(JSON.parse(JSON.stringify(sandbox.window.vpsAdmin.api)), payload.api);
+  assert.deepEqual(JSON.parse(JSON.stringify(sandbox.window.vpsAdmin.webuiNext)), payload.webuiNext);
+  for (const secret of ['test-client-secret', 'test-session-secret-with-enough-entropy', 'test-access-token']) {
+    assert.equal(jsonBody.includes(secret), false);
+    assert.equal(jsBody.includes(secret), false);
+  }
 });
 
 test('provider callback errors redirect without reflecting details and clear the pending attempt', async () => {
@@ -202,15 +239,49 @@ test('an invalid state is single-use and never reaches the token provider', asyn
 test('token exchange failures use the clean recovery route and cannot be replayed', async () => {
   const { cookie, state } = await startLogin('/app');
   const code = 'provider-rejected-code';
-  const response = await request(`/oauth/callback?code=${code}&state=${state}`, { cookie });
+  const logs = [];
+  const previousError = console.error;
+  let response;
+  try {
+    console.error = (...args) => logs.push(args);
+    response = await request(`/oauth/callback?code=${code}&state=${state}`, { cookie });
+  } finally {
+    console.error = previousError;
+  }
   const body = await response.text();
   assertCleanRecoveryRedirect(response, body, [code, state, 'provider-detail-must-stay-private']);
+  assert.deepEqual(logs, [[
+    '[webui-next-bff] OAuth callback failed',
+    { failure: 'provider_http_error', status: 502 },
+  ]]);
+  for (const secret of [code, state, 'provider-detail-must-stay-private']) {
+    assert.equal(JSON.stringify(logs).includes(secret), false);
+  }
 
   const requestCount = tokenRequests.length;
   assert.equal(tokenRequests.at(-1).code, code);
   const replay = await request(`/oauth/callback?code=${code}&state=${state}`, { cookie });
   assert.equal(replay.status, 303);
   assert.equal(tokenRequests.length, requestCount, 'consumed callbacks must not exchange a code twice');
+});
+
+test('non-JSON provider errors retain status but neither body nor callback credentials', async () => {
+  const { cookie, state } = await startLogin('/app');
+  const logs = [];
+  const previousError = console.error;
+  let response;
+  try {
+    console.error = (...args) => logs.push(args);
+    response = await request(`/oauth/callback?code=provider-raw-error&state=${state}`, { cookie });
+  } finally {
+    console.error = previousError;
+  }
+  const body = await response.text();
+  assertCleanRecoveryRedirect(response, body, [state, 'provider-raw-error', 'raw-provider-credential-must-stay-private']);
+  assert.deepEqual(logs, [[
+    '[webui-next-bff] OAuth callback failed',
+    { failure: 'provider_http_error', status: 503 },
+  ]]);
 });
 
 test('successful callbacks preserve a validated next path and establish the session', async () => {
