@@ -105,4 +105,25 @@ describe('exports API wrappers', () => {
     expect(u.searchParams.has('host_ip_address[q]')).toBe(false);
     expect(u.searchParams.has('host_ip_address[assigned]')).toBe(false);
   });
+
+  test('exact eligible-ID probe sends one ascending row after the preceding ID', async () => {
+    setMockRuntime();
+    const fetchMock = mockFetchOk({ host_ip_addresses: [{ id: 101, addr: '203.0.113.101' }] });
+    vi.stubGlobal('fetch', fetchMock);
+    const controller = new AbortController();
+    await fetchHostIpAddresses({
+      addr: '203.0.113.101', fromId: 100, limit: 1, order: 'asc',
+      usableFor: 'vps', routed: true, signal: controller.signal,
+    });
+    const [url, init] = firstFetchCall(fetchMock);
+    const u = new URL(String(url));
+    expect(u.searchParams.get('host_ip_address[addr]')).toBe('203.0.113.101');
+    expect(u.searchParams.get('host_ip_address[from_id]')).toBe('100');
+    expect(u.searchParams.get('host_ip_address[limit]')).toBe('1');
+    expect(u.searchParams.get('host_ip_address[order]')).toBe('asc');
+    expect(u.searchParams.get('host_ip_address[usable_for]')).toBe('vps');
+    expect(u.searchParams.get('host_ip_address[routed]')).toBe('true');
+    expect(u.searchParams.has('host_ip_address[q]')).toBe(false);
+    expect(init?.signal).toBe(controller.signal);
+  });
 });

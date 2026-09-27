@@ -3,12 +3,13 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 
 import { useAppMode } from '../../../app/appMode';
+import { useAuth } from '../../../app/auth';
 import { useI18n } from '../../../app/i18n';
 
 import { fetchIpAddresses } from '../../../lib/api/ipAddresses';
 import { fetchLocations, type Location as InfraLocation } from '../../../lib/api/infra';
-import { cursorFromDescendingPage } from '../../../lib/lockIndex';
-import { useKeysetPagination } from '../../../lib/hooks/useKeysetPagination';
+import { ASCENDING_ID_PAGE_SIZE, loadAscendingIdCollection, loadBoundedIdCollection } from '../../../lib/api/ascendingIdCollection';
+import { parsePositiveInt } from '../../../lib/parse';
 
 import { ListShell } from '../../../components/layout/ListShell';
 import { PageHeader } from '../../../components/layout/PageHeader';
@@ -22,15 +23,17 @@ import { LoadingState } from '../../../components/ui/LoadingState';
 import { IpAddressesFilters } from './ipAddresses/IpAddressesFilters';
 import { IpAddressesListMobile } from './ipAddresses/IpAddressesListMobile';
 import { IpAddressesListTable } from './ipAddresses/IpAddressesListTable';
-import { isDefaultHiddenLegacyNetwork } from './ipAddresses/ipAddressListSemantics';
+import { idFromResourceRef, isDefaultHiddenLegacyNetwork } from './ipAddresses/ipAddressListSemantics';
 import { selectSuggestedIpLocations } from './ipAddresses/suggestedFreeIps';
 import { ipDetailBasePath as resolveIpDetailBasePath, useIpAddressListParams } from './ipAddresses/useIpAddressListParams';
 import { useIpAddressSmartSearch } from './ipAddresses/useIpAddressSmartSearch';
 import { useProgressiveSuggestedIpQueries } from './ipAddresses/useProgressiveSuggestedIpQueries';
 import { configuredLegacyIpAddressesUrl } from './ipAddresses/legacyIpAddressesUrl';
+import { captureNetworkListScope } from './networking/networkListScope';
 
 export function IpAddressesPage() {
   const { basePath } = useAppMode();
+  const auth = useAuth();
   const { t } = useI18n();
   const navigate = useNavigate();
   const location = useLocation();
@@ -97,9 +100,12 @@ export function IpAddressesPage() {
     setUserLookup(userId !== undefined ? String(userId) : '');
   }, [advancedOpen, userId]);
 
-  const pagination = useKeysetPagination({
-    id: 'admin.ip_addresses.list',
-    filterKey: JSON.stringify({
+  const requestedLimit = parsePositiveInt(sp.get('limit'));
+  const limit = requestedLimit === 25 || requestedLimit === 100 ? requestedLimit : 50;
+  const [page, setPage] = useState(1);
+  const [legacyCursorReset, setLegacyCursorReset] = useState(false);
+  const unsafeCursor = sp.has('from_id') || sp.has('page');
+  const filterKey = JSON.stringify({
       addr: addr.trim(),
       prefixNum,
       vpsId,
@@ -110,14 +116,19 @@ export function IpAddressesPage() {
       versionNum,
       assignedToInterface,
       occupancyExplicitlyAny,
-      order,
       scope: basePath,
-    }),
-    searchParams: sp,
-    setSearchParams: setSp,
-    defaultLimit: 50,
-    allowedLimits: [25, 50, 100],
   });
+  useEffect(() => setPage(1), [filterKey, limit]);
+  useEffect(() => {
+    if (!unsafeCursor) return;
+    const next = new URLSearchParams(sp);
+    next.delete('from_id');
+    next.delete('page');
+    setLegacyCursorReset(true);
+    setSp(next, { replace: true });
+  }, [setSp, sp, unsafeCursor]);
+  const unsupportedUserFilter = userId !== undefined && auth.role !== 'admin';
+  const scope = captureNetworkListScope(auth, basePath, filterKey);
 
   const locationsQ = useQuery({
     queryKey: ['locations', 'ip_addresses', 'active'],
@@ -131,7 +142,7 @@ export function IpAddressesPage() {
     () => selectSuggestedIpLocations(environmentLocations),
     [environmentLocations]
   );
-  const showingSuggestedFreeIps = !filtersActive && !smartSearchBlocked && suggestedLocations.length > 0;
+  const showingSuggestedFreeIps = auth.role === 'admin' && !filtersActive && !smartSearchBlocked && suggestedLocations.length > 0;
   const suggested = useProgressiveSuggestedIpQueries(
     suggestedLocations,
     showingSuggestedFreeIps
@@ -142,51 +153,50 @@ export function IpAddressesPage() {
       'ip_addresses',
       'index',
       {
-        limit: pagination.limit,
-        fromId: pagination.fromId,
-        addr: addr.trim() || undefined,
-        prefix: prefixNum,
-        vps: vpsId,
-        user: userId,
-        network: networkId,
-        networkInterface: ifaceId,
-        location: locationId,
-        version: versionNum,
-        assignedToInterface,
-        occupancyExplicitlyAny,
-        order,
+        scope: scope.key,
       },
     ],
-    queryFn: async () =>
-      (
-        await fetchIpAddresses({
-          limit: pagination.limit,
-          fromId: pagination.fromId,
+    queryFn: ({ signal }) => {
+      const fetchPage = (fromId: number | undefined, requestSignal: AbortSignal) =>
+        fetchIpAddresses({
+          limit: auth.role === 'admin' ? ASCENDING_ID_PAGE_SIZE : 1_000,
+          fromId,
           addr: addr.trim() || undefined,
           prefix: prefixNum,
           vps: vpsId,
-          user: userId,
+          ...(auth.role === 'admin' && userId !== undefined ? { user: userId } : {}),
           network: networkId,
           networkInterface: ifaceId,
           location: locationId,
           version: versionNum,
           assignedToInterface,
-          order: order === 'desc' ? undefined : order,
+          order: 'asc',
           purpose: 'vps',
           includes: 'network__primary_location__environment,network_interface,vps,user,charged_environment',
-        })
-      ).data,
+          count: true,
+          signal: requestSignal,
+        });
+      return auth.role === 'admin'
+        ? loadAscendingIdCollection({ fetchPage, signal, isCurrent: scope.isCurrent })
+        : loadBoundedIdCollection({ fetchPage, signal, isCurrent: scope.isCurrent });
+    },
     staleTime: 10_000,
+    retry: false,
+    refetchOnWindowFocus: false,
     enabled:
+      auth.status === 'authenticated' &&
+      !unsupportedUserFilter &&
+      !unsafeCursor &&
       !locationsQ.isLoading &&
+      !locationsQ.isError &&
       !showingSuggestedFreeIps &&
       !legacyQuery &&
       !smartResolving &&
       !smartSearchBlocked,
   });
 
-  const loadedPageData = showingSuggestedFreeIps ? suggested.data : (listQ.data ?? []);
-  const rawPageData = smartSearchBlocked ? [] : loadedPageData;
+  const loadedListData = showingSuggestedFreeIps ? suggested.data : (listQ.data?.rows ?? []);
+  const rawListData = smartSearchBlocked ? [] : loadedListData;
   const activeListLoading = smartResolving || (showingSuggestedFreeIps
     ? suggested.isLoading
     : listQ.isLoading);
@@ -202,17 +212,46 @@ export function IpAddressesPage() {
     prefixNum === undefined &&
     versionNum === undefined;
   const pageData = useMemo(
-    () => (hideLegacyNetworksByDefault ? rawPageData.filter((ip) => !isDefaultHiddenLegacyNetwork(ip)) : rawPageData),
-    [hideLegacyNetworksByDefault, rawPageData]
+    () => {
+      const visible = hideLegacyNetworksByDefault ? rawListData.filter((ip) => !isDefaultHiddenLegacyNetwork(ip)) : [...rawListData];
+      if (!showingSuggestedFreeIps) visible.sort((a, b) => {
+        if (order === 'interface') {
+          const left = idFromResourceRef(a.network_interface);
+          const right = idFromResourceRef(b.network_interface);
+          if (left !== right) return (left ?? Number.MAX_SAFE_INTEGER) - (right ?? Number.MAX_SAFE_INTEGER);
+        }
+        return order === 'desc' ? b.id - a.id : a.id - b.id;
+      });
+      return visible;
+    },
+    [hideLegacyNetworksByDefault, order, rawListData, showingSuggestedFreeIps]
   );
   const locationFallback = useMemo(
     () => (showingSuggestedFreeIps ? null : environmentLocations.find((item) => Number(item.id) === locationId) ?? null),
     [environmentLocations, locationId, showingSuggestedFreeIps]
   );
-  const pageCursor = useMemo(() => cursorFromDescendingPage(rawPageData), [rawPageData]);
-  const hasMore = !showingSuggestedFreeIps && rawPageData.length >= pagination.limit;
-  const canNext = pagination.hasForward || (hasMore && pageCursor !== null);
-  const canPaginate = !showingSuggestedFreeIps && (pagination.stack.length > 1 || rawPageData.length > 0);
+  const pageCount = Math.max(1, Math.ceil(pageData.length / limit));
+  const currentPage = Math.min(page, pageCount);
+  const visiblePageData = showingSuggestedFreeIps ? pageData : pageData.slice((currentPage - 1) * limit, currentPage * limit);
+  const canPaginate = !showingSuggestedFreeIps && pageData.length > limit;
+  const partial = !showingSuggestedFreeIps && listQ.data?.completeness === 'partial';
+  const pagination = {
+    page: currentPage,
+    pageCount,
+    canPrev: currentPage > 1,
+    canNext: currentPage < pageCount,
+    onPrev: () => setPage(currentPage - 1),
+    onNext: () => setPage(currentPage + 1),
+    onGoToPage: setPage,
+    limit,
+    allowedLimits: [25, 50, 100] as const,
+    onLimitChange: (value: number) => {
+      const next = new URLSearchParams(sp);
+      next.set('limit', String(value));
+      setSp(next);
+      setPage(1);
+    },
+  };
 
   const activeFilterChips = useMemo(() => {
     const chips: React.ReactNode[] = [];
@@ -334,7 +373,21 @@ export function IpAddressesPage() {
         />
       }
     >
-      {locationsQ.isLoading || activeListLoading ? (
+      {legacyCursorReset ? <Alert className="mb-3" variant="info" testId="admin.ip_addresses.legacy_reset">{t('admin.network_list.legacy_reset')}</Alert> : null}
+      {showingSuggestedFreeIps ? <Alert className="mb-3" variant="info" testId="admin.ip_addresses.sample">{t('admin.network_list.sample')}</Alert> : null}
+      {partial ? (
+        <Alert className="mb-3" variant="warn" testId="admin.ip_addresses.partial">
+          {t(listQ.data?.reason === 'budget' ? 'admin.network_list.partial_budget' : 'admin.network_list.partial_failure', { count: pageData.length })}
+          {order !== 'asc' ? <div>{t('admin.network_list.loaded_sort')}</div> : null}
+          <div className="mt-2"><Button variant="secondary" size="sm" onClick={() => void listQ.refetch()}>{t('common.retry')}</Button></div>
+        </Alert>
+      ) : null}
+      {unsupportedUserFilter ? (
+        <Alert variant="danger" testId="admin.ip_addresses.unsupported_filter">
+          {t('admin.network_list.user_filter_admin_only')}
+          <div className="mt-2"><Button variant="secondary" size="sm" onClick={() => setIntParam('user', undefined)}>{t('common.clear_filters')}</Button></div>
+        </Alert>
+      ) : unsafeCursor || locationsQ.isLoading || activeListLoading ? (
         <LoadingState testId="admin.ip_addresses.loading" />
       ) : locationsQ.isError || activeListError ? (
         <ErrorState
@@ -360,6 +413,8 @@ export function IpAddressesPage() {
             } : undefined,
           }}
         />
+      ) : (partial || showingSuggestedFreeIps) && pageData.length === 0 ? (
+        <Alert variant="warn" testId="admin.ip_addresses.partial_empty">{t('admin.network_list.partial_empty')}</Alert>
       ) : pageData.length === 0 ? (
         <EmptyState
           testId="admin.ip_addresses.empty"
@@ -394,45 +449,23 @@ export function IpAddressesPage() {
             </div>
           ) : null}
           <IpAddressesListMobile
-            pageData={pageData}
+            pageData={visiblePageData}
             ipDetailBasePath={ipDetailBasePath}
             basePath={basePath}
             na={na}
             locationFallback={locationFallback}
             canPaginate={canPaginate}
-            pagination={{
-              page: pagination.page,
-              pageCount: pagination.stack.length,
-              canPrev: pagination.canPrev,
-              canNext,
-              onPrev: pagination.goPrev,
-              onNext: () => pagination.goNext(pageCursor),
-              onGoToPage: pagination.goToPage,
-              limit: pagination.limit,
-              allowedLimits: pagination.allowedLimits,
-              onLimitChange: pagination.setLimit,
-            }}
+            pagination={pagination}
           />
 
           <IpAddressesListTable
-            pageData={pageData}
+            pageData={visiblePageData}
             ipDetailBasePath={ipDetailBasePath}
             basePath={basePath}
             na={na}
             locationFallback={locationFallback}
             canPaginate={canPaginate}
-            pagination={{
-              page: pagination.page,
-              pageCount: pagination.stack.length,
-              canPrev: pagination.canPrev,
-              canNext,
-              onPrev: pagination.goPrev,
-              onNext: () => pagination.goNext(pageCursor),
-              onGoToPage: pagination.goToPage,
-              limit: pagination.limit,
-              allowedLimits: pagination.allowedLimits,
-              onLimitChange: pagination.setLimit,
-            }}
+            pagination={pagination}
           />
         </>
       )}

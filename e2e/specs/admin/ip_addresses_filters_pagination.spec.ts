@@ -2,64 +2,69 @@ import { expect, test } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
 
-test('admin ip addresses: filters + keyset pagination (from_id)', async ({ page }, testInfo) => {
+test('admin IP addresses traverse ascending API pages and paginate loaded rows locally', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name === 'mobile-chrome', 'Desktop table pagination is covered separately from mobile cards.');
 
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
 
-  let seenFilterAddr: string | null = null;
-  let seenPurpose: string | null = null;
-  let seenOrder: string | null = null;
+  const rows = Array.from({ length: 275 }, (_, offset) => {
+    const id = 125 + offset;
+    return {
+      id,
+      addr: offset === 0 ? '10.0.0.1' : `198.51.${100 + Math.floor(offset / 250)}.${(offset % 250) + 1}`,
+      prefix: 32,
+      routed: id % 2 === 0,
+      user: { id: 1000 + (id % 10), login: `u${id % 10}` },
+      vps: { id: 2000 + (id % 10), hostname: `vps${id % 10}` },
+      network: offset === 0
+        ? { id: 3000, address: '10.0.0.0', prefix: 24 }
+        : { id: 3001 + Math.floor(offset / 250), address: `198.51.${100 + Math.floor(offset / 250)}.0`, prefix: 24 },
+      network_interface: id % 2 === 0 ? { id: 4000, name: 'eth0' } : null,
+      created_at: '2025-01-01T00:00:00Z',
+    };
+  });
+  const apiRequests: Array<{
+    fromId: string | null;
+    limit: string | null;
+    order: string | null;
+    purpose: string | null;
+    addr: string | null;
+  }> = [];
 
   await installHaveApiMock(page, {
     user: { id: 1, login: 'admin', level: 100 },
     handlers: {
       'GET locations': () => ({ locations: [] }),
       'GET ip_addresses': (ctx) => {
-        const fromId = ctx.searchParams.get('ip_address[from_id]');
-        const limitStr = ctx.searchParams.get('ip_address[limit]');
-        const limit = limitStr ? Number(limitStr) : 50;
+        const request = {
+          fromId: ctx.searchParams.get('ip_address[from_id]'),
+          limit: ctx.searchParams.get('ip_address[limit]'),
+          order: ctx.searchParams.get('ip_address[order]'),
+          purpose: ctx.searchParams.get('ip_address[purpose]'),
+          addr: ctx.searchParams.get('ip_address[addr]'),
+        };
+        apiRequests.push(request);
 
-        const addr = ctx.searchParams.get('ip_address[addr]');
-        const vps = ctx.searchParams.get('ip_address[vps]');
-        const version = ctx.searchParams.get('ip_address[version]');
-        seenPurpose = ctx.searchParams.get('ip_address[purpose]');
-        seenOrder = ctx.searchParams.get('ip_address[order]');
+        if (request.addr) {
+          const match = rows.filter((row) => row.addr === request.addr);
+          return { ip_addresses: match, _meta: { total_count: match.length } };
+        }
 
-        if (addr) seenFilterAddr = addr;
-
-        const startId = fromId ? Number(fromId) - 1 : 125;
-        const count = Number.isFinite(limit) && limit > 0 ? limit : 50;
-
-        const base = addr && addr.includes('.') ? addr.split('.').slice(0, 3).join('.') : '192.0.2';
-
-        const ip_addresses = Array.from({ length: count }, (_, i) => {
-          const id = startId - i;
-          const ip = `${base}.${(id % 200) + 1}`;
-          return {
-            id,
-            addr: ip,
-            prefix: 32,
-            routed: id % 2 === 0,
-            user: { id: 1000 + (id % 10), login: `u${id % 10}` },
-            vps: { id: 2000 + (id % 10), hostname: `vps${id % 10}` },
-            network: { id: 3000, address: '192.0.2.0', prefix: 24 },
-            network_interface: id % 2 === 0 ? { id: 4000, name: 'eth0' } : null,
-            created_at: '2025-01-01T00:00:00Z',
-            _filters: { addr, vps, version },
-          };
-        }).filter((it) => it.id > 0);
-
-        return { ip_addresses };
+        const fromId = request.fromId === null ? 0 : Number(request.fromId);
+        const ip_addresses = rows.filter((row) => row.id > fromId).slice(0, Number(request.limit));
+        return { ip_addresses, _meta: { total_count: rows.length } };
       },
     },
   });
 
-  await page.goto('/admin/ip-addresses');
+  await page.goto('/admin/ip-addresses?order=asc&occupancy=any');
 
   await expect(page.getByTestId('admin.ip_addresses.row.125')).toBeVisible();
-  await expect.poll(() => seenPurpose).toBe('vps');
-  expect(seenOrder).toBeNull();
+  await expect.poll(() => apiRequests).toEqual([
+    { fromId: null, limit: '250', order: 'asc', purpose: 'vps', addr: null },
+    { fromId: '374', limit: '250', order: 'asc', purpose: 'vps', addr: null },
+  ]);
+  await expect(page).not.toHaveURL(/(?:\?|&)(?:from_id|page)=/);
   await expect(page.getByTestId('admin.ip_addresses.row.125')).toHaveAttribute('data-row-variant', 'warn');
   await expect(page.getByTestId('admin.ip_addresses.row.125.dot')).toBeVisible();
   const incidentsAction = page.getByTestId('admin.ip_addresses.row.125.action.incidents');
@@ -76,25 +81,35 @@ test('admin ip addresses: filters + keyset pagination (from_id)', async ({ page 
   await expect(hostsAction).toHaveAttribute('aria-label', 'Host IP addresses');
   await expect(incidentsAction).toHaveText('');
   await expect(routeAction).toHaveText('');
-  await expect(page.getByTestId('admin.ip_addresses.row.124.action.route')).toHaveAttribute('aria-label', 'Remove route');
+  await expect(page.getByTestId('admin.ip_addresses.row.126.action.route')).toHaveAttribute('aria-label', 'Remove route');
 
   const proofScreenshot = process.env.E2E_IP_ACTIONS_PROOF_SCREENSHOT?.trim();
   if (proofScreenshot) {
     await page.screenshot({ path: proofScreenshot });
   }
 
-  // Apply a server-side filter.
+  // Moving through the loaded rows does not request another API page or emit a URL cursor.
+  await page.getByTestId('admin.ip_addresses.pagination.desktop.next').click();
+  await expect(page.getByTestId('admin.ip_addresses.row.175')).toBeVisible();
+  await expect(page.getByTestId('admin.ip_addresses.row.175')).toHaveAttribute('data-row-variant', 'warn');
+  await expect(page.getByTestId('admin.ip_addresses.row.125')).toHaveCount(0);
+  await expect(page).not.toHaveURL(/(?:\?|&)(?:from_id|page)=/);
+  expect(apiRequests).toHaveLength(2);
+
+  // An exact server filter replaces the loaded inventory and resets the local page.
   const sfi = page.getByTestId('admin.ip_addresses.smart_filter.input');
   await sfi.fill('addr:10.0.0.1');
   await expect(sfi).toHaveValue('addr:10.0.0.1');
   await sfi.press('Enter');
-  await expect.poll(() => seenFilterAddr).toBe('10.0.0.1');
+  await expect(page).toHaveURL(/(?:\?|&)addr=10\.0\.0\.1(?:&|$)/);
   await expect(page.getByTestId('admin.ip_addresses.row.125')).toContainText('10.0.0.1');
-
-  // Next page uses from_id.
-  await page.getByTestId('admin.ip_addresses.pagination.desktop.next').click();
-  await expect(page.getByTestId('admin.ip_addresses.row.75')).toBeVisible();
-  await expect(page.getByTestId('admin.ip_addresses.row.75')).toHaveAttribute('data-row-variant', 'warn');
+  await expect(page.getByTestId('admin.ip_addresses.row.175')).toHaveCount(0);
+  await expect(page.getByTestId('admin.ip_addresses.pagination.desktop.next')).toHaveCount(0);
+  expect(apiRequests).toHaveLength(3);
+  expect(apiRequests.at(-1)).toEqual({
+    fromId: null, limit: '250', order: 'asc', purpose: 'vps', addr: '10.0.0.1',
+  });
+  await expect(page).not.toHaveURL(/(?:\?|&)(?:from_id|page)=/);
 });
 
 test('admin IP address cards keep compact actions on mobile', async ({ page }) => {
@@ -192,7 +207,7 @@ test('@pr-smoke @pr-smoke-mobile admin IP address search resolves an exact user 
     await expect(page).toHaveURL(/(?:\?|&)user=48(?:&|$)/);
     await expect(page).not.toHaveURL(/(?:\?|&)q=/);
     await expect(page).not.toHaveURL(/(?:\?|&)from_id=/);
-    await expect(page).toHaveURL(/(?:\?|&)page=1(?:&|$)/);
+    await expect(page).not.toHaveURL(/(?:\?|&)page=/);
     await expect(page).toHaveURL(/(?:\?|&)limit=25(?:&|$)/);
     await expect(page.getByTestId('admin.ip_addresses.quick.occupancy.any')).toHaveClass(/bg-surface/);
     const itemKind = testInfo.project.name === 'mobile-chrome' ? 'card' : 'row';
@@ -206,7 +221,7 @@ test('@pr-smoke @pr-smoke-mobile admin IP address search resolves an exact user 
       assigned: null,
       version: null,
       fromId: null,
-      limit: '25',
+      limit: '250',
     });
   }
 
@@ -214,7 +229,7 @@ test('@pr-smoke @pr-smoke-mobile admin IP address search resolves an exact user 
   await expect(page).toHaveURL(/(?:\?|&)user=48(?:&|$)/);
   await expect(page).not.toHaveURL(/(?:\?|&)q=/);
   await expect(page).not.toHaveURL(/(?:\?|&)from_id=/);
-  await expect(page).toHaveURL(/(?:\?|&)page=1(?:&|$)/);
+  await expect(page).not.toHaveURL(/(?:\?|&)page=/);
   await expect(page).toHaveURL(/(?:\?|&)limit=25(?:&|$)/);
   await expect.poll(() => ipRequests.at(-1)).toEqual({
     user: '48',
@@ -222,7 +237,7 @@ test('@pr-smoke @pr-smoke-mobile admin IP address search resolves an exact user 
     assigned: null,
     version: null,
     fromId: null,
-    limit: '25',
+    limit: '250',
   });
 
   await page.goto('/admin/ip-addresses');
@@ -238,7 +253,7 @@ test('@pr-smoke @pr-smoke-mobile admin IP address search resolves an exact user 
     assigned: 'true',
     version: '4',
     fromId: null,
-    limit: '50',
+    limit: '250',
   });
 
   await atomicInput.fill('assigned:any user:base48');
@@ -252,7 +267,7 @@ test('@pr-smoke @pr-smoke-mobile admin IP address search resolves an exact user 
     assigned: null,
     version: '4',
     fromId: null,
-    limit: '50',
+    limit: '250',
   });
 });
 
@@ -308,7 +323,7 @@ test('@pr-smoke @pr-smoke-mobile admin IP address search never falls back to an 
   await expect(unrelatedAddress).toHaveCount(0);
   await page.getByTestId('admin.ip_addresses.chip.error.0').getByRole('button', { name: 'Remove' }).click();
   await expect(page).not.toHaveURL(/(?:\?|&)q=/);
-  await expect(page).toHaveURL(/(?:\?|&)page=1(?:&|$)/);
+  await expect(page).not.toHaveURL(/(?:\?|&)page=/);
   await expect(page).not.toHaveURL(/(?:\?|&)from_id=/);
   await expect(input).toHaveValue('');
   await expect(unrelatedAddress).toBeVisible();

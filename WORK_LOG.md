@@ -27,6 +27,52 @@ complete reconstruction of the project. Missing evidence is not a passing check.
   or raw production responses. This log does not grant deployment authorization
   or enable autonomous scheduled development.
 
+## 2026-09-27 - Bound host and IP address inventory to proven ordering
+
+**Request / reason:** the admin IP list used a descending display with a
+minimum-ID continuation that could skip records. Host IP lookup also sent an
+unsupported `q` filter and treated its first 100 suggestions as all eligible
+addresses. The pinned vpsAdmin source at
+`a65a4dfeb92a59df4a80a737a20bcbf8558793ff` establishes ascending-ID order
+for host IPs and effective-admin IPs, but groups non-admin IPs by owner.
+
+**Change:** a bounded ascending-ID loader, its API adapter inputs and adversarial
+fixtures support host IP and effective-admin IP traversal. The page integration
+uses a single bounded response for non-admin IPs.
+Partial results stay visible with English/Czech status and safe actions; the
+admin's alternate sort controls apply to loaded rows only. Old unsupported
+search/cursor URL settings reset visibly. Host IP filtering and DNS lookup use
+exact `addr`; an ID outside the DNS suggestion sample requires a filtered,
+server-returned exact-ID check. Filter/identity changes discard pending lookup
+and PTR results. The Host IP table moved to a cohesive component, keeping the
+page below its unchanged structural threshold. The user-facing copy received
+the lead's review against the locked Czech guide.
+The browser fixtures provide an exact eligible detail response before opening
+the PTR editor and assert removal of unsupported URL page/from_id cursors while
+retaining supported filter and result checks. The admin IP fixture now models
+250-row ascending API batches separately from local visible page sizes, and
+checks continuation, local navigation, exact-filter reset and row actions.
+
+**Verification / status:** on pre-rebase source
+`830a45d0ec6d95e520abdef85f08c45117cd56f5`, cached Node 24.19.0 ran 85
+focused and adjacent tests across 12 files,
+TypeScript, both lint scripts, i18n, UI-string, page, component, overlay,
+lookup, mutation, design-doc and structural audits. Structural reporting found
+44 raw violations, 43 accepted inherited exceptions and no unaccepted or
+invalid entries; no ledger allowance or baseline changed. Regenerating the
+source inventory added one API module (64 total). The lead also ran the locked
+Nix `ci:quick` and production build on that pre-rebase commit; both passed in
+83 and 25 seconds respectively. Exact rebased-head Nix quick/build validation
+is pending.
+The later full test suite exposed two Czech lookup assertions that timed out
+while the lazy catalog was loading. A pinned Node 24.21.0 focused run
+reproduced both failures without suite load; warming the real Czech catalog
+before the assertions passed all ten lookup cases with the original timeout.
+The test setup now does that without changing application locale behavior.
+The sandbox checks used cached Node and direct scripts because npm and the
+locked Nix shell are unavailable there. Pinned live API and browser checks
+remain open. No push, deployment or backend change occurred.
+
 ## 2026-09-27 - Require validated BFF bootstrap in the production frontend
 
 **Request / reason:** optional runtime scripts and a best-effort session probe

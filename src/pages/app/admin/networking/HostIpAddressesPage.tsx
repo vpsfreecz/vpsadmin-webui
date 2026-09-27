@@ -1,20 +1,21 @@
-import React, { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
 
 import { useI18n } from '../../../../app/i18n';
+import { useAuth } from '../../../../app/auth';
 import { useToasts } from '../../../../app/toasts';
 import {
   assignHostIpAddress,
   deleteHostIpAddress,
+  fetchHostIpAddress,
   fetchHostIpAddresses,
   freeHostIpAddress,
   updateHostIpAddress,
   type HostIpAddress,
 } from '../../../../lib/api/networking';
 import { fetchNetworkInterfaces } from '../../../../lib/api/networkInterfaces';
-import { useKeysetPagination } from '../../../../lib/hooks/useKeysetPagination';
-import { cursorFromDescendingPage } from '../../../../lib/lockIndex';
+import { ASCENDING_ID_PAGE_SIZE, loadAscendingIdCollection } from '../../../../lib/api/ascendingIdCollection';
 import { parseBoolParam, parsePositiveInt } from '../../../../lib/parse';
 import { formatErrorMessage } from '../../../../lib/errors';
 import { ListShell } from '../../../../components/layout/ListShell';
@@ -27,96 +28,17 @@ import { ConfirmDialog } from '../../../../components/ui/ConfirmDialog';
 import { EmptyState } from '../../../../components/ui/EmptyState';
 import { ErrorState } from '../../../../components/ui/ErrorState';
 import { Input } from '../../../../components/ui/Input';
-import { KeysetPagination } from '../../../../components/ui/KeysetPagination';
 import { LoadingState } from '../../../../components/ui/LoadingState';
 import { Modal } from '../../../../components/ui/Modal';
 import { Select } from '../../../../components/ui/Select';
-import { StatusDot } from '../../../../components/ui/StatusDot';
-import { TableCard } from '../../../../components/ui/TableCard';
-import { Badge } from '../../../../components/ui/Badge';
-import { clsx } from '../../../../components/ui/clsx';
 import { UserLookupInput } from '../../../../components/ui/UserLookupInput';
 import { VpsLookupInput } from '../../../../components/ui/VpsLookupInput';
-import { toneSurfaceClass } from '../../../../components/ui/tone';
-import { HostIpAddressRowActions } from '../ipAddresses/HostIpAddressRowActions';
-
-function idOf(v: any): number | null {
-  if (!v) return null;
-  if (typeof v === 'number') return v;
-  if (typeof v === 'object' && typeof v.id === 'number') return v.id;
-  return null;
-}
-
-function ipAddrLabel(row: HostIpAddress): string {
-  const ip = (row as any).ip_address;
-  if (ip && typeof ip === 'object') {
-    const addr = String((ip as any).ip_addr ?? (ip as any).addr ?? '').trim();
-    if (addr) return addr;
-  }
-  return '—';
-}
-
-function vpsLabel(row: HostIpAddress): string {
-  const ni = (row as any).ip_address?.network_interface;
-  const vps = ni && typeof ni === 'object' ? (ni as any).vps : undefined;
-  if (vps && typeof vps === 'object') {
-    const hostname = String((vps as any).hostname ?? '').trim();
-    const id = idOf(vps);
-    if (hostname && id) return `${hostname} (#${id})`;
-    if (hostname) return hostname;
-    if (id) return `#${id}`;
-  }
-  return '—';
-}
-
-function userLabel(row: HostIpAddress): string {
-  const user = (row as any).ip_address?.user;
-  if (user && typeof user === 'object') {
-    const login = String((user as any).login ?? '').trim();
-    const id = idOf(user);
-    if (login && id) return `${login} (#${id})`;
-    if (login) return login;
-    if (id) return `#${id}`;
-  }
-  return '—';
-}
-
-function ifaceLabel(row: HostIpAddress): string {
-  const iface = (row as any).ip_address?.network_interface;
-  if (iface && typeof iface === 'object') {
-    const name = String((iface as any).name ?? '').trim();
-    const id = idOf(iface);
-    if (name && id) return `${name} (#${id})`;
-    if (name) return name;
-    if (id) return `#${id}`;
-  }
-  return '—';
-}
-
-function rowVariant(row: HostIpAddress): 'warn' | undefined {
-  return row.assigned === false ? 'warn' : undefined;
-}
-
-function hostAddr(row: HostIpAddress): string {
-  return String((row as any).addr ?? (row as any).ip_addr ?? `#${row.id}`);
-}
-
-function isDefaultHiddenLegacyHostIp(row: HostIpAddress): boolean {
-  const address = `${hostAddr(row)} ${ipAddrLabel(row)}`.toLowerCase();
-  return (
-    address.startsWith('83.167.228.') ||
-    address.includes(' 83.167.228.') ||
-    address.startsWith('2a01:430:17:') ||
-    address.includes(' 2a01:430:17:')
-  );
-}
-
-function MobileCellLabel(props: { children: React.ReactNode }) {
-  return <div className="mb-1 text-xs font-semibold text-muted md:hidden">{props.children}</div>;
-}
+import { captureNetworkListScope } from './networkListScope';
+import { HostIpAddressesTable, hostAddr, isDefaultHiddenLegacyHostIp } from './HostIpAddressesTable';
 
 export function HostIpAddressesPage() {
   const { t } = useI18n();
+  const auth = useAuth();
   const { pushToast } = useToasts();
   const qc = useQueryClient();
   const [sp, setSp] = useSearchParams();
@@ -126,27 +48,66 @@ export function HostIpAddressesPage() {
   const [assignHost, setAssignHost] = useState<HostIpAddress | null>(null);
   const [assignVps, setAssignVps] = useState<number | null>(null);
   const [assignInterface, setAssignInterface] = useState('');
+  const [ptrLoadingId, setPtrLoadingId] = useState<number | null>(null);
+  const ptrScopeRef = useRef<{ generation: number; isCurrent: () => boolean } | null>(null);
 
-  const q = String(sp.get('q') ?? '').trim();
+  const addr = String(sp.get('addr') ?? '').trim();
   const userId = parsePositiveInt(sp.get('user'));
   const vpsId = parsePositiveInt(sp.get('vps'));
   const assigned = parseBoolParam(sp.get('assigned'));
-  const limit = parsePositiveInt(sp.get('limit')) ?? 50;
-
-  const paging = useKeysetPagination({
-    id: 'admin.host_ip_addresses.list',
-    filterKey: JSON.stringify({ q, userId, vpsId, assigned }),
-    searchParams: sp,
-    setSearchParams: setSp,
-    defaultLimit: limit,
-    allowedLimits: [25, 50, 100],
-  });
+  const requestedLimit = parsePositiveInt(sp.get('limit'));
+  const limit = requestedLimit === 25 || requestedLimit === 100 ? requestedLimit : 50;
+  const [page, setPage] = useState(1);
+  const [legacyReset, setLegacyReset] = useState(false);
+  const legacyParams = sp.has('q') || sp.has('from_id') || sp.has('page');
+  const filterKey = JSON.stringify({ addr, userId, vpsId, assigned });
+  const filterGenerationRef = useRef(0);
+  const previousFilterRef = useRef(filterKey);
+  useEffect(() => {
+    if (previousFilterRef.current === filterKey) return;
+    previousFilterRef.current = filterKey;
+    filterGenerationRef.current += 1;
+    setPtrEditor(null);
+  }, [filterKey]);
+  useEffect(() => () => { filterGenerationRef.current += 1; }, []);
+  useEffect(() => setPage(1), [filterKey, limit]);
+  useEffect(() => {
+    if (!legacyParams) return;
+    const next = new URLSearchParams(sp);
+    ['q', 'from_id', 'page'].forEach((key) => next.delete(key));
+    setLegacyReset(true);
+    setSp(next, { replace: true });
+  }, [legacyParams, sp, setSp]);
+  const unsupportedUserFilter = userId !== undefined && auth.role !== 'admin';
+  const scope = captureNetworkListScope(auth, 'host_ip_addresses', filterKey);
+  const scopeSignature = JSON.stringify(scope.key);
+  useEffect(() => {
+    setPtrEditor(null);
+    setDeleteHost(null);
+    setAssignHost(null);
+    ptrScopeRef.current = null;
+  }, [scopeSignature]);
 
   const listQ = useQuery({
-    queryKey: ['host_ip_addresses', 'list', { q, userId, vpsId, assigned, limit: paging.limit, fromId: paging.cursor ?? null }],
-    queryFn: async () =>
-      (await fetchHostIpAddresses({ q: q || undefined, user: userId, vps: vpsId, assigned, limit: paging.limit, fromId: paging.cursor ?? undefined })).data,
-    placeholderData: (prev) => prev,
+    queryKey: ['host_ip_addresses', 'ascending_list', scope.key],
+    queryFn: ({ signal }) => loadAscendingIdCollection<HostIpAddress>({
+      signal,
+      isCurrent: scope.isCurrent,
+      fetchPage: (fromId, requestSignal) => fetchHostIpAddresses({
+        addr: addr || undefined,
+        user: userId,
+        vps: vpsId,
+        assigned,
+        order: 'asc',
+        limit: ASCENDING_ID_PAGE_SIZE,
+        fromId,
+        count: true,
+        signal: requestSignal,
+      }),
+    }),
+    enabled: auth.status === 'authenticated' && !unsupportedUserFilter && !legacyParams,
+    retry: false,
+    refetchOnWindowFocus: false,
   });
 
   const netifsQ = useQuery({
@@ -167,6 +128,9 @@ export function HostIpAddressesPage() {
   const updatePtrM = useMutation({
     mutationFn: async () => {
       if (!ptrEditor) throw new Error(t('admin.host_ip_addresses.action.error_missing'));
+      if (!ptrScopeRef.current?.isCurrent() || ptrScopeRef.current.generation !== filterGenerationRef.current) {
+        throw new Error(t('admin.host_ip_addresses.action.error'));
+      }
       return updateHostIpAddress(ptrEditor.id, { reverse_record_value: ptrValue.trim() });
     },
     onSuccess: async () => {
@@ -180,6 +144,7 @@ export function HostIpAddressesPage() {
   const assignM = useMutation({
     mutationFn: async () => {
       if (!assignHost) throw new Error(t('admin.host_ip_addresses.action.error_missing'));
+      if (!scope.isCurrent()) throw new Error(t('admin.host_ip_addresses.action.error'));
       const networkInterface = Number(assignInterface.trim());
       if (!Number.isInteger(networkInterface) || networkInterface <= 0) throw new Error(t('admin.host_ip_addresses.assign.interface_required'));
       return assignHostIpAddress(assignHost.id, { network_interface: networkInterface });
@@ -194,7 +159,10 @@ export function HostIpAddressesPage() {
   });
 
   const freeM = useMutation({
-    mutationFn: async (hostId: number) => freeHostIpAddress(hostId),
+    mutationFn: async (hostId: number) => {
+      if (!scope.isCurrent()) throw new Error(t('admin.host_ip_addresses.action.error'));
+      return freeHostIpAddress(hostId);
+    },
     onSuccess: async () => {
       await refresh();
       pushToast({ variant: 'ok', title: t('admin.host_ip_addresses.toast.freed') });
@@ -204,6 +172,7 @@ export function HostIpAddressesPage() {
   const deleteM = useMutation({
     mutationFn: async () => {
       if (!deleteHost) throw new Error(t('admin.host_ip_addresses.action.error_missing'));
+      if (!scope.isCurrent()) throw new Error(t('admin.host_ip_addresses.action.error'));
       return deleteHostIpAddress(deleteHost.id);
     },
     onSuccess: async () => {
@@ -213,27 +182,54 @@ export function HostIpAddressesPage() {
     },
   });
 
-  const filtersActive = Boolean(q || userId || vpsId || assigned !== undefined);
-  const rawRows = listQ.data ?? [];
+  const filtersActive = Boolean(addr || userId || vpsId || assigned !== undefined);
+  const rawRows = listQ.data?.rows ?? [];
   const rows = useMemo(
     () => (filtersActive ? rawRows : rawRows.filter((row) => !isDefaultHiddenLegacyHostIp(row))),
     [filtersActive, rawRows]
   );
-  const nextCursor = cursorFromDescendingPage(rows, (r) => Number((r as any).id));
-  const canNext = Boolean(nextCursor);
+  const pageCount = Math.max(1, Math.ceil(rows.length / limit));
+  const currentPage = Math.min(page, pageCount);
+  const visibleRows = rows.slice((currentPage - 1) * limit, currentPage * limit);
+  const partial = listQ.data?.completeness === 'partial';
 
   const setParam = (key: string, value?: string) => {
+    filterGenerationRef.current += 1;
     const next = new URLSearchParams(sp);
     if (value && value.trim()) next.set(key, value.trim());
     else next.delete(key);
     ['from_id', 'page'].forEach((k) => next.delete(k));
+    setPage(1);
+    setLegacyReset(false);
     setSp(next);
   };
 
   const clearFilters = () => {
+    filterGenerationRef.current += 1;
     const next = new URLSearchParams();
-    next.set('limit', String(paging.limit));
+    next.set('limit', String(limit));
+    setPage(1);
+    setLegacyReset(false);
     setSp(next);
+  };
+
+  const editPtr = async (id: number) => {
+    const generation = filterGenerationRef.current;
+    const search = sp.toString();
+    setPtrLoadingId(id);
+    try {
+      const detail = (await fetchHostIpAddress(id)).data;
+      if (!scope.isCurrent() || filterGenerationRef.current !== generation ||
+          new URLSearchParams(window.location.search).toString() !== search) return;
+      if (!detail || detail.id !== id) throw new Error('Invalid host IP address');
+      ptrScopeRef.current = { generation, isCurrent: scope.isCurrent };
+      setPtrEditor(detail);
+      setPtrValue(String(detail.reverse_record_value ?? ''));
+    } catch {
+      if (scope.isCurrent()) pushToast({ variant: 'danger', title: t('admin.host_ip_addresses.load_error') });
+    } finally {
+      setPtrLoadingId(null);
+    }
   };
 
   return (
@@ -245,7 +241,7 @@ export function HostIpAddressesPage() {
           left={
             <div className="flex flex-wrap items-center gap-3">
               <div className="w-full max-w-sm">
-                <Input testId="admin.host_ip_addresses.filter.q" value={q} onChange={(e) => setParam('q', e.target.value)} placeholder={t('admin.host_ip_addresses.filter.q.placeholder')} />
+                <Input testId="admin.host_ip_addresses.filter.addr" value={addr} onChange={(e) => setParam('addr', e.target.value)} placeholder={t('admin.network_list.exact_addr')} />
               </div>
               <div className="w-64">
                 <UserLookupInput testId="admin.host_ip_addresses.filter.user" value={userId ? String(userId) : ''} onChange={(v) => setParam('user', v)} placeholder={t('admin.host_ip_addresses.filter.user.placeholder')} />
@@ -275,106 +271,46 @@ export function HostIpAddressesPage() {
         />
       }
     >
-      {listQ.isLoading ? <LoadingState /> : listQ.isError ? <ErrorState title={t('admin.host_ip_addresses.load_error')} /> : rows.length === 0 ? (
+      {legacyReset ? <Alert variant="info" className="mb-3" testId="admin.host_ip_addresses.legacy_reset">{t('admin.network_list.legacy_reset')}</Alert> : null}
+      {partial ? (
+        <Alert variant="warn" className="mb-3" testId="admin.host_ip_addresses.partial">
+          {t(listQ.data?.reason === 'budget' ? 'admin.network_list.partial_budget' : 'admin.network_list.partial_failure', { count: rows.length })}
+          <div className="mt-2"><Button variant="secondary" size="sm" onClick={() => void listQ.refetch()}>{t('common.retry')}</Button></div>
+        </Alert>
+      ) : null}
+      {unsupportedUserFilter ? (
+        <Alert variant="danger" testId="admin.host_ip_addresses.unsupported_filter">
+          {t('admin.network_list.user_filter_admin_only')}
+          <div className="mt-2"><Button variant="secondary" size="sm" onClick={() => setParam('user')}>{t('common.clear_filters')}</Button></div>
+        </Alert>
+      ) : legacyParams || listQ.isLoading ? <LoadingState /> : listQ.isError ? <ErrorState title={t('admin.host_ip_addresses.load_error')} /> : partial && rows.length === 0 ? (
+        <Alert variant="warn" testId="admin.host_ip_addresses.partial_empty">{t('admin.network_list.partial_empty')}</Alert>
+      ) : rows.length === 0 ? (
         <EmptyState title={t('admin.host_ip_addresses.empty')} />
       ) : (
-        <TableCard
-          testId="admin.host_ip_addresses.table"
-          className="relative min-w-0 max-w-full overflow-x-hidden"
-          tableClassName="block md:table"
-          footer={<KeysetPagination testId="admin.host_ip_addresses.pagination" page={paging.page} pageCount={paging.pageCount} canPrev={paging.canPrev} canNext={canNext} onPrev={paging.goPrev} onNext={() => paging.goNext(nextCursor ?? null)} onGoToPage={paging.goToPage} limit={paging.limit} onLimitChange={paging.setLimit} />}
-        >
-          <thead className="hidden md:table-header-group">
-            <tr>
-              <th aria-label={t('common.state')} />
-              <th>{t('admin.host_ip_addresses.field.address')}</th>
-              <th>{t('admin.host_ip_addresses.field.route')}</th>
-              <th>{t('admin.host_ip_addresses.field.interface')}</th>
-              <th>{t('admin.host_ip_addresses.field.vps')}</th>
-              <th>{t('admin.host_ip_addresses.field.user')}</th>
-              <th>{t('admin.host_ip_addresses.field.ptr')}</th>
-              <th>{t('admin.host_ip_addresses.field.flags')}</th>
-              <th><span className="sr-only">{t('common.actions')}</span></th>
-            </tr>
-          </thead>
-          <tbody className="block md:table-row-group">
-            {rows.map((row) => {
-              const id = Number((row as any).id);
-              const variant = rowVariant(row);
-              return (
-                <tr
-                  key={id}
-                  data-testid={`admin.host_ip_addresses.row.${id}`}
-                  data-row-variant={variant}
-                  className={clsx(
-                    'block border-b border-border last:border-b-0 md:table-row md:border-b-0',
-                    variant ? toneSurfaceClass(variant) : undefined,
-                  )}
-                >
-                  <td className="hidden md:table-cell">
-                    <StatusDot variant={variant ?? 'ok'} testId={`admin.host_ip_addresses.row.${id}.dot`} />
-                  </td>
-                  <td className="block px-3 pb-1 pt-3 font-medium tabular-nums md:table-cell md:p-0">
-                    <MobileCellLabel>{t('admin.host_ip_addresses.field.address')}</MobileCellLabel>
-                    <span className="break-words">{String((row as any).addr ?? `#${id}`)}</span>
-                  </td>
-                  <td className="block px-3 py-1 tabular-nums md:table-cell md:p-0">
-                    <MobileCellLabel>{t('admin.host_ip_addresses.field.route')}</MobileCellLabel>
-                    <span className="break-words">{ipAddrLabel(row)}</span>
-                  </td>
-                  <td className="block px-3 py-1 md:table-cell md:p-0">
-                    <MobileCellLabel>{t('admin.host_ip_addresses.field.interface')}</MobileCellLabel>
-                    <span className="break-words">{ifaceLabel(row)}</span>
-                  </td>
-                  <td className="block px-3 py-1 md:table-cell md:p-0">
-                    <MobileCellLabel>{t('admin.host_ip_addresses.field.vps')}</MobileCellLabel>
-                    <span className="break-words">{vpsLabel(row)}</span>
-                  </td>
-                  <td className="block px-3 py-1 md:table-cell md:p-0">
-                    <MobileCellLabel>{t('admin.host_ip_addresses.field.user')}</MobileCellLabel>
-                    <span className="break-words">{userLabel(row)}</span>
-                  </td>
-                  <td className="block px-3 py-1 md:table-cell md:max-w-80 md:truncate md:p-0">
-                    <MobileCellLabel>{t('admin.host_ip_addresses.field.ptr')}</MobileCellLabel>
-                    <span className="break-words">{String((row as any).reverse_record_value ?? t('common.na'))}</span>
-                  </td>
-                  <td className="block px-3 py-1 md:table-cell md:p-0">
-                    <MobileCellLabel>{t('admin.host_ip_addresses.field.flags')}</MobileCellLabel>
-                    <div className="flex flex-wrap gap-1">
-                      <Badge tone={row.assigned === false ? 'warn' : 'ok'}>{row.assigned === false ? t('common.unassigned') : t('common.assigned')}</Badge>
-                      {(row as any).user_created ? <Badge tone="neutral">{t('common.custom')}</Badge> : null}
-                    </div>
-                  </td>
-                  <td className="block px-3 pb-3 pt-1 md:table-cell md:p-0 md:text-right">
-                    <MobileCellLabel>{t('common.actions')}</MobileCellLabel>
-                    <HostIpAddressRowActions
-                      assigned={row.assigned !== false}
-                      userCreated={Boolean((row as any).user_created)}
-                      testIdPrefix={`admin.host_ip_addresses.row.${id}`}
-                      responsive
-                      assignLoading={assignM.isPending}
-                      freeLoading={freeM.isPending}
-                      onEditPtr={() => {
-                        setPtrEditor(row);
-                        setPtrValue(String((row as any).reverse_record_value ?? ''));
-                      }}
-                      onAssign={() => {
-                        setAssignHost(row);
-                        setAssignVps(null);
-                        setAssignInterface('');
-                      }}
-                      onFree={() => freeM.mutate(id)}
-                      onDelete={() => {
-                        deleteM.reset();
-                        setDeleteHost(row);
-                      }}
-                    />
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </TableCard>
+        <HostIpAddressesTable
+          rows={visibleRows}
+          partial={partial}
+          page={currentPage}
+          pageCount={pageCount}
+          limit={limit}
+          ptrLoadingId={ptrLoadingId}
+          assignPending={assignM.isPending}
+          freePending={freeM.isPending}
+          onPageChange={setPage}
+          onLimitChange={(value) => setParam('limit', String(value))}
+          onEditPtr={(id) => void editPtr(id)}
+          onAssign={(row) => {
+            setAssignHost(row);
+            setAssignVps(null);
+            setAssignInterface('');
+          }}
+          onFree={(id) => freeM.mutate(id)}
+          onDelete={(row) => {
+            deleteM.reset();
+            setDeleteHost(row);
+          }}
+        />
       )}
 
       {(updatePtrM.error || assignM.error || freeM.error) ? (

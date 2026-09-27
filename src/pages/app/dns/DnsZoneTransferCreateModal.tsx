@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { useI18n } from '../../../app/i18n';
+import { useAuth } from '../../../app/auth';
 import { ActionButton } from '../../../components/ui/ActionButton';
 import { Alert } from '../../../components/ui/Alert';
 import { Button } from '../../../components/ui/Button';
@@ -26,6 +27,8 @@ export function DnsZoneTransferCreateModal(props: {
   onSubmit: () => void;
 }) {
   const { t } = useI18n();
+  const auth = useAuth();
+  const unsupportedUserFilter = props.ownerUserId !== undefined && auth.role !== 'admin';
 
   return (
     <Modal open={props.open} onClose={props.onClose} title={t('dns.zone.transfers.create.title')}>
@@ -36,10 +39,17 @@ export function DnsZoneTransferCreateModal(props: {
           </Alert>
         ) : null}
 
+        {unsupportedUserFilter ? (
+          <Alert variant="danger" testId="dns.transfers.create.unsupported_filter">
+            {t('admin.network_list.user_filter_admin_only')}
+          </Alert>
+        ) : null}
+
         <HostIpLookupInput
           value={props.hostIpId}
           onChange={props.onHostIpIdChange}
           userId={props.ownerUserId}
+          disabled={unsupportedUserFilter}
           filters={{ usableFor: 'vps', routed: true }}
           ariaLabel={t('dns.zone.transfers.field.host_ip')}
           label={t('dns.zone.transfers.field.host_ip')}
@@ -84,7 +94,7 @@ export function DnsZoneTransferCreateModal(props: {
           <ActionButton
             onClick={props.onSubmit}
             loading={props.createPending}
-            disabled={!props.hostIpId}
+            disabled={!props.hostIpId || unsupportedUserFilter}
             testId="dns.transfers.create.submit"
           >
             {t('common.create')}

@@ -25,7 +25,6 @@ export const enAdmin_host_ip_addresses = {
   "admin.host_ip_addresses.filter.assigned.all": "Any assignment",
   "admin.host_ip_addresses.filter.assigned.false": "Unassigned only",
   "admin.host_ip_addresses.filter.assigned.true": "Assigned only",
-  "admin.host_ip_addresses.filter.q.placeholder": "Search by address, VPS or user…",
   "admin.host_ip_addresses.filter.user.placeholder": "User login or ID…",
   "admin.host_ip_addresses.filter.vps.placeholder": "VPS hostname or ID…",
   "admin.host_ip_addresses.load_error": "Failed to load host IP addresses",

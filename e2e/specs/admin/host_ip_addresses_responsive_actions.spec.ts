@@ -38,6 +38,7 @@ test('@pr-smoke @pr-smoke-mobile host IP actions stay reachable without horizont
     },
   ];
   const mutationRequests: string[] = [];
+  let detailRequests = 0;
   page.on('request', (request) => {
     if (
       ['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method())
@@ -51,6 +52,10 @@ test('@pr-smoke @pr-smoke-mobile host IP actions stay reachable without horizont
     user: { id: 1, login: 'admin', level: 90 },
     handlers: {
       'GET host_ip_addresses': () => ({ host_ip_addresses: rows, _meta: { total_count: rows.length } }),
+      'GET host_ip_addresses/501': () => {
+        detailRequests += 1;
+        return { host_ip_address: rows[0] };
+      },
     },
   });
 
@@ -106,6 +111,7 @@ test('@pr-smoke @pr-smoke-mobile host IP actions stay reachable without horizont
   await page.getByTestId('admin.host_ip_addresses.row.501.ptr').click();
   const ptrDialog = page.getByRole('dialog', { name: 'Set reverse record' });
   await expect(ptrDialog).toBeVisible();
+  expect(detailRequests).toBe(1);
   await ptrDialog.getByRole('button', { name: 'Cancel' }).click();
 
   await page.getByTestId('admin.host_ip_addresses.row.502.assign').click();

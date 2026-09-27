@@ -172,7 +172,6 @@ export async function deleteExportHost(exportId: number, hostId: number) {
 export async function fetchHostIpAddresses(opts?: {
   fromId?: number;
   limit?: number;
-  q?: string;
   addr?: string;
   user?: number;
   vps?: number;
@@ -182,11 +181,11 @@ export async function fetchHostIpAddresses(opts?: {
   routed?: boolean;
   order?: string;
   includes?: string;
+  signal?: AbortSignal;
 }) {
   const params: Record<string, unknown> = {};
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
-  if (opts?.q !== undefined) params['q'] = opts.q;
   if (opts?.addr !== undefined) params['addr'] = opts.addr;
   if (opts?.user !== undefined) params['user'] = opts.user;
   if (opts?.vps !== undefined) params['vps'] = opts.vps;
@@ -202,6 +201,7 @@ export async function fetchHostIpAddresses(opts?: {
     namespace: 'host_ip_address',
     params,
     meta: opts?.includes ? { includes: opts.includes } : undefined,
+    signal: opts?.signal,
   });
 
   return { ...res, data: expectArray<HostIpAddress>(res.data, 'host_ip_addresses#index') };

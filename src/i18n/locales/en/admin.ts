@@ -9,6 +9,7 @@ import { enAdmin_ip_assignments } from './admin/ip_assignments';
 import { enAdmin_migration_plan } from './admin/migration_plan';
 import { enAdmin_migration_plans } from './admin/migration_plans';
 import { enAdmin_network_live } from './admin/network_live';
+import { enAdmin_network_list } from './admin/network_list';
 import { enAdmin_network_traffic_users } from './admin/network_traffic_users';
 import { enAdmin_networking } from './admin/networking';
 import { enAdmin_newslog } from './admin/newslog';
@@ -32,6 +33,7 @@ export const enAdmin = {
   ...enAdmin_migration_plan,
   ...enAdmin_migration_plans,
   ...enAdmin_network_live,
+  ...enAdmin_network_list,
   ...enAdmin_network_traffic_users,
   ...enAdmin_networking,
   ...enAdmin_newslog,

@@ -6,8 +6,9 @@ import { ActionButton } from '../../../../components/ui/ActionButton';
 import { Button } from '../../../../components/ui/Button';
 
 interface HostIpAddressRowActionsProps {
-  assigned: boolean;
+  assigned?: boolean;
   userCreated: boolean;
+  allowStateActions?: boolean;
   testIdPrefix: string;
   responsive?: boolean;
   assignLoading?: boolean;
@@ -24,6 +25,7 @@ const iconClass = 'h-4 w-4 shrink-0';
 export function HostIpAddressRowActions({
   assigned,
   userCreated,
+  allowStateActions = true,
   testIdPrefix,
   responsive,
   assignLoading,
@@ -59,7 +61,7 @@ export function HostIpAddressRowActions({
         <Pencil className={iconClass} aria-hidden="true" />
       </Button>
 
-      {assigned ? (
+      {allowStateActions && assigned === true ? (
         <ActionButton
           variant="danger"
           size="sm"
@@ -72,7 +74,7 @@ export function HostIpAddressRowActions({
         >
           <Unplug className={iconClass} aria-hidden="true" />
         </ActionButton>
-      ) : (
+      ) : allowStateActions && assigned === false ? (
         <ActionButton
           variant="ghost"
           size="sm"
@@ -85,9 +87,9 @@ export function HostIpAddressRowActions({
         >
           <PlugZap className={iconClass} aria-hidden="true" />
         </ActionButton>
-      )}
+      ) : null}
 
-      {userCreated && !assigned ? (
+      {allowStateActions && userCreated && assigned === false ? (
         <Button
           variant="danger"
           size="sm"

@@ -9,6 +9,7 @@ import { csAdmin_ip_assignments } from './admin/ip_assignments';
 import { csAdmin_migration_plan } from './admin/migration_plan';
 import { csAdmin_migration_plans } from './admin/migration_plans';
 import { csAdmin_network_live } from './admin/network_live';
+import { csAdmin_network_list } from './admin/network_list';
 import { csAdmin_network_traffic_users } from './admin/network_traffic_users';
 import { csAdmin_networking } from './admin/networking';
 import { csAdmin_newslog } from './admin/newslog';
@@ -32,6 +33,7 @@ export const csAdmin = {
   ...csAdmin_migration_plan,
   ...csAdmin_migration_plans,
   ...csAdmin_network_live,
+  ...csAdmin_network_list,
   ...csAdmin_network_traffic_users,
   ...csAdmin_networking,
   ...csAdmin_newslog,

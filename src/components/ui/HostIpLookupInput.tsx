@@ -4,10 +4,20 @@ import { useQuery } from '@tanstack/react-query';
 import type { HostIpAddress } from '../../lib/api/exports';
 import { fetchHostIpAddresses } from '../../lib/api/exports';
 import { useDebouncedValue } from '../../lib/hooks/useDebouncedValue';
+import { useI18n } from '../../app/i18n';
+import { getRuntimeConfig } from '../../app/config';
+import { getBffSessionKey } from '../../lib/auth/bffSession';
+import { browserSessionStorage, readImpersonationState } from '../../lib/auth/impersonation';
+import { loadBoundedIdCollection } from '../../lib/api/ascendingIdCollection';
 
 import { Input } from './Input';
 import { clsx } from './clsx';
 import { parseLookupIdLike, formatLookupId } from '../../lib/lookupInput';
+
+function exactAddressNeedle(value: string): string | undefined {
+  const trimmed = value.trim();
+  return /^[0-9a-fA-F:.]+$/.test(trimmed) && /[.:]/.test(trimmed) ? trimmed : undefined;
+}
 
 export function HostIpLookupInput(props: {
   value: number | null;
@@ -27,12 +37,17 @@ export function HostIpLookupInput(props: {
   invalidSelectionMessage?: string;
   testId?: string;
 }) {
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState(-1);
   const [invalidSelection, setInvalidSelection] = useState(false);
+  const [verificationFailed, setVerificationFailed] = useState(false);
+  const [checkingId, setCheckingId] = useState(false);
   const [needleRaw, setNeedleRaw] = useState('');
   const needle = useDebouncedValue(needleRaw, 150);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const verifiedIdRef = useRef<{ id: number; filters: string } | null>(null);
+  const validationRef = useRef<{ generation: number; controller: AbortController | null }>({ generation: 0, controller: null });
   const generatedId = useId();
   const listboxId = `${generatedId}-host-ip-options`;
   const errorId = `${generatedId}-host-ip-error`;
@@ -44,11 +59,42 @@ export function HostIpLookupInput(props: {
   }, [props.value, open, needleRaw]);
 
   const idLike = useMemo(() => parseLookupIdLike(needle), [needle]);
+  const exactAddr = useMemo(() => exactAddressNeedle(needle), [needle]);
   const browseEligibleAddresses = props.filters !== undefined;
+  const baseSessionKey = getBffSessionKey();
+  const impersonationId = readImpersonationState(browserSessionStorage())?.sessionId ?? null;
+  const filterSignature = JSON.stringify({
+    userId: props.userId, filters: props.filters, limit: props.limit,
+    disabled: props.disabled, baseSessionKey, impersonationId,
+  });
+  const currentFilterSignature = useRef(filterSignature);
+  currentFilterSignature.current = filterSignature;
+  const previousFilterSignature = useRef(filterSignature);
+
+  useEffect(() => {
+    if (previousFilterSignature.current === filterSignature) return;
+    previousFilterSignature.current = filterSignature;
+    validationRef.current.generation += 1;
+    validationRef.current.controller?.abort();
+    validationRef.current.controller = null;
+    verifiedIdRef.current = null;
+    setCheckingId(false);
+    setInvalidSelection(false);
+    setVerificationFailed(false);
+    props.onChange(null);
+  }, [filterSignature, props.onChange]);
+
+  useEffect(() => () => {
+    validationRef.current.generation += 1;
+    validationRef.current.controller?.abort();
+    verifiedIdRef.current = null;
+  }, []);
 
   const q = useQuery({
     queryKey: [
       'host_ip_lookup',
+      baseSessionKey ?? null,
+      impersonationId,
       browseEligibleAddresses
         ? {
             user: props.userId ?? null,
@@ -57,13 +103,15 @@ export function HostIpLookupInput(props: {
             usableFor: props.filters?.usableFor ?? null,
             routed: props.filters?.routed ?? null,
             limit: props.limit ?? 100,
+            exactAddr: exactAddr ?? null,
           }
-        : { needle, user: props.userId ?? null },
+        : { exactAddr: exactAddr ?? null, user: props.userId ?? null },
     ],
     queryFn: async () => {
       if (browseEligibleAddresses) {
         const res = await fetchHostIpAddresses({
           limit: props.limit ?? 100,
+          addr: exactAddr,
           user: props.userId,
           assigned: props.filters?.assigned,
           purpose: props.filters?.purpose,
@@ -72,15 +120,14 @@ export function HostIpLookupInput(props: {
         });
         return res.data as HostIpAddress[];
       }
-      if (!needle.trim()) return [] as HostIpAddress[];
-      if (parseLookupIdLike(needle) !== null) return [] as HostIpAddress[];
-      const res = await fetchHostIpAddresses({ q: needle.trim(), limit: 10, user: props.userId, assigned: true });
+      if (!exactAddr) return [] as HostIpAddress[];
+      const res = await fetchHostIpAddresses({ addr: exactAddr, limit: 10, user: props.userId, assigned: true });
       return res.data as HostIpAddress[];
     },
     enabled:
       open
       && !props.disabled
-      && (browseEligibleAddresses || (needle.trim().length >= 2 && idLike === null)),
+      && (browseEligibleAddresses || (exactAddr !== undefined && idLike === null)),
     staleTime: 15_000,
   });
 
@@ -116,34 +163,93 @@ export function HostIpLookupInput(props: {
 
   const onSelect = (ip: HostIpAddress) => {
     const id = Number(ip.id);
-    if (!Number.isFinite(id) || id <= 0) return;
+    if (!Number.isSafeInteger(id) || id <= 0) return;
+    validationRef.current.generation += 1;
+    validationRef.current.controller?.abort();
+    verifiedIdRef.current = { id, filters: filterSignature };
     props.onChange(Math.floor(id));
     setNeedleRaw(formatLookupId(id));
     setInvalidSelection(false);
+    setVerificationFailed(false);
     setActiveIdx(-1);
     setOpen(false);
   };
 
-  const commitRawId = (value: string): boolean => {
+  const commitRawId = async (value: string): Promise<boolean> => {
     const id = parseLookupIdLike(value);
-    if (id === null) return false;
+    if (id === null || !Number.isSafeInteger(id)) return false;
 
-    if (browseEligibleAddresses && !eligibleIds.has(id)) {
-      props.onChange(null);
-      setInvalidSelection(true);
-      return false;
+    if (browseEligibleAddresses && !eligibleIds.has(id) &&
+        (verifiedIdRef.current?.id !== id || verifiedIdRef.current.filters !== filterSignature)) {
+      const controller = new AbortController();
+      validationRef.current.controller?.abort();
+      validationRef.current.controller = controller;
+      const generation = ++validationRef.current.generation;
+      const capturedFilters = filterSignature;
+      const currentAuth = getRuntimeConfig().auth;
+      const token = currentAuth.kind === 'oauth2' ? currentAuth.accessToken : currentAuth.kind === 'token' ? currentAuth.sessionToken : undefined;
+      const stillCurrent = () => {
+        const auth = getRuntimeConfig().auth;
+        const currentToken = auth.kind === 'oauth2' ? auth.accessToken : auth.kind === 'token' ? auth.sessionToken : undefined;
+        return generation === validationRef.current.generation &&
+          currentFilterSignature.current === capturedFilters && !props.disabled &&
+          currentAuth.kind === auth.kind && token === currentToken;
+      };
+      setCheckingId(true);
+      setVerificationFailed(false);
+      try {
+        const checked = await loadBoundedIdCollection({
+          signal: controller.signal,
+          isCurrent: stillCurrent,
+          fetchPage: (_, signal) => fetchHostIpAddresses({
+            fromId: id > 1 ? id - 1 : undefined,
+            limit: 1,
+            order: 'asc',
+            user: props.userId,
+            assigned: props.filters?.assigned,
+            purpose: props.filters?.purpose,
+            usableFor: props.filters?.usableFor,
+            routed: props.filters?.routed,
+            signal,
+          }),
+        }, 1);
+        if (!stillCurrent()) return false;
+        if (checked.reason && checked.reason !== 'budget') {
+          props.onChange(null);
+          setVerificationFailed(true);
+          return false;
+        }
+        if (checked.rows.length !== 1 || checked.rows[0]?.id !== id) {
+          props.onChange(null);
+          setInvalidSelection(true);
+          return false;
+        }
+        verifiedIdRef.current = { id, filters: filterSignature };
+      } catch {
+        if (stillCurrent()) {
+          props.onChange(null);
+          setVerificationFailed(true);
+        }
+        return false;
+      } finally {
+        if (validationRef.current.controller === controller) {
+          validationRef.current.controller = null;
+          setCheckingId(false);
+        }
+      }
     }
 
     props.onChange(id);
     setNeedleRaw(formatLookupId(id));
     setInvalidSelection(false);
+    setVerificationFailed(false);
     return true;
   };
 
   const onBlur = () => {
     window.setTimeout(() => setOpen(false), 100);
     if (parseLookupIdLike(needleRaw) !== null) {
-      commitRawId(needleRaw);
+      void commitRawId(needleRaw);
       return;
     }
     if (!needleRaw.trim()) {
@@ -179,6 +285,11 @@ export function HostIpLookupInput(props: {
           setOpen(true);
           setActiveIdx(-1);
           setInvalidSelection(false);
+          setVerificationFailed(false);
+          validationRef.current.generation += 1;
+          validationRef.current.controller?.abort();
+          verifiedIdRef.current = null;
+          setCheckingId(false);
           const id = parseLookupIdLike(v);
           if (id !== null) {
             if (!browseEligibleAddresses) props.onChange(id);
@@ -220,14 +331,14 @@ export function HostIpLookupInput(props: {
             }
             if (parseLookupIdLike(needleRaw) !== null) {
               e.preventDefault();
-              if (commitRawId(needleRaw)) {
+              void commitRawId(needleRaw).then((accepted) => { if (accepted) {
                 setOpen(false);
                 inputRef.current?.blur();
-              }
+              } });
             }
           }
         }}
-        disabled={props.disabled}
+        disabled={props.disabled || checkingId}
         placeholder={props.placeholder}
         className={clsx('h-10')}
       />
@@ -278,6 +389,12 @@ export function HostIpLookupInput(props: {
       {invalidSelection && props.invalidSelectionMessage ? (
         <div id={errorId} role="alert" className="mt-1 text-xs text-danger" data-testid={props.testId ? `${props.testId}.error` : undefined}>
           {props.invalidSelectionMessage}
+        </div>
+      ) : null}
+      {verificationFailed ? <div role="alert" className="mt-1 text-xs text-danger" data-testid={props.testId ? `${props.testId}.verification_error` : undefined}>{t('admin.network_list.lookup_verification_failed')}</div> : null}
+      {browseEligibleAddresses && open ? (
+        <div className="mt-1 text-xs text-muted" data-testid={props.testId ? `${props.testId}.sample` : undefined}>
+          {t('admin.network_list.lookup_sample')}
         </div>
       ) : null}
     </div>

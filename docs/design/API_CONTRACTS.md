@@ -32,6 +32,29 @@ claims. Local adapter tests verify serialization, not deployed backend capabilit
 
 ## Pagination: known blockers
 
+For the locked vpsAdmin source `a65a4dfeb92a59df4a80a737a20bcbf8558793ff`
+(HaveAPI 0.29.8, API 7.0), `/host_ip_addresses` with `order=asc` and
+effective-admin `/ip_addresses` with `order=asc` return ascending IDs after
+`from_id`. These two lists use a 250-row sequential traversal with at most 20
+requests or 5,000 rows, 10 seconds per request and 30 seconds overall. Each next
+request uses the last validated ID unchanged. The first page's count is useful
+diagnostic metadata, not a transaction snapshot; a full final page at the
+budget remains partial. A failed later page keeps earlier validated rows and
+displays partial status. This source finding still needs a pinned live API check.
+
+For non-admin `/ip_addresses`, the same `order=asc` groups by owner before ID.
+It therefore uses one bounded response of at most 1,000 rows without an ID
+continuation. `desc` and `interface` on the admin page sort loaded rows in the
+browser. Host IP lookup uses the supported exact `addr` filter, and an ID outside
+the suggestion sample is accepted for an eligibility-dependent DNS transfer
+only after a targeted filtered API query returns that exact ID. The `q` filter
+is unsupported on these host IP routes. Legacy `q` or cursor links reset with
+an explanation; the sampled free-IP suggestions cannot prove availability.
+
+This does not change the ordering contract of network interfaces, assignments,
+accounting, datasets or other collections. Their separate correctness work
+remains open.
+
 The common UI uses `from_id`/visited cursor history, but that alone does not define
 ordering. The next cursor must agree with each backend's ordering and inclusivity.
 A minimum ID is unsafe when time-ordered data has nonmonotonic IDs; equal timestamps

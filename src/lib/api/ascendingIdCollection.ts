@@ -136,3 +136,60 @@ export async function loadAscendingIdCollection<T extends { id: unknown }>(
   // A full page at the exact bound never proves that another page is absent.
   return result('budget');
 }
+
+/** One bounded response for roles whose server order is not monotonic by ID. */
+export async function loadBoundedIdCollection<T extends { id: unknown }>(
+  options: AscendingIdOptions<T>,
+  limit = 1_000,
+): Promise<AscendingIdCollection<T>> {
+  const empty = (reason: CollectionStopReason): AscendingIdCollection<T> => ({
+    rows: [], completeness: 'partial', reason, continuation: null, requests: 0, pageMeta: [],
+  });
+  if (options.signal?.aborted) return empty('aborted');
+  if (!options.isCurrent()) return empty('scope_changed');
+
+  const controller = new AbortController();
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  let onAbort: (() => void) | undefined;
+  const aborted = new Promise<'aborted'>((resolve) => {
+    onAbort = () => { resolve('aborted'); controller.abort(); };
+    options.signal?.addEventListener('abort', onAbort, { once: true });
+  });
+  const timedOut = new Promise<'request_timeout'>((resolve) => {
+    timeout = setTimeout(() => { resolve('request_timeout'); controller.abort(); }, ASCENDING_ID_REQUEST_TIMEOUT_MS);
+  });
+  let page: AscendingIdPage<T> | 'request_timeout' | 'request_failed' | 'aborted';
+  try {
+    page = await Promise.race([
+      Promise.resolve().then(() => options.fetchPage(undefined, controller.signal)).catch(() => 'request_failed' as const),
+      timedOut,
+      aborted,
+    ]);
+  } finally {
+    if (timeout !== undefined) clearTimeout(timeout);
+    if (onAbort) options.signal?.removeEventListener('abort', onAbort);
+  }
+  if (options.signal?.aborted) return empty('aborted');
+  if (!options.isCurrent()) return empty('scope_changed');
+  if (typeof page === 'string') return empty(page);
+  if (!page || !Array.isArray(page.data) || page.data.length > limit) return empty('invalid_rows');
+  const ids = new Set<number>();
+  for (const row of page.data) {
+    if (!row || typeof row !== 'object' || typeof row.id !== 'number' ||
+        !Number.isSafeInteger(row.id) || row.id <= 0 || ids.has(row.id)) return empty('invalid_rows');
+    ids.add(row.id);
+  }
+  const count = validatedCount(page.meta);
+  if (count === null || (count !== undefined && (count < page.data.length ||
+      (page.data.length < limit && count > page.data.length)))) return empty('invalid_count');
+  const partial = page.data.length === limit;
+  return {
+    rows: page.data,
+    completeness: partial ? 'partial' : 'complete',
+    ...(partial ? { reason: 'budget' as const } : {}),
+    continuation: null,
+    requests: 1,
+    ...(count === undefined ? {} : { count }),
+    pageMeta: [page.meta],
+  };
+}

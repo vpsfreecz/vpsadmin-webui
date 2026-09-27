@@ -61,7 +61,6 @@ export interface NetworkTrafficUserTopRow {
 export async function fetchHostIpAddresses(opts?: {
   limit?: number;
   fromId?: number;
-  q?: string;
   ipAddress?: number;
   networkInterface?: number;
   user?: number;
@@ -79,7 +78,6 @@ export async function fetchHostIpAddresses(opts?: {
   const params: Record<string, unknown> = {};
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
-  if (opts?.q) params['q'] = opts.q;
   if (opts?.ipAddress !== undefined) params['ip_address'] = opts.ipAddress;
   if (opts?.networkInterface !== undefined) params['network_interface'] = opts.networkInterface;
   if (opts?.user !== undefined) params['user'] = opts.user;
@@ -104,6 +102,15 @@ export async function fetchHostIpAddresses(opts?: {
     signal: opts?.signal,
   });
   return { ...res, data: expectArray<HostIpAddress>(res.data, 'host_ip_addresses#index') };
+}
+
+export async function fetchHostIpAddress(id: number, signal?: AbortSignal) {
+  return haveApiCall<HostIpAddress>({
+    method: 'GET',
+    path: `/host_ip_addresses/${id}`,
+    meta: { includes: 'ip_address,ip_address__user,ip_address__network_interface' },
+    signal,
+  });
 }
 
 export async function createHostIpAddress(payload: { ip_address: number; addr: string }) {
