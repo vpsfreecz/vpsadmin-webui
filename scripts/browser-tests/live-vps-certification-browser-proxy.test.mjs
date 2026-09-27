@@ -4,8 +4,8 @@ import test from 'node:test';
 
 import { chromium } from '@playwright/test';
 
-import { findSystemChromium } from './e2e-harness.mjs';
-import { proxyPinnedLiveVpsBrowserRequest } from './live-vps-certification-browser-proxy.mjs';
+import { findSystemChromium } from '../e2e-harness.mjs';
+import { proxyPinnedLiveVpsBrowserRequest } from '../live-vps-certification-browser-proxy.mjs';
 
 const TEST_TOKEN = 'redirect-regression-token';
 const TEST_BODY = JSON.stringify({ vps: { hostname: 'must-not-be-replayed' } });
@@ -56,7 +56,8 @@ test('real Playwright route blocks API and static redirects before foreign or ch
       response.end();
     });
   });
-  const executablePath = process.env.E2E_CHROMIUM_EXECUTABLE_PATH?.trim() || findSystemChromium() || undefined;
+  const executablePath = process.env.E2E_CHROMIUM_EXECUTABLE_PATH?.trim() ||
+    (process.env.CI ? undefined : findSystemChromium()) || undefined;
   let browser;
 
   try {

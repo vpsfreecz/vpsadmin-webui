@@ -27,6 +27,43 @@ complete reconstruction of the project. Missing evidence is not a passing check.
   or raw production responses. This log does not grant deployment authorization
   or enable autonomous scheduled development.
 
+## 2026-09-27 - Prepare deterministic verification lanes
+
+**Request / reason:** the design audit depended on Git index state and failed
+for an archive/Nix source. PR checks omitted several architecture audits and a
+production build; one script test launched Chromium inside the nonbrowser suite.
+
+**Change:** enumerate regular Markdown, TypeScript and CSS source files in sorted
+order, including unstaged files, while pruning generated directories and
+rejecting source symlinks. Keep link, requirement, inventory and external redesign
+checks. Split the browser script regression into its own bucket without changing
+its redirect/write-replay assertions. The Playwright wrapper uses the installed
+1.61.0 CLI only after comparing its package, lock and version file. `ci:quick`,
+the nonbrowser suites, production build, browser script and independent desktop/
+mobile PR jobs now have explicit scripts/workflow jobs. No retry limits, failure
+assertions or historical deployment automation changed.
+
+**Toolchain and workflow references:** locked Nix Node 24.21.0 supplied npm
+11.19.0 when measured locally; the [official Node archive](https://nodejs.org/en/download/archive/v24.21.0)
+lists the same pair. The four Ubuntu workflows use the official
+[checkout v7.0.1](https://github.com/actions/checkout/releases/tag/v7.0.1),
+[setup-node v7.0.0](https://github.com/actions/setup-node/releases/tag/v7.0.0)
+and [upload-artifact v7.0.1](https://github.com/actions/upload-artifact/releases/tag/v7.0.1)
+tags checked on this date. `setup-node` v7 requires runner 2.327.1 or later;
+the workflows use GitHub-hosted Ubuntu.
+
+**Verification / status:** archive/checkout design-audit fixtures and the real
+checkout audit passed, as did wrapper/version and bucket tests and YAML parsing.
+The cached Node 24.21.0 store path disappeared before final checks; the exact
+toolchain gate rejected cached Node 24.19.0/npm 11.17.0 as expected. Recheck its
+positive path in the normal Nix environment.
+The production build, browser script, PR matrix and remote CI have not run for
+this candidate. `ci:quick` remained red pending structural debt disposition:
+the structural audit reported 892 casts and 63 files over 500 lines against
+its unchanged 1,156/53 baseline;
+UI-string audit finds three strings in two test fixtures. No debt ledger or broad
+page refactor is included. No push, default-branch write or deployment occurred.
+
 ## 2026-09-27 - Validate literal locale catalogs and rendered IP counts
 
 **Request / reason:** REQ-009, REQ-010 and REQ-053 need dependable catalog and

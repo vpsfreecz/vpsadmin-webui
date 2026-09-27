@@ -4,7 +4,35 @@ import { execFileSync } from 'node:child_process';
 
 const root = process.cwd();
 const directory = path.join(root, 'docs/design');
-const files = fs.readdirSync(directory).filter(f => f.endsWith('.md')).map(f => path.join(directory, f));
+const SOURCE_EXTENSIONS = new Set(['.md', '.ts', '.tsx', '.css']);
+const PRUNED_DIRECTORIES = new Set([
+  '.git', 'node_modules', 'dist', '.vite', 'work', 'artifacts',
+  'playwright-report',
+]);
+
+function sourceFiles(parent = root) {
+  const files = [];
+  const entries = fs.readdirSync(parent, { withFileTypes: true });
+  entries.sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
+  for (const entry of entries) {
+    const full = path.join(parent, entry.name);
+    const relative = path.relative(root, full).replaceAll(path.sep, '/');
+    const pruned = PRUNED_DIRECTORIES.has(entry.name) || relative === 'e2e/test-results';
+    if (pruned && entry.isDirectory()) continue;
+    if (entry.isSymbolicLink()) {
+      if (pruned) continue;
+      throw new Error(`Unsupported source symlink: ${relative}`);
+    }
+    if (entry.isDirectory()) {
+      files.push(...sourceFiles(full));
+    } else if (entry.isFile() && SOURCE_EXTENSIONS.has(path.extname(entry.name))) {
+      files.push(full);
+    }
+  }
+  return files;
+}
+
+const files = fs.readdirSync(directory).filter(f => f.endsWith('.md')).sort().map(f => path.join(directory, f));
 files.push(...['README.md', 'UI_REDESIGN.md', 'SPEC.md', 'docs/README.md', 'docs/CANONICAL_DOCS.md', 'WORK_LOG.md'].map(f => path.join(root, f)));
 const errors = [];
 for (const file of files) {
@@ -18,13 +46,13 @@ for (const file of files) {
     }
   }
 }
-// Historical mentions may remain, but no tracked document/source may direct
-// readers to the missing specification outside this repository.
-const tracked = execFileSync('git', ['ls-files', '-z'], { encoding: 'utf8' }).split('\0');
-for (const relative of tracked.filter(f => /\.(md|tsx?|css)$/.test(f))) {
-  const content = fs.readFileSync(path.join(root, relative), 'utf8');
+// Historical mentions may remain, but no document/source may direct readers
+// outside this repository. Inspect untracked files and Gitless Nix sources too.
+for (const file of sourceFiles()) {
+  const relative = path.relative(root, file);
+  const content = fs.readFileSync(file, 'utf8');
   for (const match of content.matchAll(/(?:\.\.\/)+UI_REDESIGN\.md/g)) {
-    const destination = path.resolve(path.dirname(path.join(root, relative)), match[0]);
+    const destination = path.resolve(path.dirname(file), match[0]);
     if (destination !== path.join(root, 'UI_REDESIGN.md')) {
       errors.push(`${relative}: obsolete external redesign reference ${match[0]}`);
     }

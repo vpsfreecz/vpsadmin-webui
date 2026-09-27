@@ -12,24 +12,22 @@ permissions:
 
 jobs:
   checks:
-    name: Static checks and unit tests
+    name: Required nonbrowser checks
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
 
       - name: Setup Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7.0.0
         with:
-          node-version: 22
+          node-version-file: .node-version
           cache: npm
-
-      - name: Pin npm
-        run: |
-          npm install -g npm@9.9.4
-          npm --version
+          cache-dependency-path: |
+            package-lock.json
+            bff/package-lock.json
 
       - name: Install dependencies
         run: npm ci --include=dev
@@ -42,13 +40,63 @@ jobs:
           npm ci --omit=dev --prefix bff
           npm audit --omit=dev --audit-level=high --prefix bff
 
-      - name: Run CI checks
-        run: npm run ci:pr
+      - name: Run required quick checks
+        run: npm run ci:quick
+
+      - name: Run unit, script and BFF suites
+        run: npm run ci:tests
 
       - name: Upload audit artifacts
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: audit-artifacts
           path: work/audits
           if-no-files-found: ignore
+
+  production-build:
+    name: Production build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+      - name: Setup Node
+        uses: actions/setup-node@v7.0.0
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - name: Install dependencies
+        run: npm ci --include=dev
+      - name: Verify locked toolchain
+        run: npm run env:locked
+      - name: Build production assets
+        run: |
+          npm run build
+          echo "Production build source: $GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
+
+  browser-script:
+    name: Chromium script regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+      - name: Setup Node
+        uses: actions/setup-node@v7.0.0
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - name: Install dependencies
+        run: npm ci --include=dev
+      - name: Verify locked toolchain
+        run: npm run env:locked
+      - name: Install Playwright Chromium
+        run: npm run e2e:install -- --with-deps chromium
+      - name: Select installed Playwright Chromium
+        run: |
+          browser_path=$(node -p "require('@playwright/test').chromium.executablePath()")
+          test -x "$browser_path"
+          echo "E2E_CHROMIUM_EXECUTABLE_PATH=$browser_path" >> "$GITHUB_ENV"
+      - name: Run browser script regression
+        run: npm run test:scripts:browser

@@ -23,8 +23,8 @@ Key rules
 Playwright is split into three practical layers:
 
 - PR smoke: `npm run e2e:pr`
-  Runs the short, deterministic `@pr-smoke` desktop subset plus `@pr-smoke-mobile` on mobile Chrome. This is the pull
-  request gate and should stay focused on critical paths that are stable enough to block review.
+  Runs the short, deterministic `@pr-smoke` desktop subset plus `@pr-smoke-mobile` on mobile Chrome. CI runs them as
+  independent required jobs, so one failure cannot hide the other's result.
 - Broad smoke: `npm run e2e:broad`
   Runs mocked `@smoke` app/admin coverage on desktop plus `@smoke-mobile` mobile coverage. This is the wider main/manual
   signal for app surfaces, admin surfaces, storage, tasks, transaction details, and session handling.
@@ -72,7 +72,7 @@ opt-in so PRs do not depend on VPN-only services.
 ## Running locally
 
 ```bash
-cd clankerdev
+cd vpsadmin-webui
 
 # One-time (downloads browsers)
 npm run e2e:install
@@ -97,6 +97,9 @@ npm run e2e:screenshots
 
 
 ## Locked-down local/container runs
+
+The wrapper runs the installed Playwright CLI after checking its version against
+`e2e/PLAYWRIGHT_VERSION` and the lockfile. It does not download another CLI.
 
 `npm run e2e:container` is a local harness for environments where Playwright-managed browsers are not installed or where
 system Chromium is constrained by a host `URLBlocklist` policy. It is not used by CI. The command is shorthand for the
@@ -136,15 +139,17 @@ Current scenarios are `dashboard` and `dataset-downloads`; set `E2E_SCREENSHOT_S
 
 ## CI behavior and artifacts
 
-- `.github/workflows/e2e-smoke.yml` runs `npm run e2e:pr` for pull requests and pushes to `main`.
+- `.github/workflows/e2e-smoke.yml` runs desktop and mobile PR smoke as independent matrix jobs for pull requests and pushes to `main`.
 - `.github/workflows/e2e-broad-smoke.yml` runs broad smoke on pushes to `main` and manually.
 - `.github/workflows/e2e-nightly.yml` runs full/nightly parity on the Prague morning schedule and manually.
 - Workflow concurrency cancels older runs for the same ref, which keeps intermediate commits from producing redundant
   notifications.
+- Every browser-launching CI job installs the locked Chromium. The separate
+  Chromium script-regression job selects that Playwright executable explicitly.
 - Playwright keeps screenshots, videos, and traces on failure (`playwright.config.ts`). CI uploads `playwright-report`
   and `e2e/test-results` only for failed jobs.
 - Download the artifacts from the failed GitHub Actions job. Open `playwright-report/index.html` for the report, or open a
-  trace zip with `npx playwright show-trace path/to/trace.zip`.
+  trace zip with `./node_modules/.bin/playwright show-trace path/to/trace.zip`.
 
 ## Adding workflow coverage
 

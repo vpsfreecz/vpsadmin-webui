@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-function fixture(t) {
+function fixture(t, { checkout = false } = {}) {
   const cwd = fs.mkdtempSync(path.join(os.tmpdir(), 'design-docs-'));
   t.after(() => fs.rmSync(cwd, { recursive: true, force: true }));
   for (const dir of ['scripts', 'src/routes', 'src/lib/api', 'docs/design']) fs.mkdirSync(path.join(cwd, dir), { recursive: true });
@@ -23,10 +23,11 @@ function fixture(t) {
   fs.writeFileSync(path.join(cwd,'docs/design/REQUIREMENTS.md'),'| REQ-001 | Requirement |\n');
   const run = (...args) => spawnSync(process.execPath, args, { cwd, encoding: 'utf8' });
   assert.equal(run('scripts/design-inventory.mjs','--write').status,0);
-  // The audit checks tracked documentation/source paths, just like a checkout.
-  for (const args of [['init', '--quiet'], ['add', '.']]) {
-    const result = spawnSync('git', args, { cwd, encoding: 'utf8' });
-    assert.equal(result.status, 0, result.stderr);
+  if (checkout) {
+    for (const args of [['init', '--quiet'], ['add', '.']]) {
+      const result = spawnSync('git', args, { cwd, encoding: 'utf8' });
+      assert.equal(result.status, 0, result.stderr);
+    }
   }
   return {cwd, run};
 }
@@ -77,7 +78,7 @@ test('audit accepts the in-repository redesign bridge and historical mentions', 
   assert.equal(result.status, 0, result.stderr);
 });
 
-test('audit rejects external redesign references in tracked docs and source', t => {
+test('audit rejects external redesign references in docs and source', t => {
   const {cwd, run} = fixture(t);
   fs.writeFileSync(path.join(cwd, 'README.md'), '`../UI_REDESIGN.md`\n');
   fs.writeFileSync(path.join(cwd, 'src/lib/api/vps.ts'),
@@ -86,6 +87,31 @@ test('audit rejects external redesign references in tracked docs and source', t 
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /README\.md: obsolete external redesign reference/);
   assert.match(result.stderr, /src\/lib\/api\/vps\.ts: obsolete external redesign reference/);
+});
+
+for (const checkout of [false, true]) {
+  const kind = checkout ? 'checkout with untracked source' : 'Gitless archive';
+  test(`audit gives the same reference results in a ${kind}`, t => {
+    const { cwd, run } = fixture(t, { checkout });
+    const badSource = path.join(cwd, 'src/lib/api/untracked.ts');
+    fs.writeFileSync(badSource, '// Spec: ../../../../UI_REDESIGN.md\nexport {};\n');
+    fs.writeFileSync(path.join(cwd, 'UI_REDESIGN.md'), '[Broken](missing.md)\n');
+    fs.mkdirSync(path.join(cwd, 'dist'), { recursive: true });
+    fs.writeFileSync(path.join(cwd, 'dist/ignored.ts'), '// ../../UI_REDESIGN.md\n');
+    const result = run('scripts/audit-design-docs.mjs');
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /src\/lib\/api\/untracked\.ts: obsolete external redesign reference/);
+    assert.match(result.stderr, /UI_REDESIGN\.md: missing or external local link missing\.md/);
+    assert.doesNotMatch(result.stderr, /dist\/ignored\.ts/);
+  });
+}
+
+test('audit rejects unsupported source symlinks and ignores generated trees', t => {
+  const { cwd, run } = fixture(t);
+  fs.symlinkSync(path.join(cwd, 'src/lib/api/vps.ts'), path.join(cwd, 'src/lib/api/alias.ts'));
+  const result = run('scripts/audit-design-docs.mjs');
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /Unsupported source symlink: src\/lib\/api\/alias\.ts/);
 });
 
 test('audit checks links inside the redesign bridge', t => {

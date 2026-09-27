@@ -1,35 +1,19 @@
 #!/usr/bin/env node
 
-import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 
 import {
   buildPlaywrightEnvironment,
   relaxChromiumUrlBlocklist,
   shouldRelaxChromiumPolicy,
 } from './e2e-harness.mjs';
+import { resolvePlaywrightCli } from './playwright-cli.mjs';
 
-function readPinnedVersion() {
-  const envVersion = process.env.PLAYWRIGHT_VERSION?.trim();
-  if (envVersion) return envVersion;
-
-  // scripts/playwright.mjs -> e2e/PLAYWRIGHT_VERSION
-  const versionFile = path.resolve(
-    path.dirname(new URL(import.meta.url).pathname),
-    '..',
-    'e2e',
-    'PLAYWRIGHT_VERSION',
-  );
-
-  try {
-    const v = fs.readFileSync(versionFile, 'utf8').trim();
-    if (!v) throw new Error('empty version file');
-    return v;
-  } catch (e) {
-    console.error(`Failed to read Playwright version from ${versionFile}:`, e);
-    process.exit(2);
-  }
+function installedCli() {
+  const repository = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+  return resolvePlaywrightCli(repository, process.env.PLAYWRIGHT_VERSION?.trim());
 }
 
 function usage() {
@@ -48,8 +32,8 @@ Runner-only test flags:
   --relax-chromium-policy      Temporarily remove blocking '*' entries from Chromium URLBlocklist policies.
 
 Notes:
-  - Version is read from e2e/PLAYWRIGHT_VERSION (or PLAYWRIGHT_VERSION env).
-  - This intentionally uses npx so Playwright stays out of package-lock until we decide to pin it there.
+  - e2e/PLAYWRIGHT_VERSION, package-lock and the installed CLI must agree.
+  - The installed CLI runs directly; this wrapper does not download packages.
 `);
 }
 
@@ -81,20 +65,21 @@ if (shouldRelaxChromiumPolicy({ action, options: harness.options, env: harness.e
   for (const warning of relaxed.warnings) console.error(`[e2e] Warning: ${warning}`);
 }
 
-const version = readPinnedVersion();
-const npxCmd = process.platform === 'win32' ? 'npx.cmd' : 'npx';
-
-const cmdArgs = ['-y', `@playwright/test@${version}`, action, ...harness.playwrightArgs];
-
 let res;
 try {
-  res = spawnSync(npxCmd, cmdArgs, {
+  const cli = installedCli();
+  res = spawnSync(process.execPath, [cli, action, ...harness.playwrightArgs], {
     stdio: 'inherit',
     env: harness.env,
   });
+} catch (error) {
+  console.error(`[e2e] ${error.message}`);
+  process.exitCode = 2;
 } finally {
   for (const warning of restoreChromiumPolicy()) console.error(`[e2e] Warning: ${warning}`);
 }
+
+if (process.exitCode) process.exit(process.exitCode);
 
 if (res?.error) {
   console.error(`[e2e] Failed to run Playwright: ${res.error.message}`);

@@ -17,7 +17,7 @@ status and acceptance. The [work log](WORK_LOG.md) records what changed and why.
 
 ## Development
 
-Use the locked flake for the Node 24 development environment. The flake also
+Use the locked flake for Node 24.21.0 with bundled npm 11.19.0. The flake also
 pins the vpsAdmin source used for API and Czech terminology review. Its
 `packages` and NixOS module outputs will be added with the packaging work;
 `nix develop` is the defined output in this revision.
@@ -31,8 +31,8 @@ npm run dev
 
 For localization work, follow [the locked-input procedure](docs/agent-instructions/localization.md)
 and record the vpsAdmin revision it resolves. The `.nvmrc` and `.node-version`
-files select Node 24 for developers who use those tools; the flake lock selects
-the exact Nix toolchain.
+files select the same exact Node version for developers who use those tools;
+`npm run env:locked` checks it and npm before required verification.
 
 ## E2E smoke tests
 

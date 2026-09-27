@@ -21,22 +21,47 @@ and cleanup receipt. Do not rerun completed destructive scenarios blindly.
 
 ## Repeatable checks
 
-Use the supported Node range in [package.json](../../package.json), with the locked
-npm dependencies. The current baseline supports Node ^20.19, ^22.12 or >=24.
-The new repository's `nix develop` selects Node 24 from its locked Nixpkgs
-input. Before claiming a Nix-based result, record the effective Node version
-and the pinned vpsAdmin source revision; site configuration can override that
-input when it builds the deployment.
+The application supports the Node range in [package.json](../../package.json).
+Required checks select the exact `.node-version`/`.nvmrc` value, Node 24.21.0,
+which is also supplied by the locked Nix development shell. Its bundled npm is
+11.19.0. `env:locked` checks both values; CI no longer installs a different npm.
+Before claiming a Nix-based result, record the effective versions and pinned
+vpsAdmin source revision; site configuration can override that input at build
+time.
 
 ```sh
 npm ci
+npm run ci:quick
 npm run ci:pr
-npm run build
 npm run e2e:pr
-npm run audit:design-docs
 ```
 
-`ci:pr` includes static checks, i18n/CSP, typecheck and unit/script/BFF suites.
+`ci:quick` runs the locked toolchain check, design-docs audit, lint, typecheck,
+parser-based i18n checks, CSP and all declared architecture audits, including
+structural budgets and UI strings. It does not launch a browser or build
+production assets.
+`ci:pr` and `ci:check` run the same required non-E2E sequence:
+`ci:quick`, all nonbrowser script, BFF and unit tests, then `npm run build`.
+In GitHub Actions these appear as separate nonbrowser and production-build jobs;
+the build job records `GITHUB_SHA` in its summary. Root and BFF production
+dependency audits retain their critical/high thresholds as separate online CI
+steps. The dev-host TLS audit requires DNS/network access and remains a separate
+operator check. The browser script regression has its own required Chromium job.
+
+The PR browser workflow runs desktop `e2e:pr:desktop` and mobile
+`e2e:pr:mobile` in independent matrix jobs with separate artifacts and no matrix
+fail-fast. Main/manual broad smoke and nightly desktop/mobile jobs are separate
+signals; browser fixtures do not establish live API behavior. Release readiness
+also requires later built-assets/nginx/BFF and pinned-API evidence.
+
+The wrapper runs the installed `@playwright/test` CLI only when its version
+matches `e2e/PLAYWRIGHT_VERSION` and `package-lock.json`. Browser-launching CI
+jobs install the locked Chromium with `e2e:install -- --with-deps chromium`;
+the script regression sets its executable to that Playwright browser. The
+`--container` system-browser and policy-relaxation shortcut is only for explicit
+local use. Node setup uses [setup-node v7.0.0](https://github.com/actions/setup-node/releases/tag/v7.0.0)
+on GitHub-hosted Ubuntu runners; its [minimum runner version is 2.327.1](https://github.com/actions/setup-node/blob/v7.0.0/README.md).
+
 The i18n audit checks all literal locale modules and root aggregators before
 spread composition for duplicate definitions, en/cs keys, placeholders and
 plural groups. Rendered tests are still needed for interpolation at call sites
@@ -49,8 +74,16 @@ Use focused tests during a small change, and an integrated candidate before a
 multi-PR release. Repeat the full suite only for relevant changes or new failures.
 
 `npm run docs:inventory` regenerates route/API inventory; `audit:design-docs`
-checks it and local handbook links/requirement IDs. These are documentation
+checks it, local handbook links/requirement IDs and external redesign references
+across regular Markdown, TypeScript and CSS source files. It uses the same sorted
+filesystem walk in a checkout and Gitless archive, includes unstaged source,
+prunes generated trees and rejects source symlinks. These are documentation
 consistency checks, not a substitute for semantic review or backend tests.
+
+When these verification lanes were prepared, `ci:quick` remained red: inherited
+structural budget violations and three UI strings in test fixtures still needed
+disposition. The structural baseline must stay unchanged. Prepared workflows
+alone are not a green PR or release signal.
 
 ## Recorded release evidence (2026-09-27)
 
