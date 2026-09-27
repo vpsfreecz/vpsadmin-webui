@@ -52,4 +52,39 @@ describe('build info', () => {
     expect(result.source).toBe('git');
     expect(result.dirty).toBe(true);
   });
+
+  it('retains explicit dirty provenance when an archive has no Git metadata', () => {
+    const result = resolveBuildInfo({
+      env: { VITE_BUILD_SHA: FULL_SHA, VITE_BUILD_DIRTY: 'true' },
+      run: () => { throw new Error('Git unavailable'); },
+    });
+    expect(result).toEqual({
+      schemaVersion: 1,
+      commit: FULL_SHA,
+      shortCommit: FULL_SHA.slice(0, 12),
+      dirty: true,
+      source: 'environment',
+    });
+  });
+
+  it('marks a revisionless archive as non-release and rejects false clean claims', () => {
+    const unavailable = () => { throw new Error('Git unavailable'); };
+    expect(resolveBuildInfo({ env: {}, run: unavailable })).toEqual({
+      schemaVersion: 1, commit: 'unknown', shortCommit: 'unknown',
+      dirty: true, source: 'unavailable',
+    });
+    expect(resolveBuildInfo({
+      env: { VITE_BUILD_SHA: 'unknown', VITE_BUILD_DIRTY: 'true' }, run: unavailable,
+    }).dirty).toBe(true);
+    expect(resolveBuildInfo({
+      env: { VITE_BUILD_SHA: 'unknown' },
+      run: (_command, args) => args[0] === 'status' ? '' : FULL_SHA,
+    })).toMatchObject({ commit: 'unknown', dirty: true, source: 'unavailable' });
+    expect(() => resolveBuildInfo({
+      env: { VITE_BUILD_SHA: 'unknown', VITE_BUILD_DIRTY: 'false' }, run: unavailable,
+    })).toThrow('full VITE_BUILD_SHA');
+    expect(() => resolveBuildInfo({
+      env: { VITE_BUILD_SHA: FULL_SHA, VITE_BUILD_DIRTY: 'maybe' }, run: unavailable,
+    })).toThrow('VITE_BUILD_DIRTY');
+  });
 });

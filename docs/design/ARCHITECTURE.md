@@ -124,7 +124,11 @@ history comes from `Kerrycek/clankerdev`; the old Clankerdev hosts and scripts
 remain historical deployment evidence. `vpsfreecz/vpsadmin` owns the API and
 legacy PHP UI. The new interface is planned as one frontend and one BFF process
 on a single NixOS VPS at `newadmin.vpsfree.cz`, beside the legacy origin. The
-OpenStreetMap/Nominatim address-map call remains in the product by decision;
+separate immutable [Nix packages](PACKAGING.md) share full clean/dirty source
+provenance; the frontend output exposes only reviewed static assets while the
+BFF output carries its production runtime graph. The service module and site
+integration remain separate. The OpenStreetMap/Nominatim address-map call
+remains in the product by decision;
 the deployment CSP must allow its existing origins. The locked `vpsadmin` flake
 input is the source compatibility and terminology reference. Site configuration
 may override that input with its `vpsadminServices` pin; neither pin proves the

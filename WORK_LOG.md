@@ -27,6 +27,44 @@ complete reconstruction of the project. Missing evidence is not a passing check.
   or raw production responses. This log does not grant deployment authorization
   or enable autonomous scheduled development.
 
+## 2026-09-28 - Prepare separate immutable frontend and BFF packages
+
+**Request / reason:** the new NixOS preview needs reproducible static and OAuth
+BFF artifacts with matching, truthful source identity. A Gitless build must
+not be mistaken for a clean release, and copied Vite public examples must not
+become live configuration files.
+
+**Change:** add independent `buildNpmPackage` outputs with pinned Node 24 and
+separate unchanged-lock dependency hashes. The frontend builds in required BFF
+mode and installs only reviewed static files. The BFF installs its production
+runtime graph and an absolute slim-Node wrapper. Cleaned source retains the
+linked design audit inputs and leaves source symlinks visible for rejection;
+generated/private paths are filtered. A single clean/dirty/unknown flake
+provenance value reaches both packages, with explicit dirty state in the
+frontend build and matching BFF metadata. Three flake checks cover provenance,
+source and installed contents. The dev shell exposes `prefetch-npm-deps`; the
+[package guide](docs/design/PACKAGING.md) records the exact commands, hashes
+and output boundaries. BFF docs now describe the already required JSON
+bootstrap. Pinned `buildNpmPackage` forwards `prePatch` to `fetchNpmDeps`, which
+lacks bare `node`; the frontend invokes the pinned Node store path so the
+source audit still runs before dependency fetching. No service module, site
+configuration or runtime endpoint changed.
+
+**Verification / limits:** the session lead computed independent SRI hashes
+with the pinned Nixpkgs `prefetch-npm-deps` 0.1.0: root
+`sha256-qipQBgqu4SMKocavlqdFxFugtB2UYEmgX3fRW+UKdTA=` and BFF
+`sha256-imijdRISN2eVBsYX79YBxl7zKM7Pjq3rixkKXJNDSvw=`. The root tool
+warned about six nested WASI packages without resolved URLs; their likely
+platform specificity is not build proof. With cached Node 24.19.0, the eight
+source/content checker fixtures, five build-info tests, design audit (18 docs,
+68 requirements, 256 routes, 64 API modules), Tailwind/pattern lint and
+TypeScript passed. Nix files passed parser and nixfmt checks. The locked
+Node 24.21.0/npm 11.19.0 toolchain cannot be used in this sandbox, and Nix
+evaluation cannot connect to its daemon. A normal-environment six-output
+package/check build passed on a draft tree with the absolute Node call; exact
+rewritten-head package validation and runtime-closure inspection remain open.
+No browser/VM suite, push, deployment or live API mutation was performed.
+
 ## 2026-09-28 - Distinguish graceful shutdown from immediate poweroff
 
 **Request / reason:** the VPS stop request sends `force: false` for a graceful

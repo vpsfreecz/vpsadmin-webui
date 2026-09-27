@@ -1,6 +1,6 @@
 # Verification, readiness and release evidence
 
-Requirements: REQ-039, 042–046, 056–065, 067. Documentation coverage, implemented code,
+Requirements: REQ-039, 042–046, 056–065, 067–068. Documentation coverage, implemented code,
 passing fixtures and production readiness are separate claims.
 
 ## Evidence levels
@@ -28,6 +28,14 @@ which is also supplied by the locked Nix development shell. Its bundled npm is
 Before claiming a Nix-based result, record the effective versions and pinned
 vpsAdmin source revision; site configuration can override that input at build
 time.
+
+The separate immutable [frontend and BFF packages](PACKAGING.md) require an
+exact-source Nix build of both outputs and all three package checks: provenance,
+cleaned source contents and installed package contents. The content check builds
+both packages and compares their schema-1 metadata. Local Node checker fixtures
+and Nix syntax checks cannot substitute for an offline dependency build, actual
+source filtering or closure inspection. The NixOS module, nginx/VM checks and
+site deployment are later gates.
 
 ```sh
 npm ci

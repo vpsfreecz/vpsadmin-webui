@@ -15,6 +15,7 @@ export interface BuildInfo {
 type CommandRunner = (command: string, args: string[], cwd: string) => string;
 
 const SHA_PATTERN = /^[0-9a-f]{7,40}$/i;
+const FULL_SHA_PATTERN = /^[0-9a-f]{40}$/i;
 
 function defaultCommandRunner(command: string, args: string[], cwd: string): string {
   return execFileSync(command, args, {
@@ -39,10 +40,21 @@ export function resolveBuildInfo(options?: {
   const env = options?.env ?? process.env;
   const run = options?.run ?? defaultCommandRunner;
 
-  const environmentCommit =
-    normalizeCommitSha(env['VITE_BUILD_SHA']) ??
-    normalizeCommitSha(env['GITHUB_SHA']) ??
-    normalizeCommitSha(env['CI_COMMIT_SHA']);
+  const declaredDirty = env['VITE_BUILD_DIRTY'];
+  if (declaredDirty !== undefined && declaredDirty !== 'true' && declaredDirty !== 'false') {
+    throw new Error('VITE_BUILD_DIRTY must be true or false');
+  }
+  if (declaredDirty === 'false' && !FULL_SHA_PATTERN.test(env['VITE_BUILD_SHA'] ?? '')) {
+    throw new Error('A clean build requires a full VITE_BUILD_SHA');
+  }
+  if (env['VITE_BUILD_SHA'] !== undefined && env['VITE_BUILD_SHA'] !== 'unknown'
+    && !normalizeCommitSha(env['VITE_BUILD_SHA'])) {
+    throw new Error('VITE_BUILD_SHA must be a commit SHA or unknown');
+  }
+
+  const environmentCommit = env['VITE_BUILD_SHA'] !== undefined
+    ? normalizeCommitSha(env['VITE_BUILD_SHA'])
+    : normalizeCommitSha(env['GITHUB_SHA']) ?? normalizeCommitSha(env['CI_COMMIT_SHA']);
 
   let gitCommit: string | undefined;
   try {
@@ -51,21 +63,26 @@ export function resolveBuildInfo(options?: {
     gitCommit = undefined;
   }
 
-  let dirty = false;
-  try {
-    dirty = run('git', ['status', '--porcelain', '--untracked-files=no'], cwd).trim().length > 0;
-  } catch {
-    dirty = false;
+  let dirty = declaredDirty === 'true';
+  if (declaredDirty === undefined) {
+    try {
+      dirty = run('git', ['status', '--porcelain', '--untracked-files=no'], cwd).trim().length > 0;
+    } catch {
+      // An archive without an explicit source state cannot claim a clean release.
+      dirty = true;
+    }
   }
 
-  const commit = environmentCommit ?? gitCommit ?? 'unknown';
-  const source: BuildInfoSource = environmentCommit ? 'environment' : gitCommit ? 'git' : 'unavailable';
+  const explicitlyUnknown = env['VITE_BUILD_SHA'] === 'unknown';
+  const commit = explicitlyUnknown ? 'unknown' : environmentCommit ?? gitCommit ?? 'unknown';
+  const source: BuildInfoSource = explicitlyUnknown ? 'unavailable'
+    : environmentCommit ? 'environment' : gitCommit ? 'git' : 'unavailable';
 
   return {
     schemaVersion: 1,
     commit,
     shortCommit: commit === 'unknown' ? commit : commit.slice(0, 12),
-    dirty,
+    dirty: commit === 'unknown' ? true : dirty,
     source,
   };
 }

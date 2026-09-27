@@ -70,8 +70,10 @@ HaveAPI settings previously served by `/config.js`, plus `legacyUrl` when set.
 The JSON body is capped at 64 KiB before startup. Both endpoints send `no-store`,
 `nosniff` and same-origin resource policy; `/config.json` has JSON MIME and
 `/config.js` keeps JavaScript MIME. `/session.json` and its anonymous null fields
-remain separate and unchanged. The new frontend bootstrap is a later change;
-upgrade the BFF before relying on the JSON route.
+remain separate and unchanged. Production frontend builds require `/config.json`
+and then `/session.json` before mounting; deploy a BFF with the JSON route
+before serving those assets. Explicit standalone builds retain `/config.js`
+compatibility.
 
 ## Running locally
 

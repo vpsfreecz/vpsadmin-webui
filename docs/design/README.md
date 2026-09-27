@@ -50,6 +50,8 @@ it does not contain a recovered original or a competing specification.
 9. [Source register](SOURCES.md): provenance, reconstructed history and limitations.
 10. [Generated inventory](IMPLEMENTATION_INVENTORY.md): every declared route and
     API adapter in the current checkout, with source links.
+11. [Immutable packages](PACKAGING.md): separate frontend/BFF outputs, dependency
+    hashes, source boundaries and provenance checks.
 
 The [work log](../../WORK_LOG.md) records chronology. Requirements record current
 intent; decisions explain transitions; test results prove only their stated scope.

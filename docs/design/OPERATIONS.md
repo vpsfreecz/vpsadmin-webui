@@ -10,7 +10,7 @@ runbook and actual host configuration before any activation.
 
 | Component | Role | Boundary |
 | --- | --- | --- |
-| vpsfreecz/vpsadmin-webui | Canonical React frontend, OAuth BFF, fixture tests and this handbook; history imported from Kerrycek/clankerdev. | New NixOS packaging and site integration remain under development. |
+| vpsfreecz/vpsadmin-webui | Canonical React frontend, OAuth BFF, separate [Nix packages](PACKAGING.md), fixture tests and this handbook; history imported from Kerrycek/clankerdev. | Package builds need exact-candidate verification; NixOS service and site integration remain under development. |
 | vpsfreecz/vpsadmin | HaveAPI, legacy UI and infrastructure reference. | Read-only unless a specific backend task is explicitly authorized. |
 | vpsfreecz/vpsfree-kb-contracts | Navigation/page/capture contracts and isolated scenario runners. | Independent UI/API pins; KB publication separately approved. |
 | dev.crucio.cz | Shared test frontend using the test API. | Not a disposable sandbox; retain other users' objects/configuration. |
@@ -23,6 +23,11 @@ service. The existing OpenStreetMap/Nominatim call remains enabled. The new
 host's module and operator runbook belong to the WebUI and site configuration
 repositories respectively; the scripts under `deploy/` target the older
 Clankerdev hosts and must not be used on the new VPS.
+
+The [package guide](PACKAGING.md) records immutable output contents, separate
+dependency hashes and provenance rules. Verify both packages and their matching
+metadata before using them in the service module. Preserve the BFF session
+store and secret when rolling back to a matching earlier frontend/BFF pair.
 
 ## Local development
 
