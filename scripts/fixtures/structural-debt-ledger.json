@@ -1,0 +1,612 @@
+{
+  "version": 1,
+  "review": {
+    "status": "accepted",
+    "acceptedBy": "2026-09-27-newadmin-integration lead, adoption source hash review"
+  },
+  "note": "Only inherited exceptions for source files byte-identical to their recorded source revisions. An exact source edit or measured improvement requires review/removal; the historical baseline remains unchanged.",
+  "exceptions": [
+    {
+      "path": "src/components/layout/ActionStatesPanel.tsx",
+      "rule": "grown-over-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "17904abb8b3fb22ad5f475e47d2f0c59c32568ed0e8812e0e019097c2e41bf4a",
+      "old": 789,
+      "allowance": 839,
+      "rationale": "At the recorded source revision, this file already contained action-state pending and error variants; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI implementation lead",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 789
+      }
+    },
+    {
+      "path": "src/components/layout/AppLayout.tsx",
+      "rule": "grown-over-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "f983cc3243758e828d502bf18a3d8d8b9cced03bd725f8f5fd8959ad6ab6c4e3",
+      "old": 757,
+      "allowance": 762,
+      "rationale": "At the recorded source revision, this file already contained application shell and navigation states; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI implementation lead",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 757
+      }
+    },
+    {
+      "path": "src/components/user/UserEnvironmentConfigsPanel.tsx",
+      "rule": "crossed-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "a6aeae8605b955542cb827de111091e5113944dba2a69cadc2475c3d1981b323",
+      "old": 0,
+      "allowance": 514,
+      "rationale": "At the recorded source revision, this file already contained environment configuration table and edit controls; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI implementation lead",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 500
+      }
+    },
+    {
+      "path": "src/components/user/UserMailRecipientsTables.tsx",
+      "rule": "crossed-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "f4007760fcaa52ffcd39347f27feaf755df6b93754158014d73ac6ded04be49d",
+      "old": 0,
+      "allowance": 531,
+      "rationale": "At the recorded source revision, this file already contained mail recipient tables and edit controls; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI implementation lead",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 500
+      }
+    },
+    {
+      "path": "src/components/userNamespaces/UserNamespaceList.tsx",
+      "rule": "grown-over-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "788a1b9efe9b35d5523be473930533b556e3a07eec5e6a335d166b22342f322e",
+      "old": 526,
+      "allowance": 541,
+      "rationale": "At the recorded source revision, this file already contained namespace list filters and actions; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI implementation lead",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 526
+      }
+    },
+    {
+      "path": "src/components/userNamespaces/UserNamespaceMapDetail.tsx",
+      "rule": "grown-over-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "eb6d3e873f2b5ce5cae74b021a3a629d07ba676daa2e003f5934df1f3eb33101",
+      "old": 770,
+      "allowance": 798,
+      "rationale": "At the recorded source revision, this file already contained namespace map detail states; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI implementation lead",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 770
+      }
+    },
+    {
+      "path": "src/components/userNamespaces/UserNamespaceMapList.tsx",
+      "rule": "grown-over-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "282437c65f592b88e4de55f66f59d02dd3ca107269a18f80356cf31f4fdd45d3",
+      "old": 675,
+      "allowance": 715,
+      "rationale": "At the recorded source revision, this file already contained namespace map list filters and actions; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI implementation lead",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 675
+      }
+    },
+    {
+      "path": "src/lib/api/haveapi.ts",
+      "rule": "crossed-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "a5f71407fe061ee8819f988aa462a3e12e8bc22143f28177010fba176b03e28c",
+      "old": 439,
+      "allowance": 514,
+      "rationale": "At the recorded source revision, this file already contained HaveAPI request and response adapter cases; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI implementation lead",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 500
+      }
+    },
+    {
+      "path": "src/pages/app/MonitoringEventDetailPage.tsx",
+      "rule": "grown-over-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "1908b09d8b61560553bc23a45674a1d392726f2e6200ef3d313c9c38323ac0b2",
+      "old": 647,
+      "allowance": 652,
+      "rationale": "At the recorded source revision, this file already contained monitoring event detail states; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI implementation lead",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 647
+      }
+    },
+    {
+      "path": "src/pages/app/MonitoringEventsPage.tsx",
+      "rule": "grown-over-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "24cd4742786f2ef310e95fd611d40698d8ffa0e117b524da1efab5f7bd5f0558",
+      "old": 1109,
+      "allowance": 1110,
+      "rationale": "At the recorded source revision, monitoring list filtering already exceeded the historical line baseline by one. Removing unrelated whitespace would only game the budget; extract filter logic with focused tests.",
+      "owner": "WebUI implementation lead",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 1109
+      }
+    },
+    {
+      "path": "src/pages/app/TransactionChainDetailPage.tsx",
+      "rule": "grown-over-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "4c5bd712f5b721f2a65c171e8e4f6f07c4dafbe56c52cc2ec87b863b6aebeeb6",
+      "old": 587,
+      "allowance": 594,
+      "rationale": "At the recorded source revision, this file already contained transaction chain details and receipts; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI implementation lead",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 587
+      }
+    },
+    {
+      "path": "src/pages/app/admin/AdminOutagesPage.tsx",
+      "rule": "grown-over-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "dcb22a4a8b509a674135a289032a2b44f42b4802facb2427a7b4cf8b2d02bb3f",
+      "old": 821,
+      "allowance": 854,
+      "rationale": "At the recorded source revision, this file already contained outage list and editor flows; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI implementation lead",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 821
+      }
+    },
+    {
+      "path": "src/pages/app/admin/IncomingPaymentDetailPage.tsx",
+      "rule": "crossed-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "dd80374ba7edc6a7b49d46a3438927914db8bc4602197fa6d22e019b1c82f40e",
+      "old": 0,
+      "allowance": 587,
+      "rationale": "At the recorded source revision, this file already contained incoming payment detail and matching flows; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI implementation lead",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 500
+      }
+    },
+    {
+      "path": "src/pages/app/admin/IpAddressDetailPage.tsx",
+      "rule": "grown-over-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "facd7814605a02c3a6421c662d6a3535d5e9ad439cc91d5294fbbfa034e6ae94",
+      "old": 763,
+      "allowance": 776,
+      "rationale": "At the recorded source revision, this file already contained IP address detail and actions; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI implementation lead",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 763
+      }
+    },
+    {
+      "path": "src/pages/app/admin/MigrationPlanDetailPage.tsx",
+      "rule": "grown-over-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "d770971a696091b9d9e68869687e62fe47a18761877835fe39e119e455e1e8ea",
+      "old": 1201,
+      "allowance": 1212,
+      "rationale": "At the recorded source revision, this file already contained migration plan detail and actions; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI implementation lead",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 1201
+      }
+    },
+    {
+      "path": "src/pages/app/admin/NodeDetailPage.tsx",
+      "rule": "grown-over-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "ad4e5d2d7eab7ac1a428a17cee0f42d47c9fc5c451da93e58c4874934a6c529a",
+      "old": 603,
+      "allowance": 627,
+      "rationale": "At the recorded source revision, this file already contained node detail sections and actions; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI implementation lead",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 603
+      }
+    },
+    {
+      "path": "src/pages/app/admin/RequestDetailPage.tsx",
+      "rule": "crossed-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "a5e6e61419709135c80839ee8857caf3dfc87128e296bef56f0a47eba7019704",
+      "old": 367,
+      "allowance": 529,
+      "rationale": "At the recorded source revision, this file already contained admin request detail and decision controls; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI implementation lead",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 500
+      }
+    },
+    {
+      "path": "src/pages/app/admin/cluster/LocationsPage.tsx",
+      "rule": "crossed-1000",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "fb851e0851ca9a9e8a9f4d3c5507a3940a8ff31c416c2bd3f16ddec99d199642",
+      "old": 978,
+      "allowance": 1025,
+      "rationale": "At the recorded source revision, this file already contained location list and edit flows; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI collection and page refactor implementer",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 1000
+      }
+    },
+    {
+      "path": "src/pages/app/admin/cluster/LocationsPage.tsx",
+      "rule": "grown-over-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "fb851e0851ca9a9e8a9f4d3c5507a3940a8ff31c416c2bd3f16ddec99d199642",
+      "old": 978,
+      "allowance": 1025,
+      "rationale": "At the recorded source revision, this file already contained location list and edit flows; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI collection and page refactor implementer",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 978
+      }
+    },
+    {
+      "path": "src/pages/app/admin/cluster/NetworkDetailPage.tsx",
+      "rule": "grown-over-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "36098e462bd1329f1e7caa4a2d83afbc6fd3e324abfd097588bed88cc93aa080",
+      "old": 641,
+      "allowance": 725,
+      "rationale": "At the recorded source revision, this file already contained cluster network detail and actions; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI collection and page refactor implementer",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 641
+      }
+    },
+    {
+      "path": "src/pages/app/admin/cluster/ResourcePackageDetailPage.tsx",
+      "rule": "increased-as-any",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "3d35acc320f5a530a580315c5b180c178db60819b55c4ecdb30b24428d824653",
+      "old": 19,
+      "allowance": 20,
+      "rationale": "At the recorded source revision, resource package detail had one additional cast. This file also exceeds its line baseline; type the form and extract its sections together during the page refactor.",
+      "owner": "WebUI collection and page refactor implementer",
+      "removeWhen": {
+        "metric": "asAny",
+        "atMost": 19
+      }
+    },
+    {
+      "path": "src/pages/app/admin/cluster/ResourcePackageDetailPage.tsx",
+      "rule": "grown-over-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "3d35acc320f5a530a580315c5b180c178db60819b55c4ecdb30b24428d824653",
+      "old": 906,
+      "allowance": 979,
+      "rationale": "At the recorded source revision, this file already contained resource package details and form state; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI collection and page refactor implementer",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 906
+      }
+    },
+    {
+      "path": "src/pages/app/admin/cluster/ResourcePackagesPage.tsx",
+      "rule": "grown-over-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "a7289359ea121fc10bd871aa9ce9d4ae7c3e807523a82199309c9696b1ac253f",
+      "old": 656,
+      "allowance": 693,
+      "rationale": "At the recorded source revision, this file already contained resource package list and actions; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI collection and page refactor implementer",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 656
+      }
+    },
+    {
+      "path": "src/pages/app/admin/content/AdminHelpBoxesPage.tsx",
+      "rule": "grown-over-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "5ac3a098fcde257b81d188b5ff47df87b92d9c7356c7b26f362e1188775ba69f",
+      "old": 516,
+      "allowance": 609,
+      "rationale": "At the recorded source revision, this file already contained help-box list and editing controls; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI implementation lead",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 516
+      }
+    },
+    {
+      "path": "src/pages/app/admin/mailer/MailboxDetailPage.tsx",
+      "rule": "grown-over-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "2b4b1d7748079c964c07750aad7fd7c5f4374059691b04c219fa3c6ea360df52",
+      "old": 813,
+      "allowance": 827,
+      "rationale": "At the recorded source revision, this file already contained mailbox detail and actions; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI implementation lead",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 813
+      }
+    },
+    {
+      "path": "src/pages/app/admin/security/AdminSecurityAdvisoryDetailPage.tsx",
+      "rule": "crossed-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "b19876584f586809e8a1380f0d1884e40036424f332df63371289ce93571cbc7",
+      "old": 0,
+      "allowance": 535,
+      "rationale": "At the recorded source revision, this file already contained security advisory detail and editing; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI implementation lead",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 500
+      }
+    },
+    {
+      "path": "src/pages/app/admin/user/AdminUserOverviewPage.tsx",
+      "rule": "crossed-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "af1fa5106898da709356266cec6fe8a236ffb1c92f281003b44a887f8c7e0e62",
+      "old": 0,
+      "allowance": 778,
+      "rationale": "At the recorded source revision, this file already contained admin user overview sections and actions; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI implementation lead",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 500
+      }
+    },
+    {
+      "path": "src/pages/app/admin/user/AdminUserPaymentsPage.tsx",
+      "rule": "crossed-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "b1e00301fa600fba6164d5725e8721a46be6816826ed42c481922d74332e0b52",
+      "old": 0,
+      "allowance": 797,
+      "rationale": "At the recorded source revision, this file already contained admin user payments and incoming-payment views; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI implementation lead",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 500
+      }
+    },
+    {
+      "path": "src/pages/app/datasets/DatasetExpansionPage.tsx",
+      "rule": "grown-over-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "d2072281b40ccbc1e8600d44afc58efc4a112a9f3f4fbc446fa802ce8cb6b5b7",
+      "old": 635,
+      "allowance": 697,
+      "rationale": "At the recorded source revision, this file already contained dataset expansion state and actions; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI implementation lead",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 635
+      }
+    },
+    {
+      "path": "src/pages/app/dns/DnsRecordModel.ts",
+      "rule": "crossed-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "e6c88d98b54973d049b3673f5f323947f3f7909794e3ff8e5fcbd9b28108c971",
+      "old": 0,
+      "allowance": 537,
+      "rationale": "At the recorded source revision, this file already contained DNS record form validation and mapping; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI implementation lead",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 500
+      }
+    },
+    {
+      "path": "src/pages/app/exports/ExportDetailPage.tsx",
+      "rule": "grown-over-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "446c63414ed85caebdaad6e4ce7943be23969f04bc6728c2457e35d6818d4b11",
+      "old": 514,
+      "allowance": 523,
+      "rationale": "At the recorded source revision, this file already contained export detail and action flows; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI implementation lead",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 514
+      }
+    },
+    {
+      "path": "src/pages/app/networking/UserNetworkPage.tsx",
+      "rule": "crossed-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "cea89b2cc98b4211c675f1d83426f8bc7a56558baa96d40bf25d818ec3031468",
+      "old": 0,
+      "allowance": 691,
+      "rationale": "At the recorded source revision, this file already contained user network detail and configuration; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI collection and page refactor implementer",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 500
+      }
+    },
+    {
+      "path": "src/pages/app/vps/VpsAccessPage.tsx",
+      "rule": "crossed-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "a8b88527ec26c24029d7951b632857e961a155d91ba0f8c9050bc3d59872aff9",
+      "old": 0,
+      "allowance": 564,
+      "rationale": "At the recorded source revision, this file already contained VPS access and credential controls; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI collection and page refactor implementer",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 500
+      }
+    },
+    {
+      "path": "src/pages/app/vps/VpsConfigurationModel.ts",
+      "rule": "crossed-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "b18ffa6894c9c7a048685af4252b7c285a8dc2e591e28b3db6d5e751fe81e83c",
+      "old": 0,
+      "allowance": 521,
+      "rationale": "At the recorded source revision, this file already contained VPS configuration form state and validation; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI collection and page refactor implementer",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 500
+      }
+    },
+    {
+      "path": "src/pages/app/vps/VpsConfigurationPage.tsx",
+      "rule": "crossed-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "bfc82163bb63d151668177f7aa8f7d9ec9f48598d31d272606794131080102a9",
+      "old": 0,
+      "allowance": 600,
+      "rationale": "At the recorded source revision, this file already contained VPS configuration controls and actions; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI collection and page refactor implementer",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 500
+      }
+    },
+    {
+      "path": "src/pages/app/vps/VpsConsolePage.tsx",
+      "rule": "grown-over-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "de4e72364957b9b1bc580791f7a7745401da8e1a5dd188c4e09ea8a8db8880ad",
+      "old": 551,
+      "allowance": 578,
+      "rationale": "At the recorded source revision, this file already contained console connection and failure states; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI collection and page refactor implementer",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 551
+      }
+    },
+    {
+      "path": "src/pages/app/vps/VpsCreatePage.tsx",
+      "rule": "crossed-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "8c18b5126ee365582fb4160a3a90ea0a337e3406a3447a473098bfeb5633fe71",
+      "old": 0,
+      "allowance": 551,
+      "rationale": "At the recorded source revision, this file already contained VPS creation wizard state; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI collection and page refactor implementer",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 500
+      }
+    },
+    {
+      "path": "src/pages/app/vps/VpsCreateWizardPrimitives.tsx",
+      "rule": "crossed-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "4981e16c35ccd6980fedd70f6440f0c9d937d7f94adba771d49642d3f6f12fab",
+      "old": 0,
+      "allowance": 547,
+      "rationale": "At the recorded source revision, this file already contained shared creation wizard controls; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI collection and page refactor implementer",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 500
+      }
+    },
+    {
+      "path": "src/pages/app/vps/VpsLayout.tsx",
+      "rule": "grown-over-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "d4a19fcbb034a9b86bd59a63f37d89c5851360b46252e912bbed9d19ad269f5e",
+      "old": 795,
+      "allowance": 935,
+      "rationale": "At the recorded source revision, this file already contained VPS layout navigation and state handling; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI collection and page refactor implementer",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 795
+      }
+    },
+    {
+      "path": "src/pages/app/vps/VpsLifecyclePage.tsx",
+      "rule": "grown-over-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "139b255cc62b38b4d2710ce99243bca99cc974da6d6473e797c8cca047e0dd0f",
+      "old": 862,
+      "allowance": 885,
+      "rationale": "At the recorded source revision, this file already contained VPS lifecycle requests and feedback; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI collection and page refactor implementer",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 862
+      }
+    },
+    {
+      "path": "src/pages/app/vps/VpsNetworkPage.tsx",
+      "rule": "grown-over-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "d2472e6a27edbce3d6609c5675a172d122ba21f043f940dac5956f5d35743241",
+      "old": 1165,
+      "allowance": 1225,
+      "rationale": "At the recorded source revision, this file already contained VPS network and IP assignment flows; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI collection and page refactor implementer",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 1165
+      }
+    },
+    {
+      "path": "src/pages/app/vps/VpsStoragePage.tsx",
+      "rule": "crossed-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "b9d685112d95dc7c44447318e807db41324467c85cebb56d6dbb1c7709c192d6",
+      "old": 0,
+      "allowance": 505,
+      "rationale": "At the recorded source revision, this file already contained VPS storage sections and actions; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI collection and page refactor implementer",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 500
+      }
+    },
+    {
+      "path": "src/routes/router.tsx",
+      "rule": "crossed-500",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "3a16d99259322b0eba951964646639893079419e05ea668104723fc84eef134d",
+      "old": 0,
+      "allowance": 510,
+      "rationale": "At the recorded source revision, this file already contained route declarations and access guards; extract the coherent section with focused behavior coverage before removing this exception.",
+      "owner": "WebUI implementation lead",
+      "removeWhen": {
+        "metric": "lines",
+        "atMost": 500
+      }
+    }
+  ]
+}

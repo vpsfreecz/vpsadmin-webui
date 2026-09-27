@@ -23,7 +23,7 @@ function lastFetchCall() {
 
 describe('payments API wrappers', () => {
   test('fetchIncomingPayments sends only filters supported by the API contract', async () => {
-    globalThis.fetch = mockFetchOk({ incoming_payments: [], _meta: { total_count: 0 } }) as any;
+    globalThis.fetch = mockFetchOk({ incoming_payments: [], _meta: { total_count: 0 } });
 
     await fetchIncomingPayments({ limit: 25, fromId: 200, state: 'queued' });
 
@@ -39,7 +39,7 @@ describe('payments API wrappers', () => {
   });
 
   test('fetchIncomingPayments can request total count metadata', async () => {
-    globalThis.fetch = mockFetchOk({ incoming_payments: [], _meta: { total_count: 4 } }) as any;
+    globalThis.fetch = mockFetchOk({ incoming_payments: [], _meta: { total_count: 4 } });
 
     await fetchIncomingPayments({ limit: 1, state: 'unmatched', count: true });
 
@@ -52,7 +52,7 @@ describe('payments API wrappers', () => {
   });
 
   test('fetchIncomingPayment does not request relations outside the API contract', async () => {
-    globalThis.fetch = mockFetchOk({ incoming_payment: { id: 300, state: 'processed' } }) as any;
+    globalThis.fetch = mockFetchOk({ incoming_payment: { id: 300, state: 'processed' } });
 
     await fetchIncomingPayment(300);
 
@@ -64,7 +64,7 @@ describe('payments API wrappers', () => {
   });
 
   test('createUserPayment sends namespaced incoming-payment payload', async () => {
-    globalThis.fetch = mockFetchOk({ user_payment: { id: 9 } }) as any;
+    globalThis.fetch = mockFetchOk({ user_payment: { id: 9 } });
 
     await createUserPayment({ user: 7, incoming_payment: 15 });
 
@@ -78,7 +78,7 @@ describe('payments API wrappers', () => {
   });
 
   test('fetchUserPayments forwards only supported history filters and includes', async () => {
-    globalThis.fetch = mockFetchOk({ user_payments: [], _meta: { total_count: 0 } }) as any;
+    globalThis.fetch = mockFetchOk({ user_payments: [], _meta: { total_count: 0 } });
 
     await fetchUserPayments({
       limit: 10,
@@ -102,7 +102,7 @@ describe('payments API wrappers', () => {
   });
 
   test('fetchPaymentInstructions uses user subresource path', async () => {
-    globalThis.fetch = mockFetchOk({ instructions: 'Use VS 123.' }) as any;
+    globalThis.fetch = mockFetchOk({ instructions: 'Use VS 123.' });
 
     const res = await fetchPaymentInstructions(7);
 
@@ -114,7 +114,7 @@ describe('payments API wrappers', () => {
   });
 
   test('fetchPaymentInstructions normalizes legacy string responses', async () => {
-    globalThis.fetch = mockFetchOk('Account: 123456/0100\nVS: 42') as any;
+    globalThis.fetch = mockFetchOk('Account: 123456/0100\nVS: 42');
 
     const res = await fetchPaymentInstructions(42);
 

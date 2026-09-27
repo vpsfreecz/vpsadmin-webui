@@ -1,10 +1,15 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
+import { evaluateStructural } from './structural-budget-model.mjs';
 
 const SRC_DIR = path.resolve('src');
 const TS_EXT = new Set(['.ts', '.tsx']);
 const DEFAULT_BASELINE_PATH = path.resolve('scripts/fixtures/structural-baseline.json');
+const DEFAULT_LEDGER_PATH = path.resolve('scripts/fixtures/structural-debt-ledger.json');
+const DEFAULT_REPORT_PATH = path.resolve('work/audits/structural.json');
+const INHERITED_REVISION = 'e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9';
 const OVER_500_LIMIT = 500;
 const OVER_1000_LIMIT = 1000;
 
@@ -23,6 +28,8 @@ function hasArg(name) {
 }
 
 const baselinePath = path.resolve(readArgValue('--baseline') ?? DEFAULT_BASELINE_PATH);
+const ledgerPath = path.resolve(readArgValue('--ledger') ?? DEFAULT_LEDGER_PATH);
+const reportPath = path.resolve(readArgValue('--report') ?? DEFAULT_REPORT_PATH);
 const writeBaseline = hasArg('--write-baseline');
 
 function walk(dir) {
@@ -42,6 +49,7 @@ function collectMetrics() {
     .sort((a, b) => a.localeCompare(b));
 
   const byFile = {};
+  const hashes = {};
   let asAny = 0;
   let filesOver500 = 0;
   let filesOver1000 = 0;
@@ -49,6 +57,7 @@ function collectMetrics() {
   for (const full of files) {
     const rel = path.relative(process.cwd(), full).replace(/\\/g, '/');
     const text = fs.readFileSync(full, 'utf8');
+    hashes[rel] = createHash('sha256').update(text).digest('hex');
     const asAnyCount = (text.match(/\sas\s+any\b/g) ?? []).length;
     const lines = text.split('\n').length;
     const over500 = lines > OVER_500_LIMIT;
@@ -66,6 +75,7 @@ function collectMetrics() {
   return {
     totals: { asAny, filesOver500, filesOver1000 },
     files: byFile,
+    hashes,
   };
 }
 
@@ -94,18 +104,6 @@ function loadBaseline(file) {
   return parsed;
 }
 
-function formatFileMetric(rel, metric) {
-  return `${rel} (${metric.lines} lines, ${metric.asAny} as-any)`;
-}
-
-function topEntries(files, predicate, limit = 12) {
-  return Object.entries(files)
-    .filter(([, metric]) => predicate(metric))
-    .sort((a, b) => b[1].lines - a[1].lines || b[1].asAny - a[1].asAny || a[0].localeCompare(b[0]))
-    .slice(0, limit)
-    .map(([rel, metric]) => `  - ${formatFileMetric(rel, metric)}`);
-}
-
 const metrics = collectMetrics();
 
 if (writeBaseline) {
@@ -119,119 +117,24 @@ if (writeBaseline) {
 }
 
 let baseline;
+let ledger;
 try {
   baseline = loadBaseline(baselinePath);
+  ledger = JSON.parse(fs.readFileSync(ledgerPath, 'utf8'));
 } catch (error) {
   console.error(error instanceof Error ? error.message : String(error));
   process.exit(1);
 }
 
-const failures = [];
-const baselineLimits = baseline.limits;
-
-if (metrics.totals.asAny > baselineLimits.asAny) {
-  failures.push(`'as any' count regressed: ${metrics.totals.asAny} > ${baselineLimits.asAny}`);
-}
-if (metrics.totals.filesOver500 > baselineLimits.filesOver500) {
-  failures.push(`Files over 500 lines regressed: ${metrics.totals.filesOver500} > ${baselineLimits.filesOver500}`);
-}
-if (metrics.totals.filesOver1000 > baselineLimits.filesOver1000) {
-  failures.push(`Files over 1000 lines regressed: ${metrics.totals.filesOver1000} > ${baselineLimits.filesOver1000}`);
-}
-
-const newAsAny = [];
-const increasedAsAny = [];
-const crossedOver500 = [];
-const crossedOver1000 = [];
-const expandedOverBudget = [];
-
-for (const [rel, metric] of Object.entries(metrics.files)) {
-  const base = baseline.files[rel];
-  const baseAsAny = Number(base?.asAny ?? 0);
-  const baseLines = Number(base?.lines ?? 0);
-
-  if (metric.asAny > 0 && !base) newAsAny.push([rel, metric]);
-  else if (metric.asAny > baseAsAny) increasedAsAny.push([rel, metric, baseAsAny]);
-
-  const wasOver500 = baseLines > OVER_500_LIMIT;
-  const wasOver1000 = baseLines > OVER_1000_LIMIT;
-  if (metric.lines > OVER_500_LIMIT && !wasOver500) crossedOver500.push([rel, metric]);
-  if (metric.lines > OVER_1000_LIMIT && !wasOver1000) crossedOver1000.push([rel, metric]);
-
-  if (base && baseLines > OVER_500_LIMIT && metric.lines > baseLines) {
-    expandedOverBudget.push([rel, metric, baseLines]);
-  }
-}
-
-if (newAsAny.length > 0) {
-  failures.push(
-    `New files introduced 'as any': ${newAsAny
-      .sort((a, b) => b[1].asAny - a[1].asAny || a[0].localeCompare(b[0]))
-      .slice(0, 8)
-      .map(([rel, metric]) => `${rel} (+${metric.asAny})`)
-      .join(', ')}`
-  );
-}
-if (increasedAsAny.length > 0) {
-  failures.push(
-    `Existing files increased 'as any': ${increasedAsAny
-      .sort((a, b) => b[1].asAny - b[2] - (a[1].asAny - a[2]) || a[0].localeCompare(b[0]))
-      .slice(0, 8)
-      .map(([rel, metric, baseAsAny]) => `${rel} (${metric.asAny} > ${baseAsAny})`)
-      .join(', ')}`
-  );
-}
-if (crossedOver500.length > 0) {
-  failures.push(
-    `Files crossed 500 lines: ${crossedOver500
-      .sort((a, b) => b[1].lines - a[1].lines || a[0].localeCompare(b[0]))
-      .slice(0, 8)
-      .map(([rel, metric]) => `${rel} (${metric.lines})`)
-      .join(', ')}`
-  );
-}
-if (crossedOver1000.length > 0) {
-  failures.push(
-    `Files crossed 1000 lines: ${crossedOver1000
-      .sort((a, b) => b[1].lines - a[1].lines || a[0].localeCompare(b[0]))
-      .slice(0, 8)
-      .map(([rel, metric]) => `${rel} (${metric.lines})`)
-      .join(', ')}`
-  );
-}
-if (expandedOverBudget.length > 0) {
-  failures.push(
-    `Existing over-budget files grew: ${expandedOverBudget
-      .sort((a, b) => b[1].lines - b[2] - (a[1].lines - a[2]) || a[0].localeCompare(b[0]))
-      .slice(0, 8)
-      .map(([rel, metric, baseLines]) => `${rel} (${metric.lines} > ${baseLines})`)
-      .join(', ')}`
-  );
-}
-
-if (failures.length > 0) {
-  console.error('Structural budget audit failed:\n');
-  for (const f of failures) console.error(`- ${f}`);
-  console.error('\nCurrent metrics:');
-  console.error(`  as any count: ${metrics.totals.asAny}`);
-  console.error(`  files >500 lines: ${metrics.totals.filesOver500}`);
-  console.error(`  files >1000 lines: ${metrics.totals.filesOver1000}`);
-  console.error(`\nBaseline: ${path.relative(process.cwd(), baselinePath)}`);
-
-  const largest = topEntries(metrics.files, (metric) => metric.lines > OVER_500_LIMIT);
-  const asAnyTop = Object.entries(metrics.files)
-    .filter(([, metric]) => metric.asAny > 0)
-    .sort((a, b) => b[1].asAny - a[1].asAny || b[1].lines - a[1].lines || a[0].localeCompare(b[0]))
-    .slice(0, 12)
-    .map(([rel, metric]) => `  - ${formatFileMetric(rel, metric)}`);
-
-  if (largest.length > 0) console.error(`\nLargest over-budget files:\n${largest.join('\n')}`);
-  if (asAnyTop.length > 0) console.error(`\nTop as-any files:\n${asAnyTop.join('\n')}`);
-  process.exit(1);
-}
-
-console.log('Structural budgets OK');
-console.log(`- baseline: ${path.relative(process.cwd(), baselinePath)}`);
-console.log(`- as any count: ${metrics.totals.asAny} / ${baselineLimits.asAny}`);
-console.log(`- files >500 lines: ${metrics.totals.filesOver500} / ${baselineLimits.filesOver500}`);
-console.log(`- files >1000 lines: ${metrics.totals.filesOver1000} / ${baselineLimits.filesOver1000}`);
+const result = evaluateStructural(metrics, baseline, ledger, INHERITED_REVISION);
+fs.mkdirSync(path.dirname(reportPath), { recursive: true });
+fs.writeFileSync(reportPath, `${JSON.stringify(result, null, 2)}\n`);
+if (hasArg('--json')) console.log(JSON.stringify(result));
+const log = result.passed ? console.log : console.error;
+log(`Structural budgets ${result.passed ? 'OK' : 'FAILED'}: ${result.rawViolations.length} raw violations, ${result.proposedExceptions.length} proposed exceptions, ${result.acceptedExceptions.length} accepted exceptions, ${result.unacceptedViolations.length} unaccepted violations, ${result.invalidExceptions.length} invalid exceptions, ${result.aggregateFailures.length} aggregate failures`);
+log(`Full inventory: ${path.relative(process.cwd(), reportPath)}`);
+if (result.reviewFailure) log(`- ${result.reviewFailure}`);
+for (const item of result.unacceptedViolations) log(`- ${item.path} [${item.rule}]: ${item.current} > ${item.old} (excess ${item.excess})`);
+for (const item of result.invalidExceptions) log(`- ${item}`);
+for (const item of result.aggregateFailures) log(`- ${item.rule}: ${item.current} > ${item.old} (excess ${item.excess})`);
+if (!result.passed) process.exitCode = 1;

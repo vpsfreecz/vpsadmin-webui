@@ -58,6 +58,9 @@ function walk(dir, out) {
     } else if (ent.isFile()) {
       const ext = path.extname(ent.name);
       if (!exts.has(ext)) continue;
+      // JSX literals in test fixtures exercise the product audit; they are not
+      // application copy. Keep production .tsx files in the scan.
+      if (ent.name.endsWith('.test.tsx')) continue;
       if (isInsideIgnoredDir(full)) continue;
       out.push(full);
     }

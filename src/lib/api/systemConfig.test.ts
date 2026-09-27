@@ -11,7 +11,7 @@ function mockFetchOk(response: unknown): typeof globalThis.fetch {
 
 describe('system config API wrappers', () => {
   test('scopes index requests to an API-supported category', async () => {
-    globalThis.fetch = mockFetchOk({ system_configs: [] }) as any;
+    globalThis.fetch = mockFetchOk({ system_configs: [] });
 
     await fetchSystemConfigs({ category: ' plugin_payments ' });
 
@@ -22,7 +22,7 @@ describe('system config API wrappers', () => {
   });
 
   test('keeps the full index request unchanged when no category is requested', async () => {
-    globalThis.fetch = mockFetchOk({ system_configs: [] }) as any;
+    globalThis.fetch = mockFetchOk({ system_configs: [] });
 
     await fetchSystemConfigs();
 

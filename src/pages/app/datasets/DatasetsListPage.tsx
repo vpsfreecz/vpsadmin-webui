@@ -291,7 +291,6 @@ export function DatasetsListPage(props: DatasetsListPageProps = {}) {
         testId: 'datasets.smart.suggest.open_dataset',
       });
 
-
       if (showVpsFilter) {
         out.push({
           id: `vps.${num}`,

@@ -80,10 +80,29 @@ filesystem walk in a checkout and Gitless archive, includes unstaged source,
 prunes generated trees and rejects source symlinks. These are documentation
 consistency checks, not a substitute for semantic review or backend tests.
 
-When these verification lanes were prepared, `ci:quick` remained red: inherited
-structural budget violations and three UI strings in test fixtures still needed
-disposition. The structural baseline must stay unchanged. Prepared workflows
-alone are not a green PR or release signal.
+The structural audit keeps the historical baseline unchanged. It writes a complete
+JSON inventory to `work/audits/structural.json`, with old/current/excess values for
+every raw per-file and aggregate rule. `scripts/fixtures/structural-debt-ledger.json`
+records inherited exceptions by exact path, rule, source revision, SHA-256
+content hash, current metric allowance, rationale, owner and removal condition.
+Its review status starts `pending`; validated entries remain proposed and the
+audit fails until the lead explicitly accepts this exact ledger. The session
+lead accepted the 43 current exceptions after matching their hashes against the
+recorded source revision `e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9`.
+Raw violations, proposed/accepted exceptions, unaccepted violations and invalid
+entries are separate report fields. A changed or deleted file, resolved rule, expired
+removal condition, changed allowance or unlisted new violation fails the audit;
+aggregate adjustment comes only from active accepted entries. The ledger is a
+temporary disposition, not a new baseline. Remove an entry as soon as its rule
+is resolved, and review any source edit before replacing its recorded hash.
+
+The UI-string audit excludes only `*.test.tsx` fixtures from its source walk.
+Production TSX still participates. Focused fixture tests cover that distinction and
+the structural failure cases. A passing quick gate is local source evidence;
+production build, browser scripts, PR matrix and remote CI remain separate gates.
+The structural audit passes for the accepted source bytes. Record the exact
+locked-toolchain quick gate and production build results for each candidate
+separately from this source audit.
 
 ## Recorded release evidence (2026-09-27)
 

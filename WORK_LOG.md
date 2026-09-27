@@ -27,6 +27,64 @@ complete reconstruction of the project. Missing evidence is not a passing check.
   or raw production responses. This log does not grant deployment authorization
   or enable autonomous scheduled development.
 
+## 2026-09-27 - Accept the exact inherited structural ledger
+
+**Decision:** the session lead matched all 43 exception hashes to adoption source
+revision `e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9`,
+confirmed 41 distinct paths and no duplicate path/rule, then accepted this
+exact inherited ledger. Its review marker now records that decision. Correct the
+MonitoringEventsPage rationale to say the adoption source already exceeded the
+older line baseline by one; the adoption commit did not edit that file. The
+source hashes and allowances did not change.
+
+**Verification / status:** `audit:structural` passes with 44 raw findings,
+43 accepted exceptions, zero unaccepted/invalid entries and zero aggregate
+failures. Focused structural audit tests pass. `ci:quick` still stops at
+`env:locked` in this sandbox: cached Node 24.19.0/npm 11.17.0 differs from
+the required 24.21.0/11.19.0. The lead will rerun that exact command in the
+normal Nix shell. No push, CI, browser suite or deployment was performed.
+
+## 2026-09-27 - Disposition inherited structural debt and test UI fixtures
+
+**Request / reason:** the deterministic verification update left `ci:quick` red
+on structural debt inherited at the adoption source revision and three
+UI-string findings in TSX test fixtures. The old structural console
+output truncated findings and could not support an exact debt review.
+
+**Change:** keep `scripts/fixtures/structural-baseline.json` unchanged. The
+structural audit now writes every per-file and aggregate rule with old, current
+and excess values to `work/audits/structural.json`, separating raw findings,
+accepted exceptions and failures. A distinct ledger proposes 43 exact rule
+exceptions across 41 source files byte-identical to adoption revision
+`e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9`, a SHA-256 content hash,
+allowance, rationale, owner and removal condition. The ledger review is pending,
+so these entries cannot make the gate green until the lead accepts them.
+Changed, deleted, resolved, duplicate and spare-capacity entries fail. Remove
+redundant casts from two API test files and an extra blank line in the dataset
+list, clearing three small
+per-file findings. Classify only `*.test.tsx` as UI-string fixtures; product TSX
+remains scanned. The three fixture findings are gone without changing product
+copy.
+
+**Verification / status:** the structural command reports 44 raw findings
+(43 proposed per-file exceptions and one aggregate), zero invalid entries,
+43 unaccepted per-file findings and one aggregate failure while review is
+pending. UI strings report zero findings. Focused structural/UI script tests,
+11 affected API wrapper tests, typecheck, lint,
+design-docs audit (17 docs, 66 requirements, 256 routes, 63 API modules) and
+mutation audit passed using cached Node 24.19.0. `ci:quick` stops at its
+deliberate toolchain check because this sandbox lacks the locked Node 24.21.0 /
+npm 11.19.0 shell; its full sequence needs a normal Nix environment run. The
+lead must review the exception dispositions and record acceptance before the
+structural gate can turn green. No production build, browser suite, CI, push,
+default-branch write or deployment was done.
+
+**Next / limitations:** remove ledger entries as their rules resolve. The extra
+cast in `ResourcePackageDetailPage.tsx` shares a file with 73 lines of inherited
+growth; its paired type and section extraction remains a page-refactor
+follow-up. Local source checks and an accepted ledger are not release
+certification.
+
 ## 2026-09-27 - Prepare deterministic verification lanes
 
 **Request / reason:** the design audit depended on Git index state and failed
