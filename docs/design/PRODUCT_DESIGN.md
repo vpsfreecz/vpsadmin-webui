@@ -22,12 +22,12 @@ see service, operations, users/finance, infrastructure and content groups.
 The complete routing surface, including aliases and child pages not present in
 menus, is in the [inventory](IMPLEMENTATION_INVENTORY.md).
 
-At the reviewed deployed baseline the collapsed sidebar is icon-only. Pending
-PR522 changes it to a compact labeled menu, 176px wide versus 256px expanded,
-with short labels for long destinations and unique symbols. This responds to the
-maintainer's report that duplicate and unlabeled icons were not understandable.
-The expanded panel is the default. Mobile uses a labeled drawer. This design does
-not remove saved collapse preferences; it changes what compact presentation means.
+The normal sidebar remains 256px wide with full localized destination names and
+section headings. The maintainer clarified on 2026-09-27 that this menu already
+has labels and should not be narrowed. PR522 now only distinguishes destination
+icons and preserves accessible names; its proposed 176px compact labeled mode
+and abbreviated labels were withdrawn. Existing optional collapse behavior and
+saved preferences remain unchanged.
 
 ## Visual language
 

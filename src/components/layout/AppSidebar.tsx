@@ -40,7 +40,6 @@ export interface NavItem {
   to: string;
   activePathPrefix?: string;
   label: string;
-  shortLabel?: string;
   icon: React.ReactNode;
   group?: AdminSidebarGroupId;
   footer?: boolean;
@@ -132,7 +131,7 @@ export function buildSidebarNavItems(opts: {
   if (appMode === 'user') {
     items.push({ id: 'nodes', to: `${basePath}/nodes`, label: t('nav.nodes'), icon: <Cpu size={18} /> });
     items.push({ id: 'payments', to: `${basePath}/payments`, label: t('nav.payments'), icon: <CreditCard size={18} /> });
-    items.push({ id: 'requests', to: `${basePath}/requests`, label: t('nav.my_requests'), shortLabel: t('nav.requests'), icon: <Inbox size={18} /> });
+    items.push({ id: 'requests', to: `${basePath}/requests`, label: t('nav.my_requests'), icon: <Inbox size={18} /> });
   }
 
   if (appMode === 'admin') {
@@ -141,7 +140,6 @@ export function buildSidebarNavItems(opts: {
         id: 'security-advisories',
         to: `${basePath}/security-advisories`,
         label: t('nav.security_advisories'),
-        shortLabel: t('nav.short.security'),
         icon: <ShieldAlert size={18} />,
         group: 'operations',
       });
@@ -152,7 +150,6 @@ export function buildSidebarNavItems(opts: {
       id: 'user-namespaces',
       to: `${basePath}/user-namespaces/namespaces`,
       label: t('nav.user_namespaces'),
-      shortLabel: t('nav.short.namespaces'),
       icon: <Layers size={18} />,
       group: 'users-finance',
     });
@@ -178,8 +175,8 @@ export function buildSidebarNavItems(opts: {
     }
     items.push({ id: 'cluster', to: `${basePath}/cluster/summary`, label: t('nav.cluster'), icon: <Boxes size={18} />, group: 'infrastructure' });
     items.push({ id: 'nodes', to: `${basePath}/nodes`, label: t('nav.nodes'), icon: <Cpu size={18} />, group: 'infrastructure' });
-    items.push({ id: 'migration-plans', to: `${basePath}/migration-plans`, label: t('nav.migration_plans'), shortLabel: t('nav.short.migrations'), icon: <GitMerge size={18} />, group: 'infrastructure' });
-    items.push({ id: 'admin-info', to: `${basePath}/admin-info`, label: t('nav.admin'), shortLabel: t('nav.short.admin'), icon: <Shield size={18} />, group: 'infrastructure' });
+    items.push({ id: 'migration-plans', to: `${basePath}/migration-plans`, label: t('nav.migration_plans'), icon: <GitMerge size={18} />, group: 'infrastructure' });
+    items.push({ id: 'admin-info', to: `${basePath}/admin-info`, label: t('nav.admin'), icon: <Shield size={18} />, group: 'infrastructure' });
   }
 
   items.push({
@@ -216,8 +213,7 @@ function NavigationLink(props: {
       data-testid={`nav.${surface}.${item.id}`}
       className={
         clsx(
-          'flex min-w-0 items-center gap-2 rounded-md text-sm transition-colors',
-          collapsed ? 'px-2' : 'px-3',
+          'flex min-w-0 items-center gap-2 rounded-md px-3 text-sm transition-colors',
           surface === 'drawer' || !compact ? 'py-2' : 'py-1.5',
           isActive ? 'bg-accent/15 text-fg' : 'text-muted hover:bg-surface-2 hover:text-fg'
         )
@@ -227,7 +223,7 @@ function NavigationLink(props: {
       onClick={onClick}
     >
       <span className="shrink-0" aria-hidden="true">{item.icon}</span>
-      <span className="min-w-0 truncate">{collapsed ? item.shortLabel ?? item.label : item.label}</span>
+      {collapsed ? null : <span className="min-w-0 truncate">{item.label}</span>}
     </Link>
   );
 }
@@ -324,7 +320,7 @@ export function AppSidebar(props: {
   const primaryNavItems = primarySidebarNavItems(navItems);
   const navSections = sidebarNavSections(primaryNavItems);
   const footerNavItems = sidebarFooterNavItems(primaryNavItems);
-  const compactDesktopNav = primaryNavItems.length > 18;
+  const compactDesktopNav = !sidebarCollapsed && primaryNavItems.length > 18;
 
   return (
     <>
@@ -366,7 +362,7 @@ export function AppSidebar(props: {
         data-testid="shell.sidebar"
         className={clsx(
           'sticky top-0 hidden h-screen shrink-0 border-r border-border bg-surface md:block',
-          sidebarCollapsed ? 'w-44' : 'w-64'
+          sidebarCollapsed ? 'w-16' : 'w-64'
         )}
       >
         <div className="flex h-full min-h-0 flex-col">
@@ -411,7 +407,7 @@ export function AppSidebar(props: {
               {sidebarCollapsed ? (
                 <>
                   <PanelLeftOpen size={18} />
-                  <span>{t('settings.sidebar.expand')}</span>
+                  <span className="sr-only">{t('settings.sidebar.expand')}</span>
                 </>
               ) : (
                 <>

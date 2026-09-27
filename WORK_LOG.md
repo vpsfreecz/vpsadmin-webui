@@ -27,6 +27,28 @@ complete reconstruction of the project. Missing evidence is not a passing check.
   or raw production responses. This log does not grant deployment authorization
   or enable autonomous scheduled development.
 
+## 2026-09-27 - Keep normal sidebar width; revise PR522 to icons only
+
+**Request / reason:** the maintainer already uses the full labeled menu and does
+not want it narrowed. The previous 176px compact preview over-interpreted the
+shared feedback about icons and labels.
+
+**Change:** PR522 now preserves the existing 256px expanded sidebar, full cs/en
+labels, group headings, mobile drawer and optional collapse behavior. Withdraw
+new compact widths and abbreviated translations. Keep distinct destination icons,
+explicit accessible link names and decorative icon hiding. Update REQ-004,
+product design and DEC-011 to record the superseded proposal. Include the earlier
+release receipt in this documentation update instead of creating another PR.
+
+**Verification:** typecheck, lint, design/active-doc audits, build, 9 existing
+sidebar unit tests and 12 desktop/mobile dashboard/preferences fixture cases
+passed. Eight synthetic user/admin, cs/en, light/dark previews confirmed a 256px
+normal sidebar, visible labels/groups and distinct icons. Czech dark admin preview
+was visually inspected. Preview images remain operator-held evidence.
+
+**Status / next:** revised for review; not merged or deployed. Earlier narrow
+sidebar screenshots describe the withdrawn proposal, not this revision.
+
 ## 2026-09-27 - Approved heatmap and favicon release
 
 **Authorization:** the maintainer approved PR521, PR523 and PR524 for merge and
