@@ -27,6 +27,47 @@ complete reconstruction of the project. Missing evidence is not a passing check.
   or raw production responses. This log does not grant deployment authorization
   or enable autonomous scheduled development.
 
+## 2026-09-28 - Add a separate private NixOS WebUI service
+
+**Request / reason:** immutable frontend and BFF packages need a reusable
+disabled-by-default host contract without enabling the legacy PHP WebUI or
+putting secrets into the Nix store. The BFF requires one private writable
+session directory and normalized proxy identity from a private backend hop.
+
+**Change:** export `nixosModules.default` with typed `services.vpsadmin-webui`
+options and enabled-state assertions. It selects matching package provenance,
+uses the dedicated `vpsadmin-webui-bff` account and a fixed
+`/var/lib/vpsadmin-webui` systemd state directory at mode 0700. It creates a
+0700 `sessions/` child before BFF execution. No state-directory override can
+redirect systemd ownership handling into the legacy PHP state tree. The service
+emits production public settings and loads only the runtime secret-file path;
+it binds BFF to loopback and retains startup validation. Private nginx uses an
+explicit listener, original-peer allowlist, separate trusted-edge set and one
+normalized forwarding chain. It routes exact config/session/health and OAuth
+requests to BFF, suppresses OAuth access and error logs in both OAuth locations,
+and separates static CSP from
+BFF-owned response CSP. Each location owns its response headers because nginx
+does not inherit server-level `add_header` values into locations that define
+their own. The existing OpenStreetMap/Nominatim origins stay in the static
+policy. No site address, secret value, VM service test or site
+configuration was added. The [service guide](docs/design/NIXOS_SERVICE.md)
+records the operator boundary and remaining proof.
+
+**Verification / limits:** build-free fixtures inspect disabled, valid,
+malformed, package-mismatch, rejected state-directory overrides and actual
+pinned legacy-PHP coexistence configurations. The draft with headers in their
+owning locations passed all ten build-free results in the normal environment,
+including rejection of an explicit state-directory override and coexistence
+with the locked legacy PHP module. An available nginx 1.30.2 parsed a locally
+assembled map/vhost configuration, but this sandbox denied the socket check
+needed by `nginx -t`. Nix syntax/format, the inline-bootstrap CSP hash test
+and design audit are focused local gates.
+Rendered nginx and VM verification on the exact rewritten head remain open.
+No exact-head VM build, push, default-branch integration or deployment occurred.
+No KB page or screenshot changes are supported by this source-only module work;
+the existing capture contract still targets the legacy PHP interface. Assess
+preview-specific captures after the module and site are deployed and verified.
+
 ## 2026-09-28 - Prepare separate immutable frontend and BFF packages
 
 **Request / reason:** the new NixOS preview needs reproducible static and OAuth

@@ -1,6 +1,6 @@
 # Verification, readiness and release evidence
 
-Requirements: REQ-039, 042–046, 056–065, 067–068. Documentation coverage, implemented code,
+Requirements: REQ-039, 042–046, 056–065, 067–069. Documentation coverage, implemented code,
 passing fixtures and production readiness are separate claims.
 
 ## Evidence levels
@@ -34,8 +34,12 @@ exact-source Nix build of both outputs and all three package checks: provenance,
 cleaned source contents and installed package contents. The content check builds
 both packages and compares their schema-1 metadata. Local Node checker fixtures
 and Nix syntax checks cannot substitute for an offline dependency build, actual
-source filtering or closure inspection. The NixOS module, nginx/VM checks and
-site deployment are later gates.
+source filtering or closure inspection. The disabled-by-default
+[NixOS service module](NIXOS_SERVICE.md) has a build-free evaluation fixture
+covering disabled, valid, invalid and legacy PHP coexistence cases. Inspect
+its rendered service and nginx settings on the exact pinned input; evaluation
+does not substitute for nginx syntax, private-listener or HTTPS mock-provider
+VM checks. Site deployment is a later gate.
 
 ```sh
 npm ci

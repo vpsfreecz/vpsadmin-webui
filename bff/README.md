@@ -38,7 +38,7 @@ depending on API configuration.
 validates its settings and proves that `SESSION_STORE_PATH` is an existing,
 writable directory. It creates and removes a private write probe; it does not
 create a missing session directory. A failed setting is named without printing
-its value. The later NixOS module and site runbook must set both
+its value. The reusable NixOS module sets both
 `BFF_RUNTIME_MODE=production` and `PUBLIC_ORIGIN` explicitly; they must never
 select `legacy-test`. The production environment must provide:
 
@@ -60,8 +60,8 @@ select `legacy-test`. The production environment must provide:
 and limits have positive bounded defaults in `runtime-config.js`. Integer
 settings reject suffixes, fractions and overflow. Session and client secrets
 reject obvious placeholders and repeated-character values; these checks cannot
-prove entropy, so generate and transfer secrets securely. The site-owned NixOS
-service will supply the production settings and read secrets from its private
+prove entropy, so generate and transfer secrets securely. The NixOS module
+supplies the public production settings and reads secrets from its private
 runtime environment file. Do not place secrets in the Nix store or public config.
 
 The public JSON shape is `{schemaVersion: 1, api: {url, version}, webuiNext}`.

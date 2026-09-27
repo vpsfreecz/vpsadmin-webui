@@ -4,8 +4,8 @@ Requirement: [REQ-068](REQUIREMENTS.md). The flake exposes separate
 `packages.x86_64-linux.frontend` and `packages.x86_64-linux.bff` outputs. The
 frontend package is the public static root. The BFF package contains its own
 production Node runtime graph and executable. These packages do not enable a
-service or deploy a host; the NixOS module and site configuration are separate
-work.
+service or deploy a host; the reusable [NixOS service module](NIXOS_SERVICE.md)
+is disabled by default and site configuration remains separate.
 
 ## Reproduce the dependencies
 
@@ -73,8 +73,8 @@ The source check rejects missing audit inputs, generated/private files and
 symlinks. The package check builds both outputs and checks their installed
 contents together. Local Node fixtures and Nix syntax checks cover the checker
 and provenance logic without claiming a successful Nix build. Verify the
-package results on the exact candidate before including them in a NixOS
-module. Roll back the frontend and BFF as a matching pair; retain the session
+package results on the exact candidate before enabling the NixOS module.
+Roll back the frontend and BFF as a matching pair; retain the session
 store and signing secret so an application rollback does not destroy sessions.
 The existing `/config.json`, `/config.js`, `/session.json` and OAuth contracts
 remain the runtime interface.

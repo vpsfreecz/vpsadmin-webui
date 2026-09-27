@@ -20,8 +20,9 @@ status and acceptance. The [work log](WORK_LOG.md) records what changed and why.
 Use the locked flake for Node 24.21.0 with bundled npm 11.19.0. The flake also
 pins the vpsAdmin source used for API and Czech terminology review. Its
 separate frontend/BFF package outputs and package checks are described in the
-[package guide](docs/design/PACKAGING.md); the NixOS service module follows
-separately. `nix develop` also provides `prefetch-npm-deps` for reproducing
+[package guide](docs/design/PACKAGING.md). It also exports a separate,
+disabled-by-default [NixOS service module](docs/design/NIXOS_SERVICE.md).
+`nix develop` also provides `prefetch-npm-deps` for reproducing
 the independent npm dependency hashes.
 
 ```bash

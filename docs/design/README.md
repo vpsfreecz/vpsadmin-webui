@@ -52,6 +52,8 @@ it does not contain a recovered original or a competing specification.
     API adapter in the current checkout, with source links.
 11. [Immutable packages](PACKAGING.md): separate frontend/BFF outputs, dependency
     hashes, source boundaries and provenance checks.
+12. [NixOS service](NIXOS_SERVICE.md): reusable disabled module, runtime
+    environment, private nginx boundary and evaluation fixtures.
 
 The [work log](../../WORK_LOG.md) records chronology. Requirements record current
 intent; decisions explain transitions; test results prove only their stated scope.

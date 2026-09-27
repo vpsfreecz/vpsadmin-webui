@@ -13,7 +13,12 @@
   };
 
   outputs =
-    { self, nixpkgs, ... }:
+    {
+      self,
+      nixpkgs,
+      vpsadmin,
+      ...
+    }:
     let
       systems = [ "x86_64-linux" ];
       forAllSystems = f: nixpkgs.lib.genAttrs systems (system: f nixpkgs.legacyPackages.${system});
@@ -32,7 +37,21 @@
         bff = import ./packages/bff.nix { inherit pkgs source provenance; };
       });
 
+      nixosModules.default = import ./nixos/modules/webui.nix { inherit self; };
+
       checks = forAllSystems (pkgs: {
+        module-eval =
+          let
+            results = import ./tests/nixos/module-eval.nix { inherit self nixpkgs vpsadmin; };
+          in
+          assert builtins.deepSeq results true;
+          pkgs.runCommand "vpsadmin-webui-module-eval"
+            {
+              passthru = { inherit results; };
+            }
+            ''
+              touch "$out"
+            '';
         provenance =
           assert builtins.deepSeq (import ./nix/provenance-tests.nix { lib = nixpkgs.lib; }) true;
           pkgs.runCommand "vpsadmin-webui-provenance" { } ''

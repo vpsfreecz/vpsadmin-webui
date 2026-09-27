@@ -1,16 +1,17 @@
 # Operations and handover
 
 This is the operational map for a new maintainer, not authorization to change a
-server. Requirements REQ-056–066 apply. The Clankerdev release steps below
-describe that deployment's history. The NixOS service and site runbook for
-`newadmin.vpsfree.cz` are still being prepared; inspect the finished versioned
-runbook and actual host configuration before any activation.
+server. Requirements REQ-056–066 and REQ-068–069 apply. The Clankerdev release
+steps below describe that deployment's history. The reusable NixOS service
+module is prepared in source; its site runbook for `newadmin.vpsfree.cz` is
+still being prepared. Inspect the finished versioned runbook and actual host
+configuration before any activation.
 
 ## Repositories and environments
 
 | Component | Role | Boundary |
 | --- | --- | --- |
-| vpsfreecz/vpsadmin-webui | Canonical React frontend, OAuth BFF, separate [Nix packages](PACKAGING.md), fixture tests and this handbook; history imported from Kerrycek/clankerdev. | Package builds need exact-candidate verification; NixOS service and site integration remain under development. |
+| vpsfreecz/vpsadmin-webui | Canonical React frontend, OAuth BFF, separate [Nix packages](PACKAGING.md), disabled [service module](NIXOS_SERVICE.md), fixture tests and this handbook; history imported from Kerrycek/clankerdev. | Package builds, module runtime and site integration need exact-candidate verification. |
 | vpsfreecz/vpsadmin | HaveAPI, legacy UI and infrastructure reference. | Read-only unless a specific backend task is explicitly authorized. |
 | vpsfreecz/vpsfree-kb-contracts | Navigation/page/capture contracts and isolated scenario runners. | Independent UI/API pins; KB publication separately approved. |
 | dev.crucio.cz | Shared test frontend using the test API. | Not a disposable sandbox; retain other users' objects/configuration. |
@@ -28,6 +29,10 @@ The [package guide](PACKAGING.md) records immutable output contents, separate
 dependency hashes and provenance rules. Verify both packages and their matching
 metadata before using them in the service module. Preserve the BFF session
 store and secret when rolling back to a matching earlier frontend/BFF pair.
+The [service guide](NIXOS_SERVICE.md) records the private listener, runtime
+environment, edge trust and static/BFF header split. Importing its module does
+not activate it; site-owned configuration and an operator-run deployment are
+still required.
 
 ## Local development
 
