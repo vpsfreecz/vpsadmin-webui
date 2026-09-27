@@ -23,6 +23,10 @@ and cleanup receipt. Do not rerun completed destructive scenarios blindly.
 
 Use the supported Node range in [package.json](../../package.json), with the locked
 npm dependencies. The current baseline supports Node ^20.19, ^22.12 or >=24.
+The new repository's `nix develop` selects Node 24 from its locked Nixpkgs
+input. Before claiming a Nix-based result, record the effective Node version
+and the pinned vpsAdmin source revision; site configuration can override that
+input when it builds the deployment.
 
 ```sh
 npm ci

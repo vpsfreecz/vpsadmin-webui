@@ -15,6 +15,7 @@ records. No production personal data or private chat images are copied here.
 | Backend source reference and contracts handoffs | Exact endpoint incompatibilities and proposal boundaries. | Independent API pin; not permission to change upstream/shared runtime. |
 | KB contracts work/handoffs | Real isolated scenario history, independent pins and remaining KB work. | Not a completed production KB publication or certification of another UI/API pair. |
 | Existing docs/spec and docs/chat | Historical archaeology. | Many pages are quarantined stubs or stale; not current authority. |
+| Upstream `Kerrycek/clankerdev` commit `e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9` | Source history and the repository-contained redesign index adopted by `vpsfreecz/vpsadmin-webui`. | Importing source does not transfer old-host deployment state or certify the new service. |
 
 ## Recoverable maintainer requests
 

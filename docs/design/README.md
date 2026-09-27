@@ -4,6 +4,13 @@ Reviewed baseline: product `fd290b5ec1b22900e704e8cb990c5ba050af2394`, 2026-09-2
 Pending PRs are identified explicitly and are not part of that deployed baseline.
 Documentation language: English. Product languages: Czech and English.
 
+The canonical repository is now `vpsfreecz/vpsadmin-webui`, with the original
+`Kerrycek/clankerdev` Git history retained through upstream revision
+`e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9`. That source revision is an
+adoption baseline, not evidence that the new NixOS preview has been deployed.
+The [operations guide](OPERATIONS.md) separates the older Clankerdev releases
+from the planned `newadmin.vpsfree.cz` service.
+
 ## Purpose and authority
 
 This handbook explains what the UI does, why it is designed this way, how it got

@@ -27,6 +27,38 @@ complete reconstruction of the project. Missing evidence is not a passing check.
   or raw production responses. This log does not grant deployment authorization
   or enable autonomous scheduled development.
 
+## 2026-09-27 - Prepare canonical WebUI repository and locked reference
+
+**Request / reason:** adopt the upstream WebUI in `vpsfreecz/vpsadmin-webui` for
+a parallel NixOS preview at `newadmin.vpsfree.cz`. The maintainer selected one
+frontend and one BFF process on one VPS and directed that the existing
+OpenStreetMap/Nominatim call remain unchanged.
+
+**Change:** preserve upstream history through `e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9`;
+rename the private npm package identities; add a flake development shell and a
+locked `vpsadmin` input at the site services revision
+`a65a4dfeb92a59df4a80a737a20bcbf8558793ff`. Repository instructions now
+resolve the Czech terminology guide from that evaluated input. The handbook
+distinguishes canonical source ownership from historical Clankerdev deployments.
+The new NixOS packages, runtime bootstrap and site configuration will be
+implemented separately.
+
+**Verification / status:** on cached Node 24.19.0, `env:check`, lint,
+`typecheck`, the production build and `audit:active-docs` passed. Nix syntax,
+`nixfmt --check`, lock-graph metadata parsing and whitespace checks passed.
+The npm lockfile identities match their manifests. The pinned vpsAdmin revision
+contains both guide paths. These are local source checks, not a Nix package
+build or deployed-service test. No default branch, host activation, DNS change,
+OAuth client or deployment was created. The upstream `UI_REDESIGN.md` index
+and its audit rules remain intact.
+
+**Next / limitations:** the sandbox cannot contact the Nix daemon or GitHub, so
+it could not generate the new lock online, enter `nix develop` or evaluate the
+pinned guide through the flake. The lock graph uses the existing site lock's
+hashes and exact service revision and needs a normal-environment evaluation.
+`audit:design-docs` also could not finish here: Node's Git child process reports
+`EPERM` despite a zero Git status. Run it in a normal environment before review.
+
 ## 2026-09-27 - Repair PR525 documentation audit test fixtures
 
 **Failure:** CI run 36333825895 failed three script tests. The updated audit

@@ -21,11 +21,12 @@ this is not a reconstruction of unavailable conversation text.
 | DEC-013 | Evidence comes from isolated owned systems and synthetic identities. Current. | Maintainer prohibited production personal data and interference with shared VMs/services. | Preserve UI/API pins, real-vs-fixture distinction, mutation receipts and cleanup; no replay just to inflate evidence. |
 | DEC-014 | Autonomous work was stopped; later direct tasks are bounded. Current constraint. | Latest explicit stop overrides earlier recurring-work approval. | Do not resume the 10-minute schedule or general development from a docs/UI request. |
 | DEC-015 | Repo-contained documentation replaces the unavailable external spec dependency. Proposed in this PR at maintainer request. | Existing entrypoints reference a missing sibling file; a recipient cannot reconstruct design from code alone. | Requirements, rationale, coverage, operations and work log live here. Preserve archaeology but do not make missing external files normative. |
+| DEC-016 | Adopt the WebUI in `vpsfreecz/vpsadmin-webui` with one preview instance at `newadmin.vpsfree.cz`. Current integration decision. | The maintainer selected the repository, hostname and a single VPS while keeping the legacy UI available. The OpenStreetMap/Nominatim call stays unchanged. | Preserve upstream Git history and old-host receipts; add source-owned NixOS packaging and site-owned configuration. A later default-interface cutover needs a separate decision. |
 
 ## Open decisions, not hidden assumptions
 
-- Beta hostname (informal suggestions included newui/nextui) is not a DNS change
-  instruction. Retain current targets until explicitly chosen.
+- `newadmin.vpsfree.cz` is selected for the parallel preview. The later
+  default-interface cutover and KB publication policy remain separate decisions.
 - Default dev soft-delete retention needs a policy choice; frontend controls do
   not choose the duration for the service.
 - Backend cursor compatibility/release path after rejection of PR44 is unresolved.

@@ -101,7 +101,15 @@ nginx with SPA history fallback. `/session.json` and OAuth endpoints must never
 fall through to `index.html`. `build-info.json` identifies the frontend build;
 BFF process/release provenance must be checked separately, not inferred from it.
 
-The product is Kerrycek/clankerdev. `vpsfreecz/vpsadmin` is the API/legacy reference;
-KB contracts have a separate repository and independent UI/API revisions. Frontend
-release approval is not backend migration, shared API configuration or KB
-publication approval. See [operations](OPERATIONS.md).
+`vpsfreecz/vpsadmin-webui` owns this frontend and BFF. Its preserved source
+history comes from `Kerrycek/clankerdev`; the old Clankerdev hosts and scripts
+remain historical deployment evidence. `vpsfreecz/vpsadmin` owns the API and
+legacy PHP UI. The new interface is planned as one frontend and one BFF process
+on a single NixOS VPS at `newadmin.vpsfree.cz`, beside the legacy origin. The
+OpenStreetMap/Nominatim address-map call remains in the product by decision;
+the deployment CSP must allow its existing origins. The locked `vpsadmin` flake
+input is the source compatibility and terminology reference. Site configuration
+may override that input with its `vpsadminServices` pin; neither pin proves the
+revision deployed to the API. KB contracts have independent UI/API revisions.
+Frontend release approval does not authorize backend migration, shared API
+configuration or KB publication. See [operations](OPERATIONS.md).

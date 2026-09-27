@@ -1,30 +1,41 @@
 # Operations and handover
 
 This is the operational map for a new maintainer, not authorization to change a
-server. Requirements REQ-056–066 apply. Use the versioned host runbooks and inspect
-actual service configuration before executing deployment commands.
+server. Requirements REQ-056–066 apply. The Clankerdev release steps below
+describe that deployment's history. The NixOS service and site runbook for
+`newadmin.vpsfree.cz` are still being prepared; inspect the finished versioned
+runbook and actual host configuration before any activation.
 
 ## Repositories and environments
 
 | Component | Role | Boundary |
 | --- | --- | --- |
-| Kerrycek/clankerdev | React frontend, OAuth BFF, fixture tests, deployment scripts and this handbook. | Product changes through reviewed PRs. |
+| vpsfreecz/vpsadmin-webui | Canonical React frontend, OAuth BFF, fixture tests and this handbook; history imported from Kerrycek/clankerdev. | New NixOS packaging and site integration remain under development. |
 | vpsfreecz/vpsadmin | HaveAPI, legacy UI and infrastructure reference. | Read-only unless a specific backend task is explicitly authorized. |
 | vpsfreecz/vpsfree-kb-contracts | Navigation/page/capture contracts and isolated scenario runners. | Independent UI/API pins; KB publication separately approved. |
 | dev.crucio.cz | Shared test frontend using the test API. | Not a disposable sandbox; retain other users' objects/configuration. |
 | clankerdev.vpsfree.cz | Shared frontend against the service API. | Real users/data; only scoped authorized release operations. |
 | Owned isolated cluster | Synthetic live API/VM workflow certification. | Verify ownership/provenance; do not replace another initiative's VMs. |
 
+The planned preview uses one frontend and one BFF process on one NixOS VPS at
+`newadmin.vpsfree.cz`. The legacy `vpsadmin.vpsfree.cz` interface stays in
+service. The existing OpenStreetMap/Nominatim call remains enabled. The new
+host's module and operator runbook belong to the WebUI and site configuration
+repositories respectively; the scripts under `deploy/` target the older
+Clankerdev hosts and must not be used on the new VPS.
+
 ## Local development
 
-Use a clean isolated worktree; preserve unrelated main-checkout changes. Install
-supported Node/npm dependencies, run `npm ci`, `npm run dev`, and follow the
+Use a clean isolated worktree and preserve unrelated changes. Enter `nix develop`
+for the locked Node 24 toolchain, run `npm ci` and `npm run dev`, then follow the
 [verification commands](VERIFICATION.md). Use the local runtime config example in
 [public](../../public/config.local.js.example). Keep private config out of commits.
 Fixtures allow layout/browser work without real credentials. The OAuth BFF has its
-own [environment/setup requirements](../../bff/README.md).
+own [environment/setup requirements](../../bff/README.md). The flake's pinned
+`vpsadmin` input supplies the terminology and source API reference; the site
+may override it, so record the effective revision for integration results.
 
-## Release procedure
+## Historical Clankerdev release procedure
 
 1. Resolve approved PR scope, exact heads, reviews/CI and backend compatibility.
    Do not silently include open dependency PRs or superseded/rejected proposals.
@@ -64,9 +75,10 @@ was changed, then recheck provenance, health, auth and deep routes. Restore conf
 only when needed; do not overwrite unrelated changes or secrets. Frontend rollback
 does not undo API mutations or database migrations. A migration needs its own plan.
 
-The prior recorded release is `2eef5193403258c88ec4fca79138898aaf4273cc`; last
-recorded deployed release is `fd290b5ec1b22900e704e8cb990c5ba050af2394`. These are
-historical receipts, not permanent “current” pointers. Check actual state before use.
+The prior recorded release is `2eef5193403258c88ec4fca79138898aaf4273cc`; the
+later sidebar release at `49c6a51d0b32c4a6d5dd1df426e0bac1d8066115` is recorded
+in [the work log](../../WORK_LOG.md). These are historical receipts, not
+permanent "current" pointers. Check actual state before use.
 
 ## Ownership and secure handover checklist
 

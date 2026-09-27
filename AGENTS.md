@@ -1,76 +1,47 @@
-# Clankerdev AI Maintenance Rules
+# vpsAdmin WebUI repository instructions
 
-This repository is maintained through human-reviewed AI pull requests.
+This repository is the canonical source for the new React WebUI and its OAuth
+BFF. Its history comes from `Kerrycek/clankerdev`; keep that history and its
+authors intact. The separate `vpsfreecz/vpsadmin` repository owns the API and
+the legacy PHP interface. A WebUI task does not authorize backend changes.
 
-## Project Boundaries
+## Required procedures
 
-- The upstream `vpsfreecz/*` repositories are read-only references. Do not push to
-  them and do not open PRs against them unless a human explicitly asks.
-- `dev.crucio.cz` is the test UI deployment on `admin.crucio.cz`
-  (`172.16.106.176`).
-- `dev.crucio.cz` serves the new UI copied from
-  `clankerdev.vpsfree.cz` and uses the local test API on
-  `127.0.0.1:9292`.
-- Production deploys, server changes, database changes, and secret changes must
-  not be performed from an issue fix. Prepare code/config changes in a PR and
-  wait for human approval.
+Before changing English or Czech UI text, catalogs, BFF error pages, or other
+localization behavior, read [Localization](docs/agent-instructions/localization.md)
+in full. It resolves the vpsAdmin terminology guide from this repository's
+locked flake input and requires recording the revision used. For other product
+behavior, read [the design handbook](docs/design/README.md), relevant rows in
+[the requirements register](docs/design/REQUIREMENTS.md), and [the work log](WORK_LOG.md).
 
-## Issue Fix Workflow
+## Development and checks
 
-- Work on a branch named for the issue, for example `ai/issue-12-short-title`.
-- Keep changes scoped to the issue.
-- Include tests or smoke-check notes when possible.
-- Do not merge your own PR.
-- Do not deploy.
-- Do not modify the AI issue runner (`deploy/ai-issue-runner/*`) while solving
-  unrelated product issues.
-- PR descriptions must include:
-  - the issue being fixed,
-  - a short change summary,
-  - verification performed,
-  - any risks or follow-up needed.
+- Enter `nix develop` for the pinned Node 24 development toolchain. Use `npm ci`
+  for the root project and, when changing the BFF, in `bff/`. Do not install
+  dependencies on a deployed host.
+- Use `npm run typecheck`, `npm test`, `npm run build`, and the relevant audit and
+  script/BFF commands for the change. Browser fixtures do not certify a real API.
+- Regenerate `npm run docs:inventory` when routes or API adapters change. Run
+  `npm run audit:design-docs` for design-documentation edits and review the prose
+  for accuracy; the audit checks links and inventory, not meaning.
+- Do not commit `dist/`, `assets/`, `.vite/`, `node_modules/`, credentials,
+  generated auth files, or private server backups. Keep changes scoped and
+  record meaningful work, decisions, checks and limits in `WORK_LOG.md`.
+- Before committing, check for a declared hook framework and run its hooks. Do
+  not bypass a declared hook. Keep commits focused and document verification in
+  the work log or review notes.
 
-## Source and Build
+## Deployment and review boundaries
 
-- This repository contains the WebUI Next source project.
-- Make product fixes in `src/`, `bff/`, tests, docs, or deployment files as
-  appropriate for the issue.
-- Do not commit generated build output from `dist/`, `assets/`, `.vite/`, or
-  `node_modules/`.
-- Use `npm ci`, `npm run typecheck`, `npm test`, and `npm run build` when
-  relevant. For BFF-only changes, also consider `cd bff && npm ci`.
-- Deployment still happens only after human review. The dev deployment builds
-  `dist/` from source and syncs that output to the webroot.
-
-## Repo Hygiene
-
-- Avoid unrelated refactors.
-- Do not commit secrets, tokens, local credentials, generated auth files, or
-  private server backups.
-- Prefer documenting operational changes under `deploy/`.
-
-## Work Log
-
-- Read `WORK_LOG.md` before starting work and maintain it with meaningful changes,
-  investigations, decisions, verification results, blockers, and releases.
-- Update the log in the same PR as the work when practical. Link the PR/commit
-  and evidence; distinguish prepared, merged, and deployed states explicitly.
-- Record later merge/deployment outcomes as dated follow-ups. Distinguish fixture
-  browser checks from real API validation and never invent missing history.
-- Keep secrets, personal data, raw production responses, and private operational
-  details out of the log. Log maintenance does not authorize deployment or resume
-  paused automation.
-
-## Design and Requirements Documentation
-
-- Read `docs/design/README.md` and relevant entries in
-  `docs/design/REQUIREMENTS.md` before changing product behavior.
-- Keep English design/workflow/contract docs and requirement status current in
-  the same PR. Reference affected requirement IDs in the PR description.
-- Recover actual user intent and record superseded choices; do not invent missing
-  historical rationale or turn observed source behavior into an approved request.
-- Regenerate `npm run docs:inventory` when routes or API adapter modules change.
-  Run `npm run audit:design-docs`; review semantic accuracy separately.
-- Preserve evidence scope and distinguish implementation, test results, merge and
-  deployment. The handbook replaces the unavailable external spec dependency;
-  old docs/spec fragments are historical, not conflicting active requirements.
+- The NixOS module and site configuration for `newadmin.vpsfree.cz` are separate
+  work. One frontend and one BFF process are planned on one VPS; the legacy PHP
+  UI stays available. This source checkout is not a deployed release.
+- `deploy/` contains historical instructions and scripts for the Clankerdev
+  hosts. Do not use them for the new VPS or resume the paused AI issue runner.
+  Do not change servers, databases or secrets as part of an application edit.
+- Prepare reviewable feature changes; do not merge, publish a new default branch,
+  or deploy without the relevant explicit direction. A review or passing test
+  does not authorize any of those actions.
+- Keep `docs/design/` and `WORK_LOG.md` current in the same change. Reference
+  affected requirement IDs in a review description. Record whether evidence is
+  source inspection, a fixture, a real isolated API test, or deployment proof.
