@@ -19,12 +19,13 @@ prefetch-npm-deps bff/package-lock.json
 ```
 
 The recorded hashes for the current lockfiles are
-`sha256-q4Xy2p/fhQ9PrI2CQJE4vWRe/jObemXdOSGeBgEYwxI=` and
+`sha256-1AItkFu1tvJpKjFVbGC/IWky4JPfw+d+XU50egk+/TE=` and
 `sha256-imijdRISN2eVBsYX79YBxl7zKM7Pjq3rixkKXJNDSvw=`, respectively.
 They are used only by their corresponding derivations. The root lock changed
-for development-only lint and format tools; the BFF lock did not change. The
-root prefetch reported six nested `@tailwindcss/oxide-wasm32-wasi` bundled,
-optional dependencies without separate resolved URLs. Their WASI-only
+to align development-only Node declarations with the selected Node 24 major;
+the BFF lock did not change. The root prefetch reported six bundled optional
+dependencies nested under `@tailwindcss/oxide-wasm32-wasi` without separate
+resolved URLs. Their WASI-only
 placement and bundled metadata explain the warning, but only an actual x86_64
 package build can establish whether the cached dependency set is sufficient.
 Do not edit a lock or reuse the other project's hash to work around a fetch

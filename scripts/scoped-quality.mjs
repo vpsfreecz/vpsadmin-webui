@@ -10,8 +10,13 @@ const TOOL_FILES = [
   '.prettierrc.json',
   'eslint.config.mjs',
   'scripts/fixtures/lint-coverage.json',
+  'scripts/fixtures/tooling-types/invalid-build-info.ts',
+  'scripts/fixtures/tooling-types/invalid-playwright.ts',
+  'scripts/fixtures/tooling-types/valid.ts',
   'scripts/scoped-quality.mjs',
   'scripts/scoped-quality.test.mjs',
+  'scripts/tooling-types.test.mjs',
+  'tsconfig.tooling.json',
 ];
 
 function eligible(pathname) {

@@ -2,11 +2,11 @@ import { defineConfig, devices } from '@playwright/test';
 
 // E2E runs should set E2E_BASE_URL to an already-running server.
 // Optionally set E2E_START_SERVER=1 to let Playwright start Vite.
-const baseURL = process.env.E2E_BASE_URL ?? 'http://127.0.0.1:5173';
-const storageState = process.env.E2E_STORAGE_STATE?.trim() || undefined;
-const ignoreHTTPSErrors = process.env.E2E_IGNORE_HTTPS_ERRORS === '1';
-const chromiumExecutablePath = process.env.E2E_CHROMIUM_EXECUTABLE_PATH?.trim() || undefined;
-const recordArtifacts = process.env.E2E_RECORD_ARTIFACTS !== '0';
+const baseURL = process.env['E2E_BASE_URL'] ?? 'http://127.0.0.1:5173';
+const storageState = process.env['E2E_STORAGE_STATE']?.trim() || undefined;
+const ignoreHTTPSErrors = process.env['E2E_IGNORE_HTTPS_ERRORS'] === '1';
+const chromiumExecutablePath = process.env['E2E_CHROMIUM_EXECUTABLE_PATH']?.trim() || undefined;
+const recordArtifacts = process.env['E2E_RECORD_ARTIFACTS'] !== '0';
 
 function readLocalWebServerTarget(url: string): { host: string; port: string } {
   try {
@@ -32,8 +32,8 @@ export default defineConfig({
   outputDir: 'e2e/test-results',
   timeout: 90_000,
   expect: { timeout: 15_000 },
-  retries: process.env.CI ? 2 : 0,
-  reporter: process.env.CI ? [['github'], ['html', { open: 'never' }]] : [['list'], ['html']],
+  retries: process.env['CI'] ? 2 : 0,
+  reporter: process.env['CI'] ? [['github'], ['html', { open: 'never' }]] : [['list'], ['html']],
   use: {
     baseURL,
     storageState,
@@ -42,11 +42,11 @@ export default defineConfig({
     screenshot: recordArtifacts ? 'only-on-failure' : 'off',
     video: recordArtifacts ? 'retain-on-failure' : 'off',
   },
-  webServer: process.env.E2E_START_SERVER
+  webServer: process.env['E2E_START_SERVER']
     ? {
         command: `npm run dev -- --host ${webServerTarget.host} --port ${webServerTarget.port}`,
         url: baseURL,
-        reuseExistingServer: !process.env.CI,
+        reuseExistingServer: !process.env['CI'],
         timeout: 120_000,
       }
     : undefined,

@@ -27,6 +27,38 @@ complete reconstruction of the project. Missing evidence is not a passing check.
   or raw production responses. This log does not grant deployment authorization
   or enable autonomous scheduled development.
 
+## 2026-09-28 - Typecheck build and browser-runner configuration
+
+**Request / reason:** the application typecheck excluded the Vite and Playwright
+configs and build metadata helper. Incorrect config options or build record
+shapes could pass the required quick gate.
+
+**Change:** add a strict no-emit TypeScript project for `vite.config.ts`,
+`playwright.config.ts` and `build/**/*.ts`, and require it in `ci:quick` alongside
+the existing application check. Change only the typed syntax of environment
+lookups in both configs; their runtime values and ESM loaders stay the same.
+Align root Node declarations to major 24. Compile-only fixtures check that
+schema-2 build metadata and a string Playwright retry count fail. The fixtures
+do not import executable configs or start a browser. The BFF dependency graph
+and existing audits are unchanged.
+
+**Verification / limits:** the initial tooling inventory contained 23
+index-signature diagnostics, all resolved by indexed lookups. A strict E2E
+preflight produced 231 diagnostics in 75 files; a diagnostic-only probe without
+the extra index-signature and unchecked-index checks still produced 90 in 29.
+E2E and BFF static checking remain separate work; no E2E config or relaxed
+strictness was added. The normal-environment root install selected
+`@types/node` 24.19.0 and `undici-types` 7.24.6; root lock SHA-256
+`70e154eee63b217dd934e412363b5b1dff59ce51ca78e83556d4939823f385e9`
+prefetched to `sha256-1AItkFu1tvJpKjFVbGC/IWky4JPfw+d+XU50egk+/TE=`.
+The BFF lock/hash are unchanged. The same six optional WASI nested packages
+still lack resolved URLs in prefetch; the exact-head x86_64 package build must
+establish whether the cached closure is sufficient. Focused tooling and
+application compiles, four compile-fixture cases, five build-info unit tests,
+format check, design-doc and structural audits passed with cached Node 24.19.0
+and the installed root graph. The exact locked Node 24.21.0 quick gate remains
+pending. No browser, package build, VM or deployment result is claimed here.
+
 ## 2026-09-28 - Check a bounded source set with ESLint and Prettier
 
 **Request / reason:** custom Tailwind and pattern audits did not check React

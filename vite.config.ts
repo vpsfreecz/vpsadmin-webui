@@ -67,30 +67,30 @@ function manualVendorChunk(id: string): string | undefined {
  */
 export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
-  if (env.VITE_RUNTIME_MODE && !['bff', 'legacy'].includes(env.VITE_RUNTIME_MODE)) {
+  if (env['VITE_RUNTIME_MODE'] && !['bff', 'legacy'].includes(env['VITE_RUNTIME_MODE'])) {
     throw new Error('VITE_RUNTIME_MODE must be bff or legacy');
   }
-  if (command === 'build' && !env.VITE_RUNTIME_MODE) {
+  if (command === 'build' && !env['VITE_RUNTIME_MODE']) {
     throw new Error('VITE_RUNTIME_MODE is required for a production build');
   }
 
   // Build-time public base path for assets (must match the server mount path).
   const routerBasename = normalizeBasename(
-    env.VITE_ROUTER_BASENAME ?? env.VITE_BASE_PATH ?? env.VITE_PUBLIC_BASE_PATH
+    env['VITE_ROUTER_BASENAME'] ?? env['VITE_BASE_PATH'] ?? env['VITE_PUBLIC_BASE_PATH']
   );
   const base = routerBasename ? `${routerBasename}/` : '/';
 
   // Optional API proxy (disabled by default).
-  const proxyTarget = env.VITE_API_PROXY_TARGET;
-  const proxyPrefix = env.VITE_API_PROXY_PREFIX?.trim() || '/api';
-  const proxySecure = (env.VITE_API_PROXY_SECURE ?? 'true') !== 'false';
+  const proxyTarget = env['VITE_API_PROXY_TARGET'];
+  const proxyPrefix = env['VITE_API_PROXY_PREFIX']?.trim() || '/api';
+  const proxySecure = (env['VITE_API_PROXY_SECURE'] ?? 'true') !== 'false';
 
-  const host = parseHost(env.VITE_DEV_HOST);
-  const port = Number(env.VITE_DEV_PORT) || 5173;
+  const host = parseHost(env['VITE_DEV_HOST']);
+  const port = Number(env['VITE_DEV_PORT']) || 5173;
 
-  const httpsEnabled = (env.VITE_DEV_HTTPS ?? 'false') === 'true';
-  const httpsKey = readFileMaybe(env.VITE_DEV_HTTPS_KEY);
-  const httpsCert = readFileMaybe(env.VITE_DEV_HTTPS_CERT);
+  const httpsEnabled = (env['VITE_DEV_HTTPS'] ?? 'false') === 'true';
+  const httpsKey = readFileMaybe(env['VITE_DEV_HTTPS_KEY']);
+  const httpsCert = readFileMaybe(env['VITE_DEV_HTTPS_CERT']);
   const https = httpsEnabled && httpsKey && httpsCert ? { key: httpsKey, cert: httpsCert } : undefined;
 
   const prefixRe = new RegExp(`^${escapeRegExp(proxyPrefix)}`);

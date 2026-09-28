@@ -53,9 +53,10 @@ npm run e2e:pr
 ```
 
 `ci:quick` runs the locked toolchain check, design-docs audit, scoped ESLint and
-Prettier checks, the existing Tailwind/pattern lint, typecheck, parser-based
-i18n checks, CSP and all declared architecture audits, including structural
-budgets and UI strings. It does not launch a browser or build production assets.
+Prettier checks, the existing Tailwind/pattern lint, application and tooling
+typechecks, parser-based i18n checks, CSP and all declared architecture audits,
+including structural budgets and UI strings. It does not launch a browser or
+build production assets.
 `ci:pr` and `ci:check` run the same required non-E2E sequence:
 `ci:quick`, all nonbrowser script, BFF and unit tests, then `npm run build`.
 That production build explicitly selects `VITE_RUNTIME_MODE=bff`; the separate
@@ -92,6 +93,17 @@ adopted and passes both tools. The same filesystem inventory runs with or
 without `.git`; a Gitless archive cannot silently treat its changed-file set
 as empty. Do not refresh a deferred hash to avoid a newly reported diagnostic.
 
+The tooling typecheck uses [tsconfig.tooling.json](../../tsconfig.tooling.json)
+with the existing strict compiler flags, Node-only globals and no emit. It
+covers the Vite and Playwright configurations and all TypeScript under `build/`.
+Vite and Playwright load their ESM configs at runtime; this gate only compiles
+them. The root lock selects `@types/node` 24.19.0 for the Node 24 toolchain.
+The initial inventory found 23 environment index-signature errors in the two
+configs. Indexed access resolved them without changing the selected values.
+Compile-only fixtures accept a schema-1 build record and valid Playwright
+options. They reject a schema-2 record and a string retry count. They do not
+launch a browser or import an executable config.
+
 The initial full-scope ESLint inventory found 12 diagnostics in ten deferred
 files. Nine `exhaustive-deps` messages occur in `src/app/toasts.tsx`,
 `src/components/ui/{Drawer,HostIpLookupInput,LockBadge,Modal,NodeLookupInput}.tsx`
@@ -101,8 +113,12 @@ the latter). `Button.tsx` has a noninteractive span with click handlers;
 `useKeysetPagination.ts` has an unused legacy rule-disable comment. These are
 recorded findings, not accepted ESLint exemptions. The WebUI maintainers own
 adoption when a deferred file changes or the reviewed scope expands; any
-behavioral fix needs focused tests and review. Tooling/E2E and BFF static type
-coverage remain separate open work.
+behavioral fix needs focused tests and review. E2E and BFF static type coverage
+remain separate open work. A strict E2E no-emit preflight found 231 diagnostics
+in 75 files. Even a diagnostic-only probe disabling index-signature and
+unchecked-index checks left 90 diagnostics in 29 files, including fixture
+contract and inferred mock-shape mismatches. No E2E compiler gate or relaxed
+E2E config was added; its staged adoption needs a separate reviewed scope.
 
 In GitHub Actions these appear as separate nonbrowser and production-build jobs;
 the build job records `GITHUB_SHA` in its summary. Root and BFF production
