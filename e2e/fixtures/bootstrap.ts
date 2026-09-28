@@ -17,6 +17,14 @@ export interface BootstrapVpsAdminOpts {
   webuiNext?: Record<string, unknown>;
 }
 
+type FixtureRuntimeConfig = Record<string, unknown> & {
+  api?: { url: string; version: string };
+  sessionToken?: string;
+  accessToken?: string;
+  description?: unknown;
+  webuiNext?: Record<string, unknown>;
+};
+
 /**
  * Boots the minimal `window.vpsAdmin` runtime config required by the SPA.
  *
@@ -33,7 +41,7 @@ export async function bootstrapVpsAdminWindow(page: Page, opts?: BootstrapVpsAdm
 
   await page.addInitScript(
     ({ apiUrl, apiVersion, sessionToken, description, webuiNext }) => {
-      const withPreservedAuth = (nextConfig: Record<string, any>, previousConfig?: Record<string, any>) => {
+      const withPreservedAuth = (nextConfig: FixtureRuntimeConfig, previousConfig?: FixtureRuntimeConfig) => {
         let preservedApi = previousConfig?.api ?? nextConfig.api ?? { url: apiUrl, version: apiVersion };
         let preservedSessionToken =
           nextConfig.sessionToken !== undefined ? nextConfig.sessionToken : previousConfig?.sessionToken;
@@ -55,7 +63,7 @@ export async function bootstrapVpsAdminWindow(page: Page, opts?: BootstrapVpsAdm
           get() {
             return preservedApi;
           },
-          set(value) {
+          set(value: typeof preservedApi) {
             if (!preservedApi && value !== undefined) preservedApi = value;
           },
         });
@@ -66,7 +74,7 @@ export async function bootstrapVpsAdminWindow(page: Page, opts?: BootstrapVpsAdm
           get() {
             return preservedSessionToken;
           },
-          set(value) {
+          set(value: typeof preservedSessionToken) {
             if (value !== undefined) preservedSessionToken = value;
           },
         });
@@ -77,7 +85,7 @@ export async function bootstrapVpsAdminWindow(page: Page, opts?: BootstrapVpsAdm
           get() {
             return preservedAccessToken;
           },
-          set(value) {
+          set(value: typeof preservedAccessToken) {
             if (value !== undefined) preservedAccessToken = value;
           },
         });
@@ -98,8 +106,10 @@ export async function bootstrapVpsAdminWindow(page: Page, opts?: BootstrapVpsAdm
         get() {
           return currentConfig;
         },
-        set(nextConfig) {
-          const next = nextConfig && typeof nextConfig === 'object' ? nextConfig : {};
+        set(nextConfig: unknown) {
+          const next = nextConfig && typeof nextConfig === 'object'
+            ? (nextConfig as FixtureRuntimeConfig)
+            : {};
           currentConfig = withPreservedAuth(next, currentConfig);
         },
       });

@@ -10,7 +10,7 @@ export async function expectNoDocumentHorizontalOverflow(page: Page) {
         const rect = element.getBoundingClientRect();
         return {
           tag: element.tagName.toLowerCase(),
-          testId: element.dataset.testid ?? null,
+          testId: element.dataset['testid'] ?? null,
           className: typeof element.className === 'string' ? element.className : '',
           left: Math.round(rect.left),
           right: Math.round(rect.right),

@@ -27,6 +27,41 @@ complete reconstruction of the project. Missing evidence is not a passing check.
   or raw production responses. This log does not grant deployment authorization
   or enable autonomous scheduled development.
 
+## 2026-09-28 - Adopt a strict E2E fixture and smoke-spec core
+
+**Request / reason:** a full-suite E2E TypeScript preflight exposed inherited
+fixture and spec contracts too broad to correct in one small change. An explicit
+core makes shared mock errors visible in the quick gate without hiding the
+remaining suite behind relaxed compiler flags.
+
+**Change:** add a no-emit E2E project with eleven named roots: nine fixtures and
+helpers plus authenticated-home and public theme/language smoke specs. Preserve
+strict, unchecked-index, index-signature and override checks, and the actual
+DOM/Playwright support declaration. Correct the shared router's required body
+methods and unknown-result guards, type the partial window bootstrap, and fix
+one DOM dataset access without changing the synthetic request/response flow.
+A source/archive-safe inventory binds 228 deferred existing specs to their
+initial path and SHA-256 at source revision
+`abab859d94a3f364d2bb719fa09f00749fd69ef9`; new deferrals and changed
+deferred bytes cannot pass. The quick gate requires the core compiler and
+coverage check. A separate full-strict diagnostic command remains nonzero.
+Neither the dependency locks nor package hashes change.
+
+**Verification / limits:** the explicit TypeScript program contains exactly
+the eleven adopted E2E files, with zero core compiler diagnostics and zero
+coverage violations. Nine compile-only cases cover both valid mock call forms,
+phantom fields, wrong arguments, unknown JSON and retained strictness. A
+browser-free router harness covers both installation forms, user precedence,
+body/query merge, handler selection, fallback, direct response and malformed
+JSON behavior. Sixteen coverage fixtures exercise checkout and Gitless
+positive/negative paths. The full-strict diagnostic command still fails with
+198 diagnostics in 68 files after the shared fixes; those files are not waived
+or described as checked. Focused checks used cached Node 24.19.0: core and
+tooling typechecks, the affected script tests, lint, and Prettier on 35 reviewed
+files. The 19-document design audit and unchanged structural budget also passed.
+The exact locked Node 24.21.0 quick gate remains for normal-environment review.
+Browser, live API, package/VM and deployment evidence remain separate.
+
 ## 2026-09-28 - Typecheck build and browser-runner configuration
 
 **Request / reason:** the application typecheck excluded the Vite and Playwright

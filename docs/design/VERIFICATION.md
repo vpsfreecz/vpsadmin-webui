@@ -53,10 +53,10 @@ npm run e2e:pr
 ```
 
 `ci:quick` runs the locked toolchain check, design-docs audit, scoped ESLint and
-Prettier checks, the existing Tailwind/pattern lint, application and tooling
-typechecks, parser-based i18n checks, CSP and all declared architecture audits,
-including structural budgets and UI strings. It does not launch a browser or
-build production assets.
+Prettier checks, the existing Tailwind/pattern lint, application, tooling and
+strict E2E core typechecks, parser-based i18n checks, CSP and architecture
+audits, including structural budgets and UI strings. It does not launch a
+browser or build production assets.
 `ci:pr` and `ci:check` run the same required non-E2E sequence:
 `ci:quick`, all nonbrowser script, BFF and unit tests, then `npm run build`.
 That production build explicitly selects `VITE_RUNTIME_MODE=bff`; the separate
@@ -113,12 +113,38 @@ the latter). `Button.tsx` has a noninteractive span with click handlers;
 `useKeysetPagination.ts` has an unused legacy rule-disable comment. These are
 recorded findings, not accepted ESLint exemptions. The WebUI maintainers own
 adoption when a deferred file changes or the reviewed scope expands; any
-behavioral fix needs focused tests and review. E2E and BFF static type coverage
-remain separate open work. A strict E2E no-emit preflight found 231 diagnostics
-in 75 files. Even a diagnostic-only probe disabling index-signature and
-unchecked-index checks left 90 diagnostics in 29 files, including fixture
-contract and inferred mock-shape mismatches. No E2E compiler gate or relaxed
-E2E config was added; its staged adoption needs a separate reviewed scope.
+behavioral fix needs focused tests and review. Full E2E and BFF static type
+coverage remain separate open work. A strict E2E no-emit preflight found 231
+diagnostics in 75 files. Even a diagnostic-only probe disabling
+index-signature and unchecked-index checks left 90 diagnostics in 29 files,
+including fixture contract and inferred mock-shape mismatches. That preflight
+did not add an E2E gate or relax the compiler. The named core below is the
+first adoption.
+
+The required `typecheck:e2e:core` gate now compiles eleven explicit E2E roots:
+the eight files in `e2e/fixtures/`, `e2e/helpers/horizontalOverflow.ts`,
+`authenticated_home_smoke.spec.ts` and `theme_language_bootstrap.spec.ts`.
+`src/types/vpsadmin.d.ts` supports their actual Window contract. The ESM
+TypeScript project retains strict, unchecked-index, index-signature and override
+checks with DOM and Playwright types, and emits nothing. Its program import
+closure contains exactly those eleven E2E files. The archive-safe
+[coverage runner](../../scripts/e2e-type-coverage.mjs) checks all 239 E2E
+TypeScript files in checkout or Gitless source: eleven checked and 228 existing
+specs deferred by immutable path and SHA-256. The initial deferred baseline is
+bound to source revision `abab859d94a3f364d2bb719fa09f00749fd69ef9`;
+new or changed deferred files, stale entries, missing adopted roots and altered
+compiler scope fail. Future adoption removes entries from the deferred list;
+new deferrals need a separate decision. A browser-free router harness preserves
+both helper forms, body/query aliases, response selection and malformed-body
+failure. Compile-only negative fixtures show that phantom fields, bad options,
+un-narrowed JSON and both strictness regressions fail. No browser is launched.
+
+`typecheck:e2e:all:diagnostic` separately compiles every E2E file under the same
+strict flags and still exits nonzero. After the shared-helper corrections it
+reports 198 diagnostics in 68 files on the current source; this is a diagnostic
+snapshot, not a passing allowance or browser result. The staged core gate does
+not close full E2E type coverage, synthetic-browser behavior, real API proof or
+release readiness.
 
 In GitHub Actions these appear as separate nonbrowser and production-build jobs;
 the build job records `GITHUB_SHA` in its summary. Root and BFF production

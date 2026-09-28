@@ -55,8 +55,8 @@ export interface HaveApiRequestCtx {
   url: URL;
   /** Compatibility alias used by older specs. */
   request: URL & {
-    postData?: () => string | null;
-    postDataJSON?: () => unknown;
+    postData: () => string | null;
+    postDataJSON: () => unknown;
   };
   /** Compatibility object used by older specs. */
   params: Record<string, unknown>;
@@ -101,18 +101,29 @@ export interface HaveApiMockOptions {
   fallbackResponse?: unknown;
 }
 
-function isFulfillOptions(v: any): v is { status?: number } {
-  if (!v || typeof v !== 'object') return false;
+interface FulfillCandidate extends Record<string, unknown> {
+  status?: unknown;
+  contentType?: unknown;
+  body?: unknown;
+  headers?: unknown;
+}
+
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return Boolean(v) && typeof v === 'object';
+}
+
+function isFulfillOptions(v: unknown): v is FulfillCandidate {
+  if (!isRecord(v)) return false;
   return (
-    typeof v.status === 'number' ||
-    typeof v.contentType === 'string' ||
-    typeof v.body === 'string' ||
-    (v.headers && typeof v.headers === 'object')
+    typeof v['status'] === 'number' ||
+    typeof v['contentType'] === 'string' ||
+    typeof v['body'] === 'string' ||
+    Boolean(v['headers'] && typeof v['headers'] === 'object')
   );
 }
 
-function isEnvelope(v: any): v is { status: boolean } {
-  return Boolean(v) && typeof v === 'object' && typeof v.status === 'boolean';
+function isEnvelope(v: unknown): v is Record<string, unknown> & { status: boolean } {
+  return isRecord(v) && typeof v['status'] === 'boolean';
 }
 
 function relPathFor(base: string, pathname: string): string | null {
@@ -215,12 +226,13 @@ export async function installHaveApiMock(pageOrOpts: Page | (HaveApiMockOptions 
     const handlerKey = candidates.find((k) => Object.prototype.hasOwnProperty.call(handlers, k));
     const handler = handlerKey ? handlers[handlerKey] : undefined;
 
-    const requestUrl = url as HaveApiRequestCtx['request'];
-    requestUrl.postData = () => req.postData();
-    requestUrl.postDataJSON = () => {
-      const raw = req.postData();
-      return raw ? JSON.parse(raw) : {};
-    };
+    const requestUrl = Object.assign(url, {
+      postData: () => req.postData(),
+      postDataJSON: (): unknown => {
+        const raw = req.postData();
+        return raw ? JSON.parse(raw) : {};
+      },
+    });
     const reqJson = requestUrl.postDataJSON();
     const params: Record<string, unknown> = {};
     url.searchParams.forEach((value, key) => {
@@ -247,7 +259,8 @@ export async function installHaveApiMock(pageOrOpts: Page | (HaveApiMockOptions 
     const res = handler ? await handler(ctx) : undefined;
 
     if (isFulfillOptions(res)) {
-      return route.fulfill(res);
+      // Preserve Playwright's own validation for malformed fulfill candidates.
+      return route.fulfill(res as Parameters<Route['fulfill']>[0]);
     }
 
     if (isEnvelope(res)) {

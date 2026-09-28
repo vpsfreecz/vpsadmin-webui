@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.e2e.json",
+  "files": ["src/types/vpsadmin.d.ts"],
+  "include": ["e2e/**/*.ts", "e2e/**/*.tsx"]
+}
