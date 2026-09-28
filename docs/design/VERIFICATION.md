@@ -37,9 +37,13 @@ and Nix syntax checks cannot substitute for an offline dependency build, actual
 source filtering or closure inspection. The disabled-by-default
 [NixOS service module](NIXOS_SERVICE.md) has a build-free evaluation fixture
 covering disabled, valid, invalid and legacy PHP coexistence cases. Inspect
-its rendered service and nginx settings on the exact pinned input; evaluation
-does not substitute for nginx syntax, private-listener or HTTPS mock-provider
-VM checks. Site deployment is a later gate.
+its rendered service and nginx settings on the exact pinned input. The separate
+`nixos-webui` VM check uses a fixture TLS edge, private backend, client and
+HTTPS OAuth provider to exercise listener/forwarding trust, public routes,
+response policies, login/session restart and synthetic legacy-state isolation.
+Its passkey assertion checks the BFF's fixed response-specific CSP, which has
+no nonce. Evaluation does not substitute for actually building and running
+that VM test. Site deployment is a later gate.
 
 ```sh
 npm ci

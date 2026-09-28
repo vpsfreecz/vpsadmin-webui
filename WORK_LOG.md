@@ -27,6 +27,39 @@ complete reconstruction of the project. Missing evidence is not a passing check.
   or raw production responses. This log does not grant deployment authorization
   or enable autonomous scheduled development.
 
+## 2026-09-28 - Prepare an isolated HTTPS service test
+
+**Request / reason:** module evaluation covers configuration, but the actual
+edge, backend nginx and BFF route and session boundaries need a runtime test.
+
+**Change:** expose `checks.x86_64-linux.nixos-webui` as a three-node NixOS VM
+fixture. A synthetic TLS edge and HTTPS OAuth provider front the private
+backend and a separate client. The fixture checks peer and forwarding trust,
+static/BFF routing and cache/CSP ownership, secure host-only cookie and
+one-use OAuth state, login across a stopped-and-started BFF, startup rejection
+of missing/weak secret files, and private BFF state. A seeded synthetic file
+under `/var/lib/vpsadmin/webui` must retain its owner, mode and content across
+BFF start and restart. Disabled-module and locked legacy-PHP coexistence
+assertions are required build-free inputs. The existing passkey response has
+a fixed provider-scoped CSP, not a nonce, and the fixture checks that policy
+through both nginx hops. It now also checks that OAuth code/state markers stay
+out of backend and edge access/error logs during separate upstream failures,
+while non-OAuth errors and another vhost's access log remain observable. The
+explicit HTTP redirect retains an HTTP-01 challenge path. The extended fixture
+passed on the uncommitted draft in 176 seconds; committed-head verification is
+pending. Its synthetic HTTPS vhosts enable nginx certificate
+directives explicitly. Around the `Type=simple` BFF unit, the test waits for
+weak-secret rejection after exit and for the listener after restart. No
+application or site configuration behavior changed.
+
+**Verification / limits:** Nix syntax/format and the source design audit pass
+locally. The normal-environment module evaluation passed all ten results, and
+the HTTPS VM fixture passed in 2m45s on the uncommitted three-file draft. The
+VM log is local to the session; this is evidence for the draft tree. Package,
+module and VM verification on the exact rewritten head remains open. The
+sandbox cannot connect to its Nix daemon. The fixture uses no real API,
+accounts, DNS or credentials and grants no deployment authorization.
+
 ## 2026-09-28 - Add a separate private NixOS WebUI service
 
 **Request / reason:** immutable frontend and BFF packages need a reusable

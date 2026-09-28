@@ -52,6 +52,14 @@
             ''
               touch "$out"
             '';
+        nixos-webui = import ./tests/nixos/webui-vm.nix {
+          inherit
+            pkgs
+            self
+            nixpkgs
+            vpsadmin
+            ;
+        };
         provenance =
           assert builtins.deepSeq (import ./nix/provenance-tests.nix { lib = nixpkgs.lib; }) true;
           pkgs.runCommand "vpsadmin-webui-provenance" { } ''

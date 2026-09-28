@@ -80,8 +80,9 @@ static locations own the application CSP, including the current inline
 bootstrap hash, API connect origin and existing OpenStreetMap/Nominatim
 origins. Reviewed console/frame origins are explicit options; there is no
 blanket `https:` or `wss:` allowance. Proxied BFF responses retain their own
-OAuth/passkey CSP. The edge owns TLS/HSTS and must suppress OAuth query logging
-at its hop too.
+OAuth/passkey CSP. The current passkey response has a fixed CSP with
+`default-src 'none'` and a provider-specific `form-action`; it does not use a
+nonce. The edge owns TLS/HSTS and must suppress OAuth query logging at its hop.
 
 ## Evaluation and remaining proof
 
@@ -97,9 +98,18 @@ nix eval --json --no-write-lock-file .#checks.x86_64-linux.module-eval.passthru.
 nix flake check --no-build --no-write-lock-file --option allow-import-from-derivation false
 ```
 
-Evaluation does not prove nginx syntax, listener isolation or runtime behavior.
-The separate edge/site configuration, rendered nginx inspection, actual
-package builds, HTTPS mock-provider VM test and deployment remain open. The
-site must use its own metadata-selected backend/edge addresses and preserve
-the vpsAdmin input follow mapping; no production addresses or secrets are
-baked into this module.
+`checks.x86_64-linux.nixos-webui` is a separate three-node NixOS test: TLS
+edge, private backend and client. Its local HTTPS provider and CA are synthetic;
+the BFF runs in production mode with strict TLS validation. It checks route,
+cache and CSP ownership, normalized forwarding, login and one-use state,
+private persistent sessions, restart, missing/invalid runtime secrets, and a
+seeded legacy PHP state file whose owner, mode and content must survive. The
+disabled and coexistence cases remain build-free module-evaluation assertions
+required by the VM fixture. The test does not use a real API, account or DNS.
+
+Evaluation alone does not prove nginx syntax, listener isolation or runtime
+behavior. Build the packages and run the VM check on the exact candidate head
+before claiming this evidence; then inspect rendered nginx and site-specific
+settings. The site must use its own metadata-selected backend/edge addresses
+and preserve the vpsAdmin input follow mapping; no production addresses or
+secrets are baked into this module.
