@@ -21,7 +21,10 @@ const BOOTSTRAP_STRINGS: Record<BootstrapLanguage, Record<string, string>> = {
 };
 
 function bootstrapTForDocument(doc: Document, key: string): string {
-  const primary = String(doc.documentElement?.lang || '').trim().toLowerCase().split('-')[0];
+  const primary = String(doc.documentElement?.lang || '')
+    .trim()
+    .toLowerCase()
+    .split('-')[0];
   const lang: BootstrapLanguage = primary === 'cs' ? 'cs' : 'en';
   return BOOTSTRAP_STRINGS[lang][key] ?? BOOTSTRAP_STRINGS.en[key] ?? key;
 }
@@ -31,23 +34,29 @@ export function safeBootstrapFailureClass(error: unknown): string {
   return error instanceof BffBootstrapError ? error.code : 'app_start_failed';
 }
 
-export function renderBootstrapFailure(
-  error: unknown, doc: Document = document, onRetry?: () => void,
-): void {
+export function renderBootstrapFailure(error: unknown, doc: Document = document, onRetry?: () => void): void {
   const root = doc.getElementById('root');
   if (!root) return;
 
   const wrapper = doc.createElement('div');
   wrapper.style.cssText = [
-    'min-height:100vh', 'display:flex', 'align-items:center', 'justify-content:center',
-    'padding:24px', 'background:#0f172a', 'color:#e2e8f0',
+    'min-height:100vh',
+    'display:flex',
+    'align-items:center',
+    'justify-content:center',
+    'padding:24px',
+    'background:#0f172a',
+    'color:#e2e8f0',
     'font-family:Inter, ui-sans-serif, system-ui, sans-serif',
   ].join(';');
 
   const card = doc.createElement('div');
   card.style.cssText = [
-    'width:min(720px,100%)', 'border:1px solid rgba(148,163,184,0.25)',
-    'border-radius:12px', 'padding:20px', 'background:rgba(15,23,42,0.92)',
+    'width:min(720px,100%)',
+    'border:1px solid rgba(148,163,184,0.25)',
+    'border-radius:12px',
+    'padding:20px',
+    'background:rgba(15,23,42,0.92)',
     'box-shadow:0 18px 48px rgba(15,23,42,0.45)',
   ].join(';');
 
@@ -66,8 +75,13 @@ export function renderBootstrapFailure(
   actionButton.type = 'button';
   actionButton.textContent = bootstrapTForDocument(doc, onRetry ? 'common.retry' : 'common.reload');
   actionButton.style.cssText = [
-    'border:0', 'border-radius:10px', 'padding:10px 14px', 'background:#2563eb',
-    'color:white', 'cursor:pointer', 'font:inherit',
+    'border:0',
+    'border-radius:10px',
+    'padding:10px 14px',
+    'background:#2563eb',
+    'color:white',
+    'cursor:pointer',
+    'font:inherit',
   ].join(';');
   actionButton.onclick = () => {
     if (onRetry) {
@@ -86,9 +100,17 @@ export function renderBootstrapFailure(
   const pre = doc.createElement('pre');
   pre.textContent = safeBootstrapFailureClass(error);
   pre.style.cssText = [
-    'margin-top:12px', 'max-height:320px', 'overflow:auto', 'border-radius:10px',
-    'padding:12px', 'background:#020617', 'color:#e2e8f0', 'font-size:0.8rem',
-    'line-height:1.5', 'white-space:pre-wrap', 'word-break:break-word',
+    'margin-top:12px',
+    'max-height:320px',
+    'overflow:auto',
+    'border-radius:10px',
+    'padding:12px',
+    'background:#020617',
+    'color:#e2e8f0',
+    'font-size:0.8rem',
+    'line-height:1.5',
+    'white-space:pre-wrap',
+    'word-break:break-word',
   ].join(';');
 
   actions.appendChild(actionButton);

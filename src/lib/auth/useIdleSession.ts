@@ -1,8 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { startIdleSession } from './idleSession';
 
-export function useIdleSession(seconds: number | null, identity: string | undefined,
-  sessionKey: string | undefined, onExpire: () => void): number | undefined {
+export function useIdleSession(
+  seconds: number | null,
+  identity: string | undefined,
+  sessionKey: string | undefined,
+  onExpire: () => void
+): number | undefined {
   const [deadline, setDeadline] = useState<number>();
   const expire = useRef(onExpire);
   expire.current = onExpire;

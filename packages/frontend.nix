@@ -12,7 +12,7 @@ pkgs.buildNpmPackage {
   version = "1.0.0";
   src = source;
   nodejs = pkgs.nodejs_24;
-  npmDepsHash = "sha256-qipQBgqu4SMKocavlqdFxFugtB2UYEmgX3fRW+UKdTA=";
+  npmDepsHash = "sha256-q4Xy2p/fhQ9PrI2CQJE4vWRe/jObemXdOSGeBgEYwxI=";
 
   VITE_RUNTIME_MODE = "bff";
   VITE_BUILD_SHA = provenance.commit;

@@ -27,6 +27,43 @@ complete reconstruction of the project. Missing evidence is not a passing check.
   or raw production responses. This log does not grant deployment authorization
   or enable autonomous scheduled development.
 
+## 2026-09-28 - Check a bounded source set with ESLint and Prettier
+
+**Request / reason:** custom Tailwind and pattern audits did not check React
+Hook dependencies or common JSX accessibility mistakes, and no formatting
+check ran in the required quick gate. Broad adoption would mix inherited
+diagnostics with unrelated product changes.
+
+**Change:** pin development-only ESLint, TypeScript parser, React Hooks and JSX
+accessibility plugins, and Prettier. The quick gate now checks eight reviewed
+bootstrap/auth, shared-hook and UI primitive files while retaining the custom
+audits. A versioned coverage inventory records the other 74 eligible source
+files by exact hash, owner and removal condition. New or changed eligible
+source must be adopted; checkout and Gitless archive use the same walk.
+Prettier changed only whitespace/line wrapping in the adopted bootstrap
+failure and idle-session hook files. No product behavior, BFF graph or
+structural baseline/exception changed.
+
+**Verification / limits:** full-scope diagnostic inventory reported 12
+messages in ten deferred files: nine Hook dependency findings, one JSX
+interaction finding, one unavailable legacy inline rule and one unused legacy
+disable. The eight adopted files lint cleanly. Six focused fixtures prove
+missing Hook dependency, invalid click/keyboard and ARIA/label controls,
+unformatted source, changed/new deferred files, and actual Gitless inventory
+parity. The normal-environment pinned install updated only the root lock:
+214 added package entries, no removed or changed existing package versions.
+Pinned prefetch of the unchanged final root lock SHA-256
+`0c987cd5ceb0c09246aad8543b7394421ff00c0428aa8b8cec5639f84c00e916`
+produced `sha256-q4Xy2p/fhQ9PrI2CQJE4vWRe/jObemXdOSGeBgEYwxI=`; the separate BFF
+hash is unchanged. Its six missing resolved URLs are bundled, optional
+dependencies nested under `@tailwindcss/oxide-wasm32-wasi`, not an observed
+x86_64 production-package omission. An actual package build must confirm that
+the dependency fetch succeeds. Focused `lint`, `format:check`, gate fixtures,
+design-doc and structural audits, typecheck, and the affected bootstrap,
+idle-session and dialog tests passed on the draft. The locked full quick gate
+and exact-head package build remain pending; no browser, VM, live API or
+deployment behavior is certified.
+
 ## 2026-09-28 - Run DOM tests on the installed dependency graph
 
 **Request / reason:** the unit-test commands previously changed installed

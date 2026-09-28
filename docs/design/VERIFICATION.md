@@ -52,10 +52,10 @@ npm run ci:pr
 npm run e2e:pr
 ```
 
-`ci:quick` runs the locked toolchain check, design-docs audit, lint, typecheck,
-parser-based i18n checks, CSP and all declared architecture audits, including
-structural budgets and UI strings. It does not launch a browser or build
-production assets.
+`ci:quick` runs the locked toolchain check, design-docs audit, scoped ESLint and
+Prettier checks, the existing Tailwind/pattern lint, typecheck, parser-based
+i18n checks, CSP and all declared architecture audits, including structural
+budgets and UI strings. It does not launch a browser or build production assets.
 `ci:pr` and `ci:check` run the same required non-E2E sequence:
 `ci:quick`, all nonbrowser script, BFF and unit tests, then `npm run build`.
 That production build explicitly selects `VITE_RUNTIME_MODE=bff`; the separate
@@ -72,6 +72,38 @@ Node/jsdom unit-test runtime; it does not certify other supported Node versions,
 browser engines or deployed text decoding. Re-run `scripts/dom-encoding.test.mjs`
 after a jsdom, encoding or Node pin change. The fresh-install and pre-change
 full-suite logs are local session evidence, not published CI artifacts.
+
+The source quality gate uses ESLint 9 with TypeScript parsing, React Hooks and
+JSX accessibility rules, plus Prettier 3. The versioned
+[`lint-coverage.json`](../../scripts/fixtures/lint-coverage.json) adopts eight
+source files: early bootstrap failure/runtime mode, the idle-session hook, two
+shared hooks, and the Input, Checkbox and ConfirmDialog primitives. These files
+receive `rules-of-hooks`, `exhaustive-deps`, ARIA/role, form-label and keyboard
+interaction checks. `lint:scoped` and `format:check` are required by `ci:quick`;
+`quality:coverage` runs the source inventory alone. Formatting also checks the
+new tooling/configuration/test files. The pre-existing custom audits still run.
+
+The gate inventories all non-test TS/TSX source beneath `src/app`,
+`src/lib/auth`, `src/lib/hooks` and `src/components/ui`. At the reviewed source
+revision, 82 files are eligible: eight adopted and 74 deferred by exact SHA-256.
+The manifest records the maintainer owner and removal condition. A new file,
+changed deferred file, deleted path or source symlink fails until that file is
+adopted and passes both tools. The same filesystem inventory runs with or
+without `.git`; a Gitless archive cannot silently treat its changed-file set
+as empty. Do not refresh a deferred hash to avoid a newly reported diagnostic.
+
+The initial full-scope ESLint inventory found 12 diagnostics in ten deferred
+files. Nine `exhaustive-deps` messages occur in `src/app/toasts.tsx`,
+`src/components/ui/{Drawer,HostIpLookupInput,LockBadge,Modal,NodeLookupInput}.tsx`
+and `src/lib/hooks/{useCountedKeysetPagination,useKeysetPagination}.ts` (two in
+the latter). `Button.tsx` has a noninteractive span with click handlers;
+`StackedBar.tsx` names an unavailable legacy React rule; and
+`useKeysetPagination.ts` has an unused legacy rule-disable comment. These are
+recorded findings, not accepted ESLint exemptions. The WebUI maintainers own
+adoption when a deferred file changes or the reviewed scope expands; any
+behavioral fix needs focused tests and review. Tooling/E2E and BFF static type
+coverage remain separate open work.
+
 In GitHub Actions these appear as separate nonbrowser and production-build jobs;
 the build job records `GITHUB_SHA` in its summary. Root and BFF production
 dependency audits retain their critical/high thresholds as separate online CI
