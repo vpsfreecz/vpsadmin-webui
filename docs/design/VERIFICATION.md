@@ -60,6 +60,18 @@ production assets.
 `ci:quick`, all nonbrowser script, BFF and unit tests, then `npm run build`.
 That production build explicitly selects `VITE_RUNTIME_MODE=bff`; the separate
 `build:legacy` command is for a deliberately selected standalone artifact.
+
+Root `test` and `test:watch` use the installed Vitest/jsdom graph without
+rewriting `node_modules`. On 2026-09-28, a fresh locked `npm ci` followed by
+direct, unpatched Vitest passed 279 files and 1,628 tests on Node 24.21.0.
+After removing the obsolete patch hook and shims, `npm test` passed 279 files
+and 1,628 tests on the same installed graph. Five added Node script-test cases
+check Czech UTF-8 HTML, UTF-8/UTF-16 BOM precedence, Windows-1252 bytes that
+differ from Latin-1, DOMParser and FileReader. This establishes the pinned
+Node/jsdom unit-test runtime; it does not certify other supported Node versions,
+browser engines or deployed text decoding. Re-run `scripts/dom-encoding.test.mjs`
+after a jsdom, encoding or Node pin change. The fresh-install and pre-change
+full-suite logs are local session evidence, not published CI artifacts.
 In GitHub Actions these appear as separate nonbrowser and production-build jobs;
 the build job records `GITHUB_SHA` in its summary. Root and BFF production
 dependency audits retain their critical/high thresholds as separate online CI

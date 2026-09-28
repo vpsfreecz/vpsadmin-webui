@@ -27,6 +27,35 @@ complete reconstruction of the project. Missing evidence is not a passing check.
   or raw production responses. This log does not grant deployment authorization
   or enable autonomous scheduled development.
 
+## 2026-09-28 - Run DOM tests on the installed dependency graph
+
+**Request / reason:** the unit-test commands previously changed installed
+jsdom, parser, encoding and Web IDL packages before every run. The patch could
+silently skip missing or changed targets, so a green test result did not prove
+the declared lockfile graph worked by itself.
+
+**Change:** remove the test-command patch hook, its script and both unused
+encoding shims. Add direct DOM regressions for Czech UTF-8 HTML, UTF-8 and
+UTF-16 BOMs, Windows-1252 characters outside Latin-1, DOMParser and FileReader.
+The root manifest's dependencies and both lockfiles remain unchanged; esbuild
+remains a transitive Vite dependency and is no longer imported by repository
+code.
+
+**Verification / limits:** after a fresh locked root `npm ci` in the normal
+environment, direct unpatched Vitest passed 279 files and 1,628 tests in 29s
+on Node 24.21.0. The five new focused Node script-test cases passed on that
+pristine install; after removing the hook, `npm test` passed 279 files and
+1,628 tests in 28.52s. The focused Node test, typecheck, locked-toolchain check,
+design-doc audit and structural audit passed. The full script-test command
+passed 21 of 27 files in this sandbox; six existing files need unavailable
+loopback listeners or child-process behavior, so that aggregate gate remains
+unverified here. No Nix daemon access was available in the sandbox.
+The local dependency graph is jsdom 27.4.0, html-encoding-sniffer 6.0.0,
+`@exodus/bytes` 1.9.0, parse5 8.0.0 and webidl-conversions 8.0.1. This
+checks the pinned Node unit-test runtime, not other Node releases or a browser.
+Fresh-install and pre-change logs are local session evidence; exact committed
+source and remote CI checks remain to be verified.
+
 ## 2026-09-28 - Prepare an isolated HTTPS service test
 
 **Request / reason:** module evaluation covers configuration, but the actual
