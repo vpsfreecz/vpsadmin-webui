@@ -146,10 +146,19 @@ Current scenarios are `dashboard` and `dataset-downloads`; set `E2E_SCREENSHOT_S
   notifications.
 - Every browser-launching CI job installs the locked Chromium. The separate
   Chromium script-regression job selects that Playwright executable explicitly.
-- Playwright keeps screenshots, videos, and traces on failure (`playwright.config.ts`). CI uploads `playwright-report`
-  and `e2e/test-results` only for failed jobs.
-- Download the artifacts from the failed GitHub Actions job. Open `playwright-report/index.html` for the report, or open a
-  trace zip with `./node_modules/.bin/playwright show-trace path/to/trace.zip`.
+- The config and both PR commands default to two workers. Append
+  `-- --workers=1 --retries=0` to a PR npm command for a deliberate serial
+  diagnostic run; the final CLI flags override the command defaults.
+- Playwright keeps failed-attempt screenshots, videos and traces, including a
+  first failure followed by a passing retry (`playwright.config.ts`). CI uploads
+  `playwright-report` and any `e2e/test-results` after each job completes,
+  including passing jobs. The PR artifacts expire after seven days; broad and
+  nightly artifacts expire after fourteen days.
+- Download the artifacts from the corresponding desktop or mobile job. The HTML
+  report records test title/project, attempt status, errors and timing. Open a
+  failed attempt's trace to inspect requests and console/page errors with
+  `./node_modules/.bin/playwright show-trace path/to/trace.zip`. A passing job
+  without failed attempts may have no retained test-results artifact.
 
 ## Adding workflow coverage
 

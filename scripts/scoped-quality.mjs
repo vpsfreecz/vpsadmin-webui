@@ -36,6 +36,7 @@ const TOOL_FILES = [
   'scripts/fixtures/tooling-types/invalid-build-info.ts',
   'scripts/fixtures/tooling-types/invalid-playwright.ts',
   'scripts/fixtures/tooling-types/valid.ts',
+  'scripts/playwright-pr-contract.test.mjs',
   'scripts/scoped-quality.mjs',
   'scripts/scoped-quality.test.mjs',
   'scripts/tooling-types.test.mjs',

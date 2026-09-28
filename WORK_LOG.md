@@ -27,6 +27,33 @@ complete reconstruction of the project. Missing evidence is not a passing check.
   or raw production responses. This log does not grant deployment authorization
   or enable autonomous scheduled development.
 
+## 2026-09-28 - Preserve browser retry evidence and bound PR workers
+
+**Request / reason:** the PR browser jobs did not set an explicit worker count,
+and report/results uploads ran only when the final job failed. A flaky first
+attempt followed by a passing retry could therefore lose its failure evidence
+from CI artifacts.
+
+**Change:** set two workers in the Playwright config and both PR desktop/mobile
+commands. An appended `--workers=1 --retries=0` remains a deliberate diagnostic
+override. Upload the HTML report and any retained failed-attempt results after
+every PR, broad and nightly browser job, including an overall pass, while
+preserving distinct desktop/mobile jobs and the seven-/fourteen-day retention
+periods. Keep the existing `retain-on-failure` trace/video, failure screenshot,
+retry and timeout settings. A browser-free contract test checks the actual
+pinned CLI's final-option behavior, config capture mode and workflow uploads.
+No browser fixtures, product behavior, dependencies or package hashes change.
+
+**Verification / limits:** browser-free runner, wrapper and CLI script tests,
+tooling typecheck, lint, scoped formatting, design-doc audit and YAML parsing
+pass with cached Node 24.19.0. The pinned Playwright implementation retains a
+trace for a failed attempt even when its later retry passes; the workflow now
+uploads that result when the job completes. Sandbox Nix evaluation could not
+open its fetcher cache, so the exact locked quick gate remains pending. Source
+inspection and static fixtures do not demonstrate a live retry or inspect a
+generated artifact. The lead will run controlled desktop and mobile browser
+suites after review.
+
 ## 2026-09-28 - Check the BFF session queue's static contracts
 
 **Request / reason:** BFF JavaScript had no required static type gate. A strict

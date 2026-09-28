@@ -32,6 +32,7 @@ export default defineConfig({
   outputDir: 'e2e/test-results',
   timeout: 90_000,
   expect: { timeout: 15_000 },
+  workers: 2,
   retries: process.env['CI'] ? 2 : 0,
   reporter: process.env['CI'] ? [['github'], ['html', { open: 'never' }]] : [['list'], ['html']],
   use: {

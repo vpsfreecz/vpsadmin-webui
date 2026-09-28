@@ -171,8 +171,17 @@ operator check. The browser script regression has its own required Chromium job.
 The PR browser workflow runs desktop `e2e:pr:desktop` and mobile
 `e2e:pr:mobile` in independent matrix jobs with separate artifacts and no matrix
 fail-fast. Main/manual broad smoke and nightly desktop/mobile jobs are separate
-signals; browser fixtures do not establish live API behavior. Release readiness
-also requires later built-assets/nginx/BFF and pinned-API evidence.
+signals. The config and both PR commands explicitly default to two workers;
+`npm run e2e:pr:desktop -- --workers=1 --retries=0` (or the mobile equivalent)
+selects a deliberate serial diagnostic without changing the normal retry count.
+Each job uploads its HTML report and any retained failed-attempt traces/results
+on completion, including when a retry passes. The pinned Playwright trace mode
+retains the failed attempt; the report records title, project, first error,
+timing and retry outcome, while its trace records requests and console/page
+errors. Artifact retention remains seven days for PR smoke and fourteen days
+for broad/nightly. These are runner and workflow contracts, not a browser run.
+Browser fixtures do not establish live API behavior. Release readiness also
+requires later built-assets/nginx/BFF and pinned-API evidence.
 
 The wrapper runs the installed `@playwright/test` CLI only when its version
 matches `e2e/PLAYWRIGHT_VERSION` and `package-lock.json`. Browser-launching CI
