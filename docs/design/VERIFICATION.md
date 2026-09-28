@@ -53,10 +53,10 @@ npm run e2e:pr
 ```
 
 `ci:quick` runs the locked toolchain check, design-docs audit, scoped ESLint and
-Prettier checks, the existing Tailwind/pattern lint, application, tooling and
-strict E2E core typechecks, parser-based i18n checks, CSP and architecture
-audits, including structural budgets and UI strings. It does not launch a
-browser or build production assets.
+Prettier checks, the existing Tailwind/pattern lint, application, tooling,
+strict E2E core and BFF queue typechecks, parser-based i18n checks, CSP and
+architecture audits, including structural budgets and UI strings. It does not
+launch a browser or build production assets.
 `ci:pr` and `ci:check` run the same required non-E2E sequence:
 `ci:quick`, all nonbrowser script, BFF and unit tests, then `npm run build`.
 That production build explicitly selects `VITE_RUNTIME_MODE=bff`; the separate
@@ -145,6 +145,22 @@ reports 198 diagnostics in 68 files on the current source; this is a diagnostic
 snapshot, not a passing allowance or browser result. The staged core gate does
 not close full E2E type coverage, synthetic-browser behavior, real API proof or
 release readiness.
+
+The required `typecheck:bff:core` gate checks `bff/session-queue.js` and its
+precise `cookie-signature` declaration under strict `allowJs`/`checkJs`, no emit,
+Node 24 types and Node16/CommonJS module resolution. The project and compile
+fixtures import no BFF server or response page. The fixture runner proves the
+checked source closure and rejects invalid queue option, request-cookie and
+middleware callback types. The initial three-module strict preflight reported
+109 diagnostics: 64 in `runtime-config.js`, 38 in `security.js` and seven in
+`session-queue.js`. The queue is the first zero-error unit; runtime config
+imports security, so both remain outside the required gate together. Neither
+`server.js` nor response pages are statically checked here. BFF runtime
+rejection, concurrency and startup tests remain separate requirements; a
+browser-free queue regression checks end forwarding, order and busy rejection,
+but a compile pass does not certify a running service. The new root script and
+config use the existing development graph and do not alter either npm lock or
+the production BFF package.
 
 In GitHub Actions these appear as separate nonbrowser and production-build jobs;
 the build job records `GITHUB_SHA` in its summary. Root and BFF production

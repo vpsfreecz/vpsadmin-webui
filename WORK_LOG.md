@@ -27,6 +27,33 @@ complete reconstruction of the project. Missing evidence is not a passing check.
   or raw production responses. This log does not grant deployment authorization
   or enable autonomous scheduled development.
 
+## 2026-09-28 - Check the BFF session queue's static contracts
+
+**Request / reason:** BFF JavaScript had no required static type gate. A strict
+three-module inventory found 109 diagnostics: 64 in runtime config, 38 in
+security and seven in the session queue. Runtime config imports security, so
+its larger closure needs a separate reviewed change. The standalone queue is a
+bounded first unit.
+
+**Change:** add a strict `allowJs`/`checkJs` no-emit project for the CommonJS
+session queue and a precise declaration for the deployed `cookie-signature`
+module's two functions. Checked JSDoc records queue options, request cookie,
+response and `next` callback contracts. The queue still releases only after
+the wrapped response end; the forwarding call retains the same arguments and
+receiver. A compile-only fixture runner checks the exact source closure and
+rejects wrong secret/limit, cookie and callback types. Require it in `ci:quick`.
+The BFF runtime package and both dependency locks remain unchanged.
+
+**Verification / limits:** the checked queue project, positive/negative
+compile fixtures and a browser-free queue regression pass with cached Node
+24.19.0. The runtime-config and security unit tests, lint, formatting, design
+documentation and structural audits pass. The existing queue runtime test
+cannot bind loopback in this sandbox (`listen EPERM`); it requires a
+normal-environment run with the BFF rejection and race suites. The exact locked
+Node 24.21.0 quick gate is also pending. Runtime config, security, server and
+response pages remain outside static checking; this does not certify their
+types or deployed behavior.
+
 ## 2026-09-28 - Adopt a strict E2E fixture and smoke-spec core
 
 **Request / reason:** a full-suite E2E TypeScript preflight exposed inherited

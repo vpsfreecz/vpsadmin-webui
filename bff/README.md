@@ -109,3 +109,17 @@ This queue is process-local. Run one BFF process per file session store. Multipl
 workers/replicas sharing a store require distributed serialization and are not
 supported by this mechanism. It also does not renew access tokens already held
 by an open SPA after another tab performs a later rotation.
+
+### Static contract coverage
+
+From the repository root, `npm run typecheck:bff:core` checks the session queue
+and its declared `cookie-signature` boundary using strict, no-emit TypeScript in
+CommonJS mode. Compile-only fixtures reject wrong queue settings, cookie input
+and middleware callback types. The project imports no BFF server or response
+page code and does not start a listener. The root Node 24 development toolchain
+supplies TypeScript; no type tooling is installed in the production BFF package.
+The browser-free queue test checks response-end forwarding, admission order and
+busy rejection; runtime queue and OAuth tests remain necessary.
+`runtime-config.js`, `security.js`, `server.js` and the response pages are outside
+this first static gate and need separate adoption before BFF type coverage is
+complete.
