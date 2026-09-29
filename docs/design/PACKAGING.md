@@ -49,6 +49,7 @@ compiled `assets/`. Vite's copied `config.local.js.example` is deliberately
 excluded. The BFF installs only its reviewed own runtime modules,
 `package.json`, production `node_modules`, a pinned slim-Node executable wrapper
 and separate metadata under `share/vpsadmin-webui-bff/build-info.json`. It
+includes the credential reader code but no credential file or secret value. It
 does not run npm or build source at service start. The package-content check
 rejects extra public files, source maps, missing runtime imports/dependencies
 and mismatched metadata. A real closure check is still needed before claiming

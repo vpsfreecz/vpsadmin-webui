@@ -35,10 +35,16 @@ depending on API configuration.
 ## Production startup contract
 
 `BFF_RUNTIME_MODE` defaults to `production`. Before opening a listener the BFF
+reads three fixed, raw UTF-8 files from the absolute `CREDENTIALS_DIRECTORY`,
 validates its settings and proves that `SESSION_STORE_PATH` is an existing,
 writable directory. It creates and removes a private write probe; it does not
 create a missing session directory. A failed setting is named without printing
-its value. The reusable NixOS module sets both
+its value. The files are `oauth-client-id`, `oauth-client-secret` and
+`session-secret`; each must be a regular file of at most 16 KiB, with at most
+one terminal LF or CRLF. Symlinks, malformed UTF-8, BOMs, whitespace and
+control characters fail startup. Retired `OAUTH_CLIENT_ID`,
+`OAUTH_CLIENT_SECRET` and `SESSION_SECRET` environment variables also fail
+startup, including in `legacy-test` mode. The reusable NixOS module sets both
 `BFF_RUNTIME_MODE=production` and `PUBLIC_ORIGIN` explicitly; they must never
 select `legacy-test`. The production environment must provide:
 
@@ -50,9 +56,9 @@ select `legacy-test`. The production environment must provide:
 | `OAUTH_AUTHORIZE_URL`, `OAUTH_TOKEN_URL`, `OAUTH_REVOKE_URL` | Absolute HTTPS URLs on the same provider origin, without query or credentials |
 | `PASSWORD_RECOVERY_URL` | Absolute HTTPS URL on that provider origin; only an optional matching `client_id` query is accepted, and the BFF adds it when absent |
 | `OAUTH_REDIRECT_URI` | Exactly `<PUBLIC_ORIGIN>/oauth/callback`, matching the registered client |
-| `OAUTH_CLIENT_ID`, `OAUTH_CLIENT_SECRET` | Nonempty client ID and a generated secret of at least 32 bytes |
+| `CREDENTIALS_DIRECTORY` | Absolute existing directory with the three fixed credential files; client ID is nonempty and the generated OAuth secret is at least 32 bytes |
 | `OAUTH_SCOPE`, `OAUTH_TYPE` | Explicit provider scope and client type; site uses `all` and `web_server` |
-| `SESSION_SECRET` | Stable generated signing secret of at least 32 bytes |
+| `session-secret` file | Stable generated signing secret of at least 32 bytes |
 | `SESSION_STORE_PATH`, `SESSION_COOKIE_NAME` | Existing writable state directory and host-only cookie name; one process owns the file store |
 
 `LEGACY_WEBUI_URL` is optional and appears in the public object only when set.
@@ -61,8 +67,9 @@ and limits have positive bounded defaults in `runtime-config.js`. Integer
 settings reject suffixes, fractions and overflow. Session and client secrets
 reject obvious placeholders and repeated-character values; these checks cannot
 prove entropy, so generate and transfer secrets securely. The NixOS module
-supplies the public production settings and reads secrets from its private
-runtime environment file. Do not place secrets in the Nix store or public config.
+supplies the public production settings and loads private credential files
+through systemd `LoadCredential`. Do not place secret values in the Nix store,
+environment, command arguments or public config.
 
 The public JSON shape is `{schemaVersion: 1, api: {url, version}, webuiNext}`.
 `webuiNext` contains the same login, logout, recovery, passkey, base-path and
@@ -80,9 +87,12 @@ compatibility.
 ```bash
 cd bff
 npm ci
-BFF_RUNTIME_MODE=legacy-test SESSION_STORE_PATH="$(mktemp -d)" \
-  SESSION_SECRET="$(openssl rand -base64 48)" OAUTH_CLIENT_ID=... \
-  OAUTH_CLIENT_SECRET=... OAUTH_AUTHORIZE_URL=... OAUTH_TOKEN_URL=... \
+credential_dir="$(mktemp -d)"
+session_dir="$(mktemp -d)"
+chmod 0700 "$credential_dir" "$session_dir"
+# Provision the three raw files privately; do not put their values in this shell command.
+BFF_RUNTIME_MODE=legacy-test CREDENTIALS_DIRECTORY="$credential_dir" \
+  SESSION_STORE_PATH="$session_dir" OAUTH_AUTHORIZE_URL=... OAUTH_TOKEN_URL=... \
   node server.js
 ```
 
@@ -91,8 +101,8 @@ the historical public defaults and optional revoke URL, and allows local HTTP
 API and token/revoke URLs. Passkey authentication and UI origins still require
 HTTPS. It is not a fallback after production validation fails and
 is rejected with `NODE_ENV=production`. It must not be selected by the NixOS
-production service. Remove the temporary
-session directory after stopping this local process.
+production service. Remove the temporary credential and session directories
+after stopping this local process.
 
 ### Concurrent session requests
 

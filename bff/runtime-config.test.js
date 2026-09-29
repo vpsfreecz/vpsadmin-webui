@@ -10,8 +10,22 @@ const { runInNewContext } = require('node:vm');
 const { PUBLIC_CONFIG_MAX_BYTES, loadBffConfig, renderConfigJs } = require('./runtime-config');
 const { setRuntimeConfigSecurityHeaders } = require('./security');
 
+const CLIENT_ID = 'webui-client';
+const CLIENT_SECRET = 'Qf74sc9MWpL2hz8ABvY6tRk3xN5jD0eU';
+const SESSION_SECRET = 'Aa8fG6jdL4vsP0xR2kHtM9bY1wZ5nQ3c';
+
 function productionEnv(storePath) {
+  const fixtureRoot = fs.existsSync(storePath) && fs.lstatSync(storePath).isDirectory()
+    ? storePath : path.dirname(storePath);
+  const credentialDirectory = path.join(fixtureRoot, 'credentials');
+  fs.mkdirSync(credentialDirectory, { recursive: true });
+  for (const [name, value] of [
+    ['oauth-client-id', CLIENT_ID],
+    ['oauth-client-secret', CLIENT_SECRET],
+    ['session-secret', SESSION_SECRET],
+  ]) fs.writeFileSync(path.join(credentialDirectory, name), `${value}\n`);
   return {
+    CREDENTIALS_DIRECTORY: credentialDirectory,
     BFF_RUNTIME_MODE: 'production',
     PUBLIC_ORIGIN: 'https://newadmin.example.test',
     API_URL: 'https://api.example.test', API_VERSION: '7.0',
@@ -21,10 +35,7 @@ function productionEnv(storePath) {
     OAUTH_REVOKE_URL: 'https://auth.example.test/_auth/oauth2/revoke',
     PASSWORD_RECOVERY_URL: 'https://auth.example.test/oauth2/password-reset',
     OAUTH_REDIRECT_URI: 'https://newadmin.example.test/oauth/callback',
-    OAUTH_CLIENT_ID: 'webui-client',
-    OAUTH_CLIENT_SECRET: 'Qf74sc9MWpL2hz8ABvY6tRk3xN5jD0eU',
     OAUTH_SCOPE: 'all', OAUTH_TYPE: 'web_server',
-    SESSION_SECRET: 'Aa8fG6jdL4vsP0xR2kHtM9bY1wZ5nQ3c',
     SESSION_STORE_PATH: storePath, SESSION_COOKIE_NAME: 'vpsadmin_webui_session',
     LEGACY_WEBUI_URL: 'https://oldadmin.example.test',
   };
@@ -42,7 +53,9 @@ test('strict production config has one bounded, credential-free public projectio
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'bff-config-'));
   t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
   const env = productionEnv(directory);
+  const originalEnv = { ...env };
   const config = loadBffConfig(env);
+  assert.deepEqual(env, originalEnv);
   assert.equal(config.mode, 'production');
   assert.equal(config.publicOrigin, env.PUBLIC_ORIGIN);
   assert.equal(config.publicConfig.schemaVersion, 1);
@@ -53,7 +66,7 @@ test('strict production config has one bounded, credential-free public projectio
   assert.equal(config.publicConfig.webuiNext.passwordRecoveryUrl,
     `${env.PASSWORD_RECOVERY_URL}?client_id=webui-client`);
   assert.ok(Buffer.byteLength(config.publicJson, 'utf8') <= PUBLIC_CONFIG_MAX_BYTES);
-  for (const secret of [env.OAUTH_CLIENT_SECRET, env.SESSION_SECRET]) {
+  for (const secret of [CLIENT_SECRET, SESSION_SECRET]) {
     assert.equal(config.publicJson.includes(secret), false);
   }
   for (const field of ['accessToken', 'refresh_token', 'sessionKey', 'sessionExpiresAt']) {
@@ -72,7 +85,7 @@ test('strict production config has one bounded, credential-free public projectio
   assert.equal(headers['cross-origin-resource-policy'], 'same-origin');
   setRuntimeConfigSecurityHeaders(response);
   assert.equal(headers['content-type'], 'application/javascript; charset=utf-8');
-  assert.deepEqual(fs.readdirSync(directory), [], 'writability probe must be removed');
+  assert.deepEqual(fs.readdirSync(directory), ['credentials'], 'writability probe must be removed');
 });
 
 test('required production settings never fall back to legacy defaults', (t) => {
@@ -82,8 +95,7 @@ test('required production settings never fall back to legacy defaults', (t) => {
     'PUBLIC_ORIGIN', 'API_URL', 'API_VERSION', 'HAVEAPI_AUTH_HEADER',
     'HAVEAPI_META_NAMESPACE', 'OAUTH_AUTHORIZE_URL', 'OAUTH_TOKEN_URL',
     'OAUTH_REVOKE_URL', 'PASSWORD_RECOVERY_URL', 'OAUTH_REDIRECT_URI',
-    'OAUTH_CLIENT_ID', 'OAUTH_CLIENT_SECRET', 'OAUTH_SCOPE', 'OAUTH_TYPE',
-    'SESSION_SECRET', 'SESSION_STORE_PATH', 'SESSION_COOKIE_NAME',
+    'OAUTH_SCOPE', 'OAUTH_TYPE', 'SESSION_STORE_PATH', 'SESSION_COOKIE_NAME',
   ]) {
     const env = productionEnv(directory);
     delete env[name];
@@ -163,12 +175,17 @@ test('missing, weak or placeholder secrets and unwritable state fail without val
   for (const [name, value] of [
     ['OAUTH_CLIENT_SECRET', 'short'],
     ['OAUTH_CLIENT_SECRET', 'a'.repeat(64)],
+    ['OAUTH_CLIENT_SECRET', 'example-with-more-than-thirty-two-characters'],
     ['SESSION_SECRET', 'change-me-with-a-lot-of-padding-123456789'],
   ]) {
     const env = productionEnv(directory);
-    env[name] = value;
+    const filename = name === 'SESSION_SECRET' ? 'session-secret' : 'oauth-client-secret';
+    fs.writeFileSync(path.join(env.CREDENTIALS_DIRECTORY, filename), value);
     rejectWithoutEcho(env, name, value);
   }
+  const longId = productionEnv(directory);
+  fs.writeFileSync(path.join(longId.CREDENTIALS_DIRECTORY, 'oauth-client-id'), 'i'.repeat(257));
+  rejectWithoutEcho(longId, 'OAUTH_CLIENT_ID');
   const absent = productionEnv(path.join(directory, 'missing'));
   rejectWithoutEcho(absent, 'SESSION_STORE_PATH', absent.SESSION_STORE_PATH);
   const regularFile = path.join(directory, 'regular-file');
@@ -185,11 +202,17 @@ test('explicit legacy-test mode keeps local fixture defaults without enabling pr
   const env = {
     BFF_RUNTIME_MODE: 'legacy-test', OAUTH_AUTHORIZE_URL: 'https://identity.test/authorize',
     OAUTH_TOKEN_URL: 'http://127.0.0.1:1234/token',
-    OAUTH_CLIENT_ID: 'fixture-client', OAUTH_CLIENT_SECRET: 'fixture-secret',
     OAUTH_REDIRECT_URI: 'https://webui.test/oauth/callback',
-    SESSION_SECRET: 'fixture-session-secret-with-enough-entropy',
     SESSION_STORE_PATH: directory,
   };
+  const credentialDirectory = path.join(directory, 'credentials');
+  fs.mkdirSync(credentialDirectory);
+  for (const [name, value] of [
+    ['oauth-client-id', 'fixture-client'],
+    ['oauth-client-secret', 'fixture-secret'],
+    ['session-secret', 'fixture-session-secret-with-enough-entropy'],
+  ]) fs.writeFileSync(path.join(credentialDirectory, name), value);
+  env.CREDENTIALS_DIRECTORY = credentialDirectory;
   const config = loadBffConfig(env);
   assert.equal(config.oauthRevokeUrl, '');
   assert.equal(config.publicConfig.api.url, 'https://api.vpsfree.cz');
@@ -230,4 +253,20 @@ test('server module validates production configuration before a listener exists'
   assert.match(badStore.stderr, /SESSION_STORE_PATH/);
   assert.equal(badStore.stderr.includes(missingStore), false);
   assert.equal(badStore.stderr.includes('listen EPERM'), false);
+  fs.unlinkSync(path.join(env.CREDENTIALS_DIRECTORY, 'oauth-client-secret'));
+  const missingCredential = spawnSync(process.execPath, ['server.js'], {
+    cwd: __dirname, env, encoding: 'utf8', timeout: 5_000,
+  });
+  assert.equal(missingCredential.status, 1);
+  assert.match(missingCredential.stderr, /oauth-client-secret: missing file/);
+  assert.equal(missingCredential.stderr.includes(env.CREDENTIALS_DIRECTORY), false);
+  assert.equal(missingCredential.stderr.includes('listen EPERM'), false);
+  const retired = spawnSync(process.execPath, ['server.js'], {
+    cwd: __dirname,
+    env: { ...env, OAUTH_CLIENT_SECRET: 'synthetic-retired-value' },
+    encoding: 'utf8', timeout: 5_000,
+  });
+  assert.equal(retired.status, 1);
+  assert.match(retired.stderr, /OAUTH_CLIENT_SECRET: retired environment variable/);
+  assert.equal(retired.stderr.includes('synthetic-retired-value'), false);
 });

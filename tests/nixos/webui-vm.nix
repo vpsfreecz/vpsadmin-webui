@@ -157,7 +157,11 @@ pkgs.testers.nixosTest {
             revokeUrl = "${providerOrigin}/oauth/revoke";
             passwordRecoveryUrl = "${providerOrigin}/oauth/recovery";
           };
-          environmentFile = "/private/vpsadmin-webui.env";
+          credentialFiles = {
+            oauthClientId = "/private/vpsadmin-webui/oauth-client-id";
+            oauthClientSecret = "/private/vpsadmin-webui/oauth-client-secret";
+            sessionSecret = "/private/vpsadmin-webui/session-secret";
+          };
           nginx = {
             listenAddress = nodes.backend.networking.primaryIPAddress;
             port = 8080;
@@ -168,7 +172,7 @@ pkgs.testers.nixosTest {
             trustedProxyAddresses = [ "${nodes.edge.networking.primaryIPAddress}/32" ];
           };
         };
-        # Startup is controlled by the test so missing and weak secret files can
+        # Startup is controlled by the test so missing and weak credential files can
         # be checked before any session state is created.
         systemd.services."vpsadmin-webui-bff" = {
           wantedBy = lib.mkForce [ ];
@@ -267,9 +271,11 @@ pkgs.testers.nixosTest {
     backend.fail("systemctl start vpsadmin-webui-bff.service")
     backend.fail("test -e /var/lib/vpsadmin-webui/sessions/session")
     backend.succeed("systemctl reset-failed vpsadmin-webui-bff.service")
-    backend.succeed("install -d -m 0700 /private")
-    backend.succeed("printf 'OAUTH_CLIENT_ID=vm-client\\nOAUTH_CLIENT_SECRET=too-short\\nSESSION_SECRET=too-short\\n' > /private/vpsadmin-webui.env")
-    backend.succeed("chmod 0600 /private/vpsadmin-webui.env")
+    backend.succeed("install -d -m 0700 /private /private/vpsadmin-webui")
+    backend.succeed("printf 'vm-client\\n' > /private/vpsadmin-webui/oauth-client-id")
+    backend.succeed("printf 'too-short\\n' > /private/vpsadmin-webui/oauth-client-secret")
+    backend.succeed("printf 'too-short\\n' > /private/vpsadmin-webui/session-secret")
+    backend.succeed("chmod 0600 /private/vpsadmin-webui/*")
     # Type=simple can report start success before Node rejects weak secrets.
     backend.execute("systemctl start vpsadmin-webui-bff.service")
     backend.wait_until_succeeds(
@@ -283,20 +289,30 @@ pkgs.testers.nixosTest {
     backend.fail("bash -c 'exec 3<>/dev/tcp/127.0.0.1/3001' 2>/dev/null")
     backend.fail("curl --silent --max-time 3 http://127.0.0.1:3001/healthz")
     backend.succeed("systemctl reset-failed vpsadmin-webui-bff.service")
-    backend.succeed(
-        "printf 'OAUTH_CLIENT_ID=vm-client\\n"
-        "OAUTH_CLIENT_SECRET=VmOnly-47f91A0bC2dE3fG4hI5jK6lM7nP8qR9s\\n"
-        "SESSION_SECRET=VmOnly-60aB1cD2eF3gH4iJ5kL6mN7pQ8rS9t\\n'"
-        " > /private/vpsadmin-webui.env"
-    )
-    backend.succeed("chmod 0600 /private/vpsadmin-webui.env")
+    backend.succeed("printf 'VmOnly-47f91A0bC2dE3fG4hI5jK6lM7nP8qR9s\\n' > /private/vpsadmin-webui/oauth-client-secret")
+    backend.succeed("printf 'VmOnly-60aB1cD2eF3gH4iJ5kL6mN7pQ8rS9t\\n' > /private/vpsadmin-webui/session-secret")
+    backend.succeed("chmod 0600 /private/vpsadmin-webui/*")
     backend.succeed("systemctl start vpsadmin-webui-bff.service")
     backend.wait_for_unit("vpsadmin-webui-bff.service")
     backend.wait_for_open_port(3001)
     backend.succeed("test \"$(stat -c '%U:%G %a' /var/lib/vpsadmin-webui)\" = 'vpsadmin-webui-bff:vpsadmin-webui-bff 700'")
     backend.succeed("test \"$(stat -c '%U:%G %a' /var/lib/vpsadmin-webui/sessions)\" = 'vpsadmin-webui-bff:vpsadmin-webui-bff 700'")
     backend.fail("runuser -u nobody -- ls /var/lib/vpsadmin-webui/sessions")
-    backend.succeed("test \"$(stat -c '%a' /private/vpsadmin-webui.env)\" = 600")
+    backend.succeed("test \"$(stat -c '%a' /private/vpsadmin-webui)\" = 700")
+    backend.succeed("test \"$(stat -c '%a' /private/vpsadmin-webui/oauth-client-id)\" = 600")
+    backend.succeed("test \"$(stat -c '%a' /private/vpsadmin-webui/oauth-client-secret)\" = 600")
+    backend.succeed("test \"$(stat -c '%a' /private/vpsadmin-webui/session-secret)\" = 600")
+    backend.succeed(
+        "bash -c 'pid=$(systemctl show -p MainPID --value vpsadmin-webui-bff.service); "
+        "dir=$(tr \"\\0\" \"\\n\" < /proc/$pid/environ | sed -n \"s/^CREDENTIALS_DIRECTORY=//p\"); "
+        "test -n \"$dir\"; "
+        "for name in oauth-client-id oauth-client-secret session-secret; do "
+        "test -f \"$dir/$name\" && test ! -L \"$dir/$name\" || exit 1; done'"
+    )
+    backend.fail(
+        "tr '\\0' '\\n' < /proc/$(systemctl show -p MainPID --value vpsadmin-webui-bff.service)/environ"
+        " | grep -Eq '^(OAUTH_CLIENT_ID|OAUTH_CLIENT_SECRET|SESSION_SECRET)='"
+    )
     backend.fail("curl --silent --max-time 3 http://${nodes.backend.networking.primaryIPAddress}:3001/healthz")
 
     root = "${publicOrigin}"

@@ -31,7 +31,11 @@ let
       revokeUrl = "https://auth.example.test/_auth/oauth2/revoke";
       passwordRecoveryUrl = "https://auth.example.test/oauth2/password-reset";
     };
-    environmentFile = "/private/webui.env";
+    credentialFiles = {
+      oauthClientId = "/private/webui/oauth-client-id";
+      oauthClientSecret = "/private/webui/oauth-client-secret";
+      sessionSecret = "/private/webui/session-secret";
+    };
     legacyWebuiUrl = "https://legacy.example.test";
     nginx = {
       listenAddress = "192.0.2.170";
@@ -58,7 +62,7 @@ let
   valid = enabled { };
   invalid = enabled {
     publicOrigin = "https://newadmin.example.test/unsafe";
-    environmentFile = null;
+    credentialFiles.sessionSecret = null;
     oauth.revokeUrl = "https://other.example.test/revoke";
     nginx.trustedProxyAddresses = [ "0.0.0.0/0" ];
     security.consoleOrigins = [ "https:" ];
@@ -83,6 +87,11 @@ let
   stateOverride = builtins.tryEval (
     (enabled { stateDirectory = "vpsadmin"; }).config.services."vpsadmin-webui".enable
   );
+  oldEnvironmentOption = builtins.tryEval (
+    (enabled { environmentFile = "/private/webui.env"; }).config.services."vpsadmin-webui".enable
+  );
+  missingCredential = name: enabled { credentialFiles.${name} = null; };
+  invalidCredential = enabled { credentialFiles.oauthClientId = "/nix/store/unsafe"; };
   legacy = evaluate [
     (import "${vpsadmin}/nixos/modules/vpsadmin/webui.nix")
     {
@@ -143,7 +152,19 @@ let
       && !(service.environment ? OAUTH_CLIENT_SECRET)
       && !(service.environment ? OAUTH_CLIENT_ID)
       && !(service.environment ? SESSION_SECRET)
-      && service.serviceConfig.EnvironmentFile == [ "/private/webui.env" ]
+      && !(service.serviceConfig ? EnvironmentFile)
+      &&
+        service.serviceConfig.LoadCredential == [
+          "oauth-client-id:/private/webui/oauth-client-id"
+          "oauth-client-secret:/private/webui/oauth-client-secret"
+          "session-secret:/private/webui/session-secret"
+        ]
+      &&
+        service.serviceConfig.UnsetEnvironment == [
+          "OAUTH_CLIENT_ID"
+          "OAUTH_CLIENT_SECRET"
+          "SESSION_SECRET"
+        ]
       && service.serviceConfig.User == "vpsadmin-webui-bff"
       && service.serviceConfig.StateDirectoryMode == "0700"
       && service.serviceConfig.StateDirectory == "vpsadmin-webui"
@@ -194,7 +215,7 @@ let
     invalid =
       lib.length (failures invalid) >= 5
       && lib.any (message: lib.hasInfix "publicOrigin" message) (failures invalid)
-      && lib.any (message: lib.hasInfix "environmentFile" message) (failures invalid)
+      && lib.any (message: lib.hasInfix "credentialFiles" message) (failures invalid)
       && lib.any (message: lib.hasInfix "provider origin" message) (failures invalid)
       && lib.any (message: lib.hasInfix "proxy peers" message) (failures invalid);
     invalidPort = lib.any (message: lib.hasInfix "publicOrigin" message) (failures invalidPort);
@@ -212,6 +233,20 @@ let
     );
     fixedStateDirectory =
       !(valid.options.services."vpsadmin-webui" ? stateDirectory) && !stateOverride.success;
+    fixedCredentialInterface =
+      !(valid.options.services."vpsadmin-webui" ? environmentFile)
+      && !oldEnvironmentOption.success
+      &&
+        lib.all
+          (
+            name: lib.any (message: lib.hasInfix "credentialFiles" message) (failures (missingCredential name))
+          )
+          [
+            "oauthClientId"
+            "oauthClientSecret"
+            "sessionSecret"
+          ]
+      && lib.any (message: lib.hasInfix "credentialFiles" message) (failures invalidCredential);
     legacyCoexistence =
       failures legacy == [ ]
       && legacy.config.vpsadmin.webui.enable

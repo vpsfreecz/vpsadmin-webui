@@ -45,6 +45,16 @@ Its passkey assertion checks the BFF's fixed response-specific CSP, which has
 no nonce. Evaluation does not substitute for actually building and running
 that VM test. Site deployment is a later gate.
 
+The credential cutover adds a browser-free BFF reader suite for exact raw
+UTF-8 files, terminal newline handling, retired-variable rejection, missing
+and unsafe file types, malformed bytes and size bounds. Production startup
+tests check failure before listening without printing secret values. Module
+evaluation checks the three fixed `LoadCredential` mappings and
+`UnsetEnvironment`; the ordinary VM must prove missing/weak files fail,
+synthetic valid files start, retired values are absent from the process
+environment, and persisted sessions survive restart. These synthetic checks
+do not prove site credential provisioning or authorize activation.
+
 ```sh
 npm ci
 npm run ci:quick

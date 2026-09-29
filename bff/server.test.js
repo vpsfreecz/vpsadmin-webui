@@ -2,7 +2,7 @@
 
 const assert = require('node:assert/strict');
 const { once } = require('node:events');
-const { mkdtempSync, readFileSync, rmSync } = require('node:fs');
+const { mkdtempSync, readFileSync, rmSync, writeFileSync } = require('node:fs');
 const { createServer } = require('node:http');
 const { tmpdir } = require('node:os');
 const { join } = require('node:path');
@@ -13,6 +13,7 @@ let bffOrigin;
 let bffServer;
 let providerServer;
 let sessionDirectory;
+let credentialDirectory;
 const tokenRequests = [];
 
 function closeServer(server) {
@@ -122,16 +123,21 @@ test.before(async () => {
   assert.ok(providerAddress && typeof providerAddress === 'object');
 
   sessionDirectory = mkdtempSync(join(tmpdir(), 'webui-next-bff-test-'));
+  credentialDirectory = mkdtempSync(join(tmpdir(), 'webui-next-bff-creds-'));
+  for (const [name, value] of [
+    ['oauth-client-id', 'test-client'],
+    ['oauth-client-secret', 'test-client-secret'],
+    ['session-secret', 'test-session-secret-with-enough-entropy'],
+  ]) writeFileSync(join(credentialDirectory, name), value);
+  for (const name of ['OAUTH_CLIENT_ID', 'OAUTH_CLIENT_SECRET', 'SESSION_SECRET']) delete process.env[name];
   Object.assign(process.env, {
+    CREDENTIALS_DIRECTORY: credentialDirectory,
     BFF_RUNTIME_MODE: 'legacy-test',
     NODE_ENV: 'test',
     DOMAIN: 'webui.test',
     OAUTH_AUTHORIZE_URL: 'https://identity.test/authorize',
     OAUTH_TOKEN_URL: `http://127.0.0.1:${providerAddress.port}/token`,
-    OAUTH_CLIENT_ID: 'test-client',
-    OAUTH_CLIENT_SECRET: 'test-client-secret',
     OAUTH_REDIRECT_URI: 'https://webui.test/oauth/callback',
-    SESSION_SECRET: 'test-session-secret-with-enough-entropy',
     SESSION_STORE_PATH: sessionDirectory,
     LOGIN_RATE_LIMIT_MAX: '100',
   });
@@ -147,6 +153,7 @@ test.before(async () => {
 test.after(async () => {
   await Promise.all([closeServer(bffServer), closeServer(providerServer)]);
   if (sessionDirectory) rmSync(sessionDirectory, { force: true, recursive: true });
+  if (credentialDirectory) rmSync(credentialDirectory, { force: true, recursive: true });
 });
 
 test('runtime config exposes the OAuth provider password recovery entry point', async () => {

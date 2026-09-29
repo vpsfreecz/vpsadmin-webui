@@ -88,6 +88,14 @@ test('rejects test files, unlisted runtime imports and missing production depend
   });
 });
 
+test('ships the credential reader as a required BFF runtime file', () => {
+  assert.ok(runtimeFiles.includes('credentials.js'));
+  fixture(({ frontend, bff }) => {
+    fs.rmSync(path.join(bff, 'lib/vpsadmin-webui-bff/credentials.js'));
+    assert.throws(() => checkPackageContents(frontend, bff), /BFF runtime entries differ/);
+  });
+});
+
 test('rejects mismatched revisions and a clean unknown source', () => {
   fixture(({ frontend, bff }) => {
     write(bff, 'share/vpsadmin-webui-bff/build-info.json', JSON.stringify({

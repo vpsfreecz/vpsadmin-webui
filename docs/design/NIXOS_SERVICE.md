@@ -10,7 +10,7 @@ database, Redis or RabbitMQ.
 ## Enable and configure
 
 The enabled module requires `publicOrigin`, `api.url`, `api.version`, all four
-OAuth URLs and an absolute string `environmentFile`. The public origin and
+OAuth URLs and three absolute runtime `credentialFiles` paths. The public origin and
 legacy origin must be exact HTTPS DNS origins. API and OAuth URLs must be
 credential-free HTTPS URLs; authorization, token, revoke and recovery URLs
 must share one provider origin. The recovery URL may carry one `client_id`
@@ -41,12 +41,16 @@ namespace, cookie name, session path and `PORT`. `LEGACY_WEBUI_URL` is emitted
 only when set. The BFF listens on `127.0.0.1` on the configured port. It keeps
 the `/config.json`, `/config.js`, `/session.json` and OAuth contracts unchanged.
 
-`environmentFile` is a runtime string path, not a Nix store path. Systemd reads
-it as root; it contains only `OAUTH_CLIENT_ID`, `OAUTH_CLIENT_SECRET` and
-`SESSION_SECRET`. Do not put their values in Nix. Systemd's EnvironmentFile
-assignments override ordinary `Environment` assignments, so the operator must
-keep this file limited to those three secrets. The file is mandatory; an absent
-or invalid file/secret prevents startup. The service uses one writer, private
+`credentialFiles.oauthClientId`, `oauthClientSecret` and `sessionSecret` are
+runtime source paths outside the Nix store. Systemd loads their raw contents
+as `oauth-client-id`, `oauth-client-secret` and `session-secret` in its private
+`CREDENTIALS_DIRECTORY`. The module does not expose an `environmentFile` option
+or pass secret values through `Environment` or `ExecStart`. It explicitly removes
+the retired secret variable names with `UnsetEnvironment`. Do not put credential
+values in Nix. Missing, nonregular, malformed, oversized or weak credentials
+prevent BFF startup before it listens. The fixed names and bounded UTF-8 reader
+are described in the [BFF startup contract](../../bff/README.md). The service
+uses one writer, private
 temporary files/devices, empty capabilities, no privilege gain, strict system
 protection and writable access only to its state directory. Node JIT memory
 permissions remain available.
@@ -102,8 +106,9 @@ nix flake check --no-build --no-write-lock-file --option allow-import-from-deriv
 edge, private backend and client. Its local HTTPS provider and CA are synthetic;
 the BFF runs in production mode with strict TLS validation. It checks route,
 cache and CSP ownership, normalized forwarding, login and one-use state,
-private persistent sessions, restart, missing/invalid runtime secrets, and a
-seeded legacy PHP state file whose owner, mode and content must survive. The
+private persistent sessions, restart, missing/invalid credential files, and a
+seeded legacy PHP state file whose owner, mode and content must survive. The VM
+also checks that the BFF process has no retired secret environment variables. The
 disabled and coexistence cases remain build-free module-evaluation assertions
 required by the VM fixture. The test does not use a real API, account or DNS.
 

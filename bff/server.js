@@ -219,6 +219,7 @@ app.use(
     store: new FileStore({
       path: SESSION_STORE_PATH,
       retries: 0,
+      reapAsync: false,
       ttl: Math.floor(SESSION_MAX_AGE_MS / 1000),
     }),
   })

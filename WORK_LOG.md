@@ -27,6 +27,31 @@ complete reconstruction of the project. Missing evidence is not a passing check.
   or raw production responses. This log does not grant deployment authorization
   or enable autonomous scheduled development.
 
+## 2026-09-29 - Load BFF credentials from private systemd files
+
+**Request / reason:** the published service passed OAuth and session secrets
+through a root-read `EnvironmentFile`. The operator chose a direct cutover to
+systemd credentials, without accepting both interfaces at runtime.
+
+**Change:** read three fixed raw UTF-8 credential files before opening the BFF
+listener, reject the retired environment variables in every mode, and keep
+their values out of process environment and command arguments. The NixOS
+module now requires three runtime source paths, passes them through
+`LoadCredential`, and removes the retired names with `UnsetEnvironment`.
+The package includes the reader, the file session store explicitly disables
+asynchronous reaping, and synthetic BFF/module/VM fixtures exercise startup,
+session persistence and environment isolation. Public config, OAuth and
+session response contracts and the on-disk session directory are unchanged.
+The site pin and credential provisioning belong to a separate operator-owned
+cutover; keep the old private environment file only for rollback to the
+previous published service, never as a fallback for this version.
+
+**Verification / limits:** the credential reader and production configuration
+tests pass with cached Node 24.19.0. The sandbox prevents loopback listeners
+(`listen EPERM`) and Nix daemon access, so HTTP/session suites, build-free
+module evaluation and the ordinary HTTPS VM require normal-environment checks
+on the committed head. No live secrets, accounts or provider calls were used.
+
 ## 2026-09-28 - Preserve browser retry evidence and bound PR workers
 
 **Request / reason:** the PR browser jobs did not set an explicit worker count,

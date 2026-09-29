@@ -3,6 +3,7 @@
 const { randomBytes } = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
+const { readCredentials } = require('./credentials');
 const { validateSessionSecret } = require('./security');
 
 const PUBLIC_CONFIG_MAX_BYTES = 64 * 1024;
@@ -62,8 +63,8 @@ function parsedUrl(env, name, { fallback, allowHttp = false, originOnly = false,
   return { raw, url };
 }
 
-function secretSetting(env, name, strict) {
-  const value = textSetting(env, name);
+function secretSetting(value, name, strict) {
+  if (typeof value !== 'string' || value.length === 0) invalid(name, 'required');
   if (value.length > 4096) invalid(name, 'invalid secret length');
   if (name === 'SESSION_SECRET') validateSessionSecret(value);
   if (strict && (
@@ -102,6 +103,7 @@ function renderConfigJs(publicConfig) {
 }
 
 function loadBffConfig(env = process.env) {
+  const credentials = readCredentials(env);
   const mode = env.BFF_RUNTIME_MODE ?? 'production';
   if (!['production', 'legacy-test'].includes(mode)) invalid('BFF_RUNTIME_MODE', 'unsupported mode');
   if (mode === 'legacy-test' && env.NODE_ENV === 'production') {
@@ -121,10 +123,10 @@ function loadBffConfig(env = process.env) {
   const revoke = revokeRaw
     ? parsedUrl(env, 'OAUTH_REVOKE_URL', { allowHttp, noQuery: true })
     : (strict ? invalid('OAUTH_REVOKE_URL', 'required') : undefined);
-  const clientId = textSetting(env, 'OAUTH_CLIENT_ID');
+  const clientId = credentials.oauthClientId;
   if (clientId.length > 256 || /\s/.test(clientId)) invalid('OAUTH_CLIENT_ID', 'invalid value');
-  const clientSecret = secretSetting(env, 'OAUTH_CLIENT_SECRET', strict);
-  const sessionSecret = secretSetting(env, 'SESSION_SECRET', strict);
+  const clientSecret = secretSetting(credentials.oauthClientSecret, 'OAUTH_CLIENT_SECRET', strict);
+  const sessionSecret = secretSetting(credentials.sessionSecret, 'SESSION_SECRET', strict);
   const redirect = parsedUrl(env, 'OAUTH_REDIRECT_URI', {
     fallback: fallback(`https://${env.DOMAIN || 'clankerdev.vpsfree.cz'}/oauth/callback`),
     allowHttp, noQuery: true,

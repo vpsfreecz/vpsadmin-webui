@@ -73,6 +73,13 @@ let
   providerOrigin = urlOrigin cfg.oauth.authorizeUrl;
   apiOrigin = urlOrigin cfg.api.url;
   validCidrs = values: lib.all (value: builtins.match cidr value != null) values;
+  validCredentialPath =
+    value:
+    value != null
+    && builtins.match "/[A-Za-z0-9._/-]+" value != null
+    && !lib.hasInfix ".." value
+    && !lib.hasInfix "//" value
+    && !lib.hasPrefix "/nix/store/" value;
   validPackages =
     let
       frontend = cfg.frontendPackage.provenance or null;
@@ -252,10 +259,20 @@ in
       default = "_meta";
       description = "HaveAPI metadata namespace.";
     };
-    environmentFile = mkOption {
+    credentialFiles.oauthClientId = mkOption {
       type = types.nullOr types.str;
       default = null;
-      description = "Absolute runtime path to a root-read systemd environment file containing only OAuth client ID, client secret and session secret.";
+      description = "Absolute runtime source path for the raw OAuth client ID credential.";
+    };
+    credentialFiles.oauthClientSecret = mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      description = "Absolute runtime source path for the raw OAuth client secret credential.";
+    };
+    credentialFiles.sessionSecret = mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      description = "Absolute runtime source path for the raw session signing secret credential.";
     };
     cookieName = mkOption {
       type = types.str;
@@ -362,12 +379,10 @@ in
       }
       {
         assertion =
-          cfg.environmentFile != null
-          && builtins.match "/[A-Za-z0-9._/-]+" cfg.environmentFile != null
-          && !lib.hasInfix ".." cfg.environmentFile
-          && !lib.hasInfix "//" cfg.environmentFile
-          && !lib.hasPrefix "/nix/store/" cfg.environmentFile;
-        message = "services.vpsadmin-webui.environmentFile must be an absolute runtime string path outside the Nix store.";
+          validCredentialPath cfg.credentialFiles.oauthClientId
+          && validCredentialPath cfg.credentialFiles.oauthClientSecret
+          && validCredentialPath cfg.credentialFiles.sessionSecret;
+        message = "services.vpsadmin-webui.credentialFiles must set three absolute runtime string paths outside the Nix store.";
       }
       {
         assertion = builtins.match "[A-Za-z0-9_-]{1,64}" cfg.cookieName != null;
@@ -427,7 +442,31 @@ in
         Group = account;
         ExecStart = "${cfg.bffPackage}/bin/vpsadmin-webui-bff";
         ExecStartPre = "${pkgs.coreutils}/bin/install -d -m 0700 ${sessionsPath}";
-        EnvironmentFile = lib.optional (cfg.environmentFile != null) cfg.environmentFile;
+        LoadCredential = lib.filter (entry: entry != null) [
+          (
+            if cfg.credentialFiles.oauthClientId == null then
+              null
+            else
+              "oauth-client-id:${cfg.credentialFiles.oauthClientId}"
+          )
+          (
+            if cfg.credentialFiles.oauthClientSecret == null then
+              null
+            else
+              "oauth-client-secret:${cfg.credentialFiles.oauthClientSecret}"
+          )
+          (
+            if cfg.credentialFiles.sessionSecret == null then
+              null
+            else
+              "session-secret:${cfg.credentialFiles.sessionSecret}"
+          )
+        ];
+        UnsetEnvironment = [
+          "OAUTH_CLIENT_ID"
+          "OAUTH_CLIENT_SECRET"
+          "SESSION_SECRET"
+        ];
         StateDirectory = stateDirectory;
         StateDirectoryMode = "0700";
         UMask = "0077";

@@ -2,13 +2,13 @@
 
 const assert = require('node:assert/strict');
 const { once } = require('node:events');
-const { mkdtempSync, rmSync } = require('node:fs');
+const { mkdtempSync, rmSync, writeFileSync } = require('node:fs');
 const { createServer } = require('node:http');
 const { tmpdir } = require('node:os');
 const { join } = require('node:path');
 const test = require('node:test');
 
-let origin, server, provider, directory, gate;
+let origin, server, provider, directory, credentialDirectory, gate;
 let sequence = 0;
 const refreshes = [], revoked = [], used = new Set();
 const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -59,14 +59,21 @@ test.before(async () => {
   provider.listen(0, '127.0.0.1'); await once(provider, 'listening');
   const providerOrigin = `http://127.0.0.1:${provider.address().port}`;
   directory = mkdtempSync(join(tmpdir(), 'bff-concurrency-'));
+  credentialDirectory = mkdtempSync(join(tmpdir(), 'bff-concurrency-creds-'));
+  for (const [name, value] of [
+    ['oauth-client-id', 'fixture-client'],
+    ['oauth-client-secret', 'fixture-secret'],
+    ['session-secret', 'fixture-session-signing-secret-long-enough'],
+  ]) writeFileSync(join(credentialDirectory, name), value);
+  for (const name of ['OAUTH_CLIENT_ID', 'OAUTH_CLIENT_SECRET', 'SESSION_SECRET']) delete process.env[name];
   Object.assign(process.env, {
+    CREDENTIALS_DIRECTORY: credentialDirectory,
     BFF_RUNTIME_MODE: 'legacy-test',
     NODE_ENV: 'test',
     OAUTH_AUTHORIZE_URL: 'https://auth.example.test/authorize',
     OAUTH_TOKEN_URL: providerOrigin + '/token', OAUTH_REVOKE_URL: providerOrigin + '/revoke',
     OAUTH_REDIRECT_URI: 'https://ui.example.test/oauth/callback',
-    OAUTH_CLIENT_ID: 'fixture-client', OAUTH_CLIENT_SECRET: 'fixture-secret',
-    SESSION_SECRET: 'fixture-session-signing-secret-long-enough', SESSION_STORE_PATH: directory,
+    SESSION_STORE_PATH: directory,
     LOGIN_RATE_LIMIT_MAX: '100',
   });
   server = require('./server').app.listen(0, '127.0.0.1'); await once(server, 'listening');
@@ -76,6 +83,7 @@ test.after(async () => {
   gate?.release.resolve();
   await Promise.all([server, provider].map((s) => new Promise((resolve) => s.close(resolve))));
   rmSync(directory, { force: true, recursive: true });
+  rmSync(credentialDirectory, { force: true, recursive: true });
 });
 test.afterEach(() => { gate?.release.resolve(); gate = undefined; });
 
