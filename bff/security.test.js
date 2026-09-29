@@ -6,6 +6,7 @@ const test = require('node:test');
 const {
   DEFAULT_OAUTH_STATE_MAX_AGE_MS,
   MIN_SESSION_SECRET_BYTES,
+  buildOAuthProviderHeaders,
   clearSessionCookie,
   consumeOAuthState,
   createFixedWindowRateLimiter,
@@ -22,6 +23,42 @@ const {
   validateSessionSecret,
   validateOAuthTokenResponse,
 } = require('./security');
+
+test('OAuth provider headers use the service identity and a validated code-exchange address', () => {
+  for (const address of ['192.0.2.24', '2001:db8::24', '::ffff:192.0.2.24']) {
+    assert.deepEqual(buildOAuthProviderHeaders('authorization_code', address), {
+      'content-type': 'application/x-www-form-urlencoded',
+      accept: 'application/json',
+      'user-agent': 'vpsadmin-webui',
+      'client-ip': address,
+    });
+  }
+
+  for (const requestType of ['refresh_token', 'revoke']) {
+    const headers = buildOAuthProviderHeaders(requestType, '192.0.2.99');
+    assert.deepEqual(headers, {
+      'content-type': 'application/x-www-form-urlencoded',
+      accept: 'application/json',
+      'user-agent': 'vpsadmin-webui',
+    });
+  }
+  assert.notStrictEqual(buildOAuthProviderHeaders('revoke'), buildOAuthProviderHeaders('revoke'));
+});
+
+test('OAuth code exchange rejects malformed addresses without including them in errors', () => {
+  for (const address of [
+    undefined, null, 123, '', '192.0.2.1, 192.0.2.2', '192.0.2.1:443',
+    '[2001:db8::1]', 'fe80::1%eth0', '192.0.2.0/24', ' 192.0.2.1',
+    '192.0.2.1\r\nX-Injected: yes', 'client.example.test',
+  ]) {
+    assert.throws(
+      () => buildOAuthProviderHeaders('authorization_code', address),
+      (error) => error.code === 'oauth_client_ip_invalid'
+        && error.message === 'OAuth callback client IP is invalid',
+    );
+  }
+  assert.throws(() => buildOAuthProviderHeaders('other'), /Unsupported OAuth provider request type/);
+});
 
 test('session secret validation rejects missing and short signing keys without reflecting them', () => {
   const shortSecret = 'change-me';

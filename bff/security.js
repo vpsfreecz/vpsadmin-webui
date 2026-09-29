@@ -1,6 +1,7 @@
 'use strict';
 
 const crypto = require('crypto');
+const { isIP } = require('node:net');
 
 const DEFAULT_OAUTH_STATE_MAX_AGE_MS = 10 * 60 * 1000;
 const DEFAULT_LOGIN_RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
@@ -9,6 +10,35 @@ const DEFAULT_LOGIN_RATE_LIMIT_MAX_ENTRIES = 10_000;
 const MIN_SESSION_SECRET_BYTES = 32;
 const DEFAULT_OAUTH_FETCH_TIMEOUT_MS = 10_000;
 const DEFAULT_OAUTH_RESPONSE_MAX_BYTES = 64 * 1024;
+const OAUTH_PROVIDER_USER_AGENT = 'vpsadmin-webui';
+
+function buildOAuthProviderHeaders(requestType, clientIp) {
+  if (!['authorization_code', 'refresh_token', 'revoke'].includes(requestType)) {
+    throw new TypeError('Unsupported OAuth provider request type');
+  }
+
+  const headers = {
+    'content-type': 'application/x-www-form-urlencoded',
+    accept: 'application/json',
+    'user-agent': OAUTH_PROVIDER_USER_AGENT,
+  };
+
+  if (requestType === 'authorization_code') {
+    if (
+      typeof clientIp !== 'string'
+      || !/^[\x21-\x7e]+$/u.test(clientIp)
+      || [',', '[', ']', '/', '%'].some((character) => clientIp.includes(character))
+      || isIP(clientIp) === 0
+    ) {
+      const error = new Error('OAuth callback client IP is invalid');
+      error.code = 'oauth_client_ip_invalid';
+      throw error;
+    }
+    headers['client-ip'] = clientIp;
+  }
+
+  return headers;
+}
 
 function validateSessionSecret(value) {
   if (typeof value !== 'string' || Buffer.byteLength(value, 'utf8') < MIN_SESSION_SECRET_BYTES) {
@@ -340,6 +370,7 @@ module.exports = {
   DEFAULT_OAUTH_RESPONSE_MAX_BYTES,
   DEFAULT_OAUTH_STATE_MAX_AGE_MS,
   MIN_SESSION_SECRET_BYTES,
+  buildOAuthProviderHeaders,
   clearSessionCookie,
   consumeOAuthState,
   createFixedWindowRateLimiter,

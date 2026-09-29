@@ -40,12 +40,13 @@ function responseCookie(response) {
   return header.split(';', 1)[0];
 }
 
-async function request(path, { cookie, acceptLanguage } = {}) {
+async function request(path, { cookie, acceptLanguage, headers = {} } = {}) {
   return fetch(`${bffOrigin}${path}`, {
     redirect: 'manual',
     headers: {
       ...secureHeaders(cookie),
       ...(acceptLanguage ? { 'accept-language': acceptLanguage } : {}),
+      ...headers,
     },
   });
 }
@@ -91,7 +92,13 @@ test.before(async () => {
     const chunks = [];
     for await (const chunk of request_) chunks.push(chunk);
     const parameters = new URLSearchParams(Buffer.concat(chunks).toString('utf8'));
-    tokenRequests.push(Object.fromEntries(parameters));
+    tokenRequests.push({
+      ...Object.fromEntries(parameters),
+      providerHeaders: {
+        clientIp: request_.headers['client-ip'] ?? null,
+        userAgent: request_.headers['user-agent'] ?? null,
+      },
+    });
 
     if (parameters.get('code') === 'provider-rejected-code') {
       response.writeHead(502, { 'content-type': 'application/json' });
@@ -312,6 +319,68 @@ test('successful callbacks preserve a validated next path and establish the sess
   const payload = await sessionResponse.json();
   assert.equal(payload.accessToken, 'test-access-token');
   assert.equal(typeof payload.sessionExpiresAt, 'number');
+});
+
+test('concurrent callbacks send their own validated address and service identity', async () => {
+  const first = await startLogin('/app');
+  const second = await startLogin('/app');
+  const before = tokenRequests.length;
+  const callbacks = await Promise.all([
+    request(`/oauth/callback?code=concurrent-first&state=${first.state}`, {
+      cookie: first.cookie,
+      headers: {
+        'x-forwarded-for': '198.51.100.11',
+        'x-real-ip': '203.0.113.99',
+        'client-ip': '203.0.113.98',
+        'user-agent': 'spoofed-browser-agent',
+      },
+    }),
+    request(`/oauth/callback?code=concurrent-second&state=${second.state}`, {
+      cookie: second.cookie,
+      headers: {
+        'x-forwarded-for': '2001:db8::22',
+        'x-real-ip': '203.0.113.97',
+        'client-ip': '203.0.113.96',
+        'user-agent': 'another-browser-agent',
+      },
+    }),
+  ]);
+  for (const response of callbacks) {
+    assert.equal(response.status, 302);
+    await response.arrayBuffer();
+  }
+  assert.deepEqual(
+    tokenRequests.slice(before).map(({ code, providerHeaders }) => [code, providerHeaders]).sort(),
+    [
+      ['concurrent-first', { clientIp: '198.51.100.11', userAgent: 'vpsadmin-webui' }],
+      ['concurrent-second', { clientIp: '2001:db8::22', userAgent: 'vpsadmin-webui' }],
+    ],
+  );
+});
+
+test('invalid callback IP consumes state without contacting the provider or reusing a prior IP', async () => {
+  for (const address of ['[2001:db8::3]', 'bad-host', '203.0.113.1:443']) {
+    const { cookie, state } = await startLogin('/app');
+    const before = tokenRequests.length;
+    const logs = [];
+    const previousError = console.error;
+    let response;
+    try {
+      console.error = (...args) => logs.push(args);
+      response = await request(`/oauth/callback?code=unused-invalid-ip&state=${state}`, {
+        cookie,
+        headers: { 'x-forwarded-for': address, 'client-ip': '198.51.100.250' },
+      });
+    } finally {
+      console.error = previousError;
+    }
+    assertCleanRecoveryRedirect(response, await response.text(), [address, state, 'unused-invalid-ip']);
+    assert.equal(tokenRequests.length, before);
+    assert.deepEqual(logs, [[
+      '[webui-next-bff] OAuth callback failed',
+      { failure: 'client_ip_invalid', status: undefined },
+    ]]);
+  }
 });
 
 test('session fingerprints survive reads but change at a fresh login', async () => {

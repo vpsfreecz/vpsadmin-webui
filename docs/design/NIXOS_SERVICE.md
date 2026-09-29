@@ -70,6 +70,12 @@ request headers must not be passed through. The site firewall must separately
 restrict the private listener. Do not widen the trusted range merely for
 health checks. Recommended nginx proxy headers are disabled in each new BFF
 location, and the intended forwarding headers are emitted once.
+The BFF validates Express's derived callback IP before sending it as the OAuth
+provider's `Client-IP` on a new code exchange; refresh and revoke requests omit
+that header. The provider always receives the service User-Agent
+`vpsadmin-webui`. This depends on the edge replacing client forwarding values
+and the backend accepting only a trusted edge's single address; it does not
+make browser-supplied headers authoritative.
 
 The backend serves SPA deep links with revalidated HTML; static files have
 exact-file handling and missing assets return 404. Hashed assets use immutable
@@ -109,7 +115,11 @@ cache and CSP ownership, normalized forwarding, login and one-use state,
 private persistent sessions, restart, missing/invalid credential files, and a
 seeded legacy PHP state file whose owner, mode and content must survive. The VM
 also checks that the BFF process has no retired secret environment variables. The
-disabled and coexistence cases remain build-free module-evaluation assertions
+synthetic provider records only route, `Client-IP` and `User-Agent` for token and
+revoke requests; the VM checks the actual client address and service identity
+through both nginx hops despite hostile browser headers, then confirms both
+revocations omit `Client-IP`. The disabled and coexistence cases remain
+build-free module-evaluation assertions
 required by the VM fixture. The test does not use a real API, account or DNS.
 
 Evaluation alone does not prove nginx syntax, listener isolation or runtime

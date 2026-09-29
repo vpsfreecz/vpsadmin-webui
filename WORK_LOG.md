@@ -27,6 +27,33 @@ complete reconstruction of the project. Missing evidence is not a passing check.
   or raw production responses. This log does not grant deployment authorization
   or enable autonomous scheduled development.
 
+## 2026-09-29 - Send verified OAuth session identity to the provider
+
+**Request / reason:** newly created API sessions need the client's callback
+address and an identifiable WebUI service User-Agent. The public edge and
+private backend already normalize forwarding, but the BFF's outbound code
+exchange previously omitted both identity headers.
+
+**Change:** code exchange now validates Express's callback `req.ip` as one bare
+IPv4 or IPv6 address and sends it as `Client-IP` with the exact service
+`User-Agent: vpsadmin-webui`. Missing or invalid derived addresses consume the
+one-use state and take the sanitized recovery route before provider contact.
+Refresh and both logout revocations use that User-Agent without `Client-IP`.
+Inbound browser identity headers are not copied. A synthetic HTTPS VM provider
+records only route and those two outbound headers to check the actual client
+address through both nginx hops. Existing sessions, credentials, cookies,
+refresh serialization and session storage are unchanged.
+
+**Verification / limits:** the pure security and runtime-configuration test
+files, BFF core static gate, design/active-document and structural audits,
+scoped lint/format, Nix syntax/format and diff checks pass with cached Node
+24.21.0 and nixfmt 1.5.0. This sandbox cannot open loopback listeners
+(`listen EPERM`) or the Nix flake fetcher cache, so the full BFF HTTP/session
+suite, module evaluation and ordinary HTTPS VM remain for normal-environment
+exact-head verification. Fixture results will establish emitted headers and the
+synthetic proxy topology, not production session database metadata. No live
+provider request, site pin, push or deployment was performed.
+
 ## 2026-09-29 - Load BFF credentials from private systemd files
 
 **Request / reason:** the published service passed OAuth and session secrets

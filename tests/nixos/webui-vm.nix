@@ -56,7 +56,12 @@ pkgs.testers.nixosTest {
         networking.extraHosts = "127.0.0.1 ${providerHost} ${publicHost}";
         services.nginx = {
           enable = true;
-          commonHttpConfig = "access_log /var/log/nginx/vm-access.log combined;";
+          commonHttpConfig = ''
+            access_log /var/log/nginx/vm-access.log combined;
+            # The provider fixture records only reviewed OAuth metadata, never
+            # a query, token body, cookie or authorization header.
+            log_format vm_oauth_identity '$uri|$http_client_ip|$http_user_agent';
+          '';
           virtualHosts.${publicHost} = {
             onlySSL = true;
             listen = [
@@ -113,11 +118,13 @@ pkgs.testers.nixosTest {
               return 302 "${publicOrigin}/oauth/callback?code=vm-code-once&state=$arg_state";
             '';
             locations."= /oauth/token".extraConfig = ''
+              access_log /var/log/nginx/vm-oauth-identity.log vm_oauth_identity;
               default_type application/json;
               add_header Cache-Control "no-store" always;
               return 200 '{"access_token":"vm-access-token","refresh_token":"vm-refresh-token","expires_in":3600,"token_type":"Bearer"}';
             '';
             locations."= /oauth/revoke".extraConfig = ''
+              access_log /var/log/nginx/vm-oauth-identity.log vm_oauth_identity;
               default_type application/json;
               return 200 '{}';
             '';
@@ -376,7 +383,10 @@ pkgs.testers.nixosTest {
     provider = assert_status(request(client, value(login[1], "location")), 302)
     callback_url = value(provider[1], "location")
     assert callback_url.startswith(root + "/oauth/callback?code=vm-code-once&state=")
-    callback = assert_status(request(client, callback_url, cookie=pre_cookie.split(";", 1)[0]), 302)
+    callback = assert_status(request(client, callback_url, [
+        "Client-IP: 203.0.113.70", "X-Real-IP: 203.0.113.71",
+        "X-Forwarded-For: 203.0.113.72", "User-Agent: spoofed-browser-agent",
+    ], cookie=pre_cookie.split(";", 1)[0]), 302)
     auth_cookie = value(callback[1], "set-cookie").split(";", 1)[0]
     assert auth_cookie
     authenticated = assert_status(request(client, root + "/session.json", ["Sec-Fetch-Site: same-origin"], auth_cookie), 200)
@@ -432,6 +442,22 @@ pkgs.testers.nixosTest {
         timeout=30,
     )
     assert_status(request(client, root + "/healthz"), 200)
+
+    logout = assert_status(request(client, root + "/oauth/logout", [
+        "Sec-Fetch-Site: same-origin",
+    ], auth_cookie), 302)
+    assert value(logout[1], "set-cookie")
+    assert json.loads(assert_status(request(client, root + "/session.json", [
+        "Sec-Fetch-Site: same-origin",
+    ], auth_cookie), 200)[2])["accessToken"] is None
+    provider_identity = edge.succeed(
+        "cat /var/log/nginx/vm-oauth-identity.log"
+    ).splitlines()
+    assert provider_identity == [
+        "/oauth/token|${nodes.client.networking.primaryIPAddress}|vpsadmin-webui",
+        "/oauth/revoke|-|vpsadmin-webui",
+        "/oauth/revoke|-|vpsadmin-webui",
+    ], "provider OAuth identity metadata mismatch"
 
     assert_status(request(client, "${providerOrigin}/oauth/recovery?check=other-vhost-logged"), 200)
     edge.succeed("grep -F 'other-vhost-logged' /var/log/nginx/vm-access.log >/dev/null")

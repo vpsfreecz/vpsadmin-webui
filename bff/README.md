@@ -19,6 +19,18 @@ The OAuth2 token exchange for this deployment uses the **authorization code** gr
 server-side. The browser reads the **access token** from a non-executable,
 same-origin JSON response; it is never embedded in either config endpoint.
 
+For a new authorization-code login, the BFF sends the validated callback
+`req.ip` as one `Client-IP` header and the exact `User-Agent: vpsadmin-webui`
+to the OAuth token provider. A missing or malformed derived IP consumes the
+one-use state and follows the sanitized recovery route without contacting the
+provider. The BFF never forwards browser `Client-IP`, raw forwarding headers or
+browser User-Agent. Refresh requests and both logout revocations use the same
+service User-Agent but omit `Client-IP`; they do not replace the initial session
+metadata. The trusted edge and private backend normalize the callback address
+before Express derives `req.ip`. The address can be a NAT or proxy peer and is
+descriptive metadata, not an authorization factor. Existing sessions keep their
+recorded metadata. This change does not alter cookies or the file session store.
+
 ## HaveAPI auth header (important)
 
 The deployed environment needs the SPA to use a specific auth header when calling HaveAPI:

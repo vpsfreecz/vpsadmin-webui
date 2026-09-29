@@ -21,6 +21,7 @@ const {
   setOAuthRecoverySecurityHeaders,
 } = require('./oauth-error-page');
 const {
+  buildOAuthProviderHeaders,
   consumeOAuthState,
   createFixedWindowRateLimiter,
   createOAuthState,
@@ -65,17 +66,15 @@ const {
 } = runtime;
 const PASSKEY_DESTINATIONS = passkeyDestinations(OAUTH_AUTHORIZE_URL, OAUTH_REDIRECT_URI);
 
-async function oauthTokenRequest(params) {
+async function oauthTokenRequest(params, clientIp) {
   const body = new URLSearchParams(params);
+  const headers = buildOAuthProviderHeaders(params.grant_type, clientIp);
 
   const { response: res, text } = await fetchLimitedResponseText(
     OAUTH_TOKEN_URL,
     {
       method: 'POST',
-      headers: {
-        'content-type': 'application/x-www-form-urlencoded',
-        accept: 'application/json',
-      },
+      headers,
       body,
     },
     {
@@ -117,10 +116,7 @@ async function oauthRevokeToken(token) {
       OAUTH_REVOKE_URL,
       {
         method: 'POST',
-        headers: {
-          'content-type': 'application/x-www-form-urlencoded',
-          accept: 'application/json',
-        },
+        headers: buildOAuthProviderHeaders('revoke'),
         body,
       },
       {
@@ -286,6 +282,7 @@ function clearPendingOAuthAttempt(req) {
 }
 
 function tokenFailureClass(error) {
+  if (error?.code === 'oauth_client_ip_invalid') return 'client_ip_invalid';
   if (error?.code === 'oauth_token_http_error') return 'provider_http_error';
   if (error?.code === 'ETIMEDOUT') return 'provider_timeout';
   if (error?.message === 'OAuth provider returned no access token') return 'provider_invalid_response';
@@ -366,7 +363,7 @@ app.get('/oauth/callback', async (req, res) => {
       redirect_uri: OAUTH_REDIRECT_URI,
       client_id: OAUTH_CLIENT_ID,
       client_secret: OAUTH_CLIENT_SECRET,
-    });
+    }, req.ip);
 
     // Rotate the session id after authentication to prevent session fixation.
     await regenerateSession(req);

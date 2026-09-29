@@ -11,6 +11,7 @@ const test = require('node:test');
 let origin, server, provider, directory, credentialDirectory, gate;
 let sequence = 0;
 const refreshes = [], revoked = [], used = new Set();
+const providerRequests = [];
 const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const deferred = () => { let resolve; const promise = new Promise((r) => { resolve = r; }); return { promise, resolve }; };
 function holdRefresh(fail = false) {
@@ -42,6 +43,11 @@ test.before(async () => {
   provider = createServer(async (req, res) => {
     const chunks = []; for await (const chunk of req) chunks.push(chunk);
     const params = new URLSearchParams(Buffer.concat(chunks).toString());
+    providerRequests.push({
+      type: req.url === '/revoke' ? 'revoke' : params.get('grant_type'),
+      clientIp: req.headers['client-ip'] ?? null,
+      userAgent: req.headers['user-agent'] ?? null,
+    });
     res.setHeader('content-type', 'application/json');
     if (req.url === '/revoke') { revoked.push(params.get('token')); return res.end('{}'); }
     if (params.get('grant_type') === 'authorization_code') {
@@ -100,6 +106,7 @@ test('overlapping bootstraps exchange once and all read the persisted rotation',
 });
 
 test('logout waits for rotation, revokes the new tokens and cannot be resurrected', async () => {
+  const before = providerRequests.length;
   const cookie = await login(), held = holdRefresh();
   const first = session(cookie); await held.entered.promise;
   const logout = request('/oauth/logout', cookie);
@@ -109,6 +116,14 @@ test('logout waits for rotation, revokes the new tokens and cannot be resurrecte
   assert.ok(revoked.includes(refreshed.accessToken));
   assert.ok(revoked.includes(refreshed.accessToken.replace('renewed-', 'rotated-')));
   assert.equal((await session(cookie)).accessToken, null);
+  assert.deepEqual(providerRequests.slice(before).map(({ type, clientIp, userAgent }) => ({
+    type, clientIp, userAgent,
+  })), [
+    { type: 'authorization_code', clientIp: '127.0.0.1', userAgent: 'vpsadmin-webui' },
+    { type: 'refresh_token', clientIp: null, userAgent: 'vpsadmin-webui' },
+    { type: 'revoke', clientIp: null, userAgent: 'vpsadmin-webui' },
+    { type: 'revoke', clientIp: null, userAgent: 'vpsadmin-webui' },
+  ]);
 });
 
 test('failed refresh is persisted once and queued readers stay anonymous', async () => {
