@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { searchUserObjects } from '../../lib/search/userGlobalSearch';
 import { AppHeader } from './AppHeader';
@@ -113,7 +113,23 @@ function LocationProbe() {
 }
 
 describe('AppHeader', () => {
+  const originalScrollIntoView = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'scrollIntoView');
+  const scrollIntoView = vi.fn();
+
+  afterAll(() => {
+    if (originalScrollIntoView) {
+      Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', originalScrollIntoView);
+    } else {
+      Reflect.deleteProperty(HTMLElement.prototype, 'scrollIntoView');
+    }
+  });
+
   beforeEach(() => {
+    // JSDOM does not implement the browser scrolling API used by active results.
+    scrollIntoView.mockReset();
+    Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+      configurable: true, value: scrollIntoView,
+    });
     vi.mocked(searchUserObjects).mockReset();
   });
 
@@ -215,7 +231,10 @@ describe('AppHeader', () => {
       expect(options[0]).toHaveAttribute('aria-selected', 'true');
     });
 
+    scrollIntoView.mockClear();
     fireEvent.keyDown(input, { key: 'ArrowDown' });
+    expect(scrollIntoView).toHaveBeenCalledWith({ block: 'nearest' });
+    expect(scrollIntoView.mock.contexts[0]).toBe(options[1]);
     expect(input).toHaveFocus();
     expect(input).toHaveAttribute('aria-activedescendant', options[1]?.id);
     expect(options[0]).toHaveAttribute('aria-selected', 'false');

@@ -53,3 +53,12 @@ certification. [Czech DNS result](screenshots/global-search-dns-cs.png) and
 [owned VPS IP result](screenshots/global-search-owned-ip.png) are committed
 screenshots. PR review is next; no merge or deployment performed. External KB captures have not been regenerated; navigation
 labels/routes are unchanged and only search-result content/scrolling changes.
+
+### CI follow-up
+
+The full GitHub unit suite exposed two AppHeader failures: JSDOM does not
+implement `scrollIntoView`, which the active search result now uses. Added a
+suite-local scrolling mock with restoration and asserted that keyboard selection
+scrolls the newly active option. No production guard or test skipping was added.
+The complete unit suite then passed: 1,637 tests in 280 files. Browser behavior
+and earlier browser evidence are unchanged; CI reruns on the updated PR head.
