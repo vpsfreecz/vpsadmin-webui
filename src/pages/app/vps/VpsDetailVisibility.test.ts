@@ -4,7 +4,7 @@ import type { TrackedActionState } from '../../../components/layout/ChromeContex
 import {
   pendingVpsCreateNavigationState,
   resolvePendingVpsCreateActionStateId,
-  shouldDeferVpsDetailQuery,
+  vpsCreationStatus,
 } from './VpsDetailVisibility';
 
 function tracked(overrides: Partial<TrackedActionState> = {}): TrackedActionState {
@@ -46,11 +46,14 @@ describe('VPS post-create detail visibility', () => {
     )).toBeUndefined();
   });
 
-  it('defers only while the accepted create action is unresolved', () => {
-    expect(shouldDeferVpsDetailQuery(41, undefined, false)).toBe(true);
-    expect(shouldDeferVpsDetailQuery(41, { id: 41, finished: false }, false)).toBe(true);
-    expect(shouldDeferVpsDetailQuery(41, { id: 41, finished: true, status: true }, false)).toBe(false);
-    expect(shouldDeferVpsDetailQuery(41, undefined, true)).toBe(false);
-    expect(shouldDeferVpsDetailQuery(undefined, undefined, false)).toBe(false);
+  it('distinguishes accepted work, success, failure and unavailable status', () => {
+    expect(vpsCreationStatus(41, undefined, false)).toBe('pending');
+    expect(vpsCreationStatus(41, { id: 41, finished: false }, false)).toBe('pending');
+    expect(vpsCreationStatus(41, { id: 41, finished: true, status: true }, false)).toBe('complete');
+    expect(vpsCreationStatus(41, { id: 41, finished: true, status: false }, false)).toBe('failed');
+    expect(vpsCreationStatus(41, { id: 41, finished: false, status: false }, false)).toBe('failed');
+    expect(vpsCreationStatus(41, { id: 41, finished: true }, false)).toBe('unknown');
+    expect(vpsCreationStatus(41, undefined, true)).toBe('unknown');
+    expect(vpsCreationStatus(undefined, undefined, false)).toBeUndefined();
   });
 });

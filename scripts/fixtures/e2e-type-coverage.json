@@ -12,6 +12,8 @@
     "e2e/fixtures/vpsadmin-window.ts",
     "e2e/helpers/horizontalOverflow.ts",
     "e2e/specs/app/authenticated_home_smoke.spec.ts",
+    "e2e/specs/app/vps_create_failures.spec.ts",
+    "e2e/specs/app/vps_creation_progress.spec.ts",
     "e2e/specs/public/theme_language_bootstrap.spec.ts"
   ],
   "deferred": [
@@ -1390,13 +1392,6 @@
     {
       "path": "e2e/specs/app/vps_create_admin_flow.spec.ts",
       "sha256": "644de8526cea8d476ad3699f7e6ae28d841f500b64e469da67db390303c85f9e",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/app/vps_create_failures.spec.ts",
-      "sha256": "a01ef40a0e7857d43828b5c89fb825f56768cb80853ab733ba7da7c7ab43fe3e",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."

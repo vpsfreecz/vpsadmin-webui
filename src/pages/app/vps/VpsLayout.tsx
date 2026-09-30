@@ -36,10 +36,8 @@ import { useNetworkStatus } from '../../../lib/useNetworkStatus';
 import { deriveChainLockState } from '../../../lib/lockState';
 import { isRemoteConsoleAvailable, ownerLabel, primarySshIpAddress } from './VpsOverviewModel';
 import { freezeVpsMutationSnapshot, type VpsMutationSnapshot } from './VpsMutationSnapshot';
-import {
-  resolvePendingVpsCreateActionStateId,
-  shouldDeferVpsDetailQuery,
-} from './VpsDetailVisibility';
+import { useVpsCreationProgress } from './useVpsCreationProgress';
+import { VpsCreationProgress } from './VpsCreationProgress';
 import { VpsActionsMenu, VpsTabsNav } from './VpsNavigation';
 import { VpsHeaderRuntime } from './VpsHeaderRuntime';
 import { VpsHeaderActionDialogs, type VpsHeaderConfirm } from './VpsHeaderActionDialogs';
@@ -89,32 +87,17 @@ export function VpsLayout() {
   const fastPollMs = useFastPollIntervalMs();
   const vpsLocallyLocked = vpsRef ? chrome.isLocallyLocked(vpsRef) : false;
 
-  const pendingCreateActionStateId = useMemo(
-    () => resolvePendingVpsCreateActionStateId(location.state, chrome.trackedActionStates, vpsId),
-    [chrome.trackedActionStates, location.state, vpsId],
-  );
-  const pendingCreateStateQ = useQuery({
-    queryKey: ['action_state', 'show', { id: pendingCreateActionStateId ?? -1 }],
-    queryFn: async () => (await fetchActionState(pendingCreateActionStateId!)).data,
-    enabled: pendingCreateActionStateId !== undefined,
-    retry: false,
-    refetchInterval: (query) => (
-      (query.state.data as { finished?: boolean } | undefined)?.finished ? false : fastPollMs
-    ),
-  });
-  const deferVpsDetailQuery = shouldDeferVpsDetailQuery(
-    pendingCreateActionStateId,
-    pendingCreateStateQ.data,
-    pendingCreateStateQ.isError,
-  );
+  const creation = useVpsCreationProgress(vpsId, location.state, chrome.trackedActionStates, fastPollMs);
+  const creationStatus = <VpsCreationProgress id={creation.id} state={creation.query.data}
+    failedToLoad={creation.query.isError} onRetry={() => void creation.query.refetch()} />;
 
   const vpsQ = useQuery({
     queryKey: ['vps', 'show', { id: vpsId }],
     queryFn: async () => (await fetchVps(vpsId, { includes: 'node__location__environment,user,dns_resolver,user_namespace_map,os_template,dataset' })).data,
-    enabled: Number.isFinite(vpsId) && vpsId > 0 && !deferVpsDetailQuery,
+    enabled: Number.isFinite(vpsId) && vpsId > 0,
     refetchInterval: (query) => {
       const data = query.state.data as { is_running?: boolean } | undefined;
-      return pendingCreateActionStateId !== undefined && typeof data?.is_running !== 'boolean'
+      return creation.pending || (creation.id !== undefined && typeof data?.is_running !== 'boolean')
         ? fastPollMs
         : vpsLocallyLocked
           ? tierARefetchMs
@@ -125,7 +108,7 @@ export function VpsLayout() {
   const ipsQ = useQuery({
     queryKey: ['ip_address', 'list', { vpsId, limit: 250 }],
     queryFn: async () => (await fetchIpAddressesForVps(vpsId, { limit: 250 })).data,
-    enabled: Number.isFinite(vpsId) && vpsId > 0 && !deferVpsDetailQuery,
+    enabled: Number.isFinite(vpsId) && vpsId > 0,
     staleTime: 30_000,
     refetchOnWindowFocus: false,
   });
@@ -133,7 +116,7 @@ export function VpsLayout() {
   const chainsQ = useQuery({
     queryKey: ['transaction_chain', 'list', { className: 'Vps', rowId: vpsId, limit: 10 }],
     queryFn: async () => (await fetchTransactionChains({ className: 'Vps', rowId: vpsId, limit: 10 })).data,
-    enabled: Number.isFinite(vpsId) && vpsId > 0 && !deferVpsDetailQuery,
+    enabled: Number.isFinite(vpsId) && vpsId > 0,
     refetchInterval: tierARefetchMs,
   });
 
@@ -319,26 +302,32 @@ export function VpsLayout() {
     void chainsQ.refetch();
   }, [currentPasswdFlow, passwdStateQ.data]);
 
-  if (deferVpsDetailQuery) return <LoadingState testId="vps.detail.creating" />;
-  if (vpsQ.isLoading) return <LoadingState testId="vps.detail.loading" />;
+  if (!vpsQ.data && creation.pending) return (
+    <DetailShell>
+      <h1 className="text-xl font-semibold">{t('common.vps_ref', { id: vpsId })}</h1>
+      {creationStatus}
+      <LinkButton to={vpsListHref}>{t('common.back_to_list')}</LinkButton>
+    </DetailShell>
+  );
+  if (vpsQ.isLoading) return <DetailShell>{creationStatus}<LoadingState testId="vps.detail.loading" /></DetailShell>;
 
   if (vpsQ.isError) {
     return (
-      <ErrorState
+      <DetailShell>{creationStatus}<ErrorState
         testId="vps.detail.error"
         title={t('vps.layout.load_error.title')}
         error={vpsQ.error}
         onRetry={() => void vpsQ.refetch()}
         backTo={vpsListHref}
         detailsExtra={{ page: 'vps.detail', vpsId, scope: scope.scope }}
-      />
+      /></DetailShell>
     );
   }
 
   const vps = vpsQ.data;
   if (!vps) {
     return (
-      <ErrorState
+      <DetailShell>{creationStatus}<ErrorState
         testId="vps.detail.not_found"
         kindOverride="not_found"
         title={t('vps.layout.not_found.title')}
@@ -348,7 +337,7 @@ export function VpsLayout() {
         showStatusLink={false}
         showDetails={false}
         detailsExtra={{ page: 'vps.detail', vpsId, scope: scope.scope }}
-      />
+      /></DetailShell>
     );
   }
 
@@ -395,7 +384,7 @@ export function VpsLayout() {
   const activeChainIds = chainLock.activeChainIds;
   const chainsStale = chainLock.stale;
 
-  const busyLocalLock = vpsRef ? chrome.isLocallyLocked(vpsRef) : false;
+  const busyLocalLock = creation.pending || (vpsRef ? chrome.isLocallyLocked(vpsRef) : false);
   const uncertainLocalLock = vpsRef
     ? chrome.localLocks.find((lock) => lock.kind === vpsRef.kind && lock.id === vpsRef.id && lock.uncertain === true)
     : undefined;
@@ -483,7 +472,7 @@ export function VpsLayout() {
         detailContextSearch: listContextSearch,
       }}
     >
-      <DetailShell>
+      <DetailShell banner={creationStatus}>
         <ObjectHeader
           testId="vps.header"
           horizontalAt="xl"
@@ -505,7 +494,7 @@ export function VpsLayout() {
           }
           badges={
             <>
-              <Badge variant={rt.variant}>{rt.label}</Badge>
+              <Badge variant={creation.pending ? 'warn' : rt.variant}>{creation.pending ? t('common.creating') : rt.label}</Badge>
               <Badge variant={lc.variant}>{lc.label}</Badge>
               {busyTransaction ? (
                 <LockBadge

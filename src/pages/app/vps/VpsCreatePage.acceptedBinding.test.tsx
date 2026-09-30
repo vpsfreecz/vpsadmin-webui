@@ -184,6 +184,7 @@ describe('VpsCreatePage accepted action binding', () => {
       userId: 9,
       marker: expect.objectContaining({ phase: 'accepted', candidateVpsId: 123, actionStateId: 456 }),
     }));
+    expect(testState.openTasks).not.toHaveBeenCalled();
     expect(await screen.findByTestId('created-vps')).toBeInTheDocument();
     expect(router.state.location.state).toEqual({
       pendingVpsCreate: { vpsId: 123, actionStateId: 456 },

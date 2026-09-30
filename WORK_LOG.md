@@ -27,6 +27,12 @@ complete reconstruction of the project. Missing evidence is not a passing check.
   or raw production responses. This log does not grant deployment authorization
   or enable autonomous scheduled development.
 
+## Per-change entries
+
+New work uses a separate file under `docs/work-log/` to avoid shared-log conflicts.
+
+- [2026-09-30 — Immediate VPS detail after accepted creation](docs/work-log/2026-09-30-vps-create-detail.md)
+
 ## 2026-09-29 - Send verified OAuth session identity to the provider
 
 **Request / reason:** newly created API sessions need the client's callback

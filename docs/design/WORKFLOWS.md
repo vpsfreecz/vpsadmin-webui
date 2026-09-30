@@ -38,6 +38,16 @@ cannot overwrite entered resources. Member scope stays owned; admins can explici
 use the appropriate wider view. Header distribution/runtime facts and equal-width
 cards make common diagnostics available without a second screen.
 
+After an accepted create response, open the exact VPS detail immediately while
+provisioning continues. A localized banner distinguishes accepted/pending work,
+confirmed completion, task failure and unavailable status; it links to Tasks
+without opening the Tasks panel over the detail automatically. Fetch the detail
+while work runs and refresh it on completion. If the API cannot yet serialize
+the new VPS, retain its accepted ID and progress instead of showing only a
+spinner. Creation locks still block conflicting mutations, including after reload.
+The administrator's originating member filter stays in the detail URL. Missing
+receipts or transport loss remain uncertain and must not trigger a blind retry.
+
 **Actions:** start, graceful shutdown, immediate poweroff, restart and supported
 power/lifecycle operations must name the target and honor live state/transaction
 locks. Shutdown and poweroff use the same stop request with distinct force values.

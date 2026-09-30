@@ -47,11 +47,14 @@ export function resolvePendingVpsCreateActionStateId(
     .sort((left, right) => Number(right.addedAt) - Number(left.addedAt))[0]?.id;
 }
 
-export function shouldDeferVpsDetailQuery(
+export function vpsCreationStatus(
   actionStateId: number | undefined,
   actionState: ActionState | undefined,
   actionStateLoadFailed: boolean,
-): boolean {
-  if (actionStateId === undefined || actionStateLoadFailed) return false;
-  return actionState?.finished !== true;
+): 'pending' | 'complete' | 'failed' | 'unknown' | undefined {
+  if (actionStateId === undefined) return undefined;
+  if (actionStateLoadFailed) return 'unknown';
+  if (actionState?.status === false) return 'failed';
+  if (!actionState?.finished) return 'pending';
+  return actionState.status === true ? 'complete' : 'unknown';
 }
