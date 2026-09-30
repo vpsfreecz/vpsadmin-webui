@@ -48,7 +48,8 @@ BFF services require migration from environment secrets to systemd credentials
 for the current canonical source; existing values and session stores must be
 preserved. The dev root filesystem is full, so staging and evidence use /data.
 The newadmin release follows the separate configuration repository and confctl.
-Checks and deployment receipts will be appended after actual completion.
+The completed merge/deployment outcome is recorded in the
+[three-site release receipt](docs/work-log/2026-09-30-three-site-release.md).
 
 ## 2026-09-30 - Keep desktop navigation expanded
 
