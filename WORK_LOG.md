@@ -9,6 +9,12 @@ Dates below use Europe/Prague unless an explicit UTC timestamp is given.
 Entries before the start date are selective retrospective summaries, not a
 complete reconstruction of the project. Missing evidence is not a passing check.
 
+## New changes
+
+Record new changes in separate files under [docs/work-log](docs/work-log/README.md)
+to avoid conflicts between concurrent PRs. Keep the historical entries below.
+Follow-ups belong in the corresponding change file, not a shared status block.
+
 ## Reading and maintaining this log
 
 - Read the latest entries before starting work. Add an entry with each meaningful

@@ -31,13 +31,13 @@ import { consumePendingToast, queueScopeAllObjectsWarning } from '../../lib/pend
 import { localLockActionStateIds } from '../../lib/localLocks';
 import { useTaskCompletionToasts } from './useTaskCompletionToasts';
 import { ImpersonationBanner } from './ImpersonationBanner';
-import { ContextualHelpPanel } from './ContextualHelpPanel';
+import { AppMainContent } from './AppMainContent';
 import { AppHeader } from './AppHeader';
 import { AppSidebar, buildSidebarNavItems } from './AppSidebar';
 import { SidebarTips } from './SidebarTips';
 import { FrontendFreshnessGuard } from './FrontendFreshnessGuard';
 import { useLocalMutationLocks } from './useLocalMutationLocks';
-import { MainContent, SkipToMainContentLink } from './MainContentAccessibility';
+import { SkipToMainContentLink } from './MainContentAccessibility';
 
 const LEGACY_TRACKED_ACTION_STORAGE_KEY = 'webui-next.tracked_action_states';
 const LEGACY_PINNED_ACTION_STORAGE_KEY = 'webui-next.pinned_action_states';
@@ -747,12 +747,7 @@ export function AppLayout(props: { children: React.ReactNode }) {
               loginLogoutHref={loginLogoutHref}
             />
 
-            <MainContent className="flex-1 p-4" data-testid="shell.main" data-document-title-region>
-              <div className="space-y-4">
-                <ContextualHelpPanel pathname={location.pathname} scope={mode} />
-                {props.children}
-              </div>
-            </MainContent>
+            <AppMainContent pathname={location.pathname} mode={mode}>{props.children}</AppMainContent>
           </div>
         </div>
       </div>

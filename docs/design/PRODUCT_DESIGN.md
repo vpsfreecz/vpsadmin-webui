@@ -69,7 +69,11 @@ Late defaults must not overwrite drafts. See [workflow catalog](WORKFLOWS.md).
 
 Console entry automatically acquires/reuses a session with bounded requests. An
 error offers recovery instead of repeatedly creating tokens. Explicit session
-replacement/revocation still requires the existing safeguards.
+replacement/revocation still requires the existing safeguards. A console-specific
+compact header replaces the overview cards, runtime strip, tabs and contextual
+help. Terminal plus keyboard fit the available viewport by default; Original size
+remains available for readability. See the [console workflow](WORKFLOWS.md#console-and-vps-deletion)
+for the pinned renderer constraint and verification scope.
 
 ## Registration and account-change review
 

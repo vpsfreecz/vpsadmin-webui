@@ -68,6 +68,15 @@ resources. [Access](../../src/lib/api/vpsAccess.ts),
 revocation remain explicit. Opening a page must not spawn an uncontrolled retry
 loop after a failed token request. Secure console URLs are required.
 
+Console pages use a compact VPS identity and session toolbar, without the full
+VPS overview or help block above the terminal. The default fits the complete
+terminal and keyboard into the available window. Original size restores unscaled
+content when readability matters; it deliberately allows scrolling. The current
+cross-origin renderer has fixed minimum geometry and no resize protocol, so the
+WebUI scales a stable document rather than resizing its terminal or recreating a
+session. The fit is verified against the pinned renderer, not arbitrary future
+router markup. See [viewport evidence and limitations](../work-log/2026-09-30-console-viewport.md).
+
 Deletion separates standard member removal from admin soft/hard options and
 optional custom retention. Review target and mode; show a durable accepted-request
 receipt and Tasks link. An accepted request may still fail later. Hard mode cannot

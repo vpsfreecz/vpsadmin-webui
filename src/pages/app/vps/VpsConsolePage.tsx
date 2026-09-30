@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ExternalLink, Maximize2, Minimize2, PlugZap, RotateCw, Trash2 } from 'lucide-react';
 
+import { VpsConsoleFrame } from './VpsConsoleFrame';
 import { useI18n } from '../../../app/i18n';
 import { createConsoleToken, deleteConsoleToken } from '../../../lib/api/vps';
 import { HaveApiError } from '../../../lib/api/haveapi';
@@ -215,23 +216,20 @@ function MutableVpsConsolePage() {
 
   return (
     <div className="space-y-3" data-testid="vps.console.page">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
           <h2 className="text-base font-semibold">{t('vps.console.title')}</h2>
-          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted">
-            <span>{t('vps.console.subtitle')}</span>
-            {expiresAt ? <span>{t('vps.console.expires_at', { time: expiresAt })}</span> : null}
-          </div>
           <div
-            className="mt-2 inline-flex items-center gap-2 rounded-md border border-border bg-surface px-2.5 py-1 text-xs font-medium text-fg"
+            title={expiresAt ? t('vps.console.expires_at', { time: expiresAt }) : undefined}
+            className="inline-flex items-center gap-2 rounded-md border border-border bg-surface px-2.5 py-1 text-xs font-medium text-fg"
             data-testid="vps.console.connection_state"
           >
             <span className={clsx('h-2.5 w-2.5 rounded-full', CONSOLE_CONNECTION_STATE_VARIANT[connectionState])} aria-hidden="true" />
-            {t(`vps.console.state.${connectionState}` as any)}
+            <span data-testid="vps.console.frame_status">{t(`vps.console.state.${connectionState}` as any)}</span>
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center justify-end gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             variant="secondary"
             size="sm"
@@ -437,77 +435,11 @@ function MutableVpsConsolePage() {
       ) : null}
 
       {hasConsoleUrl ? (
-        <div
-          className={clsx(
-            'overflow-hidden rounded-md border bg-code shadow-card transition-shadow',
-            focused ? 'border-accent shadow-panel' : 'border-border'
-          )}
-          data-testid="vps.console.frame"
-        >
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-black px-3 py-2 text-xs text-white">
-            <div className="flex min-w-0 items-center gap-2">
-              <span className={clsx('h-2.5 w-2.5 shrink-0 rounded-full', CONSOLE_CONNECTION_STATE_VARIANT[connectionState])} aria-hidden="true" />
-              <span className="truncate font-mono">{vps.hostname ?? `vps-${vps.id}`}</span>
-            </div>
-            <div className="text-white/70" data-testid="vps.console.frame_status">
-              {t(`vps.console.state.${connectionState}` as any)}
-            </div>
-          </div>
-          <div className="relative bg-black">
-            {!iframeLoaded && !iframeProblem ? (
-              <div
-                className="absolute inset-0 z-10 flex items-center justify-center bg-black text-sm text-white/75"
-                data-testid="vps.console.iframe_loading"
-              >
-                <div className="flex items-center gap-2">
-                  <Spinner /> {t('vps.console.loading_frame')}
-                </div>
-              </div>
-            ) : null}
-            {iframeProblem ? (
-              <div
-                className="absolute inset-0 z-20 flex items-center justify-center bg-black p-6 text-center text-sm text-white/80"
-                data-testid="vps.console.embed_fallback"
-              >
-                <div className="max-w-md space-y-3">
-                  <div className="text-base font-semibold text-white">{t('vps.console.embed_fallback.title')}</div>
-                  <div>{t('vps.console.embed_fallback.body')}</div>
-                  <div className="flex flex-wrap justify-center gap-2">
-                    <Button variant="secondary" size="sm" onClick={reconnect} testId="vps.console.fallback.reconnect">
-                      {t('vps.console.reconnect.label')}
-                    </Button>
-                    <Button
-                      variant="primary"
-                      size="sm"
-                      as="a"
-                      href={consoleUrl!}
-                      target="_blank"
-                      rel="noreferrer"
-                      testId="vps.console.fallback.open_external"
-                    >
-                      {t('vps.console.open_new_tab')}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ) : null}
-            <iframe
-              key={`${consoleUrl}-${frameNonce}`}
-              title={t('vps.console.iframe_title', { id: vps.id })}
-              src={consoleUrl!}
-              className={clsx('block w-full border-0 bg-black', focused ? 'h-console-focus' : 'h-console')}
-              allow="clipboard-read; clipboard-write"
-              data-testid="vps.console.iframe"
-              onLoad={() => {
-                setIframeLoaded(true);
-                setIframeProblem(false);
-              }}
-            />
-          </div>
-          <div className="border-t border-border bg-black px-3 py-2 text-xs text-white/65">
-            {t('vps.console.session_hint')}
-          </div>
-        </div>
+        <VpsConsoleFrame
+          vpsId={vps.id} consoleUrl={consoleUrl!} focused={focused} frameNonce={frameNonce}
+          iframeLoaded={iframeLoaded} iframeProblem={iframeProblem} reconnect={reconnect}
+          onLoad={() => { setIframeLoaded(true); setIframeProblem(false); }}
+        />
       ) : null}
 
       <ConfirmDialog
