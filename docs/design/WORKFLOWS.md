@@ -115,6 +115,22 @@ usage/packages, environment configuration, finances and account states as allowe
 Effective timezone is explicit. User login/timezone/filesystem-related legacy
 controls must not disappear during layout simplification.
 
+**Personal scope (maintainer decision, 2026-09-30):** Account from the header
+always means the authenticated account, in both member and administrator layouts.
+Admin privileges do not turn these pages into global lists. Sessions and metrics
+pass the current user to the API for administrators; non-administrators use the
+API's enforced owner restriction (metrics rejects an explicit user input for
+those roles). Session exact-ID lookup must match that same owner. Namespace/map
+deep links verify ownership before mounting their detail, entry queries or actions.
+The separate `/admin/users/:id` dossier continues to target its selected user.
+
+**Scope audit:** profile/security, resource usage, SSH keys, MFA/known devices and
+mail preferences already pass the authenticated ID through user-scoped paths or
+panels. Namespace/map lists already fix the current owner. User-data passes the
+admin owner filter; its separate backend filtering/pagination limitation remains
+REQ-042 and is not certified fixed by this change. This is a source/fixture audit,
+not a claim of live API authorization certification.
+
 **Risk contract:** distinguish security-sensitive changes from ordinary preferences;
 confirm disabling MFA/deleting keys/sessions, preserve failures, never log secrets.
 Passkey setup belongs to the authentication origin. Profile edits may create a

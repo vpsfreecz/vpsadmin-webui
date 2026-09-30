@@ -1,11 +1,17 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "types": ["node", "@playwright/test"]
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "types": [
+      "node",
+      "@playwright/test"
+    ]
   },
   "files": [
-    "src/types/vpsadmin.d.ts",
     "e2e/fixtures/bootstrap.ts",
     "e2e/fixtures/haveapi.ts",
     "e2e/fixtures/index.ts",
@@ -16,9 +22,11 @@
     "e2e/fixtures/vpsadmin-window.ts",
     "e2e/helpers/horizontalOverflow.ts",
     "e2e/specs/app/authenticated_home_smoke.spec.ts",
-    "e2e/specs/public/theme_language_bootstrap.spec.ts",
+    "e2e/specs/app/profile_owner_scope.spec.ts",
+    "e2e/specs/app/sidebar_expanded.spec.ts",
     "e2e/specs/app/ui_preferences_persistence.spec.ts",
-    "e2e/specs/app/sidebar_expanded.spec.ts"
+    "e2e/specs/public/theme_language_bootstrap.spec.ts",
+    "src/types/vpsadmin.d.ts"
   ],
   "include": []
 }

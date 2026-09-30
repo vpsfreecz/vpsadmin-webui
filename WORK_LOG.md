@@ -28,27 +28,39 @@ complete reconstruction of the project. Missing evidence is not a passing check.
   or enable autonomous scheduled development.
 
 
-## 2026-09-30 - Remove password reset from public navigation
+## 2026-09-30 - Keep personal account views scoped to their owner
 
-**Request / reason:** the maintainer wants a simpler public entry page; password
-recovery is reached through sign-in rather than a separate index shortcut.
+**Request / reason:** header Account / Sessions showed every user's sessions to
+an administrator, which looked like foreign logins to their own account. The
+maintainer requested checking adjacent account pages as well (REQ-040).
 
-**Change:** remove the recovery link from the shared public desktop header and
-mobile menu. Preserve sign-in destinations, locale controls, the configured
-provider recovery URL and the login-required/expired-session recovery action.
-Record the intent in REQ-054 and the public workflow. This independent change
-uses `dev/public-login-recovery` and does not include the sidebar PR.
+**Findings / change:** Sessions and Metrics omitted the admin owner filter.
+Pass the authenticated ID only for administrators; regular/support users retain
+the API-enforced scope, including the metrics API's ban on explicit user input.
+Keep personal metrics copy distinct from another user's administrative dossier.
+Session ID searches now inherit the existing owner check. Namespace and map
+personal deep links also lacked an owner check: verify it before mounting detail
+queries/actions. Other account tabs use explicit IDs/scoped paths; user-data's
+independent API contract issue remains REQ-042. Dedicated user administration
+remains available and is tested separately.
 
-**Verification / limits:** in the locked Linux Nix shell (Node 24.21.0),
-12 focused PublicLayout/password-recovery unit tests, `ci:quick`, production
-build and six existing public-overview/theme/language browser cases passed.
-Four additional screenshot checks passed for cs/en on desktop/mobile, showing
-sign-in without a reset shortcut. These use synthetic API fixtures, not live
-provider or email delivery tests. Screenshots/logs are retained in the operator
-handoff; the build keeps its existing large-chunk warning. No new wording or
-catalog changes; localization reference is the locked vpsAdmin revision
-`a65a4dfeb92a59df4a80a737a20bcbf8558793ff`, resolved through Nix on Linux.
-Existing unit expectations are updated to require sign-in and reject the old
-shortcut, even when a recovery URL is configured. No recovery email is sent.
-No server/API change, merge or deployment. Public-navigation KB screenshots
-may need regeneration; external KB contracts are not certified here.
+**Contract:** inspected the pinned vpsAdmin API resources at
+`a65a4dfeb92a59df4a80a737a20bcbf8558793ff`. No API change, new role or catalog text.
+**Verification:** pinned Node 24.21.0 / npm 11.19.0 on the Linux scratch
+workspace: `ci:quick` and production build passed (existing large-chunk warning).
+Seven session/metrics model unit tests and 16 E2E coverage-harness tests passed.
+Fourteen new owner-scope browser scenarios passed; after adding the exact header
+Account navigation and improving screenshot scroll position, the eight affected
+cs/en desktop/mobile scenarios passed again. Twelve adjacent-account scenarios
+passed (profile, SSH/session actions, mail, security, MFA and namespace edits).
+The existing metrics browser suite also passed all six desktop/mobile cases.
+Screenshots/logs are retained in the operator handoff and were shown during work.
+A first broad invocation included a desktop-table-only SSH test in the mobile
+project, where its hidden-table expectation failed; its intended desktop run
+passed, and new scope scenarios explicitly handle both rendered layouts.
+The new browser spec is adopted into strict E2E coverage with explicit inventory
+expectations updated; no check was bypassed. Final E2E typecheck passed.
+**Status:** prepared on `dev/account-personal-scope`, not merged or deployed.
+Browser tests use synthetic users; no production session/token was changed.
+
+## 2026-09-29 - Send verified OAuth session identity to the provider

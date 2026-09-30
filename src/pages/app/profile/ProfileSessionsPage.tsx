@@ -30,7 +30,7 @@ export function ProfileSessionsPage() {
           <Spinner />
         </div>
       ) : (
-        <UserSessionsPanel testIdPrefix="profile.sessions" />
+        <UserSessionsPanel userId={auth.role === 'admin' ? userId : undefined} testIdPrefix="profile.sessions" />
       )}
     </DetailShell>
   );
