@@ -12,6 +12,7 @@
     "e2e/fixtures/vpsadmin-window.ts",
     "e2e/helpers/horizontalOverflow.ts",
     "e2e/specs/app/authenticated_home_smoke.spec.ts",
+    "e2e/specs/app/global_search_cold_start.spec.ts",
     "e2e/specs/public/theme_language_bootstrap.spec.ts"
   ],
   "deferred": [

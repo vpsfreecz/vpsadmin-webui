@@ -7,6 +7,7 @@ export const enCommon_palette = {
   'palette.placeholder.admin': 'Search VPS, users, IP addresses…',
   'palette.placeholder.user': 'Search your VPS, IP addresses, DNS…',
   'palette.loading': 'Searching…',
+  'palette.error.ip_incomplete': 'IP search could not be completed. Try again or narrow the address with a prefix.',
   'palette.error_prefix': 'Error',
   'palette.empty.type_to_search': 'Type to search…',
   'palette.empty.no_results': 'No results.',

@@ -191,9 +191,10 @@ describe('searchUserObjects exact VPS ownership', () => {
 
     expect(fetchIpAddresses).toHaveBeenCalledOnce();
     const options = vi.mocked(fetchIpAddresses).mock.calls[0]?.[0];
-    expect(options).toMatchObject({ addr: '203.0.113.20', prefix: 32, user: 42 });
+    expect(options).toMatchObject({ addr: '203.0.113.20', prefix: 32, limit: 100, order: 'asc' });
     expect(options?.includes).toBe('network_interface__vps__user,user');
     expect(options).not.toHaveProperty('q');
+    expect(options).not.toHaveProperty('user');
     expect(results.map((result) => result.key)).toEqual(['ip:20', 'ip:21']);
   });
 
@@ -290,4 +291,22 @@ describe('searchUserObjects exact VPS ownership', () => {
     await searchUserObjects({ ...searchOptions, query: 'unrelated-2.test' });
     expect(fetchDnsZones).toHaveBeenCalledTimes(2);
   });
+});
+
+
+it('does not present an unavailable DNS index as no matches, and retries it', async () => {
+  vi.mocked(fetchVpsList).mockResolvedValue({ data: [] } as unknown as Awaited<ReturnType<typeof fetchVpsList>>);
+  vi.mocked(fetchDnsZones).mockRejectedValueOnce(new Error('DNS unavailable'));
+  const opts = { basePath: '/app', query: 'letsball', expectedUserId: 9876, t };
+  await expect(searchUserObjects(opts)).rejects.toThrow('DNS unavailable');
+  vi.mocked(fetchDnsZones).mockResolvedValue({ data: [{ id: 88, name: 'letsball.test.' }] } as unknown as Awaited<ReturnType<typeof fetchDnsZones>>);
+  expect((await searchUserObjects(opts)).map((row) => row.key)).toEqual(['dns:88']);
+});
+
+it('localizes incomplete IP lookup failures instead of displaying a raw cursor diagnostic', async () => {
+  vi.mocked(fetchIpAddresses).mockResolvedValue({
+    data: Array.from({ length: 100 }, (_, i) => ({ id: i + 1 })),
+  } as unknown as Awaited<ReturnType<typeof fetchIpAddresses>>);
+  await expect(searchUserObjects({ basePath: '/app', query: '192.0.2.1', kinds: ['ips'], expectedUserId: 42, t }))
+    .rejects.toThrow('palette.error.ip_incomplete');
 });

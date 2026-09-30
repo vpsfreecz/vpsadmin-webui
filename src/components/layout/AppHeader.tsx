@@ -82,7 +82,7 @@ function inlineResultsFromClusterSearch(basePath: string, t: AppHeaderProps['t']
     });
   }
 
-  return out.slice(0, 8);
+  return out;
 }
 
 export function AppHeader(props: AppHeaderProps) {
@@ -166,9 +166,10 @@ export function AppHeader(props: AppHeaderProps) {
         if (canUseClusterSearch) {
           const res = await clusterSearch({ query: q, signal: ac.signal });
           const results = inlineResultsFromClusterSearch(basePath, t, res.data);
-          const enrichedResults = await enrichUserSearchResults(results, t, ac.signal);
+          // Keep secondary user lookups bounded even when the API returns many hits.
+          const enrichedResults = await enrichUserSearchResults(results.slice(0, 8), t, ac.signal);
           if (!alive || ac.signal.aborted) return;
-          setSearchResults(enrichedResults);
+          setSearchResults([...enrichedResults, ...results.slice(8)]);
           return;
         }
 
@@ -177,6 +178,7 @@ export function AppHeader(props: AppHeaderProps) {
           query: q,
           t,
           scopeUserId: scope.mineUserId,
+          isAdmin: auth.role === 'admin',
           expectedUserId: typeof auth.user?.id === 'number' ? auth.user.id : undefined,
           limitPerGroup: 4,
           signal: ac.signal,
@@ -201,7 +203,7 @@ export function AppHeader(props: AppHeaderProps) {
       alive = false;
       ac.abort();
     };
-  }, [auth.user?.id, basePath, canUseClusterSearch, debouncedSearch, mode, scope.mineUserId, t]);
+  }, [auth.role, auth.user?.id, basePath, canUseClusterSearch, debouncedSearch, mode, scope.mineUserId, t]);
 
   useEffect(() => {
     setSelectedSearchResult(0);
@@ -230,6 +232,12 @@ export function AppHeader(props: AppHeaderProps) {
     inlineSearchExpanded && searchResults[selectedSearchResult]
       ? inlineSearchOptionId(selectedSearchResult)
       : undefined;
+
+  useEffect(() => {
+    if (inlineSearchActiveOptionId) {
+      document.getElementById(inlineSearchActiveOptionId)?.scrollIntoView({ block: 'nearest' });
+    }
+  }, [inlineSearchActiveOptionId]);
 
   const openInlineResult = (result: InlineSearchResult) => {
     navigate(result.href);
@@ -336,7 +344,7 @@ export function AppHeader(props: AppHeaderProps) {
                   id={INLINE_SEARCH_LISTBOX_ID}
                   role="listbox"
                   aria-label={t('search.inline.aria')}
-                  className="py-1"
+                  className="max-h-96 overflow-y-auto py-1"
                 >
                   {searchResults.map((result, index) => {
                     const showGroup = !canUseClusterSearch && result.group && (

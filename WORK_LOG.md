@@ -27,6 +27,11 @@ complete reconstruction of the project. Missing evidence is not a passing check.
   or raw production responses. This log does not grant deployment authorization
   or enable autonomous scheduled development.
 
+## 2026-09-30 - Global search
+
+See the [per-change search log](docs/work-log/2026-09-30-global-search.md)
+for the request, contract diagnosis, checks and deployment status.
+
 ## 2026-09-29 - Send verified OAuth session identity to the provider
 
 **Request / reason:** newly created API sessions need the client's callback
