@@ -119,18 +119,16 @@ describe('PublicLayout', () => {
     expect(uiSettingsState.setLanguage).toHaveBeenCalledWith('cs');
   });
 
-  it('offers localized password recovery to anonymous visitors', () => {
+  it('keeps sign-in as the public entry point without a password recovery shortcut', () => {
     renderAt('/');
 
-    expect(screen.getByTestId('public.password-recovery.desktop')).toHaveAttribute(
-      'href',
-      '/oauth2/password-reset?client_id=webui.test&ui_locales=cs',
+    expect(screen.queryByRole('link', { name: 'auth.action.reset_password' })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'public.primary.log_in' })).toHaveAttribute(
+      'href', `${window.location.origin}/oauth/login?next=%2Fapp`,
     );
     fireEvent.click(screen.getByRole('button', { name: 'public.menu.open' }));
-    expect(screen.getByTestId('public.password-recovery.mobile')).toHaveAttribute(
-      'href',
-      '/oauth2/password-reset?client_id=webui.test&ui_locales=cs',
-    );
+    expect(screen.queryByRole('link', { name: 'auth.action.reset_password' })).not.toBeInTheDocument();
+    expect(screen.getAllByRole('link', { name: 'public.primary.log_in' })).toHaveLength(2);
   });
 
   it('hides password recovery from authenticated visitors', () => {
