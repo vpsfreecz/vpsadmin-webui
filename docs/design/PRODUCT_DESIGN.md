@@ -26,8 +26,11 @@ The normal sidebar remains 256px wide with full localized destination names and
 section headings. The maintainer clarified on 2026-09-27 that this menu already
 has labels and should not be narrowed. PR522 now only distinguishes destination
 icons and preserves accessible names; its proposed 176px compact labeled mode
-and abbreviated labels were withdrawn. Existing optional collapse behavior and
-saved preferences remain unchanged.
+and abbreviated labels were withdrawn. On 2026-09-30 the maintainer also
+removed the optional icon-only mode: desktop navigation always shows its labels
+and has no collapse/expand control. Legacy local/server collapse preferences
+normalize to false while other preferences remain intact. Mobile navigation
+still opens as a labelled drawer and closes after selecting a destination.
 
 ## Visual language
 

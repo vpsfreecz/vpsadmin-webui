@@ -24,6 +24,7 @@ export interface UiTipSettings {
  * that obsolete field for backwards compatibility when reading persisted settings.
  */
 export interface UiSettings {
+  /** Retained for persisted-settings compatibility; icon-only navigation is retired. */
   sidebarCollapsed: boolean;
   theme: UiThemePreference;
   language: UiLanguagePreference;
@@ -60,10 +61,6 @@ export function normalizeUiSettings(input: unknown): UiSettings {
   // Backward compatibility: ignore any obsolete stored mode field.
   // - legacy values: classic/novice
 
-  const sidebarCollapsedRaw = input['sidebarCollapsed'];
-  const sidebarCollapsed =
-    typeof sidebarCollapsedRaw === 'boolean' ? sidebarCollapsedRaw : DEFAULT_SETTINGS.sidebarCollapsed;
-
   const themeRaw = input['theme'];
   const theme: UiThemePreference = themeRaw === 'light' || themeRaw === 'dark' ? themeRaw : 'system';
 
@@ -79,7 +76,8 @@ export function normalizeUiSettings(input: unknown): UiSettings {
       : DEFAULT_SETTINGS.tips.sidebarTimeZone;
 
   return {
-    sidebarCollapsed,
+    // Ignore old local/server collapse preferences without resetting other settings.
+    sidebarCollapsed: false,
     theme,
     language,
     tips: {

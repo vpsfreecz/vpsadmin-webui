@@ -7,6 +7,7 @@
   "adopted": [
     "src/app/bootstrapFailure.ts",
     "src/app/runtimeMode.ts",
+    "src/app/uiSettingsModel.ts",
     "src/components/ui/Checkbox.tsx",
     "src/components/ui/ConfirmDialog.tsx",
     "src/components/ui/Input.tsx",
@@ -27,7 +28,6 @@
     "src/app/theme.tsx": "c4bf58a909809bf5bfaff0e549c353746ab6d3787a95dc87a4c7cf809219ea67",
     "src/app/toasts.tsx": "9382c06edcb31cb37732b84f9189e17cbeda1cbf493301bdaadc2720aac8c17e",
     "src/app/uiSettings.tsx": "e30889ef6bdf99253d54d9576acd25a634fcac80d4cf602bde405d18bf3fd83f",
-    "src/app/uiSettingsModel.ts": "edcc0ce3f749d3a7a8df7b7e4461e7c59eba474e5231c2a230a07822c8d43393",
     "src/components/ui/ActionButton.tsx": "7719036b1a27feea808a4244e4390837a75bd68c69f0940fad9b3f7eba6e7b64",
     "src/components/ui/Alert.tsx": "d2849d6d5d2b8b9a8d89e49c814782f84b4be3e708f740d5a13a69743eff479e",
     "src/components/ui/Badge.tsx": "a82edd7c1ab8809992ae0a407b857c3a4980c882d9d9c3c3cc5a6cc6b4c0788f",

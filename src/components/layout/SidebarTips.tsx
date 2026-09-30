@@ -52,7 +52,7 @@ function isDismissed(value: unknown): boolean {
   return value === true || value === 'true' || value === 'dismissed' || value === 'server_default' || value === 'used_browser';
 }
 
-export function SidebarTips(props: { collapsed: boolean }) {
+export function SidebarTips() {
   const auth = useAuth();
   const i18n = useI18n();
   const toasts = useToasts();
@@ -63,7 +63,6 @@ export function SidebarTips(props: { collapsed: boolean }) {
   const userTimeZone = auth.user?.['time_zone'];
   const userHasTimeZone = typeof userTimeZone === 'string' && userTimeZone.trim() !== '';
   const canSuggestTimeZone =
-    !props.collapsed &&
     auth.status === 'authenticated' &&
     !userHasTimeZone &&
     Boolean(browserZone && serverZone && !areEquivalentTimeZones(browserZone, serverZone));

@@ -29,7 +29,7 @@ function encodeSettings(settings: Record<string, unknown>): string {
   return JSON.stringify(settings);
 }
 
-test('authenticated UI preferences load from and save to webui_user_settings', async ({ page }) => {
+test('@pr-smoke @pr-smoke-mobile authenticated UI preferences load from and save to webui_user_settings', async ({ page }) => {
   await bootstrapVpsAdminWindow(page, {
     sessionToken: 'TEST_USER_SESSION',
     webuiNext: serverUiSettingsConfig(),
@@ -40,7 +40,7 @@ test('authenticated UI preferences load from and save to webui_user_settings', a
     namespace: SETTINGS_NAMESPACE,
     key: SETTINGS_KEY,
     value: encodeSettings({
-      sidebarCollapsed: false,
+      sidebarCollapsed: true,
       theme: 'dark',
       language: 'system',
       tips: {
@@ -74,24 +74,24 @@ test('authenticated UI preferences load from and save to webui_user_settings', a
 
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   const desktopSidebar = (page.viewportSize()?.width ?? 1280) >= 768;
-  if (desktopSidebar) await expect(page.getByRole('button', { name: /collapse sidebar|sbalit panel/i })).toBeVisible();
+  if (desktopSidebar) await expect(page.getByTestId('nav.sidebar.vps')).toHaveText('VPS');
+  await expect(page.getByRole('button', { name: /collapse sidebar|expand sidebar|sbalit panel|rozbalit panel/i })).toHaveCount(0);
 
   await page.getByTestId('shell.user-menu-button').click();
   await page.getByTestId('shell.user-menu.theme.light').click();
-  if (desktopSidebar) await page.getByRole('button', { name: /collapse sidebar|sbalit panel/i }).click();
 
   await expect.poll(() => writes.length).toBeGreaterThanOrEqual(1);
 
   const savedPayload = JSON.parse(storedSetting.value);
   expect(savedPayload.theme).toBe('light');
-  expect(savedPayload.sidebarCollapsed).toBe(desktopSidebar);
+  expect(savedPayload.sidebarCollapsed).toBe(false);
   expect(storedSetting.namespace).toBe(SETTINGS_NAMESPACE);
   expect(storedSetting.key).toBe(SETTINGS_KEY);
 
   await page.reload();
 
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
-  if (desktopSidebar) await expect(page.getByRole('button', { name: /expand sidebar|rozbalit panel/i })).toBeVisible();
+  if (desktopSidebar) await expect(page.getByTestId('nav.sidebar.vps')).toHaveText('VPS');
 });
 
 test('public pages do not call webui_user_settings', async ({ page }) => {

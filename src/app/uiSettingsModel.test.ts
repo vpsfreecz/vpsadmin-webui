@@ -19,7 +19,7 @@ describe('uiSettingsModel', () => {
   it('normalizes partial objects', () => {
     expect(normalizeUiSettings({ sidebarCollapsed: true })).toEqual({
       ...DEFAULT_SETTINGS,
-      sidebarCollapsed: true,
+      sidebarCollapsed: false,
     });
 
     expect(normalizeUiSettings({ theme: 'dark' })).toEqual({
@@ -68,7 +68,7 @@ describe('uiSettingsModel', () => {
     });
     expect(parseUiSettingsJson(json)).toEqual({
       ...DEFAULT_SETTINGS,
-      sidebarCollapsed: true,
+      sidebarCollapsed: false,
       theme: 'dark',
       language: 'cs',
       tips: {
