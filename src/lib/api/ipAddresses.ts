@@ -45,6 +45,7 @@ export async function fetchIpAddresses(opts?: {
   version?: number;
   role?: string;
   purpose?: string;
+  usableFor?: 'vps' | 'export';
   addr?: string;
   prefix?: number;
   vps?: number;
@@ -65,6 +66,7 @@ export async function fetchIpAddresses(opts?: {
   if (opts?.version !== undefined) params['version'] = opts.version;
   if (opts?.role) params['role'] = opts.role;
   if (opts?.purpose) params['purpose'] = opts.purpose;
+  if (opts?.usableFor) params['usable_for'] = opts.usableFor;
   if (opts?.addr) params['addr'] = opts.addr;
   if (opts?.prefix !== undefined) params['prefix'] = opts.prefix;
   if (opts?.vps !== undefined) params['vps'] = opts.vps;

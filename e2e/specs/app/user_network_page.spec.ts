@@ -211,7 +211,7 @@ test('@pr-smoke @pr-smoke-mobile user network page lists only own addresses and 
   await expect(page.getByTestId('network.user.tab.addresses')).toHaveAttribute('aria-selected', 'true');
   await expect(visibleAddressItem(page, 101)).toBeVisible();
   await expect(visibleAddressItem(page, 102)).toBeVisible();
-  const screenshot = process.env.E2E_NETWORK_USER_SCREENSHOT?.trim();
+  const screenshot = process.env['E2E_NETWORK_USER_SCREENSHOT']?.trim();
   if (screenshot) await page.screenshot({ path: screenshot, fullPage: true });
   await expect(page.getByTestId('network.user.traffic')).toHaveCount(0);
   expect(accountingRequests).toHaveLength(0);
@@ -613,7 +613,7 @@ test('@pr-smoke @pr-smoke-mobile user network tabs expose complete keyboard, his
   await expect(trafficTab).toBeFocused();
 });
 
-test('user network assignment offers only VPS compatible with the selected detached IP location', async ({ page }) => {
+test('user network assignment validates detached addresses using API location membership', async ({ page }) => {
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
 
   const pragueVps = {
@@ -653,9 +653,10 @@ test('user network assignment offers only VPS compatible with the selected detac
   await installHaveApiMock(page, {
     user: { id: 7, login: 'member', level: 1 },
     handlers: {
-      'GET vpses': () => ({ vpses: [pragueVps, brnoVps] }),
+      'GET vpses': () => ({ vpses: [pragueVps, brnoVps, { ...pragueVps, id: 125, hostname: 'staging.example', node: { id: 5, location: { id: 30 } } }] }),
       'GET ip_address_assignments': () => ({ ip_address_assignments: [] }),
       'GET ip_addresses': (ctx) => {
+        if (ctx.searchParams.get('ip_address[location]') === '10') return { ip_addresses: [] };
         if (ctx.searchParams.get('ip_address[assigned_to_interface]') === 'false') {
           return { ip_addresses: [brnoDetachedIp] };
         }
@@ -671,8 +672,18 @@ test('user network assignment offers only VPS compatible with the selected detac
   await visibleAddressItem(page, 301).getByTestId('network.user.ip.301.assign').click();
 
   const vpsSelect = page.getByTestId('network.user.assign.vps');
-  await expect(vpsSelect.locator('option')).toContainText(['Select VPS…', 'brno-vps.example (#124)']);
-  await expect.poll(async () => (await vpsSelect.locator('option').allTextContents()).join('\n')).not.toContain('praha-vps.example');
+  await expect(vpsSelect).toContainText('praha-vps.example');
+  await expect(vpsSelect).toContainText('brno-vps.example');
+  await expect(vpsSelect).toContainText('staging.example');
+  await vpsSelect.selectOption('123');
+  await page.getByTestId('network.user.assign.continue').click();
+  await expect(page.getByTestId('network.user.assign.address')).toBeDisabled();
+  await expect(page.getByTestId('network.user.assign.submit')).toBeDisabled();
+  await page.getByTestId('network.user.assign.back').click();
+  await vpsSelect.selectOption('125');
+  await page.getByTestId('network.user.assign.continue').click();
+  await expect(page.getByTestId('network.user.assign.address')).toContainText('2001:db8:20::10');
+  await expect(page.getByTestId('network.user.assign.submit')).toBeEnabled();
 });
 
 test('admin user view fetches assignments through own user scope instead of the global cluster list', async ({ page }) => {

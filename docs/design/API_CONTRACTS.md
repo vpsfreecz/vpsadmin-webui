@@ -83,6 +83,24 @@ tied timestamps; filtered/owner-specific lists; foreign-owner denial; malformed
 cursor and API errors; previous/next/back/reload; empty/final page; no duplication
 or omission. Local fixture success is not enough to prove the server's ordering.
 
+## VPS address availability
+
+`GET /ip_addresses` accepts `usable_for=vps`, which includes networks with
+purpose `vps` **and** `any`; `purpose=vps` is an exact filter. The compatible-use
+contract was added upstream in `632786cba39c03394ccf00db54639b0e835773cd`
+and is present in the dev API revision
+`486350466e8fb6f966add1cde3fa2bc12b4d6b62`.
+
+The `location` filter uses LocationNetwork membership, including secondary
+locations. Non-admin requests also honor `userpick` and address visibility.
+`network.primary_location` is descriptive metadata, not the list of allowed
+locations. Do not apply a second primary-location/environment filter in the UI.
+An export-only network is not compatible with VPS allocation.
+
+This is separate from backend PR #44 and frontend IP-history cursor work.
+The assignment fix changes no backend behavior. API validation remains the final
+authority for ownership, quota, concurrent reservations and successful assignment.
+
 ## Dev deletion configuration limitation
 
 Investigation recorded a missing default lifetime for VPS soft deletion in the dev

@@ -15,7 +15,6 @@ import {
   assignIpAddressRoute,
   assignIpAddressRouteWithHostAddress,
   fetchIpAddress,
-  fetchIpAddresses,
   type IpAddress,
 } from '../../../lib/api/ipAddresses';
 import { fetchNetworkInterfaces } from '../../../lib/api/networkInterfaces';
@@ -30,14 +29,8 @@ import { isLocalLockPersistenceError } from '../../../lib/localLocks';
 import { objectRef } from '../../../lib/objectRef';
 import {
   assignableIpKind,
-  assignableIpKindQuery,
-  canAssignIpToVps,
-  ipLocationId,
   ipAddressLabel,
-  isAssignedIp,
-  matchesAssignableIpKind,
   type AssignableIpKind,
-  uniqueIpAddresses,
   vpsLabel,
   vpsLocationId,
 } from './IpAddressAssignmentModel';
@@ -49,6 +42,7 @@ import {
   type IpRouteAssignmentMode,
 } from './IpRouteAssignmentModel';
 import { useIpRouteViaAddresses } from './useIpRouteViaAddresses';
+import { fetchAssignableIpAddresses } from './fetchAssignableIpAddresses';
 
 export function AssignIpAddressModal(props: {
   open: boolean;
@@ -94,11 +88,9 @@ export function AssignIpAddressModal(props: {
     staleTime: 30_000,
   });
 
-  const vpsOptions = useMemo(() => {
-    const listed = props.availableVpses ?? vpsesQ.data ?? [];
-    if (!props.initialIp) return listed;
-    return listed.filter((vps) => canAssignIpToVps(props.initialIp, vps));
-  }, [props.availableVpses, props.initialIp, vpsesQ.data]);
+  // A network's primary location is not its complete availability list.
+  // Validate the selected target through the location-scoped address API.
+  const vpsOptions = props.availableVpses ?? vpsesQ.data ?? [];
   const selectedVps = useMemo(
     () => props.fixedVps ?? vpsOptions.find((vps) => String(vps.id) === vpsId),
     [props.fixedVps, vpsId, vpsOptions]
@@ -112,44 +104,21 @@ export function AssignIpAddressModal(props: {
     staleTime: 10_000,
   });
 
-  const kindQuery = assignableIpKindQuery(kind);
+  const extraIps = useMemo(
+    () => [...(props.initialIp ? [props.initialIp] : []), ...(props.ownedDetachedIps ?? [])],
+    [props.initialIp, props.ownedDetachedIps]
+  );
   const availableQ = useQuery({
     queryKey: [
       'ip_address',
       'available-for-assignment',
-      { locationId, kind, version: kindQuery.version, role: kindQuery.role ?? null },
+      { locationId, kind, extraIds: extraIps.map((ip) => ip.id) },
     ],
-    queryFn: async () => (
-      await fetchIpAddresses({
-        limit: 50,
-        location: locationId!,
-        version: kindQuery.version,
-        role: kindQuery.role,
-        purpose: 'vps',
-        assignedToInterface: false,
-        order: 'interface',
-        includes: 'network__primary_location__environment,network_interface,user,vps',
-      })
-    ).data,
+    queryFn: ({ signal }) => fetchAssignableIpAddresses(locationId!, kind, extraIps, signal),
     enabled: props.open && step === 2 && !!selectedVps && !!locationId,
     staleTime: 5_000,
   });
-
-  const availableIps = useMemo(() => {
-    const ownedDetached = props.ownedDetachedIps ?? [];
-    const rows = props.initialIp
-      ? uniqueIpAddresses([props.initialIp, ...ownedDetached, ...(availableQ.data ?? [])])
-      : uniqueIpAddresses([...ownedDetached, ...(availableQ.data ?? [])]);
-    return rows.filter((ip) => {
-      if (isAssignedIp(ip) || !matchesAssignableIpKind(ip, kind)) return false;
-
-      const ipLocation = ipLocationId(ip);
-      // Free-address API results are already location-scoped. For user-owned
-      // detached addresses brought in from the network overview, keep only
-      // addresses whose location matches the selected VPS when we know it.
-      return !locationId || !ipLocation || ipLocation === locationId;
-    });
-  }, [availableQ.data, kind, locationId, props.initialIp, props.ownedDetachedIps]);
+  const availableIps = availableQ.isError ? [] : availableQ.data ?? [];
 
   const selectedIp = availableIps.find((ip) => String(ip.id) === ipId);
   const selectedInterface = (interfacesQ.data ?? []).find((item) => String(item.id) === interfaceId);
@@ -258,7 +227,7 @@ export function AssignIpAddressModal(props: {
   const gateReason = props.gate && !props.gate.allowed ? props.gate.reason : undefined;
   const canContinue = !!selectedVps && !!selectedInterface && !!locationId && gateAllowed
     && !selectedVpsLocked && !(props.initialIp && selectedIpLocked);
-  const canSubmit = canContinue && !!selectedIp && !selectedIpLocked
+  const canSubmit = canContinue && !availableQ.isFetching && !availableQ.isError && !!selectedIp && !selectedIpLocked
     && (assignmentMode !== 'route_via' || isEligibleRouteVia(routeViaId, routeViaQ.data));
   const error = vpsesQ.error ?? interfacesQ.error ?? availableQ.error ?? routeViaQ.error ?? assignM.error;
   const errorMessage = error && !selectedIpUncertainLock

@@ -16,7 +16,9 @@
     "e2e/specs/app/profile_owner_scope.spec.ts",
     "e2e/specs/app/sidebar_expanded.spec.ts",
     "e2e/specs/app/ui_preferences_persistence.spec.ts",
+    "e2e/specs/app/user_network_page.spec.ts",
     "e2e/specs/app/vps_console_viewport.spec.ts",
+    "e2e/specs/app/vps_private_ip_availability.spec.ts",
     "e2e/specs/public/theme_language_bootstrap.spec.ts"
   ],
   "deferred": [
@@ -1346,13 +1348,6 @@
     {
       "path": "e2e/specs/app/user_namespace_filter_contract.spec.ts",
       "sha256": "eb23a233a0b8dede6e1b5286d31ff1fbe1fc680cef9c8331d28bbe1dad80eac6",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/app/user_network_page.spec.ts",
-      "sha256": "9ab5e20afafa6bca1ba069f82fd388115751e7d601fcc8703a091e5982e3b5b6",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
