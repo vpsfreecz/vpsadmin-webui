@@ -231,20 +231,6 @@
       }
     },
     {
-      "path": "src/pages/app/admin/RequestDetailPage.tsx",
-      "rule": "crossed-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "a5e6e61419709135c80839ee8857caf3dfc87128e296bef56f0a47eba7019704",
-      "old": 367,
-      "allowance": 529,
-      "rationale": "At the recorded source revision, this file already contained admin request detail and decision controls; extract the coherent section with focused behavior coverage before removing this exception.",
-      "owner": "WebUI implementation lead",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 500
-      }
-    },
-    {
       "path": "src/pages/app/admin/cluster/LocationsPage.tsx",
       "rule": "crossed-1000",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",

@@ -27,6 +27,12 @@ complete reconstruction of the project. Missing evidence is not a passing check.
   or raw production responses. This log does not grant deployment authorization
   or enable autonomous scheduled development.
 
+## 2026-09-30 — Profile-change review layout
+
+See the [per-change work log](docs/work-log/2026-09-30-change-review-layout.md)
+for the full-width comparison, embedded metadata, decision placement and checks.
+Prepared for review; not merged or deployed.
+
 ## 2026-09-29 - Send verified OAuth session identity to the provider
 
 **Request / reason:** newly created API sessions need the client's callback

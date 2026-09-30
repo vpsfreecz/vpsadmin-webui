@@ -128,6 +128,12 @@ where the API state permits. A queue can start from the selected item; moving to
 the next item is controlled by the compact preference. Resolved registrations can
 be reconsidered through supported transitions, not an arbitrary status picker.
 
+Registration and profile-change review use the same vertical arrangement: a
+full-width details card with initially open technical metadata, followed by a
+full-width decision card. The change card compares current and requested values;
+registration risk checks remain inside applicant details. The compact queue
+preference stays above the action buttons.
+
 **Failure contract:** preserve the current decision draft, stale/missing owner
 errors, and uncertain-operation guard. Already-created accounts/terminal states
 must not be duplicated. Test persisted backend state and notification/action-state
