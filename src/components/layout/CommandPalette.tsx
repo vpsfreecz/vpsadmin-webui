@@ -372,6 +372,7 @@ export function CommandPalette(props: { open: boolean; onClose: () => void }) {
             query: searchValue,
             t,
             scopeUserId: scope.mineUserId,
+            isAdmin: auth.role === 'admin',
             expectedUserId: typeof auth.user?.id === 'number' ? auth.user.id : undefined,
             kinds,
             limitPerGroup: 5,
@@ -397,7 +398,7 @@ export function CommandPalette(props: { open: boolean; onClose: () => void }) {
       alive = false;
       ac.abort();
     };
-  }, [auth.user?.id, basePath, canUseClusterSearch, debouncedQuery, helpOpen, normalizedQuery, props.open, scope.mineUserId, t]);
+  }, [auth.role, auth.user?.id, basePath, canUseClusterSearch, debouncedQuery, helpOpen, normalizedQuery, props.open, scope.mineUserId, t]);
 
   const visibleResults = results;
 

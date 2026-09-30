@@ -236,3 +236,33 @@ exclude real people, tokens and recovery material. Record receipts and avoid
 repeating completed mutations. Production KB publication and transition strategy
 remain separate approval/ownership decisions. [KB repository](https://github.com/vpsfreecz/vpsfree-kb-contracts),
 [verification gates](VERIFICATION.md).
+
+## Global search
+
+The header and command palette search independently of visited list pages
+(REQ-070). Administrator mode calls `cluster/search`; My view uses scoped VPS
+and DNS queries and exact IPv4/IPv6 address queries. A normal member relies on
+API authorization; an administrator's My view additionally checks the current
+owner. Switching to administrator mode is explicit, never an automatic fallback
+when a personal search has no match.
+
+The IP `user` filter means direct address ownership, not ownership of the VPS
+assigned to that address. Exact-address searches omit it and verify both returned
+ownership paths; unknown and foreign owners are excluded. Admin ID-ascending
+pages are traversed before presentation limits. Member owner-first ordering does
+not support that same cursor guarantee: a full 100-row exact-address page reports
+an incomplete lookup rather than pretending it exhausted the results. A prefix
+can narrow the query. Partial IP substring/containing-network search in My view
+is not provided by the exact `addr` API contract.
+
+My-view DNS searches scan all supported descending-ID pages and cache the
+complete scoped catalog for 30 seconds. Failed scans are not cached. Healthy
+matching categories remain usable when another category fails; if there are no
+matches and a relevant category failed, show an error, not “No results”. This
+is not a claim that partial successful results are exhaustive. Administrative
+header results retain all navigable deduplicated hits returned by the server in
+a bounded scrolling list, with keyboard selection scrolled into view.
+
+Source inspection and synthetic browser regressions cover these contracts.
+They do not establish the cause of a specific production user's intermittent
+result without that user's mode/request trace, nor certify a live API release.

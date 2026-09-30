@@ -1,5 +1,6 @@
 import { fetchDnsZones, type DnsZone } from '../api/dns';
-import { fetchIpAddresses, type IpAddress } from '../api/ipAddresses';
+import type { IpAddress } from '../api/ipAddresses';
+import { IncompleteIpSearchError, searchOwnedIpAddresses } from './searchOwnedIpAddresses';
 import { fetchVps, fetchVpsList, type Vps } from '../api/vps';
 
 const DNS_ZONE_SCAN_LIMIT = 100;
@@ -45,6 +46,8 @@ interface SearchUserObjectsOptions {
   t: UserGlobalSearchT;
   /** Explicit API filter used by an administrator in My view. */
   scopeUserId?: number;
+  /** Only the API administrator role has globally ID-ordered IP pages. */
+  isAdmin?: boolean;
   /** Used to reject an exact-ID VPS result that clearly belongs to somebody else. */
   expectedUserId?: number;
   kinds?: UserGlobalSearchGroup[];
@@ -239,28 +242,6 @@ function associatedVps(ip: IpAddress): { id: number; hostname?: string } | null 
   return { id, hostname: hostname || undefined };
 }
 
-function relatedVpses(ip: IpAddress): unknown[] {
-  const networkInterface = ip.network_interface;
-  const nested = networkInterface && typeof networkInterface === 'object'
-    ? (networkInterface as { vps?: unknown }).vps
-    : undefined;
-
-  return [ip.vps, nested].filter((candidate) => positiveId(candidate) !== null);
-}
-
-function ipAddressBelongsToUser(ip: IpAddress, expectedUserId?: number): boolean {
-  const userId = positiveId(expectedUserId);
-  if (userId === null) return false;
-
-  if (positiveId(ip.user) === userId) return true;
-
-  return relatedVpses(ip).some((vps) => (
-    vps !== null
-    && typeof vps === 'object'
-    && positiveId((vps as { user?: unknown }).user) === userId
-  ));
-}
-
 function hasKind(kinds: ReadonlySet<UserGlobalSearchGroup>, kind: UserGlobalSearchGroup): boolean {
   return kinds.has(kind);
 }
@@ -394,16 +375,17 @@ export async function searchUserObjects(opts: SearchUserObjectsOptions): Promise
         .then((res) => exactVpsBelongsToExpectedUser(res.data, opts.expectedUserId) ? [res.data] : [])
     : Promise.resolve([] as Vps[]);
   const ipPromise = ipFilter
-    ? fetchIpAddresses({
-        limit,
-        addr: ipFilter.addr,
-        prefix: ipFilter.prefix,
-        user: opts.scopeUserId,
-        includes: 'network_interface__vps__user,user',
+    ? searchOwnedIpAddresses({
+        ...ipFilter,
+        isAdmin: opts.isAdmin,
+        scopeUserId: opts.scopeUserId,
+        expectedUserId: opts.expectedUserId,
         signal: opts.signal,
-      }).then((res) => {
-        const expectedUserId = positiveId(opts.expectedUserId) ?? positiveId(opts.scopeUserId) ?? undefined;
-        return res.data.filter((ip) => ipAddressBelongsToUser(ip, expectedUserId));
+      }).catch((error: unknown) => {
+        if (error instanceof IncompleteIpSearchError) {
+          throw new Error(opts.t('palette.error.ip_incomplete'));
+        }
+        throw error;
       })
     : Promise.resolve([] as IpAddress[]);
   const dnsPromise = hasKind(kinds, 'dns_zones')
@@ -445,7 +427,7 @@ export async function searchUserObjects(opts: SearchUserObjectsOptions): Promise
   const ipAddresses = ipResult.status === 'fulfilled' ? ipResult.value : [];
   const dnsZones = dnsResult.status === 'fulfilled' ? dnsResult.value : [];
 
-  return buildUserGlobalSearchResults({
+  const results = buildUserGlobalSearchResults({
     basePath: opts.basePath,
     query,
     vpses: [...exactVps, ...vpsList],
@@ -455,4 +437,13 @@ export async function searchUserObjects(opts: SearchUserObjectsOptions): Promise
     kinds: Array.from(kinds),
     limitPerGroup: limit,
   });
+  // An empty healthy category does not establish that a failed category had
+  // no matches. In particular, do not hide a failed DNS/IP lookup behind an
+  // empty hostname response. Successful matches can still be used.
+  if (results.length === 0 && requestedSearchStatuses.some((status) => !status)) {
+    const failure = [vpsListResult, ipResult, dnsResult]
+      .find((result): result is PromiseRejectedResult => result.status === 'rejected');
+    throw failure?.reason ?? new Error('User search failed');
+  }
+  return results;
 }

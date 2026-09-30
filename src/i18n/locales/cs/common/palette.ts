@@ -7,6 +7,7 @@ export const csCommon_palette = {
   'palette.placeholder.admin': 'Hledej VPS, uživatele, IP adresy…',
   'palette.placeholder.user': 'Hledej své VPS, IP adresy, DNS…',
   'palette.loading': 'Vyhledávám…',
+  'palette.error.ip_incomplete': 'Vyhledávání IP adres se nepodařilo dokončit. Zkus to znovu nebo upřesni adresu prefixem.',
   'palette.error_prefix': 'Chyba',
   'palette.empty.type_to_search': 'Začněte psát…',
   'palette.empty.no_results': 'Žádné výsledky.',
