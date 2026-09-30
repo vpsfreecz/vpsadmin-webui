@@ -34,6 +34,23 @@ Follow-ups belong in the corresponding change file, not a shared status block.
   or enable autonomous scheduled development.
 
 
+## 2026-09-30 - Integrate approved PRs 1 through 8 for three sites
+
+The maintainer explicitly authorized merging all eight WebUI PRs and deploying
+one release to newadmin.vpsfree.cz, clankerdev.vpsfree.cz and dev.crucio.cz.
+The integration retains the original commits and authors. Conflict resolution
+unions every adopted E2E source, updates exact coverage counts, retains all work
+logs, and combines the compact console shell with the creation-progress banner.
+Resolved structural exceptions remain removed. Formatting uses the existing
+pinned Prettier version. The original checkout's pending instructions are untouched.
+
+Preflight found newadmin at 534caa83 and both older sites at 156a7c04. The older
+BFF services require migration from environment secrets to systemd credentials
+for the current canonical source; existing values and session stores must be
+preserved. The dev root filesystem is full, so staging and evidence use /data.
+The newadmin release follows the separate configuration repository and confctl.
+Checks and deployment receipts will be appended after actual completion.
+
 ## 2026-09-30 — Profile-change review layout
 
 See the [per-change work log](docs/work-log/2026-09-30-change-review-layout.md)
