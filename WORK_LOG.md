@@ -58,6 +58,13 @@ were read from Git objects at the exact locked vpsAdmin revision
 `a65a4dfeb92a59df4a80a737a20bcbf8558793ff`, also resolved by Nix on Linux.
 No translations were added. KB screenshots containing the old collapse button
 may need regeneration; this change does not certify external KB contracts.
+**CI follow-up:** two coverage-harness expectations still assumed the original
+11 checked/228 deferred files. Update those explicit expectations to the actual
+13 checked/227 deferred files. The full compiler-closure and Gitless checks,
+and all negative coverage fixtures, remain required. No source is waived.
+All 222 script tests passed with the pinned Node runtime after installing
+the missing BFF dependencies in the isolated scratch build directory.
+
 Not merged or deployed.
 
 ## 2026-09-29 - Send verified OAuth session identity to the provider
