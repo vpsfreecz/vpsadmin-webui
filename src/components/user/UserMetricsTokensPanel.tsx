@@ -37,6 +37,8 @@ import {
 export function UserMetricsTokensPanel(props: {
   /** Admin-only: list tokens for specific user. */
   userId?: number;
+  /** Personal account view, even when the viewer has administrator privileges. */
+  personal?: boolean;
   /** Test id prefix, e.g. "profile.metrics" or "admin.user.metrics" */
   testIdPrefix: string;
 }) {
@@ -107,7 +109,7 @@ export function UserMetricsTokensPanel(props: {
         <CardBody>
           <div className="space-y-4">
             <Alert variant="warn" title={t('profile.metrics.security.title')} testId={`${prefix}.security_notice`}>
-              {t(props.userId ? 'profile.metrics.security.body_admin' : 'profile.metrics.security.body_profile')}
+              {t(props.userId && !props.personal ? 'profile.metrics.security.body_admin' : 'profile.metrics.security.body_profile')}
             </Alert>
 
             <UserSecurityMetricGrid

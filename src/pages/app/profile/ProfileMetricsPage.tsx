@@ -30,7 +30,7 @@ export function ProfileMetricsPage() {
           <Spinner />
         </div>
       ) : (
-        <UserMetricsTokensPanel testIdPrefix="profile.metrics" />
+        <UserMetricsTokensPanel userId={auth.role === 'admin' ? userId : undefined} personal testIdPrefix="profile.metrics" />
       )}
     </DetailShell>
   );
