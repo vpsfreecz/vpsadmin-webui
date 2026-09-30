@@ -104,6 +104,25 @@ history must not lose entries due to a false cursor assumption.
 [DNS](../../src/lib/api/dns.ts), [transfers](../../src/lib/api/dnsTransfers.ts),
 [interfaces](../../src/lib/api/networkInterfaces.ts), [IP history](../../src/lib/api/ipAddresses.ts).
 
+### Private IPv4 assignment, including staging
+
+From VPS detail → Network → Add IP address, select the interface and address
+family, then choose a route. The candidate request uses the VPS node's location,
+`assigned_to_interface=false`, and `usable_for=vps`: general-purpose (`any`)
+networks are valid for VPS use too. The API's LocationNetwork associations are
+authoritative; a network's primary location/environment cannot exclude a target
+that is available through another association. The same rule applies when
+starting from a detached address in the member networking overview.
+
+Cached/preselected addresses outside the first candidate page are queried again
+with location, network, address, prefix, compatible purpose and assignment filters.
+They are not injected into the selector merely because they were previously
+visible. Errors stay visible and disable submission; a failed availability request
+is not evidence that the pool is empty. The API still checks ownership, quota,
+locks and assignability when executing the existing assignment action. Candidate
+availability is not a reservation or a guarantee of quota. The selector continues
+to offer a bounded first page, not a claim to enumerate the entire pool.
+
 ## Account profile and user administration
 
 **Intent:** members manage profile, mail/security preferences, keys, sessions, MFA,

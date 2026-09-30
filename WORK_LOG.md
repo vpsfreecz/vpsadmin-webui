@@ -1005,6 +1005,10 @@ An intermittent list-pagination issue from earlier nightly evidence is not claim
 fixed. Cursor PRs #496/#507/#509 and rejected backend PR #44 were excluded from
 this release. Scheduled autonomous development remains paused.
 
+## 2026-09-30 — Private IPv4 assignment availability
+
+See the [per-change investigation and verification record](docs/work-log/2026-09-30-private-ip-assignment.md).
+
 ## Entry template
 
 Copy this structure for the next meaningful update; remove unused fields.

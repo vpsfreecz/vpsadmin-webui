@@ -80,6 +80,15 @@ describe('network address API wrappers', () => {
     expect(parsed.searchParams.get('_meta[includes]')).toBe('network,network_interface,vps,user');
   });
 
+  test('fetchIpAddresses supports compatible purpose without imposing exact purpose', async () => {
+    globalThis.fetch = mockFetchOk({ ip_addresses: [] }) as typeof fetch;
+    await fetchIpAddresses({ location: 11, usableFor: 'vps', role: 'private_access' });
+    const parsed = new URL(lastFetchCall()[0]);
+    expect(parsed.searchParams.get('ip_address[usable_for]')).toBe('vps');
+    expect(parsed.searchParams.has('ip_address[purpose]')).toBe(false);
+    expect(parsed.searchParams.get('ip_address[location]')).toBe('11');
+  });
+
   test('fetchIpAddresses forwards network and assignment filters', async () => {
     globalThis.fetch = mockFetchOk({ ip_addresses: [] }) as typeof fetch;
 
