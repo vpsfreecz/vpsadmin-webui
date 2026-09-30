@@ -20,8 +20,6 @@ import {
   Mail,
   MemoryStick,
   Network,
-  PanelLeftClose,
-  PanelLeftOpen,
   Server,
   Shield,
   ShieldAlert,
@@ -30,9 +28,10 @@ import {
   Users,
 } from 'lucide-react';
 
-import { Button } from '../ui/Button';
 import { Drawer } from '../ui/Drawer';
 import { clsx } from '../ui/clsx';
+import { useI18n } from '../../app/i18n';
+import { SidebarTips } from './SidebarTips';
 import type { UserRole } from '../../lib/roles';
 
 export interface NavItem {
@@ -196,11 +195,10 @@ function isExactNavItem(item: NavItem): boolean {
 function NavigationLink(props: {
   item: NavItem;
   surface: 'drawer' | 'sidebar';
-  collapsed?: boolean;
   compact?: boolean;
   onClick?: () => void;
 }) {
-  const { item, surface, collapsed = false, compact = false, onClick } = props;
+  const { item, surface, compact = false, onClick } = props;
   const isActive = Boolean(useMatch({
     path: item.activePathPrefix ?? item.to,
     end: isExactNavItem(item),
@@ -219,11 +217,10 @@ function NavigationLink(props: {
         )
       }
       aria-label={item.label}
-      title={collapsed ? item.label : undefined}
       onClick={onClick}
     >
       <span className="shrink-0" aria-hidden="true">{item.icon}</span>
-      {collapsed ? null : <span className="min-w-0 truncate">{item.label}</span>}
+      <span className="min-w-0 truncate">{item.label}</span>
     </Link>
   );
 }
@@ -231,12 +228,11 @@ function NavigationLink(props: {
 function NavigationSections(props: {
   sections: SidebarNavSection[];
   surface: 'drawer' | 'sidebar';
-  collapsed?: boolean;
   compact?: boolean;
   t: (key: any) => string;
   onNavigate?: () => void;
 }) {
-  const { sections, surface, collapsed = false, compact = false, t, onNavigate } = props;
+  const { sections, surface, compact = false, t, onNavigate } = props;
 
   return (
     <>
@@ -247,19 +243,11 @@ function NavigationSections(props: {
         return (
           <section
             key={section.id}
-            aria-label={collapsed && label ? label : undefined}
-            aria-labelledby={!collapsed ? headingId : undefined}
-            className={clsx(index > 0 && (collapsed ? 'pt-2' : 'pt-1'))}
+            aria-labelledby={headingId}
+            className={clsx(index > 0 && 'pt-1')}
             data-testid={section.id === 'ungrouped' ? undefined : `nav.${surface}.group.${section.id}`}
           >
-            {label && collapsed && index > 0 ? (
-              <div
-                className="mx-3 mb-2 border-t border-border"
-                role="separator"
-                aria-label={label}
-                title={label}
-              />
-            ) : label && !collapsed ? (
+            {label ? (
               <div
                 id={headingId}
                 className="px-3 pb-1 pt-1 text-xs font-semibold uppercase tracking-wide text-muted"
@@ -274,7 +262,6 @@ function NavigationSections(props: {
                   key={item.to}
                   item={item}
                   surface={surface}
-                  collapsed={collapsed}
                   compact={compact}
                   onClick={onNavigate}
                 />
@@ -287,15 +274,7 @@ function NavigationSections(props: {
   );
 }
 
-export function AppLogo(props: { subtitle: string; collapsed?: boolean }) {
-  if (props.collapsed) {
-    return (
-      <div className="grid h-8 w-8 place-items-center rounded-md bg-accent text-sm font-semibold text-accent-fg">
-        VA
-      </div>
-    );
-  }
-
+export function AppLogo(props: { subtitle: string }) {
   return (
     <div className="flex items-center gap-2">
       <div className="grid h-8 w-8 place-items-center rounded-md bg-accent text-sm font-semibold text-accent-fg">VA</div>
@@ -311,16 +290,13 @@ export function AppSidebar(props: {
   mobileNavOpen: boolean;
   onCloseMobileNav: () => void;
   navItems: NavItem[];
-  sidebarCollapsed: boolean;
-  onToggleSidebar: () => void;
-  t: (key: any) => string;
-  sidebarTips?: React.ReactNode;
 }) {
-  const { mobileNavOpen, onCloseMobileNav, navItems, sidebarCollapsed, onToggleSidebar, t, sidebarTips } = props;
+  const { mobileNavOpen, onCloseMobileNav, navItems } = props;
+  const { t } = useI18n();
   const primaryNavItems = primarySidebarNavItems(navItems);
   const navSections = sidebarNavSections(primaryNavItems);
   const footerNavItems = sidebarFooterNavItems(primaryNavItems);
-  const compactDesktopNav = !sidebarCollapsed && primaryNavItems.length > 18;
+  const compactDesktopNav = primaryNavItems.length > 18;
 
   return (
     <>
@@ -360,14 +336,11 @@ export function AppSidebar(props: {
 
       <aside
         data-testid="shell.sidebar"
-        className={clsx(
-          'sticky top-0 hidden h-screen shrink-0 border-r border-border bg-surface md:block',
-          sidebarCollapsed ? 'w-16' : 'w-64'
-        )}
+        className="sticky top-0 hidden h-screen w-64 shrink-0 border-r border-border bg-surface md:block"
       >
         <div className="flex h-full min-h-0 flex-col">
           <div className="shrink-0 p-4">
-            <AppLogo subtitle={t('app.logo.subtitle')} collapsed={sidebarCollapsed} />
+            <AppLogo subtitle={t('app.logo.subtitle')} />
           </div>
 
           <nav
@@ -377,13 +350,14 @@ export function AppSidebar(props: {
             <NavigationSections
               sections={navSections}
               surface="sidebar"
-              collapsed={sidebarCollapsed}
               compact={compactDesktopNav}
               t={t}
             />
           </nav>
 
-          {sidebarTips ? <div className="shrink-0">{sidebarTips}</div> : null}
+          <div className="shrink-0">
+            <SidebarTips />
+          </div>
 
           {footerNavItems.length > 0 ? (
             <div className="shrink-0 border-t border-border px-2 py-2">
@@ -392,31 +366,10 @@ export function AppSidebar(props: {
                   key={item.to}
                   item={item}
                   surface="sidebar"
-                  collapsed={sidebarCollapsed}
                 />
               ))}
             </div>
           ) : null}
-
-          <div className="shrink-0 border-t border-border p-2">
-            <Button
-              variant="ghost"
-              onClick={onToggleSidebar}
-              className="w-full justify-start"
-            >
-              {sidebarCollapsed ? (
-                <>
-                  <PanelLeftOpen size={18} />
-                  <span className="sr-only">{t('settings.sidebar.expand')}</span>
-                </>
-              ) : (
-                <>
-                  <PanelLeftClose size={18} />
-                  <span className="ml-2">{t('settings.sidebar.collapse')}</span>
-                </>
-              )}
-            </Button>
-          </div>
         </div>
       </aside>
     </>

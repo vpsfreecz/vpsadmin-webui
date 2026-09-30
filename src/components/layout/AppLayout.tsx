@@ -34,7 +34,6 @@ import { ImpersonationBanner } from './ImpersonationBanner';
 import { ContextualHelpPanel } from './ContextualHelpPanel';
 import { AppHeader } from './AppHeader';
 import { AppSidebar, buildSidebarNavItems } from './AppSidebar';
-import { SidebarTips } from './SidebarTips';
 import { FrontendFreshnessGuard } from './FrontendFreshnessGuard';
 import { useLocalMutationLocks } from './useLocalMutationLocks';
 import { MainContent, SkipToMainContentLink } from './MainContentAccessibility';
@@ -639,10 +638,6 @@ export function AppLayout(props: { children: React.ReactNode }) {
           mobileNavOpen={mobileNavOpen}
           onCloseMobileNav={() => setMobileNavOpen(false)}
           navItems={navItems}
-          sidebarCollapsed={ui.settings.sidebarCollapsed}
-          onToggleSidebar={() => ui.setSidebarCollapsed(!ui.settings.sidebarCollapsed)}
-          t={i18n.t}
-          sidebarTips={<SidebarTips collapsed={ui.settings.sidebarCollapsed} />}
         />
 
         <Drawer

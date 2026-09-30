@@ -27,6 +27,46 @@ complete reconstruction of the project. Missing evidence is not a passing check.
   or raw production responses. This log does not grant deployment authorization
   or enable autonomous scheduled development.
 
+## 2026-09-30 - Keep desktop navigation expanded
+
+**Request / reason:** the maintainer finds icon-only navigation unusable and
+requested removing its toggle. New work uses `dev/always-expanded-sidebar`;
+the maintainer permits previews on dev.crucio.cz or clankerdev.vpsfree.cz,
+without authorizing a merge or deployment to newadmin.vpsfree.cz.
+
+**Change:** remove desktop collapse controls and icon-only rendering. Keep the
+256px labelled menu, role-dependent groups and the mobile drawer. Ignore old
+local/server collapse preferences while preserving theme, language, dashboard
+and tips settings. Update REQ-004/REQ-005 and adopt changed settings/browser
+files into existing quality checks rather than updating deferred hashes.
+
+**Verification / status:** the locked Linux Nix shell (Node 24.21.0,
+npm 11.19.0) passed `ci:quick`, 19 focused settings/sidebar unit tests and
+16 Chromium desktop/mobile fixture scenarios. Browser cases cover cs/en,
+user/admin labels, the 256px width, old local and server collapse values,
+reload, drawer navigation, preference reset errors and theme persistence
+through expiry/fresh login. These are synthetic fixtures, not live API tests.
+Screenshots are captured by the sidebar spec. The settings model and both
+changed/new browser specs are now included in the existing lint/type gates.
+Moving sidebar-specific translation/tips wiring into AppSidebar reduces
+AppLayout to its historical budget and removes its exception; no budget was
+increased. The production BFF-mode build passed (existing large-chunk warnings).
+
+The local host cannot resolve Nix; checks ran in a separate build directory
+on the Linux dev host, not in the deployed application. Localization references
+were read from Git objects at the exact locked vpsAdmin revision
+`a65a4dfeb92a59df4a80a737a20bcbf8558793ff`, also resolved by Nix on Linux.
+No translations were added. KB screenshots containing the old collapse button
+may need regeneration; this change does not certify external KB contracts.
+**CI follow-up:** two coverage-harness expectations still assumed the original
+11 checked/228 deferred files. Update those explicit expectations to the actual
+13 checked/227 deferred files. The full compiler-closure and Gitless checks,
+and all negative coverage fixtures, remain required. No source is waived.
+All 222 script tests passed with the pinned Node runtime after installing
+the missing BFF dependencies in the isolated scratch build directory.
+
+Not merged or deployed.
+
 ## 2026-09-29 - Send verified OAuth session identity to the provider
 
 **Request / reason:** newly created API sessions need the client's callback
