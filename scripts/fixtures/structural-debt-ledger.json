@@ -483,20 +483,6 @@
       }
     },
     {
-      "path": "src/pages/app/vps/VpsConsolePage.tsx",
-      "rule": "grown-over-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "de4e72364957b9b1bc580791f7a7745401da8e1a5dd188c4e09ea8a8db8880ad",
-      "old": 551,
-      "allowance": 578,
-      "rationale": "At the recorded source revision, this file already contained console connection and failure states; extract the coherent section with focused behavior coverage before removing this exception.",
-      "owner": "WebUI collection and page refactor implementer",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 551
-      }
-    },
-    {
       "path": "src/pages/app/vps/VpsCreatePage.tsx",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",

@@ -16,6 +16,7 @@ export function DetailShell(props: {
   variant?: PageContainerVariant;
   testId?: string;
   className?: string;
+  compact?: boolean;
   header?: React.ReactNode;
   tabs?: React.ReactNode;
   banner?: React.ReactNode;
@@ -23,7 +24,7 @@ export function DetailShell(props: {
 }) {
   return (
     <PageContainer variant={props.variant} testId={props.testId}>
-      <div className={clsx('space-y-6', props.className)}>
+      <div className={clsx(props.compact ? 'space-y-2' : 'space-y-6', props.className)}>
         {props.banner}
         {props.header}
         {props.tabs}

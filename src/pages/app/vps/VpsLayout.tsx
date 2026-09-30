@@ -483,7 +483,18 @@ export function VpsLayout() {
         detailContextSearch: listContextSearch,
       }}
     >
-      <DetailShell>
+      <DetailShell compact={/\/console\/?$/.test(location.pathname)}>
+        {/\/console\/?$/.test(location.pathname) ? (
+          <div className="flex flex-wrap items-center justify-between gap-2" data-testid="vps.console.header">
+            <div className="min-w-0 text-sm font-semibold [overflow-wrap:anywhere]">
+              {vps.hostname} <span className="font-normal text-muted">#{vps.id}</span>
+              {' '}<Badge variant={rt.variant}>{rt.label}</Badge>
+            </div>
+            <LinkButton to={`${basePath}/vps/${vps.id}${listContextSearch}`} variant="secondary" size="sm">
+              {t('vps.tabs.overview')}
+            </LinkButton>
+          </div>
+        ) : (
         <ObjectHeader
           testId="vps.header"
           horizontalAt="xl"
@@ -678,6 +689,8 @@ export function VpsLayout() {
             </div>
           }
         />
+
+        )}
 
         {chainsStale ? (
           <LockStateStaleAlert

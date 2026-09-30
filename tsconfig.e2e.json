@@ -25,6 +25,7 @@
     "e2e/specs/app/profile_owner_scope.spec.ts",
     "e2e/specs/app/sidebar_expanded.spec.ts",
     "e2e/specs/app/ui_preferences_persistence.spec.ts",
+    "e2e/specs/app/vps_console_viewport.spec.ts",
     "e2e/specs/public/theme_language_bootstrap.spec.ts",
     "src/types/vpsadmin.d.ts"
   ],
