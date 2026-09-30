@@ -16,7 +16,10 @@ layouts, aliases and imported finance/advisory gates.
 registration without exposing private information. Public overview combines
 cluster/node status with outages/news/advisories; external heatmaps are optional.
 OAuth login/callback/logout preserve a safe return destination and display errors.
-Password recovery uses the configured provider flow. Token-scoped registration
+The public desktop header and mobile menu offer sign-in without a separate
+password-reset shortcut (maintainer decision, 2026-09-30). Password recovery
+remains available through sign-in and the login-required/expired-session screen
+using the configured provider flow. Token-scoped registration
 correction exposes only the request allowed by that token.
 
 **Failure contract:** public API failure is not “all healthy”; unavailable heatmaps
