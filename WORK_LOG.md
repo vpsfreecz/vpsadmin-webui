@@ -34,10 +34,8 @@ Follow-ups belong in the corresponding change file, not a shared status block.
   or enable autonomous scheduled development.
 
 
-## Per-change entries
+## 2026-09-30 — Profile-change review layout
 
-New work uses a separate file under `docs/work-log/` to avoid shared-log conflicts.
-
-- [2026-09-30 — Immediate VPS detail after accepted creation](docs/work-log/2026-09-30-vps-create-detail.md)
-
-## 2026-09-29 - Send verified OAuth session identity to the provider
+See the [per-change work log](docs/work-log/2026-09-30-change-review-layout.md)
+for the full-width comparison, embedded metadata, decision placement and checks.
+Prepared for review; not merged or deployed.

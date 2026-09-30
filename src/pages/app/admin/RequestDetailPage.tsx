@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ChevronRight } from 'lucide-react';
 
 import { useAppMode } from '../../../app/appMode';
 import { useAuth } from '../../../app/auth';
@@ -13,7 +12,6 @@ import {
   type RegistrationRequest,
 } from '../../../lib/api/requests';
 import { fetchUser, type User } from '../../../lib/api/users';
-import { formatDateTime } from '../../../lib/format';
 import {
   fraudRiskBadge,
   requestStateBadgeVariant,
@@ -38,10 +36,9 @@ import {
   safeRequestsReturnTo,
 } from './RequestDetailModel';
 import { RequestFraudChecks } from './RequestFraudChecks';
+import { DetailField, RequestTechnicalMetadata } from './RequestTechnicalMetadata';
 import {
-  RequestOperationalLinks,
   RequestReviewActions,
-  requestOperationalLinks,
 } from './RequestReviewActions';
 import { fetchAwaitingReviewTarget, RequestReviewPreconditionError } from './RequestResolveMutation';
 import { requestLinkedUserId, requestMissingRequiredUser, safePositiveInteger } from './RequestReviewModel';
@@ -51,31 +48,6 @@ class RequestTypeMismatchError extends Error {
     super(message);
     this.name = 'RequestTypeMismatchError';
   }
-}
-
-function userLabel(value: unknown): string {
-  if (!value) return '—';
-  if (typeof value === 'object') {
-    const user = value as Record<string, unknown>;
-    if (typeof user['login'] === 'string' && user['login']) return user['login'];
-    if (typeof user['label'] === 'string' && user['label']) return user['label'];
-    if (typeof user['id'] === 'number' || typeof user['id'] === 'string') return `#${user['id']}`;
-  }
-  return String(value);
-}
-
-function stringValue(value: unknown): string {
-  if (value == null || value === '') return '—';
-  return String(value);
-}
-
-function DetailField(props: { label: React.ReactNode; value: unknown; wide?: boolean; testId?: string }) {
-  return (
-    <div className={props.wide ? 'md:col-span-2' : undefined} data-testid={props.testId}>
-      <dt className="text-xs text-muted">{props.label}</dt>
-      <dd className="mt-0.5 whitespace-pre-wrap break-words text-sm">{stringValue(props.value)}</dd>
-    </div>
-  );
 }
 
 function RegistrationDetails(props: { request: RegistrationRequest }) {
@@ -279,7 +251,6 @@ export function RequestDetailPage() {
   const request = requestQ.data as RegistrationRequest | ChangeRequest | undefined;
   const requestUserId = requestLinkedUserId(request);
   const changeUserId = reqType === 'change' ? requestUserId : null;
-  const historicalUserId = safePositiveInteger(String(request?.raw_user_id ?? ''));
   const currentUserQ = useQuery({
     queryKey: ['users', 'show', changeUserId, 'request-comparison'],
     enabled: Boolean(isAdmin && reqType === 'change' && request && changeUserId),
@@ -294,8 +265,6 @@ export function RequestDetailPage() {
     if (!request || reqType !== 'registration') return null;
     return fraudRiskBadge(request as RegistrationRequest);
   }, [reqType, request]);
-  const { actionStateId, transactionChainId, transactionId } = requestOperationalLinks(request);
-  const hasOperationalLinks = Boolean(actionStateId || transactionChainId || transactionId);
 
   if (!reqType || !reqId) {
     return (
@@ -364,61 +333,6 @@ export function RequestDetailPage() {
     );
   }
 
-  const metadata = (
-    <div data-testid="admin.requests.detail.metadata">
-      <details key={`${reqType}:${reqId}`} className="group" open>
-        <summary
-          className={`flex cursor-pointer list-none items-center gap-2 font-semibold ${reqType === 'registration' ? 'py-2' : 'p-4'}`}
-          data-testid="admin.requests.detail.metadata.toggle"
-        >
-          <ChevronRight
-            className="h-4 w-4 shrink-0 transition-transform group-open:rotate-90"
-            aria-hidden
-            data-testid="admin.requests.detail.metadata.chevron"
-          />
-          <span>
-            {t('requests.detail.metadata.title')}
-            <span className="ml-2 text-sm font-normal text-muted">{t('requests.detail.metadata.subtitle')}</span>
-          </span>
-        </summary>
-        <div className={reqType === 'registration' ? 'pt-2' : 'border-t border-border p-4'}>
-          <dl className={reqType === 'registration' ? 'grid min-w-0 grid-cols-1 gap-x-4 gap-y-3 break-words sm:grid-cols-2 lg:grid-cols-3' : 'grid grid-cols-1 gap-4 md:grid-cols-2'}>
-            <div>
-              <dt className="text-xs text-muted">{t('common.user')}</dt>
-              <dd className="mt-0.5 text-sm" data-testid="admin.requests.detail.metadata.user">
-                {requestUserId ? (
-                  <Link className="text-accent hover:underline" to={`${basePath}/users/${requestUserId}`}>
-                    {userLabel(request.user)}
-                  </Link>
-                ) : historicalUserId
-                  ? `${t('requests.resolve.owner_missing.label')} #${historicalUserId}`
-                  : userLabel(request.user)}
-              </dd>
-            </div>
-            <DetailField label={t('requests.detail.admin')} value={userLabel(request.admin)} />
-            <DetailField label={t('common.created')} value={formatDateTime(request.created_at)} />
-            <DetailField label={t('common.updated')} value={formatDateTime(request.updated_at)} />
-            <div>
-              <dt className="text-xs text-muted">{t('requests.detail.api_ip')}</dt>
-              <dd className="mt-0.5 text-sm">{stringValue(request.api_ip_addr)}</dd>
-              {request.api_ip_ptr ? <dd className="text-xs text-muted">{request.api_ip_ptr}</dd> : null}
-            </div>
-            <div>
-              <dt className="text-xs text-muted">{t('requests.detail.client_ip')}</dt>
-              <dd className="mt-0.5 text-sm">{stringValue(request.client_ip_addr)}</dd>
-              {request.client_ip_ptr ? <dd className="text-xs text-muted">{request.client_ip_ptr}</dd> : null}
-            </div>
-          </dl>
-          {hasOperationalLinks ? (
-            <div className="mt-4 border-t border-border pt-4">
-              <div className="mb-2 text-xs text-muted">{t('requests.detail.card.operations')}</div>
-              <RequestOperationalLinks request={request} basePath={basePath} compact testIdPrefix="admin.requests.detail" />
-            </div>
-          ) : null}
-        </div>
-      </details>
-    </div>
-  );
 
   return (
     <ListShell>
@@ -442,8 +356,8 @@ export function RequestDetailPage() {
         )}
       />
 
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
-        <section className={reqType === 'registration' ? 'min-w-0 lg:col-span-3' : 'min-w-0 lg:col-span-2 lg:col-start-1 lg:row-start-1'}>
+      <div className="grid grid-cols-1 gap-3">
+        <section className="min-w-0">
           <Card testId="admin.requests.detail.applicant">
             <CardHeader
               title={reqType === 'registration' ? t('requests.detail.registration.title') : t('requests.detail.change.title')}
@@ -453,25 +367,28 @@ export function RequestDetailPage() {
               {reqType === 'registration' ? (
                 <div className="space-y-4">
                   <RegistrationDetails request={request as RegistrationRequest} />
-                  <div className="border-t border-border pt-3">{metadata}</div>
+                  <div className="border-t border-border pt-3"><RequestTechnicalMetadata key={`${reqType}:${reqId}`} request={request} basePath={basePath} /></div>
                   <div className="border-t border-border pt-4">
                     <RequestFraudChecks request={request as RegistrationRequest} />
                   </div>
                 </div>
               ) : (
-                <ChangeDetails
-                  request={request as ChangeRequest}
-                  currentUser={currentUserQ.data}
-                  currentLoading={currentUserQ.isLoading}
-                  currentUnavailable={!changeUserId || currentUserQ.isError}
-                  ownerMissing={requestMissingRequiredUser('change', request)}
-                />
+                <div className="space-y-4">
+                  <ChangeDetails
+                    request={request as ChangeRequest}
+                    currentUser={currentUserQ.data}
+                    currentLoading={currentUserQ.isLoading}
+                    currentUnavailable={!changeUserId || currentUserQ.isError}
+                    ownerMissing={requestMissingRequiredUser('change', request)}
+                  />
+                  <div className="border-t border-border pt-3"><RequestTechnicalMetadata key={`${reqType}:${reqId}`} request={request} basePath={basePath} /></div>
+                </div>
               )}
             </CardBody>
           </Card>
         </section>
 
-        <aside className={reqType === 'registration' ? 'min-w-0 lg:col-span-3' : 'min-w-0 lg:col-start-3 lg:row-start-1'} data-testid="admin.requests.detail.review">
+        <aside className="min-w-0" data-testid="admin.requests.detail.review">
           <Card testId="admin.requests.detail.decision">
             <CardHeader title={t('requests.detail.decision.title')} subtitle={t('requests.detail.decision.subtitle')} />
             <CardBody className="space-y-3">
@@ -517,11 +434,6 @@ export function RequestDetailPage() {
           </Card>
         </aside>
 
-        {reqType !== 'registration' ? (
-          <section className="min-w-0 space-y-3 lg:col-span-2">
-            <Card>{metadata}</Card>
-          </section>
-        ) : null}
       </div>
     </ListShell>
   );
