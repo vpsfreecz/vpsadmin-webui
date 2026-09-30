@@ -13,22 +13,18 @@ import { Button } from '../../../components/ui/Button';
 import { ErrorState } from '../../../components/ui/ErrorState';
 import { LoadingState } from '../../../components/ui/LoadingState';
 import { fetchDefaultObjectClusterResources } from '../../../lib/api/clusterResources';
-import { getMetaActionStateId, isAmbiguousMutationError, isMissingActionStateError } from '../../../lib/api/haveapi';
+import { isAmbiguousMutationError, isMissingActionStateError } from '../../../lib/api/haveapi';
 import { fetchLocations } from '../../../lib/api/infra';
 import { fetchNodes } from '../../../lib/api/nodes';
 import { fetchOsTemplates } from '../../../lib/api/osTemplates';
 import { fetchUser } from '../../../lib/api/users';
-import { createVps, type CreateVpsPayload } from '../../../lib/api/vps';
-import { objectRef } from '../../../lib/objectRef';
-import type { LocalMutationGeneration } from '../../../lib/localLocks';
+import { createVps } from '../../../lib/api/vps';
 import { vpsCreatePageSessionId } from '../../../lib/vpsCreatePageSession';
 import {
   beginVpsCreateOutcomeGuard,
   clearVpsCreateOutcomeMarker,
-  markVpsCreateOutcomeAccepted,
   markVpsCreateOutcomeUncertain,
   readLatestVpsCreateOutcomeMarker,
-  type VpsCreateOutcomeMarker,
 } from '../../../lib/vpsCreateOutcomeGuard';
 import { reconcileVpsCreateOutcome } from '../../../lib/vpsCreateOutcomeReconcile';
 import {
@@ -44,7 +40,7 @@ import {
   type HiddenAdminTarget,
   type ResourcePresetId,
 } from './VpsCreateModel';
-import { pendingVpsCreateNavigationState } from './VpsDetailVisibility';
+import { acceptVpsCreation, type CreateMutationVariables, type CreateMutationContext } from './acceptVpsCreation';
 import {
   CreateAccessHintCard,
   CreateAdvancedHintCard,
@@ -215,10 +211,6 @@ export function VpsCreatePage() {
     return keys;
   }, [form, hiddenAdminTarget, isAdminMode, ownerLookupPending, selectedOwner, selectedOwnerId]);
   const canSubmit = validationKeys.length === 0;
-  type CreateMutationVariables = { payload: CreateVpsPayload; identity: { hostname: string; ownerId?: number; locationId?: number };
-    userId?: number; ownerContextUserId?: number; pageSessionId: string; effectiveBasePath: string; objectLabel: string; persistenceErrorMessage: string; outcomeUncertainMessage: string };
-  type AcceptedCreateBinding = Readonly<{ userId?: number; actionStateId: number; object: ReturnType<typeof objectRef>; mutationGeneration: LocalMutationGeneration; objectLabel: string }>;
-  type CreateMutationContext = { active: { userId?: number; marker: VpsCreateOutcomeMarker }; responseReceived: boolean; acceptedBinding?: AcceptedCreateBinding };
   // audit:ignore missing-local-lock missing-local-lock-release -- create uses its own durable receipt before a VPS id exists.
   const createM = useMutation({
     mutationFn: (variables: CreateMutationVariables) => createVps(variables.payload),
@@ -241,54 +233,9 @@ export function VpsCreatePage() {
         throw error;
       }
     },
-    onSuccess: async (res, variables, context) => {
-      // A received create response makes every later failure ambiguous.
-      if (context) context.responseReceived = true;
-      const vpsId = Number(res.data?.id);
-      const actionStateId = getMetaActionStateId(res.meta);
-      const active = context?.active;
-      if (!active || actionStateId === undefined) throw new Error(variables.persistenceErrorMessage);
-      const receipt = await markVpsCreateOutcomeAccepted({
-        userId: active.userId,
-        marker: active.marker,
-        candidateVpsId: vpsId,
-        actionStateId,
-        persistenceErrorMessage: variables.persistenceErrorMessage,
-      });
-      context.active = { ...active, marker: receipt };
-      if (!scopeIsActive(variables.userId)) return;
-      setCreateOutcomeMarker(receipt);
-      const vpsRef = Number.isInteger(vpsId) && vpsId > 0 ? objectRef('Vps', vpsId) : undefined;
-      if (vpsRef) context.acceptedBinding = Object.freeze({ userId: variables.userId, actionStateId, object: vpsRef,
-        mutationGeneration: await chrome.acquireLocalLock(vpsRef, { durable: true }), objectLabel: variables.objectLabel });
-      const binding = context.acceptedBinding;
-      if (!scopeIsActive(variables.userId) && binding) return void chrome.acquireLocalLock(binding.object, { actionStateId, generation: binding.mutationGeneration });
-      if (!scopeIsActive(variables.userId)) return;
-      void qc.invalidateQueries({ queryKey: ['vps', 'list'] });
-      void qc.invalidateQueries({ queryKey: ['transaction_chain', 'active'] });
-      chrome.trackActionState(actionStateId, { actionLabelKey: 'action.vps.create.label', objectLabel: variables.objectLabel,
-        object: context.acceptedBinding?.object, mutationGeneration: context.acceptedBinding?.mutationGeneration });
-      const receiptCleared = await clearVpsCreateOutcomeMarker({
-        userId: active.userId,
-        marker: receipt,
-        persistenceErrorMessage: variables.persistenceErrorMessage,
-      });
-      if (!receiptCleared) throw new Error(variables.persistenceErrorMessage);
-      if (!scopeIsActive(variables.userId)) return;
-      setCreateOutcomeMarker(readLatestVpsCreateOutcomeMarker(variables.userId));
-      chrome.openTasks();
-      const detailContextSearch = variables.ownerContextUserId === undefined
-        ? ''
-        : `?user=${encodeURIComponent(String(variables.ownerContextUserId))}`;
-      navigate(
-        Number.isFinite(vpsId)
-          ? `${variables.effectiveBasePath}/vps/${vpsId}${detailContextSearch}`
-          : `${variables.effectiveBasePath}/vps${detailContextSearch}`,
-        Number.isFinite(vpsId)
-          ? { state: pendingVpsCreateNavigationState(vpsId, actionStateId) }
-          : undefined,
-      );
-    },
+    onSuccess: (res, variables, context) => acceptVpsCreation(res, variables, context, {
+      scopeIsActive, setCreateOutcomeMarker, chrome, qc, navigate,
+    }),
     onError: async (error, variables, context) => {
       const active = context?.active;
       if (context?.responseReceived) {

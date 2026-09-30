@@ -483,20 +483,6 @@
       }
     },
     {
-      "path": "src/pages/app/vps/VpsCreatePage.tsx",
-      "rule": "crossed-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "8c18b5126ee365582fb4160a3a90ea0a337e3406a3447a473098bfeb5633fe71",
-      "old": 0,
-      "allowance": 551,
-      "rationale": "At the recorded source revision, this file already contained VPS creation wizard state; extract the coherent section with focused behavior coverage before removing this exception.",
-      "owner": "WebUI collection and page refactor implementer",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 500
-      }
-    },
-    {
       "path": "src/pages/app/vps/VpsCreateWizardPrimitives.tsx",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",

@@ -1,5 +1,13 @@
 // VPS create flow copy
 export const csVps_create = {
+  'vps.create.progress.pending.title': 'VPS se vytváří',
+  'vps.create.progress.pending.body': 'Požadavek byl přijat. VPS se připravuje; tato stránka se průběžně aktualizuje.',
+  'vps.create.progress.complete.title': 'VPS byla vytvořena',
+  'vps.create.progress.complete.body': 'Vytváření bylo dokončeno. Podrobnosti níže se aktualizují.',
+  'vps.create.progress.failed.title': 'Při vytváření VPS došlo k chybě',
+  'vps.create.progress.failed.body': 'Před dalším pokusem otevři úlohy a ověř výsledek.',
+  'vps.create.progress.unknown.title': 'Stav vytváření není dostupný',
+  'vps.create.progress.unknown.body': 'Požadavek byl přijat, ale jeho aktuální výsledek se nepodařilo ověřit. Před dalším pokusem zkontroluj úlohy.',
   'vps.create.open': 'Vytvořit VPS',
   'vps.create.title': 'Vytvořit VPS',
   'vps.create.description': 'Vytvoř VPS přes vedený tok: cíl, systém, prostředky, síť a kontrola před odesláním.',

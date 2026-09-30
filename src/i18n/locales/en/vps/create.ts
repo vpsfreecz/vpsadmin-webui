@@ -1,5 +1,13 @@
 // VPS create flow copy
 export const enVps_create = {
+  'vps.create.progress.pending.title': 'Creating VPS',
+  'vps.create.progress.pending.body': 'The request was accepted. Your VPS is being prepared; this page updates automatically.',
+  'vps.create.progress.complete.title': 'VPS created',
+  'vps.create.progress.complete.body': 'Creation completed. The details below are refreshing.',
+  'vps.create.progress.failed.title': 'VPS creation encountered an error',
+  'vps.create.progress.failed.body': 'Open tasks to check the result before trying again.',
+  'vps.create.progress.unknown.title': 'Creation status is unavailable',
+  'vps.create.progress.unknown.body': 'The request was accepted, but its current result could not be verified. Check tasks before trying again.',
   'vps.create.open': 'Create VPS',
   'vps.create.title': 'Create VPS',
   'vps.create.description': 'Create a VPS with a guided target, system, resources, network and review flow.',

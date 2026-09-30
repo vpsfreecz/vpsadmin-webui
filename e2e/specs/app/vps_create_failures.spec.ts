@@ -257,7 +257,7 @@ test.describe('@workflow-matrix VPS create failure regressions', () => {
     expect(postCount).toBe(1);
   });
 
-  test('@pr-smoke @pr-smoke-mobile waits for the accepted create task and refreshes an initially incomplete runtime state', async ({ page }) => {
+  test('@pr-smoke @pr-smoke-mobile opens accepted VPS detail before creation finishes and refreshes its runtime state', async ({ page }) => {
     let createFinished = false;
     let actionStateReads = 0;
     let detailReads = 0;
@@ -302,11 +302,14 @@ test.describe('@workflow-matrix VPS create failure regressions', () => {
     await page.getByTestId('vps.create.submit').click();
 
     await expect(page).toHaveURL(/\/app\/vps\/156$/);
-    await expect(page.getByTestId('vps.detail.creating')).toBeVisible();
+    await expect(page.getByTestId('vps.header')).toBeVisible();
+    await expect(page.getByTestId('vps.creation.status')).toContainText('Creating VPS');
+    await expect(page.getByTestId('vps.action.start')).toBeDisabled();
     await expect.poll(() => actionStateReads).toBeGreaterThan(0);
-    expect(detailReads).toBe(0);
+    expect(detailReads).toBeGreaterThan(0);
 
     createFinished = true;
+    await expect(page.getByTestId('vps.creation.status')).toContainText('VPS created', { timeout: 10_000 });
     await expect(page.getByTestId('vps.header')).toBeVisible({ timeout: 10_000 });
     expect(detailReads).toBeGreaterThan(0);
     await expect(page.getByTestId('vps.header').getByText('Stopped', { exact: true })).toBeVisible({ timeout: 10_000 });

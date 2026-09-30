@@ -36,10 +36,8 @@ import { useNetworkStatus } from '../../../lib/useNetworkStatus';
 import { deriveChainLockState } from '../../../lib/lockState';
 import { isRemoteConsoleAvailable, ownerLabel, primarySshIpAddress } from './VpsOverviewModel';
 import { freezeVpsMutationSnapshot, type VpsMutationSnapshot } from './VpsMutationSnapshot';
-import {
-  resolvePendingVpsCreateActionStateId,
-  shouldDeferVpsDetailQuery,
-} from './VpsDetailVisibility';
+import { useVpsCreationProgress } from './useVpsCreationProgress';
+import { VpsCreationProgress } from './VpsCreationProgress';
 import { VpsActionsMenu, VpsTabsNav } from './VpsNavigation';
 import { VpsHeaderRuntime } from './VpsHeaderRuntime';
 import { VpsHeaderActionDialogs, type VpsHeaderConfirm } from './VpsHeaderActionDialogs';
@@ -89,32 +87,17 @@ export function VpsLayout() {
   const fastPollMs = useFastPollIntervalMs();
   const vpsLocallyLocked = vpsRef ? chrome.isLocallyLocked(vpsRef) : false;
 
-  const pendingCreateActionStateId = useMemo(
-    () => resolvePendingVpsCreateActionStateId(location.state, chrome.trackedActionStates, vpsId),
-    [chrome.trackedActionStates, location.state, vpsId],
-  );
-  const pendingCreateStateQ = useQuery({
-    queryKey: ['action_state', 'show', { id: pendingCreateActionStateId ?? -1 }],
-    queryFn: async () => (await fetchActionState(pendingCreateActionStateId!)).data,
-    enabled: pendingCreateActionStateId !== undefined,
-    retry: false,
-    refetchInterval: (query) => (
-      (query.state.data as { finished?: boolean } | undefined)?.finished ? false : fastPollMs
-    ),
-  });
-  const deferVpsDetailQuery = shouldDeferVpsDetailQuery(
-    pendingCreateActionStateId,
-    pendingCreateStateQ.data,
-    pendingCreateStateQ.isError,
-  );
+  const creation = useVpsCreationProgress(vpsId, location.state, chrome.trackedActionStates, fastPollMs);
+  const creationStatus = <VpsCreationProgress id={creation.id} state={creation.query.data}
+    failedToLoad={creation.query.isError} onRetry={() => void creation.query.refetch()} />;
 
   const vpsQ = useQuery({
     queryKey: ['vps', 'show', { id: vpsId }],
     queryFn: async () => (await fetchVps(vpsId, { includes: 'node__location__environment,user,dns_resolver,user_namespace_map,os_template,dataset' })).data,
-    enabled: Number.isFinite(vpsId) && vpsId > 0 && !deferVpsDetailQuery,
+    enabled: Number.isFinite(vpsId) && vpsId > 0,
     refetchInterval: (query) => {
       const data = query.state.data as { is_running?: boolean } | undefined;
-      return pendingCreateActionStateId !== undefined && typeof data?.is_running !== 'boolean'
+      return creation.pending || (creation.id !== undefined && typeof data?.is_running !== 'boolean')
         ? fastPollMs
         : vpsLocallyLocked
           ? tierARefetchMs
@@ -125,7 +108,7 @@ export function VpsLayout() {
   const ipsQ = useQuery({
     queryKey: ['ip_address', 'list', { vpsId, limit: 250 }],
     queryFn: async () => (await fetchIpAddressesForVps(vpsId, { limit: 250 })).data,
-    enabled: Number.isFinite(vpsId) && vpsId > 0 && !deferVpsDetailQuery,
+    enabled: Number.isFinite(vpsId) && vpsId > 0,
     staleTime: 30_000,
     refetchOnWindowFocus: false,
   });
@@ -133,7 +116,7 @@ export function VpsLayout() {
   const chainsQ = useQuery({
     queryKey: ['transaction_chain', 'list', { className: 'Vps', rowId: vpsId, limit: 10 }],
     queryFn: async () => (await fetchTransactionChains({ className: 'Vps', rowId: vpsId, limit: 10 })).data,
-    enabled: Number.isFinite(vpsId) && vpsId > 0 && !deferVpsDetailQuery,
+    enabled: Number.isFinite(vpsId) && vpsId > 0,
     refetchInterval: tierARefetchMs,
   });
 
@@ -319,26 +302,32 @@ export function VpsLayout() {
     void chainsQ.refetch();
   }, [currentPasswdFlow, passwdStateQ.data]);
 
-  if (deferVpsDetailQuery) return <LoadingState testId="vps.detail.creating" />;
-  if (vpsQ.isLoading) return <LoadingState testId="vps.detail.loading" />;
+  if (!vpsQ.data && creation.pending) return (
+    <DetailShell>
+      <h1 className="text-xl font-semibold">{t('common.vps_ref', { id: vpsId })}</h1>
+      {creationStatus}
+      <LinkButton to={vpsListHref}>{t('common.back_to_list')}</LinkButton>
+    </DetailShell>
+  );
+  if (vpsQ.isLoading) return <DetailShell>{creationStatus}<LoadingState testId="vps.detail.loading" /></DetailShell>;
 
   if (vpsQ.isError) {
     return (
-      <ErrorState
+      <DetailShell>{creationStatus}<ErrorState
         testId="vps.detail.error"
         title={t('vps.layout.load_error.title')}
         error={vpsQ.error}
         onRetry={() => void vpsQ.refetch()}
         backTo={vpsListHref}
         detailsExtra={{ page: 'vps.detail', vpsId, scope: scope.scope }}
-      />
+      /></DetailShell>
     );
   }
 
   const vps = vpsQ.data;
   if (!vps) {
     return (
-      <ErrorState
+      <DetailShell>{creationStatus}<ErrorState
         testId="vps.detail.not_found"
         kindOverride="not_found"
         title={t('vps.layout.not_found.title')}
@@ -348,7 +337,7 @@ export function VpsLayout() {
         showStatusLink={false}
         showDetails={false}
         detailsExtra={{ page: 'vps.detail', vpsId, scope: scope.scope }}
-      />
+      /></DetailShell>
     );
   }
 
@@ -395,7 +384,7 @@ export function VpsLayout() {
   const activeChainIds = chainLock.activeChainIds;
   const chainsStale = chainLock.stale;
 
-  const busyLocalLock = vpsRef ? chrome.isLocallyLocked(vpsRef) : false;
+  const busyLocalLock = creation.pending || (vpsRef ? chrome.isLocallyLocked(vpsRef) : false);
   const uncertainLocalLock = vpsRef
     ? chrome.localLocks.find((lock) => lock.kind === vpsRef.kind && lock.id === vpsRef.id && lock.uncertain === true)
     : undefined;
@@ -483,278 +472,3 @@ export function VpsLayout() {
         detailContextSearch: listContextSearch,
       }}
     >
-      <DetailShell compact={/\/console\/?$/.test(location.pathname)}>
-        {/\/console\/?$/.test(location.pathname) ? (
-          <div className="flex flex-wrap items-center justify-between gap-2" data-testid="vps.console.header">
-            <div className="min-w-0 text-sm font-semibold [overflow-wrap:anywhere]">
-              {vps.hostname} <span className="font-normal text-muted">#{vps.id}</span>
-              {' '}<Badge variant={rt.variant}>{rt.label}</Badge>
-            </div>
-            <LinkButton to={`${basePath}/vps/${vps.id}${listContextSearch}`} variant="secondary" size="sm">
-              {t('vps.tabs.overview')}
-            </LinkButton>
-          </div>
-        ) : (
-        <ObjectHeader
-          testId="vps.header"
-          horizontalAt="xl"
-          fullWidthDetails
-          kicker={
-            <>
-              <Link className="text-accent hover:underline" to={vpsListHref}>
-                {t('nav.vps')}
-              </Link>
-              <span className="text-faint"> · </span>
-              <span>#{vps.id}</span>
-            </>
-          }
-          title={vps.hostname}
-          titleAfter={
-            <Badge testId="vps.header.distribution" title={t('vps.header.distribution')} className="max-w-full [overflow-wrap:anywhere]">
-              {vps.os_template?.label?.trim() || t('common.na')}
-            </Badge>
-          }
-          badges={
-            <>
-              <Badge variant={rt.variant}>{rt.label}</Badge>
-              <Badge variant={lc.variant}>{lc.label}</Badge>
-              {busyTransaction ? (
-                <LockBadge
-                  kind="transaction"
-                  t={t}
-                  chainIds={activeChainIds}
-                  showDetails
-                />
-              ) : busyLocalLock ? (
-                <LockBadge kind="local" t={t} />
-              ) : null}
-            </>
-          }
-          meta={
-            <div className="flex flex-wrap gap-x-4 gap-y-1">
-              {mode === 'admin' && ownerName ? (
-                <span className="min-w-0 [overflow-wrap:anywhere]" data-testid="vps.header.owner">
-                  {t('vps.control.admin.owner')}{' '}
-                  {ownerId ? (
-                    <Link className="font-medium text-link hover:underline [overflow-wrap:anywhere]" to={`${basePath}/users/${ownerId}`}>
-                      {ownerName} <span className="font-normal text-muted">#{ownerId}</span>
-                    </Link>
-                  ) : (
-                    <span className="font-medium text-fg">{ownerName}</span>
-                  )}
-                </span>
-              ) : null}
-              <span className="min-w-0 [overflow-wrap:anywhere]">
-                {t('common.node')} <span className="font-medium text-fg">{nodeLabel}</span>
-              </span>
-              <span className="min-w-0 [overflow-wrap:anywhere]">
-                {t('common.location')} <span className="font-medium text-fg">{locationLabel}</span>
-              </span>
-            </div>
-          }
-          extra={
-            <div className="space-y-2">
-              <div
-                className="min-w-0 text-sm text-muted xl:flex xl:items-center xl:gap-1"
-                data-testid="vps.header.ssh"
-              >
-                <span className="shrink-0">{t('vps.header.ssh.label')}:</span>
-                {sshCommand ? (
-                  <span className="mt-1 flex min-w-0 max-w-full items-center gap-2 xl:mt-0">
-                    <code className="min-w-0 flex-1 truncate rounded bg-surface-2 px-2 py-1 font-mono text-xs text-fg">
-                      {sshCommand}
-                    </code>
-                    <CopyButton
-                      className="min-h-11 shrink-0 xl:min-h-8"
-                      text={sshCommand}
-                      label={t('common.copy')}
-                    />
-                  </span>
-                ) : (
-                  <span className="ml-1 text-faint xl:ml-0">{t('vps.header.ssh.no_address')}</span>
-                )}
-              </div>
-
-              {lastAction ? (
-                <div className="text-xs text-muted">
-                  {t('tasks.tracking_action', {
-                    action: lastAction.actionLabelKey
-                      ? t(lastAction.actionLabelKey as any)
-                      : lastAction.actionLabel ?? t('toast.unknown_action'),
-                  })}
-                  {lastAction.objectLabel ? <span className="text-faint">{` · ${lastAction.objectLabel}`}</span> : null}
-                  {' · '}
-                  <button type="button" className="underline" onClick={() => chrome.openTasks()}>
-                    {t('common.open_tasks')}
-                  </button>
-                  <span className="text-faint">{` · #${lastAction.id}`}</span>
-                </div>
-              ) : null}
-            </div>
-          }
-          actions={
-            <>
-              {canMutateVps && primaryHeaderAction === 'start' ? (
-                <ActionButton
-                  variant="primary"
-                  testId="vps.action.start"
-                  disabled={!startGate.allowed}
-                  disabledReason={!startGate.allowed ? startGate.reason : undefined}
-                  onClick={() => startM.mutate(snapshotPowerVariables())}
-                  title={t('action.vps.start.label')}
-                >
-                  {t('action.vps.start.label')}
-                </ActionButton>
-              ) : primaryHeaderAction === 'console' ? (
-                <LinkButton
-                  to={`${basePath}/vps/${vps.id}/console${listContextSearch}`}
-                  variant="primary"
-                  testId="vps.action.primary_console"
-                >
-                  {t('vps.tabs.console')}
-                </LinkButton>
-              ) : (
-                <LinkButton
-                  to={`${basePath}/vps/${vps.id}/access${listContextSearch}`}
-                  variant="primary"
-                  testId="vps.action.primary_access"
-                >
-                  {t('vps.tabs.access')}
-                </LinkButton>
-              )}
-
-              {canMutateVps && typeof vps.dataset?.id === 'number' ? (
-                <LinkButton
-                  to={`${basePath}/datasets/${vps.dataset.id}/snapshots?action=create`}
-                  variant="secondary"
-                  testId="vps.action.snapshot"
-                  title={t('vps.control.snapshot.title')}
-                >
-                  <Camera className="h-4 w-4" aria-hidden="true" />
-                  {t('vps.control.snapshot')}
-                </LinkButton>
-              ) : null}
-
-              {canMutateVps && vps.is_running === true ? (
-                <>
-                  <ActionButton
-                    variant="secondary"
-                    testId="vps.action.restart.header"
-                    disabled={!restartGate.allowed}
-                    disabledReason={!restartGate.allowed ? restartGate.reason : undefined}
-                    onClick={() => {
-                      restartM.reset();
-                      setConfirm({ kind: 'restart', force: false });
-                    }}
-                    title={t('action.vps.restart.label')}
-                  >
-                    <RotateCw className="h-4 w-4" aria-hidden="true" />
-                    {t('action.vps.restart.label')}
-                  </ActionButton>
-                  <ActionButton
-                    variant="danger"
-                    testId="vps.action.stop.header"
-                    disabled={!stopGate.allowed}
-                    disabledReason={!stopGate.allowed ? stopGate.reason : undefined}
-                    onClick={() => {
-                      stopM.reset();
-                      setConfirm({ kind: 'stop', force: false });
-                    }}
-                    title={t('action.vps.stop.label')}
-                  >
-                    <Square className="h-4 w-4" aria-hidden="true" />
-                    {t('action.vps.stop.label')}
-                  </ActionButton>
-                </>
-              ) : null}
-
-              <VpsActionsMenu
-                basePath={basePath}
-                vpsId={vps.id}
-                canMutateVps={canMutateVps}
-                passwordAllowed={passwdGate.allowed}
-                showTasks={busyTransaction || busyLocal}
-                showSupportActions={mode === 'admin'}
-                showAdminActions={mode === 'admin' && auth.role === 'admin'}
-                ownerUserId={ownerId}
-                contextSearch={listContextSearch}
-                onSelect={handleHeaderMoreAction}
-              />
-            </>
-          }
-          tabs={
-            <div className="space-y-3">
-              <VpsHeaderRuntime vps={vps} />
-              <VpsTabsNav basePath={basePath} vpsId={vps.id} contextSearch={listContextSearch} />
-            </div>
-          }
-        />
-
-        )}
-
-        {chainsStale ? (
-          <LockStateStaleAlert
-            chainIds={activeChainIds}
-            error={chainsQ.error}
-            onRetry={() => void chainsQ.refetch()}
-          />
-        ) : null}
-
-        {vpsRef ? (
-          <MutationUncertaintyPanel
-            object={vpsRef}
-            lock={uncertainLocalLock}
-            reconcile={reconcileUncertainOutcome}
-          />
-        ) : null}
-
-        {(pageMutationError || showAsyncError) ? (
-          <Card>
-            <div className="p-4">
-              <div className="text-sm font-medium">{t('common.action_failed')}</div>
-              <div className="mt-1 text-sm text-muted">
-                {showAsyncError
-                  ? t('vps.power.error.task_failed', { id: currentPasswdAsyncError!.asId })
-                  : (() => {
-                      return isMissingActionStateError(pageMutationError)
-                        ? t('vps.mutation.error.missing_action_state')
-                        : pageMutationError instanceof Error
-                          ? pageMutationError.message
-                          : t('common.unknown_error');
-                    })()}
-              </div>
-            </div>
-          </Card>
-        ) : null}
-
-        <Outlet />
-
-        <VpsHeaderActionDialogs
-          vpsId={vps.id}
-          hostname={vps.hostname ? String(vps.hostname) : undefined}
-          confirm={confirm}
-          onConfirmChange={setConfirm}
-          stopAllowed={stopGate.allowed}
-          restartAllowed={restartGate.allowed}
-          passwordAllowed={passwdGate.allowed}
-          stopPending={stopM.isPending}
-          restartPending={restartM.isPending}
-          passwordPending={currentPasswdMutationPending}
-          stopError={stopM.isError ? stopM.error : null}
-          restartError={restartM.isError ? restartM.error : null}
-          passwordError={currentPasswdMutationError}
-          onStop={(force) => stopM.mutate(freezeVpsMutationSnapshot({ ...snapshotPowerVariables(), force }))}
-          onRestart={(force) => restartM.mutate(freezeVpsMutationSnapshot({ ...snapshotPowerVariables(), force }))}
-          onPassword={(type) => passwdM.mutate(freezeVpsMutationSnapshot({ ...snapshotPowerVariables(), type }))}
-          passwordWaitOpen={passwdWaitOpen}
-          passwordFlowActive={currentPasswdFlow !== null}
-          passwordState={passwdStateQ.data}
-          onPasswordWaitClose={() => setPasswdWaitOpen(false)}
-          revealedPassword={currentRevealedPassword}
-          onClearRevealedPassword={() => setRevealedPassword(null)}
-          onOpenTasks={() => chrome.openTasks()}
-        />
-      </DetailShell>
-    </VpsContextProvider>
-  );
-}
