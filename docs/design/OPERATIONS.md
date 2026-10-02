@@ -1,38 +1,120 @@
 # Operations and handover
 
-This is the operational map for a new maintainer, not authorization to change a
-server. Requirements REQ-056–066 and REQ-068–069 apply. The Clankerdev release
-steps below describe that deployment's history. The reusable NixOS service
-module is prepared in source; its site runbook for `newadmin.vpsfree.cz` is
-still being prepared. Inspect the finished versioned runbook and actual host
-configuration before any activation.
+This is the operational entry point for the canonical WebUI repository.
+Requirements REQ-056–066 and REQ-068–069 apply. Follow the
+[maintainer review/release workflow](../../AGENTS.md#maintainer-workflow-agreed-2026-09-30).
+The [2026-09-30 release receipt](../work-log/2026-09-30-three-site-release.md)
+records a completed deployment; it does not authorize another one.
 
 ## Repositories and environments
 
 | Component | Role | Boundary |
 | --- | --- | --- |
-| vpsfreecz/vpsadmin-webui | Canonical React frontend, OAuth BFF, separate [Nix packages](PACKAGING.md), disabled [service module](NIXOS_SERVICE.md), fixture tests and this handbook; history imported from Kerrycek/clankerdev. | Package builds, module runtime and site integration need exact-candidate verification. |
-| vpsfreecz/vpsadmin | HaveAPI, legacy UI and infrastructure reference. | Read-only unless a specific backend task is explicitly authorized. |
+| vpsfreecz/vpsadmin-webui | Canonical React frontend, OAuth BFF, [Nix packages](PACKAGING.md), [service module](NIXOS_SERVICE.md), tests and this handbook. | Preserve imported history and use the approved exact source revision. |
+| vpsfreecz/vpsfree-cz-configuration | Site input pin, host configuration and [newadmin runbook](https://github.com/vpsfreecz/vpsfree-cz-configuration/blob/master/docs/operations/newadmin-webui.md). | Read its AGENTS.md; use confctl for input changes and publish the deployed pin. |
+| vpsfreecz/vpsadmin | HaveAPI and legacy PHP UI. | Separate backend work; no implicit API/database migration in a WebUI release. |
 | vpsfreecz/vpsfree-kb-contracts | Navigation/page/capture contracts and isolated scenario runners. | Independent UI/API pins; KB publication separately approved. |
-| dev.crucio.cz | Shared test frontend using the test API. | Not a disposable sandbox; retain other users' objects/configuration. |
-| clankerdev.vpsfree.cz | Shared frontend against the service API. | Real users/data; only scoped authorized release operations. |
+| newadmin.vpsfree.cz | One NixOS frontend/BFF instance; service API at api.vpsfree.cz. | Parallel interface; legacy vpsadmin.vpsfree.cz remains available. |
+| clankerdev.vpsfree.cz | Older systemd/nginx frontend against api.vpsfree.cz. | Real users/data; scoped authorized release operations only. |
+| dev.crucio.cz | Older systemd/nginx frontend using its separate test API. | Shared test machine; preserve other users' objects, services and configuration. |
 | Owned isolated cluster | Synthetic live API/VM workflow certification. | Verify ownership/provenance; do not replace another initiative's VMs. |
 
-The planned preview uses one frontend and one BFF process on one NixOS VPS at
-`newadmin.vpsfree.cz`. The legacy `vpsadmin.vpsfree.cz` interface stays in
-service. The existing OpenStreetMap/Nominatim call remains enabled. The new
-host's module and operator runbook belong to the WebUI and site configuration
-repositories respectively; the scripts under `deploy/` target the older
-Clankerdev hosts and must not be used on the new VPS.
+All three WebUI origins received canonical source `718cf759` on 2026-09-30.
+Read-only endpoint checks on 2026-10-02 still found that clean full revision,
+healthy BFFs and the expected API separation. These dated observations are not
+permanent current-version pointers. Check live state again before an update.
 
-The [package guide](PACKAGING.md) records immutable output contents, separate
-dependency hashes and provenance rules. Verify both packages and their matching
-metadata before using them in the service module. Preserve the BFF session
-store and secret when rolling back to a matching earlier frontend/BFF pair.
-The [service guide](NIXOS_SERVICE.md) records the private listener, runtime
-environment, edge trust and static/BFF header split. Importing its module does
-not activate it; site-owned configuration and an operator-run deployment are
-still required.
+The [package guide](PACKAGING.md) defines output contents and provenance. Keep
+frontend and BFF revisions paired. The [service guide](NIXOS_SERVICE.md) describes
+the reusable module; importing it alone does not enable a site. Newadmin's actual
+host, edge, credentials and monitoring are owned by the configuration repository.
+The older hosts' provisioning scripts under `deploy/` are historical and must not
+be used on newadmin or replayed over the credential-based older-host runtime.
+
+## Newadmin release procedure
+
+1. Establish the approved PRs/revision and target scope. Fetch current upstream;
+   check exact CI heads and overlapping work. Build and test the selected
+   candidate in the pinned WebUI `nix develop` environment. Record fixture versus
+   real API evidence explicitly.
+2. In a clean configuration checkout, read its current instructions and
+   [site runbook](https://github.com/vpsfreecz/vpsfree-cz-configuration/blob/master/docs/operations/newadmin-webui.md).
+   Inspect the active deployment, generation, frontend/BFF provenance, available
+   build space and retained rollback generation. Keep existing session state and
+   credential values. First-install checks are in the site runbook; an ordinary
+   upgrade must not recreate state or provision a new OAuth client.
+3. Enter `nix develop` in the configuration repository. For an approved current
+   main, the operator's update command is:
+
+   ```sh
+   confctl inputs channel update --commit vpsadmin-webui
+   ```
+
+   Confirm `nodes.vpsadminWebui.locked.rev` in `flake.lock` equals the full approved
+   SHA before continuing. If main includes unapproved commits, use the runbook's
+   `confctl inputs channel set --commit vpsadmin-webui vpsadmin-webui FULL_COMMIT`
+   instead. Use one generated input commit per release; do not hand-edit the lock
+   or deploy a local override. Preserve generated commit messages and run declared
+   hooks; inspect changed custom hooks before signing them.
+4. Build and dry-activate only the selected host:
+
+   ```sh
+   confctl build cz.vpsfree/vpsadmin/int.vpsadmin-webui1
+   confctl deploy cz.vpsfree/vpsadmin/int.vpsadmin-webui1 dry-activate
+   ```
+
+   Verify the matching frontend/BFF package checks on the selected input. Review
+   activation changes, including any site changes already present in the
+   configuration checkout. A successful dry activation is not a runtime check.
+5. With the authorized release ready and rollback recorded, activate it:
+
+   ```sh
+   confctl deploy --dry-activate-first --enable-auto-rollback cz.vpsfree/vpsadmin/int.vpsadmin-webui1 switch
+   ```
+
+   The build machine must have the usual verified SSH route/host identity and
+   deployment access. These commands do not require exposing credentials or
+   copying private keys into the repository. Keep confctl health checks enabled.
+6. Check the active generation, `nginx` and `vpsadmin-webui-bff`, and the frontend
+   full SHA from `/build-info.json`. Check BFF package metadata separately at
+   `share/vpsadmin-webui-bff/build-info.json` under the package in the active unit's
+   executable path. Both must match the approved clean revision.
+7. Run [post-deployment checks](#post-deployment-checks), retain sanitized evidence
+   and record results/limitations in a dated work-log entry. Push the corresponding
+   configuration commit to its normal upstream after successful deployment;
+   reconcile concurrent changes without force-pushing or downgrading another pin.
+   A later documentation-only source commit does not require redeploying or
+   changing the approved runtime pin.
+
+For dev and clankerdev, use the
+[older-host release and recovery guide](../operations/older-hosts.md).
+Their current runtime is not managed by the newadmin confctl target.
+
+## Post-deployment checks
+
+Use the source-contained anonymous smoke check for each approved target:
+
+```sh
+bash deploy/smoke-auth-endpoints.sh https://newadmin.vpsfree.cz
+bash deploy/smoke-auth-endpoints.sh https://clankerdev.vpsfree.cz
+```
+
+Dev's known certificate/SAN problem requires an explicitly dev-only exception:
+`bash deploy/smoke-auth-endpoints.sh https://dev.crucio.cz --insecure`.
+Do not disable TLS validation on the public sites.
+
+Check `/config.json` schema and API origin, anonymous `/session.json` fields,
+SPA deep links, hashed assets, desktop/mobile rendering and browser errors.
+The session route expects same-origin request metadata; a bare cross-site probe
+may correctly return 403. The smoke helper supplies the required headers and
+prints only a summary, not OAuth redirect query values or session responses.
+
+For newadmin, inspect the document CSP: console and heatmap origins belong in
+`frame-src`, not the console in `connect-src`. The site runbook also requires a
+controlled authenticated acceptance session for login/recovery, frames, locale
+and important read-only API paths. Such acceptance remains outstanding for the
+2026-09-30 deployment; anonymous checks and fixture E2E do not replace it. Real
+mutation/lifecycle certification belongs in the owned isolated environment.
 
 ## Local development
 
@@ -44,34 +126,6 @@ Fixtures allow layout/browser work without real credentials. The OAuth BFF has i
 own [environment/setup requirements](../../bff/README.md). The flake's pinned
 `vpsadmin` input supplies the terminology and source API reference; the site
 may override it, so record the effective revision for integration results.
-
-## Historical Clankerdev release procedure
-
-1. Resolve approved PR scope, exact heads, reviews/CI and backend compatibility.
-   Do not silently include open dependency PRs or superseded/rejected proposals.
-2. Build an integrated candidate from approved heads. Run relevant/full release
-   checks, record tree/revision and known limitations. Do not force green CI.
-3. Obtain/confirm authorization for the concrete candidate and target hosts.
-4. Preflight current frontend and BFF provenance, clean source/release, free space,
-   service health and pending work. Inspect repository hooks so deployment is not
-   unintentionally executed twice. Do not interrupt a healthy existing operation.
-5. Retain previous immutable frontend/BFF artifacts and private config snapshots.
-   Record restore paths securely, not in public docs. Preserve secrets and API/db
-   state; no migration is implied by a frontend release.
-6. Follow the [dev runbook](../../deploy/dev.crucio.cz/README.md) and
-   [immutable deployment script](../../deploy/dev.crucio.cz/deploy-dev-crucio-clankerdev.sh).
-   The historical [public bootstrap guide](../../deploy/README.md) describes host
-   provisioning; do not rerun provisioning blindly for a routine update.
-7. Promote the exact verified frontend artifact and matching BFF revision to the
-   other approved target. The last release used dev-built dist on both sites.
-   The one-off public promotion/rollback wrapper remains operator-held, not a
-   complete checked-in repeatable release tool: transfer/review it before handover.
-8. Verify `/build-info.json` and BFF process path separately, public health,
-   anonymous `/session.json` and OAuth routing. Use
-   [auth smoke](../../deploy/smoke-auth-endpoints.sh). Check SPA deep links and assets.
-9. Run appropriate post-deploy browser checks, clearly labeling fixture versus
-   actual API checks. Record result, exact revision, previous rollback revision
-   and limitations in WORK_LOG.md; update requirement status.
 
 ## Rollback
 
@@ -85,10 +139,13 @@ was changed, then recheck provenance, health, auth and deep routes. Restore conf
 only when needed; do not overwrite unrelated changes or secrets. Frontend rollback
 does not undo API mutations or database migrations. A migration needs its own plan.
 
-The prior recorded release is `2eef5193403258c88ec4fca79138898aaf4273cc`; the
-later sidebar release at `49c6a51d0b32c4a6d5dd1df426e0bac1d8066115` is recorded
-in [the work log](../../WORK_LOG.md). These are historical receipts, not
-permanent "current" pointers. Check actual state before use.
+For the 2026-09-30 cutover, retained rollback source was `534caa83` on newadmin
+(NixOS generation 4) and `156a7c04` on both older hosts. Follow the
+[release receipt](../work-log/2026-09-30-three-site-release.md) and the target's
+retained generation/private receipt; do not assume those are still the preceding
+releases after a future deployment. Never restore stale refresh-token session
+files. Reverting the application Git branch alone does not roll back a running
+service or the configuration pin.
 
 ## Ownership and secure handover checklist
 
@@ -102,7 +159,8 @@ The following cannot be solved by publishing credentials in a repository:
 - Transfer private evidence/receipt locations and review sanitized summaries for
   durable CI/repo storage. Never publish production screenshots or personal data.
 - Confirm API version/capabilities and unresolved cursor/deletion policies.
-- Agree KB publication path and beta hostname; do not infer these from suggestions.
+- Keep the selected preview hostname; agree remaining KB publication and
+  default-interface cutover policy explicitly.
 - Arrange independent audit scope and track findings, severity, ownership and closure.
 - Keep the scheduled autonomous-development automation paused until explicitly
   resumed. A direct UI/docs task does not resume it.

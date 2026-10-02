@@ -95,3 +95,12 @@ Machine-readable assignment/cleanup receipts and test logs remain under
 copy. No secrets are committed. The selector still uses its existing 50-candidate
 bound; this change does not certify exhaustive allocation-pool pagination or
 other administrator inventory selectors. No new backend PR is required.
+
+## Deployment follow-up (recorded 2026-10-02)
+
+[PR #6](https://github.com/vpsfreecz/vpsadmin-webui/pull/6) was merged
+on 2026-09-30 and deployed in `718cf7596eb8b11a796268a73c1f2e0a02a98450`
+to newadmin.vpsfree.cz, clankerdev.vpsfree.cz and dev.crucio.cz. See the
+[release receipt](2026-09-30-three-site-release.md) for exact CI and deployment
+evidence. The earlier prepared status is historical; fixture checks are still
+distinct from authenticated live workflow certification.

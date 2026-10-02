@@ -16,8 +16,11 @@ than silently treating existing code or an old document as new approval.
 - [Work log](../WORK_LOG.md): chronology, not a competing requirements list.
 - All chapters linked by the handbook: current design, workflow, architecture,
   contracts, verification, operations, sources and generated inventory.
-- [BFF README](../bff/README.md) and [deployment docs](../deploy/README.md): technical
-  setup references; inspect host-specific scripts/current state before operations.
+- [BFF README](../bff/README.md): current runtime/setup contract.
+- [Operations](design/OPERATIONS.md): current deployment entry point, linking the
+  site-owned newadmin runbook and the older-host handover. The files under
+  `deploy/` retain historical setup details; old provisioning scripts are not
+  the current credential-based release procedure.
 - Source, tests and CI: implementation/evidence for their exact revision and scope.
 
 ## Historical / archaeology

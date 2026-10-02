@@ -1,5 +1,10 @@
 # dev.crucio.cz deployment
 
+> Historical deployment reference. The 2026-09-30 canonical-repository release
+> introduced systemd credentials and required `/config.json` on the older hosts.
+> Start with the [current operations guide](../../docs/design/OPERATIONS.md); do not replay
+> the old provisioning or environment-secret deployment steps over that runtime.
+
 `dev.crucio.cz` serves the static web UI from:
 
 ```sh

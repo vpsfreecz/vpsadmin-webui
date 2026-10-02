@@ -1,5 +1,10 @@
 # Deploying WebUI Next (tarball) to clankerdev.vpsfree.cz
 
+> Historical deployment reference. The 2026-09-30 canonical-repository release
+> introduced systemd credentials and required `/config.json` on the older hosts.
+> Start with the [current operations guide](../docs/design/OPERATIONS.md); do not replay
+> the old provisioning or environment-secret deployment steps over that runtime.
+
 This directory contains a deployment script for **Ubuntu 24.04 LTS**.
 
 It deploys a **static SPA at `/`** plus a tiny **OAuth BFF** bound to `127.0.0.1`.

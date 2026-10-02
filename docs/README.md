@@ -8,6 +8,9 @@ operations and handover. It is self-contained within this repository.
 - [Requirements register](design/REQUIREMENTS.md): current intent, source, status.
 - [Generated inventory](design/IMPLEMENTATION_INVENTORY.md): routes and API adapters.
 - [Work log](../WORK_LOG.md): chronological changes and release evidence.
+- [Operations](design/OPERATIONS.md): deployment, environment boundaries and rollback.
+- [Three-site release](work-log/2026-09-30-three-site-release.md): the completed
+  2026-09-30 deployment, exact revisions and verification limits.
 - [Documentation map](CANONICAL_DOCS.md): active versus historical sources.
 
 Update affected requirements/design and the work log with each behavior change.

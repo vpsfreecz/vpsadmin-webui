@@ -4,9 +4,13 @@ React frontend and Node OAuth BFF for the new vpsAdmin interface. This
 repository preserves the history of `Kerrycek/clankerdev`; current development
 is owned by `vpsfreecz/vpsadmin-webui`.
 
-The planned first deployment serves `newadmin.vpsfree.cz` from one NixOS VPS.
+The new interface serves `newadmin.vpsfree.cz` from one NixOS VPS.
 It runs alongside the existing PHP interface at `vpsadmin.vpsfree.cz`.
 Deployment and default-interface cutover are separate decisions.
+The [operations guide](docs/design/OPERATIONS.md) covers the three deployed
+sites, the configuration-repository workflow and rollback. The
+[2026-09-30 release receipt](docs/work-log/2026-09-30-three-site-release.md)
+records the deployed revision and verification limits.
 
 ## Design and requirements
 

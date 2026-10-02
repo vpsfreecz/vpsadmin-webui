@@ -1,5 +1,10 @@
 # clankerdev.vpsfree.cz – Deployment notes (Ubuntu 24.04)
 
+> Historical deployment reference. The 2026-09-30 canonical-repository release
+> introduced systemd credentials and required `/config.json` on the older hosts.
+> Start with the [current operations guide](../design/OPERATIONS.md); do not replay
+> the old provisioning or environment-secret deployment steps over that runtime.
+
 This deployment serves WebUI Next at the **origin root**:
 
 - `https://clankerdev.vpsfree.cz/`

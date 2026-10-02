@@ -1,7 +1,9 @@
 # WebUI Next design and requirements handbook
 
 Reviewed baseline: product `fd290b5ec1b22900e704e8cb990c5ba050af2394`, 2026-09-27.
-Pending PRs are identified explicitly and are not part of that deployed baseline.
+That is the original review baseline, not the current deployment pointer.
+The [2026-09-30 release receipt](../work-log/2026-09-30-three-site-release.md)
+records PRs 1–8 deployed as `718cf759` on all three WebUI hosts.
 Documentation language: English. Product languages: Czech and English.
 
 The canonical repository is now `vpsfreecz/vpsadmin-webui`, with the original
@@ -9,7 +11,7 @@ The canonical repository is now `vpsfreecz/vpsadmin-webui`, with the original
 `e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9`. That source revision is an
 adoption baseline, not evidence that the new NixOS preview has been deployed.
 The [operations guide](OPERATIONS.md) separates the older Clankerdev releases
-from the planned `newadmin.vpsfree.cz` service.
+from the NixOS `newadmin.vpsfree.cz` service and records their current boundaries.
 
 ## Purpose and authority
 
@@ -60,9 +62,19 @@ intent; decisions explain transitions; test results prove only their stated scop
 
 ## Maintenance contract
 
+Follow the [maintainer review and release workflow](../../AGENTS.md#maintainer-workflow-agreed-2026-09-30):
+prepare focused PRs for review, merge on explicit instruction, and deploy only
+the explicitly requested release through the separate site configuration
+repository. Application commits and deployment input updates are distinct.
+Use descriptive `dev/...` task branches. Account for concurrent contributors:
+check current upstream and overlapping PRs, preserve their work and reconcile
+documentation changes. Maintain this handbook and the work log during each
+task, not only at release time. Existing Clankerdev hosts have not been retired
+or reassigned by this agreement.
+
 Every behavior change must update the affected requirement and workflow in the
-same PR, plus the work log. Record the requirement ID in the PR. If no requirement
-applies, add one with its actual source; mark proposals as proposed. Preserve IDs
+same PR, plus a dated entry under [docs/work-log](../work-log/README.md).
+Record the requirement ID in the PR. If no requirement applies, add one with its actual source; mark proposals as proposed. Preserve IDs
 and supersession history. New instructions override older conflicting decisions,
 but must be written down with their consequences and migration needs.
 

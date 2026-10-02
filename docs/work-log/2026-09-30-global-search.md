@@ -62,3 +62,12 @@ suite-local scrolling mock with restoration and asserted that keyboard selection
 scrolls the newly active option. No production guard or test skipping was added.
 The complete unit suite then passed: 1,637 tests in 280 files. Browser behavior
 and earlier browser evidence are unchanged; CI reruns on the updated PR head.
+
+## Deployment follow-up (recorded 2026-10-02)
+
+[PR #5](https://github.com/vpsfreecz/vpsadmin-webui/pull/5) was merged
+on 2026-09-30 and deployed in `718cf7596eb8b11a796268a73c1f2e0a02a98450`
+to newadmin.vpsfree.cz, clankerdev.vpsfree.cz and dev.crucio.cz. See the
+[release receipt](2026-09-30-three-site-release.md) for exact CI and deployment
+evidence. The earlier prepared status is historical; fixture checks are still
+distinct from authenticated live workflow certification.

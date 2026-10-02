@@ -50,3 +50,12 @@ PR removes the still-visible collapse control after integration.
 ![Czech console on a 1366×768 laptop](screenshots/console-cs-laptop.png)
 
 [Mobile screenshot](screenshots/console-cs-mobile.png)
+
+## Deployment follow-up (recorded 2026-10-02)
+
+[PR #4](https://github.com/vpsfreecz/vpsadmin-webui/pull/4) was merged
+on 2026-09-30 and deployed in `718cf7596eb8b11a796268a73c1f2e0a02a98450`
+to newadmin.vpsfree.cz, clankerdev.vpsfree.cz and dev.crucio.cz. See the
+[release receipt](2026-09-30-three-site-release.md) for exact CI and deployment
+evidence. The earlier prepared status is historical; fixture checks are still
+distinct from authenticated live workflow certification.

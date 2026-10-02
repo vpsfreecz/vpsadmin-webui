@@ -42,3 +42,12 @@ were installed into deployed services; no shared service was changed.
 No real request was approved/rejected; browser evidence uses synthetic fixtures.
 Not merged or deployed. Existing review regressions and temporary visual capture
 cover this layout change; API behavior is unchanged.
+
+## Deployment follow-up (recorded 2026-10-02)
+
+[PR #8](https://github.com/vpsfreecz/vpsadmin-webui/pull/8) was merged
+on 2026-09-30 and deployed in `718cf7596eb8b11a796268a73c1f2e0a02a98450`
+to newadmin.vpsfree.cz, clankerdev.vpsfree.cz and dev.crucio.cz. See the
+[release receipt](2026-09-30-three-site-release.md) for exact CI and deployment
+evidence. The earlier prepared status is historical; fixture checks are still
+distinct from authenticated live workflow certification.
