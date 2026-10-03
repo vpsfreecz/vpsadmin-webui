@@ -219,6 +219,14 @@ blind retry. [Finance](../../src/lib/api/finance.ts),
 incident reports and memory-exhaustion reports/rules/tasks/stats. These explain
 why an object is busy and whether an operation succeeded.
 
+API operation labels/names are the primary visible titles in transaction lists,
+details and Tasks. Do not replace localized or unfamiliar names with “Operation”,
+a client-side action guess or an English-only rewrite. Classification still
+provides category/severity metadata and fallbacks for missing/blank API names.
+When the API name is already the heading, do not repeat it as “Backend name”.
+Explicit local labels for an action the user just submitted remain available
+before its API state arrives. [Naming regression and evidence](../work-log/2026-10-03-transaction-operation-names.md).
+
 **Contract:** action state, transaction and object state are related but not
 interchangeable. Unknown/stale locks must be shown as such. Users see permitted
 objects; session filters and pagination must retain context. Large cgroup/SSH/task

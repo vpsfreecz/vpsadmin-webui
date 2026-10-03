@@ -60,17 +60,6 @@ function shortClassName(value: string): string {
   return value.split('::').filter(Boolean).slice(-1)[0] ?? value;
 }
 
-function rawLabelKey(value: string | undefined): string {
-  return String(value ?? '')
-    .trim()
-    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
-    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
-    .replace(/[._:/\\-]+/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .toLowerCase();
-}
-
 function translatedOrFallback(t: TransactionChainsTranslator, key: string, fallback: string, params?: Record<string, unknown>): string {
   const translated = t(key, params);
   return translated && translated !== key ? translated : fallback;
@@ -86,25 +75,6 @@ function concernDisplay(t: TransactionChainsTranslator, ref: ReturnType<typeof e
   const kind = concernKindLabel(t, ref.class_name);
   const suffix = ref.label ? `${ref.label} (#${ref.row_id})` : `#${ref.row_id}`;
   return `${kind} ${suffix}`;
-}
-
-function chainActionLabel(
-  t: TransactionChainsTranslator,
-  rawLabel: string | undefined,
-  operationName: string,
-  primaryConcern?: ReturnType<typeof extractConcernRefs>[number]
-): string {
-  const raw = rawLabelKey(rawLabel);
-  const cls = primaryConcern ? shortClassName(primaryConcern.class_name).toLowerCase() : '';
-
-  if (raw === 'state change' || raw === 'state') return t('operation.chain.action.state_change');
-  if (raw === 'resolve' && cls === 'registrationrequest') return t('operation.chain.action.resolve_registration');
-  if (raw === 'resolve') return t('operation.chain.action.resolve');
-  if (raw === 'create' || raw === 'new') return t('operation.chain.action.create');
-  if (raw === 'modify' || raw === 'update' || raw === 'change') return t('operation.chain.action.modify');
-  if (raw === 'delete' || raw === 'destroy' || raw === 'remove') return t('operation.chain.action.delete');
-
-  return operationName;
 }
 
 interface TransactionChainsTableProps {
@@ -182,9 +152,7 @@ export function TransactionChainsTable({
           const operation = classifyTransactionChain(chain);
           const operationName = operationLabel(operation, t);
           const concerns = extractConcernRefs(chain.concerns, { maxDepth: 3 });
-          const primaryConcern = concerns[0];
           const shownConcerns = concerns.slice(0, 3);
-          const actionTitle = chainActionLabel(t, label, operationName, primaryConcern);
           const actionStateId = extractRelatedActionStateIdFromTransactionChain(chain);
           const createdAt = getChainCreatedAt(chain);
           const progressPercent = chainProgressPercent(chain);
@@ -215,7 +183,7 @@ export function TransactionChainsTable({
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                       <Link className="font-semibold text-accent hover:underline" to={`${basePath}/transactions/${id}`}>
-                        {actionTitle}
+                        {operationName}
                       </Link>
                       <Badge variant={operationBadgeVariant(operation)}>{operationCategoryLabel(operation, t)}</Badge>
                       {operation.severity !== 'normal' ? <Badge variant={operationBadgeVariant(operation)}>{operationSeverityLabel(operation, t)}</Badge> : null}
@@ -223,7 +191,7 @@ export function TransactionChainsTable({
                     </div>
                     <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-faint">
                       <span>{t('operation.chain.id_meta', { id })}</span>
-                      {label !== actionTitle ? <span>{t('operation.raw_name', { name: label })}</span> : null}
+                      {label !== operationName ? <span>{t('operation.raw_name', { name: label })}</span> : null}
                       <ChipLink to={`${basePath}/transactions/items?transaction_chain=${id}`} title={t('transactions.chains.row.open_items_title', { id })}>
                         {t('transactions.items.short')}
                       </ChipLink>

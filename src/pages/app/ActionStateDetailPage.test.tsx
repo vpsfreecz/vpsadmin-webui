@@ -126,7 +126,7 @@ describe('ActionStateDetailPage', () => {
 
     renderPage();
 
-    await screen.findByText('Restart VPS');
+    expect(await screen.findByRole('heading', { name: 'Restart VPS', level: 1 })).toBeInTheDocument();
     expect(mocks.fetchActionState).toHaveBeenCalledWith(900);
     expect(mocks.fetchTransactionChain).toHaveBeenCalledWith(42);
     expect(mocks.fetchTransactions).toHaveBeenCalledWith({ transactionChainId: 42, limit: 500 });

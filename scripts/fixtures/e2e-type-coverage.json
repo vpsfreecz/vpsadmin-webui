@@ -15,6 +15,7 @@
     "e2e/specs/app/global_search_cold_start.spec.ts",
     "e2e/specs/app/profile_owner_scope.spec.ts",
     "e2e/specs/app/sidebar_expanded.spec.ts",
+    "e2e/specs/app/transaction_chains_ux.spec.ts",
     "e2e/specs/app/ui_preferences_persistence.spec.ts",
     "e2e/specs/app/user_network_page.spec.ts",
     "e2e/specs/app/vps_console_viewport.spec.ts",
@@ -1301,13 +1302,6 @@
     {
       "path": "e2e/specs/app/transaction_chains_keyset_pagination.spec.ts",
       "sha256": "d58b92d7280d5b28727127fb7304f52e27d7eb8ca5a2689079ad3f4cc2f337aa",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/app/transaction_chains_ux.spec.ts",
-      "sha256": "80af358fba387bb0632ebfdc6240f9ff55a92f9ef7f7d63cc76c14411f1047d6",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
