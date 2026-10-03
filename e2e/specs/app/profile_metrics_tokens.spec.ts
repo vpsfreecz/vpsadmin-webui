@@ -13,13 +13,22 @@ function metricsTokenPayload(ctx: HaveApiRequestCtx): Record<string, unknown> {
   const body = ctx.reqJson;
   if (!body || typeof body !== 'object' || Array.isArray(body)) return {};
 
-  const payload = (body as Record<string, unknown>).metrics_access_token;
+  const payload = (body as Record<string, unknown>)['metrics_access_token'];
   if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return {};
 
   return payload as Record<string, unknown>;
 }
 
-function metricsTokens() {
+type MetricsTokenFixture = {
+  id: number;
+  metric_prefix: string;
+  access_token?: string;
+  use_count: number;
+  last_use?: string;
+  created_at: string;
+};
+
+function metricsTokens(): MetricsTokenFixture[] {
   return [
     {
       id: 3,
@@ -96,7 +105,7 @@ test('@pr-smoke @smoke profile: metrics token review and revoke guards', async (
         const payload = metricsTokenPayload(ctx);
         const created = {
           id: 4,
-          metric_prefix: String(payload.metric_prefix ?? ''),
+          metric_prefix: String(payload['metric_prefix'] ?? ''),
           access_token: 'new-token-secret',
           use_count: 0,
           created_at: '2026-07-06T12:00:00Z',
@@ -134,7 +143,7 @@ test('@pr-smoke @smoke profile: metrics token review and revoke guards', async (
   const createReqP = page.waitForRequest((r) => r.method() === 'POST' && r.url().includes('/metrics_access_tokens'));
   await page.getByTestId('profile.metrics.create_modal.create').click();
   const createBody = (await createReqP).postDataJSON() as { metrics_access_token: Record<string, unknown> };
-  expect(createBody.metrics_access_token.metric_prefix).toBe('bad prefix');
+  expect(createBody.metrics_access_token['metric_prefix']).toBe('bad prefix');
 
   await expect(page.getByTestId('profile.metrics.created_modal')).toBeVisible();
   await page.getByTestId('profile.metrics.created_modal.done').click();

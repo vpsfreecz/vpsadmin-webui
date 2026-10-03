@@ -10,5 +10,7 @@ creation timeline. Keep normal timers running and preserve all active/stale,
 unused, token masking and revocation assertions. Adopt the complete spec into
 strict E2E checking. No application, API or runtime configuration is changed.
 
-Verification: pending focused browser and strict type checks before integration.
+Verification: all six desktop/mobile browser cases passed, as did strict E2E
+type checking in the integrated candidate. Explicit fixture field types and
+bracket property access resolve the previously unchecked spec diagnostics.
 This is a release-validation repair, not a change to the 90-day product policy.
