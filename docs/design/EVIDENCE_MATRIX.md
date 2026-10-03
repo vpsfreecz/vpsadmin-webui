@@ -117,7 +117,9 @@ meaningless tests.
 ## Historical pending-branch evidence
 
 These are the original repository runs, not results for the canonical ports.
-PR529 is now canonical PR9; PR528 is ported on top of canonical PR10.
+PR529 is now [canonical PR9](https://github.com/vpsfreecz/vpsadmin-webui/pull/9);
+PR528 is [canonical PR12](https://github.com/vpsfreecz/vpsadmin-webui/pull/12),
+based on PR10.
 Current port receipts are linked from the work-log index.
 
 - **PR528**, `94784cf4c93253bc8996f7b15b8dbfe3e96b0899`:

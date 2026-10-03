@@ -170,7 +170,7 @@ execution controls remain visible. The earlier always-open radio-card design is
 superseded. Sixty synthetic nodes are covered in its fixture cases; that is not a
 completed real migration.
 
-The canonical picker port builds on PR10, which also restores the legacy false
+The [canonical picker port, PR12](https://github.com/vpsfreecz/vpsadmin-webui/pull/12), builds on PR10, which also restores the legacy false
 default for IP transfer and reports accepted migration through a persistent
 bottom-right toast linked to Tasks. These are pending changes, not deployed main.
 
