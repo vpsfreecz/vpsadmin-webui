@@ -69,6 +69,7 @@ export const csVps_lifecycle = {
   'vps.lifecycle.migrate.review.cleanup': 'Cleanup / notifikace',
   'vps.lifecycle.migrate.review.cleanup_body': 'Uklidit data: {cleanup}. Poslat mail: {mail}. Nespouštět: {noStart}. Pokračovat při chybě startu: {skipStart}.',
   'vps.lifecycle.migrate.success': 'Migrace zařazena',
+  'vps.lifecycle.migrate.accepted_body': 'Požadavek na migraci {target} byl přijat. Průběh sleduj v taskech.',
   'vps.lifecycle.migrate.success_body': 'Požadavek na migraci byl přijat. Průběh sleduj v taskech.',
   'vps.lifecycle.back_to_actions': 'Zpět na akce',
   'vps.lifecycle.invalid_action': 'Tahle lifecycle akce tady není dostupná.',

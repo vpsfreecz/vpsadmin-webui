@@ -39,7 +39,6 @@ export type MigrateForm = {
   scheduleMode: MigrateScheduleMode;
   finishWeekday: string;
   finishHour: string;
-  stopOnError: boolean;
   cleanupData: boolean;
   noStart: boolean;
   skipStart: boolean;
@@ -96,11 +95,10 @@ export function defaultMigrateForm(): MigrateForm {
   return {
     node: '',
     replaceIpAddresses: false,
-    transferIpAddresses: true,
+    transferIpAddresses: false,
     scheduleMode: 'maintenance',
     finishWeekday: '',
     finishHour: '',
-    stopOnError: true,
     cleanupData: true,
     noStart: false,
     skipStart: false,
@@ -214,7 +212,6 @@ export function buildVpsMigratePayload(form: MigrateForm, context: Pick<MigrateT
     replace_ip_addresses: context.canReplaceIpAddresses ? form.replaceIpAddresses : false,
     transfer_ip_addresses: context.canTransferIpAddresses ? form.transferIpAddresses : false,
     maintenance_window: form.scheduleMode === 'maintenance',
-    stop_on_error: form.stopOnError,
     cleanup_data: form.cleanupData,
     no_start: form.noStart,
     skip_start: form.skipStart,

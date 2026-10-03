@@ -209,7 +209,6 @@ export function VpsAdminMigrateCard(props: {
   targetContext: MigrateTargetContext;
   gate: GateDecision;
   pending: boolean;
-  succeeded: boolean;
   errorMessage?: string;
   onOpenTasks: () => void;
   onSubmit: () => void;
@@ -323,7 +322,6 @@ export function VpsAdminMigrateCard(props: {
         {props.targetContext.targetSelected && props.targetContext.canReplaceIpAddresses ? (
           <Checkbox checked={props.form.replaceIpAddresses} onChange={(v) => setForm({ replaceIpAddresses: v, confirm: false })} label={t('vps.lifecycle.migrate.option.replace_ip_addresses')} testId="vps.lifecycle.migrate.replace_ip_addresses" />
         ) : null}
-        <Checkbox checked={props.form.stopOnError} onChange={(v) => setForm({ stopOnError: v, confirm: false })} label={t('vps.lifecycle.migrate.option.stop_on_error')} testId="vps.lifecycle.migrate.stop_on_error" />
         <Checkbox checked={props.form.cleanupData} onChange={(v) => setForm({ cleanupData: v, confirm: false })} label={t('vps.lifecycle.migrate.option.cleanup_data')} testId="vps.lifecycle.migrate.cleanup_data" />
         <Checkbox checked={props.form.sendMail} onChange={(v) => setForm({ sendMail: v, confirm: false })} label={t('vps.lifecycle.migrate.option.send_mail')} testId="vps.lifecycle.migrate.send_mail" />
       </div>
@@ -379,9 +377,6 @@ export function VpsAdminMigrateCard(props: {
       />
 
       <AsyncActionResult
-        succeeded={props.succeeded}
-        successTitle={t('vps.lifecycle.migrate.success')}
-        successBody={t('vps.lifecycle.migrate.success_body')}
         errorTitle={t('vps.lifecycle.migrate.error')}
         errorMessage={props.errorMessage}
       />

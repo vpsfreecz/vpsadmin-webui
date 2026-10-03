@@ -1,3 +1,4 @@
+import { vpsMigrateReceipt } from './vpsMigrateReceipt';
 import { vpsDeleteReceipt } from './vpsDeleteReceipt';
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -424,6 +425,7 @@ export function VpsLifecyclePage() {
     onMutate: acquireMutationContext,
     onSuccess: (res, variables, context) => {
       track(res.meta, 'action.vps.migrate.label', variables, context);
+      toasts.pushToast(vpsMigrateReceipt(t, variables.objectLabel, () => chrome.openTasks()));
       setMigrate((p) => ({ ...p, confirm: false }));
     },
     onError: (e: any) => {
@@ -676,7 +678,6 @@ export function VpsLifecyclePage() {
       targetContext={migrateTargetContext}
       gate={gate}
       pending={migrateM.isPending}
-      succeeded={migrateM.isSuccess}
       errorMessage={migrateM.isError ? mutationErrorMessage(migrateM.error, t('vps.lifecycle.validation.migrate'), t('vps.mutation.error.missing_action_state')) : undefined}
       onOpenTasks={() => chrome.openTasks()}
       onSubmit={() => migrateM.mutate(prepareMutation(() => buildVpsMigratePayload(migrate, migrateTargetContext)))}

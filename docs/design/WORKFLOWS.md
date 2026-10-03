@@ -59,6 +59,20 @@ be asynchronous. Preserve action-state links and reconcile uncertain submissions
 before a second attempt. [VPS adapter](../../src/lib/api/vps.ts),
 [power failure fixture](../../e2e/specs/app/vps_power_failures.spec.ts).
 
+Accepted VPS migration shows one persistent shared toast at the bottom right
+(on mobile, across the bottom), naming the submitted VPS and linking to Tasks.
+It confirms acceptance, not completion, and stays visible while the detail refreshes
+or the user scrolls. The draft stays in place and confirmation clears after
+acceptance. Rejection and missing action-state receipts retain their errors and
+uncertainty safeguards; they never display an accepted toast.
+
+Migration retains maintenance-window, immediate and custom weekday/hour timing,
+cleanup, no-start, skip-start, mail and reason options. No-start, skip-start and
+reason are inside Advanced. IP transfer appears for environment changes and IP
+replacement for location changes; both default off as in the legacy UI.
+The single-VPS API does not support the migration-plan `stop_on_error` option.
+See the [parity audit](../work-log/2026-10-03-migration-feedback.md).
+
 ## Compute, disk, access, network and maintenance
 
 **Intent:** edit compute and root disk in a coherent workspace, configure hostname,

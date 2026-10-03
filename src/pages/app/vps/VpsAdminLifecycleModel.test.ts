@@ -98,7 +98,6 @@ describe('VPS admin lifecycle model', () => {
       replace_ip_addresses: true,
       transfer_ip_addresses: false,
       maintenance_window: false,
-      stop_on_error: true,
       cleanup_data: true,
       no_start: true,
       skip_start: false,
@@ -107,6 +106,26 @@ describe('VPS admin lifecycle model', () => {
       finish_minutes: 60,
       reason: 'rack maintenance',
     });
+  });
+
+  it('keeps legacy migration defaults and supports Sunday at midnight', () => {
+    const initial = defaultMigrateForm();
+    expect(initial).toMatchObject({
+      transferIpAddresses: false, replaceIpAddresses: false,
+      cleanupData: true, noStart: false, skipStart: false, sendMail: true,
+    });
+    const context = buildMigrateTargetContext(sourceVps, crossEnvironmentNode);
+    const form = nextMigrateFormForNodeChange(initial, '5', context);
+    expect(form.scheduleMode).toBe('now');
+    expect(buildVpsMigratePayload(form, context)).toEqual({
+      node: 5, transfer_ip_addresses: false, replace_ip_addresses: false,
+      maintenance_window: false, cleanup_data: true, no_start: false,
+      skip_start: false, send_mail: true,
+    });
+    expect(isMigrateReady({ ...form, scheduleMode: 'custom', confirm: true })).toBe(false);
+    expect(buildVpsMigratePayload({
+      ...form, scheduleMode: 'custom', finishWeekday: '0', finishHour: '0',
+    }, context)).toMatchObject({ maintenance_window: false, finish_weekday: 0, finish_minutes: 0 });
   });
 
   it('resets IP flags and scheduling for same-location migrations', () => {

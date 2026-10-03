@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock } from '../../fixtures';
+import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 
 const vps = {
   id: 123,
@@ -49,6 +49,7 @@ function runningActionState(id: number, label: string) {
 async function installLifecycleMock(page: Page, options?: {
   updateVps?: () => unknown;
   reinstallVps?: () => unknown;
+  migrateVps?: () => unknown;
   user?: { id: number; login: string; level: number };
 }) {
   let ipAddressRequests = 0;
@@ -110,7 +111,8 @@ async function installLifecycleMock(page: Page, options?: {
       'POST vpses/123/replace': () => ({ vps: { id: 789, hostname: 'replacement' }, _meta: { action_state_id: 509 } }),
       'POST vpses/123/boot': () => ({ _meta: { action_state_id: 501 } }),
       'POST vpses/123/reinstall': options?.reinstallVps ?? (() => ({ _meta: { action_state_id: 502 } })),
-      'POST vpses/123/migrate': () => ({ _meta: { action_state_id: 510 } }),
+      'POST vpses/123/migrate': options?.migrateVps ?? (() => ({ _meta: { action_state_id: 510 } })),
+      'GET action_states/510': () => runningActionState(510, 'Migrate VPS'),
       'DELETE vpses/123': () => ({ _meta: { action_state_id: 511 } }),
     },
   });
@@ -522,7 +524,7 @@ test.describe('@pr-smoke VPS lifecycle tab', () => {
     await page.getByTestId('vps.lifecycle.reinstall.submit').click();
     await expect(page.getByTestId('vps.lifecycle.reinstall.submit.confirm_dialog.target')).toContainText('vps123.example');
     await expect(page.getByTestId('vps.lifecycle.reinstall.submit.confirm_dialog.target')).toContainText('#123');
-    const proofScreenshot = process.env.E2E_VPS_PROOF_SCREENSHOT?.trim();
+    const proofScreenshot = process.env['E2E_VPS_PROOF_SCREENSHOT']?.trim();
     if (proofScreenshot) {
       await page.screenshot({ path: proofScreenshot, fullPage: true });
     }
@@ -821,6 +823,71 @@ test.describe('@pr-smoke VPS lifecycle tab', () => {
     await expect(page).toHaveURL(/\/admin\/vps\/789\?user=7$/);
   });
 
+  for (const language of ['en', 'cs'] as const) {
+    test(`@pr-smoke-mobile ${language} migration acceptance stays visible above a scrolled form`, async ({ page }) => {
+      await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+      await setUiSettingsLocalStorage(page, { language });
+      let accept: (() => void) | undefined;
+      await installLifecycleMock(page, {
+        migrateVps: () => new Promise((resolve) => {
+          accept = () => resolve({ _meta: { action_state_id: 510 } });
+        }),
+      });
+      await page.goto('/admin/vps/123/lifecycle/migrate');
+      await page.getByTestId('vps.lifecycle.migrate.node').fill('node2');
+      await page.getByTestId('vps.lifecycle.migrate.node.opt.2').click();
+      await page.getByTestId('vps.lifecycle.migrate.advanced').locator('summary').click();
+      await page.getByTestId('vps.lifecycle.migrate.reason').fill('Scheduled maintenance');
+      await page.getByTestId('vps.lifecycle.migrate.confirm').check();
+      await page.getByTestId('vps.lifecycle.migrate.submit').click();
+      await expect.poll(() => Boolean(accept)).toBe(true);
+      await page.evaluate(() => window.scrollTo(0, 0));
+      accept?.();
+
+      const title = language === 'cs' ? 'Migrace zařazena' : 'Migration queued';
+      const toast = page.getByTestId('toast.viewport');
+      await expect(toast).toContainText(title);
+      await expect(toast).toContainText('vps123.example');
+      await expect(toast).toBeInViewport();
+      await expect(page.getByTestId('vps.lifecycle.migrate').getByText(title)).toHaveCount(0);
+      await expect(page.getByTestId('vps.lifecycle.migrate.confirm')).not.toBeChecked();
+      await expect(page.getByTestId('vps.lifecycle.migrate.reason')).toHaveValue('Scheduled maintenance');
+      const rect = await toast.boundingBox();
+      const viewport = page.viewportSize();
+      expect(rect).not.toBeNull();
+      expect(viewport).not.toBeNull();
+      if (!rect || !viewport) throw new Error('Missing viewport');
+      expect(viewport.height - rect.y - rect.height).toBeLessThanOrEqual(20);
+      expect(viewport.width - rect.x - rect.width).toBeLessThanOrEqual(20);
+      await page.screenshot({ path: test.info().outputPath(`migration-${language}.png`) });
+      await toast.getByRole('button', { name: language === 'cs' ? 'Otevřít úlohy' : 'Open tasks' }).click();
+      await expect(page.getByTestId('tasks.drawer')).toBeVisible();
+      await expect(page.getByTestId('tasks.drawer')).toContainText('vps123.example');
+    });
+  }
+
+  for (const outcome of ['rejected', 'missing-receipt'] as const) {
+    test(`@pr-smoke-mobile migration ${outcome} retains the draft without an accepted toast`, async ({ page }) => {
+      await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+      await installLifecycleMock(page, {
+        migrateVps: () => outcome === 'rejected' ? failEnvelope('Migration rejected') : {},
+      });
+      await page.goto('/admin/vps/123/lifecycle/migrate');
+      await page.getByTestId('vps.lifecycle.migrate.node').fill('node2');
+      await page.getByTestId('vps.lifecycle.migrate.node.opt.2').click();
+      await page.getByTestId('vps.lifecycle.migrate.advanced').locator('summary').click();
+      await page.getByTestId('vps.lifecycle.migrate.reason').fill('Keep this draft');
+      await page.getByTestId('vps.lifecycle.migrate.confirm').check();
+      await page.getByTestId('vps.lifecycle.migrate.submit').click();
+      await expect(page.getByTestId('vps.lifecycle.migrate').getByText('Migration failed', { exact: true })).toBeVisible();
+      await expect(page.getByTestId('vps.lifecycle.migrate.reason')).toHaveValue('Keep this draft');
+      await expect(page.getByTestId('toast.viewport').getByText('Migration queued')).toHaveCount(0);
+      if (outcome === 'missing-receipt') {
+        await expect(page.getByTestId('vps.lifecycle.migrate.submit')).toBeDisabled();
+      }
+    });
+  }
+
   test('admin migrate posts migration options and schedule payload', async ({ page }) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
     await installLifecycleMock(page);
@@ -832,15 +899,16 @@ test.describe('@pr-smoke VPS lifecycle tab', () => {
     await page.getByTestId('vps.lifecycle.migrate.node.opt.5').click();
     await expect(page.getByTestId('vps.lifecycle.migrate.node')).toHaveValue('node5.example (#5)');
     await page.getByTestId('vps.lifecycle.migrate.replace_ip_addresses').check();
-    await page.getByTestId('vps.lifecycle.migrate.transfer_ip_addresses').uncheck();
+    await expect(page.getByTestId('vps.lifecycle.migrate.transfer_ip_addresses')).not.toBeChecked();
+    await page.getByTestId('vps.lifecycle.migrate.transfer_ip_addresses').check();
     await page.getByTestId('vps.lifecycle.migrate.schedule').selectOption('custom');
-    await page.getByTestId('vps.lifecycle.migrate.stop_on_error').check();
-    await page.getByTestId('vps.lifecycle.migrate.cleanup_data').check();
-    await page.getByTestId('vps.lifecycle.migrate.send_mail').check();
+    await page.getByTestId('vps.lifecycle.migrate.cleanup_data').uncheck();
+    await page.getByTestId('vps.lifecycle.migrate.send_mail').uncheck();
     await page.getByTestId('vps.lifecycle.migrate.finish_weekday').selectOption('2');
     await page.getByTestId('vps.lifecycle.migrate.finish_hour').selectOption('1');
     await page.getByTestId('vps.lifecycle.migrate.advanced').locator('summary').click();
     await page.getByTestId('vps.lifecycle.migrate.no_start').check();
+    await page.getByTestId('vps.lifecycle.migrate.skip_start').check();
     await page.getByTestId('vps.lifecycle.migrate.reason').fill('rack maintenance');
     await page.getByTestId('vps.lifecycle.migrate.confirm').check();
 
@@ -855,13 +923,12 @@ test.describe('@pr-smoke VPS lifecycle tab', () => {
       vps: {
         node: 5,
         replace_ip_addresses: true,
-        transfer_ip_addresses: false,
+        transfer_ip_addresses: true,
         maintenance_window: false,
-        stop_on_error: true,
-        cleanup_data: true,
+        cleanup_data: false,
         no_start: true,
-        skip_start: false,
-        send_mail: true,
+        skip_start: true,
+        send_mail: false,
         finish_weekday: 2,
         finish_minutes: 60,
         reason: 'rack maintenance',
@@ -898,7 +965,6 @@ test.describe('@pr-smoke VPS lifecycle tab', () => {
         replace_ip_addresses: false,
         transfer_ip_addresses: false,
         maintenance_window: true,
-        stop_on_error: true,
         cleanup_data: true,
         no_start: false,
         skip_start: false,
