@@ -13,6 +13,8 @@
     "e2e/helpers/horizontalOverflow.ts",
     "e2e/specs/app/authenticated_home_smoke.spec.ts",
     "e2e/specs/app/global_search_cold_start.spec.ts",
+    "e2e/specs/app/payment_qr_images.spec.ts",
+    "e2e/specs/app/payments_page.spec.ts",
     "e2e/specs/app/profile_owner_scope.spec.ts",
     "e2e/specs/app/sidebar_expanded.spec.ts",
     "e2e/specs/app/ui_preferences_persistence.spec.ts",
@@ -1070,13 +1072,6 @@
     {
       "path": "e2e/specs/app/payment_period_date_only.spec.ts",
       "sha256": "aefad7e1ca0d81f7ca5ac1477382dc4e603b97380c99bb1cd56e6a03328bca84",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/app/payments_page.spec.ts",
-      "sha256": "0fd2695e9cfeeee31a74d5be0a36aad12cdb4f4723662bcad80688df28e817e7",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."

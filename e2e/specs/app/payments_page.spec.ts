@@ -227,6 +227,7 @@ test('user payments page: localizes and constrains legacy payment instruction HT
 
   const qr = instructions.locator('img').first();
   await expect(qr).toBeVisible();
+  await expect.poll(() => qr.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0)).toBe(true);
   const qrBox = await qr.boundingBox();
   expect(qrBox?.width).toBeLessThanOrEqual(160);
   expect(qrBox?.height).toBeLessThanOrEqual(160);

@@ -24,6 +24,7 @@ export type HtmlSanitizerPolicy = {
     context: HtmlSanitizerAttributeContext,
   ) => Readonly<Record<string, string | null | undefined>>;
   allowMailtoAttributes?: ReadonlySet<string>;
+  allowPngDataImages?: boolean;
   hardenLinks?: boolean;
   afterSanitize?: (fragment: DocumentFragment) => void;
 };
@@ -62,6 +63,7 @@ function sanitizedAttributeValue(
 
   return safeContentUrl(rawValue, {
     allowMailto: policy.allowMailtoAttributes?.has(`${tagName}.${attributeName}`),
+    allowPngDataImage: policy.allowPngDataImages && tagName === 'img' && attributeName === 'src',
   });
 }
 

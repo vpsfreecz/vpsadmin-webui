@@ -14,8 +14,25 @@ function normalizedUrl(raw: string, base?: string): { value: string; url: URL } 
 
 export function safeContentUrl(
   raw: string,
-  options: { allowMailto?: boolean } = {},
+  options: { allowMailto?: boolean; allowPngDataImage?: boolean } = {},
 ): string | null {
+  // Payment instructions embed PNG QR codes. Keep this opt-in separate from
+  // navigation URLs and reject SVG, arbitrary data MIME types and malformed data.
+  if (options.allowPngDataImage && raw.length <= 1024 * 1024) {
+    const value = raw.trim();
+    const prefix = 'data:image/png;base64,';
+    if (value.startsWith(prefix)) {
+      const encoded = value.slice(prefix.length);
+      if (
+        encoded.length >= 12 &&
+        encoded.length % 4 === 0 &&
+        /^[A-Za-z0-9+/]+={0,2}$/.test(encoded) &&
+        atob(encoded.slice(0, 12)).startsWith('\x89PNG\r\n\x1a\n')
+      ) return value;
+      return null;
+    }
+  }
+
   const parsed = normalizedUrl(raw, LOCAL_URL_BASE);
   if (!parsed) return null;
 

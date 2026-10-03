@@ -207,6 +207,12 @@ incoming payments as the common working destination. Global finance and sensitiv
 user payment views have explicit administrator gates even if a support-level user
 can access other admin pages.
 
+Payment instructions preserve inline base64 PNG QR images supplied by the API.
+The exception is limited to image sources in this sanitized payment HTML, with a
+PNG signature, valid base64 and a 1 MiB URL limit; links, news HTML, SVG and other
+data MIME types retain their existing restrictions. Browser checks verify image
+decoding and painted pixels for both currencies, not just an empty visible box.
+
 **Failure contract:** amounts/currency/timezone/scope must stay bound to the reviewed
 transaction. Failed assignment remains in review; queue advances only on the known
 appropriate outcome. Partial/bulk outcomes require reconciliation rather than

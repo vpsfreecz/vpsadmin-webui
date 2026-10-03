@@ -227,6 +227,7 @@ function markPaymentInstructionTables(fragment: DocumentFragment): void {
 function paymentInstructionsSanitizerPolicy(lang: PaymentInstructionsLanguage): HtmlSanitizerPolicy {
   return {
     allowedTags: PAYMENT_ALLOWED_TAGS,
+    allowPngDataImages: true,
     allowMailtoAttributes: PAYMENT_MAILTO_ATTRIBUTES,
     hardenLinks: true,
     sanitizeAttributes: ({ tagName, sourceAttributes: attributes }) => {
@@ -234,7 +235,7 @@ function paymentInstructionsSanitizerPolicy(lang: PaymentInstructionsLanguage): 
 
       if (tagName === 'img') {
         const src = attributes.get('src');
-        if (!src || !safeContentUrl(src)) return {};
+        if (!src || !safeContentUrl(src, { allowPngDataImage: true })) return {};
 
         return {
           src,
