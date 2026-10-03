@@ -58,12 +58,12 @@ test('@pr-smoke @pr-smoke-mobile admin requests: opening any waiting row starts 
 
   await expect(page).toHaveURL(/\/admin\/requests\/registration\/301/);
   await expect(page.getByTestId('admin.requests.review.continue')).toBeChecked();
-  await expect(page.getByTestId('admin.requests.review.queue')).toContainText('3');
+  await expect(page.getByTestId('admin.requests.review.queue')).not.toContainText(/Remaining in queue|Zbývá ve frontě/);
 
   await page.getByTestId('admin.requests.resolve.action.ignore').click();
 
   await expect(page).toHaveURL(/\/admin\/requests\/registration\/300/);
-  await expect(page.getByTestId('admin.requests.review.queue')).toContainText('2');
+  await expect(page.getByTestId('admin.requests.review.continue')).toBeChecked();
 });
 
 test('@pr-smoke @pr-smoke-mobile admin incoming payments: opening any unmatched row starts the review queue', async ({ page }) => {
@@ -100,7 +100,8 @@ test('@pr-smoke @pr-smoke-mobile admin incoming payments: opening any unmatched 
       'GET incoming_payments/300': () => ({ incoming_payment: payment(300) }),
       'GET users/123': () => ({ user: { id: 123, login: 'alice', full_name: 'Alice Example' } }),
       'POST user_payments': ({ reqJson }) => {
-        const incomingPaymentId = Number(reqJson?.user_payment?.incoming_payment);
+        const body = reqJson as { user_payment: { incoming_payment: number } };
+        const incomingPaymentId = Number(body.user_payment.incoming_payment);
         states.set(incomingPaymentId, 'processed');
         return {
           user_payment: { id: 7_000 + incomingPaymentId, incoming_payment: { id: incomingPaymentId } },

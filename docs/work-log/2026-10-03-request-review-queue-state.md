@@ -54,3 +54,13 @@ A broader browser selection also mistakenly ran the existing desktop-only
 advanced-filter test on mobile; it expects the hidden desktop table row and fails
 there. Its desktop run passes. The supported selection excludes that case on
 mobile; no unrelated product behavior or existing test assertions were changed.
+
+## Release preparation follow-up
+
+The full GitHub smoke run found a second queue spec still asserting the removed
+numeric label. Updated that expectation to verify the active preference and
+actual next-request navigation. Adopted the spec into strict E2E checking
+(22 adopted, 223 deferred), including an explicit incoming-payment fixture body
+type. The earlier targeted run did not include this independent smoke spec.
+The corrected spec passes all four desktop/mobile request and incoming-payment
+cases; strict E2E type checking also passes.
