@@ -16,6 +16,7 @@
     "e2e/helpers/horizontalOverflow.ts",
     "e2e/specs/app/authenticated_home_smoke.spec.ts",
     "e2e/specs/app/global_search_cold_start.spec.ts",
+    "e2e/specs/app/incidents_responsive_layout.spec.ts",
     "e2e/specs/app/profile_owner_scope.spec.ts",
     "e2e/specs/app/sidebar_expanded.spec.ts",
     "e2e/specs/app/ui_preferences_persistence.spec.ts",
