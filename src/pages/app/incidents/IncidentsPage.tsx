@@ -14,7 +14,7 @@ import { PageHeader } from '../../../components/layout/PageHeader';
 import { searchUsers } from '../../../lib/api/users';
 import { fetchIncidentReports } from '../../../lib/api/incidents';
 import { fetchMailboxes } from '../../../lib/api/mailer';
-import { compactText, formatDateTime } from '../../../lib/format';
+import { formatDateTime } from '../../../lib/format';
 import { useKeysetPagination } from '../../../lib/hooks/useKeysetPagination';
 import {
   parseNumericToken,
@@ -938,20 +938,20 @@ export function IncidentsPage() {
         <>
           <TableCard
             className="hidden xl:block"
-            minWidth="xl"
-            tableClassName="table-fixed"
+            minWidth="full"
+            tableClassName="table-fixed [overflow-wrap:anywhere]"
             tableTestId="incidents.list.table"
           >
                 <colgroup>
                   <col className="w-8" />
-                  <col className="w-24" />
-                  <col className="w-40" />
-                  {isAdmin ? <col className="w-32" /> : null}
-                  <col className="w-36" />
-                  <col className="w-40" />
+                  <col className="w-20" />
+                  <col className="w-1/8" />
+                  {isAdmin ? <col className="w-1/10" /> : null}
+                  <col className="w-1/8" />
+                  <col className="w-1/6" />
                   <col />
-                  <col className="w-32" />
-                  {isAdmin ? <col className="w-32" /> : null}
+                  <col className="w-1/8" />
+                  {isAdmin ? <col className="w-1/10" /> : null}
                 </colgroup>
                 <thead>
                   <tr className="border-b border-border text-left text-xs text-muted">
@@ -1045,13 +1045,13 @@ export function IncidentsPage() {
 
                         <td className="px-3 py-2 break-all font-mono text-xs">{assignmentIp || '—'}</td>
                         <td className="px-3 py-2">
-                          <div className="min-w-0 truncate text-sm font-medium leading-5" title={subject || undefined}>
-                            {subject ? compactText(subject, 72) : '—'}
+                          <div className="min-w-0 text-sm font-medium leading-5" title={subject || undefined}>
+                            {subject || '—'}
                           </div>
                         </td>
                         <td className="px-3 py-2 font-mono text-xs">
-                          <span className="block truncate" title={codename || undefined}>
-                            {codename ? compactText(codename, 36) : '—'}
+                          <span className="block" title={codename || undefined}>
+                            {codename || '—'}
                           </span>
                         </td>
 
@@ -1075,7 +1075,7 @@ export function IncidentsPage() {
                 </tbody>
           </TableCard>
 
-          <div className="xl:hidden" data-testid="incidents.list.cards">
+          <div className="xl:hidden [overflow-wrap:anywhere]" data-testid="incidents.list.cards">
             <div className="space-y-3">
               {rows.map((r) => {
                 const to = `${basePath}/incidents/${r.id}`;
@@ -1124,20 +1124,20 @@ export function IncidentsPage() {
                           ) : null}
                         </div>
 
-                        <div className="mt-1 truncate text-sm font-medium text-text" title={subject || undefined}>
-                          {subject ? compactText(subject, 80) : '—'}
+                        <div className="mt-1 text-sm font-medium text-text" title={subject || undefined}>
+                          {subject || '—'}
                         </div>
 
                         <div className="mt-2 flex min-w-0 flex-wrap items-center gap-2 text-sm text-muted">
                           {isAdmin ? (
                             userIdRow ? (
-                              <ChipLink to={`${basePath}/users/${userIdRow}`}>{userLogin || `#${userIdRow}`}</ChipLink>
+                              <ChipLink to={`${basePath}/users/${userIdRow}`} className="max-w-full">{userLogin || `#${userIdRow}`}</ChipLink>
                             ) : userLogin ? (
                               <span>{userLogin}</span>
                             ) : null
                           ) : null}
                           {vpsIdRow ? (
-                            <ChipLink to={`${basePath}/vps/${vpsIdRow}`}>{vpsHost || `#${vpsIdRow}`}</ChipLink>
+                            <ChipLink to={`${basePath}/vps/${vpsIdRow}`} className="max-w-full">{vpsHost || `#${vpsIdRow}`}</ChipLink>
                           ) : r.raw_vps_id ? (
                             <span>#{r.raw_vps_id}</span>
                           ) : (
@@ -1145,12 +1145,12 @@ export function IncidentsPage() {
                           )}
                           {assignmentIp ? (
                             <span className="font-mono text-xs" title={assignmentIp}>
-                              {compactText(assignmentIp, 42)}
+                              {assignmentIp}
                             </span>
                           ) : null}
                           {codename ? (
                             <span className="font-mono text-xs" title={codename}>
-                              {compactText(codename, 42)}
+                              {codename}
                             </span>
                           ) : null}
                         </div>

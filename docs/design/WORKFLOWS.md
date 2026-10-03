@@ -274,6 +274,13 @@ interchangeable. Unknown/stale locks must be shown as such. Users see permitted
 objects; session filters and pagination must retain context. Large cgroup/SSH/task
 identifiers must wrap or scroll appropriately on mobile. Monitoring decisions and
 incident creation keep failed submissions retryable where safe.
+
+Incident lists fit the available desktop content width without horizontal table
+scrolling. Subjects, codenames, hostnames and IPv6 addresses wrap without losing
+text; narrower screens use the existing cards. The administrator-only owner and
+reporter columns remain available in admin view. See the
+[layout change record](../work-log/2026-10-03-incident-list-width.md).
+
 [Transactions](../../src/lib/api/transactions.ts),
 [monitoring](../../src/lib/api/monitoring.ts), [incidents](../../src/lib/api/incidents.ts),
 [OOM](../../src/lib/api/oom.ts).
