@@ -1,16 +1,20 @@
 # Source register, provenance and limits
 
-Documentation assembled 2026-09-27 from the currently available maintainer task
-history, repository source, recent GitHub PR history and local release/handoff
-records. No production personal data or private chat images are copied here.
+Initial reconstruction: 2026-09-27. Completeness reviews: 2026-09-29, in
+[PR530](https://github.com/Kerrycek/clankerdev/pull/530), against product baseline
+`156a7c043e543b5f4a51fc962d16e31bd6eaa00f`. Sources are the available maintainer
+task history, repository source, recent GitHub PR history and local release/handoff
+records. The 2026-10-03 port reconciles these historical sources against canonical main
+`3f31fce5cd58f3ace204c27e917b85527bfc08c0` and its existing deployment receipts.
+The documentation review itself is not a new deployment receipt. No production personal data or private chat images are copied here.
 
 ## Source classes
 
 | Source | What it establishes | Limitation |
 | --- | --- | --- |
-| Explicit maintainer messages in the available task, 2026-09-23–27 | Requirements, corrections, scoped approvals and stop instructions. | Not a public verbatim archive; summaries preserve intent without unrelated private conversation. |
-| Main product commit fd290b5e | Reviewed implementation baseline and merged PR ancestry. | Current behavior is not proof of original rationale or full legacy parity. |
-| PR425–524 listing reviewed during this task | Recent sequence of fixes and superseded/pending state. | Titles alone do not prove test execution; important outcomes use source/work-log evidence. |
+| Explicit maintainer messages available during the initial reconstruction and 2026-09-29 reviews | Requirements, corrections, scoped approvals and stop instructions. | Not a public verbatim archive; summaries preserve intent without unrelated private conversation. |
+| Current canonical main 3f31fce5; historical review 156a7c04; initial reconstruction fd290b5e | Reviewed implementation and merged PR ancestry; pending PR528/529 are documented separately. | Current behavior is not proof of original rationale or full legacy parity. |
+| Initial PR425–524 listing, followed by PR525–530 source/status review | Recent sequence of fixes and superseded/pending state. | Titles alone do not prove test execution; important outcomes use source/work-log evidence. |
 | Work log and recorded release receipts | Prior verification and deployment outcomes with stated scope. | Some full artifacts remain operator-local; transfer/revalidate as documented. |
 | Backend source reference and contracts handoffs | Exact endpoint incompatibilities and proposal boundaries. | Independent API pin; not permission to change upstream/shared runtime. |
 | KB contracts work/handoffs | Real isolated scenario history, independent pins and remaining KB work. | Not a completed production KB publication or certification of another UI/API pair. |
@@ -31,10 +35,20 @@ The requirements register captures the available concrete requests for:
 - real session countdown, persistent theme, direct console entry and deletion modes/feedback;
 - icon-only heatmap actions, understandable sidebar icons/labels, legacy favicon;
 - ongoing work log and complete English repository design/requirements documentation;
-- scoped merge/deploy requests and the later stop of scheduled autonomous work.
+- scoped merge/deploy requests and the later stop of scheduled autonomous work;
+- migration destination dropdown suitable for dozens of nodes, with reason/options visible;
+- editable rejection/correction presets in the applicant’s language, including custom text;
+- issue automation restricted to Kerrycek and active vpsfreecz members, with outside approval;
+- selected newadmin.vpsfree.cz hostname, dedicated deployment identity and separate personal access.
 
-Informal beta-domain and independent-audit discussion is context for open decisions,
-not authority to buy/configure a domain, appoint a reviewer or publish a beta.
+These later accepted details are recorded in REQ-028/038/063/066 and their linked
+contracts/decisions; accepted intent must not be confused with deployed behavior.
+
+The explicit later choice of newadmin.vpsfree.cz supersedes the informal naming
+discussion. The subsequent [three-site receipt](../work-log/2026-09-30-three-site-release.md)
+records deployed parallel previews; default-interface cutover and authenticated
+acceptance are separate. Independent-audit
+discussion does not appoint a reviewer or approve beta publication.
 No requirement is inferred from irrelevant personal text in attached conversations.
 
 ## Decision evidence anchors
@@ -54,9 +68,16 @@ No requirement is inferred from irrelevant personal text in attached conversatio
   [519](https://github.com/Kerrycek/clankerdev/pull/519): session/console/deletion/preferences.
 - [PR521](https://github.com/Kerrycek/clankerdev/pull/521),
   [522](https://github.com/Kerrycek/clankerdev/pull/522),
-  [524](https://github.com/Kerrycek/clankerdev/pull/524): pending compact visual fixes.
-- [PR523](https://github.com/Kerrycek/clankerdev/pull/523): work-log setup, expanded by
-  this follow-up into the self-contained design/requirements handover.
+  [524](https://github.com/Kerrycek/clankerdev/pull/524): merged visual fixes;
+  PR522 retained the normal full-width labeled sidebar.
+- [PR523](https://github.com/Kerrycek/clankerdev/pull/523): initial handbook/work-log setup.
+- [PR525](https://github.com/Kerrycek/clankerdev/pull/525): repository-local redesign reference.
+- [PR526](https://github.com/Kerrycek/clankerdev/pull/526): issue-runner trust restrictions.
+- [PR527](https://github.com/Kerrycek/clankerdev/pull/527): independent per-change work-log files.
+- [PR528](https://github.com/Kerrycek/clankerdev/pull/528) and
+  [PR529](https://github.com/Kerrycek/clankerdev/pull/529): original pending migration/reason-preset changes; canonical ports are tracked in the work log (presets: PR9).
+- [PR530](https://github.com/Kerrycek/clankerdev/pull/530): handover completeness review,
+  contracts, traceability, runbooks and reproducible setup.
 
 ## Missing or intentionally bounded evidence
 

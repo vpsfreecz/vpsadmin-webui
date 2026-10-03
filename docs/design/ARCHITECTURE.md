@@ -1,6 +1,6 @@
 # Architecture and runtime boundaries
 
-Baseline: `fd290b5e`; [requirements](REQUIREMENTS.md) REQ-001, 005–013, 056–063.
+Source reviewed at `3f31fce5` (2026-10-03); [requirements](REQUIREMENTS.md) REQ-001, 005–013, 056–063.
 This describes observed implementation, not a proposed backend rewrite.
 
 ```mermaid
@@ -73,6 +73,11 @@ runs one process per file store. Browser expiry/activity logic must not interpre
 background resource polling as human activity. Logout/expiry must not be undone
 by a later stale response. Auth storage and UI preference persistence are separate.
 
+The [impersonation workflow](ACTION_CONTRACTS.md#impersonation) is distinct from
+changing user/admin view: it creates a target-user token and overrides authentication
+in the current tab. The BFF operator session is not exchanged for that identity.
+Token storage and best-effort close must be included in security review.
+
 ## Permissions and object scope
 
 The API exposes numeric user levels. [roles.ts](../../src/lib/roles.ts) maps user
@@ -98,6 +103,53 @@ A successful HTTP status alone does not prove an operation receipt or completion
 API failures are distinguished from network ambiguity. Reconciliation happens
 before resubmission. Query invalidation/refetch updates affected views after known
 results; it must not discard an unrelated draft or reset an uncertain lock.
+
+## Refresh, cache and stale lock information
+
+REQ-011/012/051. The historical refresh document contains useful rationale but
+also older proposals; current behavior must be read from the implementation.
+[Query defaults](../../src/main.tsx) are one retry, 10-second staleTime and no
+refetch on window focus. staleTime is cache freshness, not a periodic timer.
+Individual queries override defaults and decide whether polling is enabled;
+there is no promise that every detail refreshes when its tab regains focus.
+
+[Refresh tiers](../../src/lib/refreshTiers.ts) centralize requested intervals:
+
+| Tier | Visible document | Hidden document |
+| --- | --- | --- |
+| A | 5 seconds | 20 seconds |
+| B | 15 seconds | 60 seconds |
+| C | 30 seconds | 120 seconds |
+| Slow | 60 seconds | 300 seconds |
+| Action-state poll | 3 seconds | 10 seconds |
+| Fast poll | 2 seconds | 5 seconds |
+
+These are scheduling inputs, not freshness SLAs. Browser throttling, network
+latency and each query's background/enabled settings can delay or suspend work.
+[Visibility](../../src/lib/useDocumentVisibility.ts) selects the requested tier.
+The authenticated shell samples the newest 10 transaction chains and 20 action
+states at tier A, with retries disabled for those queries. These samples are not
+a complete inventory of running operations. Its offline/error indicator and
+manual retry describe synchronization health, not the outcome of a mutation.
+
+[Chain-lock derivation](../../src/lib/lockState.ts) normally retains a last-known
+busy state while refresh is unreliable. Once a positive last-update timestamp is
+older than the default 60-second TTL, it reports stale=true and derived busy=false,
+retaining chain IDs for diagnostics. This removes reliance on stale chain data;
+it does **not** establish completion, revoke a backend lock, or clear a persisted
+local uncertain-operation record. Never use the absence of a sampled/stale busy
+badge as proof that a destructive request can safely be repeated.
+
+When a tracked action finishes, the shell invalidates task lists and known related
+objects and releases local locks bound to that action-state ID. Object invalidation
+uses [query-key matching](../../src/lib/queryInvalidation.ts) and best-effort chain
+concerns; it is not a full cache-consistency guarantee. Preserve domain preflight,
+API authorization and separate uncertainty reconciliation.
+
+Verification entry points: [tier tests](../../src/lib/refreshTiers.test.ts),
+[staleness tests](../../src/lib/lockState.test.ts),
+[shell implementation](../../src/components/layout/AppLayout.tsx).
+These models do not prove real-world refresh latency or live operation completion.
 
 ## Configuration, integrations and trust
 

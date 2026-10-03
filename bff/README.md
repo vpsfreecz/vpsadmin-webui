@@ -145,3 +145,9 @@ busy rejection; runtime queue and OAuth tests remain necessary.
 `runtime-config.js`, `security.js`, `server.js` and the response pages are outside
 this first static gate and need separate adoption before BFF type coverage is
 complete.
+
+## Maintainer references
+
+See [configuration and storage](../docs/design/CONFIGURATION.md),
+[local setup](../docs/design/DEVELOPMENT.md), and
+[troubleshooting](../docs/design/TROUBLESHOOTING.md).
