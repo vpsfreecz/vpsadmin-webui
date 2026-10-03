@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
+import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 
 function chain(
   id: number,
@@ -75,9 +75,50 @@ test('@pr-smoke @pr-smoke-mobile transaction chains prioritize active and failed
   }));
   expect(pageDimensions.scrollWidth).toBeLessThanOrEqual(pageDimensions.clientWidth);
 
-  const screenshot = process.env.E2E_TRANSACTION_CHAINS_UX_SCREENSHOT?.trim();
+  const screenshot = process.env['E2E_TRANSACTION_CHAINS_UX_SCREENSHOT']?.trim();
   if (screenshot) {
     const suffix = testInfo.project.name === 'mobile-chrome' ? '-mobile' : '-desktop';
     await page.screenshot({ path: screenshot.replace(/\.png$/i, `${suffix}.png`), fullPage: true });
   }
 });
+
+for (const language of ['cs', 'en'] as const) {
+  test(`@pr-smoke @pr-smoke-mobile ${language} uses API operation names in transaction rows, detail and Tasks`, async ({ page }) => {
+    const names = language === 'cs'
+      ? ['Heslo', 'Alert', 'OOM reporty', 'Připsání', 'Změna stavu', 'Zcela nová operace']
+      : ['Password', 'Alert', 'OOM reports', 'Credit', 'State change', 'A new backend operation'];
+    const classes = ['Vps', 'Dataset', 'System', 'UserPayment', 'User', 'Vps'];
+    const chains = names.map((name, i) => ({
+      ...chain(9206 - i, i === 0 ? 'queued' : 'done', name, i === 0 ? 1 : 2, 2, 30100 + i),
+      concerns: [{ class_name: classes[i], row_id: 30100 + i }],
+    }));
+    await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST_SESSION' });
+    await setUiSettingsLocalStorage(page, { language, theme: 'dark' });
+    await installHaveApiMock(page, {
+      user: { id: 1, login: 'admin', level: 100 },
+      handlers: {
+        'GET transaction_chains': () => ({ transaction_chains: chains }),
+        'GET transaction_chains/9206': () => ({ transaction_chain: chains[0] }),
+        'GET transactions': () => ({ transactions: [] }),
+      },
+    });
+    await page.goto('/admin/transactions');
+    for (const [i, name] of names.entries()) {
+      const row = page.getByTestId(`transactions.row.${9206 - i}`);
+      await expect(row.getByRole('link', { name, exact: true })).toBeVisible();
+      await expect(row).not.toContainText(language === 'cs' ? 'Backend název:' : 'Backend name:');
+      await expect(row.getByRole('link', { name: language === 'cs' ? 'Operace' : 'Operation', exact: true })).toHaveCount(0);
+    }
+    const dimensions = await page.evaluate(() => ({
+      width: document.documentElement.clientWidth,
+      scroll: document.documentElement.scrollWidth,
+    }));
+    expect(dimensions.scroll).toBeLessThanOrEqual(dimensions.width);
+    await page.screenshot({ path: test.info().outputPath(`operation-names-${language}.png`), fullPage: true });
+    await page.getByTestId('transactions.row.9206').getByRole('link', { name: names[0], exact: true }).click();
+    await expect(page.getByRole('heading', { name: names[0], exact: true })).toBeVisible();
+    await page.getByTestId('tasks.open-button').click();
+    await expect(page.getByTestId('tasks.chain.open.9206')).toHaveText(names[0] ?? '');
+    await expect(page.getByTestId('tasks.chain.row.9206')).not.toContainText(language === 'cs' ? 'Backend název:' : 'Backend name:');
+  });
+}

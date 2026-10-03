@@ -4,6 +4,7 @@ import type { ActionState } from './api/actionStates';
 import type { Transaction, TransactionChain } from './api/transactions';
 import {
   classifyActionState,
+  classifyOperation,
   classifyTransaction,
   classifyTransactionChain,
   operationBadgeVariant,
@@ -35,11 +36,34 @@ describe('operation taxonomy', () => {
     expect(create.key).toBe('vps.create');
     expect(create.category).toBe('vps');
     expect(create.visibility).toBe('user');
-    expect(operationLabel(create, t)).toBe('Create VPS');
+    expect(operationLabel(create, t)).toBe('CreateVps');
 
     expect(destroy.key).toBe('vps.delete');
     expect(destroy.severity).toBe('destructive');
     expect(operationBadgeVariant(destroy)).toBe('danger');
+  });
+
+  it.each([
+    ['Heslo', 'Vps'], ['Password', 'Vps'], ['Alert', 'Dataset'],
+    ['OOM reporty', 'System'], ['OOM reports', 'System'],
+    ['Připsání', 'UserPayment'], ['Credit', 'UserPayment'],
+    ['Změna stavu', 'User'], ['State change', 'User'],
+    ['Automatic backup snapshot retention cleanup', 'Dataset'],
+    ['Restart VPS', 'Vps'], ['Vps::CustomOperation', 'Vps'],
+  ])('preserves the API name %s independently of taxonomy matching', (label, className) => {
+    const concerns = [{ class_name: className, row_id: 33 }];
+    const translate = (key: string) => key === 'operation.unknown.label' ? 'Operace' : t(key);
+    expect(operationLabel(classifyTransactionChain({ id: 22, label, concerns }), translate)).toBe(label);
+    expect(operationLabel(classifyTransaction({ id: 22, name: label }), translate)).toBe(label);
+    expect(operationLabel(classifyActionState({ id: 22, label, concerns }), translate)).toBe(label);
+  });
+
+  it('trims API labels and uses translated fallbacks only when no name exists', () => {
+    const translate = (key: string) => key === 'operation.unknown.label' ? 'Operace' : t(key);
+    expect(operationLabel(classifyTransactionChain({ id: 1, label: '  Heslo  ' }), translate)).toBe('Heslo');
+    expect(operationLabel(classifyTransactionChain({ id: 1, label: '  ' }), translate)).toBe('Operace');
+    expect(operationLabel(classifyOperation({ objectLabel: 'Create VPS' }), translate)).toBe('Create VPS');
+    expect(operationLabel(classifyTransactionChain({ id: 1 }), (key) => key)).toBe('Operation');
   });
 
   it('collapses completed system maintenance chains but keeps active ones visible', () => {
@@ -104,7 +128,7 @@ describe('operation taxonomy', () => {
 
     expect(op.key).toBe('vps.stop');
     expect(op.severity).toBe('risky');
-    expect(operationLabel(op, t)).toBe('Stop');
+    expect(operationLabel(op, t)).toBe('Stop VPS #16');
   });
 
   it('does not classify Restart as Start through a substring match', () => {

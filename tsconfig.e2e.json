@@ -19,6 +19,7 @@
     "e2e/specs/app/global_search_cold_start.spec.ts",
     "e2e/specs/app/profile_owner_scope.spec.ts",
     "e2e/specs/app/sidebar_expanded.spec.ts",
+    "e2e/specs/app/transaction_chains_ux.spec.ts",
     "e2e/specs/app/ui_preferences_persistence.spec.ts",
     "e2e/specs/app/user_network_page.spec.ts",
     "e2e/specs/app/vps_console_viewport.spec.ts",

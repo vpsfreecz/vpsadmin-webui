@@ -460,9 +460,9 @@ export function classifyActionState(state: ActionState): OperationTaxonomy {
 }
 
 export function operationLabel(op: OperationTaxonomy, t: OperationTranslator): string {
+  if (op.rawLabel) return op.rawLabel;
   const translated = t(op.labelKey);
-  if (translated && translated !== op.labelKey) return translated;
-  return op.fallbackLabel;
+  return translated && translated !== op.labelKey ? translated : op.fallbackLabel;
 }
 
 export function operationCategoryLabel(op: OperationTaxonomy, t: OperationTranslator): string {
