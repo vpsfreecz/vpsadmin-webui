@@ -2,6 +2,11 @@ import { test, expect, type Page } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock, type HaveApiRequestCtx } from '../../fixtures';
 
+test.beforeEach(async ({ page }) => {
+  // Token age assertions use the fixture's July timeline, not the CI wall clock.
+  await page.clock.setFixedTime(new Date('2026-07-06T12:00:00Z'));
+});
+
 const longMetricPrefix = `stale_${'metrics'.repeat(24)}`;
 
 function metricsTokenPayload(ctx: HaveApiRequestCtx): Record<string, unknown> {
