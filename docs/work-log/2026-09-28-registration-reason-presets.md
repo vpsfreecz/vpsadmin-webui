@@ -49,3 +49,36 @@ the changed dialog. That invocation was stopped; the unchanged regression suite
 was rerun as desktop plus its explicitly tagged mobile cases. No checks or
 application behavior were relaxed to obtain passing results. Screenshots were
 visually inspected with synthetic applicants in light/dark and desktop/mobile.
+
+## 2026-10-03 — Transfer to the canonical repository
+
+The maintainer requested moving [legacy PR529](https://github.com/Kerrycek/clankerdev/pull/529)
+to `vpsfreecz/vpsadmin-webui`. Import original commit
+`169ad7fac8d8daab8d6d96d1e561dd2877915f0e` on current canonical main `3f31fce`,
+retaining authorship and feature scope. The workflow-document conflict retains
+both the preset contract and the newer registration/account-change layout.
+No old base history, issue-runner policy or other pending PR is included.
+
+The new browser spec is adopted into strict E2E TypeScript coverage (21 checked
+files, 225 deferred); no existing coverage hash, strictness or exception is
+weakened. The declared wording is reviewed against the flake-resolved vpsAdmin
+terminology/localization guides at `a65a4dfeb92a59df4a80a737a20bcbf8558793ff`.
+No PHP/API catalog regeneration applies to this React-only transfer. KB capture
+and real mail delivery are not certified by its synthetic browser checks.
+
+Fresh verification in an isolated Linux checkout used the locked Node
+24.21.0/npm 11.19.0 toolchain and a clean `npm ci`. `npm run ci:pr` passed:
+1,666 unit/component tests across 283 files, 222 script tests, 57 BFF tests,
+strict type checks, lint, localization/design/security audits and the build.
+All 10 preset Playwright cases passed across Chromium desktop/mobile, including
+opposite admin/applicant languages, exact payloads and preserved rejected drafts.
+The two captures below were visually checked. Further review-regression and
+GitHub CI results belong in the new PR's validation record. The build retains
+its existing large-chunk warning.
+
+Prepared for review in the canonical repository; not merged or deployed.
+
+Synthetic captures from the transferred implementation (no real applicant data):
+
+- [Desktop: Czech applicant message with English admin UI](screenshots/registration-presets-desktop-cs.png).
+- [Mobile: English applicant message with Czech admin UI](screenshots/registration-presets-mobile-en.png).
