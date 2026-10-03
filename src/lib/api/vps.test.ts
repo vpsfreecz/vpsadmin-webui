@@ -402,7 +402,6 @@ describe('vps API wrappers', () => {
       maintenance_window: false,
       finish_weekday: 1,
       finish_minutes: 180,
-      stop_on_error: true,
       cleanup_data: true,
       send_mail: true,
     });
@@ -420,7 +419,6 @@ describe('vps API wrappers', () => {
         maintenance_window: false,
         finish_weekday: 1,
         finish_minutes: 180,
-        stop_on_error: true,
         cleanup_data: true,
         send_mail: true,
       },

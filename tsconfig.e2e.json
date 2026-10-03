@@ -23,6 +23,7 @@
     "e2e/specs/app/vps_console_viewport.spec.ts",
     "e2e/specs/app/vps_create_failures.spec.ts",
     "e2e/specs/app/vps_creation_progress.spec.ts",
+    "e2e/specs/app/vps_lifecycle_tab_actions.spec.ts",
     "e2e/specs/app/vps_private_ip_availability.spec.ts",
     "e2e/specs/public/theme_language_bootstrap.spec.ts",
     "src/types/vpsadmin.d.ts"

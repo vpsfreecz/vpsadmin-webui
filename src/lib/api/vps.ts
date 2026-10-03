@@ -120,7 +120,6 @@ export interface VpsMigratePayload {
   maintenance_window?: boolean;
   finish_weekday?: number;
   finish_minutes?: number;
-  stop_on_error?: boolean;
   cleanup_data?: boolean;
   no_start?: boolean;
   skip_start?: boolean;

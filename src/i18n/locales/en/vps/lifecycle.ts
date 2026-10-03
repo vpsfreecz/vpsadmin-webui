@@ -69,6 +69,7 @@ export const enVps_lifecycle = {
   'vps.lifecycle.migrate.review.cleanup': 'Cleanup / notifications',
   'vps.lifecycle.migrate.review.cleanup_body': 'Cleanup data: {cleanup}. Send mail: {mail}. No start: {noStart}. Continue if start fails: {skipStart}.',
   'vps.lifecycle.migrate.success': 'Migration queued',
+  'vps.lifecycle.migrate.accepted_body': 'The migration request for {target} was accepted. Follow progress in tasks.',
   'vps.lifecycle.migrate.success_body': 'The migration request was accepted. Follow progress in tasks.',
   'vps.lifecycle.back_to_actions': 'Back to actions',
   'vps.lifecycle.invalid_action': 'This lifecycle action is not available here.',
