@@ -15,6 +15,8 @@
     "e2e/fixtures/vpsadmin-window.ts",
     "e2e/helpers/horizontalOverflow.ts",
     "e2e/specs/admin/registration_reason_presets.spec.ts",
+    "e2e/specs/admin/requests_operations_smoke.spec.ts",
+    "e2e/specs/app/admin_default_review_queue.spec.ts",
     "e2e/specs/app/authenticated_home_smoke.spec.ts",
     "e2e/specs/app/global_search_cold_start.spec.ts",
     "e2e/specs/app/incidents_responsive_layout.spec.ts",

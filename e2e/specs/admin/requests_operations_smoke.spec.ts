@@ -310,10 +310,9 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke admin requests: success
   await bootstrapVpsAdminWindow(page);
   const osm = await installOsmMapMock(page);
 
-  let current = registration(125);
-  current = { ...current, os_template: { id: 5, label: 'Debian 13' } };
+  let current = { ...registration(125), os_template: { id: 5, label: 'Debian 13' } };
   let resolveCalls = 0;
-  let nodeQuery: URLSearchParams | null = null;
+  let nodeQuery = new URLSearchParams();
   let finishResolve!: () => void;
   const resolveGate = new Promise<void>((resolve) => {
     finishResolve = resolve;
@@ -844,7 +843,7 @@ test('@workflow-matrix @smoke @smoke-mobile admin requests: sequential review op
 
   await expect(page).toHaveURL(/\/admin\/requests\/registration\/302/);
   await expect(page.getByTestId('admin.requests.review.continue')).toBeChecked();
-  await expect(page.getByTestId('admin.requests.review.queue')).toContainText(/3/);
+  await expect(page.getByTestId('admin.requests.review.queue')).not.toContainText(/Remaining in queue|Zbývá ve frontě/);
   const queueBox = await page.getByTestId('admin.requests.review.queue').boundingBox();
   const actionsBox = await page.getByTestId('admin.requests.resolve.actions').boundingBox();
   expect(actionsBox!.y).toBeGreaterThanOrEqual(queueBox!.y + queueBox!.height);
@@ -856,7 +855,7 @@ test('@workflow-matrix @smoke @smoke-mobile admin requests: sequential review op
   await page.getByTestId('admin.requests.resolve.submit').click();
 
   await expect(page).toHaveURL(/\/admin\/requests\/registration\/301/);
-  await expect(page.getByTestId('admin.requests.review.queue')).toContainText(/2/);
+  await expect(page.getByTestId('admin.requests.review.queue')).not.toContainText(/Remaining in queue|Zbývá ve frontě/);
   await expect(page.getByTestId('admin.requests.review.continue')).toBeChecked();
 
   await page.getByTestId('admin.requests.review.continue').uncheck();
@@ -1655,3 +1654,66 @@ test('@pr-smoke @pr-smoke-mobile admin requests: reconsideration stops when a re
   await expect(page.getByRole('status')).toContainText(/changed before submission|před odesláním změnila/i);
   expect(posts).toBe(0);
 });
+
+for (const language of ['cs', 'en'] as const) {
+  test(`@workflow-matrix @smoke @smoke-mobile admin requests: history return refreshes an approved request without reviving its queue (${language})`, async ({ page }, testInfo) => {
+    await bootstrapVpsAdminWindow(page);
+    await setUiSettingsLocalStorage(page, { language });
+    await installOsmMapMock(page);
+    let current = registration(501);
+    const next = registration(500);
+    let detailReads = 0;
+    let nextReads = 0;
+    const resolveBodies: unknown[] = [];
+
+    await installHaveApiMock(page, {
+      user: { id: 1, login: 'admin', level: 100 },
+      handlers: {
+        'GET user_request/registrations': () => ({ registrations: [current, next].filter((request) => request.state === 'awaiting') }),
+        'GET user_request/changes': () => ({ changes: [] }),
+        'GET user_request/registrations/501': () => {
+          detailReads += 1;
+          return { registration: current };
+        },
+        'GET user_request/registrations/500': () => {
+          nextReads += 1;
+          return { registration: next };
+        },
+        'POST user_request/registrations/501/resolve': ({ reqJson }) => {
+          resolveBodies.push(reqJson);
+          current = { ...current, state: 'denied' };
+          return { registration: current };
+        },
+      },
+    });
+
+    await page.goto('/admin/requests');
+    await page.getByTestId('admin.requests.review.start').click();
+    await expect(page).toHaveURL(/\/admin\/requests\/registration\/501/);
+    await expect(page.getByTestId('admin.requests.review.continue')).toBeChecked();
+    await expect(page.getByTestId('admin.requests.review.queue')).not.toContainText(/Remaining in queue|Zbývá ve frontě/);
+    await page.getByTestId('admin.requests.detail.back').click();
+    await expect(page).toHaveURL(/\/admin\/requests(?:\?|$)/);
+
+    await expect(page.getByTestId('admin.requests.review.start')).toBeVisible();
+
+    // Another administrator resolves the request while this browser is away.
+    current = { ...current, state: 'approved' };
+    const readsBeforeReturn = detailReads;
+    await page.goBack();
+    await expect(page).toHaveURL(/\/admin\/requests\/registration\/501/);
+    await expect.poll(() => detailReads).toBeGreaterThan(readsBeforeReturn);
+    const decision = page.getByTestId('admin.requests.detail.decision');
+    await expect(decision).toContainText(language === 'cs' ? 'Schváleno' : 'Approved');
+    await expect(page.getByTestId('admin.requests.review.queue')).toHaveCount(0);
+    await decision.screenshot({ path: testInfo.outputPath(`approved-history-${language}.png`) });
+
+    // A supported reconsideration must return to the list, not the stale queue.
+    await page.getByTestId('admin.requests.resolve.action.deny').click();
+    await page.getByTestId('admin.requests.resolve.reason').fill('Decision reconsidered after review');
+    await page.getByTestId('admin.requests.resolve.submit').click();
+    await expect(page).toHaveURL(/\/admin\/requests(?:\?|$)/);
+    expect(nextReads).toBe(0);
+    expect(resolveBodies).toEqual([{ registration: { action: 'deny', reason: 'Decision reconsidered after review' } }]);
+  });
+}

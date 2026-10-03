@@ -12,6 +12,8 @@
     "e2e/fixtures/vpsadmin-window.ts",
     "e2e/helpers/horizontalOverflow.ts",
     "e2e/specs/admin/registration_reason_presets.spec.ts",
+    "e2e/specs/admin/requests_operations_smoke.spec.ts",
+    "e2e/specs/app/admin_default_review_queue.spec.ts",
     "e2e/specs/app/authenticated_home_smoke.spec.ts",
     "e2e/specs/app/global_search_cold_start.spec.ts",
     "e2e/specs/app/incidents_responsive_layout.spec.ts",
@@ -437,13 +439,6 @@
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
     },
     {
-      "path": "e2e/specs/admin/requests_operations_smoke.spec.ts",
-      "sha256": "c60475d87c1f2275d6e0ee1821bbcfc5fd00714081cd80a597af0954a30f8deb",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
       "path": "e2e/specs/admin/resource_package_detail_mobile_actions.spec.ts",
       "sha256": "8a8b09bde60a8e0199e0ff037849591a0afab358090fdca3f1e82aa8364d9298",
       "owner": "WebUI maintainers",
@@ -579,13 +574,6 @@
     {
       "path": "e2e/specs/app/action_states_keyset_pagination.spec.ts",
       "sha256": "e91b6ac52405530d326e444a11aa5a950d236fb2f51cb99fa0d8aa3cab1b90de",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/app/admin_default_review_queue.spec.ts",
-      "sha256": "e0dff28c0ef225430dcfc28352b84eb3348d74be493c777f067c7084ba16c727",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."

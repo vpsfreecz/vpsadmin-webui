@@ -203,7 +203,7 @@ export function RequestDetailPage() {
   }, [reqId, reviewQueueActive]);
 
   async function afterResolved() {
-    if (!continueReviewQueue) {
+    if (!reviewQueueActive || state !== 'awaiting' || !continueReviewQueue) {
       navigate(returnTo, { replace: true });
       return;
     }
@@ -236,6 +236,7 @@ export function RequestDetailPage() {
     queryKey: ['user_request', reqType, 'show', reqId],
     enabled: Boolean(isAdmin && reqType && reqId),
     retry: false,
+    refetchOnMount: 'always',
     queryFn: async () => {
       if (!reqType || !reqId) throw new Error('invalid request');
       const loaded = reqType === 'registration'
@@ -403,7 +404,7 @@ export function RequestDetailPage() {
                     <div className="mt-1 whitespace-pre-line text-sm">{request.admin_response}</div>
                   </div>
                 ) : null}
-                {reviewQueueActive ? (
+                {reviewQueueActive && state === 'awaiting' && !requestQ.isFetching ? (
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1" data-testid="admin.requests.review.queue">
                     <label className="inline-flex min-h-8 cursor-pointer items-center gap-2 text-sm">
                       <input
@@ -415,9 +416,6 @@ export function RequestDetailPage() {
                       />
                       <span>{t('requests.review.continue')}</span>
                     </label>
-                    <div className="text-xs text-muted">
-                      {t('requests.review.remaining', { count: String(reviewQueue.length + 1) })}
-                    </div>
                   </div>
                 ) : null}
               </div>
