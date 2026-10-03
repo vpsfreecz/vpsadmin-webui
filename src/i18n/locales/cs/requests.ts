@@ -55,7 +55,6 @@ export const csRequests = {
   'requests.list.col.risk': 'Riziko',
   'requests.review.start': 'Posuzovat postupně',
   'requests.review.continue': 'Po rozhodnutí automaticky otevřít další žádost',
-  'requests.review.remaining': 'Zbývá ve frontě: {count}',
   'requests.type.registration': 'Registrace',
   'requests.type.change': 'Změna',
   'requests.field.login': 'Login',

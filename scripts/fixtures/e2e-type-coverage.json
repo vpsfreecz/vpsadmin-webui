@@ -11,6 +11,7 @@
     "e2e/fixtures/url.ts",
     "e2e/fixtures/vpsadmin-window.ts",
     "e2e/helpers/horizontalOverflow.ts",
+    "e2e/specs/admin/requests_operations_smoke.spec.ts",
     "e2e/specs/app/authenticated_home_smoke.spec.ts",
     "e2e/specs/app/global_search_cold_start.spec.ts",
     "e2e/specs/app/profile_owner_scope.spec.ts",
@@ -426,13 +427,6 @@
     {
       "path": "e2e/specs/admin/request_detail_error_recovery.spec.ts",
       "sha256": "5cdafed1a8e23a7106124ec70c48ea13d00ba62341962bbd60f7c63cf78bd185",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/admin/requests_operations_smoke.spec.ts",
-      "sha256": "c60475d87c1f2275d6e0ee1821bbcfc5fd00714081cd80a597af0954a30f8deb",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."

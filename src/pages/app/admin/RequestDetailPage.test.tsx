@@ -105,6 +105,35 @@ describe('RequestDetailPage recovery', () => {
     userMock.mockRejectedValue(new Error('Current user unavailable'));
   });
 
+  it.each(['approved', 'denied', 'ignored', 'pending_correction'])(
+    'does not revive the review queue for a %s request', async (state) => {
+      registrationMock.mockResolvedValue({ data: { ...registration(172), state } } as never);
+      renderDetail({
+        pathname: '/admin/requests/registration/172',
+        state: {
+          reviewQueueActive: true,
+          reviewQueue: Array.from({ length: 47 }, (_, index) => ({ type: 'registration', id: index + 200 })),
+        },
+      });
+
+      expect(await screen.findByText('Alice Example')).toBeInTheDocument();
+      expect(screen.queryByTestId('admin.requests.review.queue')).not.toBeInTheDocument();
+      expect(screen.getByTestId('resolution-controls')).toBeInTheDocument();
+    },
+  );
+
+  it('keeps the next-request preference without claiming a live remaining count', async () => {
+    registrationMock.mockResolvedValue({ data: registration(172) } as never);
+    renderDetail({
+      pathname: '/admin/requests/registration/172',
+      state: { reviewQueueActive: true, reviewQueue: [{ type: 'registration', id: 173 }] },
+    });
+
+    expect(await screen.findByTestId('admin.requests.review.continue')).toBeChecked();
+    expect(screen.getByTestId('admin.requests.review.queue')).toHaveTextContent('requests.review.continue');
+    expect(screen.queryByText(/requests.review.remaining/)).not.toBeInTheDocument();
+  });
+
   it('refetches a transient detail failure in place and preserves the queue context', async () => {
     const user = userEvent.setup();
     registrationMock

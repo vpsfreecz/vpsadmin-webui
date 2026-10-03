@@ -189,7 +189,13 @@ Registration and profile-change review use the same vertical arrangement: a
 full-width details card with initially open technical metadata, followed by a
 full-width decision card. The change card compares current and requested values;
 registration risk checks remain inside applicant details. The compact queue
-preference stays above the action buttons.
+preference stays above the action buttons and appears only for awaiting requests
+opened in a review queue. Returning through browser history refetches the current
+request state; an old history entry must not revive queue controls for a resolved
+request. Reconsidering such a request returns to the list. Queue IDs are a snapshot
+of the visible list, so the detail does not present their length as a live count of
+waiting applications. Advancing still checks each candidate's current state and
+skips requests that no longer await a decision.
 
 **Failure contract:** preserve the current decision draft, stale/missing owner
 errors, and uncertain-operation guard. Already-created accounts/terminal states

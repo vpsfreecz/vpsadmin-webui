@@ -55,7 +55,6 @@ export const enRequests = {
   'requests.list.col.risk': 'Risk',
   'requests.review.start': 'Review sequentially',
   'requests.review.continue': 'Automatically open the next request after each decision',
-  'requests.review.remaining': 'Remaining in queue: {count}',
   'requests.type.registration': 'Registration',
   'requests.type.change': 'Change',
   'requests.field.login': 'Login',
