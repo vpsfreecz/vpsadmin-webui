@@ -57,8 +57,33 @@ it does not contain a recovered original or a competing specification.
 12. [NixOS service](NIXOS_SERVICE.md): reusable disabled module, runtime
     environment, private nginx boundary and evaluation fixtures.
 
+13. [Action contracts](ACTION_CONTRACTS.md): role/state/input rules and legacy boundaries.
+14. [Requirement evidence](EVIDENCE_MATRIX.md) and [domain coverage](DOMAIN_COVERAGE.md): verification entry points and reverse adapter traceability.
+15. [Development](DEVELOPMENT.md), [configuration](CONFIGURATION.md) and [troubleshooting](TROUBLESHOOTING.md): clean setup, persisted data and failure diagnosis.
+16. [Handover](HANDOVER.md), [documentation review](DOCUMENTATION_REVIEW.md) and [visual references](VISUAL_REFERENCES.md): acceptance responsibilities and dated evidence.
+
+These chapters port [legacy PR530](https://github.com/Kerrycek/clankerdev/pull/530),
+adapted to canonical main and the 2026-09-30 release. The
+[port record](../work-log/2026-10-03-documentation-port.md) distinguishes current
+contracts from imported historical verification.
+
 The [work log](../../WORK_LOG.md) records chronology. Requirements record current
 intent; decisions explain transitions; test results prove only their stated scope.
+
+## Contributor and operator entry points
+
+- [Clean checkout](DEVELOPMENT.md): dependencies, fixture tests and local authentication setup.
+- [Configuration and data](CONFIGURATION.md): precedence, all BFF settings, browser/server state and recovery limits.
+- [Failure diagnosis](TROUBLESHOOTING.md): symptoms, evidence boundaries and security-review map.
+
+## Detailed review and handover
+
+- [Domain coverage](DOMAIN_COVERAGE.md): every API module mapped back to behavior, including helpers and non-adapter boundaries.
+- [Action contracts](ACTION_CONTRACTS.md): role/state/action tables and concrete validation rules.
+- [Requirement evidence matrix](EVIDENCE_MATRIX.md): each requirement mapped to verification, with missing proof explicit.
+- [Handover checklist](HANDOVER.md): acceptance, owners to assign, evidence access and remaining decisions.
+- [Visual references](VISUAL_REFERENCES.md): synthetic captures with revision and status.
+- [Audit disposition](DOCUMENTATION_REVIEW.md): findings, corrections and limits.
 
 ## Maintenance contract
 
@@ -81,8 +106,8 @@ but must be written down with their consequences and migration needs.
 For each row distinguish code status, verification scope and deployment status.
 Do not upgrade an open PR to delivered based on a screenshot or local pass. Update
 release outcomes separately with exact UI/API revisions. Regenerate the inventory
-when routes or adapters change. `npm run audit:design-docs` checks local links,
-requirement IDs and generated inventory drift; it cannot validate prose accuracy.
+when routes or adapters change. `npm run audit:design-docs` checks local links/heading anchors,
+requirement IDs, one evidence coverage row per ID, module-to-domain coverage and generated inventory drift; it cannot validate prose accuracy.
 
 Reviewers check: source of the requirement; old/new behavior; all roles and scopes;
 API reality; error/uncertain outcomes; cs/en; mobile/desktop; test evidence; migration
@@ -91,7 +116,7 @@ weaken tests to satisfy an outdated document.
 
 ## Coverage limit
 
-The register includes all concrete maintainer requests recoverable from the
+The register records the concrete maintainer requests recovered during the documented review of the
 available task history, recent PR history, and a domain inventory of current code.
 It is a reviewable baseline, not a claim that every earlier conversation has been
 recovered or every legacy feature has been certified. Unknown rationale, missing
