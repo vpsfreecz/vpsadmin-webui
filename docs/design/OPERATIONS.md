@@ -3,7 +3,7 @@
 This is the operational entry point for the canonical WebUI repository.
 Requirements REQ-056–066 and REQ-068–069 apply. Follow the
 [maintainer review/release workflow](../../AGENTS.md#maintainer-workflow-agreed-2026-09-30).
-The [2026-09-30 release receipt](../work-log/2026-09-30-three-site-release.md)
+The [2026-10-03 release receipt](../work-log/2026-10-03-three-site-release.md)
 records a completed deployment; it does not authorize another one.
 
 ## Repositories and environments
@@ -22,7 +22,9 @@ records a completed deployment; it does not authorize another one.
 All three WebUI origins received canonical source `718cf759` on 2026-09-30.
 Read-only endpoint checks on 2026-10-02 still found that clean full revision,
 healthy BFFs and the expected API separation. These dated observations are not
-permanent current-version pointers. Check live state again before an update.
+permanent current-version pointers. On 2026-10-03, all three received clean
+release `f123a7fb`; its receipt records verification and retained rollback.
+Check live state again before an update.
 
 The [package guide](PACKAGING.md) defines output contents and provenance. Keep
 frontend and BFF revisions paired. The [service guide](NIXOS_SERVICE.md) describes

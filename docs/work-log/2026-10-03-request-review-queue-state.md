@@ -64,3 +64,9 @@ actual next-request navigation. Adopted the spec into strict E2E checking
 type. The earlier targeted run did not include this independent smoke spec.
 The corrected spec passes all four desktop/mobile request and incoming-payment
 cases; strict E2E type checking also passes.
+
+## Deployment follow-up — 2026-10-03
+
+Merged and deployed to all three WebUI sites in clean release `f123a7fb`.
+See the [completed release receipt](2026-10-03-three-site-release.md) for
+exact provenance, CI results, runtime verification, rollback and limitations.

@@ -56,3 +56,9 @@ live API behavior. The existing browser spec is adopted into strict E2E types.
 KB scope: no navigation IDs/routes or PHP labels change. Existing external KB
 transaction prose describes the legacy PHP interface; these React captures do
 not certify those external pages. No KB publication or deployment is included.
+
+## Deployment follow-up — 2026-10-03
+
+Merged and deployed to all three WebUI sites in clean release `f123a7fb`.
+See the [completed release receipt](2026-10-03-three-site-release.md) for
+exact provenance, CI results, runtime verification, rollback and limitations.

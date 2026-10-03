@@ -36,3 +36,9 @@ Synthetic implementation captures visually reviewed:
 [mobile](screenshots/2026-10-03-payment-qr/mobile.png).
 New synthetic QR codes encode plain test labels, not bank payment orders. Original
 private screenshot data is not copied into the new fixtures or captures.
+
+## Deployment follow-up — 2026-10-03
+
+Merged and deployed to all three WebUI sites in clean release `f123a7fb`.
+See the [completed release receipt](2026-10-03-three-site-release.md) for
+exact provenance, CI results, runtime verification, rollback and limitations.

@@ -81,3 +81,9 @@ navigation or legacy PHP page changes. Read the separate KB change workflow
 and searched its contract/capture bindings: no migration control or capture
 is bound there. No KB repin/publication is needed for this change; these React
 fixture tests do not certify the external KB.
+
+## Deployment follow-up — 2026-10-03
+
+Merged and deployed to all three WebUI sites in clean release `f123a7fb`.
+See the [completed release receipt](2026-10-03-three-site-release.md) for
+exact provenance, CI results, runtime verification, rollback and limitations.

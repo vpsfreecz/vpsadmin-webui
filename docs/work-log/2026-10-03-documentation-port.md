@@ -45,3 +45,9 @@ adcd8256, baf47380, deceb6c7 and e0f99d8f. It remains available in the source PR
 the consolidated adapted port retains its original author and historical logs.
 Independent security review, authenticated release acceptance, private evidence
 transfer and broader legacy parity remain open; this port does not certify them.
+
+## Deployment follow-up — 2026-10-03
+
+Merged and deployed to all three WebUI sites in clean release `f123a7fb`.
+See the [completed release receipt](2026-10-03-three-site-release.md) for
+exact provenance, CI results, runtime verification, rollback and limitations.

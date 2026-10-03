@@ -36,3 +36,9 @@ Pinned Nix Node 24.21.0 / npm 11.19.0, clean npm ci, isolated source under
 
 Tests use synthetic API fixtures; no real migration or service deployment is performed. Administrator-only
 React form changes do not change legacy PHP KB navigation/capture contracts.
+
+## Deployment follow-up — 2026-10-03
+
+Merged and deployed to all three WebUI sites in clean release `f123a7fb`.
+See the [completed release receipt](2026-10-03-three-site-release.md) for
+exact provenance, CI results, runtime verification, rollback and limitations.

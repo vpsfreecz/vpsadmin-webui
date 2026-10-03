@@ -37,3 +37,9 @@ Pinned Nix Node 24.21.0 / npm 11.19.0 with clean root and BFF npm ci in the isol
   No gates were disabled or weakened.
 
 No live incident data or API mutations were used. No deployment performed.
+
+## Deployment follow-up — 2026-10-03
+
+Merged and deployed to all three WebUI sites in clean release `f123a7fb`.
+See the [completed release receipt](2026-10-03-three-site-release.md) for
+exact provenance, CI results, runtime verification, rollback and limitations.

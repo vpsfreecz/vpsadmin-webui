@@ -82,3 +82,9 @@ Synthetic captures from the transferred implementation (no real applicant data):
 
 - [Desktop: Czech applicant message with English admin UI](screenshots/registration-presets-desktop-cs.png).
 - [Mobile: English applicant message with Czech admin UI](screenshots/registration-presets-mobile-en.png).
+
+## Deployment follow-up — 2026-10-03
+
+Merged and deployed to all three WebUI sites in clean release `f123a7fb`.
+See the [completed release receipt](2026-10-03-three-site-release.md) for
+exact provenance, CI results, runtime verification, rollback and limitations.

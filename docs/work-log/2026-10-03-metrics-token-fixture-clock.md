@@ -14,3 +14,9 @@ Verification: all six desktop/mobile browser cases passed, as did strict E2E
 type checking in the integrated candidate. Explicit fixture field types and
 bracket property access resolve the previously unchecked spec diagnostics.
 This is a release-validation repair, not a change to the 90-day product policy.
+
+## Deployment follow-up — 2026-10-03
+
+Merged and deployed to all three WebUI sites in clean release `f123a7fb`.
+See the [completed release receipt](2026-10-03-three-site-release.md) for
+exact provenance, CI results, runtime verification, rollback and limitations.
