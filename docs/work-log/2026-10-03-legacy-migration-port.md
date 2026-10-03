@@ -20,6 +20,19 @@ certify this port. Current locked API/localization guide revision remains
 `a65a4dfeb92a59df4a80a737a20bcbf8558793ff`. The import preserves authorship and
 references both original commits. No original PR is closed or merged.
 
-Verification of the adapted candidate is in progress. Tests use synthetic API
-fixtures; no real migration or service deployment is performed. Administrator-only
+## Verification
+
+Pinned Nix Node 24.21.0 / npm 11.19.0, clean npm ci, isolated source under
+/data/webui-port528-20261003/repo. Runtime candidate fa4de6e:
+
+- npm run ci:pr passed: audits, strict typechecks, script/BFF checks, 1,647
+  unit tests and production build. Existing large-chunk warning only.
+- Targeted migration/admin-migrate Playwright cases: 22 passed across desktop
+  Chromium and mobile Chrome, including accepted toast, all visible options,
+  full paging, failed inventory/retry and rejected/ambiguous mutation outcomes.
+- Desktop/mobile captures visually reviewed, synthetic fixture data:
+  [desktop picker](screenshots/2026-10-03-migration-picker/desktop-picker.png),
+  [mobile form](screenshots/2026-10-03-migration-picker/mobile-form.png).
+
+Tests use synthetic API fixtures; no real migration or service deployment is performed. Administrator-only
 React form changes do not change legacy PHP KB navigation/capture contracts.
