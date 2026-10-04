@@ -255,9 +255,15 @@ incoming payments as the common working destination. Global finance and sensitiv
 user payment views have explicit administrator gates even if a support-level user
 can access other admin pages.
 
-Payment instructions preserve inline base64 PNG QR images supplied by the API.
-The exception is limited to image sources in this sanitized payment HTML, with a
-PNG signature, valid base64 and a 1 MiB URL limit; links, news HTML, SVG and other
+Payment instructions preserve inline base64 PNG QR images and external HTTPS
+QR image URLs supplied by the API. The NixOS deployment must allow the reviewed
+external generator through `security.imageSources`; HTML sanitization alone does
+not grant permission under CSP. Prefer the exact generator path (see
+[NixOS service](NIXOS_SERVICE.md)). Amount and reference query parameters remain
+as supplied by the API; the frontend does not recalculate them.
+
+For inline images, the exception is limited to image sources in this sanitized
+payment HTML, with a PNG signature, valid base64 and a 1 MiB URL limit; links, news HTML, SVG and other
 data MIME types retain their existing restrictions. Browser checks verify image
 decoding and painted pixels for both currencies, not just an empty visible box.
 

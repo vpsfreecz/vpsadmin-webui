@@ -46,6 +46,7 @@ let
       ];
     };
     security = {
+      imageSources = [ "https://qr.example.test/nastroje/qr.php" ];
       consoleOrigins = [ "wss://console.example.test" ];
       frameOrigins = [ "https://console.example.test" ];
     };
@@ -218,6 +219,30 @@ let
       && lib.any (message: lib.hasInfix "credentialFiles" message) (failures invalid)
       && lib.any (message: lib.hasInfix "provider origin" message) (failures invalid)
       && lib.any (message: lib.hasInfix "proxy peers" message) (failures invalid);
+    imageSources =
+      lib.hasInfix
+        "img-src 'self' data: https://www.openstreetmap.org https://qr.example.test/nastroje/qr.php;"
+        vhost.locations."/".extraConfig
+      &&
+        lib.all
+          (
+            source:
+            lib.any (message: lib.hasInfix "imageSources" message) (
+              failures (enabled {
+                security.imageSources = [ source ];
+              })
+            )
+          )
+          [
+            "https:"
+            "https://*.example.test"
+            "http://qr.example.test/qr.php"
+            "https://user:secret@qr.example.test/qr.php"
+            "https://qr.example.test/qr.php?vs=7"
+            "https://qr.example.test/qr.php#fragment"
+            "https://qr.example.test/qr.php; img-src *"
+            "https://qr.example.test/;upgrade-insecure-requests"
+          ];
     invalidPort = lib.any (message: lib.hasInfix "publicOrigin" message) (failures invalidPort);
     reusedOrigin = lib.any (message: lib.hasInfix "origins must be distinct" message) (
       failures reusedOrigin
