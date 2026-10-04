@@ -111,7 +111,7 @@ let
     "default-src 'self'"
     "script-src 'self' 'sha256-wyf6w6jZL1nQnvQ3z5xyWt1FnxVZMXcEAzprShSzkQY='"
     "style-src 'self' 'unsafe-inline'"
-    "img-src 'self' data: https://www.openstreetmap.org"
+    "img-src 'self' data: https://www.openstreetmap.org ${lib.concatStringsSep " " cfg.security.imageSources}"
     "font-src 'self' data:"
     "connect-src 'self' ${
       lib.concatStringsSep " " (
@@ -309,6 +309,16 @@ in
       default = [ "127.0.0.1/32" ];
       description = "Original socket-peer IPv4 addresses or CIDRs allowed to reach private nginx.";
     };
+    security.imageSources = mkOption {
+      type = types.listOf types.str;
+      default = [ ];
+      description = ''
+        Reviewed HTTPS image origins or path-qualified URLs for payment QR
+        generators and other external images. Prefer an exact endpoint path;
+        queries are supplied by the API HTML and are not part of CSP matching.
+        Empty by default; existing deployments must opt in to external images.
+      '';
+    };
     security.consoleOrigins = mkOption {
       type = types.listOf types.str;
       default = [ ];
@@ -323,6 +333,12 @@ in
 
   config = mkIf cfg.enable {
     assertions = [
+      {
+        assertion = lib.all (
+          source: isUrl source && builtins.match "[A-Za-z0-9:/._~%!-]+" source != null
+        ) cfg.security.imageSources;
+        message = "services.vpsadmin-webui.security.imageSources must be credential-free HTTPS URLs without queries or fragments.";
+      }
       {
         assertion = isOrigin cfg.publicOrigin;
         message = "services.vpsadmin-webui.publicOrigin must be one canonical HTTPS DNS origin.";

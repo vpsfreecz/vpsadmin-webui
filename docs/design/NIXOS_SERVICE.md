@@ -89,7 +89,14 @@ requests rejected before nginx selects a location. The
 static locations own the application CSP, including the current inline
 bootstrap hash, API connect origin and existing OpenStreetMap/Nominatim
 origins. Reviewed console/frame origins are explicit options; there is no
-blanket `https:` or `wss:` allowance. Proxied BFF responses retain their own
+blanket `https:` or `wss:` allowance. `security.imageSources` adds reviewed,
+credential-free HTTPS origins or path-qualified URLs to `img-src`; it defaults
+to an empty list, so an existing deployment must explicitly opt in. Prefer an
+exact generator endpoint, for example `https://qr.example.test/nastroje/qr.php`,
+to allowing its whole origin. CSP matches its path while allowing the payment
+query parameters provided by API HTML. Queries, fragments, wildcards and header
+injection are rejected by module assertions. No API or database migration is
+required; the site option takes effect when its nginx configuration is deployed. Proxied BFF responses retain their own
 OAuth/passkey CSP. The current passkey response has a fixed CSP with
 `default-src 'none'` and a provider-specific `form-action`; it does not use a
 nonce. The edge owns TLS/HSTS and must suppress OAuth query logging at its hop.
