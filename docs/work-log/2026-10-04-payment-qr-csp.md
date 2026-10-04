@@ -1,6 +1,8 @@
 # Payment QR generator blocked by newadmin CSP — 2026-10-04
 
-Requirements: REQ-052, REQ-069. Prepared for review, not merged or deployed.
+Requirements: REQ-052, REQ-069. [WebUI PR18](https://github.com/vpsfreecz/vpsadmin-webui/pull/18)
+and [site configuration PR2](https://github.com/vpsfreecz/vpsfree-cz-configuration/pull/2)
+are prepared for review, not merged or deployed.
 
 ## Diagnosis and correction of previous evidence
 
@@ -54,5 +56,16 @@ Reviewed synthetic implementation captures:
 [mobile](screenshots/2026-10-04-payment-qr-csp/mobile.png).
 They contain plain test labels, not production payment orders or personal data.
 
-Full site build and activation remain release checks after selecting the approved
-input. These browser fixtures and module evaluations are not deployment evidence.
+The full host build was attempted in an isolated site-config checkout using
+`nix build --impure --no-write-lock-file --no-link --override-input vpsadminWebui
+path:/data/webui-payment-qr-format-20261004/repo
+.#confctl.build.m_cz_vpsfree_vpsadmin_int_vpsadmin_webui1_03e727ba.toplevel`.
+It reached derivation building but failed in `init-script-builder.sh` (exit 1).
+Nix reported possible disk exhaustion and the builder's root filesystem had
+0 available space. The empty derivation log did not establish a more specific
+cause. Nixfmt/RuboCop and the declared Overcommit pre-commit/commit-message hooks
+passed for the companion configuration patch.
+
+A successful full host build and activation remain release checks after selecting
+the approved input. These browser fixtures and module evaluations are not
+deployment evidence. No shared input pin or live service was changed.
