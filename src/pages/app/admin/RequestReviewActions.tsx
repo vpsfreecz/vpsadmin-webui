@@ -332,9 +332,11 @@ export function RequestReviewActions(props: {
         footer={
           <div>
             {resolveError ? (
-              <Alert variant="danger" title={t('requests.resolve.toast.error.title')} testId={`${props.testIdPrefix}.error`}>
-                {resolveError}
-              </Alert>
+              <div role="alert">
+                <Alert variant="danger" title={t('requests.resolve.toast.error.title')} testId={`${props.testIdPrefix}.error`}>
+                  {resolveError}
+                </Alert>
+              </div>
             ) : null}
             <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
               <Button className="w-full sm:w-auto" variant="secondary" disabled={submitting} testId={`${props.testIdPrefix}.cancel`} onClick={() => setResolveOpen(false)}>

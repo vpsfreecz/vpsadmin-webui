@@ -219,6 +219,10 @@ of the visible list, so the detail does not present their length as a live count
 waiting applications. Advancing still checks each candidate's current state and
 skips requests that no longer await a decision.
 
+Resolve and preflight errors stay inside the open review dialog and are announced
+as alerts to assistive technology. They do not depend on background toasts, which
+remain hidden while a modal is open. The draft and Cancel action remain available.
+
 **Registration response presets (prepared):** the individual review dialog offers
 four complete rejection reasons (nonexistent address, incorrectly filled application,
 duplicate application, existing membership) and three correction requests (incomplete
