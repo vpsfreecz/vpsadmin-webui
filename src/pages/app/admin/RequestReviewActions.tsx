@@ -13,7 +13,6 @@ import type { ResolveUserRequestAction } from '../../../lib/api/requests';
 
 import { Button } from '../../../components/ui/Button';
 import { Alert } from '../../../components/ui/Alert';
-import { LinkButton } from '../../../components/ui/LinkButton';
 import { Modal } from '../../../components/ui/Modal';
 import { Textarea } from '../../../components/ui/Textarea';
 import { RegistrationReasonEditor } from './RegistrationReasonEditor';
@@ -35,7 +34,6 @@ import {
   requestActionNeedsReason,
   requestActionVariant,
   requestMissingRequiredUser,
-  requestOperationalLinks,
   requestOverrides,
   requestReviewActions,
   resourceId,
@@ -50,51 +48,7 @@ export {
   resourceId,
 } from './RequestReviewModel';
 
-export function RequestOperationalLinks(props: {
-  request: ReviewableRequest | undefined;
-  basePath: string;
-  compact?: boolean;
-  testIdPrefix: string;
-}) {
-  const { t } = useI18n();
-  const { actionStateId, transactionChainId, transactionId } = requestOperationalLinks(props.request);
-  if (!actionStateId && !transactionChainId && !transactionId) return null;
-
-  return (
-    <div className="flex flex-wrap gap-2" data-testid={`${props.testIdPrefix}.ops`}>
-      {actionStateId ? (
-        <LinkButton
-          to={`${props.basePath}/action-states/${actionStateId}`}
-          variant="secondary"
-          size={props.compact ? 'sm' : undefined}
-          testId={`${props.testIdPrefix}.ops.action_state`}
-        >
-          {t('common.action_state')} #{actionStateId}
-        </LinkButton>
-      ) : null}
-      {transactionChainId ? (
-        <LinkButton
-          to={`${props.basePath}/transactions/${transactionChainId}`}
-          variant="secondary"
-          size={props.compact ? 'sm' : undefined}
-          testId={`${props.testIdPrefix}.ops.chain`}
-        >
-          {t('common.open_chain')}
-        </LinkButton>
-      ) : null}
-      {transactionId ? (
-        <LinkButton
-          to={`${props.basePath}/transactions/items/${transactionId}`}
-          variant="secondary"
-          size={props.compact ? 'sm' : undefined}
-          testId={`${props.testIdPrefix}.ops.transaction`}
-        >
-          {t('common.open_transaction')}
-        </LinkButton>
-      ) : null}
-    </div>
-  );
-}
+export { RequestOperationalLinks } from './RequestOperationalLinks';
 
 export function RequestReviewActions(props: {
   request: ReviewableRequest;
@@ -128,6 +82,7 @@ export function RequestReviewActions(props: {
   const [resolveAction, setResolveAction] = useState<ResolveUserRequestAction>('approve');
   const [resolveReason, setResolveReason] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [resolveError, setResolveError] = useState<string | null>(null);
 
   const [overrides, setOverrides] = useState<RequestResolveOverrides>(() => emptyRequestOverrides());
   const [touchedOverrides, setTouchedOverrides] = useState<TouchedRequestOverrides>(() => new Set());
@@ -198,6 +153,7 @@ export function RequestReviewActions(props: {
       return;
     }
 
+    setResolveError(null);
     setResolveOpen(true);
   }
 
@@ -213,6 +169,7 @@ export function RequestReviewActions(props: {
     }
   ) {
     setSubmitting(true);
+    setResolveError(null);
     let mutationGeneration: LocalMutationGeneration | undefined;
     let mutationStarted = false;
     let settleError: unknown;
@@ -267,6 +224,8 @@ export function RequestReviewActions(props: {
           body: message,
           autoDismissMs: false,
         });
+      } else if (resolveOpen) {
+        setResolveError(message);
       } else {
         toasts.pushToast({
           variant: 'danger',
@@ -365,26 +324,33 @@ export function RequestReviewActions(props: {
 
       <Modal
         open={resolveOpen}
-        onClose={() => setResolveOpen(false)}
+        onClose={() => { if (!submitting) setResolveOpen(false); }}
         title={t(`requests.resolve.modal.title.${resolveAction}`)}
         size="lg"
         mobileFullScreen
         testId={`${props.testIdPrefix}.modal`}
         footer={
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
-            <Button className="w-full sm:w-auto" variant="secondary" onClick={() => setResolveOpen(false)}>
-              {t('common.cancel')}
-            </Button>
-            <Button
-              className="w-full sm:w-auto"
-              variant={requestActionVariant(resolveAction)}
-              onClick={submitResolve}
-              loading={submitting}
-              disabled={!canSubmit}
-              testId={`${props.testIdPrefix}.submit`}
-            >
-              {t(`requests.resolve.modal.submit.${resolveAction}`)}
-            </Button>
+          <div>
+            {resolveError ? (
+              <Alert variant="danger" title={t('requests.resolve.toast.error.title')} testId={`${props.testIdPrefix}.error`}>
+                {resolveError}
+              </Alert>
+            ) : null}
+            <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
+              <Button className="w-full sm:w-auto" variant="secondary" disabled={submitting} testId={`${props.testIdPrefix}.cancel`} onClick={() => setResolveOpen(false)}>
+                {t('common.cancel')}
+              </Button>
+              <Button
+                className="w-full sm:w-auto"
+                variant={requestActionVariant(resolveAction)}
+                onClick={submitResolve}
+                loading={submitting}
+                disabled={!canSubmit}
+                testId={`${props.testIdPrefix}.submit`}
+              >
+                {t(`requests.resolve.modal.submit.${resolveAction}`)}
+              </Button>
+            </div>
           </div>
         }
       >

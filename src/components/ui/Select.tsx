@@ -27,11 +27,13 @@ export function Select(props: {
 }) {
   const ariaLabel = props.ariaLabel ?? props['aria-label'];
 
-  const content = props.children ?? props.options?.map((o) => (
-    <option key={o.value} value={o.value} disabled={o.disabled}>
-      {o.label}
-    </option>
-  ));
+  const content =
+    props.children ??
+    props.options?.map((o) => (
+      <option key={o.value} value={o.value} disabled={o.disabled}>
+        {o.label}
+      </option>
+    ));
 
   const select = (
     <select
@@ -49,6 +51,7 @@ export function Select(props: {
         'h-9 w-full rounded-md border border-border bg-surface px-3 text-sm outline-none transition',
         'focus:border-accent/70 focus:ring-2 focus:ring-focus/35 focus:ring-offset-2 focus:ring-offset-bg',
         'disabled:cursor-not-allowed disabled:bg-surface-2 disabled:text-disabled',
+        '[@media(any-pointer:coarse)]:text-base [@media(any-pointer:coarse)]:min-h-11',
         props.className
       )}
     >

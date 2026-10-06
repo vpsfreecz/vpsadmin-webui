@@ -1,3 +1,6 @@
+import type { ObjectScopeValue } from '../../../app/objectScope';
+import type { ToastsContextValue } from '../../../app/toasts';
+import type { VpsListTranslator } from './vpsListSemantics';
 import { useQuery } from '@tanstack/react-query';
 
 import { fetchNodes } from '../../../lib/api/nodes';
@@ -15,6 +18,10 @@ export function numericParam(value: string): number | undefined {
   if (!trimmed) return undefined;
   const n = Number(trimmed);
   return Number.isFinite(n) ? n : undefined;
+}
+
+export function vpsListFilterSignature(params: URLSearchParams): string {
+  return JSON.stringify(['q', 'node', 'user', 'user_namespace_map', 'location', 'state'].map(key => params.get(key)));
 }
 
 export function canonicalKey(raw: string): VpsListFilterKey | null {
@@ -98,4 +105,12 @@ export function useVpsListSmartSuggestionQueries(debouncedSmartNeedle: string, m
   });
 
   return { userSuggestQuery, nodesSuggestQuery };
+}
+
+export interface UseVpsListSmartFiltersArgs {
+  basePath: string;
+  mode: VpsListMode;
+  scope: ObjectScopeValue;
+  t: VpsListTranslator;
+  toasts: ToastsContextValue;
 }

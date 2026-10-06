@@ -597,3 +597,17 @@
     }
   }
 }
+
+/* Tables need room in their content pane, including beside the full sidebar. */
+.vps-responsive-list { container-type: inline-size; }
+.vps-list-table { display: none; }
+@container (min-width: 52.5rem) {
+  .vps-list-table { display: block; }
+  .vps-list-cards { display: none; }
+}
+
+/* Modal/drawer actions own the foreground; background notifications must not
+   intercept their taps or cover their footer. Toasts remain after dismissal. */
+body:has([aria-modal="true"][data-overlay]) [data-testid="toast.viewport"] {
+  visibility: hidden;
+}

@@ -433,7 +433,7 @@ export function VpsListPage() {
           }
         />
       ) : (
-        <>
+        <div className="vps-responsive-list">
           <VpsListMobile
             rows={visibleRows}
             basePath={basePath}
@@ -465,7 +465,7 @@ export function VpsListPage() {
             onRequestRestart={(row) => requestConfirm({ vpsId: row.vps.id, kind: 'restart', force: false })}
             onRequestDelete={(row) => requestConfirm({ vpsId: row.vps.id, kind: 'delete', force: false, lazy: true })}
           />
-        </>
+        </div>
       )}
 
       {confirm ? (

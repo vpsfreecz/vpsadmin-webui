@@ -2,18 +2,9 @@ import React, { useEffect, useId, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { clsx } from './clsx';
 
+import { useBodyScrollLock } from '../../lib/hooks/useBodyScrollLock';
+import { useOverlayViewport } from '../../lib/hooks/useOverlayViewport';
 import { useFocusTrap } from '../../lib/hooks/useFocusTrap';
-
-function useLockBodyScroll(locked: boolean) {
-  useEffect(() => {
-    if (!locked) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, [locked]);
-}
 
 export function Modal(props: {
   open: boolean;
@@ -33,25 +24,31 @@ export function Modal(props: {
   /** Optional test id for E2E / integration tests */
   testId?: string;
 }) {
-  useLockBodyScroll(props.open);
+  const { open, onClose } = props;
+  useBodyScrollLock(open);
+  const viewportStyle = useOverlayViewport(props.open);
 
   const titleId = useId();
   const [containerEl, setContainerEl] = useState<HTMLDivElement | null>(null);
   useFocusTrap(props.open, containerEl);
 
   useEffect(() => {
-    if (!props.open) return;
+    if (!open) return;
 
     function onKeyDown(e: KeyboardEvent) {
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' && !e.defaultPrevented) {
+        const target =
+          e.target instanceof Element ? e.target.closest('[data-overlay="modal"], [data-overlay="drawer"]') : null;
+        const dialogs = document.querySelectorAll('[aria-modal="true"]');
+        if ((target ?? dialogs.item(dialogs.length - 1)) !== containerEl) return;
         e.preventDefault();
-        props.onClose();
+        onClose();
       }
     }
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [props.open, props.onClose]);
+  }, [containerEl, open, onClose]);
 
   if (!props.open) return null;
 
@@ -75,7 +72,10 @@ export function Modal(props: {
             : 'max-w-xl';
 
   return createPortal(
-    <div className={clsx('fixed inset-0 z-50 flex items-center justify-center', mobileFullScreen ? 'p-0 sm:p-4' : 'p-4')}>
+    <div
+      style={viewportStyle}
+      className={clsx('fixed inset-0 z-50 flex items-center justify-center', mobileFullScreen ? 'p-0 sm:p-4' : 'p-4')}
+    >
       <div
         className="absolute inset-0 bg-backdrop/45"
         data-overlay-backdrop="true"
@@ -109,10 +109,16 @@ export function Modal(props: {
           </div>
         ) : null}
 
-        <div className="min-h-0 overflow-y-auto px-4 py-4">{props.children}</div>
+        <div className="relative z-0 min-h-0 overflow-y-auto overscroll-contain px-4 py-4">{props.children}</div>
 
+        <div
+          data-overlay-notifications="true"
+          className="relative z-10 max-h-32 shrink-0 overflow-y-auto overscroll-contain border-t border-border bg-overlay-surface px-4 py-3 empty:hidden"
+        />
         {props.footer ? (
-          <div className="shrink-0 border-t border-border px-4 py-3">{props.footer}</div>
+          <div className="relative z-10 shrink-0 border-t border-border bg-overlay-surface px-4 py-3">
+            {props.footer}
+          </div>
         ) : null}
       </div>
     </div>,

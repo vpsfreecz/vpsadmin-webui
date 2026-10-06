@@ -175,7 +175,7 @@ test('@pr-smoke @pr-smoke-mobile advisory update PUT and DELETE 403 errors prese
   await expect(deleteDialog).toBeVisible();
   await expect(page.getByTestId('admin.security_advisory.update.delete_confirm.error')).toContainText('delete denied');
   await expect(updateCard).toContainText('Original update');
-  await expect(page.getByTestId('toast.viewport')).toContainText('delete denied');
+  await expect(deleteDialog.getByTestId('toast.modal_viewport')).toContainText('delete denied');
 
   await page.getByTestId('admin.security_advisory.update.delete_confirm.confirm').click();
   await expect.poll(() => deleteCalls).toBe(2);

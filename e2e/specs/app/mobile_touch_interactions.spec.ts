@@ -1,7 +1,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock } from '../../fixtures';
-import { expectNoDocumentHorizontalOverflow, expectTableHorizontalScrollUsable } from '../../helpers/horizontalOverflow';
+import { expectNoDocumentHorizontalOverflow } from '../../helpers/horizontalOverflow';
 
 const vps = {
   id: 3, hostname: 'touch.example.test', object_state: 'active', is_running: true,
@@ -216,13 +216,14 @@ test.describe('@pr-smoke-mobile Mobile first-touch interactions', () => {
     await expectNoDocumentHorizontalOverflow(page);
   });
 
-  test('compact controls stay finger-sized on a landscape touch screen', async ({ page }) => {
-    await page.setViewportSize({ width: 844, height: 390 });
+  test('compact controls stay finger-sized on a wide touch screen', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
     await setup(page);
     await page.goto('/app/vps');
     await touchTarget(page.getByTestId('vps.list.copy_link'));
     await expectNoDocumentHorizontalOverflow(page);
-    await expectTableHorizontalScrollUsable(page, 'vps.table');
+    await expect(page.getByTestId('vps.table')).toBeVisible();
+    await touchTarget(page.getByTestId('vps.row.3.action.restart'));
     const actionsStayInCell = await page.getByTestId('vps.row.3').evaluate((row) => {
       const cell = row.querySelector('td:last-child');
       if (!cell) return false;

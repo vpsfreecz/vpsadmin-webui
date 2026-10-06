@@ -67,10 +67,14 @@ const checks = [
   },
   {
     file: 'src/components/ui/UserLookupInput.tsx',
-    mustInclude: ['data-overlay="popover"', 'data-overlay-surface="overlay"', 'bg-overlay-surface', 'shadow-panel'],
+    mustInclude: ["from './LookupCombobox'", '<LookupCombobox'],
   },
   {
     file: 'src/components/ui/NodeLookupInput.tsx',
+    mustInclude: ["from './LookupCombobox'", '<LookupCombobox'],
+  },
+  {
+    file: 'src/components/ui/LookupCombobox.tsx',
     mustInclude: ['data-overlay="popover"', 'data-overlay-surface="overlay"', 'bg-overlay-surface', 'shadow-panel'],
   },
   {
