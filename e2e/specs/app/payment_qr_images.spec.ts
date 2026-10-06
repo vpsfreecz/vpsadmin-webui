@@ -34,7 +34,7 @@ for (const source of ['embedded', 'external'] as const) {
         });
       });
       await setupHaveApiMock(page, {
-        user: { id: 7, login: 'qr-test-member', level: 1 },
+        user: { id: 7, login: 'qr-test-member', level: 1, preferred_session_length: 2400 },
         handlers: {
           'GET users/7/get_payment_instructions': () => ({
             instructions: Object.entries(sources)
@@ -101,6 +101,20 @@ for (const source of ['embedded', 'external'] as const) {
         const box = await image.boundingBox();
         expect(box?.width).toBeGreaterThan(64);
         expect(box?.height).toBeGreaterThan(64);
+      }
+      // Keep references to decoded images while real wheel input refreshes idle time.
+      const images = await instructions.locator('img').elementHandles();
+      await page.mouse.move(250, 450);
+      for (const delta of [240, -240, 300, -300]) {
+        await page.waitForTimeout(1100);
+        await page.mouse.wheel(0, delta);
+        await page.waitForTimeout(100);
+        for (const image of images) {
+          expect(
+            await image.evaluate((img: HTMLImageElement) => img.isConnected && img.complete && img.naturalWidth > 0),
+            'Decoded QR node survives scroll/idle refresh',
+          ).toBe(true);
+        }
       }
       // A path-qualified allowance must not permit other images on that host.
       const blocked = await page.evaluate(async () => {

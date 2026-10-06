@@ -7,6 +7,9 @@ import { sanitizePaymentInstructionsHtml } from './PaymentsModel';
 export function PaymentInstructionsHtml(props: { html: string; className?: string; testId?: string }) {
   const { lang } = useI18n();
   const sanitized = useMemo(() => sanitizePaymentInstructionsHtml(props.html, lang), [props.html, lang]);
+  // React compares this prop by identity. Recreating it on session/activity
+  // updates replaces every image, even when the sanitized HTML is unchanged.
+  const innerHtml = useMemo(() => ({ __html: sanitized }), [sanitized]);
 
   return (
     <div
@@ -27,7 +30,7 @@ export function PaymentInstructionsHtml(props: { html: string; className?: strin
         '[&_code]:rounded [&_code]:bg-surface-3 [&_code]:px-1',
         props.className,
       )}
-      dangerouslySetInnerHTML={{ __html: sanitized }}
+      dangerouslySetInnerHTML={innerHtml}
     />
   );
 }

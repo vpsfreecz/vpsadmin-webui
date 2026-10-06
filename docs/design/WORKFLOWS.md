@@ -260,7 +260,10 @@ QR image URLs supplied by the API. The NixOS deployment must allow the reviewed
 external generator through `security.imageSources`; HTML sanitization alone does
 not grant permission under CSP. Prefer the exact generator path (see
 [NixOS service](NIXOS_SERVICE.md)). Amount and reference query parameters remain
-as supplied by the API; the frontend does not recalculate them.
+as supplied by the API; the frontend does not recalculate them. Unchanged
+instructions retain their decoded image DOM nodes during scrolling and session
+activity refreshes. Only changed sanitized content (including translated text)
+replaces the instructions; the generator-provided QR quiet zone is preserved.
 
 For inline images, the exception is limited to image sources in this sanitized
 payment HTML, with a PNG signature, valid base64 and a 1 MiB URL limit; links, news HTML, SVG and other
