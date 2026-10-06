@@ -407,3 +407,10 @@ a bounded scrolling list, with keyboard selection scrolled into view.
 Source inspection and synthetic browser regressions cover these contracts.
 They do not establish the cause of a specific production user's intermittent
 result without that user's mode/request trace, nor certify a live API release.
+
+### Deferred overlay focus
+
+When a modal or drawer opens, its delayed initial-focus callback preserves any
+focus already placed inside the active overlay. It must not move a selected link
+back to Close before keyboard activation. Focus still enters a newly opened
+overlay from outside, wraps on Tab, and respects the topmost nested dialog.
