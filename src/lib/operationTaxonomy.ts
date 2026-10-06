@@ -435,7 +435,7 @@ export function classifyOperation(input: OperationInput): OperationTaxonomy {
 
 export function classifyTransaction(tx: Transaction): OperationTaxonomy {
   return classifyOperation({
-    label: tx.name,
+    label: tx.label,
     name: tx.name,
     concerns: undefined,
     categoryHint: resourceId(tx.vps) ? 'vps' : undefined,

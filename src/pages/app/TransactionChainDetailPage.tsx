@@ -10,6 +10,7 @@ import { DetailShell } from '../../components/layout/DetailShell';
 
 import { chainBadgeFromState, isFinishedChainState, transactionBadge } from '../../lib/taskStatus';
 import { useTierAIntervalMs } from '../../lib/refreshTiers';
+import { classifyTransaction, operationLabel } from '../../lib/operationTaxonomy';
 import { formatDateTime } from '../../lib/format';
 import { formatErrorMessage } from '../../lib/errors';
 import { resourceId, refLabel } from '../../lib/resources';
@@ -364,7 +365,7 @@ export function TransactionChainDetailPage() {
                       const rowVariant = tableVariantFromBadgeVariant(b.variant);
 
                       const txId = typeof (tx as any).id === 'number' ? ((tx as any).id as number) : undefined;
-                      const name = (tx as any).name ? String((tx as any).name) : t('transactions.items.row.fallback_name');
+                      const name = operationLabel(classifyTransaction(tx), t);
 
                       const urgent = Boolean((tx as any).urgent);
                       const prio = typeof (tx as any).priority === 'number' ? ((tx as any).priority as number) : undefined;

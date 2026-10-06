@@ -27,6 +27,7 @@ import {
 } from '../../lib/taskStatus';
 import { resourceId, refLabel } from '../../lib/resources';
 import {
+  classifyTransaction,
   classifyTransactionChain,
   operationBadgeVariant,
   operationCategoryLabel,
@@ -380,7 +381,7 @@ export function TransactionChainsPanel(props: {
 
                 {(txQ.data ?? []).map((tx) => {
                   const b = transactionBadge(tx);
-                  const name = tx.name ? String(tx.name) : `#${tx.id}`;
+                  const name = operationLabel(classifyTransaction(tx), i18n.t);
                   const txId = Number(tx.id);
                   const hasTxId = Number.isFinite(txId) && txId > 0;
                   const txExpanded = hasTxId && expandedTransactionIds.has(txId);

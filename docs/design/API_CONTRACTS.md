@@ -158,3 +158,19 @@ overrides and DNS validation. They are the reviewed frontend contract at the sta
 revision; deployed backend permission/capacity remains authoritative. Contract
 changes must identify the matching backend resource/action/version and have
 adversarial tests, not just update an adapter type.
+
+## API language and transaction labels
+
+The WebUI sends `Accept-Language: cs` or `en` with HaveAPI calls, matching the
+resolved UI preference (including system language). This overrides the API
+user-language default without changing the user's mail language. The existing
+API contract comes from locked vpsAdmin `a65a4dfeb92a59df4a80a737a20bcbf8558793ff`.
+Transaction `label` is translated by the API; `name` is a technical identifier.
+Headings prefer nonblank `label`, then `name`, then the UI fallback. Technical
+names remain available for diagnostics and operation classification.
+
+Changing UI language cancels old query results and invalidates read caches;
+active queries refresh and inactive queries refresh when next used. Editors
+remain mounted and mutations are never replayed. A read retried after OAuth
+renewal retains its original language. No local translation map duplicates the
+API catalog. See [verification and limitations](../work-log/2026-10-06-transaction-api-labels.md).

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useContext, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 
 import { en } from '../i18n/en';
 import { useUiSettings, type UiLanguagePreference } from './uiSettings';
@@ -79,7 +79,7 @@ export function I18nProvider(props: { children: React.ReactNode }) {
   const lang = resolveUiLanguage(pref);
   const [czechDictionary, setCzechDictionary] = useState<TranslationDictionary | null>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (typeof document === 'undefined') return;
     document.documentElement.lang = lang;
   }, [lang]);

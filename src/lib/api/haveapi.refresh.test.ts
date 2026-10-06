@@ -66,6 +66,23 @@ describe('BFF request recovery', () => {
     window.removeEventListener(SESSION_EXPIRED_EVENT, expired);
   });
 
+  it.each(['cs', 'en'])('preserves request language %s when refreshing authentication', async language => {
+    setup(); document.documentElement.lang = language;
+    const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
+      if (url === sessionUrl) {
+        document.documentElement.lang = language === 'cs' ? 'en' : 'cs';
+        return json({ sessionKey: key, accessToken: 'new' });
+      }
+      return (init?.headers as Record<string, string>)['X-Token'] === 'old'
+        ? denied() : json({ status: true, response: { thing: { id: 42 } } });
+    });
+    vi.stubGlobal('fetch', fetchMock);
+    await haveApiCall({ path: '/things' });
+    for (const [, init] of fetchMock.mock.calls.filter(([url]) => url !== sessionUrl)) {
+      expect(new Headers(init?.headers).get('Accept-Language')).toBe(language);
+    }
+  });
+
   it.each(['other-login', 'anonymous', 'same-token', 'malformed', 'offline', 'forbidden'])('fails closed for %s', async mode => {
     setup();
     const fetchMock = vi.fn(async (url: string) => {

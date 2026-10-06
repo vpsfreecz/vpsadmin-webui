@@ -1,4 +1,4 @@
-import { staticTForDocument } from '../staticI18n';
+import { detectStaticUiLanguage, staticTForDocument } from '../staticI18n';
 import { recoverBffSession } from '../auth/bffSession';
 import { getRuntimeConfig } from '../../app/config';
 import { MALFORMED_HAVEAPI_ENVELOPE_ERROR_CODE, parseHaveApiEnvelope } from './haveapiEnvelope';
@@ -403,6 +403,7 @@ function authHeaders(desc: any): Record<string, string> {
 }
 
 export async function haveApiCall<T>(opts: CallOpts): Promise<{ data: T; meta?: Record<string, unknown>; envelope: HaveApiEnvelope }> {
+  const language = detectStaticUiLanguage(typeof document === 'undefined' ? undefined : document);
   const desc = await getHaveApiDescription();
   const cfg = getRuntimeConfig();
   const metaNs = cfg.haveApi?.metaNamespace ?? getMetaNamespace(desc);
@@ -432,6 +433,7 @@ export async function haveApiCall<T>(opts: CallOpts): Promise<{ data: T; meta?: 
 
   const headers: Record<string, string> = {
     Accept: 'application/json',
+    'Accept-Language': language,
     ...authHeaders(desc),
   };
 
@@ -483,7 +485,7 @@ export async function haveApiCall<T>(opts: CallOpts): Promise<{ data: T; meta?: 
         throw new Error(staticTForDocument(typeof document === 'undefined' ? undefined : document, 'errors.session_renewed_retry_action'));
       }
       await res.body?.cancel();
-      init.headers = { Accept: 'application/json', ...authHeaders(desc) };
+      init.headers = { ...headers, ...authHeaders(desc) };
       res = await fetch(url, init);
     }
   }

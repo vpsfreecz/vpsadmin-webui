@@ -105,7 +105,7 @@ export function TransactionItemsTable({ rows, basePath, t, mode, pagination, can
                     {row.displayName}
                   </Link>
                 ) : (
-                  row.name
+                  row.displayName
                 )}
               </div>
               {row.name !== row.displayName ? (

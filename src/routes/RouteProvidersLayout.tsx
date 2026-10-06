@@ -6,6 +6,7 @@ import { getRuntimeConfig } from '../app/config';
 import { UiSettingsProvider } from '../app/uiSettings';
 import { ThemeProvider } from '../app/theme';
 import { I18nProvider } from '../app/i18n';
+import { ApiLanguageSync } from '../app/ApiLanguageSync';
 import { ToastsProvider } from '../app/toasts';
 import { DocumentTitleManager } from '../components/layout/DocumentTitleManager';
 import { RouteFocusManager } from '../components/layout/RouteFocusManager';
@@ -41,6 +42,7 @@ export function RouteProvidersLayout() {
       <UiSettingsProvider serverSyncEnabled={shouldSyncSettings}>
         <ThemeProvider>
           <I18nProvider>
+            <ApiLanguageSync />
             <DocumentTitleManager />
             <RouteFocusManager />
             <ToastsProvider>

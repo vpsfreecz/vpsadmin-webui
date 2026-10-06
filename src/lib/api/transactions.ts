@@ -21,6 +21,7 @@ export interface Transaction {
   user?: User | ResourceRef;
   type?: number;
   name?: string;
+  label?: string;
   vps?: ResourceRef;
   depends_on?: ResourceRef;
   urgent?: boolean;
