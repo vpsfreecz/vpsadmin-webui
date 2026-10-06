@@ -1,5 +1,8 @@
 // Admin cluster locale chunk: networks
 export const enAdminCluster_networks = {
+  "admin.cluster.networks.enabled": "Enabled",
+  "admin.cluster.networks.disabled": "Disabled",
+  "admin.cluster.networks.enabled.help": "Disabling prevents new allocations and assignments. Existing service continues, and operations already accepted may finish. Detached owned addresses cannot be assigned until the network is enabled again.",
   "admin.cluster.networks.action.create": "Create network",
   "admin.cluster.networks.col.assigned": "Assigned",
   "admin.cluster.networks.col.free": "Free",

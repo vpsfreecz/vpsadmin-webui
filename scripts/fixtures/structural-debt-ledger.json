@@ -4,7 +4,7 @@
     "status": "accepted",
     "acceptedBy": "2026-09-27-newadmin-integration lead, adoption source hash review"
   },
-  "note": "Only inherited exceptions for source files byte-identical to their recorded source revisions. An exact source edit or measured improvement requires review/removal; the historical baseline remains unchanged.",
+  "note": "Inherited exceptions retain their original debt source revisions. Except for the reviewed UserNetworkPage change documented in its rationale, source bytes match those revisions. An exact source edit or measured improvement requires review/removal; the historical baseline remains unchanged.",
   "exceptions": [
     {
       "path": "src/components/layout/ActionStatesPanel.tsx",
@@ -416,10 +416,10 @@
       "path": "src/pages/app/networking/UserNetworkPage.tsx",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "cea89b2cc98b4211c675f1d83426f8bc7a56558baa96d40bf25d818ec3031468",
+      "contentHash": "046865da62cc7c0cbf14db481e918e507edf6cf73ecab81daf0fced586b170f4",
       "old": 0,
-      "allowance": 691,
-      "rationale": "At the recorded source revision, this file already contained user network detail and configuration; extract the coherent section with focused behavior coverage before removing this exception.",
+      "allowance": 683,
+      "rationale": "This entry retains the inherited debt origin. On 2026-10-06 the root lead reviewed the limited address-action extraction and disabled-network badges: assigned VPS links remain available, detached disabled addresses cannot be assigned, and the measured allowance decreases from 691 to 683 lines. The current content hash identifies those reviewed modified bytes, not the historical source. Extract the remaining coherent section with focused behavior coverage before removing this exception.",
       "owner": "WebUI collection and page refactor implementer",
       "removeWhen": {
         "metric": "lines",

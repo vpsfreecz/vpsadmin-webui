@@ -1,4 +1,4 @@
-import { fetchIpAddresses, type IpAddress } from '../../../lib/api/ipAddresses';
+import { fetchIpAddresses, fetchIpAddressIndexCapability, type IpAddress } from '../../../lib/api/ipAddresses';
 import {
   assignableIpKindQuery,
   isAssignedIp,
@@ -14,11 +14,16 @@ export async function fetchAssignableIpAddresses(
   extraIps: IpAddress[] = [],
   signal?: AbortSignal
 ): Promise<IpAddress[]> {
+  const capability = await fetchIpAddressIndexCapability();
+  const supportsEnabled = Object.prototype.hasOwnProperty.call(
+    capability.data?.input?.parameters ?? {}, 'network_enabled'
+  );
   const filters = {
     location,
     ...assignableIpKindQuery(kind),
     usableFor: 'vps' as const,
     assignedToInterface: false,
+    ...(supportsEnabled ? { networkEnabled: true } : {}),
     includes: 'network__primary_location__environment,network_interface,user,vps',
     signal,
   };
@@ -37,6 +42,6 @@ export async function fetchAssignableIpAddresses(
     return response.data.filter((row) => row.id === ip.id);
   }));
   return uniqueIpAddresses([...verified.flat(), ...listed]).filter((ip) => (
-    !isAssignedIp(ip) && matchesAssignableIpKind(ip, kind)
+    !isAssignedIp(ip) && matchesAssignableIpKind(ip, kind) && ip.network?.enabled !== false
   ));
 }

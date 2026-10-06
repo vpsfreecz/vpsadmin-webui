@@ -14,6 +14,7 @@ export interface Network {
   prefix?: number;
   role?: NetworkRole | string;
   managed?: boolean;
+  enabled?: boolean;
   split_access?: NetworkSplitAccess | string;
   split_prefix?: number;
   purpose?: NetworkPurpose | string;
@@ -36,6 +37,7 @@ export async function fetchNetworks(opts?: {
   fromId?: number;
   locationId?: number;
   purpose?: NetworkPurpose;
+  enabled?: boolean;
 }) {
   const params: Record<string, unknown> = {};
 
@@ -44,6 +46,7 @@ export async function fetchNetworks(opts?: {
 
   if (opts?.locationId !== undefined) params['location'] = opts.locationId;
   if (opts?.purpose) params['purpose'] = opts.purpose;
+  if (opts?.enabled !== undefined) params['enabled'] = opts.enabled;
 
   const res = await haveApiCall<Network[]>({
     method: 'GET',
@@ -64,6 +67,21 @@ export async function fetchNetwork(id: number) {
   });
 }
 
+export interface NetworkWriteCapability {
+  input?: { parameters?: Record<string, unknown> };
+}
+
+export function networkEnabledWritable(capability?: NetworkWriteCapability): boolean {
+  return Object.prototype.hasOwnProperty.call(capability?.input?.parameters ?? {}, 'enabled');
+}
+
+export async function fetchNetworkWriteCapability(id?: number) {
+  return haveApiCall<NetworkWriteCapability>({
+    method: 'OPTIONS',
+    path: id === undefined ? '/networks?method=POST' : `/networks/${id}?method=PUT`,
+  });
+}
+
 export async function createNetwork(opts: {
   label?: string;
   ipVersion: 4 | 6;
@@ -71,6 +89,7 @@ export async function createNetwork(opts: {
   prefix: number;
   role: NetworkRole;
   managed: boolean;
+  enabled?: boolean;
   splitAccess: NetworkSplitAccess;
   splitPrefix: number;
   purpose: NetworkPurpose;
@@ -88,6 +107,7 @@ export async function createNetwork(opts: {
     purpose: opts.purpose,
     add_ip_addresses: Boolean(opts.addIpAddresses),
   };
+  if (opts.enabled !== undefined) params['enabled'] = opts.enabled;
 
   return haveApiCall<Network>({
     method: 'POST',
@@ -105,6 +125,7 @@ export async function updateNetwork(opts: {
   prefix?: number;
   role?: NetworkRole;
   managed?: boolean;
+  enabled?: boolean;
   splitAccess?: NetworkSplitAccess;
   splitPrefix?: number;
   purpose?: NetworkPurpose;
@@ -117,6 +138,7 @@ export async function updateNetwork(opts: {
   if (opts.prefix !== undefined) params['prefix'] = opts.prefix;
   if (opts.role !== undefined) params['role'] = opts.role;
   if (opts.managed !== undefined) params['managed'] = opts.managed;
+  if (opts.enabled !== undefined) params['enabled'] = opts.enabled;
   if (opts.splitAccess !== undefined) params['split_access'] = opts.splitAccess;
   if (opts.splitPrefix !== undefined) params['split_prefix'] = opts.splitPrefix;
   if (opts.purpose !== undefined) params['purpose'] = opts.purpose;

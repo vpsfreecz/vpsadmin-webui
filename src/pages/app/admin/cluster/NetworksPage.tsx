@@ -38,6 +38,8 @@ import { parseNonNegativeInt, parsePositiveInt } from '../../../../lib/parse';
 import {
   createNetwork,
   fetchNetworks,
+  fetchNetworkWriteCapability,
+  networkEnabledWritable,
   updateNetwork,
   type Network,
   type NetworkPurpose,
@@ -74,6 +76,7 @@ type FormState = {
   prefix: string;
   role: NetworkRole;
   managed: boolean;
+  enabled: boolean;
   splitAccess: NetworkSplitAccess;
   splitPrefix: string;
   purpose: NetworkPurpose;
@@ -93,6 +96,7 @@ function initForm(n?: Network): FormState {
     prefix,
     role: (x.role as NetworkRole) ?? 'public_access',
     managed: typeof x.managed === 'boolean' ? x.managed : true,
+    enabled: typeof x.enabled === 'boolean' ? x.enabled : true,
     splitAccess: (x.split_access as NetworkSplitAccess) ?? 'no_access',
     splitPrefix,
     purpose: (x.purpose as NetworkPurpose) ?? 'any',
@@ -384,6 +388,15 @@ function NetworksContent() {
 
   const [editor, setEditor] = useState<EditorState>(null);
   const [form, setForm] = useState<FormState>(() => initForm());
+  const capabilityQ = useQuery({
+    queryKey: ['network-write-capability', editor?.mode, editor?.network?.id],
+    enabled: Boolean(editor),
+    queryFn: async () => (await fetchNetworkWriteCapability(editor?.network?.id)).data,
+    staleTime: 0,
+  });
+  const hasEnabledControl = networkEnabledWritable(capabilityQ.data)
+    && (editor?.mode === 'create' || typeof editor?.network?.enabled === 'boolean');
+  const canManageEnabled = hasEnabledControl && capabilityQ.isSuccess && !capabilityQ.isFetching;
 
   const openCreate = () => {
     createM.reset();
@@ -412,6 +425,7 @@ function NetworksContent() {
         prefix: prefixNum,
         role: form.role,
         managed: form.managed,
+        ...(canManageEnabled ? { enabled: form.enabled } : {}),
         splitAccess: form.splitAccess,
         splitPrefix: splitPrefixNum,
         purpose: form.purpose,
@@ -451,6 +465,7 @@ function NetworksContent() {
         prefix: prefixNum,
         role: form.role,
         managed: form.managed,
+        ...(canManageEnabled ? { enabled: form.enabled } : {}),
         splitAccess: form.splitAccess,
         splitPrefix: splitPrefixNum,
         purpose: form.purpose,
@@ -639,6 +654,7 @@ function NetworksContent() {
               <th className="px-3 py-2 text-left text-xs font-semibold text-muted">{t('admin.cluster.networks.col.role')}</th>
               <th className="px-3 py-2 text-left text-xs font-semibold text-muted">{t('admin.cluster.networks.col.purpose')}</th>
               <th className="px-3 py-2 text-left text-xs font-semibold text-muted">{t('admin.cluster.networks.col.managed')}</th>
+              <th className="px-3 py-2 text-left text-xs font-semibold text-muted">{t('admin.cluster.networks.enabled')}</th>
               <th className="px-3 py-2 text-right text-xs font-semibold text-muted">{t('admin.cluster.networks.col.used')}</th>
               <th className="px-3 py-2 text-right text-xs font-semibold text-muted">{t('admin.cluster.networks.col.assigned')}</th>
               <th className="px-3 py-2 text-right text-xs font-semibold text-muted">{t('admin.cluster.networks.col.owned')}</th>
@@ -693,6 +709,11 @@ function NetworksContent() {
                     <Badge variant={managedVal ? 'ok' : 'neutral'}>
                       {managedVal ? t('admin.cluster.networks.managed.true') : t('admin.cluster.networks.managed.false')}
                     </Badge>
+                  </td>
+                  <td className="px-3 py-2" data-testid={`admin.cluster.networks.row.${id}.enabled`}>
+                    {typeof n.enabled === 'boolean'
+                      ? <Badge variant={n.enabled ? 'ok' : 'warn'}>{t(n.enabled ? 'admin.cluster.networks.enabled' : 'admin.cluster.networks.disabled')}</Badge>
+                      : t('common.na')}
                   </td>
                   <td className="px-3 py-2 text-right font-mono text-xs text-muted tabular-nums">{used ?? '—'}</td>
                   <td className="px-3 py-2 text-right font-mono text-xs text-muted tabular-nums">{assigned ?? '—'}</td>
@@ -769,6 +790,34 @@ function NetworksContent() {
           <Alert variant="neutral" title={t('admin.cluster.networks.editor.notice.title')}>
             {t('admin.cluster.networks.editor.notice.body')}
           </Alert>
+
+          {editor?.network ? (
+            <div className="text-sm text-muted">
+              {netLabel(editor.network)} (#{editor.network.id}) · {t('admin.cluster.networks.col.assigned')}: {editor.network.assigned ?? '—'} · {t('admin.cluster.networks.col.owned')}: {editor.network.owned ?? '—'}
+            </div>
+          ) : null}
+          {capabilityQ.isError ? (
+            <Alert variant="danger" title={t('common.error')} testId="admin.cluster.networks.editor.capability_error">
+              {formatErrorMessage(capabilityQ.error)}
+              <Button
+                variant="secondary"
+                onClick={() => capabilityQ.refetch()}
+                disabled={capabilityQ.isFetching}
+              >
+                {t('common.retry')}
+              </Button>
+            </Alert>
+          ) : null}
+          {hasEnabledControl ? (
+            <SwitchRow
+              label={t('admin.cluster.networks.enabled')}
+              description={t('admin.cluster.networks.enabled.help')}
+              checked={form.enabled}
+              onChange={(enabled) => setForm((p) => ({ ...p, enabled }))}
+              disabled={busy || !canManageEnabled}
+              testId="admin.cluster.networks.editor.enabled"
+            />
+          ) : null}
 
           <div>
             <div className="text-xs font-semibold text-muted">{t('common.label')}</div>
