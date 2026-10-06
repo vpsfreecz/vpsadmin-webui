@@ -15,6 +15,8 @@ URL equality suppression only for automatic normalization. No API changes.
 
 Four deterministic hook regressions model delayed router publication, Previous
 and numbered-page navigation, forward history, Back/Forward, retained filters
-and no-op normalization. Two regressions fail on main before the fix. Fixture
+and no-op normalization. Two regressions fail on main before the fix; all four pass with the fix.
+The changed hook is adopted into ESLint and Prettier rather than refreshing
+its deferred hash. Fixture
 browser repetitions and complete CI results will be recorded in the PR. These
 checks do not certify a live API or every intermittent browser failure.
