@@ -67,7 +67,8 @@
     "audit:api-barrel-imports": "node scripts/audit-api-barrel-imports.mjs",
     "audit:i18n-structure": "node scripts/audit-i18n-structure.mjs",
     "docs:inventory": "node scripts/design-inventory.mjs --write",
-    "audit:design-docs": "node scripts/audit-design-docs.mjs"
+    "audit:design-docs": "node scripts/audit-design-docs.mjs",
+    "e2e:touch:webkit": "npm run env:check && E2E_START_SERVER=1 node scripts/playwright.mjs test --project=mobile-webkit"
   },
   "keywords": [],
   "author": "",

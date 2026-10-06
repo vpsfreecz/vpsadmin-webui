@@ -138,6 +138,17 @@ the recorded mobile overlap is an outstanding verification/fix item.
 
 ## Accessibility, localization and persistence
 
+Shared buttons keep compact desktop sizing but use a minimum 44 × 44 CSS px
+hit area when any pointer is coarse, including landscape phones and tablets.
+Screen-reader-only labels inside these controls must stay positioned relative to
+their button so a horizontally scrolling table cannot expand the document.
+Cold modal code must show an immediate, cancellable modal loading state without
+shifting the page layout; inline loading is reserved for content already inside
+a panel. Use touch input (not only mouse clicks at a narrow viewport) to verify first-tap
+activation, cancel-after-error and search selection. Test retries must not hide
+an initially lost tap. The [mobile audit](../work-log/2026-10-06-mobile-touch-audit.md)
+records what was reproduced and what still needs real-device evidence.
+
 Interactive icons need accessible names; decorative icons are hidden from assistive
 technology. Focus moves predictably after navigation, modal open/close and errors.
 Removing the page-wide blue outline must not remove normal keyboard indicators.

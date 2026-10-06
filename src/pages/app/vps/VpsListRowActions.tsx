@@ -19,7 +19,8 @@ interface VpsListRowActionsProps {
   showLabels?: boolean;
 }
 
-const iconOnlyButtonClass = 'h-8 min-w-8 px-0';
+// Contain hidden accessible labels within the table's horizontal scroller.
+const iconOnlyButtonClass = 'relative h-8 min-w-8 px-0';
 const labeledButtonClass = 'min-h-11 px-3';
 const iconClass = 'h-4 w-4 shrink-0';
 
@@ -47,7 +48,7 @@ export function VpsListRowActions({
 
   return (
     <div
-      className={showLabels ? 'grid grid-cols-2 gap-2 sm:flex sm:flex-wrap' : 'flex flex-nowrap items-center justify-end gap-1.5'}
+      className={showLabels ? 'grid grid-cols-2 gap-2 sm:flex sm:flex-wrap' : 'flex flex-nowrap items-center justify-end gap-1.5 [@media(any-pointer:coarse)]:flex-wrap'}
       data-row-no-nav
     >
       {row.primaryAction === 'start' ? (

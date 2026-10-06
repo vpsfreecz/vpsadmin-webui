@@ -17,7 +17,6 @@ import {
   type Mailbox,
   type MailboxHandler,
 } from '../../../../lib/api/mailer';
-import { formatDateTime } from '../../../../lib/format';
 import { formatErrorMessage } from '../../../../lib/errors';
 
 import { DetailShell } from '../../../../components/layout/DetailShell';
@@ -36,6 +35,7 @@ import { TableCard } from '../../../../components/ui/TableCard';
 import { clsx } from '../../../../components/ui/clsx';
 
 import { MailerTabs } from './MailerTabs';
+import { MailboxConnectionPanel } from './MailboxConnectionPanel';
 
 function parsePositiveInt(v: string | undefined): number | null {
   const n = Number(v);
@@ -92,10 +92,7 @@ export function MailboxDetailPage() {
   const label = String((mailbox as any)?.label ?? (id ? `#${id}` : ''));
   const server = String((mailbox as any)?.server ?? '');
   const port = Number((mailbox as any)?.port ?? 0);
-  const user = String((mailbox as any)?.user ?? '');
   const ssl = Boolean((mailbox as any)?.enable_ssl);
-  const createdAt = (mailbox as any)?.created_at;
-  const updatedAt = (mailbox as any)?.updated_at;
 
   const handlersRaw: MailboxHandler[] = (handlersQ.data as any) ?? [];
   const handlers = useMemo(() => sortedHandlers(handlersRaw), [handlersRaw]);
@@ -400,43 +397,10 @@ export function MailboxDetailPage() {
         tabs={<MailerTabs />}
       />
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-lg border border-border bg-surface p-4" data-testid="admin.mailer.mailboxes.detail.connection">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <div className="text-sm font-semibold">{t('mailer.mailboxes.detail.connection.title')}</div>
-              <div className="mt-1 text-xs text-muted">{t('mailer.mailboxes.detail.connection.description')}</div>
-            </div>
-          </div>
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <MailboxConnectionPanel mailbox={mailbox} />
 
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <div>
-              <div className="text-xs font-semibold text-muted">{t('mailer.mailboxes.fields.user')}</div>
-              <div className="mt-1 font-mono text-xs text-muted">{user || t('common.na')}</div>
-            </div>
-            <div>
-              <div className="text-xs font-semibold text-muted">{t('mailer.mailboxes.fields.password')}</div>
-              <div className="mt-1 text-xs text-muted">••••••</div>
-              <div className="mt-1 text-xs text-faint">{t('mailer.mailboxes.password.hidden')}</div>
-            </div>
-
-            <div>
-              <div className="text-xs font-semibold text-muted">{t('mailer.mailboxes.fields.enable_ssl')}</div>
-              <div className="mt-1">
-                <Badge variant={ssl ? 'ok' : 'warn'}>{ssl ? t('mailer.mailboxes.ssl.on') : t('mailer.mailboxes.ssl.off')}</Badge>
-              </div>
-            </div>
-            <div>
-              <div className="text-xs font-semibold text-muted">{t('common.updated')}</div>
-              <div className="mt-1 text-xs text-muted">{updatedAt ? formatDateTime(String(updatedAt)) : t('common.na')}</div>
-              <div className="mt-1 text-xs text-faint">
-                {createdAt ? `${t('common.created')}: ${formatDateTime(String(createdAt))}` : t('common.na')}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-lg border border-border bg-surface p-4" data-testid="admin.mailer.mailboxes.detail.handlers">
+        <div className="min-w-0 rounded-lg border border-border bg-surface p-4" data-testid="admin.mailer.mailboxes.detail.handlers">
           <div className="flex items-start justify-between gap-3">
             <div>
               <div className="text-sm font-semibold">{t('mailer.mailboxes.detail.handlers.title')}</div>

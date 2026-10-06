@@ -315,20 +315,6 @@
       }
     },
     {
-      "path": "src/pages/app/admin/mailer/MailboxDetailPage.tsx",
-      "rule": "grown-over-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "2b4b1d7748079c964c07750aad7fd7c5f4374059691b04c219fa3c6ea360df52",
-      "old": 813,
-      "allowance": 827,
-      "rationale": "At the recorded source revision, this file already contained mailbox detail and actions; extract the coherent section with focused behavior coverage before removing this exception.",
-      "owner": "WebUI implementation lead",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 813
-      }
-    },
-    {
       "path": "src/pages/app/admin/security/AdminSecurityAdvisoryDetailPage.tsx",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
