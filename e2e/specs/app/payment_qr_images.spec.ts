@@ -13,7 +13,7 @@ const qrImages = {
 for (const source of ['embedded', 'external'] as const) {
   for (const language of ['cs', 'en'] as const) {
     test(`${source} CZK/EUR payment QR images load in ${language} @pr-smoke @pr-smoke-mobile`, async ({
-      page,
+      page, hasTouch,
     }, testInfo) => {
       await setUiSettingsLocalStorage(page, { language, theme: language === 'cs' ? 'dark' : 'light' });
       // The external case mirrors the production ERB URL shape. All responses
@@ -34,7 +34,7 @@ for (const source of ['embedded', 'external'] as const) {
         });
       });
       await setupHaveApiMock(page, {
-        user: { id: 7, login: 'qr-test-member', level: 1 },
+        user: { id: 7, login: 'qr-test-member', level: 1, preferred_session_length: 2400 },
         handlers: {
           'GET users/7/get_payment_instructions': () => ({
             instructions: Object.entries(sources)
@@ -42,8 +42,10 @@ for (const source of ['embedded', 'external'] as const) {
                 ([currency, src]) => `
             <h3>Payment in ${currency}</h3>
             <table><tr><td>Test reference:</td><td>SYNTHETIC ${currency}</td>
-              <td rowspan="2"><img alt="${currency} QR" src="${src}"></td></tr>
-              <tr><td>Variable symbol:</td><td>7</td></tr></table>
+              <td rowspan="8"><img alt="${currency} QR" src="${src}"></td></tr>
+              <tr><td>Variable symbol:</td><td>7</td></tr>
+              ${Array.from({ length: 6 }, (_, i) => `<tr><td>Test field ${i + 1}:</td><td>SYNTHETIC ${currency}</td></tr>`).join('')}
+            </table>
           `
               )
               .join(''),
@@ -101,6 +103,32 @@ for (const source of ['embedded', 'external'] as const) {
         const box = await image.boundingBox();
         expect(box?.width).toBeGreaterThan(64);
         expect(box?.height).toBeGreaterThan(64);
+      }
+      // Inactivity tracking updates auth context at most once per second.
+      // Preserve loaded QR nodes even when activity re-renders their parent.
+      const images = await instructions.locator('img').elementHandles();
+      const viewport = page.viewportSize()!;
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await page.mouse.move(viewport.width - 20, viewport.height / 2);
+      for (const delta of [240, -240, 300, -300]) {
+        await page.waitForTimeout(1100);
+        const previousY = await page.evaluate(() => window.scrollY);
+        if (hasTouch) {
+          // Playwright cannot wheel/swipe in mobile WebKit. A real tap triggers
+          // the same trusted activity handler; scroll the viewport separately.
+          await page.touchscreen.tap(viewport.width - 8, viewport.height / 2);
+          await page.evaluate(dy => window.scrollBy(0, dy), delta);
+        } else {
+          await page.mouse.wheel(0, delta);
+        }
+        await expect.poll(() => page.evaluate(() => window.scrollY)).not.toBe(previousY);
+        await page.waitForTimeout(100);
+        for (const image of images) {
+          expect(
+            await image.evaluate((img: HTMLImageElement) => img.isConnected && img.complete && img.naturalWidth > 0),
+            'Decoded QR node survives scroll/idle refresh',
+          ).toBe(true);
+        }
       }
       // A path-qualified allowance must not permit other images on that host.
       const blocked = await page.evaluate(async () => {

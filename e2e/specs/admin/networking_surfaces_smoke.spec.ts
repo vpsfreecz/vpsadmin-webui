@@ -11,7 +11,7 @@ async function expectNoDocumentHorizontalOverflow(page: import('@playwright/test
         const rect = element.getBoundingClientRect();
         return {
           tag: element.tagName.toLowerCase(),
-          testId: element.dataset.testid ?? null,
+          testId: element.dataset['testid'] ?? null,
           left: Math.round(rect.left),
           right: Math.round(rect.right),
         };
@@ -51,12 +51,14 @@ async function expectTableScrollContained(
 }
 
 test.describe('Admin / Networking surfaces (smoke)', () => {
-  test('host IP list and assignment audit render', async ({ page }) => {
+  test('@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile host IP list and assignment audit render', async ({ page }) => {
+    const hostRequests: URLSearchParams[] = [];
     await installHaveApiMock(page, {
       user: { id: 1, login: 'admin', level: 99 },
       handlers: {
-        'GET host_ip_addresses': () => ({
-          host_ip_addresses: [
+        'GET host_ip_addresses': ({ searchParams }) => {
+          hostRequests.push(new URLSearchParams(searchParams));
+          const rows = [
             {
               id: 501,
               addr: '203.0.113.10',
@@ -71,8 +73,10 @@ test.describe('Admin / Networking surfaces (smoke)', () => {
             },
             { id: 502, addr: '83.167.228.5', assigned: false, user_created: true, ip_address: { id: 302, ip_addr: '83.167.228.5' } },
             { id: 503, addr: '2a01:430:17::10', assigned: false, ip_address: { id: 303, ip_addr: '2a01:430:17::10' } },
-          ],
-        }),
+          ];
+          const addr = searchParams.get('host_ip_address[addr]');
+          return { host_ip_addresses: rows.filter((row) => !addr || row.addr === addr) };
+        },
         'GET ip_address_assignments': () => ({
           ip_address_assignments: [
             {
@@ -100,8 +104,15 @@ test.describe('Admin / Networking surfaces (smoke)', () => {
     await expect(page.getByTestId('admin.host_ip_addresses.row.501.ptr')).toHaveText('');
     await expect(page.getByTestId('admin.host_ip_addresses.row.502')).toHaveCount(0);
     await expect(page.getByTestId('admin.host_ip_addresses.row.503')).toHaveCount(0);
-    await page.goto('/admin/networking/host-ip-addresses?q=83.167.228.5');
+    // Exercise the supported exact filter through the actual UI control.
+    await page.getByTestId('admin.host_ip_addresses.filter.addr').fill('83.167.228.5');
     await expect(page.getByTestId('admin.host_ip_addresses.row.502')).toBeVisible();
+    await expect(page).toHaveURL(/addr=83\.167\.228\.5/);
+    expect(hostRequests.at(-1)?.get('host_ip_address[addr]')).toBe('83.167.228.5');
+    expect(hostRequests.at(-1)?.get('host_ip_address[order]')).toBe('asc');
+    expect(hostRequests.at(-1)?.has('host_ip_address[q]')).toBe(false);
+    await expect(page.getByTestId('admin.host_ip_addresses.row.501')).toHaveCount(0);
+    await expect(page.getByTestId('admin.host_ip_addresses.row.503')).toHaveCount(0);
     await expect(page.getByTestId('admin.host_ip_addresses.row.502.assign')).toHaveAttribute('aria-label', 'Assign');
     await expect(page.getByTestId('admin.host_ip_addresses.row.502.delete')).toHaveAttribute('aria-label', 'Delete');
     await expect(page.getByTestId('admin.host_ip_addresses.row.502.free')).toHaveCount(0);
@@ -110,7 +121,7 @@ test.describe('Admin / Networking surfaces (smoke)', () => {
     await expectNoDocumentHorizontalOverflow(page);
     await expectTableScrollContained(page, 'admin.host_ip_addresses.table', false);
 
-    const proofScreenshot = process.env.E2E_HOST_IP_ACTIONS_PROOF_SCREENSHOT?.trim();
+    const proofScreenshot = process.env['E2E_HOST_IP_ACTIONS_PROOF_SCREENSHOT']?.trim();
     if (proofScreenshot) await page.screenshot({ path: proofScreenshot, fullPage: true });
 
     await page.goto('/admin/networking/ip-address-assignments');

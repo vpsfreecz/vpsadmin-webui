@@ -608,7 +608,7 @@ test('@workflow-matrix @pr-smoke @smoke admin requests: automatic address map di
   await page.screenshot({ path: testInfo.outputPath('request-unknown-address.png'), fullPage: true });
 });
 
-test('@workflow-matrix @smoke admin requests: rejected action error is visible', async ({ page }) => {
+test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke @smoke-mobile admin requests: rejected action error is visible', async ({ page }) => {
   await bootstrapVpsAdminWindow(page);
   await installOsmMapMock(page);
 
@@ -627,7 +627,10 @@ test('@workflow-matrix @smoke admin requests: rejected action error is visible',
   await page.getByTestId('admin.requests.resolve.action.approve').click();
   await expect(page.getByTestId('admin.requests.resolve.modal')).toBeVisible();
   await page.getByTestId('admin.requests.resolve.submit').click();
-  await expect(page.getByRole('alert')).toContainText('Cannot approve this request');
+  const error = page.getByTestId('admin.requests.resolve.modal').getByRole('alert');
+  await expect(error).toBeVisible();
+  await expect(error).toContainText('Cannot approve this request');
+  await expect(page.getByTestId('admin.requests.resolve.cancel')).toBeEnabled();
   await expect(page).toHaveURL('/admin/requests/registration/124');
 });
 
@@ -1265,7 +1268,7 @@ test('@workflow-matrix @smoke admin requests: stale detail is rechecked immediat
   expect(resolveCalls).toBe(0);
 });
 
-test('@workflow-matrix @smoke admin requests: a failed detail preflight never creates an uncertain mutation lock', async ({ page }) => {
+test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke @smoke-mobile admin requests: a failed detail preflight never creates an uncertain mutation lock', async ({ page }) => {
   await bootstrapVpsAdminWindow(page);
   await installOsmMapMock(page);
   const request = registration(912);
@@ -1296,7 +1299,10 @@ test('@workflow-matrix @smoke admin requests: a failed detail preflight never cr
   await page.getByTestId('admin.requests.resolve.action.approve').click();
   await page.getByTestId('admin.requests.resolve.submit').click();
   await expect.poll(() => showCalls).toBe(2);
-  await expect(page.getByRole('alert')).toContainText('Preflight unavailable');
+  const error = page.getByTestId('admin.requests.resolve.modal').getByRole('alert');
+  await expect(error).toBeVisible();
+  await expect(error).toContainText('Preflight unavailable');
+  await expect(page.getByTestId('admin.requests.resolve.cancel')).toBeEnabled();
   await expect(page.getByTestId('admin.requests.resolve.uncertain')).toHaveCount(0);
   expect(resolveCalls).toBe(0);
 

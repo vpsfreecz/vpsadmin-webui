@@ -219,6 +219,10 @@ of the visible list, so the detail does not present their length as a live count
 waiting applications. Advancing still checks each candidate's current state and
 skips requests that no longer await a decision.
 
+Resolve and preflight errors stay inside the open review dialog and are announced
+as alerts to assistive technology. They do not depend on background toasts, which
+remain hidden while a modal is open. The draft and Cancel action remain available.
+
 **Registration response presets (prepared):** the individual review dialog offers
 four complete rejection reasons (nonexistent address, incorrectly filled application,
 duplicate application, existing membership) and three correction requests (incomplete
@@ -260,7 +264,10 @@ QR image URLs supplied by the API. The NixOS deployment must allow the reviewed
 external generator through `security.imageSources`; HTML sanitization alone does
 not grant permission under CSP. Prefer the exact generator path (see
 [NixOS service](NIXOS_SERVICE.md)). Amount and reference query parameters remain
-as supplied by the API; the frontend does not recalculate them.
+as supplied by the API; the frontend does not recalculate them. Unchanged
+instructions retain their decoded image DOM nodes during scrolling and session
+activity refreshes. Only changed sanitized content (including translated text)
+replaces the instructions; the generator-provided QR quiet zone is preserved.
 
 For inline images, the exception is limited to image sources in this sanitized
 payment HTML, with a PNG signature, valid base64 and a 1 MiB URL limit; links, news HTML, SVG and other
