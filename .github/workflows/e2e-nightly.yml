@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   nightly:
-    name: Nightly full E2E (${{ matrix.project }})
+    name: Nightly full E2E (${{ matrix.project }}, shard ${{ matrix.shard }})
     runs-on: ubuntu-latest
     timeout-minutes: 75
 
@@ -26,9 +26,28 @@ jobs:
           - project: chromium
             script: e2e:full
             layer: full mocked user and admin parity
+            shard: 1
+            shards: 4
+          - project: chromium
+            script: e2e:full
+            layer: full mocked user and admin parity
+            shard: 2
+            shards: 4
+          - project: chromium
+            script: e2e:full
+            layer: full mocked user and admin parity
+            shard: 3
+            shards: 4
+          - project: chromium
+            script: e2e:full
+            layer: full mocked user and admin parity
+            shard: 4
+            shards: 4
           - project: mobile-chrome
             script: e2e:smoke:mobile
             layer: mobile broad smoke parity
+            shard: 1
+            shards: 1
 
     steps:
       - name: Checkout
@@ -50,7 +69,7 @@ jobs:
         run: npm run e2e:install -- --with-deps chromium
 
       - name: Run nightly E2E suite
-        run: npm run ${{ matrix.script }}
+        run: npm run ${{ matrix.script }} -- --shard=${{ matrix.shard }}/${{ matrix.shards }}
 
       - name: Write nightly summary
         if: always()
@@ -68,7 +87,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7.0.1
         with:
-          name: playwright-report-${{ matrix.project }}
+          name: playwright-report-${{ matrix.project }}-${{ matrix.shard }}
           path: playwright-report
           if-no-files-found: ignore
           retention-days: 14
@@ -77,7 +96,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7.0.1
         with:
-          name: playwright-test-results-${{ matrix.project }}
+          name: playwright-test-results-${{ matrix.project }}-${{ matrix.shard }}
           path: e2e/test-results
           if-no-files-found: ignore
           retention-days: 14
