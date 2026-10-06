@@ -20,10 +20,8 @@ prefetch-npm-deps bff/package-lock.json
 
 The recorded hashes for the current lockfiles are
 `sha256-1AItkFu1tvJpKjFVbGC/IWky4JPfw+d+XU50egk+/TE=` and
-`sha256-imijdRISN2eVBsYX79YBxl7zKM7Pjq3rixkKXJNDSvw=`, respectively.
-They are used only by their corresponding derivations. The root lock changed
-to align development-only Node declarations with the selected Node 24 major;
-the BFF lock did not change. The root prefetch reported six bundled optional
+`sha256-m6CayVcO1z+Xuy+XlAEqVLoRFRACSNjdcn4pae1T+Dc=`, respectively.
+Each derivation uses its own hash. The root prefetch reported six bundled optional
 dependencies nested under `@tailwindcss/oxide-wasm32-wasi` without separate
 resolved URLs. Their WASI-only
 placement and bundled metadata explain the warning, but only an actual x86_64
