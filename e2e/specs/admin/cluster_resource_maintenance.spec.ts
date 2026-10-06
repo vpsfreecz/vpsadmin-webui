@@ -111,7 +111,7 @@ test('@pr-smoke environment and location maintenance lock and unlock with exact 
   await expect(page.getByTestId(`${locationControl}.lock`)).toBeVisible();
 });
 
-test('maintenance errors preserve the environment and location dialogs for a safe retry', async ({ page }, testInfo) => {
+test('@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile maintenance errors preserve the environment and location dialogs for a safe retry', async ({ page }, testInfo) => {
   const environmentPayloads: unknown[] = [];
   const locationPayloads: unknown[] = [];
 
@@ -159,7 +159,7 @@ test('maintenance errors preserve the environment and location dialogs for a saf
 
   await expect(page.getByTestId(`${environmentControl}.lock_dialog`)).toBeVisible();
   await expect(page.getByTestId(`${environmentControl}.reason`)).toHaveValue('Keep this environment draft');
-  await expect(page.getByTestId('toast.viewport')).toContainText('environment maintenance denied');
+  await expect(page.getByTestId(`${environmentControl}.lock_dialog`).getByRole('alert').filter({ hasText: 'environment maintenance denied' })).toBeVisible();
   expect(environmentPayloads).toEqual([
     { environment: { lock: true, reason: 'Keep this environment draft' } },
   ]);
@@ -173,7 +173,7 @@ test('maintenance errors preserve the environment and location dialogs for a saf
 
   await expect(page.getByTestId(`${locationControl}.lock_dialog`)).toBeVisible();
   await expect(page.getByTestId(`${locationControl}.reason`)).toHaveValue('Keep this location draft');
-  await expect(page.getByTestId('toast.viewport')).toContainText('location maintenance unavailable');
+  await expect(page.getByTestId(`${locationControl}.lock_dialog`).getByRole('alert').filter({ hasText: 'location maintenance unavailable' })).toBeVisible();
   expect(locationPayloads).toEqual([
     { location: { lock: true, reason: 'Keep this location draft' } },
   ]);
