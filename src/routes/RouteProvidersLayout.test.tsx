@@ -62,6 +62,8 @@ vi.mock('../components/layout/DocumentTitleManager', () => ({
   DocumentTitleManager: () => null,
 }));
 
+vi.mock('../app/ApiLanguageSync', () => ({ ApiLanguageSync: () => null }));
+
 import { RouteProvidersLayout } from './RouteProvidersLayout';
 
 function renderAt(pathname: string) {

@@ -67,9 +67,18 @@ afterEach(() => {
   bindBffImpersonationToSession(null);
   sessionStorage.clear();
   window.vpsAdmin = undefined;
+  document.documentElement.lang = "";
 });
 
 describe('haveApiCall', () => {
+  it.each(['cs', 'en'])('requests API labels in the UI language %s', async language => {
+    setMockRuntime();
+    document.documentElement.lang = language;
+    const fetchMock = installOkFetch({ transaction: [] });
+    await haveApiCall({ path: '/transactions' });
+    expect(new Headers(getFetchCall(fetchMock)[1]?.headers).get('Accept-Language')).toBe(language);
+  });
+
   it('sends token via provider-specific http_header from description and uses meta namespace for query', async () => {
     setMockRuntime();
     const fetchMock = installOkFetch({ _meta: { elapsed: 1 }, vps: [] });

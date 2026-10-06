@@ -26,6 +26,16 @@ function t(key: string, params?: Record<string, unknown>): string {
 }
 
 describe('operation taxonomy', () => {
+  it.each(['Vytvoření VPS', 'Create VPS', 'Neznámá operace'])('prefers the API label %s over the technical name', label => {
+    const op = classifyTransaction({ id: 1, name: 'CreateVps', label });
+    expect(operationLabel(op, t)).toBe(label);
+    expect(op.key).toBe('vps.create');
+  });
+
+  it.each([undefined, '', '  '])('falls back to the technical name for empty label %s', label => {
+    expect(operationLabel(classifyTransaction({ id: 1, name: ' LegacyStep ', label }), t)).toBe('LegacyStep');
+  });
+
   it('classifies VPS lifecycle transactions with shared labels', () => {
     const createTx: Transaction = { id: 1, name: 'CreateVps', vps: { id: 16, label: 'web-16' } };
     const deleteTx: Transaction = { id: 2, name: 'DestroyVps', vps: { id: 16, label: 'web-16' } };

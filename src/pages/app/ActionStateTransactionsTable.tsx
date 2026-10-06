@@ -54,8 +54,7 @@ export function ActionStateTransactionsTable(props: {
             const hasTxId = Number.isFinite(txId) && txId > 0;
             const badge = transactionBadge(tx);
             const txOp = classifyTransaction(tx);
-            const rawName = tx.name ? String(tx.name) : t('transactions.items.row.fallback_name');
-            const name = txOp.key.endsWith('.unknown') ? rawName : operationLabel(txOp, t);
+            const name = operationLabel(txOp, t);
             const rawNameDiffers = txOp.rawLabel && txOp.rawLabel !== name;
             const nodeId = resourceId(tx.node);
             const vpsId = resourceId(tx.vps);
