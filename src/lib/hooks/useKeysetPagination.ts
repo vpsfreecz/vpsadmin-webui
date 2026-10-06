@@ -231,7 +231,9 @@ export function useKeysetPagination(opts: {
 
     const nextStr = next.toString();
     const curStr = cur.toString();
-    if (nextStr !== curStr) {
+    // Explicit navigation must supersede any pending router transition, even
+    // when its destination matches the params from the last committed render.
+    if (mode === 'push' || nextStr !== curStr) {
       opts.setSearchParams(next, { replace: mode === 'replace' });
     }
   };

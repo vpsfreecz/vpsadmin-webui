@@ -400,3 +400,12 @@ a bounded scrolling list, with keyboard selection scrolled into view.
 Source inspection and synthetic browser regressions cover these contracts.
 They do not establish the cause of a specific production user's intermittent
 result without that user's mode/request trace, nor certify a live API release.
+
+## Pagination during pending navigation
+
+REQ-046: keyset page actions must issue their navigation even if the destination
+matches the router params from the last committed render. A previous navigation
+may still be pending. In particular, Next followed by Previous or page 1 must
+cancel the pending page-2 destination rather than only changing local state.
+Automatic URL normalization still avoids redundant writes. Filter parameters,
+visited forward cursors and browser Back/Forward remain preserved.
