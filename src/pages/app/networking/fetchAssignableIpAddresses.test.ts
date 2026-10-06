@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { fetchIpAddresses, type IpAddress } from '../../../lib/api/ipAddresses';
+import { fetchIpAddresses, fetchIpAddressIndexCapability, type IpAddress } from '../../../lib/api/ipAddresses';
 import { fetchAssignableIpAddresses } from './fetchAssignableIpAddresses';
 
-vi.mock('../../../lib/api/ipAddresses', () => ({ fetchIpAddresses: vi.fn() }));
+vi.mock('../../../lib/api/ipAddresses', () => ({ fetchIpAddresses: vi.fn(), fetchIpAddressIndexCapability: vi.fn() }));
 const fetchAddresses = vi.mocked(fetchIpAddresses);
 const ip: IpAddress = {
   id: 42, addr: '10.108.0.42', prefix: 32,
@@ -12,7 +12,10 @@ const ip: IpAddress = {
 function respond(rows: IpAddress[]) {
   fetchAddresses.mockResolvedValueOnce({ data: rows, meta: {}, envelope: { status: true } });
 }
-beforeEach(() => vi.resetAllMocks());
+beforeEach(() => {
+  vi.resetAllMocks();
+  vi.mocked(fetchIpAddressIndexCapability).mockResolvedValue({ data: { input: { parameters: { network_enabled: {} } } }, meta: {}, envelope: { status: true } });
+});
 
 describe('assignment candidates', () => {
   test('trusts secondary-location availability and requests compatible network purposes', async () => {
@@ -22,6 +25,7 @@ describe('assignment candidates', () => {
     expect(fetchAddresses).toHaveBeenCalledWith(expect.objectContaining({
       location: 11, version: 4, role: 'private_access', usableFor: 'vps',
       assignedToInterface: false, signal,
+      networkEnabled: true,
     }));
     expect(fetchAddresses.mock.calls[0]?.[0]).not.toHaveProperty('purpose');
   });
@@ -57,5 +61,18 @@ describe('assignment candidates', () => {
     expect(fetchAddresses).toHaveBeenCalledTimes(1);
     respond([{ ...ip, network: { ...ip.network!, role: 'public_access' } }]);
     expect(await fetchAssignableIpAddresses(11, 'ipv4_private')).toEqual([]);
+  });
+
+  test('omits disabled listed and cached owned allocations', async () => {
+    const disabled = { ...ip, network: { ...ip.network!, enabled: false }, user: { id: 1 } };
+    respond([disabled]);
+    expect(await fetchAssignableIpAddresses(11, 'ipv4_private', [disabled])).toEqual([]);
+  });
+
+  test('keeps old APIs usable without sending an unsupported availability filter', async () => {
+    vi.mocked(fetchIpAddressIndexCapability).mockResolvedValue({ data: { input: { parameters: {} } }, meta: {}, envelope: { status: true } });
+    respond([ip]);
+    expect(await fetchAssignableIpAddresses(11, 'ipv4_private')).toEqual([ip]);
+    expect(fetchAddresses.mock.calls[0]?.[0]).not.toHaveProperty('networkEnabled');
   });
 });
