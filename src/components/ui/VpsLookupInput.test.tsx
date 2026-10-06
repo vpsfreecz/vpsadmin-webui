@@ -60,6 +60,31 @@ describe('VpsLookupInput', () => {
     vi.clearAllMocks();
   });
 
+  test('keeps focused results open when a parent user filter finishes updating', async () => {
+    const next = deferred<ReturnType<typeof reply>>();
+    vi.mocked(fetchVpsList).mockImplementation(async (params) =>
+      params?.user === 7 ? next.promise : reply([{ id: 5, hostname: 'old-owner' } as Vps])
+    );
+    const { rerender, queryClient, onChange } = renderLookup();
+    const input = screen.getByRole('combobox');
+    act(() => input.focus());
+    fireEvent.change(input, { target: { value: 'noc' } });
+    await screen.findByRole('option', { name: /old-owner/ });
+
+    rerender(
+      <QueryClientProvider client={queryClient}>
+        <VpsLookupInput value={null} onChange={onChange} userId={7} ariaLabel="Target VPS" />
+      </QueryClientProvider>
+    );
+    expect(input).toHaveFocus();
+    expect(input).toHaveValue('noc');
+    expect(screen.queryByRole('option', { name: /old-owner/ })).not.toBeInTheDocument();
+    await act(async () => { next.resolve(reply([{ id: 6, hostname: 'noc-new-owner' } as Vps])); });
+    const option = await screen.findByRole('option', { name: /noc-new-owner/ });
+    fireEvent.click(option);
+    expect(onChange).toHaveBeenCalledExactlyOnceWith(6);
+  });
+
   test('exposes a complete combobox contract and supports wrapping keyboard selection', async () => {
     vi.mocked(fetchVpsList).mockResolvedValue(
       reply([

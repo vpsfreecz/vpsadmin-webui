@@ -166,7 +166,7 @@ export function IncidentReportDetailPage() {
       />
 
       <div className="mt-4 grid grid-cols-1 gap-4">
-        <Card testId="incidents.detail.summary">
+        <Card testId="incidents.detail.summary" className="break-words">
           <CardHeader title={t('incidents.detail.summary_title')} subtitle={r.subject ? String(r.subject) : undefined} />
           <CardBody>
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">

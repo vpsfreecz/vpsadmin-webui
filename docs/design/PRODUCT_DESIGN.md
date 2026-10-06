@@ -133,10 +133,28 @@ Never automatically resend an uncertain destructive request. “Accepted” is n
 “finished”. Keep a useful receipt and target link. Display rejected errors next
 to the dialog/form rather than discarding input or relying only on a transient
 toast. Local locks protect against duplicate UI submissions but are not server
-transactions. Cancel remains reachable even when an error notification is shown;
-the recorded mobile overlap is an outstanding verification/fix item.
+transactions. Cancel remains reachable after a known rejection. Registration review keeps
+its error next to the actions and its draft intact. Background toasts wait while
+a modal owns interaction and pause expiry until it closes. Urgent error/warning
+notifications render in a bounded scrollable slot inside the active dialog;
+they must not cover a dialog footer. Pending submission still follows its explicit cancellation gate.
 
 ## Accessibility, localization and persistence
+
+Shared buttons keep compact desktop sizing but use a minimum 44 × 44 CSS px
+hit area when any pointer is coarse, including landscape phones and tablets.
+Screen-reader-only labels inside these controls must stay positioned relative to
+their button so a horizontally scrolling table cannot expand the document.
+Cold modal code must show an immediate, cancellable modal loading state without
+shifting the page layout; inline loading is reserved for content already inside
+a panel. Use touch input (not only mouse clicks at a narrow viewport) to verify first-tap
+activation, cancel-after-error and search selection. Test retries must not hide
+an initially lost tap. The [mobile audit](../work-log/2026-10-06-mobile-touch-audit.md)
+records what was reproduced and what still needs real-device evidence. The
+[workflow follow-up](../work-log/2026-10-06-mobile-workflows.md) unifies user/node
+combobox activation, preserves URL-bound drafts and sizes VPS cards/tables by
+content width. Modal/drawer geometry follows the visual viewport at normal zoom;
+keyboard shrinkage must leave actions visible without overriding pinch zoom.
 
 Interactive icons need accessible names; decorative icons are hidden from assistive
 technology. Focus moves predictably after navigation, modal open/close and errors.

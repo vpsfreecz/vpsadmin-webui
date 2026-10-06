@@ -19,6 +19,22 @@ command/scenario, role, locale, viewport, data origin, result, artifacts and lim
 For mutations include object ownership, acceptance/action-state IDs, final state
 and cleanup receipt. Do not rerun completed destructive scenarios blindly.
 
+## Touch interaction regression
+
+`npm run e2e:touch:webkit` runs the focused `mobile-webkit` project using iPhone
+emulation. The same specification is tagged `@pr-smoke-mobile` for Chromium.
+The PR smoke workflow installs each engine explicitly. Cases use `tap()` or raw
+touchscreen coordinates and disable retries; viewport coverage includes
+320 × 568, 360 × 640, 390 × 500, 393 × 727 and 844 × 390.
+Cases also cover owner-filter changes while typing and the scrolled mailbox editor. The short portrait viewport
+checks limited vertical room; it does **not** emulate a real software keyboard.
+A desktop case protects compact mouse sizing.
+
+See the [2026-10-06 audit](../work-log/2026-10-06-mobile-touch-audit.md) for deployed
+versus candidate results and synthetic API boundaries. These fixtures do not
+certify authenticated live requests, physical iOS keyboard/zoom, momentum
+scrolling or every application screen.
+
 ## Repeatable checks
 
 The application supports the Node range in [package.json](../../package.json).

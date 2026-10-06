@@ -48,7 +48,7 @@ export function VpsListMobile({
 }: VpsListMobileProps) {
   return (
     <>
-      <div className="grid gap-3 md:hidden">
+      <div className="vps-list-cards grid gap-3">
         {rows.map((row) => {
           const { vps } = row;
           const failureId = row.recentFailureChainIds[0];
@@ -148,7 +148,7 @@ export function VpsListMobile({
       </div>
 
       {canPaginate ? (
-        <div className="md:hidden">
+        <div className="vps-list-cards">
           <KeysetPagination
             page={pagination.page}
             pageCount={pagination.stack.length}

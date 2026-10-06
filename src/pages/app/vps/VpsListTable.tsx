@@ -48,7 +48,7 @@ export function VpsListTable({
 }: VpsListTableProps) {
   return (
     <TableCard
-      className="hidden md:block"
+      className="vps-list-table"
       minWidth="lg"
       tableClassName="table-fixed"
       tableTestId="vps.table"

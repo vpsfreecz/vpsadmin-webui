@@ -76,13 +76,13 @@ async function setupExportsApi(page: Page, options: ExportMockOptions): Promise<
         const includes = searchParams.get('_meta[includes]');
         requests.push({ includes, fields });
 
-        if (!options.allowArbitraryUser && options.expectedImplicitUserId === undefined && fields.user !== undefined) {
-          throw new Error(`Owner-scoped Export::Index must not send export[user], got ${fields.user}`);
+        if (!options.allowArbitraryUser && options.expectedImplicitUserId === undefined && fields['user'] !== undefined) {
+          throw new Error(`Owner-scoped Export::Index must not send export[user], got ${fields['user']}`);
         }
 
-        if (options.expectedImplicitUserId !== undefined && fields.user !== String(options.expectedImplicitUserId)) {
+        if (options.expectedImplicitUserId !== undefined && fields['user'] !== String(options.expectedImplicitUserId)) {
           throw new Error(
-            `Expected implicit export[user]=${options.expectedImplicitUserId}, got ${fields.user ?? '<missing>'}`
+            `Expected implicit export[user]=${options.expectedImplicitUserId}, got ${fields['user'] ?? '<missing>'}`
           );
         }
 
@@ -93,9 +93,9 @@ async function setupExportsApi(page: Page, options: ExportMockOptions): Promise<
           );
         }
 
-        const limit = Number(fields.limit ?? '50') || 50;
-        const fromId = Number(fields.from_id ?? '0') || 0;
-        const ownerId = fields.user ? Number(fields.user) : options.user.id;
+        const limit = Number(fields['limit'] ?? '50') || 50;
+        const fromId = Number(fields['from_id'] ?? '0') || 0;
+        const ownerId = fields['user'] ? Number(fields['user']) : options.user.id;
         const ownerLabel = options.ownerLabelByUser ? `${options.ownerLabel}-${ownerId}` : options.ownerLabel;
         const rows = Array.from({ length: Math.min(limit, 25) }, (_, index) =>
           exportRow(fromId + index + 1, ownerLabel, ownerId)
@@ -166,7 +166,7 @@ test.describe('Export list filter contract', () => {
     await input.fill('user:42');
     await input.press('Enter');
 
-    await expect.poll(() => lastRequest(requests).fields.user).toBe('42');
+    await expect.poll(() => lastRequest(requests).fields['user']).toBe('42');
     expect(lastRequest(requests).fields).toEqual({ limit: '25', user: '42' });
     await expect(exportSurface(page, testInfo, 1)).toContainText('global-owner');
 
@@ -197,7 +197,7 @@ test.describe('Export list filter contract', () => {
       window.dispatchEvent(new PopStateEvent('popstate', { state: window.history.state }));
     });
 
-    await expect.poll(() => lastRequest(requests).fields.user).toBe('84');
+    await expect.poll(() => lastRequest(requests).fields['user']).toBe('84');
     await expect(page).toHaveURL(/\/admin\/exports\?user=84&limit=25(?:&page=1)?$/);
     await expect(exportSurface(page, testInfo, 1)).toContainText('history-84-owner');
 
@@ -498,7 +498,7 @@ test.describe('Export list filter contract', () => {
     await page.getByTestId('exports.edit.rw').click();
     const saveButton = page.getByTestId('exports.edit.submit');
     if (testInfo.project.name.includes('mobile')) {
-      const scrollBody = page.getByTestId('exports.detail.edit.drawer').locator('.overflow-y-auto');
+      const scrollBody = page.getByTestId('exports.detail.edit.drawer').locator('.overflow-y-auto').filter({ has: page.getByTestId('exports.edit.rw') });
       await scrollBody.evaluate((element) => {
         const spacer = document.createElement('div');
         spacer.style.height = '1200px';

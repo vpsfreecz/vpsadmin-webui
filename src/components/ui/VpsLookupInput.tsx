@@ -41,9 +41,7 @@ export function VpsLookupInput(props: {
   const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
-  const [needleRaw, setNeedleRaw] = useState(() =>
-    props.value === null ? '' : formatLookupId(props.value)
-  );
+  const [needleRaw, setNeedleRaw] = useState(() => (props.value === null ? '' : formatLookupId(props.value)));
   const needle = useDebouncedValue(needleRaw, 150);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -116,7 +114,10 @@ export function VpsLookupInput(props: {
     clearDeferredBlur();
     clearPointerRelease();
     pointerSelectingRef.current = false;
-    closeSuggestions();
+    // A parent filter can finish updating after typing has already started.
+    // Refresh the scoped query without dismissing that active interaction.
+    if (props.disabled || document.activeElement !== inputRef.current) closeSuggestions();
+    else setActiveIndex(-1);
   }, [props.disabled, props.userId]);
 
   useEffect(
@@ -147,12 +148,7 @@ export function VpsLookupInput(props: {
       });
       return res.data;
     },
-    enabled:
-      open
-      && queryMatchesInput
-      && needle.trim().length >= 2
-      && debouncedIdLike === null
-      && !props.disabled,
+    enabled: open && queryMatchesInput && needle.trim().length >= 2 && debouncedIdLike === null && !props.disabled,
     staleTime: 15_000,
   });
 
@@ -163,11 +159,7 @@ export function VpsLookupInput(props: {
   // Debouncing, refetching, and failures must never leave results for an older
   // or uncertain state actionable.
   const options = useMemo(
-    () => (
-      queryMatchesInput && searchEligible && !q.isFetching && !q.isError
-        ? buildOptions(q.data ?? [])
-        : []
-    ),
+    () => (queryMatchesInput && searchEligible && !q.isFetching && !q.isError ? buildOptions(q.data ?? []) : []),
     [q.data, q.isError, q.isFetching, queryMatchesInput, searchEligible]
   );
   const expanded = popupOpen && options.length > 0;
@@ -192,15 +184,11 @@ export function VpsLookupInput(props: {
   }, [expanded, options]);
 
   const activeOption = expanded && activeIndex >= 0 ? options[activeIndex] : undefined;
-  const activeOptionId = activeOption
-    ? `${listboxId}-option-${activeOption.identity}`
-    : undefined;
+  const activeOptionId = activeOption ? `${listboxId}-option-${activeOption.identity}` : undefined;
 
   useEffect(() => {
     if (!expanded || activeIndex < 0) return;
-    const option = listboxRef.current?.querySelector<HTMLElement>(
-      `[data-vps-option-index="${activeIndex}"]`
-    );
+    const option = listboxRef.current?.querySelector<HTMLElement>(`[data-vps-option-index="${activeIndex}"]`);
     option?.scrollIntoView?.({ block: 'nearest' });
   }, [activeIndex, expanded]);
 
@@ -271,8 +259,7 @@ export function VpsLookupInput(props: {
       return;
     }
 
-    const hasNavigationModifier =
-      event.altKey || event.ctrlKey || event.metaKey || event.shiftKey;
+    const hasNavigationModifier = event.altKey || event.ctrlKey || event.metaKey || event.shiftKey;
 
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
       if (hasNavigationModifier || !searchEligible) return;
@@ -311,11 +298,7 @@ export function VpsLookupInput(props: {
   };
 
   return (
-    <div
-      ref={wrapperRef}
-      className="relative"
-      data-testid={props.testId ? `${props.testId}.wrap` : undefined}
-    >
+    <div ref={wrapperRef} className="relative" data-testid={props.testId ? `${props.testId}.wrap` : undefined}>
       <Input
         ref={inputRef}
         testId={props.testId}
@@ -412,12 +395,8 @@ export function VpsLookupInput(props: {
                   >
                     <div className="flex items-center justify-between gap-2">
                       <div className="min-w-0">
-                        <div className="truncate font-medium">
-                          {hostname || formatLookupId(option.id)}
-                        </div>
-                        <div className="truncate text-xs text-faint">
-                          {formatLookupId(option.id)}
-                        </div>
+                        <div className="truncate font-medium">{hostname || formatLookupId(option.id)}</div>
+                        <div className="truncate text-xs text-faint">{formatLookupId(option.id)}</div>
                       </div>
                     </div>
                   </button>
@@ -431,10 +410,7 @@ export function VpsLookupInput(props: {
             role="status"
             aria-live="polite"
             aria-atomic="true"
-            className={clsx(
-              expanded ? 'sr-only' : 'px-3 py-2 text-sm',
-              searchFailed ? 'text-danger' : 'text-muted'
-            )}
+            className={clsx(expanded ? 'sr-only' : 'px-3 py-2 text-sm', searchFailed ? 'text-danger' : 'text-muted')}
             data-testid={props.testId ? `${props.testId}.status` : undefined}
           >
             {statusText}

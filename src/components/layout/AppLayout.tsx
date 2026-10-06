@@ -17,7 +17,7 @@ import {
 import { Drawer } from '../ui/Drawer';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
-import { LoadingState } from '../ui/LoadingState';
+import { DeferredChromeModal, DeferredChromeSection } from './DeferredChromeSection';
 import { ChromeContextProvider, type TrackedActionState } from './ChromeContext';
 import { normalizeObjectRef, objectRefKey, parseObjectRefKey, type ObjectRef } from '../../lib/objectRef';
 import { computeOtherModeUrl } from '../../lib/modeSwitch';
@@ -80,14 +80,6 @@ const LazyBlockingActionProgressModal = React.lazy(async () => {
   const mod = await import('./BlockingActionProgressModal');
   return { default: mod.BlockingActionProgressModal };
 });
-
-function DeferredChromeSection(props: { children: React.ReactNode; testId: string }) {
-  return (
-    <React.Suspense fallback={<LoadingState kind="inline" testId={props.testId} />}>
-      {props.children}
-    </React.Suspense>
-  );
-}
 
 export function AppLayout(props: { children: React.ReactNode }) {
   const auth = useAuth();
@@ -688,20 +680,22 @@ export function AppLayout(props: { children: React.ReactNode }) {
         </Drawer>
 
         {paletteOpen ? (
-          <DeferredChromeSection testId="shell.command_palette.loading">
+          <DeferredChromeModal testId="shell.command_palette.loading" ariaLabel={i18n.t('palette.open')}
+            mobileFullScreen onClose={() => setPaletteOpen(false)}>
             <LazyCommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
-          </DeferredChromeSection>
+          </DeferredChromeModal>
         ) : null}
 
         {blockingActionStateId !== null ? (
-          <DeferredChromeSection testId="shell.blocking_progress.loading">
+          <DeferredChromeModal testId="shell.blocking_progress.loading" ariaLabel={i18n.t('common.loading')}
+            onClose={() => setBlockingActionStateId(null)}>
             <LazyBlockingActionProgressModal
               actionStateId={blockingActionStateId}
               tracked={blockingTracked}
               onClose={() => setBlockingActionStateId(null)}
               onOpenTasks={openTasks}
             />
-          </DeferredChromeSection>
+          </DeferredChromeModal>
         ) : null}
 
         <div className="min-w-0 flex-1">

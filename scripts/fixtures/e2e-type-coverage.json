@@ -15,12 +15,16 @@
     "e2e/specs/admin/requests_operations_smoke.spec.ts",
     "e2e/specs/app/admin_default_review_queue.spec.ts",
     "e2e/specs/app/authenticated_home_smoke.spec.ts",
+    "e2e/specs/app/exports_filter_contract.spec.ts",
     "e2e/specs/app/global_search_cold_start.spec.ts",
     "e2e/specs/app/incidents_responsive_layout.spec.ts",
+    "e2e/specs/app/mobile_touch_interactions.spec.ts",
+    "e2e/specs/app/mobile_workflows.spec.ts",
     "e2e/specs/app/payment_qr_images.spec.ts",
     "e2e/specs/app/payments_page.spec.ts",
     "e2e/specs/app/profile_metrics_tokens.spec.ts",
     "e2e/specs/app/profile_owner_scope.spec.ts",
+    "e2e/specs/app/security_advisory_update_mutations.spec.ts",
     "e2e/specs/app/sidebar_expanded.spec.ts",
     "e2e/specs/app/transaction_chains_ux.spec.ts",
     "e2e/specs/app/ui_preferences_persistence.spec.ts",
@@ -916,13 +920,6 @@
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
     },
     {
-      "path": "e2e/specs/app/exports_filter_contract.spec.ts",
-      "sha256": "7246a478531f9d04c3648d083175fe5c9625425a6ede93b6c4c0ae14878d204f",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
       "path": "e2e/specs/app/exports_smoke.spec.ts",
       "sha256": "542668e3032ee21fa77f8f2c97928a2a0ab1afc18adce55d1a33bbe174cc60e2",
       "owner": "WebUI maintainers",
@@ -1198,13 +1195,6 @@
     {
       "path": "e2e/specs/app/security_advisories_admin.spec.ts",
       "sha256": "c6ca66a988658a3bfe06a774590fc2220dff27e9bf1719284aac843c16a59cf3",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/app/security_advisory_update_mutations.spec.ts",
-      "sha256": "b7e1b1ebc5725775b99f8c13c31dba3ac7ddb96ba7bd7d6fa3bf40df78f6553c",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."

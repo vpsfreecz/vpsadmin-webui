@@ -1,8 +1,6 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import type { ObjectScopeValue } from '../../../app/objectScope';
-import type { ToastsContextValue } from '../../../app/toasts';
 import { searchUsers } from '../../../lib/api/users';
 import { useDebouncedValue } from '../../../lib/hooks/useDebouncedValue';
 import { currentSuggestionRows } from '../../../lib/currentSuggestionRows';
@@ -17,7 +15,6 @@ import { FilterChip } from '../../../components/ui/FilterChip';
 import {
   normalizeVpsListStateFilter,
   type VpsListStateFilter,
-  type VpsListTranslator,
 } from './vpsListSemantics';
 import { buildVpsListSmartSuggestions, stateFilterLabelKey } from './VpsListSmartSuggestions';
 import {
@@ -25,17 +22,11 @@ import {
   isStateLiteral,
   normalizeVpsListSearchParams,
   numericParam,
+  vpsListFilterSignature,
   useVpsListSmartSuggestionQueries,
-  type VpsListMode,
+  type UseVpsListSmartFiltersArgs,
 } from './vpsListSmartFilterHelpers';
 
-interface UseVpsListSmartFiltersArgs {
-  basePath: string;
-  mode: VpsListMode;
-  scope: ObjectScopeValue;
-  t: VpsListTranslator;
-  toasts: ToastsContextValue;
-}
 
 export function useVpsListSmartFilters(args: UseVpsListSmartFiltersArgs) {
   const { basePath, mode, scope, t, toasts } = args;
@@ -52,6 +43,7 @@ export function useVpsListSmartFilters(args: UseVpsListSmartFiltersArgs) {
     () => new URLSearchParams(activeSearchParamsKey),
     [activeSearchParamsKey]
   );
+  const activeFilterSignature = vpsListFilterSignature(activeSearchParams);
   const activeSearch = activeSearchParams.get('q') ?? '';
   const activeNodeIdNum = numericParam(activeSearchParams.get('node') ?? '');
   const activeUserIdNum = mode === 'admin' ? numericParam(activeSearchParams.get('user') ?? '') : undefined;
@@ -59,6 +51,7 @@ export function useVpsListSmartFilters(args: UseVpsListSmartFiltersArgs) {
   const activeLocationIdNum = numericParam(activeSearchParams.get('location') ?? '');
   const activeStateFilter = normalizeVpsListStateFilter(activeSearchParams.get('state'));
   const hydratingFiltersFromUrlRef = useRef(false);
+  const lastWrittenFilterRef = useRef<string | null>(null);
 
   const [search, setSearch] = useState(() => activeSearch);
   const [nodeId, setNodeId] = useState(() => activeNodeIdNum === undefined ? '' : String(activeNodeIdNum));
@@ -91,6 +84,11 @@ export function useVpsListSmartFilters(args: UseVpsListSmartFiltersArgs) {
   }, [activeSearchParams, normalizedSearch.changed, setSearchParams]);
 
   useLayoutEffect(() => {
+    if (lastWrittenFilterRef.current === activeFilterSignature) {
+      lastWrittenFilterRef.current = null;
+      return;
+    }
+    lastWrittenFilterRef.current = null;
     hydratingFiltersFromUrlRef.current = true;
     setSearch(activeSearch);
     setNodeId(activeNodeIdNum === undefined ? '' : String(activeNodeIdNum));
@@ -104,7 +102,7 @@ export function useVpsListSmartFilters(args: UseVpsListSmartFiltersArgs) {
     activeLocationIdNum,
     activeNodeIdNum,
     activeSearch,
-    activeSearchParamsKey,
+    activeFilterSignature,
     activeStateFilter,
     activeUserIdNum,
     activeUserNamespaceMapIdNum,
@@ -152,6 +150,7 @@ export function useVpsListSmartFilters(args: UseVpsListSmartFiltersArgs) {
     }
 
     if (next.toString() !== searchParamsKey) {
+      lastWrittenFilterRef.current = vpsListFilterSignature(next);
       setSearchParams(next, { replace: true });
     }
   }, [

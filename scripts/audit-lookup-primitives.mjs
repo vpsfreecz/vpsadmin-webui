@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const files = [
+  'src/components/ui/LookupCombobox.tsx',
   'src/components/ui/UserLookupInput.tsx',
   'src/components/ui/NodeLookupInput.tsx',
   'src/components/ui/VpsLookupInput.tsx',

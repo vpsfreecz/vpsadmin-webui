@@ -1,6 +1,8 @@
 import React, { useEffect, useId, useState } from 'react';
 
 import { useI18n } from '../../app/i18n';
+import { useBodyScrollLock } from '../../lib/hooks/useBodyScrollLock';
+import { useOverlayViewport } from '../../lib/hooks/useOverlayViewport';
 import { useFocusTrap } from '../../lib/hooks/useFocusTrap';
 import { createPortal } from 'react-dom';
 import { clsx } from './clsx';
@@ -21,8 +23,11 @@ export function Drawer(props: {
   /** Use false for docked panels that should not dim or block the page. */
   modal?: boolean;
 }) {
+  const viewportStyle = useOverlayViewport(props.open);
   const side = props.side ?? 'left';
   const modal = props.modal ?? true;
+  const { open, onClose } = props;
+  useBodyScrollLock(open && modal);
   const { t } = useI18n();
 
   const titleId = useId();
@@ -30,22 +35,22 @@ export function Drawer(props: {
   useFocusTrap(props.open && modal, containerEl);
 
   useEffect(() => {
-    if (!props.open) return;
+    if (!open) return;
 
     function onKeyDown(e: KeyboardEvent) {
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' && !e.defaultPrevented) {
         const target = e.target instanceof Element ? e.target : null;
         const targetOverlay = target?.closest('[data-overlay-surface="overlay"]');
         if (targetOverlay && targetOverlay !== containerEl) return;
 
         e.preventDefault();
-        props.onClose();
+        onClose();
       }
     }
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [containerEl, props.open, props.onClose]);
+  }, [containerEl, open, onClose]);
 
   if (!props.open) return null;
 
@@ -59,7 +64,7 @@ export function Drawer(props: {
   const closeTestId = props.closeTestId ?? 'drawer.close';
 
   return createPortal(
-    <div className={clsx('fixed inset-0 z-50', modal ? undefined : 'pointer-events-none')}>
+    <div style={viewportStyle} className={clsx('fixed inset-0 z-50', modal ? undefined : 'pointer-events-none')}>
       {modal ? (
         <div
           className="absolute inset-0 bg-backdrop/45"
@@ -79,7 +84,7 @@ export function Drawer(props: {
         tabIndex={-1}
         ref={setContainerEl}
         className={clsx(
-          'absolute top-0 z-10 flex h-dvh flex-col overflow-hidden bg-overlay-surface shadow-panel ring-1 ring-border pointer-events-auto',
+          'absolute top-0 z-10 flex h-full flex-col overflow-hidden bg-overlay-surface shadow-panel ring-1 ring-border pointer-events-auto',
           widthClass,
           side === 'left' ? 'left-0' : 'right-0'
         )}
@@ -108,8 +113,14 @@ export function Drawer(props: {
 
         <div className="relative z-0 min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4">{props.children}</div>
 
+        <div
+          data-overlay-notifications="true"
+          className="relative z-10 max-h-32 shrink-0 overflow-y-auto overscroll-contain border-t border-border bg-overlay-surface px-4 py-3 empty:hidden"
+        />
         {props.footer ? (
-          <div className="relative z-10 shrink-0 border-t border-border bg-overlay-surface px-4 py-3">{props.footer}</div>
+          <div className="relative z-10 shrink-0 border-t border-border bg-overlay-surface px-4 py-3">
+            {props.footer}
+          </div>
         ) : null}
       </div>
     </div>,

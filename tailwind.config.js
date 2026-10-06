@@ -8,7 +8,7 @@ module.exports = {
       // Heights are tokens: avoid arbitrary `h-[...]` / `max-h-[...]` in components.
       maxHeight: {
         // Standard modal viewport clamp.
-        modal: 'calc(100vh - 2rem)',
+        modal: 'calc(var(--overlay-height, 100dvh) - 2rem)',
         // Used for mail log bodies and other "large pre" scroll areas.
         'scroll-lg': '28rem',
         // Registry / metadata side panels where 420px gives a good balance.

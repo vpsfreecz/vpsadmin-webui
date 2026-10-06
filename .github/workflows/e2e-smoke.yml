@@ -25,8 +25,13 @@ jobs:
         include:
           - project: chromium
             script: e2e:pr:desktop
+            browser: chromium
           - project: mobile-chrome
             script: e2e:pr:mobile
+            browser: chromium
+          - project: mobile-webkit
+            script: e2e:touch:webkit
+            browser: webkit
 
     steps:
       - name: Checkout
@@ -45,7 +50,7 @@ jobs:
         run: npm run env:locked
 
       - name: Install Playwright browsers
-        run: npm run e2e:install -- --with-deps chromium
+        run: npm run e2e:install -- --with-deps ${{ matrix.browser }}
 
       - name: Run PR smoke E2E
         run: npm run ${{ matrix.script }}

@@ -53,6 +53,11 @@ export default defineConfig({
     : undefined,
   projects: [
     {
+      name: 'mobile-webkit',
+      testMatch: ['**/mobile_touch_interactions.spec.ts', '**/mobile_workflows.spec.ts', '**/payment_qr_images.spec.ts'],
+      use: { ...devices['iPhone 13'] },
+    },
+    {
       name: 'chromium',
       use: {
         ...devices['Desktop Chrome'],

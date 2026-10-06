@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
+import { useModalActive } from '../lib/hooks/useModalActive';
 import { clsx } from '../components/ui/clsx';
 import { Button } from '../components/ui/Button';
 import { useI18n } from './i18n';
@@ -46,6 +47,7 @@ const ToastsContext = createContext<ToastsContextValue | null>(null);
 
 export function ToastsProvider(props: { children: React.ReactNode }) {
   const nextId = useRef(1);
+  const modalActive = useModalActive();
   const timers = useRef(new Map<number, number>());
 
   const [toasts, setToasts] = useState<Toast[]>([]);
@@ -69,40 +71,48 @@ export function ToastsProvider(props: { children: React.ReactNode }) {
     setToasts([]);
   }, []);
 
-  const pushToast = useCallback(
-    (spec: ToastSpec) => {
-      const id = nextId.current++;
-      const toast: Toast = {
-        id,
-        variant: spec.variant ?? 'neutral',
-        title: spec.title,
-        body: spec.body ?? '',
-        action: spec.action,
-        createdAt: Date.now(),
-        autoDismissMs: spec.autoDismissMs === undefined ? 8000 : spec.autoDismissMs,
-      };
+  const pushToast = useCallback((spec: ToastSpec) => {
+    const id = nextId.current++;
+    const toast: Toast = {
+      id,
+      variant: spec.variant ?? 'neutral',
+      title: spec.title,
+      body: spec.body ?? '',
+      action: spec.action,
+      createdAt: Date.now(),
+      autoDismissMs: spec.autoDismissMs === undefined ? 8000 : spec.autoDismissMs,
+    };
 
-      setToasts((prev) => {
-        const next = [toast, ...prev];
-        // Keep the stack small and predictable.
-        return next.slice(0, 5);
-      });
+    setToasts((prev) => {
+      const next = [toast, ...prev];
+      // Keep the stack small and predictable.
+      return next.slice(0, 5);
+    });
 
-      if (typeof window !== 'undefined' && toast.autoDismissMs !== false) {
-        const handle = window.setTimeout(() => dismissToast(id), toast.autoDismissMs);
-        timers.current.set(id, handle);
-      }
+    return id;
+  }, []);
 
-      return id;
-    },
-    [dismissToast]
-  );
+  useEffect(() => {
+    if (modalActive) {
+      for (const handle of timers.current.values()) window.clearTimeout(handle);
+      timers.current.clear();
+      return;
+    }
+    for (const toast of toasts) {
+      if (toast.autoDismissMs === false || timers.current.has(toast.id)) continue;
+      timers.current.set(
+        toast.id,
+        window.setTimeout(() => dismissToast(toast.id), toast.autoDismissMs)
+      );
+    }
+  }, [modalActive, toasts, dismissToast]);
 
   // Cleanup on unmount.
   useEffect(() => {
+    const handles = timers.current;
     return () => {
-      for (const t of timers.current.values()) window.clearTimeout(t);
-      timers.current.clear();
+      for (const t of handles.values()) window.clearTimeout(t);
+      handles.clear();
     };
   }, []);
 
@@ -114,7 +124,7 @@ export function ToastsProvider(props: { children: React.ReactNode }) {
   return (
     <ToastsContext.Provider value={ctx}>
       {props.children}
-      <ToastViewport toasts={toasts} onDismiss={dismissToast} />
+      <ToastViewport toasts={toasts} onDismiss={dismissToast} activeModal={modalActive} />
     </ToastsContext.Provider>
   );
 }
@@ -125,24 +135,35 @@ export function useToasts() {
   return ctx;
 }
 
-function ToastViewport(props: { toasts: Toast[]; onDismiss: (id: number) => void }) {
-  if (typeof document === 'undefined') return null;
-  if (!props.toasts.length) return null;
-
-  return createPortal(
-    <div
-      className={clsx(
-        'fixed inset-x-0 bottom-0 z-50 flex flex-col gap-2 p-4',
-        'pointer-events-none',
-        'sm:inset-auto sm:bottom-4 sm:right-4 sm:w-drawer-md'
-      )}
-      data-testid="toast.viewport"
-    >
-      {props.toasts.map((t) => (
-        <ToastItem key={t.id} toast={t} onDismiss={() => props.onDismiss(t.id)} />
-      ))}
-    </div>,
-    document.body
+function ToastViewport(props: { toasts: Toast[]; onDismiss: (id: number) => void; activeModal: HTMLElement | null }) {
+  if (typeof document === 'undefined' || !props.toasts.length) return null;
+  const slot = props.activeModal?.querySelector('[data-overlay-notifications]');
+  const urgent = slot ? props.toasts.filter((toast) => toast.variant === 'danger' || toast.variant === 'warn') : [];
+  const background = props.toasts.filter((toast) => !urgent.includes(toast));
+  const items = (toasts: Toast[]) =>
+    toasts.map((toast) => <ToastItem key={toast.id} toast={toast} onDismiss={() => props.onDismiss(toast.id)} />);
+  return (
+    <>
+      {background.length
+        ? createPortal(
+            <div
+              className="fixed inset-x-0 bottom-0 z-50 flex flex-col gap-2 p-4 pointer-events-none sm:inset-auto sm:bottom-4 sm:right-4 sm:w-drawer-md"
+              data-testid="toast.viewport"
+            >
+              {items(background)}
+            </div>,
+            document.body
+          )
+        : null}
+      {slot && urgent.length
+        ? createPortal(
+            <div className="flex flex-col gap-2" data-testid="toast.modal_viewport">
+              {items(urgent)}
+            </div>,
+            slot
+          )
+        : null}
+    </>
   );
 }
 
@@ -164,11 +185,7 @@ function ToastItem(props: { toast: Toast; onDismiss: () => void }) {
   return (
     <div
       role={role}
-      className={clsx(
-        'pointer-events-auto rounded-lg border p-3 shadow-panel',
-        'text-fg',
-        styles
-      )}
+      className={clsx('pointer-events-auto rounded-lg border p-3 shadow-panel', 'text-fg', styles)}
       data-testid={`toast.item.${t.id}`}
       data-overlay="toast"
       data-overlay-surface="overlay"
@@ -182,7 +199,7 @@ function ToastItem(props: { toast: Toast; onDismiss: () => void }) {
 
         <button
           type="button"
-          className="inline-flex h-7 w-7 items-center justify-center rounded-md text-muted hover:bg-surface-2"
+          className="inline-flex h-7 w-7 [@media(any-pointer:coarse)]:min-h-11 [@media(any-pointer:coarse)]:min-w-11 items-center justify-center rounded-md text-muted hover:bg-surface-2"
           aria-label={tx('common.close')}
           onClick={props.onDismiss}
           data-testid={`toast.item.${t.id}.close`}

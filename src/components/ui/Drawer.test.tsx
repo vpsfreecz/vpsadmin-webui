@@ -27,7 +27,7 @@ describe('Drawer', () => {
     const drawer = screen.getByTestId('drawer');
     expect(screen.getByRole('dialog', { name: 'Filters' })).toBe(drawer);
     expect(drawer).toHaveAttribute('aria-modal', 'true');
-    expect(drawer).toHaveClass('z-10', 'h-dvh', 'overflow-hidden');
+    expect(drawer).toHaveClass('z-10', 'h-full', 'overflow-hidden');
     expect(screen.getByTestId('tall-content').parentElement).toHaveClass(
       'z-0',
       'min-h-0',
