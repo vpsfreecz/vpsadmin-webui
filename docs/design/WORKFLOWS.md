@@ -163,6 +163,23 @@ locks and assignability when executing the existing assignment action. Candidate
 availability is not a reservation or a guarantee of quota. The selector continues
 to offer a bounded first page, not a claim to enumerate the entire pool.
 
+### Network availability
+
+Administrators edit availability in Cluster → Networks (REQ-071). The list keeps
+disabled networks visible and shows an unknown state when an older API omits the
+field. The editor shows network identity and existing assigned/owned counts. The
+availability control appears only when the relevant action advertises `enabled`;
+an edit also needs a known current value. Disabling sends explicit false and
+re-enabling sends true. Rejected updates retain the draft and display the error.
+
+Disabling prevents new allocations and assignments, including detached owned
+addresses. Existing service continues, and operations accepted before disable
+may finish. Member inventory retains disabled owned addresses with assignment
+unavailable (REQ-050). Assignment selectors request `network_enabled=true` only
+when supported and revalidate cached addresses with the same criteria. Capability
+or candidate errors stay visible. Older APIs receive neither unsupported fields
+nor a fabricated disabled state. Backend enforcement remains authoritative.
+
 ## Account profile and user administration
 
 **Intent:** members manage profile, mail/security preferences, keys, sessions, MFA,

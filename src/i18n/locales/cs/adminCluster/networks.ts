@@ -1,5 +1,8 @@
 // Admin cluster locale chunk: networks
 export const csAdminCluster_networks = {
+  "admin.cluster.networks.enabled": "Povoleno",
+  "admin.cluster.networks.disabled": "Zakázáno",
+  "admin.cluster.networks.enabled.help": "Zakázání sítě brání novému přidělování a přiřazování IP adres. Stávající provoz pokračuje a již přijaté operace mohou doběhnout. Nepřiřazené adresy s vlastníkem lze přiřadit až po opětovném povolení sítě.",
   "admin.cluster.networks.action.create": "Vytvořit síť",
   "admin.cluster.networks.col.assigned": "Přiřazeno",
   "admin.cluster.networks.col.free": "Volné",

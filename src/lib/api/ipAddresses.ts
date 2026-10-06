@@ -11,6 +11,7 @@ export interface Network {
   ip_version?: number;
   role?: string;
   purpose?: string;
+  enabled?: boolean;
   primary_location?: {
     id?: number;
     label?: string;
@@ -52,6 +53,7 @@ export async function fetchIpAddresses(opts?: {
   user?: number | null;
   networkInterface?: number;
   assignedToInterface?: boolean;
+  networkEnabled?: boolean;
   order?: string;
   count?: boolean;
   signal?: AbortSignal;
@@ -73,6 +75,7 @@ export async function fetchIpAddresses(opts?: {
   if (opts?.user !== undefined) params['user'] = opts.user;
   if (opts?.networkInterface !== undefined) params['network_interface'] = opts.networkInterface;
   if (opts?.assignedToInterface !== undefined) params['assigned_to_interface'] = opts.assignedToInterface;
+  if (opts?.networkEnabled !== undefined) params['network_enabled'] = opts.networkEnabled;
   if (opts?.order) params['order'] = opts.order;
 
   const res = await haveApiCall<IpAddress[]>({
@@ -88,6 +91,12 @@ export async function fetchIpAddresses(opts?: {
   });
 
   return { ...res, data: expectArray<IpAddress>(res.data, 'ip_addresses') };
+}
+
+export async function fetchIpAddressIndexCapability() {
+  return haveApiCall<{ input?: { parameters?: Record<string, unknown> } }>({
+    method: 'OPTIONS', path: '/ip_addresses?method=GET',
+  });
 }
 
 export async function fetchIpAddress(ipAddressId: number, opts?: { includes?: string }) {

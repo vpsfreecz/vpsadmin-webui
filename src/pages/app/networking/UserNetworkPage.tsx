@@ -20,6 +20,7 @@ import { LoadingState } from '../../../components/ui/LoadingState';
 import { Select } from '../../../components/ui/Select';
 import { StatusDot } from '../../../components/ui/StatusDot';
 import { TableCard } from '../../../components/ui/TableCard';
+import { UserNetworkAddressActions } from './UserNetworkAddressActions';
 import type { ResourceRef } from '../../../lib/api/appTypes';
 import { fetchIpAddress, fetchIpAddresses, type IpAddress } from '../../../lib/api/ipAddresses';
 import type { NetworkInterface } from '../../../lib/api/networkInterfaces';
@@ -437,22 +438,9 @@ export function UserNetworkPage() {
 
   const rowActions = (ip: IpAddress) => {
     const vpsId = assignedVpsByIpId.get(ip.id) ?? ipVpsId(ip);
-    if ((assignedIpIds.has(ip.id) || isAssignedIp(ip)) && vpsId) {
-      return (
-        <Button to={`${basePath}/vps/${vpsId}/network`} variant="secondary" size="sm">
-          {t('network.user.action.open_vps')}
-        </Button>
-      );
-    }
     return (
-      <Button
-        variant="primary"
-        size="sm"
-        testId={`network.user.ip.${ip.id}.assign`}
-        onClick={() => openAssignment(ip)}
-      >
-        {t('network.user.action.assign')}
-      </Button>
+      <UserNetworkAddressActions ip={ip} assigned={assignedIpIds.has(ip.id) || isAssignedIp(ip)}
+        vpsId={vpsId} basePath={basePath} onAssign={openAssignment} />
     );
   };
 
@@ -592,6 +580,7 @@ export function UserNetworkPage() {
                         <span>{t('network.user.field.location')}: {locationLabel(ip)}</span>
                         <span>{t('network.user.field.vps')}: {vps?.hostname ?? (vpsId ? `#${vpsId}` : '—')}</span>
                         <span>{t('network.user.field.interface')}: {interfaceName(ip)}</span>
+                        {ip.network?.enabled === false ? <Badge variant="warn">{t('admin.cluster.networks.disabled')}</Badge> : null}
                       </div>
                       <div className="flex justify-end">{rowActions(ip)}</div>
                     </div>
@@ -620,7 +609,10 @@ export function UserNetworkPage() {
                   return (
                     <tr key={ip.id} data-testid={`network.user.ip.row.${ip.id}`} className="border-b border-border/60 last:border-0">
                       <td className="px-4 py-3"><StatusDot variant={assigned ? 'ok' : 'warn'} /></td>
-                      <td className="px-4 py-3 font-mono text-sm font-medium">{ipAddressLabel(ip)}</td>
+                      <td className="px-4 py-3 font-mono text-sm font-medium">
+                        {ipAddressLabel(ip)}
+                        {ip.network?.enabled === false ? <Badge variant="warn">{t('admin.cluster.networks.disabled')}</Badge> : null}
+                      </td>
                       <td className="px-4 py-3">
                         <Badge variant={assignableIpKind(ip) === 'ipv4_private' ? 'neutral' : 'info'}>
                           {t(kindTranslationKey(assignableIpKind(ip)))}
