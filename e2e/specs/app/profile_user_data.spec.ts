@@ -8,10 +8,12 @@ function nowIso() {
 }
 
 test.describe('Profile: user data templates', () => {
-  test('list, create, edit, deploy and delete', async ({ page }) => {
+  test('@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile list, create, edit, deploy and delete', async ({ page }) => {
     test.setTimeout(90_000);
 
     const t0 = nowIso();
+    let deploymentFinished = false;
+    let terminalReads = 0;
 
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST_SESSION' });
 
@@ -30,7 +32,6 @@ test.describe('Profile: user data templates', () => {
     await installHaveApiMock(page, {
       authorize: {
         user: { id: 1, login: 'e2e', level: 1 },
-        identity: { id: 1, provider: 'mock' },
       },
       handlers: {
         'GET vps_user_data': async ({ params }) => {
@@ -51,7 +52,7 @@ test.describe('Profile: user data templates', () => {
         },
 
         'POST vps_user_data': async ({ reqJson }) => {
-          const payload = (reqJson?.vps_user_data ?? {}) as any;
+          const payload = (reqJson as { vps_user_data?: { label?: string; format?: string; content?: string } })?.vps_user_data ?? {};
 
           const nextId = Math.max(...templates.map((x) => x.id)) + 1;
           const tpl = {
@@ -68,7 +69,7 @@ test.describe('Profile: user data templates', () => {
         },
 
         'PUT vps_user_data/102': async ({ reqJson }) => {
-          const payload = (reqJson?.vps_user_data ?? {}) as any;
+          const payload = (reqJson as { vps_user_data?: { label?: string; format?: string; content?: string } })?.vps_user_data ?? {};
           templates = templates.map((x) =>
             x.id === 102
               ? {
@@ -94,18 +95,19 @@ test.describe('Profile: user data templates', () => {
         },
 
         'GET action_states/999': async () => {
-          return {
+          if (deploymentFinished) terminalReads += 1;
+          return { action_state: {
             id: 999,
             label: 'Deploy user data',
             status: true,
-            finished: true,
+            finished: deploymentFinished,
             can_cancel: false,
             current: 1,
             total: 1,
             progress: 1,
             created_at: t0,
             updated_at: t0,
-          };
+          } };
         },
       },
     });
@@ -116,7 +118,7 @@ test.describe('Profile: user data templates', () => {
     await expect(page).toHaveURL(/\/app\/profile\/user-data\?limit=50&page=1$/);
 
     // Initial list
-    await expect(page.getByTestId('profile.user_data.row.101')).toBeVisible();
+    await expect(page.locator('[data-testid="profile.user_data.row.101"]:visible')).toBeVisible();
 
     // Create
     await page.getByTestId('profile.user_data.create').click();
@@ -128,13 +130,13 @@ test.describe('Profile: user data templates', () => {
 
     const createButton = page.getByTestId('profile.user_data.editor.create');
     await expect(createButton).toBeEnabled();
-    await createButton.click({ force: true });
+    await createButton.click();
 
     // The new template should get id 102 from the mock.
-    await expect(page.getByTestId('profile.user_data.row.102')).toBeVisible();
+    await expect(page.locator('[data-testid="profile.user_data.row.102"]:visible')).toBeVisible();
 
     // Edit
-    await page.getByTestId('profile.user_data.row.102.edit').click();
+    await page.locator('[data-testid="profile.user_data.row.102.edit"]:visible').click();
     await expect(page.getByTestId('profile.user_data.editor.drawer')).toBeVisible();
 
     await page.getByTestId('profile.user_data.editor.label').fill('Provision nginx (v2)');
@@ -143,17 +145,20 @@ test.describe('Profile: user data templates', () => {
     await expect(page.getByText('Provision nginx (v2)')).toBeVisible();
 
     // Deploy (use direct id entry to avoid VPS list mocks)
-    await page.getByTestId('profile.user_data.row.102.deploy').click();
+    await page.locator('[data-testid="profile.user_data.row.102.deploy"]:visible').click();
     await expect(page.getByTestId('profile.user_data.deploy.drawer')).toBeVisible();
 
     await page.getByTestId('profile.user_data.deploy.vps').fill('#500');
     await page.getByTestId('profile.user_data.deploy.submit').click();
 
     await expect(page.getByText('Deployment started')).toBeVisible();
-    await expect(page.getByText('Deploying user data…')).toHaveCount(0);
+    await expect(page.getByTestId('modal.action_progress')).toBeVisible();
+    deploymentFinished = true;
+    await expect.poll(() => terminalReads).toBeGreaterThan(0);
+    await expect(page.getByTestId('modal.action_progress')).toHaveCount(0);
 
     // Delete
-    await page.getByTestId('profile.user_data.row.102.delete').click();
+    await page.locator('[data-testid="profile.user_data.row.102.delete"]:visible').click();
     await expect(page.getByTestId('profile.user_data.delete.confirm')).toBeVisible();
     await page.getByTestId('profile.user_data.delete.confirm.confirm').click();
 
@@ -177,7 +182,6 @@ test.describe('Profile: user data templates', () => {
     await installHaveApiMock(page, {
       authorize: {
         user: { id: 1, login: 'e2e', level: 1 },
-        identity: { id: 1, provider: 'mock' },
       },
       handlers: {
         'GET vps_user_data': () => templates,
@@ -218,7 +222,7 @@ test.describe('Profile: user data templates', () => {
   });
 
   for (const failure of ['missing action-state', 'transport loss'] as const) {
-    test(`deploy fails closed after ${failure} and does not repeat through reload`, async ({ page }) => {
+    test(`@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile deploy fails closed after ${failure} and does not repeat through reload`, async ({ page }) => {
       test.setTimeout(90_000);
       await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST_SESSION' });
 
@@ -226,8 +230,7 @@ test.describe('Profile: user data templates', () => {
       await installHaveApiMock(page, {
         authorize: {
           user: { id: 1, login: 'e2e', level: 1 },
-          identity: { id: 1, provider: 'mock' },
-        },
+          },
         handlers: {
           'GET vps_user_data': () => ({
             vps_user_data: [
@@ -256,7 +259,7 @@ test.describe('Profile: user data templates', () => {
       }
 
       const openAndSubmit = async () => {
-        await page.getByTestId('profile.user_data.row.101.deploy').click();
+        await page.locator('[data-testid="profile.user_data.row.101.deploy"]:visible').click();
         await expect(page.getByTestId('profile.user_data.deploy.drawer')).toBeVisible();
         await page.getByTestId('profile.user_data.deploy.vps').fill('#500');
         await page.getByTestId('profile.user_data.deploy.submit').click();
@@ -266,7 +269,7 @@ test.describe('Profile: user data templates', () => {
       await openAndSubmit();
       await expect(
         page
-          .getByTestId('toast.viewport')
+          .getByTestId('profile.user_data.deploy.drawer')
           .getByText(
             failure === 'missing action-state'
               ? /missing action_state_id/i
@@ -278,15 +281,15 @@ test.describe('Profile: user data templates', () => {
       // Retrying from the still-open drawer must be stopped by the durable guard.
       await page.getByTestId('profile.user_data.deploy.submit').click();
       await expect(
-        page.getByTestId('toast.viewport').getByText(/previous operation still has an uncertain outcome/i)
+        page.getByTestId('profile.user_data.deploy.drawer').getByText(/previous operation still has an uncertain outcome/i)
       ).toBeVisible();
       expect(deployRequests).toBe(1);
 
       await page.reload();
-      await expect(page.getByTestId('profile.user_data.row.101')).toBeVisible();
+      await expect(page.locator('[data-testid="profile.user_data.row.101"]:visible')).toBeVisible();
       await openAndSubmit();
       await expect(
-        page.getByTestId('toast.viewport').getByText(/previous operation still has an uncertain outcome/i)
+        page.getByTestId('profile.user_data.deploy.drawer').getByText(/previous operation still has an uncertain outcome/i)
       ).toBeVisible();
       expect(deployRequests).toBe(1);
     });
