@@ -93,4 +93,6 @@ export const csAdmin_ip_addresses = {
   "admin.ip_addresses.smart.suggest.open.secondary": "Otevřít detail",
   "admin.ip_addresses.subtitle": "Procházej, vyhledávej a filtruj alokace IP adres (admin).",
   "admin.ip_addresses.title": "IP adresy",
+  "admin.ip_addresses.chip.network_disabled": "Síť zakázána",
+  "admin.ip_addresses.chip.network_disabled.help": "Síť je zakázaná pro nové přidělování a přiřazování adres. Existující přiřazené adresy zůstávají použitelné.",
 } as const;

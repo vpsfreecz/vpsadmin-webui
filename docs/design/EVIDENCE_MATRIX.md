@@ -1,7 +1,7 @@
 # Requirement evidence matrix
 
 Review baseline: UI/BFF `3f31fce5cd58f3ace204c27e917b85527bfc08c0`, 2026-10-03.
-This maps **all 70 register IDs**, including policy/non-runtime requirements. A
+This maps **all 71 register IDs**, including policy/non-runtime requirements. A
 verification entry is a reproducible review starting point, **not** proof that
 all acceptance criteria passed. A source link is not a test and a fixture does
 not establish API behavior. For broad requirements use the linked action catalog
@@ -69,7 +69,7 @@ Not every test file in this matrix necessarily ran in that PR-selected browser r
 | REQ-047 | [Backup tabs/filters](../../e2e/specs/app/backup_center.spec.ts) | Preserve owner/location filters, late response races | Delivered per PR497 |
 | REQ-048 | [Storage actions](../../e2e/specs/app/dataset_snapshot_confirm_workflows.spec.ts) | Create/rollback/delete/download, lost response, owner scope | Fixtures; actual restored contents require live proof |
 | REQ-049 | [DNS contract](../../e2e/specs/app/dns_ttl_contract.spec.ts) | Inherited/null TTL and constraints; types use separate model suite | Historical unit model verification; publication not rerun |
-| REQ-050 | [Networking scope](../../e2e/specs/app/vps_network_destructive_feedback.spec.ts) | Detach target, address family/owner and retained error | Fixture coverage; assignment cursor blocker independent |
+| REQ-050 | [Networking scope](../../e2e/specs/app/vps_network_destructive_feedback.spec.ts), [assignment selector tests](../../src/pages/app/networking/fetchAssignableIpAddresses.test.ts) | Detach target, address family/owner, detached-address revalidation and disabled-network visibility | Synthetic fixture/unit entry points; assignment cursor blocker independent; live availability proof separate |
 | REQ-051 | [Operations surfaces](../../e2e/specs/app/transaction_chain_detail_page.spec.ts), [refresh/stale-lock contract](ARCHITECTURE.md#refresh-cache-and-stale-lock-information) | Chain/item/action distinction, bounded shell samples and unreliable-refresh TTL; monitoring/OOM separate cases | Source/test inventory; no whole-domain live certification or refresh-latency guarantee |
 | REQ-052 | [Finance gates](../../e2e/specs/app/admin_user_finance_role.spec.ts) | Role denial for global/user finance; assignment/bulk tests separate | Fixture/source |
 | REQ-053 | [Mail/content](../../e2e/specs/admin/mailer_template_crud_safety.spec.ts) | Safe template preview, errors; recipients/handlers separate suites | Fixture/source; real outbound mail not sent |
@@ -90,6 +90,7 @@ Not every test file in this matrix necessarily ran in that PR-selected browser r
 | REQ-068 | [Packaging](PACKAGING.md), [flake](../../flake.nix) | Separate immutable frontend/BFF, Gitless audit and matching clean provenance | Builds/source/package checks in release receipt; no new release from this docs port |
 | REQ-069 | [NixOS service](NIXOS_SERVICE.md), [module](../../nixos/modules/webui.nix) | Private state, systemd credentials, routing, trusted edge, callback boundary, PHP coexistence | Dry activation and health checks recorded; real login/VM certification separate |
 | REQ-070 | [Cold search](../../e2e/specs/app/global_search_cold_start.spec.ts) | Cold IP/DNS search, owner scope and visible lookup failures | Canonical PR5 fixtures; authenticated live search not certified |
+| REQ-071 | [Network adapter tests](../../src/lib/api/networks.test.ts), [availability workflow](WORKFLOWS.md#network-availability) | Explicit false, optional authoritative counters, keyboard descriptions, distinct owned total, metadata capability, both toggle directions and retained errors | Synthetic unit/browser coverage; final-head execution and deployment evidence recorded separately |
 
 ## Critical acceptance cases
 

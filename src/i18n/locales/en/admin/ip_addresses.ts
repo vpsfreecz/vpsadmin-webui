@@ -93,4 +93,6 @@ export const enAdmin_ip_addresses = {
   "admin.ip_addresses.smart.suggest.open.secondary": "Open the detail page",
   "admin.ip_addresses.subtitle": "Browse, search and filter address allocations (admin).",
   "admin.ip_addresses.title": "IP addresses",
+  "admin.ip_addresses.chip.network_disabled": "Network disabled",
+  "admin.ip_addresses.chip.network_disabled.help": "This network is disabled for new allocations and assignments. Existing assignments remain usable.",
 } as const;

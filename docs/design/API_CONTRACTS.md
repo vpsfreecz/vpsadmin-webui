@@ -1,6 +1,6 @@
 # API contracts and compatibility
 
-Requirements: REQ-018–023, 035–055, 059. Source of request details is the checked
+Requirements: REQ-018–023, 035–055, 059, 071. Source of request details is the checked
 adapter plus the matching deployed backend revision, not a guessed legacy form.
 [Adapter inventory](IMPLEMENTATION_INVENTORY.md) gives all current entry points.
 
@@ -42,7 +42,7 @@ a search of the whole collection.
 | Collection | Supported filter boundary | Source / regression entry point |
 | --- | --- | --- |
 | Exports | Owner (`user`); no global text, dataset, snapshot, host or state filter in this adapter. Detail-by-ID is a separate request. | [adapter](../../src/lib/api/exports.ts), [fixture contract](../../e2e/specs/app/exports_filter_contract.spec.ts) |
-| Networks | `location` and `purpose`; do not forward text, IP-version, role or managed-state filters merely because those attributes exist on a network. | [adapter](../../src/lib/api/networks.ts), [URL/filter fixture](../../e2e/specs/admin/cluster_networks_filter_contract.spec.ts) |
+| Networks | `location`, `purpose` and optional exact `enabled` when supported by the API. The current list search exposes location/purpose only. Do not forward text, IP-version, role or managed-state filters merely because those attributes exist on a network. | [adapter](../../src/lib/api/networks.ts), [adapter tests](../../src/lib/api/networks.test.ts), [URL/filter fixture](../../e2e/specs/admin/cluster_networks_filter_contract.spec.ts) |
 | Migration plans | `state` and `user`; no free-text query. This does not limit the separate destination-node picker for a VPS migration. | [adapter](../../src/lib/api/migrations.ts), [fixture contract](../../e2e/specs/admin/migration_plans_filter_contract.spec.ts) |
 | Transaction items | `transaction_chain`, `node`, `type`, `success`, `done`; no item-name/text search. Transaction **chains** have a different contract which does accept `name`, as well as state, object and user/session filters. | [both adapters](../../src/lib/api/transactions.ts), [item-filter fixture](../../e2e/specs/app/transaction_items_filter_accessibility.spec.ts) |
 | User namespaces / maps | No text or label search. Namespaces support `size`; maps support `user_namespace`. Owner filtering, and namespace `block_count`, are exposed only in admin scope with admin fields enabled and no fixed owner. Removing an invalid/disallowed URL filter resets cursor/page. | [scope/URL rules](../../src/components/userNamespaces/userNamespaceFilterSemantics.ts), [fixture contract](../../e2e/specs/app/user_namespace_filter_contract.spec.ts) |
@@ -130,9 +130,47 @@ locations. Non-admin requests also honor `userpick` and address visibility.
 locations. Do not apply a second primary-location/environment filter in the UI.
 An export-only network is not compatible with VPS allocation.
 
-This is separate from backend PR #44 and frontend IP-history cursor work.
-The assignment fix changes no backend behavior. API validation remains the final
-authority for ownership, quota, concurrent reservations and successful assignment.
+With network availability support, assignment requests also send
+`network_enabled=true` when `IpAddress.Index` metadata advertises that filter.
+Cached detached addresses are revalidated with the same availability criteria.
+Explicitly disabled addresses are excluded from assignment selectors but remain
+visible in owned inventory, with assignment unavailable. Missing `enabled` is
+unknown: older APIs receive no unsupported filter and no fabricated disabled
+state. Capability lookup failures remain visible instead of broadening selection.
+
+Free-IP suggestions apply the advertised network availability filter before the
+50-row limit and reject explicitly disabled rows in stale responses. A successful
+capability response from an older API omits the unsupported filter.
+
+Administrator network create/edit checks the relevant action's `enabled` input
+metadata before displaying or sending the availability control. An edit also
+requires a known current boolean state. Omitted fields preserve server state;
+false is sent explicitly when disabling. The dialog shows network identity and
+existing assigned/owned counts. Disabled networks remain in ordinary lists.
+A failed capability lookup shows the error and a retry action. Cached capability
+data cannot authorize availability writes while a lookup is pending, fetching
+or errored. Other fields remain editable.
+
+Administrator Network responses may include `available_to_users` and
+`owned_unassigned`. The first counts registered allocations without an owner,
+interface or operation reservation and is zero on disabled networks. The second
+counts owned allocations without an interface, including reserved entries and
+disabled networks. Each address or prefix counts once. These are inventory
+totals; allocation still depends on location, purpose, quota and current
+reservations. They are read-only and absent from non-admin responses.
+
+The network list displays `used` as registered stock, `assigned` as interface
+assignments (including VPS and exports), and the two new counts independently.
+The editor displays total `owned`, including assigned entries. Older APIs may
+omit the new counts; a dash represents unknown data without a derived fallback.
+Admin IP flags warn only when the included network explicitly reports
+`enabled=false`; true or missing state adds no warning or extra request.
+
+These additions use the enforcing backend's network availability contract and
+are separate from backend PR #44 and IP-history cursor work. API validation
+remains the final authority for ownership, quota, network availability, concurrent
+reservations and successful assignment. Admission accepted before disable may
+finish afterward; existing assigned service continues.
 
 ## Dev deletion configuration limitation
 

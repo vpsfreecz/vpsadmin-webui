@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useQueries } from '@tanstack/react-query';
+import { useQueries, useQueryClient } from '@tanstack/react-query';
 
-import { fetchIpAddresses, type IpAddress } from '../../../../lib/api/ipAddresses';
+import { fetchIpAddresses, fetchIpAddressIndexCapability, type IpAddress } from '../../../../lib/api/ipAddresses';
 import type { Location as InfraLocation } from '../../../../lib/api/infra';
 
 import {
@@ -35,6 +35,7 @@ export function useProgressiveSuggestedIpQueries(
   locations: InfraLocation[],
   enabled: boolean
 ) {
+  const queryClient = useQueryClient();
   const queryPlan = useMemo(() => buildSuggestedIpQueryPlan(locations), [locations]);
   const progressKey = `${enabled ? 'visible' : 'hidden'}:${locations
     .map((item) => item.id)
@@ -58,6 +59,15 @@ export function useProgressiveSuggestedIpQueries(
       queryFn: async ({ signal }: { signal: AbortSignal }) => {
         const timedSignal = createRequestTimeoutSignal(signal);
         try {
+          const capability = await queryClient.fetchQuery({
+            queryKey: ['ip-address-index-capability'],
+            queryFn: async () => (await fetchIpAddressIndexCapability()).data,
+            staleTime: 5 * 60_000,
+            retry: 0,
+          });
+          const supportsEnabled = Object.prototype.hasOwnProperty.call(
+            capability?.input?.parameters ?? {}, 'network_enabled'
+          );
           return (
             await fetchIpAddresses({
               limit: SUGGESTED_IP_QUERY_LIMIT,
@@ -66,12 +76,13 @@ export function useProgressiveSuggestedIpQueries(
               role: query.role,
               user: null,
               assignedToInterface: false,
+              ...(supportsEnabled ? { networkEnabled: true } : {}),
               order: 'asc',
               purpose: 'vps',
               includes: 'network__primary_location__environment',
               signal: timedSignal.signal,
             })
-          ).data;
+          ).data.filter((ip) => ip.network?.enabled !== false);
         } finally {
           timedSignal.cleanup();
         }

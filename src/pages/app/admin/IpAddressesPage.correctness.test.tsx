@@ -1,7 +1,7 @@
 // i18n-ignore-file
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -90,6 +90,35 @@ describe('IP address inventory', () => {
     renderPage('/admin/ip-addresses?user=7');
     expect(await screen.findByTestId('admin.ip_addresses.unsupported_filter')).toBeInTheDocument();
     expect(fetchIpAddresses).not.toHaveBeenCalled();
+  });
+
+  it.each(['en', 'cs'] as const)('keeps %s disabled-network warnings limited to false in both inventories', async (language) => {
+    state.language = language;
+    const rows = [false, true, undefined].map((enabled, index) => ({
+      id: 101 + index, addr: `192.0.2.${101 + index}`, prefix: 32, routed: true,
+      network: { id: 11 + index, address: '192.0.2.0', prefix: 24, role: 'private_access', enabled },
+      network_interface: { id: 51 + index, vps: { id: 1, hostname: 'existing-service' } },
+    }));
+    vi.mocked(fetchIpAddresses).mockResolvedValue({ data: rows, meta: { total_count: 3 } } as never);
+    renderPage();
+    const description = language === 'en'
+      ? "This network is disabled for new allocations and assignments. Existing assignments remain usable."
+      : "Síť je zakázaná pro nové přidělování a přiřazování adres. Existující přiřazené adresy zůstávají použitelné.";
+    const label = language === 'en' ? 'Network disabled' : 'Síť zakázána';
+    for (const prefix of ['row', 'card']) {
+      const disabled = await screen.findByTestId(`admin.ip_addresses.${prefix}.101`);
+      expect(within(disabled).getByText(label, { exact: true })).toBeInTheDocument();
+      const flag = within(disabled).getByTitle(description);
+      flag.focus();
+      expect(flag).toHaveFocus();
+      expect(flag).toHaveAccessibleDescription(description);
+      expect(within(disabled).getByRole('link', { name: '192.0.2.101/32' })).toHaveAttribute('href', '/admin/ip-addresses/101');
+      expect(within(disabled).getByTestId(`admin.ip_addresses.${prefix}.101.action.route`)).toHaveAttribute('href', '/admin/ip-addresses/101#route');
+      for (const id of [102, 103]) {
+        expect(within(screen.getByTestId(`admin.ip_addresses.${prefix}.${id}`)).queryByText(label, { exact: true })).not.toBeInTheDocument();
+      }
+    }
+    expect(fetchIpAddresses).toHaveBeenCalledTimes(1);
   });
 
   it('resets an unsafe cursor URL before issuing a fresh traversal', async () => {

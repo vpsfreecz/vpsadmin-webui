@@ -13,6 +13,7 @@ import { TableCard } from '../../../../components/ui/TableCard';
 import { TableRowLink } from '../../../../components/ui/TableRowLink';
 
 import { IpAddressRowActions } from './IpAddressRowActions';
+import { InventoryDescription } from '../networking/InventoryDescription';
 import {
   ifaceLabel,
   environmentLabel,
@@ -176,6 +177,11 @@ export function IpAddressesListTable({ pageData, ipDetailBasePath, basePath, na,
                   </Badge>
                   {isPrivateIp(ip) ? <Badge variant="neutral">{t('admin.ip_addresses.chip.private')}</Badge> : null}
                   {isRoutedIp(ip) ? <Badge variant="black">{t('admin.ip.routed_badge')}</Badge> : null}
+                  {ip.network?.enabled === false ? (
+                    <InventoryDescription rowNoNav id={`admin-ip-row-${id}-network-disabled`}
+                      description={t('admin.ip_addresses.chip.network_disabled.help')}
+                      label={<Badge variant="warn">{t('admin.ip_addresses.chip.network_disabled')}</Badge>} />
+                  ) : null}
                 </div>
               </td>
               <td className="px-3 py-2 text-xs text-muted">{createdAt ? formatDateTime(createdAt) : na}</td>
