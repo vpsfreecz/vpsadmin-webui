@@ -11,6 +11,8 @@ import { fetchVps, type Vps } from '../../../lib/api/vps';
 import { createIncidentReport, fetchIpAddressAssignments, type IpAddressAssignment } from '../../../lib/api/incidents';
 import { getMetaActionStateId } from '../../../lib/api/haveapi';
 import { formatErrorMessage } from '../../../lib/errors';
+import { incidentReturnHref } from '../incidents/incidentCreateContext';
+import { parsePositiveInt } from '../../../lib/parse';
 import { objectRef } from '../../../lib/objectRef';
 
 import { Alert } from '../../../components/ui/Alert';
@@ -22,16 +24,6 @@ import { LoadingState } from '../../../components/ui/LoadingState';
 import { ObjectHeader } from '../../../components/ui/ObjectHeader';
 import { Select } from '../../../components/ui/Select';
 import { Textarea } from '../../../components/ui/Textarea';
-
-function safeNumber(value: string): number | undefined {
-  const t = value.trim();
-  if (!t) return undefined;
-  const n = Number(t);
-  if (!Number.isFinite(n)) return undefined;
-  const i = Math.floor(n);
-  if (i <= 0) return undefined;
-  return i;
-}
 
 function toIsoOrUndefined(dtLocal: string): string | undefined {
   const t = dtLocal.trim();
@@ -69,7 +61,9 @@ export function IncidentReportNewPage() {
 
   const [sp] = useSearchParams();
 
-  const [vps, setVps] = useState(() => sp.get('vps') ?? '');
+  const prefillVps = String(parsePositiveInt(sp.get('vps')) ?? '');
+  const returnHref = incidentReturnHref(basePath, sp);
+  const [vps, setVps] = useState(prefillVps);
   const [subject, setSubject] = useState('');
   const [text, setText] = useState('');
   const [codename, setCodename] = useState('');
@@ -79,12 +73,11 @@ export function IncidentReportNewPage() {
   const [ipAssignment, setIpAssignment] = useState('');
 
   useEffect(() => {
-    const prefill = sp.get('vps');
-    if (prefill) setVps(prefill);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sp.toString()]);
+    setVps(prefillVps);
+    setIpAssignment('');
+  }, [prefillVps]);
 
-  const vpsId = useMemo(() => safeNumber(vps), [vps]);
+  const vpsId = useMemo(() => parsePositiveInt(vps), [vps]);
 
   const vpsQ = useQuery({
     queryKey: ['vps', 'show', vpsId, { scope: basePath }],
@@ -140,7 +133,7 @@ export function IncidentReportNewPage() {
       const cpu = cpuLimit.trim() ? Number(cpuLimit) : undefined;
       const cpuNumber = cpu !== undefined && Number.isFinite(cpu) ? cpu : undefined;
 
-      const ipAssignId = ipAssignment.trim() ? safeNumber(ipAssignment) : undefined;
+      const ipAssignId = ipAssignment.trim() ? parsePositiveInt(ipAssignment) : undefined;
 
       return createIncidentReport({
         vpsId,
@@ -189,7 +182,7 @@ export function IncidentReportNewPage() {
 
   const actions = (
     <div className="flex items-center gap-2">
-      <Button variant="secondary" size="sm" to={`${basePath}/incidents`}>
+      <Button variant="secondary" size="sm" to={returnHref} disabled={mutation.isPending} testId="incidents.new.back">
         {t('common.back_to_list')}
       </Button>
     </div>
@@ -198,7 +191,7 @@ export function IncidentReportNewPage() {
   return (
     <PageContainer testId="incidents.new">
       <ObjectHeader
-        kicker={{ label: t('incidents.list.title'), href: `${basePath}/incidents` }}
+        kicker={{ label: t('incidents.list.title'), href: returnHref }}
         title={t('incidents.new.title')}
         meta={vpsSummary}
         actions={actions}
@@ -214,7 +207,10 @@ export function IncidentReportNewPage() {
                 <label className="block text-xs text-muted">{t('incidents.new.vps')}</label>
                 <Input
                   value={vps}
-                  onChange={(e) => setVps(e.target.value)}
+                  onChange={(e) => {
+                    setVps(e.target.value);
+                    setIpAssignment('');
+                  }}
                   placeholder={t('incidents.new.vps_placeholder')}
                   autoComplete="off"
                   testId="incidents.new.vps"
@@ -231,7 +227,7 @@ export function IncidentReportNewPage() {
 
               <div>
                 <label className="block text-xs text-muted">{t('incidents.new.assignment')}</label>
-                <Select value={ipAssignment} onChange={(e) => setIpAssignment(e.target.value)} options={assignmentOptions} />
+                <Select testId="incidents.new.assignment" value={ipAssignment} onChange={(e) => setIpAssignment(e.target.value)} options={assignmentOptions} />
                 <div className="mt-1 text-xs text-faint">{t('incidents.new.assignment.help')}</div>
               </div>
 
@@ -326,7 +322,7 @@ export function IncidentReportNewPage() {
               <Button
                 variant="secondary"
                 disabled={mutation.isPending}
-                to={`${basePath}/incidents`}
+                to={returnHref}
                 testId="incidents.new.cancel"
               >
                 {t('common.cancel')}
