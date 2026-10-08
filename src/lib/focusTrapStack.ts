@@ -173,5 +173,8 @@ export function registerFocusTrap(trap: FocusTrap) {
 export function focusActiveTrap() {
   const trap = activeTrap();
   if (!trap) return;
+  // A user or child control may focus the dialog before the deferred callback.
+  // Keep that choice instead of redirecting the next Enter to the Close button.
+  if (trap.container.contains(document.activeElement)) return;
   focusFirst(trap.container);
 }
