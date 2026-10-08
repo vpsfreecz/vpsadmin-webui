@@ -11,7 +11,9 @@
     "e2e/fixtures/url.ts",
     "e2e/fixtures/vpsadmin-window.ts",
     "e2e/helpers/horizontalOverflow.ts",
+    "e2e/specs/admin/ip_addresses_empty_clear_filters.spec.ts",
     "e2e/specs/admin/network_availability.spec.ts",
+    "e2e/specs/admin/networking_surfaces_smoke.spec.ts",
     "e2e/specs/admin/registration_reason_presets.spec.ts",
     "e2e/specs/admin/requests_operations_smoke.spec.ts",
     "e2e/specs/app/admin_default_review_queue.spec.ts",
@@ -208,13 +210,6 @@
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
     },
     {
-      "path": "e2e/specs/admin/ip_addresses_empty_clear_filters.spec.ts",
-      "sha256": "c62d051e9d52ac8d18827a1756de60f2f1ff0ef67dea70c617ff0645c4d987f8",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
       "path": "e2e/specs/admin/ip_addresses_filters_pagination.spec.ts",
       "sha256": "d9393a69fa0c5424e42e38929d7b191f4c74f5a67e11c522a9ce7e1b55aadc55",
       "owner": "WebUI maintainers",
@@ -336,13 +331,6 @@
     {
       "path": "e2e/specs/admin/network_detail_responsive_actions.spec.ts",
       "sha256": "5e6c354ec66c0d92c0ce9696d21f37ecc3ff4898b01e98b63db48b7dd728dfd1",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/admin/networking_surfaces_smoke.spec.ts",
-      "sha256": "cf579129e102c58045902eec1f15fb1d0143a3004bb182e41a2f71e60981dd8b",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
