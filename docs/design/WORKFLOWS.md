@@ -289,6 +289,12 @@ incoming payments as the common working destination. Global finance and sensitiv
 user payment views have explicit administrator gates even if a support-level user
 can access other admin pages.
 
+In the administrator's member overview, the source number in each recent payment
+is a direct link to its incoming-payment detail, matching the member Payments
+history. Manual credits without an incoming source do not get a fabricated link.
+The overview retains its administrator-only finance gate. Browser Back returns
+to the member overview; the detail's own Back link retains its finance destination.
+
 Payment instructions preserve inline base64 PNG QR images and external HTTPS
 QR image URLs supplied by the API. The NixOS deployment must allow the reviewed
 external generator through `security.imageSources`; HTML sanitization alone does

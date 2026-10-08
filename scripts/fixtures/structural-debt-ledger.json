@@ -332,10 +332,10 @@
       "path": "src/pages/app/admin/user/AdminUserOverviewPage.tsx",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "af1fa5106898da709356266cec6fe8a236ffb1c92f281003b44a887f8c7e0e62",
+      "contentHash": "cf8f45bc638726a8bca69ea889daddf3ab1ff04f37e2f885361d062da789f84e",
       "old": 0,
-      "allowance": 778,
-      "rationale": "At the recorded source revision, this file already contained admin user overview sections and actions; extract the coherent section with focused behavior coverage before removing this exception.",
+      "allowance": 788,
+      "rationale": "At the recorded source revision, this file already contained admin user overview sections and actions; extract the coherent section with focused behavior coverage before removing this exception. Reviewed 2026-10-08: replace the existing source-payment number with a native detail link and mobile touch target; no new data fetching, mutations or finance permissions. Focused browser checks cover the source ID, manual credits, keyboard and touch navigation.",
       "owner": "WebUI implementation lead",
       "removeWhen": {
         "metric": "lines",

@@ -401,7 +401,17 @@ export function AdminUserOverviewPage() {
                           data-testid={`admin.user.overview.payments.row.${payment.id}.accepted_at`}
                         >
                           {payment.created_at ? formatDateTimeInTimeZone(payment.created_at, accountTimeZone) : t('common.na')}
-                          {payment.incoming_payment?.id ? ` · #${payment.incoming_payment.id}` : ''}
+                          {payment.incoming_payment?.id ? (
+                            <>
+                              {' · '}
+                              <Link
+                                to={`${basePath}/payments/incoming/${payment.incoming_payment.id}`}
+                                className="inline-flex min-h-11 items-center px-2 text-accent hover:underline sm:min-h-0 sm:px-0"
+                              >
+                                #{payment.incoming_payment.id}
+                              </Link>
+                            </>
+                          ) : null}
                         </div>
                       </div>
                     </div>
