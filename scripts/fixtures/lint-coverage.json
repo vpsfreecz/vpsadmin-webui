@@ -27,6 +27,7 @@
     "src/lib/hooks/useBodyScrollLock.ts",
     "src/lib/hooks/useDebouncedValue.ts",
     "src/lib/hooks/useFocusTrap.ts",
+    "src/lib/hooks/useKeysetPagination.ts",
     "src/lib/hooks/useModalActive.ts",
     "src/lib/hooks/useOverlayViewport.ts"
   ],
@@ -92,7 +93,6 @@
     "src/lib/auth/passwordRecovery.ts": "f3cb97d3e9eeb7e3009e198933a11a8d49013aa4c4de1be9c20509204227a80c",
     "src/lib/auth/sessionExpiredNotice.ts": "e4833b5ea5c3e62d74a517cd8fcd913bfa48f01444094c96059b03c632d93b6e",
     "src/lib/auth/tokenStore.ts": "c5067866255b31d1af3cb0af8839910156d94e024a86ce6c707312f6cb39d54b",
-    "src/lib/hooks/useCountedKeysetPagination.ts": "81ce5950612fb2ee432eb7e732351e7bf54740c6fa1f8b64cbadb06908dd5ffb",
-    "src/lib/hooks/useKeysetPagination.ts": "8bc48f74307cf30008aaab16de0c12798ef7008093704db9643c2d0007251b5f"
+    "src/lib/hooks/useCountedKeysetPagination.ts": "81ce5950612fb2ee432eb7e732351e7bf54740c6fa1f8b64cbadb06908dd5ffb"
   }
 }

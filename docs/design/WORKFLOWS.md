@@ -438,3 +438,12 @@ When a modal or drawer opens, its delayed initial-focus callback preserves any
 focus already placed inside the active overlay. It must not move a selected link
 back to Close before keyboard activation. Focus still enters a newly opened
 overlay from outside, wraps on Tab, and respects the topmost nested dialog.
+
+## Pagination during pending navigation
+
+REQ-046: keyset page actions must issue their navigation even if the destination
+matches the router params from the last committed render. A previous navigation
+may still be pending. In particular, Next followed by Previous or page 1 must
+cancel the pending page-2 destination rather than only changing local state.
+Automatic URL normalization still avoids redundant writes. Filter parameters,
+visited forward cursors and browser Back/Forward remain preserved.

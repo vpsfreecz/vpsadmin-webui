@@ -11,6 +11,8 @@ import { useLayoutEffect, useMemo, useState } from 'react';
  *   - filter changes reset cursor stack before data fetching
  */
 
+const DEFAULT_LIMITS = [25, 50, 100] as const;
+
 export type KeysetCursor = number | null;
 export type KeysetCursorStack = KeysetCursor[];
 
@@ -53,7 +55,6 @@ function hashString(input: string): string {
   let h = 2166136261;
   for (let i = 0; i < input.length; i++) {
     h ^= input.charCodeAt(i);
-    // eslint-disable-next-line no-bitwise
     h = (h * 16777619) >>> 0;
   }
   return h.toString(36);
@@ -113,7 +114,12 @@ function initialStateFor(opts: {
   cursorMin: number;
   cursorInteger: boolean;
 }): KeysetState {
-  const stored = normalizeStack(readStack(opts.storageKey, { min: opts.cursorMin, integer: opts.cursorInteger }));
+  const stored = normalizeStack(
+    readStack(opts.storageKey, {
+      min: opts.cursorMin,
+      integer: opts.cursorInteger,
+    })
+  );
 
   let nextStack: KeysetCursorStack = stored;
   let nextIndex = 0;
@@ -142,10 +148,7 @@ export function useKeysetPagination(opts: {
   /** Current URLSearchParams from react-router. */
   searchParams: URLSearchParams;
   /** Setter from react-router. */
-  setSearchParams: (
-    nextInit: URLSearchParams | string,
-    navigateOpts?: { replace?: boolean }
-  ) => void;
+  setSearchParams: (nextInit: URLSearchParams | string, navigateOpts?: { replace?: boolean }) => void;
   /** Optional prefix for query params (for pages that embed multiple paginated lists). Example: 'tx_' => tx_from_id, tx_page, tx_limit. */
   paramPrefix?: string;
   /** Cursor parameter name used by the API (default: "from_id"). */
@@ -165,7 +168,7 @@ export function useKeysetPagination(opts: {
   defaultLimit?: number;
   allowedLimits?: readonly number[];
 }) {
-  const allowedLimits = opts.allowedLimits ?? [25, 50, 100];
+  const allowedLimits = opts.allowedLimits ?? DEFAULT_LIMITS;
   const defaultLimit = opts.defaultLimit ?? 50;
 
   const paramPrefix = opts.paramPrefix ?? '';
@@ -179,12 +182,19 @@ export function useKeysetPagination(opts: {
   const pageKey = `${paramPrefix}page`;
 
   const limit = useMemo(() => {
-    const parsed = parseNumber(opts.searchParams.get(limitKey), { integer: true, min: 1 });
+    const parsed = parseNumber(opts.searchParams.get(limitKey), {
+      integer: true,
+      min: 1,
+    });
     return clampLimit(parsed ?? defaultLimit, allowedLimits, defaultLimit);
   }, [allowedLimits, defaultLimit, limitKey, opts.searchParams]);
 
   const urlCursor = useMemo(
-    () => parseNumber(opts.searchParams.get(cursorKey), { integer: cursorInteger, min: cursorMin }) ?? null,
+    () =>
+      parseNumber(opts.searchParams.get(cursorKey), {
+        integer: cursorInteger,
+        min: cursorMin,
+      }) ?? null,
     [cursorInteger, cursorKey, cursorMin, opts.searchParams]
   );
 
@@ -209,7 +219,7 @@ export function useKeysetPagination(opts: {
   const viewIndex = isActiveSig ? state.index : 0;
 
   const page = viewIndex + 1;
-  const cursor = viewStack[viewIndex] === null ? undefined : viewStack[viewIndex] ?? undefined;
+  const cursor = viewStack[viewIndex] === null ? undefined : (viewStack[viewIndex] ?? undefined);
 
   const syncUrl = (nextStack: KeysetCursorStack, nextIndex: number, mode: 'push' | 'replace') => {
     // Use the router-provided params as the baseline (more deterministic than window.location).
@@ -231,7 +241,9 @@ export function useKeysetPagination(opts: {
 
     const nextStr = next.toString();
     const curStr = cur.toString();
-    if (nextStr !== curStr) {
+    // Explicit navigation must supersede any pending router transition, even
+    // when its destination matches the params from the last committed render.
+    if (mode === 'push' || nextStr !== curStr) {
       opts.setSearchParams(next, { replace: mode === 'replace' });
     }
   };
@@ -241,7 +253,13 @@ export function useKeysetPagination(opts: {
     if (state.sig === sig) return;
 
     const reset = restoreUrlCursorOnSignatureChange
-      ? initialStateFor({ sig, storageKey, urlCursor, cursorMin, cursorInteger })
+      ? initialStateFor({
+          sig,
+          storageKey,
+          urlCursor,
+          cursorMin,
+          cursorInteger,
+        })
       : { sig, stack: [null], index: 0 };
     setState(reset);
     writeStack(storageKey, reset.stack, { integer: cursorInteger });
@@ -289,7 +307,7 @@ export function useKeysetPagination(opts: {
   useLayoutEffect(() => {
     if (state.sig !== sig) return;
     writeStack(storageKey, state.stack, { integer: cursorInteger });
-  }, [sig, state.sig, state.stack, storageKey]);
+  }, [cursorInteger, sig, state.sig, state.stack, storageKey]);
 
   const goToPage = (pageNumber: number) => {
     const idx = pageNumber - 1;
@@ -319,7 +337,12 @@ export function useKeysetPagination(opts: {
     // If we already have a forward-visited page, just move forward.
     if (viewIndex < viewStack.length - 1) {
       const nextIndex = viewIndex + 1;
-      setState((prev) => ({ ...prev, sig, index: nextIndex, stack: viewStack }));
+      setState((prev) => ({
+        ...prev,
+        sig,
+        index: nextIndex,
+        stack: viewStack,
+      }));
       syncUrl(viewStack, nextIndex, 'push');
       return;
     }
