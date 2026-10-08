@@ -299,6 +299,15 @@ text; narrower screens use the existing cards. The administrator-only owner and
 reporter columns remain available in admin view. See the
 [layout change record](../work-log/2026-10-03-incident-list-width.md).
 
+Creating an incident from a VPS-filtered list prefills the explicit VPS and loads
+its owner, node and active IP assignments. Other list filters are not report
+contents: subject, text, codename and automatic action remain fresh defaults.
+Back, Cancel and the list breadcrumb preserve the originating list query; direct
+VPS-to-create links return to that VPS's incident list. Changing the target VPS
+clears its selected IP assignment. Successful creation still opens the target VPS.
+Return URLs are restricted to the incident list in the current application mode.
+See the [context regression record](../work-log/2026-10-08-incident-create-context.md).
+
 [Transactions](../../src/lib/api/transactions.ts),
 [monitoring](../../src/lib/api/monitoring.ts), [incidents](../../src/lib/api/incidents.ts),
 [OOM](../../src/lib/api/oom.ts).

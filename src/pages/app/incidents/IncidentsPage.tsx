@@ -12,6 +12,7 @@ import { FilterBar } from '../../../components/layout/FilterBar';
 import { ListShell } from '../../../components/layout/ListShell';
 import { PageHeader } from '../../../components/layout/PageHeader';
 import { searchUsers } from '../../../lib/api/users';
+import { incidentCreateHref } from './incidentCreateContext';
 import { fetchIncidentReports } from '../../../lib/api/incidents';
 import { fetchMailboxes } from '../../../lib/api/mailer';
 import { formatDateTime } from '../../../lib/format';
@@ -670,7 +671,7 @@ export function IncidentsPage() {
       meta={filtersActive ? <span className="text-xs text-faint">{t('list.meta.filters_active')}</span> : null}
       actions={
         isAdmin ? (
-          <Button variant="secondary" size="sm" to={`${basePath}/incidents/new`} testId="incidents.list.new">
+          <Button variant="secondary" size="sm" to={incidentCreateHref(basePath, activeSearchParams, vpsId)} testId="incidents.list.new">
             {t('incidents.list.new')}
           </Button>
         ) : null
