@@ -35,7 +35,6 @@ import {
   overviewUsageMetric,
   resourceId,
   resourceLabel,
-  selectOverviewIpAddresses,
   sortChainsForOverview,
   usageValue,
 } from './VpsOverviewModel';
@@ -273,7 +272,6 @@ export function VpsNetworkCard(props: {
   error: boolean;
 }) {
   const { t } = useI18n();
-  const shown = React.useMemo(() => selectOverviewIpAddresses(props.ipAddresses, 3), [props.ipAddresses]);
 
   return (
     <Card className="lg:col-span-6" testId="vps.overview.network.card">
@@ -287,13 +285,13 @@ export function VpsNetworkCard(props: {
           <div className="flex items-center gap-2 text-sm text-muted"><Spinner /> {t('common.loading')}</div>
         ) : props.error ? (
           <div className="text-sm text-muted">{t('vps.control.network.error')}</div>
-        ) : shown.length === 0 ? (
+        ) : props.ipAddresses.length === 0 ? (
           <div className="rounded-lg border border-dashed border-border p-4 text-sm text-muted">
             {t('vps.control.network.empty')}
           </div>
         ) : (
           <ul className="divide-y divide-border">
-            {shown.map((ip) => {
+            {props.ipAddresses.map((ip) => {
               const kind = classifyIpAddress(ip);
               const label = ipAddressDisplayLabel(ip);
               const typeKey = kind === 'ipv4_public'
@@ -302,7 +300,7 @@ export function VpsNetworkCard(props: {
               return (
                 <li key={ip.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-2.5">
                   <div className="min-w-0">
-                    <div className="truncate font-mono text-sm font-semibold text-fg">{label}</div>
+                    <div className="break-all font-mono text-sm font-semibold text-fg">{label}</div>
                     <div className="mt-1"><Badge variant={kind === 'ipv4_public' ? 'info' : 'neutral'}>{t(`vps.control.network.type.${typeKey}`)}</Badge></div>
                   </div>
                   <CopyButton className="min-h-11 sm:min-h-8" text={label} label={t('common.copy')} />
@@ -311,11 +309,6 @@ export function VpsNetworkCard(props: {
             })}
           </ul>
         )}
-        {props.ipAddresses.length > shown.length ? (
-          <div className="mt-3 text-xs text-faint">
-            {t('vps.control.network.more', { count: props.ipAddresses.length - shown.length })}
-          </div>
-        ) : null}
       </CardBody>
     </Card>
   );
