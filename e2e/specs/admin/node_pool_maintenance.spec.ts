@@ -59,7 +59,7 @@ async function installAdminNodeHandlers(
 test('@pr-smoke @pr-smoke-mobile admin locks and unlocks a real pool, while inherited maintenance stays read-only', async ({
   page,
 }) => {
-  const pools = [
+  const pools: [ReturnType<typeof pool>, ...ReturnType<typeof pool>[]] = [
     pool(11, { label: 'Fast pool' }),
     pool(12, {
       label: 'Inherited pool',
@@ -138,10 +138,10 @@ test('@pr-smoke @pr-smoke-mobile admin locks and unlocks a real pool, while inhe
   expect(nodeReads).toBe(1);
 });
 
-test('a definitively rejected pool lock is guarded against duplicate submits and can be retried with its reason', async ({
+test('@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile a definitively rejected pool lock is guarded against duplicate submits and can be retried with its reason', async ({
   page,
 }) => {
-  const pools = [pool(11, { label: 'Retry pool' })];
+  const pools: [ReturnType<typeof pool>, ...ReturnType<typeof pool>[]] = [pool(11, { label: 'Retry pool' })];
   const payloads: unknown[] = [];
   let releaseFailure: (() => void) | undefined;
   const firstResponse = new Promise<void>((resolve) => {
@@ -185,7 +185,7 @@ test('a definitively rejected pool lock is guarded against duplicate submits and
   expect(payloads).toHaveLength(1);
 
   releaseFailure?.();
-  await expect(page.getByTestId('toast.viewport')).toContainText('pool maintenance unavailable');
+  await expect(page.getByTestId(`${control}.lock_dialog`).getByRole('alert').filter({ hasText: 'pool maintenance unavailable' })).toBeVisible();
   await expect(page.getByTestId(`${control}.lock_dialog`)).toBeVisible();
   await expect(page.getByTestId(`${control}.reason`)).toHaveValue('Keep this reason');
   await expect(page.getByTestId(`${control}.lock_dialog.confirm`)).toBeEnabled();
@@ -199,7 +199,7 @@ test('a definitively rejected pool lock is guarded against duplicate submits and
 });
 
 test('a pending pool mutation stays guarded across a stale list response and Storage remount', async ({ page }) => {
-  const pools = [pool(11, { label: 'Pending pool' })];
+  const pools: [ReturnType<typeof pool>, ...ReturnType<typeof pool>[]] = [pool(11, { label: 'Pending pool' })];
   let poolReads = 0;
   let mutations = 0;
   let releaseStaleList: (() => void) | undefined;
@@ -253,7 +253,7 @@ test('a pending pool mutation stays guarded across a stale list response and Sto
 test('@pr-smoke @pr-smoke-mobile an applied 503 pool lock is reconciled by exact read-back without a second POST', async ({
   page,
 }) => {
-  const pools = [pool(11, { label: 'Ambiguous pool' })];
+  const pools: [ReturnType<typeof pool>, ...ReturnType<typeof pool>[]] = [pool(11, { label: 'Ambiguous pool' })];
   const payloads: unknown[] = [];
   let poolReads = 0;
   let readbacks = 0;
@@ -322,7 +322,7 @@ test('@pr-smoke @pr-smoke-mobile an applied 503 pool lock is reconciled by exact
 });
 
 test('a null reason in an exact non-applied read-back permits a safe retry', async ({ page }) => {
-  const pools = [pool(11, { label: 'Null reason pool', maintenance_lock_reason: null })];
+  const pools: [ReturnType<typeof pool>, ...ReturnType<typeof pool>[]] = [pool(11, { label: 'Null reason pool', maintenance_lock_reason: null })];
   let mutations = 0;
 
   await installAdminNodeHandlers(page, {
@@ -359,8 +359,8 @@ test('a null reason in an exact non-applied read-back permits a safe retry', asy
   await expect(page.getByTestId(`${control}.unlock`)).toBeVisible();
 });
 
-test('an ambiguous pool mutation stays fail-closed when its exact read-back fails', async ({ page }) => {
-  const pools = [pool(11, { label: 'Unverified pool' })];
+test('@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile an ambiguous pool mutation stays fail-closed when its exact read-back fails', async ({ page }) => {
+  const pools: [ReturnType<typeof pool>, ...ReturnType<typeof pool>[]] = [pool(11, { label: 'Unverified pool' })];
   let mutations = 0;
   let readbacks = 0;
 
@@ -391,7 +391,7 @@ test('an ambiguous pool mutation stays fail-closed when its exact read-back fail
 
   await expect(page.getByTestId(`${control}.verification_required`)).toBeVisible();
   await expect(page.getByTestId(`${control}.lock_dialog.confirm`)).toBeDisabled();
-  await expect(page.getByTestId('toast.viewport')).toContainText('read-back unavailable');
+  await expect(page.getByTestId(`${control}.lock_dialog`).getByRole('alert').filter({ hasText: 'read-back unavailable' })).toBeVisible();
   expect(mutations).toBe(1);
   expect(readbacks).toBe(1);
 
@@ -411,7 +411,7 @@ test('an ambiguous pool mutation stays fail-closed when its exact read-back fail
 test('@pr-smoke @pr-smoke-mobile a successful pool lock keeps stale actions disabled until the exact list refetch finishes', async ({
   page,
 }) => {
-  const pools = [pool(11, { label: 'Slow refresh pool' })];
+  const pools: [ReturnType<typeof pool>, ...ReturnType<typeof pool>[]] = [pool(11, { label: 'Slow refresh pool' })];
   let poolReads = 0;
   let mutations = 0;
   let releaseRefresh: (() => void) | undefined;
@@ -461,7 +461,7 @@ test('@pr-smoke @pr-smoke-mobile a successful pool lock keeps stale actions disa
 });
 
 test('a successful mutation that finishes outside Storage forces a refresh before clearing its guard', async ({ page }) => {
-  const pools = [pool(11, { label: 'Inactive refresh pool' })];
+  const pools: [ReturnType<typeof pool>, ...ReturnType<typeof pool>[]] = [pool(11, { label: 'Inactive refresh pool' })];
   let poolReads = 0;
   let mutations = 0;
   let releaseMutation: (() => void) | undefined;
