@@ -79,6 +79,12 @@ See the [parity audit](../work-log/2026-10-03-migration-feedback.md).
 
 ## Compute, disk, access, network and maintenance
 
+The VPS overview network card displays every address returned by the VPS address
+query, in API order, with its prefix, scope badge and copy action. It does not
+collapse addresses behind a “more” count. Long IPv6 values wrap on narrow screens;
+copying retains the complete address and prefix. The existing shared address
+query and its 250-record limit are unchanged by this presentation change.
+
 **Intent:** edit compute and root disk in a coherent workspace, configure hostname,
 access, features, interfaces and supported maintenance actions. Compute and dataset
 changes have separate backend boundaries: do not promise an atomic combined save.

@@ -11,7 +11,6 @@ import {
   classifyIpAddress,
   primarySshIpAddress,
   resourceLabel,
-  selectOverviewIpAddresses,
   shouldShowVpsOwner,
   sortChainsForOverview,
 } from './VpsOverviewModel';
@@ -70,19 +69,6 @@ describe('VpsOverviewModel', () => {
 
     it('uses the address as an IPv6 fallback when version metadata is missing', () => {
       expect(classifyIpAddress({ id: 4, addr: '2001:db8::20' })).toBe('ipv6');
-    });
-  });
-
-  describe('selectOverviewIpAddresses', () => {
-    it('shows one representative of each address family before filling remaining slots', () => {
-      const addresses = [
-        { id: 1, addr: '10.0.0.10', network: { id: 1, ip_version: 4, role: 'private_access' } },
-        { id: 2, addr: '10.0.0.11', network: { id: 1, ip_version: 4, role: 'private_access' } },
-        { id: 3, addr: '2001:db8::10', network: { id: 2, ip_version: 6, role: 'public_access' } },
-        { id: 4, addr: '198.51.100.10', network: { id: 3, ip_version: 4, role: 'public_access' } },
-      ];
-
-      expect(selectOverviewIpAddresses(addresses, 3).map((ip) => ip.id)).toEqual([4, 1, 3]);
     });
   });
 

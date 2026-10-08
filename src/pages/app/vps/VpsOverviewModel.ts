@@ -111,31 +111,6 @@ export function classifyIpAddress(ip: IpAddress): VpsOverviewIpKind {
   return String(ip.network?.role ?? '') === 'private_access' ? 'ipv4_private' : 'ipv4_public';
 }
 
-export function selectOverviewIpAddresses(ipAddresses: IpAddress[], limit = 3): IpAddress[] {
-  if (limit <= 0) return [];
-
-  const selected: IpAddress[] = [];
-  const selectedIds = new Set<number>();
-  const kinds: VpsOverviewIpKind[] = ['ipv4_public', 'ipv4_private', 'ipv6'];
-
-  for (const kind of kinds) {
-    const candidate = ipAddresses.find((ip) => classifyIpAddress(ip) === kind && !selectedIds.has(ip.id));
-    if (!candidate) continue;
-    selected.push(candidate);
-    selectedIds.add(candidate.id);
-    if (selected.length >= limit) return selected;
-  }
-
-  for (const ip of ipAddresses) {
-    if (selectedIds.has(ip.id)) continue;
-    selected.push(ip);
-    selectedIds.add(ip.id);
-    if (selected.length >= limit) break;
-  }
-
-  return selected;
-}
-
 function addressWithoutPrefix(value: unknown): string {
   return String(value ?? '').trim().split('/', 1)[0] ?? '';
 }
