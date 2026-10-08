@@ -18,6 +18,7 @@
     "e2e/specs/app/exports_filter_contract.spec.ts",
     "e2e/specs/app/global_search_cold_start.spec.ts",
     "e2e/specs/app/incidents_responsive_layout.spec.ts",
+    "e2e/specs/app/member_payment_links.spec.ts",
     "e2e/specs/app/mobile_touch_interactions.spec.ts",
     "e2e/specs/app/mobile_workflows.spec.ts",
     "e2e/specs/app/payment_qr_images.spec.ts",
