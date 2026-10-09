@@ -75,6 +75,12 @@ for (const language of ['cs', 'en'] as const) {
     const frame = await iframe.elementHandle();
     await expect(page.getByTestId('vps.console.open_new_tab')).toHaveCount(0);
     await expect(page.getByTestId('vps.console.control.start')).toHaveAttribute('aria-disabled', 'true');
+    const sessionButton = await page.getByTestId('vps.console.new_session').boundingBox();
+    const powerButton = await page.getByTestId('vps.console.control.start').boundingBox();
+    expect(sessionButton).not.toBeNull();
+    expect(powerButton).not.toBeNull();
+    expect(Math.abs(sessionButton!.x - powerButton!.x)).toBeLessThanOrEqual(1);
+    expect(powerButton!.y).toBeGreaterThan(sessionButton!.y + sessionButton!.height);
     await page.screenshot({ path: testInfo.outputPath(`console-controls-${language}.png`), fullPage: true });
     for (const action of ['stop', 'restart'] as const) {
       await activate(page.getByTestId(`vps.console.control.${action}`), hasTouch);

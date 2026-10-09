@@ -71,3 +71,23 @@ GitHub CI and maintainer review remain separate from this local/pinned evidence.
 
 Prepared for review as [PR35](https://github.com/vpsfreecz/vpsadmin-webui/pull/35),
 implementation commit `91e4394`. Not merged or deployed.
+
+## Toolbar alignment follow-up
+
+The maintainer found the right-aligned session buttons inconsistent with the
+left-aligned VPS controls. Both rows now use the same desktop label column;
+their button groups start at the same horizontal position and wrap independently.
+On small screens the labels stack above the buttons, preserving full available
+width and touch targets. Session state, actions and confirmation behavior are
+unchanged. The existing Czech/English controls scenarios now check alignment
+geometrically, and the desktop/mobile review screenshots above are refreshed.
+
+Verification of this layout follow-up is recorded below. This remains part of
+PR35 and has not been merged or deployed.
+
+Follow-up verification passed: all 24 controls and viewport scenarios across
+desktop Chromium, mobile Chromium and mobile WebKit (Czech/English), frontend
+and strict E2E type checks, ESLint for both components, Tailwind and structural
+audits, design-documentation audit, and production build. The existing chunk-size
+warning remains informational. These are isolated synthetic browser tests; no
+public deployment or real VPS operation was performed.

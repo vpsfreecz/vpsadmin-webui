@@ -38,43 +38,45 @@ export function VpsConsoleControls(props: {
   if (!canMutateVps) return null;
   return (
     <div
-      className="flex flex-wrap items-center gap-2 border-t border-border pt-3"
+      className="grid items-start gap-2 border-t border-border pt-3 sm:grid-cols-[11rem_minmax(0,1fr)]"
       data-testid="vps.console.controls"
       role="group"
       aria-label={t('vps.console.controls')}
     >
-      <span className="mr-1 text-xs font-medium text-muted">{t('vps.console.controls')}</span>
-      {actions.map(({ id, label, Icon, gate, run }) => (
+      <span className="flex items-center text-xs font-medium text-muted sm:min-h-8">{t('vps.console.controls')}</span>
+      <div className="flex min-w-0 flex-wrap items-center gap-2">
+        {actions.map(({ id, label, Icon, gate, run }) => (
+          <ActionButton
+            key={id}
+            size="sm"
+            variant="secondary"
+            testId={`vps.console.control.${id}`}
+            disabled={!gate.allowed}
+            disabledReason={!gate.allowed ? gate.reason : undefined}
+            onClick={run}
+          >
+            <Icon className="h-4 w-4" aria-hidden="true" />
+            {t(label)}
+          </ActionButton>
+        ))}
         <ActionButton
-          key={id}
           size="sm"
           variant="secondary"
-          testId={`vps.console.control.${id}`}
-          disabled={!gate.allowed}
-          disabledReason={!gate.allowed ? gate.reason : undefined}
-          onClick={run}
+          testId="vps.console.control.rescue"
+          disabled={!supportsRescue || !rescueGate.allowed}
+          disabledReason={
+            !supportsRescue
+              ? { titleKey: 'vps.console.rescue.unsupported' }
+              : !rescueGate.allowed
+                ? rescueGate.reason
+                : undefined
+          }
+          onClick={() => setRescueOpen(true)}
         >
-          <Icon className="h-4 w-4" aria-hidden="true" />
-          {t(label)}
+          <LifeBuoy className="h-4 w-4" aria-hidden="true" />
+          {t('vps.console.rescue.title')}
         </ActionButton>
-      ))}
-      <ActionButton
-        size="sm"
-        variant="secondary"
-        testId="vps.console.control.rescue"
-        disabled={!supportsRescue || !rescueGate.allowed}
-        disabledReason={
-          !supportsRescue
-            ? { titleKey: 'vps.console.rescue.unsupported' }
-            : !rescueGate.allowed
-              ? rescueGate.reason
-              : undefined
-        }
-        onClick={() => setRescueOpen(true)}
-      >
-        <LifeBuoy className="h-4 w-4" aria-hidden="true" />
-        {t('vps.console.rescue.title')}
-      </ActionButton>
+      </div>
       {rescueOpen ? <VpsConsoleRescueDialog onClose={() => setRescueOpen(false)} /> : null}
     </div>
   );

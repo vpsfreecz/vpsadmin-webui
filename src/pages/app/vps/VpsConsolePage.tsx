@@ -217,8 +217,8 @@ function MutableVpsConsolePage() {
   return (
     <div className="space-y-3" data-testid="vps.console.page">
       <div className="space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex min-w-0 flex-wrap items-center gap-2">
+        <div className="grid items-start gap-2 sm:grid-cols-[11rem_minmax(0,1fr)]">
+          <div className="flex min-w-0 flex-wrap items-center gap-2 sm:min-h-8">
             <h2 className="text-base font-semibold">{t('vps.console.title')}</h2>
             <div
               title={expiresAt ? t('vps.console.expires_at', { time: expiresAt }) : undefined}
