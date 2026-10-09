@@ -106,7 +106,17 @@ revocation remain explicit. Opening a page must not spawn an uncontrolled retry
 loop after a failed token request. Secure console URLs are required.
 
 Console pages use a compact VPS identity and session toolbar, without the full
-VPS overview or help block above the terminal. The default fits the complete
+VPS overview or help block above the terminal. A second wrapping row exposes
+start, graceful shutdown/restart, root password and rescue mode. Power/password
+reuse the detail header's confirmation, preflight, locking and task handling;
+force shutdown/reset remain explicit options inside power confirmation. Rescue
+is also available to owners, matching the API Boot authorization, only for
+vpsAdminOS nodes. Its dialog offers an enabled compatible template, optional
+original-root mount (default /mnt/vps), validation, and target/impact confirmation.
+Rejected requests preserve the dialog and inputs; accepted requests track the
+receipt through Tasks. Opening/cancelling these dialogs must not recreate the
+console iframe or token. Session toolbar/fallback no longer offers a new tab.
+The default fits the complete
 terminal and keyboard into the available window. Original size restores unscaled
 content when readability matters; it deliberately allows scrolling. The current
 cross-origin renderer has fixed minimum geometry and no resize protocol, so the

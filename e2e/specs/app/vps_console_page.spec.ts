@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
 
@@ -25,7 +25,7 @@ const vps = {
   dns_resolver: 'inherit',
 };
 
-async function routeConsoleStub(page: Parameters<typeof installHaveApiMock>[0]) {
+async function routeConsoleStub(page: Page) {
   await page.route('**/_console/**', async (route) => {
     return route.fulfill({
       status: 200,
@@ -72,10 +72,8 @@ test.describe('@smoke VPS console page', () => {
     await expect(page.getByTestId('vps.console.reconnect')).toBeVisible();
     await expect(page.getByTestId('vps.console.copy_url')).toHaveCount(0);
     await expect(page.getByTestId('vps.console.copy_ssh')).toBeVisible();
-    await expect(page.getByTestId('vps.console.open_new_tab')).toHaveAttribute(
-      'href',
-      /\/_console\/console\/123\?session=T1/
-    );
+    await expect(page.getByTestId('vps.console.open_new_tab')).toHaveCount(0);
+    await expect(page.getByTestId('vps.console.iframe')).toHaveAttribute('src', /\/_console\/console\/123\?session=T1/);
 
     const iframe = page.getByTestId('vps.console.iframe');
     await expect(iframe).toBeVisible();
@@ -168,10 +166,8 @@ test.describe('@smoke VPS console page', () => {
     await page.reload();
     await expect(page.getByTestId('vps.console.frame_status')).toContainText('Connected');
     expect(createCalls).toBe(2);
-    await expect(page.getByTestId('vps.console.open_new_tab')).toHaveAttribute(
-      'href',
-      /\/_console\/console\/123\?session=ADMIN/
-    );
+    await expect(page.getByTestId('vps.console.open_new_tab')).toHaveCount(0);
+    await expect(page.getByTestId('vps.console.iframe')).toHaveAttribute('src', /\/_console\/console\/123\?session=ADMIN/);
     await expect(page.getByTestId('vps.console.frame_status')).toContainText('Connected');
   });
 
@@ -286,10 +282,8 @@ test.describe('@smoke VPS console page', () => {
     await page.getByTestId('vps.console.new_session_dialog.confirm').click();
 
     await expect(page.getByTestId('vps.console.revoke_error')).toHaveCount(0);
-    await expect(page.getByTestId('vps.console.open_new_tab')).toHaveAttribute(
-      'href',
-      /\/_console\/console\/123\?session=T2/
-    );
+    await expect(page.getByTestId('vps.console.open_new_tab')).toHaveCount(0);
+    await expect(page.getByTestId('vps.console.iframe')).toHaveAttribute('src', /\/_console\/console\/123\?session=T2/);
     expect(deleteCalls).toBe(2);
     expect(createCalls).toBe(2);
   });

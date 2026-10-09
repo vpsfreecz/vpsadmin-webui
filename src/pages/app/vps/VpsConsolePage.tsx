@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ExternalLink, Maximize2, Minimize2, PlugZap, RotateCw, Trash2 } from 'lucide-react';
+import { Maximize2, Minimize2, PlugZap, RotateCw, Trash2 } from 'lucide-react';
 
 import { VpsConsoleFrame } from './VpsConsoleFrame';
 import { useI18n } from '../../../app/i18n';
@@ -53,7 +53,7 @@ export function VpsConsolePage() {
 }
 
 function MutableVpsConsolePage() {
-  const { vps, sshCommand } = useVps();
+  const { vps, sshCommand, consoleControls } = useVps();
   const { t } = useI18n();
   const qc = useQueryClient();
   const objectLabel = String(vps.hostname ?? '') || `#${vps.id}`;
@@ -216,106 +216,97 @@ function MutableVpsConsolePage() {
 
   return (
     <div className="space-y-3" data-testid="vps.console.page">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex min-w-0 flex-wrap items-center gap-2">
-          <h2 className="text-base font-semibold">{t('vps.console.title')}</h2>
-          <div
-            title={expiresAt ? t('vps.console.expires_at', { time: expiresAt }) : undefined}
-            className="inline-flex items-center gap-2 rounded-md border border-border bg-surface px-2.5 py-1 text-xs font-medium text-fg"
-            data-testid="vps.console.connection_state"
-          >
-            <span className={clsx('h-2.5 w-2.5 rounded-full', CONSOLE_CONNECTION_STATE_VARIANT[connectionState])} aria-hidden="true" />
-            <span data-testid="vps.console.frame_status">{t(`vps.console.state.${connectionState}` as any)}</span>
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <h2 className="text-base font-semibold">{t('vps.console.title')}</h2>
+            <div
+              title={expiresAt ? t('vps.console.expires_at', { time: expiresAt }) : undefined}
+              className="inline-flex items-center gap-2 rounded-md border border-border bg-surface px-2.5 py-1 text-xs font-medium text-fg"
+              data-testid="vps.console.connection_state"
+            >
+              <span className={clsx('h-2.5 w-2.5 rounded-full', CONSOLE_CONNECTION_STATE_VARIANT[connectionState])} aria-hidden="true" />
+              <span data-testid="vps.console.frame_status">{t(`vps.console.state.${connectionState}` as any)}</span>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              testId="vps.console.new_session"
+              onClick={() => {
+                if (sessionSuspended) {
+                  newSessionM.mutate();
+                } else if (hasActiveLiveToken) {
+                  newSessionM.reset();
+                  setNewSessionConfirmOpen(true);
+                } else {
+                  void tokenQ.refetch();
+                }
+              }}
+              disabled={disabledNewSession}
+              title={t('vps.console.new_session.title_hint')}
+            >
+              <RotateCw className="h-4 w-4" aria-hidden="true" />
+              {t('vps.console.new_session.label')}
+            </Button>
+            {hasConsoleUrl ? (
+              <>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={reconnect}
+                  testId="vps.console.reconnect"
+                  title={t('vps.console.reconnect.title_hint')}
+                >
+                  <PlugZap className="h-4 w-4" aria-hidden="true" />
+                  {t('vps.console.reconnect.label')}
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => {
+                    revokeSessionM.reset();
+                    setRevokeSessionConfirmOpen(true);
+                  }}
+                  testId="vps.console.revoke_session"
+                  title={t('vps.console.revoke_session.title_hint')}
+                  disabled={disabledRevokeSession}
+                >
+                  <Trash2 className="h-4 w-4" aria-hidden="true" />
+                  {t('vps.console.revoke_session.label')}
+                </Button>
+                <Button
+                  variant={focused ? 'primary' : 'secondary'}
+                  size="sm"
+                  onClick={() => setFocused((value) => !value)}
+                  testId={focused ? 'vps.console.exit_focus' : 'vps.console.focus'}
+                  title={focused ? t('vps.console.exit_focus.title_hint') : t('vps.console.focus.title_hint')}
+                  ariaLabel={focused ? t('vps.console.exit_focus.label') : t('vps.console.focus.label')}
+                >
+                  {focused ? (
+                    <Minimize2 className="h-4 w-4" aria-hidden="true" />
+                  ) : (
+                    <Maximize2 className="h-4 w-4" aria-hidden="true" />
+                  )}
+                  {focused ? t('vps.console.exit_focus.label') : t('vps.console.focus.label')}
+                </Button>
+                {sshCommand ? (
+                  <CopyButton
+                    text={sshCommand}
+                    variant="secondary"
+                    size="sm"
+                    label={t('vps.console.copy_ssh')}
+                    testId="vps.console.copy_ssh"
+                  />
+                ) : null}
+              </>
+            ) : null}
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            variant="secondary"
-            size="sm"
-            testId="vps.console.new_session"
-            onClick={() => {
-              if (sessionSuspended) {
-                newSessionM.mutate();
-              } else if (hasActiveLiveToken) {
-                newSessionM.reset();
-                setNewSessionConfirmOpen(true);
-              } else {
-                void tokenQ.refetch();
-              }
-            }}
-            disabled={disabledNewSession}
-            title={t('vps.console.new_session.title_hint')}
-          >
-            <RotateCw className="h-4 w-4" aria-hidden="true" />
-            {t('vps.console.new_session.label')}
-          </Button>
-          {hasConsoleUrl ? (
-            <>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={reconnect}
-                testId="vps.console.reconnect"
-                title={t('vps.console.reconnect.title_hint')}
-              >
-                <PlugZap className="h-4 w-4" aria-hidden="true" />
-                {t('vps.console.reconnect.label')}
-              </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => {
-                  revokeSessionM.reset();
-                  setRevokeSessionConfirmOpen(true);
-                }}
-                testId="vps.console.revoke_session"
-                title={t('vps.console.revoke_session.title_hint')}
-                disabled={disabledRevokeSession}
-              >
-                <Trash2 className="h-4 w-4" aria-hidden="true" />
-                {t('vps.console.revoke_session.label')}
-              </Button>
-              <Button
-                variant={focused ? 'primary' : 'secondary'}
-                size="sm"
-                onClick={() => setFocused((value) => !value)}
-                testId={focused ? 'vps.console.exit_focus' : 'vps.console.focus'}
-                title={focused ? t('vps.console.exit_focus.title_hint') : t('vps.console.focus.title_hint')}
-                ariaLabel={focused ? t('vps.console.exit_focus.label') : t('vps.console.focus.label')}
-              >
-                {focused ? (
-                  <Minimize2 className="h-4 w-4" aria-hidden="true" />
-                ) : (
-                  <Maximize2 className="h-4 w-4" aria-hidden="true" />
-                )}
-                {focused ? t('vps.console.exit_focus.label') : t('vps.console.focus.label')}
-              </Button>
-              {sshCommand ? (
-                <CopyButton
-                  text={sshCommand}
-                  variant="secondary"
-                  size="sm"
-                  label={t('vps.console.copy_ssh')}
-                  testId="vps.console.copy_ssh"
-                />
-              ) : null}
-              <Button
-                variant="secondary"
-                size="sm"
-                as="a"
-                href={consoleUrl!}
-                target="_blank"
-                rel="noreferrer"
-                testId="vps.console.open_new_tab"
-                title={t('vps.console.open_new_tab.title_hint')}
-              >
-                <ExternalLink className="h-4 w-4" aria-hidden="true" />
-                {t('vps.console.open_new_tab')}
-              </Button>
-            </>
-          ) : null}
-        </div>
+        {consoleControls}
       </div>
 
       {!server ? (
