@@ -68,3 +68,6 @@ node_modules link; restoring the matching cached dependencies resolved the
 setup failure without source or deployment changes.
 
 GitHub CI and maintainer review remain separate from this local/pinned evidence.
+
+Prepared for review as [PR35](https://github.com/vpsfreecz/vpsadmin-webui/pull/35),
+implementation commit `91e4394`. Not merged or deployed.
