@@ -46,3 +46,6 @@ Implemented UI, synthetic data:
 
 This is not live API or deployment certification. GitHub checks and review are
 separate from the pinned local evidence above.
+
+Prepared for review as [PR36](https://github.com/vpsfreecz/vpsadmin-webui/pull/36),
+implementation commit `68f0ca5`. Independent of console PR35; not merged/deployed.
