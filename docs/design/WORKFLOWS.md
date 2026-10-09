@@ -443,11 +443,12 @@ The header and command palette search independently of visited list pages
 and DNS queries and exact IPv4/IPv6 address queries. A normal member relies on
 API authorization; an administrator's My view additionally checks the current
 owner. Switching to administrator mode is explicit, never an automatic fallback
-when a personal search has no match. While an admin/support account types in
-My view, both the header and command palette show a visible scope reminder and
-an explicit switch button. It appears before results settle and alongside owned
-matches, not only for numeric IDs or empty results. Normal members, administrator
-mode, empty inputs and search-help mode have no administrative reminder. The
+when a personal search has no match. After an admin/support account completes a
+My-view search with no matches, the header and command palette show a compact,
+neutral scope hint with an explicit switch button. It stays hidden during typing,
+debounce/loading, errors and successful results, including owned VPS hostnames.
+Normal members, administrator mode, empty inputs, incomplete palette qualifiers
+and search-help mode have no administrative reminder. The
 button uses the existing view-switch destination mapping and warning; no cluster
 search runs before the user switches. The command palette retains the query and searches it in the newly selected
 view; the inline header keeps its normal navigation reset. Keyboard focus can move from the header input into this action
