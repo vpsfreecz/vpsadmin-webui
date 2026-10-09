@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CircleHelp } from 'lucide-react';
+import { SearchScopeReminder } from './SearchScopeReminder';
 
 import { useAuth } from '../../app/auth';
 import { useAppMode } from '../../app/appMode';
@@ -261,7 +262,7 @@ function useHasCoarsePointer(): boolean {
   return hasCoarsePointer;
 }
 
-export function CommandPalette(props: { open: boolean; onClose: () => void }) {
+export function CommandPalette(props: { open: boolean; onClose: () => void; onSwitchMode?: () => void }) {
   const auth = useAuth();
   const { basePath, mode } = useAppMode();
   const scope = useObjectScope();
@@ -667,6 +668,9 @@ export function CommandPalette(props: { open: boolean; onClose: () => void }) {
         </div>
 
         <div className="mt-4 flex-1 overflow-y-auto" data-testid="palette.results-scroll">
+          {auth.canUseAdminUi && mode === 'user' && normalizedQuery && !helpOpen && props.onSwitchMode ? (
+            <div className="mb-3"><SearchScopeReminder t={t} onSwitchMode={props.onSwitchMode} /></div>
+          ) : null}
           {helpOpen ? (
             <div data-testid="palette.help">
               <div className="text-sm font-semibold">{t('palette.help.title')}</div>

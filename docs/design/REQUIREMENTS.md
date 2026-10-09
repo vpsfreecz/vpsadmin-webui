@@ -111,7 +111,7 @@ The Acceptance column describes what must be checked, not a claim it all passed.
 
 | ID | Requirement and reason | Acceptance | Source / implementation evidence | Status |
 | --- | --- | --- | --- | --- |
-| REQ-070 | Find IP addresses and DNS zones without first visiting their lists. | Cold header/palette queries use current API data; My view preserves ownership including VPS-assigned IPs; administrative DNS hits are not silently dropped after eight results; empty results do not hide a failed relevant lookup. | Maintainer report 2026-09-30; [search contract](WORKFLOWS.md#global-search), [cold-start fixtures](../../e2e/specs/app/global_search_cold_start.spec.ts) | Delivered: PR5; cold-start fixture evidence; authenticated live search not certified; [release 718cf759](../work-log/2026-09-30-three-site-release.md) |
+| REQ-070 | Find IP addresses and DNS zones without first visiting their lists. | Cold header/palette queries use current API data; My view preserves ownership including VPS-assigned IPs; administrative DNS hits are not silently dropped after eight results; empty results do not hide a failed relevant lookup. Privileged accounts searching in My view see a scope reminder and an explicit switch to administrator view; normal members do not. | Maintainer report 2026-09-30; [search contract](WORKFLOWS.md#global-search), [cold-start fixtures](../../e2e/specs/app/global_search_cold_start.spec.ts) | Delivered: PR5; [My-view reminder prepared](../work-log/2026-10-09-search-scope-reminder.md); cold-start fixture evidence; authenticated live search not certified; [release 718cf759](../work-log/2026-09-30-three-site-release.md) |
 
 ## Network availability
 

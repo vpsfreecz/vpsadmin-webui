@@ -1,5 +1,7 @@
 // Common command palette copy
 export const csCommon_palette = {
+  'palette.my_view.title': 'Jsi v uživatelském pohledu',
+  'palette.my_view.body': 'Hledáš jen ve svých službách. Členy a jejich služby najdeš v administrátorském pohledu.',
   'palette.open': 'Hledat',
   'palette.shortcut_title': 'Otevřít rychlé vyhledávání',
   'search.inline.aria': 'Rychle hledat objekty',

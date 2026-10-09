@@ -35,6 +35,7 @@
     "e2e/specs/app/profile_metrics_tokens.spec.ts",
     "e2e/specs/app/profile_owner_scope.spec.ts",
     "e2e/specs/app/profile_user_data.spec.ts",
+    "e2e/specs/app/search_scope_reminder.spec.ts",
     "e2e/specs/app/security_advisory_update_mutations.spec.ts",
     "e2e/specs/app/sidebar_expanded.spec.ts",
     "e2e/specs/app/transaction_chains_ux.spec.ts",

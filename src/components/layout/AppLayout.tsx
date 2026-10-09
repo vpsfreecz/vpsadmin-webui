@@ -682,7 +682,7 @@ export function AppLayout(props: { children: React.ReactNode }) {
         {paletteOpen ? (
           <DeferredChromeModal testId="shell.command_palette.loading" ariaLabel={i18n.t('palette.open')}
             mobileFullScreen onClose={() => setPaletteOpen(false)}>
-            <LazyCommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
+            <LazyCommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} onSwitchMode={goToOtherMode} />
           </DeferredChromeModal>
         ) : null}
 
