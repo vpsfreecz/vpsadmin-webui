@@ -40,6 +40,7 @@ import { useVpsCreationProgress } from './useVpsCreationProgress';
 import { VpsCreationProgress } from './VpsCreationProgress';
 import { VpsActionsMenu, VpsTabsNav } from './VpsNavigation';
 import { VpsHeaderRuntime } from './VpsHeaderRuntime';
+import { VpsConsoleControls } from './VpsConsoleControls';
 import { VpsHeaderActionDialogs, type VpsHeaderConfirm } from './VpsHeaderActionDialogs';
 export function VpsLayout() {
   const { basePath, mode } = useAppMode();
@@ -285,6 +286,8 @@ export function VpsLayout() {
     },
   });
 
+  const { refetch: refreshPasswordVps } = vpsQ;
+  const { refetch: refreshPasswordChains } = chainsQ;
   useEffect(() => {
     if (!currentPasswdFlow) return;
     if (!passwdStateQ.data) return;
@@ -298,9 +301,9 @@ export function VpsLayout() {
 
     setPasswdFlow(null);
     setPasswdWaitOpen(false);
-    void vpsQ.refetch();
-    void chainsQ.refetch();
-  }, [currentPasswdFlow, passwdStateQ.data]);
+    void refreshPasswordVps();
+    void refreshPasswordChains();
+  }, [currentPasswdFlow, passwdStateQ.data, refreshPasswordVps, refreshPasswordChains]);
 
   if (!vpsQ.data && creation.pending) return (
     <DetailShell>
@@ -470,6 +473,13 @@ export function VpsLayout() {
         ipAddressesError: ipsQ.isError,
         sshCommand,
         detailContextSearch: listContextSearch,
+        consoleControls: canMutateVps ? <VpsConsoleControls
+          startGate={startGate} stopGate={stopGate} restartGate={restartGate} passwordGate={passwdGate}
+          onStart={() => startM.mutate(snapshotPowerVariables())}
+          onStop={() => { stopM.reset(); setConfirm({ kind: 'stop', force: false }); }}
+          onRestart={() => { restartM.reset(); setConfirm({ kind: 'restart', force: false }); }}
+          onPassword={() => handleHeaderMoreAction('action:root_password')}
+        /> : null,
       }}
     >
       <DetailShell banner={creationStatus} compact={/\/console\/?$/.test(location.pathname)}>

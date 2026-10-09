@@ -25,6 +25,8 @@ export interface VpsContextValue {
   ipAddressesLoading: boolean;
   ipAddressesError: boolean;
   sshCommand?: string | null;
+  /** Shared VPS actions rendered below console session controls. */
+  consoleControls?: React.ReactNode;
   /** Validated query string that keeps an administrator inside the originating member's VPS scope. */
   detailContextSearch?: string;
 }

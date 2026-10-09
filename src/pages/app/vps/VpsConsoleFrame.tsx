@@ -56,17 +56,6 @@ export function VpsConsoleFrame({
                 <Button variant="secondary" size="sm" onClick={reconnect} testId="vps.console.fallback.reconnect">
                   {t('vps.console.reconnect.label')}
                 </Button>
-                <Button
-                  variant="primary"
-                  size="sm"
-                  as="a"
-                  href={consoleUrl!}
-                  target="_blank"
-                  rel="noreferrer"
-                  testId="vps.console.fallback.open_external"
-                >
-                  {t('vps.console.open_new_tab')}
-                </Button>
               </div>
             </div>
           </div>
