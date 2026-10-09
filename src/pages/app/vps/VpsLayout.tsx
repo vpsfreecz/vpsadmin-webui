@@ -508,11 +508,6 @@ export function VpsLayout() {
             </>
           }
           title={vps.hostname}
-          titleAfter={
-            <Badge testId="vps.header.distribution" title={t('vps.header.distribution')} className="max-w-full [overflow-wrap:anywhere]">
-              {vps.os_template?.label?.trim() || t('common.na')}
-            </Badge>
-          }
           badges={
             <>
               <Badge variant={creation.pending ? 'warn' : rt.variant}>{creation.pending ? t('common.creating') : rt.label}</Badge>
@@ -543,6 +538,12 @@ export function VpsLayout() {
                   )}
                 </span>
               ) : null}
+              <span className="min-w-0 [overflow-wrap:anywhere]" data-testid="vps.header.distribution_field">
+                {t('vps.header.distribution')}{' '}
+                <span className="font-medium text-fg" data-testid="vps.header.distribution">
+                  {vps.os_template?.label?.trim() || t('common.na')}
+                </span>
+              </span>
               <span className="min-w-0 [overflow-wrap:anywhere]">
                 {t('common.node')} <span className="font-medium text-fg">{nodeLabel}</span>
               </span>

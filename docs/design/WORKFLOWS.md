@@ -43,7 +43,10 @@ an API mutation. [Routes](../../src/routes/router.tsx),
 runtime status, and manage it. Creation defaults are suggestions; async updates
 cannot overwrite entered resources. Member scope stays owned; admins can explicitly
 use the appropriate wider view. Header distribution/runtime facts and equal-width
-cards make common diagnostics available without a second screen.
+cards make common diagnostics available without a second screen. The selected
+distribution is a labeled metadata field after the administrator-visible owner,
+followed by node and location; members see the same distribution field. Unknown
+templates retain the unavailable marker instead of guessing a distribution.
 
 After an accepted create response, open the exact VPS detail immediately while
 provisioning continues. A localized banner distinguishes accepted/pending work,

@@ -54,8 +54,8 @@ function assertRejectedInBothSources(label, change, expected) {
   }
 }
 
-test('the real compiler import closure contains exactly 46 adopted E2E files', () => {
-  assert.deepEqual(auditE2eTypeCoverage(repo), { errors: [], adopted: 46, deferred: 210 });
+test('the real compiler import closure contains exactly 47 adopted E2E files', () => {
+  assert.deepEqual(auditE2eTypeCoverage(repo), { errors: [], adopted: 47, deferred: 209 });
 });
 
 test('the complete gate works from a Gitless source copy with installed dependencies', () => {
@@ -65,7 +65,7 @@ test('the complete gate works from a Gitless source copy with installed dependen
     copySource(root, 'tsconfig.e2e.json');
     copySource(root, 'src/types/vpsadmin.d.ts');
     fs.symlinkSync(path.join(repo, 'node_modules'), path.join(root, 'node_modules'), 'dir');
-    assert.deepEqual(auditE2eTypeCoverage(root), { errors: [], adopted: 46, deferred: 210 });
+    assert.deepEqual(auditE2eTypeCoverage(root), { errors: [], adopted: 47, deferred: 209 });
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
