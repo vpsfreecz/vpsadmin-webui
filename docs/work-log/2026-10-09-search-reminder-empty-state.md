@@ -46,4 +46,5 @@ settled with no results.
 
 - `npm run audit:design-docs` and `git diff --check` passed after adding the
   work log and visual evidence. No hook framework or enabled local Git hooks
-  were declared. Review branch: `dev/search-reminder-empty-state`.
+  were declared. Review: [PR40](https://github.com/vpsfreecz/vpsadmin-webui/pull/40),
+  implementation commit `e2dcd74`. Prepared only; public sites remain unchanged.
