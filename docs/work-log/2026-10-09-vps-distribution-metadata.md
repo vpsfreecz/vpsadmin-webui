@@ -39,3 +39,12 @@ those transfer artifacts restored the check without changing its baseline.
 All 12 system-summary browser scenarios passed: four cs/en admin/member cases
 in desktop Chromium, mobile Chromium and mobile WebKit. Screenshots show only
 synthetic data; no public site was updated.
+
+## CI correction
+
+Run 37924803888 failed two script tests because this PR adopted the system-summary
+spec but left their explicit inventory expectations at 43 adopted / 211 deferred.
+The audited inventory correctly returned 44 / 210 with no errors. Update both
+checkout and Gitless-copy expectations and the test title. The immutable baseline
+and coverage enforcement are unchanged. Production build and quick checks passed
+in the original CI run; script failure prevented its later BFF and unit suites.
