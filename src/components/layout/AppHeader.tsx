@@ -23,6 +23,7 @@ import { Badge } from '../ui/Badge';
 import { clsx } from '../ui/clsx';
 import { useDebouncedValue } from '../../lib/hooks/useDebouncedValue';
 import { AppSyncPopover, AppUserMenu } from './AppHeaderMenus';
+import { SearchScopeReminder } from './SearchScopeReminder';
 import type { AppHeaderProps } from './AppHeaderTypes';
 
 export type { AppHeaderProps } from './AppHeaderTypes';
@@ -282,8 +283,15 @@ export function AppHeader(props: AppHeaderProps) {
             const selected = searchResults[selectedSearchResult] ?? searchResults[0];
             if (selected) openInlineResult(selected);
           }}
-          onBlur={() => {
-            window.setTimeout(() => setSearchOpen(false), 120);
+          onKeyDown={(event) => {
+            if (event.key !== 'Escape') return;
+            event.preventDefault();
+            event.currentTarget.querySelector('input')?.focus();
+            setSearchOpen(false);
+          }}
+          onBlur={(event) => {
+            // Keyboard/touch focus may move into the reminder's switch button.
+            if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setSearchOpen(false);
           }}
           data-testid="shell.inline-search"
         >
@@ -339,6 +347,9 @@ export function AppHeader(props: AppHeaderProps) {
               data-overlay="popover"
               data-overlay-surface="overlay"
             >
+              {canSwitchMode && mode === 'user' && normalizedSearch !== '?' ? (
+                <div className="p-2"><SearchScopeReminder t={t} onSwitchMode={onGoToOtherMode} /></div>
+              ) : null}
               {inlineSearchExpanded ? (
                 <div
                   id={INLINE_SEARCH_LISTBOX_ID}

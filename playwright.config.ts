@@ -58,6 +58,7 @@ export default defineConfig({
         '**/vps_console_controls.spec.ts',
         '**/vps_console_viewport.spec.ts',
         '**/vps_console_page.spec.ts',
+        '**/search_scope_reminder.spec.ts',
         '**/mobile_touch_interactions.spec.ts',
         '**/mobile_workflows.spec.ts',
         '**/payment_qr_images.spec.ts',

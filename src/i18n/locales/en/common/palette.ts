@@ -1,5 +1,7 @@
 // Common command palette copy
 export const enCommon_palette = {
+  'palette.my_view.title': 'You are in My view',
+  'palette.my_view.body': 'You are only searching your own services. Switch to administrator view to find members and their services.',
   'palette.open': 'Search',
   'palette.shortcut_title': 'Open quick search',
   'search.inline.aria': 'Quickly search objects',
