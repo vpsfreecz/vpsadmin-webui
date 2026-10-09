@@ -230,7 +230,7 @@ function MutableVpsConsolePage() {
             </div>
           </div>
 
-          <div className="grid min-w-0 grid-cols-2 gap-2 lg:grid-cols-3 xl:grid-cols-5 [&>button]:h-auto [&>button]:min-h-11 [&>button]:py-1 [&_svg]:shrink-0">
+          <div className="flex flex-wrap items-center gap-2">
             <Button
               variant="secondary"
               size="sm"

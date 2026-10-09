@@ -102,3 +102,20 @@ widths in both languages. Review screenshots are updated to this final layout.
 The final column layout passed the same 24 controls/viewport cases, frontend
 and strict E2E type checks, component ESLint, Tailwind, structural and design-docs
 audits, and production build. Synthetic evidence only; still not deployed.
+
+## Restore compact button sizing after review
+
+The maintainer rejected the enlarged equal-width buttons. Restore the original
+content-sized small buttons (32px desktop height), keeping only the shared
+starting position of the session and VPS rows. Mobile retains the existing
+shared touch-target minimum; this change adds no size override. This supersedes
+the equal-width column experiment above. Both runtime components match the
+previously verified compact implementation in 7b884ac exactly. The browser
+checks now explicitly guard 32px desktop height and natural differing widths,
+while preserving the matching starting position.
+
+All six cs/en action-dialog cases passed again across desktop Chromium, mobile
+Chromium and mobile WebKit, including the new compact-size guard. Strict E2E
+type checks and the design documentation audit passed. Desktop/mobile screenshots
+were recaptured. The runtime is identical to the compact version whose build
+and full 24-case console regression already passed; no deployment was performed.

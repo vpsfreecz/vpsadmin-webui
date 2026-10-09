@@ -44,7 +44,7 @@ export function VpsConsoleControls(props: {
       aria-label={t('vps.console.controls')}
     >
       <span className="flex items-center text-xs font-medium text-muted sm:min-h-8">{t('vps.console.controls')}</span>
-      <div className="grid min-w-0 grid-cols-2 gap-2 lg:grid-cols-3 xl:grid-cols-5 [&>button]:h-auto [&>button]:min-h-11 [&>button]:py-1 [&_svg]:shrink-0">
+      <div className="flex min-w-0 flex-wrap items-center gap-2">
         {actions.map(({ id, label, Icon, gate, run }) => (
           <ActionButton
             key={id}
