@@ -55,6 +55,7 @@ Status: prepared, not merged or deployed; external KB captures not republished.
 - `npm run audit:design-docs` passed with screenshot references; `git diff
   --check` passed. No declared hook framework or enabled Git hooks was found.
 
-Prepared review branch: `dev/dashboard-node-heatmaps`. Fixture evidence certifies
+Review: [PR41](https://github.com/vpsfreecz/vpsadmin-webui/pull/41),
+implementation commit `c475cfd`. Prepared, not merged or deployed. Fixture evidence certifies
 frontend routing, rendering and interaction; it does not certify the live
 external heatmap service or an actual cluster backend.
