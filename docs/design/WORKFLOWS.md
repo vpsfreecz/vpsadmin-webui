@@ -199,6 +199,13 @@ when supported and revalidate cached addresses with the same criteria. Capabilit
 or candidate errors stay visible. Older APIs receive neither unsupported fields
 nor a fabricated disabled state. Backend enforcement remains authoritative.
 
+Free-IP suggestions have a 12-second budget per query, including capability
+discovery. A timed-out query shows the existing error or partial-results state
+and allows later locations to load. Retry gives failed queries a fresh budget;
+it preserves shared metadata for other callers. A still-pending shared lookup
+may be joined again and time out again. Manual filters continue to use their
+separate address list, so late suggestion results cannot replace that list.
+
 The network list shows registered stock, interface assignments, owned unassigned
 allocations and stock available to users. Count descriptions distinguish
 registered inventory from eligibility for a particular VPS. Missing additive
