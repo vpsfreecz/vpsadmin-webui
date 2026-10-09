@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { type AppMode, useAppMode } from "../../app/appMode";
 import type { DashboardDensity } from "../../app/dashboardSettingsModel";
 import { useI18n } from "../../app/i18n";
+import { NodeHeatmapButton, useNodeHeatmapsAvailable } from "../../components/cluster/NodeHeatmaps";
 import { ClusterLocationPanel } from "../../components/cluster/ClusterLocationPanel";
 import { Alert } from "../../components/ui/Alert";
 import { Badge } from "../../components/ui/Badge";
@@ -180,6 +181,7 @@ function ClusterNodeMobileCard(props: {
           <dd className="mt-0.5 font-medium">{cgroupVersionLabel(props.node["cgroup_version"])}</dd>
         </div>
       </dl>
+      <div className="mt-2"><NodeHeatmapButton node={props.node} /></div>
     </div>
   );
 }
@@ -245,6 +247,7 @@ export function ClusterHealthCard(props: { isLoading: boolean; isError: boolean;
     remainingNodeCount -= nodes.length;
     return nodes.length > 0 ? [{ location, group, nodes }] : [];
   });
+  const hasHeatmaps = useNodeHeatmapsAvailable(visibleLocationGroups.flatMap(({ nodes }) => nodes));
   const renderedNodeCount = visibleLocationGroups.reduce((count, group) => count + group.nodes.length, 0);
   const statusBadges = (
     <div className="flex flex-wrap gap-2 text-sm">
@@ -360,18 +363,14 @@ export function ClusterHealthCard(props: { isLoading: boolean; isError: boolean;
                       <div className="hidden overflow-auto md:block">
                         <Table
                           className="table-fixed"
-                          minWidth="md"
+                          minWidth={hasHeatmaps ? "lg" : "md"}
                           testId={`app.dashboard.cluster.table.${location}`}
                           variant="list"
                         >
                           <colgroup>
-                            <col style={{ width: "22%" }} />
-                            <col style={{ width: "14%" }} />
-                            <col style={{ width: "14%" }} />
-                            <col style={{ width: "10%" }} />
-                            <col style={{ width: "12%" }} />
-                            <col style={{ width: "16%" }} />
-                            <col style={{ width: "12%" }} />
+                            {(hasHeatmaps ? [17, 13, 13, 8, 12, 15, 9, 13] : [22, 14, 14, 10, 12, 16, 12]).map((width, index) => (
+                              <col key={index} style={{ width: `${width}%` }} />
+                            ))}
                           </colgroup>
                           <thead className="bg-surface-2 text-left text-xs text-muted">
                             <tr>
@@ -382,6 +381,7 @@ export function ClusterHealthCard(props: { isLoading: boolean; isError: boolean;
                               <th className="px-3 py-2 text-center font-medium">{t("dashboard.section.cluster.table.cpu")}</th>
                               <th className="px-3 py-2 text-center font-medium">{t("dashboard.section.cluster.table.kernel")}</th>
                               <th className="px-3 py-2 text-center font-medium">{t("dashboard.section.cluster.table.cgroups")}</th>
+                              {hasHeatmaps ? <th className="px-3 py-2 text-center font-medium">{t("nodes.heatmap.action")}</th> : null}
                             </tr>
                           </thead>
                           <tbody>
@@ -431,6 +431,7 @@ export function ClusterHealthCard(props: { isLoading: boolean; isError: boolean;
                                   <td className="px-3 py-2 text-center text-muted">
                                     {cgroupVersionLabel(node["cgroup_version"])}
                                   </td>
+                                  {hasHeatmaps ? <td className="px-3 py-2 text-center"><NodeHeatmapButton node={node} /></td> : null}
                                 </tr>
                               );
                             })}

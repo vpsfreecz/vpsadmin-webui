@@ -1,3 +1,4 @@
+import { NodeHeatmapProvider } from '../../components/cluster/NodeHeatmaps';
 import { LinkButton } from '../../components/ui/LinkButton';
 import { Alert } from '../../components/ui/Alert';
 import { Button } from '../../components/ui/Button';
@@ -198,16 +199,17 @@ export function DashboardWidgetGrid(props: {
     }
 
     return (
-      <ClusterHealthCard
-        key={id}
-        isLoading={props.cluster.isLoading}
-        isError={props.cluster.isError}
-        nodeData={props.cluster.nodeData}
-        nodeIssueCount={props.cluster.nodeIssueCount}
-        collapsed={collapsed}
-        density={props.density}
-        onToggleCollapsed={() => toggleCollapsed(id)}
-      />
+      <NodeHeatmapProvider key={id}>
+        <ClusterHealthCard
+          isLoading={props.cluster.isLoading}
+          isError={props.cluster.isError}
+          nodeData={props.cluster.nodeData}
+          nodeIssueCount={props.cluster.nodeIssueCount}
+          collapsed={collapsed}
+          density={props.density}
+          onToggleCollapsed={() => toggleCollapsed(id)}
+        />
+      </NodeHeatmapProvider>
     );
   };
 
