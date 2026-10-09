@@ -81,6 +81,12 @@ for (const language of ['cs', 'en'] as const) {
     expect(powerButton).not.toBeNull();
     expect(Math.abs(sessionButton!.x - powerButton!.x)).toBeLessThanOrEqual(1);
     expect(powerButton!.y).toBeGreaterThan(sessionButton!.y + sessionButton!.height);
+    for (const [session, action] of [['new_session', 'start'], ['reconnect', 'stop'], ['revoke_session', 'restart'], ['focus', 'password']]) {
+      const upper = (await page.getByTestId(`vps.console.${session}`).boundingBox())!;
+      const lower = (await page.getByTestId(`vps.console.control.${action}`).boundingBox())!;
+      expect(Math.abs(upper.x - lower.x)).toBeLessThanOrEqual(1);
+      expect(Math.abs(upper.width - lower.width)).toBeLessThanOrEqual(1);
+    }
     await page.screenshot({ path: testInfo.outputPath(`console-controls-${language}.png`), fullPage: true });
     for (const action of ['stop', 'restart'] as const) {
       await activate(page.getByTestId(`vps.console.control.${action}`), hasTouch);

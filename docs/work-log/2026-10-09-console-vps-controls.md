@@ -91,3 +91,14 @@ and strict E2E type checks, ESLint for both components, Tailwind and structural
 audits, design-documentation audit, and production build. The existing chunk-size
 warning remains informational. These are isolated synthetic browser tests; no
 public deployment or real VPS operation was performed.
+
+The next review clarified that every corresponding button should align, not
+only the start of each group. Both groups now share equal-width responsive
+columns (five on wide desktop, three on narrower desktop, two on mobile).
+Buttons allow multi-line labels, maintain at least 44px height, and preserve
+icon size. Geometry assertions cover the first four matching positions and
+widths in both languages. Review screenshots are updated to this final layout.
+
+The final column layout passed the same 24 controls/viewport cases, frontend
+and strict E2E type checks, component ESLint, Tailwind, structural and design-docs
+audits, and production build. Synthetic evidence only; still not deployed.
