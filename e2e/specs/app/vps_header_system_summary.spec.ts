@@ -5,7 +5,7 @@ import { expectNoDocumentHorizontalOverflow } from '../../helpers/horizontalOver
 for (const language of ['cs', 'en'] as const) {
   for (const mode of ['admin', 'app'] as const) {
     test(`@pr-smoke @pr-smoke-mobile VPS system summary in ${language} for ${mode}`, async ({ page }, testInfo) => {
-      await setUiSettingsLocalStorage(page, { language });
+      await setUiSettingsLocalStorage(page, { language, theme: 'dark' });
       await bootstrapVpsAdminWindow(page);
       const vps = {
         id: 123, hostname: 'vps123.example.test', object_state: 'active', is_running: true,
@@ -27,6 +27,12 @@ for (const language of ['cs', 'en'] as const) {
       await page.goto(`/${mode}/vps/123`);
       const header = page.getByTestId('vps.header');
       await expect(header.getByTestId('vps.header.distribution')).toContainText('Debian 12');
+      const distributionField = header.getByTestId('vps.header.distribution_field');
+      await expect(distributionField).toHaveText(`${language === 'cs' ? 'Distribuce' : 'Distribution'} Debian 12`);
+      if (mode === 'admin') {
+        expect(await distributionField.evaluate((field) => field.previousElementSibling?.getAttribute('data-testid')))
+          .toBe('vps.header.owner');
+      }
       await expect(header.getByTestId('vps.header.runtime.uptime').locator('dd')).toHaveText('35d 0h');
       await expect(header.getByTestId('vps.header.runtime.load').locator('dd')).toHaveText('0.06 / 0.04 / 0.00');
       await expect(header.getByTestId('vps.header.runtime.processes').locator('dd')).toHaveText('64');
@@ -58,6 +64,9 @@ for (const language of ['cs', 'en'] as const) {
       await page.reload();
       await expect(header.getByTestId('vps.header.distribution')).toContainText(vps.os_template.label);
       await expectNoDocumentHorizontalOverflow(page);
+      vps.os_template.label = '   ';
+      await page.reload();
+      await expect(header.getByTestId('vps.header.distribution')).toHaveText('—');
     });
   }
 }

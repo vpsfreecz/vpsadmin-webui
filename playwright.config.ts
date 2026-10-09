@@ -54,7 +54,15 @@ export default defineConfig({
   projects: [
     {
       name: 'mobile-webkit',
-      testMatch: ['**/mobile_touch_interactions.spec.ts', '**/mobile_workflows.spec.ts', '**/payment_qr_images.spec.ts', '**/incident_create_context.spec.ts', '**/vps_overview_all_ips.spec.ts', '**/member_payment_links.spec.ts'],
+      testMatch: [
+        '**/vps_header_system_summary.spec.ts',
+        '**/mobile_touch_interactions.spec.ts',
+        '**/mobile_workflows.spec.ts',
+        '**/payment_qr_images.spec.ts',
+        '**/incident_create_context.spec.ts',
+        '**/vps_overview_all_ips.spec.ts',
+        '**/member_payment_links.spec.ts',
+      ],
       use: { ...devices['iPhone 13'] },
     },
     {

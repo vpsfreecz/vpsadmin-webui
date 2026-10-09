@@ -35,7 +35,7 @@ The Acceptance column describes what must be checked, not a claim it all passed.
 
 | ID | Requirement and reason | Acceptance | Source / implementation evidence | Status |
 | --- | --- | --- | --- | --- |
-| REQ-014 | Display distribution prominently in the VPS header, inspired by useful legacy information. | Distribution plus node/location visible; no guessed distribution when unknown. | U; [PR513](https://github.com/Kerrycek/clankerdev/pull/513) | Delivered |
+| REQ-014 | Display distribution prominently in the VPS header, inspired by useful legacy information. | Distribution is explicitly labeled in the metadata row immediately after the owner (when shown), alongside node/location; no guessed distribution when unknown. | U; [PR513](https://github.com/Kerrycek/clankerdev/pull/513) | Delivered baseline; [labeled metadata follow-up prepared](../work-log/2026-10-09-vps-distribution-metadata.md) |
 | REQ-015 | Include uptime, load, processes and CPU usage in the header. | Consistent units and missing-value treatment; load periods identified; no stale status portrayed as certain. | U; [PR513](https://github.com/Kerrycek/clankerdev/pull/513), [fixture](../../e2e/specs/app/vps_header_system_summary.spec.ts) | Delivered |
 | REQ-016 | Keep VPS overview cards equally wide. | Desktop paired cards use equal columns; mobile stacks without overflow. | U; [PR515](https://github.com/Kerrycek/clankerdev/pull/515) | Delivered |
 | REQ-017 | Provide one resource workspace including root dataset capacity. | CPU/memory/swap and disk reachable together; separate API mutations/reviews remain explicit, no false atomic save. | U; [PR505](https://github.com/Kerrycek/clankerdev/pull/505), [fixture](../../e2e/specs/app/vps_resource_workspace.spec.ts) | Delivered |
