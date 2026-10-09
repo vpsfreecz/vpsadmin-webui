@@ -3,7 +3,7 @@
 This is the operational entry point for the canonical WebUI repository.
 Requirements REQ-056–066 and REQ-068–069 apply. Follow the
 [maintainer review/release workflow](../../AGENTS.md#maintainer-workflow-agreed-2026-09-30).
-The [2026-10-08 release receipt](../work-log/2026-10-08-three-site-release.md)
+The [2026-10-09 release receipt](../work-log/2026-10-09-three-site-release.md)
 records a completed deployment; it does not authorize another one.
 
 ## Repositories and environments

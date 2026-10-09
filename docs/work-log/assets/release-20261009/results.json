@@ -1,0 +1,119 @@
+[
+  {
+    "host": "dev.crucio.cz",
+    "browser": "desktop",
+    "revision": "babdd7fb5b0533a2bbc4e2f683fb6f9a248fd7c7",
+    "api": "https://dev.crucio.cz",
+    "publicRendering": "passed",
+    "deepLink": "passed",
+    "pageErrors": []
+  },
+  {
+    "host": "dev.crucio.cz",
+    "browser": "mobile-chrome",
+    "revision": "babdd7fb5b0533a2bbc4e2f683fb6f9a248fd7c7",
+    "api": "https://dev.crucio.cz",
+    "publicRendering": "passed",
+    "deepLink": "passed",
+    "pageErrors": []
+  },
+  {
+    "host": "dev.crucio.cz",
+    "browser": "mobile-webkit",
+    "revision": "babdd7fb5b0533a2bbc4e2f683fb6f9a248fd7c7",
+    "api": "https://dev.crucio.cz",
+    "publicRendering": "passed",
+    "deepLink": "passed",
+    "pageErrors": []
+  },
+  {
+    "host": "clankerdev.vpsfree.cz",
+    "browser": "desktop",
+    "revision": "babdd7fb5b0533a2bbc4e2f683fb6f9a248fd7c7",
+    "api": "https://api.vpsfree.cz",
+    "publicRendering": "passed",
+    "deepLink": "passed",
+    "pageErrors": []
+  },
+  {
+    "host": "clankerdev.vpsfree.cz",
+    "browser": "mobile-chrome",
+    "revision": "babdd7fb5b0533a2bbc4e2f683fb6f9a248fd7c7",
+    "api": "https://api.vpsfree.cz",
+    "publicRendering": "passed",
+    "deepLink": "passed",
+    "pageErrors": []
+  },
+  {
+    "host": "clankerdev.vpsfree.cz",
+    "browser": "mobile-webkit",
+    "revision": "babdd7fb5b0533a2bbc4e2f683fb6f9a248fd7c7",
+    "api": "https://api.vpsfree.cz",
+    "publicRendering": "passed",
+    "deepLink": "passed",
+    "pageErrors": []
+  },
+  {
+    "host": "newadmin.vpsfree.cz",
+    "browser": "desktop",
+    "revision": "babdd7fb5b0533a2bbc4e2f683fb6f9a248fd7c7",
+    "api": "https://api.vpsfree.cz",
+    "publicRendering": "passed",
+    "deepLink": "passed",
+    "pageErrors": [],
+    "qr": [
+      {
+        "country": "cz",
+        "width": 740,
+        "height": 740
+      },
+      {
+        "country": "sk",
+        "width": 740,
+        "height": 740
+      }
+    ]
+  },
+  {
+    "host": "newadmin.vpsfree.cz",
+    "browser": "mobile-chrome",
+    "revision": "babdd7fb5b0533a2bbc4e2f683fb6f9a248fd7c7",
+    "api": "https://api.vpsfree.cz",
+    "publicRendering": "passed",
+    "deepLink": "passed",
+    "pageErrors": [],
+    "qr": [
+      {
+        "country": "cz",
+        "width": 740,
+        "height": 740
+      },
+      {
+        "country": "sk",
+        "width": 740,
+        "height": 740
+      }
+    ]
+  },
+  {
+    "host": "newadmin.vpsfree.cz",
+    "browser": "mobile-webkit",
+    "revision": "babdd7fb5b0533a2bbc4e2f683fb6f9a248fd7c7",
+    "api": "https://api.vpsfree.cz",
+    "publicRendering": "passed",
+    "deepLink": "passed",
+    "pageErrors": [],
+    "qr": [
+      {
+        "country": "cz",
+        "width": 740,
+        "height": 740
+      },
+      {
+        "country": "sk",
+        "width": 740,
+        "height": 740
+      }
+    ]
+  }
+]
