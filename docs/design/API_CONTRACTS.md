@@ -142,6 +142,20 @@ Free-IP suggestions apply the advertised network availability filter before the
 50-row limit and reject explicitly disabled rows in stale responses. A successful
 capability response from an older API omits the unsupported filter.
 
+Each suggestion query has one 12-second budget covering shared capability
+discovery and its address request. Expiry settles that suggestion as an error
+and allows later locations to load. It cannot start an address request after
+late metadata or accept late address results. The shared capability request and
+its five-minute cache remain available to other callers; a suggestion timeout
+does not cancel or invalidate them. Capability failures are errors, not evidence
+of an older API or an empty pool.
+
+Explicit retry starts a new suggestion budget. It reuses successful cached
+metadata, retries a settled failed lookup, or joins an existing pending lookup.
+Joining a stalled lookup is still bounded for that caller; retry does not force
+a second shared OPTIONS request. The budget applies per query, not to the whole
+page. Priority locations load first and later locations continue progressively.
+
 Administrator network create/edit checks the relevant action's `enabled` input
 metadata before displaying or sending the availability control. An edit also
 requires a known current boolean state. Omitted fields preserve server state;

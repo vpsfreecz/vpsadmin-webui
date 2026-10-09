@@ -13,6 +13,23 @@ import {
 
 const SUGGESTED_IP_REQUEST_TIMEOUT_MS = 12_000;
 
+function waitForRequest<T>(promise: Promise<T>, signal: AbortSignal): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const cleanup = () => signal.removeEventListener('abort', abort);
+    const abort = () => {
+      cleanup();
+      reject(signal.reason);
+    };
+    signal.addEventListener('abort', abort, { once: true });
+    // Observe late resolution/rejection without continuing a cancelled caller.
+    void promise.then(
+      (value) => { cleanup(); resolve(value); },
+      (error: unknown) => { cleanup(); reject(error); }
+    );
+    if (signal.aborted) abort();
+  });
+}
+
 function createRequestTimeoutSignal(parentSignal: AbortSignal) {
   const controller = new AbortController();
   const abort = () => controller.abort();
@@ -59,30 +76,32 @@ export function useProgressiveSuggestedIpQueries(
       queryFn: async ({ signal }: { signal: AbortSignal }) => {
         const timedSignal = createRequestTimeoutSignal(signal);
         try {
-          const capability = await queryClient.fetchQuery({
+          timedSignal.signal.throwIfAborted();
+          const capability = await waitForRequest(queryClient.fetchQuery({
             queryKey: ['ip-address-index-capability'],
             queryFn: async () => (await fetchIpAddressIndexCapability()).data,
             staleTime: 5 * 60_000,
             retry: 0,
-          });
+          }), timedSignal.signal);
           const supportsEnabled = Object.prototype.hasOwnProperty.call(
             capability?.input?.parameters ?? {}, 'network_enabled'
           );
-          return (
-            await fetchIpAddresses({
-              limit: SUGGESTED_IP_QUERY_LIMIT,
-              location: query.locationId,
-              version: query.version,
-              role: query.role,
-              user: null,
-              assignedToInterface: false,
-              ...(supportsEnabled ? { networkEnabled: true } : {}),
-              order: 'asc',
-              purpose: 'vps',
-              includes: 'network__primary_location__environment',
-              signal: timedSignal.signal,
-            })
-          ).data.filter((ip) => ip.network?.enabled !== false);
+          timedSignal.signal.throwIfAborted();
+          const response = await waitForRequest(fetchIpAddresses({
+            limit: SUGGESTED_IP_QUERY_LIMIT,
+            location: query.locationId,
+            version: query.version,
+            role: query.role,
+            user: null,
+            assignedToInterface: false,
+            ...(supportsEnabled ? { networkEnabled: true } : {}),
+            order: 'asc',
+            purpose: 'vps',
+            includes: 'network__primary_location__environment',
+            signal: timedSignal.signal,
+          }), timedSignal.signal);
+          timedSignal.signal.throwIfAborted();
+          return response.data.filter((ip) => ip.network?.enabled !== false);
         } finally {
           timedSignal.cleanup();
         }

@@ -178,6 +178,135 @@ for (const language of ['en', 'cs'] as const) {
   });
 }
 
+for (const language of ['en', 'cs'] as const) {
+  test(`@pr-smoke @pr-smoke-mobile suggestion timeout preserves shared discovery, retry and manual filtering (${language})`, async ({ page }, testInfo) => {
+    const now = new Date('2026-10-09T12:00:00Z');
+    await page.clock.install({ time: now });
+    await page.clock.pauseAt(now);
+    await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+    await setUiSettingsLocalStorage(page, { language });
+    let releaseMetadata!: () => void;
+    let releasePriority!: () => void;
+    const metadataGate = new Promise<void>((resolve) => { releaseMetadata = resolve; });
+    const priorityGate = new Promise<void>((resolve) => { releasePriority = resolve; });
+    let capabilityCalls = 0;
+    const suggestions: Array<{ location: number; role: string | null; version: string | null }> = [];
+    const locations = [
+      { id: 10, label: 'Praha', environment: { id: 1, label: 'Production' } },
+      { id: 20, label: 'Brno', environment: { id: 1, label: 'Production' } },
+      { id: 30, label: 'Playground', environment: { id: 2, label: 'Playground' } },
+    ];
+    const address = (id: number, location: number) => ({
+      id, addr: `192.0.2.${location + 1}`, prefix: 32, user: null, network_interface: null,
+      network: { id: 100 + location, address: '192.0.2.0', prefix: 24, enabled: true,
+        ip_version: 4, role: 'public_access', purpose: 'vps',
+        primary_location: locations.find((item) => item.id === location) },
+    });
+    let manualCalls = 0;
+    let priorityFinished = false;
+    await installHaveApiMock(page, {
+      user: { id: 1, login: 'admin', level: 100 },
+      handlers: {
+        'GET locations': () => ({ locations }),
+        'OPTIONS ip_addresses': async (ctx) => {
+          expect(ctx.method).toBe('OPTIONS');
+          expect(ctx.searchParams.get('method')).toBe('GET');
+          capabilityCalls += 1;
+          await metadataGate;
+          return {
+            method: 'GET', scope: 'ip_address#index',
+            input: { namespace: 'ip_address', layout: 'object', parameters: { network_enabled: { type: 'Boolean' } } },
+            output: { namespace: 'ip_addresses', layout: 'array', parameters: {} },
+          };
+        },
+        'GET ip_addresses': async (ctx) => {
+          const param = (name: string) => ctx.searchParams.get(`ip_address[${name}]`);
+          if (param('addr')) {
+            expect(param('addr')).toBe('192.0.2.99');
+            manualCalls += 1;
+            return { ip_addresses: [{ ...address(999, 10), addr: '192.0.2.99' }] };
+          }
+          expect(param('network_enabled')).toBe('true');
+          expect(param('limit')).toBe('50');
+          expect(param('assigned_to_interface')).toBe('false');
+          const location = Number(param('location'));
+          const role = param('role');
+          const version = param('version');
+          suggestions.push({ location, role, version });
+          if (location === 10 && role === 'public_access') {
+            await priorityGate;
+            priorityFinished = true;
+          }
+          return { ip_addresses: role === 'public_access' && version === '4' ? [address(location * 10 + 1, location)] : [] };
+        },
+      },
+    });
+    const visible = (id: number) => page.locator(`[data-testid="admin.ip_addresses.row.${id}"]:visible, [data-testid="admin.ip_addresses.card.${id}"]:visible`);
+    const rows = page.locator('tr[data-testid^="admin.ip_addresses.row."]:visible, div[data-testid^="admin.ip_addresses.card."]:visible');
+    const partial = page.getByTestId('admin.ip_addresses.suggested.partial_error');
+    const progress = page.getByTestId('admin.ip_addresses.suggested.loading');
+    try {
+      await page.goto('/admin/ip-addresses');
+      await expect.poll(async () => { await page.clock.runFor(50); return capabilityCalls; }).toBe(1);
+      await expect(page.getByTestId('admin.ip_addresses.loading')).toBeVisible();
+      expect(suggestions).toEqual([]);
+      await page.clock.runFor(12_001);
+      expect(suggestions).toEqual([]); // Timed-out Prague/Brno callers cannot start GET later.
+      releaseMetadata();
+      await expect.poll(async () => { await page.clock.runFor(50); return suggestions.length; }).toBe(3);
+      expect(suggestions.every((request) => request.location === 30)).toBe(true);
+      await expect.poll(async () => { await page.clock.runFor(50); return visible(301).isVisible(); }).toBe(true);
+      await expect(visible(301)).toContainText('192.0.2.31');
+      await expect(partial).toBeVisible();
+      await expect.poll(async () => { await page.clock.runFor(50); return progress.isVisible(); }).toBe(false);
+      await expect(progress).toBeHidden();
+      expect(capabilityCalls).toBe(1);
+      await page.screenshot({ path: testInfo.outputPath(`ip-suggestions-timeout-${language}.png`), fullPage: true });
+
+      await page.getByTestId('admin.ip_addresses.suggested.retry').click();
+      await expect.poll(async () => { await page.clock.runFor(50); return suggestions.length; }).toBe(9);
+      await expect.poll(async () => { await page.clock.runFor(50); return visible(201).isVisible(); }).toBe(true);
+      await expect(visible(201)).toContainText('192.0.2.21');
+      await expect(progress).toBeVisible();
+      expect(capabilityCalls).toBe(1); // Retry uses the late successful shared metadata.
+      const search = page.getByTestId('admin.ip_addresses.smart_filter.input');
+      await search.fill('addr:192.0.2.99');
+      await search.press('Enter');
+      await expect.poll(async () => { await page.clock.runFor(50); return manualCalls; }).toBe(1);
+      await expect.poll(async () => { await page.clock.runFor(50); return visible(999).isVisible(); }).toBe(true);
+      await expect(visible(999)).toContainText('192.0.2.99');
+      const lateResponse = page.waitForResponse((response) => {
+        const url = new URL(response.url());
+        return response.request().method() === 'GET' && url.pathname.endsWith('/ip_addresses')
+          && url.searchParams.get('ip_address[location]') === '10'
+          && url.searchParams.get('ip_address[role]') === 'public_access';
+      });
+      releasePriority();
+      await lateResponse;
+      await expect.poll(async () => { await page.clock.runFor(50); return priorityFinished; }).toBe(true);
+      await expect(rows).toHaveCount(1);
+      await expect(visible(999)).toBeVisible();
+      await expect(visible(101)).toHaveCount(0);
+      await expect(page).toHaveURL(/addr=192\.0\.2\.99/);
+      await page.screenshot({ path: testInfo.outputPath(`ip-suggestions-manual-${language}.png`), fullPage: true });
+
+      await page.getByTestId('admin.ip_addresses.chip.addr').getByRole('button').click();
+      await expect.poll(async () => { await page.clock.runFor(50); return visible(101).isVisible(); }).toBe(true);
+      for (const id of [101, 201, 301]) await expect(visible(id)).toBeVisible();
+      await expect(rows).toHaveCount(3);
+      await expect(partial).toBeHidden();
+      await expect.poll(async () => { await page.clock.runFor(50); return progress.isVisible(); }).toBe(false);
+      await expect(progress).toBeHidden();
+      expect(capabilityCalls).toBe(1);
+      expect(suggestions).toHaveLength(9);
+      await page.screenshot({ path: testInfo.outputPath(`ip-suggestions-recovered-${language}.png`), fullPage: true });
+    } finally {
+      releaseMetadata();
+      releasePriority();
+    }
+  });
+}
+
 test('@pr-smoke @pr-smoke-mobile older APIs keep unknown state and omit unsupported availability fields', async ({ page }) => {
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
   await setUiSettingsLocalStorage(page, { language: 'en' });
