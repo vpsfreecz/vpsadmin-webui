@@ -9,7 +9,7 @@ const nodes = [
 ];
 
 for (const language of ['cs', 'en'] as const) {
-  for (const entry of ['/', '/admin/nodes', '/app/nodes']) {
+  for (const entry of ['/', '/admin/nodes']) {
     test(`@pr-smoke @pr-smoke-mobile heatmaps use legacy configuration and eligibility in ${language} at ${entry}`, async ({ page }) => {
       await setUiSettingsLocalStorage(page, { language });
       await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });

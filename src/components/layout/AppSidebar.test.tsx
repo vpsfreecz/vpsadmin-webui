@@ -14,6 +14,17 @@ function fakeT(key: string) {
 }
 
 describe('buildSidebarNavItems', () => {
+  it.each(['user', 'support', 'admin'] as const)('hides nodes in personal view for %s', (role) => {
+    const items = buildSidebarNavItems({ basePath: '/app', appMode: 'user', role, t: fakeT });
+    expect(items.map((item) => item.id)).not.toContain('nodes');
+    expect(items.map((item) => item.to)).not.toContain('/app/nodes');
+  });
+
+  it.each(['support', 'admin'] as const)('keeps nodes in administrator view for %s', (role) => {
+    const items = buildSidebarNavItems({ basePath: '/admin', appMode: 'admin', role, t: fakeT });
+    expect(items.find((item) => item.id === 'nodes')?.to).toBe('/admin/nodes');
+  });
+
   it('does not expose action states as a primary navigation item', () => {
     for (const appMode of ['user', 'admin'] as const) {
       const items = buildSidebarNavItems({ basePath: appMode === 'user' ? '/app' : '/admin', appMode, role: 'admin', t: fakeT });

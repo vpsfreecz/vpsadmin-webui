@@ -30,9 +30,9 @@ async function setup(page: Page, level = 10, handlers: Record<string, HaveApiHan
 }
 
 for (const language of ['cs', 'en'] as const) {
-  test(`@smoke @smoke-mobile @pr-smoke @pr-smoke-mobile member reads kernel and system history in ${language}`, async ({ page }, testInfo) => {
-    const requests = await setup(page, 10, {}, language);
-    await page.goto('/app/nodes/5/history');
+  test(`@smoke @smoke-mobile @pr-smoke @pr-smoke-mobile support reads kernel and system history in ${language}`, async ({ page }, testInfo) => {
+    const requests = await setup(page, 21, {}, language);
+    await page.goto('/admin/nodes/5/history');
     await expect(page.getByRole('heading', { name: language === 'cs' ? 'Historie kernelu' : 'Kernel history' })).toBeVisible();
     await expect(page.getByTestId('node.history.kernel')).toContainText('6.12.1');
     await expect(page.getByTestId('node.history.kernel')).toContainText(language === 'cs' ? '20. 9. 2026' : '20/09/2026');
@@ -49,17 +49,38 @@ for (const language of ['cs', 'en'] as const) {
   });
 }
 
-for (const level of [10, 21]) {
-  test(`@smoke @smoke-mobile @pr-smoke @pr-smoke-mobile role ${level} cannot open admin evidence by URL`, async ({ page }) => {
+for (const level of [10, 21, 99]) {
+  test(`@smoke @smoke-mobile @pr-smoke @pr-smoke-mobile role ${level} cannot open nodes in personal view`, async ({ page }, testInfo) => {
     const requests = await setup(page, level);
-    for (const section of ['parameters', 'sysctls', 'software']) {
-      await page.goto(`/app/nodes/5/history?section=${section}`);
+    for (const path of ['/app/nodes', '/app/nodes/5', '/app/nodes/5/history', '/app/nodes/5/history?section=parameters', '/app/nodes/5/history?section=sysctls', '/app/nodes/5/history?section=software']) {
+      await page.goto(path);
+      await expect(page.getByTestId('forbidden.page')).toBeVisible();
       await expect(page.getByTestId('node.history.page')).toHaveCount(0);
-      await expect(page.getByText(/access denied|access forbidden|permission/i).first()).toBeVisible();
+      await expect(page.locator('a[href="/app/nodes"]')).toHaveCount(0);
     }
-    expect(requests.some((path) => /node_(kernel|software|sysctl)/.test(path))).toBe(false);
+    expect(requests.filter((path) => /\/nodes(?:\/|$)|\/node_/.test(path))).toEqual([]);
+    if (level === 10) await page.screenshot({ path: testInfo.outputPath('personal-nodes-denied.png'), fullPage: true });
   });
 }
+
+test('@smoke @smoke-mobile @pr-smoke @pr-smoke-mobile member cannot bypass node restriction through administrator routes', async ({ page }) => {
+  const requests = await setup(page, 10);
+  for (const path of ['/admin/nodes', '/admin/nodes/5', '/admin/nodes/5/history']) {
+    await page.goto(path);
+    await expect(page.getByTestId('auth.admin-required')).toBeVisible();
+  }
+  expect(requests.filter((path) => /\/nodes(?:\/|$)|\/node_/.test(path))).toEqual([]);
+});
+
+test('@smoke @smoke-mobile @pr-smoke @pr-smoke-mobile support cannot open admin evidence by URL', async ({ page }) => {
+  const requests = await setup(page, 21);
+  for (const section of ['parameters', 'sysctls', 'software']) {
+    await page.goto(`/admin/nodes/5/history?section=${section}`);
+    await expect(page.getByTestId('node.history.page')).toHaveCount(0);
+    await expect(page.getByText(/access denied|access forbidden|permission/i).first()).toBeVisible();
+  }
+  expect(requests.some((path) => /node_(kernel|software|sysctl)/.test(path))).toBe(false);
+});
 
 test('@smoke @smoke-mobile @pr-smoke @pr-smoke-mobile admin sees boot parameters, sysctls and both software generations', async ({ page }) => {
   await setup(page, 99);
@@ -78,7 +99,7 @@ test('@smoke @smoke-mobile @pr-smoke @pr-smoke-mobile admin sees boot parameters
 test('@smoke @smoke-mobile @pr-smoke @pr-smoke-mobile history pagination follows the last row and resets on node change', async ({ page }) => {
   const cursors: Array<string | null> = [];
   const systemCursors: Array<string | null> = [];
-  await setup(page, 10, {
+  await setup(page, 21, {
     'GET nodes/5/kernel_history': ({ searchParams }) => {
       const cursor = searchParams.get('kernel_history[from_id]'); cursors.push(cursor);
       return { kernel_histories: cursor ? [{ ...boot, id: 10, reported_release: 'older-kernel' }] : Array.from({ length: 50 }, (_, index) => ({ ...boot, id: 100 - index })) };
@@ -93,7 +114,7 @@ test('@smoke @smoke-mobile @pr-smoke @pr-smoke-mobile history pagination follows
       })) };
     },
   });
-  await page.goto('/app/nodes/5/history');
+  await page.goto('/admin/nodes/5/history');
   await page.getByRole('button', { name: 'Next', exact: true }).click();
   await expect(page.getByTestId('node.history.kernel')).toContainText('older-kernel');
   expect(cursors).toContain('51');
@@ -104,14 +125,14 @@ test('@smoke @smoke-mobile @pr-smoke @pr-smoke-mobile history pagination follows
   await expect(page.getByTestId('node.history.system')).toContainText('No records are available yet.');
   expect(systemCursors).toContain('51');
   expect(systemCursors).not.toContain('5');
-  await page.goto('/app/nodes/6/history');
+  await page.goto('/admin/nodes/6/history');
   await expect(page.getByTestId('node.history.kernel')).toContainText('No records are available yet.');
 });
 
 test('@smoke @smoke-mobile @pr-smoke @pr-smoke-mobile failed API is retryable and never displayed as empty history', async ({ page }) => {
   let fail = true;
-  await setup(page, 10, { 'GET nodes/5/kernel_history': () => fail ? { status: 503, contentType: 'application/json', body: JSON.stringify({ status: false, message: 'Unavailable' }) } : { kernel_histories: [boot] } });
-  await page.goto('/app/nodes/5/history');
+  await setup(page, 21, { 'GET nodes/5/kernel_history': () => fail ? { status: 503, contentType: 'application/json', body: JSON.stringify({ status: false, message: 'Unavailable' }) } : { kernel_histories: [boot] } });
+  await page.goto('/admin/nodes/5/history');
   await expect(page.getByTestId('node.history.kernel')).not.toContainText('No records are available yet.');
   await expect(page.getByTestId('node.history.kernel').getByRole('button', { name: /retry|try again/i })).toBeVisible();
   fail = false;
@@ -119,10 +140,11 @@ test('@smoke @smoke-mobile @pr-smoke @pr-smoke-mobile failed API is retryable an
   await expect(page.getByTestId('node.history.kernel')).toContainText('6.12.1');
 });
 
-test('@smoke @smoke-mobile @pr-smoke @pr-smoke-mobile member can discover node history from the node list', async ({ page }) => {
-  await setup(page);
-  await page.goto('/app/nodes');
-  await page.locator('a[href="/app/nodes/5"]').filter({ visible: true }).first().click();
+test('@smoke @smoke-mobile @pr-smoke @pr-smoke-mobile admin can discover node history from the node list', async ({ page }) => {
+  await setup(page, 99);
+  await page.goto('/admin/nodes');
+  await page.locator('a[href="/admin/nodes/5"]').filter({ visible: true }).first().click();
+  await page.locator('a[data-vpsadmin-doc-id="node.kernel-history"]').click();
   await expect(page.getByTestId('node.history.kernel')).toContainText('6.12.1');
 });
 

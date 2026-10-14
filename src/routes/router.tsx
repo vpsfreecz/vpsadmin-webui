@@ -10,6 +10,7 @@ import * as CoreRoutes from './coreRouteComponents';
 import { adminFinanceRoutes } from './adminFinanceRoutes';
 import { securityAdvisoryAdminRoutes } from './securityAdvisoryAdminRoutes';
 
+import { ForbiddenPage } from '../pages/ForbiddenPage';
 import { ErrorPage } from '../pages/ErrorPage';
 import { NotFoundPage } from '../pages/NotFoundPage';
 import { RootErrorPage } from '../pages/RootErrorPage';
@@ -166,9 +167,9 @@ export const router = createBrowserRouter([
           errorElement: <ErrorPage />,
           children: [
             { index: true, element: <CoreRoutes.DashboardPage /> },
-            { path: 'nodes', element: <NodesPage /> },
-            { path: 'nodes/:nodeId', element: <ParamKeyedRoute param="nodeId"><NodeHistoryPage /></ParamKeyedRoute> },
-            { path: 'nodes/:nodeId/history', element: <ParamKeyedRoute param="nodeId"><NodeHistoryPage /></ParamKeyedRoute> },
+            { path: 'nodes', element: <ForbiddenPage appBasePath="/app" /> },
+            { path: 'nodes/:nodeId', element: <ForbiddenPage appBasePath="/app" /> },
+            { path: 'nodes/:nodeId/history', element: <ForbiddenPage appBasePath="/app" /> },
             { path: 'vps', element: <CoreRoutes.VpsListPage /> },
             { path: 'vps/new', element: <CoreRoutes.VpsCreatePage /> },
             {
