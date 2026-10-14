@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { fetchNews } from '../../lib/api/public';
 import { Alert } from '../../components/ui/Alert';
-import { Card, CardBody, CardHeader } from '../../components/ui/Card';
+import { Card } from '../../components/ui/Card';
 import { NewsMessage } from '../../components/ui/NewsMessage';
 import { Spinner } from '../../components/ui/Spinner';
 import { formatDateTime } from '../../lib/time';
@@ -33,16 +33,21 @@ export function NewsPage() {
           {i18n.t('public.news.empty.body')}
         </Alert>
       ) : (
-        <div className="space-y-4">
-          {newsQ.data?.map((n) => (
-            <Card key={n.id}>
-              <CardHeader title={formatDateTime(n.published_at)} subtitle={`#${n.id}`} />
-              <CardBody>
-                <NewsMessage html={pickLocalizedFieldFrom(n, ['message', 'body', 'text'], i18n.preferredLanguageCodes) ?? n.message} />
-              </CardBody>
-            </Card>
-          ))}
-        </div>
+        <Card className="overflow-hidden">
+          <ol className="divide-y divide-border" aria-label={i18n.t('public.news.title')}>
+            {newsQ.data?.map((n) => (
+              <li key={n.id} className="grid min-w-0 gap-1 px-4 py-2 even:bg-surface-2 sm:grid-cols-[12rem_minmax(0,1fr)] sm:gap-4" data-testid="public.news.item">
+                <time dateTime={n.published_at} className="text-sm leading-relaxed text-muted">
+                  {formatDateTime(n.published_at)}
+                </time>
+                <NewsMessage
+                  className="min-w-0 [overflow-wrap:anywhere]"
+                  html={pickLocalizedFieldFrom(n, ['message', 'body', 'text'], i18n.preferredLanguageCodes) ?? n.message}
+                />
+              </li>
+            ))}
+          </ol>
+        </Card>
       )}
     </div>
   );
