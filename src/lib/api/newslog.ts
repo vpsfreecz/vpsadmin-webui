@@ -3,6 +3,8 @@ import { expectArray, haveApiCall } from './haveapi';
 export interface NewsLog {
   id: number;
   message?: string;
+  cs_message?: string;
+  en_message?: string;
   published_at?: string;
   created_at?: string;
   updated_at?: string;
@@ -22,9 +24,10 @@ export async function fetchNewsLogs(opts?: { since?: string }) {
   return { ...res, data: expectArray<NewsLog>(res.data, 'news_logs#index') };
 }
 
-export async function createNewsLog(payload: { message: string; published_at?: string | null }) {
+export async function createNewsLog(payload: { en_message: string; cs_message: string; published_at?: string | null }) {
   const params: Record<string, unknown> = {
-    message: payload.message,
+    en_message: payload.en_message,
+    cs_message: payload.cs_message,
   };
 
   if (payload.published_at) params['published_at'] = payload.published_at;
@@ -37,9 +40,10 @@ export async function createNewsLog(payload: { message: string; published_at?: s
   });
 }
 
-export async function updateNewsLog(id: number, payload: { message: string; published_at?: string | null }) {
+export async function updateNewsLog(id: number, payload: { en_message: string; cs_message: string; published_at?: string | null }) {
   const params: Record<string, unknown> = {
-    message: payload.message,
+    en_message: payload.en_message,
+    cs_message: payload.cs_message,
   };
 
   // Explicitly allow clearing published_at.

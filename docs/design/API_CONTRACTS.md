@@ -29,6 +29,7 @@ claims. Local adapter tests verify serialization, not deployed backend capabilit
 | Registration reconsideration | Derive supported actions from actual request state/created-user constraints. | PR510; a generic state dropdown must not advertise unsupported transitions. |
 | Effective timezone | Resolve actual account/server timezone when account field is absent. | PR502; Europe/Prague is a real zone ID, not a hardcoded label for all accounts. |
 | Node heatmap | Use configured legacy base URL, validated node FQDN/type/maintenance eligibility. | [URL model](../../src/lib/nodeHeatmap.ts); missing config omits unavailable actions. |
+| News translations | POST `/news_logs` and PUT `/news_logs/:id` use the `news_log` namespace with `en_message`, `cs_message` and `published_at`. English is required; empty Czech removes its translation. Read-only `message` is localized and must not be used as an English editing fallback. | [adapter](../../src/lib/api/newslog.ts), [browser contract](../../e2e/specs/app/admin_newslog.spec.ts); backend source inspected at locked `a65a4dfeb92a59df4a80a737a20bcbf8558793ff`, not a new live certification. |
 | Async mutations | Require an appropriate action-state receipt, then track completion. | [action states](../../src/lib/api/actionStates.ts); success without required identity is uncertain. |
 
 ## Intentional capability and filter limits
