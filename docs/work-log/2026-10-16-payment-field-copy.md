@@ -1,6 +1,7 @@
 # Individual payment values and localized instructions
 
-Prepared for review; not merged or deployed. Follows REQ-052.
+Prepared in [PR52](https://github.com/vpsfreecz/vpsadmin-webui/pull/52);
+not merged or deployed. Implementation commit `dcc179e0`. Follows REQ-052.
 
 Members can copy the bank account, IBAN, BIC, variable symbol, message and
 monthly amount separately. Compact icon buttons use the shared clipboard helper,
@@ -43,3 +44,30 @@ is changed.
 
 Screenshots: [desktop](screenshots/2026-10-16-payment-field-copy/desktop.png),
 [mobile](screenshots/2026-10-16-payment-field-copy/mobile.png).
+
+## Reproducing the focused checks
+
+From the repository root in the supported Node environment:
+
+```sh
+npm ci
+npm test -- src/pages/app/payments/PaymentInstructionsHtml.test.tsx src/pages/app/payments/PaymentsModel.test.ts src/lib/sanitizeHtml.xss.test.ts
+npm run typecheck
+npm run typecheck:e2e:core
+E2E_START_SERVER=1 node scripts/playwright.mjs test e2e/specs/app/payment_qr_images.spec.ts --project=chromium --project=mobile-chrome --project=mobile-webkit
+npm run audit:design-docs
+```
+
+The test file is already part of the adopted E2E type coverage and mobile WebKit
+selection. The full unit suite and production build were also run as recorded
+above. CI results belong to the PR checks; local results do not imply CI success.
+
+## Documentation review follow-up
+
+The maintainer requested complete accompanying documentation. Added the
+per-field normalization, clipboard feedback, locale behavior and renderer scope
+to the lasting Payments and finance workflow, expanded the evidence-matrix
+coverage description, and linked this record to PR52. The other current PRs
+(49: export copy placement, 50: hostname fallback, 51: About/build version) each
+include requirement/workflow documentation, a change record and screenshots.
+No merge, deployment or external KB update is implied by this documentation pass.
