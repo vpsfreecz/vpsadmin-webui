@@ -139,6 +139,22 @@ a modal owns interaction and pause expiry until it closes. Urgent error/warning
 notifications render in a bounded scrollable slot inside the active dialog;
 they must not cover a dialog footer. Pending submission still follows its explicit cancellation gate.
 
+### Centered forms and filters
+
+Creation/editing forms and advanced filters use the shared centered `Modal`,
+including user-data templates/deployment, exports/hosts, user editing and
+namespace maps. Use content-sized dialog height bounded by the visual viewport,
+with internal scrolling and an explicit Close button. User-data form actions
+stay in a fixed footer while the code editor scrolls. Preserve focus trapping,
+Escape/backdrop close, focus restoration and pending-submission guards. Keep
+existing selector IDs stable even if a historical ID ends in `.drawer`.
+
+`Drawer` remains appropriate only for the mobile navigation, ongoing Tasks,
+read-only lifecycle history and the design sandbox. The overlay audit guards
+this distinction against new accidental left-hand forms. This maintainer
+clarification (2026-10-17) supersedes the earlier drawer presentation for forms
+and filters; see the [verification record](../work-log/2026-10-17-centered-form-dialogs.md).
+
 ## Accessibility, localization and persistence
 
 Shared buttons keep compact desktop sizing but use a minimum 44 × 44 CSS px

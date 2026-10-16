@@ -16,13 +16,12 @@ import { Badge } from '../../../../components/ui/Badge';
 import { Button } from '../../../../components/ui/Button';
 import { ConfirmDialog } from '../../../../components/ui/ConfirmDialog';
 import { CopyButton } from '../../../../components/ui/CopyButton';
-import { Drawer } from '../../../../components/ui/Drawer';
+import { Modal } from '../../../../components/ui/Modal';
 import { EmptyState } from '../../../../components/ui/EmptyState';
 import { ErrorState } from '../../../../components/ui/ErrorState';
 import { FilterChip } from '../../../../components/ui/FilterChip';
 import { Input } from '../../../../components/ui/Input';
 import { KeysetPagination } from '../../../../components/ui/KeysetPagination';
-import { Modal } from '../../../../components/ui/Modal';
 import { Select, type SelectOption } from '../../../../components/ui/Select';
 import { SmartFilterInput, type SmartFilterSuggestion } from '../../../../components/ui/SmartFilterInput';
 import { SmartInputHelp } from '../../../../components/ui/SmartInputHelp';
@@ -468,11 +467,11 @@ export function ResourcePackagesPage() {
         onInsertKey={insertSmartKey}
       />
 
-      <Drawer
+      <Modal showCloseButton closeTestId="drawer.close"
         open={advancedOpen}
         onClose={closeAdvancedFilters}
         title={t('common.advanced_filters')}
-        width="lg"
+        size="lg"
         testId="admin.cluster.resource_packages.advanced"
         footer={<div className="flex items-center justify-between gap-2"><Button variant="secondary" onClick={clearAllFilters}>{t('common.clear_filters')}</Button><Button variant="primary" onClick={closeAdvancedFilters}>{t('common.done')}</Button></div>}
       >
@@ -481,7 +480,7 @@ export function ResourcePackagesPage() {
           <div><label htmlFor="admin-resource-packages-environment" className="mb-1 block text-xs font-semibold text-muted">{t('common.environment')}</label><Select selectId="admin-resource-packages-environment" testId="admin.cluster.resource_packages.environment" value={environment} onChange={(e) => setEnvironment(e.target.value)} options={environmentOptions} disabled={scope === 'global'} className="w-full" /></div>
           <UserLookupInput label={t('common.user')} value={userDraft} onChange={(value) => { const id = parseLookupIdLike(value); setUserDraft(id ? String(id) : value); if (!value.trim() || id) setUser(id ? String(id) : ''); }} placeholder={t('admin.cluster.resource_packages.filter.user_placeholder')} className="w-full" testId="admin.cluster.resource_packages.user" loadingLabel={t('common.loading')} noResultsLabel={t('common.no_results')} disabled={scope !== 'personal'} />
         </div>
-      </Drawer>
+      </Modal>
 
       {personalUserRequired ? (
         <EmptyState

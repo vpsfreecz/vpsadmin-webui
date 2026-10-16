@@ -13,7 +13,7 @@ import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { CopyButton } from '../ui/CopyButton';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
-import { Drawer } from '../ui/Drawer';
+import { Modal } from '../ui/Modal';
 import { EmptyState } from '../ui/EmptyState';
 import { FilterChip } from '../ui/FilterChip';
 import { Input } from '../ui/Input';
@@ -419,11 +419,11 @@ function UserNamespaceMapListContent(props: UserNamespaceMapListProps & { viewer
         </div>
       ) : null}
 
-      <Drawer
+      <Modal showCloseButton closeTestId="drawer.close"
         open={advancedOpen}
         onClose={() => setAdvancedOpen(false)}
         title={t('filters.advanced.title')}
-        width="lg"
+        size="lg"
         testId={`${props.testIdPrefix}.filters.advanced.drawer`}
       >
         <div className="space-y-4">
@@ -466,7 +466,7 @@ function UserNamespaceMapListContent(props: UserNamespaceMapListProps & { viewer
             <Button variant="primary" size="sm" onClick={() => setAdvancedOpen(false)}>{t('common.done')}</Button>
           </div>
         </div>
-      </Drawer>
+      </Modal>
 
       <SmartInputHelp
         open={helpOpen}
@@ -602,7 +602,7 @@ function UserNamespaceMapListContent(props: UserNamespaceMapListProps & { viewer
       )}
 
       {/* Create drawer */}
-      <Drawer
+      <Modal showCloseButton closeTestId="drawer.close"
         testId={`${props.testIdPrefix}.create.drawer`}
         open={createOpen}
         onClose={() => {
@@ -686,7 +686,7 @@ function UserNamespaceMapListContent(props: UserNamespaceMapListProps & { viewer
             </Button>
           </div>
         </div>
-      </Drawer>
+      </Modal>
 
       <ConfirmDialog
         testId={`${props.testIdPrefix}.delete.confirm`}

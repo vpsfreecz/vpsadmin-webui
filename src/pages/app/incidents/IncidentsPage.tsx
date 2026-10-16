@@ -28,7 +28,7 @@ import { Badge } from '../../../components/ui/Badge';
 import { Button } from '../../../components/ui/Button';
 import { ChipLink, MiniLink } from '../../../components/ui/ChipLink';
 import { CopyButton } from '../../../components/ui/CopyButton';
-import { Drawer } from '../../../components/ui/Drawer';
+import { Modal } from '../../../components/ui/Modal';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { ErrorState } from '../../../components/ui/ErrorState';
 import { FilterChip } from '../../../components/ui/FilterChip';
@@ -796,7 +796,7 @@ export function IncidentsPage() {
             testId="incidents.smart_help"
           />
 
-          <Drawer
+          <Modal showCloseButton closeTestId="drawer.close"
             open={advancedOpen}
             onClose={() => setAdvancedOpen(false)}
             title={t('filters.advanced.title')}
@@ -912,7 +912,7 @@ export function IncidentsPage() {
                 {t('common.done')}
               </Button>
             </div>
-          </Drawer>
+          </Modal>
         </>
       }
     >

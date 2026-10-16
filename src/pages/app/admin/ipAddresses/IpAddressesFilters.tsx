@@ -7,7 +7,7 @@ import { parseBoolParam, parseNonNegativeInt, parsePositiveInt } from '../../../
 import { FilterBar } from '../../../../components/layout/FilterBar';
 import { Button } from '../../../../components/ui/Button';
 import { CopyButton } from '../../../../components/ui/CopyButton';
-import { Drawer } from '../../../../components/ui/Drawer';
+import { Modal } from '../../../../components/ui/Modal';
 import { Input } from '../../../../components/ui/Input';
 import { Select } from '../../../../components/ui/Select';
 import { SmartFilterInput } from '../../../../components/ui/SmartFilterInput';
@@ -266,11 +266,11 @@ export function IpAddressesFilters({
         keyRowTestIdPrefix="admin.ip_addresses.smart_help.key"
       />
 
-      <Drawer
+      <Modal showCloseButton closeTestId="drawer.close"
         open={advancedOpen}
         onClose={() => setAdvancedOpen(false)}
         title={t('filters.advanced.title')}
-        width="lg"
+        size="lg"
         testId="admin.ip_addresses.advanced.drawer"
       >
         <div className="space-y-4">
@@ -449,7 +449,7 @@ export function IpAddressesFilters({
             </div>
           )}
         </div>
-      </Drawer>
+      </Modal>
     </>
   );
 }

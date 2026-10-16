@@ -5,7 +5,7 @@ import type { VpsUserData } from '../../lib/api/vpsUserData';
 
 import { Alert } from '../ui/Alert';
 import { Button } from '../ui/Button';
-import { Drawer } from '../ui/Drawer';
+import { Modal } from '../ui/Modal';
 import { Input } from '../ui/Input';
 import { Select, type SelectOption } from '../ui/Select';
 import { StatusDot } from '../ui/StatusDot';
@@ -55,12 +55,48 @@ export function UserDataTemplateEditorDrawer(props: {
   ].join(' ');
 
   return (
-    <Drawer
+    <Modal showCloseButton closeTestId="drawer.close"
       open={props.open}
       onClose={props.onClose}
       title={props.mode === 'edit' ? t('user_data.editor.edit.title') : t('user_data.editor.create.title')}
-      width="lg"
+      size="lg"
       testId={`${props.prefix}.editor.drawer`}
+      footer={(
+        <div className="flex items-center justify-end gap-2">
+          <Button
+            variant="secondary"
+            onClick={props.onClose}
+            disabled={props.busy}
+            className="min-h-11 sm:min-h-9"
+          >
+            {t('common.cancel')}
+          </Button>
+
+          {props.mode === 'edit' ? (
+            <Button
+              variant="primary"
+              onClick={props.onUpdate}
+              loading={props.updatePending}
+              disabled={!props.canSave}
+              className="min-h-11 sm:min-h-9"
+              testId={`${props.prefix}.editor.save`}
+            >
+              {t('common.save')}
+            </Button>
+          ) : (
+            <Button
+              variant="primary"
+              onClick={props.onCreate}
+              loading={props.createPending}
+              disabled={!props.canSave}
+              className="min-h-11 sm:min-h-9"
+              testId={`${props.prefix}.editor.create`}
+            >
+              {t('common.create')}
+            </Button>
+          )}
+        </div>
+      )}
     >
       <div className="space-y-4">
         {props.hintKey ? <Alert variant="info" title={t('user_data.hint.title')}>{t(props.hintKey)}</Alert> : null}
@@ -160,43 +196,8 @@ export function UserDataTemplateEditorDrawer(props: {
             })}
           </div>
         </div>
-
-        <div className="flex items-center justify-end gap-2 pt-2">
-          <Button
-            variant="secondary"
-            onClick={props.onClose}
-            disabled={props.busy}
-            className="min-h-11 sm:min-h-9"
-          >
-            {t('common.cancel')}
-          </Button>
-
-          {props.mode === 'edit' ? (
-            <Button
-              variant="primary"
-              onClick={props.onUpdate}
-              loading={props.updatePending}
-              disabled={!props.canSave}
-              className="min-h-11 sm:min-h-9"
-              testId={`${props.prefix}.editor.save`}
-            >
-              {t('common.save')}
-            </Button>
-          ) : (
-            <Button
-              variant="primary"
-              onClick={props.onCreate}
-              loading={props.createPending}
-              disabled={!props.canSave}
-              className="min-h-11 sm:min-h-9"
-              testId={`${props.prefix}.editor.create`}
-            >
-              {t('common.create')}
-            </Button>
-          )}
-        </div>
       </div>
-    </Drawer>
+    </Modal>
   );
 }
 
@@ -217,12 +218,28 @@ export function UserDataTemplateDeployDrawer(props: {
   const format = props.item ? safeUserDataString(props.item.format) : '';
 
   return (
-    <Drawer
+    <Modal showCloseButton closeTestId="drawer.close"
       open={Boolean(props.item)}
       onClose={props.onClose}
       title={t('user_data.deploy.title')}
-      width="md"
+      size="md"
       testId={`${props.prefix}.deploy.drawer`}
+      footer={(
+        <div className="flex items-center justify-end gap-2">
+          <Button variant="secondary" onClick={props.onClose} disabled={props.pending}>
+            {t('common.cancel')}
+          </Button>
+          <Button
+            variant="primary"
+            onClick={props.onSubmit}
+            loading={props.pending}
+            disabled={!props.deployVpsId}
+            testId={`${props.prefix}.deploy.submit`}
+          >
+            {t('user_data.action.deploy')}
+          </Button>
+        </div>
+      )}
     >
       <div className="space-y-4">
         {props.item ? (
@@ -253,22 +270,7 @@ export function UserDataTemplateDeployDrawer(props: {
           </div>
           <div className="mt-1 text-xs text-faint">{t('user_data.deploy.help.vps')}</div>
         </div>
-
-        <div className="flex items-center justify-end gap-2 pt-2">
-          <Button variant="secondary" onClick={props.onClose} disabled={props.pending}>
-            {t('common.cancel')}
-          </Button>
-          <Button
-            variant="primary"
-            onClick={props.onSubmit}
-            loading={props.pending}
-            disabled={!props.deployVpsId}
-            testId={`${props.prefix}.deploy.submit`}
-          >
-            {t('user_data.action.deploy')}
-          </Button>
-        </div>
       </div>
-    </Drawer>
+    </Modal>
   );
 }

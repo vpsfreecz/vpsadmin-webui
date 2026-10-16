@@ -119,6 +119,14 @@ const modalPrimitiveFiles = new Set([
   'src/components/ui/Drawer.tsx',
   'src/components/ui/Modal.tsx',
 ]);
+// Forms and advanced filters use centered Modal surfaces. Side panels are
+// reserved for navigation, ongoing tasks, read-only history and the sandbox.
+const sidePanelConsumers = new Set([
+  'src/components/layout/AppSidebar.tsx',
+  'src/components/layout/AppLayout.tsx',
+  'src/components/lifetimes/LifecyclePanel.tsx',
+  'src/pages/app/DesignSandboxPage.tsx',
+]);
 const forbiddenModalPrimitives = [
   { label: 'full-screen fixed overlay', pattern: /\bfixed\s+inset-0\b/ },
   { label: 'overlay backdrop marker', pattern: /data-overlay-backdrop=/ },
@@ -130,6 +138,9 @@ for (const file of listSourceFiles(path.join(root, 'src'))) {
   if (modalPrimitiveFiles.has(file)) continue;
 
   const text = read(file);
+  if (/<Drawer\b/.test(text) && !sidePanelConsumers.has(file)) {
+    problems.push(`${file}: forms and filters must use centered Modal, not Drawer`);
+  }
   for (const forbidden of forbiddenModalPrimitives) {
     if (forbidden.pattern.test(text)) {
       problems.push(

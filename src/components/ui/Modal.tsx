@@ -1,5 +1,6 @@
 import React, { useEffect, useId, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useI18n } from '../../app/i18n';
 import { clsx } from './clsx';
 
 import { useBodyScrollLock } from '../../lib/hooks/useBodyScrollLock';
@@ -20,6 +21,10 @@ export function Modal(props: {
    * This is used by mobile-first surfaces like the command palette.
    */
   mobileFullScreen?: boolean;
+
+  /** Forms and filters expose an explicit, accessible close action. */
+  showCloseButton?: boolean;
+  closeTestId?: string;
 
   /** Optional test id for E2E / integration tests */
   testId?: string;
@@ -101,11 +106,12 @@ export function Modal(props: {
           sizeClass
         )}
       >
-        {props.title ? (
-          <div className="shrink-0 border-b border-border px-4 py-3">
+        {props.title || props.showCloseButton ? (
+          <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border px-4 py-3">
             <div className="text-base font-semibold" id={titleId}>
               {props.title}
             </div>
+            {props.showCloseButton ? <ModalCloseButton onClose={props.onClose} testId={props.closeTestId} /> : null}
           </div>
         ) : null}
 
@@ -123,5 +129,20 @@ export function Modal(props: {
       </div>
     </div>,
     document.body
+  );
+}
+
+function ModalCloseButton({ onClose, testId }: { onClose: () => void; testId?: string }) {
+  const { t } = useI18n();
+  return (
+    <button
+      type="button"
+      onClick={onClose}
+      aria-label={t('common.close')}
+      data-testid={testId ?? 'modal.close'}
+      className="inline-flex h-8 w-8 min-h-11 min-w-11 shrink-0 items-center justify-center rounded-md text-muted hover:bg-surface-2 sm:min-h-8 sm:min-w-8 [@media(any-pointer:coarse)]:min-h-11 [@media(any-pointer:coarse)]:min-w-11"
+    >
+      <span aria-hidden>×</span>
+    </button>
   );
 }

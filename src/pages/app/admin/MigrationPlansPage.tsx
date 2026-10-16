@@ -30,7 +30,7 @@ import { Button } from '../../../components/ui/Button';
 import { Checkbox } from '../../../components/ui/Checkbox';
 import { Card } from '../../../components/ui/Card';
 import { CopyButton } from '../../../components/ui/CopyButton';
-import { Drawer } from '../../../components/ui/Drawer';
+import { Modal } from '../../../components/ui/Modal';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { ErrorState } from '../../../components/ui/ErrorState';
 import { FilterChip } from '../../../components/ui/FilterChip';
@@ -41,7 +41,6 @@ import { TableCard } from '../../../components/ui/TableCard';
 import { TableRowLink } from '../../../components/ui/TableRowLink';
 import { Input } from '../../../components/ui/Input';
 import { KeysetPagination } from '../../../components/ui/KeysetPagination';
-import { Modal } from '../../../components/ui/Modal';
 import { Select } from '../../../components/ui/Select';
 import { UserLookupInput } from '../../../components/ui/UserLookupInput';
 import { StatusDot } from '../../../components/ui/StatusDot';
@@ -664,11 +663,11 @@ function MigrationPlansContent() {
             keyRowTestIdPrefix="admin.migration_plans.smart_help.key"
           />
 
-          <Drawer
+          <Modal showCloseButton closeTestId="drawer.close"
             open={advancedOpen}
             onClose={() => setAdvancedOpen(false)}
             title={t('filters.advanced.title')}
-            width="lg"
+            size="lg"
             testId="admin.migration_plans.advanced.drawer"
           >
             <div className="space-y-4">
@@ -713,7 +712,7 @@ function MigrationPlansContent() {
                 </Button>
               </div>
             </div>
-          </Drawer>
+          </Modal>
         </>
       }
     >

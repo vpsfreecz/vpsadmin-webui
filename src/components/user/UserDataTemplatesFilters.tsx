@@ -7,7 +7,7 @@ import { parseNumericToken } from '../../lib/smartFilter';
 import { FilterBar } from '../layout/FilterBar';
 import { Button } from '../ui/Button';
 import { CopyButton } from '../ui/CopyButton';
-import { Drawer } from '../ui/Drawer';
+import { Modal } from '../ui/Modal';
 import { FilterChip } from '../ui/FilterChip';
 import { Input } from '../ui/Input';
 import { Select, type SelectOption } from '../ui/Select';
@@ -168,11 +168,11 @@ export function UserDataTemplatesFilters(props: {
         </div>
       ) : null}
 
-      <Drawer
+      <Modal showCloseButton closeTestId="drawer.close"
         open={advancedOpen}
         onClose={() => setAdvancedOpen(false)}
         title={t('filters.advanced.title')}
-        width="lg"
+        size="lg"
         testId={`${props.prefix}.filters.advanced.drawer`}
       >
         <div className="space-y-4">
@@ -206,7 +206,7 @@ export function UserDataTemplatesFilters(props: {
             <Button variant="primary" size="sm" onClick={() => setAdvancedOpen(false)}>{t('common.done')}</Button>
           </div>
         </div>
-      </Drawer>
+      </Modal>
 
       <SmartInputHelp
         open={helpOpen}

@@ -22,13 +22,12 @@ import { Button } from '../../../../components/ui/Button';
 import { CopyButton } from '../../../../components/ui/CopyButton';
 import { Card, CardBody } from '../../../../components/ui/Card';
 import { ConfirmDialog } from '../../../../components/ui/ConfirmDialog';
-import { Drawer } from '../../../../components/ui/Drawer';
+import { Modal } from '../../../../components/ui/Modal';
 import { EmptyState } from '../../../../components/ui/EmptyState';
 import { ErrorState } from '../../../../components/ui/ErrorState';
 import { FilterChip } from '../../../../components/ui/FilterChip';
 import { Input } from '../../../../components/ui/Input';
 import { LoadingState } from '../../../../components/ui/LoadingState';
-import { Modal } from '../../../../components/ui/Modal';
 import { Select, type SelectOption } from '../../../../components/ui/Select';
 import { SmartFilterInput, type SmartFilterSuggestion } from '../../../../components/ui/SmartFilterInput';
 import { SmartInputHelp } from '../../../../components/ui/SmartInputHelp';
@@ -622,10 +621,10 @@ export function OsTemplatesPage() {
         </div>
       </FilterBar>
 
-      <Drawer
+      <Modal showCloseButton closeTestId="drawer.close"
         open={advancedOpen}
         onClose={() => setAdvancedOpen(false)}
-        width="lg"
+        size="lg"
         title={t('filters.advanced.title')}
         testId="admin.cluster.os_templates.advanced.drawer"
         footer={
@@ -669,7 +668,7 @@ export function OsTemplatesPage() {
             <Select testId="admin.cluster.os_templates.filter.enable_cloud_init" value={enableCloudInit} onChange={(e) => setEnableCloudInit(e.target.value)} options={triBoolOptions} />
           </div>
         </div>
-      </Drawer>
+      </Modal>
 
       <SmartInputHelp
         open={helpOpen}

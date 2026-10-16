@@ -9,7 +9,7 @@ import { FilterBar } from '../../../../components/layout/FilterBar';
 import { Badge } from '../../../../components/ui/Badge';
 import { Button } from '../../../../components/ui/Button';
 import { CopyButton } from '../../../../components/ui/CopyButton';
-import { Drawer } from '../../../../components/ui/Drawer';
+import { Modal } from '../../../../components/ui/Modal';
 import { EmptyState } from '../../../../components/ui/EmptyState';
 import { ErrorState } from '../../../../components/ui/ErrorState';
 import { FilterChip } from '../../../../components/ui/FilterChip';
@@ -736,11 +736,11 @@ export function AdminUserHistoryPage() {
         keyRowTestIdPrefix="admin.user.history.smart_filter.help.key"
       />
 
-      <Drawer
+      <Modal showCloseButton closeTestId="drawer.close"
         open={advancedOpen}
         onClose={() => setAdvancedOpen(false)}
         title={t('filters.advanced.title')}
-        width="lg"
+        size="lg"
         testId="admin.user.history.advanced_filters"
         footer={
           <div className="flex items-center justify-end gap-2">
@@ -825,7 +825,7 @@ export function AdminUserHistoryPage() {
             {t('admin.user.history.smart_help.drawer.hint')}
           </div>
         </div>
-      </Drawer>
+      </Modal>
 
       <TableCard
         tableTestId="admin.user.history.table"

@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test';
 
+import { expectCenteredDialog } from '../../helpers/horizontalOverflow';
+import { setUiSettingsLocalStorage } from '../../fixtures/uiSettings';
 import { bootstrapVpsAdminWindow } from '../../fixtures/bootstrap';
 import { installHaveApiMock } from '../../fixtures/haveapi';
 
@@ -122,7 +124,7 @@ test.describe('Profile: user data templates', () => {
 
     // Create
     await page.getByTestId('profile.user_data.create').click();
-    await expect(page.getByTestId('profile.user_data.editor.drawer')).toBeVisible();
+    await expectCenteredDialog(page, page.getByTestId('profile.user_data.editor.drawer'));
 
     await page.getByTestId('profile.user_data.editor.label').fill('Provision nginx');
     await page.getByTestId('profile.user_data.editor.format').selectOption('script');
@@ -137,7 +139,7 @@ test.describe('Profile: user data templates', () => {
 
     // Edit
     await page.locator('[data-testid="profile.user_data.row.102.edit"]:visible').click();
-    await expect(page.getByTestId('profile.user_data.editor.drawer')).toBeVisible();
+    await expectCenteredDialog(page, page.getByTestId('profile.user_data.editor.drawer'));
 
     await page.getByTestId('profile.user_data.editor.label').fill('Provision nginx (v2)');
     await page.getByTestId('profile.user_data.editor.save').click();
@@ -146,7 +148,7 @@ test.describe('Profile: user data templates', () => {
 
     // Deploy (use direct id entry to avoid VPS list mocks)
     await page.locator('[data-testid="profile.user_data.row.102.deploy"]:visible').click();
-    await expect(page.getByTestId('profile.user_data.deploy.drawer')).toBeVisible();
+    await expectCenteredDialog(page, page.getByTestId('profile.user_data.deploy.drawer'));
 
     await page.getByTestId('profile.user_data.deploy.vps').fill('#500');
     await page.getByTestId('profile.user_data.deploy.submit').click();
@@ -260,7 +262,7 @@ test.describe('Profile: user data templates', () => {
 
       const openAndSubmit = async () => {
         await page.locator('[data-testid="profile.user_data.row.101.deploy"]:visible').click();
-        await expect(page.getByTestId('profile.user_data.deploy.drawer')).toBeVisible();
+        await expectCenteredDialog(page, page.getByTestId('profile.user_data.deploy.drawer'));
         await page.getByTestId('profile.user_data.deploy.vps').fill('#500');
         await page.getByTestId('profile.user_data.deploy.submit').click();
       };
@@ -273,7 +275,7 @@ test.describe('Profile: user data templates', () => {
           .getByText(
             failure === 'missing action-state'
               ? /missing action_state_id/i
-              : /failed to fetch|network|connection/i
+              : /failed to fetch|load failed|network|connection/i
           )
       ).toBeVisible();
       expect(deployRequests).toBe(1);
@@ -295,3 +297,43 @@ test.describe('Profile: user data templates', () => {
     });
   }
 });
+
+for (const language of ['cs', 'en'] as const) {
+  test(`@pr-smoke @pr-smoke-mobile centered template editor and filters remain usable (${language})`, async ({ page, hasTouch }, testInfo) => {
+    await bootstrapVpsAdminWindow(page);
+    await setUiSettingsLocalStorage(page, { language, theme: 'dark' });
+    await installHaveApiMock(page, { handlers: { 'GET vps_user_data': () => [] } });
+    await page.goto('/app/profile/user-data');
+    const open = page.getByTestId('profile.user_data.create');
+    if (hasTouch) await open.tap(); else await open.click();
+    const dialog = page.getByTestId('profile.user_data.editor.drawer');
+    await expectCenteredDialog(page, dialog);
+    await page.getByTestId('profile.user_data.editor.label').fill('Cloud-init demo');
+    await page.getByTestId('profile.user_data.editor.content').fill('#cloud-config\npackages:\n  - curl\n  - vim\n');
+    const proofDir = process.env['E2E_CENTERED_SCREENSHOTS'];
+    if (proofDir && language === 'cs') {
+      await page.screenshot({ path: `${proofDir}/${testInfo.project.name}-user-data.png`, scale: 'css' });
+    }
+    // Simulate reduced space above a phone keyboard; scrolling keeps submission reachable.
+    await page.setViewportSize({ width: hasTouch ? 390 : 1280, height: 460 });
+    await expectCenteredDialog(page, dialog);
+    const create = page.getByTestId('profile.user_data.editor.create');
+    await create.scrollIntoViewIfNeeded();
+    await expect(create).toBeInViewport();
+    // Keyboard focus wraps in the dialog, then returns to the opener on close.
+    await create.focus();
+    await page.keyboard.press('Tab');
+    await expect(dialog.getByTestId('drawer.close')).toBeFocused();
+    if (hasTouch) await dialog.getByTestId('drawer.close').tap();
+    else await page.keyboard.press('Escape');
+    await expect(dialog).toBeHidden();
+    // Safari touch activation does not focus buttons; keyboard activation does.
+    if (!hasTouch) await expect(open).toBeFocused();
+    const filtersOpen = page.getByTestId('profile.user_data.filters.advanced');
+    if (hasTouch) await filtersOpen.tap(); else await filtersOpen.click();
+    const filters = page.getByTestId('profile.user_data.filters.advanced.drawer');
+    await expectCenteredDialog(page, filters);
+    await filters.getByTestId('drawer.close').click();
+    await expect(filters).toBeHidden();
+  });
+}
