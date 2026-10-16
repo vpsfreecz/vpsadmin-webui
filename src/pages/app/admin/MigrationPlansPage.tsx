@@ -562,7 +562,10 @@ function MigrationPlansContent() {
       }
       filters={
         <>
-          <FilterBar testId="admin.migration_plans.list.filters">
+          <FilterBar
+            testId="admin.migration_plans.list.filters"
+            below={activeFilterChips.length > 0 ? <div className="flex flex-wrap gap-1" data-testid="admin.migration_plans.active_filters">{activeFilterChips}</div> : null}
+          >
             <div className="w-full sm:max-w-xl">
               <SmartFilterInput
                 ref={smartInputRef}
@@ -589,12 +592,6 @@ function MigrationPlansContent() {
                   </Button>
                 }
               />
-
-              {activeFilterChips.length > 0 ? (
-                <div className="mt-2 flex flex-wrap gap-1" data-testid="admin.migration_plans.active_filters">
-                  {activeFilterChips}
-                </div>
-              ) : null}
             </div>
 
             <Button

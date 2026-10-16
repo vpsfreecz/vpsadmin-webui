@@ -48,7 +48,16 @@ export interface VpsListFiltersProps {
 export function VpsListFilters(props: VpsListFiltersProps) {
   return (
     <>
-      <FilterBar testId="vps.list.filters">
+      <FilterBar
+        testId="vps.list.filters"
+        below={
+          props.activeFilterChips.length > 0 ? (
+            <div className="flex flex-wrap gap-1" data-testid="vps.list.active_filters">
+              {props.activeFilterChips}
+            </div>
+          ) : null
+        }
+      >
         <div className="w-full sm:max-w-xl">
           <SmartFilterInput
             ref={props.smartInputRef}
@@ -75,12 +84,6 @@ export function VpsListFilters(props: VpsListFiltersProps) {
               </Button>
             }
           />
-
-          {props.activeFilterChips.length > 0 ? (
-            <div className="mt-2 flex flex-wrap gap-1" data-testid="vps.list.active_filters">
-              {props.activeFilterChips}
-            </div>
-          ) : null}
         </div>
 
         <Button

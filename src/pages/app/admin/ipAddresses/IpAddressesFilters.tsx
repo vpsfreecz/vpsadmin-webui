@@ -55,7 +55,10 @@ export function IpAddressesFilters({
 
   return (
     <>
-      <FilterBar testId="admin.ip_addresses.filters">
+      <FilterBar
+        testId="admin.ip_addresses.filters"
+        below={activeFilterChips.length > 0 ? <div className="flex flex-wrap gap-1" data-testid="admin.ip_addresses.active_filters">{activeFilterChips}</div> : null}
+      >
         <div className="w-full sm:max-w-xl">
           <SmartFilterInput
             ref={smartInputRef}
@@ -84,12 +87,6 @@ export function IpAddressesFilters({
               </Button>
             }
           />
-
-          {activeFilterChips.length > 0 ? (
-            <div className="mt-2 flex flex-wrap gap-1" data-testid="admin.ip_addresses.active_filters">
-              {activeFilterChips}
-            </div>
-          ) : null}
         </div>
 
         <Button

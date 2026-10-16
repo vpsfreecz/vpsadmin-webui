@@ -95,7 +95,7 @@ function NodesActiveFilterChips(props: {
   if (chips.length === 0) return null;
 
   return (
-    <div className="mt-2 flex flex-wrap gap-1" data-testid="admin.nodes.active_filters">
+    <div className="flex flex-wrap gap-1" data-testid="admin.nodes.active_filters">
       {chips}
     </div>
   );
@@ -128,7 +128,25 @@ export function NodesFilters({
 }: NodesFiltersProps) {
   return (
     <>
-      <FilterBar testId="admin.nodes.list.filters">
+      <FilterBar
+        testId="admin.nodes.list.filters"
+        below={
+          <>
+            <NodesActiveFilterChips
+              canFilterState={canFilterState}
+              state={state}
+              issuesOnly={issuesOnly}
+              smartErrors={smartErrors}
+              onSetStateParam={onSetStateParam}
+              onSetIssuesParam={onSetIssuesParam}
+              onSetSmartErrors={onSetSmartErrors}
+            />
+            <div className="text-xs text-faint">
+              {t('common.showing_n_of_m', { shown: shownCount, total: totalCount })}
+            </div>
+          </>
+        }
+      >
         <div className="w-full sm:max-w-xl">
           <SmartFilterInput
             ref={smartInputRef}
@@ -156,20 +174,6 @@ export function NodesFilters({
               </Button>
             }
           />
-
-          <NodesActiveFilterChips
-            canFilterState={canFilterState}
-            state={state}
-            issuesOnly={issuesOnly}
-            smartErrors={smartErrors}
-            onSetStateParam={onSetStateParam}
-            onSetIssuesParam={onSetIssuesParam}
-            onSetSmartErrors={onSetSmartErrors}
-          />
-
-          <div className="mt-1 text-xs text-faint">
-            {t('common.showing_n_of_m', { shown: shownCount, total: totalCount })}
-          </div>
         </div>
 
         <Button
