@@ -60,6 +60,11 @@ distribution is a labeled metadata field after the administrator-visible owner,
 followed by node and location; members see the same distribution field. Unknown
 templates retain the unavailable marker instead of guessing a distribution.
 
+Creation shows `VPS` as a placeholder, so typing a custom hostname needs no
+manual deletion. Clearing the field or entering only
+whitespace also resolves to `VPS` in review, the API payload and outcome tracking.
+Custom hostnames are trimmed and validated as before.
+
 Creation and reinstall share optional first-boot initialization: leave it disabled,
 paste a script/cloud-init/NixOS configuration, or select saved User data. Saved
 choices belong to the VPS owner; changing the owner clears the selected template.

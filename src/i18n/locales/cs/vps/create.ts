@@ -71,7 +71,7 @@ export const csVps_create = {
   'vps.create.field.start': 'Spustit po vytvoření',
   'vps.create.field.info': 'Doplňující informace',
   'vps.create.location_environment': 'Prostředí: {environment}',
-  'vps.create.placeholder.hostname': 'moje-vps',
+  'vps.create.placeholder.hostname': 'VPS',
   'vps.create.placeholder.user': 'Login, jméno nebo #ID…',
   'vps.create.validation.hostname_required': 'Hostname je povinný.',
   'vps.create.validation.hostname_format': 'Hostname musí mít 2-64 znaků a obsahovat jen písmena, čísla, pomlčky, podtržítka nebo tečky.',

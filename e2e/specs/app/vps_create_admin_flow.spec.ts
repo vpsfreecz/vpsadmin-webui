@@ -422,3 +422,55 @@ test.describe('@workflow-matrix @pr-smoke VPS create admin flow', () => {
     expect(createRequests).toBe(0);
   });
 });
+
+for (const mode of ['member', 'admin'] as const) {
+  for (const scenario of [
+    { name: 'default', value: undefined, expected: 'VPS' },
+    { name: 'cleared', value: '', expected: 'VPS' },
+    { name: 'whitespace', value: '   ', expected: 'VPS' },
+    { name: 'custom', value: '  My-VPS.example  ', expected: 'My-VPS.example' },
+  ]) {
+    test(`@pr-smoke @pr-smoke-mobile ${mode} creation uses ${scenario.name} hostname consistently`, async ({ page }, testInfo) => {
+      await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST_HOSTNAME' });
+      let sentHostname: unknown;
+      let receiptHostname: unknown;
+      await installHaveApiMock(page, {
+        user: { id: 1, login: 'demo', level: mode === 'admin' ? 99 : 1 },
+        handlers: {
+          ...choicesHandlers(),
+          'POST vpses': async ({ reqJson }) => {
+            sentHostname = (reqJson as { vps: { hostname: string } }).vps.hostname;
+            receiptHostname = await page.evaluate(() => {
+              const key = Object.keys(localStorage).find((item) => item.startsWith('webui-next.vps-create-outcome-uncertain'));
+              return key ? JSON.parse(localStorage.getItem(key)!).identity.hostname : null;
+            });
+            return { status: true, response: { vps: { id: 150, hostname: scenario.expected }, _meta: { action_state_id: 42 } } };
+          },
+        },
+      });
+      await page.goto(mode === 'admin' ? '/admin/vps/new?user=1' : '/app/vps/new');
+      await expect(page.getByTestId('vps.create.hostname')).toHaveValue('');
+      await expect(page.getByTestId('vps.create.hostname')).toHaveAttribute('placeholder', 'VPS');
+      await page.getByTestId('vps.create.location').selectOption('2');
+      await page.getByTestId('vps.create.os_template').selectOption('6');
+      if (mode === 'admin') await page.getByTestId('vps.create.node').selectOption('101');
+      if (scenario.name === 'custom') {
+        await page.getByTestId('vps.create.hostname').click();
+        await page.getByTestId('vps.create.hostname').pressSequentially(scenario.value!);
+        await expect(page.getByTestId('vps.create.hostname')).toHaveValue(scenario.value!);
+      } else if (scenario.value !== undefined) {
+        await page.getByTestId('vps.create.hostname').fill('temporary.example');
+        await page.getByTestId('vps.create.hostname').fill(scenario.value);
+      }
+      await expect(page.getByTestId('vps.create.review.hostname')).toContainText(scenario.expected);
+      await expect(page.getByTestId('vps.create.submit')).toHaveText('Create VPS');
+      if (mode === 'admin' && scenario.name === 'default') {
+        await page.screenshot({ path: testInfo.outputPath('hostname-default.png'), fullPage: true, scale: 'css' });
+      }
+      await page.getByTestId('vps.create.submit').click();
+      await expect(page).toHaveURL(/\/(app|admin)\/vps\/150(?:\?user=1)?$/);
+      expect(sentHostname).toBe(scenario.expected);
+      expect(receiptHostname).toBe(scenario.expected);
+    });
+  }
+}
