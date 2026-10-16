@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { expectNoDocumentHorizontalOverflow } from '../../helpers/horizontalOverflow';
 import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock, jsonFulfill, setUiSettingsLocalStorage } from '../../fixtures';
 
 const nodes = [
@@ -9,12 +10,12 @@ const nodes = [
 ];
 
 for (const language of ['cs', 'en'] as const) {
-  for (const entry of ['/', '/admin/nodes', '/app/nodes']) {
-    test(`@pr-smoke @pr-smoke-mobile heatmaps use legacy configuration and eligibility in ${language} at ${entry}`, async ({ page }) => {
-      await setUiSettingsLocalStorage(page, { language });
+  for (const entry of ['/', '/admin/nodes', '/app/nodes', '/admin', '/app']) {
+    test(`@pr-smoke @pr-smoke-mobile heatmaps use legacy configuration and eligibility in ${language} at ${entry}`, async ({ page, isMobile }) => {
+      await setUiSettingsLocalStorage(page, { language, theme: language === 'cs' ? 'dark' : 'light' });
       await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
       await installHaveApiMock(page, {
-        user: { id: 1, login: 'test', level: entry === '/admin/nodes' ? 99 : 1 },
+        user: { id: 1, login: 'test', level: entry.startsWith('/admin') ? 99 : 1 },
         handlers: {
           ...(entry === '/' ? { 'GET users/current': () => jsonFulfill(failEnvelope('Unauthorized'), 401) } : {}),
           'GET system_configs/webui/goresheat_url': () => ({ system_config: { value: 'https://heatmap.example/charts/' } }),
@@ -40,9 +41,11 @@ for (const language of ['cs', 'en'] as const) {
       await expect(page.getByTestId('nodes.heatmap.open.dns.prg.example')).toHaveCount(0);
       expect(frameRequests).toBe(0);
       await trigger.scrollIntoViewIfNeeded();
+      await expectNoDocumentHorizontalOverflow(page);
       await page.screenshot({ path: test.info().outputPath('heatmap-list.png') });
       const previousUrl = page.url();
-      await trigger.click();
+      if (isMobile) await trigger.tap();
+      else await trigger.click();
       await expect(page).toHaveURL(previousUrl);
       const modal = page.getByTestId('nodes.heatmap.modal');
       await expect(modal).toBeVisible();
@@ -57,24 +60,30 @@ for (const language of ['cs', 'en'] as const) {
       await page.getByTestId('nodes.heatmap.close').click();
       await expect(modal).toHaveCount(0);
       await expect(page.getByTestId('nodes.heatmap.frame')).toHaveCount(0);
-      await expect(trigger).toBeFocused();
-      await trigger.click();
+      if (!isMobile) await expect(trigger).toBeFocused();
+      // WebKit taps do not focus buttons; verify focus restoration with keyboard activation.
+      await trigger.focus();
+      await trigger.press('Enter');
+      await expect(modal).toBeVisible();
       await page.keyboard.press('Escape');
       await expect(modal).toHaveCount(0);
+      await expect(trigger).toBeFocused();
     });
   }
 }
 
+for (const entry of ['/', '/admin', '/app']) {
 for (const unavailable of [false, true]) {
-test(`missing heatmap configuration leaves the public node list usable (error: ${unavailable})`, async ({ page }) => {
+test(`missing heatmap configuration leaves the node list usable at ${entry} (error: ${unavailable})`, async ({ page }) => {
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
-  await installHaveApiMock(page, { handlers: {
-    'GET users/current': () => jsonFulfill(failEnvelope('Unauthorized'), 401),
+  await installHaveApiMock(page, { user: { id: 1, login: 'test', level: entry === '/admin' ? 99 : 1 }, handlers: {
+    ...(entry === '/' ? { 'GET users/current': () => jsonFulfill(failEnvelope('Unauthorized'), 401) } : {}),
     'GET system_configs/webui/goresheat_url': () => unavailable ? jsonFulfill(failEnvelope('Unavailable'), 503) : ({ system_config: { value: '' } }),
     'GET nodes/public_status': () => ({ nodes }),
   } });
-  await page.goto('/');
-  await expect(page.getByTestId('public.nodes.section')).toContainText('node1');
+  await page.goto(entry);
+  await expect(page.getByTestId(entry === '/' ? 'public.nodes.section' : 'app.dashboard.cluster.groups')).toContainText('node1');
   await expect(page.locator('[data-testid^="nodes.heatmap.open."]')).toHaveCount(0);
 });
+}
 }
