@@ -100,12 +100,12 @@ const PAYMENT_INSTRUCTIONS_CS_TEXT_REPLACEMENTS: Array<[RegExp, string]> = [
     'Pokud potřebuješ fakturu, napiš na podpora@vpsfree.cz. Nezapomeň přiložit fakturační údaje.',
   ],
   [
-    /Pokud vaše banka nepodporuje variabilní symboly, můžete své členské ID poslat ve zprávě pro příjemce jako\s+\/VS\/(\d+)\s*\.\s*Přesné znění závisí na vaší bance\./gi,
+    /Pokud\s+vaše\s+banka\s+nepodporuje\s+variabilní\s+symboly,\s+můžete\s+své\s+členské\s+ID\s+poslat\s+ve\s+zprávě\s+pro\s+příjemce\s+jako\s+\/VS\/(\d+)\s*\.\s*Přesné\s+znění\s+závisí\s+na\s+vaší\s+bance\./gi,
     'Pokud tvoje banka nepodporuje variabilní symboly, můžeš svoje členské ID poslat ve zprávě pro příjemce jako /VS/$1. Přesné znění závisí na tvojí bance.',
   ],
-  [/Pokud vaše banka nepodporuje variabilní symboly, můžete své členské ID poslat ve zprávě pro příjemce jako/gi,
+  [/Pokud\s+vaše\s+banka\s+nepodporuje\s+variabilní\s+symboly,\s+můžete\s+své\s+členské\s+ID\s+poslat\s+ve\s+zprávě\s+pro\s+příjemce\s+jako/gi,
     'Pokud tvoje banka nepodporuje variabilní symboly, můžeš svoje členské ID poslat ve zprávě pro příjemce jako'],
-  [/Přesné znění závisí na vaší bance\./gi, 'Přesné znění závisí na tvojí bance.'],
+  [/Přesné\s+znění\s+závisí\s+na\s+vaší\s+bance\./gi, 'Přesné znění závisí na tvojí bance.'],
   [/CZK per month/gi, 'CZK měsíčně'],
   [/EUR per month/gi, 'EUR měsíčně'],
 ];

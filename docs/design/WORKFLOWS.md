@@ -389,7 +389,9 @@ serves member instructions and administrator member-payment instructions.
 
 The known invoice-help paragraph selects `podpora@vpsfree.cz` in Czech UI and
 `support@vpsfree.org` in English UI. Czech bank-message guidance uses informal
-address while retaining inline `/VS/<member ID>` formatting. Bank details and QR
+address while retaining inline `/VS/<member ID>` formatting. Matching the known
+bank-message sentences tolerates HTML line breaks, tabs and non-breaking spaces;
+the visible text and whole-instructions clipboard text use the same conversion. Bank details and QR
 payloads remain supplied by the API. See the
 [payment-copy change record](../work-log/2026-10-16-payment-field-copy.md)
 for review/deployment status, screenshots and verification limitations.

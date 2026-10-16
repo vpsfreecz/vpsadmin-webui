@@ -183,7 +183,7 @@ for (const language of ['cs', 'en'] as const) {
         'GET users/7/get_payment_instructions': () => ({ instructions:
           '<h3>General info</h3><p>If you need an invoice, please write to support at <a href="mailto:podpora@vpsfree.cz">podpora@vpsfree.cz</a> or support@vpsfree.org and we will issue it. Do not forget to include your billing credentials.</p>'
           + table(values.slice(0, 6), 'CZK') + table(values.slice(6), 'EUR')
-          + (language === 'cs' ? '<h3>Variabilní symbol a zpráva</h3><p>Pokud vaše banka nepodporuje variabilní symboly, můžete své členské ID poslat ve zprávě pro příjemce jako <code>/VS/53</code>. Přesné znění závisí na vaší bance.</p>' : ''),
+          + (language === 'cs' ? '<h3>Variabilní symbol a zpráva</h3><p>Pokud vaše banka\n    nepodporuje variabilní symboly, můžete své členské ID\n    poslat ve zprávě pro příjemce jako <code>/VS/53</code>. Přesné znění\n    závisí na vaší bance.</p>' : ''),
         }),
         'GET user_payments': () => ({ user_payments: [] }),
       },
