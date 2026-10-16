@@ -6,7 +6,7 @@ import { FilterBar } from '../../../components/layout/FilterBar';
 import { Button } from '../../../components/ui/Button';
 import { Checkbox } from '../../../components/ui/Checkbox';
 import { CopyButton } from '../../../components/ui/CopyButton';
-import { Drawer } from '../../../components/ui/Drawer';
+import { Modal } from '../../../components/ui/Modal';
 import { FilterChip } from '../../../components/ui/FilterChip';
 import { Select } from '../../../components/ui/Select';
 import { SmartFilterInput, type SmartFilterSuggestion } from '../../../components/ui/SmartFilterInput';
@@ -257,11 +257,11 @@ export function NodesFilters({
         keyRowTestIdPrefix="admin.nodes.smart_help.key"
       />
 
-      <Drawer
+      <Modal showCloseButton closeTestId="drawer.close"
         open={advancedOpen}
         onClose={() => onAdvancedOpenChange(false)}
         title={t('filters.advanced.title')}
-        width="lg"
+        size="lg"
         testId="admin.nodes.advanced.drawer"
       >
         <div className="space-y-4">
@@ -303,7 +303,7 @@ export function NodesFilters({
             </Button>
           </div>
         </div>
-      </Drawer>
+      </Modal>
     </>
   );
 }

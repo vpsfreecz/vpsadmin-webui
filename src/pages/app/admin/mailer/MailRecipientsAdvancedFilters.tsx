@@ -2,7 +2,7 @@ import React from 'react';
 
 import { useI18n } from '../../../../app/i18n';
 import { Button } from '../../../../components/ui/Button';
-import { Drawer } from '../../../../components/ui/Drawer';
+import { Modal } from '../../../../components/ui/Modal';
 import { Input } from '../../../../components/ui/Input';
 
 export interface MailRecipientFilterValues {
@@ -31,11 +31,11 @@ export function MailRecipientsAdvancedFilters(props: {
   ];
 
   return (
-    <Drawer
+    <Modal showCloseButton closeTestId="drawer.close"
       open={props.open}
       onClose={props.onClose}
       title={t('filters.advanced.title')}
-      width="lg"
+      size="lg"
       testId="admin.mailer.recipients.advanced"
       footer={(
         <div className="flex items-center justify-end gap-2">
@@ -61,6 +61,6 @@ export function MailRecipientsAdvancedFilters(props: {
           </div>
         ))}
       </div>
-    </Drawer>
+    </Modal>
   );
 }

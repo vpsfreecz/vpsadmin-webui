@@ -44,7 +44,7 @@ import { StatusDot } from '../../components/ui/StatusDot';
 import { MiniLink } from '../../components/ui/ChipLink';
 import { Button } from '../../components/ui/Button';
 import { CopyButton } from '../../components/ui/CopyButton';
-import { Drawer } from '../../components/ui/Drawer';
+import { Modal } from '../../components/ui/Modal';
 import { FilterChip } from '../../components/ui/FilterChip';
 import { SmartFilterInput, type SmartFilterSuggestion } from '../../components/ui/SmartFilterInput';
 import { SmartInputHelp } from '../../components/ui/SmartInputHelp';
@@ -847,11 +847,11 @@ export function MonitoringEventsPage() {
             keyRowTestIdPrefix="monitoring.smart_filter.help.key"
           />
 
-          <Drawer
+          <Modal showCloseButton closeTestId="drawer.close"
             open={advancedOpen}
             onClose={() => setAdvancedOpen(false)}
             title={t('filters.advanced.title')}
-            width="lg"
+            size="lg"
             testId="monitoring.events.advanced_filters"
             footer={
               <div className="flex items-center justify-end gap-2">
@@ -934,7 +934,7 @@ export function MonitoringEventsPage() {
                 </div>
               ) : null}
             </div>
-          </Drawer>
+          </Modal>
         </>
       }
     >

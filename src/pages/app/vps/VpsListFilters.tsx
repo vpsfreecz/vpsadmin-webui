@@ -4,7 +4,7 @@ import { CircleHelp, SlidersHorizontal } from 'lucide-react';
 import { FilterBar } from '../../../components/layout/FilterBar';
 import { Button } from '../../../components/ui/Button';
 import { CopyButton } from '../../../components/ui/CopyButton';
-import { Drawer } from '../../../components/ui/Drawer';
+import { Modal } from '../../../components/ui/Modal';
 import { Input } from '../../../components/ui/Input';
 import { NodeLookupInput } from '../../../components/ui/NodeLookupInput';
 import { Select } from '../../../components/ui/Select';
@@ -212,11 +212,11 @@ export function VpsListFilters(props: VpsListFiltersProps) {
         keyRowTestIdPrefix="vps.smart_filter.help.key"
       />
 
-      <Drawer
+      <Modal showCloseButton closeTestId="drawer.close"
         open={props.advancedOpen}
         onClose={() => props.setAdvancedOpen(false)}
         title={props.t('filters.advanced.title')}
-        width="lg"
+        size="lg"
         testId="vps.list.advanced_filters"
         footer={
           <div className="flex items-center justify-end gap-2">
@@ -315,7 +315,7 @@ export function VpsListFilters(props: VpsListFiltersProps) {
             {props.t('vps.list.smart_help.drawer_hint')}
           </div>
         </div>
-      </Drawer>
+      </Modal>
     </>
   );
 }

@@ -12,7 +12,7 @@ import { Badge } from '../../../../components/ui/Badge';
 import { Button } from '../../../../components/ui/Button';
 import { Card, CardBody, CardHeader } from '../../../../components/ui/Card';
 import { ConfirmDialog } from '../../../../components/ui/ConfirmDialog';
-import { Drawer } from '../../../../components/ui/Drawer';
+import { Modal } from '../../../../components/ui/Modal';
 import { Input } from '../../../../components/ui/Input';
 import { LinkButton } from '../../../../components/ui/LinkButton';
 import { Select } from '../../../../components/ui/Select';
@@ -611,7 +611,7 @@ export function AdminUserOverviewPage() {
         </CardBody>
       </Card>
 
-      <Drawer
+      <Modal showCloseButton closeTestId="drawer.close"
         open={editOpen}
         onClose={() => {
           if (editM.isPending) return;
@@ -619,8 +619,7 @@ export function AdminUserOverviewPage() {
           setEditError(null);
         }}
         title={t('admin.user.edit.title')}
-        width="lg"
-        side="right"
+        size="lg"
         testId="admin.user.edit.drawer"
         footer={
           <div className="flex items-center justify-end gap-2">
@@ -740,7 +739,7 @@ export function AdminUserOverviewPage() {
             </label>
           </div>
         </div>
-      </Drawer>
+      </Modal>
 
       <ConfirmDialog
         open={pendingStateUpdate !== null}

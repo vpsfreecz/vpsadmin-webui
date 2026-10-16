@@ -7,7 +7,7 @@ import { FilterBar } from '../../../../components/layout/FilterBar';
 
 import { Button } from '../../../../components/ui/Button';
 import { CopyButton } from '../../../../components/ui/CopyButton';
-import { Drawer } from '../../../../components/ui/Drawer';
+import { Modal } from '../../../../components/ui/Modal';
 import { FilterChip } from '../../../../components/ui/FilterChip';
 import { Input } from '../../../../components/ui/Input';
 import { Select } from '../../../../components/ui/Select';
@@ -286,7 +286,7 @@ export function UsersFilters({
         keyRowTestIdPrefix="admin.users.smart_help.key"
       />
 
-      <Drawer open={advancedOpen} onClose={() => onAdvancedOpenChange(false)} title={t('filters.advanced.title')} width="lg" testId="admin.users.advanced.drawer">
+      <Modal showCloseButton closeTestId="drawer.close" open={advancedOpen} onClose={() => onAdvancedOpenChange(false)} title={t('filters.advanced.title')} size="lg" testId="admin.users.advanced.drawer">
         <div className="space-y-4">
           <div className="text-sm text-muted">{t('admin.users.advanced.hint')}</div>
 
@@ -382,7 +382,7 @@ export function UsersFilters({
             </div>
           )}
         </div>
-      </Drawer>
+      </Modal>
     </>
   );
 }

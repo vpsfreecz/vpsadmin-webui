@@ -20,7 +20,7 @@ import { Badge } from '../../../../components/ui/Badge';
 import { Button } from '../../../../components/ui/Button';
 import { Card } from '../../../../components/ui/Card';
 import { CopyButton } from '../../../../components/ui/CopyButton';
-import { Drawer } from '../../../../components/ui/Drawer';
+import { Modal } from '../../../../components/ui/Modal';
 import { EmptyState } from '../../../../components/ui/EmptyState';
 import { ErrorState } from '../../../../components/ui/ErrorState';
 import { FilterChip } from '../../../../components/ui/FilterChip';
@@ -309,11 +309,11 @@ export function MailTemplatesPage() {
             ) : null}
           </FilterBar>
 
-          <Drawer
+          <Modal showCloseButton closeTestId="drawer.close"
             open={advancedOpen}
             onClose={() => setAdvancedOpen(false)}
             title={t('filters.advanced.title')}
-            width="lg"
+            size="lg"
             testId="admin.mailer.templates.advanced"
             footer={
               <div className="flex items-center justify-end gap-2">
@@ -339,7 +339,7 @@ export function MailTemplatesPage() {
                 testId="admin.mailer.templates.visibility.select"
               />
             </div>
-          </Drawer>
+          </Modal>
         </>
       }
     >

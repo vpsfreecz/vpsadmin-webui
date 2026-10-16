@@ -12,7 +12,7 @@ import { Alert } from '../ui/Alert';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { CopyButton } from '../ui/CopyButton';
-import { Drawer } from '../ui/Drawer';
+import { Modal } from '../ui/Modal';
 import { EmptyState } from '../ui/EmptyState';
 import { FilterChip } from '../ui/FilterChip';
 import { Input } from '../ui/Input';
@@ -446,11 +446,11 @@ function UserNamespaceListContent(props: UserNamespaceListProps & { viewerRole: 
         </TableCard>
       )}
 
-      <Drawer
+      <Modal showCloseButton closeTestId="drawer.close"
         open={advancedOpen}
         onClose={() => setAdvancedOpen(false)}
         title={t('filters.advanced.title')}
-        width="lg"
+        size="lg"
         testId={`${props.testIdPrefix}.filters.advanced.drawer`}
       >
         <div className="space-y-4">
@@ -508,7 +508,7 @@ function UserNamespaceListContent(props: UserNamespaceListProps & { viewerRole: 
             <Button variant="primary" size="sm" onClick={() => setAdvancedOpen(false)}>{t('common.done')}</Button>
           </div>
         </div>
-      </Drawer>
+      </Modal>
 
       <SmartInputHelp
         open={helpOpen}

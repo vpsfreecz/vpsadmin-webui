@@ -26,13 +26,12 @@ import { Badge } from '../../../../components/ui/Badge';
 import { Button } from '../../../../components/ui/Button';
 import { Card, CardBody } from '../../../../components/ui/Card';
 import { CopyButton } from '../../../../components/ui/CopyButton';
-import { Drawer } from '../../../../components/ui/Drawer';
+import { Modal } from '../../../../components/ui/Modal';
 import { EmptyState } from '../../../../components/ui/EmptyState';
 import { ErrorState } from '../../../../components/ui/ErrorState';
 import { FilterChip } from '../../../../components/ui/FilterChip';
 import { Input } from '../../../../components/ui/Input';
 import { LoadingState } from '../../../../components/ui/LoadingState';
-import { Modal } from '../../../../components/ui/Modal';
 import { Select, type SelectOption } from '../../../../components/ui/Select';
 import { SmartFilterInput, type SmartFilterSuggestion } from '../../../../components/ui/SmartFilterInput';
 import { SmartInputHelp } from '../../../../components/ui/SmartInputHelp';
@@ -657,10 +656,10 @@ export function LocationsPage() {
         </div>
       </FilterBar>
 
-      <Drawer
+      <Modal showCloseButton closeTestId="drawer.close"
         open={advancedOpen}
         onClose={() => setAdvancedOpen(false)}
-        width="lg"
+        size="lg"
         title={t('filters.advanced.title')}
         testId="admin.cluster.locations.advanced.drawer"
         footer={
@@ -753,7 +752,7 @@ export function LocationsPage() {
             </div>
           </div>
         </div>
-      </Drawer>
+      </Modal>
 
       <SmartInputHelp
         open={helpOpen}

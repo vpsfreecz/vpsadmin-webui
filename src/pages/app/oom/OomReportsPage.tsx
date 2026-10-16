@@ -28,7 +28,7 @@ import { Badge } from '../../../components/ui/Badge';
 import { Button } from '../../../components/ui/Button';
 import { ChipLink, MiniLink } from '../../../components/ui/ChipLink';
 import { CopyButton } from '../../../components/ui/CopyButton';
-import { Drawer } from '../../../components/ui/Drawer';
+import { Modal } from '../../../components/ui/Modal';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { ErrorState } from '../../../components/ui/ErrorState';
 import { FilterChip } from '../../../components/ui/FilterChip';
@@ -817,7 +817,7 @@ export function OomReportsPage() {
             testId="oom.smart_help"
           />
 
-          <Drawer open={advancedOpen} onClose={() => setAdvancedOpen(false)} title={t('filters.advanced.title')} testId="oom.filters.drawer">
+          <Modal showCloseButton closeTestId="drawer.close" open={advancedOpen} onClose={() => setAdvancedOpen(false)} title={t('filters.advanced.title')} testId="oom.filters.drawer">
             <div className="space-y-4">
               <div>
                 <div className="text-sm font-medium">{t('common.vps')}</div>
@@ -923,7 +923,7 @@ export function OomReportsPage() {
                 {t('common.done')}
               </Button>
             </div>
-          </Drawer>
+          </Modal>
         </>
       }
     >

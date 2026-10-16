@@ -16,13 +16,12 @@ import { Badge } from '../../../../components/ui/Badge';
 import { Button } from '../../../../components/ui/Button';
 import { Card, CardBody, CardHeader } from '../../../../components/ui/Card';
 import { CopyButton } from '../../../../components/ui/CopyButton';
-import { Drawer } from '../../../../components/ui/Drawer';
+import { Modal } from '../../../../components/ui/Modal';
 import { EmptyState } from '../../../../components/ui/EmptyState';
 import { ErrorState } from '../../../../components/ui/ErrorState';
 import { FilterChip } from '../../../../components/ui/FilterChip';
 import { Input } from '../../../../components/ui/Input';
 import { LoadingState } from '../../../../components/ui/LoadingState';
-import { Modal } from '../../../../components/ui/Modal';
 import { Select, type SelectOption } from '../../../../components/ui/Select';
 import { SecretField } from '../../../../components/ui/SecretField';
 import { SmartFilterInput, type SmartFilterSuggestion } from '../../../../components/ui/SmartFilterInput';
@@ -357,11 +356,11 @@ export function SystemConfigPage() {
         onInsertKey={insertSmartKey}
       />
 
-      <Drawer
+      <Modal showCloseButton closeTestId="drawer.close"
         open={advancedOpen}
         onClose={() => setAdvancedOpen(false)}
         title={t('common.advanced_filters')}
-        width="lg"
+        size="lg"
         testId="admin.cluster.system_config.advanced"
         footer={<div className="flex items-center justify-between gap-2"><Button variant="secondary" onClick={clearAllFilters}>{t('common.clear_filters')}</Button><Button variant="primary" onClick={() => setAdvancedOpen(false)}>{t('common.done')}</Button></div>}
       >
@@ -369,7 +368,7 @@ export function SystemConfigPage() {
           <Input testId="admin.cluster.system_config.search.advanced" value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('admin.cluster.system_config.filter.search_placeholder')} />
           <Select testId="admin.cluster.system_config.category.select" value={category} onChange={(e) => setCategory(e.target.value)} options={categoryOptions} className="w-full" />
         </div>
-      </Drawer>
+      </Modal>
 
       {filtered.length === 0 ? (
         <EmptyState

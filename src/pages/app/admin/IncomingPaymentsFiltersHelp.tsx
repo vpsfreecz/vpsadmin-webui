@@ -2,7 +2,7 @@ import React from 'react';
 
 import { useI18n } from '../../../app/i18n';
 import { Button } from '../../../components/ui/Button';
-import { Drawer } from '../../../components/ui/Drawer';
+import { Modal } from '../../../components/ui/Modal';
 import { SmartInputHelp } from '../../../components/ui/SmartInputHelp';
 import { UserLookupInput } from '../../../components/ui/UserLookupInput';
 
@@ -71,11 +71,11 @@ export function IncomingPaymentsFiltersHelp(props: {
         keyRowTestIdPrefix="admin.payments.incoming.smart_filter.help.key"
       />
 
-      <Drawer
+      <Modal showCloseButton closeTestId="drawer.close"
         open={props.advancedOpen}
         onClose={() => props.setAdvancedOpen(false)}
         title={t('filters.advanced.title')}
-        width="lg"
+        size="lg"
         testId="admin.payments.incoming.advanced_filters"
         footer={
           <div className="flex items-center justify-end gap-2">
@@ -108,7 +108,7 @@ export function IncomingPaymentsFiltersHelp(props: {
             </div>
           </div>
         </div>
-      </Drawer>
+      </Modal>
     </>
   );
 }

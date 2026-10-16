@@ -1,7 +1,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
-import { expectNoDocumentHorizontalOverflow } from '../../helpers/horizontalOverflow';
+import { expectCenteredDialog, expectNoDocumentHorizontalOverflow } from '../../helpers/horizontalOverflow';
 
 const exportItem = {
   id: 10,
@@ -140,7 +140,9 @@ test('@pr-smoke @pr-smoke-mobile export host actions follow the card width witho
   if (compactProofScreenshot) await page.screenshot({ path: compactProofScreenshot, fullPage: true });
 
   await edit.click();
-  await expect(page.getByTestId('exports.detail.host.editor')).toBeVisible();
+  await expectCenteredDialog(page, page.getByTestId('exports.detail.host.editor'));
+  const proofDir = process.env['E2E_CENTERED_SCREENSHOTS'];
+  if (proofDir) await page.screenshot({ path: `${proofDir}/${testInfo.project.name}-export-host.png`, scale: 'css' });
   await page.keyboard.press('Escape');
   await expect(page.getByTestId('exports.detail.host.editor')).toHaveCount(0);
 

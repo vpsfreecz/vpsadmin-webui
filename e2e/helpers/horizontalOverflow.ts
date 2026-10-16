@@ -1,4 +1,4 @@
-import { expect, type Page } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 
 export async function expectNoDocumentHorizontalOverflow(page: Page) {
   const metrics = await page.evaluate(() => ({
@@ -59,4 +59,23 @@ export async function expectTableHorizontalScrollUsable(page: Page, tableTestId:
   expect(metrics.endScrollLeft).toBeGreaterThan(metrics.startScrollLeft);
   expect(metrics.left).toBeGreaterThanOrEqual(-1);
   expect(metrics.right).toBeLessThanOrEqual(metrics.viewportWidth + 1);
+}
+
+/** Form overlays must be centered, bounded and scroll within their surface. */
+export async function expectCenteredDialog(page: Page, dialog: Locator) {
+  await expect(dialog).toBeVisible();
+  await expect(dialog).toHaveAttribute('data-overlay', 'modal');
+  // visualViewport resize is delivered asynchronously after setViewportSize.
+  await expect(async () => {
+    const box = await dialog.boundingBox();
+    const viewport = page.viewportSize();
+    if (!box || !viewport) throw new Error('Missing dialog or viewport geometry');
+    expect(Math.abs(box.x + box.width / 2 - viewport.width / 2)).toBeLessThanOrEqual(2);
+    expect(Math.abs(box.y + box.height / 2 - viewport.height / 2)).toBeLessThanOrEqual(2);
+    expect(box.x).toBeGreaterThanOrEqual(15);
+    expect(box.y).toBeGreaterThanOrEqual(15);
+    expect(box.x + box.width).toBeLessThanOrEqual(viewport.width - 15);
+    expect(box.y + box.height).toBeLessThanOrEqual(viewport.height - 15);
+  }).toPass({ timeout: 3000 });
+  await expectNoDocumentHorizontalOverflow(page);
 }

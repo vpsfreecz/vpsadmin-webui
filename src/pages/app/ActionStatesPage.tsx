@@ -16,7 +16,7 @@ import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { Checkbox } from '../../components/ui/Checkbox';
 import { CopyButton } from '../../components/ui/CopyButton';
-import { Drawer } from '../../components/ui/Drawer';
+import { Modal } from '../../components/ui/Modal';
 import { FilterChip } from '../../components/ui/FilterChip';
 import { SmartFilterInput, type SmartFilterSuggestion } from '../../components/ui/SmartFilterInput';
 import { SmartInputHelp } from '../../components/ui/SmartInputHelp';
@@ -799,11 +799,11 @@ export function ActionStatesPage() {
             keyRowTestIdPrefix="action_states.smart_help.key"
           />
 
-          <Drawer
+          <Modal showCloseButton closeTestId="drawer.close"
             open={advancedOpen}
             onClose={() => setAdvancedOpen(false)}
             title={t('filters.advanced.title')}
-            width="lg"
+            size="lg"
             testId="action_states.advanced.drawer"
             footer={
               <div className="flex items-center justify-end gap-2">
@@ -856,7 +856,7 @@ export function ActionStatesPage() {
                 </div>
               </div>
             </div>
-          </Drawer>
+          </Modal>
         </>
       }
     >

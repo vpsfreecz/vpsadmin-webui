@@ -16,14 +16,13 @@ import { Alert } from '../../../../components/ui/Alert';
 import { Badge } from '../../../../components/ui/Badge';
 import { Button } from '../../../../components/ui/Button';
 import { CopyButton } from '../../../../components/ui/CopyButton';
-import { Drawer } from '../../../../components/ui/Drawer';
+import { Modal } from '../../../../components/ui/Modal';
 import { EmptyState } from '../../../../components/ui/EmptyState';
 import { ErrorState } from '../../../../components/ui/ErrorState';
 import { FilterChip } from '../../../../components/ui/FilterChip';
 import { Input } from '../../../../components/ui/Input';
 import { LinkButton } from '../../../../components/ui/LinkButton';
 import { LoadingState } from '../../../../components/ui/LoadingState';
-import { Modal } from '../../../../components/ui/Modal';
 import { KeysetPagination } from '../../../../components/ui/KeysetPagination';
 import { Select, type SelectOption } from '../../../../components/ui/Select';
 import { SmartFilterInput, type SmartFilterSuggestion } from '../../../../components/ui/SmartFilterInput';
@@ -603,11 +602,11 @@ function NetworksContent() {
         onInsertKey={insertSmartKey}
       />
 
-      <Drawer
+      <Modal showCloseButton closeTestId="drawer.close"
         open={advancedOpen}
         onClose={() => setAdvancedOpen(false)}
         title={t('common.advanced_filters')}
-        width="lg"
+        size="lg"
         testId="admin.cluster.networks.advanced"
         footer={
           <div className="flex items-center justify-between gap-2">
@@ -620,7 +619,7 @@ function NetworksContent() {
           <Select testId="admin.cluster.networks.filter.location" value={location} onChange={(e) => setLocation(e.target.value)} options={locationOptions} />
           <Select testId="admin.cluster.networks.filter.purpose" value={purpose} onChange={(e) => setPurpose(e.target.value)} options={purposeOptions(t)} />
         </div>
-      </Drawer>
+      </Modal>
 
       {networks.length === 0 ? (
         <EmptyState
