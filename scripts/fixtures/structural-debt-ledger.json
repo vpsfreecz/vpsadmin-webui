@@ -486,10 +486,10 @@
       "path": "src/routes/router.tsx",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "b4f3651765e697c3b574ec1614e6d0bad1463705ab5a47a29c986054f3a6e287",
+      "contentHash": "79c79c174f4ff8eb9286effdc5a32c2b8f001b20f75812754e2b35780415c660",
       "old": 0,
-      "allowance": 511,
-      "rationale": "At the recorded source revision, this file already contained route declarations and access guards; extract the coherent section with focused behavior coverage before removing this exception. Reviewed 2026-10-14: replace the three personal node routes with ForbiddenPage and add its import (+1 line); retain existing administrator routes and direct-URL role coverage. No general budget increase.",
+      "allowance": 514,
+      "rationale": "At the recorded source revision, this file already contained route declarations and access guards; extract the coherent section with focused behavior coverage before removing this exception. Reviewed 2026-10-14: replace the three personal node routes with ForbiddenPage and add its import (+1 line); retain existing administrator routes and direct-URL role coverage. No general budget increase. Reviewed 2026-10-16 for PR51: the About page adds one lazy import declaration, its separating blank line and one public route (+3 lines). Existing routes and access guards are unchanged; public About and footer browser coverage passed on desktop and mobile. This exact 514-line allowance covers only the reviewed addition, not a general budget increase.",
       "owner": "WebUI implementation lead",
       "removeWhen": {
         "metric": "lines",
