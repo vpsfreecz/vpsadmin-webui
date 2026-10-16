@@ -35,7 +35,15 @@ be used on newadmin or replayed over the credential-based older-host runtime.
 
 ## Newadmin release procedure
 
-1. Establish the approved PRs/revision and target scope. Fetch current upstream;
+1. Establish the approved PRs/revision and target scope. By default include only
+   our PRs from the maintainer's work with this assistant; other contributors'
+   work needs explicit inclusion, even for "everything/latest" requests. Compare
+   the candidate against the running revision and enumerate all newly included
+   changes. Apply this boundary to both web and WebUI channel updates; verify
+   the resolved pin and artifact, not just the PR list. If unapproved changes
+   entered main, stop before deploying that candidate and resolve its scope.
+   Do not remove already-deployed changes or rewrite shared history.
+   Fetch current upstream;
    check exact CI heads and overlapping work. Build and test the selected
    candidate in the pinned WebUI `nix develop` environment. Record fixture versus
    real API evidence explicitly.
