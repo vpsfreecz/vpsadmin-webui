@@ -20,7 +20,8 @@ for (const language of ['cs', 'en'] as const) {
       content.getByRole('heading', { name: language === 'cs' ? 'O aplikaci' : 'About', exact: true })
     ).toBeVisible();
     for (const name of ['Jakub Skokan', 'Pavel Šnajdr', 'Michal Janoušek']) await expect(content).toContainText(name);
-    await expect(content).toContainText('ISC');
+    await expect(content.getByText(language === 'cs' ? 'Zdrojové kódy' : 'Source code', { exact: true })).toBeVisible();
+    await expect(content.getByRole('link', { name: language === 'cs' ? 'Repozitář vpsAdmin WebUI' : 'vpsAdmin WebUI repository' })).toHaveAttribute('href', 'https://github.com/vpsfreecz/vpsadmin-webui');
     await expect(content).not.toContainText('Adminizio');
     const commit = content.locator('a[href*="/commit/"]');
     await expect(commit).toHaveAttribute('href', /github\.com\/vpsfreecz\/vpsadmin-webui\/commit\/[a-f0-9]{40}$/);
