@@ -217,6 +217,15 @@ describe('PaymentsModel', () => {
     expect(paymentInstructionsPlainText(html, 'cs')).not.toMatch(/vaše|můžete|vaší/);
   });
 
+  test.each(['\n    ', '&nbsp;', '\t'])('uses informal Czech with HTML whitespace %s', space => {
+    const source = `<p>Pokud vaše banka nepodporuje variabilní symboly, můžete své členské ID poslat ve zprávě pro příjemce jako <code>/VS/00053</code>. Přesné znění závisí na vaší bance.</p>`.replaceAll(' ', space);
+    const html = sanitizePaymentInstructionsHtml(source, 'cs');
+    expect(html).toContain('<code>/VS/00053</code>');
+    expect(paymentInstructionsPlainText(html, 'cs')).toBe('Pokud tvoje banka nepodporuje variabilní symboly, můžeš svoje členské ID poslat ve zprávě pro příjemce jako /VS/00053. Přesné znění závisí na tvojí bance.');
+    expect(paymentInstructionsPlainText(source, 'cs')).toBe(paymentInstructionsPlainText(html, 'cs'));
+    expect(paymentInstructionsPlainText(source, 'en')).toContain('Pokud vaše banka');
+  });
+
   test('buildPaymentSettingsReview flags backward and cleared paid-until changes', () => {
     expect(
       buildPaymentSettingsReview({
