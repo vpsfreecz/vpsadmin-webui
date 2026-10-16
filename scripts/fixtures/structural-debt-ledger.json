@@ -500,10 +500,10 @@
       "path": "src/routes/router.tsx",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "3a16d99259322b0eba951964646639893079419e05ea668104723fc84eef134d",
+      "contentHash": "b4f3651765e697c3b574ec1614e6d0bad1463705ab5a47a29c986054f3a6e287",
       "old": 0,
-      "allowance": 510,
-      "rationale": "At the recorded source revision, this file already contained route declarations and access guards; extract the coherent section with focused behavior coverage before removing this exception.",
+      "allowance": 511,
+      "rationale": "At the recorded source revision, this file already contained route declarations and access guards; extract the coherent section with focused behavior coverage before removing this exception. Reviewed 2026-10-14: replace the three personal node routes with ForbiddenPage and add its import (+1 line); retain existing administrator routes and direct-URL role coverage. No general budget increase.",
       "owner": "WebUI implementation lead",
       "removeWhen": {
         "metric": "lines",

@@ -24,9 +24,9 @@ wrappers; page-level action guards and API authorization still apply.
 | `/*` | page/redirect | `<NotFoundPage />` | `<RouteProvidersLayout /> → <PublicLayout />` | [source](../../src/routes/router.tsx) |
 | `/app` | layout | `<CoreRoutes.AppShell mode="user" />` | `<RouteProvidersLayout />` | [source](../../src/routes/router.tsx) |
 | `/app` | index | `<CoreRoutes.DashboardPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" />` | [source](../../src/routes/router.tsx) |
-| `/app/nodes` | page/redirect | `<NodesPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" />` | [source](../../src/routes/router.tsx) |
-| `/app/nodes/:nodeId` | page/redirect | `<ParamKeyedRoute param="nodeId"><NodeHistoryPage /></ParamKeyedRoute>` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" />` | [source](../../src/routes/router.tsx) |
-| `/app/nodes/:nodeId/history` | page/redirect | `<ParamKeyedRoute param="nodeId"><NodeHistoryPage /></ParamKeyedRoute>` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" />` | [source](../../src/routes/router.tsx) |
+| `/app/nodes` | page/redirect | `<ForbiddenPage appBasePath="/app" />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" />` | [source](../../src/routes/router.tsx) |
+| `/app/nodes/:nodeId` | page/redirect | `<ForbiddenPage appBasePath="/app" />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" />` | [source](../../src/routes/router.tsx) |
+| `/app/nodes/:nodeId/history` | page/redirect | `<ForbiddenPage appBasePath="/app" />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" />` | [source](../../src/routes/router.tsx) |
 | `/app/vps` | page/redirect | `<CoreRoutes.VpsListPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" />` | [source](../../src/routes/router.tsx) |
 | `/app/vps/new` | page/redirect | `<CoreRoutes.VpsCreatePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" />` | [source](../../src/routes/router.tsx) |
 | `/app/vps/:vpsId` | layout | `<CoreRoutes.VpsLayout />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" />` | [source](../../src/routes/router.tsx) |

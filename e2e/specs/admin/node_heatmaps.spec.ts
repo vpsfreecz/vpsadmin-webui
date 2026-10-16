@@ -10,7 +10,7 @@ const nodes = [
 ];
 
 for (const language of ['cs', 'en'] as const) {
-  for (const entry of ['/', '/admin/nodes', '/app/nodes', '/admin', '/app']) {
+  for (const entry of ['/', '/admin/nodes', '/admin', '/app']) {
     test(`@pr-smoke @pr-smoke-mobile heatmaps use legacy configuration and eligibility in ${language} at ${entry}`, async ({ page, isMobile }) => {
       await setUiSettingsLocalStorage(page, { language, theme: language === 'cs' ? 'dark' : 'light' });
       await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });

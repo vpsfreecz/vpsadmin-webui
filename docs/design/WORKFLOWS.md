@@ -385,8 +385,15 @@ See the [context regression record](../work-log/2026-10-08-incident-create-conte
 
 **Intent:** inspect node status, kernel/system history and configured versions;
 admins manage node/cluster/network/resource settings and migration plans.
-Heatmap availability follows legacy config/type/maintenance rules. Expose useful
-member visibility without granting infrastructure writes.
+The Nodes section is available only in administrator view, with existing
+admin/support capability boundaries. My view has no Nodes navigation entry;
+`/app/nodes`, `/app/nodes/:nodeId` and `/app/nodes/:nodeId/history` show access
+denied without mounting the node pages or fetching their data, even for an
+administrator in My view. Ordinary members cannot bypass this through `/admin`.
+This supersedes earlier member node-list and kernel/system-history access at the
+maintainer's request on 2026-10-14. Public/dashboard cluster status remains
+available; heatmaps there follow legacy config/type/maintenance rules. API
+permissions are unchanged and remain the authorization boundary.
 
 **Per-VPS migration (REQ-028):** show a compact destination selector. Clicking it
 opens a height-bounded, scrollable list of active hypervisors with hostname, location

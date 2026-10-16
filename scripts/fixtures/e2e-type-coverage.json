@@ -28,6 +28,7 @@
     "e2e/specs/app/member_payment_links.spec.ts",
     "e2e/specs/app/mobile_touch_interactions.spec.ts",
     "e2e/specs/app/mobile_workflows.spec.ts",
+    "e2e/specs/app/node_history.spec.ts",
     "e2e/specs/app/payment_qr_images.spec.ts",
     "e2e/specs/app/payments_page.spec.ts",
     "e2e/specs/app/profile_metrics_tokens.spec.ts",
@@ -993,13 +994,6 @@
     {
       "path": "e2e/specs/app/nas_smoke.spec.ts",
       "sha256": "6a90cd13a381f2d0a14fda23f0b2fafe1f175c70fe1e15ec7852a9c5adfd168b",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/app/node_history.spec.ts",
-      "sha256": "8c42edd435faef5bd85d5a730ebbea03ba15b6ddbc03b8b8820a0edc2e8eb45a",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
