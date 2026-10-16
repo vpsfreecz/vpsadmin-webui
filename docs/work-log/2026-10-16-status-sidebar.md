@@ -51,3 +51,21 @@ Synthetic mobile WebKit navigation:
 [Member navigation](screenshots/2026-10-16-status-sidebar/desktop-member.png) and
 [admin outage creation form](screenshots/2026-10-16-status-sidebar/mobile-create-outage.png)
 use the same isolated fixtures; no real outage was published.
+
+## CI inventory correction
+
+[PR #62](https://github.com/vpsfreecz/vpsadmin-webui/pull/62) initially failed
+[run 38967129016](https://github.com/vpsfreecz/vpsadmin-webui/actions/runs/38967129016)
+because two script tests still expected 55 adopted E2E files. The new
+`sidebar_status.spec.ts` was already included in both the coverage inventory and
+the TypeScript roots, bringing the actual compiler closure to 56. Updated both
+assertions and the test description to 56; the 204 deferred files and all coverage
+checks remain unchanged. No runtime behavior changed.
+
+Verification: the complete local `npm run ci:pr` passed, including quick audits,
+script/BFF/unit tests and the production build. The production dependency audit
+also passed. Replacement GitHub CI is checked after pushing this correction.
+Local Nix is unavailable; verification uses the matching upstream Node 24.21.0 /
+npm 11.19.0 toolchain with `npm ci`, checked by `env:locked`. No declared hook
+framework or custom `core.hooksPath` is present. This correction is prepared for
+the existing PR; it is not merged or deployed.
