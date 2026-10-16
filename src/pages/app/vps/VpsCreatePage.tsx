@@ -31,6 +31,7 @@ import { reconcileVpsCreateOutcome } from '../../../lib/vpsCreateOutcomeReconcil
 import {
   buildVpsCreatePayload,
   defaultForm,
+  resolveCreateHostname,
   groupOsTemplatesByFamily,
   isVpsHypervisorNode,
   locationEnvironmentId,
@@ -292,7 +293,7 @@ export function VpsCreatePage() {
     }
     const formSnapshot = Object.freeze({ ...form });
     const payload = Object.freeze(buildVpsCreatePayload(formSnapshot, { isAdminMode, needsAdminPayload, hiddenAdminTarget, memberId: auth.user?.id }));
-    const hostname = formSnapshot.hostname.trim();
+    const hostname = payload.hostname;
     createM.mutate(Object.freeze({
       payload,
       identity: Object.freeze({
@@ -421,7 +422,7 @@ export function VpsCreatePage() {
               validationKeys={validationKeys}
             />
             <CreateReviewCard
-              form={form}
+              form={{ ...form, hostname: resolveCreateHostname(form.hostname) }}
               isAdminMode={isAdminMode}
               selectedLocation={selectedLocation}
               selectedOwner={selectedOwner}

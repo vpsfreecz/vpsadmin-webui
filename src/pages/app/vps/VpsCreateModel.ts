@@ -41,6 +41,12 @@ export const RESOURCE_PRESETS: ResourcePreset[] = [
   { id: 'performance', cpu: '16', memory: '16384', diskspace: '245760', swap: '4096' },
 ];
 
+export const DEFAULT_VPS_HOSTNAME = 'VPS';
+
+export function resolveCreateHostname(hostname: string): string {
+  return hostname.trim() || DEFAULT_VPS_HOSTNAME;
+}
+
 export function defaultForm(): FormState {
   return {
     ...defaultVpsInitialization(),
@@ -48,7 +54,7 @@ export function defaultForm(): FormState {
     nodeId: '',
     osTemplateId: '',
     userId: '',
-    hostname: '',
+    hostname: DEFAULT_VPS_HOSTNAME,
     cpu: '8',
     memory: '4096',
     diskspace: '122880',
@@ -154,9 +160,8 @@ export function validateForm(
   memberId?: number
 ): string[] {
   const errors: string[] = [];
-  const hostname = form.hostname.trim();
-  if (!hostname) errors.push('vps.create.validation.hostname_required');
-  else if (hostname.length < 2 || hostname.length > 64 || !HOSTNAME_RE.test(hostname)) errors.push('vps.create.validation.hostname_format');
+  const hostname = resolveCreateHostname(form.hostname);
+  if (hostname.length < 2 || hostname.length > 64 || !HOSTNAME_RE.test(hostname)) errors.push('vps.create.validation.hostname_format');
   if (!optionalResource(form.osTemplateId)) errors.push('vps.create.validation.os_template_required');
   if (!optionalResource(form.locationId)) errors.push('vps.create.validation.target_required');
   if (isAdmin) {
@@ -199,7 +204,7 @@ export function buildVpsCreatePayload(
 ): CreateVpsPayload {
   const commonPayload = {
     ...buildVpsInitializationPayload(form, opts.isAdminMode ? optionalResource(form.userId) : opts.hiddenAdminTarget?.userId ?? opts.memberId),
-    hostname: form.hostname.trim(),
+    hostname: resolveCreateHostname(form.hostname),
     os_template: optionalResource(form.osTemplateId),
     start: form.start,
     cpu: toPositiveInt(form.cpu),

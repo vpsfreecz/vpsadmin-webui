@@ -159,6 +159,7 @@ describe('VpsCreatePage accepted action binding', () => {
 
     await user.selectOptions(await screen.findByTestId('vps.create.location'), '3');
     await user.selectOptions(screen.getByTestId('vps.create.os_template'), '6');
+    await user.clear(screen.getByTestId('vps.create.hostname'));
     await user.type(screen.getByTestId('vps.create.hostname'), 'accepted-vps');
     await user.click(screen.getByTestId('vps.create.submit'));
 
@@ -236,6 +237,7 @@ describe('VpsCreatePage accepted action binding', () => {
 
     await user.selectOptions(await screen.findByTestId('vps.create.location'), '3');
     await user.selectOptions(screen.getByTestId('vps.create.os_template'), '6');
+    await user.clear(screen.getByTestId('vps.create.hostname'));
     await user.type(screen.getByTestId('vps.create.hostname'), 'accepted-vps');
     await user.click(screen.getByTestId('vps.create.submit'));
     await waitFor(() => expect(testState.createVps).toHaveBeenCalledTimes(1));
@@ -280,6 +282,7 @@ describe('VpsCreatePage accepted action binding', () => {
 
     await user.selectOptions(await screen.findByTestId('vps.create.location'), '3');
     await user.selectOptions(screen.getByTestId('vps.create.os_template'), '6');
+    await user.clear(screen.getByTestId('vps.create.hostname'));
     await user.type(screen.getByTestId('vps.create.hostname'), 'accepted-vps');
     await user.click(screen.getByTestId('vps.create.submit'));
     await waitFor(() => expect(testState.acquireLocalLock).toHaveBeenCalledWith(

@@ -112,3 +112,26 @@ describe('VpsCreatePage payload guardrails', () => {
     );
   });
 });
+
+
+describe('VPS creation hostname defaults', () => {
+  it('prefills VPS in a new form', () => {
+    expect(defaultForm().hostname).toBe('VPS');
+  });
+
+  it.each([false, true])('resolves blank hostnames in validation and payload (admin=%s)', (isAdminMode) => {
+    for (const hostname of ['', '   ', '\t\n']) {
+      const form = validForm({ hostname });
+      expect(validateForm(form, isAdminMode)).toEqual([]);
+      expect(buildVpsCreatePayload(form, { isAdminMode, needsAdminPayload: isAdminMode }).hostname).toBe('VPS');
+    }
+  });
+
+  it('preserves custom hostnames and still rejects invalid non-empty names', () => {
+    const form = validForm({ hostname: '  My-VPS.example  ' });
+    expect(buildVpsCreatePayload(form, { isAdminMode: false, needsAdminPayload: false }).hostname).toBe('My-VPS.example');
+    for (const hostname of ['x', '-invalid', 'has spaces', 'x'.repeat(65)]) {
+      expect(validateForm(validForm({ hostname }), false)).toContain('vps.create.validation.hostname_format');
+    }
+  });
+});
