@@ -64,6 +64,14 @@ behavior, read [the design handbook](docs/design/README.md), relevant rows in
 - Do not commit `dist/`, `assets/`, `.vite/`, `node_modules/`, credentials,
   generated auth files, or private server backups. Keep changes scoped and
   record meaningful work, decisions, checks and limits in `WORK_LOG.md`.
+- For this maintainer's commits, use `Michal Janoušek <kerry@kerrycze.net>`
+  for both author and committer. Before every commit, including generated
+  `confctl --commit` input bumps on the builder, verify `git var GIT_AUTHOR_IDENT`
+  and `git var GIT_COMMITTER_IDENT` in the actual checkout and execution context.
+  Do not rely on inferred root/hostname identities. On shared hosts, scope the
+  identity to the task worktree or command environment, never to root globally.
+  Preserve other contributors' authorship. Already published history must not be
+  rewritten without explicit authorization for the exact commits.
 - Before committing, check for a declared hook framework and run its hooks. Do
   not bypass a declared hook. Keep commits focused and document verification in
   the work log or review notes.
