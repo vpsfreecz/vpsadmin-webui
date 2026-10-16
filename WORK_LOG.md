@@ -11,6 +11,10 @@ complete reconstruction of the project. Missing evidence is not a passing check.
 
 ## New changes
 
+## 2026-10-17 — Payment message help
+
+See the [payment help interaction and wording correction](docs/work-log/2026-10-17-payment-message-help.md).
+
 ## 2026-10-16 — About and payment-guidance release
 
 See the [merged two-PR release and three-site verification record](docs/work-log/2026-10-16-about-payments-release.md).

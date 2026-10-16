@@ -1,4 +1,4 @@
-import { createElement, useMemo, type ReactNode } from 'react';
+import { createElement, useEffect, useId, useMemo, useRef, type MouseEvent, type ReactNode } from 'react';
 
 import { useI18n } from '../../../app/i18n';
 import { CopyButton } from '../../../components/ui/CopyButton';
@@ -24,15 +24,36 @@ export function paymentFieldCopyValue(cell: Element): string | null {
   return null;
 }
 
-function renderInstructions(html: string, copyLabel: string): ReactNode[] {
+function renderInstructions(html: string, copyLabel: string, helpId: string): ReactNode[] {
   const template = document.createElement('template');
   template.innerHTML = html; // Already sanitized by the payment-specific policy.
+  // Restore only the recognized payment-message help, not arbitrary server IDs.
+  const heading = Array.from(template.content.querySelectorAll('h1, h2, h3, h4'))
+    .find(el => /^(?:Variabilní symbol a zpráva|Variable symbol and message)$/i.test((el.textContent ?? '').replace(/\s+/g, ' ').trim()));
+  if (heading && heading.nextElementSibling?.tagName === 'P') {
+    const paragraph = heading.nextElementSibling;
+    const help = document.createElement('div');
+    help.id = helpId;
+    help.setAttribute('data-payment-message-help', 'true');
+    help.setAttribute('tabindex', '-1');
+    heading.id = `${helpId}-heading`;
+    help.setAttribute('aria-labelledby', heading.id);
+    heading.before(help);
+    help.append(heading, paragraph);
+    for (const link of Array.from(template.content.querySelectorAll('a[href^="#"]'))) {
+      if (/^(?:more info|více informací)$/i.test((link.textContent ?? '').trim())) {
+        link.setAttribute('href', `#${helpId}`);
+        link.setAttribute('data-payment-message-link', 'true');
+        link.removeAttribute('target');
+      }
+    }
+  }
   const renderNode = (node: Node, key: number): ReactNode => {
     if (node.nodeType === Node.TEXT_NODE) return node.textContent;
     if (!(node instanceof Element)) return null;
     const tag = node.tagName.toLowerCase();
     const attributes: Record<string, string | number> = { key };
-    const attributeNames: Record<string, string> = { colspan: 'colSpan', rowspan: 'rowSpan' };
+    const attributeNames: Record<string, string> = { colspan: 'colSpan', rowspan: 'rowSpan', tabindex: 'tabIndex' };
     for (const attribute of Array.from(node.attributes)) {
       attributes[attributeNames[attribute.name] ?? attribute.name] = attribute.value;
     }
@@ -54,13 +75,30 @@ function renderInstructions(html: string, copyLabel: string): ReactNode[] {
 
 export function PaymentInstructionsHtml(props: { html: string; className?: string; testId?: string }) {
   const { lang, t } = useI18n();
+  const helpId = useId();
+  const root = useRef<HTMLDivElement>(null);
+  const highlightTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  useEffect(() => () => clearTimeout(highlightTimer.current), []);
+  const showMessageHelp = (event: MouseEvent<HTMLDivElement>) => {
+    const link = event.target instanceof Element ? event.target.closest('[data-payment-message-link]') : null;
+    const help = root.current?.querySelector<HTMLElement>('[data-payment-message-help]');
+    if (!link || !help) return;
+    event.preventDefault();
+    help.focus({ preventScroll: true });
+    help.scrollIntoView({ block: 'center', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
+    help.dataset['highlighted'] = 'true';
+    clearTimeout(highlightTimer.current);
+    highlightTimer.current = setTimeout(() => { delete help.dataset['highlighted']; }, 3000);
+  };
   const sanitized = useMemo(() => sanitizePaymentInstructionsHtml(props.html, lang), [props.html, lang]);
   const copyLabel = t('common.copy');
   // Stable React elements preserve decoded QR nodes during activity and copy feedback.
-  const content = useMemo(() => renderInstructions(sanitized, copyLabel), [sanitized, copyLabel]);
+  const content = useMemo(() => renderInstructions(sanitized, copyLabel, helpId), [sanitized, copyLabel, helpId]);
 
   return (
     <div
+      ref={root}
+      onClick={showMessageHelp}
       data-testid={props.testId}
       className={clsx(
         'payment-instructions text-sm leading-relaxed text-strong [overflow-wrap:anywhere]',

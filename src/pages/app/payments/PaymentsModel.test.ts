@@ -195,7 +195,7 @@ describe('PaymentsModel', () => {
     expect(html).toContain('Nezapomeň přiložit fakturační údaje.');
     expect(html).toContain('Pokud tvoje banka nepodporuje variabilní symboly');
     expect(html).toContain('můžeš svoje členské ID poslat ve zprávě pro příjemce jako /VS/53.');
-    expect(html).toContain('Přesné znění závisí na tvojí bance.');
+    expect(html).not.toContain('Přesné znění');
     expect(html).not.toContain('najdete');
     expect(html).not.toContain('potřebujete');
     expect(html).not.toContain('plaťte');
@@ -213,7 +213,7 @@ describe('PaymentsModel', () => {
     expect(html).toContain('<code>/VS/53</code>');
     expect(html).toContain('Pokud tvoje banka');
     expect(html).toContain('můžeš svoje členské ID');
-    expect(html).toContain('na tvojí bance');
+    expect(html).not.toContain('Přesné znění');
     expect(paymentInstructionsPlainText(html, 'cs')).not.toMatch(/vaše|můžete|vaší/);
   });
 
@@ -221,7 +221,7 @@ describe('PaymentsModel', () => {
     const source = `<p>Pokud vaše banka nepodporuje variabilní symboly, můžete své členské ID poslat ve zprávě pro příjemce jako <code>/VS/00053</code>. Přesné znění závisí na vaší bance.</p>`.replaceAll(' ', space);
     const html = sanitizePaymentInstructionsHtml(source, 'cs');
     expect(html).toContain('<code>/VS/00053</code>');
-    expect(paymentInstructionsPlainText(html, 'cs')).toBe('Pokud tvoje banka nepodporuje variabilní symboly, můžeš svoje členské ID poslat ve zprávě pro příjemce jako /VS/00053. Přesné znění závisí na tvojí bance.');
+    expect(paymentInstructionsPlainText(html, 'cs')).toBe('Pokud tvoje banka nepodporuje variabilní symboly, můžeš svoje členské ID poslat ve zprávě pro příjemce jako /VS/00053.');
     expect(paymentInstructionsPlainText(source, 'cs')).toBe(paymentInstructionsPlainText(html, 'cs'));
     expect(paymentInstructionsPlainText(source, 'en')).toContain('Pokud vaše banka');
   });

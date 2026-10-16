@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { PaymentInstructionsHtml, paymentFieldCopyValue } from './PaymentInstructionsHtml';
@@ -59,5 +59,42 @@ describe('individual payment values', () => {
     const table = document.createElement('table');
     table.innerHTML = `<tr><td>${label}</td><td>${value}</td></tr>`;
     expect(paymentFieldCopyValue(table.querySelectorAll('td')[1]!)).toBe(expected);
+  });
+});
+
+
+describe('payment message help', () => {
+  beforeEach(() => { locale.lang = 'en'; });
+  test('scopes links per renderer, resets the highlight timer and preserves QR nodes', () => {
+    vi.useFakeTimers();
+    const previousMatchMedia = window.matchMedia;
+    window.matchMedia = vi.fn().mockReturnValue({ matches: false });
+    const scroll = vi.fn();
+    const previousScroll = HTMLElement.prototype.scrollIntoView;
+    HTMLElement.prototype.scrollIntoView = scroll;
+    try {
+      const html = `${instructions}<a href="#message">more info</a><a href="https://example.test">external</a><h3 id="message">Variable symbol and message</h3><p>Use /VS/53.</p>`;
+      const { container } = render(<><PaymentInstructionsHtml html={html} /><PaymentInstructionsHtml html={html} /></>);
+      const links = screen.getAllByRole('link', { name: 'more info' });
+      const sections = container.querySelectorAll<HTMLElement>('[data-payment-message-help]');
+      const qr = screen.getAllByRole('img')[0];
+      expect(links[0]?.getAttribute('href')).not.toBe(links[1]?.getAttribute('href'));
+      fireEvent.click(links[1]!);
+      expect(sections[1]).toHaveFocus();
+      expect(sections[0]).not.toHaveAttribute('data-highlighted');
+      expect(scroll).toHaveBeenCalled();
+      act(() => vi.advanceTimersByTime(2000));
+      fireEvent.click(links[1]!);
+      act(() => vi.advanceTimersByTime(2000));
+      expect(sections[1]).toHaveAttribute('data-highlighted', 'true');
+      act(() => vi.advanceTimersByTime(1000));
+      expect(sections[1]).not.toHaveAttribute('data-highlighted');
+      expect(screen.getAllByRole('img')[0]).toBe(qr);
+      expect(screen.getAllByRole('link', { name: 'external' })[0]).toHaveAttribute('href', 'https://example.test');
+    } finally {
+      HTMLElement.prototype.scrollIntoView = previousScroll;
+      window.matchMedia = previousMatchMedia;
+      vi.useRealTimers();
+    }
   });
 });

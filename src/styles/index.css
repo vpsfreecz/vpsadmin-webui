@@ -522,6 +522,23 @@
     overflow-x: hidden;
   }
 
+  .payment-instructions [data-payment-message-help] {
+    border-radius: 0.5rem;
+    scroll-margin-block: 6rem;
+    padding: 0.5rem 0.75rem;
+    outline: none;
+    transition: background-color 200ms ease, box-shadow 200ms ease;
+  }
+
+  .payment-instructions [data-payment-message-help][data-highlighted='true'] {
+    background-color: rgb(var(--c-accent) / 0.12);
+    box-shadow: inset 0 0 0 1px rgb(var(--c-accent) / 0.4);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .payment-instructions [data-payment-message-help] { transition: none; }
+  }
+
   .payment-instructions table[data-payment-table='true'] {
     table-layout: fixed;
   }
