@@ -40,6 +40,7 @@ import { VpsCreationProgress } from './VpsCreationProgress';
 import { VpsActionsMenu, VpsTabsNav } from './VpsNavigation';
 import { VpsHeaderRuntime } from './VpsHeaderRuntime';
 import { VpsHeaderStateBadges } from './VpsHeaderStateBadges';
+import { useLatestRecentVpsFailure } from './useRecentVpsFailures';
 import { VpsConsoleControls } from './VpsConsoleControls';
 import { VpsHeaderActionDialogs, type VpsHeaderConfirm } from './VpsHeaderActionDialogs';
 export function VpsLayout() {
@@ -120,6 +121,7 @@ export function VpsLayout() {
     enabled: Number.isFinite(vpsId) && vpsId > 0,
     refetchInterval: tierARefetchMs,
   });
+  const recentFailure = useLatestRecentVpsFailure(vpsId, tierARefetchMs);
 
   const [confirm, setConfirm] = useState<VpsHeaderConfirm>(null);
   const [lastAction, setLastAction] = useState<
@@ -515,6 +517,7 @@ export function VpsLayout() {
               busyTransaction={busyTransaction}
               busyLocalLock={busyLocalLock}
               activeChainIds={activeChainIds}
+              recentFailure={recentFailure}
             />
           }
           meta={

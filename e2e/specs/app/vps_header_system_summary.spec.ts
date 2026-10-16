@@ -123,3 +123,57 @@ test('@smoke @smoke-mobile VPS detail header shows the same usage badges as the 
     await expectNoUsageBadges('vps.header');
   }
 });
+
+test('@smoke @smoke-mobile VPS detail header links a recent failure and hides an old one', async ({ page }) => {
+  await bootstrapVpsAdminWindow(page);
+  const vps = {
+    id: 126, hostname: 'vps126.example.test', object_state: 'active', is_running: true, memory: 2048, used_memory: 512,
+    user: { id: 10, login: 'alice' },
+    node: { id: 1, domain_name: 'node1.example.test', location: { id: 2, label: 'Praha' } },
+  };
+  const recent = {
+    id: 9101, label: 'Restart', state: 'fatal',
+    created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), concerns: [['Vps', 126]],
+  };
+  const old = {
+    id: 9999, label: 'Clone', state: 'failed', created_at: '2022-08-18T14:18:25Z', concerns: [['Vps', 126]],
+  };
+  const failureQueries = new Set<string>();
+  await installHaveApiMock(page, {
+    user: { id: 10, login: 'alice', level: 99 },
+    handlers: {
+      'GET vpses/126': () => ({ vps }),
+      'GET ip_addresses': () => ({ ip_addresses: [] }),
+      'GET vpses/126/statuses': () => ({ statuses: [] }),
+      'GET transaction_chains': ({ searchParams }) => {
+        const state = searchParams.get('transaction_chain[state]');
+        if (!state) return { transaction_chains: [] };
+        const param = (name: string) => searchParams.get(`transaction_chain[${name}]`);
+        failureQueries.add(`${state}:${param('class_name')}:${param('row_id')}:${param('limit')}`);
+        return { transaction_chains: [recent, old].filter((chain) => chain.state === state) };
+      },
+      'GET transaction_chains/9101': () => ({ transaction_chain: recent }),
+      'GET transactions': () => ({ transactions: [] }),
+    },
+  });
+
+  await page.goto('/app/vps/126');
+  const badge = page.getByTestId('vps.header.recent_failure');
+  await expect(badge).toBeVisible();
+  await expect(badge).toHaveText('Recent failed task #9101');
+  await expect(badge).toHaveAttribute('href', '/app/transactions/9101');
+  await expect(badge).toHaveAttribute('title', /^Failed task: Restart, created /);
+  expect([...failureQueries].sort()).toEqual(['failed:Vps:126:1', 'fatal:Vps:126:1']);
+  await expectNoDocumentHorizontalOverflow(page);
+
+  recent.created_at = '2022-05-08T09:09:00Z';
+  await expect(badge).toHaveCount(0);
+  await expect(page.getByTestId('vps.header.runtime')).toBeVisible();
+
+  recent.created_at = new Date(Date.now() - 60 * 1000).toISOString();
+  await page.goto('/admin/vps/126');
+  await expect(badge).toHaveAttribute('href', '/admin/transactions/9101');
+  await badge.focus();
+  await page.keyboard.press('Enter');
+  await expect(page).toHaveURL(/\/admin\/transactions\/9101$/);
+});

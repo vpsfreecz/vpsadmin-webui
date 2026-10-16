@@ -435,7 +435,8 @@ The VPS list marks a VPS with a failed or fatal transaction chain only when the
 chain was created within the last 7 days (REQ-074). Failed chains stay failed
 until an administrator resolves them, so an older failure would otherwise flag
 a working VPS indefinitely. The badge links to the chain detail; its tooltip
-gives the operation and creation time.
+gives the operation and creation time. The VPS detail header shows the same
+badge, querying only that VPS's newest failed and fatal chains.
 
 **Contract:** action state, transaction and object state are related but not
 interchangeable. Unknown/stale locks must be shown as such. Users see permitted

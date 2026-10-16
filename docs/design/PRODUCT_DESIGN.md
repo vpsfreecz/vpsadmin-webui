@@ -60,7 +60,8 @@ Header order: object identity and distribution; state and owner (when relevant);
 node/location and SSH access; runtime summary (uptime, load 1/5/15 minutes,
 processes, CPU use); detail navigation. The RAM/Disk high badges match the VPS list
 (from 90 %, danger from 98 %); usage bars keep their earlier 80 % warning colour as
-a gradual cue. The recent-failure badge remains list-only. Header metrics use API data. A stopped or
+a gradual cue. The header also shows the list's recent-failure badge under the same
+7-day rule. Header metrics use API data. A stopped or
 unknown value must not be fabricated. The overview organizes resource, access,
 network and storage cards in equal desktop columns, followed by wider history or
 graph content as needed. A graph request must not obscure the basic facts.
