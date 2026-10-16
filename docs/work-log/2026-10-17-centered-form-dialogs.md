@@ -1,6 +1,8 @@
 # Centered forms and advanced filters — 2026-10-17
 
 Requirement: REQ-010. Status: prepared for review, not merged or deployed.
+Review: [PR65](https://github.com/vpsfreecz/vpsadmin-webui/pull/65),
+implementation commit `aebf36e9`.
 
 ## Request and change
 
