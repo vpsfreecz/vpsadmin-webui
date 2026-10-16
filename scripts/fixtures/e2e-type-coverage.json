@@ -20,6 +20,7 @@
     "e2e/specs/admin/registration_reason_presets.spec.ts",
     "e2e/specs/admin/requests_operations_smoke.spec.ts",
     "e2e/specs/app/admin_default_review_queue.spec.ts",
+    "e2e/specs/app/admin_newslog.spec.ts",
     "e2e/specs/app/authenticated_home_smoke.spec.ts",
     "e2e/specs/app/exports_filter_contract.spec.ts",
     "e2e/specs/app/global_search_cold_start.spec.ts",
@@ -603,13 +604,6 @@
     {
       "path": "e2e/specs/app/admin_network_live_noc.spec.ts",
       "sha256": "fa2c519387d4f0bbc8cebf7ab95d19c1a1460c3f178d474aca574d698c27b5d4",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/app/admin_newslog.spec.ts",
-      "sha256": "e5dc1d76aec0f23ae67636c7dbec0d05877f61d5fe62eab21d3a0fba3dacaeb7",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."

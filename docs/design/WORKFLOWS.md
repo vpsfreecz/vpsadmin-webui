@@ -440,6 +440,14 @@ intentionally blocked pending safe backend relation handling; translations and
 template-recipient membership have separate supported delete operations. See
 [the deletion boundary](ACTION_CONTRACTS.md#deliberately-blocked-mail-deletion).
 
+News creation and editing show Czech and English text together, independently of
+UI language. English is required by the existing API; an empty Czech translation
+falls back to English for readers. Editing loads explicit translation fields,
+never treats the localized read-only `message` as English, and keeps both drafts
+on a save failure. Clearing Czech deliberately removes that translation. The
+admin list previews the selected UI language and searches both loaded translations.
+See [the bilingual editor record](../work-log/2026-10-14-bilingual-news-editor.md).
+
 **Failure contract:** privileged routes/actions remain independently gated; template
 HTML preview must retain sandbox/remote-load defenses. Handler reorder partial
 outcomes require reconciliation. Keep row/form errors where the edit happened.
