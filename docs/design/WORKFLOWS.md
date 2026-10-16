@@ -48,6 +48,14 @@ distribution is a labeled metadata field after the administrator-visible owner,
 followed by node and location; members see the same distribution field. Unknown
 templates retain the unavailable marker instead of guessing a distribution.
 
+Creation and reinstall share optional first-boot initialization: leave it disabled,
+paste a script/cloud-init/NixOS configuration, or select saved User data. Saved
+choices belong to the VPS owner; changing the owner clears the selected template.
+The picker has explicit loading, failure/retry and empty states and loads further
+ID-cursor pages on demand. It links to the owner's User data management in another
+tab so the current form draft remains available. Reinstall still requires explicit
+destructive confirmation and preserves the choice after a rejected request.
+
 After an accepted create response, open the exact VPS detail immediately while
 provisioning continues. A localized banner distinguishes accepted/pending work,
 confirmed completion, task failure and unavailable status; it links to Tasks

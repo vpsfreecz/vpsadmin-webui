@@ -589,7 +589,7 @@ test.describe('@pr-smoke VPS lifecycle tab', () => {
       vps: {
         os_template: 7,
         user_data_format: 'cloudinit_script',
-        user_data_content: '#cloud-config\npackages: []',
+        user_data_content: '  #cloud-config\npackages: []\n  ',
       },
     });
   });

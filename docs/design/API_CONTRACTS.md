@@ -226,3 +226,20 @@ active queries refresh and inactive queries refresh when next used. Editors
 remain mounted and mutations are never replayed. A read retried after OAuth
 renewal retains its original language. No local translation map duplicates the
 API catalog. See [verification and limitations](../work-log/2026-10-06-transaction-api-labels.md).
+
+## VPS initialization inputs
+
+Both VPS create and reinstall accept either `vps_user_data` (saved resource ID)
+or `user_data_format` plus `user_data_content` (inline), never both from these
+forms. Disabled initialization omits all three fields. Blank inline content is
+rejected locally; submitted nonblank bytes, including indentation and trailing
+newlines, are preserved. This uses the existing API contract and does not change
+the backend.
+
+The saved picker queries `/vps_user_data` in descending ID pages of 50, continuing
+with the minimum ID as `from_id`. Admin accounts send the selected VPS owner's
+`user` filter, including their own ID in My view. Regular members omit `user`
+because that input is blacklisted and the API scopes results to the authenticated
+member. Query cache keys include owner and role; returned rows are additionally
+restricted to that owner. It does not send the unsupported `q` filter. Changing
+owner clears and invalidates the selected ID before submission.

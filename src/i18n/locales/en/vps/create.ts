@@ -1,5 +1,23 @@
 // VPS create flow copy
 export const enVps_create = {
+  'vps.initialization.title': 'Initialization on first boot',
+  'vps.initialization.enable': 'Use User data',
+  'vps.initialization.help': 'Optionally run a script, cloud-init or NixOS configuration on first boot.',
+  'vps.initialization.source': 'Configuration source',
+  'vps.initialization.inline': 'Custom content',
+  'vps.initialization.saved': 'Saved template',
+  'vps.initialization.owner_required': 'Select the VPS owner to see their saved templates.',
+  'vps.initialization.content_required': 'Enter the configuration content or turn off User data.',
+  'vps.initialization.template_required': 'Select a saved template for this VPS owner.',
+  'vps.initialization.template': 'Saved User data',
+  'vps.initialization.choose': 'Choose a template…',
+  'vps.initialization.load_error': 'Could not load saved templates. Try again.',
+  'vps.initialization.empty': 'This owner has no saved templates. You can enter custom content instead.',
+  'vps.initialization.more': 'Load more templates',
+  'vps.initialization.manage': 'Manage templates in a new tab',
+  'vps.initialization.format': 'User data format',
+  'vps.initialization.content': 'Configuration content',
+
   'vps.create.progress.pending.title': 'Creating VPS',
   'vps.create.progress.pending.body': 'The request was accepted. Your VPS is being prepared; this page updates automatically.',
   'vps.create.progress.complete.title': 'VPS created',

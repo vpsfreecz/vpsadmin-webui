@@ -542,7 +542,7 @@ export function VpsLifecyclePage() {
       pending={reinstallM.isPending}
       succeeded={reinstallM.isSuccess}
       errorMessage={reinstallM.isError ? mutationErrorMessage(reinstallM.error, t('vps.lifecycle.validation.reinstall'), t('vps.mutation.error.missing_action_state')) : undefined}
-      onSubmit={() => reinstallM.mutate(prepareMutation(() => buildVpsReinstallPayload(reinstall)))}
+      onSubmit={() => reinstallM.mutate(prepareMutation(() => buildVpsReinstallPayload(reinstall, ownerId ?? undefined)))}
     />
   );
 

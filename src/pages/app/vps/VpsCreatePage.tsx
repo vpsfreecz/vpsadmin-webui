@@ -10,6 +10,7 @@ import { ListShell } from '../../../components/layout/ListShell';
 import { PageHeader } from '../../../components/layout/PageHeader';
 import { SyncStaleBanner } from '../../../components/layout/SyncStaleBanner';
 import { Button } from '../../../components/ui/Button';
+import { Card, CardBody, CardHeader } from '../../../components/ui/Card';
 import { ErrorState } from '../../../components/ui/ErrorState';
 import { LoadingState } from '../../../components/ui/LoadingState';
 import { fetchDefaultObjectClusterResources } from '../../../lib/api/clusterResources';
@@ -53,40 +54,11 @@ import {
   CreateSystemCard,
   CreateTargetCard,
 } from './VpsCreateWizardPrimitives';
+import { VpsInitializationFields } from './VpsInitializationFields';
+import { focusFirstInvalidField } from './VpsCreateValidation';
 import { useVpsCreateOutcomeState } from './useVpsCreateOutcomeState';
 import { useVpsCreateResourceDefaults } from './useVpsCreateResourceDefaults';
 export { buildVpsCreatePayload, defaultForm, validateForm, type FormState } from './VpsCreateModel';
-
-const VALIDATION_FIELD_TARGETS: ReadonlyArray<readonly [readonly string[], string]> = [
-  [[
-    'vps.create.validation.user_required',
-    'vps.create.validation.user_invalid',
-    'vps.create.validation.user_verifying',
-    'vps.create.validation.user_not_found',
-  ], 'vps.create.user'],
-  [['vps.create.validation.target_required'], 'vps.create.location'],
-  [['vps.create.validation.node_required'], 'vps.create.node'],
-  [['vps.create.validation.auto_node_required'], 'vps.create.location'],
-  [['vps.create.validation.os_template_required'], 'vps.create.os_template'],
-  [['vps.create.validation.hostname_required', 'vps.create.validation.hostname_format'], 'vps.create.hostname'],
-  [['vps.create.validation.cpu'], 'vps.create.cpu'],
-  [['vps.create.validation.memory'], 'vps.create.memory'],
-  [['vps.create.validation.diskspace'], 'vps.create.diskspace'],
-  [['vps.create.validation.swap'], 'vps.create.swap'],
-  [['vps.create.validation.ipv4'], 'vps.create.ipv4'],
-  [['vps.create.validation.ipv6'], 'vps.create.ipv6'],
-  [['vps.create.validation.ipv4_private'], 'vps.create.ipv4_private'],
-];
-
-function focusFirstInvalidField(validationKeys: string[]) {
-  const keys = new Set(validationKeys);
-  const targetTestId = VALIDATION_FIELD_TARGETS.find(([candidateKeys]) => candidateKeys.some((key) => keys.has(key)))?.[1];
-  if (!targetTestId) return;
-
-  const target = document.querySelector<HTMLElement>(`[data-testid="${targetTestId}"]`);
-  target?.focus({ preventScroll: true });
-  target?.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
-}
 
 export function VpsCreatePage() {
   const { basePath, mode } = useAppMode();
@@ -121,7 +93,7 @@ export function VpsCreatePage() {
   useEffect(() => {
     if (contextualUserValueRef.current === contextualUserValue) return;
     contextualUserValueRef.current = contextualUserValue;
-    setForm((current) => ({ ...current, userId: contextualUserValue }));
+    setForm((current) => ({ ...current, userId: contextualUserValue, userDataTemplateId: '', userDataOwnerId: undefined }));
   }, [contextualUserValue]);
 
   const locationQ = useQuery({
@@ -204,12 +176,12 @@ export function VpsCreatePage() {
   const markResourceEdited = useVpsCreateResourceDefaults(defaultResourcesQ.data, setForm);
 
   const validationKeys = useMemo(() => {
-    const keys = validateForm(form, isAdminMode, hiddenAdminTarget);
+    const keys = validateForm(form, isAdminMode, hiddenAdminTarget, auth.user?.id);
     if (!isAdminMode || selectedOwnerId === undefined) return keys;
     if (ownerLookupPending) return [...keys, 'vps.create.validation.user_verifying'];
     if (!selectedOwner) return [...keys, 'vps.create.validation.user_not_found'];
     return keys;
-  }, [form, hiddenAdminTarget, isAdminMode, ownerLookupPending, selectedOwner, selectedOwnerId]);
+  }, [form, hiddenAdminTarget, isAdminMode, ownerLookupPending, selectedOwner, selectedOwnerId, auth.user?.id]);
   const canSubmit = validationKeys.length === 0;
   // audit:ignore missing-local-lock missing-local-lock-release -- create uses its own durable receipt before a VPS id exists.
   const createM = useMutation({
@@ -293,7 +265,9 @@ export function VpsCreatePage() {
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     markResourceEdited(key);
-    setForm((prev) => ({ ...prev, [key]: value }));
+    setForm((prev) => ({ ...prev, [key]: value,
+      ...(key === 'userId' && value !== prev.userId ? { userDataTemplateId: '', userDataOwnerId: undefined } : {}),
+    }));
   }
 
   function applyResourcePreset(presetId: string) {
@@ -317,7 +291,7 @@ export function VpsCreatePage() {
       return;
     }
     const formSnapshot = Object.freeze({ ...form });
-    const payload = Object.freeze(buildVpsCreatePayload(formSnapshot, { isAdminMode, needsAdminPayload, hiddenAdminTarget }));
+    const payload = Object.freeze(buildVpsCreatePayload(formSnapshot, { isAdminMode, needsAdminPayload, hiddenAdminTarget, memberId: auth.user?.id }));
     const hostname = formSnapshot.hostname.trim();
     createM.mutate(Object.freeze({
       payload,
@@ -421,6 +395,15 @@ export function VpsCreatePage() {
               onLocationChange={(value) => setForm((prev) => ({ ...prev, locationId: value, nodeId: '' }))}
             />
             <CreateSystemCard form={form} templatesByFamily={templatesByFamily} selectedTemplate={selectedTemplate} onUpdate={update} />
+            <Card>
+              <CardHeader title={t('vps.initialization.title')} />
+              <CardBody>
+                <VpsInitializationFields form={form}
+                  onChange={(patch) => setForm((current) => ({ ...current, ...patch }))}
+                  ownerId={isAdminMode ? selectedOwner?.id : auth.user?.id}
+                  disabled={createM.isPending || Boolean(scopedCreateOutcomeMarker)} testId="vps.create.user_data" />
+              </CardBody>
+            </Card>
             <CreateIdentityCard form={form} isAdminMode={isAdminMode} onUpdate={update} />
             <CreateResourcesCard form={form} onApplyPreset={applyResourcePreset} onUpdate={update} />
             <CreateNetworkCard form={form} onUpdate={update} />

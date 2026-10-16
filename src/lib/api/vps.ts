@@ -128,6 +128,9 @@ export interface VpsMigratePayload {
 }
 
 interface CreateVpsCommonPayload {
+  vps_user_data?: number;
+  user_data_format?: string;
+  user_data_content?: string;
   hostname: string;
   os_template?: number;
   start?: boolean;
@@ -157,6 +160,9 @@ export type CreateVpsPayload = CreateVpsAdminPayload | CreateVpsUserPayload;
 
 export function buildCreateVpsParams(payload: CreateVpsPayload): Record<string, unknown> {
   const common: Record<string, unknown> = {
+    ...(payload.vps_user_data !== undefined ? { vps_user_data: payload.vps_user_data } : {}),
+    ...(payload.user_data_format !== undefined ? { user_data_format: payload.user_data_format } : {}),
+    ...(payload.user_data_content !== undefined ? { user_data_content: payload.user_data_content } : {}),
     hostname: payload.hostname,
     os_template: payload.os_template,
     start: payload.start,

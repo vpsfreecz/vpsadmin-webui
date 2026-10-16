@@ -1,9 +1,10 @@
+import { buildVpsInitializationPayload, defaultVpsInitialization, initializationError, type VpsInitializationForm } from './VpsInitializationModel';
 import type { CreateVpsPayload } from '../../../lib/api/vps';
 import type { Location } from '../../../lib/api/infra';
 import type { Node } from '../../../lib/api/nodes';
 import type { OsFamily, OsTemplate } from '../../../lib/api/osTemplates';
 
-export type FormState = {
+export type FormState = VpsInitializationForm & {
   locationId: string;
   nodeId: string;
   osTemplateId: string;
@@ -42,6 +43,7 @@ export const RESOURCE_PRESETS: ResourcePreset[] = [
 
 export function defaultForm(): FormState {
   return {
+    ...defaultVpsInitialization(),
     locationId: '',
     nodeId: '',
     osTemplateId: '',
@@ -148,7 +150,8 @@ export function formatMib(raw: string): string {
 export function validateForm(
   form: FormState,
   isAdmin: boolean,
-  hiddenAdminTarget?: HiddenAdminTarget
+  hiddenAdminTarget?: HiddenAdminTarget,
+  memberId?: number
 ): string[] {
   const errors: string[] = [];
   const hostname = form.hostname.trim();
@@ -180,6 +183,8 @@ export function validateForm(
     if (!Number.isInteger(n) || n < min || n > max) errors.push(msg);
   }
 
+  const initError = initializationError(form, isAdmin ? optionalResource(form.userId) : hiddenAdminTarget?.userId ?? memberId);
+  if (initError) errors.push(initError);
   return errors;
 }
 
@@ -189,9 +194,11 @@ export function buildVpsCreatePayload(
     isAdminMode: boolean;
     needsAdminPayload: boolean;
     hiddenAdminTarget?: HiddenAdminTarget;
+    memberId?: number;
   }
 ): CreateVpsPayload {
   const commonPayload = {
+    ...buildVpsInitializationPayload(form, opts.isAdminMode ? optionalResource(form.userId) : opts.hiddenAdminTarget?.userId ?? opts.memberId),
     hostname: form.hostname.trim(),
     os_template: optionalResource(form.osTemplateId),
     start: form.start,
