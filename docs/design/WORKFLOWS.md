@@ -43,6 +43,12 @@ and impersonation credentials. Retry repeats only the two bootstrap GETs, not
 an API mutation. [Routes](../../src/routes/router.tsx),
 [public adapter](../../src/lib/api/public.ts), [BFF docs](../../bff/README.md).
 
+**News layout (REQ-054):** public `/news` uses one compact chronological list.
+On desktop the publication time sits beside the complete message; on narrow
+screens it sits above it. Short announcements do not get separate card headers
+or visible internal IDs. Preserve existing ordering, localized/sanitized HTML,
+links, full long messages, missing-date fallback and loading/error/empty states.
+
 ## VPS creation, detail and power
 
 **Intent:** choose placement/template/resources, create a VPS, inspect identity and
