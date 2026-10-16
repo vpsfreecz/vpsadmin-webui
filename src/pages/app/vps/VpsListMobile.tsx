@@ -14,6 +14,7 @@ import { KeysetPagination } from '../../../components/ui/KeysetPagination';
 
 import { VpsListRowActions } from './VpsListRowActions';
 import { VpsUsageRiskBadges } from './VpsUsageRiskBadges';
+import { VpsRecentFailureBadge } from './VpsRecentFailureBadge';
 import type { VpsListRecord, VpsListTranslator } from './vpsListSemantics';
 
 interface VpsListMobileProps {
@@ -52,7 +53,6 @@ export function VpsListMobile({
       <div className="vps-list-cards grid gap-3">
         {rows.map((row) => {
           const { vps } = row;
-          const failureId = row.recentFailureChainIds[0];
 
           return (
             <Card key={vps.id} testId={`vps.card.${vps.id}`} className={toneSurfaceClass(row.rowVariant)}>
@@ -78,7 +78,14 @@ export function VpsListMobile({
                       t={t}
                       testIdPrefix={`vps.card.${vps.id}`}
                     />
-                    {failureId !== undefined ? <Badge variant="danger">{t('vps.list.state.recent_failure', { id: failureId })}</Badge> : null}
+                    {row.latestRecentFailure ? (
+                      <VpsRecentFailureBadge
+                        chain={row.latestRecentFailure}
+                        basePath={basePath}
+                        t={t}
+                        testId={`vps.card.${vps.id}.recent_failure`}
+                      />
+                    ) : null}
                     {row.busyTx ? (
                       <LockBadge kind="transaction" t={t} chainIds={row.busyChains} showDetails />
                     ) : row.busyLocalLock ? (

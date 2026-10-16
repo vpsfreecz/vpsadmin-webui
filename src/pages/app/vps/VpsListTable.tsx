@@ -14,6 +14,7 @@ import { UsageBar } from '../../../components/ui/UsageBar';
 
 import { VpsListRowActions } from './VpsListRowActions';
 import { VpsUsageRiskBadges } from './VpsUsageRiskBadges';
+import { VpsRecentFailureBadge } from './VpsRecentFailureBadge';
 import type { VpsListRecord, VpsListTranslator } from './vpsListSemantics';
 
 interface VpsListTableProps {
@@ -96,7 +97,6 @@ export function VpsListTable({
       <tbody>
         {rows.map((row) => {
           const { vps } = row;
-          const failureId = row.recentFailureChainIds[0];
 
           return (
             <TableRowLink
@@ -127,7 +127,14 @@ export function VpsListTable({
                     t={t}
                     testIdPrefix={`vps.row.${vps.id}`}
                   />
-                  {failureId !== undefined ? <Badge variant="danger">{t('vps.list.state.recent_failure', { id: failureId })}</Badge> : null}
+                  {row.latestRecentFailure ? (
+                    <VpsRecentFailureBadge
+                      chain={row.latestRecentFailure}
+                      basePath={basePath}
+                      t={t}
+                      testId={`vps.row.${vps.id}.recent_failure`}
+                    />
+                  ) : null}
                   {row.busyTx ? (
                     <LockBadge kind="transaction" t={t} chainIds={row.busyChains} showDetails />
                   ) : row.busyLocalLock ? (

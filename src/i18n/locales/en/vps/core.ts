@@ -13,6 +13,7 @@ export const enVps_core = {
   'vps.list.state.ram_high': 'RAM high',
   'vps.list.state.disk_high': 'Disk high',
   'vps.list.state.recent_failure': 'Recent failed task #{id}',
+  'vps.list.state.recent_failure_title': 'Failed task: {operation}, created {time}',
   'vps.list.ip.none': 'No IP shown',
   'vps.list.col.vps': 'VPS',
   'vps.list.col.owner_location': 'Owner / location',

@@ -1,3 +1,4 @@
+import type { TransactionChain } from '../../../lib/api/transactions';
 import type { Vps } from '../../../lib/api/vps';
 import type { TransactionLockIndex } from '../../../lib/lockIndex';
 import { transactionLockChainIds } from '../../../lib/lockIndex';
@@ -5,6 +6,7 @@ import { gateVpsAction, gateVpsMutation } from '../../../lib/gates/vps';
 import type { GateDecision } from '../../../lib/gates/types';
 import { objectStateBadge, runtimeStateBadge, type BadgeSpec } from '../../../lib/taskStatus';
 import { dotVariantFromBadgeVariant, dotVariantFromRowVariant } from '../../../lib/variantMap';
+import { recentVpsFailureChains, type RecentVpsFailures } from './recentVpsFailures';
 import type { TableRowVariant } from '../../../components/ui/TableRowLink';
 import type { StatusDotVariant } from '../../../components/ui/StatusDot';
 
@@ -47,6 +49,7 @@ export interface VpsListRecord {
   deleteGate: GateDecision;
   inFlightKind?: 'start' | 'stop' | 'restart' | 'delete';
   recentFailureChainIds: number[];
+  latestRecentFailure: TransactionChain | undefined;
   memUsed: number | undefined;
   memMax: number | undefined;
   diskUsed: number | undefined;
@@ -233,7 +236,7 @@ export function loadValue(vps: Vps, t: VpsListTranslator): string {
 export function buildVpsListRecord(args: {
   vps: Vps;
   lockIndex: TransactionLockIndex;
-  failureIndex?: TransactionLockIndex;
+  recentFailures?: RecentVpsFailures;
   isLocallyLocked: (id: number) => boolean;
   inFlightKind?: 'start' | 'stop' | 'restart' | 'delete';
   t: VpsListTranslator;
@@ -246,7 +249,8 @@ export function buildVpsListRecord(args: {
   const busyTx = busyChains.length > 0;
   const busyLocalLock = isLocallyLocked(vps.id);
   const busyLocal = inFlightKind !== undefined || busyLocalLock;
-  const recentFailureChainIds = args.failureIndex ? transactionLockChainIds(args.failureIndex, 'Vps', vps.id) : [];
+  const recentFailureChains = recentVpsFailureChains(args.recentFailures, vps.id);
+  const recentFailureChainIds = recentFailureChains.map((chain) => chain.id);
 
   const startGate = gateVpsAction('start', { vps, busyLocal, busyTransaction: busyTx });
   const stopGate = gateVpsAction('stop', { vps, busyLocal, busyTransaction: busyTx });
@@ -286,6 +290,7 @@ export function buildVpsListRecord(args: {
     deleteGate,
     inFlightKind,
     recentFailureChainIds,
+    latestRecentFailure: recentFailureChains[0],
     memUsed,
     memMax,
     diskUsed,
