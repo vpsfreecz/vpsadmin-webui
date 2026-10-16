@@ -449,11 +449,19 @@ for (const mode of ['member', 'admin'] as const) {
         },
       });
       await page.goto(mode === 'admin' ? '/admin/vps/new?user=1' : '/app/vps/new');
-      await expect(page.getByTestId('vps.create.hostname')).toHaveValue('VPS');
+      await expect(page.getByTestId('vps.create.hostname')).toHaveValue('');
+      await expect(page.getByTestId('vps.create.hostname')).toHaveAttribute('placeholder', 'VPS');
       await page.getByTestId('vps.create.location').selectOption('2');
       await page.getByTestId('vps.create.os_template').selectOption('6');
       if (mode === 'admin') await page.getByTestId('vps.create.node').selectOption('101');
-      if (scenario.value !== undefined) await page.getByTestId('vps.create.hostname').fill(scenario.value);
+      if (scenario.name === 'custom') {
+        await page.getByTestId('vps.create.hostname').click();
+        await page.getByTestId('vps.create.hostname').pressSequentially(scenario.value!);
+        await expect(page.getByTestId('vps.create.hostname')).toHaveValue(scenario.value!);
+      } else if (scenario.value !== undefined) {
+        await page.getByTestId('vps.create.hostname').fill('temporary.example');
+        await page.getByTestId('vps.create.hostname').fill(scenario.value);
+      }
       await expect(page.getByTestId('vps.create.review.hostname')).toContainText(scenario.expected);
       await expect(page.getByTestId('vps.create.submit')).toHaveText('Create VPS');
       if (mode === 'admin' && scenario.name === 'default') {

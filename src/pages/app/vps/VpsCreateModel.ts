@@ -54,7 +54,7 @@ export function defaultForm(): FormState {
     nodeId: '',
     osTemplateId: '',
     userId: '',
-    hostname: DEFAULT_VPS_HOSTNAME,
+    hostname: '',
     cpu: '8',
     memory: '4096',
     diskspace: '122880',

@@ -3,7 +3,9 @@
 Prepared for review; not merged or deployed. Requirement: REQ-023.
 
 The maintainer requested `VPS` as the initial and empty-input hostname. Creation
-now prefills it and resolves empty or whitespace-only input to the same value.
+now shows it as a placeholder and resolves empty or whitespace-only input to
+the same value. Per the follow-up request, typing starts in an empty field
+without deleting a prefilled name.
 Review, validation and the create payload use one resolver; the durable outcome
 receipt and task label use the resolved payload hostname. This prevents recovery
 from tracking an empty identity when the API received `VPS`.
@@ -29,10 +31,24 @@ Existing VPS edit, reinstall and clone behavior is unchanged. No API changes.
   checking the review, submitted body and durable receipt agree.
 - Unit coverage checks initial state, empty input in both modes, trimmed custom
   names and invalid non-empty names. Existing accepted-binding component tests
-  explicitly replace the prefilled hostname before entering their custom value.
+  type directly into the initially empty field.
 - Screenshots show the local implementation with synthetic API fixtures. No live
   VPS was created; browser evidence does not certify real API provisioning.
 
 ![Desktop](screenshots/2026-10-16-vps-default-hostname/desktop.png)
 
 ![Mobile](screenshots/2026-10-16-vps-default-hostname/mobile.png)
+
+## Placeholder follow-up
+
+Updated the same PR after the maintainer requested immediate replacement while
+typing. Both language catalogs show the literal hostname `VPS`; the locked
+terminology guide reviewed in this conversation is
+`a65a4dfeb92a59df4a80a737a20bcbf8558793ff`. Browser cases now type a custom name
+with real keystrokes without clearing the field, and test clearing a previously
+entered name to exercise the fallback.
+
+Follow-up verification passed: 16 targeted Playwright hostname cases on desktop
+and mobile Chromium; pinned Nix TypeScript/E2E checks, i18n/design audits,
+1,814 unit tests and production build. UI-string and active-documentation audits
+also passed. Updated screenshots show the final placeholder implementation.

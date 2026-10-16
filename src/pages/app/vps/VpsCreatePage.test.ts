@@ -115,8 +115,8 @@ describe('VpsCreatePage payload guardrails', () => {
 
 
 describe('VPS creation hostname defaults', () => {
-  it('prefills VPS in a new form', () => {
-    expect(defaultForm().hostname).toBe('VPS');
+  it('leaves a new hostname empty for immediate typing', () => {
+    expect(defaultForm().hostname).toBe('');
   });
 
   it.each([false, true])('resolves blank hostnames in validation and payload (admin=%s)', (isAdminMode) => {

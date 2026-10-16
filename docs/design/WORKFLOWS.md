@@ -60,7 +60,8 @@ distribution is a labeled metadata field after the administrator-visible owner,
 followed by node and location; members see the same distribution field. Unknown
 templates retain the unavailable marker instead of guessing a distribution.
 
-Creation prefills the hostname with `VPS`. Clearing the field or entering only
+Creation shows `VPS` as a placeholder, so typing a custom hostname needs no
+manual deletion. Clearing the field or entering only
 whitespace also resolves to `VPS` in review, the API payload and outcome tracking.
 Custom hostnames are trimmed and validated as before.
 

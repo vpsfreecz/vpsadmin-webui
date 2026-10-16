@@ -71,7 +71,7 @@ export const enVps_create = {
   'vps.create.field.start': 'Start after create',
   'vps.create.field.info': 'Extra information',
   'vps.create.location_environment': 'Environment: {environment}',
-  'vps.create.placeholder.hostname': 'my-vps',
+  'vps.create.placeholder.hostname': 'VPS',
   'vps.create.placeholder.user': 'Login, name or #ID…',
   'vps.create.validation.hostname_required': 'Hostname is required.',
   'vps.create.validation.hostname_format': 'Hostname must be 2-64 characters and contain only letters, numbers, dashes, underscores or dots.',
