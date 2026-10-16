@@ -50,3 +50,10 @@ production build, lint/format, i18n/structure, design-documentation and structur
 audits passed. No new unit tests were added for this content-only removal.
 The full Nix/unit results above refer to the preceding revision, not a rerun of
 this follow-up. Still prepared in PR58, not merged or deployed.
+
+## Deployment outcome
+
+Merged and deployed to all three WebUI sites as clean `f2ad625d` on 2026-10-16.
+See the [release receipt](2026-10-16-about-payments-release.md) for exact revisions,
+CI, build, browser evidence, configuration pin and rollback. This supersedes the
+prepared status recorded above.

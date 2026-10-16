@@ -40,3 +40,10 @@ Implemented fixture screenshots:
 
 ![Desktop](screenshots/2026-10-16-payment-informal-guidance/desktop.png)
 ![Mobile WebKit](screenshots/2026-10-16-payment-informal-guidance/mobile.png)
+
+## Deployment outcome
+
+Merged and deployed to all three WebUI sites as clean `f2ad625d` on 2026-10-16.
+See the [release receipt](2026-10-16-about-payments-release.md) for exact revisions,
+CI, build, browser evidence, configuration pin and rollback. This supersedes the
+prepared status recorded above.
