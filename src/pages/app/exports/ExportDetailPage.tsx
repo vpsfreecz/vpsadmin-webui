@@ -11,11 +11,9 @@ import { useChrome } from '../../../components/layout/ChromeContext';
 import { DetailShell } from '../../../components/layout/DetailShell';
 import { PageHeader } from '../../../components/layout/PageHeader';
 import { ScopeMismatchCard } from '../../../components/layout/ScopeMismatchCard';
-import { Alert } from '../../../components/ui/Alert';
 import { Badge } from '../../../components/ui/Badge';
 import { Button } from '../../../components/ui/Button';
 import { Card, CardBody, CardHeader } from '../../../components/ui/Card';
-import { CopyButton } from '../../../components/ui/CopyButton';
 import { ErrorState } from '../../../components/ui/ErrorState';
 import { LoadingState } from '../../../components/ui/LoadingState';
 import { formatDateTime } from '../../../lib/format';
@@ -35,6 +33,7 @@ import { ExportDeleteDialogs } from './ExportDeleteDialogs';
 import { ExportEditDrawer, ExportHostEditorDrawer, type ExportHostFormState } from './ExportDetailDrawers';
 import { boolBadgeLabel, defaultEditForm, defaultHostForm, errorMessage } from './ExportDetailHelpers';
 import { ExportHostsCard } from './ExportHostsCard';
+import { ExportMountInstructions } from './ExportMountInstructions';
 import {
   buildExportDiff,
   buildExportHostDiff,
@@ -43,10 +42,6 @@ import {
   exportAddress,
   parsePositiveInt,
   sanitizeMountName,
-  snippetFstab,
-  snippetMountCommand,
-  snippetNix,
-  snippetSystemd,
   sourceLabel,
   sourceShortName,
   type EditExportFormState,
@@ -330,10 +325,6 @@ export function ExportDetailPage() {
   }
 
   const badgeVariant = ex.enabled === false ? 'warn' : 'ok';
-  const mountCommand = snippetMountCommand(address, path, mountPoint);
-  const fstabLine = snippetFstab(address, path, mountPoint, rw);
-  const systemdUnit = snippetSystemd(address, path, mountPoint, rw);
-  const nixSnippet = snippetNix(address, path, mountPoint, rw);
   const editDiff = buildExportDiff(ex, editForm, isAdminAccount);
   const adminThreadsInvalid = isAdminAccount && editForm.threads.trim() !== '' && parsePositiveInt(editForm.threads) === null;
   const hostDiff = editingHost ? buildExportHostDiff(editingHost, hostForm) : [];
@@ -362,115 +353,68 @@ export function ExportDetailPage() {
         />
       }
     >
-      <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <div className="min-w-0 space-y-4">
-          <Card testId="exports.detail.summary">
-            <CardHeader title={t('exports.detail.summary.title')} subtitle={t('exports.detail.summary.subtitle')} />
-            <CardBody>
-              <div className="grid min-w-0 grid-cols-1 gap-3 md:grid-cols-2">
-                <div>
-                  <div className="text-xs font-semibold text-muted">{t('exports.field.source')}</div>
-                  <div className="mt-1 text-sm text-fg">{sourceLabel(ex)}</div>
-                </div>
-                <div>
-                  <div className="text-xs font-semibold text-muted">{t('exports.field.address')}</div>
-                  <div className="mt-1 font-mono text-xs text-fg">{address}</div>
-                </div>
-                <div>
-                  <div className="text-xs font-semibold text-muted">{t('exports.field.path')}</div>
-                  <div className="mt-1 font-mono text-xs text-fg">{path || '—'}</div>
-                </div>
-                <div>
-                  <div className="text-xs font-semibold text-muted">{t('common.user')}</div>
-                  <div className="mt-1 text-sm text-fg">
-                    {mode === 'admin' && isAdminAccount && userId ? <Link className="text-accent hover:underline" to={`${basePath}/users/${userId}`}>#{userId}</Link> : userId ? `#${userId}` : '—'}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-xs font-semibold text-muted">{t('exports.field.mode')}</div>
-                  <div className="mt-1 flex flex-wrap gap-2">
-                    <Badge variant={rw ? 'ok' : 'neutral'}>{rw ? t('exports.mode.rw') : t('exports.mode.ro')}</Badge>
-                    <Badge variant={Boolean(ex.sync) ? 'ok' : 'warn'}>{t('exports.field.sync')}</Badge>
-                    <Badge variant={Boolean(ex.subtree_check) ? 'info' : 'neutral'}>{t('exports.field.subtree_check')}</Badge>
-                    <Badge variant={Boolean(ex.root_squash) ? 'info' : 'neutral'}>{t('exports.field.root_squash')}</Badge>
-                  </div>
-                </div>
-                <div>
-                  <div className="text-xs font-semibold text-muted">{t('exports.field.scope')}</div>
-                  <div className="mt-1 flex flex-wrap gap-2">
-                    <Badge variant={allVps ? 'info' : 'neutral'}>{allVps ? t('exports.field.all_vps') : t('exports.field.selected_hosts')}</Badge>
-                    {isAdminAccount ? <Badge variant="neutral">{t('exports.field.threads_label', { count: String(ex.threads ?? 0) })}</Badge> : null}
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-faint">
-                <span>{t('common.updated')}: {ex.updated_at ? formatDateTime(ex.updated_at) : '—'}</span>
-                <span>{t('common.created')}: {ex.created_at ? formatDateTime(ex.created_at) : '—'}</span>
-                {datasetId ? <Link className="text-accent hover:underline" to={`${basePath}/datasets/${datasetId}`}>{t('exports.detail.open_dataset')}</Link> : null}
-              </div>
-            </CardBody>
-          </Card>
-
-          <Card testId="exports.detail.instructions">
-            <CardHeader
-              title={t('exports.detail.instructions.title')}
-              subtitle={sourceIsSnapshot ? t('exports.detail.instructions.snapshot_subtitle') : t('exports.detail.instructions.dataset_subtitle')}
-              actions={<CopyButton text={mountCommand} label={t('exports.instructions.copy_command')} testId="exports.detail.instructions.command.copy" />}
-            />
-            <CardBody className="space-y-4">
-              {sourceIsSnapshot ? (
-                <Alert title={t('exports.detail.instructions.temporary.title')} variant="info">
-                  {t('exports.detail.instructions.temporary.body')}
-                </Alert>
-              ) : null}
-
+      <div className="min-w-0 space-y-4">
+        <Card testId="exports.detail.summary">
+          <CardHeader title={t('exports.detail.summary.title')} subtitle={t('exports.detail.summary.subtitle')} />
+          <CardBody>
+            <div className="grid min-w-0 grid-cols-1 gap-3 md:grid-cols-2">
               <div>
-                <div className="mb-2 text-xs font-semibold text-muted">{t('exports.instructions.command')}</div>
-                <pre data-testid="exports.detail.instructions.command" className="max-w-full overflow-x-auto rounded-md border border-border bg-code p-3 text-xs text-fg">{mountCommand}</pre>
+                <div className="text-xs font-semibold text-muted">{t('exports.field.source')}</div>
+                <div className="mt-1 text-sm text-fg">{sourceLabel(ex)}</div>
               </div>
-
-              {!sourceIsSnapshot ? (
-                <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-3">
-                  <div className="min-w-0">
-                    <div className="mb-2 flex items-center justify-between gap-2 text-xs font-semibold text-muted">
-                      <span>{t('exports.instructions.fstab')}</span>
-                      <CopyButton text={fstabLine} label={t('common.copy')} testId="exports.detail.instructions.fstab.copy" />
-                    </div>
-                    <pre className="max-w-full overflow-x-auto rounded-md border border-border bg-code p-3 text-xs text-fg">{fstabLine}</pre>
-                  </div>
-                  <div className="min-w-0">
-                    <div className="mb-2 flex items-center justify-between gap-2 text-xs font-semibold text-muted">
-                      <span>{t('exports.instructions.systemd')}</span>
-                      <CopyButton text={systemdUnit} label={t('common.copy')} testId="exports.detail.instructions.systemd.copy" />
-                    </div>
-                    <pre className="max-h-scroll-lg max-w-full overflow-auto rounded-md border border-border bg-code p-3 text-xs text-fg">{systemdUnit}</pre>
-                  </div>
-                  <div className="min-w-0">
-                    <div className="mb-2 flex items-center justify-between gap-2 text-xs font-semibold text-muted">
-                      <span>{t('exports.instructions.nixos')}</span>
-                      <CopyButton text={nixSnippet} label={t('common.copy')} testId="exports.detail.instructions.nixos.copy" />
-                    </div>
-                    <pre className="max-h-scroll-lg max-w-full overflow-auto rounded-md border border-border bg-code p-3 text-xs text-fg">{nixSnippet}</pre>
-                  </div>
+              <div>
+                <div className="text-xs font-semibold text-muted">{t('exports.field.address')}</div>
+                <div className="mt-1 font-mono text-xs text-fg">{address}</div>
+              </div>
+              <div>
+                <div className="text-xs font-semibold text-muted">{t('exports.field.path')}</div>
+                <div className="mt-1 font-mono text-xs text-fg">{path || '—'}</div>
+              </div>
+              <div>
+                <div className="text-xs font-semibold text-muted">{t('common.user')}</div>
+                <div className="mt-1 text-sm text-fg">
+                  {mode === 'admin' && isAdminAccount && userId ? <Link className="text-accent hover:underline" to={`${basePath}/users/${userId}`}>#{userId}</Link> : userId ? `#${userId}` : '—'}
                 </div>
-              ) : null}
-            </CardBody>
-          </Card>
-        </div>
+              </div>
+              <div>
+                <div className="text-xs font-semibold text-muted">{t('exports.field.mode')}</div>
+                <div className="mt-1 flex flex-wrap gap-2">
+                  <Badge variant={rw ? 'ok' : 'neutral'}>{rw ? t('exports.mode.rw') : t('exports.mode.ro')}</Badge>
+                  <Badge variant={Boolean(ex.sync) ? 'ok' : 'warn'}>{t('exports.field.sync')}</Badge>
+                  <Badge variant={Boolean(ex.subtree_check) ? 'info' : 'neutral'}>{t('exports.field.subtree_check')}</Badge>
+                  <Badge variant={Boolean(ex.root_squash) ? 'info' : 'neutral'}>{t('exports.field.root_squash')}</Badge>
+                </div>
+              </div>
+              <div>
+                <div className="text-xs font-semibold text-muted">{t('exports.field.scope')}</div>
+                <div className="mt-1 flex flex-wrap gap-2">
+                  <Badge variant={allVps ? 'info' : 'neutral'}>{allVps ? t('exports.field.all_vps') : t('exports.field.selected_hosts')}</Badge>
+                  {isAdminAccount ? <Badge variant="neutral">{t('exports.field.threads_label', { count: String(ex.threads ?? 0) })}</Badge> : null}
+                </div>
+              </div>
+            </div>
 
-        <div className="min-w-0 space-y-4">
-          <ExportHostsCard
-            allVps={allVps}
-            hosts={hosts}
-            loading={hostsQ.isLoading}
-            error={hostsQ.isError ? hostsQ.error : null}
-            onRetry={() => void hostsQ.refetch()}
-            onCreateHost={openCreateHost}
-            onEditHost={openEditHost}
-            onDeleteHost={openDeleteHost}
-          />
-        </div>
+            <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-faint">
+              <span>{t('common.updated')}: {ex.updated_at ? formatDateTime(ex.updated_at) : '—'}</span>
+              <span>{t('common.created')}: {ex.created_at ? formatDateTime(ex.created_at) : '—'}</span>
+              {datasetId ? <Link className="text-accent hover:underline" to={`${basePath}/datasets/${datasetId}`}>{t('exports.detail.open_dataset')}</Link> : null}
+            </div>
+          </CardBody>
+        </Card>
+
+        <ExportHostsCard
+          allVps={allVps}
+          hosts={hosts}
+          loading={hostsQ.isLoading}
+          error={hostsQ.isError ? hostsQ.error : null}
+          onRetry={() => void hostsQ.refetch()}
+          onCreateHost={openCreateHost}
+          onEditHost={openEditHost}
+          onDeleteHost={openDeleteHost}
+        />
+
+        <ExportMountInstructions sourceIsSnapshot={sourceIsSnapshot}
+          address={address} path={path} mountPoint={mountPoint} rw={rw} />
       </div>
 
       <ExportEditDrawer

@@ -1,6 +1,6 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
+import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 import { expectNoDocumentHorizontalOverflow } from '../../helpers/horizontalOverflow';
 
 const exportItem = {
@@ -62,7 +62,7 @@ async function expectActionInside(page: Page, action: Locator, tableCard: Locato
 test('@pr-smoke @pr-smoke-mobile export host actions follow the card width without horizontal scrolling', async ({
   page,
 }, testInfo) => {
-  const mobile = testInfo.project.name === 'mobile-chrome';
+  const mobile = testInfo.project.name.includes('mobile');
   const hostMutations: Array<{ method: string; path: string }> = [];
 
   if (mobile) await page.setViewportSize({ width: 320, height: 740 });
@@ -72,7 +72,7 @@ test('@pr-smoke @pr-smoke-mobile export host actions follow the card width witho
     user: { id: 1, login: 'demo', level: 1 },
     handlers: {
       'GET exports/10': () => exportItem,
-      'GET exports/10/hosts': () => ({ hosts: [host], _meta: { total_count: 1 } }),
+      'GET exports/10/hosts': () => ({ hosts: [host, { ...host, id: 12, ip_address: { id: 10, addr: '2001:db8:1234:5678:1234:5678:1234:5678' }, rw: false }], _meta: { total_count: 2 } }),
       'GET ip_addresses': () => ({ ip_addresses: [host.ip_address], _meta: { total_count: 1 } }),
     },
   });
@@ -121,15 +121,22 @@ test('@pr-smoke @pr-smoke-mobile export host actions follow the card width witho
     expect((await edit.boundingBox())?.height).toBe(32);
     expect((await remove.boundingBox())?.height).toBe(32);
 
-    const wideProofScreenshot = process.env.E2E_EXPORT_HOST_WIDE_PROOF_SCREENSHOT?.trim();
+    const wideProofScreenshot = process.env['E2E_EXPORT_HOST_WIDE_PROOF_SCREENSHOT']?.trim();
     if (wideProofScreenshot) await page.screenshot({ path: wideProofScreenshot, fullPage: true });
 
-    // At xl the host card moves into a fixed 360px sidebar, so it must return
-    // to the compact layout even though the viewport itself is wide.
-    await expectCompactLayout(1280);
+    // Wider viewports keep a full-width table instead of moving hosts to a sidebar.
+    for (const width of [1280, 1440, 1920]) {
+      await page.setViewportSize({ width, height: 900 });
+      await expect.poll(async () => (await hostTableLayout(tableCard)).tableDisplay).toBe('table');
+      await expectNoDocumentHorizontalOverflow(page);
+      const layout = await hostTableLayout(tableCard);
+      expect(layout.scrollWidth).toBeLessThanOrEqual(layout.clientWidth + 1);
+      await expectActionInside(page, edit, tableCard, 32);
+      await expectActionInside(page, remove, tableCard, 32);
+    }
   }
 
-  const compactProofScreenshot = process.env.E2E_EXPORT_HOST_COMPACT_PROOF_SCREENSHOT?.trim();
+  const compactProofScreenshot = process.env['E2E_EXPORT_HOST_COMPACT_PROOF_SCREENSHOT']?.trim();
   if (compactProofScreenshot) await page.screenshot({ path: compactProofScreenshot, fullPage: true });
 
   await edit.click();
@@ -143,3 +150,67 @@ test('@pr-smoke @pr-smoke-mobile export host actions follow the card width witho
   await expect(page.getByTestId('exports.detail.host.delete.dialog')).toHaveCount(0);
   expect(hostMutations).toEqual([]);
 });
+
+for (const scenario of ['selected-hosts', 'all-vps', 'snapshot'] as const) {
+  test(`@pr-smoke @pr-smoke-mobile ${scenario} export has full-width hosts and stacked mount examples`, async ({ page }, testInfo) => {
+    await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+    await setUiSettingsLocalStorage(page, { language: 'cs', theme: 'dark' });
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, 'clipboard', {
+        configurable: true,
+        value: { writeText: async (text: string) => { sessionStorage.setItem('fixture.copied', text); } },
+      });
+    });
+    await installHaveApiMock(page, { user: { id: 1, login: 'demo', level: 1 }, handlers: {
+      'GET exports/10': () => ({ ...exportItem, all_vps: scenario === 'all-vps',
+        snapshot: scenario === 'snapshot' ? { id: 30, name: 'backup-example' } : null }),
+      'GET exports/10/hosts': () => ({ hosts: [host,
+        { ...host, id: 12, ip_address: { id: 10, addr: '2001:db8:1234:5678:1234:5678:1234:5678' }, rw: false },
+        { ...host, id: 13, ip_address: { id: 11, addr: '203.0.113.13' } }], _meta: { total_count: 3 } }),
+    } });
+    await page.goto('/app/exports/10');
+    await expect(page.getByTestId('exports.detail.hosts.row.13')).toBeVisible();
+    const summary = await page.getByTestId('exports.detail.summary').boundingBox();
+    const hosts = await page.getByTestId('exports.detail.hosts').boundingBox();
+    const instructions = await page.getByTestId('exports.detail.instructions').boundingBox();
+    if (!summary || !hosts || !instructions) throw new Error('Missing export sections');
+    expect(hosts.y).toBeGreaterThanOrEqual(summary.y + summary.height);
+    expect(instructions.y).toBeGreaterThanOrEqual(hosts.y + hosts.height);
+    expect(hosts.x).toBeCloseTo(summary.x, 0);
+    expect(hosts.width).toBeCloseTo(summary.width, 0);
+    expect(instructions.width).toBeCloseTo(summary.width, 0);
+    if (scenario === 'all-vps') await expect(page.getByTestId('exports.detail.hosts.add')).toBeDisabled();
+    else await expect(page.getByTestId('exports.detail.hosts.add')).toBeEnabled();
+
+    const snippets = scenario === 'snapshot' ? ['command'] : ['command', 'fstab', 'systemd', 'nixos'];
+    let previous: { y: number; height: number } | undefined;
+    let left: number | undefined;
+    let width: number | undefined;
+    for (const kind of snippets) {
+      const block = page.getByTestId(`exports.detail.instructions.${kind}`);
+      const rect = await block.boundingBox();
+      if (!rect) throw new Error(`Missing ${kind} block`);
+      if (previous) expect(rect.y).toBeGreaterThanOrEqual(previous.y + previous.height);
+      if (left !== undefined && width !== undefined) {
+        expect(rect.x).toBeCloseTo(left, 0);
+        expect(rect.width).toBeCloseTo(width, 0);
+      }
+      previous = rect;
+      left = rect.x;
+      width = rect.width;
+    }
+    for (const kind of snippets) {
+      await page.getByTestId(`exports.detail.instructions.${kind}.copy`).click();
+      expect(await page.evaluate(() => sessionStorage.getItem('fixture.copied')))
+        .toBe(await page.getByTestId(`exports.detail.instructions.${kind}`).textContent());
+    }
+    if (scenario === 'snapshot') await expect(page.getByTestId('exports.detail.instructions.fstab')).toHaveCount(0);
+    await expectNoDocumentHorizontalOverflow(page);
+    if (scenario === 'all-vps') {
+      await expect(page.getByTestId('exports.detail.instructions.nixos.copy')).toHaveText('Kopírovat');
+      await page.evaluate(() => { (document.activeElement as HTMLElement | null)?.blur(); window.scrollTo({ top: 0, behavior: 'instant' }); });
+      const screenshot = await page.screenshot({ path: testInfo.outputPath('export-layout.png'), fullPage: true, scale: 'css' });
+      await testInfo.attach('Export detail — Czech synthetic fixture', { body: screenshot, contentType: 'image/png' });
+    }
+  });
+}
