@@ -32,19 +32,18 @@ export function AboutPage() {
       </Card>
       <Card>
         <CardHeader title={t('about.authors.title')} />
-        <CardBody className="space-y-4 text-sm">
-          <dl className="space-y-3">
-            {(['jakub', 'pavel', 'michal'] as const).map((person) => (
-              <div key={person} className="grid gap-1 sm:grid-cols-[10rem_1fr] sm:gap-4">
-                <dt className="font-semibold">
-                  {{ jakub: 'Jakub Skokan', pavel: 'Pavel Šnajdr', michal: 'Michal Janoušek' }[person]}
-                </dt>
-                <dd className="text-muted">{t(`about.authors.${person}`)}</dd>
-              </div>
+        <CardBody className="text-sm">
+          <ul className="space-y-1">
+            {[
+              { name: 'Jakub Skokan', years: '2012–2026' },
+              { name: 'Pavel Šnajdr', years: '2008–2014' },
+              { name: 'Michal Janoušek', years: '2026' },
+            ].map(({ name, years }) => (
+              <li key={name}>
+                {name} <span className="text-muted">· {years}</span>
+              </li>
             ))}
-          </dl>
-          <p className="text-muted">{t('about.authors.thanks')}</p>
-          <p className="text-muted">{t('about.authors.ai')}</p>
+          </ul>
         </CardBody>
       </Card>
       <Card>

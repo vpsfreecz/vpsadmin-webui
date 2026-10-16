@@ -21,8 +21,11 @@ Git commit. Public pages provide the same footer without requiring login.
 The commit comes from the same build metadata as `build-info.json`, embedded at
 build time so an old open tab cannot claim a newer deployed revision. Unknown
 revisions have no commit link; local modifications are indicated by an asterisk
-and explained on About. The page credits Jakub Skokan, Pavel Šnajdr and Michal
-Janoušek, acknowledges other contributors and AI-assisted development, and links
+and explained on About. The page lists Jakub Skokan, Pavel Šnajdr and Michal
+Janoušek with years (2012–2026, 2008–2014 and 2026 respectively), without
+individual roles, contribution estimates, a
+general thank-you paragraph or AI-tool commentary. This follows the maintainer’s
+2026-10-16 clarification and the concise legacy About style. It also links
 to the source and package licensing metadata. This change does not grant or
 change a license or carry over the legacy PHP template credits (REQ-072).
 

@@ -92,7 +92,7 @@ Not every test file in this matrix necessarily ran in that PR-selected browser r
 | REQ-070 | [Cold search](../../e2e/specs/app/global_search_cold_start.spec.ts) | Cold IP/DNS search, owner scope and visible lookup failures | Canonical PR5 fixtures; authenticated live search not certified |
 | REQ-071 | [Network adapter tests](../../src/lib/api/networks.test.ts), [availability workflow](WORKFLOWS.md#network-availability) | Explicit false, optional authoritative counters, keyboard descriptions, distinct owned total, metadata capability, both toggle directions and retained errors | Synthetic unit/browser coverage; final-head execution and deployment evidence recorded separately |
 
-| REQ-072 | [About browser tests](../../e2e/specs/public/about.spec.ts), [build metadata](../../build/buildInfo.test.ts) | Public cs/en About, compact footer in member/admin/mobile navigation, loaded revision and unknown/modified states | Local fixture evidence in [task record](../work-log/2026-10-16-about-build-version.md); not deployed |
+| REQ-072 | [About browser tests](../../e2e/specs/public/about.spec.ts), [build metadata](../../build/buildInfo.test.ts) | Public cs/en About, compact footer in member/admin/mobile navigation, loaded revision and unknown/modified states | Base deployed as 2d089660; updated credit layout in [follow-up](../work-log/2026-10-16-about-simple-credits.md), pending deployment |
 
 ## Critical acceptance cases
 
@@ -155,6 +155,8 @@ has expired, but a reproducible test is not a replacement for a claimed past run
 
 [About browser tests](../../e2e/specs/public/about.spec.ts) exercise public access,
 cs/en text, member/admin footer navigation and mobile drawer closure.
+The [credit simplification record](../work-log/2026-10-16-about-simple-credits.md)
+provides reviewed desktop/mobile captures of the plain names and year ranges.
 [Build metadata tests](../../build/buildInfo.test.ts) cover source availability
 and dirty state. See the [task record](../work-log/2026-10-16-about-build-version.md)
 for actual verification results and screenshots; no deployment is implied.
