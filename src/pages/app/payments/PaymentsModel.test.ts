@@ -202,6 +202,21 @@ describe('PaymentsModel', () => {
     expect(html).not.toContain('vaší bance');
   });
 
+  test.each(['cs', 'en'] as const)('selects the invoice contact in %s across inline links', lang => {
+    const html = sanitizePaymentInstructionsHtml('<p>If you need an invoice, please write to support at <a href="mailto:podpora@vpsfree.cz">podpora@vpsfree.cz</a> or <a href="mailto:support@vpsfree.org">support@vpsfree.org</a> and we will issue it. Do not forget to include your billing credentials.</p>', lang);
+    expect(html).toContain(lang === 'cs' ? 'podpora@vpsfree.cz' : 'support@vpsfree.org');
+    expect(html).not.toContain(lang === 'cs' ? 'support@vpsfree.org' : 'podpora@vpsfree.cz');
+  });
+
+  test('keeps the inline VS code while using informal Czech', () => {
+    const html = sanitizePaymentInstructionsHtml('<p>Pokud vaše banka nepodporuje variabilní symboly, můžete své členské ID poslat ve zprávě pro příjemce jako <code>/VS/53</code>. Přesné znění závisí na vaší bance.</p>', 'cs');
+    expect(html).toContain('<code>/VS/53</code>');
+    expect(html).toContain('Pokud tvoje banka');
+    expect(html).toContain('můžeš svoje členské ID');
+    expect(html).toContain('na tvojí bance');
+    expect(paymentInstructionsPlainText(html, 'cs')).not.toMatch(/vaše|můžete|vaší/);
+  });
+
   test('buildPaymentSettingsReview flags backward and cleared paid-until changes', () => {
     expect(
       buildPaymentSettingsReview({

@@ -373,6 +373,23 @@ history. Manual credits without an incoming source do not get a fabricated link.
 The overview retains its administrator-only finance gate. Browser Back returns
 to the member overview; the detail's own Back link retains its finance destination.
 
+Payment instructions offer individual copy icons for recognized bank-account,
+IBAN, BIC, variable-symbol, message and amount rows, alongside the existing
+whole-instructions copy. Account/IBAN whitespace is removed; variable-symbol
+leading zeroes and the message are retained. Amount copy strips currency and
+period, removes grouping spaces and normalizes a decimal comma to a point.
+Unknown rows and ambiguous amount formats have no individual copy action.
+Copy success/failure is announced and shown on the icon; keyboard activation and
+single-tap touch activation use the shared clipboard helper. The same renderer
+serves member instructions and administrator member-payment instructions.
+
+The known invoice-help paragraph selects `podpora@vpsfree.cz` in Czech UI and
+`support@vpsfree.org` in English UI. Czech bank-message guidance uses informal
+address while retaining inline `/VS/<member ID>` formatting. Bank details and QR
+payloads remain supplied by the API. See the
+[payment-copy change record](../work-log/2026-10-16-payment-field-copy.md)
+for review/deployment status, screenshots and verification limitations.
+
 Payment instructions preserve inline base64 PNG QR images and external HTTPS
 QR image URLs supplied by the API. The NixOS deployment must allow the reviewed
 external generator through `security.imageSources`; HTML sanitization alone does
@@ -380,8 +397,8 @@ not grant permission under CSP. Prefer the exact generator path (see
 [NixOS service](NIXOS_SERVICE.md)). Amount and reference query parameters remain
 as supplied by the API; the frontend does not recalculate them. Unchanged
 instructions retain their decoded image DOM nodes during scrolling and session
-activity refreshes. Only changed sanitized content (including translated text)
-replaces the instructions; the generator-provided QR quiet zone is preserved.
+activity refreshes. Changed sanitized content (including translated text)
+updates the rendered instructions; the generator-provided QR quiet zone is preserved.
 
 For inline images, the exception is limited to image sources in this sanitized
 payment HTML, with a PNG signature, valid base64 and a 1 MiB URL limit; links, news HTML, SVG and other

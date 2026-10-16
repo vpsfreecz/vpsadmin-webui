@@ -154,3 +154,69 @@ for (const source of ['embedded', 'external'] as const) {
     });
   }
 }
+
+for (const language of ['cs', 'en'] as const) {
+  test(`individual payment values copy on first activation in ${language} @pr-smoke @pr-smoke-mobile`, async ({ page, hasTouch }, testInfo) => {
+    await setUiSettingsLocalStorage(page, { language, theme: language === 'cs' ? 'dark' : 'light' });
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, 'clipboard', { configurable: true, value: {
+        writeText: async (text: string) => { document.body.dataset['copiedPayment'] = text; },
+      } });
+    });
+    const values = [
+      ['Back account for CZK (CZ):', '2200041594/2010', '2200041594/2010'],
+      ['IBAN:', 'CZ04 2010 0000 0022 0004 1594', 'CZ0420100000002200041594'],
+      ['BIC:', 'FIOBCZPPXXX', 'FIOBCZPPXXX'],
+      ['Variable symbol:', '00053', '00053'],
+      ['Message (<a href="https://example.test">more info</a>):', '/VS/53', '/VS/53'],
+      ['Sum:', '300 CZK per month', '300'],
+      ['Back account for EUR (SK):', 'SK20 8330 0000 0026 0150 2873', 'SK2083300000002601502873'],
+      ['BIC:', 'FIOZSKBA', 'FIOZSKBA'],
+      ['Variable symbol:', '00053', '00053'],
+      ['Message:', '/VS/53', '/VS/53'],
+      ['Sum:', '12.50 EUR per month', '12.50'],
+    ];
+    const table = (rows: string[][], currency: 'CZK' | 'EUR') => `<h3>Payment in ${currency}</h3><table>${rows.map(([label, value], i) => `<tr><td>${label}</td><td>${value}</td>${i === 0 ? `<td rowspan="${rows.length}"><img alt="${currency} QR" src="${qrImages[currency]}"></td>` : ''}</tr>`).join('')}</table>`;
+    await setupHaveApiMock(page, {
+      user: { id: 7, login: 'payment-test-member', level: 1, preferred_session_length: 2400 },
+      handlers: {
+        'GET users/7/get_payment_instructions': () => ({ instructions:
+          '<h3>General info</h3><p>If you need an invoice, please write to support at <a href="mailto:podpora@vpsfree.cz">podpora@vpsfree.cz</a> or support@vpsfree.org and we will issue it. Do not forget to include your billing credentials.</p>'
+          + table(values.slice(0, 6), 'CZK') + table(values.slice(6), 'EUR')
+          + (language === 'cs' ? '<h3>Variabilní symbol a zpráva</h3><p>Pokud vaše banka nepodporuje variabilní symboly, můžete své členské ID poslat ve zprávě pro příjemce jako <code>/VS/53</code>. Přesné znění závisí na vaší bance.</p>' : ''),
+        }),
+        'GET user_payments': () => ({ user_payments: [] }),
+      },
+    });
+    await page.goto(withAppUrl('/app/payments'));
+    const instructions = page.getByTestId('payments.my.instructions.text');
+    const buttons = instructions.getByRole('button');
+    await expect(buttons).toHaveCount(values.length);
+    await expect(instructions).toContainText(language === 'cs' ? 'podpora@vpsfree.cz' : 'support@vpsfree.org');
+    await expect(instructions).not.toContainText(language === 'cs' ? 'support@vpsfree.org' : 'podpora@vpsfree.cz');
+    if (language === 'cs') {
+      await expect(instructions).toContainText('Pokud tvoje banka');
+      await expect(instructions).not.toContainText('vaší bance');
+    }
+    const qr = await instructions.getByRole('img', { name: 'CZK QR' }).elementHandle();
+    for (let i = 0; i < values.length; i++) {
+      const button = buttons.nth(i);
+      await expect(button).toHaveAccessibleName(new RegExp(language === 'cs' ? '^Kopírovat:' : '^Copy:'));
+      if (hasTouch) await button.tap();
+      else { await button.focus(); await page.keyboard.press('Enter'); }
+      await expect(page.locator('body')).toHaveAttribute('data-copied-payment', values[i]![2]!);
+      await expect(button).toHaveAttribute('title', language === 'cs' ? 'Zkopírováno' : 'Copied');
+    }
+    expect(await qr!.evaluate(img => img.isConnected)).toBe(true);
+    await page.waitForTimeout(1300);
+    await expectNoDocumentHorizontalOverflow(page);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.screenshot({ path: testInfo.outputPath(`payment-copy-${language}.png`), fullPage: true });
+    await page.evaluate(() => {
+      Object.defineProperty(navigator, 'clipboard', { value: { writeText: async () => { throw new Error('denied'); } } });
+      document.execCommand = () => false;
+    });
+    if (hasTouch) await buttons.first().tap(); else await buttons.first().click();
+    await expect(buttons.first()).toHaveAttribute('title', language === 'cs' ? 'Kopírování selhalo' : 'Copy failed');
+  });
+}
