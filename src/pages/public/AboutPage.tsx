@@ -5,7 +5,6 @@ import { buildCommitUrl, buildInfo, webuiRepository } from '../../lib/buildInfo'
 
 export function AboutPage() {
   const { t } = useI18n();
-  const sourceRef = buildCommitUrl ? buildInfo.commit : 'main';
   return (
     <div className="mx-auto max-w-3xl space-y-5" data-testid="about.page">
       <div>
@@ -58,16 +57,6 @@ export function AboutPage() {
           >
             {t('about.legal.repository')}
           </a>
-          <p>{t('about.legal.license')}</p>
-          <a
-            className="inline-block text-primary underline"
-            href={`${webuiRepository}/blob/${sourceRef}/package.json`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {t('about.legal.dependencies')}
-          </a>
-          <p className="text-muted">{t('about.legal.third_party')}</p>
         </CardBody>
       </Card>
     </div>

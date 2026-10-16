@@ -26,7 +26,8 @@ Janoušek with years (2012–2026, 2008–2014 and 2026 respectively), without
 individual roles, contribution estimates, a
 general thank-you paragraph or AI-tool commentary. This follows the maintainer’s
 2026-10-16 clarification and the concise legacy About style. It also links
-to the source and package licensing metadata. This change does not grant or
+to the source repository under “Zdrojové kódy” / “Source code”, without license
+commentary or the package-metadata link. This change does not grant or
 change a license or carry over the legacy PHP template credits (REQ-072).
 
 ## Public entry and authentication

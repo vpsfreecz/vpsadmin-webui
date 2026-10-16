@@ -7,12 +7,9 @@ export const enPublic = {
   "about.version.modified": "This build includes local changes.",
   "about.version.link": "View commit {version}",
   "about.authors.title": "Authors",
-  "about.legal.title": "Source code and licensing",
+  "about.legal.title": "Source code",
   "about.legal.source": "The source code of the new interface and its contribution history are available in the project repository.",
   "about.legal.repository": "vpsAdmin WebUI repository",
-  "about.legal.license": "The new interface’s package metadata declares the ISC license.",
-  "about.legal.dependencies": "Package metadata and dependencies",
-  "about.legal.third_party": "The libraries and icons used have their own authors and license terms, included in their packages.",
 
   'public.nav.overview': 'Overview',
   'public.nav.outages': 'Outages',

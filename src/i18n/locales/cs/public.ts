@@ -7,12 +7,9 @@ export const csPublic = {
   "about.version.modified": "Sestavení obsahuje místní změny.",
   "about.version.link": "Zobrazit commit {version}",
   "about.authors.title": "Autoři",
-  "about.legal.title": "Zdrojové kódy a licence",
+  "about.legal.title": "Zdrojové kódy",
   "about.legal.source": "Zdrojové kódy nového rozhraní a historie příspěvků jsou dostupné v repozitáři projektu.",
   "about.legal.repository": "Repozitář vpsAdmin WebUI",
-  "about.legal.license": "Metadata balíčku nového rozhraní uvádějí licenci ISC.",
-  "about.legal.dependencies": "Metadata balíčku a seznam závislostí",
-  "about.legal.third_party": "Použité knihovny a ikony mají vlastní autory a licenční podmínky, které jsou součástí jejich balíčků.",
 
   'public.nav.overview': 'Přehled',
   'public.nav.outages': 'Výpadky',
