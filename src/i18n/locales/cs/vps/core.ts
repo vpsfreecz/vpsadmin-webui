@@ -13,6 +13,7 @@ export const csVps_core = {
   'vps.list.state.ram_high': 'RAM vysoká',
   'vps.list.state.disk_high': 'Disk vysoký',
   'vps.list.state.recent_failure': 'Nedávno selhala úloha #{id}',
+  'vps.list.state.recent_failure_title': 'Neúspěšná úloha: {operation}, vytvořeno {time}',
   'vps.list.ip.none': 'IP není zobrazená',
   'vps.list.col.vps': 'VPS',
   'vps.list.col.owner_location': 'Vlastník / lokace',
