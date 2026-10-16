@@ -347,7 +347,7 @@ export function AppHeader(props: AppHeaderProps) {
               data-overlay="popover"
               data-overlay-surface="overlay"
             >
-              {canSwitchMode && mode === 'user' && normalizedSearch !== '?' ? (
+              {canSwitchMode && mode === 'user' && normalizedSearch !== '?' && !searchBusy && !searchError && searchResults.length === 0 ? (
                 <div className="p-2"><SearchScopeReminder t={t} onSwitchMode={onGoToOtherMode} /></div>
               ) : null}
               {inlineSearchExpanded ? (

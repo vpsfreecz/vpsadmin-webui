@@ -459,6 +459,9 @@ export function CommandPalette(props: { open: boolean; onClose: () => void; onSw
   }, [canUseClusterSearch, debouncedQuery, flattened]);
   const activeSelected = manualSelection ? selected : automaticSelected;
 
+  const reminderQuery = parseQualifier(normalizedQuery);
+  const hasReminderQuery = Boolean(reminderQuery.key ? reminderQuery.value.trim() : normalizedQuery);
+
   const resultsExpanded =
     props.open && !helpOpen && Boolean(normalizedQuery) && !searchBusy && !error && flattened.length > 0;
   const activeOptionId =
@@ -668,7 +671,7 @@ export function CommandPalette(props: { open: boolean; onClose: () => void; onSw
         </div>
 
         <div className="mt-4 flex-1 overflow-y-auto" data-testid="palette.results-scroll">
-          {auth.canUseAdminUi && mode === 'user' && normalizedQuery && !helpOpen && props.onSwitchMode ? (
+          {auth.canUseAdminUi && mode === 'user' && hasReminderQuery && !helpOpen && !searchBusy && !error && flattened.length === 0 && props.onSwitchMode ? (
             <div className="mb-3"><SearchScopeReminder t={t} onSwitchMode={props.onSwitchMode} /></div>
           ) : null}
           {helpOpen ? (
