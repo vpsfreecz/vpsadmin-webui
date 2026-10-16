@@ -1,11 +1,11 @@
+import { initializationError } from './VpsInitializationModel';
+import { VpsInitializationFields } from './VpsInitializationFields';
 import React from 'react';
 
 import { useI18n } from '../../../app/i18n';
 import { Alert } from '../../../components/ui/Alert';
 import { Card, CardBody, CardHeader } from '../../../components/ui/Card';
-import { Checkbox } from '../../../components/ui/Checkbox';
 import { Select } from '../../../components/ui/Select';
-import { Textarea } from '../../../components/ui/Textarea';
 import type { IpAddress } from '../../../lib/api/ipAddresses';
 import type { OsTemplate } from '../../../lib/api/osTemplates';
 import type { Vps } from '../../../lib/api/vps';
@@ -20,11 +20,9 @@ import {
   LifecycleSubmitButton,
 } from './VpsLifecyclePrimitives';
 import {
-  reinstallUserDataFormats,
   vpsCurrentTemplateLabel,
   vpsReinstallTemplateLabel,
   type ReinstallForm,
-  type ReinstallUserDataFormat,
 } from './VpsReinstallModel';
 
 function selectedTemplate(form: ReinstallForm, templates: OsTemplate[]): OsTemplate | undefined {
@@ -78,10 +76,6 @@ function IpAddressList(props: { ips: IpAddress[]; loading: boolean; empty: strin
   );
 }
 
-function userDataFormatLabel(format: ReinstallUserDataFormat): string {
-  return `user_data.format.${format}`;
-}
-
 export function VpsReinstallCard(props: {
   vps: Vps;
   form: ReinstallForm;
@@ -99,10 +93,9 @@ export function VpsReinstallCard(props: {
   const { t } = useI18n();
   const tpl = selectedTemplate(props.form, props.templates);
   const target = String(props.vps.hostname || `#${props.vps.id}`).trim();
-  const userDataContent = props.form.userDataContent.trim();
-  const userDataMissing = props.form.userDataEnabled && !userDataContent;
-  const userDataWillRun = props.form.userDataEnabled && Boolean(userDataContent);
-  const selectedTemplateSupportsCloudInit = tpl?.enable_cloud_init === true;
+  const ownerId = props.vps.user?.id;
+  const userDataMissing = Boolean(initializationError(props.form, ownerId));
+  const userDataWillRun = props.form.userDataEnabled && !userDataMissing;
   const disabled = !props.form.osTemplate || userDataMissing || !props.gate.allowed;
 
   const setForm = (patch: Partial<ReinstallForm>) => {
@@ -181,67 +174,18 @@ export function VpsReinstallCard(props: {
           })}
         </Alert>
 
-        <details className="rounded-md border border-border bg-surface p-3" data-testid="vps.lifecycle.reinstall.user_data">
+        <details className="rounded-md border border-border bg-surface p-3" data-testid="vps.lifecycle.reinstall.initialization">
           <summary className="cursor-pointer text-sm font-semibold text-fg" data-testid="vps.lifecycle.reinstall.user_data.summary">
             {t('vps.lifecycle.reinstall.user_data.title')}
           </summary>
           <div className="mt-3 space-y-3">
-            <Checkbox
-              checked={props.form.userDataEnabled}
-              onChange={(checked) => setForm({ userDataEnabled: checked })}
-              label={t('vps.lifecycle.reinstall.user_data.enable')}
-              description={t('vps.lifecycle.reinstall.user_data.enable_help')}
-              disabled={props.pending}
-              testId="vps.lifecycle.reinstall.user_data.enable"
-            />
-
-            {props.form.userDataEnabled ? (
-              <div className="space-y-3">
-                <Alert variant={selectedTemplateSupportsCloudInit ? 'info' : 'neutral'} title={t('vps.lifecycle.reinstall.user_data.template_signal_title')}>
-                  {selectedTemplateSupportsCloudInit
-                    ? t('vps.lifecycle.reinstall.user_data.template_signal_cloud_init')
-                    : t('vps.lifecycle.reinstall.user_data.template_signal_unknown')}
-                </Alert>
-
-                <div className="grid gap-3 md:grid-cols-2">
-                  <Field label={t('vps.lifecycle.reinstall.user_data.format')} help={t('vps.lifecycle.reinstall.user_data.format_help')}>
-                    <Select
-                      value={props.form.userDataFormat}
-                      onChange={(e) => setForm({ userDataFormat: e.target.value as ReinstallUserDataFormat })}
-                      disabled={props.pending}
-                      testId="vps.lifecycle.reinstall.user_data.format"
-                    >
-                      {reinstallUserDataFormats.map((format) => (
-                        <option key={format} value={format}>
-                          {t(userDataFormatLabel(format))}
-                        </option>
-                      ))}
-                    </Select>
-                  </Field>
-                  <ImpactItem label={t('vps.lifecycle.reinstall.user_data.payload')} testId="vps.lifecycle.reinstall.user_data.payload">
-                    {t('vps.lifecycle.reinstall.user_data.payload_body')}
-                  </ImpactItem>
-                </div>
-
-                <Field label={t('vps.lifecycle.reinstall.user_data.content')} help={t('vps.lifecycle.reinstall.user_data.content_help')}>
-                  <Textarea
-                    value={props.form.userDataContent}
-                    onChange={(e) => setForm({ userDataContent: e.target.value })}
-                    disabled={props.pending}
-                    rows={8}
-                    testId="vps.lifecycle.reinstall.user_data.content"
-                  />
-                </Field>
-
-                {userDataMissing ? (
-                  <Alert variant="warn" title={t('vps.lifecycle.reinstall.user_data.empty_title')}>
-                    {t('vps.lifecycle.reinstall.user_data.empty_body')}
-                  </Alert>
-                ) : null}
-              </div>
-            ) : (
-              <Alert variant="neutral">{t('vps.lifecycle.reinstall.user_data.disabled_hint')}</Alert>
-            )}
+            {props.form.userDataEnabled ? <Alert variant="neutral">
+              {t(tpl?.enable_cloud_init === true
+                ? 'vps.lifecycle.reinstall.user_data.template_signal_cloud_init'
+                : 'vps.lifecycle.reinstall.user_data.template_signal_unknown')}
+            </Alert> : null}
+            <VpsInitializationFields form={props.form} onChange={setForm} ownerId={ownerId}
+              disabled={props.pending} testId="vps.lifecycle.reinstall.user_data" />
           </div>
         </details>
 

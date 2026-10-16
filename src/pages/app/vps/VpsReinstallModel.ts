@@ -1,37 +1,14 @@
 import type { OsTemplate } from '../../../lib/api/osTemplates';
 import type { Vps, VpsReinstallPayload } from '../../../lib/api/vps';
 
-export type ReinstallUserDataFormat =
-  | 'script'
-  | 'cloudinit_config'
-  | 'cloudinit_script'
-  | 'nixos_configuration'
-  | 'nixos_flake_configuration'
-  | 'nixos_flake_uri';
+export { USER_DATA_FORMATS as reinstallUserDataFormats } from '../../../components/user/UserDataTemplatesModel';
+export type { VpsUserDataFormat as ReinstallUserDataFormat } from '../../../lib/api/vpsUserData';
+import { buildVpsInitializationPayload, defaultVpsInitialization, type VpsInitializationForm } from './VpsInitializationModel';
 
-export type ReinstallForm = {
-  osTemplate: string;
-  userDataEnabled: boolean;
-  userDataFormat: ReinstallUserDataFormat;
-  userDataContent: string;
-};
-
-export const reinstallUserDataFormats: ReadonlyArray<ReinstallUserDataFormat> = [
-  'script',
-  'cloudinit_config',
-  'cloudinit_script',
-  'nixos_configuration',
-  'nixos_flake_configuration',
-  'nixos_flake_uri',
-];
+export type ReinstallForm = VpsInitializationForm & { osTemplate: string };
 
 export function defaultReinstallForm(osTemplateId: number | null | undefined): ReinstallForm {
-  return {
-    osTemplate: osTemplateId ? String(osTemplateId) : '',
-    userDataEnabled: false,
-    userDataFormat: 'cloudinit_config',
-    userDataContent: '',
-  };
+  return { ...defaultVpsInitialization(), osTemplate: osTemplateId ? String(osTemplateId) : '' };
 }
 
 export function parseRequiredReinstallId(raw: string): number {
@@ -42,18 +19,11 @@ export function parseRequiredReinstallId(raw: string): number {
   return n;
 }
 
-export function buildVpsReinstallPayload(form: ReinstallForm): VpsReinstallPayload {
-  const payload: VpsReinstallPayload = {
+export function buildVpsReinstallPayload(form: ReinstallForm, ownerId?: number): VpsReinstallPayload {
+  return {
     os_template: parseRequiredReinstallId(form.osTemplate),
+    ...buildVpsInitializationPayload(form, ownerId),
   };
-
-  const content = form.userDataContent.trim();
-  if (form.userDataEnabled && content) {
-    payload.user_data_format = form.userDataFormat;
-    payload.user_data_content = content;
-  }
-
-  return payload;
 }
 
 export function vpsReinstallTemplateLabel(tpl: OsTemplate | undefined): string {

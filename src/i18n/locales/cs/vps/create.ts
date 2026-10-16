@@ -1,5 +1,23 @@
 // VPS create flow copy
 export const csVps_create = {
+  'vps.initialization.title': 'Inicializace při prvním spuštění',
+  'vps.initialization.enable': 'Použít User data',
+  'vps.initialization.help': 'Volitelný skript, cloud-init nebo NixOS konfigurace pro první spuštění VPS.',
+  'vps.initialization.source': 'Zdroj konfigurace',
+  'vps.initialization.inline': 'Vlastní obsah',
+  'vps.initialization.saved': 'Uložená šablona',
+  'vps.initialization.owner_required': 'Nejdřív vyber vlastníka VPS, aby se zobrazily jeho uložené šablony.',
+  'vps.initialization.content_required': 'Vlož obsah konfigurace, nebo User data vypni.',
+  'vps.initialization.template_required': 'Vyber uloženou šablonu vlastníka této VPS.',
+  'vps.initialization.template': 'Uložená User data',
+  'vps.initialization.choose': 'Vyber šablonu…',
+  'vps.initialization.load_error': 'Uložené šablony se nepodařilo načíst. Zkus to znovu.',
+  'vps.initialization.empty': 'Vlastník nemá žádné uložené šablony. Můžeš vložit vlastní obsah.',
+  'vps.initialization.more': 'Načíst další šablony',
+  'vps.initialization.manage': 'Spravovat šablony v novém panelu',
+  'vps.initialization.format': 'Formát User dat',
+  'vps.initialization.content': 'Obsah konfigurace',
+
   'vps.create.progress.pending.title': 'VPS se vytváří',
   'vps.create.progress.pending.body': 'Požadavek byl přijat. VPS se připravuje; tato stránka se průběžně aktualizuje.',
   'vps.create.progress.complete.title': 'VPS byla vytvořena',

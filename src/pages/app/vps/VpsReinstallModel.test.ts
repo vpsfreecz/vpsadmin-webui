@@ -31,10 +31,10 @@ describe('VPS reinstall model', () => {
     ).toEqual({
       os_template: 8,
       user_data_format: 'cloudinit_script',
-      user_data_content: '#cloud-config\npackages: []',
+      user_data_content: '  #cloud-config\npackages: []\n  ',
     });
 
-    expect(
+    expect(() =>
       buildVpsReinstallPayload(
         form({
           osTemplate: '8',
@@ -42,7 +42,7 @@ describe('VPS reinstall model', () => {
           userDataContent: '   ',
         })
       )
-    ).toEqual({ os_template: 8 });
+    ).toThrow('vps.initialization.content_required');
   });
 
   it('rejects missing or invalid template IDs', () => {
