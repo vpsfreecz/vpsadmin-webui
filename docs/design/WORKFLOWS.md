@@ -165,7 +165,8 @@ Export detail presents its summary, allowed hosts and mount instructions as
 full-width sections in that order. Hosts remain a compact table on desktop;
 narrow screens use labeled rows with reachable edit/delete actions. The mount
 command, fstab entry, systemd mount unit and NixOS configuration are stacked
-vertically at every width, with a separate copy action for each example. Long
+vertically at every width, with a compact Copy button beside each example
+heading, including the mount command. Long
 code lines may scroll inside their block without widening the page. Temporary
 snapshot exports continue to show only their temporary mount instructions.
 
