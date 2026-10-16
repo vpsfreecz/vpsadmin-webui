@@ -19,6 +19,9 @@ Sidebar destinations reflect tasks, not the API table list. VPS storage belongs
 with the VPS; NAS and backups are separate member destinations. Tasks is a global
 header affordance, not a duplicate primary action-states menu item. Administrators
 see service, operations, users/finance, infrastructure and content groups.
+Outages and security advisories form a separate quiet block above About in the
+sidebar footer and mobile drawer, with role/mode-appropriate read or management
+destinations. They are not duplicated among primary operations links.
 The complete routing surface, including aliases and child pages not present in
 menus, is in the [inventory](IMPLEMENTATION_INVENTORY.md).
 
