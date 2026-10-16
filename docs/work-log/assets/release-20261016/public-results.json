@@ -1,0 +1,74 @@
+[
+  {
+    "host": "dev.crucio.cz",
+    "name": "desktop",
+    "sha": "4c4b715f3a42b9f236273f1e4705b9fe5755fb23",
+    "status": "passed",
+    "api": "https://dev.crucio.cz",
+    "pageErrors": 0
+  },
+  {
+    "host": "dev.crucio.cz",
+    "name": "mobile-chrome",
+    "sha": "4c4b715f3a42b9f236273f1e4705b9fe5755fb23",
+    "status": "passed",
+    "api": "https://dev.crucio.cz",
+    "pageErrors": 0
+  },
+  {
+    "host": "dev.crucio.cz",
+    "name": "mobile-webkit",
+    "sha": "4c4b715f3a42b9f236273f1e4705b9fe5755fb23",
+    "status": "passed",
+    "api": "https://dev.crucio.cz",
+    "pageErrors": 0
+  },
+  {
+    "host": "clankerdev.vpsfree.cz",
+    "name": "desktop",
+    "sha": "4c4b715f3a42b9f236273f1e4705b9fe5755fb23",
+    "status": "passed",
+    "api": "https://api.vpsfree.cz",
+    "pageErrors": 0
+  },
+  {
+    "host": "clankerdev.vpsfree.cz",
+    "name": "mobile-chrome",
+    "sha": "4c4b715f3a42b9f236273f1e4705b9fe5755fb23",
+    "status": "passed",
+    "api": "https://api.vpsfree.cz",
+    "pageErrors": 0
+  },
+  {
+    "host": "clankerdev.vpsfree.cz",
+    "name": "mobile-webkit",
+    "sha": "4c4b715f3a42b9f236273f1e4705b9fe5755fb23",
+    "status": "passed",
+    "api": "https://api.vpsfree.cz",
+    "pageErrors": 0
+  },
+  {
+    "host": "newadmin.vpsfree.cz",
+    "name": "desktop",
+    "sha": "4c4b715f3a42b9f236273f1e4705b9fe5755fb23",
+    "status": "passed",
+    "api": "https://api.vpsfree.cz",
+    "pageErrors": 0
+  },
+  {
+    "host": "newadmin.vpsfree.cz",
+    "name": "mobile-chrome",
+    "sha": "4c4b715f3a42b9f236273f1e4705b9fe5755fb23",
+    "status": "passed",
+    "api": "https://api.vpsfree.cz",
+    "pageErrors": 0
+  },
+  {
+    "host": "newadmin.vpsfree.cz",
+    "name": "mobile-webkit",
+    "sha": "4c4b715f3a42b9f236273f1e4705b9fe5755fb23",
+    "status": "passed",
+    "api": "https://api.vpsfree.cz",
+    "pageErrors": 0
+  }
+]

@@ -1,7 +1,3 @@
-## 2026-10-16 — Eight-PR three-site release
-
-See the [release preparation and outcome record](docs/work-log/2026-10-16-three-site-release.md).
-
 # Project work log
 
 This is the versioned record of work on vpsAdmin WebUI Next (Clankerdev),
@@ -14,6 +10,11 @@ Entries before the start date are selective retrospective summaries, not a
 complete reconstruction of the project. Missing evidence is not a passing check.
 
 ## New changes
+
+## 2026-10-16 — Eight-PR three-site release
+
+See the [release preparation and outcome record](docs/work-log/2026-10-16-three-site-release.md).
+
 
 Record new changes in separate files under [docs/work-log](docs/work-log/README.md)
 to avoid conflicts between concurrent PRs. Keep the historical entries below.
