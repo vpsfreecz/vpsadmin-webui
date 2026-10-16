@@ -6,7 +6,7 @@ This is a source inventory, not proof of API permissions, feature parity, or tes
 Paths are relative to the configured router basename. Parent layers include scope/auth
 wrappers; page-level action guards and API authorization still apply.
 
-## Routes (256 entries, including layouts and index routes)
+## Routes (257 entries, including layouts and index routes)
 
 | Route | Kind | Element | Parent layers | Source |
 | --- | --- | --- | --- | --- |
@@ -18,6 +18,7 @@ wrappers; page-level action guards and API authorization still apply.
 | `/outages` | page/redirect | `<CoreRoutes.OutagesPage />` | `<RouteProvidersLayout /> → <PublicLayout />` | [source](../../src/routes/router.tsx) |
 | `/outages/:outageId` | page/redirect | `<CoreRoutes.OutageDetailPage />` | `<RouteProvidersLayout /> → <PublicLayout />` | [source](../../src/routes/router.tsx) |
 | `/news` | page/redirect | `<CoreRoutes.NewsPage />` | `<RouteProvidersLayout /> → <PublicLayout />` | [source](../../src/routes/router.tsx) |
+| `/about` | page/redirect | `<AboutPage />` | `<RouteProvidersLayout /> → <PublicLayout />` | [source](../../src/routes/router.tsx) |
 | `/security-advisories` | page/redirect | `<CoreRoutes.SecurityAdvisoriesPage />` | `<RouteProvidersLayout /> → <PublicLayout />` | [source](../../src/routes/router.tsx) |
 | `/security-advisories/:advisoryId` | page/redirect | `<CoreRoutes.SecurityAdvisoryDetailPage />` | `<RouteProvidersLayout /> → <PublicLayout />` | [source](../../src/routes/router.tsx) |
 | `/requests/registrations/:requestId/:token` | page/redirect | `<ParamKeyedRoute params={['requestId', 'token']}><CoreRoutes.RegistrationCorrectionPage /></ParamKeyedRoute>` | `<RouteProvidersLayout /> → <PublicLayout />` | [source](../../src/routes/router.tsx) |

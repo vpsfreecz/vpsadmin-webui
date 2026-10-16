@@ -118,3 +118,9 @@ The Acceptance column describes what must be checked, not a claim it all passed.
 | ID | Requirement and reason | Acceptance | Source / implementation evidence | Status |
 | --- | --- | --- | --- | --- |
 | REQ-071 | Let administrators stop new use of a network while retaining existing service and inventory. | Show known enabled state, registered/assigned stock and authoritative available/owned-unassigned counts with descriptions; distinguish the editor owned total and missing statistics; support both toggling directions through the normal API update; explain detached-address restrictions and already accepted operations; omit unsupported controls and fields on older APIs; preserve errors and drafts. | Accepted network availability request 2026-10-06; [API contract](API_CONTRACTS.md#vps-address-availability), [network editor](../../src/pages/app/admin/cluster/NetworksPage.tsx) | Prepared, not deployed; synthetic tests do not certify backend admission or running services |
+
+## Application identity and credits
+
+| ID | Requirement and reason | Acceptance | Source / implementation evidence | Status |
+| --- | --- | --- | --- | --- |
+| REQ-072 | Identify the loaded WebUI release and credit its contributors. | Compact commit link and About link at the bottom of the left sidebar and in the mobile drawer; public About page in cs/en with authors and source/licensing information. Revision is embedded in the loaded bundle, marks local changes and never invents an unknown commit. | Maintainer request 2026-10-16; [work log](../work-log/2026-10-16-about-build-version.md) | Prepared; not deployed |

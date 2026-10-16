@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
+import { BuildFooter } from './BuildFooter';
 
 import { getRuntimeConfig } from '../../app/config';
 import { useAuth } from '../../app/auth';
@@ -243,7 +244,7 @@ function PublicLayoutInner() {
 
       <footer className="border-t border-border">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 py-4 text-xs text-muted">
-          {i18n.t('public.footer.prototype')}
+          <BuildFooter />
         </div>
       </footer>
     </div>

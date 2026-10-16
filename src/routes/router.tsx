@@ -15,6 +15,8 @@ import { ErrorPage } from '../pages/ErrorPage';
 import { NotFoundPage } from '../pages/NotFoundPage';
 import { RootErrorPage } from '../pages/RootErrorPage';
 
+const AboutPage = lazyRoute(() => import('../pages/public/AboutPage'), 'AboutPage');
+
 const DatasetsListPage = lazyRoute(() => import('../pages/app/datasets/DatasetsListPage'), 'DatasetsListPage');
 const DatasetLayout = lazyRoute(() => import('../pages/app/datasets/DatasetLayout'), 'DatasetLayout');
 const DatasetOverviewPage = lazyRoute(() => import('../pages/app/datasets/DatasetOverviewPage'), 'DatasetOverviewPage');
@@ -154,6 +156,7 @@ export const router = createBrowserRouter([
             { path: 'outages', element: <CoreRoutes.OutagesPage /> },
             { path: 'outages/:outageId', element: <CoreRoutes.OutageDetailPage /> },
             { path: 'news', element: <CoreRoutes.NewsPage /> },
+            { path: 'about', element: <AboutPage /> },
             { path: 'security-advisories', element: <CoreRoutes.SecurityAdvisoriesPage /> },
             { path: 'security-advisories/:advisoryId', element: <CoreRoutes.SecurityAdvisoryDetailPage /> },
             { path: 'requests/registrations/:requestId/:token', element: <ParamKeyedRoute params={['requestId', 'token']}><CoreRoutes.RegistrationCorrectionPage /></ParamKeyedRoute> },

@@ -28,6 +28,7 @@ import {
   Users,
 } from 'lucide-react';
 
+import { BuildFooter } from './BuildFooter';
 import { Drawer } from '../ui/Drawer';
 import { clsx } from '../ui/clsx';
 import { useI18n } from '../../app/i18n';
@@ -330,6 +331,7 @@ export function AppSidebar(props: {
               </div>
             ) : null}
           </nav>
+          <BuildFooter onNavigate={onCloseMobileNav} />
         </div>
       </Drawer>
 
@@ -369,6 +371,9 @@ export function AppSidebar(props: {
               ))}
             </div>
           ) : null}
+          <div className="shrink-0 border-t border-border px-4 py-1">
+            <BuildFooter />
+          </div>
         </div>
       </aside>
     </>
