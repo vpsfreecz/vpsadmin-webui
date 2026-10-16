@@ -43,7 +43,7 @@ function parseIdParam(v: string | undefined): number | null {
 }
 
 export function AdminUserLayout() {
-  const { basePath } = useAppMode();
+  const { basePath, mode } = useAppMode();
   const auth = useAuth();
   const { t } = useI18n();
 
@@ -91,6 +91,7 @@ export function AdminUserLayout() {
           return (
             <ObjectHeader
               testId="admin.user.header"
+              horizontalAt="xl"
               title={title}
               titleAfter={
                 <>
@@ -133,7 +134,7 @@ export function AdminUserLayout() {
               }
               meta={u.full_name ? String(u.full_name) : u.email ? String(u.email) : ' '}
               actions={
-                <>
+                <div className="flex w-full flex-wrap items-center gap-2 xl:max-w-xl xl:justify-end">
                   <CopyButton text={title} />
                   <LinkButton
                     to={`${basePath}/vps?user=${u.id}`}
@@ -158,6 +159,15 @@ export function AdminUserLayout() {
                   >
                     {t('nav.datasets')}
                   </LinkButton>
+                  {mode === 'admin' && auth.role === 'admin' ? (
+                    <LinkButton
+                      to={`${basePath}/exports?user=${u.id}`}
+                      variant="secondary"
+                      testId="admin.user.action.exports"
+                    >
+                      {t('nav.exports')}
+                    </LinkButton>
+                  ) : null}
                   <LinkButton
                     to={`${basePath}/dns?user=${u.id}`}
                     variant="secondary"
@@ -182,7 +192,7 @@ export function AdminUserLayout() {
                   <Button testId="admin.user.refresh" variant="secondary" onClick={() => void q.refetch()}>
                     {t('common.refresh')}
                   </Button>
-                </>
+                </div>
               }
             />
           );

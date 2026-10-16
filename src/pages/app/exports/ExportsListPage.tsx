@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { CircleHelp, Plus, SlidersHorizontal } from 'lucide-react';
+import { CircleHelp, Plus } from 'lucide-react';
 
 import { useAppMode } from '../../../app/appMode';
 import { useAuth } from '../../../app/auth';
@@ -12,7 +12,6 @@ import { ListShell } from '../../../components/layout/ListShell';
 import { PageHeader } from '../../../components/layout/PageHeader';
 import { Button } from '../../../components/ui/Button';
 import { CopyButton } from '../../../components/ui/CopyButton';
-import { Drawer } from '../../../components/ui/Drawer';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { ErrorState } from '../../../components/ui/ErrorState';
 import { FilterChip } from '../../../components/ui/FilterChip';
@@ -59,7 +58,6 @@ export function ExportsListPage() {
   const [smart, setSmart] = useState('');
   const [smartErrors, setSmartErrors] = useState<string[]>([]);
   const [helpOpen, setHelpOpen] = useState(false);
-  const [advancedOpen, setAdvancedOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
 
   useLayoutEffect(() => {
@@ -261,6 +259,15 @@ export function ExportsListPage() {
         onPick: () => openExport(numeric),
         testId: 'exports.smart_filter.suggest.open',
       });
+      if (isGlobalAdminView) {
+        smartSuggestions.push({
+          id: 'owner',
+          primary: t('exports.smart.suggest.owner_id', { id: String(numeric) }),
+          secondary: `user:${numeric}`,
+          onPick: () => applySmartText(`user:${numeric}`),
+          testId: 'exports.smart_filter.suggest.owner',
+        });
+      }
     } else if (splitKeyValueToken(smartNeedle)) {
       smartSuggestions.push({
         id: 'apply',
@@ -300,7 +307,7 @@ export function ExportsListPage() {
 
   const filters = (
     <FilterBar>
-      <div className="space-y-2">
+      <div className="w-full min-w-0 space-y-2 sm:w-80">
         <SmartFilterInput
           ref={smartInputRef}
           value={smart}
@@ -321,41 +328,22 @@ export function ExportsListPage() {
               >
                 <CircleHelp size={16} />
               </Button>
-              {isGlobalAdminView ? (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setAdvancedOpen(true)}
-                  ariaLabel={t('filters.advanced')}
-                  testId="exports.smart_filter.advanced"
-                >
-                  <SlidersHorizontal size={16} />
-                </Button>
-              ) : null}
             </div>
           }
         />
-        {filtersActive ? (
-          <div className="flex flex-wrap items-center gap-2">
-            {isGlobalAdminView && activeAdminUserId ? (
-              <FilterChip
-                label={`${t('common.user')}:#${activeAdminUserId}`}
-                onRemove={() => setUserFilter('')}
-                testId="exports.chip.user"
-              />
-            ) : null}
-            {smartErrors.map((error, index) => (
-              <FilterChip
-                key={`${error}-${index}`}
-                label={error}
-                tone="danger"
-                onRemove={() => setSmartErrors((previous) => previous.filter((_, i) => i !== index))}
-                testId={`exports.chip.err.${index}`}
-              />
-            ))}
-          </div>
-        ) : null}
       </div>
+      {isGlobalAdminView ? (
+        <UserLookupInput
+          className="w-full sm:w-64"
+          value={userFilter}
+          onChange={setUserFilter}
+          testId="exports.filter.user"
+          label={t('exports.filter.owner.label')}
+          ariaLabel={t('exports.filter.owner.label')}
+          placeholder={t('exports.filter.owner.placeholder')}
+          allowRawId
+        />
+      ) : null}
       <div className="flex flex-wrap items-center gap-2">
         <CopyButton text={copyUrl} label={t('common.copy_link')} testId="exports.copy_link" />
         {filtersActive ? (
@@ -367,20 +355,28 @@ export function ExportsListPage() {
           {t('common.refresh')}
         </Button>
       </div>
+      {filtersActive ? (
+        <div className="flex w-full flex-wrap items-center gap-2">
+          {isGlobalAdminView && activeAdminUserId ? (
+            <FilterChip
+              label={`${t('common.user')}:#${activeAdminUserId}`}
+              onRemove={() => setUserFilter('')}
+              testId="exports.chip.user"
+            />
+          ) : null}
+          {smartErrors.map((error, index) => (
+            <FilterChip
+              key={`${error}-${index}`}
+              label={error}
+              tone="danger"
+              onRemove={() => setSmartErrors((previous) => previous.filter((_, i) => i !== index))}
+              testId={`exports.chip.err.${index}`}
+            />
+          ))}
+        </div>
+      ) : null}
     </FilterBar>
   );
-
-  if (listQ.isLoading && !rows.length) return <LoadingState testId="exports.loading" />;
-  if (listQ.isError) {
-    return (
-      <ErrorState
-        testId="exports.error"
-        title={t('exports.page.load_error.title')}
-        error={listQ.error}
-        onRetry={() => void listQ.refetch()}
-      />
-    );
-  }
 
   return (
     <>
@@ -400,7 +396,12 @@ export function ExportsListPage() {
         filters={filters}
         testId="exports.page"
       >
-        {rows.length === 0 ? (
+        {listQ.isLoading ? (
+          <LoadingState testId="exports.loading" />
+        ) : listQ.isError ? (
+          <ErrorState testId="exports.error" title={t('exports.page.load_error.title')}
+            error={listQ.error} onRetry={() => void listQ.refetch()} />
+        ) : rows.length === 0 ? (
           <EmptyState
             testId="exports.empty"
             title={t('exports.empty.title')}
@@ -453,31 +454,6 @@ export function ExportsListPage() {
           window.setTimeout(() => smartInputRef.current?.focus(), 0);
         }}
       />
-
-      {isGlobalAdminView ? (
-        <Drawer
-          open={advancedOpen}
-          onClose={() => setAdvancedOpen(false)}
-          title={t('filters.advanced')}
-          width="lg"
-          testId="exports.advanced"
-        >
-          <div className="space-y-4">
-            <UserLookupInput
-              value={userFilter}
-              onChange={setUserFilter}
-              testId="exports.filter.user"
-              ariaLabel={t('common.user')}
-              label={t('common.user')}
-              allowRawId
-            />
-            <div className="flex justify-end gap-2">
-              <Button variant="secondary" onClick={clearFilters}>{t('filters.clear')}</Button>
-              <Button variant="primary" onClick={() => setAdvancedOpen(false)}>{t('common.done')}</Button>
-            </div>
-          </div>
-        </Drawer>
-      ) : null}
 
       <ExportCreateDialog open={createOpen} onClose={() => setCreateOpen(false)} />
     </>

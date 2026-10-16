@@ -3,6 +3,8 @@ import type { Page, TestInfo } from '@playwright/test';
 import { test, expect } from '../../fixtures/bootstrap';
 import { setupHaveApiMock, type HaveApiMockUser } from '../../fixtures/haveapi';
 import { withAppUrl } from '../../fixtures/url';
+import { setUiSettingsLocalStorage } from '../../fixtures';
+import { expectNoDocumentHorizontalOverflow } from '../../helpers/horizontalOverflow';
 
 const EXPORT_INDEX_FIELDS = new Set(['limit', 'from_id', 'user']);
 
@@ -18,6 +20,7 @@ type ExportMockOptions = {
   expectedImplicitUserId?: number;
   includeUserRelation?: boolean;
   ownerLabelByUser?: boolean;
+  ownerLookup?: boolean;
 };
 
 function readExportIndexFields(searchParams: URLSearchParams): Record<string, string> {
@@ -70,7 +73,10 @@ async function setupExportsApi(page: Page, options: ExportMockOptions): Promise<
   await setupHaveApiMock(page, {
     user: options.user,
     handlers: {
-      'GET users': () => ({ users: [] }),
+      'GET users': () => ({ users: options.ownerLookup ? [{ id: 6335, login: 'fixture-member', level: 1 }] : [] }),
+      'GET users/6335': () => ({ user: { id: 6335, login: 'fixture-member', level: 1, object_state: 'active' } }),
+      'GET vpses': () => ({ vpses: [], _meta: { total_count: 0 } }),
+      'GET user_payments': () => ({ user_payments: [] }),
       'GET exports': ({ searchParams }) => {
         const fields = readExportIndexFields(searchParams);
         const includes = searchParams.get('_meta[includes]');
@@ -239,7 +245,9 @@ test.describe('Export list filter contract', () => {
     }
     expect(normalized.get('page')).toBe('1');
     expect(normalized.get('limit')).toBe('25');
-    await expect(page.getByTestId('exports.smart_filter.advanced')).toHaveCount(0);
+    await expect(page.getByTestId('exports.filter.user')).toHaveCount(0);
+    await page.getByTestId('exports.smart_filter.input').fill('6335');
+    await expect(page.getByTestId('exports.smart_filter.suggest.owner')).toHaveCount(0);
     await expect(exportSurface(page, testInfo, 1)).not.toContainText('support-owner');
   });
 
@@ -263,7 +271,9 @@ test.describe('Export list filter contract', () => {
     expect(normalized.get('user')).toBeNull();
     expect(normalized.get('from_id')).toBeNull();
     expect(normalized.get('page')).toBe('1');
-    await expect(page.getByTestId('exports.smart_filter.advanced')).toHaveCount(0);
+    await expect(page.getByTestId('exports.filter.user')).toHaveCount(0);
+    await page.getByTestId('exports.smart_filter.input').fill('6335');
+    await expect(page.getByTestId('exports.smart_filter.suggest.owner')).toHaveCount(0);
     await expect(exportSurface(page, testInfo, 1)).not.toContainText('admin-mine-owner');
   });
 
@@ -556,3 +566,95 @@ test.describe('Export list filter contract', () => {
     expect(hostRequests).toBe(0);
   });
 });
+
+for (const language of ['cs', 'en'] as const) {
+  test(`@pr-smoke @pr-smoke-mobile ${language} export owner lookup is visible, retains focus and preserves the list context`, async ({ page }, testInfo) => {
+    const requests = await setupExportsApi(page, {
+      user: { id: 90, login: 'admin', level: 100 }, ownerLabel: 'member',
+      allowArbitraryUser: true, includeUserRelation: true, ownerLabelByUser: true, ownerLookup: true,
+    });
+    await setUiSettingsLocalStorage(page, { language, theme: 'dark' });
+    await page.goto('/admin/exports?user=42&from_id=25&page=2&limit=25');
+    const owner = page.getByTestId('exports.filter.user');
+    await expect(owner).toHaveValue('42');
+    await expect(owner).toHaveAttribute('aria-label', language === 'cs' ? 'Vlastník exportu' : 'Export owner');
+    await owner.fill('');
+    // Allow each request to complete between keystrokes: refetching the list must
+    // not unmount the filter, blur it or interrupt typing a multi-digit member ID.
+    for (const prefix of ['6', '63', '633', '6335']) {
+      await owner.press(prefix.slice(-1));
+      await expect.poll(() => lastRequest(requests).fields['user']).toBe(prefix);
+      await expect(owner).toBeFocused();
+      await expect(owner).toHaveValue(prefix);
+    }
+    expect(lastRequest(requests).fields).toEqual({ user: '6335', limit: '25' });
+    await expect(page).toHaveURL(/user=6335/);
+    expect(new URL(page.url()).searchParams.get('from_id')).toBeNull();
+    await expect(exportSurface(page, testInfo, 1)).toContainText('member-6335-owner');
+    await paginationNext(page, testInfo).click();
+    await expect(exportSurface(page, testInfo, 26)).toBeVisible();
+    expect(lastRequest(requests).fields).toEqual({ user: '6335', from_id: '25', limit: '25' });
+    await page.reload();
+    await expect(owner).toHaveValue('6335');
+    await expect(exportSurface(page, testInfo, 26)).toContainText('member-6335-owner');
+    await page.getByTestId('exports.filters.clear').click();
+    await expect(owner).toHaveValue('');
+    await expect.poll(() => lastRequest(requests).fields['user']).toBeUndefined();
+    await owner.fill('fixture');
+    const suggestion = page.getByTestId('exports.filter.user.dropdown').getByRole('option', { name: 'fixture-member' });
+    if (testInfo.project.name.includes('mobile')) await suggestion.tap();
+    else await suggestion.click();
+    await expect(owner).toHaveValue('6335');
+    await expect(page.getByTestId('exports.chip.user')).toContainText('#6335');
+    await expect(exportSurface(page, testInfo, 1)).toContainText('member-6335-owner');
+    await expectNoDocumentHorizontalOverflow(page);
+    await page.getByTestId('exports.smart_filter.input').fill('6335');
+    await expect(page.getByTestId('exports.smart_filter.suggest.open')).toBeVisible();
+    await expect(page.getByTestId('exports.smart_filter.suggest.owner')).toHaveText(
+      language === 'cs' ? 'Zobrazit exporty vlastníka #6335user:6335' : 'Show exports owned by user #6335user:6335'
+    );
+    if (language === 'cs') {
+      await page.screenshot({ path: testInfo.outputPath('export-owner-search.png'), fullPage: false, scale: 'css' });
+    }
+    await page.getByTestId('exports.smart_filter.suggest.owner').click();
+    await expect(page.getByTestId('exports.smart_filter.input')).toHaveValue('');
+    if (language === 'cs') {
+      await page.screenshot({ path: testInfo.outputPath('export-owner-filter.png'), fullPage: false, scale: 'css' });
+    }
+    await expect(page).toHaveURL(/\/admin\/exports\?/);
+    // Move away from the previously clicked owner row before reopening the menu;
+    // a stationary desktop pointer over that row intentionally selects it on hover.
+    await page.mouse.move(0, 0);
+    await page.getByTestId('exports.smart_filter.input').fill('6335');
+    await expect(page.getByTestId('exports.smart_filter.suggest.open')).toHaveAttribute('aria-selected', 'true');
+    await page.getByTestId('exports.smart_filter.input').press('Enter');
+    await expect(page).toHaveURL(/\/admin\/exports\/6335$/);
+  });
+
+  test(`@pr-smoke @pr-smoke-mobile ${language} member detail links directly to the member exports`, async ({ page }, testInfo) => {
+    const requests = await setupExportsApi(page, {
+      user: { id: 90, login: 'admin', level: 100 }, ownerLabel: 'member',
+      allowArbitraryUser: true, includeUserRelation: true, ownerLabelByUser: true,
+    });
+    await setUiSettingsLocalStorage(page, { language, theme: 'dark' });
+    await page.goto('/admin/users/6335');
+    const link = page.getByTestId('admin.user.action.exports');
+    await expect(link).toHaveText(language === 'cs' ? 'Exporty' : 'Exports');
+    await expect(link).toHaveAttribute('href', '/admin/exports?user=6335');
+    await expect(page.getByTestId('admin.user.details.card')).toBeVisible();
+    const title = await page.getByTestId('admin.user.header').getByRole('heading', { level: 1 }).boundingBox();
+    expect(title?.height).toBeLessThanOrEqual(32);
+    await expectNoDocumentHorizontalOverflow(page);
+    if (language === 'cs') await page.screenshot({ path: testInfo.outputPath('member-export-link.png'), fullPage: false, scale: 'css' });
+    if (testInfo.project.name.includes('mobile')) await link.tap();
+    else await link.click();
+    await expect(page.getByTestId('exports.filter.user')).toHaveValue('6335');
+    await expect(exportSurface(page, testInfo, 1)).toContainText('member-6335-owner');
+    expect(requests.length).toBeGreaterThan(0);
+    expect(requests.every((request) => request.fields['user'] === '6335')).toBe(true);
+    await page.goBack();
+    await expect(page).toHaveURL(/\/admin\/users\/6335$/);
+    await page.goForward();
+    await expect(page.getByTestId('exports.filter.user')).toHaveValue('6335');
+  });
+}

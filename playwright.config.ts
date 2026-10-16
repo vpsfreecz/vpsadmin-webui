@@ -66,6 +66,7 @@ export default defineConfig({
         '**/incident_create_context.spec.ts',
         '**/vps_overview_all_ips.spec.ts',
         '**/member_payment_links.spec.ts',
+        '**/exports_filter_contract.spec.ts',
       ],
       use: { ...devices['iPhone 13'] },
     },
