@@ -385,20 +385,6 @@
       }
     },
     {
-      "path": "src/pages/app/exports/ExportDetailPage.tsx",
-      "rule": "grown-over-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "446c63414ed85caebdaad6e4ce7943be23969f04bc6728c2457e35d6818d4b11",
-      "old": 514,
-      "allowance": 523,
-      "rationale": "At the recorded source revision, this file already contained export detail and action flows; extract the coherent section with focused behavior coverage before removing this exception.",
-      "owner": "WebUI implementation lead",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 514
-      }
-    },
-    {
       "path": "src/pages/app/networking/UserNetworkPage.tsx",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",

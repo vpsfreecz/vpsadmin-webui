@@ -55,6 +55,7 @@ export default defineConfig({
     {
       name: 'mobile-webkit',
       testMatch: [
+        '**/export_hosts_responsive_actions.spec.ts',
         '**/vps_console_controls.spec.ts',
         '**/vps_console_viewport.spec.ts',
         '**/vps_console_page.spec.ts',

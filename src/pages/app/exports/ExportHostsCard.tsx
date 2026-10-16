@@ -41,7 +41,7 @@ export function ExportHostsCard(props: {
             </Button>
           }
         />
-        <CardBody className="@container">
+        <CardBody className="@container space-y-3">
           {props.allVps ? (
             <Alert title={t('exports.detail.hosts.all_vps_title')} variant="info">
               {t('exports.detail.hosts.all_vps_body')}

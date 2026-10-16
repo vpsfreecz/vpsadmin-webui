@@ -141,6 +141,14 @@ schedules/plans and downloads, export datasets and restore from available backup
 VPS root disks remain in VPS detail; member NAS and Backup Center retain separate
 navigation. Backup filters remain stable across tab changes.
 
+Export detail presents its summary, allowed hosts and mount instructions as
+full-width sections in that order. Hosts remain a compact table on desktop;
+narrow screens use labeled rows with reachable edit/delete actions. The mount
+command, fstab entry, systemd mount unit and NixOS configuration are stacked
+vertically at every width, with a separate copy action for each example. Long
+code lines may scroll inside their block without widening the page. Temporary
+snapshot exports continue to show only their temporary mount instructions.
+
 **Restore contract:** identify source snapshot/pool and destination; distinguish
 local from replicated/remote restore. Track transfer/restore chains to an actual
 outcome before calling the data recovered. Live evidence needs synthetic content
