@@ -43,6 +43,7 @@ export interface NavItem {
   icon: React.ReactNode;
   group?: AdminSidebarGroupId;
   footer?: boolean;
+  status?: boolean;
 }
 
 export type AdminSidebarGroupId =
@@ -67,7 +68,7 @@ const adminSidebarGroups: Array<{ id: AdminSidebarGroupId; labelKey: string }> =
 ];
 
 export function sidebarNavSections(items: NavItem[]): SidebarNavSection[] {
-  const mainItems = items.filter((item) => !item.footer);
+  const mainItems = items.filter((item) => !item.footer && !item.status);
   if (!mainItems.some((item) => item.group)) {
     return [{ id: 'ungrouped', items: mainItems }];
   }
@@ -134,15 +135,6 @@ export function buildSidebarNavItems(opts: {
   }
 
   if (appMode === 'admin') {
-    if (role === 'admin') {
-      items.push({
-        id: 'security-advisories',
-        to: `${basePath}/security-advisories`,
-        label: t('nav.security_advisories'),
-        icon: <ShieldAlert size={18} />,
-        group: 'operations',
-      });
-    }
     items.push({ id: 'audit', to: `${basePath}/audit`, label: t('nav.audit'), icon: <ClipboardList size={18} />, group: 'operations' });
     items.push({ id: 'users', to: `${basePath}/users`, label: t('nav.users'), icon: <Users size={18} />, group: 'users-finance' });
     items.push({
@@ -185,6 +177,22 @@ export function buildSidebarNavItems(opts: {
     icon: <User size={18} />,
     ...(appMode === 'admin' ? { footer: true } : {}),
   });
+  items.push(
+    {
+      id: 'outages',
+      to: appMode === 'admin' ? `${basePath}/outages` : '/outages',
+      label: t('nav.outages'),
+      icon: <Activity size={18} />,
+      status: true,
+    },
+    {
+      id: 'security-advisories',
+      to: appMode === 'admin' && role === 'admin' ? `${basePath}/security-advisories` : '/security-advisories',
+      label: t('nav.security_advisories'),
+      icon: <ShieldAlert size={18} />,
+      status: true,
+    },
+  );
   return items;
 }
 
@@ -296,7 +304,8 @@ export function AppSidebar(props: {
   const primaryNavItems = primarySidebarNavItems(navItems);
   const navSections = sidebarNavSections(primaryNavItems);
   const footerNavItems = sidebarFooterNavItems(primaryNavItems);
-  const compactDesktopNav = primaryNavItems.length > 18;
+  const statusNavItems = primaryNavItems.filter((item) => item.status);
+  const compactDesktopNav = primaryNavItems.filter((item) => !item.status).length > 18;
 
   return (
     <>
@@ -330,6 +339,11 @@ export function AppSidebar(props: {
                 ))}
               </div>
             ) : null}
+          </nav>
+          <nav aria-label={t('nav.service_status')} className="border-t border-border pt-2" data-testid="nav.drawer.status">
+            {statusNavItems.map((item) => (
+              <NavigationLink key={item.id} item={item} surface="drawer" onClick={onCloseMobileNav} />
+            ))}
           </nav>
           <BuildFooter onNavigate={onCloseMobileNav} />
         </div>
@@ -371,6 +385,11 @@ export function AppSidebar(props: {
               ))}
             </div>
           ) : null}
+          <nav aria-label={t('nav.service_status')} className="shrink-0 border-t border-border px-2 py-2" data-testid="nav.sidebar.status">
+            {statusNavItems.map((item) => (
+              <NavigationLink key={item.id} item={item} surface="sidebar" compact />
+            ))}
+          </nav>
           <div className="shrink-0 border-t border-border px-4 py-1">
             <BuildFooter />
           </div>

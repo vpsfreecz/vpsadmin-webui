@@ -49,6 +49,8 @@ export const enCommon_navigation = {
   'nav.nodes': 'Nodes',
   'nav.migration_plans': 'Migration plans',
   'nav.admin': 'Admin',
+  'nav.outages': 'Outages',
+  'nav.service_status': 'Service status',
   'nav.security_advisories': 'Security advisories',
   'nav.account': 'Account',
   'user_menu.open': 'Open account menu',

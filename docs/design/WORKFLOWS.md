@@ -30,6 +30,19 @@ to the source repository under “Zdrojové kódy” / “Source code”, withou
 commentary or the package-metadata link. This change does not grant or
 change a license or carry over the legacy PHP template credits (REQ-072).
 
+## Status navigation while signed in
+
+A separated block above About in the desktop sidebar and mobile drawer contains
+Outages and Security advisories (REQ-054/055). These are direct links, without
+an extra menu. In My view, including privileged accounts, both open the existing
+public read-only pages. In administrator view, Outages opens `/admin/outages`,
+where admins can use the existing create/review flow and support remains
+read-only. Security advisories opens management only for admin; support opens
+the public advisory list. The advisory link is no longer duplicated in Operations.
+Desktop links stay below the scrolling primary navigation; mobile taps close the
+drawer after navigation. Public pages retain the existing return-to-app link.
+No route, backend permission, publication behavior or API endpoint changes.
+
 ## Public entry and authentication
 
 **Intent:** inspect service availability, sign in, recover access or correct a
