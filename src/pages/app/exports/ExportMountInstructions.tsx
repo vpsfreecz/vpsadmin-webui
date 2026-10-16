@@ -23,7 +23,6 @@ export function ExportMountInstructions(props: {
       <CardHeader
         title={t('exports.detail.instructions.title')}
         subtitle={sourceIsSnapshot ? t('exports.detail.instructions.snapshot_subtitle') : t('exports.detail.instructions.dataset_subtitle')}
-        actions={<CopyButton text={mountCommand} label={t('exports.instructions.copy_command')} testId="exports.detail.instructions.command.copy" />}
       />
       <CardBody className="space-y-4">
         {sourceIsSnapshot ? (
@@ -32,8 +31,11 @@ export function ExportMountInstructions(props: {
           </Alert>
         ) : null}
 
-        <div>
-          <div className="mb-2 text-xs font-semibold text-muted">{t('exports.instructions.command')}</div>
+        <div className="min-w-0">
+          <div className="mb-2 flex items-center justify-between gap-2 text-xs font-semibold text-muted">
+            <span>{t('exports.instructions.command')}</span>
+            <CopyButton text={mountCommand} label={t('common.copy')} testId="exports.detail.instructions.command.copy" />
+          </div>
           <pre data-testid="exports.detail.instructions.command" className="max-w-full overflow-x-auto rounded-md border border-border bg-code p-3 text-xs text-fg">{mountCommand}</pre>
         </div>
 
