@@ -85,7 +85,21 @@ export function TransactionChainsFilters({
 }: TransactionChainsFiltersProps) {
   return (
     <>
-      <FilterBar testId="transactions.list.filters">
+      <FilterBar
+        testId="transactions.list.filters"
+        below={
+          activeFilterChips.length > 0 || queryId ? (
+            <>
+              {activeFilterChips.length > 0 ? (
+                <div className="flex flex-wrap gap-2" data-testid="transactions.list.active_filters">
+                  {activeFilterChips}
+                </div>
+              ) : null}
+              {queryId ? <div className="text-xs text-muted">{t('transactions.search.id_lookup')}</div> : null}
+            </>
+          ) : null
+        }
+      >
         <div className="w-full sm:max-w-xl">
           <SmartFilterInput
             ref={smartInputRef}
@@ -109,8 +123,6 @@ export function TransactionChainsFilters({
               </button>
             }
           />
-          {activeFilterChips.length > 0 ? <div className="mt-2 flex flex-wrap gap-2">{activeFilterChips}</div> : null}
-          {queryId ? <div className="mt-1 text-xs text-muted">{t('transactions.search.id_lookup')}</div> : null}
         </div>
 
         <Button

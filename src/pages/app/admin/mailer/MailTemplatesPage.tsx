@@ -266,7 +266,18 @@ export function MailTemplatesPage() {
       }
       filters={
         <>
-          <FilterBar testId="admin.mailer.templates.filters">
+          <FilterBar
+            testId="admin.mailer.templates.filters"
+            below={
+              filtersActive ? (
+                <div className="flex flex-wrap gap-1" data-testid="admin.mailer.templates.active_filters">
+                  {q.trim() ? <FilterChip label={`q:${q.trim()}`} onRemove={() => setQ('')} testId="admin.mailer.templates.chip.q" /> : null}
+                  {templateId.trim() ? <FilterChip label={`template:${templateId.trim()}`} onRemove={() => setListParam('template_id', '')} testId="admin.mailer.templates.chip.template" /> : null}
+                  {userVisibility.trim() ? <FilterChip label={`visibility:${userVisibility.trim()}`} onRemove={() => setListParam('user_visibility', '')} testId="admin.mailer.templates.chip.visibility" /> : null}
+                </div>
+              ) : null
+            }
+          >
             <div className="w-full sm:max-w-xl">
               <Input
                 value={q}
@@ -276,13 +287,6 @@ export function MailTemplatesPage() {
                 autoComplete="off"
                 testId="admin.mailer.templates.search.input"
               />
-              {filtersActive ? (
-                <div className="mt-2 flex flex-wrap gap-1" data-testid="admin.mailer.templates.active_filters">
-                  {q.trim() ? <FilterChip label={`q:${q.trim()}`} onRemove={() => setQ('')} testId="admin.mailer.templates.chip.q" /> : null}
-                  {templateId.trim() ? <FilterChip label={`template:${templateId.trim()}`} onRemove={() => setListParam('template_id', '')} testId="admin.mailer.templates.chip.template" /> : null}
-                  {userVisibility.trim() ? <FilterChip label={`visibility:${userVisibility.trim()}`} onRemove={() => setListParam('user_visibility', '')} testId="admin.mailer.templates.chip.visibility" /> : null}
-                </div>
-              ) : null}
             </div>
             <Button
               variant="secondary"

@@ -16,6 +16,8 @@ export function FilterBar(props: {
   children?: React.ReactNode;
   left?: React.ReactNode;
   right?: React.ReactNode;
+  /** Chips and hints go here, not under the search field, so the controls stay aligned with it. */
+  below?: React.ReactNode;
   testId?: string;
   className?: string;
 }) {
@@ -31,6 +33,7 @@ export function FilterBar(props: {
   return (
     <div data-testid={props.testId} className={clsx('flex w-full flex-wrap items-end gap-2', props.className)}>
       {content}
+      {props.below ? <div className="flex min-w-0 basis-full flex-col gap-1">{props.below}</div> : null}
     </div>
   );
 }

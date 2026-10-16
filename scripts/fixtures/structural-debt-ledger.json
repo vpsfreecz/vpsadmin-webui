@@ -119,20 +119,6 @@
       }
     },
     {
-      "path": "src/pages/app/MonitoringEventsPage.tsx",
-      "rule": "grown-over-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "24cd4742786f2ef310e95fd611d40698d8ffa0e117b524da1efab5f7bd5f0558",
-      "old": 1109,
-      "allowance": 1110,
-      "rationale": "At the recorded source revision, monitoring list filtering already exceeded the historical line baseline by one. Removing unrelated whitespace would only game the budget; extract filter logic with focused tests.",
-      "owner": "WebUI implementation lead",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 1109
-      }
-    },
-    {
       "path": "src/pages/app/TransactionChainDetailPage.tsx",
       "rule": "grown-over-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
@@ -220,10 +206,10 @@
       "path": "src/pages/app/admin/cluster/LocationsPage.tsx",
       "rule": "crossed-1000",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "fb851e0851ca9a9e8a9f4d3c5507a3940a8ff31c416c2bd3f16ddec99d199642",
+      "contentHash": "6bfcca815fed8635379092f3539f1a28ae3cc49b9929e6df29c3790ca718beca",
       "old": 978,
-      "allowance": 1025,
-      "rationale": "At the recorded source revision, this file already contained location list and edit flows; extract the coherent section with focused behavior coverage before removing this exception.",
+      "allowance": 1024,
+      "rationale": "At the recorded source revision, this file already contained location list and edit flows; extract the coherent section with focused behavior coverage before removing this exception. Reviewed 2026-10-16: move active filter chips into the FilterBar below row (-1 line); allowance lowered to the new size.",
       "owner": "WebUI collection and page refactor implementer",
       "removeWhen": {
         "metric": "lines",
@@ -234,10 +220,10 @@
       "path": "src/pages/app/admin/cluster/LocationsPage.tsx",
       "rule": "grown-over-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "fb851e0851ca9a9e8a9f4d3c5507a3940a8ff31c416c2bd3f16ddec99d199642",
+      "contentHash": "6bfcca815fed8635379092f3539f1a28ae3cc49b9929e6df29c3790ca718beca",
       "old": 978,
-      "allowance": 1025,
-      "rationale": "At the recorded source revision, this file already contained location list and edit flows; extract the coherent section with focused behavior coverage before removing this exception.",
+      "allowance": 1024,
+      "rationale": "At the recorded source revision, this file already contained location list and edit flows; extract the coherent section with focused behavior coverage before removing this exception. Reviewed 2026-10-16: move active filter chips into the FilterBar below row (-1 line); allowance lowered to the new size.",
       "owner": "WebUI collection and page refactor implementer",
       "removeWhen": {
         "metric": "lines",

@@ -1,6 +1,6 @@
 # Product and interaction design
 
-Related requirements: REQ-001–041, REQ-046–055. Current intent is in the
+Related requirements: REQ-001–041, REQ-046–055, REQ-073. Current intent is in the
 [register](REQUIREMENTS.md); [decisions](DECISIONS.md) explain revisions.
 
 ## Audiences and information architecture
@@ -110,6 +110,8 @@ represent known cursor history; they do not imply arbitrary page access or a tot
 that the API does not provide. Search scope must be honest: filtering the loaded
 rows is not server-wide search. Empty, loading, forbidden, failed and stale are
 separate states. Do not treat an API failure as an empty successful list.
+Active filter chips and lookup hints occupy a full-width row below the filter
+controls, so applying a filter does not move the buttons beside the search field.
 
 Mutation sequence:
 

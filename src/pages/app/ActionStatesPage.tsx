@@ -655,7 +655,10 @@ export function ActionStatesPage() {
       }
       filters={
         <>
-          <FilterBar testId="action_states.list.filters">
+          <FilterBar
+            testId="action_states.list.filters"
+            below={activeFilterChips.length > 0 ? <div className="flex flex-wrap gap-1" data-testid="action_states.active_filters">{activeFilterChips}</div> : null}
+          >
             <div className="w-full sm:max-w-xl">
               <SmartFilterInput
                 ref={smartInputRef}
@@ -683,12 +686,6 @@ export function ActionStatesPage() {
                   </Button>
                 }
               />
-
-              {activeFilterChips.length > 0 ? (
-                <div className="mt-2 flex flex-wrap gap-1" data-testid="action_states.active_filters">
-                  {activeFilterChips}
-                </div>
-              ) : null}
             </div>
 
             <div className="flex w-full flex-wrap gap-2 sm:w-auto" data-testid="action_states.visibility.filters">

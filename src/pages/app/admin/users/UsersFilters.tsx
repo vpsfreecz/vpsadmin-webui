@@ -172,7 +172,10 @@ export function UsersFilters({
 
   return (
     <>
-      <FilterBar testId="admin.users.list.filters">
+      <FilterBar
+        testId="admin.users.list.filters"
+        below={activeFilterChips.length > 0 ? <div className="flex flex-wrap gap-1" data-testid="admin.users.active_filters">{activeFilterChips}</div> : null}
+      >
         <div className="w-full sm:max-w-xl">
           <SmartFilterInput
             ref={smartInputRef}
@@ -199,12 +202,6 @@ export function UsersFilters({
               </Button>
             }
           />
-
-          {activeFilterChips.length > 0 ? (
-            <div className="mt-2 flex flex-wrap gap-1" data-testid="admin.users.active_filters">
-              {activeFilterChips}
-            </div>
-          ) : null}
         </div>
 
         <Button
