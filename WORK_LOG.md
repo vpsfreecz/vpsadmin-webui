@@ -11,6 +11,10 @@ complete reconstruction of the project. Missing evidence is not a passing check.
 
 ## New changes
 
+## 2026-10-16 — Five-PR evening release
+
+See the [release, CI repair and three-site verification record](docs/work-log/2026-10-16-evening-release.md).
+
 ## 2026-10-16 — Eight-PR three-site release
 
 See the [release preparation and outcome record](docs/work-log/2026-10-16-three-site-release.md).

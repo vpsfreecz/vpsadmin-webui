@@ -1,0 +1,29 @@
+{
+  "revision": "2d089660638c8885fdd023b2537235df0c95b84b",
+  "target": "https://dev.crucio.cz",
+  "mode": "deployed frontend with synthetic BFF and HaveAPI fixtures; real fallback API requests blocked",
+  "projects": [
+    "chromium",
+    "mobile-chrome",
+    "mobile-webkit"
+  ],
+  "initialRun": {
+    "passed": 95,
+    "failed": 1,
+    "retries": 0
+  },
+  "failure": "Extra mobile-WebKit snapshot-guard test did not retain its navigator.locks method override; create completed before the test edited the pending form.",
+  "targetedRecheck": {
+    "passed": 1,
+    "fixtureAdaptation": "Pin the instrumented LockManager using Object.defineProperty(navigator, locks); deployed application unchanged."
+  },
+  "limitations": [
+    "Synthetic mutation responses do not certify real VPS creation.",
+    "Mobile browser emulation does not certify physical devices."
+  ],
+  "additionalFirstTouchSuite": {
+    "passed": 28,
+    "skipped": 2,
+    "reason": "Two mouse-only desktop-height scenarios are skipped on touch projects."
+  }
+}
