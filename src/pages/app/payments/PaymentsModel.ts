@@ -93,16 +93,19 @@ const PAYMENT_INSTRUCTIONS_CS_TEXT_REPLACEMENTS: Array<[RegExp, string]> = [
   ],
   [
     /If you need an invoice, please write to support at podpora@vpsfree\.cz or support@vpsfree\.org and we will issue it\. Do not forget to include your billing credentials\./gi,
-    'Pokud potřebuješ fakturu, napiš na podpora@vpsfree.cz nebo support@vpsfree.org. Nezapomeň přiložit fakturační údaje.',
+    'Pokud potřebuješ fakturu, napiš na podpora@vpsfree.cz. Nezapomeň přiložit fakturační údaje.',
   ],
   [
     /Pokud potřebujete fakturu, napište prosím na podporu na podpora@vpsfree\.cz nebo support@vpsfree\.org a vystavíme ji\. Nezapomeňte uvést své fakturační údaje\./gi,
-    'Pokud potřebuješ fakturu, napiš na podpora@vpsfree.cz nebo support@vpsfree.org. Nezapomeň přiložit fakturační údaje.',
+    'Pokud potřebuješ fakturu, napiš na podpora@vpsfree.cz. Nezapomeň přiložit fakturační údaje.',
   ],
   [
     /Pokud vaše banka nepodporuje variabilní symboly, můžete své členské ID poslat ve zprávě pro příjemce jako\s+\/VS\/(\d+)\s*\.\s*Přesné znění závisí na vaší bance\./gi,
     'Pokud tvoje banka nepodporuje variabilní symboly, můžeš svoje členské ID poslat ve zprávě pro příjemce jako /VS/$1. Přesné znění závisí na tvojí bance.',
   ],
+  [/Pokud vaše banka nepodporuje variabilní symboly, můžete své členské ID poslat ve zprávě pro příjemce jako/gi,
+    'Pokud tvoje banka nepodporuje variabilní symboly, můžeš svoje členské ID poslat ve zprávě pro příjemce jako'],
+  [/Přesné znění závisí na vaší bance\./gi, 'Přesné znění závisí na tvojí bance.'],
   [/CZK per month/gi, 'CZK měsíčně'],
   [/EUR per month/gi, 'EUR měsíčně'],
 ];
@@ -126,11 +129,11 @@ const PAYMENT_INSTRUCTIONS_CS_BLOCK_REPLACEMENTS = new Map<string, string>([
   ],
   [
     'If you need an invoice, please write to support at podpora@vpsfree.cz or support@vpsfree.org and we will issue it. Do not forget to include your billing credentials.',
-    'Pokud potřebuješ fakturu, napiš na podpora@vpsfree.cz nebo support@vpsfree.org. Nezapomeň přiložit fakturační údaje.',
+    'Pokud potřebuješ fakturu, napiš na podpora@vpsfree.cz. Nezapomeň přiložit fakturační údaje.',
   ],
   [
     'Pokud potřebujete fakturu, napište prosím na podporu na podpora@vpsfree.cz nebo support@vpsfree.org a vystavíme ji. Nezapomeňte uvést své fakturační údaje.',
-    'Pokud potřebuješ fakturu, napiš na podpora@vpsfree.cz nebo support@vpsfree.org. Nezapomeň přiložit fakturační údaje.',
+    'Pokud potřebuješ fakturu, napiš na podpora@vpsfree.cz. Nezapomeň přiložit fakturační údaje.',
   ],
 ]);
 
@@ -191,6 +194,16 @@ const PAYMENT_ALLOWED_TAGS = new Set([
 const PAYMENT_MAILTO_ATTRIBUTES = new Set(['a.href']);
 
 function localizePaymentInstructionsFragment(fragment: DocumentFragment, lang: PaymentInstructionsLanguage): void {
+  // Match the complete invoice paragraph, including mailto/inline markup.
+  for (const el of Array.from(fragment.querySelectorAll('p'))) {
+    const text = normalizePaymentInstructionSentence(el.textContent ?? '');
+    if (/^(If you need an invoice|Pokud potřebuje(?:š|te) fakturu),/i.test(text)
+      && text.includes('podpora@vpsfree.cz') && text.includes('support@vpsfree.org')) {
+      el.textContent = lang === 'cs'
+        ? 'Pokud potřebuješ fakturu, napiš na podpora@vpsfree.cz. Nezapomeň přiložit fakturační údaje.'
+        : 'If you need an invoice, write to support@vpsfree.org. Remember to include your billing details.';
+    }
+  }
   if (lang !== 'cs') return;
 
   for (const el of Array.from(fragment.querySelectorAll('p, h1, h2, h3, h4, h5, h6'))) {

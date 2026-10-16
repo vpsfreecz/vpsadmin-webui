@@ -1,10 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
-import { PaymentInstructionsHtml } from './PaymentInstructionsHtml';
+import { PaymentInstructionsHtml, paymentFieldCopyValue } from './PaymentInstructionsHtml';
 
 const locale = vi.hoisted(() => ({ lang: 'en' as 'en' | 'cs' }));
-vi.mock('../../../app/i18n', () => ({ useI18n: () => locale }));
+vi.mock('../../../app/i18n', () => ({ useI18n: () => ({ ...locale, t: (key: string) => key }) }));
 
 const instructions = '<h3>Payment in CZK</h3><img src="/qr.png?amount=300" alt="CZK QR">';
 
@@ -40,5 +40,24 @@ describe('PaymentInstructionsHtml', () => {
 
     expect(screen.getByRole('heading')).toHaveTextContent('Platba v CZK');
     expect(screen.getByRole('img', { name: 'CZK QR' })).toHaveAttribute('src', '/qr.png?amount=300');
+  });
+});
+
+describe('individual payment values', () => {
+  test.each([
+    ['Bankovní účet pro CZK (CZ):', '2200 041594 / 2010', '2200041594/2010'],
+    ['IBAN:', 'SK20 8330 0000 0026 0150 2873', 'SK2083300000002601502873'],
+    ['BIC:', 'FIOBCZPPXXX', 'FIOBCZPPXXX'],
+    ['Variable symbol:', '00053', '00053'],
+    ['Zpráva (více informací):', '/VS/53', '/VS/53'],
+    ['Sum:', '1 200,50 CZK per month', '1200.50'],
+    ['Částka:', '0 EUR za měsíc', '0'],
+    ['Amount:', '12.25 EUR per month', '12.25'],
+    ['Sum:', 'unknown CZK', null],
+    ['Bank account overview:', 'https://example.test', null],
+  ])('copies only the value of %s', (label, value, expected) => {
+    const table = document.createElement('table');
+    table.innerHTML = `<tr><td>${label}</td><td>${value}</td></tr>`;
+    expect(paymentFieldCopyValue(table.querySelectorAll('td')[1]!)).toBe(expected);
   });
 });

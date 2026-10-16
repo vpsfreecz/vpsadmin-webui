@@ -1,15 +1,63 @@
-import { useMemo } from 'react';
+import { createElement, useMemo, type ReactNode } from 'react';
 
 import { useI18n } from '../../../app/i18n';
+import { CopyButton } from '../../../components/ui/CopyButton';
 import { clsx } from '../../../components/ui/clsx';
 import { sanitizePaymentInstructionsHtml } from './PaymentsModel';
 
+// Only recognized payment rows get a copy action. Unknown server content stays intact.
+export function paymentFieldCopyValue(cell: Element): string | null {
+  const row = cell.parentElement;
+  if (!row || row.tagName !== 'TR' || row.children[1] !== cell || cell.querySelector('img, table')) return null;
+  const label = (row.children[0]?.textContent ?? '').replace(/\s+/g, ' ').trim();
+  const value = (cell.textContent ?? '').trim();
+  if (!value) return null;
+  if (/^(?:Sum|Amount|Částka):$/i.test(label)) {
+    // Preserve precision and strip currency/period, without guessing ambiguous formats.
+    const amount = value.match(/^(\d+(?:[ \u00a0]\d{3})*(?:[.,]\d{1,2})?)\s+(?:CZK|EUR)(?:\s|$)/i);
+    return amount ? amount[1]!.replace(/[ \u00a0]/g, '').replace(',', '.') : null;
+  }
+  if (/^(?:(?:Back|Bank) account for|Bankovní účet pro|IBAN:|BIC:|SWIFT:)/i.test(label)) {
+    return value.replace(/\s+/g, '');
+  }
+  if (/^(?:Variable symbol|Variabilní symbol):$/i.test(label) || /^(?:Message|Zpráva)(?:\s*\(|:|$)/i.test(label)) return value;
+  return null;
+}
+
+function renderInstructions(html: string, copyLabel: string): ReactNode[] {
+  const template = document.createElement('template');
+  template.innerHTML = html; // Already sanitized by the payment-specific policy.
+  const renderNode = (node: Node, key: number): ReactNode => {
+    if (node.nodeType === Node.TEXT_NODE) return node.textContent;
+    if (!(node instanceof Element)) return null;
+    const tag = node.tagName.toLowerCase();
+    const attributes: Record<string, string | number> = { key };
+    const attributeNames: Record<string, string> = { colspan: 'colSpan', rowspan: 'rowSpan' };
+    for (const attribute of Array.from(node.attributes)) {
+      attributes[attributeNames[attribute.name] ?? attribute.name] = attribute.value;
+    }
+    if (tag === 'img' || tag === 'br') return createElement(tag, attributes);
+    let children: ReactNode = Array.from(node.childNodes, renderNode);
+    const value = tag === 'td' || tag === 'th' ? paymentFieldCopyValue(node) : null;
+    if (value !== null) {
+      const label = node.parentElement?.children[0]?.textContent?.trim() ?? '';
+      children = <div className="flex items-center justify-between gap-2">
+        <span className="min-w-0">{children}</span>
+        <CopyButton key={value} text={value} iconOnly variant="ghost" size="sm"
+          className="shrink-0" ariaLabel={`${copyLabel}: ${label.replace(/:$/, '')}`} />
+      </div>;
+    }
+    return createElement(tag, attributes, children);
+  };
+  return Array.from(template.content.childNodes, renderNode);
+}
+
 export function PaymentInstructionsHtml(props: { html: string; className?: string; testId?: string }) {
-  const { lang } = useI18n();
+  const { lang, t } = useI18n();
   const sanitized = useMemo(() => sanitizePaymentInstructionsHtml(props.html, lang), [props.html, lang]);
-  // React compares this prop by identity. Recreating it on session/activity
-  // updates replaces every image, even when the sanitized HTML is unchanged.
-  const innerHtml = useMemo(() => ({ __html: sanitized }), [sanitized]);
+  const copyLabel = t('common.copy');
+  // Stable React elements preserve decoded QR nodes during activity and copy feedback.
+  const content = useMemo(() => renderInstructions(sanitized, copyLabel), [sanitized, copyLabel]);
 
   return (
     <div
@@ -30,7 +78,8 @@ export function PaymentInstructionsHtml(props: { html: string; className?: strin
         '[&_code]:rounded [&_code]:bg-surface-3 [&_code]:px-1',
         props.className,
       )}
-      dangerouslySetInnerHTML={innerHtml}
-    />
+    >
+      {content}
+    </div>
   );
 }
