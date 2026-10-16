@@ -14,6 +14,18 @@ For detailed actions, role/state restrictions and validation examples use
 [ACTION_CONTRACTS.md](ACTION_CONTRACTS.md). For test coverage and remaining proof
 use [EVIDENCE_MATRIX.md](EVIDENCE_MATRIX.md).
 
+## Application identity and credits
+
+The sidebar footer and mobile drawer link to `/about` and to the loaded bundle's
+Git commit. Public pages provide the same footer without requiring login.
+The commit comes from the same build metadata as `build-info.json`, embedded at
+build time so an old open tab cannot claim a newer deployed revision. Unknown
+revisions have no commit link; local modifications are indicated by an asterisk
+and explained on About. The page credits Jakub Skokan, Pavel Šnajdr and Michal
+Janoušek, acknowledges other contributors and AI-assisted development, and links
+to the source and package licensing metadata. This change does not grant or
+change a license or carry over the legacy PHP template credits (REQ-072).
+
 ## Public entry and authentication
 
 **Intent:** inspect service availability, sign in, recover access or correct a

@@ -1,7 +1,7 @@
 # Requirement evidence matrix
 
 Review baseline: UI/BFF `3f31fce5cd58f3ace204c27e917b85527bfc08c0`, 2026-10-03.
-This maps **all 71 register IDs**, including policy/non-runtime requirements. A
+This maps **all 72 register IDs**, including policy/non-runtime requirements. A
 verification entry is a reproducible review starting point, **not** proof that
 all acceptance criteria passed. A source link is not a test and a fixture does
 not establish API behavior. For broad requirements use the linked action catalog
@@ -92,6 +92,8 @@ Not every test file in this matrix necessarily ran in that PR-selected browser r
 | REQ-070 | [Cold search](../../e2e/specs/app/global_search_cold_start.spec.ts) | Cold IP/DNS search, owner scope and visible lookup failures | Canonical PR5 fixtures; authenticated live search not certified |
 | REQ-071 | [Network adapter tests](../../src/lib/api/networks.test.ts), [availability workflow](WORKFLOWS.md#network-availability) | Explicit false, optional authoritative counters, keyboard descriptions, distinct owned total, metadata capability, both toggle directions and retained errors | Synthetic unit/browser coverage; final-head execution and deployment evidence recorded separately |
 
+| REQ-072 | [About browser tests](../../e2e/specs/public/about.spec.ts), [build metadata](../../build/buildInfo.test.ts) | Public cs/en About, compact footer in member/admin/mobile navigation, loaded revision and unknown/modified states | Local fixture evidence in [task record](../work-log/2026-10-16-about-build-version.md); not deployed |
+
 ## Critical acceptance cases
 
 Use these exact case titles/selectors to find the expected assertion, then check
@@ -148,3 +150,11 @@ verify hashes/retention with its custodian. Prior private VM evidence is not
 silently certified here; [HANDOVER.md](HANDOVER.md) names the transfer tasks and
 explicitly unassigned owners. Test links remain useful even if an old CI artifact
 has expired, but a reproducible test is not a replacement for a claimed past run.
+
+### REQ-072 — Application identity and credits
+
+[About browser tests](../../e2e/specs/public/about.spec.ts) exercise public access,
+cs/en text, member/admin footer navigation and mobile drawer closure.
+[Build metadata tests](../../build/buildInfo.test.ts) cover source availability
+and dirty state. See the [task record](../work-log/2026-10-16-about-build-version.md)
+for actual verification results and screenshots; no deployment is implied.

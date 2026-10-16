@@ -92,11 +92,13 @@ export function buildInfoPlugin(options?: {
   env?: Record<string, string | undefined>;
   run?: CommandRunner;
 }): Plugin {
+  const buildInfo = resolveBuildInfo(options);
   return {
     name: 'webui-next-build-info',
-    apply: 'build',
+    config() {
+      return { define: { __WEBUI_BUILD_INFO__: JSON.stringify(buildInfo) } };
+    },
     generateBundle() {
-      const buildInfo = resolveBuildInfo(options);
       this.emitFile({
         type: 'asset',
         fileName: 'build-info.json',
