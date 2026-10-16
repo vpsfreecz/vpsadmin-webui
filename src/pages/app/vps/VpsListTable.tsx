@@ -13,6 +13,8 @@ import { TableRowLink } from '../../../components/ui/TableRowLink';
 import { UsageBar } from '../../../components/ui/UsageBar';
 
 import { VpsListRowActions } from './VpsListRowActions';
+import { VpsUsageRiskBadges } from './VpsUsageRiskBadges';
+import { VpsRecentFailureBadge } from './VpsRecentFailureBadge';
 import type { VpsListRecord, VpsListTranslator } from './vpsListSemantics';
 
 interface VpsListTableProps {
@@ -95,7 +97,6 @@ export function VpsListTable({
       <tbody>
         {rows.map((row) => {
           const { vps } = row;
-          const failureId = row.recentFailureChainIds[0];
 
           return (
             <TableRowLink
@@ -120,9 +121,20 @@ export function VpsListTable({
                 <div className="flex flex-wrap items-center gap-2" data-testid={`vps.row.${vps.id}.state`}>
                   <Badge variant={row.runtimeBadge.variant}>{row.runtimeBadge.label}</Badge>
                   <Badge variant={row.objectBadge.variant}>{row.objectBadge.label}</Badge>
-                  {row.memoryRisk ? <Badge variant={row.memoryRisk}>{t('vps.list.state.ram_high')}</Badge> : null}
-                  {row.diskRisk ? <Badge variant={row.diskRisk}>{t('vps.list.state.disk_high')}</Badge> : null}
-                  {failureId !== undefined ? <Badge variant="danger">{t('vps.list.state.recent_failure', { id: failureId })}</Badge> : null}
+                  <VpsUsageRiskBadges
+                    memoryRisk={row.memoryRisk}
+                    diskRisk={row.diskRisk}
+                    t={t}
+                    testIdPrefix={`vps.row.${vps.id}`}
+                  />
+                  {row.latestRecentFailure ? (
+                    <VpsRecentFailureBadge
+                      chain={row.latestRecentFailure}
+                      basePath={basePath}
+                      t={t}
+                      testId={`vps.row.${vps.id}.recent_failure`}
+                    />
+                  ) : null}
                   {row.busyTx ? (
                     <LockBadge kind="transaction" t={t} chainIds={row.busyChains} showDetails />
                   ) : row.busyLocalLock ? (

@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus } from 'lucide-react';
 
-import { fetchActiveTransactionChains, fetchTransactionChains, type TransactionChain } from '../../lib/api/transactions';
+import { fetchActiveTransactionChains, fetchTransactionChains } from '../../lib/api/transactions';
 import { fetchVpsList, vpsDelete, vpsRestart, vpsStart, vpsStop } from '../../lib/api/vps';
 import { getMetaActionStateId } from '../../lib/api/haveapi';
 import { useAppMode } from '../../app/appMode';
@@ -39,6 +39,7 @@ import {
   type VpsListRecord,
 } from './vps/vpsListSemantics';
 import { useVpsListSmartFilters } from './vps/useVpsListSmartFilters';
+import { useRecentVpsFailures } from './vps/useRecentVpsFailures';
 
 type VpsPowerKind = 'start' | 'stop' | 'restart';
 type VpsListMutationKind = VpsPowerKind | 'delete';
@@ -78,19 +79,6 @@ function recordMatchesIpNeedle(row: VpsListRecord, needle: string): boolean {
   const normalized = needle.trim().toLowerCase();
   if (!searchLooksLikeIp(normalized)) return true;
   return extractVpsIpCandidates(row.vps).some((ip) => ip.toLowerCase().includes(normalized));
-}
-
-function mergeTransactionChains(groups: TransactionChain[][]): TransactionChain[] {
-  const byId = new Map<number, TransactionChain>();
-
-  for (const group of groups) {
-    for (const chain of group) {
-      if (!Number.isFinite(chain.id) || chain.id <= 0) continue;
-      byId.set(chain.id, chain);
-    }
-  }
-
-  return [...byId.values()].sort((a, b) => b.id - a.id);
 }
 
 export function VpsListPage() {
@@ -163,17 +151,7 @@ export function VpsListPage() {
     refetchInterval: tierARefetchMs,
   });
 
-  const failedChainsQ = useQuery({
-    queryKey: ['transaction_chain', 'recent-failed', { limit: 200 }],
-    queryFn: async () => {
-      const [failed, fatal] = await Promise.all([
-        fetchTransactionChains({ state: 'failed', limit: 200 }),
-        fetchTransactionChains({ state: 'fatal', limit: 200 }),
-      ]);
-      return mergeTransactionChains([failed.data, fatal.data]);
-    },
-    refetchInterval: tierARefetchMs,
-  });
+  const recentFailures = useRecentVpsFailures(tierARefetchMs);
 
   const lockIndexStale = isDataStale({
     updatedAt: activeChainsQ.dataUpdatedAt,
@@ -184,11 +162,6 @@ export function VpsListPage() {
     if (lockIndexStale) return buildTransactionLockIndex(undefined, { onlyActive: true });
     return buildTransactionLockIndex(activeChainsQ.data, { onlyActive: true });
   }, [activeChainsQ.data, lockIndexStale]);
-
-  const failureIndex = useMemo(
-    () => buildTransactionLockIndex(failedChainsQ.data, { onlyActive: false }),
-    [failedChainsQ.data]
-  );
 
   async function assertVpsNotBusy(vpsId: number) {
     const chainsRes = await fetchTransactionChains({ className: 'Vps', rowId: vpsId, limit: 10 });
@@ -313,13 +286,13 @@ export function VpsListPage() {
         buildVpsListRecord({
           vps,
           lockIndex,
-          failureIndex,
+          recentFailures,
           isLocallyLocked: (id) => chrome.isLocallyLocked(objectRef('Vps', id)),
           inFlightKind: inFlight[vps.id],
           t,
         })
       ),
-    [rows, lockIndex, failureIndex, chrome, inFlight, t]
+    [rows, lockIndex, recentFailures, chrome, inFlight, t]
   );
 
   const visibleRows = useMemo(

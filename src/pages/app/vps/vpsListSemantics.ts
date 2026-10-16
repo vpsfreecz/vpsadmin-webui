@@ -1,3 +1,4 @@
+import type { TransactionChain } from '../../../lib/api/transactions';
 import type { Vps } from '../../../lib/api/vps';
 import type { TransactionLockIndex } from '../../../lib/lockIndex';
 import { transactionLockChainIds } from '../../../lib/lockIndex';
@@ -5,6 +6,7 @@ import { gateVpsAction, gateVpsMutation } from '../../../lib/gates/vps';
 import type { GateDecision } from '../../../lib/gates/types';
 import { objectStateBadge, runtimeStateBadge, type BadgeSpec } from '../../../lib/taskStatus';
 import { dotVariantFromBadgeVariant, dotVariantFromRowVariant } from '../../../lib/variantMap';
+import { recentVpsFailureChains, type RecentVpsFailures } from './recentVpsFailures';
 import type { TableRowVariant } from '../../../components/ui/TableRowLink';
 import type { StatusDotVariant } from '../../../components/ui/StatusDot';
 
@@ -47,6 +49,7 @@ export interface VpsListRecord {
   deleteGate: GateDecision;
   inFlightKind?: 'start' | 'stop' | 'restart' | 'delete';
   recentFailureChainIds: number[];
+  latestRecentFailure: TransactionChain | undefined;
   memUsed: number | undefined;
   memMax: number | undefined;
   diskUsed: number | undefined;
@@ -95,6 +98,21 @@ export function usageRiskVariant(used: number | undefined, max: number | undefin
   if (pct >= 98) return 'danger';
   if (pct >= 90) return 'warn';
   return undefined;
+}
+
+function vpsUsageValues(vps: Vps) {
+  const usage = (value: unknown) => (typeof value === 'number' ? value : undefined);
+  return {
+    memUsed: usage(vps.used_memory),
+    memMax: usage(vps.memory),
+    diskUsed: usage(vps.used_diskspace),
+    diskMax: usage(vps.diskspace),
+  };
+}
+
+export function vpsUsageRisks(vps: Vps): { memoryRisk: RiskVariant; diskRisk: RiskVariant } {
+  const { memUsed, memMax, diskUsed, diskMax } = vpsUsageValues(vps);
+  return { memoryRisk: usageRiskVariant(memUsed, memMax), diskRisk: usageRiskVariant(diskUsed, diskMax) };
 }
 
 export function vpsRowVariant(args: {
@@ -218,7 +236,7 @@ export function loadValue(vps: Vps, t: VpsListTranslator): string {
 export function buildVpsListRecord(args: {
   vps: Vps;
   lockIndex: TransactionLockIndex;
-  failureIndex?: TransactionLockIndex;
+  recentFailures?: RecentVpsFailures;
   isLocallyLocked: (id: number) => boolean;
   inFlightKind?: 'start' | 'stop' | 'restart' | 'delete';
   t: VpsListTranslator;
@@ -231,19 +249,16 @@ export function buildVpsListRecord(args: {
   const busyTx = busyChains.length > 0;
   const busyLocalLock = isLocallyLocked(vps.id);
   const busyLocal = inFlightKind !== undefined || busyLocalLock;
-  const recentFailureChainIds = args.failureIndex ? transactionLockChainIds(args.failureIndex, 'Vps', vps.id) : [];
+  const recentFailureChains = recentVpsFailureChains(args.recentFailures, vps.id);
+  const recentFailureChainIds = recentFailureChains.map((chain) => chain.id);
 
   const startGate = gateVpsAction('start', { vps, busyLocal, busyTransaction: busyTx });
   const stopGate = gateVpsAction('stop', { vps, busyLocal, busyTransaction: busyTx });
   const restartGate = gateVpsAction('restart', { vps, busyLocal, busyTransaction: busyTx });
   const deleteGate = gateVpsMutation({ vps, busyLocal, busyTransaction: busyTx });
 
-  const memUsed = typeof vps.used_memory === 'number' ? vps.used_memory : undefined;
-  const memMax = typeof vps.memory === 'number' ? vps.memory : undefined;
-  const diskUsed = typeof vps.used_diskspace === 'number' ? vps.used_diskspace : undefined;
-  const diskMax = typeof vps.diskspace === 'number' ? vps.diskspace : undefined;
-  const memoryRisk = usageRiskVariant(memUsed, memMax);
-  const diskRisk = usageRiskVariant(diskUsed, diskMax);
+  const { memUsed, memMax, diskUsed, diskMax } = vpsUsageValues(vps);
+  const { memoryRisk, diskRisk } = vpsUsageRisks(vps);
 
   const rowVariant = vpsRowVariant({
     runtimeVariant: runtimeBadge.variant,
@@ -275,6 +290,7 @@ export function buildVpsListRecord(args: {
     deleteGate,
     inFlightKind,
     recentFailureChainIds,
+    latestRecentFailure: recentFailureChains[0],
     memUsed,
     memMax,
     diskUsed,

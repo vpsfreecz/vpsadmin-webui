@@ -16,7 +16,6 @@ import { DetailShell } from '../../../components/layout/DetailShell';
 import { MutationUncertaintyPanel, type MutationReconcileResult } from '../../../components/layout/MutationUncertaintyPanel';
 import { objectRef } from '../../../lib/objectRef';
 import { Badge } from '../../../components/ui/Badge';
-import { LockBadge } from '../../../components/ui/LockBadge';
 import { ObjectHeader } from '../../../components/ui/ObjectHeader';
 import { ActionButton } from '../../../components/ui/ActionButton';
 import { Button } from '../../../components/ui/Button';
@@ -27,7 +26,7 @@ import { LoadingState } from '../../../components/ui/LoadingState';
 import { CopyButton } from '../../../components/ui/CopyButton';
 import { LockStateStaleAlert } from '../../../components/ui/LockStateStaleAlert';
 import { gateVpsAction } from '../../../lib/gates/vps';
-import { objectStateBadge, runtimeStateBadge } from '../../../lib/taskStatus';
+import { runtimeStateBadge } from '../../../lib/taskStatus';
 import { VpsContextProvider } from './VpsContext';
 import { preflightVpsNotBusy } from './vpsPreflight';
 import { ScopeMismatchCard } from '../../../components/layout/ScopeMismatchCard';
@@ -40,6 +39,8 @@ import { useVpsCreationProgress } from './useVpsCreationProgress';
 import { VpsCreationProgress } from './VpsCreationProgress';
 import { VpsActionsMenu, VpsTabsNav } from './VpsNavigation';
 import { VpsHeaderRuntime } from './VpsHeaderRuntime';
+import { VpsHeaderStateBadges } from './VpsHeaderStateBadges';
+import { useLatestRecentVpsFailure } from './useRecentVpsFailures';
 import { VpsConsoleControls } from './VpsConsoleControls';
 import { VpsHeaderActionDialogs, type VpsHeaderConfirm } from './VpsHeaderActionDialogs';
 export function VpsLayout() {
@@ -120,6 +121,7 @@ export function VpsLayout() {
     enabled: Number.isFinite(vpsId) && vpsId > 0,
     refetchInterval: tierARefetchMs,
   });
+  const recentFailure = useLatestRecentVpsFailure(vpsId, tierARefetchMs);
 
   const [confirm, setConfirm] = useState<VpsHeaderConfirm>(null);
   const [lastAction, setLastAction] = useState<
@@ -413,7 +415,6 @@ export function VpsLayout() {
   });
 
   const rt = runtimeStateBadge(vps.is_running, t);
-  const lc = objectStateBadge(vps.object_state, t);
 
   const showAsyncError = currentPasswdAsyncError !== null;
   const primaryHeaderAction = canMutateVps && vps.is_running !== true
@@ -509,20 +510,15 @@ export function VpsLayout() {
           }
           title={vps.hostname}
           badges={
-            <>
-              <Badge variant={creation.pending ? 'warn' : rt.variant}>{creation.pending ? t('common.creating') : rt.label}</Badge>
-              <Badge variant={lc.variant}>{lc.label}</Badge>
-              {busyTransaction ? (
-                <LockBadge
-                  kind="transaction"
-                  t={t}
-                  chainIds={activeChainIds}
-                  showDetails
-                />
-              ) : busyLocalLock ? (
-                <LockBadge kind="local" t={t} />
-              ) : null}
-            </>
+            <VpsHeaderStateBadges
+              vps={vps}
+              runtime={rt}
+              creating={creation.pending}
+              busyTransaction={busyTransaction}
+              busyLocalLock={busyLocalLock}
+              activeChainIds={activeChainIds}
+              recentFailure={recentFailure}
+            />
           }
           meta={
             <div className="flex flex-wrap gap-x-4 gap-y-1">

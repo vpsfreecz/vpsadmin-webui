@@ -9,7 +9,9 @@ import {
   extractVpsIpCandidates,
   normalizeVpsListStateFilter,
   recordMatchesStateFilter,
+  vpsUsageRisks,
 } from './vpsListSemantics';
+import { buildRecentVpsFailures } from './recentVpsFailures';
 
 function t(key: string, vars?: Record<string, unknown>): string {
   if (!vars) return key;
@@ -26,11 +28,13 @@ const baseVps: Vps = {
   primary_ip_address: '198.51.100.10',
 };
 
+const NOW = Date.parse('2026-10-16T12:00:00Z');
+
 function recordFor(vps: Vps, failedChains: TransactionChain[] = []) {
   return buildVpsListRecord({
     vps,
     lockIndex: buildTransactionLockIndex([], { onlyActive: true }),
-    failureIndex: buildTransactionLockIndex(failedChains, { onlyActive: false }),
+    recentFailures: buildRecentVpsFailures(failedChains, NOW),
     isLocallyLocked: () => false,
     t,
   });
@@ -77,15 +81,41 @@ describe('vpsListSemantics', () => {
 
   it('moves stopped rows toward Start and failed rows into the failed filter', () => {
     const failedChains: TransactionChain[] = [
-      { id: 9001, state: 'failed', concerns: [['Vps', 101]] },
+      { id: 9001, state: 'failed', created_at: '2026-10-15T08:00:00Z', concerns: [['Vps', 101]] },
     ];
     const row = recordFor({ ...baseVps, is_running: false }, failedChains);
 
     expect(row.primaryAction).toBe('start');
     expect(row.recentFailureChainIds).toEqual([9001]);
+    expect(row.latestRecentFailure?.id).toBe(9001);
     expect(row.rowVariant).toBe('danger');
     expect(recordMatchesStateFilter(row, 'stopped')).toBe(true);
     expect(recordMatchesStateFilter(row, 'failed')).toBe(true);
+  });
+
+  it('flags memory and disk from 90 % and as danger from 98 %, ignoring non-numeric values', () => {
+    expect(vpsUsageRisks({ ...baseVps, memory: 1000, used_memory: 899, diskspace: 1000, used_diskspace: 900 }))
+      .toEqual({ memoryRisk: undefined, diskRisk: 'warn' });
+    expect(vpsUsageRisks({ ...baseVps, memory: 1000, used_memory: 980, diskspace: 0, used_diskspace: 10 }))
+      .toEqual({ memoryRisk: 'danger', diskRisk: undefined });
+    expect(vpsUsageRisks({ ...baseVps, memory: '1000' as unknown as number, used_memory: 990 }))
+      .toEqual({ memoryRisk: undefined, diskRisk: undefined });
+
+    const row = recordFor({ ...baseVps, memory: 1000, used_memory: 950 });
+    expect(row.memoryRisk).toBe('warn');
+    expect(row.rowVariant).toBe('warn');
+  });
+
+  it('ignores failures older than the recent window', () => {
+    const failedChains: TransactionChain[] = [
+      { id: 6536759, state: 'failed', created_at: '2022-05-08T09:09:00Z', concerns: [['Vps', 101]] },
+    ];
+    const row = recordFor(baseVps, failedChains);
+
+    expect(row.recentFailureChainIds).toEqual([]);
+    expect(row.latestRecentFailure).toBeUndefined();
+    expect(row.rowVariant).toBeUndefined();
+    expect(recordMatchesStateFilter(row, 'failed')).toBe(false);
   });
 
   it('normalizes state aliases and extracts nested IP candidates', () => {
