@@ -169,6 +169,18 @@ vertically at every width, with a separate copy action for each example. Long
 code lines may scroll inside their block without widening the page. Temporary
 snapshot exports continue to show only their temporary mount instructions.
 
+**Export owner navigation:** global administrators have a visible Export owner
+lookup next to the export-ID input. Numeric owner IDs filter directly; login
+suggestions resolve to exact owner IDs. Numeric export-ID input offers separate
+Open export and Show owner's exports choices, retaining the existing direct-ID
+Enter behavior. The member detail header links to `/admin/exports?user=<id>`.
+Owner changes reset the pagination cursor; reload and browser history restore
+the URL filter, and clearing it restores the global list. List loading/errors
+leave the filters mounted so typing an owner ID retains focus. Support and My
+view do not expose arbitrary-owner controls or the member export shortcut.
+These are navigation changes using the existing Export::Index `user` filter;
+no backend filter or permission changes are involved.
+
 **Restore contract:** identify source snapshot/pool and destination; distinguish
 local from replicated/remote restore. Track transfer/restore chains to an actual
 outcome before calling the data recovered. Live evidence needs synthetic content

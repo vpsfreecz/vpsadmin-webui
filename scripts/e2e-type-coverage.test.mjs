@@ -56,3 +56,93 @@ function assertRejectedInBothSources(label, change, expected) {
 
 test('the real compiler import closure contains exactly 53 adopted E2E files', () => {
   assert.deepEqual(auditE2eTypeCoverage(repo), { errors: [], adopted: 53, deferred: 205 });
+});
+
+test('the complete gate works from a Gitless source copy with installed dependencies', () => {
+  const root = fixtureRoot(false);
+  try {
+    copySource(root, 'tsconfig.json');
+    copySource(root, 'tsconfig.e2e.json');
+    copySource(root, 'src/types/vpsadmin.d.ts');
+    fs.symlinkSync(path.join(repo, 'node_modules'), path.join(root, 'node_modules'), 'dir');
+    assert.deepEqual(auditE2eTypeCoverage(root), { errors: [], adopted: 53, deferred: 205 });
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+assertRejectedInBothSources(
+  'new source',
+  (root) => {
+    const pathname = path.join(root, 'e2e/specs/new.spec.ts');
+    fs.writeFileSync(pathname, 'export {};\n');
+  },
+  /New E2E source must be adopted: e2e\/specs\/new\.spec\.ts/
+);
+
+assertRejectedInBothSources(
+  'edited deferred source with a refreshed manifest hash',
+  (root) => {
+    const filename = path.join(root, initialDeferred);
+    fs.appendFileSync(filename, '\n// new source must be adopted\n');
+    editInventory(root, (value) => {
+      value.deferred[0].sha256 = createHash('sha256').update(fs.readFileSync(filename)).digest('hex');
+    });
+  },
+  /Deferred E2E hash differs from initial source/
+);
+
+assertRejectedInBothSources(
+  'missing adopted root',
+  (root) => {
+    editInventory(root, (value) => {
+      value.adopted = value.adopted.filter((pathname) => pathname !== initialAdopted);
+    });
+  },
+  /Required E2E core root is missing/
+);
+
+assertRejectedInBothSources(
+  'attempted reduction below the eleven-file minimum',
+  (root) => {
+    editInventory(root, (value) => {
+      value.adopted = value.adopted.filter((pathname) => pathname !== initialAdopted);
+      value.deferred.unshift({
+        path: initialAdopted,
+        sha256: createHash('sha256')
+          .update(fs.readFileSync(path.join(root, initialAdopted)))
+          .digest('hex'),
+        owner: 'WebUI maintainers',
+        reason: 'unapproved downgrade',
+        removalCondition: 'later',
+      });
+    });
+  },
+  /New deferred E2E path is not approved/
+);
+
+assertRejectedInBothSources(
+  'deleted deferred source',
+  (root) => {
+    fs.rmSync(path.join(root, initialDeferred));
+  },
+  /Stale or deleted E2E coverage path/
+);
+
+assertRejectedInBothSources(
+  'duplicate deferred entry',
+  (root) => {
+    editInventory(root, (value) => {
+      value.deferred.splice(1, 0, { ...value.deferred[0] });
+    });
+  },
+  /Deferred E2E paths must be sorted and unique/
+);
+
+assertRejectedInBothSources(
+  'source symlink',
+  (root) => {
+    fs.symlinkSync(initialDeferred, path.join(root, 'e2e/specs/linked.spec.ts'));
+  },
+  /E2E source symlink is not allowed/
+);

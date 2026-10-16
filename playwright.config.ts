@@ -55,5 +55,37 @@ export default defineConfig({
     {
       name: 'mobile-webkit',
       testMatch: [
-        '**/vps_initialization_templates.spec.ts',
         '**/export_hosts_responsive_actions.spec.ts',
+        '**/exports_filter_contract.spec.ts',
+        '**/vps_initialization_templates.spec.ts',
+        '**/vps_console_controls.spec.ts',
+        '**/vps_console_viewport.spec.ts',
+        '**/vps_console_page.spec.ts',
+        '**/search_scope_reminder.spec.ts',
+        '**/node_heatmaps.spec.ts',
+        '**/vps_header_system_summary.spec.ts',
+        '**/mobile_touch_interactions.spec.ts',
+        '**/mobile_workflows.spec.ts',
+        '**/payment_qr_images.spec.ts',
+        '**/incident_create_context.spec.ts',
+        '**/vps_overview_all_ips.spec.ts',
+        '**/member_payment_links.spec.ts',
+      ],
+      use: { ...devices['iPhone 13'] },
+    },
+    {
+      name: 'chromium',
+      use: {
+        ...devices['Desktop Chrome'],
+        launchOptions: chromiumExecutablePath ? { executablePath: chromiumExecutablePath } : undefined,
+      },
+    },
+    {
+      name: 'mobile-chrome',
+      use: {
+        ...devices['Pixel 5'],
+        launchOptions: chromiumExecutablePath ? { executablePath: chromiumExecutablePath } : undefined,
+      },
+    },
+  ],
+});
