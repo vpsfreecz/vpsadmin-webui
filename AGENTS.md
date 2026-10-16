@@ -110,6 +110,24 @@ completed release evidence. A past deployment does not certify a new candidate.
 This workflow does not resume autonomous development, scheduled checks, or the
 AI issue runner. Continue only the work authorized by the maintainer.
 
+### Release scope: our PRs only (2026-10-16)
+
+- By default, merge and deploy only PRs prepared as part of the maintainer's
+  work with this assistant. An author's account or branch prefix alone does not
+  establish that a PR belongs to this work; use the task history and PR scope.
+- Instructions such as "merge/deploy everything" or "use the latest version"
+  mean our approved work, not all open PRs or every new commit on main.
+  Other contributors' PRs require the maintainer's explicit inclusion.
+- Before updating either the web or WebUI channel, compare the candidate with
+  the running revision and enumerate newly included PRs/commits. Verify the
+  resolved input and built artifact against this scope. A channel following
+  main does not authorize unrelated changes that landed there meanwhile.
+- If the candidate adds someone else's unapproved work, do not deploy it.
+  Report the extra changes and obtain a scope decision or use an explicitly
+  approved release revision through the documented deployment procedure.
+  Do not rewrite shared history or remove already-deployed changes to satisfy
+  this rule. It limits new release contents; it does not authorize a rollback.
+
 ### Repository and infrastructure boundaries
 
 - New application work belongs in `vpsfreecz/vpsadmin-webui`. The old
