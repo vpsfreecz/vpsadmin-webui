@@ -220,3 +220,51 @@ for (const language of ['cs', 'en'] as const) {
     await expect(buttons.first()).toHaveAttribute('title', language === 'cs' ? 'Kopírování selhalo' : 'Copy failed');
   });
 }
+
+
+for (const language of ['cs', 'en'] as const) {
+  for (const reducedMotion of ['reduce', 'no-preference'] as const) {
+    test(`payment message help scrolls and highlights in ${language}, motion ${reducedMotion} @pr-smoke @pr-smoke-mobile`, async ({ page, hasTouch }, testInfo) => {
+      await page.emulateMedia({ reducedMotion });
+      await setUiSettingsLocalStorage(page, { language, theme: language === 'cs' ? 'dark' : 'light' });
+      const heading = language === 'cs' ? 'Variabilní symbol a zpráva' : 'Variable symbol and message';
+      const paragraph = language === 'cs'
+        ? 'Pokud vaše banka nepodporuje variabilní symboly, můžete své členské ID poslat ve zprávě pro příjemce jako <code>/VS/53</code>. Přesné znění závisí na vaší bance.'
+        : 'If your bank does not support variable symbols, send your member ID in the message as <code>/VS/53</code>.';
+      await setupHaveApiMock(page, {
+        user: { id: 7, login: 'payment-test-member', level: 1, preferred_session_length: 2400 },
+        handlers: {
+          'GET users/7/get_payment_instructions': () => ({ instructions:
+            ['CZK', 'EUR'].map(currency => `<h3>Payment in ${currency}</h3><table>
+              <tr><td>Message (<a href="#message">more info</a>):</td><td>/VS/53</td><td rowspan="6"><img alt="${currency} QR" src="${currency === 'CZK' ? qrImages.CZK : qrImages.EUR}"></td></tr>
+              ${[['Bank account for CZK (CZ):', '2200041594/2010'], ['IBAN:', 'CZ0420100000002200041594'], ['BIC:', 'FIOBCZPPXXX'], ['Variable symbol:', '53'], ['Sum:', `300 ${currency} per month`]].map(([label, value]) => `<tr><td>${label}</td><td>${value}</td></tr>`).join('')}
+              </table>`).join('')
+            + `<h3 id="message">${heading}</h3><p>${paragraph}</p>`,
+          }),
+          'GET user_payments': () => ({ user_payments: [] }),
+        },
+      });
+      await page.goto(withAppUrl('/app/payments'));
+      const instructions = page.getByTestId('payments.my.instructions.text');
+      const help = instructions.locator('[data-payment-message-help]');
+      const links = instructions.getByRole('link', { name: language === 'cs' ? 'více informací' : 'more info', exact: true });
+      await expect(links).toHaveCount(2);
+      await expect(help).not.toContainText('Přesné znění');
+      const qr = await instructions.getByRole('img', { name: 'CZK QR' }).elementHandle();
+      const url = page.url();
+      for (const link of [links.first(), links.last()]) {
+        if (hasTouch) await link.tap();
+        else { await link.focus(); await page.keyboard.press('Enter'); }
+        await expect(help).toBeFocused();
+        await expect(help).toHaveAttribute('data-highlighted', 'true');
+        await expect(help).toBeInViewport();
+        expect(page.url()).toBe(url);
+      }
+      await expect.poll(() => help.evaluate(el => getComputedStyle(el).backgroundColor)).not.toBe('rgba(0, 0, 0, 0)');
+      await page.screenshot({ path: testInfo.outputPath(`payment-help-${language}-${reducedMotion}.png`), scale: 'css' });
+      await expect(help).not.toHaveAttribute('data-highlighted', 'true', { timeout: 5000 });
+      expect(await qr!.evaluate(img => img.isConnected)).toBe(true);
+      await expectNoDocumentHorizontalOverflow(page);
+    });
+  }
+}
