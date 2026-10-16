@@ -11,6 +11,10 @@ complete reconstruction of the project. Missing evidence is not a passing check.
 
 ## New changes
 
+## 2026-10-16 — Deployment commit identity
+
+See the [identity correction and exact history mapping](docs/work-log/2026-10-16-deployment-git-identity.md).
+
 ## 2026-10-16 — About and payment-guidance release
 
 See the [merged two-PR release and three-site verification record](docs/work-log/2026-10-16-about-payments-release.md).

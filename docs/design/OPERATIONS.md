@@ -53,6 +53,14 @@ be used on newadmin or replayed over the credential-based older-host runtime.
    build space and retained rollback generation. Keep existing session state and
    credential values. First-install checks are in the site runbook; an ordinary
    upgrade must not recreate state or provision a new OAuth client.
+   Before generating the input commit, verify author and committer with
+   `git var GIT_AUTHOR_IDENT` and `git var GIT_COMMITTER_IDENT` in the exact
+   configuration worktree and command environment. For the maintainer's work,
+   both must be `Michal Janoušek <kerry@kerrycze.net>`. On a shared root account,
+   use task-scoped worktree configuration or explicit `GIT_AUTHOR_NAME`,
+   `GIT_AUTHOR_EMAIL`, `GIT_COMMITTER_NAME` and `GIT_COMMITTER_EMAIL` environment
+   variables. Never set another operator's identity globally or infer it from
+   root/hostname. Inspect the generated commit's author and committer before push.
 3. Enter `nix develop` in the configuration repository. For an approved current
    main, the operator's update command is:
 
