@@ -31,3 +31,9 @@ another push; do not merge the obsolete author-only chain back into master.
 Validation: empty file diff for both replacement trees; exact lease push passed;
 GitHub author/account verification passed. The task's clean builder checkout was
 moved to the replacement revision; other active checkouts were preserved.
+
+The maintainer subsequently asked about `ae98e9db`, an earlier root-attributed
+input bump. Its correction would also change the hashes of seven intervening
+Jakub Skokan commits and the two corrected release commits. After reviewing that
+scope, the maintainer chose to leave the older commit unchanged. No broader
+rewrite was pushed; master remains `d3e822db` after the two-commit correction.
