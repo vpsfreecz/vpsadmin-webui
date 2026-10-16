@@ -9,6 +9,7 @@ import {
   extractVpsIpCandidates,
   normalizeVpsListStateFilter,
   recordMatchesStateFilter,
+  vpsUsageRisks,
 } from './vpsListSemantics';
 
 function t(key: string, vars?: Record<string, unknown>): string {
@@ -86,6 +87,19 @@ describe('vpsListSemantics', () => {
     expect(row.rowVariant).toBe('danger');
     expect(recordMatchesStateFilter(row, 'stopped')).toBe(true);
     expect(recordMatchesStateFilter(row, 'failed')).toBe(true);
+  });
+
+  it('flags memory and disk from 90 % and as danger from 98 %, ignoring non-numeric values', () => {
+    expect(vpsUsageRisks({ ...baseVps, memory: 1000, used_memory: 899, diskspace: 1000, used_diskspace: 900 }))
+      .toEqual({ memoryRisk: undefined, diskRisk: 'warn' });
+    expect(vpsUsageRisks({ ...baseVps, memory: 1000, used_memory: 980, diskspace: 0, used_diskspace: 10 }))
+      .toEqual({ memoryRisk: 'danger', diskRisk: undefined });
+    expect(vpsUsageRisks({ ...baseVps, memory: '1000' as unknown as number, used_memory: 990 }))
+      .toEqual({ memoryRisk: undefined, diskRisk: undefined });
+
+    const row = recordFor({ ...baseVps, memory: 1000, used_memory: 950 });
+    expect(row.memoryRisk).toBe('warn');
+    expect(row.rowVariant).toBe('warn');
   });
 
   it('normalizes state aliases and extracts nested IP candidates', () => {

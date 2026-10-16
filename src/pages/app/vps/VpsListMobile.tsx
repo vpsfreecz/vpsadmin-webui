@@ -13,6 +13,7 @@ import { UsageBar } from '../../../components/ui/UsageBar';
 import { KeysetPagination } from '../../../components/ui/KeysetPagination';
 
 import { VpsListRowActions } from './VpsListRowActions';
+import { VpsUsageRiskBadges } from './VpsUsageRiskBadges';
 import type { VpsListRecord, VpsListTranslator } from './vpsListSemantics';
 
 interface VpsListMobileProps {
@@ -71,8 +72,12 @@ export function VpsListMobile({
                   <div className="flex flex-col items-end gap-1">
                     <Badge variant={row.runtimeBadge.variant}>{row.runtimeBadge.label}</Badge>
                     <Badge variant={row.objectBadge.variant}>{row.objectBadge.label}</Badge>
-                    {row.memoryRisk ? <Badge variant={row.memoryRisk}>{t('vps.list.state.ram_high')}</Badge> : null}
-                    {row.diskRisk ? <Badge variant={row.diskRisk}>{t('vps.list.state.disk_high')}</Badge> : null}
+                    <VpsUsageRiskBadges
+                      memoryRisk={row.memoryRisk}
+                      diskRisk={row.diskRisk}
+                      t={t}
+                      testIdPrefix={`vps.card.${vps.id}`}
+                    />
                     {failureId !== undefined ? <Badge variant="danger">{t('vps.list.state.recent_failure', { id: failureId })}</Badge> : null}
                     {row.busyTx ? (
                       <LockBadge kind="transaction" t={t} chainIds={row.busyChains} showDetails />

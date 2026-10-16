@@ -70,3 +70,56 @@ for (const language of ['cs', 'en'] as const) {
     });
   }
 }
+
+test('@smoke @smoke-mobile VPS detail header shows the same usage badges as the list', async ({ page }, testInfo) => {
+  await bootstrapVpsAdminWindow(page);
+  const vps = {
+    id: 124, hostname: 'vps124.example.test', object_state: 'active', is_running: true,
+    cpu: 2, memory: 2048, used_memory: 1900, diskspace: 20480, used_diskspace: 20200,
+    user: { id: 10, login: 'alice' },
+    node: { id: 1, domain_name: 'node1.example.test', location: { id: 2, label: 'Praha' } },
+  };
+  const calm = { ...vps, id: 125, hostname: 'vps125.example.test', used_memory: 1740, used_diskspace: 5120 };
+  await installHaveApiMock(page, {
+    user: { id: 10, login: 'alice', level: 99 },
+    handlers: {
+      'GET vpses': () => ({ vpses: [vps, calm] }),
+      'GET vpses/124': () => ({ vps }),
+      'GET vpses/125': () => ({ vps: calm }),
+      'GET ip_addresses': () => ({ ip_addresses: [] }),
+      'GET vpses/124/statuses': () => ({ statuses: [] }),
+      'GET vpses/125/statuses': () => ({ statuses: [] }),
+      'GET transaction_chains': () => ({ transaction_chains: [] }),
+    },
+  });
+
+  const listPrefix = testInfo.project.name.startsWith('mobile') ? 'vps.card' : 'vps.row';
+  const expectUsageBadges = async (prefix: string) => {
+    await expect(page.getByTestId(`${prefix}.ram_high`)).toBeVisible();
+    await expect(page.getByTestId(`${prefix}.ram_high`)).toHaveText('RAM high');
+    await expect(page.getByTestId(`${prefix}.ram_high`)).toHaveClass(/text-warn/);
+    await expect(page.getByTestId(`${prefix}.disk_high`)).toBeVisible();
+    await expect(page.getByTestId(`${prefix}.disk_high`)).toHaveText('Disk high');
+    await expect(page.getByTestId(`${prefix}.disk_high`)).toHaveClass(/text-danger/);
+  };
+  const expectNoUsageBadges = async (prefix: string) => {
+    await expect(page.getByTestId(`${prefix}.ram_high`)).toHaveCount(0);
+    await expect(page.getByTestId(`${prefix}.disk_high`)).toHaveCount(0);
+  };
+
+  for (const mode of ['app', 'admin'] as const) {
+    await page.goto(`/${mode}/vps`);
+    await expect(page.getByTestId(`${listPrefix}.125`)).toBeVisible();
+    await expectUsageBadges(`${listPrefix}.124`);
+    await expectNoUsageBadges(`${listPrefix}.125`);
+
+    await page.goto(`/${mode}/vps/124`);
+    await expect(page.getByTestId('vps.header.runtime')).toBeVisible();
+    await expectUsageBadges('vps.header');
+    await expectNoDocumentHorizontalOverflow(page);
+
+    await page.goto(`/${mode}/vps/125`);
+    await expect(page.getByTestId('vps.header.runtime')).toBeVisible();
+    await expectNoUsageBadges('vps.header');
+  }
+});
