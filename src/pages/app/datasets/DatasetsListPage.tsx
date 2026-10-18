@@ -554,7 +554,10 @@ export function DatasetsListPage(props: DatasetsListPageProps = {}) {
         />
       }
       filters={
-        <FilterBar testId="datasets.list.filters">
+        <FilterBar
+          testId="datasets.list.filters"
+          below={activeFilterChips.length > 0 ? <div className="flex flex-wrap gap-1" data-testid="datasets.active_filters">{activeFilterChips}</div> : null}
+        >
           <div className="w-full sm:max-w-xl">
             <SmartFilterInput
               value={smart}
@@ -581,12 +584,6 @@ export function DatasetsListPage(props: DatasetsListPageProps = {}) {
                 </Button>
               }
             />
-
-            {activeFilterChips.length > 0 ? (
-              <div className="mt-2 flex flex-wrap gap-1" data-testid="datasets.active_filters">
-                {activeFilterChips}
-              </div>
-            ) : null}
           </div>
 
           <Button

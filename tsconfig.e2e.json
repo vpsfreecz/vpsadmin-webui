@@ -28,6 +28,7 @@
     "e2e/specs/app/centered_dialogs.spec.ts",
     "e2e/specs/app/export_hosts_responsive_actions.spec.ts",
     "e2e/specs/app/exports_filter_contract.spec.ts",
+    "e2e/specs/app/filter_bar_chip_alignment.spec.ts",
     "e2e/specs/app/global_search_cold_start.spec.ts",
     "e2e/specs/app/incident_create_context.spec.ts",
     "e2e/specs/app/incidents_responsive_layout.spec.ts",

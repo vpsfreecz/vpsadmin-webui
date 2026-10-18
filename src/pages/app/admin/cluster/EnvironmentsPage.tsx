@@ -417,7 +417,7 @@ export function EnvironmentsPage() {
 
   return (
     <div className="mt-4 space-y-4" data-testid="admin.cluster.environments.page">
-      <FilterBar testId="admin.cluster.environments.filters">
+      <FilterBar testId="admin.cluster.environments.filters" below={activeChips.length > 0 ? <div className="flex flex-wrap gap-2">{activeChips}</div> : null}>
         <div className="flex min-w-0 flex-1 flex-col gap-2">
           <SmartFilterInput
             ref={smartInputRef}
@@ -443,7 +443,6 @@ export function EnvironmentsPage() {
               </button>
             }
           />
-          {activeChips.length > 0 ? <div className="flex flex-wrap gap-2">{activeChips}</div> : null}
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Button variant="secondary" onClick={() => setAdvancedOpen(true)} testId="admin.cluster.environments.advanced">

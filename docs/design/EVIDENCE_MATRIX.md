@@ -1,7 +1,7 @@
 # Requirement evidence matrix
 
 Review baseline: UI/BFF `3f31fce5cd58f3ace204c27e917b85527bfc08c0`, 2026-10-03.
-This maps **all 72 register IDs**, including policy/non-runtime requirements. A
+This maps **all 73 register IDs**, including policy/non-runtime requirements. A
 verification entry is a reproducible review starting point, **not** proof that
 all acceptance criteria passed. A source link is not a test and a fixture does
 not establish API behavior. For broad requirements use the linked action catalog
@@ -91,8 +91,8 @@ Not every test file in this matrix necessarily ran in that PR-selected browser r
 | REQ-069 | [NixOS service](NIXOS_SERVICE.md), [module](../../nixos/modules/webui.nix) | Private state, systemd credentials, routing, trusted edge, callback boundary, PHP coexistence | Dry activation and health checks recorded; real login/VM certification separate |
 | REQ-070 | [Cold search](../../e2e/specs/app/global_search_cold_start.spec.ts) | Cold IP/DNS search, owner scope and visible lookup failures | Canonical PR5 fixtures; authenticated live search not certified |
 | REQ-071 | [Network adapter tests](../../src/lib/api/networks.test.ts), [availability workflow](WORKFLOWS.md#network-availability) | Explicit false, optional authoritative counters, keyboard descriptions, distinct owned total, metadata capability, both toggle directions and retained errors | Synthetic unit/browser coverage; final-head execution and deployment evidence recorded separately |
-
 | REQ-072 | [About browser tests](../../e2e/specs/public/about.spec.ts), [build metadata](../../build/buildInfo.test.ts) | Public cs/en About, compact footer in member/admin/mobile navigation, loaded revision and unknown/modified states | Updated credit/source layout deployed as f2ad625d; [release evidence](../work-log/2026-10-16-about-payments-release.md) |
+| REQ-073 | [Filter bar alignment](../../e2e/specs/app/filter_bar_chip_alignment.spec.ts) | Controls stay beside the search field and chips render below them; long chips stay within the bar | Desktop/mobile fixture geometry for transaction chains and VPS list, long-chip overflow for VPS list; other lists share the component and were checked by source review only |
 
 ## Critical acceptance cases
 

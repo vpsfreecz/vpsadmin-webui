@@ -674,7 +674,10 @@ export function DnsZonesPage() {
         />
       }
       filters={
-        <FilterBar testId="dns.zones.list.filters">
+        <FilterBar
+          testId="dns.zones.list.filters"
+          below={activeFilterChips.length > 0 ? <div className="flex flex-wrap gap-1" data-testid="dns.zones.active_filters">{activeFilterChips}</div> : null}
+        >
           <div className="w-full sm:max-w-xl">
             <SmartFilterInput
               value={smart}
@@ -701,12 +704,6 @@ export function DnsZonesPage() {
                 </Button>
               }
             />
-
-            {activeFilterChips.length > 0 ? (
-              <div className="mt-2 flex flex-wrap gap-1" data-testid="dns.zones.active_filters">
-                {activeFilterChips}
-              </div>
-            ) : null}
           </div>
 
           <Button

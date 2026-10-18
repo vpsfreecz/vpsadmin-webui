@@ -185,7 +185,10 @@ function MailLogsPageContent() {
       }
       filters={
         <>
-          <FilterBar testId="admin.mailer.log.filters">
+          <FilterBar
+            testId="admin.mailer.log.filters"
+            below={smartErrorChips.length > 0 ? <div className="flex flex-wrap gap-1" data-testid="admin.mailer.log.active_filters">{smartErrorChips}</div> : null}
+          >
             <div className="w-full sm:max-w-xl">
               <SmartFilterInput
                 ref={smartInputRef}
@@ -212,12 +215,6 @@ function MailLogsPageContent() {
                   </Button>
                 }
               />
-
-              {smartErrorChips.length > 0 ? (
-                <div className="mt-2 flex flex-wrap gap-1" data-testid="admin.mailer.log.active_filters">
-                  {smartErrorChips}
-                </div>
-              ) : null}
             </div>
 
             <CopyButton

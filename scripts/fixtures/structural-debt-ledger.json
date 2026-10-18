@@ -119,20 +119,6 @@
       }
     },
     {
-      "path": "src/pages/app/MonitoringEventsPage.tsx",
-      "rule": "grown-over-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "ca0679f4a56e239a6d32c316dcc951fa271aa879ce543d22fe33cf3fb5f7a959",
-      "old": 1109,
-      "allowance": 1110,
-      "rationale": "At the recorded source revision, monitoring list filtering already exceeded the historical line baseline by one. Removing unrelated whitespace would only game the budget; extract filter logic with focused tests. Centered-dialog follow-up (2026-10-17) changes only overlay presentation; existing extraction debt remains and the allowance does not increase.",
-      "owner": "WebUI implementation lead",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 1109
-      }
-    },
-    {
       "path": "src/pages/app/TransactionChainDetailPage.tsx",
       "rule": "grown-over-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
@@ -220,10 +206,10 @@
       "path": "src/pages/app/admin/cluster/LocationsPage.tsx",
       "rule": "crossed-1000",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "2e32dd0540c3cb4c822115c8a510408acf9d8c86df357426b7b84177e4932a70",
+      "contentHash": "73184d2963495dfe69848e016421432f79f7ce629401b7d4987d4e4313d4b4fd",
       "old": 978,
-      "allowance": 1024,
-      "rationale": "At the recorded source revision, this file already contained location list and edit flows; extract the coherent section with focused behavior coverage before removing this exception. Centered-dialog follow-up (2026-10-17) changes only overlay presentation; existing extraction debt remains and the allowance does not increase.",
+      "allowance": 1023,
+      "rationale": "At the recorded source revision, this file already contained location list and edit flows; extract the coherent section with focused behavior coverage before removing this exception. Centered-dialog follow-up (2026-10-17) changes only overlay presentation; existing extraction debt remains and the allowance does not increase. Combined review 2026-10-18 preserves centered dialogs and filter alignment; no allowance increase.",
       "owner": "WebUI collection and page refactor implementer",
       "removeWhen": {
         "metric": "lines",
@@ -234,10 +220,10 @@
       "path": "src/pages/app/admin/cluster/LocationsPage.tsx",
       "rule": "grown-over-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "2e32dd0540c3cb4c822115c8a510408acf9d8c86df357426b7b84177e4932a70",
+      "contentHash": "73184d2963495dfe69848e016421432f79f7ce629401b7d4987d4e4313d4b4fd",
       "old": 978,
-      "allowance": 1024,
-      "rationale": "At the recorded source revision, this file already contained location list and edit flows; extract the coherent section with focused behavior coverage before removing this exception. Centered-dialog follow-up (2026-10-17) changes only overlay presentation; existing extraction debt remains and the allowance does not increase.",
+      "allowance": 1023,
+      "rationale": "At the recorded source revision, this file already contained location list and edit flows; extract the coherent section with focused behavior coverage before removing this exception. Centered-dialog follow-up (2026-10-17) changes only overlay presentation; existing extraction debt remains and the allowance does not increase. Combined review 2026-10-18 preserves centered dialogs and filter alignment; no allowance increase.",
       "owner": "WebUI collection and page refactor implementer",
       "removeWhen": {
         "metric": "lines",

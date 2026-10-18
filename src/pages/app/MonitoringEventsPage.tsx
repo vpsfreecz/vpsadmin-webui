@@ -689,7 +689,10 @@ export function MonitoringEventsPage() {
       header={<PageHeader title={t('monitoring.title')} description={t('monitoring.description')} testId="monitoring.events.header" />}
       filters={
         <>
-          <FilterBar testId="monitoring.events.filters">
+          <FilterBar
+            testId="monitoring.events.filters"
+            below={activeFilterChips.length > 0 ? <div className="flex flex-wrap gap-1" data-testid="monitoring.events.active_filters">{activeFilterChips}</div> : null}
+          >
             <div className="w-full sm:max-w-xl">
               <SmartFilterInput
                 ref={smartInputRef}
@@ -716,12 +719,6 @@ export function MonitoringEventsPage() {
                   </Button>
                 }
               />
-
-              {activeFilterChips.length > 0 ? (
-                <div className="mt-2 flex flex-wrap gap-1" data-testid="monitoring.events.active_filters">
-                  {activeFilterChips}
-                </div>
-              ) : null}
             </div>
 
             <div className="w-full sm:w-44">

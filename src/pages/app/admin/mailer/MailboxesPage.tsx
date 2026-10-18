@@ -311,7 +311,10 @@ export function MailboxesPage() {
       }
       filters={
         <>
-          <FilterBar testId="admin.mailer.mailboxes.filters">
+          <FilterBar
+            testId="admin.mailer.mailboxes.filters"
+            below={activeFilterChips.length > 0 ? <div className="flex flex-wrap gap-1" data-testid="admin.mailer.mailboxes.active_filters">{activeFilterChips}</div> : null}
+          >
             <div className="w-full sm:max-w-xl">
               <SmartFilterInput
                 ref={smartInputRef}
@@ -339,11 +342,6 @@ export function MailboxesPage() {
                   </Button>
                 }
               />
-              {activeFilterChips.length > 0 ? (
-                <div className="mt-2 flex flex-wrap gap-1" data-testid="admin.mailer.mailboxes.active_filters">
-                  {activeFilterChips}
-                </div>
-              ) : null}
             </div>
             <Button
               variant="secondary"
