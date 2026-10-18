@@ -77,3 +77,17 @@ The namespace/map (7) remains attached to that locked audit account: its cleanup
 was refused by an existing resource lock. The lock was not bypassed and no shared
 infrastructure was repaired as part of this frontend task. There are no remaining
 VPS/disk allocations for this fixture.
+
+## PR publication and CI follow-up
+
+Published as [PR66](https://github.com/vpsfreecz/vpsadmin-webui/pull/66).
+The first CI run caught two stale expected counts in the script tests for E2E
+type coverage (55 instead of 56 adopted files after adding the regression spec).
+Both expectations and the test name now reflect the added file; no gate was
+disabled. Production build, Chromium script regression, desktop Chromium and
+mobile WebKit passed on the initial PR head. Merge and deployment remain pending.
+
+After correcting those counts, `npm run ci:tests` passed locally: 226 script
+checks, 57 BFF tests and all 1,839 unit tests. Scoped formatting and the design
+documentation audit passed as well. The follow-up push starts a new CI run;
+its result is not implied by the local pass.
