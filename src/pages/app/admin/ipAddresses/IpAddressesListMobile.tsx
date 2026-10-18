@@ -147,7 +147,7 @@ export function IpAddressesListMobile({ pageData, ipDetailBasePath, basePath, na
                     basePath={basePath}
                     assigned={assigned}
                     testIdPrefix={`admin.ip_addresses.card.${id}`}
-                    className="ml-auto"
+                    className="w-full"
                   />
                 </div>
               </div>

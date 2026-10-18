@@ -13,6 +13,8 @@
     "e2e/helpers/horizontalOverflow.ts",
     "e2e/specs/admin/cluster_resource_maintenance.spec.ts",
     "e2e/specs/admin/ip_addresses_empty_clear_filters.spec.ts",
+    "e2e/specs/admin/ip_addresses_filters_pagination.spec.ts",
+    "e2e/specs/admin/ip_addresses_suggested_request_budget.spec.ts",
     "e2e/specs/admin/network_availability.spec.ts",
     "e2e/specs/admin/networking_surfaces_smoke.spec.ts",
     "e2e/specs/admin/node_heatmaps.spec.ts",
@@ -29,6 +31,7 @@
     "e2e/specs/app/global_search_cold_start.spec.ts",
     "e2e/specs/app/incident_create_context.spec.ts",
     "e2e/specs/app/incidents_responsive_layout.spec.ts",
+    "e2e/specs/app/ip_addresses_environment_filter.spec.ts",
     "e2e/specs/app/member_payment_links.spec.ts",
     "e2e/specs/app/mobile_touch_interactions.spec.ts",
     "e2e/specs/app/mobile_workflows.spec.ts",
@@ -221,20 +224,6 @@
     {
       "path": "e2e/specs/admin/ip_address_detail_page.spec.ts",
       "sha256": "4cb7a0da3d93de3b828bafca60da27b05d997f7a5da3eaa5ff63b35ab930ed1e",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/admin/ip_addresses_filters_pagination.spec.ts",
-      "sha256": "d9393a69fa0c5424e42e38929d7b191f4c74f5a67e11c522a9ce7e1b55aadc55",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/admin/ip_addresses_suggested_request_budget.spec.ts",
-      "sha256": "e01ea45190cabd4a81fd3f0d3c7130e777c169423c005f4635133290c2d9a237",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
@@ -942,13 +931,6 @@
     {
       "path": "e2e/specs/app/incidents_smart_filter.spec.ts",
       "sha256": "8ffea3c8330e6452631cca970f506f8bb68476f177952c8a89ad835a647f4de9",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/app/ip_addresses_environment_filter.spec.ts",
-      "sha256": "b75908ea514af070e698005c9692024b16a66fff3e59919c8162dfed347d41bc",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."

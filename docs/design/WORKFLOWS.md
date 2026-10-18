@@ -284,6 +284,22 @@ when supported and revalidate cached addresses with the same criteria. Capabilit
 or candidate errors stay visible. Older APIs receive neither unsupported fields
 nor a fabricated disabled state. Backend enforcement remains authoritative.
 
+The default free-IP sample requests IPv6 /64 blocks using the existing API
+`prefix` filter. This keeps old host allocations from filling the bounded first
+response ahead of useful blocks. The sample also validates returned IPv6 prefixes.
+It is a /64 suggestion policy, not a deletion, a complete inventory, or a new
+backend allocation rule. Explicit address, owner, VPS, network and prefix filters
+and direct detail URLs retain existing /128 and other prefixes, including larger
+blocks. IPv4 sampling is unchanged. The suggestion cache key includes the prefix.
+
+IP rows and mobile cards expose four labeled links, following the legacy UI:
+Incidents, Assignment history, Edit, and Remove from VPS (Assign to VPS for an
+unassigned address). Incidents and history retain the exact IP filter. Edit
+opens the complete address detail with ownership and host addresses; the last
+link goes directly to its routing section and retains the existing confirmation
+before removal. Navigation never mutates an address. The controls use 20px icons,
+compact desktop buttons and at least 44px touch targets, with wrapping labels.
+
 Free-IP suggestions have a 12-second budget per query, including capability
 discovery. A timed-out query shows the existing error or partial-results state
 and allows later locations to load. Retry gives failed queries a fresh budget;

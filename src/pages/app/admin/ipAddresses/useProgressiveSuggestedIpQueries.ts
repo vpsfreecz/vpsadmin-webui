@@ -72,7 +72,7 @@ export function useProgressiveSuggestedIpQueries(
 
   const queries = useQueries({
     queries: queryPlan.map((query, index) => ({
-      queryKey: ['ip_addresses', 'suggested_free', query.locationId, query.version, query.role ?? 'any'],
+      queryKey: ['ip_addresses', 'suggested_free', query.locationId, query.version, query.role ?? 'any', query.prefix ?? 'any'],
       queryFn: async ({ signal }: { signal: AbortSignal }) => {
         const timedSignal = createRequestTimeoutSignal(signal);
         try {
@@ -91,6 +91,7 @@ export function useProgressiveSuggestedIpQueries(
             limit: SUGGESTED_IP_QUERY_LIMIT,
             location: query.locationId,
             version: query.version,
+            prefix: query.prefix,
             role: query.role,
             user: null,
             assignedToInterface: false,

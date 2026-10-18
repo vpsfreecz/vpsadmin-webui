@@ -50,7 +50,7 @@ test('@smoke @smoke-mobile admin suggested IPs prioritize Prague and Brno with a
           ip_addresses: [{
             id: locationId * 10 + (version === 6 ? 3 : role === 'private_access' ? 2 : 1),
             addr,
-            prefix: version === 6 ? 128 : 32,
+            prefix: version === 6 ? 64 : 32,
             network: {
               id: 1_000 + locationId,
               ip_version: version,
@@ -103,6 +103,7 @@ test('@smoke @smoke-mobile admin suggested IPs prioritize Prague and Brno with a
     ]);
     locationRequests.forEach((url) => {
       expect(url.searchParams.get('ip_address[limit]')).toBe('50');
+      expect(url.searchParams.get('ip_address[prefix]')).toBe(url.searchParams.get('ip_address[version]') === '6' ? '64' : null);
       expect(url.searchParams.get('ip_address[assigned_to_interface]')).toBe('false');
       expect(url.searchParams.get('ip_address[purpose]')).toBe('vps');
       expect(url.searchParams.get('ip_address[order]')).toBe('asc');
@@ -121,7 +122,7 @@ test('@smoke @smoke-mobile admin suggested IPs prioritize Prague and Brno with a
   expect(attempts.get('3:6:any')).toBe(2);
   await expect(page.locator('[data-testid="admin.ip_addresses.row.33"]:visible, [data-testid="admin.ip_addresses.card.33"]:visible')).toBeVisible();
   await expect(page.getByTestId('admin.ip_addresses.suggested.partial_error')).toBeHidden();
-  const screenshot = process.env.E2E_NETWORK_ADMIN_SCREENSHOT?.trim();
+  const screenshot = process.env['E2E_NETWORK_ADMIN_SCREENSHOT']?.trim();
   if (screenshot) await page.screenshot({ path: screenshot, fullPage: true });
 });
 

@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
 
 test('admin IP addresses traverse ascending API pages and paginate loaded rows locally', async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name === 'mobile-chrome', 'Desktop table pagination is covered separately from mobile cards.');
+  test.skip(testInfo.project.name.startsWith('mobile-'), 'Desktop table pagination is covered separately from mobile cards.');
 
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
 
@@ -70,20 +70,20 @@ test('admin IP addresses traverse ascending API pages and paginate loaded rows l
   const incidentsAction = page.getByTestId('admin.ip_addresses.row.125.action.incidents');
   const assignmentsAction = page.getByTestId('admin.ip_addresses.row.125.action.assignments');
   const routeAction = page.getByTestId('admin.ip_addresses.row.125.action.route');
-  const ownerAction = page.getByTestId('admin.ip_addresses.row.125.action.owner');
-  const hostsAction = page.getByTestId('admin.ip_addresses.row.125.action.hosts');
+  const editAction = page.getByTestId('admin.ip_addresses.row.125.action.edit');
   await expect(incidentsAction).toHaveAttribute('aria-label', 'Incidents');
-  await expect(assignmentsAction).toHaveAttribute('aria-label', 'Assignments');
-  await expect(routeAction).toHaveAttribute('aria-label', 'Assign route');
-  await expect(routeAction).toHaveAttribute('title', 'Assign route');
+  await expect(assignmentsAction).toHaveAttribute('aria-label', 'Assignment history');
+  await expect(routeAction).toHaveAttribute('aria-label', 'Assign to VPS');
+  await expect(routeAction).toHaveAttribute('title', 'Assign to VPS');
   await expect(routeAction).toHaveAttribute('href', '/admin/ip-addresses/125#route');
-  await expect(ownerAction).toHaveAttribute('aria-label', 'Ownership');
-  await expect(hostsAction).toHaveAttribute('aria-label', 'Host IP addresses');
-  await expect(incidentsAction).toHaveText('');
-  await expect(routeAction).toHaveText('');
-  await expect(page.getByTestId('admin.ip_addresses.row.126.action.route')).toHaveAttribute('aria-label', 'Remove route');
+  await expect(editAction).toHaveText('Edit');
+  await expect(editAction).toHaveAttribute('href', '/admin/ip-addresses/125');
+  await expect(incidentsAction).toHaveText('Incidents');
+  await expect(routeAction).toBeVisible();
+  await expect(routeAction).toHaveText('Assign to VPS');
+  await expect(page.getByTestId('admin.ip_addresses.row.126.action.route')).toHaveAttribute('aria-label', 'Remove from VPS');
 
-  const proofScreenshot = process.env.E2E_IP_ACTIONS_PROOF_SCREENSHOT?.trim();
+  const proofScreenshot = process.env['E2E_IP_ACTIONS_PROOF_SCREENSHOT']?.trim();
   if (proofScreenshot) {
     await page.screenshot({ path: proofScreenshot });
   }
@@ -140,11 +140,10 @@ test('admin IP address cards keep compact actions on mobile', async ({ page }) =
   const card = page.getByTestId('admin.ip_addresses.card.125');
   await expect(card).toBeVisible();
   await expect(card.getByTestId('admin.ip_addresses.card.125.action.incidents')).toHaveAttribute('aria-label', 'Incidents');
-  await expect(card.getByTestId('admin.ip_addresses.card.125.action.route')).toHaveAttribute('aria-label', 'Remove route');
-  await expect(card.getByTestId('admin.ip_addresses.card.125.action.owner')).toHaveAttribute('aria-label', 'Ownership');
-  await expect(card.getByTestId('admin.ip_addresses.card.125.action.hosts')).toHaveAttribute('aria-label', 'Host IP addresses');
+  await expect(card.getByTestId('admin.ip_addresses.card.125.action.route')).toHaveAttribute('aria-label', 'Remove from VPS');
+  await expect(card.getByTestId('admin.ip_addresses.card.125.action.edit')).toHaveText('Edit');
 
-  const proofScreenshot = process.env.E2E_IP_ACTIONS_MOBILE_PROOF_SCREENSHOT?.trim();
+  const proofScreenshot = process.env['E2E_IP_ACTIONS_MOBILE_PROOF_SCREENSHOT']?.trim();
   if (proofScreenshot) await page.screenshot({ path: proofScreenshot, fullPage: true });
 });
 
@@ -210,7 +209,7 @@ test('@pr-smoke @pr-smoke-mobile admin IP address search resolves an exact user 
     await expect(page).not.toHaveURL(/(?:\?|&)page=/);
     await expect(page).toHaveURL(/(?:\?|&)limit=25(?:&|$)/);
     await expect(page.getByTestId('admin.ip_addresses.quick.occupancy.any')).toHaveClass(/bg-surface/);
-    const itemKind = testInfo.project.name === 'mobile-chrome' ? 'card' : 'row';
+    const itemKind = testInfo.project.name.startsWith('mobile-') ? 'card' : 'row';
     const address = page.getByTestId(`admin.ip_addresses.${itemKind}.480`);
     await expect(address).toContainText('83.167.228.48');
     await expect(address).toContainText('base48');
@@ -296,7 +295,7 @@ test('@pr-smoke @pr-smoke-mobile admin IP address search never falls back to an 
   });
 
   await page.goto('/admin/ip-addresses');
-  const itemKind = testInfo.project.name === 'mobile-chrome' ? 'card' : 'row';
+  const itemKind = testInfo.project.name.startsWith('mobile-') ? 'card' : 'row';
   const unrelatedAddress = page.getByTestId(`admin.ip_addresses.${itemKind}.125`);
   await expect(unrelatedAddress).toBeVisible();
   const requestsBeforeSearch = ipRequestCount;
@@ -436,4 +435,73 @@ test('@pr-smoke @pr-smoke-mobile admin IP address search distinguishes lookup fa
     'Could not verify user base48. Try again.'
   );
   await expect(page).not.toHaveURL(/(?:\?|&)user=/);
+});
+
+test('@pr-smoke @pr-smoke-mobile IP inventory keeps legacy IPv6 searchable and offers labeled actions on the first tap', async ({ page }, testInfo) => {
+  await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+  const location = { id: 7, label: 'Brno', environment: { id: 1, label: 'Production' } };
+  const network = { id: 10, ip_version: 6, address: '2001:db8::', prefix: 48, enabled: true, primary_location: location };
+  const old = { id: 11, addr: '2001:db8::9', prefix: 128, network };
+  const block = { id: 99, addr: '2001:db8:1::', prefix: 64, network };
+  const requests: URL[] = [];
+  await installHaveApiMock(page, {
+    user: { id: 1, login: 'admin', level: 100 },
+    handlers: {
+      'GET locations': () => ({ locations: [location] }),
+      'GET ip_addresses': (ctx) => {
+        requests.push(new URL(ctx.url.href));
+        const prefix = ctx.searchParams.get('ip_address[prefix]');
+        if (prefix === '128') return { ip_addresses: [old] };
+        if (ctx.searchParams.get('ip_address[version]') === '4') return { ip_addresses: [] };
+        // The old /128 fills the API's first page unless the query selects /64.
+        return { ip_addresses: prefix === '64' ? [block] : [old] };
+      },
+      'GET ip_addresses/11': () => ({ ip_address: old }),
+      'GET ip_addresses/99': () => ({ ip_address: block }),
+      'GET host_ip_addresses': () => ({ host_ip_addresses: [] }),
+    },
+  });
+  const mobile = testInfo.project.name.startsWith('mobile-');
+  const prefix = `admin.ip_addresses.${mobile ? 'card' : 'row'}`;
+  const tap = async (id: string) => {
+    const target = page.getByTestId(id);
+    if (mobile) await target.tap();
+    else await target.click();
+  };
+  await page.goto('/admin/networking/ip-addresses');
+  await expect(page.getByTestId(`${prefix}.99`)).toBeVisible();
+  await expect(page.getByTestId(`${prefix}.11`)).toHaveCount(0);
+  expect(requests.filter(url => url.searchParams.get('ip_address[version]') === '6')
+    .every(url => url.searchParams.get('ip_address[prefix]') === '64')).toBe(true);
+
+  const filtered = '/admin/networking/ip-addresses?version=6&prefix=128';
+  await page.goto(filtered);
+  await expect(page.getByTestId(`${prefix}.11`)).toContainText('2001:db8::9/128');
+  await expect(page.getByTestId(`${prefix}.11.action.incidents`)).toHaveText('Incidents');
+  await expect(page.getByTestId(`${prefix}.11.action.assignments`)).toHaveText('Assignment history');
+  for (const action of ['incidents', 'assignments', 'edit', 'route']) {
+    const target = page.getByTestId(`${prefix}.11.action.${action}`);
+    await expect(target).toBeVisible();
+    if (mobile) expect((await target.boundingBox())?.height).toBeGreaterThanOrEqual(44);
+  }
+  const width = await page.evaluate(() => ({ full: document.documentElement.scrollWidth, viewport: innerWidth }));
+  expect(width.full).toBeLessThanOrEqual(width.viewport + 1);
+  const screenshot = process.env['E2E_IP_INVENTORY_SCREENSHOTS'];
+  if (screenshot) await page.screenshot({ path: `${screenshot}/${testInfo.project.name}.png`, fullPage: true });
+  await tap(`${prefix}.11.action.edit`);
+  await expect(page).toHaveURL(/\/ip-addresses\/11$/);
+  for (const section of ['details', 'owner', 'hosts']) {
+    await expect(page.getByTestId(`admin.ip_address.${section}.card`)).toBeVisible();
+  }
+  await page.goto(filtered);
+  if (mobile) await tap(`${prefix}.11.action.route`);
+  else await page.getByTestId(`${prefix}.11.action.route`).press('Enter');
+  await expect(page).toHaveURL(/\/ip-addresses\/11#route$/);
+  await expect(page.getByTestId('admin.ip_address.route.card')).toBeInViewport();
+  for (const action of ['incidents', 'assignments']) {
+    await page.goto(filtered);
+    await tap(`${prefix}.11.action.${action}`);
+    await expect.poll(() => new URL(page.url()).searchParams.get('ip_addr')).toBe(old.addr);
+    await expect(page).toHaveURL(action === 'incidents' ? /\/incidents\?/ : /\/ip-address-assignments\?/);
+  }
 });

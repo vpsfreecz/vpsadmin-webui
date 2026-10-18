@@ -50,7 +50,7 @@ test.describe('IP address environment filter', () => {
           const address = (id: number, addr: string, primaryLocation = selected.location) => ({
             id,
             addr,
-            prefix: addr.includes(':') ? 128 : 32,
+            prefix: addr.includes(':') ? 64 : 32,
             network: {
               id: id + 100,
               address: addr,
@@ -124,9 +124,9 @@ test.describe('IP address environment filter', () => {
     expect(requestedCursors.every((value) => value === null)).toBe(true);
     expect(requestedIncludes.every((value) => value === 'network__primary_location__environment')).toBe(true);
 
-    if (process.env.E2E_IP_SUGGESTIONS_PROOF_SCREENSHOT) {
+    if (process.env['E2E_IP_SUGGESTIONS_PROOF_SCREENSHOT']) {
       await page.screenshot({
-        path: process.env.E2E_IP_SUGGESTIONS_PROOF_SCREENSHOT,
+        path: process.env['E2E_IP_SUGGESTIONS_PROOF_SCREENSHOT'],
         fullPage: true,
       });
     }
