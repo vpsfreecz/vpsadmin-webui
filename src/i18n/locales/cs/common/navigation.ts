@@ -42,7 +42,7 @@ export const csCommon_navigation = {
   'nav.requests': 'Žádosti',
   'nav.my_requests': 'Moje žádosti',
   'nav.mailer': 'Pošta',
-  'nav.content': 'Obsah',
+  'nav.content': 'Novinky a nápovědy',
   'nav.finance': 'Finance',
   'nav.cluster': 'Cluster',
   'nav.payments': 'Platby',

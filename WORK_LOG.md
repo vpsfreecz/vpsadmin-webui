@@ -13,6 +13,7 @@ complete reconstruction of the project. Missing evidence is not a passing check.
 
 ## 2026-10-19 — Dashboard news management shortcut
 
+Also clarify the News and help navigation label and remove the duplicate Cluster card.
 See the [admin-only news shortcut and browser evidence](docs/work-log/2026-10-19-news-management-shortcut.md). Prepared for review; not merged or deployed.
 
 ## 2026-10-18 — Combined PR security review
