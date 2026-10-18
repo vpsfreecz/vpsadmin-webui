@@ -11,6 +11,10 @@ complete reconstruction of the project. Missing evidence is not a passing check.
 
 ## New changes
 
+## 2026-10-19 — Understandable account verification labels
+
+See the [verification-label work log](docs/work-log/2026-10-19-account-verification-label.md). Prepared for review; not deployed.
+
 ## 2026-10-18 — Combined PR security review
 
 See the [non-draft ETNyx review and combined dev evidence](docs/work-log/2026-10-18-combined-pr-security-review.md). Local integration only; no upstream merge or shared release deployment.

@@ -3,7 +3,7 @@ export const enProfile_tabs = {
   "profile.tabs.keys": "SSH keys",
   "profile.tabs.mail": "Mail",
   "profile.tabs.metrics": "Metrics tokens",
-  "profile.tabs.mfa": "MFA",
+  "profile.tabs.mfa": "Two-step verification",
   "profile.tabs.overview": "Overview",
   "profile.tabs.resources": "Resources",
   "profile.tabs.security": "Security",

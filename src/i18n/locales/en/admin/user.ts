@@ -228,7 +228,7 @@ export const enAdmin_user = {
   "admin.user.tabs.keys": "SSH keys",
   "admin.user.tabs.mail": "Mail",
   "admin.user.tabs.metrics": "Metrics",
-  "admin.user.tabs.mfa": "MFA",
+  "admin.user.tabs.mfa": "Two-step verification",
   "admin.user.tabs.overview": "Overview",
   "admin.user.tabs.payments": "Payments",
   "admin.user.tabs.resources": "Packages",

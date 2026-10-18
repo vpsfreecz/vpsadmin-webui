@@ -3,7 +3,7 @@ export const csProfile_tabs = {
   "profile.tabs.keys": "SSH klíče",
   "profile.tabs.mail": "E-mail",
   "profile.tabs.metrics": "Tokeny metrik",
-  "profile.tabs.mfa": "MFA",
+  "profile.tabs.mfa": "Dvoufázové ověření",
   "profile.tabs.overview": "Přehled",
   "profile.tabs.resources": "Prostředky",
   "profile.tabs.security": "Bezpečnost",

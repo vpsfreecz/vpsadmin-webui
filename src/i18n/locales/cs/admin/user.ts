@@ -228,7 +228,7 @@ export const csAdmin_user = {
   "admin.user.tabs.keys": "SSH klíče",
   "admin.user.tabs.mail": "E-mail",
   "admin.user.tabs.metrics": "Metriky",
-  "admin.user.tabs.mfa": "MFA",
+  "admin.user.tabs.mfa": "Dvoufázové ověření",
   "admin.user.tabs.overview": "Přehled",
   "admin.user.tabs.payments": "Platby",
   "admin.user.tabs.resources": "Balíčky",

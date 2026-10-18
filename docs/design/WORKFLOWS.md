@@ -300,6 +300,11 @@ explicit false state. Existing rows, service links and actions remain visible.
 
 ## Account profile and user administration
 
+The account and member-detail tabs label MFA as “Two-step verification”
+(“Dvoufázové ověření”). The page explains authenticator-app codes and passkeys;
+TOTP stays in the authenticator section title for technical discoverability.
+The wording does not change authentication, recovery or administrator permissions.
+
 **Intent:** members manage profile, mail/security preferences, keys, sessions, MFA,
 metrics, user-data and namespaces. Administrators inspect/update users, resource
 usage/packages, environment configuration, finances and account states as allowed.
