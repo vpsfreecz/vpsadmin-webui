@@ -106,6 +106,88 @@ test.describe('@workflow-matrix @smoke VPS list row navigation', () => {
     ));
   });
 
+  test('recent failure badge opens the failed chain and old failures stay hidden', async ({ page }) => {
+    const recent = makeVps(300);
+    const stale = makeVps(301);
+    const recentChain = {
+      id: 9001,
+      label: 'Restart',
+      state: 'failed',
+      created_at: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
+      concerns: [['Vps', 300]],
+    };
+    const staleChain = {
+      id: 6536759,
+      label: 'Restart',
+      state: 'failed',
+      created_at: '2022-05-08T09:09:00Z',
+      concerns: [['Vps', 301]],
+    };
+
+    await installHaveApiMock(page, {
+      handlers: {
+        'GET vpses': () => ({ vpses: [recent, stale] }),
+        'GET transaction_chains': ({ searchParams }) => ({
+          transaction_chains:
+            searchParams.get('transaction_chain[state]') === 'failed' ? [recentChain, staleChain] : [],
+        }),
+        'GET transaction_chains/9001': () => ({ transaction_chain: recentChain }),
+        'GET transactions': () => ({ transactions: [] }),
+      },
+    });
+
+    await bootstrapVpsAdminWindow(page);
+
+    await page.goto('/app/vps');
+    const { actionPrefix } = await visibleVpsItem(page, 300);
+    const { actionPrefix: stalePrefix } = await visibleVpsItem(page, 301);
+    const badge = page.getByTestId(`${actionPrefix}.recent_failure`);
+
+    await expect(badge).toHaveText('Recent failed task #9001');
+    await expect(badge).toHaveAttribute('href', '/app/transactions/9001');
+    await expect(badge).toHaveAttribute('title', /^Failed task: Restart, created /);
+    await expect(page.getByTestId(`${stalePrefix}.recent_failure`)).toHaveCount(0);
+
+    await badge.click();
+
+    await expect(page).toHaveURL(/\/app\/transactions\/9001$/);
+  });
+
+  test('admin recent failure badge keeps the admin path and opens with Enter', async ({ page }) => {
+    const vps = makeVps(300);
+    const chain = {
+      id: 9002,
+      label: 'Clone',
+      state: 'fatal',
+      created_at: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
+      concerns: [['Vps', 300]],
+    };
+
+    await installHaveApiMock(page, {
+      user: { id: 1, login: 'admin', level: 99 },
+      handlers: {
+        'GET vpses': () => ({ vpses: [vps] }),
+        'GET transaction_chains': ({ searchParams }) => ({
+          transaction_chains: searchParams.get('transaction_chain[state]') === 'fatal' ? [chain] : [],
+        }),
+        'GET transaction_chains/9002': () => ({ transaction_chain: chain }),
+        'GET transactions': () => ({ transactions: [] }),
+      },
+    });
+
+    await bootstrapVpsAdminWindow(page);
+
+    await page.goto('/admin/vps');
+    const { actionPrefix } = await visibleVpsItem(page, 300);
+    const badge = page.getByTestId(`${actionPrefix}.recent_failure`);
+
+    await expect(badge).toHaveAttribute('href', '/admin/transactions/9002');
+    await badge.focus();
+    await page.keyboard.press('Enter');
+
+    await expect(page).toHaveURL(/\/admin\/transactions\/9002$/);
+  });
+
   test('using the row stop icon does not trigger row navigation', async ({ page }) => {
     const vps = makeVps(300);
 

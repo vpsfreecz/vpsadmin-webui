@@ -59,6 +59,7 @@
     "e2e/specs/app/vps_header_system_summary.spec.ts",
     "e2e/specs/app/vps_initialization_templates.spec.ts",
     "e2e/specs/app/vps_lifecycle_tab_actions.spec.ts",
+    "e2e/specs/app/vps_list_row_click.spec.ts",
     "e2e/specs/app/vps_overview_all_ips.spec.ts",
     "e2e/specs/app/vps_private_ip_availability.spec.ts",
     "e2e/specs/public/about.spec.ts",
