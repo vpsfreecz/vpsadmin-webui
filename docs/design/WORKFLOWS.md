@@ -404,7 +404,13 @@ The known invoice-help paragraph selects `podpora@vpsfree.cz` in Czech UI and
 `support@vpsfree.org` in English UI. Czech bank-message guidance uses informal
 address while retaining inline `/VS/<member ID>` formatting. Matching the known
 bank-message sentences tolerates HTML line breaks, tabs and non-breaking spaces;
-the visible text and whole-instructions clipboard text use the same conversion. Bank details and QR
+the visible text and whole-instructions clipboard text use the same conversion.
+The Czech explanation omits the redundant bank-dependent wording sentence.
+Both message-row “more info” links focus and scroll to the explanation and
+highlight it subtly for three seconds. Repeated activation restarts that interval;
+reduced-motion preferences disable smooth scrolling and the color transition.
+The renderer restores only recognized help targets, keeps IDs instance-local,
+and preserves QR image nodes and external links. Bank details and QR
 payloads remain supplied by the API. See the
 [payment-copy change record](../work-log/2026-10-16-payment-field-copy.md)
 for review/deployment status, screenshots and verification limitations.

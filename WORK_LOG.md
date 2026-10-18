@@ -19,6 +19,10 @@ See the [identity correction and exact history mapping](docs/work-log/2026-10-16
 
 See the [separate outage/advisory footer and role checks](docs/work-log/2026-10-16-status-sidebar.md).
 
+## 2026-10-17 — Payment message help
+
+See the [payment help interaction and wording correction](docs/work-log/2026-10-17-payment-message-help.md).
+
 ## 2026-10-16 — About and payment-guidance release
 
 See the [merged two-PR release and three-site verification record](docs/work-log/2026-10-16-about-payments-release.md).

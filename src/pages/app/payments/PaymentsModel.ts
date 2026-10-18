@@ -101,11 +101,11 @@ const PAYMENT_INSTRUCTIONS_CS_TEXT_REPLACEMENTS: Array<[RegExp, string]> = [
   ],
   [
     /Pokud\s+vaše\s+banka\s+nepodporuje\s+variabilní\s+symboly,\s+můžete\s+své\s+členské\s+ID\s+poslat\s+ve\s+zprávě\s+pro\s+příjemce\s+jako\s+\/VS\/(\d+)\s*\.\s*Přesné\s+znění\s+závisí\s+na\s+vaší\s+bance\./gi,
-    'Pokud tvoje banka nepodporuje variabilní symboly, můžeš svoje členské ID poslat ve zprávě pro příjemce jako /VS/$1. Přesné znění závisí na tvojí bance.',
+    'Pokud tvoje banka nepodporuje variabilní symboly, můžeš svoje členské ID poslat ve zprávě pro příjemce jako /VS/$1.',
   ],
   [/Pokud\s+vaše\s+banka\s+nepodporuje\s+variabilní\s+symboly,\s+můžete\s+své\s+členské\s+ID\s+poslat\s+ve\s+zprávě\s+pro\s+příjemce\s+jako/gi,
     'Pokud tvoje banka nepodporuje variabilní symboly, můžeš svoje členské ID poslat ve zprávě pro příjemce jako'],
-  [/Přesné\s+znění\s+závisí\s+na\s+vaší\s+bance\./gi, 'Přesné znění závisí na tvojí bance.'],
+  [/\s*Přesné\s+znění\s+závisí\s+na\s+(?:vaší|tvojí)\s+bance\./gi, ''],
   [/CZK per month/gi, 'CZK měsíčně'],
   [/EUR per month/gi, 'EUR měsíčně'],
 ];
