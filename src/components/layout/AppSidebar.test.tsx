@@ -49,7 +49,8 @@ describe('buildSidebarNavItems', () => {
     const support = buildSidebarNavItems({ basePath: '/admin', appMode: 'admin', role: 'support', t: fakeT });
 
     expect(admin.map((item) => item.id)).toContain('security-advisories');
-    expect(support.map((item) => item.id)).not.toContain('security-advisories');
+    expect(admin.find((item) => item.id === 'security-advisories')?.to).toBe('/admin/security-advisories');
+    expect(support.find((item) => item.id === 'security-advisories')?.to).toBe('/security-advisories');
   });
 
   it('groups admin navigation without hiding links behind another interaction', () => {
@@ -86,7 +87,6 @@ describe('buildSidebarNavItems', () => {
       'monitoring',
       'incidents',
       'oom-reports',
-      'security-advisories',
       'audit',
       'users',
       'user-namespaces',
@@ -107,13 +107,13 @@ describe('buildSidebarNavItems', () => {
       buildSidebarNavItems({ basePath: '/app', appMode: 'user', role: 'user', t: fakeT }),
     );
 
-    expect(sidebarNavSections(items)).toEqual([{ id: 'ungrouped', items }]);
+    expect(sidebarNavSections(items)).toEqual([{ id: 'ungrouped', items: items.filter((item) => !item.status) }]);
     expect(sidebarFooterNavItems(items)).toEqual([]);
     expect(items.map((item) => item.id)).toContain('backups');
     expect(items.map((item) => item.id)).not.toContain('datasets');
     expect(items.map((item) => item.id)).toContain('requests');
     expect(items.find((item) => item.id === 'requests')?.to).toBe('/app/requests');
-    expect(items.at(-1)?.id).toBe('account');
+    expect(sidebarNavSections(items)[0]?.items.at(-1)?.id).toBe('account');
   });
 
   it('keeps the generic dataset label in the administrator navigation', () => {
@@ -140,6 +140,22 @@ describe('buildSidebarNavItems', () => {
     expect(visibleIds).not.toContain('action-states');
     expect(visibleIds).not.toContain('finance');
     expect(sidebarFooterNavItems(items).map((item) => item.id)).toEqual(['account']);
+  });
+
+  it.each(['user', 'support', 'admin'] as const)('keeps status links separate and read-only in My view for %s', (role) => {
+    const items = buildSidebarNavItems({ basePath: '/app', appMode: 'user', role, t: fakeT });
+    expect(items.filter((item) => item.status).map(({ id, to }) => ({ id, to }))).toEqual([
+      { id: 'outages', to: '/outages' },
+      { id: 'security-advisories', to: '/security-advisories' },
+    ]);
+    expect(sidebarNavSections(items).flatMap((section) => section.items).some((item) => item.status)).toBe(false);
+    expect(sidebarFooterNavItems(items).some((item) => item.status)).toBe(false);
+  });
+
+  it.each(['support', 'admin'] as const)('exposes existing outage administration in administrator view for %s', (role) => {
+    const items = buildSidebarNavItems({ basePath: '/admin', appMode: 'admin', role, t: fakeT });
+    expect(items.find((item) => item.id === 'outages')).toMatchObject({ to: '/admin/outages', status: true });
+    expect(items.filter((item) => item.id === 'security-advisories')).toHaveLength(1);
   });
 
   it('defensively removes action states from externally supplied navigation', () => {
