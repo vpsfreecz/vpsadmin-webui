@@ -90,3 +90,21 @@ legacy PHP capture pins cannot be replaced with this React repository's SHA;
 external KB capture refresh/publication is not claimed by these fixture tests.
 No API changes or shared deployment were made. Prepared for PR review; merging
 and release remain separate steps.
+
+## CI inventory correction — 2026-10-19
+
+[Run 39171581984](https://github.com/vpsfreecz/vpsadmin-webui/actions/runs/39171581984)
+failed two script assertions: the new shortcut spec was correctly included in
+both the TypeScript project and coverage inventory, but the compiler-closure
+checks still expected 60 adopted files rather than 61. Updated both exact
+expectations and the test title; the deferred inventory stays at 203. No
+coverage rule, test, product behavior or workflow was disabled.
+
+The earlier local validation ran `ci:quick` and unit/browser tests, but omitted
+the full `ci:tests` script/BFF stage that caught this mismatch. The first local
+repair run also exposed missing BFF dependencies in this fresh worktree;
+installed its unchanged lockfile with `npm ci --prefix bff` before rerunning.
+
+Repair verification: `npm run ci:tests` passed all 226 script, 57 BFF and
+1,856 unit tests (300 files); the design documentation audit passed. The
+follow-up is part of PR #68, not a separate feature or deployment.
