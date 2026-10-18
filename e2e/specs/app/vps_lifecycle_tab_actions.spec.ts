@@ -734,6 +734,7 @@ test.describe('@pr-smoke VPS lifecycle tab', () => {
     expect(req.postDataJSON()).toEqual({
       vps: {
         expiration_date: expectedExpirationIso,
+        remind_after_date: new Date(vps.remind_after_date).toISOString(),
         change_reason: 'extend staging validation',
       },
     });
@@ -760,7 +761,6 @@ test.describe('@pr-smoke VPS lifecycle tab', () => {
     expect(req.postDataJSON()).toEqual({
       vps: {
         expiration_date: null,
-        remind_after_date: null,
       },
     });
   });

@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { buildLifecyclePayload } from './lifecyclePayload';
 
 import { useAuth } from '../../app/auth';
 import { useAppMode } from '../../app/appMode';
@@ -141,62 +142,12 @@ export function LifecyclePanel(props: {
   const adminPayload = useMemo(() => {
     if (!canAdministerLifetime) return null;
 
-    const payload: Record<string, unknown> = {};
-
-    const nextState = String(adminState || '').trim();
-    const curState = st;
-    const stateChanging = nextState && nextState !== 'unknown' && nextState !== curState;
-
-    // State change: always submit the expiration field from the form to avoid unintended defaults
-    // (the backend may compute a default expiration when none is supplied).
-    if (stateChanging) {
-      payload['object_state'] = nextState;
-
-      if (expParsed.valid) {
-        payload['expiration_date'] = expParsed.iso; // string | null
-
-        // When an explicit expiration is provided (not blank), also submit remind-after from the form.
-        // This keeps remind-after stable across state changes unless the admin edits it.
-        if (expParsed.iso !== null && remindParsed.valid) {
-          payload['remind_after_date'] = remindParsed.iso; // string | null
-        }
-      }
-    } else {
-      // Expiration: send only when changed
-      const nextExp = expParsed.valid ? expParsed.iso : null;
-      const curExp = expIso;
-      if (expParsed.valid && nextExp !== curExp) {
-        payload['expiration_date'] = nextExp;
-
-        // When clearing expiration, also clear remind-after locally (and send it)
-        if (nextExp === null) {
-          payload['remind_after_date'] = null;
-        }
-      }
-
-      const nextRem = remindParsed.valid ? remindParsed.iso : null;
-      const curRem = remindIso;
-      const expirationWillExist =
-        (Object.prototype.hasOwnProperty.call(payload, 'expiration_date') ? payload['expiration_date'] : expIso) !== null;
-
-      if (remindParsed.valid && nextRem !== curRem) {
-        // Only allow remind-after when expiration exists (model constraint).
-        if (expirationWillExist) {
-          payload['remind_after_date'] = nextRem;
-        }
-      }
-    }
-
-    if (
-      (payload['object_state'] ||
-        Object.prototype.hasOwnProperty.call(payload, 'expiration_date') ||
-        Object.prototype.hasOwnProperty.call(payload, 'remind_after_date')) &&
-      adminReason.trim()
-    ) {
-      payload['change_reason'] = adminReason.trim();
-    }
-
-    return payload;
+    if (!expParsed.valid || !remindParsed.valid) return null;
+    return buildLifecyclePayload(
+      { state: st, expiration: expIso, reminder: remindIso },
+      { state: adminState.trim(), expiration: expParsed.iso, reminder: remindParsed.iso },
+      adminReason
+    );
   }, [adminReason, adminState, canAdministerLifetime, expIso, expParsed.iso, expParsed.valid, remindIso, remindParsed.iso, remindParsed.valid, st]);
 
   const adminPayloadHasChanges = Boolean(

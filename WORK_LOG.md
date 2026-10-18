@@ -23,6 +23,10 @@ See the [separate outage/advisory footer and role checks](docs/work-log/2026-10-
 
 See the [payment help interaction and wording correction](docs/work-log/2026-10-17-payment-message-help.md).
 
+## 2026-10-18 — Expired VPS renewal and reactivation
+
+See the [frontend fix and live dev verification](docs/work-log/2026-10-18-vps-expiration-reactivation.md). Prepared for pull-request review; not merged or deployed.
+
 ## 2026-10-16 — About and payment-guidance release
 
 See the [merged two-PR release and three-site verification record](docs/work-log/2026-10-16-about-payments-release.md).
