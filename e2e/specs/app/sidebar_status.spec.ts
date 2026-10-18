@@ -45,7 +45,7 @@ for (const language of ['cs', 'en'] as const) {
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       await page.screenshot({ path: testInfo.outputPath(`status-${scenario.name}-${language}.png`), scale: 'css' });
       await outages.click();
-      await expect(page).toHaveURL(new RegExp(`${scenario.base === '/admin' ? '/admin' : ''}/outages$`));
+      await expect(page).toHaveURL((url) => url.pathname === `${scenario.base === '/admin' ? '/admin' : ''}/outages`);
       await expect(page.getByTestId('nav.drawer')).toBeHidden();
       if (scenario.name === 'admin') {
         await page.getByTestId('admin.outages.new').click();
@@ -58,7 +58,7 @@ for (const language of ['cs', 'en'] as const) {
       await page.goto(`${scenario.base}/vps`);
       if (mobile) await page.getByTestId('shell.mobile-nav-button').click();
       await page.getByTestId(`nav.${surface}.security-advisories`).click();
-      await expect(page).toHaveURL(new RegExp(`${advisoryPath}$`));
+      await expect(page).toHaveURL((url) => url.pathname === advisoryPath);
       await expect(page.getByTestId('nav.drawer')).toBeHidden();
     });
   }
