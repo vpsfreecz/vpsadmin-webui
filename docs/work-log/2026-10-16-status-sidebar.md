@@ -69,3 +69,17 @@ Local Nix is unavailable; verification uses the matching upstream Node 24.21.0 /
 npm 11.19.0 toolchain with `npm ci`, checked by `env:locked`. No declared hook
 framework or custom `core.hooksPath` is present. This correction is prepared for
 the existing PR; it is not merged or deployed.
+
+## Combined-candidate review — 2026-10-18
+
+The combined candidate (PRs 61/62/64/65/66 and non-draft ETNyx PRs 53/54/57)
+exposed a timing-dependent test assertion on mobile WebKit. The advisory list
+correctly adds `?limit=50&page=1` after navigation, while the footer test required
+an exact URL ending immediately after the pathname. Check the exact pathname
+instead, for both footer destinations, preserving route and drawer assertions.
+This changes only test expectations, not routing or application behavior.
+
+All 24 footer scenarios passed after the correction on desktop Chromium,
+mobile Chromium and mobile WebKit. The original combined run passed the other
+203 cases; its sole failure was this URL assertion. No PR was merged and no
+production deployment was performed during this review.
