@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter, useNavigate } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { AppModeProvider } from '../../../app/appMode';
 import type { Dataset } from '../../../lib/api/datasets';
 import { DatasetContextProvider } from './DatasetContext';
 import {
@@ -85,28 +86,30 @@ function renderPage(options: {
         initialEntries={options.initialEntries ?? [options.initialEntry ?? '/']}
         initialIndex={options.initialIndex}
       >
-        <HistoryControls />
-        <DatasetContextProvider
-          value={{
-            dataset,
-            refetch: vi.fn(),
-            section: 'datasets',
-            listPath: '/datasets',
-            returnPath: '/datasets',
-            detailPath: '/datasets/10402',
-            datasetRef: { kind: 'Dataset', id: dataset.id },
-            busyLocalLock: false,
-            chains: [],
-            chainsLoading: false,
-            chainsError: null,
-            busyTransaction: false,
-            chainsStale: false,
-            activeChainIds: [],
-            refetchChains: vi.fn(),
-          }}
-        >
-          <DatasetSnapshotsPage queryParamPrefix={options.prefix} />
-        </DatasetContextProvider>
+        <AppModeProvider mode="user">
+          <HistoryControls />
+          <DatasetContextProvider
+            value={{
+              dataset,
+              refetch: vi.fn(),
+              section: 'datasets',
+              listPath: '/datasets',
+              returnPath: '/datasets',
+              detailPath: '/datasets/10402',
+              datasetRef: { kind: 'Dataset', id: dataset.id },
+              busyLocalLock: false,
+              chains: [],
+              chainsLoading: false,
+              chainsError: null,
+              busyTransaction: false,
+              chainsStale: false,
+              activeChainIds: [],
+              refetchChains: vi.fn(),
+            }}
+          >
+            <DatasetSnapshotsPage queryParamPrefix={options.prefix} />
+          </DatasetContextProvider>
+        </AppModeProvider>
       </MemoryRouter>
     </QueryClientProvider>
   );
@@ -162,6 +165,7 @@ describe('DatasetSnapshotsPage', () => {
 
     expect(await screen.findByTestId('dataset.snapshots.row.91.rollback')).toBeEnabled();
     expect(screen.getByTestId('dataset.snapshots.row.91.delete')).toBeEnabled();
+    expect(screen.getByTestId('dataset.snapshots.row.91.export')).toBeEnabled();
   });
 
   it('clears a dismissed snapshot creation error and allows a clean retry', async () => {
@@ -228,6 +232,7 @@ describe('DatasetSnapshotsPage', () => {
       'aria-disabled',
       'true'
     );
+    expect(screen.getByTestId('dataset.snapshots.row.91.export')).toHaveAttribute('aria-disabled', 'true');
     expect(screen.getByTestId('dataset.snapshots.row.91.delete')).toHaveAttribute(
       'aria-disabled',
       'true'
