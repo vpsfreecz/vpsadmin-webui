@@ -191,3 +191,12 @@ local combined checks must not be presented as green GitHub checks. Upstream
 main was still `f3202feb15d21eb436594ee9f2b69f221d51932b` at the final recheck.
 The deployed dev frontend and BFF still point to
 `f2ad625d6b5b5ee1d59d650086173515e2fd0438` and both services are active.
+
+## Subsequent release authorization
+
+After this review, the maintainer explicitly requested deployment and testing
+of the eight selected PRs on all three instances. PR 62's corrected CI passed
+all six checks. The six pending workflow runs for ETNyx's reviewed non-draft
+PRs were approved. The integration branch is now being published for combined
+CI before merging; draft 63 remains excluded. Deployment outcomes will be
+recorded separately after activation, not inferred from these tests.
