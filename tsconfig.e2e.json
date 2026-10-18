@@ -65,6 +65,7 @@
     "e2e/specs/public/about.spec.ts",
     "e2e/specs/public/news_compact.spec.ts",
     "e2e/specs/public/theme_language_bootstrap.spec.ts",
+    "e2e/specs/admin/admin_dashboard.spec.ts",
     "src/types/vpsadmin.d.ts"
   ],
   "include": []

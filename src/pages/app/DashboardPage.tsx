@@ -168,7 +168,7 @@ export function DashboardPage() {
 
   const outagesListPath = mode === "admin" ? `${basePath}/outages` : "/outages";
   const outageDetailPath = (id: number) => (mode === "admin" ? `${basePath}/outages/${id}` : `/outages/${id}`);
-  const newsPath = mode === "admin" ? `${basePath}/content/news` : "/news";
+  const newsManagementPath = mode === "admin" && auth.role === "admin" ? `${basePath}/content/news` : undefined;
   const securityBasePath = mode === "admin" ? `${basePath}/security-advisories` : "/security-advisories";
 
   const statusAlert = DashboardOperationalSummary({
@@ -240,7 +240,8 @@ export function DashboardPage() {
             isLoading: newsQ.isLoading,
             isError: newsQ.isError,
             items: newsQ.data ?? [],
-            path: newsPath,
+            path: "/news",
+            managementPath: newsManagementPath,
           }}
           security={{
             isLoading: securityQ.isLoading,

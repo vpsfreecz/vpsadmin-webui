@@ -56,6 +56,7 @@ export default defineConfig({
       name: 'mobile-webkit',
       testMatch: [
         '**/about.spec.ts',
+        '**/admin_dashboard.spec.ts',
         '**/sidebar_status.spec.ts',
         '**/profile_user_data.spec.ts',
         '**/centered_dialogs.spec.ts',
