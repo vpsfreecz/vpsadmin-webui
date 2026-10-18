@@ -13,6 +13,7 @@ import { TableRowLink } from '../../../components/ui/TableRowLink';
 import { UsageBar } from '../../../components/ui/UsageBar';
 
 import { VpsListRowActions } from './VpsListRowActions';
+import { VpsUsageRiskBadges } from './VpsUsageRiskBadges';
 import { VpsRecentFailureBadge } from './VpsRecentFailureBadge';
 import type { VpsListRecord, VpsListTranslator } from './vpsListSemantics';
 
@@ -120,8 +121,12 @@ export function VpsListTable({
                 <div className="flex flex-wrap items-center gap-2" data-testid={`vps.row.${vps.id}.state`}>
                   <Badge variant={row.runtimeBadge.variant}>{row.runtimeBadge.label}</Badge>
                   <Badge variant={row.objectBadge.variant}>{row.objectBadge.label}</Badge>
-                  {row.memoryRisk ? <Badge variant={row.memoryRisk}>{t('vps.list.state.ram_high')}</Badge> : null}
-                  {row.diskRisk ? <Badge variant={row.diskRisk}>{t('vps.list.state.disk_high')}</Badge> : null}
+                  <VpsUsageRiskBadges
+                    memoryRisk={row.memoryRisk}
+                    diskRisk={row.diskRisk}
+                    t={t}
+                    testIdPrefix={`vps.row.${vps.id}`}
+                  />
                   {row.latestRecentFailure ? (
                     <VpsRecentFailureBadge
                       chain={row.latestRecentFailure}

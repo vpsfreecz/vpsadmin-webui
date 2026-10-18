@@ -1,6 +1,6 @@
 # Product and interaction design
 
-Related requirements: REQ-001–041, REQ-046–055, REQ-073. Current intent is in the
+Related requirements: REQ-001–041, REQ-046–055, REQ-073, REQ-075. Current intent is in the
 [register](REQUIREMENTS.md); [decisions](DECISIONS.md) explain revisions.
 
 ## Audiences and information architecture
@@ -61,7 +61,9 @@ name, and does not imply removing labels from primary navigation.
 
 Header order: object identity and distribution; state and owner (when relevant);
 node/location and SSH access; runtime summary (uptime, load 1/5/15 minutes,
-processes, CPU use); detail navigation. Header metrics use API data. A stopped or
+processes, CPU use); detail navigation. The RAM/Disk high badges match the VPS list
+(from 90 %, danger from 98 %); usage bars keep their earlier 80 % warning colour as
+a gradual cue. The recent-failure badge remains list-only. Header metrics use API data. A stopped or
 unknown value must not be fabricated. The overview organizes resource, access,
 network and storage cards in equal desktop columns, followed by wider history or
 graph content as needed. A graph request must not obscure the basic facts.

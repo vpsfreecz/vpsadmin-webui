@@ -100,6 +100,21 @@ export function usageRiskVariant(used: number | undefined, max: number | undefin
   return undefined;
 }
 
+function vpsUsageValues(vps: Vps) {
+  const usage = (value: unknown) => (typeof value === 'number' ? value : undefined);
+  return {
+    memUsed: usage(vps.used_memory),
+    memMax: usage(vps.memory),
+    diskUsed: usage(vps.used_diskspace),
+    diskMax: usage(vps.diskspace),
+  };
+}
+
+export function vpsUsageRisks(vps: Vps): { memoryRisk: RiskVariant; diskRisk: RiskVariant } {
+  const { memUsed, memMax, diskUsed, diskMax } = vpsUsageValues(vps);
+  return { memoryRisk: usageRiskVariant(memUsed, memMax), diskRisk: usageRiskVariant(diskUsed, diskMax) };
+}
+
 export function vpsRowVariant(args: {
   runtimeVariant: BadgeSpec['variant'];
   objectVariant: BadgeSpec['variant'];
@@ -242,12 +257,8 @@ export function buildVpsListRecord(args: {
   const restartGate = gateVpsAction('restart', { vps, busyLocal, busyTransaction: busyTx });
   const deleteGate = gateVpsMutation({ vps, busyLocal, busyTransaction: busyTx });
 
-  const memUsed = typeof vps.used_memory === 'number' ? vps.used_memory : undefined;
-  const memMax = typeof vps.memory === 'number' ? vps.memory : undefined;
-  const diskUsed = typeof vps.used_diskspace === 'number' ? vps.used_diskspace : undefined;
-  const diskMax = typeof vps.diskspace === 'number' ? vps.diskspace : undefined;
-  const memoryRisk = usageRiskVariant(memUsed, memMax);
-  const diskRisk = usageRiskVariant(diskUsed, diskMax);
+  const { memUsed, memMax, diskUsed, diskMax } = vpsUsageValues(vps);
+  const { memoryRisk, diskRisk } = vpsUsageRisks(vps);
 
   const rowVariant = vpsRowVariant({
     runtimeVariant: runtimeBadge.variant,
