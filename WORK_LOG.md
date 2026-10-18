@@ -11,6 +11,10 @@ complete reconstruction of the project. Missing evidence is not a passing check.
 
 ## New changes
 
+## 2026-10-18 — Combined PR security review
+
+See the [non-draft ETNyx review and combined dev evidence](docs/work-log/2026-10-18-combined-pr-security-review.md). Local integration only; no upstream merge or shared release deployment.
+
 ## 2026-10-16 — Deployment commit identity
 
 See the [identity correction and exact history mapping](docs/work-log/2026-10-16-deployment-git-identity.md).
