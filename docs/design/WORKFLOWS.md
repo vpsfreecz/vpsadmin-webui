@@ -637,3 +637,21 @@ may still be pending. In particular, Next followed by Previous or page 1 must
 cancel the pending page-2 destination rather than only changing local state.
 Automatic URL normalization still avoids redundant writes. Filter parameters,
 visited forward cursors and browser Back/Forward remain preserved.
+
+## Admin node inventory (REQ-026/028)
+
+Nodes shows ID/location/status, VPS slots, uptime, three load averages, idle/I/O
+wait, free memory, ARC size/hit ratio, vpsAdmin and kernel versions. It uses the
+existing authenticated overview so non-public infrastructure is visible too.
+Summary counts are scoped to the current page. The administrator can open node
+details, filtered VPS, copy the hostname, open configured heatmaps, or enable and
+disable maintenance directly. These row actions have visible labels in this
+inventory; other heatmap surfaces keep the icon-only action.
+
+Maintenance opens a centered target-specific dialog with an optional reason.
+Inherited locks explain which parent must be managed instead. Permission, busy
+state, fresh lock/reason and duplicate-submission checks precede submission.
+Definitive rejection keeps the dialog; ambiguous success/failure is reconciled by
+exact read-back and remains blocked if unverifiable. Support has no maintenance
+control and ordinary member mode has no Nodes route.
+[Review evidence](../work-log/2026-10-19-nodes-overview-maintenance.md).

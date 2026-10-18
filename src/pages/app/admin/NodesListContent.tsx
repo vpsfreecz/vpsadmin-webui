@@ -1,6 +1,6 @@
 import React from 'react';
-import { NodeHeatmapButton } from '../../../components/cluster/NodeHeatmaps';
-import { Server } from 'lucide-react';
+import { NodesRowActions } from './nodes/NodesRowActions';
+import { NodesMetrics } from './nodes/NodesMetrics';
 import { Link } from 'react-router-dom';
 
 import { formatDateTime } from '../../../lib/format';
@@ -9,18 +9,13 @@ import { isMaintenanceLocked } from '../../../lib/nodeMaintenance';
 
 import { Alert } from '../../../components/ui/Alert';
 import { Badge } from '../../../components/ui/Badge';
-import { Button } from '../../../components/ui/Button';
 import { Card } from '../../../components/ui/Card';
-import { CopyButton } from '../../../components/ui/CopyButton';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { ErrorState } from '../../../components/ui/ErrorState';
 import { KeysetPagination } from '../../../components/ui/KeysetPagination';
-import { LinkButton } from '../../../components/ui/LinkButton';
 import { LoadingState } from '../../../components/ui/LoadingState';
 import { LockBadge } from '../../../components/ui/LockBadge';
-import { StatCard } from '../../../components/ui/StatCard';
 import { StatusDot } from '../../../components/ui/StatusDot';
-import { SummaryGrid } from '../../../components/layout/SummaryGrid';
 import { TableCard } from '../../../components/ui/TableCard';
 import { TableRowLink } from '../../../components/ui/TableRowLink';
 import { toneSurfaceClass } from '../../../components/ui/tone';
@@ -68,64 +63,6 @@ function NodeStatusBadge(props: { row: NodeRow; t: NodesPageTranslator }) {
   return <Badge variant={badge.variant}>{props.t(badge.labelKey)}</Badge>;
 }
 
-function NodesRowActions(props: { row: NodeRow; basePath: string; t: NodesPageTranslator; compact?: boolean }) {
-  const { row, basePath, t, compact = false } = props;
-  const copyValue = row.fqdn || row.name;
-
-  if (compact) {
-    return (
-      <div className="flex items-center justify-end gap-1">
-        <NodeHeatmapButton node={row} />
-        {copyValue ? (
-          <CopyButton
-            text={copyValue}
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 px-0"
-            iconOnly
-            testId={typeof row.id === 'number' ? `admin.nodes.row.${row.id}.copy` : undefined}
-          />
-        ) : null}
-        {typeof row.id === 'number' ? (
-          <Button
-            to={`${basePath}/vps?node=${row.id}`}
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 px-0"
-            title={t('admin.node.action.show_vps.title')}
-            ariaLabel={t('admin.nodes.action.vpses')}
-            testId={`admin.nodes.row.${row.id}.vps`}
-          >
-            <Server className="h-4 w-4" aria-hidden="true" />
-          </Button>
-        ) : null}
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-wrap items-center gap-2">
-      <NodeHeatmapButton node={row} />
-      {row.fqdn ? <CopyButton text={row.fqdn} /> : row.name ? <CopyButton text={row.name} /> : null}
-      {typeof row.id === 'number' ? (
-        <LinkButton to={`${basePath}/nodes/${row.id}`} variant="secondary" size="sm">
-          {t('common.details')}
-        </LinkButton>
-      ) : null}
-      {typeof row.id === 'number' ? (
-        <LinkButton
-          to={`${basePath}/vps?node=${row.id}`}
-          variant="secondary"
-          size="sm"
-          title={t('admin.node.action.show_vps.title')}
-        >
-          {t('admin.nodes.action.vpses')}
-        </LinkButton>
-      ) : null}
-    </div>
-  );
-}
-
 function NodesPagination(props: {
   pagination: KeysetPaginationState;
   canNext: boolean;
@@ -155,34 +92,12 @@ function NodesSummary(props: { stats: NodeStats; statsScopeLabel: string; t: Nod
   const { stats, statsScopeLabel, t } = props;
 
   return (
-    <SummaryGrid testId="admin.nodes.summary">
-      <StatCard
-        className="md:col-span-4"
-        testId="admin.nodes.summary.total"
-        title={t('admin.nodes.stats.total')}
-        value={stats.total}
-        subtitle={statsScopeLabel}
-        variant="standard"
-      />
-
-      <StatCard
-        className="md:col-span-4"
-        testId="admin.nodes.summary.down"
-        title={t('admin.nodes.stats.down')}
-        value={<span className={stats.down > 0 ? 'text-danger' : undefined}>{stats.down}</span>}
-        subtitle={statsScopeLabel}
-        variant={stats.down > 0 ? 'featured' : 'standard'}
-      />
-
-      <StatCard
-        className="md:col-span-4"
-        testId="admin.nodes.summary.maintenance"
-        title={t('admin.nodes.stats.maintenance')}
-        value={<span className={stats.locked > 0 ? 'text-warn' : undefined}>{stats.locked}</span>}
-        subtitle={statsScopeLabel}
-        variant="standard"
-      />
-    </SummaryGrid>
+    <div className="flex flex-wrap items-center gap-3 text-sm" data-testid="admin.nodes.summary">
+      <span data-testid="admin.nodes.summary.total">{t('admin.nodes.stats.total')}: <strong>{stats.total}</strong></span>
+      <Badge variant={stats.down ? 'danger' : 'neutral'} testId="admin.nodes.summary.down">{t('admin.nodes.stats.down')}: {stats.down}</Badge>
+      <Badge variant={stats.locked ? 'warn' : 'neutral'} testId="admin.nodes.summary.maintenance">{t('admin.nodes.stats.maintenance')}: {stats.locked}</Badge>
+      <span className="text-xs text-faint">{statsScopeLabel}</span>
+    </div>
   );
 }
 
@@ -210,9 +125,11 @@ function NodesMobileList(props: { rows: NodeRow[]; basePath: string; t: NodesPag
                       variant={nodeDotVariant(row)}
                       testId={typeof row.id === 'number' ? `admin.nodes.card.${row.id}.dot` : undefined}
                     />
-                    <div className="truncate text-base font-semibold text-fg">{row.name}</div>
+                    <div className="truncate text-base font-semibold text-fg">
+                      {typeof row.id === 'number' ? <Link to={`${basePath}/nodes/${row.id}`} className="text-link hover:underline">{row.name}</Link> : row.name}
+                    </div>
                   </div>
-                  <div className="mt-0.5 text-xs text-faint">{nodeSecondaryLabel(row, t('common.na'))}</div>
+                  <div className="mt-0.5 text-xs text-faint">{typeof row.id === 'number' ? `#${row.id} · ` : ''}{nodeSecondaryLabel(row, t('common.na'))}</div>
                 </div>
                 <NodeStatusBadge row={row} t={t} />
               </div>
@@ -230,15 +147,16 @@ function NodesMobileList(props: { rows: NodeRow[]; basePath: string; t: NodesPag
                   ) : null}
                 </div>
                 <div>
-                  <span className="text-faint">{t('admin.node.field.cpu_idle')}:</span>{' '}
-                  {typeof row.cpu_idle === 'number' ? `${row.cpu_idle}%` : t('common.na')}
-                </div>
-                <div>
                   <span className="text-faint">{t('admin.node.field.last_report')}:</span>{' '}
                   {formatDateTime(row.last_report)}
                 </div>
               </div>
 
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                <NodesMetrics row={row} t={t} section="cpu" />
+                <NodesMetrics row={row} t={t} section="memory" />
+                <NodesMetrics row={row} t={t} section="system" />
+              </div>
               {showMaintenance ? (
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   <LockBadge kind="maintenance" maintenanceReason={reason} t={t} />
@@ -247,7 +165,7 @@ function NodesMobileList(props: { rows: NodeRow[]; basePath: string; t: NodesPag
               ) : null}
 
               <div className="mt-4">
-                <NodesRowActions row={row} basePath={basePath} t={t} />
+                <NodesRowActions row={row} basePath={basePath} t={t} layout="card" />
               </div>
             </div>
           </Card>
@@ -288,13 +206,11 @@ function NodesTable(props: {
         <tr className="border-b border-border text-left text-xs text-muted">
           <th className="w-8 px-2 py-2"><span className="sr-only">{t('common.state')}</span></th>
           <th className="px-3 py-2">{t('common.node')}</th>
-          <th className="px-3 py-2">{t('admin.node.field.location')}</th>
-          <th className="px-3 py-2">{t('admin.node.field.status')}</th>
           <th className="px-3 py-2">{t('common.vps')}</th>
-          <th className="px-3 py-2">{t('admin.node.field.cpu_idle')}</th>
-          <th className="px-3 py-2">{t('admin.node.field.last_report')}</th>
-          <th className="px-3 py-2">{t('admin.node.maintenance.title')}</th>
-          <th className="px-2 py-2 text-right">{t('common.actions')}</th>
+          <th className="px-3 py-2">{t('admin.nodes.cpu')}</th>
+          <th className="px-3 py-2">{t('admin.node.field.memory')}</th>
+          <th className="px-3 py-2">{t('admin.nodes.system')}</th>
+          <th className="px-2 py-2 text-left">{t('common.actions')}</th>
         </tr>
       </thead>
       <tbody>
@@ -330,11 +246,9 @@ function NodesTable(props: {
                 ) : (
                   <div className="font-medium text-fg">{row.name}</div>
                 )}
-                <div className="mt-1 text-xs text-faint">{nodeSecondaryLabel(row, t('common.na'))}</div>
-              </td>
-              <td className="px-3 py-2 text-xs text-muted">{row.locationLabel ?? t('common.na')}</td>
-              <td className="px-3 py-2">
-                <Badge variant={badge.variant}>{t(badge.labelKey)}</Badge>
+                <div className="mt-1 text-xs text-faint">{typeof row.id === 'number' ? `#${row.id} · ` : ''}{row.locationLabel}</div>
+                <div className="mt-1 flex flex-wrap gap-1"><Badge variant={badge.variant}>{t(badge.labelKey)}</Badge>{showMaintenance ? <LockBadge kind="maintenance" maintenanceReason={reason} t={t} /> : null}</div>
+                {reason ? <p className="mt-1 max-w-48 break-words text-xs text-muted">{reason}</p> : null}
               </td>
               <td className="px-3 py-2 text-xs text-muted">
                 {typeof row.vps_count === 'number' ? row.vps_count : t('common.na')}
@@ -342,19 +256,11 @@ function NodesTable(props: {
                   <span className="text-faint"> · {t('common.free_count', { count: row.vps_free })}</span>
                 ) : null}
               </td>
-              <td className="px-3 py-2 text-xs text-muted">
-                {typeof row.cpu_idle === 'number' ? `${row.cpu_idle}%` : t('common.na')}
-              </td>
-              <td className="px-3 py-2 text-xs text-muted">{formatDateTime(row.last_report)}</td>
-              <td className="px-3 py-2 text-xs">
-                {showMaintenance ? (
-                  <LockBadge kind="maintenance" maintenanceReason={reason} t={t} />
-                ) : (
-                  <span className="text-faint">{t('common.na')}</span>
-                )}
-              </td>
+              <td className="px-3 py-2"><NodesMetrics row={row} t={t} section="cpu" /></td>
+              <td className="px-3 py-2"><NodesMetrics row={row} t={t} section="memory" /></td>
+              <td className="px-3 py-2"><NodesMetrics row={row} t={t} section="system" /><div className="mt-1 text-xs text-faint" title={t('admin.node.field.last_report')}>{formatDateTime(row.last_report)}</div></td>
               <td className="px-2 py-2">
-                <NodesRowActions row={row} basePath={basePath} t={t} compact />
+                <NodesRowActions row={row} basePath={basePath} t={t} />
               </td>
             </TableRowLink>
           );

@@ -11,7 +11,20 @@ export interface NodeRow {
   domain_name?: string;
   locationLabel?: string;
 
-  // From public status
+  // Authenticated overview, with public status as a limited fallback
+  uptime?: number;
+  loadavg1?: number;
+  loadavg5?: number;
+  loadavg15?: number;
+  cpu_iowait?: number;
+  total_memory?: number;
+  used_memory?: number;
+  arc_size?: number;
+  arc_hitpercent?: number;
+  vps_stopped?: number;
+  vps_total?: number;
+  version?: string;
+  kernel?: string;
   status?: boolean;
   last_report?: string;
   cpu_idle?: number;
@@ -195,14 +208,27 @@ function rowFromNode(node: Node, statusIndex: Map<string, PublicNodeStatus>): No
     domain_name: stringField(node, 'domain_name'),
     locationLabel: locationLabel(unknownField(node, 'location')),
 
-    status: booleanField(status, 'status'),
-    last_report: stringField(status, 'last_report'),
-    cpu_idle: numberField(status, 'cpu_idle'),
-    vps_count: numberField(status, 'vps_count'),
-    vps_free: numberField(status, 'vps_free'),
-    hypervisor_type: stringField(status, 'hypervisor_type'),
-    maintenance_lock: unknownField(status, 'maintenance_lock'),
-    maintenance_lock_reason: stringField(status, 'maintenance_lock_reason'),
+    uptime: numberField(node, 'uptime'),
+    loadavg1: numberField(node, 'loadavg1'),
+    loadavg5: numberField(node, 'loadavg5'),
+    loadavg15: numberField(node, 'loadavg15'),
+    cpu_iowait: numberField(node, 'cpu_iowait'),
+    total_memory: numberField(node, 'total_memory'),
+    used_memory: numberField(node, 'used_memory'),
+    arc_size: numberField(node, 'arc_size'),
+    arc_hitpercent: numberField(node, 'arc_hitpercent'),
+    vps_stopped: numberField(node, 'vps_stopped'),
+    vps_total: numberField(node, 'vps_total'),
+    version: stringField(node, 'version'),
+    kernel: stringField(node, 'kernel'),
+    status: booleanField(node, 'status') ?? booleanField(status, 'status'),
+    last_report: stringField(node, 'last_report') ?? stringField(status, 'last_report'),
+    cpu_idle: numberField(node, 'cpu_idle') ?? numberField(status, 'cpu_idle'),
+    vps_count: numberField(node, 'vps_running') ?? numberField(status, 'vps_count'),
+    vps_free: numberField(node, 'vps_free') ?? numberField(status, 'vps_free'),
+    hypervisor_type: stringField(node, 'hypervisor_type') ?? stringField(status, 'hypervisor_type'),
+    maintenance_lock: unknownField(node, 'maintenance_lock') ?? unknownField(status, 'maintenance_lock'),
+    maintenance_lock_reason: stringField(node, 'maintenance_lock_reason') ?? stringField(status, 'maintenance_lock_reason'),
   };
 }
 
@@ -234,11 +260,13 @@ function rowFromPublicStatus(status: PublicNodeStatus): NodeRow {
 export function buildNodeRows(opts: {
   nodes: Node[] | undefined;
   nodesUnavailable: boolean;
+  overview?: Node[];
   publicStatus: PublicNodeStatus[] | undefined;
   statusIndex: Map<string, PublicNodeStatus>;
 }): NodeRow[] {
   if (Array.isArray(opts.nodes)) {
-    return opts.nodes.map((node) => rowFromNode(node, opts.statusIndex));
+    const overview = new Map(opts.overview?.map((node) => [node.id, node]));
+    return opts.nodes.map((node) => rowFromNode({ ...node, ...overview.get(node.id) }, opts.statusIndex));
   }
 
   // Fallback: public status only (does not support from_id).
@@ -289,7 +317,7 @@ export function maintenanceReason(row: NodeRow): string | undefined {
   const lock = row.maintenance_lock;
   if (typeof lock === 'string') {
     const s = lock.trim();
-    return s || undefined;
+    return ['no', 'lock', 'master_lock'].includes(s.toLowerCase()) ? undefined : s || undefined;
   }
 
   if (isRecord(lock)) {

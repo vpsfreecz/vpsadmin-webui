@@ -69,6 +69,7 @@ export default defineConfig({
         '**/vps_console_page.spec.ts',
         '**/search_scope_reminder.spec.ts',
         '**/node_heatmaps.spec.ts',
+        '**/nodes_overview_maintenance.spec.ts',
         '**/vps_header_system_summary.spec.ts',
         '**/mobile_touch_interactions.spec.ts',
         '**/mobile_workflows.spec.ts',

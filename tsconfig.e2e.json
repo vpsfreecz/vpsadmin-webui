@@ -20,6 +20,7 @@
     "e2e/specs/admin/networking_surfaces_smoke.spec.ts",
     "e2e/specs/admin/node_heatmaps.spec.ts",
     "e2e/specs/admin/node_pool_maintenance.spec.ts",
+    "e2e/specs/admin/nodes_overview_maintenance.spec.ts",
     "e2e/specs/admin/registration_reason_presets.spec.ts",
     "e2e/specs/admin/requests_operations_smoke.spec.ts",
     "e2e/specs/app/admin_default_review_queue.spec.ts",

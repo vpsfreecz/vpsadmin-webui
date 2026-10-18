@@ -1,5 +1,18 @@
 // Admin locale chunk: nodes
 export const csAdmin_nodes = {
+  "admin.nodes.overview_unavailable": "Podrobné metriky nodů nejsou dostupné. Zobrazují se dostupné údaje a veřejný stav.",
+  "admin.nodes.maintenance.title": "Údržba: {node}",
+  "admin.nodes.maintenance.action": "Údržba",
+  "admin.nodes.maintenance.inherited": "Údržba je zděděná z lokality nebo prostředí. Vypni ji u tohoto nadřazeného objektu.",
+  "admin.nodes.maintenance.changed": "Od otevření dialogu se údržba změnila. Před dalším potvrzením zkontroluj aktuální stav.",
+  "admin.nodes.maintenance.unverified": "Výsledek změny údržby se nepodařilo ověřit. Před další změnou obnov stav.",
+  "admin.nodes.copy_hostname": "Kopírovat hostname",
+  "admin.nodes.iowait": "Čekání na I/O",
+  "admin.nodes.free_memory": "Volná paměť",
+  "admin.nodes.arc_size": "Velikost ARC",
+  "admin.nodes.version": "Verze vpsAdmin",
+  "admin.nodes.cpu": "CPU / zátěž",
+  "admin.nodes.system": "Systém",
   "nodes.heatmap.action": "Heatmapa",
   "nodes.heatmap.title": "Heatmapa · {node}",
   "nodes.heatmap.external": "Otevřít v nové kartě",
@@ -54,6 +67,6 @@ export const csAdmin_nodes = {
   "admin.nodes.stats.scope_page": "na této stránce",
   "admin.nodes.stats.scope_total": "celkem",
   "admin.nodes.stats.total": "Nody",
-  "admin.nodes.subtitle": "Přehled nodů clusteru (admin). Stav je z veřejného statusu doplněný o autorizovaná metadata, pokud jsou dostupná.",
+  "admin.nodes.subtitle": "Stav, provozní údaje a údržba nodů clusteru.",
   "admin.nodes.title": "Nody",
 } as const;

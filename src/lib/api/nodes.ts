@@ -15,6 +15,12 @@ export interface Node {
   max_rx?: number;
   max_vps?: number;
 
+  last_report?: string;
+  vps_running?: number;
+  vps_stopped?: number;
+  vps_total?: number;
+  vps_free?: number;
+
   // Live metrics (availability depends on the API action)
   status?: boolean;
   uptime?: number;
@@ -282,6 +288,18 @@ export async function fetchNodes(
   }
 
   return { ...res, data: expectArray<Node>(list, 'nodes') };
+}
+
+/** Admin-only enrichment; preserves the paginated Node.Index inventory. */
+export async function fetchNodeOverview(signal?: AbortSignal) {
+  const res = await haveApiCall<unknown>({ method: 'GET', path: '/nodes/overview_list', signal });
+  return { ...res, data: expectArray<Node>(res.data, 'nodes/overview_list') };
+}
+
+export async function fetchNodeMaintenanceCapability(nodeId: number) {
+  return haveApiCall<NodeWriteCapabilityDescription>({
+    method: 'OPTIONS', path: `/nodes/${nodeId}/set_maintenance?method=POST`,
+  });
 }
 
 export async function fetchNode(nodeId: number) {

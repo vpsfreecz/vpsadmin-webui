@@ -11,8 +11,8 @@ import { useToasts } from '../../../app/toasts';
 import { ListShell } from '../../../components/layout/ListShell';
 import type { SmartFilterSuggestion } from '../../../components/ui/SmartFilterInput';
 
-import { fetchNodeCreateCapability, fetchNodes } from '../../../lib/api/nodes';
-import { fetchPublicNodeStatus } from '../../../lib/api/public';
+import { fetchNodeCreateCapability } from '../../../lib/api/nodes';
+import { useNodesInventory } from './nodes/useNodesInventory';
 import { useKeysetPagination } from '../../../lib/hooks/useKeysetPagination';
 import { parseBoolParam } from '../../../lib/parse';
 import { useTierSlowIntervalMs } from '../../../lib/refreshTiers';
@@ -20,6 +20,8 @@ import { cursorFromDescendingPage } from '../../../lib/lockIndex';
 import { parseNumericToken, splitKeyValueToken, tokenizeSmartInput, unquoteSmartValue } from '../../../lib/smartFilter';
 
 import { NodesFilters } from './NodesFilters';
+import { NodesMaintenanceProvider } from './nodes/NodesMaintenanceProvider';
+import { Alert } from '../../../components/ui/Alert';
 import { NodesListContent } from './NodesListContent';
 import { NodesPageHeader } from './NodesPageHeader';
 import { NodesRouteGuard } from './NodesRouteGuard';
@@ -127,32 +129,8 @@ function NodesPageContent() {
 
   const tierSlowRefetchMs = useTierSlowIntervalMs();
 
-  const nodesQ = useQuery({
-    queryKey: [
-      'nodes',
-      'index',
-      {
-        limit: pagination.limit,
-        fromId: pagination.fromId,
-        state: canFilterState && state !== 'active' ? state : undefined,
-      },
-    ],
-    queryFn: async () =>
-      (
-        await fetchNodes({
-          limit: pagination.limit,
-          fromId: pagination.fromId,
-          state: canFilterState && state !== 'active' ? state : undefined,
-        })
-      ).data,
-    staleTime: 15000,
-    refetchInterval: tierSlowRefetchMs,
-  });
-
-  const statusQ = useQuery({
-    queryKey: ['nodes', 'public_status'],
-    queryFn: async () => (await fetchPublicNodeStatus()).data,
-    staleTime: 15000,
+  const { nodesQ, statusQ, overviewQ } = useNodesInventory({
+    limit: pagination.limit, fromId: pagination.fromId, state, admin: canFilterState,
     refetchInterval: tierSlowRefetchMs,
   });
 
@@ -380,11 +358,12 @@ function NodesPageContent() {
     () =>
       buildNodeRows({
         nodes: nodesQ.data,
+        overview: auth.role === 'admin' ? overviewQ.data : undefined,
         nodesUnavailable: nodesQ.isError,
         publicStatus: statusQ.data,
         statusIndex,
       }),
-    [nodesQ.data, nodesQ.isError, statusIndex, statusQ.data]
+    [nodesQ.data, nodesQ.isError, overviewQ.data, auth.role, statusIndex, statusQ.data]
   );
   const filtered = useMemo(() => filterNodeRows(rows, { issuesOnly }), [issuesOnly, rows]);
   const stats = useMemo(() => nodeStats(rows), [rows]);
@@ -400,7 +379,8 @@ function NodesPageContent() {
   const refetchAll = useCallback(() => {
     void nodesQ.refetch();
     void statusQ.refetch();
-  }, [nodesQ, statusQ]);
+    if (auth.role === 'admin') void overviewQ.refetch();
+  }, [nodesQ, statusQ, overviewQ, auth.role]);
 
   const createDisabled = Boolean(indeterminateCreate) || !createCapabilityQ.isSuccess;
   const createDisabledReason = indeterminateCreate
@@ -458,6 +438,10 @@ function NodesPageContent() {
           onListRefresh={() => nodesQ.refetch()}
         />
       ) : null}
+      {overviewQ.isError && auth.role === 'admin' ? (
+        <Alert variant="warn" title={t('admin.nodes.overview_unavailable')} />
+      ) : null}
+      <NodesMaintenanceProvider>
       <NodeHeatmapProvider>
         <NodesListContent
           t={t}
@@ -480,6 +464,7 @@ function NodesPageContent() {
           pagination={pagination}
         />
       </NodeHeatmapProvider>
+      </NodesMaintenanceProvider>
       <NodeCreateModal
         open={createOpen}
         capabilityAvailable={auth.role === 'admin' && createCapabilityQ.isSuccess}

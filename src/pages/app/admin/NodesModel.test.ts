@@ -175,10 +175,26 @@ describe('NodesModel', () => {
     expect(nodeStatusBadge(false)).toEqual({ variant: 'danger', labelKey: 'state.down' });
     expect(nodeSecondaryLabel({ id: 9, name: 'n' }, 'N/A')).toBe('#9');
     expect(maintenanceReason({ name: 'n', maintenance_lock: { reason: 'HW upgrade' } })).toBe('HW upgrade');
+    expect(maintenanceReason({ name: 'n', maintenance_lock: 'no' })).toBeUndefined();
     expect(nodeStats([{ name: 'down', status: false }, { name: 'maint', maintenance_lock: 'lock' }])).toEqual({
       total: 2,
       down: 1,
       locked: 1,
     });
   });
+});
+
+
+test('authenticated overview supplies non-public nodes and preserves zeros and false values', () => {
+  const node: Node = { id: 5, domain_name: 'dns.example.test', status: true, cpu_idle: 75 };
+  const status: PublicNodeStatus = { name: 'dns.example.test', status: true, cpu_idle: 50, maintenance_lock: 'lock' };
+  const rows = buildNodeRows({ nodes: [node, { id: 6, domain_name: 'private-dns' }],
+    nodesUnavailable: false, publicStatus: [status], statusIndex: buildStatusIndex([status]),
+    overview: [{ id: 5, status: false, cpu_idle: 0, vps_running: 0, vps_free: -7, maintenance_lock: 'no',
+      used_memory: 0, total_memory: 1024, arc_size: 0, arc_hitpercent: 0, uptime: 0 },
+      { id: 6, status: true, kernel: '6.12', version: '4.2.1' }],
+  });
+  expect(rows[0]).toMatchObject({ status: false, cpu_idle: 0, vps_count: 0, vps_free: -7,
+    maintenance_lock: 'no', used_memory: 0, total_memory: 1024, arc_size: 0, arc_hitpercent: 0, uptime: 0 });
+  expect(rows[1]).toMatchObject({ status: true, name: 'private-dns', kernel: '6.12', version: '4.2.1' });
 });
