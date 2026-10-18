@@ -52,6 +52,7 @@
     "e2e/specs/app/vps_create_admin_flow.spec.ts",
     "e2e/specs/app/vps_create_failures.spec.ts",
     "e2e/specs/app/vps_creation_progress.spec.ts",
+    "e2e/specs/app/vps_expiration_reactivation.spec.ts",
     "e2e/specs/app/vps_header_system_summary.spec.ts",
     "e2e/specs/app/vps_initialization_templates.spec.ts",
     "e2e/specs/app/vps_lifecycle_tab_actions.spec.ts",

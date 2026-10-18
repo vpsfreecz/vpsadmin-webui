@@ -107,6 +107,16 @@ be asynchronous. Preserve action-state links and reconcile uncertain submissions
 before a second attempt. [VPS adapter](../../src/lib/api/vps.ts),
 [power failure fixture](../../e2e/specs/app/vps_power_failures.spec.ts).
 
+The shared administrator lifecycle editor follows the HaveAPI datetime contract:
+`expiration_date` may be null, while `remind_after_date` must be a datetime when
+present. Reactivating an expired VPS with no reminder omits that field. Changing
+expiration preserves a nonempty reminder explicitly, because setting expiration
+also resets the reminder. Clearing only a reminder reapplies the existing
+expiration without a reminder; clearing expiration sends only its nullable field.
+State transitions keep asynchronous action tracking and the existing power-action
+confirmation/transaction locks. See the
+[renewal regression evidence](../work-log/2026-10-18-vps-expiration-reactivation.md).
+
 Accepted VPS migration shows one persistent shared toast at the bottom right
 (on mobile, across the bottom), naming the submitted VPS and linking to Tasks.
 It confirms acceptance, not completion, and stays visible while the detail refreshes
