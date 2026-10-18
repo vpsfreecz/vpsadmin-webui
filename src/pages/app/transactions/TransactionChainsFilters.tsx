@@ -5,7 +5,7 @@ import { FilterBar } from '../../../components/layout/FilterBar';
 import { Button } from '../../../components/ui/Button';
 import { Checkbox } from '../../../components/ui/Checkbox';
 import { CopyButton } from '../../../components/ui/CopyButton';
-import { Drawer } from '../../../components/ui/Drawer';
+import { Modal } from '../../../components/ui/Modal';
 import { Input } from '../../../components/ui/Input';
 import { Select } from '../../../components/ui/Select';
 import { SmartFilterInput, type SmartFilterSuggestion } from '../../../components/ui/SmartFilterInput';
@@ -214,7 +214,7 @@ export function TransactionChainsFilters({
         keyRowTestIdPrefix="transactions.chains.smart_help.key"
       />
 
-      <Drawer open={advancedOpen} onClose={onAdvancedClose} title={t('filters.advanced.title')} width="lg" testId="transactions.chains.advanced.drawer">
+      <Modal showCloseButton closeTestId="drawer.close" open={advancedOpen} onClose={onAdvancedClose} title={t('filters.advanced.title')} size="lg" testId="transactions.chains.advanced.drawer">
         <div className="space-y-4">
           <div>
             <div className="text-sm font-medium">{t('transactions.chains.advanced.label')}</div>
@@ -324,7 +324,7 @@ export function TransactionChainsFilters({
             </Button>
           </div>
         </div>
-      </Drawer>
+      </Modal>
     </>
   );
 }

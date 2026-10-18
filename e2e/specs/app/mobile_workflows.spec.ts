@@ -1,6 +1,6 @@
 import { expect, test, type Page, type Locator } from '@playwright/test';
 import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
-import { expectNoDocumentHorizontalOverflow } from '../../helpers/horizontalOverflow';
+import { expectCenteredDialog, expectNoDocumentHorizontalOverflow } from '../../helpers/horizontalOverflow';
 
 const vps = {
   id: 123,
@@ -73,7 +73,7 @@ test.describe('@pr-smoke-mobile Mobile workflow hardening', () => {
         .getByRole('button', { name: language === 'cs' ? 'Pokročilé filtry' : 'Advanced filters', exact: true })
         .tap();
       const drawer = page.getByTestId('vps.list.advanced_filters');
-      await expect(drawer).toBeVisible();
+      await expectCenteredDialog(page, drawer);
       const user = page.getByTestId('vps.filter.user.lookup');
       await user.fill('ali');
       await expect(user).toHaveValue('ali');
@@ -92,7 +92,7 @@ test.describe('@pr-smoke-mobile Mobile workflow hardening', () => {
       await node.fill('node');
       await expect(page.getByTestId('vps.filter.node.lookup.dropdown')).toBeVisible();
       await node.press('Escape');
-      await expect(drawer).toBeVisible();
+      await expectCenteredDialog(page, drawer);
       await node.press('Escape');
       await expect(drawer).toBeHidden();
       await expectNoDocumentHorizontalOverflow(page);

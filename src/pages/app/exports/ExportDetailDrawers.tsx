@@ -4,7 +4,7 @@ import { useI18n } from '../../../app/i18n';
 import { Alert } from '../../../components/ui/Alert';
 import { Button } from '../../../components/ui/Button';
 import { Checkbox } from '../../../components/ui/Checkbox';
-import { Drawer } from '../../../components/ui/Drawer';
+import { Modal } from '../../../components/ui/Modal';
 import { Input } from '../../../components/ui/Input';
 import { IpAddressLookupInput } from '../../../components/ui/IpAddressLookupInput';
 import type { ExportHost } from '../../../lib/api/exports';
@@ -143,11 +143,11 @@ export function ExportEditDrawer(props: {
   const { t } = useI18n();
 
   return (
-    <Drawer
+    <Modal showCloseButton closeTestId="drawer.close"
       open={props.open}
       onClose={props.onClose}
       title={t('exports.update.title')}
-      width="lg"
+      size="lg"
       testId="exports.detail.edit.drawer"
       footer={(
         <div className="flex justify-end gap-2">
@@ -181,7 +181,7 @@ export function ExportEditDrawer(props: {
         ) : null}
         <ExportEditReview diff={props.diff} invalidThreads={props.invalidThreads} />
       </div>
-    </Drawer>
+    </Modal>
   );
 }
 
@@ -200,11 +200,11 @@ export function ExportHostEditorDrawer(props: {
   const { t } = useI18n();
 
   return (
-    <Drawer
+    <Modal showCloseButton closeTestId="drawer.close"
       open={props.open}
       onClose={props.onClose}
       title={props.editingHost ? t('exports.host.edit_title') : t('exports.host.add_title')}
-      width="lg"
+      size="lg"
       testId="exports.detail.host.editor"
       footer={(
         <div className="flex justify-end gap-2">
@@ -241,6 +241,6 @@ export function ExportHostEditorDrawer(props: {
         </div>
         <HostEditReview editingHost={props.editingHost} form={props.form} diff={props.diff} />
       </div>
-    </Drawer>
+    </Modal>
   );
 }

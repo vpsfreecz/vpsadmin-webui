@@ -28,7 +28,7 @@ import { Badge } from '../../../components/ui/Badge';
 import { Button } from '../../../components/ui/Button';
 import { Card } from '../../../components/ui/Card';
 import { CopyButton } from '../../../components/ui/CopyButton';
-import { Drawer } from '../../../components/ui/Drawer';
+import { Modal } from '../../../components/ui/Modal';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { ErrorState } from '../../../components/ui/ErrorState';
 import { FilterChip } from '../../../components/ui/FilterChip';
@@ -946,7 +946,7 @@ export function DnsZonesPage() {
         footnote={t('dns.zones.smart_help.footnote')}
       />
 
-      <Drawer open={advancedOpen} onClose={() => setAdvancedOpen(false)} title={t('filters.advanced.title')} width="md">
+      <Modal showCloseButton closeTestId="drawer.close" open={advancedOpen} onClose={() => setAdvancedOpen(false)} title={t('filters.advanced.title')} size="md">
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium">{t('dns.zones.advanced.q.label')}</label>
@@ -1054,7 +1054,7 @@ export function DnsZonesPage() {
             {t('dns.zones.advanced.note')}
           </div>
         </div>
-      </Drawer>
+      </Modal>
 
       <DnsZoneCreateModal
         mode={mode}

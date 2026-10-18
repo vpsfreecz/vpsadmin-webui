@@ -597,6 +597,15 @@ Source inspection and synthetic browser regressions cover these contracts.
 They do not establish the cause of a specific production user's intermittent
 result without that user's mode/request trace, nor certify a live API release.
 
+### Centered form and filter presentation
+
+REQ-010: user-data create/edit/deploy, export/host editing, member editing,
+namespace-map creation and all advanced filters open centered dialogs. Template
+actions remain reachable in a non-scrolling footer, including with reduced
+viewport height. Ordinary mobile navigation and the Tasks/history side panels
+retain their distinct purpose. Validation, submissions, URL-backed filters and
+uncertain-outcome locks are unchanged. [Verification and limits](../work-log/2026-10-17-centered-form-dialogs.md).
+
 ### Deferred overlay focus
 
 When a modal or drawer opens, its delayed initial-focus callback preserves any

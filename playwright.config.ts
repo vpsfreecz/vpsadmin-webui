@@ -57,6 +57,8 @@ export default defineConfig({
       testMatch: [
         '**/about.spec.ts',
         '**/sidebar_status.spec.ts',
+        '**/profile_user_data.spec.ts',
+        '**/centered_dialogs.spec.ts',
         '**/export_hosts_responsive_actions.spec.ts',
         '**/exports_filter_contract.spec.ts',
         '**/vps_initialization_templates.spec.ts',

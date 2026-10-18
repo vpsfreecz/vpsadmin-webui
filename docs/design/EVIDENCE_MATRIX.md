@@ -29,7 +29,7 @@ Not every test file in this matrix necessarily ran in that PR-selected browser r
 | REQ-007 | [Token/session races](../../bff/README.md) | Refresh/logout serialization and single-process store boundary | BFF tests and source; no multi-worker guarantee |
 | REQ-008 | [Page outline/focus](../../e2e/specs/app/route_focus_navigation.spec.ts) | Route/skip focus and preserved keyboard indicators | Delivered per PR506 |
 | REQ-009 | [Locale/theme](../../e2e/specs/public/theme_language_bootstrap.spec.ts) | cs/en and anonymous theme bootstrap | Fixture evidence; complete contrast audit not recorded |
-| REQ-010 | [Responsive accessibility](../../e2e/specs/app/modal_focus_trap.spec.ts) | Focus trap/restore; separately check mobile overflow | Partial coverage; toast overlap gate open |
+| REQ-010 | [Responsive accessibility](../../e2e/specs/app/modal_focus_trap.spec.ts) | Focus trap/restore; [centered form/filter geometry and touch verification](../work-log/2026-10-17-centered-form-dialogs.md); mobile overflow | Partial coverage; toast overlap gate open |
 | REQ-011 | [Rejected vs uncertain writes](../../e2e/specs/admin/requests_operations_smoke.spec.ts) | Known rejection retains form; ambiguous mutation locks retry | Exact scenario titles in critical-case table below |
 | REQ-012 | [Async receipts](../../e2e/specs/app/action_state_detail_page.spec.ts) | Identity/progress and accepted vs completed | Fixture/source; completed real task evidence separate |
 | REQ-013 | [Route identity](../../e2e/specs/app/detail_route_param_isolation.spec.ts) | Change ID/back/reload without stale draft | Fixture coverage |

@@ -8,7 +8,7 @@ import { tableVariantFromBadgeVariant } from '../../../lib/variantMap';
 import { FilterBar } from '../../../components/layout/FilterBar';
 import { Button } from '../../../components/ui/Button';
 import { CopyButton } from '../../../components/ui/CopyButton';
-import { Drawer } from '../../../components/ui/Drawer';
+import { Modal } from '../../../components/ui/Modal';
 import { FilterChip } from '../../../components/ui/FilterChip';
 import { Input } from '../../../components/ui/Input';
 import { Select } from '../../../components/ui/Select';
@@ -249,11 +249,12 @@ export function RequestsFilters(props: {
         </div>
       ) : null}
 
-      <Drawer
+      <Modal
+        showCloseButton
         open={props.advancedOpen}
         onClose={() => props.setAdvancedOpen(false)}
         title={t('filters.advanced.title')}
-        width="lg"
+        size="lg"
         testId="admin.requests.advanced_filters"
         closeTestId="admin.requests.advanced.close"
         footer={(
@@ -331,7 +332,7 @@ export function RequestsFilters(props: {
             />
           </div>
         </div>
-      </Drawer>
+      </Modal>
     </div>
   );
 }

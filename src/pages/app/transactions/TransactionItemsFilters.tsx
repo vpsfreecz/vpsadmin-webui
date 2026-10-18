@@ -4,7 +4,7 @@ import { CircleHelp, SlidersHorizontal } from 'lucide-react';
 import { FilterBar } from '../../../components/layout/FilterBar';
 import { Button } from '../../../components/ui/Button';
 import { CopyButton } from '../../../components/ui/CopyButton';
-import { Drawer } from '../../../components/ui/Drawer';
+import { Modal } from '../../../components/ui/Modal';
 import { Input } from '../../../components/ui/Input';
 import { Select } from '../../../components/ui/Select';
 import { SmartFilterInput, type SmartFilterSuggestion } from '../../../components/ui/SmartFilterInput';
@@ -193,11 +193,11 @@ export function TransactionItemsFilters({
         keyRowTestIdPrefix="transactions.items.smart_filter.help.key"
       />
 
-      <Drawer
+      <Modal showCloseButton closeTestId="drawer.close"
         open={advancedOpen}
         onClose={onAdvancedClose}
         title={t('filters.advanced.title')}
-        width="lg"
+        size="lg"
         testId="transactions.items.advanced.drawer"
         footer={
           <div className="flex items-center justify-end gap-2">
@@ -319,7 +319,7 @@ export function TransactionItemsFilters({
             </div>
           </div>
         </div>
-      </Drawer>
+      </Modal>
     </>
   );
 }

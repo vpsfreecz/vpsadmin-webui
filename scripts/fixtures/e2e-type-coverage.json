@@ -22,6 +22,7 @@
     "e2e/specs/app/admin_default_review_queue.spec.ts",
     "e2e/specs/app/admin_newslog.spec.ts",
     "e2e/specs/app/authenticated_home_smoke.spec.ts",
+    "e2e/specs/app/centered_dialogs.spec.ts",
     "e2e/specs/app/export_hosts_responsive_actions.spec.ts",
     "e2e/specs/app/exports_filter_contract.spec.ts",
     "e2e/specs/app/global_search_cold_start.spec.ts",

@@ -17,13 +17,12 @@ import { Badge } from '../../../../components/ui/Badge';
 import { Button } from '../../../../components/ui/Button';
 import { Checkbox } from '../../../../components/ui/Checkbox';
 import { CopyButton } from '../../../../components/ui/CopyButton';
-import { Drawer } from '../../../../components/ui/Drawer';
+import { Modal } from '../../../../components/ui/Modal';
 import { FilterChip } from '../../../../components/ui/FilterChip';
 import { EmptyState } from '../../../../components/ui/EmptyState';
 import { ErrorState } from '../../../../components/ui/ErrorState';
 import { Input } from '../../../../components/ui/Input';
 import { LoadingState } from '../../../../components/ui/LoadingState';
-import { Modal } from '../../../../components/ui/Modal';
 import { SmartFilterInput, type SmartFilterSuggestion } from '../../../../components/ui/SmartFilterInput';
 import { SmartInputHelp } from '../../../../components/ui/SmartInputHelp';
 import { Select } from '../../../../components/ui/Select';
@@ -402,11 +401,11 @@ export function MailboxesPage() {
             keyRowTestIdPrefix="admin.mailer.mailboxes.smart_help.key"
           />
 
-          <Drawer
+          <Modal showCloseButton closeTestId="drawer.close"
             open={advancedOpen}
             onClose={() => setAdvancedOpen(false)}
             title={t('filters.advanced.title')}
-            width="lg"
+            size="lg"
             testId="admin.mailer.mailboxes.advanced"
             footer={<div className='flex items-center justify-end gap-2'>{filtersActive ? <Button variant='secondary' size='sm' onClick={clearFilters}>{t('common.clear_filters')}</Button> : null}<Button variant='primary' size='sm' onClick={() => setAdvancedOpen(false)}>{t('common.close')}</Button></div>}
           >
@@ -439,7 +438,7 @@ export function MailboxesPage() {
                 </div>
               </div>
             </div>
-          </Drawer>
+          </Modal>
         </>
       }
     >
