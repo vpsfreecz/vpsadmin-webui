@@ -41,6 +41,11 @@ See the [admin-only news shortcut and browser evidence](docs/work-log/2026-10-19
 
 See the [verification-label work log](docs/work-log/2026-10-19-account-verification-label.md). Prepared for review; not deployed.
 
+## 2026-10-19 — Conditional swap in VPS resource overview
+
+See the [resource-card layout and verification](docs/work-log/2026-10-19-vps-resource-swap.md).
+Prepared for review; not merged or deployed.
+
 ## 2026-10-18 — Combined PR security review
 
 See the [non-draft ETNyx review and combined dev evidence](docs/work-log/2026-10-18-combined-pr-security-review.md). Local integration only; no upstream merge or shared release deployment.
