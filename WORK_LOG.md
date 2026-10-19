@@ -13,7 +13,7 @@ complete reconstruction of the project. Missing evidence is not a passing check.
 
 ## 2026-10-19 — Node inventory and maintenance
 
-See the [admin node overview, maintenance controls and verification](docs/work-log/2026-10-19-nodes-overview-maintenance.md). Prepared for PR review; no merge or deployment.
+See the [admin node overview, maintenance controls and verification](docs/work-log/2026-10-19-nodes-overview-maintenance.md). PR #70 also includes smaller icons and compact desktop action buttons after review. No merge or deployment.
 
 ## 2026-10-18 — Combined PR security review
 

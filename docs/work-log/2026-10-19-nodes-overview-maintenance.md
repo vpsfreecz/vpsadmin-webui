@@ -85,3 +85,19 @@ not production data or evidence of a deployed release.
 ![Mobile overview](../design/images/nodes-overview-mobile-webkit.png)
 ![Desktop maintenance](../design/images/nodes-maintenance-chromium.png)
 ![Mobile maintenance](../design/images/nodes-maintenance-mobile-webkit.png)
+
+## Review follow-up — compact actions
+
+The maintainer found the initial actions too large. Maintenance, VPS and labeled
+heatmap icons now use 16 px instead of 20 px. Desktop buttons are 28 px high
+with smaller text/padding and spacing, allowing Maintenance and VPS to share
+one line. Labels remain visible; mobile retains the shared 44 px touch target.
+The heatmap styling override is scoped to this inventory, and other callers
+retain their button sizing. Maintenance permissions and mutations are unchanged.
+
+Updated desktop and mobile screenshots above show synthetic fixtures. All
+24 existing maintenance browser checks passed again across desktop Chromium,
+mobile Chromium and mobile WebKit, including first-tap opening and lock/unlock.
+Typecheck, all 1,856 unit tests, production build, design-documentation audit,
+lint and scoped formatting also passed. The build retains the existing chunk-size
+warning. This is an update to PR #70, not a deployment.

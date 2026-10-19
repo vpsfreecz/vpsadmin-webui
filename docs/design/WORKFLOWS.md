@@ -646,7 +646,9 @@ existing authenticated overview so non-public infrastructure is visible too.
 Summary counts are scoped to the current page. The administrator can open node
 details, filtered VPS, copy the hostname, open configured heatmaps, or enable and
 disable maintenance directly. These row actions have visible labels in this
-inventory; other heatmap surfaces keep the icon-only action.
+inventory, with 16 px icons and compact 28 px desktop buttons. Maintenance and
+VPS share a row; touch targets retain the shared 44 px minimum. Other heatmap
+surfaces keep the icon-only action.
 
 Maintenance opens a centered target-specific dialog with an optional reason.
 Inherited locks explain which parent must be managed instead. Permission, busy
