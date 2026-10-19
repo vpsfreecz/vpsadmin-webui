@@ -59,6 +59,7 @@
     "e2e/specs/app/vps_create_admin_flow.spec.ts",
     "e2e/specs/app/vps_create_failures.spec.ts",
     "e2e/specs/app/vps_creation_progress.spec.ts",
+    "e2e/specs/app/vps_detail_tabs_matrix.spec.ts",
     "e2e/specs/app/vps_expiration_reactivation.spec.ts",
     "e2e/specs/app/vps_header_system_summary.spec.ts",
     "e2e/specs/app/vps_initialization_templates.spec.ts",
@@ -1264,13 +1265,6 @@
     {
       "path": "e2e/specs/app/vps_access_page.spec.ts",
       "sha256": "e25512e18df0edd5e6407fefd9fffd14cb0f7edfb9ea5ec192e23881c0427feb",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/app/vps_detail_tabs_matrix.spec.ts",
-      "sha256": "41caf01ac8dd0283940b991edf04b9d47c86bb96ed87231e8c52d20b936ad9c2",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
