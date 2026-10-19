@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": [
+    "consumer.ts",
+    "browser.ts",
+    "browser.spec.ts",
+    "umd.spec.ts",
+    "vite.config.ts",
+    "playwright.config.ts",
+    "../../src/types/vpsadmin.d.ts"
+  ]
+}

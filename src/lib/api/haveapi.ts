@@ -1,7 +1,8 @@
 import { detectStaticUiLanguage, staticTForDocument } from '../staticI18n';
 import { recoverBffSession } from '../auth/bffSession';
 import { getRuntimeConfig } from '../../app/config';
-import { MALFORMED_HAVEAPI_ENVELOPE_ERROR_CODE, parseHaveApiEnvelope } from './haveapiEnvelope';
+import { MALFORMED_HAVEAPI_ENVELOPE_ERROR_CODE } from './haveapiEnvelope';
+import { fetchHaveApiTransport, type HaveApiTransport } from './haveapiTransport';
 
 export { MALFORMED_HAVEAPI_ENVELOPE_ERROR_CODE } from './haveapiEnvelope';
 export type JsonValue =
@@ -170,37 +171,6 @@ async function getHaveApiDescription(): Promise<any | undefined> {
 
 function getMetaNamespace(desc: any): string {
   return (desc && desc.meta && typeof desc.meta.namespace === 'string' && desc.meta.namespace) || '_meta';
-}
-
-function buildQuery(namespace: string, params: Record<string, unknown>): URLSearchParams {
-  const qs = new URLSearchParams();
-
-  for (const [k, v] of Object.entries(params)) {
-    if (v === undefined) continue;
-    if (v === null) {
-      qs.append(`${namespace}[${k}]`, '');
-      continue;
-    }
-
-    const t = typeof v;
-    if (t === 'string' || t === 'number' || t === 'boolean') {
-      qs.append(`${namespace}[${k}]`, String(v));
-      continue;
-    }
-
-    // HaveAPI query-string encoding is scalar. If you need structured data,
-    // send it as JSON body (POST/PUT/PATCH/DELETE) instead.
-    throw new HaveApiError(
-      {
-        status: false,
-        message: `Invalid query parameter ${namespace}[${k}] (must be string/number/boolean/null)`,
-        response: { key: k, value: v },
-      },
-      'Invalid query parameter'
-    );
-  }
-
-  return qs;
 }
 
 export function unwrapSingleResponse<T>(
@@ -402,114 +372,80 @@ function authHeaders(desc: any): Record<string, string> {
   return {};
 }
 
-export async function haveApiCall<T>(opts: CallOpts): Promise<{ data: T; meta?: Record<string, unknown>; envelope: HaveApiEnvelope }> {
-  const language = detectStaticUiLanguage(typeof document === 'undefined' ? undefined : document);
-  const desc = await getHaveApiDescription();
-  const cfg = getRuntimeConfig();
-  const metaNs = cfg.haveApi?.metaNamespace ?? getMetaNamespace(desc);
+export type HaveApiCall = <T>(opts: CallOpts) => Promise<{
+  data: T;
+  meta?: Record<string, unknown>;
+  envelope: HaveApiEnvelope;
+}>;
 
-  const method = opts.method ?? 'GET';
+/** Share session/result policy while selecting a request transport per consumer. */
+export function createHaveApiCall(transport: HaveApiTransport): HaveApiCall {
+  return async function call<T>(opts: CallOpts) {
+    const language = detectStaticUiLanguage(typeof document === 'undefined' ? undefined : document);
+    const desc = await getHaveApiDescription();
+    const cfg = getRuntimeConfig();
+    const metaNs = cfg.haveApi?.metaNamespace ?? getMetaNamespace(desc);
+    const method = opts.method ?? 'GET';
+    const paramsInQuery = method === 'GET' || method === 'OPTIONS';
+    const headers: Record<string, string> = {
+      Accept: 'application/json',
+      'Accept-Language': language,
+      ...authHeaders(desc),
+    };
+    const prepared = transport.prepare({ opts, baseUrl: cfg.apiBaseUrl, metaNamespace: metaNs });
+    const reqInfo: HaveApiRequestInfo = { method, path: opts.path, url: prepared.url };
 
-  let url = `${cfg.apiBaseUrl}${opts.path.startsWith('/') ? '' : '/'}${opts.path}`;
-
-  const ns = opts.namespace;
-  const qs = new URLSearchParams();
-
-  const paramsInQuery = method === 'GET' || method === 'OPTIONS';
-
-  if (paramsInQuery && ns && opts.params) {
-    for (const [k, v] of buildQuery(ns, opts.params).entries()) qs.append(k, v);
-  }
-
-  if (paramsInQuery && opts.meta) {
-    for (const [k, v] of buildQuery(metaNs, opts.meta).entries()) {
-      qs.append(k, v);
-    }
-  }
-
-  if ([...qs.keys()].length > 0) {
-    url += (url.includes('?') ? '&' : '?') + qs.toString();
-  }
-
-  const headers: Record<string, string> = {
-    Accept: 'application/json',
-    'Accept-Language': language,
-    ...authHeaders(desc),
-  };
-
-  const init: RequestInit = {
-    method,
-    headers,
-    // Match the legacy XHR client default: do not send cookies cross-origin.
-    credentials: 'same-origin',
-    signal: opts.signal,
-  };
-
-  if (!paramsInQuery) {
-    headers['Content-Type'] = 'application/json';
-
-    const body: Record<string, unknown> = {};
-
-    if (ns && opts.params) {
-      body[ns] = opts.params;
-    }
-
-    if (opts.meta) {
-      body[metaNs] = opts.meta;
-    }
-
-    init.body = JSON.stringify(body);
-  }
-
-  const reqInfo: HaveApiRequestInfo = {
-    method,
-    path: opts.path,
-    url,
-  };
-
-
-  let res = await fetch(url, init);
-  let envelope = res.status === 401 && !paramsInQuery ? await parseHaveApiEnvelope(res) : undefined;
-  const explicitRejection = !envelope || (envelope.status === false
-    && envelope.errors !== 'INVALID_JSON_RESPONSE'
-    && envelope.errors !== MALFORMED_HAVEAPI_ENVELOPE_ERROR_CODE);
-  // Recover only explicit HTTP authentication rejections. Never replay writes,
-  // network failures, 403s, or ambiguous HaveAPI status:false responses.
-  if (res.status === 401 && explicitRejection && cfg.auth.kind === 'oauth2') {
-    const recovered = await recoverBffSession(cfg.auth.accessToken);
-    opts.signal?.throwIfAborted();
-    if (recovered) {
-      if (!paramsInQuery) {
-        // Keep the editor mounted, but let the user explicitly submit again.
-        // This is no longer an expired session and must not trigger a redirect.
-        throw new Error(staticTForDocument(typeof document === 'undefined' ? undefined : document, 'errors.session_renewed_retry_action'));
+    let res = await prepared.send(headers);
+    let envelope = res.status === 401 && !paramsInQuery ? await res.readEnvelope() : undefined;
+    const explicitRejection =
+      !envelope ||
+      (envelope.status === false &&
+        envelope.errors !== 'INVALID_JSON_RESPONSE' &&
+        envelope.errors !== MALFORMED_HAVEAPI_ENVELOPE_ERROR_CODE);
+    // Recover only explicit HTTP authentication rejections. Never replay writes,
+    // network failures, 403s, or ambiguous HaveAPI status:false responses.
+    if (res.status === 401 && explicitRejection && cfg.auth.kind === 'oauth2') {
+      const recovered = await recoverBffSession(cfg.auth.accessToken);
+      opts.signal?.throwIfAborted();
+      if (recovered) {
+        if (!paramsInQuery) {
+          // Keep the editor mounted, but let the user explicitly submit again.
+          // This is no longer an expired session and must not trigger a redirect.
+          throw new Error(
+            staticTForDocument(
+              typeof document === 'undefined' ? undefined : document,
+              'errors.session_renewed_retry_action'
+            )
+          );
+        }
+        await res.cancel();
+        res = await prepared.send({ ...headers, ...authHeaders(desc) });
       }
-      await res.body?.cancel();
-      init.headers = { ...headers, ...authHeaders(desc) };
-      res = await fetch(url, init);
     }
-  }
-  envelope ??= await parseHaveApiEnvelope(res);
+    envelope ??= await res.readEnvelope();
 
-  if (!res.ok) {
-    // Some failures (e.g. 500) may still return JSON.
-    const err = new HaveApiError(envelope, `HTTP ${res.status}`, res.status, reqInfo);
-    notifySessionExpired(err);
-    throw err;
-  }
-
-  let unwrapped: { data: T; meta?: Record<string, unknown> };
-  try {
-    unwrapped = unwrapSingleResponse<T>(envelope, metaNs);
-  } catch (err: any) {
-    if (err instanceof HaveApiError) {
-      // HaveAPI can return {status:false} with HTTP 200.
-      // Attach request info to help support/debug without screenshots.
-      if (!err.request) err.request = reqInfo;
+    if (!res.ok) {
+      // Some failures (e.g. 500) may still return JSON.
+      const err = new HaveApiError(envelope, `HTTP ${res.status}`, res.status, reqInfo);
       notifySessionExpired(err);
+      throw err;
     }
-    throw err;
-  }
 
-  return { ...unwrapped, envelope };
+    let unwrapped: { data: T; meta?: Record<string, unknown> };
+    try {
+      unwrapped = unwrapSingleResponse<T>(envelope, metaNs);
+    } catch (err: any) {
+      if (err instanceof HaveApiError) {
+        // HaveAPI can return {status:false} with HTTP 200.
+        // Attach request info to help support/debug without screenshots.
+        if (!err.request) err.request = reqInfo;
+        notifySessionExpired(err);
+      }
+      throw err;
+    }
+
+    return { ...unwrapped, envelope };
+  };
 }
+
+export const haveApiCall: HaveApiCall = createHaveApiCall(fetchHaveApiTransport);

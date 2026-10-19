@@ -65,6 +65,13 @@ limit is omitted. See [model cases](../../src/pages/app/admin/nodes/NodeLifecycl
 Do not infer editability from the create form or silently add unsupported update
 fields when reorganizing the node page.
 
+## Candidate request-client compatibility
+
+The [packed HaveAPI pilot](HAVEAPI_PACKAGE_PILOT.md) preserves the existing WebUI
+result/session boundary through an injectable structural client. Production
+transport and dependencies remain unchanged. Its browser and declaration
+fixtures are synthetic package-fit evidence, not a backend or rollout contract.
+
 ## Pagination: known blockers
 
 For the locked vpsAdmin source `a65a4dfeb92a59df4a80a737a20bcbf8558793ff`

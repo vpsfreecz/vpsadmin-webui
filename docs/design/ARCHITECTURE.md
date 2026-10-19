@@ -35,7 +35,9 @@ flowchart LR
 - [HaveAPI client](../../src/lib/api/haveapi.ts) and typed domain adapters under
   `src/lib/api` translate requests/envelopes. React Query drives remote data and
   invalidation. Page-local models hold draft/review state; pure helpers are unit
-  tested. The [inventory](IMPLEMENTATION_INVENTORY.md) lists adapters and routes.
+  tested. An [injectable request-client pilot](HAVEAPI_PACKAGE_PILOT.md) shares the
+  existing session/result policy while production keeps its fetch transport.
+  The [inventory](IMPLEMENTATION_INVENTORY.md) lists adapters and routes.
 
 ## Authentication and session lifecycle
 

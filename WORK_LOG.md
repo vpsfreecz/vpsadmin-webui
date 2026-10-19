@@ -11,6 +11,10 @@ complete reconstruction of the project. Missing evidence is not a passing check.
 
 ## New changes
 
+## 2026-10-19 — Injectable HaveAPI package pilot
+
+See the [adapter boundary and isolated package proof](docs/work-log/2026-10-19-haveapi-package-pilot.md). Prepared for review; production transport and dependencies are unchanged.
+
 ## 2026-10-18 — Combined PR security review
 
 See the [non-draft ETNyx review and combined dev evidence](docs/work-log/2026-10-18-combined-pr-security-review.md). Local integration only; no upstream merge or shared release deployment.
