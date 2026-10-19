@@ -43,6 +43,9 @@ See the [payment help interaction and wording correction](docs/work-log/2026-10-
 ## 2026-10-18 — Expired VPS renewal and reactivation
 
 See the [frontend fix and live dev verification](docs/work-log/2026-10-18-vps-expiration-reactivation.md). Prepared for pull-request review; not merged or deployed.
+## 2026-10-19 — Complete snapshot NFS export shortcut
+
+See the [recovered implementation, single snapshot IDs and dev-origin verification](docs/work-log/2026-10-17-snapshot-export-shortcut.md). Prepared for PR review; not deployed.
 
 ## 2026-10-16 — About and payment-guidance release
 

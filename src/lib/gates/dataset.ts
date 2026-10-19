@@ -22,6 +22,7 @@ export type DatasetAction =
   | 'snapshot.create'
   | 'snapshot.rollback'
   | 'snapshot.delete'
+  | 'export.create'
   | 'download.create'
   | 'download.delete';
 
@@ -120,7 +121,8 @@ export function gateDatasetAction(
       action === 'dataset.create' ||
       action === 'dataset.delete' ||
       action === 'snapshot.rollback' ||
-      action === 'snapshot.delete'
+      action === 'snapshot.delete' ||
+      action === 'export.create'
     )
   ) {
     return deny({ titleKey: 'gate.blocked.permission.title', descriptionKey: 'gate.blocked.permission.body' });

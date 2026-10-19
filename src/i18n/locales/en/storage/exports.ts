@@ -1,6 +1,7 @@
 // Storage exports and NFS publication locale strings
 export const enStorageExports = {
   'exports.page.title': 'Exports',
+  'dataset.snapshots.export': 'NFS export',
   'exports.page.description': 'Manage NFS exports and allowed hosts.',
   'exports.page.load_error.title': 'Failed to load exports',
   'exports.empty.title': 'No exports found',

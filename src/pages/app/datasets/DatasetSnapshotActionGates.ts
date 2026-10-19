@@ -27,6 +27,7 @@ export function datasetSnapshotActionGates(args: {
 
   return {
     createGate: gateDatasetAction('snapshot.create', context),
+    exportGate: gateDatasetAction('export.create', { ...context, permission: ownerPermission }),
     downloadGate: gateDatasetAction('download.create', context),
     rollbackGate: gateDatasetAction('snapshot.rollback', {
       ...context,

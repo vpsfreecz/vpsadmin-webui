@@ -130,11 +130,11 @@ export function exportRowVariant(ex: ExportItem): 'ok' | 'warn' {
   return ex.enabled === false ? 'warn' : 'ok';
 }
 
-export function defaultCreateForm(datasetId: number | null): CreateExportFormState {
+export function defaultCreateForm(datasetId: number | null, snapshotId?: number): CreateExportFormState {
   return {
     datasetId: datasetId === null ? '' : String(datasetId),
-    sourceType: 'dataset',
-    snapshotId: '',
+    sourceType: snapshotId === undefined ? 'dataset' : 'snapshot',
+    snapshotId: snapshotId === undefined ? '' : String(snapshotId),
     allVps: true,
     rw: true,
     sync: true,

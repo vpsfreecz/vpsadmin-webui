@@ -7,7 +7,6 @@ import { useI18n } from '../../../app/i18n';
 import { useChrome } from '../../../components/layout/ChromeContext';
 import type { ManualMutationReconcileResult } from '../../../components/layout/MutationUncertaintyPanel';
 import { Alert } from '../../../components/ui/Alert';
-import { Badge } from '../../../components/ui/Badge';
 import { ActionButton } from '../../../components/ui/ActionButton';
 import { Button } from '../../../components/ui/Button';
 import { Card } from '../../../components/ui/Card';
@@ -46,6 +45,7 @@ import {
   DatasetDownloadStateBadge,
   datasetDownloadStatusHelp,
 } from './DatasetDownloadStatusView';
+import { DatasetSnapshotActions } from './DatasetSnapshotActions';
 import { datasetSnapshotActionGates } from './DatasetSnapshotActionGates';
 import {
   DatasetSnapshotConfirmDialog,
@@ -310,7 +310,7 @@ export function DatasetSnapshotsPage({ queryParamPrefix = '' }: DatasetSnapshots
 
   const busyLocal = [busyLocalLock, createSnap.isPending, rollbackSnap.isPending,
     deleteSnap.isPending, createDl.isPending, confirmBusy].some(Boolean);
-  const { createGate, downloadGate, rollbackGate, deleteGate } = datasetSnapshotActionGates({
+  const { createGate, downloadGate, exportGate, rollbackGate, deleteGate } = datasetSnapshotActionGates({
     dataset, role, userId: user?.id, busyLocal, busyTransaction,
     lockStateUnknown: chainsLoading || chainsError !== null || chainsStale,
   });
@@ -416,47 +416,26 @@ export function DatasetSnapshotsPage({ queryParamPrefix = '' }: DatasetSnapshots
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <div className="truncate text-base font-semibold text-fg">{String(s.name ?? t('common.na'))}</div>
-                        <div className="mt-0.5 text-xs text-faint">#{s.id}</div>
                         {s.label ? <div className="mt-1 text-sm text-muted">{String(s.label)}</div> : null}
                         <div className="mt-1 text-xs text-faint">
                           {t('dataset.snapshots.created_at', { dt: formatDateTime(s.created_at as any) })}
                         </div>
+                        <div className="mt-1 text-xs text-faint">#{s.id}</div>
                       </div>
-                      <Badge variant="neutral">#{s.id}</Badge>
                     </div>
 
                     <div className="mt-3 flex flex-wrap gap-2">
-                      <ActionButton
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => requestSnapshotDownload(s)}
-                        loading={pendingDownloadSnapshotId === s.id}
-                        disabled={createDl.isPending || !downloadGate.allowed}
-                        disabledReason={!downloadGate.allowed ? downloadGate.reason : undefined}
-                        testId={`dataset.snapshots.card.${s.id}.download`}
-                      >
-                        {t('common.download')}
-                      </ActionButton>
-                      <ActionButton
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => openConfirm({ kind: 'rollback', snapshot: s })}
-                        disabled={!rollbackGate.allowed}
-                        disabledReason={!rollbackGate.allowed ? rollbackGate.reason : undefined}
-                        testId={`dataset.snapshots.card.${s.id}.rollback`}
-                      >
-                        {t('common.rollback')}
-                      </ActionButton>
-                      <ActionButton
-                        size="sm"
-                        variant="danger"
-                        onClick={() => openConfirm({ kind: 'delete', snapshot: s })}
-                        disabled={!deleteGate.allowed}
-                        disabledReason={!deleteGate.allowed ? deleteGate.reason : undefined}
-                        testId={`dataset.snapshots.card.${s.id}.delete`}
-                      >
-                        {t('common.delete')}
-                      </ActionButton>
+                      <DatasetSnapshotActions
+                        datasetId={dataset.id}
+                        snapshot={s}
+                        gates={{ downloadGate, exportGate, rollbackGate, deleteGate }}
+                        downloadPending={createDl.isPending}
+                        downloadLoading={pendingDownloadSnapshotId === s.id}
+                        onDownload={() => requestSnapshotDownload(s)}
+                        onConfirm={(kind) => openConfirm({ kind, snapshot: s })}
+                        onExportCreated={() => { void snapsQ.refetch(); }}
+                        testId={`dataset.snapshots.card.${s.id}`}
+                      />
                     </div>
                   </div>
                 </Card>
@@ -488,46 +467,27 @@ export function DatasetSnapshotsPage({ queryParamPrefix = '' }: DatasetSnapshots
                       <tr key={s.id} className="border-t border-border" data-testid={`dataset.snapshots.row.${s.id}`}>
                         <td className="py-2 pl-4 pr-3">
                           <div className="font-medium text-fg">{String(s.name ?? t('common.na'))}</div>
-                          <div className="mt-1 text-xs text-faint">#{s.id}</div>
                         </td>
                         <td className="py-2 pr-3">
                           {s.label ? String(s.label) : <span className="text-faint">{t('common.na')}</span>}
                         </td>
-                        <td className="py-2 pr-3">{formatDateTime(s.created_at as any)}</td>
+                        <td className="py-2 pr-3">
+                          <div>{formatDateTime(s.created_at as any)}</div>
+                          <div className="mt-1 text-xs text-faint">#{s.id}</div>
+                        </td>
                         <td className="py-2 pr-4">
                           <div className="flex flex-wrap items-center gap-2">
-                            <ActionButton
-                              size="sm"
-                              variant="secondary"
-                              onClick={() => requestSnapshotDownload(s)}
-                              loading={pendingDownloadSnapshotId === s.id}
-                              disabled={createDl.isPending || !downloadGate.allowed}
-                              disabledReason={!downloadGate.allowed ? downloadGate.reason : undefined}
-                              testId={`dataset.snapshots.row.${s.id}.download`}
-                            >
-                              {t('common.download')}
-                            </ActionButton>
-                            <ActionButton
-                              size="sm"
-                              variant="secondary"
-                              onClick={() => openConfirm({ kind: 'rollback', snapshot: s })}
-                              disabled={!rollbackGate.allowed}
-                              disabledReason={!rollbackGate.allowed ? rollbackGate.reason : undefined}
-                              testId={`dataset.snapshots.row.${s.id}.rollback`}
-                            >
-                              {t('common.rollback')}
-                            </ActionButton>
-                            <ActionButton
-                              size="sm"
-                              variant="danger"
-                              onClick={() => openConfirm({ kind: 'delete', snapshot: s })}
-                              disabled={!deleteGate.allowed}
-                              disabledReason={!deleteGate.allowed ? deleteGate.reason : undefined}
-                              testId={`dataset.snapshots.row.${s.id}.delete`}
-                            >
-                              {t('common.delete')}
-                            </ActionButton>
-                            <Badge variant="neutral">#{s.id}</Badge>
+                            <DatasetSnapshotActions
+                              datasetId={dataset.id}
+                              snapshot={s}
+                              gates={{ downloadGate, exportGate, rollbackGate, deleteGate }}
+                              downloadPending={createDl.isPending}
+                              downloadLoading={pendingDownloadSnapshotId === s.id}
+                              onDownload={() => requestSnapshotDownload(s)}
+                              onConfirm={(kind) => openConfirm({ kind, snapshot: s })}
+                              onExportCreated={() => { void snapsQ.refetch(); }}
+                              testId={`dataset.snapshots.row.${s.id}`}
+                            />
                           </div>
                         </td>
                       </tr>

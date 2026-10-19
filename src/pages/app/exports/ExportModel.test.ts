@@ -42,6 +42,15 @@ const exportItem: ExportItem = {
 };
 
 describe('ExportModel', () => {
+  it('exports the preselected backup instead of the live dataset', () => {
+    const form = defaultCreateForm(4, 131);
+    expect(validateCreateExportForm(form, false).ok).toBe(true);
+    const payload = buildCreateExportPayload(form, false);
+    expect(payload.snapshot).toBe(131);
+    expect(payload.dataset).toBeUndefined();
+    expect(buildCreateExportPayload(defaultCreateForm(4), false).dataset).toBe(4);
+  });
+
   it('parses filter and form primitives defensively', () => {
     expect(parsePositiveInt('#0042')).toBe(42);
     expect(parsePositiveInt('42.9')).toBeNull();

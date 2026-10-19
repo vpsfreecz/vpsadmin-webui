@@ -1,6 +1,7 @@
 // Storage exports and NFS publication locale strings
 export const csStorageExports = {
   'exports.page.title': 'Exporty',
+  'dataset.snapshots.export': 'NFS export',
   'exports.page.description': 'Správa NFS exportů a povolených hostů.',
   'exports.page.load_error.title': 'Nepodařilo se načíst exporty',
   'exports.empty.title': 'Žádné exporty',

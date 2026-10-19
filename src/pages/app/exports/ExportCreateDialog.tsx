@@ -8,7 +8,7 @@ import { useI18n } from '../../../app/i18n';
 import { useObjectScope } from '../../../app/objectScope';
 import { useToasts } from '../../../app/toasts';
 import { useChrome } from '../../../components/layout/ChromeContext';
-import { fetchDataset, fetchDatasetSnapshots } from '../../../lib/api/datasets';
+import { fetchDataset, fetchDatasetSnapshots, type Snapshot } from '../../../lib/api/datasets';
 import { createExport } from '../../../lib/api/exports';
 import { getMetaActionStateId } from '../../../lib/api/haveapi';
 import { objectRef } from '../../../lib/objectRef';
@@ -38,6 +38,7 @@ export function ExportCreateDialog(props: {
   open: boolean;
   onClose: () => void;
   fixedDatasetId?: number;
+  initialSnapshot?: Snapshot;
   embedded?: boolean;
   onCreated?: () => void | Promise<void>;
 }) {
@@ -52,13 +53,15 @@ export function ExportCreateDialog(props: {
   const isAdminAccount = auth.role === 'admin';
   const requiresOwnDataset = isAdminAccount && mode === 'user';
   const requiredDatasetOwnerId = requiresOwnDataset ? scope.mineUserId : undefined;
-  const [form, setForm] = useState<CreateExportFormState>(() => defaultCreateForm(props.fixedDatasetId ?? null));
+  const [form, setForm] = useState<CreateExportFormState>(() =>
+    defaultCreateForm(props.fixedDatasetId ?? null, props.initialSnapshot?.id)
+  );
   const selectedDatasetId = parsePositiveInt(form.datasetId);
 
   useEffect(() => {
     if (!props.open) return;
-    setForm(defaultCreateForm(props.fixedDatasetId ?? null));
-  }, [props.fixedDatasetId, props.open]);
+    setForm(defaultCreateForm(props.fixedDatasetId ?? null, props.initialSnapshot?.id));
+  }, [props.fixedDatasetId, props.initialSnapshot?.id, props.open]);
 
   const selectedDatasetQ = useQuery({
     queryKey: ['datasets', 'show', selectedDatasetId, 'for_export_form'],
@@ -103,6 +106,14 @@ export function ExportCreateDialog(props: {
     },
     staleTime: 15_000,
   });
+
+  // A row selected on a later page may not be in the picker's first 100 results.
+  // Keep that exact source visible instead of silently falling back to live data.
+  const snapshots = snapshotsQ.data ?? [];
+  const snapshotChoices = props.initialSnapshot && selectedDatasetId === props.fixedDatasetId &&
+    !snapshots.some((snapshot) => snapshot.id === props.initialSnapshot?.id)
+    ? [props.initialSnapshot, ...snapshots]
+    : snapshots;
 
   const createM = useMutation({
     mutationFn: async (variables: ExportCreateMutationVariables) => {
@@ -176,7 +187,7 @@ export function ExportCreateDialog(props: {
       form={form}
       onFormChange={setForm}
       selectedDataset={selectedDatasetQ.data}
-      snapshots={snapshotsQ.data ?? []}
+      snapshots={snapshotChoices}
       datasetSelectionAllowed={datasetSelectionAllowed}
       datasetSelectionPending={datasetSelectionPending}
       datasetSelectionAlert={datasetSelectionAlert}

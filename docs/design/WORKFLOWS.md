@@ -214,6 +214,16 @@ heading, including the mount command. Long
 code lines may scroll inside their block without widening the page. Temporary
 snapshot exports continue to show only their temporary mount instructions.
 
+**Snapshot export shortcut:** snapshot rows/cards in Backup Center and dataset,
+VPS storage and NAS views offer NFS export beside Download. Each snapshot ID
+appears once beneath its creation date/time, never repeated beside the actions. An existing export
+opens its detail; otherwise a centered creation dialog starts with the exact
+dataset and snapshot selected. A snapshot outside the picker's first 100 results
+remains selectable. Opening/cancelling the dialog sends no mutation; explicit
+creation sends the snapshot ID rather than a live-dataset source. Ownership,
+lifecycle and pending-operation gates apply to creation. Existing export links
+remain available for inspection. This reuses the existing API contract.
+
 **Export owner navigation:** global administrators have a visible Export owner
 lookup next to the export-ID input. Numeric owner IDs filter directly; login
 suggestions resolve to exact owner IDs. Numeric export-ID input offers separate

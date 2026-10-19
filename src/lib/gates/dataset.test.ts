@@ -75,6 +75,20 @@ describe('gateDatasetAction', () => {
     expect(gateDatasetAction('snapshot.delete', { dataset: baseDataset, role: 'user' }).allowed).toBe(false);
   });
 
+  it('requires an active, owned, idle dataset to create a snapshot export', () => {
+    const context = { dataset: baseDataset, role: 'user' as const, permission: true };
+    expect(gateDatasetAction('export.create', context).allowed).toBe(true);
+    for (const override of [
+      { permission: false },
+      { permission: undefined },
+      { busyLocal: true },
+      { busyTransaction: true },
+      { dataset: { ...baseDataset, object_state: 'inactive' } },
+    ]) {
+      expect(gateDatasetAction('export.create', { ...context, ...override }).allowed).toBe(false);
+    }
+  });
+
   it('keeps API-visible download deletion available to regular users', () => {
     const r = gateDatasetAction('download.delete', { dataset: baseDataset, role: 'user' });
     expect(r.allowed).toBe(true);
