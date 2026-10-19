@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 import { expectNoDocumentHorizontalOverflow } from '../../helpers/horizontalOverflow';
 
@@ -122,4 +122,95 @@ test('@smoke @smoke-mobile VPS detail header shows the same usage badges as the 
     await expect(page.getByTestId('vps.header.runtime')).toBeVisible();
     await expectNoUsageBadges('vps.header');
   }
+});
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+async function installRecentFailureMock(page: Page, level: number, recentCreatedAt: string) {
+  const vps = {
+    id: 126, hostname: 'vps126.example.test', object_state: 'active', is_running: true, memory: 2048, used_memory: 512,
+    user: { id: 10, login: 'alice' },
+    node: { id: 1, domain_name: 'node1.example.test', location: { id: 2, label: 'Praha', remote_console_server: '/_console' } },
+  };
+  const recent = { id: 9101, label: 'Restart', state: 'fatal', created_at: recentCreatedAt, concerns: [['Vps', 126]] };
+  const old = { id: 9999, label: 'Clone', state: 'failed', created_at: '2022-08-18T14:18:25Z', concerns: [['Vps', 126]] };
+  const requests = { failureQueries: [] as string[], latestChainLists: 0 };
+  await installHaveApiMock(page, {
+    user: { id: 10, login: 'alice', level },
+    handlers: {
+      'GET vpses/126': () => ({ vps }),
+      'GET ip_addresses': () => ({ ip_addresses: [] }),
+      'GET vpses/126/statuses': () => ({ statuses: [] }),
+      'GET transaction_chains': ({ searchParams }) => {
+        const param = (name: string) => searchParams.get(`transaction_chain[${name}]`);
+        const state = param('state');
+        if (!state) {
+          requests.latestChainLists += 1;
+          return { transaction_chains: [] };
+        }
+        if (param('class_name') === 'Vps' && (state === 'failed' || state === 'fatal')) {
+          requests.failureQueries.push(`${state}:${param('row_id')}:${param('limit')}`);
+        }
+        return { transaction_chains: [recent, old].filter((chain) => chain.state === state) };
+      },
+      'GET transaction_chains/9101': () => ({ transaction_chain: recent }),
+      'GET transactions': () => ({ transactions: [] }),
+      'POST vpses/126/console_token': () => ({ token: 'T1', expiration: '2099-01-31T00:00:00Z' }),
+      'DELETE vpses/126/console_token': () => ({}),
+    },
+  });
+  return requests;
+}
+
+test('@smoke @smoke-mobile VPS detail header links a recent failure for a member and lets it age out', async ({ page }) => {
+  await page.clock.install();
+  await bootstrapVpsAdminWindow(page);
+  const requests = await installRecentFailureMock(page, 1, new Date(Date.now() - 7 * DAY_MS + 30_000).toISOString());
+
+  await page.goto('/app/vps/126');
+  const badge = page.getByTestId('vps.header.recent_failure');
+  await expect(badge).toBeVisible();
+  await expect(badge).toHaveText('Recent failed task #9101');
+  await expect(badge).toHaveAttribute('href', '/app/transactions/9101');
+  await expect(badge).toHaveAttribute('title', /^Failed task: Restart, created /);
+  expect([...requests.failureQueries].sort()).toEqual(['failed:126:1', 'fatal:126:1']);
+  await expectNoDocumentHorizontalOverflow(page);
+
+  const latestChainLists = requests.latestChainLists;
+  await page.clock.fastForward(10_000);
+  await expect.poll(() => requests.latestChainLists).toBeGreaterThan(latestChainLists);
+  expect(requests.failureQueries).toHaveLength(2);
+
+  await page.clock.fastForward(120_000);
+  await expect.poll(() => requests.failureQueries.length).toBe(4);
+  await expect(badge).toHaveCount(0);
+  await expect(page.getByTestId('vps.header.runtime')).toBeVisible();
+});
+
+test('@smoke @smoke-mobile VPS detail header failure badge keeps the admin path and opens with Enter', async ({ page }) => {
+  await bootstrapVpsAdminWindow(page);
+  await installRecentFailureMock(page, 99, new Date(Date.now() - 60 * 1000).toISOString());
+
+  await page.goto('/admin/vps/126');
+  const badge = page.getByTestId('vps.header.recent_failure');
+  await expect(badge).toHaveAttribute('href', '/admin/transactions/9101');
+  await badge.focus();
+  await page.keyboard.press('Enter');
+  await expect(page).toHaveURL(/\/admin\/transactions\/9101$/);
+});
+
+test('@smoke VPS console does not poll for recent failures', async ({ page }) => {
+  await page.clock.install();
+  await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+  await page.route('**/_console/**', (route) => route.fulfill({ status: 200, contentType: 'text/html', body: '<!doctype html><html><body>console stub</body></html>' }));
+  const requests = await installRecentFailureMock(page, 1, new Date(Date.now() - 60 * 1000).toISOString());
+
+  await page.goto('/app/vps/126/console');
+  await expect(page.getByTestId('vps.console.page')).toBeVisible();
+  await expect.poll(() => requests.latestChainLists).toBeGreaterThan(0);
+  const latestChainLists = requests.latestChainLists;
+  await page.clock.fastForward(20_000);
+  await expect.poll(() => requests.latestChainLists).toBeGreaterThan(latestChainLists);
+  expect(requests.failureQueries).toEqual([]);
+  await expect(page.getByTestId('vps.header.recent_failure')).toHaveCount(0);
 });
