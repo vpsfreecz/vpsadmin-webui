@@ -40,6 +40,7 @@ import { VpsCreationProgress } from './VpsCreationProgress';
 import { VpsActionsMenu, VpsTabsNav } from './VpsNavigation';
 import { VpsHeaderRuntime } from './VpsHeaderRuntime';
 import { VpsHeaderStateBadges } from './VpsHeaderStateBadges';
+import { useLatestRecentVpsFailure } from './useRecentVpsFailures';
 import { VpsConsoleControls } from './VpsConsoleControls';
 import { VpsHeaderActionDialogs, type VpsHeaderConfirm } from './VpsHeaderActionDialogs';
 export function VpsLayout() {
@@ -120,6 +121,8 @@ export function VpsLayout() {
     enabled: Number.isFinite(vpsId) && vpsId > 0,
     refetchInterval: tierARefetchMs,
   });
+  const isConsoleRoute = /\/console\/?$/.test(location.pathname);
+  const recentFailure = useLatestRecentVpsFailure(vpsId, tierBRefetchMs, !isConsoleRoute);
 
   const [confirm, setConfirm] = useState<VpsHeaderConfirm>(null);
   const [lastAction, setLastAction] = useState<
@@ -481,7 +484,7 @@ export function VpsLayout() {
         /> : null,
       }}
     >
-      <DetailShell banner={creationStatus} compact={/\/console\/?$/.test(location.pathname)}>
+      <DetailShell banner={creationStatus} compact={isConsoleRoute}>
         {/\/console\/?$/.test(location.pathname) ? (
           <div className="flex flex-wrap items-center justify-between gap-2" data-testid="vps.console.header">
             <div className="min-w-0 text-sm font-semibold [overflow-wrap:anywhere]">
@@ -515,6 +518,7 @@ export function VpsLayout() {
               busyTransaction={busyTransaction}
               busyLocalLock={busyLocalLock}
               activeChainIds={activeChainIds}
+              recentFailure={recentFailure}
             />
           }
           meta={

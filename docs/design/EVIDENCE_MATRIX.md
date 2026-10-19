@@ -1,7 +1,7 @@
 # Requirement evidence matrix
 
 Review baseline: UI/BFF `3f31fce5cd58f3ace204c27e917b85527bfc08c0`, 2026-10-03.
-This maps **all 73 register IDs**, including policy/non-runtime requirements. A
+This maps **all 75 register IDs**, including policy/non-runtime requirements. A
 verification entry is a reproducible review starting point, **not** proof that
 all acceptance criteria passed. A source link is not a test and a fixture does
 not establish API behavior. For broad requirements use the linked action catalog
@@ -93,7 +93,7 @@ Not every test file in this matrix necessarily ran in that PR-selected browser r
 | REQ-071 | [Network adapter tests](../../src/lib/api/networks.test.ts), [availability workflow](WORKFLOWS.md#network-availability) | Explicit false, optional authoritative counters, keyboard descriptions, distinct owned total, metadata capability, both toggle directions and retained errors | Synthetic unit/browser coverage; final-head execution and deployment evidence recorded separately |
 | REQ-072 | [About browser tests](../../e2e/specs/public/about.spec.ts), [build metadata](../../build/buildInfo.test.ts) | Public cs/en About, compact footer in member/admin/mobile navigation, loaded revision and unknown/modified states | Updated credit/source layout deployed as f2ad625d; [release evidence](../work-log/2026-10-16-about-payments-release.md) |
 | REQ-073 | [Filter bar alignment](../../e2e/specs/app/filter_bar_chip_alignment.spec.ts) | Controls stay beside the search field and chips render below them; long chips stay within the bar | Desktop/mobile fixture geometry for transaction chains and VPS list, long-chip overflow for VPS list; other lists share the component and were checked by source review only |
-| REQ-074 | [Recent failure unit tests](../../src/pages/app/vps/recentVpsFailures.test.ts), [VPS list row navigation](../../e2e/specs/app/vps_list_row_click.spec.ts) | 7-day window edge, old/undated chains dropped, expiry during failed refetches, newest chain per VPS, member/admin badge link, Enter activation and tooltip, old failure hidden | Synthetic unit and desktop/mobile fixture coverage; real API chain timestamps not certified |
+| REQ-074 | [Recent failure unit tests](../../src/pages/app/vps/recentVpsFailures.test.ts), [VPS list row navigation](../../e2e/specs/app/vps_list_row_click.spec.ts), [detail header](../../e2e/specs/app/vps_header_system_summary.spec.ts) | 7-day window edge, old/undated chains dropped, expiry during failed refetches, newest chain per VPS, member/admin badge link, Enter activation and tooltip, old failure hidden; detail header badge for a member and admin link, VPS-scoped query not repeated within 10 s, cached failure ageing out as the clock advances, no query on the console | Synthetic unit and desktop/mobile fixture coverage; real API chain timestamps not certified |
 | REQ-075 | [Header usage badges](../../e2e/specs/app/vps_header_system_summary.spec.ts), [usage rule unit tests](../../src/pages/app/vps/vpsListSemantics.test.ts) | Same RAM/Disk high badges and tones in list and detail header, none below 90 %, non-numeric values ignored | Synthetic unit and desktop/mobile fixture coverage; real API usage values not certified |
 
 ## Critical acceptance cases
