@@ -71,7 +71,7 @@ test('@smoke profile: MFA recovery readiness summary', async ({ page }) => {
   await expect(page.getByTestId('profile.mfa.recovery.ready')).toContainText('Recovery posture looks ready');
   await expect(page.getByTestId('profile.mfa.recovery.metrics')).toHaveCount(0);
   await expect(page.getByTestId('profile.mfa.recovery.checklist')).toHaveCount(0);
-  await expect(page.getByTestId('profile.mfa.known_devices.summary')).toContainText('Trusted for MFA');
+  await expect(page.getByTestId('profile.mfa.known_devices.summary')).toContainText('Trusted for two-step verification');
   await expect(page.getByTestId('profile.mfa.mfa_master.status')).toContainText('Active');
 });
 

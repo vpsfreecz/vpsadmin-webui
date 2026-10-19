@@ -43,6 +43,7 @@
     "e2e/specs/app/payment_qr_images.spec.ts",
     "e2e/specs/app/payments_page.spec.ts",
     "e2e/specs/app/profile_metrics_tokens.spec.ts",
+    "e2e/specs/app/profile_mfa_recovery.spec.ts",
     "e2e/specs/app/profile_owner_scope.spec.ts",
     "e2e/specs/app/profile_user_data.spec.ts",
     "e2e/specs/app/search_scope_reminder.spec.ts",
