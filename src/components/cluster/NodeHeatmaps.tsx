@@ -77,7 +77,7 @@ export function useNodeHeatmapsAvailable(nodes: HeatmapNode[]): boolean {
   return nodes.some((node) => nodeHeatmapUrl(baseUrl, node) !== null);
 }
 
-export function NodeHeatmapButton({ node }: { node: HeatmapNode }) {
+export function NodeHeatmapButton({ node, showLabel = false, className }: { node: HeatmapNode; showLabel?: boolean; className?: string }) {
   const { t } = useI18n();
   const { baseUrl, open } = useContext(Heatmaps);
   const url = nodeHeatmapUrl(baseUrl, node);
@@ -88,12 +88,14 @@ export function NodeHeatmapButton({ node }: { node: HeatmapNode }) {
     <Button
       variant="secondary"
       size="sm"
+      className={className}
       onClick={() => open(url, name)}
       title={t('nodes.heatmap.title', { node: name })}
       ariaLabel={t('nodes.heatmap.title', { node: name })}
       testId={`nodes.heatmap.open.${name}`}
     >
       <Grid2X2 className="h-4 w-4 text-accent" aria-hidden="true" />
+      {showLabel ? t('nodes.heatmap.action') : null}
     </Button>
   );
 }

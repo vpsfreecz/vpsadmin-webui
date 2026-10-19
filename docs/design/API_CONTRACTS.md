@@ -244,3 +244,22 @@ because that input is blacklisted and the API scopes results to the authenticate
 member. Query cache keys include owner and role; returned rows are additionally
 restricted to that owner. It does not send the unsupported `q` filter. Changing
 owner clears and invalidates the selected ID before submission.
+
+## Admin node overview and maintenance (REQ-028)
+
+The inventory keeps `/nodes` keyset pagination/state filters and enriches its rows
+by ID from admin-only `/nodes/overview_list`. Both calls are existing contracts;
+OverviewList has no cursor/filter parameters and returns active nodes. Inactive
+index entries retain their own fields. Public status remains a limited fallback,
+not the sole authority for authenticated metrics. Memory/ARC are MiB and uptime
+is seconds. Only administrators request the overview; support uses its permitted
+index and public status. A failed overview is visible without erasing the list.
+
+Maintenance checks OPTIONS `/nodes/:id/set_maintenance?method=POST` and exact
+`GET /nodes/:id` before confirmation and again before posting. Synchronous
+`POST /nodes/:id/set_maintenance` sends `node.lock` plus optional `node.reason`.
+No API change or synthetic task ID is needed. Unknown outcomes require exact
+read-back before another write. `master_lock` belongs to a parent resource and
+cannot be removed on the node. The frontend comparison detects stale state and
+reason, but cannot provide an atomic compare-and-swap guarantee absent from API.
+[Implementation, test scope and limitations](../work-log/2026-10-19-nodes-overview-maintenance.md).

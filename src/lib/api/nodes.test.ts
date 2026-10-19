@@ -11,6 +11,8 @@ import {
   fetchPool,
   fetchNodePools,
   fetchNodes,
+  fetchNodeOverview,
+  fetchNodeMaintenanceCapability,
   NodeCreateIndeterminateError,
   setPoolMaintenance,
 } from './nodes';
@@ -241,4 +243,20 @@ describe('nodes API wrappers', () => {
     expect(globalThis.fetch).toHaveBeenCalledTimes(4);
     expect(sleep).toHaveBeenCalledTimes(3);
   });
+});
+
+
+test('node overview uses the existing admin action without pagination and accepts cancellation', async () => {
+  const controller = new AbortController();
+  vi.stubGlobal('fetch', mockFetchOk({ nodes: [{ id: 5, status: true, vps_running: 0, maintenance_lock: 'no' }] }));
+  expect((await fetchNodeOverview(controller.signal)).data).toEqual([{ id: 5, status: true, vps_running: 0, maintenance_lock: 'no' }]);
+  const [url, init] = lastFetchCall();
+  expect(new URL(String(url)).pathname).toBe('/v7.0/nodes/overview_list');
+  expect(new URL(String(url)).search).toBe('');
+  expect(init?.signal).toBe(controller.signal);
+  await fetchNodeMaintenanceCapability(5);
+  const [capabilityUrl, capabilityInit] = lastFetchCall();
+  expect(new URL(String(capabilityUrl)).pathname).toBe('/v7.0/nodes/5/set_maintenance');
+  expect(new URL(String(capabilityUrl)).searchParams.get('method')).toBe('POST');
+  expect(capabilityInit?.method).toBe('OPTIONS');
 });

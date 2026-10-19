@@ -1,5 +1,18 @@
 // Admin locale chunk: nodes
 export const enAdmin_nodes = {
+  "admin.nodes.overview_unavailable": "Detailed node metrics are unavailable. Showing the available inventory and public status.",
+  "admin.nodes.maintenance.title": "Maintenance: {node}",
+  "admin.nodes.maintenance.action": "Maintenance",
+  "admin.nodes.maintenance.inherited": "Maintenance is inherited from the location or environment. Turn it off on that resource.",
+  "admin.nodes.maintenance.changed": "Maintenance changed since this dialog opened. Check the current state before confirming again.",
+  "admin.nodes.maintenance.unverified": "The maintenance result could not be verified. Refresh its state before another change.",
+  "admin.nodes.copy_hostname": "Copy hostname",
+  "admin.nodes.iowait": "I/O wait",
+  "admin.nodes.free_memory": "Free memory",
+  "admin.nodes.arc_size": "ARC size",
+  "admin.nodes.version": "vpsAdmin version",
+  "admin.nodes.cpu": "CPU / load",
+  "admin.nodes.system": "System",
   "nodes.heatmap.action": "Heatmap",
   "nodes.heatmap.title": "Heatmap · {node}",
   "nodes.heatmap.external": "Open in new tab",
@@ -54,6 +67,6 @@ export const enAdmin_nodes = {
   "admin.nodes.stats.scope_page": "on this page",
   "admin.nodes.stats.scope_total": "overall",
   "admin.nodes.stats.total": "Nodes",
-  "admin.nodes.subtitle": "Cluster nodes overview (admin). Health is sourced from public status and augmented with authenticated metadata when available.",
+  "admin.nodes.subtitle": "Health, operational metrics and maintenance of cluster nodes.",
   "admin.nodes.title": "Nodes",
 } as const;
