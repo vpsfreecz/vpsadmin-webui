@@ -261,16 +261,16 @@ export function AdminSecurityAdvisoriesPage() {
           {t('admin.security_advisories.empty.body')}
         </Alert>
       ) : (
-        <TableCard testId="admin.security_advisories.table" minWidth="xl">
+        <TableCard testId="admin.security_advisories.table" minWidth="lg" className="overflow-hidden">
           <thead>
-            <tr>
-              <th>{t('admin.security_advisories.table.advisory')}</th>
-              <th>{t('admin.security_advisories.table.state')}</th>
-              <th>{t('admin.security_advisories.table.published')}</th>
-              <th className="text-right">{t('admin.security_advisories.table.nodes')}</th>
-              <th className="text-right">{t('admin.security_advisories.table.users')}</th>
-              <th className="text-right">{t('admin.security_advisories.table.vps')}</th>
-              <th className="text-right">{t('common.actions')}</th>
+            <tr className="border-b border-border text-left text-xs text-muted">
+              <th className="min-w-64 px-4 py-3">{t('admin.security_advisories.table.advisory')}</th>
+              <th className="px-4 py-3">{t('admin.security_advisories.table.state')}</th>
+              <th className="px-4 py-3">{t('admin.security_advisories.table.published')}</th>
+              <th className="px-4 py-3 text-right">{t('admin.security_advisories.table.nodes')}</th>
+              <th className="px-4 py-3 text-right">{t('admin.security_advisories.table.users')}</th>
+              <th className="px-4 py-3 text-right">{t('admin.security_advisories.table.vps')}</th>
+              <th className="px-4 py-3 text-right">{t('common.actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -280,7 +280,7 @@ export function AdminSecurityAdvisoriesPage() {
               const advisoryState = String(advisory.state ?? 'draft');
               return (
                 <tr key={advisory.id} className="table-row-tone" data-testid={`admin.security_advisories.row.${advisory.id}`}>
-                  <td>
+                  <td className="px-4 py-3">
                     <Link to={`/admin/security-advisories/${advisory.id}`} className="font-semibold text-accent hover:underline">
                       {advisory.name || t('admin.security_advisories.fallback_title', { id: advisory.id })}
                     </Link>
@@ -289,12 +289,12 @@ export function AdminSecurityAdvisoriesPage() {
                     </div>
                     {summary ? <div className="mt-1 max-w-2xl text-xs text-muted">{summary}</div> : null}
                   </td>
-                  <td><Badge variant={stateBadgeVariant(advisoryState)}>{securityAdvisoryStateLabel(t, advisoryState)}</Badge></td>
-                  <td className="whitespace-nowrap text-sm text-muted">{advisory.published_at ? formatDateTime(advisory.published_at) : '—'}</td>
-                  <td className="text-right tabular-nums">{count(advisory.affected_node_count)}</td>
-                  <td className="text-right tabular-nums">{count(advisory.affected_user_count)}</td>
-                  <td className="text-right tabular-nums">{count(advisory.affected_vps_count)}</td>
-                  <td className="text-right">
+                  <td className="px-4 py-3"><Badge variant={stateBadgeVariant(advisoryState)}>{securityAdvisoryStateLabel(t, advisoryState)}</Badge></td>
+                  <td className="px-4 py-3 whitespace-nowrap text-sm text-muted">{advisory.published_at ? formatDateTime(advisory.published_at) : '—'}</td>
+                  <td className="px-4 py-3 text-right tabular-nums">{count(advisory.affected_node_count)}</td>
+                  <td className="px-4 py-3 text-right tabular-nums">{count(advisory.affected_user_count)}</td>
+                  <td className="px-4 py-3 text-right tabular-nums">{count(advisory.affected_vps_count)}</td>
+                  <td className="px-4 py-3 text-right">
                     <Button to={`/admin/security-advisories/${advisory.id}`} size="sm" variant="secondary">
                       {t('common.open')}
                     </Button>

@@ -11,6 +11,10 @@ complete reconstruction of the project. Missing evidence is not a passing check.
 
 ## New changes
 
+## 2026-10-20 — Security advisory table spacing
+
+See the [advisory table layout and verification](docs/work-log/2026-10-20-advisory-table-spacing.md). Prepared for review; not deployed.
+
 ## 2026-10-19 — Contributor-specific Git identity
 
 Removed the fixed maintainer name/email from shared agent and deployment
