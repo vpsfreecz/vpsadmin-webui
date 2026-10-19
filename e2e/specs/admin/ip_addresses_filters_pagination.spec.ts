@@ -76,11 +76,11 @@ test('admin IP addresses traverse ascending API pages and paginate loaded rows l
   await expect(routeAction).toHaveAttribute('aria-label', 'Assign to VPS');
   await expect(routeAction).toHaveAttribute('title', 'Assign to VPS');
   await expect(routeAction).toHaveAttribute('href', '/admin/ip-addresses/125#route');
-  await expect(editAction).toHaveText('Edit');
+  await expect(editAction).toHaveAttribute('aria-label', 'Edit');
   await expect(editAction).toHaveAttribute('href', '/admin/ip-addresses/125');
-  await expect(incidentsAction).toHaveText('Incidents');
+  await expect(incidentsAction).toHaveText('');
   await expect(routeAction).toBeVisible();
-  await expect(routeAction).toHaveText('Assign to VPS');
+  await expect(routeAction).toHaveText('');
   await expect(page.getByTestId('admin.ip_addresses.row.126.action.route')).toHaveAttribute('aria-label', 'Remove from VPS');
 
   const proofScreenshot = process.env['E2E_IP_ACTIONS_PROOF_SCREENSHOT']?.trim();
@@ -141,7 +141,7 @@ test('admin IP address cards keep compact actions on mobile', async ({ page }) =
   await expect(card).toBeVisible();
   await expect(card.getByTestId('admin.ip_addresses.card.125.action.incidents')).toHaveAttribute('aria-label', 'Incidents');
   await expect(card.getByTestId('admin.ip_addresses.card.125.action.route')).toHaveAttribute('aria-label', 'Remove from VPS');
-  await expect(card.getByTestId('admin.ip_addresses.card.125.action.edit')).toHaveText('Edit');
+  await expect(card.getByTestId('admin.ip_addresses.card.125.action.edit')).toHaveAttribute('aria-label', 'Edit');
 
   const proofScreenshot = process.env['E2E_IP_ACTIONS_MOBILE_PROOF_SCREENSHOT']?.trim();
   if (proofScreenshot) await page.screenshot({ path: proofScreenshot, fullPage: true });
@@ -447,7 +447,7 @@ test('@pr-smoke @pr-smoke-mobile admin IP address search distinguishes lookup fa
   await expect(page).not.toHaveURL(/(?:\?|&)user=/);
 });
 
-test('@pr-smoke @pr-smoke-mobile IP inventory keeps legacy IPv6 searchable and offers labeled actions on the first tap', async ({ page }, testInfo) => {
+test('@pr-smoke @pr-smoke-mobile IP inventory keeps legacy IPv6 searchable and offers compact icon actions on the first tap', async ({ page }, testInfo) => {
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
   const location = { id: 7, label: 'Brno', environment: { id: 1, label: 'Production' } };
   const network = { id: 10, ip_version: 6, address: '2001:db8::', prefix: 48, enabled: true, primary_location: location };
@@ -487,17 +487,32 @@ test('@pr-smoke @pr-smoke-mobile IP inventory keeps legacy IPv6 searchable and o
   const filtered = '/admin/networking/ip-addresses?version=6&prefix=128';
   await page.goto(filtered);
   await expect(page.getByTestId(`${prefix}.11`)).toContainText('2001:db8::9/128');
-  await expect(page.getByTestId(`${prefix}.11.action.incidents`)).toHaveText('Incidents');
-  await expect(page.getByTestId(`${prefix}.11.action.assignments`)).toHaveText('Assignment history');
+  await expect(page.getByTestId(`${prefix}.11.action.incidents`)).toHaveAttribute('aria-label', 'Incidents');
+  await expect(page.getByTestId(`${prefix}.11.action.assignments`)).toHaveAttribute('aria-label', 'Assignment history');
+  let previousBox: { x: number; y: number; width: number } | undefined;
   for (const action of ['incidents', 'assignments', 'edit', 'route']) {
     const target = page.getByTestId(`${prefix}.11.action.${action}`);
     await expect(target).toBeVisible();
-    if (mobile) expect((await target.boundingBox())?.height).toBeGreaterThanOrEqual(44);
+    await expect(target).toHaveText('');
+    const label = await target.getAttribute('aria-label');
+    expect(label).toBeTruthy();
+    await expect(target).toHaveAttribute('title', label!);
+    const box = (await target.boundingBox())!;
+    if (mobile) {
+      expect(box.height).toBeGreaterThanOrEqual(44);
+      expect(box.width).toBeGreaterThanOrEqual(44);
+    }
+    if (previousBox) {
+      expect(Math.abs(box.y - previousBox.y)).toBeLessThan(1);
+      expect(box.x).toBeGreaterThanOrEqual(previousBox.x + previousBox.width);
+      expect(box.x - previousBox.x - previousBox.width).toBeLessThanOrEqual(5);
+    }
+    previousBox = box;
   }
   const width = await page.evaluate(() => ({ full: document.documentElement.scrollWidth, viewport: innerWidth }));
   expect(width.full).toBeLessThanOrEqual(width.viewport + 1);
   const screenshot = process.env['E2E_IP_INVENTORY_SCREENSHOTS'];
-  if (screenshot) await page.screenshot({ path: `${screenshot}/${testInfo.project.name}.png`, fullPage: true });
+  if (screenshot) await page.getByTestId(mobile ? `${prefix}.11` : 'admin.ip_addresses.table').screenshot({ path: `${screenshot}/${testInfo.project.name}.png`, scale: 'css' });
   await tap(`${prefix}.11.action.edit`);
   await expect(page).toHaveURL(/\/ip-addresses\/11$/);
   for (const section of ['details', 'owner', 'hosts']) {
