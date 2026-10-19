@@ -60,6 +60,7 @@ export const enCommon_dashboard = {
   'dashboard.section.security.affected_nodes': '{count} nodes',
   'dashboard.section.security.affected_users_vps': '{users} users · {vps} VPS',
   'dashboard.section.security.no_cves': 'No CVE',
+  'dashboard.section.news.manage': 'Manage news',
   'dashboard.section.news.title': 'Event log and news',
   'dashboard.section.news.subtitle': 'Latest operational announcements',
   'dashboard.section.news.subtitle_compact': 'Latest announcements, trimmed to the essentials',

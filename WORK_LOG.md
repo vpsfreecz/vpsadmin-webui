@@ -32,6 +32,11 @@ See the [IP inventory change and verification](docs/work-log/2026-10-19-ip-inven
 
 See the [admin node overview, maintenance controls and verification](docs/work-log/2026-10-19-nodes-overview-maintenance.md). PR #70 also includes smaller icons and compact desktop action buttons after review. No merge or deployment.
 
+## 2026-10-19 — Dashboard news management shortcut
+
+Also clarify the News and help navigation label and remove the duplicate Cluster card.
+See the [admin-only news shortcut and browser evidence](docs/work-log/2026-10-19-news-management-shortcut.md). Prepared for review; not merged or deployed.
+
 ## 2026-10-18 — Combined PR security review
 
 See the [non-draft ETNyx review and combined dev evidence](docs/work-log/2026-10-18-combined-pr-security-review.md). Local integration only; no upstream merge or shared release deployment.

@@ -219,44 +219,25 @@ export function ClusterSummaryPage() {
         />
       </div>
 
-      <div className="grid gap-3 lg:grid-cols-2">
-        <Card testId="admin.cluster.summary.shortcuts.ops">
-          <CardHeader title={t('admin.cluster.summary.shortcuts.ops.title')} subtitle={t('admin.cluster.summary.shortcuts.ops.subtitle')} />
-          <CardBody>
-            <div className="flex flex-wrap gap-2">
-              <LinkButton to="/admin/outages" variant="secondary" size="sm">
-                {t('admin.cluster.summary.shortcuts.outages')}
-              </LinkButton>
-              <LinkButton to="/admin/monitoring" variant="secondary" size="sm">
-                {t('admin.cluster.summary.shortcuts.monitoring')}
-              </LinkButton>
-              <LinkButton to="/admin/incidents" variant="secondary" size="sm">
-                {t('admin.cluster.summary.shortcuts.incidents')}
-              </LinkButton>
-              <LinkButton to="/admin/oom-reports" variant="secondary" size="sm">
-                {t('admin.cluster.summary.shortcuts.oom')}
-              </LinkButton>
-            </div>
-          </CardBody>
-        </Card>
-
-        <Card testId="admin.cluster.summary.shortcuts.content">
-          <CardHeader title={t('admin.cluster.summary.shortcuts.content.title')} subtitle={t('admin.cluster.summary.shortcuts.content.subtitle')} />
-          <CardBody>
-            <div className="flex flex-wrap gap-2">
-              <LinkButton to="/news" variant="secondary" size="sm">
-                {t('admin.cluster.summary.shortcuts.news_read')}
-              </LinkButton>
-              <LinkButton to="/admin/content/news" variant="secondary" size="sm">
-                {t('admin.cluster.summary.shortcuts.news_manage')}
-              </LinkButton>
-              <LinkButton to="/admin/content/help-boxes" variant="secondary" size="sm">
-                {t('admin.cluster.summary.shortcuts.help_boxes')}
-              </LinkButton>
-            </div>
-          </CardBody>
-        </Card>
-      </div>
+      <Card testId="admin.cluster.summary.shortcuts.ops">
+        <CardHeader title={t('admin.cluster.summary.shortcuts.ops.title')} subtitle={t('admin.cluster.summary.shortcuts.ops.subtitle')} />
+        <CardBody>
+          <div className="flex flex-wrap gap-2">
+            <LinkButton to="/admin/outages" variant="secondary" size="sm">
+              {t('admin.cluster.summary.shortcuts.outages')}
+            </LinkButton>
+            <LinkButton to="/admin/monitoring" variant="secondary" size="sm">
+              {t('admin.cluster.summary.shortcuts.monitoring')}
+            </LinkButton>
+            <LinkButton to="/admin/incidents" variant="secondary" size="sm">
+              {t('admin.cluster.summary.shortcuts.incidents')}
+            </LinkButton>
+            <LinkButton to="/admin/oom-reports" variant="secondary" size="sm">
+              {t('admin.cluster.summary.shortcuts.oom')}
+            </LinkButton>
+          </div>
+        </CardBody>
+      </Card>
 
       <ConfirmDialog
         open={confirmMode === 'lock'}

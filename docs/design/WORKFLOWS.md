@@ -72,6 +72,16 @@ and impersonation credentials. Retry repeats only the two bootstrap GETs, not
 an API mutation. [Routes](../../src/routes/router.tsx),
 [public adapter](../../src/lib/api/public.ts), [BFF docs](../../bff/README.md).
 
+**News management shortcut (REQ-053):** the authenticated dashboard keeps
+“All news” as a reading link to `/news`. Administrators in admin view also get
+a small “Manage news” action beside it, linking directly to `/admin/content/news`.
+It remains available when the widget is collapsed or empty. Members, support,
+and administrators in My view do not see it. Existing server permissions and
+editor behavior remain authoritative; the shortcut performs no write.
+The menu and destination heading are called “News and help” (“Novinky a nápovědy”).
+Cluster no longer repeats a content-shortcuts card; its operational shortcuts
+remain available in a full-width card. Existing news/help-box URLs remain stable.
+
 **News layout (REQ-054):** public `/news` uses one compact chronological list.
 On desktop the publication time sits beside the complete message; on narrow
 screens it sits above it. Short announcements do not get separate card headers

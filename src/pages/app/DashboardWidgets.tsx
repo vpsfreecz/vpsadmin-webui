@@ -1,3 +1,4 @@
+import { Pencil } from 'lucide-react';
 import { NodeHeatmapProvider } from '../../components/cluster/NodeHeatmaps';
 import { LinkButton } from '../../components/ui/LinkButton';
 import { Alert } from '../../components/ui/Alert';
@@ -58,6 +59,7 @@ export function DashboardWidgetGrid(props: {
     isError: boolean;
     items: NewsLog[];
     path: string;
+    managementPath?: string;
   };
   security: {
     isLoading: boolean;
@@ -172,6 +174,12 @@ export function DashboardWidgetGrid(props: {
                 <LinkButton to={props.news.path} variant="secondary" size="sm">
                   {t('dashboard.section.news.all')}
                 </LinkButton>
+                {props.news.managementPath ? (
+                  <LinkButton to={props.news.managementPath} variant="secondary" size="sm" testId="app.dashboard.news.manage">
+                    <Pencil className="h-4 w-4" aria-hidden="true" />
+                    {t('dashboard.section.news.manage')}
+                  </LinkButton>
+                ) : null}
               </>
             }
           />

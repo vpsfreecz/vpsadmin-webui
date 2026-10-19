@@ -60,6 +60,7 @@ export const csCommon_dashboard = {
   'dashboard.section.security.affected_nodes': '{count} nodů',
   'dashboard.section.security.affected_users_vps': '{users} uživatelů · {vps} VPS',
   'dashboard.section.security.no_cves': 'Bez CVE',
+  'dashboard.section.news.manage': 'Spravovat novinky',
   'dashboard.section.news.title': 'Event log a novinky',
   'dashboard.section.news.subtitle': 'Nejnovější provozní oznámení',
   'dashboard.section.news.subtitle_compact': 'Nejnovější oznámení, zkrácené na podstatné věci',

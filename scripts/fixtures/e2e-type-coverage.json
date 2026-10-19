@@ -11,6 +11,7 @@
     "e2e/fixtures/url.ts",
     "e2e/fixtures/vpsadmin-window.ts",
     "e2e/helpers/horizontalOverflow.ts",
+    "e2e/specs/admin/admin_dashboard.spec.ts",
     "e2e/specs/admin/cluster_resource_maintenance.spec.ts",
     "e2e/specs/admin/ip_addresses_empty_clear_filters.spec.ts",
     "e2e/specs/admin/ip_addresses_filters_pagination.spec.ts",
@@ -72,13 +73,6 @@
     {
       "path": "e2e/specs/admin/admin_content_delete_feedback.spec.ts",
       "sha256": "9ed63d15405d242c11cefb43c045c8e0f44cc77ae002201f47d9dd823b69d3b3",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/admin/admin_dashboard.spec.ts",
-      "sha256": "d30b4471caf7ab3b3c5de727005de164f52a0e9c2696e193800ab07b13ad2305",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
