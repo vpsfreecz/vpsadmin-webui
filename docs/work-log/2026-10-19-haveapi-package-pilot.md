@@ -116,3 +116,41 @@ refresh and changed-session behavior continue through the existing policy.
 This is not OAuth or BFF bootstrap certification. The application guard and
 authentication policy remain unchanged. Adapter fit and the final engine-version
 receipt still require a successful committed package proof.
+
+## Final fixture verification
+
+The final packed proof passed once against committed WebUI
+`1ef5b7b079366a94461d5d467d7f6d3969d98217` and HaveAPI
+`76f190f9561eabee3414919ddd26e62e48c43f58`. The pack-owner source receipt
+identifies the tested tarball by SHA-256:
+`6efa9263f79c999f1efa11014d4674b0cfb8bab07afb4dfaab6e93193040c123`.
+
+The installed generated declarations compiled and the minified Vite named-import
+fixture built. All seven browser cases passed without retries or skips:
+
+- Chromium 149.0.7827.55: four adapter cases covering serialization and action
+  receipts, same-session read refresh without write replay, changed-session
+  rejection, and pre-dispatch/in-flight abort; one ordinary UMD native-XHR case.
+- Firefox 151.0: the ordinary UMD callback/Promise native-XHR case.
+- WebKit 26.5: the same ordinary UMD callback/Promise native-XHR case.
+
+The run used Node 24.21.0, npm 11.19.0, TypeScript 5.9.3, Vite 7.3.5 and
+Playwright 1.61.0. The manifest and lockfile byte hashes stayed unchanged, as did
+all 407 installed baseline package names, versions and paths. A final readback
+confirmed those properties after the proof. Both source worktrees were clean at
+the tested heads and the candidate tarball hash was unchanged.
+
+Independent committed-deliverable review was completed and its findings resolved.
+The HaveAPI strict-context bridge then passed the affected general, architecture
+and risk review. The full HaveAPI JavaScript/Ruby-server run passed at the tested
+head: 26 callback cases, 36 async cases, 11 resource units, both declaration
+consumers and 50 Mocha cases. The earlier full WebUI result remains applicable:
+301 files and 1,867 tests passed, followed by a successful production build.
+Normal application source is unchanged from that tested WebUI `e35f2720`; later
+corrections affect only the pilot runner, fixtures, tests and evidence.
+
+The adapter cases treat their synthetic BFF identity as already validated. They
+exercise the real session/retry policy, but do not certify OAuth exchange, BFF
+bootstrap, deployed API permissions or production readiness. Root dependencies,
+lockfiles, Nix inputs and the production fetch default remain unchanged. No
+package release, merge or deployment is claimed.
