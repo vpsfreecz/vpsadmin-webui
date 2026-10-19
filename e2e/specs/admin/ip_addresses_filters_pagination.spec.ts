@@ -344,6 +344,10 @@ test('@pr-smoke @pr-smoke-mobile admin IP address search keeps a newer URL filte
 
   let userLookupStarted = false;
   let userLookupFinished = false;
+  let releaseUserLookup!: () => void;
+  const userLookupGate = new Promise<void>((resolve) => {
+    releaseUserLookup = resolve;
+  });
   const ipRequests: Array<{ user: string | null; version: string | null }> = [];
   await installHaveApiMock(page, {
     user: { id: 1, login: 'admin', level: 100 },
@@ -351,7 +355,7 @@ test('@pr-smoke @pr-smoke-mobile admin IP address search keeps a newer URL filte
       'GET locations': () => ({ locations: [] }),
       'GET users': async () => {
         userLookupStarted = true;
-        await new Promise<void>((resolve) => setTimeout(resolve, 350));
+        await userLookupGate;
         userLookupFinished = true;
         return { users: [{ id: 48, login: 'base48', level: 1 }] };
       },
@@ -369,10 +373,16 @@ test('@pr-smoke @pr-smoke-mobile admin IP address search keeps a newer URL filte
   const input = page.getByTestId('admin.ip_addresses.smart_filter.input');
   await input.fill('base48');
   await input.press('Enter');
-  await expect.poll(() => userLookupStarted).toBe(true);
-
-  await page.getByTestId('admin.ip_addresses.quick.shortcut.ipv6').click();
-  await expect(page).toHaveURL(/(?:\?|&)version=6(?:&|$)/);
+  try {
+    await expect.poll(() => userLookupStarted).toBe(true);
+    // Keep the response pending until the newer filter has actually committed.
+    // A timer can finish before mobile WebKit delivers the click on a busy CI host.
+    await page.getByTestId('admin.ip_addresses.quick.shortcut.ipv6').click();
+    await expect(page).toHaveURL(/(?:\?|&)version=6(?:&|$)/);
+    expect(userLookupFinished).toBe(false);
+  } finally {
+    releaseUserLookup();
+  }
   await expect.poll(() => userLookupFinished).toBe(true);
 
   await expect(page).not.toHaveURL(/(?:\?|&)user=48(?:&|$)/);

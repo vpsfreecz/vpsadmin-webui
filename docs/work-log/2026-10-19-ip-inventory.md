@@ -83,3 +83,21 @@ lab inventory and the disposable test account (not production member data).
 Review branch: `dev/ip-inventory-actions`, based on main `7860521f3082`.
 Prepared for review; not merged or deployed. The shared dev and production
 releases remain unchanged.
+
+## CI follow-up — 2026-10-19
+
+The late-login-response regression used a 350 ms timer. On a slower mobile
+WebKit worker the lookup could finish before the filter click, so the test
+asserted stale-response behavior even though the response was not stale.
+A local reproduction with a 600 ms delay before the click produced the same
+CI failure; the unmodified case passed three local repetitions.
+
+Replace the timer with an explicit response gate released only after the new
+IPv6 URL filter commits. Assert that the lookup is still pending at that point
+and retain the URL, input and outgoing API-filter assertions. The gate releases
+in `finally` so a failed assertion does not leave the handler pending. Product
+code, timeouts and retry settings are unchanged.
+
+Validation: `npm run ci:quick` passed; all 22 applicable inventory browser tests
+passed across Chromium, mobile Chromium and mobile WebKit, with the existing
+two desktop-only pagination skips. No merge or deployment performed.
