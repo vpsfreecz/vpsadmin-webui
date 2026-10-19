@@ -36,3 +36,15 @@ with a WebUI commit. This does not certify production KB pages/screenshots.
 
 ![Desktop](../design/images/account-verification-desktop.png)
 ![Mobile WebKit](../design/images/account-verification-mobile.png)
+
+## CI follow-up — 2026-10-19
+
+The required CI gate rejected the edited recovery spec because it was still in
+its frozen deferred TypeScript inventory. Adopted that existing spec into the
+strict E2E project, removed its deferred entry, and updated both inventory count
+assertions (61 adopted, 202 deferred). No check or compiler option was relaxed.
+
+Validation: `npm run ci:quick`, 16 type-coverage guard tests and all six recovery
+browser cases across desktop/mobile Chromium passed. Changes only affect test
+coverage configuration; the account labels and authentication behavior are
+unchanged. GitHub checks will run on the updated PR head; no merge or deployment.
