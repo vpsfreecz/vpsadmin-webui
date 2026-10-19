@@ -157,6 +157,11 @@ export function VpsResourcesCard(props: {
   const { t } = useI18n();
   const cpu = usageValue(props.vps.cpu ?? props.vps['cpus']);
   const swap = usageValue(props.vps.swap);
+  const cpuIdle = props.vps.cpu_idle;
+  const cpuUsage = props.vps.is_running === true
+    && typeof cpuIdle === 'number' && Number.isFinite(cpuIdle) && cpuIdle >= 0 && cpuIdle <= 100
+    ? `${(100 - cpuIdle).toFixed(2)} %`
+    : '—';
   const resourceSearch = new URLSearchParams(props.contextSearch ?? '');
   resourceSearch.set('section', 'resources');
 
@@ -178,8 +183,8 @@ export function VpsResourcesCard(props: {
             value={cpu == null ? '—' : t('vps.list.resources.cpu', { count: cpu })}
           />
           <MiniStat
-            label={t('vps.control.resources.swap')}
-            value={swap == null ? '—' : formatMiB(swap)}
+            label={t('vps.header.cpu_usage')}
+            value={cpuUsage}
           />
         </div>
         <div className="space-y-4 text-sm">
@@ -189,12 +194,6 @@ export function VpsResourcesCard(props: {
             used={props.vps.used_memory}
             max={props.vps.memory}
           />
-          <ResourceUsage
-            testId="vps.overview.usage.disk"
-            label={t('vps.control.resources.disk')}
-            used={props.vps.used_diskspace}
-            max={props.vps.diskspace}
-          />
           {swap != null && swap > 0 ? (
             <ResourceUsage
               testId="vps.overview.usage.swap"
@@ -203,6 +202,12 @@ export function VpsResourcesCard(props: {
               max={swap}
             />
           ) : null}
+          <ResourceUsage
+            testId="vps.overview.usage.disk"
+            label={t('vps.control.resources.disk')}
+            used={props.vps.used_diskspace}
+            max={props.vps.diskspace}
+          />
         </div>
         {props.showRuntimeSummary ? (
           <div className="grid gap-3 border-t border-border pt-4 sm:grid-cols-2" data-testid="vps.overview.resources_usage.runtime">

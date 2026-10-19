@@ -89,6 +89,12 @@ distribution is a labeled metadata field after the administrator-visible owner,
 followed by node and location; members see the same distribution field. Unknown
 templates retain the unavailable marker instead of guessing a distribution.
 
+The overview resource card pairs allocated CPU with current CPU usage. Usage is
+shown only for a running VPS with a valid CPU idle measurement; otherwise it is
+unavailable. Memory and disk remain usage bars. Swap appears between them only
+when allocated capacity is positive, using the same usage-bar presentation. A
+zero or missing swap allocation does not occupy a summary tile or usage row.
+
 Creation shows `VPS` as a placeholder, so typing a custom hostname needs no
 manual deletion. Clearing the field or entering only
 whitespace also resolves to `VPS` in review, the API payload and outcome tracking.
