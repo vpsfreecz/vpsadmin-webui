@@ -64,14 +64,20 @@ behavior, read [the design handbook](docs/design/README.md), relevant rows in
 - Do not commit `dist/`, `assets/`, `.vite/`, `node_modules/`, credentials,
   generated auth files, or private server backups. Keep changes scoped and
   record meaningful work, decisions, checks and limits in `WORK_LOG.md`.
-- For this maintainer's commits, use `Michal Janoušek <kerry@kerrycze.net>`
-  for both author and committer. Before every commit, including generated
-  `confctl --commit` input bumps on the builder, verify `git var GIT_AUTHOR_IDENT`
-  and `git var GIT_COMMITTER_IDENT` in the actual checkout and execution context.
-  Do not rely on inferred root/hostname identities. On shared hosts, scope the
-  identity to the task worktree or command environment, never to root globally.
-  Preserve other contributors' authorship. Already published history must not be
-  rewritten without explicit authorization for the exact commits.
+- Use the contributor's own configured Git identity; this shared repository
+  does not prescribe a particular person's name or email. Do not replace a
+  valid identity with the repository maintainer's identity. Personal identity
+  configuration belongs in the contributor's Git configuration, not shared
+  agent instructions.
+- Before committing, including generated `confctl --commit` input bumps, verify
+  `git var GIT_AUTHOR_IDENT` and `git var GIT_COMMITTER_IDENT` in the actual
+  checkout and execution context. If identity is missing or inferred from a
+  shared root/hostname account, obtain the current contributor's intended
+  identity rather than guessing. On shared hosts, scope any required identity
+  configuration to the task worktree or command environment, never globally.
+- Preserve original authorship when applying another contributor's commits;
+  author and committer need not be the same person. Do not rewrite published
+  history without explicit authorization for the exact commits.
 - Before committing, check for a declared hook framework and run its hooks. Do
   not bypass a declared hook. Keep commits focused and document verification in
   the work log or review notes.

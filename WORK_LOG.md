@@ -11,6 +11,19 @@ complete reconstruction of the project. Missing evidence is not a passing check.
 
 ## New changes
 
+## 2026-10-19 — Contributor-specific Git identity
+
+Removed the fixed maintainer name/email from shared agent and deployment
+instructions. Each contributor uses their own configured Git identity; missing
+identity on a shared host must be resolved with that contributor, not guessed.
+Author and committer may differ when preserving another contributor's work.
+The earlier identity-correction log is explicitly historical. No Git settings,
+existing commits, application behavior or deployments were changed.
+
+Validation: documentation audit and diff whitespace check passed; active
+instructions were checked for fixed-person identity requirements. Prepared for
+review, not merged or deployed.
+
 ## 2026-10-18 — Combined PR security review
 
 See the [non-draft ETNyx review and combined dev evidence](docs/work-log/2026-10-18-combined-pr-security-review.md). Local integration only; no upstream merge or shared release deployment.

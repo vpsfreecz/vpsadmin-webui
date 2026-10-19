@@ -1,5 +1,9 @@
 # Deployment commit identity — 2026-10-16
 
+Historical record of one maintainer-specific correction, not a shared identity
+policy. The 2026-10-19 instruction update requires each contributor to use their
+own configured Git identity; preserve other contributors' original authorship.
+
 The maintainer reported that generated configuration commits were attributed to
 `System administrator <root@build.vpsfree.cz>`. The builder had no configured Git
 identity, so Git inferred the shared operating-system account. Local commits
