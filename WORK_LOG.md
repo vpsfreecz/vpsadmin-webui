@@ -24,6 +24,10 @@ Validation: documentation audit and diff whitespace check passed; active
 instructions were checked for fixed-person identity requirements. Prepared for
 review, not merged or deployed.
 
+## 2026-10-19 — Free IP suggestions and readable inventory actions
+
+See the [IP inventory change and verification](docs/work-log/2026-10-19-ip-inventory.md). Prepared for review; not deployed.
+
 ## 2026-10-18 — Combined PR security review
 
 See the [non-draft ETNyx review and combined dev evidence](docs/work-log/2026-10-18-combined-pr-security-review.md). Local integration only; no upstream merge or shared release deployment.

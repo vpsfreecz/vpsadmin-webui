@@ -13,7 +13,7 @@ import {
 } from './suggestedFreeIps';
 
 function ip(id: number, addr: string, extra: Partial<IpAddress> = {}): IpAddress {
-  return { id, addr, ...extra };
+  return { id, addr, prefix: addr.includes(':') ? 64 : 32, ...extra };
 }
 
 function locatedIp(id: number, addr: string, locationId: number, extra: Partial<IpAddress> = {}): IpAddress {
@@ -34,6 +34,18 @@ function location(id: number, label: string, environment: string): InfraLocation
 }
 
 describe('suggested free IP helpers', () => {
+  it('omits legacy host IPv6 and unknown prefixes only from suggestions', () => {
+    const items = [
+      ip(1, '2001:db8::9', { prefix: 128 }),
+      ip(2, '2001:db8:1::', { prefix: 64 }),
+      ip(3, '2001:db8:2::', { prefix: undefined }),
+      ip(4, '2001:db8:3::', { prefix: 64, user: { id: 7 } }),
+      ip(5, '192.0.2.1', { prefix: 32 }),
+    ];
+    expect(sampleSuggestedIps(items).map((item) => item.id)).toEqual([5, 2]);
+    expect(items).toHaveLength(5);
+  });
+
   it('keeps at most three public IPv4, private IPv4 and IPv6 addresses', () => {
     const items: IpAddress[] = [
       ...[1, 2, 3, 4].map((id) => ip(id, `37.205.10.${id}`)),
@@ -98,7 +110,7 @@ describe('suggested free IP helpers', () => {
       expect(plan.filter((query) => query.locationId === item.id)).toEqual([
         { locationId: item.id, version: 4, role: 'public_access' },
         { locationId: item.id, version: 4, role: 'private_access' },
-        { locationId: item.id, version: 6 },
+        { locationId: item.id, version: 6, prefix: 64 },
       ]);
     });
   });
@@ -127,13 +139,13 @@ describe('suggested free IP helpers', () => {
     expect(buildSuggestedIpQueryPlan(locations)).toEqual([
       { locationId: 3, version: 4, role: 'public_access' },
       { locationId: 3, version: 4, role: 'private_access' },
-      { locationId: 3, version: 6 },
+      { locationId: 3, version: 6, prefix: 64 },
       { locationId: 1, version: 4, role: 'public_access' },
       { locationId: 1, version: 4, role: 'private_access' },
-      { locationId: 1, version: 6 },
+      { locationId: 1, version: 6, prefix: 64 },
       { locationId: 2, version: 4, role: 'public_access' },
       { locationId: 2, version: 4, role: 'private_access' },
-      { locationId: 2, version: 6 },
+      { locationId: 2, version: 6, prefix: 64 },
     ]);
   });
 

@@ -1,9 +1,9 @@
 // Admin locale chunk: ip_addresses
 export const enAdmin_ip_addresses = {
-  "admin.ip_addresses.action.assign_route": "Assign route",
-  "admin.ip_addresses.action.assignments": "Assignments",
+  "admin.ip_addresses.action.assign_route": "Assign to VPS",
+  "admin.ip_addresses.action.assignments": "Assignment history",
   "admin.ip_addresses.action.incidents": "Incidents",
-  "admin.ip_addresses.action.unassign_route": "Remove route",
+  "admin.ip_addresses.action.unassign_route": "Remove from VPS",
   "admin.ip_addresses.advanced.addr": "Exact address",
   "admin.ip_addresses.advanced.addr.placeholder": "e.g. 192.0.2.10",
   "admin.ip_addresses.advanced.assigned": "Assigned to interface",
@@ -52,7 +52,7 @@ export const enAdmin_ip_addresses = {
   "admin.ip_addresses.quick.subnet.placeholder": "Pick an existing subnet…",
   "admin.ip_addresses.quick.unassigned": "Free addresses",
   "admin.ip_addresses.search.placeholder": "Search an IP address or exact user login…",
-  "admin.ip_addresses.suggested_free": "A sample of free IP addresses from available locations.",
+  "admin.ip_addresses.suggested_free": "A sample of free IPv4 addresses and IPv6 /64 blocks from available locations.",
   "admin.ip_addresses.suggested_loading": "Loading additional locations…",
   "admin.ip_addresses.suggested_partial_error": "Some address types could not be loaded.",
   "admin.ip_addresses.smart_help.examples.addr": "Filter by exact address (server-side)",

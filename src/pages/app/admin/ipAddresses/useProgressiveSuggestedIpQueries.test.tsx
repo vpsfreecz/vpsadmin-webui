@@ -47,7 +47,7 @@ const capabilityResult = () => {
   return { data, envelope: { status: true, response: data } };
 };
 const addressResult = (data: IpAddress[] = []) => ({ data, envelope: { status: true } });
-const suggestionKey = (location = 10) => ['ip_addresses', 'suggested_free', location, 4, 'public_access'];
+const suggestionKey = (location = 10) => ['ip_addresses', 'suggested_free', location, 4, 'public_access', 'any'];
 const capabilityKey = ['ip-address-index-capability'];
 async function advance(milliseconds = 0) {
   await act(async () => { await vi.advanceTimersByTimeAsync(milliseconds); });

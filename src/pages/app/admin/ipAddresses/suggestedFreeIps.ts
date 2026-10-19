@@ -3,6 +3,7 @@ import type { Location as InfraLocation } from '../../../../lib/api/infra';
 
 import {
   ipAddressText,
+  ipPrefix,
   isDefaultHiddenLegacyNetwork,
   isPrivateIp,
   isUnallocatedIp,
@@ -18,6 +19,7 @@ type SuggestedIpBucket = 'public4' | 'private4' | 'ipv6';
 export interface SuggestedIpQuery {
   locationId: number;
   version: 4 | 6;
+  prefix?: 64;
   role?: 'public_access' | 'private_access';
 }
 
@@ -104,8 +106,10 @@ export function selectSuggestedIpLocations(locations: InfraLocation[]): InfraLoc
  * Build one bounded API request for every visible location/address type.
  *
  * Filtering IPv4 by network role prevents public and private pools from
- * displacing each other in the API's ID-ordered result. IPv6 remains a single
- * bucket, matching the UI. The plan is location-major so the browser starts
+ * displacing each other in the API's ID-ordered result. IPv6 requests /64 blocks
+ * directly so legacy /128 records cannot fill the bounded response before usable
+ * blocks. Explicit inventory filters stay unchanged. The plan is location-major
+ * so the browser starts
  * Prague and Brno production requests first and can paint those rows while
  * lower-priority locations are still loading.
  */
@@ -113,7 +117,7 @@ export function buildSuggestedIpQueryPlan(locations: InfraLocation[]): Suggested
   return locations.flatMap((location) => [
     { locationId: location.id, version: 4 as const, role: 'public_access' as const },
     { locationId: location.id, version: 4 as const, role: 'private_access' as const },
-    { locationId: location.id, version: 6 as const },
+    { locationId: location.id, version: 6 as const, prefix: 64 as const },
   ]);
 }
 
@@ -134,6 +138,7 @@ function eligibleSuggestedIps(items: IpAddress[], locationId?: number): IpAddres
   return items
     .filter((ip) => !isDefaultHiddenLegacyNetwork(ip))
     .filter(isUnallocatedIp)
+    .filter((ip) => !ipAddressText(ip)?.includes(':') || ipPrefix(ip) === 64)
     .filter((ip) => locationId === undefined || primaryLocationId(ip) === locationId);
 }
 

@@ -64,7 +64,7 @@ export function IpAddressesListTable({ pageData, ipDetailBasePath, basePath, na,
     <TableCard
       className="hidden md:block"
       minWidth="lg"
-      tableClassName="table-fixed"
+      tableClassName="table-fixed [&_td]:break-words"
       tableTestId="admin.ip_addresses.table"
       footer={
         canPaginate ? (
@@ -86,15 +86,15 @@ export function IpAddressesListTable({ pageData, ipDetailBasePath, basePath, na,
     >
       <colgroup>
         <col style={{ width: '3%' }} />
-        <col style={{ width: '14%' }} />
-        <col style={{ width: '10%' }} />
+        <col style={{ width: '13%' }} />
+        <col style={{ width: '9%' }} />
         <col style={{ width: '8%' }} />
         <col style={{ width: '9%' }} />
         <col style={{ width: '9%' }} />
-        <col style={{ width: '9%' }} />
+        <col style={{ width: '7%' }} />
         <col style={{ width: '10%' }} />
-        <col style={{ width: '9%' }} />
-        <col style={{ width: '19%' }} />
+        <col style={{ width: '8%' }} />
+        <col style={{ width: '24%' }} />
       </colgroup>
       <thead>
         <tr className="border-b border-border text-left text-xs text-muted">

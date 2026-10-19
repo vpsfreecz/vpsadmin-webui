@@ -1,9 +1,9 @@
 // Admin locale chunk: ip_addresses
 export const csAdmin_ip_addresses = {
-  "admin.ip_addresses.action.assign_route": "Přiřadit routu",
-  "admin.ip_addresses.action.assignments": "Přiřazení",
+  "admin.ip_addresses.action.assign_route": "Přiřadit k VPS",
+  "admin.ip_addresses.action.assignments": "Historie přiřazení",
   "admin.ip_addresses.action.incidents": "Incidenty",
-  "admin.ip_addresses.action.unassign_route": "Odebrat routu",
+  "admin.ip_addresses.action.unassign_route": "Odebrat z VPS",
   "admin.ip_addresses.advanced.addr": "Přesná adresa",
   "admin.ip_addresses.advanced.addr.placeholder": "např. 192.0.2.10",
   "admin.ip_addresses.advanced.assigned": "Přiřazeno k rozhraní",
@@ -52,7 +52,7 @@ export const csAdmin_ip_addresses = {
   "admin.ip_addresses.quick.subnet.placeholder": "Vyber existující subnet…",
   "admin.ip_addresses.quick.unassigned": "Volné adresy",
   "admin.ip_addresses.search.placeholder": "Hledat IP adresu nebo přesný login uživatele…",
-  "admin.ip_addresses.suggested_free": "Ukázka volných IP adres z dostupných lokací.",
+  "admin.ip_addresses.suggested_free": "Ukázka volných IPv4 adres a IPv6 bloků /64 z dostupných lokací.",
   "admin.ip_addresses.suggested_loading": "Doplňují se další lokace…",
   "admin.ip_addresses.suggested_partial_error": "Některé typy adres se nepodařilo načíst.",
   "admin.ip_addresses.smart_help.examples.addr": "Filtrovat přesnou adresu (na serveru)",
