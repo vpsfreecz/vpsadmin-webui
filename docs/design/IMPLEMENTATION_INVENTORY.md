@@ -268,7 +268,7 @@ wrappers; page-level action guards and API authorization still apply.
 | `/admin/_design` | page/redirect | `<DesignSandboxPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/router.tsx) |
 | `/admin/*` | page/redirect | `<NotFoundPage appBasePath="/admin" />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/router.tsx) |
 
-## API adapter modules (64)
+## API adapter modules (66)
 
 Read these for request/response details. File presence does not prove that the deployed
 API implements every parameter; see [API contracts](API_CONTRACTS.md).
@@ -292,6 +292,8 @@ API implements every parameter; see [API contracts](API_CONTRACTS.md).
 - [finance.ts](../../src/lib/api/finance.ts)
 - [haveapi.ts](../../src/lib/api/haveapi.ts)
 - [haveapiEnvelope.ts](../../src/lib/api/haveapiEnvelope.ts)
+- [haveapiRequestClient.ts](../../src/lib/api/haveapiRequestClient.ts)
+- [haveapiTransport.ts](../../src/lib/api/haveapiTransport.ts)
 - [helpBoxes.ts](../../src/lib/api/helpBoxes.ts)
 - [incidents.ts](../../src/lib/api/incidents.ts)
 - [infra.ts](../../src/lib/api/infra.ts)

@@ -68,7 +68,8 @@
     "audit:i18n-structure": "node scripts/audit-i18n-structure.mjs",
     "docs:inventory": "node scripts/design-inventory.mjs --write",
     "audit:design-docs": "node scripts/audit-design-docs.mjs",
-    "e2e:touch:webkit": "npm run env:check && E2E_START_SERVER=1 node scripts/playwright.mjs test --project=mobile-webkit"
+    "e2e:touch:webkit": "npm run env:check && E2E_START_SERVER=1 node scripts/playwright.mjs test --project=mobile-webkit",
+    "test:haveapi-package": "node scripts/test-haveapi-package.mjs"
   },
   "keywords": [],
   "author": "",

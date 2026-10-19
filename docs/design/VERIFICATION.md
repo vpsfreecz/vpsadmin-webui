@@ -251,8 +251,8 @@ lead accepted the original 43 exceptions after matching their hashes against the
 recorded source revision `e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9`.
 The header and lifecycle power-control extractions reduced `VpsLayout.tsx` and
 `VpsLifecyclePage.tsx` below their historical line ceilings, so their two
-`grown-over-500` exceptions were removed. The remaining ledger has 41 accepted
-entries; their recorded hashes, metrics, allowances and baseline are unchanged.
+`grown-over-500` exceptions were removed. The HaveAPI transport extraction also
+resolves its `crossed-500` exception. Remaining entries retain their recorded hashes, metrics, allowances and baseline.
 Raw violations, proposed/accepted exceptions, unaccepted violations and invalid
 entries are separate report fields. A changed or deleted file, resolved rule, expired
 removal condition, changed allowance or unlisted new violation fails the audit;
@@ -267,6 +267,14 @@ production build, browser scripts, PR matrix and remote CI remain separate gates
 The structural audit passes for the accepted source bytes. Record the exact
 locked-toolchain quick gate and production build results for each candidate
 separately from this source audit.
+
+## Candidate HaveAPI package proof
+
+The [package pilot](HAVEAPI_PACKAGE_PILOT.md) documents the separate committed-ref
+runner, emitted-declaration check, Vite/Chromium adapter fixtures and three-engine
+UMD smoke. These candidate-dependent files are outside ordinary app compilation
+and tests. Run the long proof only after committed-deliverable review. The
+production dependency graph and default fetch transport do not change.
 
 ## Recorded release evidence (2026-09-27)
 

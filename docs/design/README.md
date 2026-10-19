@@ -76,6 +76,8 @@ intent; decisions explain transitions; test results prove only their stated scop
 - [Configuration and data](CONFIGURATION.md): precedence, all BFF settings, browser/server state and recovery limits.
 - [Failure diagnosis](TROUBLESHOOTING.md): symptoms, evidence boundaries and security-review map.
 
+- [HaveAPI package pilot](HAVEAPI_PACKAGE_PILOT.md): injectable transport contract and isolated candidate verification.
+
 ## Detailed review and handover
 
 - [Domain coverage](DOMAIN_COVERAGE.md): every API module mapped back to behavior, including helpers and non-adapter boundaries.
