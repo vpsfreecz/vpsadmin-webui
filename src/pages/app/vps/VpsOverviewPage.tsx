@@ -64,7 +64,6 @@ export function VpsOverviewPage() {
         basePath={basePath}
         contextSearch={detailContextSearch}
         className={isAdminView ? 'lg:col-span-6' : undefined}
-        showRuntimeSummary={isAdminView}
       />
 
       {!isAdminView ? (
