@@ -11,6 +11,11 @@ complete reconstruction of the project. Missing evidence is not a passing check.
 
 ## New changes
 
+## 2026-10-20 — Member soft-delete expiration suggestion
+
+See the [one-month default and verification](docs/work-log/2026-10-20-user-soft-delete-expiration.md).
+Prepared for review; no API change or deployment.
+
 ## 2026-10-20 — Approved three-site release
 
 PRs #77–#79 were merged through #80 and deployed as `1092ea48d20e` on all

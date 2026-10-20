@@ -82,9 +82,14 @@ export function makeEditDraft(user: Record<string, unknown>): EditUserDraft {
   };
 }
 
-export function softDeleteExpirationInput(): string {
-  const expiration = new Date();
+export function softDeleteExpirationInput(now = new Date()): string {
+  const expiration = new Date(now);
+  const day = expiration.getDate();
+  // Clamp month ends instead of letting January 31 overflow into March.
+  expiration.setDate(1);
   expiration.setMonth(expiration.getMonth() + 1);
+  const lastDay = new Date(expiration.getFullYear(), expiration.getMonth() + 1, 0).getDate();
+  expiration.setDate(Math.min(day, lastDay));
   expiration.setSeconds(0, 0);
   return dateToAdminDateTimeInput(expiration);
 }

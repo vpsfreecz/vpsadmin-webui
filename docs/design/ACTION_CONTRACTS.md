@@ -261,9 +261,11 @@ account; global administrator lookups must not substitute for that owner context
 suspended, soft_delete and hard_delete; deleted is displayed but disabled.
 Only changed object_state, expiration_date and remind_after_date are sent in
 PUT /users/{id}, plus trimmed change_reason when provided. Date inputs convert
-local time to ISO; clearing a date sends null. Selecting soft deletion fills an
-empty expiry with one calendar month from now; that UI suggestion is not a
-backend retention guarantee. Clearing expiry also clears the reminder input.
+local time to ISO; clearing a date sends null. Switching to soft deletion replaces any existing
+expiry with one calendar month from now, clamped to the last day of the target
+month and keeping local hour/minute. The administrator can edit that suggestion
+before saving; rendering, typing and reloading an already soft-deleted account
+do not reset it. This UI suggestion is not a backend retention guarantee. Clearing expiry also clears the reminder input.
 A transition away from active opens a target/state confirmation. Returned action
 state is tracked when present; a saved/queued receipt is not proof that all VPS
 and account side effects finished. State history uses /users/{id}/state_logs;
