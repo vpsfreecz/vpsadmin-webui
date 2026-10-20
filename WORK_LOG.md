@@ -11,6 +11,12 @@ complete reconstruction of the project. Missing evidence is not a passing check.
 
 ## New changes
 
+## 2026-10-20 — Approved three-site release
+
+PRs #77–#79 were merged through #80 and deployed as `1092ea48d20e` on all
+three instances. See the [release verification and limits](docs/work-log/2026-10-20-three-site-ui-release.md).
+The entries below retain their original preparation status as historical context.
+
 ## 2026-10-19 — Remove duplicate VPS runtime metrics
 
 See the [resource-summary change and verification](docs/work-log/2026-10-19-vps-resource-summary.md).
@@ -79,6 +85,7 @@ See the [payment help interaction and wording correction](docs/work-log/2026-10-
 ## 2026-10-18 — Expired VPS renewal and reactivation
 
 See the [frontend fix and live dev verification](docs/work-log/2026-10-18-vps-expiration-reactivation.md). Prepared for pull-request review; not merged or deployed.
+
 ## 2026-10-19 — Complete snapshot NFS export shortcut
 
 See the [recovered implementation, single snapshot IDs and dev-origin verification](docs/work-log/2026-10-17-snapshot-export-shortcut.md). Prepared for PR review; not deployed.
@@ -94,7 +101,6 @@ See the [release, CI repair and three-site verification record](docs/work-log/20
 ## 2026-10-16 — Eight-PR three-site release
 
 See the [release preparation and outcome record](docs/work-log/2026-10-16-three-site-release.md).
-
 
 Record new changes in separate files under [docs/work-log](docs/work-log/README.md)
 to avoid conflicts between concurrent PRs. Keep the historical entries below.
@@ -1178,9 +1184,9 @@ with its accessible name and tooltip.
 
 ## 2026-09-27 — Preferences, console, and deletion release
 
-*Retrospective entry from recorded release evidence, checked against GitHub on
+_Retrospective entry from recorded release evidence, checked against GitHub on
 2026-09-27. Deployment describes the completed release, not a continuous health
-or provenance guarantee.*
+or provenance guarantee._
 
 **Request:** merge, deploy and test the prepared fixes, including persistent dark
 mode, on dev.crucio.cz and clankerdev.vpsfree.cz.
