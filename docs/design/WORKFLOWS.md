@@ -595,6 +595,11 @@ intentionally blocked pending safe backend relation handling; translations and
 template-recipient membership have separate supported delete operations. See
 [the deletion boundary](ACTION_CONTRACTS.md#deliberately-blocked-mail-deletion).
 
+The admin advisory list uses padded cells and aligned column headings, including
+the first advisory column and the final action column. Numeric counts remain
+right-aligned. On narrow screens the table scrolls inside its card so all columns
+and the Open action stay reachable without widening the page.
+
 News creation and editing show Czech and English text together, independently of
 UI language. English is required by the existing API; an empty Czech translation
 falls back to English for readers. Editing loads explicit translation fields,

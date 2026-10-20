@@ -21,6 +21,10 @@ Prepared for review; not merged or deployed.
 See the [icon-only IP actions and verification](docs/work-log/2026-10-19-ip-actions-compact.md).
 Prepared for review; not merged or deployed.
 
+## 2026-10-20 — Security advisory table spacing
+
+See the [advisory table layout and verification](docs/work-log/2026-10-20-advisory-table-spacing.md). Prepared for review; not deployed.
+
 ## 2026-10-19 — Contributor-specific Git identity
 
 Removed the fixed maintainer name/email from shared agent and deployment
