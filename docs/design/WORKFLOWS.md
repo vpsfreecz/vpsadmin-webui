@@ -320,13 +320,15 @@ backend allocation rule. Explicit address, owner, VPS, network and prefix filter
 and direct detail URLs retain existing /128 and other prefixes, including larger
 blocks. IPv4 sampling is unchanged. The suggestion cache key includes the prefix.
 
-IP rows and mobile cards expose four labeled links, following the legacy UI:
+IP rows and mobile cards expose four icon-only links in a single compact row:
 Incidents, Assignment history, Edit, and Remove from VPS (Assign to VPS for an
 unassigned address). Incidents and history retain the exact IP filter. Edit
 opens the complete address detail with ownership and host addresses; the last
 link goes directly to its routing section and retains the existing confirmation
 before removal. Navigation never mutates an address. The controls use 20px icons,
-compact desktop buttons and at least 44px touch targets, with wrapping labels.
+compact desktop buttons and at least 44px touch targets. Localized tooltips and
+accessible names identify each action without visible text beside the icons.
+The desktop action column reserves only the width needed for those four controls.
 
 Free-IP suggestions have a 12-second budget per query, including capability
 discovery. A timed-out query shows the existing error or partial-results state

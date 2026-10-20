@@ -86,15 +86,15 @@ export function IpAddressesListTable({ pageData, ipDetailBasePath, basePath, na,
     >
       <colgroup>
         <col style={{ width: '3%' }} />
-        <col style={{ width: '13%' }} />
-        <col style={{ width: '9%' }} />
+        <col style={{ width: '17%' }} />
+        <col style={{ width: '12%' }} />
+        <col style={{ width: '11%' }} />
         <col style={{ width: '8%' }} />
-        <col style={{ width: '9%' }} />
-        <col style={{ width: '9%' }} />
+        <col style={{ width: '8%' }} />
         <col style={{ width: '7%' }} />
         <col style={{ width: '10%' }} />
-        <col style={{ width: '8%' }} />
-        <col style={{ width: '24%' }} />
+        <col style={{ width: '7%' }} />
+        <col className="w-41 [@media(any-pointer:coarse)]:w-49" />
       </colgroup>
       <thead>
         <tr className="border-b border-border text-left text-xs text-muted">

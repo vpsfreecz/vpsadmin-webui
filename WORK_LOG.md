@@ -16,6 +16,11 @@ complete reconstruction of the project. Missing evidence is not a passing check.
 See the [resource-summary change and verification](docs/work-log/2026-10-19-vps-resource-summary.md).
 Prepared for review; not merged or deployed.
 
+## 2026-10-19 — Compact IP inventory actions
+
+See the [icon-only IP actions and verification](docs/work-log/2026-10-19-ip-actions-compact.md).
+Prepared for review; not merged or deployed.
+
 ## 2026-10-19 — Contributor-specific Git identity
 
 Removed the fixed maintainer name/email from shared agent and deployment
