@@ -346,6 +346,13 @@ explicit false state. Existing rows, service links and actions remain visible.
 
 ## Account profile and user administration
 
+Administrator member editing uses a named Role select instead of a numeric
+privilege input. Choices match the legacy UI: User, Power User, Admin,
+Super Admin and Master Admin. An existing nonstandard level remains selectable
+as its current exact value; editing other fields must not silently change it.
+No role is chosen automatically if the API omitted the level. API authorization
+continues to decide whether a requested privilege change is allowed.
+
 The account and member-detail tabs label MFA as “Two-step verification”
 (“Dvoufázové ověření”). The page explains authenticator-app codes and passkeys;
 TOTP stays in the authenticator section title for technical discoverability.

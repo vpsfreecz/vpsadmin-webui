@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
+import { setUiSettingsLocalStorage } from '../../fixtures/uiSettings';
 import { expectNoDocumentHorizontalOverflow } from '../../helpers/horizontalOverflow';
 
 test('admin user detail: shows header and shortcut links', async ({ page }) => {
@@ -134,7 +135,7 @@ test('admin user detail: edit drawer saves safe account fields', async ({ page }
   await expect(page.getByText('Login will change')).toBeVisible();
   await page.getByTestId('admin.user.edit.full_name').fill('Alice Renamed');
   await page.getByTestId('admin.user.edit.email').fill('alice.renamed@example.test');
-  await page.getByTestId('admin.user.edit.level').fill('21');
+  await page.getByTestId('admin.user.edit.level').selectOption({ label: 'Admin' });
   await page.getByTestId('admin.user.edit.mailer_enabled').click();
   await page.getByTestId('admin.user.edit.address').fill('New street');
   await page.getByTestId('admin.user.edit.time_zone').selectOption('UTC');
@@ -510,5 +511,57 @@ for (const scenario of [
     await page.getByTestId('admin.user.mutation.acknowledge').click();
     await expect(page.getByTestId('admin.user.mutation.uncertain')).toHaveCount(0);
     await expect.poll(() => updateRequests).toBe(1);
+  });
+}
+
+for (const language of ['en', 'cs'] as const) {
+  test(`admin user detail: named roles preserve exact privilege levels (${language})`, async ({ page }, testInfo) => {
+    await bootstrapVpsAdminWindow(page);
+    await setUiSettingsLocalStorage(page, { language, theme: 'dark' });
+    const updates: unknown[] = [];
+    let user = { id: 42, login: 'alice', level: 100, full_name: 'Alice Example' };
+    await installHaveApiMock(page, {
+      user: { id: 1, login: 'admin', level: 100 },
+      handlers: {
+        'GET users/42': () => ({ user }),
+        'PUT users/42': ({ reqJson }) => {
+          const payload = (reqJson as { user: { level: number } }).user;
+          updates.push(payload);
+          user = { ...user, ...payload };
+          return { user };
+        },
+      },
+    });
+    await page.goto('/admin/users/42');
+    await page.getByTestId('admin.user.edit.open').click();
+    const role = page.getByTestId('admin.user.edit.level');
+    await expect(page.getByRole('combobox', { name: 'Role', exact: true })).toBeVisible();
+    await expect(role).toHaveValue('100');
+    await expect(role.locator('option:checked')).toHaveText(
+      language === 'cs' ? 'Stávající úroveň (100)' : 'Current level (100)'
+    );
+    await page.getByTestId('admin.user.edit.full_name').fill('Alice Updated');
+    await page.getByTestId('admin.user.edit.save').click();
+    await expect(page.getByTestId('admin.user.edit.drawer')).toHaveCount(0);
+    expect(updates.at(-1)).toMatchObject({ level: 100, full_name: 'Alice Updated' });
+
+    for (const [label, level] of [['User', 2], ['Power User', 3], ['Admin', 21], ['Super Admin', 90], ['Master Admin', 99]] as const) {
+      await page.getByTestId('admin.user.edit.open').click();
+      await role.selectOption({ label });
+      await expect(role).toHaveValue(String(level));
+      if (label === 'User') {
+        await expectNoDocumentHorizontalOverflow(page);
+        if (process.env['E2E_CAPTURE_SCREENSHOTS'] === '1') {
+          await page.screenshot({ path: `/tmp/webui-role-picker-${language}-${testInfo.project.name}.png` });
+        }
+      }
+      await page.getByTestId('admin.user.edit.save').click();
+      await expect(page.getByTestId('admin.user.edit.drawer')).toHaveCount(0);
+      expect(updates.at(-1)).toMatchObject({ level });
+      await page.getByTestId('admin.user.edit.open').click();
+      await expect(role).toHaveValue(String(level));
+      await expect(role.locator('option:checked')).toHaveText(label);
+      await page.getByTestId('admin.user.edit.drawer').getByRole('button', { name: language === 'cs' ? 'Zrušit' : 'Cancel', exact: true }).click();
+    }
   });
 }
