@@ -319,7 +319,14 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile VPS admin overview keeps each 
     'href',
     '/admin/vps/123/config?user=10&section=resources',
   );
-  await expect(page.getByTestId('vps.overview.resources_usage.runtime')).toBeVisible();
+  // Runtime diagnostics belong to the header, not the resource allocation card.
+  await expect(page.getByTestId('vps.header.runtime.uptime')).toContainText('3h 25m');
+  await expect(page.getByTestId('vps.header.runtime.load')).toContainText('0.12');
+  await expect(page.getByTestId('vps.header.runtime.cpu')).toBeVisible();
+  for (const label of ['Uptime', 'Load', 'CPU usage']) {
+    await expect(resources.getByText(label, { exact: true })).toHaveCount(0);
+  }
+  await expect(page.getByTestId('vps.overview.resources_usage.runtime')).toHaveCount(0);
   await expect(page.getByTestId('vps.overview.status_access.card')).toHaveCount(0);
   await expect(network).toBeVisible();
   await expect(network.getByRole('link', { name: 'Manage network' })).toHaveAttribute(

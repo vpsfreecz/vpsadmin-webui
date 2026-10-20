@@ -11,6 +11,11 @@ complete reconstruction of the project. Missing evidence is not a passing check.
 
 ## New changes
 
+## 2026-10-19 — Remove duplicate VPS runtime metrics
+
+See the [resource-summary change and verification](docs/work-log/2026-10-19-vps-resource-summary.md).
+Prepared for review; not merged or deployed.
+
 ## 2026-10-19 — Contributor-specific Git identity
 
 Removed the fixed maintainer name/email from shared agent and deployment

@@ -9,7 +9,7 @@ for (const language of ['cs', 'en'] as const) {
       await bootstrapVpsAdminWindow(page);
       const vps = {
         id: 123, hostname: 'vps123.example.test', object_state: 'active', is_running: true,
-        cpu: 2, memory: 2048, swap: 0, diskspace: 20480, used_memory: 768, used_diskspace: 5120,
+        cpu: 2, memory: 2048, swap: 0, used_swap: 256, diskspace: 20480, used_memory: 768, used_diskspace: 5120,
         uptime: 3026523, loadavg1: 0.06, loadavg5: 0.04, loadavg15: 0, process_count: 64, cpu_idle: 99.87,
         dataset: { id: 10, name: 'tank/data' },
         os_template: { id: 6, label: 'Debian 12' }, user: { id: 10, login: 'alice' },
@@ -37,6 +37,17 @@ for (const language of ['cs', 'en'] as const) {
       await expect(header.getByTestId('vps.header.runtime.load').locator('dd')).toHaveText('0.06 / 0.04 / 0.00');
       await expect(header.getByTestId('vps.header.runtime.processes').locator('dd')).toHaveText('64');
       await expect(header.getByTestId('vps.header.runtime.cpu').locator('dd')).toHaveText('0.13 %');
+      const resources = page.getByTestId('vps.overview.resources_usage.card');
+      await expect(resources).toContainText('2 CPU');
+      for (const label of language === 'cs'
+        ? ['Využití CPU', 'Doba běhu', 'Zátěž']
+        : ['CPU usage', 'Uptime', 'Load']) {
+        await expect(resources.getByText(label, { exact: true })).toHaveCount(0);
+      }
+      await expect(resources.getByTestId('vps.overview.usage.memory')).toBeVisible();
+      await expect(resources.getByTestId('vps.overview.usage.disk')).toBeVisible();
+      await expect(resources.getByTestId('vps.overview.usage.swap')).toHaveCount(0);
+      await resources.screenshot({ path: testInfo.outputPath(`vps-resources-${language}-${mode}.png`), scale: 'css' });
       const headerBox = await header.boundingBox();
       const runtimeBox = await header.getByTestId('vps.header.runtime').boundingBox();
       expect(runtimeBox!.width).toBeGreaterThan(headerBox!.width * 0.85);
@@ -51,6 +62,19 @@ for (const language of ['cs', 'en'] as const) {
       }
       await expectNoDocumentHorizontalOverflow(page);
       await header.screenshot({ path: testInfo.outputPath(`vps-header-${language}-${mode}.png`) });
+
+      // Assigned swap remains visible between memory and disk.
+      vps.swap = 1024;
+      await page.reload();
+      const swap = resources.getByTestId('vps.overview.usage.swap');
+      await expect(swap).toContainText('256 MiB / 1.0 GiB');
+      const memoryBox = await resources.getByTestId('vps.overview.usage.memory').boundingBox();
+      const swapBox = await swap.boundingBox();
+      const diskBox = await resources.getByTestId('vps.overview.usage.disk').boundingBox();
+      expect(swapBox!.y).toBeGreaterThan(memoryBox!.y);
+      expect(diskBox!.y).toBeGreaterThan(swapBox!.y);
+      await expectNoDocumentHorizontalOverflow(page);
+      await resources.screenshot({ path: testInfo.outputPath(`vps-resources-swap-${language}-${mode}.png`), scale: 'css' });
 
       // Metadata stays available after stopping; old live values must not.
       vps.is_running = false;
