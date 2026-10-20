@@ -57,3 +57,23 @@ Desktop:
 Mobile (scrollable modal body, fixed actions):
 
 ![Czech mobile role select](assets/user-role-picker-20261020/mobile.png)
+
+## CI follow-up
+
+PR #82 run `39420468451` failed in two script tests that hardcoded 68 adopted
+and 197 deferred E2E files. This change correctly adopted one more spec, making
+those counts 69 and 196. The initial local verification omitted `test:scripts`
+and `test:bff`; its unit/quick/build/browser passes did not cover this failure.
+
+The two repository-wide success cases now derive expected counts from the
+versioned inventory. The gate still checks exact compiler roots/import closure,
+source coverage, fixed initial roots and the immutable deferred baseline; the
+negative tests still reject omitted/changed/new sources. No audit is disabled
+or baseline relaxed. Full `ci:tests` and the fresh GitHub checks are required
+for this follow-up. No runtime behavior or deployment changes.
+
+Follow-up local verification: `ci:quick` passed; after installing the BFF
+production dependencies as CI does, `ci:tests` passed (226 script tests,
+57 BFF tests, 300 unit files / 1,859 tests). The first full local attempt
+identified missing local BFF dependencies; no source change was needed for that.
+Fresh remote CI remains to be observed after pushing the correction.
