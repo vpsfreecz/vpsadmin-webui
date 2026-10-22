@@ -11,11 +11,14 @@ complete reconstruction of the project. Missing evidence is not a passing check.
 
 ## New changes
 
-## 2026-10-23 — Approved member administration release candidate
+## 2026-10-23 — Completed member administration release
 
-PRs #81–#85 are approved for integration and three-site deployment once their
-checks pass. See the [candidate and verification record](docs/work-log/2026-10-23-three-site-release.md).
-Preparation only; merge and deployment outcomes will be recorded separately.
+PRs #81–#85 passed CI, were merged through #86 and deployed as `f7a8f10cbb94`
+on newadmin, clankerdev and dev. See the
+[release verification and limits](docs/work-log/2026-10-23-three-site-release.md)
+for Nix builds, live dev password/role/contact acceptance, the scoped missing-mail-
+template repair, public desktop/mobile checks and the single configuration pin.
+The preparation statuses below are retained as historical context.
 
 ## 2026-10-23 — PR #81 CI coverage-count correction
 
