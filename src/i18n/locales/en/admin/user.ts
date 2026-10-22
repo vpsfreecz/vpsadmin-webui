@@ -1,5 +1,16 @@
 // Admin locale chunk: user
 export const enAdmin_user = {
+  "admin.user.contacts.title": "Communication contacts",
+  "admin.user.contacts.account": "Account management",
+  "admin.user.contacts.admin": "System administrator",
+  "admin.user.contacts.custom": "Custom contact",
+  "admin.user.contacts.primary": "Primary email",
+  "admin.user.contacts.missing": "No contact",
+  "admin.user.contacts.not_set": "No contact address is configured.",
+  "admin.user.contacts.edit": "Edit in Email",
+  "admin.user.contacts.loading": "Loading contacts…",
+  "admin.user.contacts.error": "Could not load contact settings",
+  "admin.user.contacts.mail_disabled": "Email delivery is disabled for this account.",
   "admin.user.env_configs.badge.custom": "Custom",
   "admin.user.env_configs.badge.inherited": "Inherited",
   "admin.user.env_configs.empty": "No environment configs returned.",

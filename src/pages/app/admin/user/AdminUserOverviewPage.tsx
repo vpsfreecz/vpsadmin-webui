@@ -44,6 +44,7 @@ import {
   type EditUserDraft,
   type StateDraft,
 } from './AdminUserOverviewModel';
+import { AdminUserContactDetails } from './AdminUserContactDetails';
 import { canViewGlobalFinance } from '../FinanceGlobalAdminGate';
 
 const USER_STATE_OPTIONS = [
@@ -324,12 +325,7 @@ export function AdminUserOverviewPage() {
               <div className="text-xs text-muted">{t('admin.user.field.last_activity')}</div>
               <div className="text-sm">{u.last_activity_at ? formatDateTime(u.last_activity_at) : t('common.na')}</div>
             </div>
-            {u.address ? (
-              <div className="sm:col-span-2">
-                <div className="text-xs text-muted">{t('admin.user.field.address')}</div>
-                <div className="text-sm whitespace-pre-wrap">{u.address}</div>
-              </div>
-            ) : null}
+            <AdminUserContactDetails user={u} />
             {userInfo ? (
               <div className="sm:col-span-2">
                 <div className="text-xs text-muted">{t('admin.user.edit.field.info')}</div>

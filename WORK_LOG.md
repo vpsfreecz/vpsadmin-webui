@@ -11,6 +11,13 @@ complete reconstruction of the project. Missing evidence is not a passing check.
 
 ## New changes
 
+## 2026-10-22 — Member communication contacts
+
+Administrator member details display account-management and system-administrator
+mail contacts beneath the address, highlighting explicit recipients.
+See [implementation and checks](docs/work-log/2026-10-22-member-contact-summary.md).
+Prepared for review; not merged or deployed.
+
 ## 2026-10-20 — Approved three-site release
 
 PRs #77–#79 were merged through #80 and deployed as `1092ea48d20e` on all

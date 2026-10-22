@@ -25,6 +25,7 @@
     "e2e/specs/admin/nodes_overview_maintenance.spec.ts",
     "e2e/specs/admin/registration_reason_presets.spec.ts",
     "e2e/specs/admin/requests_operations_smoke.spec.ts",
+    "e2e/specs/admin/user_contact_summary.spec.ts",
     "e2e/specs/app/admin_default_review_queue.spec.ts",
     "e2e/specs/app/admin_newslog.spec.ts",
     "e2e/specs/app/authenticated_home_smoke.spec.ts",

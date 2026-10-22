@@ -318,10 +318,10 @@
       "path": "src/pages/app/admin/user/AdminUserOverviewPage.tsx",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "44bd339d778a5d8fcc377a9218cc5e170f7be1814bc18b6d35f3e0377b195a08",
+      "contentHash": "15ae6a46f1cd6a535c72a5c109a558d08c1777e7e8a6ca73c484a8905ab94ddd",
       "old": 0,
-      "allowance": 787,
-      "rationale": "At the recorded source revision, this file already contained admin user overview sections and actions; extract the coherent section with focused behavior coverage before removing this exception. Reviewed 2026-10-08: replace the existing source-payment number with a native detail link and mobile touch target; no new data fetching, mutations or finance permissions. Focused browser checks cover the source ID, manual credits, keyboard and touch navigation. Centered-dialog follow-up (2026-10-17) changes only overlay presentation; existing extraction debt remains and the allowance does not increase.",
+      "allowance": 783,
+      "rationale": "At the recorded source revision, this file already contained admin user overview sections and actions; extract the coherent section with focused behavior coverage before removing this exception. Reviewed 2026-10-08: replace the existing source-payment number with a native detail link and mobile touch target; no new data fetching, mutations or finance permissions. Focused browser checks cover the source ID, manual credits, keyboard and touch navigation. Centered-dialog follow-up (2026-10-17) changes only overlay presentation; existing extraction debt remains and the allowance does not increase. Reviewed 2026-10-22: extract address and read-only mail-role contacts into AdminUserContactDetails; preserve address visibility and reduce the page allowance without changing existing actions.",
       "owner": "WebUI implementation lead",
       "removeWhen": {
         "metric": "lines",

@@ -1,5 +1,16 @@
 // Admin locale chunk: user
 export const csAdmin_user = {
+  "admin.user.contacts.title": "Kontakty pro komunikaci",
+  "admin.user.contacts.account": "Správa účtu",
+  "admin.user.contacts.admin": "Správce systému",
+  "admin.user.contacts.custom": "Vlastní kontakt",
+  "admin.user.contacts.primary": "Hlavní e-mail",
+  "admin.user.contacts.missing": "Bez kontaktu",
+  "admin.user.contacts.not_set": "Kontaktní adresa není nastavená.",
+  "admin.user.contacts.edit": "Upravit v E-mailu",
+  "admin.user.contacts.loading": "Načítání kontaktů…",
+  "admin.user.contacts.error": "Kontaktní nastavení se nepodařilo načíst",
+  "admin.user.contacts.mail_disabled": "Odesílání e-mailů je pro tento účet vypnuté.",
   "admin.user.env_configs.badge.custom": "Vlastní",
   "admin.user.env_configs.badge.inherited": "Děděno",
   "admin.user.env_configs.empty": "Nebyly vráceny žádné konfigurace prostředí.",
