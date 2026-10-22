@@ -383,7 +383,10 @@ explain that. [Users](../../src/lib/api/users.ts),
 
 The [detailed account contracts](ACTION_CONTRACTS.md#account-and-user-administration)
 cover lifecycle dates, environment inheritance, mail recipient precedence and
-impersonation. A view switch preserves the operator identity; impersonation does not.
+impersonation. In the member lifecycle form, switching to soft_delete replaces
+the previous expiry with a one-calendar-month suggestion from now (month ends
+clamped). The administrator can override it; Save and confirmation remain
+required, and an already soft-deleted account keeps its saved date when opened. A view switch preserves the operator identity; impersonation does not.
 
 ## Applications, profile changes and review queues
 

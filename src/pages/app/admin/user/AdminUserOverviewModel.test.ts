@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { buildEditUserPayload, editUserValidationError, makeEditDraft, type EditUserDraft } from './AdminUserOverviewModel';
+import { buildEditUserPayload, editUserValidationError, makeEditDraft, softDeleteExpirationInput, type EditUserDraft } from './AdminUserOverviewModel';
 
 function draft(overrides: Partial<EditUserDraft> = {}): EditUserDraft {
   return {
@@ -59,5 +59,21 @@ describe('buildEditUserPayload', () => {
       login: 'alice',
       timeZone: 'UTC',
     });
+  });
+});
+
+
+describe('softDeleteExpirationInput', () => {
+  it.each([
+    [2026, 10, 20, '2026-11-20 12:15:00'],
+    [2026, 1, 31, '2026-02-28 12:15:00'],
+    [2028, 1, 31, '2028-02-29 12:15:00'],
+    [2026, 3, 31, '2026-04-30 12:15:00'],
+    [2026, 12, 31, '2027-01-31 12:15:00'],
+  ])('defaults one calendar month from %i-%i-%i', (year, month, day, expected) => {
+    const now = new Date(year, month - 1, day, 12, 15, 42);
+    const original = now.getTime();
+    expect(softDeleteExpirationInput(now)).toBe(expected);
+    expect(now.getTime()).toBe(original);
   });
 });

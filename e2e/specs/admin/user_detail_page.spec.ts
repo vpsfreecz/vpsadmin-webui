@@ -512,3 +512,53 @@ for (const scenario of [
     await expect.poll(() => updateRequests).toBe(1);
   });
 }
+
+
+test.describe('admin user soft-delete expiration', () => {
+  test.use({ timezoneId: 'Europe/Prague' });
+
+  for (const expiration of [null, '2026-10-27T07:15:00.000Z']) {
+    test(`@pr-smoke @pr-smoke-mobile defaults one month with ${expiration ? 'an existing' : 'no'} deadline and permits an override`, async ({ page }) => {
+      await page.clock.setFixedTime(new Date('2026-10-20T10:15:42.000Z'));
+      await bootstrapVpsAdminWindow(page);
+      const updates: Array<Record<string, unknown>> = [];
+      const user = {
+        id: 42, login: 'alice', level: 1, object_state: 'suspended',
+        expiration_date: expiration, remind_after_date: null,
+      };
+      await installHaveApiMock(page, {
+        user: { id: 1, login: 'admin', level: 100 },
+        handlers: {
+          'GET users/42': () => ({ user }),
+          'GET users': () => ({ users: [] }),
+          'PUT users/42': ({ reqJson }) => {
+            const payload = (reqJson as { user: Record<string, unknown> }).user;
+            updates.push(payload);
+            return { user: { ...user, ...payload } };
+          },
+        },
+      });
+      await page.goto('/admin/users/42');
+      const state = page.getByTestId('admin.user.lifecycle.state');
+      const deadline = page.getByTestId('admin.user.lifecycle.expiration');
+      await state.selectOption('soft_delete');
+      await expect(deadline).toHaveValue('2026-11-20 12:15:00');
+      expect(updates).toHaveLength(0);
+      await deadline.fill('2026-12-01 09:30:00');
+      await state.selectOption('active');
+      await expect(deadline).toHaveValue('2026-12-01 09:30:00');
+      await state.selectOption('soft_delete');
+      await expect(deadline).toHaveValue('2026-11-20 12:15:00');
+      await deadline.fill('2026-12-01 09:30:00');
+      await page.getByTestId('admin.user.lifecycle.save').click();
+      await expect(page.getByTestId('admin.user.lifecycle.confirm')).toBeVisible();
+      expect(updates).toHaveLength(0);
+      await page.getByTestId('admin.user.lifecycle.confirm.confirm').click();
+      await expect.poll(() => updates.length).toBe(1);
+      expect(updates[0]).toMatchObject({
+        object_state: 'soft_delete', expiration_date: '2026-12-01T08:30:00.000Z',
+      });
+      await expect(deadline).toHaveValue('2026-12-01 09:30:00');
+    });
+  }
+});

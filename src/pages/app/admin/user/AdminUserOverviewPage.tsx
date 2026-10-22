@@ -193,7 +193,7 @@ export function AdminUserOverviewPage() {
     setStateDraft((prev) => ({
       ...prev,
       objectState,
-      expirationDate: objectState === 'soft_delete' && !prev.expirationDate.trim()
+      expirationDate: objectState === 'soft_delete' && prev.objectState !== 'soft_delete'
         ? softDeleteExpirationInput()
         : prev.expirationDate,
     }));
