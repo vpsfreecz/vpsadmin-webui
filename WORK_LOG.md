@@ -11,6 +11,11 @@ complete reconstruction of the project. Missing evidence is not a passing check.
 
 ## New changes
 
+## 2026-10-23 — PR #81 CI coverage-count correction
+
+See the [CI diagnosis and verification](docs/work-log/2026-10-23-pr81-ci-coverage.md).
+Prepared on PR #81; not merged or deployed.
+
 ## 2026-10-20 — Member soft-delete expiration suggestion
 
 See the [one-month default and verification](docs/work-log/2026-10-20-user-soft-delete-expiration.md).

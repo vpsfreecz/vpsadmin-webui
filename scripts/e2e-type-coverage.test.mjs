@@ -14,6 +14,13 @@ const baselinePath = 'scripts/fixtures/e2e-type-baseline.json';
 const inventory = JSON.parse(fs.readFileSync(path.join(repo, inventoryPath), 'utf8'));
 const initialDeferred = inventory.deferred[0].path;
 const initialAdopted = inventory.adopted[0];
+// Adoption grows as specs are edited. The gate validates the exact paths,
+// compiler roots and immutable deferred baseline, not a frozen file count.
+const expectedCoverage = {
+  errors: [],
+  adopted: inventory.adopted.length,
+  deferred: inventory.deferred.length,
+};
 
 function copySource(root, pathname) {
   const destination = path.join(root, pathname);
@@ -54,8 +61,8 @@ function assertRejectedInBothSources(label, change, expected) {
   }
 }
 
-test('the real compiler import closure contains exactly 68 adopted E2E files', () => {
-  assert.deepEqual(auditE2eTypeCoverage(repo), { errors: [], adopted: 68, deferred: 197 });
+test('the real compiler import closure matches the current adopted E2E inventory', () => {
+  assert.deepEqual(auditE2eTypeCoverage(repo), expectedCoverage);
 });
 
 test('the complete gate works from a Gitless source copy with installed dependencies', () => {
@@ -65,7 +72,7 @@ test('the complete gate works from a Gitless source copy with installed dependen
     copySource(root, 'tsconfig.e2e.json');
     copySource(root, 'src/types/vpsadmin.d.ts');
     fs.symlinkSync(path.join(repo, 'node_modules'), path.join(root, 'node_modules'), 'dir');
-    assert.deepEqual(auditE2eTypeCoverage(root), { errors: [], adopted: 68, deferred: 197 });
+    assert.deepEqual(auditE2eTypeCoverage(root), expectedCoverage);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
