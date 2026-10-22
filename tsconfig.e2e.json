@@ -1,8 +1,15 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "types": ["node", "@playwright/test"]
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "types": [
+      "node",
+      "@playwright/test"
+    ]
   },
   "files": [
     "e2e/fixtures/bootstrap.ts",
@@ -27,6 +34,7 @@
     "e2e/specs/admin/requests_operations_smoke.spec.ts",
     "e2e/specs/admin/user_detail_page.spec.ts",
     "e2e/specs/admin/user_password_dialog.spec.ts",
+    "e2e/specs/admin/user_contact_summary.spec.ts",
     "e2e/specs/app/admin_default_review_queue.spec.ts",
     "e2e/specs/app/admin_newslog.spec.ts",
     "e2e/specs/app/authenticated_home_smoke.spec.ts",

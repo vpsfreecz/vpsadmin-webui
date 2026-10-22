@@ -336,6 +336,15 @@ must not accidentally enroll a key on the operator's authentication origin.
 [Passkey scope](../../src/components/user/UserWebauthnCredentialsPanel.tsx),
 [MFA fixture](../../e2e/specs/app/profile_mfa_recovery.spec.ts).
 
+The [administrator contact summary](../../src/pages/app/admin/user/AdminUserContactDetails.tsx)
+reads `GET /users/{id}/mail_role_recipients` only for a signed-in global
+administrator in administrator mode. `account` and `admin` are mail recipient
+roles, not privilege levels. Comma-separated nonempty `to` values are highlighted;
+otherwise the existing role resolver uses the selected user's primary email.
+Read errors remain errors and never become successful-looking fallback data.
+The existing Email tab remains the editing surface, with the same user-scoped
+query key. No API writes or new backend behavior are introduced by this summary.
+
 [Mail model](../../src/components/user/UserMailPreferencesModel.ts) previews effective
 recipients in order: disabled template, explicit template recipients, recipients
 from listed roles, primary email fallback. Input separators normalize to a

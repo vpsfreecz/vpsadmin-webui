@@ -384,6 +384,21 @@ original target. Header security status refreshes after success. Passwords stay
 out of persistent state, mutation variables/results and diagnostic messages;
 copying writes to the clipboard only on an explicit action.
 
+**Member contact summary (2026-10-22):** Global administrators see Account
+management and System administrator mail-role contacts beneath the address in
+member details. Explicit role recipients use prominent amber rows and a Custom
+contact badge; empty/missing role recipients fall back to the member's primary
+email, shown neutrally. A missing primary and override are reported explicitly.
+The summary uses stable role IDs (`account`, `admin`) and the existing mail model,
+not localized API labels. It describes role defaults; per-template recipient
+precedence still applies. Disabled mail delivery is identified separately.
+
+The read-only summary shares the selected user's mail-role query/cache with the
+Email tab and links to that user's existing settings. Failed reads show a retry
+instead of claiming primary-email fallback; changing members cannot retain another
+member's contacts. Support retains the address but does not query these privileged
+contacts. Personal/My-view account pages have no administrator summary.
+
 **Personal scope (maintainer decision, 2026-09-30):** Account from the header
 always means the authenticated account, in both member and administrator layouts.
 Admin privileges do not turn these pages into global lists. Sessions and metrics
