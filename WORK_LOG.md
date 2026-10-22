@@ -11,6 +11,12 @@ complete reconstruction of the project. Missing evidence is not a passing check.
 
 ## New changes
 
+## 2026-10-22 — Administrator password shortcut
+
+Member overview gains a password dialog before Edit user, with secure generation,
+copy and a default next-login password reset. Prepared for review; not deployed.
+See [implementation and checks](docs/work-log/2026-10-22-admin-user-password.md).
+
 ## 2026-10-20 — Approved three-site release
 
 PRs #77–#79 were merged through #80 and deployed as `1092ea48d20e` on all

@@ -1,5 +1,13 @@
 // Admin locale chunk: user
 export const csAdmin_user = {
+  "admin.user.password.saved": "Heslo uživatele {login} bylo změněno.",
+  "admin.user.password.open": "Změnit heslo",
+  "admin.user.password.title": "Změnit heslo: {login}",
+  "admin.user.password.field.password": "Heslo",
+  "admin.user.password.field.repeat": "Znovu heslo",
+  "admin.user.password.hint": "Alespoň 8 znaků. Generátor vytvoří 10 znaků z velkých a malých písmen, číslic a symbolů.",
+  "admin.user.password.generate": "Vygenerovat heslo",
+  "admin.user.password.failed": "Heslo se nepodařilo změnit. Zkontroluj účet a zkus to znovu.",
   "admin.user.env_configs.badge.custom": "Vlastní",
   "admin.user.env_configs.badge.inherited": "Děděno",
   "admin.user.env_configs.empty": "Nebyly vráceny žádné konfigurace prostředí.",

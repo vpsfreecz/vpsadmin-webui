@@ -357,6 +357,26 @@ usage/packages, environment configuration, finances and account states as allowe
 Effective timezone is explicit. User login/timezone/filesystem-related legacy
 controls must not disappear during layout simplification.
 
+**Administrator password shortcut (2026-10-22):** Member overview offers
+Change password immediately before Edit user in the Details header. Only a
+signed-in global administrator in administrator mode sees it, matching the API
+permission to replace another member's password without their current password.
+The centered dialog names the selected login and provides password/repeat fields,
+Generate password and Copy. Generation uses Web Crypto and the existing unbiased
+character selection/shuffle for 10 characters including all four groups: upper
+case, lower case, digits and symbols. No weak random fallback is permitted.
+
+Require password reset and Log out other sessions start checked. Generating a
+password checks the former again. Save sends one owner-bound user update with
+`new_password`, `password_reset` and `logout_sessions`. It requires matching
+passwords of at least eight characters. Cancel/open/success clear the draft;
+failures preserve it and show a generic error without reflecting backend secrets.
+A pending request disables changes and duplicate submission. Navigation to another
+member mounts a fresh action component, and an outstanding request retains its
+original target. Header security status refreshes after success. Passwords stay
+out of persistent state, mutation variables/results and diagnostic messages;
+copying writes to the clipboard only on an explicit action.
+
 **Personal scope (maintainer decision, 2026-09-30):** Account from the header
 always means the authenticated account, in both member and administrator layouts.
 Admin privileges do not turn these pages into global lists. Sessions and metrics
