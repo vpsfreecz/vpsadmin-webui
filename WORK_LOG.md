@@ -11,6 +11,12 @@ complete reconstruction of the project. Missing evidence is not a passing check.
 
 ## New changes
 
+## 2026-10-23 — Approved member administration release candidate
+
+PRs #81–#85 are approved for integration and three-site deployment once their
+checks pass. See the [candidate and verification record](docs/work-log/2026-10-23-three-site-release.md).
+Preparation only; merge and deployment outcomes will be recorded separately.
+
 ## 2026-10-23 — PR #81 CI coverage-count correction
 
 See the [CI diagnosis and verification](docs/work-log/2026-10-23-pr81-ci-coverage.md).
