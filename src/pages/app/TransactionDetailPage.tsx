@@ -344,6 +344,8 @@ export function TransactionDetailPage() {
                 source={tx as any}
                 raw={txQ.data}
                 maxHeightClass="max-h-96"
+                payloadLayout="stacked"
+                readablePayload
                 rawTestId="transactions.items.detail.raw"
                 testId="transactions.items.detail.debug_sections"
               />

@@ -134,3 +134,55 @@ for (const language of ['cs', 'en'] as const) {
     expect(seen).toContain(other);
   });
 }
+
+for (const language of ['cs', 'en'] as const) {
+  test(`@pr-smoke @pr-smoke-mobile reads long email payloads without horizontal scrolling (${language})`, async ({ page }, testInfo) => {
+    const body = [
+      'Ahoj Alice,', '', 'tvůj testovací účet je připravený.', '',
+      'Login: alice-demo', 'Heslo: DEMO-ONLY-NOT-A-REAL-PASSWORD', '',
+      'Přihlášení: https://admin.example.test/', '',
+      'Tento uvítací e-mail obsahuje pouze syntetické údaje pro kontrolu zobrazení. '.repeat(5), '',
+      'Dlouhý identifikátor: ' + 'abcdef0123456789'.repeat(18), '',
+      '<img src=x onerror="alert(1)">', '',
+      'Děkujeme za otestování nového rozhraní.',
+    ].join('\n');
+    const input = JSON.stringify({ mail: { to: 'alice@example.test', subject: 'Vítej ve vpsAdminu', text_plain: body, text_html: null } });
+    const output = '{"execute":{"status":"ok"}}';
+    await bootstrapVpsAdminWindow(page);
+    await page.addInitScript((lang) => {
+      localStorage.setItem('vpsadmin.uiSettings.v1', JSON.stringify({ language: lang, theme: 'dark' }));
+      Object.defineProperty(navigator, 'clipboard', { configurable: true, value: {
+        writeText: async (text: string) => { document.documentElement.dataset['copiedPayload'] = text; },
+      } });
+    }, language);
+    await installHaveApiMock(page, {
+      user: { id: 1, login: 'admin', level: 99 },
+      handlers: { 'GET transactions/702': () => ({ id: 702, name: 'Send', label: 'E-mail', done: 'done', success: 1, type: 9001, input, output }) },
+    });
+    await page.goto('/admin/transactions/items/702');
+    const card = page.getByTestId('transactions.items.detail.payload');
+    const reader = card.getByRole('region', { name: language === 'cs' ? 'Vstup' : 'Input', exact: true });
+    const result = card.getByRole('region', { name: language === 'cs' ? 'Výstup' : 'Output', exact: true });
+    await expect(reader).toBeVisible();
+    expect(await reader.locator('pre').allTextContents()).toContain(body);
+    await expect(reader.locator('img')).toHaveCount(0);
+    const bounds = await reader.boundingBox();
+    const resultBounds = await result.boundingBox();
+    expect(bounds!.height).toBeGreaterThanOrEqual(320);
+    expect(resultBounds!.y).toBeGreaterThanOrEqual(bounds!.y + bounds!.height);
+    expect(resultBounds!.width).toBeCloseTo(bounds!.width, 0);
+    expect(await reader.evaluate((element) => element.scrollWidth <= element.clientWidth + 1)).toBe(true);
+    await expectNoDocumentHorizontalOverflow(page);
+    if (process.env['E2E_CAPTURE_SCREENSHOTS'] === '1') {
+      await page.screenshot({ path: `/tmp/webui-transaction-payload-${language}-${testInfo.project.name}.png`, fullPage: true });
+    }
+    await card.getByRole('button', { name: language === 'cs' ? 'Kopírovat' : 'Copy', exact: true }).first().click();
+    await expect(page.locator('html')).toHaveAttribute('data-copied-payload', input);
+    // The scroll area is keyboard reachable and the final paragraph is retained.
+    await reader.focus();
+    await page.keyboard.press('End');
+    await expect(reader).toBeFocused();
+    await expect(reader.locator('pre').filter({ hasText: 'Děkujeme' })).toHaveCount(1);
+    await expect.poll(() => reader.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
+  });
+}

@@ -27,6 +27,13 @@ Replaced the numeric privilege input with the legacy role names, preserving
 exact API levels. Prepared for review, not merged or deployed.
 See [implementation and verification](docs/work-log/2026-10-20-user-role-picker.md).
 
+## 2026-10-20 — Readable transaction payloads
+
+Transaction item detail uses large, full-width input/output readers with real
+paragraphs for JSON string values and unchanged payload copying.
+See [implementation and verification](docs/work-log/2026-10-20-transaction-payload-readability.md).
+Prepared for review; not merged or deployed.
+
 ## 2026-10-20 — Approved three-site release
 
 PRs #77–#79 were merged through #80 and deployed as `1092ea48d20e` on all

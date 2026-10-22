@@ -521,6 +521,14 @@ When the API name is already the heading, do not repeat it as “Backend name”
 Explicit local labels for an action the user just submitted remain available
 before its API state arrives. [Naming regression and evidence](../work-log/2026-10-03-transaction-operation-names.md).
 
+Transaction item detail displays input and output vertically at full width.
+The input has a large, bounded reading area; JSON fields are separated and string
+values retain real line breaks, so embedded email bodies can be read normally.
+Long tokens wrap inside the panel. HTML is always text, never rendered content.
+Copy retains the original payload and the raw transaction JSON remains available.
+Plain text, malformed JSON and unsafe numeric JSON fall back to verbatim text.
+Inline transaction previews retain their existing compact layout.
+
 The VPS list marks a VPS with a failed or fatal transaction chain only when the
 chain was created within the last 7 days (REQ-074). Failed chains stay failed
 until an administrator resolves them, so an older failure would otherwise flag
