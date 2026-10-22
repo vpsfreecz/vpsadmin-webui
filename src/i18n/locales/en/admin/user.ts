@@ -1,5 +1,13 @@
 // Admin locale chunk: user
 export const enAdmin_user = {
+  "admin.user.password.saved": "Password changed for {login}.",
+  "admin.user.password.open": "Change password",
+  "admin.user.password.title": "Change password: {login}",
+  "admin.user.password.field.password": "Password",
+  "admin.user.password.field.repeat": "Repeat password",
+  "admin.user.password.hint": "At least 8 characters. The generator creates 10 characters using uppercase and lowercase letters, digits and symbols.",
+  "admin.user.password.generate": "Generate password",
+  "admin.user.password.failed": "The password could not be changed. Check the account and try again.",
   "admin.user.env_configs.badge.custom": "Custom",
   "admin.user.env_configs.badge.inherited": "Inherited",
   "admin.user.env_configs.empty": "No environment configs returned.",

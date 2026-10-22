@@ -45,6 +45,7 @@ import {
   type StateDraft,
 } from './AdminUserOverviewModel';
 import { UserLevelSelect } from './UserLevelSelect';
+import { AdminUserDetailsActions } from './AdminUserDetailsActions';
 import { canViewGlobalFinance } from '../FinanceGlobalAdminGate';
 
 const USER_STATE_OPTIONS = [
@@ -282,15 +283,10 @@ export function AdminUserOverviewPage() {
         <CardHeader
           title={t('common.details')}
           actions={
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={openEdit}
-              disabled={lifetimeMutationGuard.locked}
-              testId="admin.user.edit.open"
-            >
-              {t('admin.user.edit.open')}
-            </Button>
+            <AdminUserDetailsActions key={u.id}
+              userId={u.id} login={u.login ?? `#${u.id}`}
+              disabled={lifetimeMutationGuard.locked} onEdit={openEdit}
+            />
           }
         />
         <CardBody>

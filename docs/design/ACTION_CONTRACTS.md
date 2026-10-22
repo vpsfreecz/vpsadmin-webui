@@ -265,6 +265,27 @@ level is preserved until a different option is explicitly selected. An empty
 selection fails validation instead of becoming level zero. Requests still use
 `updateUser` and the existing API authorization/error handling.
 
+### Administrator password shortcut
+
+REQ-040: [details actions](../../src/pages/app/admin/user/AdminUserDetailsActions.tsx)
+open a centered password dialog before the existing Edit user action. Global
+administrator authorization is required; support and member/My-view contexts
+have no shortcut. It uses existing `PUT /users/{selectedId}` with only
+`new_password`, `password_reset`, and `logout_sessions`. Password reset is checked
+by default and on generation. Logging out sessions defaults true; the API decides
+which sessions are closed (it preserves the current session for self updates).
+Both booleans are explicit user choices on save. No current password is sent.
+The API remains authoritative for authorization, minimum length and account state.
+A generation/copy/open action is local; only Save changes the account.
+
+The submit snapshot is held in a component ref, never mutation variables/results
+or persistent browser settings; the mutation neither retries automatically nor
+retains a raw backend diagnostic. Cancel/success/unmount release the snapshot.
+Failure keeps the form draft for review. Same-tick duplicate submits are guarded
+by the ref; inputs/close/generate/save are disabled during the request. A new
+selected user gets a keyed component with an empty draft. This shortcut honors
+the overview's existing lifecycle mutation guard.
+
 ### Account lifecycle and environment limits
 
 [Overview](../../src/pages/app/admin/user/AdminUserOverviewPage.tsx) offers active,
