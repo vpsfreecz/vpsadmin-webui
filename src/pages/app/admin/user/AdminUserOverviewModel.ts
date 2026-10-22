@@ -36,7 +36,7 @@ export function editUserValidationError(draft: EditUserDraft): EditUserValidatio
   if (!/^[a-zA-Z0-9.-]{2,63}$/.test(draft.login.trim())) return 'login';
 
   const level = Number(draft.level);
-  if (!Number.isFinite(level) || level < 0) return 'level';
+  if (!draft.level.trim() || !Number.isFinite(level) || level < 0) return 'level';
 
   const timeZone = draft.timeZone.trim();
   if (timeZone && !isValidTimeZone(timeZone)) return 'time_zone';

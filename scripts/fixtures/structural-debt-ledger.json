@@ -318,10 +318,10 @@
       "path": "src/pages/app/admin/user/AdminUserOverviewPage.tsx",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "3d8195ee3a51cfd18975c9bc9922f1b002a5a6e53066bc40c8f44ad42b9c467c",
+      "contentHash": "af4c201f9a11f046ddb16c3ab12dacdc03f66c0690f864ed091d61515e0c7eef",
       "old": 0,
-      "allowance": 787,
-      "rationale": "At the recorded source revision, this file already contained admin user overview sections and actions; extract the coherent section with focused behavior coverage before removing this exception. Reviewed 2026-10-08: replace the existing source-payment number with a native detail link and mobile touch target; no new data fetching, mutations or finance permissions. Focused browser checks cover the source ID, manual credits, keyboard and touch navigation. Centered-dialog follow-up (2026-10-17) changes only overlay presentation; existing extraction debt remains and the allowance does not increase. Reviewed 2026-10-20: the existing soft-delete selection handler refreshes expiry on transition even when a prior expiry exists; one condition changes, with no line-budget increase. Desktop/mobile fixture tests cover the suggestion, manual override and confirmation before mutation.",
+      "allowance": 784,
+      "rationale": "At the recorded source revision, this file already contained admin user overview sections and actions; extract the coherent section with focused behavior coverage before removing this exception. Reviewed 2026-10-08: replace the existing source-payment number with a native detail link and mobile touch target; no new data fetching, mutations or finance permissions. Focused browser checks cover the source ID, manual credits, keyboard and touch navigation. Centered-dialog follow-up (2026-10-17) changes only overlay presentation; existing extraction debt remains and the allowance does not increase. Reviewed 2026-10-20: the existing soft-delete selection handler refreshes expiry on transition even when a prior expiry exists; one condition changes, with no line-budget increase. Desktop/mobile fixture tests cover the suggestion, manual override and confirmation before mutation. Combined release review 2026-10-23: retain the soft-delete expiry handler and extract the numeric privilege field to UserLevelSelect; exact role levels and unknown existing levels remain intact. The recorded allowance is the actual combined line count.",
       "owner": "WebUI implementation lead",
       "removeWhen": {
         "metric": "lines",

@@ -255,6 +255,16 @@ Profile reads and writes use the personal API scope when viewing the authenticat
 account; global administrator lookups must not substitute for that owner context
 (canonical PR5). See [current scope contracts](WORKFLOWS.md).
 
+### Member privilege editing
+
+The administrator edit dialog maps User to `2`, Power User to `3`, Admin to
+`21`, Super Admin to `90`, and Master Admin to `99`, matching the legacy
+`cfg_privlevel` and NixOS privilege constants. These are exact API levels,
+not the frontend's broad user/support/admin categories. A nonstandard current
+level is preserved until a different option is explicitly selected. An empty
+selection fails validation instead of becoming level zero. Requests still use
+`updateUser` and the existing API authorization/error handling.
+
 ### Account lifecycle and environment limits
 
 [Overview](../../src/pages/app/admin/user/AdminUserOverviewPage.tsx) offers active,

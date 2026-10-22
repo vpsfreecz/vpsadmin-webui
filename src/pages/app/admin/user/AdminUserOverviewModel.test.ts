@@ -41,6 +41,8 @@ describe('buildEditUserPayload', () => {
       full_name: 'Alice Example',
       level: 21,
     });
+    expect(buildEditUserPayload(draft({ level: '' }))).toBeNull();
+    expect(buildEditUserPayload(draft({ level: '  ' }))).toBeNull();
     expect(buildEditUserPayload(draft({ level: '-1' }))).toBeNull();
     expect(buildEditUserPayload(draft({ level: 'not-a-number' }))).toBeNull();
   });

@@ -21,6 +21,12 @@ Prepared on PR #81; not merged or deployed.
 See the [one-month default and verification](docs/work-log/2026-10-20-user-soft-delete-expiration.md).
 Prepared for review; no API change or deployment.
 
+## 2026-10-20 — Named roles in member editing
+
+Replaced the numeric privilege input with the legacy role names, preserving
+exact API levels. Prepared for review, not merged or deployed.
+See [implementation and verification](docs/work-log/2026-10-20-user-role-picker.md).
+
 ## 2026-10-20 — Approved three-site release
 
 PRs #77–#79 were merged through #80 and deployed as `1092ea48d20e` on all

@@ -44,6 +44,7 @@ import {
   type EditUserDraft,
   type StateDraft,
 } from './AdminUserOverviewModel';
+import { UserLevelSelect } from './UserLevelSelect';
 import { canViewGlobalFinance } from '../FinanceGlobalAdminGate';
 
 const USER_STATE_OPTIONS = [
@@ -670,15 +671,11 @@ export function AdminUserOverviewPage() {
               <span className="mt-1 block text-xs text-faint">{t('admin.user.edit.field.login.help')}</span>
             </label>
 
-            <label className="block">
-              <span className="text-sm font-medium">{t('admin.user.field.level')}</span>
-              <Input
-                value={editDraft.level}
-                onChange={(e) => setEditField('level', e.target.value)}
-                inputMode="numeric"
-                testId="admin.user.edit.level"
-              />
-            </label>
+            <UserLevelSelect
+              value={editDraft.level}
+              currentLevel={u.level}
+              onChange={(value) => setEditField('level', value)}
+            />
 
             <label className="block">
               <span className="text-sm font-medium">{t('requests.field.full_name')}</span>
