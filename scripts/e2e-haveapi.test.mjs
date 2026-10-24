@@ -141,13 +141,23 @@ test('handler selection keeps query/body aliases and fallback responses', async 
 
 test('description, direct fulfill and envelope branches keep their response shape', async () => {
   const page = fakePage();
+  const description = {
+    meta: { namespace: 'fixture_meta' },
+    authentication: { token: { http_header: 'X-Fixture-Token' } },
+  };
   await installHaveApiMock(page, {
+    description,
     handlers: {
       'GET raw': () => ({ status: 201, contentType: 'text/plain', body: 'created' }),
       'GET envelope': () => ({ status: false, message: 'denied', response: null }),
     },
   });
-  assert.equal(json(await page.request('/api')).meta.namespace, '_meta');
+  for (const pathname of ['/api', '/api/', '/api/v7.0', '/api/v7.0/']) {
+    assert.deepEqual(json(await page.request(pathname, { method: 'OPTIONS' })), {
+      status: true,
+      response: description,
+    });
+  }
   assert.deepEqual((await page.request('/api/v7.0/raw')).fulfilled, {
     status: 201,
     contentType: 'text/plain',

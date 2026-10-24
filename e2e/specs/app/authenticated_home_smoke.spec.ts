@@ -1,8 +1,12 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Request } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
 
 test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke @smoke-mobile authenticated user lands on dashboard and can open VPS list', async ({ page }) => {
+  const vpsRequests: Request[] = [];
+  page.on('request', request => {
+    if (new URL(request.url()).pathname.endsWith('/vpses')) vpsRequests.push(request);
+  });
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST_USER_SESSION' });
 
   await installHaveApiMock(page, {
@@ -34,6 +38,11 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke @smoke-mobile authentic
   await expect(page).toHaveURL(/\/app\/vps$/);
   await expect(page.getByRole('heading', { name: 'VPS' })).toBeVisible();
   await expect(page.getByRole('link', { name: /alpha/i })).toBeVisible();
+  expect(vpsRequests.length).toBeGreaterThan(0);
+  for (const request of vpsRequests) {
+    expect(request.resourceType()).toBe('xhr');
+    expect(request.headers()['x-haveapi-auth-token']).toBe('TEST_USER_SESSION');
+  }
 });
 
 test('@smoke authenticated dashboard skips HaveAPI description bootstrap in standalone mode', async ({ page }) => {
@@ -42,7 +51,7 @@ test('@smoke authenticated dashboard skips HaveAPI description bootstrap in stan
   page.on('request', (request) => {
     const url = new URL(request.url());
     if (
-      request.method() === 'GET' &&
+      ['GET', 'OPTIONS'].includes(request.method()) &&
       ['/api', '/api/', '/api/v7.0', '/api/v7.0/'].includes(url.pathname)
     ) {
       descriptionRequests.push(url.pathname);

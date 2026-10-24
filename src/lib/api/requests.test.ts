@@ -1,3 +1,4 @@
+import { apiWire } from '../../test/haveapiXhr';
 import { describe, expect, test, vi } from 'vitest';
 
 import {
@@ -29,17 +30,10 @@ function mockFetchOk(response: Record<string, unknown>): typeof fetch {
 }
 
 function lastFetchCall() {
-  const call = vi.mocked(globalThis.fetch).mock.calls.at(-1);
+  const call = vi.mocked(apiWire.respond).mock.calls.at(-1);
   if (!call) throw new Error('Expected fetch to have been called');
 
-  const input = call[0];
-  const url =
-    typeof input === 'string'
-      ? input
-      : input instanceof URL
-        ? input.toString()
-        : input.url;
-  return [url, call[1]] as const;
+  return [call[0], call[1]] as const;
 }
 
 describe('requests API wrappers', () => {
@@ -58,7 +52,7 @@ describe('requests API wrappers', () => {
   });
 
   test('fetchMyChangeRequests sends only owner-safe index parameters', async () => {
-    globalThis.fetch = mockFetchOk({
+    apiWire.respond = mockFetchOk({
       changes: [{ id: 9, user: { id: '7' }, state: 'awaiting' }],
     });
 
@@ -84,7 +78,7 @@ describe('requests API wrappers', () => {
   });
 
   test('fetchMyChangeRequests explicitly owner-filters a privileged self view', async () => {
-    globalThis.fetch = mockFetchOk({ changes: [] });
+    apiWire.respond = mockFetchOk({ changes: [] });
 
     await fetchMyChangeRequests(7, {
       limit: 25,
@@ -98,7 +92,7 @@ describe('requests API wrappers', () => {
   });
 
   test('fetchMyRegistrationRequests explicitly owner-filters a privileged self view', async () => {
-    globalThis.fetch = mockFetchOk({ registrations: [] });
+    apiWire.respond = mockFetchOk({ registrations: [] });
 
     await fetchMyRegistrationRequests(7, {
       limit: 25,
@@ -112,14 +106,14 @@ describe('requests API wrappers', () => {
   });
 
   test('owner-safe list and detail wrappers fail closed on foreign data', async () => {
-    globalThis.fetch = mockFetchOk({
+    apiWire.respond = mockFetchOk({
       registrations: [{ id: 11, user: { id: 99 }, email: 'private@example.test' }],
     });
     await expect(fetchMyRegistrationRequests(7, { limit: 25 })).rejects.toBeInstanceOf(
       UserRequestOwnershipError
     );
 
-    globalThis.fetch = mockFetchOk({
+    apiWire.respond = mockFetchOk({
       change: { id: 12, user: { id: 99 }, address: 'Private address' },
     });
     await expect(fetchMyChangeRequest(12, 7)).rejects.toBeInstanceOf(
@@ -128,7 +122,7 @@ describe('requests API wrappers', () => {
   });
 
   test('fetchRegistrationRequests forwards only supported structured filters', async () => {
-    globalThis.fetch = mockFetchOk({ registrations: [], _meta: { total_count: 0 } });
+    apiWire.respond = mockFetchOk({ registrations: [], _meta: { total_count: 0 } });
 
     await fetchRegistrationRequests({
       limit: 25,
@@ -159,7 +153,7 @@ describe('requests API wrappers', () => {
   });
 
   test('fetchChangeRequests forwards only supported structured filters', async () => {
-    globalThis.fetch = mockFetchOk({ changes: [], _meta: { total_count: 0 } });
+    apiWire.respond = mockFetchOk({ changes: [], _meta: { total_count: 0 } });
 
     await fetchChangeRequests({
       limit: 15,
@@ -190,7 +184,7 @@ describe('requests API wrappers', () => {
   });
 
   test('previewRegistrationRequest encodes the token in the path', async () => {
-    globalThis.fetch = mockFetchOk({ registration: { id: 11 } });
+    apiWire.respond = mockFetchOk({ registration: { id: 11 } });
 
     await previewRegistrationRequest(11, 'fix token/42');
 
@@ -204,7 +198,7 @@ describe('requests API wrappers', () => {
     { label: 'an explicit IANA zone', timeZone: 'Europe/Prague' },
     { label: 'an explicit server-default clear', timeZone: null },
   ])('updateRegistrationRequestByToken sends namespaced payload with $label', async ({ timeZone }) => {
-    globalThis.fetch = mockFetchOk({ registration: { id: 11 } });
+    apiWire.respond = mockFetchOk({ registration: { id: 11 } });
 
     await updateRegistrationRequestByToken(11, 'fix-token', {
       login: 'alice',
@@ -242,7 +236,7 @@ describe('requests API wrappers', () => {
   });
 
   test('resolveRegistrationRequest posts namespaced action payload', async () => {
-    globalThis.fetch = mockFetchOk({ registration: { id: 12 }, _meta: { action_state_id: 44 } });
+    apiWire.respond = mockFetchOk({ registration: { id: 12 }, _meta: { action_state_id: 44 } });
 
     await resolveRegistrationRequest(12, {
       action: 'approve',
@@ -270,7 +264,7 @@ describe('requests API wrappers', () => {
   });
 
   test('resolveChangeRequest posts namespaced action payload', async () => {
-    globalThis.fetch = mockFetchOk({ change: { id: 13 } });
+    apiWire.respond = mockFetchOk({ change: { id: 13 } });
 
     await resolveChangeRequest(13, {
       action: 'request_correction',

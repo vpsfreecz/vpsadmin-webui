@@ -1,3 +1,4 @@
+import { installHaveApiXhr } from '../../test/haveapiXhr';
 import { afterEach, describe, expect, test, vi } from 'vitest';
 
 import {
@@ -32,7 +33,7 @@ afterEach(() => {
 describe('dns API wrappers', () => {
   test('fetchDnsZones uses dns_zone namespace', async () => {
     const fetchMock = mockFetchOk({ dns_zones: [], _meta: { total_count: 0 } });
-    vi.stubGlobal('fetch', fetchMock);
+    installHaveApiXhr( fetchMock);
 
     await fetchDnsZones({ limit: 5 });
 
@@ -45,7 +46,7 @@ describe('dns API wrappers', () => {
 
   test('fetchDnsZones forwards only supported user and dnssec filters', async () => {
     const fetchMock = mockFetchOk({ dns_zones: [], _meta: { total_count: 0 } });
-    vi.stubGlobal('fetch', fetchMock);
+    installHaveApiXhr( fetchMock);
 
     const optionsWithUnsupportedQ = { q: 'example', user: 42, dnssec_enabled: true };
     await fetchDnsZones(optionsWithUnsupportedQ);
@@ -60,7 +61,7 @@ describe('dns API wrappers', () => {
 
   test('fetchDnsRecords requests the complete zone without unsupported pagination', async () => {
     const fetchMock = mockFetchOk({ dns_records: [], _meta: { total_count: 0 } });
-    vi.stubGlobal('fetch', fetchMock);
+    installHaveApiXhr( fetchMock);
 
     const optionsWithUnsupportedPagination = { dns_zone: 123, limit: 10, fromId: 456 };
     await fetchDnsRecords(optionsWithUnsupportedPagination);
@@ -76,7 +77,7 @@ describe('dns API wrappers', () => {
 
   test('fetchDnsRecords never sends the unsupported q filter', async () => {
     const fetchMock = mockFetchOk({ dns_records: [], _meta: { total_count: 0 } });
-    vi.stubGlobal('fetch', fetchMock);
+    installHaveApiXhr( fetchMock);
 
     const optionsWithUnsupportedQ = { dns_zone: 123, q: 'mail' };
     await fetchDnsRecords(optionsWithUnsupportedQ);
@@ -89,7 +90,7 @@ describe('dns API wrappers', () => {
 
   test('createDnsRecord sends namespaced payload', async () => {
     const fetchMock = mockFetchOk({ dns_record: { id: 1 } });
-    vi.stubGlobal('fetch', fetchMock);
+    installHaveApiXhr( fetchMock);
 
     await createDnsRecord({ dns_zone: 123, name: 'www', type: 'A', content: '203.0.113.10' });
 
@@ -105,7 +106,7 @@ describe('dns API wrappers', () => {
 
   test('fetchDnsRecordLogs forwards only supported namespaced filters', async () => {
     const fetchMock = mockFetchOk({ dns_record_logs: [], _meta: { total_count: 0 } });
-    vi.stubGlobal('fetch', fetchMock);
+    installHaveApiXhr( fetchMock);
 
     const optionsWithUnsupportedFilters = {
       fromId: 456,
@@ -141,7 +142,7 @@ describe('dns API wrappers', () => {
 
   test('fetchDnsServers never forwards unsupported list filters', async () => {
     const fetchMock = mockFetchOk({ dns_servers: [], _meta: { total_count: 0 } });
-    vi.stubGlobal('fetch', fetchMock);
+    installHaveApiXhr( fetchMock);
 
     const optionsWithUnsupportedFilters = {
       q: 'ns1',
@@ -163,7 +164,7 @@ describe('dns API wrappers', () => {
 
   test('fetchDnsTsigKeys forwards only supported algorithm and user filters', async () => {
     const fetchMock = mockFetchOk({ dns_tsig_keys: [], _meta: { total_count: 0 } });
-    vi.stubGlobal('fetch', fetchMock);
+    installHaveApiXhr( fetchMock);
 
     const optionsWithUnsupportedQ = { q: 'alice', algorithm: 'hmac-sha512', user: 7 };
     await fetchDnsTsigKeys({ ...optionsWithUnsupportedQ, count: true });
@@ -194,7 +195,7 @@ describe('dns API wrappers', () => {
         debug: { secret: 'must-not-survive-in-meta' },
       },
     });
-    vi.stubGlobal('fetch', fetchMock);
+    installHaveApiXhr( fetchMock);
 
     const result = await fetchDnsTsigKeys({ limit: 10 });
 
@@ -225,7 +226,7 @@ describe('dns API wrappers', () => {
         audit: { secret: 'meta-copy-of-create-secret' },
       },
     });
-    vi.stubGlobal('fetch', fetchMock);
+    installHaveApiXhr( fetchMock);
     let revealed: { name: string; secret: string } | undefined;
 
     const result = await createDnsTsigKey(
@@ -254,7 +255,7 @@ describe('dns API wrappers', () => {
       }],
       _meta: { debug: { secret: 'transfer-meta-secret' } },
     });
-    vi.stubGlobal('fetch', fetchMock);
+    installHaveApiXhr( fetchMock);
 
     const result = await fetchDnsZoneTransfers({ dns_zone: 3 });
 
@@ -270,7 +271,7 @@ describe('dns API wrappers', () => {
       dns_server_zone_transfer_logs: [],
       _meta: { total_count: 0 },
     });
-    vi.stubGlobal('fetch', fetchMock);
+    installHaveApiXhr( fetchMock);
 
     await fetchDnsServerZoneTransferLogs({
       dns_zone: 123,
