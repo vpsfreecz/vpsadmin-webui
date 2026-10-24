@@ -1,3 +1,4 @@
+import { installHaveApiXhr } from '../../test/haveapiXhr';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import {
@@ -34,7 +35,7 @@ function installOkFetch(response: unknown) {
   const fetchMock = vi.fn(async (..._args: Parameters<typeof fetch>) =>
     makeOkResponse({ status: true, response })
   );
-  vi.stubGlobal('fetch', fetchMock);
+  installHaveApiXhr( fetchMock);
   return fetchMock;
 }
 
@@ -60,7 +61,7 @@ describe('user dossier API wrappers', () => {
 
     const [url] = getFetchCall(fetchMock);
     expect(String(url)).toContain('/v7.0/users/123/public_keys?');
-    expect(String(url)).toContain('public_key%5Blimit%5D=10');
+    expect(new URL(String(url)).searchParams.get('public_key[limit]')).toBe('10');
   });
 
   it('createUserPublicKey sends public_key namespace payload', async () => {
@@ -91,8 +92,8 @@ describe('user dossier API wrappers', () => {
 
     const [url] = getFetchCall(fetchMock);
     expect(String(url)).toContain('/v7.0/user_sessions?');
-    expect(String(url)).toContain('user_session%5Blimit%5D=25');
-    expect(String(url)).toContain('user_session%5Bstate%5D=open');
+    expect(new URL(String(url)).searchParams.get('user_session[limit]')).toBe('25');
+    expect(new URL(String(url)).searchParams.get('user_session[state]')).toBe('open');
   });
 
   it('fetchUserSession uses /user_sessions/:id show action', async () => {
@@ -149,7 +150,7 @@ describe('user dossier API wrappers', () => {
 
     const [url] = getFetchCall(fetchMock);
     expect(String(url)).toContain('/v7.0/metrics_access_tokens?');
-    expect(String(url)).toContain('metrics_access_token%5Blimit%5D=10');
+    expect(new URL(String(url)).searchParams.get('metrics_access_token[limit]')).toBe('10');
   });
 
   it('createMetricsAccessToken sends namespaced POST payload', async () => {

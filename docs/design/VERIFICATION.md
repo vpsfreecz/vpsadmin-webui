@@ -251,8 +251,8 @@ lead accepted the original 43 exceptions after matching their hashes against the
 recorded source revision `e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9`.
 The header and lifecycle power-control extractions reduced `VpsLayout.tsx` and
 `VpsLifecyclePage.tsx` below their historical line ceilings, so their two
-`grown-over-500` exceptions were removed. The remaining ledger has 41 accepted
-entries; their recorded hashes, metrics, allowances and baseline are unchanged.
+`grown-over-500` exceptions were removed. The HaveAPI transport extraction also
+resolves its `crossed-500` exception. Remaining entries retain their recorded hashes, metrics, allowances and baseline.
 Raw violations, proposed/accepted exceptions, unaccepted violations and invalid
 entries are separate report fields. A changed or deleted file, resolved rule, expired
 removal condition, changed allowance or unlisted new violation fails the audit;
@@ -267,6 +267,25 @@ production build, browser scripts, PR matrix and remote CI remain separate gates
 The structural audit passes for the accepted source bytes. Record the exact
 locked-toolchain quick gate and production build results for each candidate
 separately from this source audit.
+
+## Production HaveAPI verification
+
+The normal application imports the installed `haveapi-client` dependency. Run
+`npm run typecheck` and the actual-package API tests alongside the domain tests:
+`npm test -- src/lib/api`. The stable controlled XHR in test setup receives real
+serialized requests and returns wire responses to the package. It does not mock
+AsyncClient or send HaveAPI through fetch; BFF session fixtures use fetch
+separately. Cover public/auth separation, OPTIONS discovery, live auth, original
+retry inputs, nested errors, malformed responses, receipts and cancellation.
+
+After committed-deliverable review, run the full app suite/build, Nix frontend
+and package checks, then ordinary browser workflows: public pages, authenticated
+home, expiry/recovery, create failures, blocking-action progress and cancellation.
+Authenticated home and public overview assert native XHR requests through the
+normal entry. These synthetic API fixtures do not prove live OAuth exchange,
+backend permissions or deployment. Historical pilot results are scoped to their original revisions and are not
+verification of the installed release. Current package inputs and reproduction
+are in the [provenance guide](HAVEAPI_CLIENT.md).
 
 ## Recorded release evidence (2026-09-27)
 

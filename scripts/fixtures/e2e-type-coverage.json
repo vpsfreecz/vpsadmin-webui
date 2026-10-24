@@ -82,6 +82,7 @@
     "e2e/specs/app/vps_private_ip_availability.spec.ts",
     "e2e/specs/public/about.spec.ts",
     "e2e/specs/public/news_compact.spec.ts",
+    "e2e/specs/public/overview.spec.ts",
     "e2e/specs/public/theme_language_bootstrap.spec.ts"
   ],
   "deferred": [
@@ -1425,13 +1426,6 @@
     {
       "path": "e2e/specs/live/request_address_map.spec.ts",
       "sha256": "7d7494a28a88654c07f7a8a2b359a9ebe5ba9b1c191abcbb264e89da60d0826f",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/public/overview.spec.ts",
-      "sha256": "849a730acb1978fe4f5138ba220d04c4da96ff74816364304de9949082b0f64e",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."

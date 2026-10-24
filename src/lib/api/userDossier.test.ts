@@ -1,3 +1,4 @@
+import { installHaveApiXhr } from '../../test/haveapiXhr';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { confirmUserTotpDevice, createUserTotpDevice } from './userDossier';
@@ -34,7 +35,7 @@ describe('user dossier TOTP wrappers', () => {
         provisioning_uri: 'otpauth://totp/example',
       },
     });
-    vi.stubGlobal('fetch', fetchMock);
+    installHaveApiXhr( fetchMock);
 
     const res = await createUserTotpDevice(42, { label: 'Phone' });
 
@@ -48,21 +49,21 @@ describe('user dossier TOTP wrappers', () => {
   it('normalizes confirm recovery code from object or scalar responses', async () => {
     setMockRuntime();
     const fetchMock = mockFetchOk({ recovery_code: 'RECOVERY-1' });
-    vi.stubGlobal('fetch', fetchMock);
+    installHaveApiXhr( fetchMock);
 
     await expect(confirmUserTotpDevice(42, 7, { code: '123456' })).resolves.toMatchObject({ data: 'RECOVERY-1' });
 
-    vi.stubGlobal('fetch', mockFetchOk('RECOVERY-2'));
+    installHaveApiXhr( mockFetchOk('RECOVERY-2'));
     await expect(confirmUserTotpDevice(42, 7, { code: '654321' })).resolves.toMatchObject({ data: 'RECOVERY-2' });
   });
 
   it('rejects create and confirm responses with missing TOTP fields', async () => {
     setMockRuntime();
-    vi.stubGlobal('fetch', mockFetchOk({ totp_device: { id: 7, secret: 'SECRET123' } }));
+    installHaveApiXhr( mockFetchOk({ totp_device: { id: 7, secret: 'SECRET123' } }));
 
     await expect(createUserTotpDevice(42, { label: 'Phone' })).rejects.toThrow('missing secret/provisioning_uri');
 
-    vi.stubGlobal('fetch', mockFetchOk({ recovery_code: null }));
+    installHaveApiXhr( mockFetchOk({ recovery_code: null }));
     await expect(confirmUserTotpDevice(42, 7, { code: '123456' })).rejects.toThrow('expected recovery_code');
   });
 });

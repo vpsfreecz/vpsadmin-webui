@@ -1,3 +1,4 @@
+import { apiWire } from '../../test/haveapiXhr';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { fetchObjectHistoryEvents } from './audit';
@@ -21,7 +22,7 @@ afterEach(() => {
 describe('fetchObjectHistoryEvents', () => {
   it('requests an exact count alongside the active audit filters', async () => {
     installApiFixture();
-    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+    const fetchMock = vi.mocked(apiWire.respond).mockResolvedValue(
       new Response(
         JSON.stringify({
           status: true,
@@ -49,7 +50,7 @@ describe('fetchObjectHistoryEvents', () => {
 
   it('never forwards unsupported full-text q to HaveAPI', async () => {
     installApiFixture();
-    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+    const fetchMock = vi.mocked(apiWire.respond).mockResolvedValue(
       new Response(JSON.stringify({ status: true, response: { object_histories: [] } }), {
         status: 200,
         headers: { 'Content-Type': 'application/json' },

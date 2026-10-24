@@ -1,3 +1,4 @@
+import { installHaveApiXhr } from '../../test/haveapiXhr';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import {
@@ -52,7 +53,7 @@ function installOkFetch(response: unknown) {
   const fetchMock = vi.fn(async (..._args: Parameters<typeof fetch>) =>
     makeOkResponse({ status: true, response })
   );
-  vi.stubGlobal('fetch', fetchMock);
+  installHaveApiXhr( fetchMock);
   return fetchMock;
 }
 
@@ -95,9 +96,9 @@ describe('haveApiCall', () => {
     const [url, init] = getFetchCall(fetchMock);
 
     expect(String(url)).toContain('https://api.example.test/v7.0/vps?');
-    expect(String(url)).toContain('vps%5Blimit%5D=10');
-    expect(String(url)).toContain('vps%5Bhostname_any%5D=abc');
-    expect(String(url)).toContain('_meta%5Bcount%5D=true');
+    expect(new URL(String(url)).searchParams.get('vps[limit]')).toBe('10');
+    expect(new URL(String(url)).searchParams.get('vps[hostname_any]')).toBe('abc');
+    expect(new URL(String(url)).searchParams.get('_meta[count]')).toBe('true');
 
     const headers = new Headers(init?.headers);
     expect(headers.get('X-Auth-Token')).toBe('tok_123');
@@ -118,7 +119,7 @@ describe('haveApiCall', () => {
 
     const [, init] = getFetchCall(fetchMock);
     expect(init?.method).toBe('DELETE');
-    expect(new Headers(init?.headers).get('Content-Type')).toBe('application/json');
+    expect(new Headers(init?.headers).get('Content-Type')).toMatch(/^application\/json(?:;|$)/);
 
     const parsed = JSON.parse(String(init?.body));
     expect(parsed).toEqual({ vps: { force: true }, meta: { api: 'test' } });
@@ -135,7 +136,7 @@ describe('haveApiCall', () => {
 
     const [, init] = getFetchCall(fetchMock);
     expect(init?.method).toBe('POST');
-    expect(new Headers(init?.headers).get('Content-Type')).toBe('application/json');
+    expect(new Headers(init?.headers).get('Content-Type')).toMatch(/^application\/json(?:;|$)/);
     expect(init?.body).toBe('{}');
   });
 
@@ -212,7 +213,7 @@ describe('haveApiCall', () => {
       message: 'Unauthorized', response: null }), {
       status: 401, headers: { 'content-type': 'application/json' },
     }));
-    vi.stubGlobal('fetch', fetchMock);
+    installHaveApiXhr( fetchMock);
 
     await expect(haveApiCall<any>({ method: 'GET', path: '/users/current' })).rejects.toMatchObject({ httpStatus: 401 });
     expect(fetchMock).toHaveBeenCalledTimes(1);
@@ -226,8 +227,7 @@ describe('haveApiCall', () => {
     const listener = vi.fn();
     window.addEventListener(SESSION_EXPIRED_EVENT, listener);
 
-    vi.stubGlobal(
-      'fetch',
+    installHaveApiXhr(
       vi.fn(async () =>
         new Response(JSON.stringify({ status: false, message: 'Unauthorized', response: null }), {
           status: 401,
@@ -252,8 +252,7 @@ describe('haveApiCall', () => {
     const listener = vi.fn();
     window.addEventListener(SESSION_EXPIRED_EVENT, listener);
 
-    vi.stubGlobal(
-      'fetch',
+    installHaveApiXhr(
       vi.fn(async () =>
         makeOkResponse({ status: false, message: 'Session expired', response: null })
       )
@@ -276,7 +275,7 @@ describe('haveApiCall', () => {
     ['non-object envelope', 'ok'],
   ])('treats a 2xx %s response as an ambiguous malformed envelope', async (_label, body) => {
     setMockRuntime();
-    vi.stubGlobal('fetch', vi.fn(async () => makeOkResponse(body)));
+    installHaveApiXhr( vi.fn(async () => makeOkResponse(body)));
 
     const error = await haveApiCall<any>({ method: 'POST', path: '/vpses/123/start' })
       .then(() => undefined, (err: unknown) => err);
@@ -288,7 +287,7 @@ describe('haveApiCall', () => {
 
   it('keeps an explicit status:false 2xx envelope authoritative', async () => {
     setMockRuntime();
-    vi.stubGlobal('fetch', vi.fn(async () => makeOkResponse({
+    installHaveApiXhr( vi.fn(async () => makeOkResponse({
       status: false,
       message: 'Validation failed',
       errors: { vps: { memory: ['too large'] } },

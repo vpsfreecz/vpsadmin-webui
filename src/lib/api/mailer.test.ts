@@ -1,3 +1,4 @@
+import { apiWire, installHaveApiXhr } from '../../test/haveapiXhr';
 import { describe, expect, test, vi } from 'vitest';
 
 import {
@@ -21,13 +22,13 @@ function mockFetchOk(response: any) {
 }
 
 function lastFetchCall() {
-  const calls = (globalThis.fetch as any).mock.calls;
+  const calls = (apiWire.respond as any).mock.calls;
   return calls[calls.length - 1] as [string, RequestInit?];
 }
 
 describe('mailer API wrappers', () => {
   test('fetchMailTemplates forwards only supported pagination parameters', async () => {
-    vi.stubGlobal('fetch', mockFetchOk({ mail_templates: [], _meta: { total_count: 0 } }));
+    installHaveApiXhr( mockFetchOk({ mail_templates: [], _meta: { total_count: 0 } }));
 
     const optionsWithUnsupportedFilters = {
       limit: 25,
@@ -52,7 +53,7 @@ describe('mailer API wrappers', () => {
   });
 
   test('mail template create sends identifiers while ordinary update only sends safe mutable fields', async () => {
-    vi.stubGlobal('fetch', mockFetchOk({ mail_template: { id: 7 } }));
+    installHaveApiXhr( mockFetchOk({ mail_template: { id: 7 } }));
 
     await createMailTemplate({
       name: 'registration',
@@ -94,7 +95,7 @@ describe('mailer API wrappers', () => {
   });
 
   test('nested mail template reads request the relations rendered by the UI', async () => {
-    vi.stubGlobal('fetch', mockFetchOk({ recipients: [], _meta: { total_count: 0 } }));
+    installHaveApiXhr( mockFetchOk({ recipients: [], _meta: { total_count: 0 } }));
 
     await fetchMailTemplateRecipients(7, { limit: 50, fromId: 9 });
 
@@ -105,7 +106,7 @@ describe('mailer API wrappers', () => {
     expect(parsed.searchParams.get('recipient[from_id]')).toBe('9');
     expect(parsed.searchParams.get('_meta[includes]')).toBe('mail_recipient');
 
-    vi.stubGlobal('fetch', mockFetchOk({ translations: [], _meta: { total_count: 0 } }));
+    installHaveApiXhr( mockFetchOk({ translations: [], _meta: { total_count: 0 } }));
     await fetchMailTemplateTranslations(7, { limit: 25, fromId: 11 });
 
     [url] = lastFetchCall();
@@ -115,7 +116,7 @@ describe('mailer API wrappers', () => {
     expect(parsed.searchParams.get('translation[from_id]')).toBe('11');
     expect(parsed.searchParams.get('_meta[includes]')).toBe('language');
 
-    vi.stubGlobal('fetch', mockFetchOk({ translation: { id: 13 } }));
+    installHaveApiXhr( mockFetchOk({ translation: { id: 13 } }));
     await fetchMailTemplateTranslation(7, 13);
 
     [url] = lastFetchCall();
@@ -125,7 +126,7 @@ describe('mailer API wrappers', () => {
   });
 
   test('translation update preserves explicit nulls when MIME bodies are cleared', async () => {
-    vi.stubGlobal('fetch', mockFetchOk({ translation: { id: 13 } }));
+    installHaveApiXhr( mockFetchOk({ translation: { id: 13 } }));
 
     await updateMailTemplateTranslation(7, 13, {
       from: 'noreply@example.test',
@@ -148,7 +149,7 @@ describe('mailer API wrappers', () => {
   });
 
   test('recipient update preserves explicit nulls when address fields are cleared', async () => {
-    vi.stubGlobal('fetch', mockFetchOk({ mail_recipient: { id: 19 } }));
+    installHaveApiXhr( mockFetchOk({ mail_recipient: { id: 19 } }));
 
     await updateMailRecipient(19, {
       label: 'Operations',
@@ -171,7 +172,7 @@ describe('mailer API wrappers', () => {
   });
 
   test('fetchMailRecipient reads the authoritative recipient before an edit update', async () => {
-    vi.stubGlobal('fetch', mockFetchOk({
+    installHaveApiXhr( mockFetchOk({
       mail_recipient: {
         id: 19,
         label: 'Operations',
@@ -197,7 +198,7 @@ describe('mailer API wrappers', () => {
   });
 
   test('fetchMailLogs forwards only supported pagination parameters', async () => {
-    globalThis.fetch = mockFetchOk({ mail_logs: [], _meta: { total_count: 0 } }) as any;
+    apiWire.respond = mockFetchOk({ mail_logs: [], _meta: { total_count: 0 } }) as any;
 
     const optionsWithUnsupportedFilters = {
       limit: 50,
@@ -221,7 +222,7 @@ describe('mailer API wrappers', () => {
   });
 
   test('fetchMailboxes forwards pagination/count and never sends unsupported filters', async () => {
-    globalThis.fetch = mockFetchOk({ mailboxes: [], _meta: { total_count: 0 } }) as any;
+    apiWire.respond = mockFetchOk({ mailboxes: [], _meta: { total_count: 0 } }) as any;
 
     const optionsWithUnsupportedFilters = {
       limit: 10,
@@ -248,7 +249,7 @@ describe('mailer API wrappers', () => {
   });
 
   test('fetchMailRecipients sends only API-supported pagination parameters', async () => {
-    globalThis.fetch = mockFetchOk({ mail_recipients: [], _meta: { total_count: 0 } }) as any;
+    apiWire.respond = mockFetchOk({ mail_recipients: [], _meta: { total_count: 0 } }) as any;
 
     const optionsWithUnsupportedFilters = {
       limit: 25,

@@ -85,6 +85,7 @@
     "e2e/specs/app/vps_private_ip_availability.spec.ts",
     "e2e/specs/public/about.spec.ts",
     "e2e/specs/public/news_compact.spec.ts",
+    "e2e/specs/public/overview.spec.ts",
     "e2e/specs/public/theme_language_bootstrap.spec.ts",
     "src/types/vpsadmin.d.ts"
   ],
