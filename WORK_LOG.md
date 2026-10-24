@@ -127,6 +127,26 @@ Independent review candidate; not merged or deployed.
 
 ## New changes
 
+## 2026-10-31 — Refresh the released HaveAPI client candidate
+
+See the [current-main reconciliation](docs/work-log/2026-10-31-haveapi-current-main.md).
+The dependency and production adapter remain separate commits. Current upstream
+Tasks, mobile lookup, transaction and maintenance behavior is retained.
+Prepared for independent review; no deployment or database migration.
+
+## 2026-10-28 — HaveAPI 0.31.2 patch
+
+See the [release identity and verification record](docs/work-log/2026-10-28-haveapi-0312.md).
+The existing adapter, BFF and security dependency baseline are unchanged.
+Prepared for review; no deployment or database migration.
+
+## 2026-10-27 — HaveAPI 0.31.1 successor
+
+See the [release identity and verification record](docs/work-log/2026-10-27-haveapi-0311.md).
+The existing AsyncClient adapter and contradictory-receipt safeguards are retained
+on current main, including its product changes and BFF security dependency fixes.
+Prepared for review; no deployment or database migration.
+
 ## 2026-10-27 — Repair the PR security baseline
 
 PRs #90–#95 inherited the old BFF lock and failed its production audit. Extend
@@ -164,6 +184,23 @@ Hide unsupported snapshot deletion in VPS and backed-up dataset views, verify
 eligible NAS state again before deletion, and explain API rejection without its
 exception class name. Prepared for review, not deployed. See
 [behavior and verification](docs/work-log/2026-10-27-snapshot-delete-guards.md).
+
+## 2026-10-27 — HaveAPI 0.31.0 successor
+
+See the [release identity and verification record](docs/work-log/2026-10-27-haveapi-0310.md).
+The generic AsyncClient adapter and contradictory-receipt safeguards are retained.
+Prepared for review; no deployment or database migration.
+
+## 2026-10-26 — HaveAPI 0.30.2 dependency refresh
+
+See the [release identity and verification record](docs/work-log/2026-10-26-haveapi-0302.md).
+The existing adapter and contradictory-receipt safeguards are unchanged.
+Prepared for review; no deployment or database migration.
+
+## 2026-10-24 — Released HaveAPI async client
+
+See the [takeover, registry provenance and verification record](docs/work-log/2026-10-24-haveapi-released-client.md).
+Prepared for review; no deployment or database migration.
 
 ## 2026-10-23 — Completed member administration release
 

@@ -38,7 +38,7 @@ export function classifyError(err: unknown): {
       kind,
       httpStatus,
       message: err.message || staticT('common.unknown_error'),
-      haveApiMessage: err.envelope?.message,
+      haveApiMessage: err.envelope?.message ?? undefined,
       haveApiErrors: err.envelope?.errors,
       request: err.request,
     };

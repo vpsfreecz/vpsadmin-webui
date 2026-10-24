@@ -1,3 +1,4 @@
+import { apiWire } from '../../test/haveapiXhr';
 import { describe, expect, test, vi } from 'vitest';
 
 import { fetchAllOutageEntities } from './outageScopePaging';
@@ -31,7 +32,7 @@ describe('outage scope paging', () => {
       }
       throw new Error(`Unexpected cursor ${fromId}`);
     });
-    globalThis.fetch = fetchMock as unknown as typeof globalThis.fetch;
+    apiWire.respond = fetchMock as unknown as typeof apiWire.respond;
 
     const result = await fetchAllOutageEntities(7);
 

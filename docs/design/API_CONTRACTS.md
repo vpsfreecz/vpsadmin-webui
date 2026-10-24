@@ -65,6 +65,56 @@ limit is omitted. See [model cases](../../src/pages/app/admin/nodes/NodeLifecycl
 Do not infer editability from the create form or silently add unsupported update
 fields when reorganizing the node page.
 
+## Production HaveAPI client
+
+All generic authenticated, public and fallback-description requests use the
+installed HaveAPI `AsyncClient` through
+[the package adapter](../../src/lib/api/haveapiRequestClient.ts). The package owns
+XHR, query/body encoding, JSON parsing and envelope validation. There is no
+alternate fetch transport or injectable production client. The
+[package provenance guide](HAVEAPI_CLIENT.md) records the dependency and
+reproducible build inputs.
+
+[haveApiCall](../../src/lib/api/haveapi.ts) keeps separate lazy authenticated and
+public clients per resolved, already-versioned API base. It uses low-level
+`request`, without library setup/authentication or a token cache. A supplied
+window description or configured header and metadata namespace avoids discovery;
+otherwise one anonymous `OPTIONS /` request per base reads the description.
+Configured, described and existing fallback auth-header precedence is retained.
+Each authenticated dispatch reads live credentials; a call retains its original
+language and scalar query values across recovery. Public calls use Accept only,
+without auth, language, description discovery or session recovery. XHR keeps its
+ordinary same-origin credential behavior.
+
+Domain-helper signatures and result shapes remain stable. WebUI admits scalar
+query values and omits params without an input namespace; AsyncClient encodes the
+request. WebUI projects validated data into the existing single-namespace result,
+with configured, `_meta` and `meta` lookup, raw arrays/null and multiple namespaces
+preserved. It retains `HaveApiError`, request context, nested validation errors,
+HTTP 200 API rejection semantics, action-state receipts and uncertain-mutation
+guards. Missing success payloads, invalid metadata and malformed replies are
+protocol failures, distinct from valid null or an authoritative API rejection.
+Mapped API/protocol failures retain the original `AsyncError` as their cause,
+including any validated envelope, response and metadata receipt supplied by the
+library. A protocol failure stays uncertain even when that receipt is available.
+An HTTP failure with a validated `status: true` envelope is also contradictory
+and uncertain: retain both signals and the library receipt, do not renew or
+replay, and keep shared mutation protection until reconciliation. Ordinary
+`status: false` 4xx rejections retain their authoritative guard-release behavior.
+
+Only a validated OAuth HTTP 401 rejection may recover the same BFF session.
+Concurrent reads share renewal and retry once with fresh auth and original
+inputs/language. Rejected writes may renew the session but require explicit
+resubmission; they never replay. Changed identity, logout, impersonation,
+HTTP 403, a malformed 401 response, transport errors and abort retain their guards. BFF
+config/session JSON and OAuth token requests remain separate protocols.
+
+The [actual-package tests](../../src/lib/api/haveapiRequestClient.test.ts) feed
+serialized HTTP replies through controlled XHR; they do not mock the library or
+delegate HaveAPI requests to fetch. Ordinary domain and app fixtures cover the
+public/authenticated call paths. Synthetic fixtures do not certify OAuth exchange,
+backend permissions, live task completion or deployment.
+
 ## Pagination: known blockers
 
 For the locked vpsAdmin source `a65a4dfeb92a59df4a80a737a20bcbf8558793ff`
