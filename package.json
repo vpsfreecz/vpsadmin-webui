@@ -77,6 +77,7 @@
   "dependencies": {
     "@tanstack/react-query": "^5.90.19",
     "clsx": "^2.1.1",
+    "haveapi-client": "0.31.1",
     "lucide-react": "^0.562.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",

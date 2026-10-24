@@ -1,0 +1,18 @@
+{
+  "name": "haveapi-client",
+  "version": "0.31.1",
+  "resolved": "https://registry.npmjs.org/haveapi-client/-/haveapi-client-0.31.1.tgz",
+  "integrity": "sha512-W3pgK2807qLVr3Yr1yQ+illlvcNasVDM7Dr/zxUuMUK7a0lHEkkxhdUeICGkWXb9Smy9FPIY5UcQCn6JlXEtag==",
+  "source": {
+    "repository": "https://github.com/vpsfreecz/haveapi",
+    "directory": "clients/js",
+    "commit": "d49cfa3f3b8ee42f6cd8a6b7de8b7d551215cd42",
+    "ref": "refs/tags/v0.31.1"
+  },
+  "attestation": {
+    "url": "https://registry.npmjs.org/-/npm/v1/attestations/haveapi-client@0.31.1",
+    "predicateType": "https://slsa.dev/provenance/v1",
+    "workflow": ".github/workflows/release.yml",
+    "invocationId": "https://github.com/vpsfreecz/haveapi/actions/runs/40592240342/attempts/1"
+  }
+}
