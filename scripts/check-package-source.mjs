@@ -17,11 +17,35 @@ const requiredPaths = [
   'src/routes/router.tsx',
   'src/lib/api/haveapi.ts',
   'UI_REDESIGN.md',
+  'packages/haveapi-client-provenance.json',
 ];
 const excludedDirectories = new Set([
   '.git', '.vite', 'artifacts', 'dist', 'node_modules', 'output',
   'playwright-report', 'work',
 ]);
+
+function checkHaveApiPackage(root) {
+  const read = (file) => JSON.parse(fs.readFileSync(path.join(root, file), 'utf8'));
+  const provenance = read('packages/haveapi-client-provenance.json');
+  const manifest = read('package.json');
+  const lock = read('package-lock.json');
+  const locked = lock.packages?.['node_modules/haveapi-client'];
+  if (provenance.name !== 'haveapi-client' ||
+      manifest.dependencies?.['haveapi-client'] !== provenance.version ||
+      lock.packages?.['']?.dependencies?.['haveapi-client'] !== provenance.version ||
+      locked?.version !== provenance.version || locked.resolved !== provenance.resolved ||
+      locked.integrity !== provenance.integrity || locked.link ||
+      provenance.resolved !== `https://registry.npmjs.org/haveapi-client/-/haveapi-client-${provenance.version}.tgz` ||
+      !/^sha512-[A-Za-z0-9+/]{86}==$/.test(provenance.integrity)) {
+    throw new Error('HaveAPI registry dependency, lock and provenance disagree');
+  }
+  const xhr = lock.packages?.['node_modules/xmlhttprequest'];
+  if (locked.dependencies?.xmlhttprequest !== 'latest' || xhr?.version !== '1.8.0' ||
+      xhr.resolved !== 'https://registry.npmjs.org/xmlhttprequest/-/xmlhttprequest-1.8.0.tgz' ||
+      !/^sha512-[A-Za-z0-9+/]{86}==$/.test(xhr.integrity) || xhr.link) {
+    throw new Error('HaveAPI transitive XMLHttpRequest must retain its exact registry lock');
+  }
+}
 
 export function checkPackageSource(root) {
   const absoluteRoot = path.resolve(root);
@@ -52,6 +76,11 @@ export function checkPackageSource(root) {
   }
 
   walk(absoluteRoot);
+  try {
+    checkHaveApiPackage(absoluteRoot);
+  } catch (error) {
+    failures.push(error.message);
+  }
   if (failures.length) throw new Error(failures.join('\n'));
   return { requiredFiles: requiredPaths.length };
 }

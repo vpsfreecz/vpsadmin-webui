@@ -12,6 +12,7 @@ const required = [
   'docs/design/IMPLEMENTATION_INVENTORY.md', 'public/config.local.js.example',
   'scripts/audit-design-docs.mjs', 'scripts/design-inventory.mjs',
   'src/routes/router.tsx', 'src/lib/api/haveapi.ts', 'UI_REDESIGN.md',
+  'packages/haveapi-client-provenance.json',
 ];
 
 function fixture(callback) {
@@ -22,6 +23,19 @@ function fixture(callback) {
       fs.mkdirSync(path.dirname(file), { recursive: true });
       fs.writeFileSync(file, 'fixture\n');
     }
+    const provenance = JSON.parse(fs.readFileSync(new URL('../packages/haveapi-client-provenance.json', import.meta.url)));
+    const xhr = JSON.parse(fs.readFileSync(new URL('../package-lock.json', import.meta.url))).packages['node_modules/xmlhttprequest'];
+    const dependencies = { 'haveapi-client': provenance.version };
+    fs.writeFileSync(path.join(root, 'packages/haveapi-client-provenance.json'), JSON.stringify(provenance));
+    fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify({ dependencies }));
+    fs.writeFileSync(path.join(root, 'package-lock.json'), JSON.stringify({ packages: {
+      '': { dependencies },
+      'node_modules/haveapi-client': {
+        version: provenance.version, resolved: provenance.resolved, integrity: provenance.integrity,
+        dependencies: { xmlhttprequest: 'latest' },
+      },
+      'node_modules/xmlhttprequest': xhr,
+    } }));
     callback(root);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
@@ -63,5 +77,27 @@ test('rejects an external source symlink before a build can follow it', () => {
     } finally {
       fs.rmSync(external, { force: true });
     }
+  });
+});
+
+test('rejects a substituted HaveAPI archive or integrity', () => {
+  for (const [field, value] of [['resolved', 'file:vendor/client.tgz'], ['integrity', 'sha512-changed']]) {
+    fixture((root) => {
+      const file = path.join(root, 'package-lock.json');
+      const lock = JSON.parse(fs.readFileSync(file, 'utf8'));
+      lock.packages['node_modules/haveapi-client'][field] = value;
+      fs.writeFileSync(file, JSON.stringify(lock));
+      assert.throws(() => checkPackageSource(root), /HaveAPI registry dependency, lock and provenance disagree/);
+    });
+  }
+});
+
+test('rejects floating or substituted HaveAPI transitive transport', () => {
+  fixture((root) => {
+    const file = path.join(root, 'package-lock.json');
+    const lock = JSON.parse(fs.readFileSync(file, 'utf8'));
+    delete lock.packages['node_modules/xmlhttprequest'].integrity;
+    fs.writeFileSync(file, JSON.stringify(lock));
+    assert.throws(() => checkPackageSource(root), /transitive XMLHttpRequest must retain its exact registry lock/);
   });
 });
