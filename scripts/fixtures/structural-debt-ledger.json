@@ -77,20 +77,6 @@
       }
     },
     {
-      "path": "src/lib/api/haveapi.ts",
-      "rule": "crossed-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "5e3afe7fcea2717150b8a96b8cab0f9c1570fc2a41ac4c55d897f7eb2c55fa31",
-      "old": 439,
-      "allowance": 516,
-      "rationale": "At the recorded source revision, this file already contained HaveAPI request and response adapter cases; extract the coherent section with focused behavior coverage before removing this exception. Reviewed 2026-10-06: two lines add request-language negotiation; OAuth retry preserves the original headers. Focused transport tests cover cs/en and renewal.",
-      "owner": "WebUI implementation lead",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 500
-      }
-    },
-    {
       "path": "src/pages/app/MonitoringEventDetailPage.tsx",
       "rule": "grown-over-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",

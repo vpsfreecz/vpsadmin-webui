@@ -1,3 +1,4 @@
+import { apiWire } from '../../test/haveapiXhr';
 import { describe, expect, test, vi } from 'vitest';
 
 import { updateVpsFeature, updateVpsFeaturesAll } from './vpsFeatures';
@@ -11,7 +12,7 @@ describe('VPS feature blocking mutation contracts', () => {
     ['single update', () => updateVpsFeature(12, 3, true)],
     ['update all', () => updateVpsFeaturesAll(12, { quota: true })],
   ])('fails closed when %s omits its action-state id', async (_action, call) => {
-    globalThis.fetch = mockFetchOk({ _meta: {} }) as unknown as typeof fetch;
+    apiWire.respond = mockFetchOk({ _meta: {} }) as unknown as typeof fetch;
     await expect(call()).rejects.toMatchObject({ code: 'MISSING_ACTION_STATE' });
   });
 });

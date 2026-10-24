@@ -1,3 +1,4 @@
+import { apiWire } from '../../test/haveapiXhr';
 import { describe, expect, test, vi } from 'vitest';
 
 import {
@@ -12,14 +13,14 @@ function mockFetchOk(response: any) {
 }
 
 function lastFetchUrl() {
-  const calls = (globalThis.fetch as any).mock.calls;
+  const calls = (apiWire.respond as any).mock.calls;
   const [url] = calls[calls.length - 1] as [string, RequestInit?];
   return new URL(url);
 }
 
 describe('transactions API wrappers', () => {
   test('fetchTransactionChains forwards HaveAPI index filters', async () => {
-    globalThis.fetch = mockFetchOk({ transaction_chain: [{ id: 10, label: 'chain' }], _meta: { total_count: 1 } }) as any;
+    apiWire.respond = mockFetchOk({ transaction_chain: [{ id: 10, label: 'chain' }], _meta: { total_count: 1 } }) as any;
 
     const res = await fetchTransactionChains({
       limit: 25,
@@ -49,7 +50,7 @@ describe('transactions API wrappers', () => {
   });
 
   test('fetchTransactions forwards only filters supported by the transaction index', async () => {
-    globalThis.fetch = mockFetchOk({ transaction: [{ id: 501, name: 'tx' }] }) as any;
+    apiWire.respond = mockFetchOk({ transaction: [{ id: 501, name: 'tx' }] }) as any;
 
     const res = await fetchTransactions({
       limit: 100,
@@ -83,12 +84,12 @@ describe('transactions API wrappers', () => {
   });
 
   test('detail helpers use show endpoints without namespaced query params', async () => {
-    globalThis.fetch = mockFetchOk({ transaction_chain: { id: 42 } }) as any;
+    apiWire.respond = mockFetchOk({ transaction_chain: { id: 42 } }) as any;
     await fetchTransactionChain(42);
     expect(lastFetchUrl().pathname).toBe('/v7.0/transaction_chains/42');
     expect(lastFetchUrl().search).toBe('');
 
-    globalThis.fetch = mockFetchOk({ transaction: { id: 501 } }) as any;
+    apiWire.respond = mockFetchOk({ transaction: { id: 501 } }) as any;
     await fetchTransaction(501);
     expect(lastFetchUrl().pathname).toBe('/v7.0/transactions/501');
     expect(lastFetchUrl().search).toBe('');

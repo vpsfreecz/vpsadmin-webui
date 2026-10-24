@@ -1,3 +1,4 @@
+import { apiWire, installHaveApiXhr } from '../../test/haveapiXhr';
 import { describe, expect, test, vi } from 'vitest';
 
 import { fetchDnsResolvers } from './dnsResolvers';
@@ -8,7 +9,7 @@ function mockFetchOk(response: unknown) {
 
 describe('DNS resolver API wrapper', () => {
   test('forwards only pagination and the API-supported VPS selector', async () => {
-    vi.stubGlobal('fetch', mockFetchOk({ dns_resolvers: [] }));
+    installHaveApiXhr( mockFetchOk({ dns_resolvers: [] }));
 
     const optionsWithUnsupportedFilters = {
       limit: 25,
@@ -20,7 +21,7 @@ describe('DNS resolver API wrapper', () => {
     };
     await fetchDnsResolvers(optionsWithUnsupportedFilters);
 
-    const [url] = vi.mocked(globalThis.fetch).mock.calls.at(-1) as [string, RequestInit];
+    const [url] = vi.mocked(apiWire.respond).mock.calls.at(-1) as [string, RequestInit];
     const parsed = new URL(url);
 
     expect(parsed.pathname).toBe('/v7.0/dns_resolvers');

@@ -1,3 +1,4 @@
+import { apiWire } from '../../test/haveapiXhr';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { findUserByExactLogin } from './userLookups';
@@ -17,7 +18,7 @@ describe('findUserByExactLogin', () => {
         authentication: { token: { http_header: 'X-Auth-Token' } },
       },
     };
-    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+    const fetchMock = vi.mocked(apiWire.respond).mockResolvedValue(
       new Response(JSON.stringify({
         status: true,
         response: { users: [{ id: 48, login: 'base48', level: 1 }] },

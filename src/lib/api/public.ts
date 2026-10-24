@@ -1,5 +1,4 @@
-import { getRuntimeConfig } from '../../app/config';
-import { expectArray, HaveApiError, type HaveApiEnvelope, unwrapSingleResponse } from './haveapi';
+import { expectArray, publicHaveApiCall } from './haveapi';
 
 export interface PublicApiCallOpts {
   path: string;
@@ -7,72 +6,8 @@ export interface PublicApiCallOpts {
   params?: Record<string, unknown>;
 }
 
-function buildPublicQuery(namespace: string, params: Record<string, unknown>): URLSearchParams {
-  const qs = new URLSearchParams();
-
-  for (const [k, v] of Object.entries(params)) {
-    if (v === undefined) continue;
-    if (v === null) {
-      qs.append(`${namespace}[${k}]`, '');
-      continue;
-    }
-
-    const t = typeof v;
-    if (t === 'string' || t === 'number' || t === 'boolean') {
-      qs.append(`${namespace}[${k}]`, String(v));
-      continue;
-    }
-
-    throw new HaveApiError(
-      {
-        status: false,
-        message: `Invalid query parameter ${namespace}[${k}] (must be string/number/boolean/null)`,
-        response: { key: k, value: v },
-      },
-      'Invalid query parameter'
-    );
-  }
-
-  return qs;
-}
-
-async function safePublicJson(res: Response): Promise<HaveApiEnvelope> {
-  try {
-    return (await res.json()) as HaveApiEnvelope;
-  } catch {
-    return {
-      status: false,
-      message: `Invalid JSON response (HTTP ${res.status})`,
-      response: null,
-    };
-  }
-}
-
-export async function publicApiCall<T>(opts: PublicApiCallOpts): Promise<{ data: T; meta?: Record<string, unknown>; envelope: HaveApiEnvelope }> {
-  const cfg = getRuntimeConfig();
-  let url = `${cfg.apiBaseUrl}${opts.path.startsWith('/') ? '' : '/'}${opts.path}`;
-
-  if (opts.namespace && opts.params) {
-    const qs = buildPublicQuery(opts.namespace, opts.params);
-    if ([...qs.keys()].length > 0) {
-      url += (url.includes('?') ? '&' : '?') + qs.toString();
-    }
-  }
-
-  const reqInfo = { method: 'GET', path: opts.path, url };
-  const res = await fetch(url, {
-    method: 'GET',
-    headers: { Accept: 'application/json' },
-    credentials: 'same-origin',
-  });
-  const envelope = await safePublicJson(res);
-
-  if (!res.ok) {
-    throw new HaveApiError(envelope, `HTTP ${res.status}`, res.status, reqInfo);
-  }
-
-  const unwrapped = unwrapSingleResponse<T>(envelope, cfg.haveApi?.metaNamespace ?? '_meta');
-  return { ...unwrapped, envelope };
+export function publicApiCall<T>(opts: PublicApiCallOpts) {
+  return publicHaveApiCall<T>(opts);
 }
 
 export interface PublicClusterStats {

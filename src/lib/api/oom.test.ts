@@ -1,3 +1,4 @@
+import { apiWire } from '../../test/haveapiXhr';
 import { describe, expect, test, vi } from 'vitest';
 
 import { fetchOomReports } from './oom';
@@ -7,13 +8,13 @@ function mockFetchOk(response: any) {
 }
 
 function lastFetchCall() {
-  const calls = (globalThis.fetch as any).mock.calls;
+  const calls = (apiWire.respond as any).mock.calls;
   return calls[calls.length - 1] as [string, RequestInit?];
 }
 
 describe('oom API wrappers', () => {
   test('fetchOomReports forwards only supported filter params', async () => {
-    globalThis.fetch = mockFetchOk({ oom_reports: [], _meta: { total_count: 0 } }) as any;
+    apiWire.respond = mockFetchOk({ oom_reports: [], _meta: { total_count: 0 } }) as any;
 
     await fetchOomReports({
       limit: 50,

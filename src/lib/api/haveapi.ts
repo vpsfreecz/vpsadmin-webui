@@ -1,9 +1,12 @@
 import { detectStaticUiLanguage, staticTForDocument } from '../staticI18n';
 import { recoverBffSession } from '../auth/bffSession';
 import { getRuntimeConfig } from '../../app/config';
-import { MALFORMED_HAVEAPI_ENVELOPE_ERROR_CODE, parseHaveApiEnvelope } from './haveapiEnvelope';
+import {
+  MALFORMED_HAVEAPI_ENVELOPE_ERROR_CODE, requestHaveApi,
+  type HaveApiReply, type RequestSpec,
+} from './haveapiRequestClient';
 
-export { MALFORMED_HAVEAPI_ENVELOPE_ERROR_CODE } from './haveapiEnvelope';
+export { MALFORMED_HAVEAPI_ENVELOPE_ERROR_CODE } from './haveapiRequestClient';
 export type JsonValue =
   | null
   | boolean
@@ -13,9 +16,9 @@ export type JsonValue =
   | { [k: string]: JsonValue };
 export interface HaveApiEnvelope {
   status: boolean;
-  message?: string;
+  message?: string | null;
   errors?: unknown;
-  response?: Record<string, unknown> | null;
+  response?: unknown;
 }
 export interface HaveApiRequestInfo {
   method: string;
@@ -40,8 +43,8 @@ export class HaveApiError extends Error {
   /** Best-effort request metadata for debugging/support. */
   public request?: HaveApiRequestInfo;
 
-  constructor(envelope: HaveApiEnvelope, fallbackMessage = 'Request failed', httpStatus?: number, request?: HaveApiRequestInfo) {
-    super(envelope.message || fallbackMessage);
+  constructor(envelope: HaveApiEnvelope, fallbackMessage = 'Request failed', httpStatus?: number, request?: HaveApiRequestInfo, cause?: unknown) {
+    super(envelope.message || fallbackMessage, cause === undefined ? undefined : { cause });
     this.name = 'HaveApiError';
     this.envelope = envelope;
     this.httpStatus = httpStatus;
@@ -106,101 +109,27 @@ function getHaveApiDescriptionFromWindow(): any | undefined {
   return (window as any).vpsAdmin?.description;
 }
 
-let cachedDescription: any | undefined;
-let descriptionPromise: Promise<any | undefined> | null = null;
-
-async function fetchHaveApiDescriptionFromApi(): Promise<any | undefined> {
-  const cfg = getRuntimeConfig();
-
-  // In most HaveAPI deployments, the version base URL returns the JSON description.
-  // Example: https://api.example.tld/v7.0
-  // We try a few safe candidates.
-  const candidates = [
-    cfg.apiBaseUrl,
-    `${cfg.apiBaseUrl}/`,
-    cfg.apiUrl,
-    `${cfg.apiUrl}/`,
-  ];
-
-  for (const url of candidates) {
-    try {
-      const res = await fetch(url, {
-        method: 'GET',
-        headers: { Accept: 'application/json' },
-      });
-
-      const ct = res.headers.get('content-type') ?? '';
-      if (!res.ok) continue;
-
-      // Some servers return JSON without a strict content-type.
-      if (ct.includes('application/json') || ct.includes('application/vnd') || ct.includes('+json') || ct === '') {
-        const data = await res.json().catch(() => undefined);
-        if (data && typeof data === 'object') {
-          return data;
-        }
-      }
-    } catch {
-      // ignore and try next candidate
-    }
-  }
-
-  return undefined;
-}
+const descriptions = new Map<string, Promise<any | undefined>>();
 
 async function getHaveApiDescription(): Promise<any | undefined> {
-  const winDesc = getHaveApiDescriptionFromWindow();
-  if (winDesc) return winDesc;
-
+  const supplied = getHaveApiDescriptionFromWindow();
+  if (supplied) return supplied;
   const cfg = getRuntimeConfig();
   if (cfg.haveApi?.authHeader && cfg.haveApi?.metaNamespace) return undefined;
-
-  if (cachedDescription) return cachedDescription;
-
-  if (!descriptionPromise) {
-    descriptionPromise = fetchHaveApiDescriptionFromApi()
-      .then((d) => {
-        cachedDescription = d;
-        return d;
-      })
+  let pending = descriptions.get(cfg.apiBaseUrl);
+  if (!pending) {
+    // OPTIONS uses the already versioned base, not AsyncClient.setup's version
+    // discovery. A public client cannot inherit runtime authentication.
+    pending = requestHaveApi(cfg.apiBaseUrl, 'public', { method: 'OPTIONS', path: '/' })
+      .then(reply => reply.failure ? undefined : reply.data)
       .catch(() => undefined);
+    descriptions.set(cfg.apiBaseUrl, pending);
   }
-
-  return descriptionPromise;
+  return pending;
 }
 
 function getMetaNamespace(desc: any): string {
   return (desc && desc.meta && typeof desc.meta.namespace === 'string' && desc.meta.namespace) || '_meta';
-}
-
-function buildQuery(namespace: string, params: Record<string, unknown>): URLSearchParams {
-  const qs = new URLSearchParams();
-
-  for (const [k, v] of Object.entries(params)) {
-    if (v === undefined) continue;
-    if (v === null) {
-      qs.append(`${namespace}[${k}]`, '');
-      continue;
-    }
-
-    const t = typeof v;
-    if (t === 'string' || t === 'number' || t === 'boolean') {
-      qs.append(`${namespace}[${k}]`, String(v));
-      continue;
-    }
-
-    // HaveAPI query-string encoding is scalar. If you need structured data,
-    // send it as JSON body (POST/PUT/PATCH/DELETE) instead.
-    throw new HaveApiError(
-      {
-        status: false,
-        message: `Invalid query parameter ${namespace}[${k}] (must be string/number/boolean/null)`,
-        response: { key: k, value: v },
-      },
-      'Invalid query parameter'
-    );
-  }
-
-  return qs;
 }
 
 export function unwrapSingleResponse<T>(
@@ -298,12 +227,16 @@ export function isMissingActionStateError(error: unknown): error is MissingActio
 /**
  * Whether a submitted mutation has an unknown outcome and must not be retried
  * blindly. Explicit HaveAPI rejections and ordinary 4xx responses are
- * authoritative; transport loss, malformed responses and server failures are
- * not proof that the server did nothing.
+ * authoritative only when they do not contradict a successful API envelope;
+ * transport loss, malformed responses and server failures are not proof that
+ * the server did nothing.
  */
 export function isAmbiguousMutationError(error: unknown): boolean {
   if (isMissingActionStateError(error)) return true;
   if (error instanceof HaveApiError) {
+    // Keep both signals in the error receipt. An HTTP failure cannot establish
+    // rejection when the validated API envelope says the operation succeeded.
+    if (error.envelope.status === true) return true;
     if (
       error.envelope?.errors === 'INVALID_JSON_RESPONSE'
       || error.envelope?.errors === MALFORMED_HAVEAPI_ENVELOPE_ERROR_CODE
@@ -402,114 +335,96 @@ function authHeaders(desc: any): Record<string, string> {
   return {};
 }
 
-export async function haveApiCall<T>(opts: CallOpts): Promise<{ data: T; meta?: Record<string, unknown>; envelope: HaveApiEnvelope }> {
+export type HaveApiCall = <T>(opts: CallOpts) => Promise<{
+  data: T;
+  meta?: Record<string, unknown>;
+  envelope: HaveApiEnvelope;
+}>;
+
+function snapshotQuery(namespace: string, values: Record<string, unknown>): Record<string, unknown> {
+  const copy = { ...values };
+  for (const [key, value] of Object.entries(copy)) {
+    if (value === undefined || value === null || ['string', 'number', 'boolean'].includes(typeof value)) continue;
+    throw new HaveApiError({
+      status: false,
+      message: `Invalid query parameter ${namespace}[${key}] (must be string/number/boolean/null)`,
+      response: { key, value },
+    }, 'Invalid query parameter');
+  }
+  return copy;
+}
+
+/** Keep admission and retry inputs stable; encoding belongs to AsyncClient. */
+function requestSpec(opts: CallOpts, metaNamespace: string): RequestSpec {
+  const method = opts.method ?? 'GET';
+  const query = method === 'GET' || method === 'OPTIONS';
+  return {
+    method,
+    path: opts.path.startsWith('/') ? opts.path : `/${opts.path}`,
+    inputNamespace: opts.namespace || undefined,
+    metaNamespace,
+    params: opts.namespace && opts.params
+      ? query ? snapshotQuery(opts.namespace, opts.params) : { ...opts.params }
+      : undefined,
+    meta: opts.meta ? query ? snapshotQuery(metaNamespace, opts.meta) : { ...opts.meta } : undefined,
+    signal: opts.signal,
+  };
+}
+
+function resultFor<T>(reply: HaveApiReply, metaNamespace: string, request: HaveApiRequestInfo) {
+  const nonSuccess = reply.httpStatus < 200 || reply.httpStatus >= 300;
+  if (nonSuccess || !reply.envelope.status) {
+    // Preserve contradictory HTTP/envelope signals for ambiguity classification.
+    throw new HaveApiError(reply.envelope, `HTTP ${reply.httpStatus}`, nonSuccess ? reply.httpStatus : undefined, request, reply.cause);
+  }
+  // Data/envelope are already validated by the package. This only preserves
+  // the application's historical single-namespace and metadata projection.
+  const projected = unwrapSingleResponse<T>({ ...reply.envelope, response: reply.data }, metaNamespace);
+  return { ...projected, envelope: reply.envelope };
+}
+
+/** The normal production path always uses the installed AsyncClient. */
+export const haveApiCall: HaveApiCall = async <T>(opts: CallOpts) => {
   const language = detectStaticUiLanguage(typeof document === 'undefined' ? undefined : document);
   const desc = await getHaveApiDescription();
   const cfg = getRuntimeConfig();
-  const metaNs = cfg.haveApi?.metaNamespace ?? getMetaNamespace(desc);
-
-  const method = opts.method ?? 'GET';
-
-  let url = `${cfg.apiBaseUrl}${opts.path.startsWith('/') ? '' : '/'}${opts.path}`;
-
-  const ns = opts.namespace;
-  const qs = new URLSearchParams();
-
-  const paramsInQuery = method === 'GET' || method === 'OPTIONS';
-
-  if (paramsInQuery && ns && opts.params) {
-    for (const [k, v] of buildQuery(ns, opts.params).entries()) qs.append(k, v);
-  }
-
-  if (paramsInQuery && opts.meta) {
-    for (const [k, v] of buildQuery(metaNs, opts.meta).entries()) {
-      qs.append(k, v);
-    }
-  }
-
-  if ([...qs.keys()].length > 0) {
-    url += (url.includes('?') ? '&' : '?') + qs.toString();
-  }
-
-  const headers: Record<string, string> = {
-    Accept: 'application/json',
-    'Accept-Language': language,
-    ...authHeaders(desc),
+  const metaNamespace = cfg.haveApi?.metaNamespace ?? getMetaNamespace(desc);
+  const spec = requestSpec(opts, metaNamespace);
+  const headers = { Accept: 'application/json', 'Accept-Language': language, ...authHeaders(desc) };
+  const request: HaveApiRequestInfo = {
+    method: spec.method, path: opts.path,
+    url: `${cfg.apiBaseUrl}${spec.path}`,
   };
-
-  const init: RequestInit = {
-    method,
-    headers,
-    // Match the legacy XHR client default: do not send cookies cross-origin.
-    credentials: 'same-origin',
-    signal: opts.signal,
-  };
-
-  if (!paramsInQuery) {
-    headers['Content-Type'] = 'application/json';
-
-    const body: Record<string, unknown> = {};
-
-    if (ns && opts.params) {
-      body[ns] = opts.params;
-    }
-
-    if (opts.meta) {
-      body[metaNs] = opts.meta;
-    }
-
-    init.body = JSON.stringify(body);
-  }
-
-  const reqInfo: HaveApiRequestInfo = {
-    method,
-    path: opts.path,
-    url,
-  };
-
-
-  let res = await fetch(url, init);
-  let envelope = res.status === 401 && !paramsInQuery ? await parseHaveApiEnvelope(res) : undefined;
-  const explicitRejection = !envelope || (envelope.status === false
-    && envelope.errors !== 'INVALID_JSON_RESPONSE'
-    && envelope.errors !== MALFORMED_HAVEAPI_ENVELOPE_ERROR_CODE);
-  // Recover only explicit HTTP authentication rejections. Never replay writes,
-  // network failures, 403s, or ambiguous HaveAPI status:false responses.
-  if (res.status === 401 && explicitRejection && cfg.auth.kind === 'oauth2') {
+  let reply = await requestHaveApi(cfg.apiBaseUrl, 'authenticated', { ...spec, headers });
+  // Only a validated API rejection may renew. Malformed/network outcomes are
+  // ambiguous; an impersonation token is never retried as base OAuth.
+  if (reply.httpStatus === 401 && reply.failure === 'api' && reply.envelope.status === false && cfg.auth.kind === 'oauth2') {
     const recovered = await recoverBffSession(cfg.auth.accessToken);
     opts.signal?.throwIfAborted();
     if (recovered) {
-      if (!paramsInQuery) {
-        // Keep the editor mounted, but let the user explicitly submit again.
-        // This is no longer an expired session and must not trigger a redirect.
-        throw new Error(staticTForDocument(typeof document === 'undefined' ? undefined : document, 'errors.session_renewed_retry_action'));
+      if (spec.method !== 'GET' && spec.method !== 'OPTIONS') {
+        throw new Error(staticTForDocument(
+          typeof document === 'undefined' ? undefined : document,
+          'errors.session_renewed_retry_action'
+        ));
       }
-      await res.body?.cancel();
-      init.headers = { ...headers, ...authHeaders(desc) };
-      res = await fetch(url, init);
+      reply = await requestHaveApi(cfg.apiBaseUrl, 'authenticated', { ...spec,
+        headers: { ...headers, ...authHeaders(desc) } });
     }
   }
-  envelope ??= await parseHaveApiEnvelope(res);
-
-  if (!res.ok) {
-    // Some failures (e.g. 500) may still return JSON.
-    const err = new HaveApiError(envelope, `HTTP ${res.status}`, res.status, reqInfo);
-    notifySessionExpired(err);
-    throw err;
-  }
-
-  let unwrapped: { data: T; meta?: Record<string, unknown> };
   try {
-    unwrapped = unwrapSingleResponse<T>(envelope, metaNs);
-  } catch (err: any) {
-    if (err instanceof HaveApiError) {
-      // HaveAPI can return {status:false} with HTTP 200.
-      // Attach request info to help support/debug without screenshots.
-      if (!err.request) err.request = reqInfo;
-      notifySessionExpired(err);
-    }
-    throw err;
+    return resultFor<T>(reply, metaNamespace, request);
+  } catch (error) {
+    notifySessionExpired(error);
+    throw error;
   }
+};
 
-  return { ...unwrapped, envelope };
+/** Anonymous HaveAPI still uses the package, without auth, language or discovery. */
+export async function publicHaveApiCall<T>(opts: Pick<CallOpts, 'path' | 'namespace' | 'params'>) {
+  const cfg = getRuntimeConfig();
+  const metaNamespace = cfg.haveApi?.metaNamespace ?? '_meta';
+  const spec = requestSpec({ ...opts, method: 'GET' }, metaNamespace);
+  const reply = await requestHaveApi(cfg.apiBaseUrl, 'public', spec);
+  return resultFor<T>(reply, metaNamespace, { method: 'GET', path: opts.path, url: `${cfg.apiBaseUrl}${spec.path}` });
 }

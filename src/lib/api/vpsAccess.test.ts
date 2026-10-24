@@ -1,3 +1,4 @@
+import { installHaveApiXhr } from '../../test/haveapiXhr';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { deployVpsPublicKey, getCurrentUser, listUserPublicKeys, resetVpsRootPassword } from './vpsAccess';
@@ -24,7 +25,7 @@ function installOkFetch(response: unknown) {
   const fetchMock = vi.fn(async (..._args: Parameters<typeof fetch>) =>
     makeOkResponse({ status: true, response })
   );
-  vi.stubGlobal('fetch', fetchMock);
+  installHaveApiXhr( fetchMock);
   return fetchMock;
 }
 
@@ -97,7 +98,7 @@ describe('vps access API wrappers', () => {
 
     const [url] = getFetchCall(fetchMock);
     expect(String(url)).toContain('/v7.0/users/99/public_keys?');
-    expect(String(url)).toContain('public_key%5Blimit%5D=100');
+    expect(new URL(String(url)).searchParams.get('public_key[limit]')).toBe('100');
     expect(res.data).toEqual([{ id: 7, label: 'laptop' }]);
   });
 

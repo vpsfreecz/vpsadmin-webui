@@ -202,15 +202,15 @@ export async function installHaveApiMock(pageOrOpts: Page | (HaveApiMockOptions 
       return route.fallback();
     }
 
-    // HaveAPI description fetch (not an action envelope).
+    // Description discovery uses the package request pipeline and OPTIONS envelope.
     if (
-      method === 'GET' &&
+      method === 'OPTIONS' &&
       (pathname === apiBase ||
         pathname === `${apiBase}/` ||
         pathname === versionBase ||
         pathname === `${versionBase}/`)
     ) {
-      return route.fulfill(jsonFulfill(description, 200));
+      return route.fulfill(jsonFulfill(okEnvelope(description), 200));
     }
 
     const relPath = relPathFor(versionBase, pathname);

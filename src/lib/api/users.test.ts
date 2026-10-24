@@ -1,3 +1,4 @@
+import { apiWire } from '../../test/haveapiXhr';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { createUser, deleteUser, fetchUsers, searchUsers, updateUser } from './users';
@@ -35,7 +36,7 @@ describe('fetchUsers', () => {
   it('uses only supported upstream params when no compatibility scan is needed', async () => {
     installApiFixture();
 
-    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+    const fetchMock = vi.mocked(apiWire.respond).mockResolvedValue(
       makeUsersResponse([{ id: 125, login: 'admin', level: 90, mailer_enabled: false }])
     );
 
@@ -85,7 +86,7 @@ describe('fetchUsers', () => {
       { id: 105, login: 'bob-support', level: 21 },
     ];
 
-    const fetchMock = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+    const fetchMock = vi.mocked(apiWire.respond).mockImplementation(async (input) => {
       const parsed = new URL(String(input));
       const fromId = parsed.searchParams.get('user[from_id]');
 
@@ -125,7 +126,7 @@ describe('fetchUsers', () => {
   it('applies boolean compatibility filters client-side', async () => {
     installApiFixture();
 
-    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+    const fetchMock = vi.mocked(apiWire.respond).mockResolvedValue(
       makeUsersResponse([
         { id: 120, login: 'plain', level: 21, lockout: false },
         { id: 119, login: 'locked', level: 21, lockout: true },
@@ -145,7 +146,7 @@ describe('fetchUsers', () => {
   it('does not expose an unfiltered HaveAPI count for compatibility filters', async () => {
     installApiFixture();
 
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+    vi.mocked(apiWire.respond).mockResolvedValue(
       makeOkResponse({
         status: true,
         response: {
@@ -172,7 +173,7 @@ describe('fetchUsers', () => {
       })),
       { id: 1_201, login: 'needle-user', level: 1 },
     ];
-    const fetchMock = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+    const fetchMock = vi.mocked(apiWire.respond).mockImplementation(async (input) => {
       const url = new URL(String(input));
       const fromId = Number(url.searchParams.get('user[from_id]') ?? 0);
       const limit = Number(url.searchParams.get('user[limit]') ?? 100);
@@ -207,7 +208,7 @@ describe('updateUser', () => {
   it('sends generated password controls through the user namespace', async () => {
     installApiFixture();
 
-    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+    const fetchMock = vi.mocked(apiWire.respond).mockResolvedValue(
       makeOkResponse({
         status: true,
         response: {
@@ -242,7 +243,7 @@ describe('updateUser', () => {
 
   it('accepts a synchronous lifetime-date update without an action-state id', async () => {
     installApiFixture();
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+    vi.mocked(apiWire.respond).mockResolvedValue(
       makeOkResponse({ status: true, response: { user: { id: 1, login: 'kerry', level: 99 } } })
     );
 
@@ -253,7 +254,7 @@ describe('updateUser', () => {
 
   it('fails closed when a user object-state update has no action-state id', async () => {
     installApiFixture();
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+    vi.mocked(apiWire.respond).mockResolvedValue(
       makeOkResponse({ status: true, response: { user: { id: 1, login: 'kerry', level: 99 } } })
     );
 
@@ -280,7 +281,7 @@ describe('searchUsers', () => {
   it('falls back to cluster search when direct login lookup returns no users', async () => {
     installApiFixture();
 
-    const fetchMock = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+    const fetchMock = vi.mocked(apiWire.respond).mockImplementation(async (input) => {
       const url = new URL(String(input));
 
       if (url.pathname === '/v7.0/users') {
@@ -332,7 +333,7 @@ describe('searchUsers', () => {
   it('merges login, full-name, email and cluster results without duplicates', async () => {
     installApiFixture();
 
-    const fetchMock = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+    const fetchMock = vi.mocked(apiWire.respond).mockImplementation(async (input) => {
       const url = new URL(String(input));
 
       if (url.pathname === '/v7.0/users') {
@@ -393,7 +394,7 @@ describe('admin user mutations', () => {
   it('creates a user through the user namespace', async () => {
     installApiFixture();
 
-    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+    const fetchMock = vi.mocked(apiWire.respond).mockResolvedValue(
       makeOkResponse({
         status: true,
         response: { user: { id: 42, login: 'newbie', level: 2 } },
@@ -435,7 +436,7 @@ describe('admin user mutations', () => {
   it('deletes a user with the selected object state', async () => {
     installApiFixture();
 
-    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+    const fetchMock = vi.mocked(apiWire.respond).mockResolvedValue(
       makeOkResponse({ status: true, response: {} })
     );
 

@@ -1,3 +1,4 @@
+import { apiWire } from '../../test/haveapiXhr';
 import { describe, expect, test, vi } from 'vitest';
 
 import {
@@ -21,8 +22,8 @@ import {
 } from './outages';
 import { addNetworkAddresses } from './networks';
 
-function mockFetchOk(response: unknown): typeof globalThis.fetch {
-  return vi.fn().mockResolvedValue({ ok: true, json: async () => ({ status: true, response }) }) as unknown as typeof globalThis.fetch;
+function mockFetchOk(response: unknown): typeof apiWire.respond {
+  return vi.fn().mockResolvedValue({ ok: true, json: async () => ({ status: true, response }) }) as unknown as typeof apiWire.respond;
 }
 
 function mockFetchOkSequence(responses: any[]) {
@@ -34,7 +35,7 @@ function mockFetchOkSequence(responses: any[]) {
 }
 
 function lastFetchCall() {
-  const calls = (globalThis.fetch as any).mock.calls;
+  const calls = (apiWire.respond as any).mock.calls;
   return calls[calls.length - 1] as [string, RequestInit?];
 }
 
@@ -54,7 +55,7 @@ function scopeResponse(key: 'entities' | 'handlers', rows: unknown[], total = ro
 
 describe('outage admin API wrappers', () => {
   test('fetchAdminOutages forwards supported filters through the outage namespace', async () => {
-    globalThis.fetch = mockFetchOk({ outages: [{ id: 7 }] }) as any;
+    apiWire.respond = mockFetchOk({ outages: [{ id: 7 }] }) as any;
 
     await fetchAdminOutages({ state: 'announced', type: 'planned_outage', handledBy: 42, vps: 101, limit: 25, fromId: 900 });
 
@@ -70,7 +71,7 @@ describe('outage admin API wrappers', () => {
   });
 
   test('create and update outage use the outage namespace payload', async () => {
-    globalThis.fetch = mockFetchOk({ outage: { id: 7 } }) as any;
+    apiWire.respond = mockFetchOk({ outage: { id: 7 } }) as any;
 
     await createOutage({
       begins_at: '2026-05-28T10:00:00.000Z',
@@ -108,7 +109,7 @@ describe('outage admin API wrappers', () => {
   });
 
   test('component lookup uses the public component contract', async () => {
-    globalThis.fetch = mockFetchOk({ components: [{ id: 4, name: 'webui', label: 'WebUI' }] });
+    apiWire.respond = mockFetchOk({ components: [{ id: 4, name: 'webui', label: 'WebUI' }] });
 
     const result = await fetchOutageComponents({ limit: 250 });
 
@@ -120,7 +121,7 @@ describe('outage admin API wrappers', () => {
   });
 
   test('entity and handler wrappers match nested outage contracts', async () => {
-    globalThis.fetch = mockFetchOk({ entity: { id: 3 }, handler: { id: 4 } }) as any;
+    apiWire.respond = mockFetchOk({ entity: { id: 3 }, handler: { id: 4 } }) as any;
 
     await createOutageEntity(7, { name: 'Node', entity_id: 12 });
     let [url, init] = lastFetchCall();
@@ -146,7 +147,7 @@ describe('outage admin API wrappers', () => {
   });
 
   test('outage updates and rebuild use legacy endpoints', async () => {
-    globalThis.fetch = mockFetchOk({ outage_update: { id: 8 }, outage: { id: 7 } }) as any;
+    apiWire.respond = mockFetchOk({ outage_update: { id: 8 }, outage: { id: 7 } }) as any;
 
     await createOutageUpdate({ outage: 7, state: 'resolved', send_mail: true, en_summary: 'Resolved' });
     let [url, init] = lastFetchCall();
@@ -168,7 +169,7 @@ describe('outage admin API wrappers', () => {
   });
 
   test('state transitions send only the fields accepted by the transition contract', async () => {
-    globalThis.fetch = mockFetchOk({ outage_update: { id: 8 } });
+    apiWire.respond = mockFetchOk({ outage_update: { id: 8 } });
 
     await createOutageUpdate(outageStateTransitionPayload(7, 'cancelled'));
 
@@ -184,7 +185,7 @@ describe('outage admin API wrappers', () => {
   });
 
   test('createOutageWithSystems creates the report, applies initial entities and handlers, and rebuilds', async () => {
-    globalThis.fetch = mockFetchOkSequence([
+    apiWire.respond = mockFetchOkSequence([
       { outage: { id: 7 } },
       scopeResponse('entities', []),
       scopeResponse('handlers', []),
@@ -212,7 +213,7 @@ describe('outage admin API wrappers', () => {
       }
     );
 
-    const calls = (globalThis.fetch as any).mock.calls as Array<[string, RequestInit?]>;
+    const calls = (apiWire.respond as any).mock.calls as Array<[string, RequestInit?]>;
     expect(calls.map(([url]) => new URL(url).pathname)).toEqual([
       '/v7.0/outages',
       '/v7.0/outages/7/entities',
@@ -228,7 +229,7 @@ describe('outage admin API wrappers', () => {
   });
 
   test('applyOutageSystems diffs current systems and handlers before rebuild', async () => {
-    globalThis.fetch = vi.fn().mockImplementation(async (input: string, init?: RequestInit) => {
+    apiWire.respond = vi.fn().mockImplementation(async (input: string, init?: RequestInit) => {
       const path = new URL(input).pathname;
       const method = init?.method ?? 'GET';
       if (method === 'GET' && path.endsWith('/entities')) {
@@ -248,7 +249,7 @@ describe('outage admin API wrappers', () => {
       if (method === 'DELETE') return haveApiResponse(null);
       if (method === 'POST' && path.endsWith('/rebuild_affected_vps')) return haveApiResponse({ outage: { id: 7 } });
       throw new Error(`Unexpected request: ${method} ${path}`);
-    }) as unknown as typeof globalThis.fetch;
+    }) as unknown as typeof apiWire.respond;
 
     await applyOutageSystems(
       7,
@@ -261,7 +262,7 @@ describe('outage admin API wrappers', () => {
       }
     );
 
-    const calls = (globalThis.fetch as any).mock.calls as Array<[string, RequestInit?]>;
+    const calls = (apiWire.respond as any).mock.calls as Array<[string, RequestInit?]>;
     expect(calls.map(([url]) => new URL(url).pathname)).toEqual([
       '/v7.0/outages/7/entities',
       '/v7.0/outages/7/handlers',
@@ -290,7 +291,7 @@ describe('outage admin API wrappers', () => {
     let nextHandlerId = 8;
     let failWantedHandler = true;
 
-    globalThis.fetch = vi.fn().mockImplementation(async (input: string, init?: RequestInit) => {
+    apiWire.respond = vi.fn().mockImplementation(async (input: string, init?: RequestInit) => {
       const path = new URL(input).pathname;
       const method = init?.method ?? 'GET';
       if (method === 'GET' && path === '/v7.0/outages/7/entities') {
@@ -330,7 +331,7 @@ describe('outage admin API wrappers', () => {
         return haveApiResponse({ outage: { id: 7 } });
       }
       throw new Error(`Unexpected request: ${method} ${path}`);
-    }) as unknown as typeof globalThis.fetch;
+    }) as unknown as typeof apiWire.respond;
 
     const result = applyOutageSystems(
       7,
@@ -363,7 +364,7 @@ describe('outage admin API wrappers', () => {
     let entities: any[] = structuredClone(currentEntities);
     let handlerCommitted = false;
 
-    globalThis.fetch = vi.fn().mockImplementation(async (input: string, init?: RequestInit) => {
+    apiWire.respond = vi.fn().mockImplementation(async (input: string, init?: RequestInit) => {
       const path = new URL(input).pathname;
       const method = init?.method ?? 'GET';
       if (method === 'POST' && path === '/v7.0/outages/7/entities') {
@@ -382,7 +383,7 @@ describe('outage admin API wrappers', () => {
       }
       if (method === 'DELETE') return haveApiResponse(null, false, 'rollback delete failed');
       throw new Error(`Unexpected request: ${method} ${path}`);
-    }) as unknown as typeof globalThis.fetch;
+    }) as unknown as typeof apiWire.respond;
 
     await expect(applyOutageSystems(
       7,
@@ -395,7 +396,7 @@ describe('outage admin API wrappers', () => {
   });
 
   test('createOutageWithSystems exposes the staged outage id when initial scope setup fails', async () => {
-    globalThis.fetch = vi.fn().mockImplementation(async (input: string, init?: RequestInit) => {
+    apiWire.respond = vi.fn().mockImplementation(async (input: string, init?: RequestInit) => {
       const path = new URL(input).pathname;
       const method = init?.method ?? 'GET';
       if (method === 'POST' && path === '/v7.0/outages') {
@@ -414,7 +415,7 @@ describe('outage admin API wrappers', () => {
         return haveApiResponse({ outage: { id: 7 } });
       }
       throw new Error(`Unexpected request: ${method} ${path}`);
-    }) as unknown as typeof globalThis.fetch;
+    }) as unknown as typeof apiWire.respond;
 
     await expect(createOutageWithSystems(
       {
@@ -434,7 +435,7 @@ describe('outage admin API wrappers', () => {
   });
 
   test('fails closed before mutation when complete scope pagination stalls', async () => {
-    globalThis.fetch = vi.fn().mockImplementation(async (input: string, init?: RequestInit) => {
+    apiWire.respond = vi.fn().mockImplementation(async (input: string, init?: RequestInit) => {
       const url = new URL(input);
       const path = url.pathname;
       const method = init?.method ?? 'GET';
@@ -443,31 +444,31 @@ describe('outage admin API wrappers', () => {
       }
       if (method === 'GET' && path.endsWith('/handlers')) return haveApiResponse(scopeResponse('handlers', []));
       throw new Error(`Mutation must not run: ${method} ${path}`);
-    }) as unknown as typeof globalThis.fetch;
+    }) as unknown as typeof apiWire.respond;
 
     await expect(applyOutageSystems(7, { entities: [], handlers: [] })).rejects.toBeInstanceOf(OutageScopeReadError);
-    const methods = (globalThis.fetch as any).mock.calls.map((call: [string, RequestInit?]) => call[1]?.method ?? 'GET');
+    const methods = (apiWire.respond as any).mock.calls.map((call: [string, RequestInit?]) => call[1]?.method ?? 'GET');
     expect(methods.every((method: string) => method === 'GET')).toBe(true);
   });
 
   test('marks a transport/server create failure as indeterminate and does not retry it', async () => {
-    globalThis.fetch = vi.fn().mockResolvedValue({
+    apiWire.respond = vi.fn().mockResolvedValue({
       ok: false,
       status: 503,
       json: async () => ({ status: false, message: 'gateway response lost', response: null }),
-    }) as unknown as typeof globalThis.fetch;
+    }) as unknown as typeof apiWire.respond;
 
     await expect(createOutageWithSystems(
       { type: 'planned_outage', impact: 'network', en_summary: 'Maintenance' },
       { entities: [], handlers: [] }
     )).rejects.toBeInstanceOf(OutageCreateIndeterminateError);
-    expect((globalThis.fetch as any).mock.calls).toHaveLength(1);
+    expect((apiWire.respond as any).mock.calls).toHaveLength(1);
   });
 });
 
 describe('network add addresses API wrapper', () => {
   test('addNetworkAddresses posts network#add_addresses payload', async () => {
-    globalThis.fetch = mockFetchOk({ network: { count: 4 } }) as any;
+    apiWire.respond = mockFetchOk({ network: { count: 4 } }) as any;
 
     await addNetworkAddresses({ id: 22, count: 4, user: 7, environment: 2 });
 

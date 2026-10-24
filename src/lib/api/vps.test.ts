@@ -1,3 +1,4 @@
+import { apiWire } from '../../test/haveapiXhr';
 import { describe, expect, test, vi } from 'vitest';
 
 import {
@@ -22,7 +23,7 @@ function mockFetchOk(response: any) {
 }
 
 function lastFetchCall() {
-  const calls = (globalThis.fetch as any).mock.calls;
+  const calls = (apiWire.respond as any).mock.calls;
   return calls[calls.length - 1] as [string, RequestInit?];
 }
 
@@ -71,7 +72,7 @@ describe('vps API wrappers', () => {
   });
 
   test('fetchVpsList forwards list filters', async () => {
-    globalThis.fetch = mockFetchOk({ vpses: [], _meta: { total_count: 0 } }) as any;
+    apiWire.respond = mockFetchOk({ vpses: [], _meta: { total_count: 0 } }) as any;
 
     await fetchVpsList({
       limit: 25,
@@ -103,7 +104,7 @@ describe('vps API wrappers', () => {
   });
 
   test('fetchVpsStatuses forwards time-window and cursor params', async () => {
-    globalThis.fetch = mockFetchOk({ statuses: [], _meta: { total_count: 0 } }) as any;
+    apiWire.respond = mockFetchOk({ statuses: [], _meta: { total_count: 0 } }) as any;
 
     await fetchVpsStatuses(321, {
       limit: 80,
@@ -123,7 +124,7 @@ describe('vps API wrappers', () => {
   });
 
   test('fetchVps forwards include meta', async () => {
-    globalThis.fetch = mockFetchOk({ vps: { id: 1 } }) as any;
+    apiWire.respond = mockFetchOk({ vps: { id: 1 } }) as any;
 
     await fetchVps(1, { includes: 'user,node,dataset' });
 
@@ -135,7 +136,7 @@ describe('vps API wrappers', () => {
   });
 
   test('createVps posts admin create payload matching legacy vpsAdmin shape', async () => {
-    globalThis.fetch = mockFetchOk({ vps: { id: 150 }, _meta: { action_state_id: 1500 } }) as unknown as typeof fetch;
+    apiWire.respond = mockFetchOk({ vps: { id: 150 }, _meta: { action_state_id: 1500 } }) as unknown as typeof fetch;
 
     await createVps({
       mode: 'admin',
@@ -187,7 +188,7 @@ describe('vps API wrappers', () => {
   });
 
   test('createVps posts user create payload without admin-only fields', async () => {
-    globalThis.fetch = mockFetchOk({ vps: { id: 151 }, _meta: { action_state_id: 1510 } }) as unknown as typeof fetch;
+    apiWire.respond = mockFetchOk({ vps: { id: 151 }, _meta: { action_state_id: 1510 } }) as unknown as typeof fetch;
 
     await createVps({
       mode: 'user',
@@ -239,7 +240,7 @@ describe('vps API wrappers', () => {
   });
 
   test('vpsClone posts legacy clone payload', async () => {
-    globalThis.fetch = mockFetchOk({ vps: { id: 160 }, _meta: { action_state_id: 1600 } }) as unknown as typeof fetch;
+    apiWire.respond = mockFetchOk({ vps: { id: 160 }, _meta: { action_state_id: 1600 } }) as unknown as typeof fetch;
 
     await vpsClone(12, {
       user: 1,
@@ -272,7 +273,7 @@ describe('vps API wrappers', () => {
   });
 
   test('vpsClone can post user playground target environment and location', async () => {
-    globalThis.fetch = mockFetchOk({ vps: { id: 161 }, _meta: { action_state_id: 1610 } }) as unknown as typeof fetch;
+    apiWire.respond = mockFetchOk({ vps: { id: 161 }, _meta: { action_state_id: 1610 } }) as unknown as typeof fetch;
 
     await vpsClone(12, {
       hostname: 'source-12-playground',
@@ -305,7 +306,7 @@ describe('vps API wrappers', () => {
   });
 
   test('vpsSwapWith posts legacy swap payload', async () => {
-    globalThis.fetch = mockFetchOk({ _meta: { action_state_id: 3370 } }) as unknown as typeof fetch;
+    apiWire.respond = mockFetchOk({ _meta: { action_state_id: 3370 } }) as unknown as typeof fetch;
 
     await vpsSwapWith(12, {
       vps: 14,
@@ -330,7 +331,7 @@ describe('vps API wrappers', () => {
   });
 
   test('vpsReplace posts legacy admin replace payload', async () => {
-    globalThis.fetch = mockFetchOk({ vps: { id: 12 }, _meta: { action_state_id: 3620 } }) as unknown as typeof fetch;
+    apiWire.respond = mockFetchOk({ vps: { id: 12 }, _meta: { action_state_id: 3620 } }) as unknown as typeof fetch;
 
     await vpsReplace(12, {
       node: 5,
@@ -355,7 +356,7 @@ describe('vps API wrappers', () => {
   });
 
   test('vpsBoot posts legacy rescue boot payload', async () => {
-    globalThis.fetch = mockFetchOk({ _meta: { action_state_id: 3870 } }) as unknown as typeof fetch;
+    apiWire.respond = mockFetchOk({ _meta: { action_state_id: 3870 } }) as unknown as typeof fetch;
 
     await vpsBoot(12, {
       os_template: 6,
@@ -376,7 +377,7 @@ describe('vps API wrappers', () => {
   });
 
   test('vpsReinstall posts legacy reinstall payload', async () => {
-    globalThis.fetch = mockFetchOk({ _meta: { action_state_id: 4080 } }) as unknown as typeof fetch;
+    apiWire.respond = mockFetchOk({ _meta: { action_state_id: 4080 } }) as unknown as typeof fetch;
 
     await vpsReinstall(12, { os_template: 6 });
 
@@ -393,7 +394,7 @@ describe('vps API wrappers', () => {
   });
 
   test('vpsMigrate posts legacy migration payload', async () => {
-    globalThis.fetch = mockFetchOk({ _meta: { action_state_id: 4250 } }) as unknown as typeof fetch;
+    apiWire.respond = mockFetchOk({ _meta: { action_state_id: 4250 } }) as unknown as typeof fetch;
 
     await vpsMigrate(12, {
       node: 7,
@@ -426,7 +427,7 @@ describe('vps API wrappers', () => {
   });
 
   test('vpsDelete sends lazy delete payload through vps namespace', async () => {
-    globalThis.fetch = mockFetchOk({ _meta: { action_state_id: 4600 } }) as unknown as typeof fetch;
+    apiWire.respond = mockFetchOk({ _meta: { action_state_id: 4600 } }) as unknown as typeof fetch;
 
     await vpsDelete(12, { lazy: true });
 
@@ -443,10 +444,10 @@ describe('vps API wrappers', () => {
   });
 
   test('custom soft-delete retention uses one state-transition PUT', async () => {
-    globalThis.fetch = mockFetchOk({ vps: { id: 12 }, _meta: { action_state_id: 4600 } }) as unknown as typeof fetch;
+    apiWire.respond = mockFetchOk({ vps: { id: 12 }, _meta: { action_state_id: 4600 } }) as unknown as typeof fetch;
     await vpsDelete(12, { lazy: true, expiration_date: '2099-01-02T12:30:00.000Z' });
     const [url, init] = lastFetchCall();
-    expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+    expect(apiWire.respond).toHaveBeenCalledTimes(1);
     expect(new URL(url).pathname).toBe('/v7.0/vpses/12');
     expect(init?.method).toBe('PUT');
     expect(JSON.parse(String(init?.body))).toEqual({ vps: {
@@ -455,7 +456,7 @@ describe('vps API wrappers', () => {
   });
 
   test('hard delete sends only the explicit lazy=false option', async () => {
-    globalThis.fetch = mockFetchOk({ _meta: { action_state_id: 4600 } }) as unknown as typeof fetch;
+    apiWire.respond = mockFetchOk({ _meta: { action_state_id: 4600 } }) as unknown as typeof fetch;
     await vpsDelete(12, { lazy: false });
     const [, init] = lastFetchCall();
     expect(init?.method).toBe('DELETE');
@@ -463,19 +464,19 @@ describe('vps API wrappers', () => {
   });
 
   test('rejects invalid retention and retention combined with hard delete before sending', async () => {
-    globalThis.fetch = vi.fn();
+    apiWire.respond = vi.fn();
     await expect(vpsDelete(12, { lazy: true, expiration_date: 'invalid' })).rejects.toThrow('invalid-date');
     await expect(vpsDelete(12, { lazy: false, expiration_date: '2099-01-02T12:30:00.000Z' })).rejects.toThrow('invalid-date');
-    expect(globalThis.fetch).not.toHaveBeenCalled();
+    expect(apiWire.respond).not.toHaveBeenCalled();
   });
 
   test('custom soft delete still requires an action-state receipt', async () => {
-    globalThis.fetch = mockFetchOk({ vps: { id: 12 }, _meta: {} }) as unknown as typeof fetch;
+    apiWire.respond = mockFetchOk({ vps: { id: 12 }, _meta: {} }) as unknown as typeof fetch;
     await expect(vpsDelete(12, { lazy: true, expiration_date: '2099-01-02T12:30:00.000Z' })).rejects.toThrow();
   });
 
   test('console token lifecycle calls the legacy VPS console_token action', async () => {
-    globalThis.fetch = mockFetchOk({ console_token: { token: 'T1', expiration: '2027-01-01T00:00:00Z' } }) as any;
+    apiWire.respond = mockFetchOk({ console_token: { token: 'T1', expiration: '2027-01-01T00:00:00Z' } }) as any;
 
     await createConsoleToken(12);
 

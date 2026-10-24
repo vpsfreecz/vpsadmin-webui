@@ -291,7 +291,7 @@ API implements every parameter; see [API contracts](API_CONTRACTS.md).
 - [exports.ts](../../src/lib/api/exports.ts)
 - [finance.ts](../../src/lib/api/finance.ts)
 - [haveapi.ts](../../src/lib/api/haveapi.ts)
-- [haveapiEnvelope.ts](../../src/lib/api/haveapiEnvelope.ts)
+- [haveapiRequestClient.ts](../../src/lib/api/haveapiRequestClient.ts)
 - [helpBoxes.ts](../../src/lib/api/helpBoxes.ts)
 - [incidents.ts](../../src/lib/api/incidents.ts)
 - [infra.ts](../../src/lib/api/infra.ts)

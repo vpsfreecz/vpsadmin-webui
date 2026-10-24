@@ -1,3 +1,4 @@
+import { installHaveApiXhr } from '../../test/haveapiXhr';
 import { afterEach, describe, expect, test, vi } from 'vitest';
 
 import { fetchUserNamespaceMaps, fetchUserNamespaces } from './userNamespaces';
@@ -27,7 +28,7 @@ describe('user namespace API wrappers', () => {
   test('namespace index sends only supported pagination, owner, size and block fields', async () => {
     setMockRuntime();
     const fetchMock = mockFetchOk({ user_namespaces: [{ id: 101, size: 65536 }] });
-    vi.stubGlobal('fetch', fetchMock);
+    installHaveApiXhr( fetchMock);
 
     await fetchUserNamespaces({
       limit: 25,
@@ -56,7 +57,7 @@ describe('user namespace API wrappers', () => {
   test('map index sends only supported pagination, owner and namespace fields', async () => {
     setMockRuntime();
     const fetchMock = mockFetchOk({ user_namespace_maps: [{ id: 501, label: 'default' }] });
-    vi.stubGlobal('fetch', fetchMock);
+    installHaveApiXhr( fetchMock);
 
     await fetchUserNamespaceMaps({
       limit: 50,
@@ -85,7 +86,7 @@ describe('user namespace API wrappers', () => {
   test('map index does not force expansion on consumers that only need references', async () => {
     setMockRuntime();
     const fetchMock = mockFetchOk({ user_namespace_maps: [{ id: 501, label: 'default' }] });
-    vi.stubGlobal('fetch', fetchMock);
+    installHaveApiXhr( fetchMock);
 
     await fetchUserNamespaceMaps({ limit: 250, userId: 84 });
 

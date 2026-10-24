@@ -1,3 +1,4 @@
+import { apiWire, installHaveApiXhr } from '../../test/haveapiXhr';
 import { describe, expect, test, vi } from 'vitest';
 
 import { HaveApiError } from './haveapi';
@@ -22,7 +23,7 @@ function mockFetchOk(response: any) {
 }
 
 function lastFetchCall() {
-  const calls = vi.mocked(globalThis.fetch).mock.calls;
+  const calls = vi.mocked(apiWire.respond).mock.calls;
   const call = calls[calls.length - 1];
   if (!call) throw new Error('Expected fetch to have been called');
   return call;
@@ -30,7 +31,7 @@ function lastFetchCall() {
 
 describe('nodes API wrappers', () => {
   test('fetchNodes only forwards filters declared by Node.Index', async () => {
-    vi.stubGlobal('fetch', mockFetchOk({ nodes: [{ id: 12, name: 'node12' }], _meta: { total_count: 1 } }));
+    installHaveApiXhr( mockFetchOk({ nodes: [{ id: 12, name: 'node12' }], _meta: { total_count: 1 } }));
 
     const res = await fetchNodes({
       state: 'inactive',
@@ -57,24 +58,26 @@ describe('nodes API wrappers', () => {
   });
 
   test('fetchNodePools limits pools to the selected node', async () => {
-    globalThis.fetch = mockFetchOk({ pools: [{ id: 7, name: 'tank' }] }) as typeof fetch;
+    apiWire.respond = mockFetchOk({ pools: [{ id: 7, name: 'tank' }] }) as typeof fetch;
     const controller = new AbortController();
 
     const res = await fetchNodePools(12, { limit: 100, signal: controller.signal });
 
     expect(res.data).toEqual([{ id: 7, name: 'tank' }]);
 
-    const [url, init] = lastFetchCall();
+    const [url] = lastFetchCall();
     const u = new URL(String(url));
 
     expect(u.pathname).toBe('/v7.0/pools');
     expect(u.searchParams.get('pool[node]')).toBe('12');
     expect(u.searchParams.get('pool[limit]')).toBe('100');
-    expect(init?.signal).toBe(controller.signal);
+    controller.abort();
+    await expect(fetchNodePools(12, { signal: controller.signal })).rejects.toMatchObject({ name: 'AbortError' });
+    expect(apiWire.requests).toHaveLength(1);
   });
 
   test('fetchPool reads back the exact selected pool', async () => {
-    globalThis.fetch = mockFetchOk({
+    apiWire.respond = mockFetchOk({
       pool: { id: 11, node: { id: 5 }, maintenance_lock: 'lock', maintenance_lock_reason: 'Disk replacement' },
     }) as typeof fetch;
 
@@ -87,13 +90,13 @@ describe('nodes API wrappers', () => {
   });
 
   test('fetchPool rejects a mismatched read-back identity', async () => {
-    globalThis.fetch = mockFetchOk({ pool: { id: 12, node: 5, maintenance_lock: 'no' } }) as typeof fetch;
+    apiWire.respond = mockFetchOk({ pool: { id: 12, node: 5, maintenance_lock: 'no' } }) as typeof fetch;
 
     await expect(fetchPool(11)).rejects.toThrow('response id does not match requested pool');
   });
 
   test('setPoolMaintenance locks the selected pool with a reason', async () => {
-    vi.stubGlobal('fetch', mockFetchOk({}));
+    installHaveApiXhr( mockFetchOk({}));
 
     await setPoolMaintenance(11, { lock: true, reason: 'Disk replacement' });
 
@@ -106,7 +109,7 @@ describe('nodes API wrappers', () => {
   });
 
   test('setPoolMaintenance unlocks without sending a reason', async () => {
-    vi.stubGlobal('fetch', mockFetchOk({}));
+    installHaveApiXhr( mockFetchOk({}));
 
     await setPoolMaintenance(12, { lock: false });
 
@@ -117,7 +120,7 @@ describe('nodes API wrappers', () => {
   });
 
   test('marks an HTTP 5xx node create result indeterminate', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+    installHaveApiXhr( vi.fn().mockResolvedValue({
       ok: false,
       status: 503,
       json: async () => ({ status: false, message: 'upstream unavailable', response: null }),
@@ -129,11 +132,11 @@ describe('nodes API wrappers', () => {
       location: 7,
       ip_addr: '192.0.2.42',
     })).rejects.toBeInstanceOf(NodeCreateIndeterminateError);
-    expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+    expect(apiWire.respond).toHaveBeenCalledTimes(1);
   });
 
   test('marks a lost node create response indeterminate without retrying', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('connection reset')));
+    installHaveApiXhr( vi.fn().mockRejectedValue(new TypeError('connection reset')));
 
     await expect(createNode({
       name: 'node42',
@@ -141,11 +144,11 @@ describe('nodes API wrappers', () => {
       location: 7,
       ip_addr: '192.0.2.42',
     })).rejects.toBeInstanceOf(NodeCreateIndeterminateError);
-    expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+    expect(apiWire.respond).toHaveBeenCalledTimes(1);
   });
 
   test('keeps a definitive 4xx node create rejection retryable', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+    installHaveApiXhr( vi.fn().mockResolvedValue({
       ok: false,
       status: 400,
       json: async () => ({ status: false, message: 'invalid node', response: null }),
@@ -159,11 +162,11 @@ describe('nodes API wrappers', () => {
     });
     await expect(promise).rejects.toBeInstanceOf(HaveApiError);
     await expect(promise).rejects.not.toBeInstanceOf(NodeCreateIndeterminateError);
-    expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+    expect(apiWire.respond).toHaveBeenCalledTimes(1);
   });
 
   test('reconciles an indeterminate create by scanning beyond the visible page', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockImplementation(async (input: string) => {
+    installHaveApiXhr( vi.fn().mockImplementation(async (input: string) => {
       const url = new URL(input);
       const fromId = url.searchParams.get('node[from_id]');
       const nodes = fromId
@@ -180,8 +183,8 @@ describe('nodes API wrappers', () => {
       { pageSize: 2, maxNodes: 10 },
     )).resolves.toEqual({ status: 'found', node: { id: 42, name: 'node42', ip_addr: '192.0.2.42' } });
 
-    expect(globalThis.fetch).toHaveBeenCalledTimes(2);
-    const calls = vi.mocked(globalThis.fetch).mock.calls;
+    expect(apiWire.respond).toHaveBeenCalledTimes(2);
+    const calls = vi.mocked(apiWire.respond).mock.calls;
     const firstUrl = new URL(String(calls[0]?.[0]));
     const secondUrl = new URL(String(calls[1]?.[0]));
     expect(firstUrl.searchParams.get('node[state]')).toBe('all');
@@ -190,7 +193,7 @@ describe('nodes API wrappers', () => {
   });
 
   test('keeps create reconciliation blocked when a bounded scan is incomplete', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+    installHaveApiXhr( vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
         status: true,
@@ -211,7 +214,7 @@ describe('nodes API wrappers', () => {
 
   test('catches a late node commit during the settling window', async () => {
     let scan = 0;
-    vi.stubGlobal('fetch', vi.fn().mockImplementation(async () => {
+    installHaveApiXhr( vi.fn().mockImplementation(async () => {
       scan += 1;
       const nodes = scan === 1
         ? [{ id: 10, name: 'node10', ip_addr: '192.0.2.10' }]
@@ -225,12 +228,12 @@ describe('nodes API wrappers', () => {
       { pageSize: 2, maxNodes: 10, attempts: 4, settleDelayMs: 0, sleep },
     )).resolves.toEqual({ status: 'found', node: { id: 42, name: 'node42', ip_addr: '192.0.2.42' } });
 
-    expect(globalThis.fetch).toHaveBeenCalledTimes(2);
+    expect(apiWire.respond).toHaveBeenCalledTimes(2);
     expect(sleep).toHaveBeenCalledTimes(1);
   });
 
   test('keeps repeated complete scans unresolved instead of declaring a safe retry', async () => {
-    vi.stubGlobal('fetch', mockFetchOk({
+    installHaveApiXhr( mockFetchOk({
       nodes: [{ id: 10, name: 'node10', ip_addr: '192.0.2.10' }],
     }));
     const sleep = vi.fn().mockResolvedValue(undefined);
@@ -240,7 +243,7 @@ describe('nodes API wrappers', () => {
       { pageSize: 2, maxNodes: 10, attempts: 4, settleDelayMs: 0, sleep },
     )).resolves.toEqual({ status: 'unresolved' });
 
-    expect(globalThis.fetch).toHaveBeenCalledTimes(4);
+    expect(apiWire.respond).toHaveBeenCalledTimes(4);
     expect(sleep).toHaveBeenCalledTimes(3);
   });
 });
@@ -248,12 +251,14 @@ describe('nodes API wrappers', () => {
 
 test('node overview uses the existing admin action without pagination and accepts cancellation', async () => {
   const controller = new AbortController();
-  vi.stubGlobal('fetch', mockFetchOk({ nodes: [{ id: 5, status: true, vps_running: 0, maintenance_lock: 'no' }] }));
+  installHaveApiXhr(mockFetchOk({ nodes: [{ id: 5, status: true, vps_running: 0, maintenance_lock: 'no' }] }));
   expect((await fetchNodeOverview(controller.signal)).data).toEqual([{ id: 5, status: true, vps_running: 0, maintenance_lock: 'no' }]);
-  const [url, init] = lastFetchCall();
+  const [url] = lastFetchCall();
   expect(new URL(String(url)).pathname).toBe('/v7.0/nodes/overview_list');
   expect(new URL(String(url)).search).toBe('');
-  expect(init?.signal).toBe(controller.signal);
+  controller.abort();
+  await expect(fetchNodeOverview(controller.signal)).rejects.toMatchObject({ name: 'AbortError' });
+  expect(apiWire.requests).toHaveLength(1);
   await fetchNodeMaintenanceCapability(5);
   const [capabilityUrl, capabilityInit] = lastFetchCall();
   expect(new URL(String(capabilityUrl)).pathname).toBe('/v7.0/nodes/5/set_maintenance');

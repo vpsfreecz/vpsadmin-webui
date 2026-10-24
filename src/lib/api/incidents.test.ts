@@ -1,3 +1,4 @@
+import { apiWire } from '../../test/haveapiXhr';
 import { describe, expect, test, vi } from 'vitest';
 
 import { fetchIncidentReports } from './incidents';
@@ -7,13 +8,13 @@ function mockFetchOk(response: any) {
 }
 
 function lastFetchCall() {
-  const calls = (globalThis.fetch as any).mock.calls;
+  const calls = (apiWire.respond as any).mock.calls;
   return calls[calls.length - 1] as [string, RequestInit?];
 }
 
 describe('incident API wrappers', () => {
   test('fetchIncidentReports forwards exactly the supported structured filters', async () => {
-    globalThis.fetch = mockFetchOk({ incident_reports: [], _meta: { total_count: 0 } }) as any;
+    apiWire.respond = mockFetchOk({ incident_reports: [], _meta: { total_count: 0 } }) as any;
 
     const optsWithUnsupportedProperties = {
       limit: 20,

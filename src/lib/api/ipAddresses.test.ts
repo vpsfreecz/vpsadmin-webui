@@ -1,3 +1,4 @@
+import { apiWire } from '../../test/haveapiXhr';
 import { describe, expect, test, vi } from 'vitest';
 
 import {
@@ -24,13 +25,13 @@ function mockFetchOk(response: any) {
 }
 
 function lastFetchCall() {
-  const calls = vi.mocked(globalThis.fetch).mock.calls;
+  const calls = vi.mocked(apiWire.respond).mock.calls;
   return calls[calls.length - 1] as [string, RequestInit?];
 }
 
 describe('network address API wrappers', () => {
   test('live monitor sends only supported scope filters and nested includes', async () => {
-    globalThis.fetch = mockFetchOk({ network_interface_monitors: [] }) as typeof fetch;
+    apiWire.respond = mockFetchOk({ network_interface_monitors: [] }) as typeof fetch;
 
     await fetchNetworkInterfaceMonitor({
       limit: 100,
@@ -64,7 +65,7 @@ describe('network address API wrappers', () => {
   });
 
   test('fetchIpAddresses forwards purpose and include filters used by admin networking', async () => {
-    globalThis.fetch = mockFetchOk({ ip_addresses: [] }) as typeof fetch;
+    apiWire.respond = mockFetchOk({ ip_addresses: [] }) as typeof fetch;
 
     await fetchIpAddresses({
       limit: 50,
@@ -81,7 +82,7 @@ describe('network address API wrappers', () => {
   });
 
   test('fetchIpAddresses supports compatible purpose without imposing exact purpose', async () => {
-    globalThis.fetch = mockFetchOk({ ip_addresses: [] }) as typeof fetch;
+    apiWire.respond = mockFetchOk({ ip_addresses: [] }) as typeof fetch;
     await fetchIpAddresses({ location: 11, usableFor: 'vps', role: 'private_access' });
     const parsed = new URL(lastFetchCall()[0]);
     expect(parsed.searchParams.get('ip_address[usable_for]')).toBe('vps');
@@ -90,7 +91,7 @@ describe('network address API wrappers', () => {
   });
 
   test('fetchIpAddresses forwards network and assignment filters', async () => {
-    globalThis.fetch = mockFetchOk({ ip_addresses: [] }) as typeof fetch;
+    apiWire.respond = mockFetchOk({ ip_addresses: [] }) as typeof fetch;
 
     await fetchIpAddresses({
       network: 12,
@@ -105,7 +106,7 @@ describe('network address API wrappers', () => {
   });
 
   test('fetchIpAddresses can request ownerless addresses in ascending order', async () => {
-    globalThis.fetch = mockFetchOk({ ip_addresses: [] }) as typeof fetch;
+    apiWire.respond = mockFetchOk({ ip_addresses: [] }) as typeof fetch;
 
     await fetchIpAddresses({ user: null, assignedToInterface: false, order: 'asc' });
 
@@ -117,18 +118,18 @@ describe('network address API wrappers', () => {
     expect(parsed.searchParams.get('ip_address[order]')).toBe('asc');
   });
 
-  test('fetchIpAddresses forwards cancellation to the HaveAPI request', async () => {
-    globalThis.fetch = mockFetchOk({ ip_addresses: [] }) as typeof fetch;
+  test('fetchIpAddresses cancels its actual in-flight XHR', async () => {
+    apiWire.respond = () => new Promise(() => {});
     const controller = new AbortController();
-
-    await fetchIpAddresses({ signal: controller.signal });
-
-    const [, init] = lastFetchCall();
-    expect(init?.signal).toBe(controller.signal);
+    const pending = fetchIpAddresses({ signal: controller.signal });
+    await vi.waitFor(() => expect(apiWire.requests).toHaveLength(1));
+    controller.abort();
+    await expect(pending).rejects.toMatchObject({ name: 'AbortError' });
+    expect(apiWire.requests[0]?.aborted).toBe(true);
   });
 
   test('ascending admin IP request keeps count metadata and the exact ID cursor', async () => {
-    globalThis.fetch = vi.fn().mockResolvedValue({
+    apiWire.respond = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ status: true, response: { ip_addresses: [{ id: 18 }], _meta: { total_count: 1 } } }),
     }) as typeof fetch;
@@ -136,23 +137,25 @@ describe('network address API wrappers', () => {
 
     const response = await fetchIpAddresses({ fromId: 12, limit: 250, order: 'asc', count: true, signal: controller.signal });
 
-    const [url, init] = lastFetchCall();
+    const [url] = lastFetchCall();
     const parsed = new URL(url);
     expect(parsed.searchParams.get('ip_address[from_id]')).toBe('12');
     expect(parsed.searchParams.get('ip_address[order]')).toBe('asc');
     expect(parsed.searchParams.get('_meta[count]')).toBe('true');
-    expect(init?.signal).toBe(controller.signal);
+    controller.abort();
+    await expect(fetchIpAddresses({ signal: controller.signal })).rejects.toMatchObject({ name: 'AbortError' });
+    expect(apiWire.requests).toHaveLength(1);
     expect(response.data).toEqual([{ id: 18 }]);
     expect(response.meta).toEqual({ total_count: 1 });
   });
 
   test('ascending host request uses supported exact filter and nested includes', async () => {
-    globalThis.fetch = mockFetchOk({ host_ip_addresses: [{ id: 18 }] }) as typeof fetch;
+    apiWire.respond = mockFetchOk({ host_ip_addresses: [{ id: 18 }] }) as typeof fetch;
     const controller = new AbortController();
 
     await fetchHostIpAddresses({ addr: '192.0.2.4', fromId: 12, limit: 250, order: 'asc', count: true, signal: controller.signal });
 
-    const [url, init] = lastFetchCall();
+    const [url] = lastFetchCall();
     const parsed = new URL(url);
     expect(parsed.searchParams.get('host_ip_address[addr]')).toBe('192.0.2.4');
     expect(parsed.searchParams.get('host_ip_address[q]')).toBeNull();
@@ -160,11 +163,13 @@ describe('network address API wrappers', () => {
     expect(parsed.searchParams.get('host_ip_address[order]')).toBe('asc');
     expect(parsed.searchParams.get('_meta[count]')).toBe('true');
     expect(parsed.searchParams.get('_meta[includes]')).toBe('ip_address,ip_address__user,ip_address__network_interface,ip_address__network_interface__vps');
-    expect(init?.signal).toBe(controller.signal);
+    controller.abort();
+    await expect(fetchHostIpAddresses({ signal: controller.signal })).rejects.toMatchObject({ name: 'AbortError' });
+    expect(apiWire.requests).toHaveLength(1);
   });
 
   test('fetchIpAddressesForVps forwards the VPS scope and custom includes', async () => {
-    globalThis.fetch = mockFetchOk({ ip_addresses: [] }) as typeof fetch;
+    apiWire.respond = mockFetchOk({ ip_addresses: [] }) as typeof fetch;
 
     await fetchIpAddressesForVps(123, {
       limit: 250,
@@ -182,7 +187,7 @@ describe('network address API wrappers', () => {
   });
 
   test('fetchIpAddressAssignments supports exact IP and active user filters with nested address data', async () => {
-    globalThis.fetch = mockFetchOk({ ip_address_assignments: [] }) as typeof fetch;
+    apiWire.respond = mockFetchOk({ ip_address_assignments: [] }) as typeof fetch;
 
     await fetchIpAddressAssignments({
       ipAddr: '2001:db8::1',
@@ -206,7 +211,7 @@ describe('network address API wrappers', () => {
   });
 
   test('assignIpAddressRoute posts the legacy route assign payload', async () => {
-    globalThis.fetch = mockFetchOk({ ip_address: { id: 42 }, _meta: { action_state_id: 901 } }) as typeof fetch;
+    apiWire.respond = mockFetchOk({ ip_address: { id: 42 }, _meta: { action_state_id: 901 } }) as typeof fetch;
 
     await assignIpAddressRoute(42, { network_interface: 501, route_via: 700 });
 
@@ -222,7 +227,7 @@ describe('network address API wrappers', () => {
   });
 
   test('assignIpAddressRouteWithHostAddress posts the combined route and host action', async () => {
-    globalThis.fetch = mockFetchOk({ ip_address: { id: 42 }, _meta: { action_state_id: 902 } }) as typeof fetch;
+    apiWire.respond = mockFetchOk({ ip_address: { id: 42 }, _meta: { action_state_id: 902 } }) as typeof fetch;
 
     await assignIpAddressRouteWithHostAddress(42, { network_interface: 501 });
 
@@ -237,7 +242,7 @@ describe('network address API wrappers', () => {
   });
 
   test('freeIpAddressRoute posts route free without a namespaced payload', async () => {
-    globalThis.fetch = mockFetchOk({ ip_address: { id: 42 }, _meta: { action_state_id: 903 } }) as typeof fetch;
+    apiWire.respond = mockFetchOk({ ip_address: { id: 42 }, _meta: { action_state_id: 903 } }) as typeof fetch;
 
     await freeIpAddressRoute(42);
 
@@ -248,7 +253,7 @@ describe('network address API wrappers', () => {
   });
 
   test('updateIpAddress sends owner changes through the ip_address namespace', async () => {
-    globalThis.fetch = mockFetchOk({ ip_address: { id: 42 }, _meta: { action_state_id: 904 } }) as typeof fetch;
+    apiWire.respond = mockFetchOk({ ip_address: { id: 42 }, _meta: { action_state_id: 904 } }) as typeof fetch;
 
     await updateIpAddress(42, { user: 7, environment: 2 });
 
@@ -264,7 +269,7 @@ describe('network address API wrappers', () => {
   });
 
   test('host IP wrappers cover create, PTR update, assign, free and delete endpoints', async () => {
-    globalThis.fetch = mockFetchOk({
+    apiWire.respond = mockFetchOk({
       host_ip_address: { id: 9 },
       _meta: { action_state_id: 905 },
     }) as typeof fetch;
@@ -321,7 +326,7 @@ describe('network address API wrappers', () => {
     ['host IP free', () => freeHostIpAddress(9)],
     ['host IP delete', () => deleteHostIpAddress(9)],
   ])('%s fails closed without an action-state id', async (_label, mutation) => {
-    globalThis.fetch = mockFetchOk({ ip_address: { id: 42 }, host_ip_address: { id: 9 } }) as typeof fetch;
+    apiWire.respond = mockFetchOk({ ip_address: { id: 42 }, host_ip_address: { id: 9 } }) as typeof fetch;
 
     await expect(mutation()).rejects.toMatchObject({ code: 'MISSING_ACTION_STATE' });
   });

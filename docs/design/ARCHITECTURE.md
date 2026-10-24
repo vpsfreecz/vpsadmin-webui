@@ -33,9 +33,14 @@ flowchart LR
   scope navigation, task surfaces and synchronization feedback. Feature pages live
   in `src/pages`; shared UI and operation primitives live in `src/components`.
 - [HaveAPI client](../../src/lib/api/haveapi.ts) and typed domain adapters under
-  `src/lib/api` translate requests/envelopes. React Query drives remote data and
-  invalidation. Page-local models hold draft/review state; pure helpers are unit
-  tested. The [inventory](IMPLEMENTATION_INVENTORY.md) lists adapters and routes.
+  `src/lib/api` preserve application policy and project validated results. The
+  installed HaveAPI `AsyncClient` owns XHR, serialization and wire validation for
+  all authenticated, public and description requests; no parallel fetch client
+  remains. Separate lazy clients receive live auth per dispatch, without library
+  authentication or cached tokens. See [API contracts](API_CONTRACTS.md#production-haveapi-client)
+  and [package provenance](HAVEAPI_CLIENT.md). React Query drives remote
+  data and invalidation; page-local models hold drafts and review state.
+  The [inventory](IMPLEMENTATION_INVENTORY.md) lists adapters and routes.
 
 ## Authentication and session lifecycle
 

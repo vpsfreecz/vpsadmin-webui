@@ -1,3 +1,4 @@
+import { apiWire } from '../../test/haveapiXhr';
 import { describe, expect, test, vi } from 'vitest';
 
 import {
@@ -9,21 +10,21 @@ import {
   fetchUserPayments,
 } from './payments';
 
-function mockFetchOk(response: unknown): typeof globalThis.fetch {
+function mockFetchOk(response: unknown): typeof apiWire.respond {
   return vi.fn().mockResolvedValue({
     ok: true,
     json: async () => ({ status: true, response }),
-  }) as unknown as typeof globalThis.fetch;
+  }) as unknown as typeof apiWire.respond;
 }
 
 function lastFetchCall() {
-  const calls = vi.mocked(globalThis.fetch).mock.calls;
+  const calls = vi.mocked(apiWire.respond).mock.calls;
   return calls[calls.length - 1] as [string, RequestInit?];
 }
 
 describe('payments API wrappers', () => {
   test('fetchIncomingPayments sends only filters supported by the API contract', async () => {
-    globalThis.fetch = mockFetchOk({ incoming_payments: [], _meta: { total_count: 0 } });
+    apiWire.respond = mockFetchOk({ incoming_payments: [], _meta: { total_count: 0 } });
 
     await fetchIncomingPayments({ limit: 25, fromId: 200, state: 'queued' });
 
@@ -39,7 +40,7 @@ describe('payments API wrappers', () => {
   });
 
   test('fetchIncomingPayments can request total count metadata', async () => {
-    globalThis.fetch = mockFetchOk({ incoming_payments: [], _meta: { total_count: 4 } });
+    apiWire.respond = mockFetchOk({ incoming_payments: [], _meta: { total_count: 4 } });
 
     await fetchIncomingPayments({ limit: 1, state: 'unmatched', count: true });
 
@@ -52,7 +53,7 @@ describe('payments API wrappers', () => {
   });
 
   test('fetchIncomingPayment does not request relations outside the API contract', async () => {
-    globalThis.fetch = mockFetchOk({ incoming_payment: { id: 300, state: 'processed' } });
+    apiWire.respond = mockFetchOk({ incoming_payment: { id: 300, state: 'processed' } });
 
     await fetchIncomingPayment(300);
 
@@ -64,7 +65,7 @@ describe('payments API wrappers', () => {
   });
 
   test('createUserPayment sends namespaced incoming-payment payload', async () => {
-    globalThis.fetch = mockFetchOk({ user_payment: { id: 9 } });
+    apiWire.respond = mockFetchOk({ user_payment: { id: 9 } });
 
     await createUserPayment({ user: 7, incoming_payment: 15 });
 
@@ -78,7 +79,7 @@ describe('payments API wrappers', () => {
   });
 
   test('fetchUserPayments forwards only supported history filters and includes', async () => {
-    globalThis.fetch = mockFetchOk({ user_payments: [], _meta: { total_count: 0 } });
+    apiWire.respond = mockFetchOk({ user_payments: [], _meta: { total_count: 0 } });
 
     await fetchUserPayments({
       limit: 10,
@@ -102,7 +103,7 @@ describe('payments API wrappers', () => {
   });
 
   test('fetchPaymentInstructions uses user subresource path', async () => {
-    globalThis.fetch = mockFetchOk({ instructions: 'Use VS 123.' });
+    apiWire.respond = mockFetchOk({ instructions: 'Use VS 123.' });
 
     const res = await fetchPaymentInstructions(7);
 
@@ -114,7 +115,7 @@ describe('payments API wrappers', () => {
   });
 
   test('fetchPaymentInstructions normalizes legacy string responses', async () => {
-    globalThis.fetch = mockFetchOk('Account: 123456/0100\nVS: 42');
+    apiWire.respond = mockFetchOk('Account: 123456/0100\nVS: 42');
 
     const res = await fetchPaymentInstructions(42);
 
@@ -122,7 +123,7 @@ describe('payments API wrappers', () => {
   });
 
   test('estimateIncome uses the singular custom action and namespaced GET parameters', async () => {
-    globalThis.fetch = mockFetchOk({ user_count: 12, estimated_income: 36_000 });
+    apiWire.respond = mockFetchOk({ user_count: 12, estimated_income: 36_000 });
 
     const res = await estimateIncome({
       year: 2026,
@@ -144,12 +145,12 @@ describe('payments API wrappers', () => {
   });
 
   test('estimateIncome accepts a wrapped action response and rejects malformed totals', async () => {
-    globalThis.fetch = mockFetchOk({ payment_stats: { user_count: '4', estimated_income: '1200' } });
+    apiWire.respond = mockFetchOk({ payment_stats: { user_count: '4', estimated_income: '1200' } });
 
     const res = await estimateIncome({ year: 2026, month: 7, select: 'all_until', duration: 1 });
     expect(res.data).toEqual({ user_count: 4, estimated_income: 1200 });
 
-    globalThis.fetch = mockFetchOk({ user_count: 4, estimated_income: 'not-a-number' });
+    apiWire.respond = mockFetchOk({ user_count: 4, estimated_income: 'not-a-number' });
     await expect(
       estimateIncome({ year: 2026, month: 7, select: 'all_until', duration: 1 })
     ).rejects.toThrow('invalid estimated_income');
