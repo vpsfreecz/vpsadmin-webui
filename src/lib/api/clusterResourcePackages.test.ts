@@ -1,3 +1,4 @@
+import { apiWire } from '../../test/haveapiXhr';
 import { describe, expect, test, vi } from 'vitest';
 
 import { fetchClusterResourcePackages } from './clusterResourcePackages';
@@ -8,7 +9,7 @@ function mockFetchOk(response: any) {
 
 describe('cluster resource packages API wrappers', () => {
   test('fetchClusterResourcePackages forwards supported filters without q or is_personal', async () => {
-    globalThis.fetch = mockFetchOk({
+    apiWire.respond = mockFetchOk({
       cluster_resource_packages: [{ id: 77, label: 'Personal package', is_personal: true }],
       _meta: { total_count: 1 },
     }) as any;
@@ -25,10 +26,10 @@ describe('cluster resource packages API wrappers', () => {
 
     expect(res.data).toEqual([{ id: 77, label: 'Personal package', is_personal: true }]);
 
-    const [url] = vi.mocked(globalThis.fetch).mock.calls.find(([input]) =>
-      new URL(input instanceof Request ? input.url : input).pathname.endsWith('/cluster_resource_packages'),
+    const [url] = vi.mocked(apiWire.respond).mock.calls.find(([input]) =>
+      new URL(input).pathname.endsWith('/cluster_resource_packages'),
     )!;
-    const u = new URL(url instanceof Request ? url.url : url);
+    const u = new URL(url);
 
     expect(u.pathname).toBe('/v7.0/cluster_resource_packages');
     expect(u.searchParams.has('cluster_resource_package[q]')).toBe(false);
@@ -41,17 +42,17 @@ describe('cluster resource packages API wrappers', () => {
   });
 
   test('fetchClusterResourcePackages serializes a null user filter for shared packages', async () => {
-    globalThis.fetch = mockFetchOk({
+    apiWire.respond = mockFetchOk({
       cluster_resource_packages: [{ id: 11, label: 'Standard Production' }],
       _meta: { total_count: 1 },
     }) as any;
 
     await fetchClusterResourcePackages({ userId: null, limit: 500 });
 
-    const [url] = vi.mocked(globalThis.fetch).mock.calls.find(([input]) =>
-      new URL(input instanceof Request ? input.url : input).pathname.endsWith('/cluster_resource_packages'),
+    const [url] = vi.mocked(apiWire.respond).mock.calls.find(([input]) =>
+      new URL(input).pathname.endsWith('/cluster_resource_packages'),
     )!;
-    const u = new URL(url instanceof Request ? url.url : url);
+    const u = new URL(url);
 
     expect(u.searchParams.has('cluster_resource_package[user]')).toBe(true);
     expect(u.searchParams.get('cluster_resource_package[user]')).toBe('');

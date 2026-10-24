@@ -1,3 +1,4 @@
+import { installHaveApiXhr } from '../../test/haveapiXhr';
 import { afterEach, describe, expect, test, vi } from 'vitest';
 
 import { createExport, fetchExports, fetchHostIpAddresses } from './exports';
@@ -34,7 +35,7 @@ describe('exports API wrappers', () => {
       exports: [{ id: 1, path: '/export/spec', enabled: true }],
       _meta: { total_count: 1 },
     });
-    vi.stubGlobal('fetch', fetchMock);
+    installHaveApiXhr( fetchMock);
 
     await fetchExports({
       limit: 25,
@@ -61,13 +62,13 @@ describe('exports API wrappers', () => {
   test('createExport sends export namespace', async () => {
     setMockRuntime();
     const fetchMock = mockFetchOk({ export: { id: 9, path: '/export/spec' } });
-    vi.stubGlobal('fetch', fetchMock);
+    installHaveApiXhr( fetchMock);
 
     await createExport({ dataset: 123, enabled: true, rw: true });
 
     const [, init] = firstFetchCall(fetchMock);
     expect(init?.method).toBe('POST');
-    expect(new Headers(init?.headers).get('Content-Type')).toBe('application/json');
+    expect(new Headers(init?.headers).get('Content-Type')).toMatch(/^application\/json(?:;|$)/);
 
     const body = JSON.parse(String(init?.body));
     expect(body).toEqual({
@@ -84,7 +85,7 @@ describe('exports API wrappers', () => {
     const fetchMock = mockFetchOk({
       host_ip_addresses: [{ id: 11, addr: '203.0.113.10' }],
     });
-    vi.stubGlobal('fetch', fetchMock);
+    installHaveApiXhr( fetchMock);
 
     await fetchHostIpAddresses({
       limit: 100,
@@ -109,13 +110,13 @@ describe('exports API wrappers', () => {
   test('exact eligible-ID probe sends one ascending row after the preceding ID', async () => {
     setMockRuntime();
     const fetchMock = mockFetchOk({ host_ip_addresses: [{ id: 101, addr: '203.0.113.101' }] });
-    vi.stubGlobal('fetch', fetchMock);
+    installHaveApiXhr( fetchMock);
     const controller = new AbortController();
     await fetchHostIpAddresses({
       addr: '203.0.113.101', fromId: 100, limit: 1, order: 'asc',
       usableFor: 'vps', routed: true, signal: controller.signal,
     });
-    const [url, init] = firstFetchCall(fetchMock);
+    const [url] = firstFetchCall(fetchMock);
     const u = new URL(String(url));
     expect(u.searchParams.get('host_ip_address[addr]')).toBe('203.0.113.101');
     expect(u.searchParams.get('host_ip_address[from_id]')).toBe('100');
@@ -124,6 +125,8 @@ describe('exports API wrappers', () => {
     expect(u.searchParams.get('host_ip_address[usable_for]')).toBe('vps');
     expect(u.searchParams.get('host_ip_address[routed]')).toBe('true');
     expect(u.searchParams.has('host_ip_address[q]')).toBe(false);
-    expect(init?.signal).toBe(controller.signal);
+    controller.abort();
+    await expect(fetchHostIpAddresses({ signal: controller.signal })).rejects.toMatchObject({ name: 'AbortError' });
+    expect(fetchMock).toHaveBeenCalledOnce();
   });
 });

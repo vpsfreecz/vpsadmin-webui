@@ -19,9 +19,11 @@ prefetch-npm-deps bff/package-lock.json
 ```
 
 The recorded hashes for the current lockfiles are
-`sha256-1AItkFu1tvJpKjFVbGC/IWky4JPfw+d+XU50egk+/TE=` and
+`sha256-sY3OQDFdisOzhJO4dhwlsjvGxlhog8crhqU3tHcI4IY=` and
 `sha256-m6CayVcO1z+Xuy+XlAEqVLoRFRACSNjdcn4pae1T+Dc=`, respectively.
-Each derivation uses its own hash. The root prefetch reported six bundled optional
+Each derivation uses its own hash. The frontend includes the exact registry
+HaveAPI dependency and locked XMLHttpRequest transport; see its
+[source and artifact contract](HAVEAPI_CLIENT.md). The root prefetch reported six bundled optional
 dependencies nested under `@tailwindcss/oxide-wasm32-wasi` without separate
 resolved URLs. Their WASI-only
 placement and bundled metadata explain the warning, but only an actual x86_64

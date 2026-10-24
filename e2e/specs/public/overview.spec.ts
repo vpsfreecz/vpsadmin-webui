@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Request } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock, jsonFulfill, setUiSettingsLocalStorage } from '../../fixtures';
 
@@ -9,6 +9,12 @@ import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock, jsonFulfill,
  * Keep it fast and deterministic.
  */
 test('@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile public overview shows key status surfaces', async ({ page }) => {
+  const publicRequests: Request[] = [];
+  page.on('request', request => {
+    if (/\/(cluster\/public_stats|nodes\/public_status)$/.test(new URL(request.url()).pathname)) {
+      publicRequests.push(request);
+    }
+  });
   await setUiSettingsLocalStorage(page, { theme: 'dark', language: 'en' });
   await bootstrapVpsAdminWindow(page, {
     apiUrl: '/api',
@@ -61,6 +67,15 @@ test('@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile public overview shows key 
   await expect(page.getByTestId('public.stats.members')).toBeVisible();
   await expect(page.getByTestId('public.stats.nodes')).toBeVisible();
   await expect(page.getByTestId('public.stats.vps')).toBeVisible();
+  expect(publicRequests.length).toBeGreaterThanOrEqual(2);
+  for (const request of publicRequests) {
+    expect(request.resourceType()).toBe('xhr');
+    expect(request.headers()['x-haveapi-auth-token']).toBeUndefined();
+    expect(request.headers()['x-haveapi-oauth2-token']).toBeUndefined();
+    expect(request.headers()['authorization']).toBeUndefined();
+    // Browser defaults may send Accept-Language; the package must not override it.
+    expect(request.headers()['accept']).toBe('application/json');
+  }
 
   // Supporting sections. Empty outages are intentionally hidden.
   await expect(page.locator('[data-testid="public.outages.card"]')).toHaveCount(0);

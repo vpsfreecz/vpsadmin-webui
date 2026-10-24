@@ -1,3 +1,4 @@
+import { installHaveApiXhr } from '../../test/haveapiXhr';
 import { afterEach, describe, expect, test, vi } from 'vitest';
 
 import {
@@ -47,7 +48,7 @@ describe('datasets API wrappers', () => {
       datasets: [{ id: 1, name: 'tank/user' }],
       _meta: { total_count: 1 },
     });
-    vi.stubGlobal('fetch', fetchMock);
+    installHaveApiXhr( fetchMock);
 
     if (false) {
       // @ts-expect-error Dataset#index has no q filter in the API contract.
@@ -78,7 +79,7 @@ describe('datasets API wrappers', () => {
       snapshots: [{ id: 9, name: '@s1', dataset: { id: 123 } }],
       _meta: { total_count: 1 },
     });
-    vi.stubGlobal('fetch', fetchMock);
+    installHaveApiXhr( fetchMock);
 
     if (false) {
       // @ts-expect-error Snapshot#index has no q filter in the API contract.
@@ -104,7 +105,7 @@ describe('datasets API wrappers', () => {
   test('findDatasetByName uses the declared exact-name action and optional owner', async () => {
     setMockRuntime();
     const fetchMock = mockFetchOk({ dataset: { id: 9, name: 'tank/user/app' } });
-    vi.stubGlobal('fetch', fetchMock);
+    installHaveApiXhr( fetchMock);
 
     await findDatasetByName('tank/user/app', 42);
 
@@ -138,7 +139,7 @@ describe('datasets API wrappers', () => {
           headers: { 'Content-Type': 'application/json' },
         })
       );
-    vi.stubGlobal('fetch', fetchMock);
+    installHaveApiXhr( fetchMock);
 
     await fetchDatasetPlans(123, {
       limit: 200,
@@ -162,13 +163,13 @@ describe('datasets API wrappers', () => {
   test('createDatasetSnapshot sends namespaced payload', async () => {
     setMockRuntime();
     const fetchMock = mockFetchOk({ snapshot: { id: 9, name: '@s1' } });
-    vi.stubGlobal('fetch', fetchMock);
+    installHaveApiXhr( fetchMock);
 
     await createDatasetSnapshot(123, { label: 'before-upgrade' });
 
     const [, init] = firstFetchCall(fetchMock);
     expect(init?.method).toBe('POST');
-    expect(new Headers(init?.headers).get('Content-Type')).toBe('application/json');
+    expect(new Headers(init?.headers).get('Content-Type')).toMatch(/^application\/json(?:;|$)/);
 
     const body = JSON.parse(String(init?.body));
     expect(body).toEqual({ snapshot: { label: 'before-upgrade' } });
@@ -176,7 +177,7 @@ describe('datasets API wrappers', () => {
 
   test('rollback requires a valid action-state id', async () => {
     setMockRuntime();
-    vi.stubGlobal('fetch', mockFetchOk({ ok: true, _meta: {} }));
+    installHaveApiXhr( mockFetchOk({ ok: true, _meta: {} }));
 
     await expect(rollbackDatasetSnapshot(123, 9)).rejects.toMatchObject({
       code: 'MISSING_ACTION_STATE',
@@ -186,7 +187,7 @@ describe('datasets API wrappers', () => {
   test('rollback accepts and preserves a valid action-state id', async () => {
     setMockRuntime();
     const fetchMock = mockFetchOk({ _meta: { action_state_id: 812 } });
-    vi.stubGlobal('fetch', fetchMock);
+    installHaveApiXhr( fetchMock);
 
     await expect(rollbackDatasetSnapshot(123, 9)).resolves.toMatchObject({
       meta: { action_state_id: 812 },
@@ -199,7 +200,7 @@ describe('datasets API wrappers', () => {
   test('createDataset sends dataset namespace with parent and properties', async () => {
     setMockRuntime();
     const fetchMock = mockFetchOk({ dataset: { id: 124, name: 'tank/user/app' } });
-    vi.stubGlobal('fetch', fetchMock);
+    installHaveApiXhr( fetchMock);
 
     await createDataset({ dataset: 123, name: 'app', automount: true, refquota: 10240, compression: true });
 
@@ -214,7 +215,7 @@ describe('datasets API wrappers', () => {
   test('updateDataset sends editable properties to dataset namespace', async () => {
     setMockRuntime();
     const fetchMock = mockFetchOk(null);
-    vi.stubGlobal('fetch', fetchMock);
+    installHaveApiXhr( fetchMock);
 
     await updateDataset(123, { quota: 20480, sync: 'standard', admin_override: true, admin_lock_type: 'not_more' });
 
@@ -229,7 +230,7 @@ describe('datasets API wrappers', () => {
   test('deleteDataset uses dataset endpoint', async () => {
     setMockRuntime();
     const fetchMock = mockFetchOk(null);
-    vi.stubGlobal('fetch', fetchMock);
+    installHaveApiXhr( fetchMock);
 
     await deleteDataset(123);
 
@@ -241,7 +242,7 @@ describe('datasets API wrappers', () => {
   test('createSnapshotDownload sends snapshot_download namespace', async () => {
     setMockRuntime();
     const fetchMock = mockFetchOk({ snapshot_download: { id: 5, state: 'ready' } });
-    vi.stubGlobal('fetch', fetchMock);
+    installHaveApiXhr( fetchMock);
 
     await createSnapshotDownload({ snapshot: 9, format: 'archive', send_mail: false });
 
@@ -257,7 +258,7 @@ describe('datasets API wrappers', () => {
       snapshot_downloads: [{ id: 7, snapshot: { id: 9 }, format: 'archive' }],
       _meta: { total_count: 1 },
     });
-    vi.stubGlobal('fetch', fetchMock);
+    installHaveApiXhr( fetchMock);
 
     if (false) {
       // @ts-expect-error SnapshotDownload#index has no q filter in the API contract.

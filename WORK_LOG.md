@@ -11,6 +11,17 @@ complete reconstruction of the project. Missing evidence is not a passing check.
 
 ## New changes
 
+## 2026-10-26 — HaveAPI 0.30.2 dependency refresh
+
+See the [release identity and verification record](docs/work-log/2026-10-26-haveapi-0302.md).
+The existing adapter and contradictory-receipt safeguards are unchanged.
+Prepared for review; no deployment or database migration.
+
+## 2026-10-24 — Released HaveAPI async client
+
+See the [takeover, registry provenance and verification record](docs/work-log/2026-10-24-haveapi-released-client.md).
+Prepared for review; no deployment or database migration.
+
 ## 2026-10-23 — Completed member administration release
 
 PRs #81–#85 passed CI, were merged through #86 and deployed as `f7a8f10cbb94`

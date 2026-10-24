@@ -1,3 +1,4 @@
+import { apiWire } from '../../test/haveapiXhr';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { fetchFinanceUsersSnapshot } from './finance';
@@ -39,7 +40,7 @@ describe('fetchFinanceUsersSnapshot', () => {
     });
     const requestedStates: string[] = [];
 
-    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+    vi.mocked(apiWire.respond).mockImplementation(async (input) => {
       const objectState = String(new URL(String(input)).searchParams.get('user[object_state]'));
       requestedStates.push(objectState);
       if (objectState === 'active') return activeResponse;
@@ -83,7 +84,7 @@ describe('fetchFinanceUsersSnapshot', () => {
       object_state: 'suspended',
     }));
 
-    const fetchMock = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+    const fetchMock = vi.mocked(apiWire.respond).mockImplementation(async (input) => {
       const url = new URL(String(input));
       const fromId = Number(url.searchParams.get('user[from_id]') ?? 0);
       const limit = Number(url.searchParams.get('user[limit]'));
@@ -105,7 +106,7 @@ describe('fetchFinanceUsersSnapshot', () => {
   it('collects every keyset page and marks a trustworthy KPI snapshot complete', async () => {
     installApiFixture();
 
-    const fetchMock = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+    const fetchMock = vi.mocked(apiWire.respond).mockImplementation(async (input) => {
       const url = new URL(String(input));
       const fromId = url.searchParams.get('user[from_id]');
       const objectState = url.searchParams.get('user[object_state]');
@@ -138,7 +139,7 @@ describe('fetchFinanceUsersSnapshot', () => {
   it('never presents a scan-limited user snapshot as a complete global set', async () => {
     installApiFixture();
 
-    const fetchMock = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+    const fetchMock = vi.mocked(apiWire.respond).mockImplementation(async (input) => {
       const url = new URL(String(input));
       const fromId = Number(url.searchParams.get('user[from_id]') ?? 0);
       const limit = Number(url.searchParams.get('user[limit]'));
@@ -172,7 +173,7 @@ describe('fetchFinanceUsersSnapshot', () => {
   it('fails closed when a full page does not advance the ascending user cursor', async () => {
     installApiFixture();
 
-    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+    vi.mocked(apiWire.respond).mockImplementation(async (input) => {
       const objectState = new URL(String(input)).searchParams.get('user[object_state]');
       if (objectState === 'suspended') return makeOkResponse('users', []);
       return makeOkResponse('users', [
