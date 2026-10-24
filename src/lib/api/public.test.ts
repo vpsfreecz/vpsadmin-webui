@@ -1,3 +1,4 @@
+import { installHaveApiXhr } from '../../test/haveapiXhr';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { fetchContextualHelpBoxes } from './helpBoxes';
@@ -34,7 +35,7 @@ function installFetch() {
     throw new Error(`unexpected fetch ${href}`);
   });
 
-  vi.stubGlobal('fetch', fetchMock);
+  installHaveApiXhr( fetchMock);
   return fetchMock;
 }
 
@@ -62,9 +63,9 @@ describe('public API helpers', () => {
     const urls = fetchMock.mock.calls.map(([url]) => String(url));
     expect(urls).toEqual([
       'https://api.example.test/v7.0/cluster/public_stats',
-      'https://api.example.test/v7.0/outages?outage%5Blimit%5D=25',
-      'https://api.example.test/v7.0/news_logs?news_log%5Blimit%5D=5',
-      'https://api.example.test/v7.0/help_boxes?help_box%5Bpage%5D=public&help_box%5Baction%5D=index&help_box%5Bview%5D=true',
+      'https://api.example.test/v7.0/outages?outage[limit]=25',
+      'https://api.example.test/v7.0/news_logs?news_log[limit]=5',
+      'https://api.example.test/v7.0/help_boxes?help_box[page]=public&help_box[action]=index&help_box[view]=true',
     ]);
 
     expect(urls.some((url) => url === 'https://api.example.test/v7.0' || url === 'https://api.example.test/v7.0/')).toBe(false);
@@ -95,7 +96,7 @@ describe('public API helpers', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
     const [url, init] = fetchMock.mock.calls[0]!;
     expect(String(url)).toBe(
-      'https://api.example.test/v7.0/help_boxes?help_box%5Bpage%5D=vps&help_box%5Baction%5D=show&help_box%5Bview%5D=true'
+      'https://api.example.test/v7.0/help_boxes?help_box[page]=vps&help_box[action]=show&help_box[view]=true'
     );
     const headers = new Headers(init?.headers);
     expect(headers.get('X-Configured-Auth-Header')).toBe('exact-session-token');

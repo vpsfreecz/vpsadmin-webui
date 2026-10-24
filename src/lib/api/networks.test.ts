@@ -1,3 +1,4 @@
+import { apiWire } from '../../test/haveapiXhr';
 import { describe, expect, test, vi } from 'vitest';
 
 import { fetchNetworks, updateNetwork, networkEnabledWritable } from './networks';
@@ -19,7 +20,7 @@ describe('networks API wrappers', () => {
 
   test('serializes false explicitly and preserves omission on unrelated updates', async () => {
     const fetchMock = mockFetchOk({ network: { id: 101, enabled: false } });
-    globalThis.fetch = fetchMock as unknown as typeof fetch;
+    apiWire.respond = fetchMock as unknown as typeof fetch;
     await updateNetwork({ id: 101, enabled: false });
     await updateNetwork({ id: 101, label: 'Inventory' });
     const writes = fetchMock.mock.calls.filter(([, init]) => init?.method === 'PUT');
@@ -31,7 +32,7 @@ describe('networks API wrappers', () => {
       { id: 101, available_to_users: 0, owned_unassigned: 2, owned: 5, size: 256, used: 9, taken: 7 },
       { id: 102, owned: 5, size: 256, used: 9, taken: 7 },
     ];
-    globalThis.fetch = mockFetchOk({ networks: rows });
+    apiWire.respond = mockFetchOk({ networks: rows });
     const result = await fetchNetworks();
     expect(result.data).toEqual(rows);
     expect(result.data[0]?.available_to_users).toBe(0);
@@ -41,7 +42,7 @@ describe('networks API wrappers', () => {
 
   test('fetchNetworks forwards only filters supported by Network.Index', async () => {
     const fetchMock = mockFetchOk({ networks: [{ id: 101, purpose: 'vps' }] });
-    globalThis.fetch = fetchMock as unknown as typeof fetch;
+    apiWire.respond = fetchMock as unknown as typeof fetch;
 
     const res = await fetchNetworks({
       limit: 25,
