@@ -10,6 +10,7 @@ import { Input } from '../../../components/ui/Input';
 import { Select } from '../../../components/ui/Select';
 import { SmartFilterInput, type SmartFilterSuggestion } from '../../../components/ui/SmartFilterInput';
 import { SmartInputHelp } from '../../../components/ui/SmartInputHelp';
+import { chainBadgeFromState } from '../../../lib/taskStatus';
 import { UserLookupInput } from '../../../components/ui/UserLookupInput';
 
 import { CHAIN_STATES, type ChainState, type TransactionChainsTranslator } from './transactionChainSemantics';
@@ -252,7 +253,7 @@ export function TransactionChainsFilters({
                 <option value="">{t('transactions.chains.filter.state.all')}</option>
                 {CHAIN_STATES.map((item) => (
                   <option key={item} value={item}>
-                    {item}
+                    {chainBadgeFromState(item, t).label}
                   </option>
                 ))}
               </Select>

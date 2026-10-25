@@ -29,11 +29,7 @@ import { resourceId, refLabel } from '../../lib/resources';
 import {
   classifyTransaction,
   classifyTransactionChain,
-  operationBadgeVariant,
-  operationCategoryLabel,
   operationLabel,
-  operationSeverityLabel,
-  operationVisibilityLabel,
   shouldCollapseSystemOperation,
 } from '../../lib/operationTaxonomy';
 import { TransactionInlineDetails } from '../ui/TransactionInlineDetails';
@@ -243,7 +239,8 @@ export function TransactionChainsPanel(props: {
 
   const renderChain = (x: { c: TransactionChain; pinned: boolean }) => {
     const c = x.c;
-    const badge = chainBadgeFromState(c.state);
+    const badge = chainBadgeFromState(c.state, i18n.t);
+    const finished = isFinishedChainState(c.state);
     const toneVariant: ToneVariant | undefined = ((): ToneVariant | undefined => {
       const v = badge.variant;
       if (v === 'ok' || v === 'warn' || v === 'danger' || v === 'info' || v === 'neutral') return v;
@@ -271,7 +268,7 @@ export function TransactionChainsPanel(props: {
     return (
       <div
         key={c.id}
-        className={clsx('rounded-md border p-3', toneSurfaceClass(toneVariant))}
+        className={clsx('rounded-md border p-3', toneSurfaceClass(finished && !isFailedChainState(c.state) ? undefined : toneVariant))}
         data-testid={`tasks.chain.row.${c.id}`}
       >
         <div className="flex items-start justify-between gap-3">
@@ -283,11 +280,6 @@ export function TransactionChainsPanel(props: {
               </Link>
             </div>
             {label !== operationName ? <div className="mt-1 text-xs text-faint">{i18n.t('operation.raw_name', { name: label })}</div> : null}
-            <div className="mt-2 flex flex-wrap gap-1">
-              <Badge variant={operationBadgeVariant(operation)}>{operationCategoryLabel(operation, i18n.t)}</Badge>
-              {operation.severity !== 'normal' ? <Badge variant={operationBadgeVariant(operation)}>{operationSeverityLabel(operation, i18n.t)}</Badge> : null}
-              {operation.visibility !== 'user' ? <Badge variant="info">{operationVisibilityLabel(operation, i18n.t)}</Badge> : null}
-            </div>
             <div className="mt-1 text-xs text-faint">
               {meta.map((p, i) => (
                 <React.Fragment key={i}>
@@ -302,7 +294,7 @@ export function TransactionChainsPanel(props: {
           <div className="flex flex-col items-end gap-2">
             <Badge variant={badge.variant}>{badge.label}</Badge>
             {pct !== null ? (
-              <div className="text-xs text-faint">{countLabel ? `${countLabel} · ${pct}%` : `${pct}%`}</div>
+              <div className="text-xs text-faint">{finished && countLabel ? countLabel : countLabel ? `${countLabel} · ${pct}%` : `${pct}%`}</div>
             ) : null}
 
             <div className="flex items-center gap-2">
@@ -331,7 +323,7 @@ export function TransactionChainsPanel(props: {
           </div>
         </div>
 
-        {pct !== null ? (
+        {pct !== null && !finished ? (
           <div className="mt-3 h-2 rounded-full bg-surface-2">
             <div className={clsx('h-2 rounded-full', toneProgressFillClass(toneVariant))} style={{ width: `${pct}%` }} />
           </div>

@@ -11,6 +11,13 @@ complete reconstruction of the project. Missing evidence is not a passing check.
 
 ## New changes
 
+## 2026-10-25 — Compact transaction history and chain steps
+
+The maintainer requested a clearer transaction table and chain detail inspired
+by the legacy UI, with overnight verification until 10:00 Europe/Prague.
+See [design, progress and verification](docs/work-log/2026-10-25-transactions-readable-overview.md).
+Prepared for review; no merge or deployment is authorized.
+
 ## 2026-10-25 — BFF body-parser security patch
 
 A production dependency audit during transaction review found the existing

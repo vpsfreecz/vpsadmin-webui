@@ -3,7 +3,6 @@ import { expect, test } from '@playwright/test';
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
 import {
   expectNoDocumentHorizontalOverflow,
-  expectTableHorizontalScrollUsable,
 } from '../../helpers/horizontalOverflow';
 
 const handlers = {
@@ -213,7 +212,7 @@ test.describe('@pr-smoke TransactionChainDetailPage', () => {
 
     await expect(page.getByTestId('transactions.chain.detail.tx.701')).toBeVisible();
     await expect(page.getByTestId('transactions.chain.detail.tx.702')).toBeVisible();
-    await expect(page.getByTestId('transactions.chain.detail.tx.open.702')).toBeVisible();
+    await expect(page.getByTestId('transactions.chain.detail.tx.702').getByRole('link', { name: 'Step 2', exact: true })).toHaveAttribute('href', '/app/transactions/items/702');
 
     // RowTone Full: every transaction row has an explicit variant.
     await expect(page.getByTestId('transactions.chain.detail.tx.701')).toHaveAttribute('data-row-variant', 'warn');
@@ -221,7 +220,8 @@ test.describe('@pr-smoke TransactionChainDetailPage', () => {
 
     await page.setViewportSize({ width: 390, height: 844 });
     await expectNoDocumentHorizontalOverflow(page);
-    await expectTableHorizontalScrollUsable(page, 'transactions.chain.detail.transactions.table');
+    await expect(page.getByTestId('transactions.chain.detail.transactions.table')).toBeVisible();
+    expect(await page.getByTestId('transactions.chain.detail.transactions.table').evaluate((table) => table.scrollWidth <= table.clientWidth + 1)).toBe(true);
 
     await page.getByTestId('transactions.chain.detail.tx.toggle.702').click();
     await expect(page.getByTestId('transactions.chain.detail.tx.expanded.702')).toBeVisible();
@@ -279,7 +279,8 @@ test.describe('@pr-smoke TransactionChainDetailPage', () => {
 
     await page.setViewportSize({ width: 390, height: 844 });
     await expectNoDocumentHorizontalOverflow(page);
-    await expectTableHorizontalScrollUsable(page, 'transactions.chain.detail.transactions.table');
+    await expect(page.getByTestId('transactions.chain.detail.transactions.table')).toBeVisible();
+    expect(await page.getByTestId('transactions.chain.detail.transactions.table').evaluate((table) => table.scrollWidth <= table.clientWidth + 1)).toBe(true);
 
     await page.getByTestId('transactions.chain.detail.tx.toggle.902').click();
     await expect(page.getByTestId('transactions.chain.detail.tx.expanded.902')).toContainText('creating veth');
@@ -351,7 +352,8 @@ test.describe('@pr-smoke TransactionChainDetailPage', () => {
     await expect(page.getByTestId('transactions.chain.detail.concern.4.open')).toHaveCount(0);
     await page.setViewportSize({ width: 390, height: 844 });
     await expectNoDocumentHorizontalOverflow(page);
-    await expectTableHorizontalScrollUsable(page, 'transactions.chain.detail.transactions.table');
+    await expect(page.getByTestId('transactions.chain.detail.transactions.table')).toBeVisible();
+    expect(await page.getByTestId('transactions.chain.detail.transactions.table').evaluate((table) => table.scrollWidth <= table.clientWidth + 1)).toBe(true);
   });
 
   test('deep reload keeps chain detail route and transaction table visible', async ({ page }) => {

@@ -119,20 +119,6 @@
       }
     },
     {
-      "path": "src/pages/app/TransactionChainDetailPage.tsx",
-      "rule": "grown-over-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "d6179446cdb962c84ca1c3c4cc1cd301cb8ca39bc93cfb1c25e45efdcebfbbf1",
-      "old": 587,
-      "allowance": 595,
-      "rationale": "At the recorded source revision, this file already contained transaction chain details and receipts; extract the coherent section with focused behavior coverage before removing this exception. Reviewed 2026-10-06: one import and a row-label substitution consume the shared localized transaction helper. Browser fixtures cover chain rows.",
-      "owner": "WebUI implementation lead",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 587
-      }
-    },
-    {
       "path": "src/pages/app/admin/AdminOutagesPage.tsx",
       "rule": "grown-over-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
