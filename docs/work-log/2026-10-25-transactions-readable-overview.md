@@ -205,3 +205,27 @@ edits while the browser run is active. Results are pending in
 Upstream main remains `5a2d2bdc`; both review branches are published. GitHub
 REST authentication was rechecked and still returns 401. PR publication and
 remote CI therefore remain blocked; no merge/deployment or Nix retry occurred.
+
+## Overnight completion of local suites — 2026-10-25 01:50 UTC
+
+The stable, complete desktop PR suite finished **542/542 passing** in 8.9
+minutes, without source edits during that run. Together with the completed
+**484/484 mobile Chrome PR suite**, both full PR smoke projects now have a
+passing complete run. The earlier failed desktop attempt and 17-test follow-up
+remain recorded above; this is an additional successful run, not a rewrite of
+that evidence. Mobile Safari's dedicated transaction scenarios passed in the
+focused checks; this does not claim the entire mobile WebKit project was run.
+
+The committed candidate's repeated `ci:tests` also passed: 226 script tests,
+57 BFF tests and 1,869 unit tests in 301 files. No assertions, source behavior
+or unrelated payment/account code were changed to obtain these passes.
+No more full-suite repetition is needed unless source changes or a new failure
+provide a reason. Prepared PR descriptions have been refreshed with this status.
+
+Publication remains the outstanding actionable boundary. Authenticated GitHub
+REST still returns 401; public PR discovery confirms only unrelated #63 and
+#74 are open, so no PR was silently created and no remote CI is certified.
+Upstream main remains `5a2d2bdc`. Preserve both published review branches and
+retry publication only if authentication is restored before the 10:00 deadline.
+The full Nix frontend/package disk-space limitation remains unchanged.
+No deployment, API/server change or live write occurred.
