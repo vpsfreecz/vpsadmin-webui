@@ -46,7 +46,7 @@ were checked before committing.
 - `npm test`: 1869 tests in 301 files passed.
 - `npm run test:scripts`: 226 passed; `npm run test:bff`: 57 passed.
 - `npm run build`: passed; existing large-chunk warning remains.
-- Targeted Playwright: 27 successful browser checks across desktop Chrome,
+- Targeted Playwright: 30 successful browser checks across desktop Chrome,
   mobile Chrome and the explicitly selected mobile WebKit scenarios.
 
 Early development runs identified fixture/setup errors, not a final green suite:
@@ -77,3 +77,15 @@ Synthetic fixtures only; no real member data, credentials or consent changes.
 [Desktop preference](screenshots/2026-10-25-admin-modifications/desktop-preference.png)
 
 [Mobile preference](screenshots/2026-10-25-admin-modifications/mobile-preference.png)
+
+## Explicit receipt-status follow-up
+
+After publishing initial candidate `63d1cc9f`, final review tightened completion
+proof to require `action_state.status === true`, rather than merely the absence
+of an explicit failure. A missing status cannot become a green confirmation,
+even if the read-back value already matches. The published history is preserved;
+this is a focused follow-up commit on the same review branch.
+
+All 30 targeted desktop/mobile browser checks passed after this change, including
+the new missing-status case with a matching saved value. `ci:quick` and the
+production build were rerun successfully. Root/BFF dependencies are unchanged.

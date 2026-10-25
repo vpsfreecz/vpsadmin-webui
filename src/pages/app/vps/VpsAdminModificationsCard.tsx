@@ -13,7 +13,7 @@ import { formatErrorMessage } from '../../../lib/errors';
 import { gateVpsMutation } from '../../../lib/gates/vps';
 import { objectRef } from '../../../lib/objectRef';
 import { useFastPollIntervalMs } from '../../../lib/refreshTiers';
-import { actionStateFailed, actionStateFinished, isBusyError } from './VpsAccessPrimitives';
+import { actionStateFinished, isBusyError } from './VpsAccessPrimitives';
 import { useVps } from './VpsContext';
 import { freezeVpsMutationSnapshot, type VpsMutationSnapshot } from './VpsMutationSnapshot';
 import { preflightVpsNotBusy } from './vpsPreflight';
@@ -43,12 +43,13 @@ export function VpsAdminModificationsCard() {
   useEffect(() => {
     if (!pending || !actionStateFinished(stateQ.data)) return;
     let cancelled = false;
-    const failed = actionStateFailed(stateQ.data);
+    const successful = stateQ.data?.status === true;
     void qc.invalidateQueries({ queryKey: ['vps', 'show', { id: vps.id }], exact: true }).then(() => {
       if (cancelled) return;
       const fresh = qc.getQueryData<Vps>(['vps', 'show', { id: vps.id }]);
       const readBack = qc.getQueryState(['vps', 'show', { id: vps.id }]);
-      const confirmed = !failed && readBack?.status === 'success' && fresh?.allow_admin_modifications === pending.allow;
+      const confirmed =
+        successful && readBack?.status === 'success' && fresh?.allow_admin_modifications === pending.allow;
       setResult(confirmed ? 'saved' : 'failed');
       if (confirmed) setDraft(null);
       setPending(null);

@@ -138,9 +138,10 @@ for (const outcome of ['rejected', 'missing-receipt'] as const) {
   });
 }
 
-for (const outcome of ['failed-action', 'readback-mismatch'] as const) {
+for (const outcome of ['failed-action', 'readback-mismatch', 'unknown-action-status'] as const) {
   test(`@pr-smoke @pr-smoke-mobile admin modification change is not confirmed after ${outcome}`, async ({ page }) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+    let submitted = false;
     await installHaveApiMock(page, {
       user: { id: 7, login: 'member', level: 1 },
       handlers: {
@@ -150,15 +151,24 @@ for (const outcome of ['failed-action', 'readback-mismatch'] as const) {
             hostname: 'sample.example',
             user: { id: 7 },
             object_state: 'active',
-            allow_admin_modifications: false,
+            allow_admin_modifications: outcome === 'unknown-action-status' && submitted,
             node: { id: 1 },
           },
         }),
         'GET transaction_chains': () => ({ transaction_chains: [] }),
         'GET vpses/123/maintenance_windows': () => ({ maintenance_windows: [] }),
-        'PUT vpses/123': () => ({ _meta: { action_state_id: 8002 } }),
+        'PUT vpses/123': () => {
+          submitted = true;
+          return { _meta: { action_state_id: 8002 } };
+        },
         'GET action_states/8002': () => ({
-          action_state: { id: 8002, finished: true, status: outcome !== 'failed-action', current: 1, total: 1 },
+          action_state: {
+            id: 8002,
+            finished: true,
+            ...(outcome === 'unknown-action-status' ? {} : { status: outcome !== 'failed-action' }),
+            current: 1,
+            total: 1,
+          },
         }),
       },
     });
