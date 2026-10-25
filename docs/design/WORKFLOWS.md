@@ -184,6 +184,17 @@ resources. [Access](../../src/lib/api/vpsAccess.ts),
 [maintenance](../../src/lib/api/vpsMaintenance.ts),
 [resource fixture](../../e2e/specs/app/vps_resource_workspace.spec.ts).
 
+### Maintenance weekdays (REQ-023)
+
+The existing maintenance-window endpoint addresses a day by its `weekday`, not
+its resource `id`. It uses Ruby weekday numbering: Sunday 0, Monday 1 through
+Saturday 6. The UI displays Monday through Sunday but submits Sunday to
+`PUT /vpses/:id/maintenance_windows/0`; it never sends weekday 7. Opening,
+closing, time edits, per-day retry reconciliation and Allow anytime share this
+mapping. Closing a day omits times and leaves server validation authoritative,
+including the minimum weekly window. An API rejection preserves the draft;
+success requires a refreshed server baseline. No API changes are required.
+
 ## Console and VPS deletion
 
 **Intent:** entering Console opens a session directly; intentional replacement and

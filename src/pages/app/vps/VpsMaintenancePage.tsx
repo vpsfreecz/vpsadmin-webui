@@ -16,6 +16,7 @@ import { gateVpsMutation } from '../../../lib/gates/vps';
 import { preflightVpsNotBusy } from './vpsPreflight';
 import { useVps } from './VpsContext';
 
+// API weekdays follow Ruby Date#wday: Sunday = 0; display Monday first.
 const WEEKDAYS: Array<{ weekday: number; key: string; shortKey: string }> = [
   { weekday: 1, key: 'common.weekday.mon', shortKey: 'common.weekday_short.mon' },
   { weekday: 2, key: 'common.weekday.tue', shortKey: 'common.weekday_short.tue' },
@@ -23,7 +24,7 @@ const WEEKDAYS: Array<{ weekday: number; key: string; shortKey: string }> = [
   { weekday: 4, key: 'common.weekday.thu', shortKey: 'common.weekday_short.thu' },
   { weekday: 5, key: 'common.weekday.fri', shortKey: 'common.weekday_short.fri' },
   { weekday: 6, key: 'common.weekday.sat', shortKey: 'common.weekday_short.sat' },
-  { weekday: 7, key: 'common.weekday.sun', shortKey: 'common.weekday_short.sun' },
+  { weekday: 0, key: 'common.weekday.sun', shortKey: 'common.weekday_short.sun' },
 ];
 
 function MobileCellLabel(props: { children: React.ReactNode }) {

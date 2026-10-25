@@ -9,6 +9,11 @@ Dates below use Europe/Prague unless an explicit UTC timestamp is given.
 Entries before the start date are selective retrospective summaries, not a
 complete reconstruction of the project. Missing evidence is not a passing check.
 
+## 2026-10-25 — Sunday maintenance-window mapping
+
+Prepared [Sunday load/save and bulk-edit correction](docs/work-log/2026-10-25-maintenance-sunday.md)
+for REQ-023, reported in Discourse post 7. Not merged or deployed.
+
 ## New changes
 
 ## 2026-10-23 — Completed member administration release
