@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigationType, useSearchParams } from 'react-router-dom';
+import { useNavigationType, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 
 import { useAuth } from '../../../app/auth';
@@ -10,31 +10,24 @@ import { ListShell } from '../../../components/layout/ListShell';
 import { MutationUncertaintyPanel, type MutationReconcileResult } from '../../../components/layout/MutationUncertaintyPanel';
 import { PageHeader } from '../../../components/layout/PageHeader';
 import { useChrome } from '../../../components/layout/ChromeContext';
-import { Badge } from '../../../components/ui/Badge';
-import { Button } from '../../../components/ui/Button';
 import { Card } from '../../../components/ui/Card';
-import { clsx } from '../../../components/ui/clsx';
+import { Button } from '../../../components/ui/Button';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { ErrorState } from '../../../components/ui/ErrorState';
 import { LoadingState } from '../../../components/ui/LoadingState';
 import { Select } from '../../../components/ui/Select';
-import { StatusDot } from '../../../components/ui/StatusDot';
-import { TableCard } from '../../../components/ui/TableCard';
 import { UserNetworkAddressActions } from './UserNetworkAddressActions';
+import { NetworkTabButton } from './NetworkTabButton';
+import { UserNetworkAddresses } from './UserNetworkAddresses';
+import { fetchAssignedIpAddresses, ipVpsId } from './UserNetworkAddressesModel';
 import type { ResourceRef } from '../../../lib/api/appTypes';
 import { fetchIpAddress, fetchIpAddresses, type IpAddress } from '../../../lib/api/ipAddresses';
-import type { NetworkInterface } from '../../../lib/api/networkInterfaces';
-import {
-  fetchIpAddressAssignments,
-  type IpAddressAssignment,
-} from '../../../lib/api/networking';
 import { fetchVpsList } from '../../../lib/api/vps';
 import { reconcileIpAddressMutation } from '../../../lib/ipAddressMutationIntent';
 import type { LocalLock } from '../../../lib/localLocks';
 import { AssignIpAddressModal } from './AssignIpAddressModal';
 import {
   assignableIpKind,
-  ipAddressLabel,
   isAssignedIp,
   isOwnedByUser,
   resourceId,
@@ -55,118 +48,6 @@ function networkTabId(tab: NetworkTab): string {
 
 function networkPanelId(tab: NetworkTab): string {
   return `network-user-panel-${tab}`;
-}
-
-interface ScopedIpAddress {
-  ip: IpAddress;
-  vpsId: number | null;
-}
-
-function assignmentIpAddress(assignment: IpAddressAssignment): ScopedIpAddress | null {
-  const source = assignment.ip_address;
-  if (!source || typeof source !== 'object' || !resourceId(source)) return null;
-
-  const embedded = source as IpAddress & { ip_addr?: string };
-  const assignmentVps = assignment.vps ?? embedded.vps;
-  const networkInterface = embedded.network_interface;
-  const expandedInterface = networkInterface && typeof networkInterface === 'object'
-    ? { ...networkInterface, vps: (networkInterface as NetworkInterface).vps ?? assignmentVps }
-    : networkInterface;
-  const ip: IpAddress = {
-    ...embedded,
-    addr: embedded.addr ?? embedded.ip_addr ?? assignment.ip_addr,
-    prefix: embedded.prefix ?? assignment.ip_prefix,
-    vps: embedded.vps ?? assignmentVps,
-    network_interface: expandedInterface,
-  };
-
-  return {
-    ip,
-    vpsId: resourceId(assignmentVps) ?? ipVpsId(ip),
-  };
-}
-
-async function fetchAssignedIpAddresses(userId?: number): Promise<ScopedIpAddress[]> {
-  const assignments = (
-    await fetchIpAddressAssignments({
-      limit: 250,
-      user: userId,
-      active: true,
-      order: 'newest',
-      includes:
-        'ip_address__network__primary_location__environment,' +
-        'ip_address__network_interface__vps,user,vps',
-    })
-  ).data;
-  const seen = new Set<number>();
-  return assignments.flatMap((assignment) => {
-    const scoped = assignmentIpAddress(assignment);
-    if (!scoped || seen.has(scoped.ip.id)) return [];
-    seen.add(scoped.ip.id);
-    return [scoped];
-  });
-}
-
-function interfaceId(ip: IpAddress): number | null {
-  return resourceId(ip.network_interface as ResourceRef | number | string | null | undefined);
-}
-
-function interfaceName(ip: IpAddress): string {
-  const networkInterface = ip.network_interface as NetworkInterface | ResourceRef | null | undefined;
-  if (!networkInterface || typeof networkInterface !== 'object') return '—';
-  return String((networkInterface as NetworkInterface).name ?? '').trim() || (interfaceId(ip) ? `#${interfaceId(ip)}` : '—');
-}
-
-function ipVpsId(ip: IpAddress): number | null {
-  const direct = resourceId(ip.vps as ResourceRef | number | string | null | undefined);
-  if (direct) return direct;
-  const networkInterface = ip.network_interface as NetworkInterface | ResourceRef | null | undefined;
-  if (!networkInterface || typeof networkInterface !== 'object') return null;
-  return resourceId((networkInterface as NetworkInterface).vps);
-}
-
-function locationLabel(ip: IpAddress): string {
-  const primary = ip.network?.primary_location;
-  const location = String(primary?.label ?? '').trim();
-  const environment = String(primary?.environment?.label ?? '').trim();
-  if (location && environment) return `${location} · ${environment}`;
-  return location || environment || '—';
-}
-
-function kindTranslationKey(kind: AssignableIpKind) {
-  if (kind === 'ipv4_private') return 'network.user.kind.ipv4_private' as const;
-  if (kind === 'ipv6') return 'network.user.kind.ipv6' as const;
-  return 'network.user.kind.ipv4_public' as const;
-}
-
-function NetworkTabButton(props: {
-  active: boolean;
-  children: React.ReactNode;
-  onClick: () => void;
-  tab: NetworkTab;
-  testId: string;
-}) {
-  return (
-    <button
-      id={networkTabId(props.tab)}
-      type="button"
-      role="tab"
-      aria-selected={props.active}
-      aria-controls={networkPanelId(props.tab)}
-      tabIndex={props.active ? 0 : -1}
-      className={clsx(
-        'inline-flex min-h-11 min-w-11 items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition',
-        'focus:outline-none focus:ring-2 focus:ring-focus/35 focus:ring-offset-2 focus:ring-offset-bg',
-        props.active
-          ? 'bg-surface-2 text-fg ring-1 ring-border'
-          : 'text-muted hover:bg-surface-2 hover:text-fg'
-      )}
-      onClick={props.onClick}
-      data-testid={props.testId}
-    >
-      {props.children}
-    </button>
-  );
 }
 
 export function UserNetworkPage() {
@@ -210,9 +91,9 @@ export function UserNetworkPage() {
   });
 
   const assignedQ = useQuery({
-    queryKey: ['ip_address_assignment', 'user-network', 'active', { userId, scopedUserId }],
-    queryFn: () => fetchAssignedIpAddresses(scopedUserId),
-    enabled: activeTab === 'addresses' && userId !== null,
+    queryKey: ['ip_address_assignment', 'user-network', 'active', { userId, scopedUserId, vpsIds: (vpsesQ.data ?? []).map((vps) => vps.id) }],
+    queryFn: () => fetchAssignedIpAddresses(scopedUserId, new Set((vpsesQ.data ?? []).map((vps) => vps.id))),
+    enabled: activeTab === 'addresses' && userId !== null && vpsesQ.isSuccess,
     staleTime: 5_000,
   });
 
@@ -558,82 +439,8 @@ export function UserNetworkPage() {
             onAction={() => openAssignment()}
           />
         ) : (
-          <>
-            <div className="space-y-3 md:hidden">
-              {rows.map((ip) => {
-                const vpsId = assignedVpsByIpId.get(ip.id) ?? ipVpsId(ip);
-                const vps = vpsId ? vpsById.get(vpsId) : undefined;
-                const assigned = assignedIpIds.has(ip.id) || isAssignedIp(ip);
-                return (
-                  <Card key={ip.id} testId={`network.user.ip.card.${ip.id}`}>
-                    <div className="space-y-3 p-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex min-w-0 items-center gap-2">
-                          <StatusDot variant={assigned ? 'ok' : 'warn'} />
-                          <span className="break-all font-mono font-semibold">{ipAddressLabel(ip)}</span>
-                        </div>
-                        <Badge variant={assignableIpKind(ip) === 'ipv4_private' ? 'neutral' : 'info'}>
-                          {t(kindTranslationKey(assignableIpKind(ip)))}
-                        </Badge>
-                      </div>
-                      <div className="grid gap-1 text-xs text-muted">
-                        <span>{t('network.user.field.location')}: {locationLabel(ip)}</span>
-                        <span>{t('network.user.field.vps')}: {vps?.hostname ?? (vpsId ? `#${vpsId}` : '—')}</span>
-                        <span>{t('network.user.field.interface')}: {interfaceName(ip)}</span>
-                        {ip.network?.enabled === false ? <Badge variant="warn">{t('admin.cluster.networks.disabled')}</Badge> : null}
-                      </div>
-                      <div className="flex justify-end">{rowActions(ip)}</div>
-                    </div>
-                  </Card>
-                );
-              })}
-            </div>
-
-            <TableCard className="hidden md:block" minWidth="md" tableTestId="network.user.table">
-              <thead>
-                <tr className="border-b border-border text-left text-xs text-muted">
-                  <th className="w-8 px-4 py-2" aria-label={t('common.state')} />
-                  <th className="px-4 py-2">{t('network.user.field.address')}</th>
-                  <th className="px-4 py-2">{t('network.user.field.type')}</th>
-                  <th className="px-4 py-2">{t('network.user.field.location')}</th>
-                  <th className="px-4 py-2">{t('network.user.field.vps')}</th>
-                  <th className="px-4 py-2">{t('network.user.field.interface')}</th>
-                  <th className="px-4 py-2 text-right">{t('common.actions')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((ip) => {
-                  const vpsId = assignedVpsByIpId.get(ip.id) ?? ipVpsId(ip);
-                  const vps = vpsId ? vpsById.get(vpsId) : undefined;
-                  const assigned = assignedIpIds.has(ip.id) || isAssignedIp(ip);
-                  return (
-                    <tr key={ip.id} data-testid={`network.user.ip.row.${ip.id}`} className="border-b border-border/60 last:border-0">
-                      <td className="px-4 py-3"><StatusDot variant={assigned ? 'ok' : 'warn'} /></td>
-                      <td className="px-4 py-3 font-mono text-sm font-medium">
-                        {ipAddressLabel(ip)}
-                        {ip.network?.enabled === false ? <Badge variant="warn">{t('admin.cluster.networks.disabled')}</Badge> : null}
-                      </td>
-                      <td className="px-4 py-3">
-                        <Badge variant={assignableIpKind(ip) === 'ipv4_private' ? 'neutral' : 'info'}>
-                          {t(kindTranslationKey(assignableIpKind(ip)))}
-                        </Badge>
-                      </td>
-                      <td className="px-4 py-3 text-sm text-muted">{locationLabel(ip)}</td>
-                      <td className="px-4 py-3 text-sm">
-                        {vpsId ? (
-                          <Link className="text-accent hover:underline" to={`${basePath}/vps/${vpsId}`}>
-                            {vps?.hostname ?? `#${vpsId}`}
-                          </Link>
-                        ) : <span className="text-faint">—</span>}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-muted">{interfaceName(ip)}</td>
-                      <td className="px-4 py-3 text-right">{rowActions(ip)}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </TableCard>
-          </>
+          <UserNetworkAddresses rows={rows} vpsById={vpsById} assignedVpsByIpId={assignedVpsByIpId}
+            assignedIpIds={assignedIpIds} userId={userId} basePath={basePath} rowActions={rowActions} />
         )}
 
         {activeTab === 'addresses' ? (

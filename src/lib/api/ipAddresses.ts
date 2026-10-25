@@ -25,8 +25,8 @@ export interface IpAddress {
   network?: Network;
   prefix?: number;
   size?: number;
-  network_interface?: NetworkInterface | ResourceRef;
-  user?: User | ResourceRef;
+  network_interface?: NetworkInterface | ResourceRef | null;
+  user?: User | ResourceRef | null;
   charged_environment?: ResourceRef;
   addr?: string;
   routed?: boolean;

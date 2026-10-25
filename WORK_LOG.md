@@ -9,6 +9,12 @@ Dates below use Europe/Prague unless an explicit UTC timestamp is given.
 Entries before the start date are selective retrospective summaries, not a
 complete reconstruction of the project. Missing evidence is not a passing check.
 
+## 2026-10-25 — Network address and interface details
+
+Prepared from [Discourse post 7](https://discourse.vpsfree.cz/t/372/7):
+[interface names, allocation ownership and MAC addresses](docs/work-log/2026-10-25-network-address-details.md).
+Independent review candidate; not merged or deployed.
+
 ## New changes
 
 ## 2026-10-23 — Completed member administration release

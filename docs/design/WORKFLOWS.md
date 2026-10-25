@@ -295,6 +295,26 @@ locks and assignability when executing the existing assignment action. Candidate
 availability is not a reservation or a guarantee of quota. The selector continues
 to offer a bounded first page, not a claim to enumerate the entire pool.
 
+### Address and interface facts (REQ-050)
+
+The member address overview requests the IP allocation and interface
+explicitly when expanding active assignment records. Some API versions still
+return unresolved allocation references from assignment history: the resource
+omits the eager include preparation used by normal lists. For these records the
+UI reads the current IP list once per affected, already scoped VPS, with at most
+four concurrent requests. It never queries a VPS outside the loaded member VPS
+scope, never promotes the assignment actor to allocation owner, and drops stale
+assignment IDs absent from the current scoped allocation page. Each list retains
+the existing 250-record limit; this is not a claim of complete large inventories. An assignment's user is
+not the allocation owner: an address can be attached to your VPS without being
+owned by you. “Owned” means the allocation's `user.id` matches the signed-in
+member; explicit `null` means No, while omitted/redacted ownership remains unknown.
+Interface names may come from an expanded `name` or a resource `label`; unknown
+names retain a known interface ID rather than inventing a name. Detached and
+routed addresses without a direct interface keep a dash. MAC addresses come from
+`NetworkInterface.mac` in both the VPS desktop table and mobile cards, with a dash
+when unavailable. These display changes do not perform configuration writes.
+
 ### Network availability
 
 Administrators edit availability in Cluster → Networks (REQ-071). The list keeps
