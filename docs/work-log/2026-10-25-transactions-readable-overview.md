@@ -188,3 +188,20 @@ is valid for Kerrycek; check publication options after preparing the reviewable
 candidate. The native browser fallback is also unavailable while the Mac is
 locked. Public upstream reads confirm only unrelated PRs #63 and #74 are open.
 Do not include them. Preserve colleagues' dirty main checkout.
+
+## Overnight checkpoint — 2026-10-25 00:47 UTC
+
+The full mobile PR suite completed with **484/484 passing** in 8.7 minutes.
+Both complete desktop follow-up specs finished with **17/17 passing**. Preserve
+the first desktop attempt's 540 passes/two failures above; its result has not
+been reclassified as green.
+
+A fresh `ci:tests` run on the committed stacked candidate is followed
+sequentially by a complete, stable desktop PR-suite repetition, without source
+edits while the browser run is active. Results are pending in
+`/tmp/transactions-committed-tests.log` and
+`/tmp/transactions-stable-desktop.log`. No new UI or unrelated fix is added.
+
+Upstream main remains `5a2d2bdc`; both review branches are published. GitHub
+REST authentication was rechecked and still returns 401. PR publication and
+remote CI therefore remain blocked; no merge/deployment or Nix retry occurred.
