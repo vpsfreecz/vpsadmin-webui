@@ -141,10 +141,42 @@ this presentation branch on that patch so both reviews retain focused diffs and
 CI can evaluate a patched dependency graph. No parsing/API/authentication code
 changes are included in the dependency patch.
 
-The full `npm run e2e:pr` suite is running locally after the focused checks;
-results are pending in `/tmp/transactions-pr-smoke.log`. Do not equate the
-focused passes with a full-suite or remote CI pass. Continue that check during
-the authorized overnight window and record its actual result.
+Checkpoint at 2026-10-25 00:23 UTC:
+
+- Published implementation `d644d140b5eb95740eb21ccf725504780ad74817`
+  is stacked on independent BFF patch `6ebe859e640098788dcddb0b7f2483301a04c561`.
+  Neither is merged. Both remote branch heads were verified after SSH push.
+- A fresh BFF install in the stacked checkout, high-severity production audit,
+  `ci:quick` and production build pass. Root production audit is also clean.
+- Full `npm run e2e:pr` desktop: 540 passed, two failed out of 542. The payment
+  help highlight timed out and one account-scope test could not find a session
+  row. The run overlapped the unpublished local rebase/source-file refresh;
+  this is a possible interference source, not a proven cause.
+- Independent repetition of both entire affected specs against a separate,
+  stable local server: **17 passed**, including both originally failing cases.
+  No payment/account code or test assertion was changed. Do not describe the
+  original full desktop attempt as passing. The full mobile part (484 cases)
+  remains running in `/tmp/transactions-pr-smoke.log`; finalize that result in
+  the next overnight checkpoint. Separate repetition log:
+  `/tmp/transactions-full-failure-followup.log`.
+- PR creation was attempted with the prepared BFF body and rejected by GitHub
+  with HTTP 401. No PR exists yet and no remote CI was triggered; branch push
+  alone does not trigger this repository's PR workflows. Prepared descriptions
+  are `/tmp/webui-body-parser-pr.md` and `/tmp/webui-transactions-pr.md`.
+- An isolated clone of the exact published candidate was used for Nix package,
+  provenance/source/content verification. The frontend dependency fetch failed
+  with **No space left on device** on dev's system disk. Therefore the full Nix
+  frontend/package check is **not certified**. The earlier independent BFF
+  package build passed. No serving files or services were replaced.
+- Removed this task's two `/tmp` remote source directories. Default Nix liveness
+  protection refused targeted removal of their cached source paths, so it was
+  retained; no override or global garbage collection was used. The disk remains
+  low (about 190 MiB available). Do not retry a large Nix build there without
+  sufficient space or use this task as authorization to remove unrelated data.
+
+Continue the authorized overnight verification; complete PR publication only
+when authentication is available. Keep the BFF PR based on main and the UI PR
+based on the BFF patch branch so their diffs stay independent.
 
 ## Overnight handoff
 
