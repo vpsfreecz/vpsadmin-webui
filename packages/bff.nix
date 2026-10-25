@@ -13,7 +13,7 @@ pkgs.buildNpmPackage {
   version = "0.1.0";
   src = source + "/bff";
   nodejs = pkgs.nodejs_24;
-  npmDepsHash = "sha256-m6CayVcO1z+Xuy+XlAEqVLoRFRACSNjdcn4pae1T+Dc=";
+  npmDepsHash = "sha256-mzGG5zmGm6m4yQEy2xUT3vyi8bOVqPzzZbZLDdkndKQ=";
   npmInstallFlags = [ "--omit=dev" ];
   dontNpmBuild = true;
 

@@ -11,6 +11,12 @@ complete reconstruction of the project. Missing evidence is not a passing check.
 
 ## New changes
 
+## 2026-10-25 — BFF body-parser security patch
+
+A production dependency audit during transaction review found the existing
+body-parser 1.20.6 denial-of-service advisory. Prepare a separate lock/hash patch
+for review; no deployment. See [scope and verification](docs/work-log/2026-10-25-body-parser-patch.md).
+
 ## 2026-10-23 — Completed member administration release
 
 PRs #81–#85 passed CI, were merged through #86 and deployed as `f7a8f10cbb94`
