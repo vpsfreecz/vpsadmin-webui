@@ -14,6 +14,7 @@ import { getMetaActionStateId } from '../../../lib/api/haveapi';
 import { formatErrorMessage } from '../../../lib/errors';
 import { gateVpsMutation } from '../../../lib/gates/vps';
 import { preflightVpsNotBusy } from './vpsPreflight';
+import { VpsAdminModificationsCard } from './VpsAdminModificationsCard';
 import { useVps } from './VpsContext';
 
 const WEEKDAYS: Array<{ weekday: number; key: string; shortKey: string }> = [
@@ -283,6 +284,7 @@ export function VpsMaintenancePage() {
 
   return (
     <div data-testid="vps.maintenance.page" className="space-y-4">
+      <VpsAdminModificationsCard key={vpsId} />
       <Card testId="vps.maintenance.card">
         <CardHeader
           title={t('vps.maintenance.title')}

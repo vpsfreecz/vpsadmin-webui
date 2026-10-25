@@ -56,6 +56,7 @@ export default defineConfig({
       name: 'mobile-webkit',
       testMatch: [
         '**/about.spec.ts',
+        '**/vps_admin_modifications.spec.ts',
         '**/ip_addresses_filters_pagination.spec.ts',
         '**/ip_addresses_suggested_request_budget.spec.ts',
         '**/admin_dashboard.spec.ts',
