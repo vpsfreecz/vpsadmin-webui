@@ -11,6 +11,19 @@ complete reconstruction of the project. Missing evidence is not a passing check.
 
 ## New changes
 
+## 2026-10-27 — Repair the PR security baseline
+
+PRs #90–#95 inherited the old BFF lock and failed its production audit. Extend
+security PR #88 with patched qs 6.16.1 and its exact Nix hash, then carry the
+security dependency into our feature branches without changing main or weakening
+checks. See [diagnosis and verification](docs/work-log/2026-10-27-ci-security-baseline.md).
+
+## 2026-10-25 — BFF body-parser security patch
+
+A production dependency audit during transaction review found the existing
+body-parser 1.20.6 denial-of-service advisory. Prepare a separate lock/hash patch
+for review; no deployment. See [scope and verification](docs/work-log/2026-10-25-body-parser-patch.md).
+
 ## 2026-10-27 — Bulk member package removal
 
 Prepared [selection, confirmation and per-item outcomes](docs/work-log/2026-10-27-user-package-bulk-removal.md)
