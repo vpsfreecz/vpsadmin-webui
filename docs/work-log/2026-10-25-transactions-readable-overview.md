@@ -229,3 +229,16 @@ Upstream main remains `5a2d2bdc`. Preserve both published review branches and
 retry publication only if authentication is restored before the 10:00 deadline.
 The full Nix frontend/package disk-space limitation remains unchanged.
 No deployment, API/server change or live write occurred.
+
+## 2026-10-27 — PR #89 CI security prerequisite
+
+Carry PR #88's body-parser 1.20.9 and qs 6.16.1 baseline through an ordinary
+merge commit, preserving this feature and all published history. The independent
+review base is `dev/bff-body-parser-patch`; return to main after explicitly
+approved security integration. No PR is merged into main and no deployment.
+
+Integrated `ci:quick`, fresh root/BFF installs and the BFF production audit passed
+locally; the audit reports zero vulnerabilities. The security candidate's full
+Nix frontend/BFF and provenance/source/package checks also passed in isolation.
+Remote CI on this new feature head is a separate pending result. See
+[shared diagnosis and evidence](2026-10-27-ci-security-baseline.md).

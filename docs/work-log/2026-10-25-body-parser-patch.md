@@ -45,3 +45,23 @@ The owning package and packaging guide are updated together.
 GitHub CLI currently has an invalid token; authenticated SSH Git is usable.
 Prepare review branches and retry PR publication through the overnight task.
 No merge or deployment is authorized.
+
+## 2026-10-27 — Published review and qs follow-up
+
+PR #88 is now published after GitHub CLI reauthorization. Its initial required
+checks, build and browser-script regression passed. The older authentication
+and zero-audit statements above are dated receipts, not current status claims.
+GitHub then published GHSA-6pq8-jhm2-2vcw for qs through 6.16.0. Update the
+existing BFF override to 6.16.1; body-parser stays 1.20.9 and all other resolved
+package versions stay unchanged. The separately prefetched BFF hash is now
+`sha256-pifjCWQ5ShvtQw1V3bAlmutW43nPi93hDVW8Q4HuVMw=`.
+
+The new fresh production install/audit reports zero vulnerabilities, all 57 BFF
+tests pass, and the advisory's non-callable-toString stringify input no longer
+throws. Full source, package and CI verification is tracked in the
+[CI baseline repair](2026-10-27-ci-security-baseline.md). No deployment.
+
+The complete x86_64-linux frontend/BFF build and provenance/source/package checks
+now pass in the isolated clean source checkout. The earlier shared-disk blocker
+was resolved by the separately authorized cache cleanup. No service files or
+active deployment were replaced.

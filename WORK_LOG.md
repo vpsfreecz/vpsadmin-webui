@@ -11,6 +11,13 @@ complete reconstruction of the project. Missing evidence is not a passing check.
 
 ## New changes
 
+## 2026-10-27 — Repair the PR security baseline
+
+PRs #90–#95 inherited the old BFF lock and failed its production audit. Extend
+security PR #88 with patched qs 6.16.1 and its exact Nix hash, then carry the
+security dependency into our feature branches without changing main or weakening
+checks. See [diagnosis and verification](docs/work-log/2026-10-27-ci-security-baseline.md).
+
 ## 2026-10-25 — Compact transaction history and chain steps
 
 The maintainer requested a clearer transaction table and chain detail inspired
