@@ -8,15 +8,12 @@ import { useI18n } from '../../../app/i18n';
 import { useChrome } from '../../../components/layout/ChromeContext';
 import { ActionButton } from '../../../components/ui/ActionButton';
 import { Alert } from '../../../components/ui/Alert';
-import { Badge } from '../../../components/ui/Badge';
 import { Button } from '../../../components/ui/Button';
 import { Card, CardHeader } from '../../../components/ui/Card';
 import { Checkbox } from '../../../components/ui/Checkbox';
 import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
 import { Input } from '../../../components/ui/Input';
 import { Select, type SelectOption } from '../../../components/ui/Select';
-import { Spinner } from '../../../components/ui/Spinner';
-import { UserLookupInput } from '../../../components/ui/UserLookupInput';
 import { fetchDnsResolvers } from '../../../lib/api/dnsResolvers';
 import { getMetaActionStateId, isMissingActionStateError } from '../../../lib/api/haveapi';
 import { explicitUserNamespaceOwnerId, fetchUserNamespaceMaps } from '../../../lib/api/userNamespaces';
@@ -24,6 +21,7 @@ import { updateVps } from '../../../lib/api/vps';
 import { gateVpsMutation } from '../../../lib/gates/vps';
 import { objectRef } from '../../../lib/objectRef';
 import { preflightVpsNotBusy } from './vpsPreflight';
+import { VpsAdditionalConfiguration } from './VpsAdditionalConfiguration';
 import { useVps } from './VpsContext';
 import { VpsResourceDiskCard } from './VpsResourceDiskCard';
 import { datasetId } from './VpsStorageModel';
@@ -31,8 +29,6 @@ import { freezeVpsMutationSnapshot, type VpsMutationSnapshot } from './VpsMutati
 import {
   ADMIN_LOCK_TYPES,
   CONFIG_FIELD_META,
-  START_MENU_TIMEOUT_MAX,
-  VPS_MAP_MODES,
   buildPayload,
   createBuildErrorResult,
   currentResourceLabel,
@@ -41,8 +37,6 @@ import {
   normalizeDraft,
   resourceId,
   userNamespaceMapLabel,
-  type CgroupVersion,
-  type VpsMapMode,
   type VpsConfigDraft,
   type VpsConfigReviewKey,
 } from './VpsConfigurationModel';
@@ -365,188 +359,24 @@ export function VpsConfigurationPage() {
         />
       ) : null}
 
-      <details open={!focusedResources || undefined} className="rounded-lg border border-border bg-surface" data-testid="vps.config.additional">
-        <summary className="cursor-pointer px-4 py-3 font-semibold">{t('vps.resources.additional')}</summary>
-        <div className="space-y-4 p-4 pt-0">
-          <VpsConfigSectionCard
-            title={t(canEditAdminConfig ? 'vps.config.section.identity_admin' : 'vps.config.section.identity')}
-            subtitle={t(canEditAdminConfig ? 'vps.config.section.identity_help_admin' : 'vps.config.section.identity_help')}
-            risks={['safe']}
-            bodyClassName="grid gap-4 md:grid-cols-2"
-          >
-            <Field label={t('vps.config.field.hostname_mode')} help={t('vps.config.help.hostname_mode')} errors={fieldMessages('manage_hostname')}>
-              <Select
-                value={effective.hostnameMode}
-                onChange={(e) => patchDraft({ hostnameMode: e.target.value as 'managed' | 'manual' })}
-                disabled={saveM.isPending}
-                options={[
-                  { value: 'managed', label: t('vps.config.option.hostname_managed') },
-                  { value: 'manual', label: t('vps.config.option.hostname_manual') },
-                ]}
-              />
-            </Field>
-            <Field label={t('vps.config.field.hostname')} help={t('vps.config.help.hostname')} errors={fieldMessages('hostname')}>
-              <Input
-                value={effective.hostname}
-                onChange={(e) => patchDraft({ hostname: e.target.value })}
-                disabled={saveM.isPending || effective.hostnameMode === 'manual'}
-                autoComplete="off"
-              />
-            </Field>
-          </VpsConfigSectionCard>
-
-          <VpsConfigSectionCard
-            title={t('vps.config.section.resolvers')}
-            subtitle={t('vps.config.section.resolvers_help')}
-            risks={['network']}
-            bodyClassName="grid gap-4 md:grid-cols-2"
-          >
-            <Field label={t('vps.config.field.dns_resolver')} help={t('vps.config.help.dns_resolver_nullable')} errors={fieldMessages('dns_resolver')}>
-              {dnsResolversQ.isLoading ? (
-                <Spinner />
-              ) : dnsResolversQ.isError ? (
-                <Alert variant="danger">{String((dnsResolversQ.error as Error)?.message ?? dnsResolversQ.error)}</Alert>
-              ) : (
-                <Select value={effective.dnsResolver} onChange={(e) => patchDraft({ dnsResolver: e.target.value })} disabled={saveM.isPending} options={dnsOptions} />
-              )}
-            </Field>
-          </VpsConfigSectionCard>
-
-          <VpsConfigSectionCard
-            title={t('vps.config.section.namespace')}
-            subtitle={t('vps.config.section.namespace_help')}
-            risks={['requires_restart']}
-            bodyClassName="grid gap-4 md:grid-cols-2"
-          >
-            <Field label={t('vps.config.field.user_namespace_map')} help={t('vps.config.help.user_namespace_map')} errors={fieldMessages('user_namespace_map')}>
-              {userNamespaceMapsQ.isLoading ? (
-                <Spinner />
-              ) : userNamespaceMapsQ.isError ? (
-                <Alert variant="danger">{String((userNamespaceMapsQ.error as Error)?.message ?? userNamespaceMapsQ.error)}</Alert>
-              ) : (
-                <Select
-                  value={effective.userNamespaceMap}
-                  onChange={(e) => patchDraft({ userNamespaceMap: e.target.value })}
-                  disabled={saveM.isPending || userNamespaceMapOptions.length === 0}
-                  options={userNamespaceMapOptions}
-                />
-              )}
-            </Field>
-            {canEditAdminConfig ? (
-              <Field label={t('vps.config.field.map_mode')} help={t('vps.config.help.map_mode')} errors={fieldMessages('map_mode')}>
-                <Select
-                  value={effective.mapMode}
-                  onChange={(e) => patchDraft({ mapMode: e.target.value as VpsMapMode })}
-                  disabled={saveM.isPending}
-                  options={VPS_MAP_MODES.map((mode) => ({
-                    value: mode,
-                    label: t(`vps.config.option.map_mode.${mode}`),
-                  }))}
-                  testId="vps.config.map_mode"
-                />
-              </Field>
-            ) : null}
-          </VpsConfigSectionCard>
-
-          <VpsConfigSectionCard
-            title={t('vps.config.section.boot')}
-            subtitle={t(canEditAdminConfig ? 'vps.config.section.boot_help' : 'vps.config.section.boot_help_user')}
-            risks={['boot', 'requires_restart']}
-            bodyClassName={canEditAdminConfig ? 'grid gap-4 md:grid-cols-2' : 'grid gap-4 md:grid-cols-1'}
-          >
-            {canEditAdminConfig ? (
-              <Field label={t('vps.config.field.start_menu_timeout')} help={t('vps.config.help.start_menu_timeout')} errors={fieldMessages('start_menu_timeout')}>
-                <Input
-                  value={effective.startMenuTimeout}
-                  type="number"
-                  min={0}
-                  max={START_MENU_TIMEOUT_MAX}
-                  step={1}
-                  onChange={(e) => patchDraft({ startMenuTimeout: e.target.value })}
-                  disabled={saveM.isPending}
-                />
-              </Field>
-            ) : null}
-            <Field label={t('vps.config.field.cgroup_version')} errors={fieldMessages('cgroup_version')}>
-              <Select
-                value={effective.cgroupVersion}
-                onChange={(e) => patchDraft({ cgroupVersion: e.target.value as CgroupVersion })}
-                disabled={saveM.isPending}
-                options={[
-                  { value: 'cgroup_any', label: t('vps.config.option.cgroup_any') },
-                  { value: 'cgroup_v1', label: 'cgroup v1' },
-                  { value: 'cgroup_v2', label: 'cgroup v2' },
-                ]}
-              />
-            </Field>
-          </VpsConfigSectionCard>
-
-          <VpsConfigSectionCard
-            title={t('vps.config.section.admin_access')}
-            subtitle={t('vps.config.section.admin_access_help')}
-            risks={['safe']}
-            bodyClassName="grid gap-4 md:grid-cols-2"
-          >
-            <div className="flex items-end">
-              <Checkbox
-                checked={effective.allowAdminModifications}
-                onChange={(checked) => patchDraft({ allowAdminModifications: checked })}
-                label={t('vps.config.field.allow_admin_modifications')}
-                description={t('vps.config.help.allow_admin_modifications')}
-                disabled={saveM.isPending}
-              />
-            </div>
-          </VpsConfigSectionCard>
-
-          {canEditAdminConfig ? (
-            <VpsConfigSectionCard
-              title={t('vps.config.section.admin')}
-              subtitle={t('vps.config.section.admin_help')}
-              risks={['admin_only']}
-              bodyClassName="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
-            >
-              <Field label={t('vps.config.field.owner')} help={t('vps.config.help.owner')} errors={fieldMessages('user')}>
-                <UserLookupInput
-                  value={effective.user}
-                  onChange={(value) => patchDraft({ user: value })}
-                  placeholder={t('vps.create.placeholder.user')}
-                  disabled={saveM.isPending}
-                  allowRawId
-                />
-              </Field>
-
-              <Field
-                label={(
-                  <span className="flex flex-wrap items-center gap-2">
-                    <span>{t('vps.config.field.autostart_priority')}</span>
-                    <Badge
-                      variant={vps.autostart_enable === true ? 'ok' : 'neutral'}
-                      testId="vps.config.autostart_status"
-                    >
-                      {t(vps.autostart_enable === true ? 'vps.config.autostart.enabled' : 'vps.config.autostart.disabled')}
-                    </Badge>
-                  </span>
-                )}
-                help={t('vps.config.help.autostart_priority')}
-                errors={fieldMessages('autostart_priority')}
-              >
-                <Input
-                  value={effective.autostartPriority}
-                  type="number"
-                  min={0}
-                  step={1}
-                  onChange={(e) => patchDraft({ autostartPriority: e.target.value })}
-                  disabled={saveM.isPending}
-                />
-              </Field>
-              <Field label={t('vps.config.field.change_reason')} help={t('vps.config.help.change_reason')} errors={fieldMessages('change_reason')}>
-                <Input value={effective.changeReason} onChange={(e) => patchDraft({ changeReason: e.target.value })} disabled={saveM.isPending} autoComplete="off" />
-              </Field>
-            </VpsConfigSectionCard>
-          ) : null}
-
-        </div>
-      </details>
+      <VpsAdditionalConfiguration
+        focusedResources={focusedResources}
+        canEditAdminConfig={canEditAdminConfig}
+        effective={effective}
+        pending={saveM.isPending}
+        vps={vps}
+        dnsResolversQ={dnsResolversQ}
+        dnsOptions={dnsOptions}
+        userNamespaceMapsQ={userNamespaceMapsQ}
+        userNamespaceMapOptions={userNamespaceMapOptions}
+        patchDraft={patchDraft}
+        fieldMessages={fieldMessages}
+        onSave={applySave}
+        onReset={resetDraft}
+        saveDisabled={saveDisabled}
+        disabledReason={!gate.allowed ? gate.reason : undefined}
+        changeCount={result.changedKeys.length}
+      />
 
       {dirty ? <Alert variant="info">{t('vps.config.unsaved', { n: result.changedKeys.length })}</Alert> : null}
 

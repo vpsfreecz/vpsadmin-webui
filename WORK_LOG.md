@@ -52,6 +52,12 @@ for review; no deployment. See [scope and verification](docs/work-log/2026-10-25
 Prepared [selection, confirmation and per-item outcomes](docs/work-log/2026-10-27-user-package-bulk-removal.md)
 for administrator member package assignments (REQ-076). Not merged or deployed.
 
+## 2026-10-27 — Visible VPS DNS settings
+
+The first daily action in the VPS More menu opens DNS settings directly, with
+nearby Save/Reset and the existing confirmation and permissions. Prepared for
+review; not merged or deployed. See [implementation and verification](docs/work-log/2026-10-27-vps-dns-shortcut.md).
+
 ## 2026-10-23 — Completed member administration release
 
 PRs #81–#85 passed CI, were merged through #86 and deployed as `f7a8f10cbb94`

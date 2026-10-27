@@ -307,6 +307,24 @@ history must not lose entries due to a false cursor assumption.
 [DNS](../../src/lib/api/dns.ts), [transfers](../../src/lib/api/dnsTransfers.ts),
 [interfaces](../../src/lib/api/networkInterfaces.ts), [IP history](../../src/lib/api/ipAddresses.ts).
 
+### VPS DNS server shortcut
+
+VPS detail → More → DNS servers is the first daily shortcut in both member
+and administrator views. It opens the existing Configuration page with
+`section=dns`, expands Additional VPS configuration and scrolls/focuses the DNS
+resolver section. Selecting the shortcut again reopens a manually collapsed
+section. Administrator member context (`user`) stays attached to the URL.
+This configures the VPS resolver, not authoritative zones or DNS publication.
+
+The focused section includes Reset and Save beside the existing resolver selector.
+Both reuse the configuration form's draft and common confirmation: opening the
+shortcut makes no write, other unsaved changes survive, and Save reviews every
+changed field before submitting. Reset retains its existing whole-form behavior.
+The existing `dns_resolver` update, action-state tracking, role/state/lock gates,
+validation and API enforcement remain authoritative; read-only support can locate
+the section without gaining write access. A browser fixture confirms navigation
+and payload behavior, not live resolver deployment inside a VPS.
+
 ### Private IPv4 assignment, including staging
 
 From VPS detail → Network → Add IP address, select the interface and address
