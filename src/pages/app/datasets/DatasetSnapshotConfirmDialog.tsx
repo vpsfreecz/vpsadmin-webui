@@ -11,6 +11,7 @@ export type DatasetSnapshotConfirmState =
   | null
   | {
       kind: 'rollback' | 'delete';
+      datasetId: number;
       snapshot: Snapshot;
     };
 

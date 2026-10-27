@@ -157,11 +157,10 @@ export function TransactionChainsListContent({
 
       {visibleRows.length > 0 ? (
         <div className="space-y-3">
-          <Card className="px-4 py-3" testId="transactions.page_summary">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <Card className="px-3 py-2" testId="transactions.page_summary">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="min-w-0">
-                <div className="text-sm font-semibold">{t('transactions.chains.page_summary.title')}</div>
-                <div className="mt-0.5 text-xs text-muted">{t('transactions.chains.page_summary.description')}</div>
+                <div className="text-xs font-medium text-muted" title={t('transactions.chains.page_summary.description')}>{t('transactions.chains.page_summary.title')}</div>
               </div>
               <div className="flex flex-wrap gap-2">
                 <Badge variant={pageSummary.failed > 0 ? 'danger' : 'neutral'} testId="transactions.page_summary.failed">

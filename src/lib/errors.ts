@@ -7,6 +7,8 @@ import { staticT } from './staticI18n';
  */
 
 const EXACT_ERROR_KEYS: Record<string, string> = {
+  'cannot destroy snapshot with backups': 'dataset.snapshots.deletion.backups',
+  'this snapshot cannot be destroyed as others are depending on it': 'dataset.snapshots.deletion.references',
   'No record selected': 'errors.internal.no_record_selected',
   'No editor': 'errors.internal.no_editor',
   'Storage is unavailable': 'errors.internal.storage_unavailable',
@@ -93,7 +95,7 @@ export function stringifyUnknown(x: unknown): string {
 
   if (x instanceof Error) {
     const localized = localizeKnownErrorMessage(x.message || '');
-    const name = x.name && x.name !== 'Error' ? `${x.name}: ` : '';
+    const name = x.name && x.name !== 'Error' && x.name !== 'HaveApiError' ? `${x.name}: ` : '';
     return `${name}${(localized ?? x.message) || staticT('common.unknown_error')}`;
   }
 
@@ -104,6 +106,9 @@ export function stringifyUnknown(x: unknown): string {
   }
 }
 
-export function formatErrorMessage(x: unknown): string {
+export function formatErrorMessage(x: unknown, translate?: (key: string) => string): string {
+  const message = x instanceof Error ? x.message : typeof x === 'string' ? x : '';
+  const key = EXACT_ERROR_KEYS[message.trim()];
+  if (key && translate) return translate(key);
   return stringifyUnknown(x);
 }

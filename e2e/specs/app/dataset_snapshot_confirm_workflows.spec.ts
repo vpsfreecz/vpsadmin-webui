@@ -400,7 +400,7 @@ test.describe('@smoke @smoke-mobile Dataset snapshots', () => {
     // durable uncertainty marker is active.
     await confirm.evaluate((button) => {
       button.removeAttribute('disabled');
-      button.click();
+      if (button instanceof HTMLElement) button.click();
     });
     await expect.poll(() => rollbackCalls).toBe(1);
 
@@ -425,9 +425,10 @@ test.describe('@smoke @smoke-mobile Dataset snapshots', () => {
     await installHaveApiMock(page, {
       user: { id: 1, login: 'admin', level: 99 },
       handlers: {
+        'GET datasets': ({ searchParams }) => ({ datasets: searchParams.get('dataset[role]') === 'primary' ? [{ id: 10, name: 'ds10' }] : [] }),
         'GET datasets/10': () => ({
           id: 10,
-          full_name: 'tank/vps/ds10',
+          full_name: 'tank/nas/ds10',
           name: 'ds10',
           used: 2048,
           refquota: 10240,
@@ -435,7 +436,7 @@ test.describe('@smoke @smoke-mobile Dataset snapshots', () => {
           mount_count: 0,
           export_count: 0,
           object_state: 'active',
-          vps: { id: 300, hostname: 'alpha.example' },
+          vps: null,
         }),
 
         'GET datasets/10/snapshots': () => {
@@ -463,7 +464,7 @@ test.describe('@smoke @smoke-mobile Dataset snapshots', () => {
       },
     });
 
-    await page.goto('/admin/datasets/10/snapshots');
+    await page.goto('/admin/nas/10/snapshots');
 
     await expect(page.getByTestId('dataset.snapshots.list')).toBeVisible();
     await expect(visibleSnapshot(page, 200)).toBeVisible();
@@ -487,9 +488,10 @@ test.describe('@smoke @smoke-mobile Dataset snapshots', () => {
     await installHaveApiMock(page, {
       user: { id: 2, login: 'member', level: 1 },
       handlers: {
+        'GET datasets': ({ searchParams }) => ({ datasets: searchParams.get('dataset[role]') === 'primary' ? [{ id: 10, name: 'ds10' }] : [] }),
         'GET datasets/10': () => ({
           id: 10,
-          full_name: 'tank/vps/ds10',
+          full_name: 'tank/nas/ds10',
           name: 'ds10',
           used: 2048,
           refquota: 10240,
@@ -497,7 +499,7 @@ test.describe('@smoke @smoke-mobile Dataset snapshots', () => {
           mount_count: 0,
           export_count: 0,
           object_state: 'active',
-          vps: { id: 300, hostname: 'alpha.example' },
+          vps: null,
           user: { id: 2, login: 'member' },
         }),
 
@@ -536,7 +538,7 @@ test.describe('@smoke @smoke-mobile Dataset snapshots', () => {
       },
     });
 
-    await page.goto('/app/datasets/10/snapshots');
+    await page.goto('/app/nas/10/snapshots');
 
     await expect(visibleSnapshotAction(page, 200, 'download')).toBeVisible();
     const downloadReq = page.waitForRequest(

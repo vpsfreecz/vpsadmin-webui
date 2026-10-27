@@ -74,6 +74,7 @@ export const csVps_core = {
   'vps.actions.menu.placeholder': 'Správa VPS…',
   'vps.actions.more.placeholder': 'Další…',
   'vps.list.actions.more.label': 'Další akce řádku VPS',
+  'vps.actions.dns_servers': 'DNS servery',
   'vps.actions.more.group.daily': 'Běžné akce',
   'vps.actions.more.group.sections': 'Sekce detailu',
   'vps.actions.more.group.lifecycle': 'Pokročilé operace',

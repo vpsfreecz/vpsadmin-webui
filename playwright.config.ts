@@ -56,6 +56,7 @@ export default defineConfig({
       name: 'mobile-webkit',
       testMatch: [
         '**/about.spec.ts',
+        '**/transactions_readability.spec.ts',
         '**/ip_addresses_filters_pagination.spec.ts',
         '**/ip_addresses_suggested_request_budget.spec.ts',
         '**/admin_dashboard.spec.ts',
@@ -65,6 +66,7 @@ export default defineConfig({
 
         '**/vps_expiration_reactivation.spec.ts',
         '**/snapshot_export_shortcut.spec.ts',
+        '**/snapshot_delete_availability.spec.ts',
         '**/export_hosts_responsive_actions.spec.ts',
         '**/exports_filter_contract.spec.ts',
         '**/vps_initialization_templates.spec.ts',
@@ -81,6 +83,11 @@ export default defineConfig({
         '**/incident_create_context.spec.ts',
         '**/vps_overview_all_ips.spec.ts',
         '**/member_payment_links.spec.ts',
+        '**/vps_admin_modifications.spec.ts',
+        '**/vps_maintenance_sunday.spec.ts',
+        '**/network_address_details.spec.ts',
+        '**/user_packages_bulk_remove.spec.ts',
+        '**/vps_dns_shortcut.spec.ts',
       ],
       use: { ...devices['iPhone 13'] },
     },

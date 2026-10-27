@@ -324,7 +324,7 @@ test.describe('Backup center', () => {
     await expect(page.getByTestId('backups.snapshots.row.10')).toHaveAttribute('aria-pressed', 'true');
     await expect(page.getByTestId('dataset.snapshots.row.31')).toContainText('Before upgrade');
     await expect(page.getByTestId('dataset.snapshots.row.31.rollback')).toBeEnabled();
-    await expect(page.getByTestId('dataset.snapshots.row.31.delete')).toBeEnabled();
+    await expect(page.getByTestId('dataset.snapshots.row.31.delete')).toHaveCount(0);
     await expect(page).toHaveURL(/tab=snapshots.*dataset=10|dataset=10.*tab=snapshots/);
     expect(requests.filter((request) => request === 'datasets/10/snapshots')).toHaveLength(1);
     expect(
@@ -651,7 +651,7 @@ test.describe('Backup center', () => {
 
     await confirm.evaluate((button) => {
       button.removeAttribute('disabled');
-      button.click();
+      if (button instanceof HTMLElement) button.click();
     });
     await expect.poll(() => rollbackCalls).toBe(1);
 

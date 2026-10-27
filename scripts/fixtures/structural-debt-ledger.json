@@ -4,7 +4,7 @@
     "status": "accepted",
     "acceptedBy": "2026-09-27-newadmin-integration lead, adoption source hash review"
   },
-  "note": "Inherited exceptions retain their original debt source revisions. Except for the reviewed UserNetworkPage change documented in its rationale, source bytes match those revisions. An exact source edit or measured improvement requires review/removal; the historical baseline remains unchanged.",
+  "note": "Inherited exceptions retain their original debt source revisions. Source bytes match those revisions. An exact source edit or measured improvement requires review/removal; the historical baseline remains unchanged.",
   "exceptions": [
     {
       "path": "src/components/layout/ActionStatesPanel.tsx",
@@ -116,20 +116,6 @@
       "removeWhen": {
         "metric": "lines",
         "atMost": 647
-      }
-    },
-    {
-      "path": "src/pages/app/TransactionChainDetailPage.tsx",
-      "rule": "grown-over-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "d6179446cdb962c84ca1c3c4cc1cd301cb8ca39bc93cfb1c25e45efdcebfbbf1",
-      "old": 587,
-      "allowance": 595,
-      "rationale": "At the recorded source revision, this file already contained transaction chain details and receipts; extract the coherent section with focused behavior coverage before removing this exception. Reviewed 2026-10-06: one import and a row-label substitution consume the shared localized transaction helper. Browser fixtures cover chain rows.",
-      "owner": "WebUI implementation lead",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 587
       }
     },
     {
@@ -371,20 +357,6 @@
       }
     },
     {
-      "path": "src/pages/app/networking/UserNetworkPage.tsx",
-      "rule": "crossed-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "046865da62cc7c0cbf14db481e918e507edf6cf73ecab81daf0fced586b170f4",
-      "old": 0,
-      "allowance": 683,
-      "rationale": "This entry retains the inherited debt origin. On 2026-10-06 the root lead reviewed the limited address-action extraction and disabled-network badges: assigned VPS links remain available, detached disabled addresses cannot be assigned, and the measured allowance decreases from 691 to 683 lines. The current content hash identifies those reviewed modified bytes, not the historical source. Extract the remaining coherent section with focused behavior coverage before removing this exception.",
-      "owner": "WebUI collection and page refactor implementer",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 500
-      }
-    },
-    {
       "path": "src/pages/app/vps/VpsAccessPage.tsx",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
@@ -406,20 +378,6 @@
       "old": 0,
       "allowance": 521,
       "rationale": "At the recorded source revision, this file already contained VPS configuration form state and validation; extract the coherent section with focused behavior coverage before removing this exception.",
-      "owner": "WebUI collection and page refactor implementer",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 500
-      }
-    },
-    {
-      "path": "src/pages/app/vps/VpsConfigurationPage.tsx",
-      "rule": "crossed-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "bfc82163bb63d151668177f7aa8f7d9ec9f48598d31d272606794131080102a9",
-      "old": 0,
-      "allowance": 600,
-      "rationale": "At the recorded source revision, this file already contained VPS configuration controls and actions; extract the coherent section with focused behavior coverage before removing this exception.",
       "owner": "WebUI collection and page refactor implementer",
       "removeWhen": {
         "metric": "lines",

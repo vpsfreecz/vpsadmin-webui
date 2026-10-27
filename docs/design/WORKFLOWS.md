@@ -184,6 +184,37 @@ resources. [Access](../../src/lib/api/vpsAccess.ts),
 [maintenance](../../src/lib/api/vpsMaintenance.ts),
 [resource fixture](../../e2e/specs/app/vps_resource_workspace.spec.ts).
 
+### Admin-team VPS configuration preference (REQ-023)
+
+Maintenance exposes the legacy `allow_admin_modifications` preference alongside
+the weekly schedule. These are independent controls: the preference authorizes
+base-system configuration changes, while maintenance windows govern timing.
+The description retains the legacy distinction between base-system files and
+member applications/data, and the email notice. Radio choices show the current
+API boolean; a missing value leaves both unselected and disables writes.
+Nothing is changed simply by opening the page or selecting a choice.
+
+A deliberate Save sends only `vps.allow_admin_modifications` to the existing VPS
+update action. Owner/member and administrator scope, state gates, fresh busy
+preflight and durable uncertainty handling remain. The request freezes its VPS
+ID and choice before asynchronous lock acquisition. The returned action receipt
+is tracked in Tasks; accepted is not completed. Success requires both a successful
+finished action and a new successful VPS read with the requested boolean.
+Rejection retains the draft; a missing receipt locks retry until reconciliation.
+Support's administrative view is read-only. No API or default-consent change is
+part of this workflow.
+
+### Maintenance weekdays (REQ-023)
+
+The existing maintenance-window endpoint addresses a day by its `weekday`, not
+its resource `id`. It uses Ruby weekday numbering: Sunday 0, Monday 1 through
+Saturday 6. The UI displays Monday through Sunday but submits Sunday to
+`PUT /vpses/:id/maintenance_windows/0`; it never sends weekday 7. Opening,
+closing, time edits, per-day retry reconciliation and Allow anytime share this
+mapping. Closing a day omits times and leaves server validation authoritative,
+including the minimum weekly window. An API rejection preserves the draft;
+success requires a refreshed server baseline. No API changes are required.
+
 ## Console and VPS deletion
 
 **Intent:** entering Console opens a session directly; intentional replacement and
@@ -242,6 +273,26 @@ creation sends the snapshot ID rather than a live-dataset source. Ownership,
 lifecycle and pending-operation gates apply to creation. Existing export links
 remain available for inspection. This reuses the existing API contract.
 
+**Snapshot deletion:** VPS snapshots do not offer Delete, matching legacy UI.
+NAS deletion requires positive primary-pool membership and no backup-pool copy
+of that exact dataset. Dataset#index is queried with `dataset=<id>`, `to_depth=0`
+and each role, so descendants/other datasets cannot prove eligibility. Missing,
+loading, failed or incorrectly scoped evidence hides Delete; a failed read offers
+Retry. The same controls serve Backup Center and NAS/dataset detail on mobile
+and desktop; URL naming alone does not grant eligibility. Existing snapshot
+mount/export references hide Delete too. Restore, download and NFS export retain
+their existing gates.
+
+After explicit confirmation, preflight checks transaction locks and repeats the
+storage queries before sending the existing exact dataset/snapshot DELETE.
+Confirmation binds the dataset ID and prevents simultaneous repeated submission.
+The API remains authoritative: its reference counts are not fully exposed to the
+frontend. A backup/dependency rejection stays in the dialog as a localized reason
+without the exception class name. Known dependency rejection hides that snapshot's
+Delete action in the current workspace; backup rejection refreshes availability.
+The original error object remains unchanged for diagnostics. This changes no
+retention policy and never deletes backup copies to make the request succeed.
+
 **Export owner navigation:** global administrators have a visible Export owner
 lookup next to the export-ID input. Numeric owner IDs filter directly; login
 suggestions resolve to exact owner IDs. Numeric export-ID input offers separate
@@ -276,6 +327,24 @@ history must not lose entries due to a false cursor assumption.
 [DNS](../../src/lib/api/dns.ts), [transfers](../../src/lib/api/dnsTransfers.ts),
 [interfaces](../../src/lib/api/networkInterfaces.ts), [IP history](../../src/lib/api/ipAddresses.ts).
 
+### VPS DNS server shortcut
+
+VPS detail → More → DNS servers is the first daily shortcut in both member
+and administrator views. It opens the existing Configuration page with
+`section=dns`, expands Additional VPS configuration and scrolls/focuses the DNS
+resolver section. Selecting the shortcut again reopens a manually collapsed
+section. Administrator member context (`user`) stays attached to the URL.
+This configures the VPS resolver, not authoritative zones or DNS publication.
+
+The focused section includes Reset and Save beside the existing resolver selector.
+Both reuse the configuration form's draft and common confirmation: opening the
+shortcut makes no write, other unsaved changes survive, and Save reviews every
+changed field before submitting. Reset retains its existing whole-form behavior.
+The existing `dns_resolver` update, action-state tracking, role/state/lock gates,
+validation and API enforcement remain authoritative; read-only support can locate
+the section without gaining write access. A browser fixture confirms navigation
+and payload behavior, not live resolver deployment inside a VPS.
+
 ### Private IPv4 assignment, including staging
 
 From VPS detail → Network → Add IP address, select the interface and address
@@ -294,6 +363,26 @@ is not evidence that the pool is empty. The API still checks ownership, quota,
 locks and assignability when executing the existing assignment action. Candidate
 availability is not a reservation or a guarantee of quota. The selector continues
 to offer a bounded first page, not a claim to enumerate the entire pool.
+
+### Address and interface facts (REQ-050)
+
+The member address overview requests the IP allocation and interface
+explicitly when expanding active assignment records. Some API versions still
+return unresolved allocation references from assignment history: the resource
+omits the eager include preparation used by normal lists. For these records the
+UI reads the current IP list once per affected, already scoped VPS, with at most
+four concurrent requests. It never queries a VPS outside the loaded member VPS
+scope, never promotes the assignment actor to allocation owner, and drops stale
+assignment IDs absent from the current scoped allocation page. Each list retains
+the existing 250-record limit; this is not a claim of complete large inventories. An assignment's user is
+not the allocation owner: an address can be attached to your VPS without being
+owned by you. “Owned” means the allocation's `user.id` matches the signed-in
+member; explicit `null` means No, while omitted/redacted ownership remains unknown.
+Interface names may come from an expanded `name` or a resource `label`; unknown
+names retain a known interface ID rather than inventing a name. Detached and
+routed addresses without a direct interface keep a dash. MAC addresses come from
+`NetworkInterface.mac` in both the VPS desktop table and mobile cards, with a dash
+when unavailable. These display changes do not perform configuration writes.
 
 ### Network availability
 
@@ -430,6 +519,31 @@ the previous expiry with a one-calendar-month suggestion from now (month ends
 clamped). The administrator can override it; Save and confirmation remain
 required, and an already soft-deleted account keeps its saved date when opened. A view switch preserves the operator identity; impersonation does not.
 
+### Bulk member package removal (REQ-076)
+
+In the administrator member's Packages tab, select visible removable assignments
+individually or with Select visible packages. The loaded list is still bounded
+at 500 rows; this is not an all-pages/all-members selection. Personal base
+packages and unknown package types are not selectable. The confirmation names
+the selected member, exact assignment IDs, package labels and environments and
+warns that resource limits are removed. It does not delete shared definitions.
+
+Only global administrators see the bulk controls. The reviewed target snapshot
+is frozen before submission; user/owner changes clear the visible selection and
+do not redirect the in-flight requests. The existing synchronous assignment
+DELETE endpoint is called sequentially. The batch is not atomic: known successes
+stay removed, explicit per-item rejection remains selected, and 401/403 or an
+ambiguous transport/server outcome stops the remaining writes. A running request
+cannot be dismissed by Escape before React commits its pending state; the
+synchronous in-flight guard also prevents duplicate submission.
+
+After the batch, assignment and resource-usage caches are refreshed and individual
+outcomes remain visible. Unknown outcomes are never blindly replayed. A separate
+Refresh list and clear selection action reads the current member's list, clears
+the old selection and allows a new, explicitly confirmed visible selection; it
+does not turn an unknown delete into a claimed success. A failed refresh keeps
+the block and error. Existing backend deletion/permission rules remain authoritative.
+
 ## Applications, profile changes and review queues
 
 **Intent:** inspect a request's applicant data, technical metadata and risk checks,
@@ -543,6 +657,16 @@ blind retry. [Finance](../../src/lib/api/finance.ts),
 [payments](../../src/lib/api/payments.ts), [gated routes](../../src/routes/adminFinanceRoutes.tsx).
 
 ## Tasks, transactions, monitoring, incidents and OOM
+
+Transaction history uses compact aligned ID/time/owner/object/action/state
+columns on desktop and folds metadata under the action on small screens. ID
+links open chain detail; named object filter pivots, direct object links and
+pinning retain their semantics. Chain detail presents one summary followed by
+chronologically ordered steps, with local text/state filters and inline readable
+input/output expansion. Copy preserves the original payload. A partial loaded
+step set is labelled explicitly; the individual-transactions list retains its
+server pagination. Successful history stays neutral while active/error work
+remains highlighted. Tasks retains its workflow with the same visual priorities.
 
 **Intent:** inspect asynchronous action states/chains/items, monitoring events,
 incident reports and memory-exhaustion reports/rules/tasks/stats. These explain

@@ -7,6 +7,10 @@ import { Alert } from '../../../../components/ui/Alert';
 import { Badge } from '../../../../components/ui/Badge';
 import { Button } from '../../../../components/ui/Button';
 import { Card, CardBody, CardHeader } from '../../../../components/ui/Card';
+import { Checkbox } from '../../../../components/ui/Checkbox';
+import { ErrorState } from '../../../../components/ui/ErrorState';
+import { UserPackageBulkActions } from './UserPackageBulkActions';
+import { useUserPackageBulkRemoval } from './useUserPackageBulkRemoval';
 import { ConfirmDialog } from '../../../../components/ui/ConfirmDialog';
 import { EmptyState } from '../../../../components/ui/EmptyState';
 import { Input } from '../../../../components/ui/Input';
@@ -166,6 +170,10 @@ export function AdminUserResourcesPage() {
     },
   });
 
+  const bulk = useUserPackageBulkRemoval({ userId: user.id, userLabel: user.login || `#${user.id}`,
+    rows: assignments, ready: assignmentsQ.isSuccess && !assignmentsQ.isFetching && !assignmentsQ.isError,
+    otherPending: addM.isPending || removeM.isPending });
+
   return (
     <div className="space-y-4" data-testid="admin.user.resources.page">
       <div className="flex flex-wrap items-end justify-between gap-3">
@@ -181,12 +189,15 @@ export function AdminUserResourcesPage() {
             setAddOpen(true);
           }}
           testId="admin.user.resources.add"
+          disabled={bulk.busy || bulk.unknown}
         >
           {t('admin.user.resources.add')}
         </Button>
       </div>
       {assignmentsQ.isLoading ? <div className="text-sm text-muted">{t('common.loading')}</div> : null}
-      {!assignmentsQ.isLoading && grouped.length === 0 ? <EmptyState title={t('admin.user.resources.empty.title')} body={t('admin.user.resources.empty.body')} /> : null}
+      {assignmentsQ.isError ? <ErrorState error={assignmentsQ.error} onRetry={() => void assignmentsQ.refetch()} testId="admin.user.resources.error" /> : null}
+      <UserPackageBulkActions bulk={bulk} />
+      {!assignmentsQ.isLoading && !assignmentsQ.isError && grouped.length === 0 ? <EmptyState title={t('admin.user.resources.empty.title')} body={t('admin.user.resources.empty.body')} /> : null}
       {packageSummary.length ? (
         <section aria-label={t('admin.user.resources.summary.title')}>
           <h2 className="mb-2 text-base font-semibold">{t('admin.user.resources.summary.title')}</h2>
@@ -225,8 +236,13 @@ export function AdminUserResourcesPage() {
               const items = itemsByPackage.get(Number(pkg?.id)) ?? [];
               const personal = isPersonalPackageAssignment(row);
               return <div key={row.id} data-testid={`admin.user.resources.assignment.${row.id}`} className="flex flex-wrap items-start justify-between gap-3 py-3 first:pt-0 last:pb-0">
+                {bulk.allowed ? <Checkbox checked={bulk.selectedIds.has(row.id)}
+                  disabled={bulk.disabled || !bulk.canSelect(row)} className="min-h-11 min-w-11 items-center"
+                  testId={`admin.user.resources.assignment.${row.id}.select`}
+                  label={<span className="sr-only">{t('admin.user.resources.bulk.select', { label: packageLabel(pkg), id: row.id })}</span>}
+                  onChange={(checked) => bulk.toggle(row.id, checked)} /> : null}
                 <div className="min-w-0 flex-1">
-                  <div className="font-medium">{packageLabel(pkg)}</div>
+                  <div className="font-medium">{packageLabel(pkg)} <span className="text-xs text-muted">#{row.id}</span></div>
                   {row.comment ? <div className="mt-1 text-sm text-muted">{row.comment}</div> : null}
                   {items.length ? (
                     <div className="mt-2 flex flex-wrap gap-1.5" aria-label={t('admin.user.resources.limits')}>
@@ -245,6 +261,7 @@ export function AdminUserResourcesPage() {
                     <Button
                       size="sm"
                       variant="danger"
+                      disabled={bulk.busy || bulk.unknown}
                       onClick={() => {
                         removeM.reset();
                         setRemoveRecord(row);

@@ -9,7 +9,78 @@ Dates below use Europe/Prague unless an explicit UTC timestamp is given.
 Entries before the start date are selective retrospective summaries, not a
 complete reconstruction of the project. Missing evidence is not a passing check.
 
+## 2026-10-27 — Authorized selected PR release
+
+The maintainer approved our PRs #88–#95 plus PaulosV #87 after review and
+requested deployment to all three WebUI hosts. Review of #87 found only four
+plain Czech string changes; 27 console browser cases passed with explicit
+cs/en cancellation/confirmation checks. See the [release record](docs/work-log/2026-10-27-selected-pr-release.md).
+PRs #63/#74 are excluded. Combined CI, main integration and deployment pending.
+
+## 2026-10-27 — Dev-only combined PR preview
+
+Deployed our PRs #88–#95 together to dev at clean runtime 2a70ca791c67
+for the explicitly authorized interactive review. Combined checks and 129 source
+plus 129 deployed-fixture browser cases passed; three unmocked anonymous browser
+contexts passed. Production remains on f7a8f10cbb94 and main/PRs are unchanged.
+See [scope and verification](docs/work-log/2026-10-27-dev-combined-preview.md).
+No main merge or production deployment is authorized.
+
+## 2026-10-25 — Admin-team VPS modification preference
+
+Prepared [the legacy configuration preference](docs/work-log/2026-10-25-vps-admin-modifications.md)
+reported in Discourse post 7. Independent review candidate; not merged or deployed.
+
+## 2026-10-25 — Sunday maintenance-window mapping
+
+Prepared [Sunday load/save and bulk-edit correction](docs/work-log/2026-10-25-maintenance-sunday.md)
+for REQ-023, reported in Discourse post 7. Not merged or deployed.
+
+## 2026-10-25 — Network address and interface details
+
+Prepared from [Discourse post 7](https://discourse.vpsfree.cz/t/372/7):
+[interface names, allocation ownership and MAC addresses](docs/work-log/2026-10-25-network-address-details.md).
+Independent review candidate; not merged or deployed.
+
 ## New changes
+
+## 2026-10-27 — Repair the PR security baseline
+
+PRs #90–#95 inherited the old BFF lock and failed its production audit. Extend
+security PR #88 with patched qs 6.16.1 and its exact Nix hash, then carry the
+security dependency into our feature branches without changing main or weakening
+checks. See [diagnosis and verification](docs/work-log/2026-10-27-ci-security-baseline.md).
+
+## 2026-10-25 — Compact transaction history and chain steps
+
+The maintainer requested a clearer transaction table and chain detail inspired
+by the legacy UI, with overnight verification until 10:00 Europe/Prague.
+See [design, progress and verification](docs/work-log/2026-10-25-transactions-readable-overview.md).
+Prepared for review; no merge or deployment is authorized.
+
+## 2026-10-25 — BFF body-parser security patch
+
+A production dependency audit during transaction review found the existing
+body-parser 1.20.6 denial-of-service advisory. Prepare a separate lock/hash patch
+for review; no deployment. See [scope and verification](docs/work-log/2026-10-25-body-parser-patch.md).
+
+## 2026-10-27 — Bulk member package removal
+
+Prepared [selection, confirmation and per-item outcomes](docs/work-log/2026-10-27-user-package-bulk-removal.md)
+for administrator member package assignments (REQ-076). Not merged or deployed.
+
+## 2026-10-27 — Visible VPS DNS settings
+
+The first daily action in the VPS More menu opens DNS settings directly, with
+nearby Save/Reset and the existing confirmation and permissions. Prepared for
+review; not merged or deployed. See [implementation and verification](docs/work-log/2026-10-27-vps-dns-shortcut.md).
+
+## 2026-10-27 — Snapshot deletion availability and readable errors
+
+Hide unsupported snapshot deletion in VPS and backed-up dataset views, verify
+eligible NAS state again before deletion, and explain API rejection without its
+exception class name. Prepared for review, not deployed. See
+[behavior and verification](docs/work-log/2026-10-27-snapshot-delete-guards.md).
 
 ## 2026-10-23 — Completed member administration release
 
