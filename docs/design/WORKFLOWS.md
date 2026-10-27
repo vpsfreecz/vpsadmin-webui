@@ -659,13 +659,27 @@ blind retry. [Finance](../../src/lib/api/finance.ts),
 ## Tasks, transactions, monitoring, incidents and OOM
 
 Transaction history uses compact aligned ID/time/owner/object/action/state
-columns on desktop and folds metadata under the action on small screens. ID
+columns on desktop and folds metadata under the action on small screens. The
+owner column appears only in administrator mode; a normal member and an admin's
+My view do not repeat their own identity in every row. This is presentation only:
+server scope, owner/session filters and authorization are unchanged. Pinned chains
+use the warning/orange row tint and a pinned marker; failed chains retain the
+red tint even when pinned. Transaction tables use opaque semantic alert
+backgrounds for these warm tints, including hover, instead of the blue-theme
+general row blends; other tables retain their palette. The pin control exposes its pressed state and toggles
+back to Unpin. Completed unpinned chains remain neutral. ID
 links open chain detail; named object filter pivots, direct object links and
 pinning retain their semantics. Chain detail presents one summary followed by
 chronologically ordered steps, with local text/state filters and inline readable
 input/output expansion. Copy preserves the original payload. A partial loaded
-step set is labelled explicitly; the individual-transactions list retains its
-server pagination. Successful history stays neutral while active/error work
+step set is labelled explicitly. The individual-transactions list uses the same
+compact ID/step/node/VPS/state/duration layout and responsive column contract,
+with creation time and chain navigation beneath the operation. Its chevron opens
+the shared readable step details, including start/finish times, user/type/priority,
+dependencies and exact payload copying. Node/type/chain/VPS filter pivots remain
+available, with technical filters in the expanded row. Successful items stay
+neutral; failure rows stay red. The item list retains its server pagination,
+filters, route normalization and polling. Successful history stays neutral while active/error work
 remains highlighted. Tasks applies the same priorities to tracked actions: compact
 neutral completed cards show title/state, one receipt/chain reference, target,
 creation time and step count. The title opens inspection with both timestamps,

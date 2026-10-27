@@ -58,6 +58,7 @@ export default defineConfig({
         '**/about.spec.ts',
         '**/transactions_readability.spec.ts',
         '**/tasks_compact_history.spec.ts',
+        '**/transactions_table_followup.spec.ts',
         '**/ip_addresses_filters_pagination.spec.ts',
         '**/ip_addresses_suggested_request_budget.spec.ts',
         '**/admin_dashboard.spec.ts',

@@ -240,7 +240,7 @@ export function buildTransactionItemsFilterHref({
 }
 
 export function buildTransactionItemRow(tx: Transaction, t: TransactionItemsTranslator): TransactionItemRow {
-  const badge = transactionBadge(tx);
+  const badge = transactionBadge(tx, t);
   const rowVariant = variantToSemantic(badge.variant);
   const operation = classifyTransaction(tx);
   const name = tx.name ? String(tx.name) : t('transactions.items.row.fallback_name');

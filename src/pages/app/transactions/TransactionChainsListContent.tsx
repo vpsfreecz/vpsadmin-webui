@@ -173,7 +173,7 @@ export function TransactionChainsListContent({
                   {t('transactions.chains.page_summary.finished', { count: pageSummary.finished })}
                 </Badge>
                 {pageSummary.pinned > 0 ? (
-                  <Badge variant="info" testId="transactions.page_summary.pinned">
+                  <Badge variant="warn" testId="transactions.page_summary.pinned">
                     {t('transactions.chains.page_summary.pinned', { count: pageSummary.pinned })}
                   </Badge>
                 ) : null}

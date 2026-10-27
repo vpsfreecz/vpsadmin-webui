@@ -62,7 +62,9 @@
     "e2e/specs/app/transaction_chain_detail_page.spec.ts",
     "e2e/specs/app/transaction_chains_ux.spec.ts",
     "e2e/specs/app/transaction_detail_page.spec.ts",
+    "e2e/specs/app/transactions_items_keyset_pagination.spec.ts",
     "e2e/specs/app/transactions_readability.spec.ts",
+    "e2e/specs/app/transactions_table_followup.spec.ts",
     "e2e/specs/app/ui_preferences_persistence.spec.ts",
     "e2e/specs/app/user_network_page.spec.ts",
     "e2e/specs/app/vps_admin_modifications.spec.ts",
@@ -1196,13 +1198,6 @@
     {
       "path": "e2e/specs/app/transaction_items_filter_accessibility.spec.ts",
       "sha256": "fd4829881bdec78f5fae69a95a614c4336d96647a25deec0508e394a7e4a3169",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/app/transactions_items_keyset_pagination.spec.ts",
-      "sha256": "34cedb8688dae14de3703cb345f4c3dea73cf84903aad280b71130938edbad60",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
