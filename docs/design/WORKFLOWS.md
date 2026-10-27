@@ -666,7 +666,15 @@ chronologically ordered steps, with local text/state filters and inline readable
 input/output expansion. Copy preserves the original payload. A partial loaded
 step set is labelled explicitly; the individual-transactions list retains its
 server pagination. Successful history stays neutral while active/error work
-remains highlighted. Tasks retains its workflow with the same visual priorities.
+remains highlighted. Tasks applies the same priorities to tracked actions: compact
+neutral completed cards show title/state, one receipt/chain reference, target,
+creation time and step count. The title opens inspection with both timestamps,
+backend details and chain navigation. Matching action/chain IDs appear once;
+different IDs remain distinguishable. Pin/hide use labelled icon buttons with
+44px coarse-pointer targets. Active progress bars and failure summaries remain
+visible; no completed 100% bar or repeated update-time line consumes history
+space. Cancellation still requires confirmation and the current API capability.
+Search, account-scoped persistence, receipt merging and polling are unchanged.
 
 **Intent:** inspect asynchronous action states/chains/items, monitoring events,
 incident reports and memory-exhaustion reports/rules/tasks/stats. These explain
