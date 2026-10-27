@@ -19,6 +19,12 @@ reported in Discourse post 7. Independent review candidate; not merged or deploy
 Prepared [Sunday load/save and bulk-edit correction](docs/work-log/2026-10-25-maintenance-sunday.md)
 for REQ-023, reported in Discourse post 7. Not merged or deployed.
 
+## 2026-10-25 — Network address and interface details
+
+Prepared from [Discourse post 7](https://discourse.vpsfree.cz/t/372/7):
+[interface names, allocation ownership and MAC addresses](docs/work-log/2026-10-25-network-address-details.md).
+Independent review candidate; not merged or deployed.
+
 ## New changes
 
 ## 2026-10-27 — Repair the PR security baseline

@@ -79,6 +79,10 @@ export function VpsNetworkInterfacesCard(props: {
 
                       <div className="mt-3 grid gap-2 text-sm">
                         <div>
+                          <div className="text-xs text-muted">{t('vps.network.interfaces.field.mac')}</div>
+                          <div className="break-all font-mono">{ni.mac || '—'}</div>
+                        </div>
+                        <div>
                           <div className="text-xs text-muted">{t('vps.network.interfaces.max_tx')}</div>
                           <div className="font-mono">{formatMbpsFromBytesPerSec(ni.max_tx)}</div>
                         </div>
@@ -119,6 +123,7 @@ export function VpsNetworkInterfacesCard(props: {
                     <th className="px-4 py-3"></th>
                     <th className="px-4 py-3">{t('vps.network.interfaces.field.name')}</th>
                     <th className="px-4 py-3">{t('vps.network.interfaces.field.type')}</th>
+                    <th className="px-4 py-3">{t('vps.network.interfaces.field.mac')}</th>
                     <th className="px-4 py-3">{t('vps.network.interfaces.field.ip_count')}</th>
                     {props.canAdmin ? <th className="px-4 py-3">{t('vps.network.interfaces.field.enabled')}</th> : null}
                     <th className="px-4 py-3">{t('vps.network.interfaces.field.max_tx')}</th>
@@ -141,6 +146,7 @@ export function VpsNetworkInterfacesCard(props: {
                         </td>
                         <td className="px-4 py-3 font-medium">{ni.name ?? '—'}</td>
                         <td className="px-4 py-3">{String(ni.type ?? '—')}</td>
+                        <td className="whitespace-nowrap px-4 py-3 font-mono text-xs">{ni.mac || '—'}</td>
                         <td className="px-4 py-3">{ips.length}</td>
                         {props.canAdmin ? (
                           <td className="px-4 py-3">

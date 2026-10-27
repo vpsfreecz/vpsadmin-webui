@@ -84,6 +84,7 @@ export default defineConfig({
         '**/member_payment_links.spec.ts',
         '**/vps_admin_modifications.spec.ts',
         '**/vps_maintenance_sunday.spec.ts',
+        '**/network_address_details.spec.ts',
       ],
       use: { ...devices['iPhone 13'] },
     },
