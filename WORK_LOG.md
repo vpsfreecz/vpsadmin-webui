@@ -15,7 +15,13 @@ The maintainer approved our PRs #88–#95 plus PaulosV #87 after review and
 requested deployment to all three WebUI hosts. Review of #87 found only four
 plain Czech string changes; 27 console browser cases passed with explicit
 cs/en cancellation/confirmation checks. See the [release record](docs/work-log/2026-10-27-selected-pr-release.md).
-PRs #63/#74 are excluded. Combined CI, main integration and deployment pending.
+PRs #87–#95 merged through #96 and clean runtime 2d361c571eac is deployed
+on dev, clankerdev and newadmin. Exact-runtime CI passed 585 desktop, 527
+mobile Chrome and 227 mobile WebKit checks; post-deployment acceptance passed
+99 deployed-fixture cases, nine unmocked anonymous contexts and seven newadmin
+health checks. Configuration pin 38f573b4 is published, preserving concurrent
+master changes. #63/#74 remain untouched. The dated record contains the full
+provenance, rollout, rollback and verification boundaries.
 
 ## 2026-10-27 — Dev-only combined PR preview
 

@@ -1,6 +1,9 @@
 # Selected PR release — 2026-10-27
 
-Status: authorized candidate; combined remote checks and deployment pending.
+Status: completed. The selected PRs were merged through PR #96 and deployed
+to all three WebUI hosts. Clean runtime revision:
+`2d361c571eac6ae4cd2e12140b013c0e3fadb926`.
+This later documentation-only receipt does not advance the runtime pin.
 The maintainer explicitly approved our PRs #88–#95 and conditionally included
 PaulosV PR #87 after security review, then requested deployment everywhere
 (dev.crucio.cz, clankerdev.vpsfree.cz and newadmin.vpsfree.cz).
@@ -53,7 +56,7 @@ console session or token was created/revoked for these fixture checks.
 Original PaulosV authorship is preserved by merging his commit. Our review
 adds tests and this documentation separately; it does not rewrite his branch.
 
-## Integration and release gates
+## Integration and release gates (preparation record)
 
 The nine selected heads are retained as ancestors of one integration candidate.
 The prior preview already combined our eight PRs and passed ci:pr, 129 source
@@ -81,4 +84,110 @@ Console screenshots show the implemented combined candidate with synthetic data:
 [desktop](screenshots/2026-10-27-release/console-desktop.png) and
 [mobile Safari](screenshots/2026-10-27-release/console-mobile-webkit.png).
 
-Append actual CI/merge/deployment results rather than anticipating them.
+The completion receipt below supersedes the preparation-time pending states.
+
+## Completed CI and integration
+
+The exact runtime candidate passed all six required remote checks:
+[CI/build/scripts](https://github.com/vpsfreecz/vpsadmin-webui/actions/runs/40585357862)
+and [Playwright](https://github.com/vpsfreecz/vpsadmin-webui/actions/runs/40585357994).
+The complete browser suites passed 585 desktop Chromium, 527 mobile Chromium
+and 227 mobile WebKit tests. The desktop run took 26 minutes; it completed
+successfully on its first attempt. No test/gate was disabled or weakened.
+Combined local ci:pr also passed 226 script, 57 BFF and 1,893 unit tests plus
+the production build. The targeted console review passed 27 browser cases.
+
+[Integration PR #96](https://github.com/vpsfreecz/vpsadmin-webui/pull/96) merged
+at 2026-10-27 21:44:24 UTC as
+`885a9f28a4da1b0fdad3406ddeb90262242093e5`. Its Git tree equals the reviewed
+runtime candidate's tree. All nine original PRs #87–#95 are marked merged;
+PaulosV's original commit/author is retained. Immediately before merge, all
+selected heads and unchanged main were rechecked. Only our feature PRs were
+retargeted to main for the combined merge. Excluded #63/#74 remain open at
+the same heads and were not edited, reviewed, merged or deployed by this task.
+
+## Package and host activation receipt
+
+Clean standalone x86_64-linux frontend/BFF builds and provenance, source-content,
+package-content and NixOS module-evaluation checks passed. The site-specific
+frontend/BFF package-content check passed separately. All runtime packages report
+the same full clean revision above, independently of Git main's merge/docs SHA.
+
+| Host | Runtime/activation | Verification |
+| --- | --- | --- |
+| dev.crucio.cz | Paired frontend/BFF pointers promoted from 2a70ca791c67 under the dev lock. | Auth smoke, process cwd, metadata, config hashes and 33 deployed-bundle browser cases passed. |
+| clankerdev.vpsfree.cz | Paired pointers promoted from f7a8f10cbb94 under its deployment lock. | Auth smoke, process cwd, metadata, config hashes and 33 deployed-bundle browser cases passed. |
+| newadmin.vpsfree.cz | confctl generation 2026-10-27--22-31-44 activated with dry activation and automatic rollback enabled. | All seven health checks, auth smoke, package/runtime metadata and 33 deployed-bundle browser cases passed. |
+
+Newadmin's active system is
+`/nix/store/2vnpn1f65a58pgrmrmxr3dwnw785v9x3-nixos-system-vpsadmin-webui1-26.05.20261019.f3a73bc`.
+Its site frontend is
+`/nix/store/m0yx2qm04kqbjjcfm4ivdywwnda4ysd4-vpsadmin-webui-frontend-1.0.0`;
+BFF is `/nix/store/1crc7axcr0fn8d5359k6q4rl3gc2wz2r-vpsadmin-webui-bff-0.1.0`.
+The source-only standalone artifacts were
+`/nix/store/95xaas16fbrfkbclls22c38y1h6hpna4-vpsadmin-webui-frontend-1.0.0`
+and `/nix/store/xxk7rkkl3mcgs7f9apkqn9kj2xwkqx11-vpsadmin-webui-bff-0.1.0`.
+
+The configuration deploy checkout retained the live nixpkgs f3a73bcf and
+vpsadminos f4bac6b4 pins; it changed only WebUI over the previously deployed
+base. Dry activation copied only the selected WebUI/service/configuration
+metadata changes. The site's effective API/terminology input remained
+4a21dd25b23de9832166def98526f410416b651e; its session terminology was reviewed
+and agrees with the selected Czech wording. No OS, API, database, console-router
+or unrelated application update was activated.
+
+## Browser evidence and limits
+
+After activation, the selected feature acceptance ran against each host's actual
+HTTPS-served assets: 33 cases per host across Chromium/mobile Chrome/mobile
+WebKit, covering all new functional areas and the Czech console confirmation.
+These 99 cases supplied synthetic BFF sessions and API fixtures only inside
+the test browsers and blocked direct real versioned-API requests. They did not
+remove real packages/snapshots or revoke real console sessions. This is not
+a live authenticated API authorization/mutation certification.
+
+Separately, nine unmocked anonymous browser contexts passed across the three
+hosts/engines: exact clean revision, About/commit navigation, fitting layout,
+required authentication for admin routes, asset MIME/status and no JavaScript
+exceptions. Runtime configuration still points dev to https://dev.crucio.cz
+and both public sites to https://api.vpsfree.cz. TLS verification was relaxed
+only for dev's existing certificate issue. Newadmin's actual CSP retains the
+console and heatmap frame origins and the exact payment-QR image path.
+
+Existing credentials and live sessions were preserved; older-host nginx/unit
+configuration hashes were unchanged and retired secret environment variables
+remained absent. Paired old releases and newadmin's previous generation
+`/nix/store/iziph2f0ix2rgzdq4i627a17m5hyhvkx-nixos-system-vpsadmin-webui1-26.05.20261019.f3a73bc`
+remain available. No rollback was needed. Restoring an application generation
+never means restoring old refresh-token session files.
+
+## Configuration publication and housekeeping
+
+The single published generated input-only commit is
+[38f573b4](https://github.com/vpsfreecz/vpsfree-cz-configuration/commit/38f573b49000b649f0951e3a627554789ad34d63).
+It changes only vpsadminWebui's locked metadata in flake.lock, retaining the
+generated confctl message and the verified contributor identity. Concurrent
+master update f8387df1 (Jakub's devWorkspace pin) was preserved by rebasing only
+our unpublished input commit and using a normal fast-forward push. No published
+history was rewritten. No receipt, screenshot or generated report was added
+to the configuration repository.
+
+Overcommit initially refused the custom Nixfmt hook because only the config
+signature had been accepted. The hook was inspected, signed explicitly and
+rerun inside the pinned Ruby dev shell; it was not bypassed. The first build
+invocation stopped at its noninteractive confirmation prompt; repeating with
+--yes implemented the already authorized single-host build. Neither setup
+attempt changed a live service or bypassed a release gate.
+
+After the builds, standard Nix GC, within the maintainer's earlier explicit
+cache-cleanup authorization, removed only unused store paths with a 3 GiB
+bound. It freed 3.0 GiB (5,017 paths); dev root free space rose from about
+3.5 to 6.8 GB. No profile/generation or VM disk deletion was requested. All
+ten pre-existing qemu-kvm processes remain running with starts predating this
+release; both dev BFF services and nginx remain active. The initial VM helper
+matched qemu-system names only; actual qemu-kvm liveness was checked separately
+rather than treating its zero match count as proof.
+
+All serving revisions were rechecked after activation. The separate default-
+branch CI jobs are not substituted for the green exact-runtime PR checks above.
+Later documentation commits do not require another service release or pin bump.
