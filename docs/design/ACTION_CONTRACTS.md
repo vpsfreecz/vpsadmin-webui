@@ -234,7 +234,7 @@ REQ-017/018/024/044/047/048. Sources:
 | Dataset delete | Confirm actual owned target and fresh activity; busy transaction prevents a second destructive operation. |
 | Snapshot create | Optional label, receipt opens action progress; absence of a dataset state field alone is not proof that every operation is forbidden |
 | Snapshot rollback | Destructive confirmation; a lost response cannot be retried solely because operation is absent from a limited recent-history page |
-| Snapshot delete/download | Confirm deletion; download creation can be queued before URL is ready. Owners retain permitted snapshot actions. |
+| Snapshot delete/download | Offer manual deletion only for verified NAS storage without backup copies or known snapshot dependencies, after target confirmation and a fresh storage/transaction preflight. VPS lists omit Delete. The API enforces remaining reference counts; rejections are localized. Download creation can be queued before its URL is ready. Owners retain permitted actions. |
 | Local/remote restore | Identify actual source pool/snapshot and destination; track transfer/restore, verify recovered synthetic content and cleanup for live proof |
 | Plans/expansion | Distinguish assigning/removing a plan from allocating expansion, adjusting space and inspecting expansion history |
 | Export/hosts | NFS/export relationship and host permissions, target-specific confirmation and retained failure; mount lists remain in VPS storage |

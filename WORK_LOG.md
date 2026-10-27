@@ -11,6 +11,13 @@ complete reconstruction of the project. Missing evidence is not a passing check.
 
 ## New changes
 
+## 2026-10-27 — Snapshot deletion availability and readable errors
+
+Hide unsupported snapshot deletion in VPS and backed-up dataset views, verify
+eligible NAS state again before deletion, and explain API rejection without its
+exception class name. Prepared for review, not deployed. See
+[behavior and verification](docs/work-log/2026-10-27-snapshot-delete-guards.md).
+
 ## 2026-10-23 — Completed member administration release
 
 PRs #81–#85 passed CI, were merged through #86 and deployed as `f7a8f10cbb94`

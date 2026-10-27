@@ -72,6 +72,19 @@ describe('datasets API wrappers', () => {
     expect(u.searchParams.get('_meta[count]')).toBe('true');
   });
 
+  test('probes one exact dataset with declared NAS/backup filters', async () => {
+    setMockRuntime();
+    const fetchMock = mockFetchOk({ datasets: [] });
+    vi.stubGlobal('fetch', fetchMock);
+    await fetchDatasets({ subtree: 123, toDepth: 0, role: 'backup', limit: 1 });
+    const [url] = firstFetchCall(fetchMock);
+    const u = new URL(String(url));
+    expect(u.searchParams.get('dataset[dataset]')).toBe('123');
+    expect(u.searchParams.get('dataset[to_depth]')).toBe('0');
+    expect(u.searchParams.get('dataset[role]')).toBe('backup');
+    expect(u.searchParams.has('dataset[subtree]')).toBe(false);
+  });
+
   test('fetchDatasetSnapshots uses only supported pagination params', async () => {
     setMockRuntime();
     const fetchMock = mockFetchOk({

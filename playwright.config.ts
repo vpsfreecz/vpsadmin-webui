@@ -65,6 +65,7 @@ export default defineConfig({
 
         '**/vps_expiration_reactivation.spec.ts',
         '**/snapshot_export_shortcut.spec.ts',
+        '**/snapshot_delete_availability.spec.ts',
         '**/export_hosts_responsive_actions.spec.ts',
         '**/exports_filter_contract.spec.ts',
         '**/vps_initialization_templates.spec.ts',

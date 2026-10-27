@@ -31,6 +31,7 @@
     "e2e/specs/app/admin_default_review_queue.spec.ts",
     "e2e/specs/app/admin_newslog.spec.ts",
     "e2e/specs/app/authenticated_home_smoke.spec.ts",
+    "e2e/specs/app/backup_center.spec.ts",
     "e2e/specs/app/centered_dialogs.spec.ts",
     "e2e/specs/app/export_hosts_responsive_actions.spec.ts",
     "e2e/specs/app/exports_filter_contract.spec.ts",
@@ -77,7 +78,9 @@
     "e2e/specs/public/theme_language_bootstrap.spec.ts",
     "e2e/specs/admin/admin_dashboard.spec.ts",
     "src/types/vpsadmin.d.ts",
-    "e2e/specs/admin/user_detail_page.spec.ts"
+    "e2e/specs/admin/user_detail_page.spec.ts",
+    "e2e/specs/app/dataset_snapshot_confirm_workflows.spec.ts",
+    "e2e/specs/app/snapshot_delete_availability.spec.ts"
   ],
   "include": []
 }

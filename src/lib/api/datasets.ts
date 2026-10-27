@@ -139,17 +139,19 @@ export async function fetchDatasets(opts?: {
   includes?: string;
   count?: boolean;
   reversed?: boolean;
-  role?: 'primary' | 'hypervisor';
+  role?: 'primary' | 'hypervisor' | 'backup';
+  toDepth?: number;
 }) {
   const params: Record<string, unknown> = {};
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
   if (opts?.user !== undefined) params['user'] = opts.user;
   if (opts?.vps !== undefined) params['vps'] = opts.vps;
-  if (opts?.subtree !== undefined) params['subtree'] = opts.subtree;
+  if (opts?.subtree !== undefined) params['dataset'] = opts.subtree;
   if (opts?.withoutSnapshotIn !== undefined) params['without_snapshot_in'] = opts.withoutSnapshotIn;
   if (opts?.reversed !== undefined) params['reversed'] = opts.reversed;
   if (opts?.role !== undefined) params['role'] = opts.role;
+  if (opts?.toDepth !== undefined) params['to_depth'] = opts.toDepth;
 
   const res = await haveApiCall<Dataset[]>({
     method: 'GET',

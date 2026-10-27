@@ -242,6 +242,26 @@ creation sends the snapshot ID rather than a live-dataset source. Ownership,
 lifecycle and pending-operation gates apply to creation. Existing export links
 remain available for inspection. This reuses the existing API contract.
 
+**Snapshot deletion:** VPS snapshots do not offer Delete, matching legacy UI.
+NAS deletion requires positive primary-pool membership and no backup-pool copy
+of that exact dataset. Dataset#index is queried with `dataset=<id>`, `to_depth=0`
+and each role, so descendants/other datasets cannot prove eligibility. Missing,
+loading, failed or incorrectly scoped evidence hides Delete; a failed read offers
+Retry. The same controls serve Backup Center and NAS/dataset detail on mobile
+and desktop; URL naming alone does not grant eligibility. Existing snapshot
+mount/export references hide Delete too. Restore, download and NFS export retain
+their existing gates.
+
+After explicit confirmation, preflight checks transaction locks and repeats the
+storage queries before sending the existing exact dataset/snapshot DELETE.
+Confirmation binds the dataset ID and prevents simultaneous repeated submission.
+The API remains authoritative: its reference counts are not fully exposed to the
+frontend. A backup/dependency rejection stays in the dialog as a localized reason
+without the exception class name. Known dependency rejection hides that snapshot's
+Delete action in the current workspace; backup rejection refreshes availability.
+The original error object remains unchanged for diagnostics. This changes no
+retention policy and never deletes backup copies to make the request succeed.
+
 **Export owner navigation:** global administrators have a visible Export owner
 lookup next to the export-ID input. Numeric owner IDs filter directly; login
 suggestions resolve to exact owner IDs. Numeric export-ID input offers separate

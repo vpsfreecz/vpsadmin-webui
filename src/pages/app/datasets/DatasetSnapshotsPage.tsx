@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useAuth } from '../../../app/auth';
@@ -17,7 +17,7 @@ import { LoadingState } from '../../../components/ui/LoadingState';
 import { Modal } from '../../../components/ui/Modal';
 
 import { fetchActiveTransactionChains } from '../../../lib/api/transactions';
-import { getMetaActionStateId, getMetaTotalCount, isAmbiguousMutationError } from '../../../lib/api/haveapi';
+import { HaveApiError, getMetaActionStateId, getMetaTotalCount, isAmbiguousMutationError } from '../../../lib/api/haveapi';
 import {
   createDatasetSnapshot,
   createSnapshotDownload,
@@ -31,6 +31,8 @@ import {
 import { formatErrorMessage } from '../../../lib/errors';
 import { formatDateTime } from '../../../lib/format';
 import { useKeysetPagination } from '../../../lib/hooks/useKeysetPagination';
+import { objectRef } from '../../../lib/objectRef';
+import { readSnapshotDeletionState, snapshotHasReferences, SnapshotDeletionNotice, useSnapshotDeletion } from './DatasetSnapshotDeletion';
 import { cursorFromAscendingPage } from '../../../lib/lockIndex';
 import { hasActiveChains } from '../../../lib/taskStatus';
 
@@ -110,6 +112,7 @@ export function DatasetSnapshotsPage({ queryParamPrefix = '' }: DatasetSnapshots
 
   const [createdDownload, setCreatedDownload] = useState<SnapshotDownload | null>(null);
   const [confirm, setConfirm] = useState<DatasetSnapshotConfirmState>(null);
+  const confirmPending = useRef(false);
   const [confirmBusy, setConfirmBusy] = useState(false);
   const [confirmError, setConfirmError] = useState<string | null>(null);
   const [rollbackOutcomeUncertain, setRollbackOutcomeUncertain] = useState(false);
@@ -226,20 +229,24 @@ export function DatasetSnapshotsPage({ queryParamPrefix = '' }: DatasetSnapshots
   });
 
   const deleteSnap = useMutation({
-    mutationFn: async (snapshotId: number) => {
-      await preflightDatasetNotBusy();
-      return deleteDatasetSnapshot(dataset.id, snapshotId);
+    mutationFn: async (request: { datasetId: number; snapshotId: number; objectLabel: string }) => {
+      await preflightDatasetNotBusy(request.datasetId);
+      const state = await readSnapshotDeletionState(request.datasetId);
+      if (state !== 'available') throw new Error(t(`dataset.snapshots.deletion.${state}`));
+      return deleteDatasetSnapshot(request.datasetId, request.snapshotId);
     },
-    onMutate: () => {
-      chrome.acquireLocalLock(datasetRef);
+    onMutate: (request) => {
+      const lockRef = objectRef('Dataset', request.datasetId);
+      chrome.acquireLocalLock(lockRef);
+      return { lockRef };
     },
-    onSuccess: (r) => {
+    onSuccess: (r, request, context) => {
       const asId = getMetaActionStateId(r.meta);
       if (asId !== undefined)
         chrome.trackActionState(asId, {
           actionLabelKey: 'action.dataset.snapshot.delete.label',
-          objectLabel: datasetLabelForToast,
-          object: datasetRef,
+          objectLabel: request.objectLabel,
+          object: context.lockRef,
           progressTitleKey: 'modal.dataset.snapshot.delete.title',
         });
 
@@ -247,8 +254,8 @@ export function DatasetSnapshotsPage({ queryParamPrefix = '' }: DatasetSnapshots
       refetchDataset();
       refetchChains();
     },
-    onSettled: () => {
-      chrome.releaseLocalLock(datasetRef);
+    onSettled: (_data, _error, _request, context) => {
+      if (context) chrome.releaseLocalLock(context.lockRef);
     },
     onError: (err: any) => {
       if (err?.code === 'BUSY') chrome.openTasks();
@@ -302,10 +309,10 @@ export function DatasetSnapshotsPage({ queryParamPrefix = '' }: DatasetSnapshots
     createDl.mutate(s);
   }
 
-  function openConfirm(next: NonNullable<DatasetSnapshotConfirmState>) {
+  function openConfirm(next: Omit<NonNullable<DatasetSnapshotConfirmState>, 'datasetId'>) {
     setConfirmError(null);
     if (next.kind === 'rollback') setRollbackOutcomeUncertain(false);
-    setConfirm(next);
+    setConfirm({ ...next, datasetId: dataset.id });
   }
 
   const busyLocal = [busyLocalLock, createSnap.isPending, rollbackSnap.isPending,
@@ -315,6 +322,7 @@ export function DatasetSnapshotsPage({ queryParamPrefix = '' }: DatasetSnapshots
     lockStateUnknown: chainsLoading || chainsError !== null || chainsStale,
   });
 
+  const deletion = useSnapshotDeletion(dataset);
   const confirmGate = confirm?.kind === 'rollback' ? rollbackGate : confirm?.kind === 'delete' ? deleteGate : null;
 
   const cfg = useMemo(() => getRuntimeConfig(), []);
@@ -382,6 +390,8 @@ export function DatasetSnapshotsPage({ queryParamPrefix = '' }: DatasetSnapshots
         </div>
       </div>
 
+      <SnapshotDeletionNotice state={deletion.state} onRetry={() => { void deletion.refetch(); }} />
+
       {createDl.isError ? (
         <Alert title={t('dataset.download.create.error.title')} variant="danger">
           {formatErrorMessage(createDl.error)}
@@ -429,6 +439,7 @@ export function DatasetSnapshotsPage({ queryParamPrefix = '' }: DatasetSnapshots
                         datasetId={dataset.id}
                         snapshot={s}
                         gates={{ downloadGate, exportGate, rollbackGate, deleteGate }}
+                        deleteAvailable={deletion.state === 'available' && !deletion.rejected(s.id)}
                         downloadPending={createDl.isPending}
                         downloadLoading={pendingDownloadSnapshotId === s.id}
                         onDownload={() => requestSnapshotDownload(s)}
@@ -481,6 +492,7 @@ export function DatasetSnapshotsPage({ queryParamPrefix = '' }: DatasetSnapshots
                               datasetId={dataset.id}
                               snapshot={s}
                               gates={{ downloadGate, exportGate, rollbackGate, deleteGate }}
+                              deleteAvailable={deletion.state === 'available' && !deletion.rejected(s.id)}
                               downloadPending={createDl.isPending}
                               downloadLoading={pendingDownloadSnapshotId === s.id}
                               onDownload={() => requestSnapshotDownload(s)}
@@ -636,17 +648,20 @@ export function DatasetSnapshotsPage({ queryParamPrefix = '' }: DatasetSnapshots
         confirm={confirm}
         gate={confirmGate}
         busy={confirmBusy}
-        blocked={confirm?.kind === 'rollback'
-          && (rollbackOutcomeUncertain || rollbackUncertainLock !== undefined)}
+        blocked={confirm?.datasetId !== dataset.id || (confirm?.kind === 'delete'
+          ? deletion.state !== 'available' || deletion.rejected(confirm.snapshot.id) || snapshotHasReferences(confirm.snapshot)
+          : rollbackOutcomeUncertain || rollbackUncertainLock !== undefined)}
         error={confirmError}
         onCancel={() => {
-          if (confirmBusy) return;
+          if (confirmBusy || confirmPending.current) return;
           setConfirm(null);
           setConfirmError(null);
           setConfirmBusy(false);
           setRollbackOutcomeUncertain(false);
         }}
         onConfirm={async (nextConfirm) => {
+          if (nextConfirm.datasetId !== dataset.id || confirmPending.current) return;
+          confirmPending.current = true;
           setConfirmBusy(true);
           setConfirmError(null);
           try {
@@ -657,15 +672,21 @@ export function DatasetSnapshotsPage({ queryParamPrefix = '' }: DatasetSnapshots
               lockRef: datasetRef,
               objectLabel: datasetLabelForToast,
             });
-            else await deleteSnap.mutateAsync(nextConfirm.snapshot.id);
+            else await deleteSnap.mutateAsync({ datasetId: nextConfirm.datasetId,
+              snapshotId: nextConfirm.snapshot.id, objectLabel: datasetLabelForToast });
             setConfirm(null);
           } catch (e) {
             const ambiguousRollback = nextConfirm.kind === 'rollback' && isAmbiguousMutationError(e);
             setRollbackOutcomeUncertain(ambiguousRollback);
+            if (nextConfirm.kind === 'delete') {
+              void deletion.refetch();
+              if (e instanceof HaveApiError && e.message === 'this snapshot cannot be destroyed as others are depending on it') deletion.reject(nextConfirm.snapshot.id);
+            }
             setConfirmError(ambiguousRollback
               ? t('dataset.snapshots.confirm.rollback.uncertain')
-              : formatErrorMessage(e));
+              : formatErrorMessage(e, t));
           } finally {
+            confirmPending.current = false;
             setConfirmBusy(false);
           }
         }}
