@@ -9,6 +9,13 @@ Dates below use Europe/Prague unless an explicit UTC timestamp is given.
 Entries before the start date are selective retrospective summaries, not a
 complete reconstruction of the project. Missing evidence is not a passing check.
 
+## 2026-10-27 — Transaction table follow-up
+
+Prepared the maintainer's follow-up: hide the redundant owner column in My view,
+make pinned chains orange with failure taking precedence, and align individual
+items with the readable chain-step layout. See [design and verification](docs/work-log/2026-10-27-transactions-table-followup.md).
+Separate review candidate; not merged or deployed; independent of Tasks PR97.
+
 ## 2026-10-27 — Authorized selected PR release
 
 The maintainer approved our PRs #88–#95 plus PaulosV #87 after review and

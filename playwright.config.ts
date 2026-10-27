@@ -57,6 +57,7 @@ export default defineConfig({
       testMatch: [
         '**/about.spec.ts',
         '**/transactions_readability.spec.ts',
+        '**/transactions_table_followup.spec.ts',
         '**/ip_addresses_filters_pagination.spec.ts',
         '**/ip_addresses_suggested_request_budget.spec.ts',
         '**/admin_dashboard.spec.ts',
