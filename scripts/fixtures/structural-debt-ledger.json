@@ -7,20 +7,6 @@
   "note": "Inherited exceptions retain their original debt source revisions. Source bytes match those revisions. An exact source edit or measured improvement requires review/removal; the historical baseline remains unchanged.",
   "exceptions": [
     {
-      "path": "src/components/layout/ActionStatesPanel.tsx",
-      "rule": "grown-over-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "17904abb8b3fb22ad5f475e47d2f0c59c32568ed0e8812e0e019097c2e41bf4a",
-      "old": 789,
-      "allowance": 839,
-      "rationale": "At the recorded source revision, this file already contained action-state pending and error variants; extract the coherent section with focused behavior coverage before removing this exception.",
-      "owner": "WebUI implementation lead",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 789
-      }
-    },
-    {
       "path": "src/components/user/UserEnvironmentConfigsPanel.tsx",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
