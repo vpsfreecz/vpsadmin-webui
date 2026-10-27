@@ -544,6 +544,16 @@ blind retry. [Finance](../../src/lib/api/finance.ts),
 
 ## Tasks, transactions, monitoring, incidents and OOM
 
+Transaction history uses compact aligned ID/time/owner/object/action/state
+columns on desktop and folds metadata under the action on small screens. ID
+links open chain detail; named object filter pivots, direct object links and
+pinning retain their semantics. Chain detail presents one summary followed by
+chronologically ordered steps, with local text/state filters and inline readable
+input/output expansion. Copy preserves the original payload. A partial loaded
+step set is labelled explicitly; the individual-transactions list retains its
+server pagination. Successful history stays neutral while active/error work
+remains highlighted. Tasks retains its workflow with the same visual priorities.
+
 **Intent:** inspect asynchronous action states/chains/items, monitoring events,
 incident reports and memory-exhaustion reports/rules/tasks/stats. These explain
 why an object is busy and whether an operation succeeded.

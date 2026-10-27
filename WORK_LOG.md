@@ -18,6 +18,13 @@ security PR #88 with patched qs 6.16.1 and its exact Nix hash, then carry the
 security dependency into our feature branches without changing main or weakening
 checks. See [diagnosis and verification](docs/work-log/2026-10-27-ci-security-baseline.md).
 
+## 2026-10-25 — Compact transaction history and chain steps
+
+The maintainer requested a clearer transaction table and chain detail inspired
+by the legacy UI, with overnight verification until 10:00 Europe/Prague.
+See [design, progress and verification](docs/work-log/2026-10-25-transactions-readable-overview.md).
+Prepared for review; no merge or deployment is authorized.
+
 ## 2026-10-25 — BFF body-parser security patch
 
 A production dependency audit during transaction review found the existing
