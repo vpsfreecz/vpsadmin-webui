@@ -14,6 +14,11 @@ complete reconstruction of the project. Missing evidence is not a passing check.
 Prepared [the legacy configuration preference](docs/work-log/2026-10-25-vps-admin-modifications.md)
 reported in Discourse post 7. Independent review candidate; not merged or deployed.
 
+## 2026-10-25 — Sunday maintenance-window mapping
+
+Prepared [Sunday load/save and bulk-edit correction](docs/work-log/2026-10-25-maintenance-sunday.md)
+for REQ-023, reported in Discourse post 7. Not merged or deployed.
+
 ## New changes
 
 ## 2026-10-27 — Repair the PR security baseline

@@ -4,6 +4,7 @@ import type { ResourceRef } from './appTypes';
 export interface VpsMaintenanceWindow {
   id: number;
   vps?: ResourceRef;
+  /** API weekday: Sunday = 0, Monday = 1, …, Saturday = 6. */
   weekday: number;
   is_open: boolean;
   opens_at?: number | null;
