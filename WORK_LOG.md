@@ -11,7 +11,10 @@ complete reconstruction of the project. Missing evidence is not a passing check.
 
 ## 2026-10-27 — Dev-only combined PR preview
 
-Prepare our PRs #88–#95 together for the explicitly authorized dev review.
+Deployed our PRs #88–#95 together to dev at clean runtime 2a70ca791c67
+for the explicitly authorized interactive review. Combined checks and 129 source
+plus 129 deployed-fixture browser cases passed; three unmocked anonymous browser
+contexts passed. Production remains on f7a8f10cbb94 and main/PRs are unchanged.
 See [scope and verification](docs/work-log/2026-10-27-dev-combined-preview.md).
 No main merge or production deployment is authorized.
 
