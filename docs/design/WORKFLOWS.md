@@ -184,6 +184,26 @@ resources. [Access](../../src/lib/api/vpsAccess.ts),
 [maintenance](../../src/lib/api/vpsMaintenance.ts),
 [resource fixture](../../e2e/specs/app/vps_resource_workspace.spec.ts).
 
+### Admin-team VPS configuration preference (REQ-023)
+
+Maintenance exposes the legacy `allow_admin_modifications` preference alongside
+the weekly schedule. These are independent controls: the preference authorizes
+base-system configuration changes, while maintenance windows govern timing.
+The description retains the legacy distinction between base-system files and
+member applications/data, and the email notice. Radio choices show the current
+API boolean; a missing value leaves both unselected and disables writes.
+Nothing is changed simply by opening the page or selecting a choice.
+
+A deliberate Save sends only `vps.allow_admin_modifications` to the existing VPS
+update action. Owner/member and administrator scope, state gates, fresh busy
+preflight and durable uncertainty handling remain. The request freezes its VPS
+ID and choice before asynchronous lock acquisition. The returned action receipt
+is tracked in Tasks; accepted is not completed. Success requires both a successful
+finished action and a new successful VPS read with the requested boolean.
+Rejection retains the draft; a missing receipt locks retry until reconciliation.
+Support's administrative view is read-only. No API or default-consent change is
+part of this workflow.
+
 ## Console and VPS deletion
 
 **Intent:** entering Console opens a session directly; intentional replacement and
