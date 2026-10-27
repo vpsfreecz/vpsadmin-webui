@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
+import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 
 const vps = {
   id: 123,
@@ -347,3 +347,52 @@ test.describe('@smoke VPS console page', () => {
     expect(createCalls).toBe(0);
   });
 });
+
+for (const language of ['cs', 'en'] as const) {
+  test(`@pr-smoke @pr-smoke-mobile ${language} console revoke has distinct cancel and confirm actions`, async ({ page }, testInfo) => {
+    await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+    await setUiSettingsLocalStorage(page, { language, theme: 'dark' });
+    await routeConsoleStub(page);
+    let createCalls = 0;
+    let deleteCalls = 0;
+    await installHaveApiMock(page, {
+      user: { id: 1, login: 'console-review', level: 1 },
+      handlers: {
+        'GET vpses/123': () => ({ vps }),
+        'GET ip_addresses': () => ({ ip_addresses: [] }),
+        'GET transaction_chains': () => ({ transaction_chains: [] }),
+        'POST vpses/123/console_token': () => {
+          createCalls += 1;
+          return { token: 'SYNTHETIC_REVIEW', expiration: '2027-01-31T00:00:00Z' };
+        },
+        'DELETE vpses/123/console_token': () => { deleteCalls += 1; return {}; },
+      },
+    });
+    await page.goto('/app/vps/123/console');
+    const iframe = page.getByTestId('vps.console.iframe');
+    await expect(iframe).toBeVisible();
+    await expect.poll(() => createCalls).toBe(1);
+    await page.getByTestId('vps.console.revoke_session').click();
+    const dialog = page.getByTestId('vps.console.revoke_session_dialog');
+    const cancel = dialog.getByRole('button', { name: language === 'cs' ? 'Zrušit' : 'Cancel', exact: true });
+    const confirm = dialog.getByRole('button', { name: language === 'cs' ? 'Ukončit relaci' : 'Revoke', exact: true });
+    await expect(cancel).toBeVisible();
+    await expect(confirm).toBeVisible();
+    await expect(dialog.getByTestId('vps.console.revoke_session_dialog.target')).toContainText('#123');
+    await expect(dialog.getByTestId('vps.console.revoke_session_dialog.target')).toContainText('vps123.example');
+    expect(deleteCalls).toBe(0);
+    const screenshots = process.env['E2E_CONSOLE_REVOKE_SCREENSHOT_DIR'];
+    if (screenshots && language === 'cs')
+      await page.screenshot({ path: `${screenshots}/${testInfo.project.name}.png` });
+    await cancel.click();
+    await expect(dialog).toBeHidden();
+    await expect(iframe).toBeVisible();
+    expect(deleteCalls).toBe(0);
+    await page.getByTestId('vps.console.revoke_session').click();
+    await confirm.click();
+    await expect(page.getByTestId('vps.console.revoked')).toBeVisible();
+    await expect(iframe).toHaveCount(0);
+    expect(deleteCalls).toBe(1);
+    expect(createCalls).toBe(1);
+  });
+}

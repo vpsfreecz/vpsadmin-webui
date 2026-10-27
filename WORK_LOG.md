@@ -9,6 +9,14 @@ Dates below use Europe/Prague unless an explicit UTC timestamp is given.
 Entries before the start date are selective retrospective summaries, not a
 complete reconstruction of the project. Missing evidence is not a passing check.
 
+## 2026-10-27 — Authorized selected PR release
+
+The maintainer approved our PRs #88–#95 plus PaulosV #87 after review and
+requested deployment to all three WebUI hosts. Review of #87 found only four
+plain Czech string changes; 27 console browser cases passed with explicit
+cs/en cancellation/confirmation checks. See the [release record](docs/work-log/2026-10-27-selected-pr-release.md).
+PRs #63/#74 are excluded. Combined CI, main integration and deployment pending.
+
 ## 2026-10-27 — Dev-only combined PR preview
 
 Deployed our PRs #88–#95 together to dev at clean runtime 2a70ca791c67
