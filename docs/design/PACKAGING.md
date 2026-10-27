@@ -20,7 +20,7 @@ prefetch-npm-deps bff/package-lock.json
 
 The recorded hashes for the current lockfiles are
 `sha256-1AItkFu1tvJpKjFVbGC/IWky4JPfw+d+XU50egk+/TE=` and
-`sha256-mzGG5zmGm6m4yQEy2xUT3vyi8bOVqPzzZbZLDdkndKQ=`, respectively.
+`sha256-pifjCWQ5ShvtQw1V3bAlmutW43nPi93hDVW8Q4HuVMw=`, respectively.
 Each derivation uses its own hash. The root prefetch reported six bundled optional
 dependencies nested under `@tailwindcss/oxide-wasm32-wasi` without separate
 resolved URLs. Their WASI-only
