@@ -89,3 +89,16 @@ this is a focused follow-up commit on the same review branch.
 All 30 targeted desktop/mobile browser checks passed after this change, including
 the new missing-status case with a matching saved value. `ci:quick` and the
 production build were rerun successfully. Root/BFF dependencies are unchanged.
+
+## 2026-10-27 — PR #90 CI security prerequisite
+
+Carry PR #88's body-parser 1.20.9 and qs 6.16.1 baseline through an ordinary
+merge commit, preserving this feature and all published history. The independent
+review base is `dev/bff-body-parser-patch`; return to main after explicitly
+approved security integration. No PR is merged into main and no deployment.
+
+Integrated `ci:quick`, fresh root/BFF installs and the BFF production audit passed
+locally; the audit reports zero vulnerabilities. The security candidate's full
+Nix frontend/BFF and provenance/source/package checks also passed in isolation.
+Remote CI on this new feature head is a separate pending result. See
+[shared diagnosis and evidence](2026-10-27-ci-security-baseline.md).
