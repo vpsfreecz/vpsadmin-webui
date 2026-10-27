@@ -11,6 +11,11 @@ complete reconstruction of the project. Missing evidence is not a passing check.
 
 ## New changes
 
+## 2026-10-27 — Bulk member package removal
+
+Prepared [selection, confirmation and per-item outcomes](docs/work-log/2026-10-27-user-package-bulk-removal.md)
+for administrator member package assignments (REQ-076). Not merged or deployed.
+
 ## 2026-10-23 — Completed member administration release
 
 PRs #81–#85 passed CI, were merged through #86 and deployed as `f7a8f10cbb94`

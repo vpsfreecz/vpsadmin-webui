@@ -318,7 +318,12 @@ Billing is separate: [user_accounts](../../src/lib/api/userAccounts.ts) changes
 monthly_payment/paid_until. A financial paid-until date is not object expiration;
 changing one does not prove the other changed. User/global finance has its own
 role gate. Resource package definitions/items and per-user assignments are separate
-objects; deleting an assignment is not deleting the shared package definition.
+objects; deleting an assignment is not deleting the shared package definition. Member package bulk removal (REQ-076) uses only the existing assignment
+DELETE action, names the exact target member/assignment IDs in a review dialog,
+and excludes personal/unknown-type packages. The UI reports each synchronous
+result independently, stops on unknown outcomes or authorization failure and
+requires a fresh explicit selection after reconciliation. It does not add a
+bulk API or make the operation atomic.
 [Package adapter](../../src/lib/api/clusterResourcePackages.ts).
 
 ### Security, credentials and mail preferences
