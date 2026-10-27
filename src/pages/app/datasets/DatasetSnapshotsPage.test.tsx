@@ -15,6 +15,7 @@ import {
 
 const api = vi.hoisted(() => ({
   fetchDatasetSnapshots: vi.fn(),
+  fetchDatasets: vi.fn(),
   createDatasetSnapshot: vi.fn(),
   fetchActiveTransactionChains: vi.fn(),
 }));
@@ -51,6 +52,7 @@ vi.mock('../../../lib/api/datasets', async (importOriginal) => {
   return {
     ...original,
     fetchDatasetSnapshots: api.fetchDatasetSnapshots,
+    fetchDatasets: api.fetchDatasets,
     createDatasetSnapshot: api.createDatasetSnapshot,
     createSnapshotDownload: vi.fn(),
     deleteDatasetSnapshot: vi.fn(),
@@ -126,6 +128,7 @@ function HistoryControls() {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  api.fetchDatasets.mockImplementation(async (opts) => ({ data: opts.role === 'primary' ? [{ id: 10402, name: 'member-data' }] : [] }));
   api.fetchActiveTransactionChains.mockResolvedValue([]);
   api.createDatasetSnapshot.mockResolvedValue({ data: { id: 92 }, meta: {} });
 });
@@ -164,7 +167,7 @@ describe('DatasetSnapshotsPage', () => {
     renderPage();
 
     expect(await screen.findByTestId('dataset.snapshots.row.91.rollback')).toBeEnabled();
-    expect(screen.getByTestId('dataset.snapshots.row.91.delete')).toBeEnabled();
+    expect(await screen.findByTestId('dataset.snapshots.row.91.delete')).toBeEnabled();
     expect(screen.getByTestId('dataset.snapshots.row.91.export')).toBeEnabled();
   });
 
@@ -233,7 +236,7 @@ describe('DatasetSnapshotsPage', () => {
       'true'
     );
     expect(screen.getByTestId('dataset.snapshots.row.91.export')).toHaveAttribute('aria-disabled', 'true');
-    expect(screen.getByTestId('dataset.snapshots.row.91.delete')).toHaveAttribute(
+    expect(await screen.findByTestId('dataset.snapshots.row.91.delete')).toHaveAttribute(
       'aria-disabled',
       'true'
     );

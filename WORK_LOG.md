@@ -58,6 +58,13 @@ The first daily action in the VPS More menu opens DNS settings directly, with
 nearby Save/Reset and the existing confirmation and permissions. Prepared for
 review; not merged or deployed. See [implementation and verification](docs/work-log/2026-10-27-vps-dns-shortcut.md).
 
+## 2026-10-27 — Snapshot deletion availability and readable errors
+
+Hide unsupported snapshot deletion in VPS and backed-up dataset views, verify
+eligible NAS state again before deletion, and explain API rejection without its
+exception class name. Prepared for review, not deployed. See
+[behavior and verification](docs/work-log/2026-10-27-snapshot-delete-guards.md).
+
 ## 2026-10-23 — Completed member administration release
 
 PRs #81–#85 passed CI, were merged through #86 and deployed as `f7a8f10cbb94`

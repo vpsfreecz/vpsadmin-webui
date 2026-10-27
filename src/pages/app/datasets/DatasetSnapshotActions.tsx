@@ -4,6 +4,7 @@ import { useI18n } from '../../../app/i18n';
 import { ActionButton } from '../../../components/ui/ActionButton';
 import type { Snapshot } from '../../../lib/api/datasets';
 import type { GateDecision } from '../../../lib/gates/types';
+import { snapshotHasReferences } from './DatasetSnapshotDeletion';
 import { DatasetSnapshotExportAction } from './DatasetSnapshotExportAction';
 
 /** The same compact actions in desktop rows and mobile cards. */
@@ -11,6 +12,7 @@ export function DatasetSnapshotActions(props: {
   datasetId: number;
   snapshot: Snapshot;
   gates: { downloadGate: GateDecision; exportGate: GateDecision; rollbackGate: GateDecision; deleteGate: GateDecision };
+  deleteAvailable: boolean;
   downloadPending: boolean;
   downloadLoading: boolean;
   onDownload: () => void;
@@ -50,16 +52,20 @@ export function DatasetSnapshotActions(props: {
       >
         {t('common.rollback')}
       </ActionButton>
-      <ActionButton
-        size="sm"
-        variant="danger"
-        onClick={() => props.onConfirm('delete')}
-        disabled={!deleteGate.allowed}
-        disabledReason={!deleteGate.allowed ? deleteGate.reason : undefined}
-        testId={`${props.testId}.delete`}
-      >
-        {t('common.delete')}
-      </ActionButton>
+      {props.deleteAvailable && !snapshotHasReferences(props.snapshot) ? (
+        <ActionButton
+          size="sm"
+          variant="danger"
+          onClick={() => props.onConfirm('delete')}
+          disabled={!deleteGate.allowed}
+          disabledReason={!deleteGate.allowed ? deleteGate.reason : undefined}
+          testId={`${props.testId}.delete`}
+        >
+          {t('common.delete')}
+        </ActionButton>
+      ) : props.deleteAvailable ? (
+        <span className="text-xs text-muted">{t('dataset.snapshots.deletion.references')}</span>
+      ) : null}
     </>
   );
 }
