@@ -413,20 +413,6 @@
       }
     },
     {
-      "path": "src/pages/app/vps/VpsConfigurationPage.tsx",
-      "rule": "crossed-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "bfc82163bb63d151668177f7aa8f7d9ec9f48598d31d272606794131080102a9",
-      "old": 0,
-      "allowance": 600,
-      "rationale": "At the recorded source revision, this file already contained VPS configuration controls and actions; extract the coherent section with focused behavior coverage before removing this exception.",
-      "owner": "WebUI collection and page refactor implementer",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 500
-      }
-    },
-    {
       "path": "src/pages/app/vps/VpsCreateWizardPrimitives.tsx",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",

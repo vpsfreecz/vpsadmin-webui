@@ -74,6 +74,7 @@ export const enVps_core = {
   'vps.actions.menu.placeholder': 'Manage VPS…',
   'vps.actions.more.placeholder': 'More…',
   'vps.list.actions.more.label': 'More VPS row actions',
+  'vps.actions.dns_servers': 'DNS servers',
   'vps.actions.more.group.daily': 'Daily actions',
   'vps.actions.more.group.sections': 'Detail sections',
   'vps.actions.more.group.lifecycle': 'Advanced operations',
