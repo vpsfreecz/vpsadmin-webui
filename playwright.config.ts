@@ -85,6 +85,7 @@ export default defineConfig({
         '**/vps_admin_modifications.spec.ts',
         '**/vps_maintenance_sunday.spec.ts',
         '**/network_address_details.spec.ts',
+        '**/user_packages_bulk_remove.spec.ts',
       ],
       use: { ...devices['iPhone 13'] },
     },

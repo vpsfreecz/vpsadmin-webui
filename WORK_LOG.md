@@ -47,6 +47,11 @@ A production dependency audit during transaction review found the existing
 body-parser 1.20.6 denial-of-service advisory. Prepare a separate lock/hash patch
 for review; no deployment. See [scope and verification](docs/work-log/2026-10-25-body-parser-patch.md).
 
+## 2026-10-27 — Bulk member package removal
+
+Prepared [selection, confirmation and per-item outcomes](docs/work-log/2026-10-27-user-package-bulk-removal.md)
+for administrator member package assignments (REQ-076). Not merged or deployed.
+
 ## 2026-10-23 — Completed member administration release
 
 PRs #81–#85 passed CI, were merged through #86 and deployed as `f7a8f10cbb94`

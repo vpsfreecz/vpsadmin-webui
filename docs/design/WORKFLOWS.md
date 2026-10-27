@@ -481,6 +481,31 @@ the previous expiry with a one-calendar-month suggestion from now (month ends
 clamped). The administrator can override it; Save and confirmation remain
 required, and an already soft-deleted account keeps its saved date when opened. A view switch preserves the operator identity; impersonation does not.
 
+### Bulk member package removal (REQ-076)
+
+In the administrator member's Packages tab, select visible removable assignments
+individually or with Select visible packages. The loaded list is still bounded
+at 500 rows; this is not an all-pages/all-members selection. Personal base
+packages and unknown package types are not selectable. The confirmation names
+the selected member, exact assignment IDs, package labels and environments and
+warns that resource limits are removed. It does not delete shared definitions.
+
+Only global administrators see the bulk controls. The reviewed target snapshot
+is frozen before submission; user/owner changes clear the visible selection and
+do not redirect the in-flight requests. The existing synchronous assignment
+DELETE endpoint is called sequentially. The batch is not atomic: known successes
+stay removed, explicit per-item rejection remains selected, and 401/403 or an
+ambiguous transport/server outcome stops the remaining writes. A running request
+cannot be dismissed by Escape before React commits its pending state; the
+synchronous in-flight guard also prevents duplicate submission.
+
+After the batch, assignment and resource-usage caches are refreshed and individual
+outcomes remain visible. Unknown outcomes are never blindly replayed. A separate
+Refresh list and clear selection action reads the current member's list, clears
+the old selection and allows a new, explicitly confirmed visible selection; it
+does not turn an unknown delete into a claimed success. A failed refresh keeps
+the block and error. Existing backend deletion/permission rules remain authoritative.
+
 ## Applications, profile changes and review queues
 
 **Intent:** inspect a request's applicant data, technical metadata and risk checks,
