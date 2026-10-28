@@ -1,3 +1,10 @@
+## 2026-10-28 — Development tool security patches
+
+Prepared compatible Vite/Vitest and transitive security updates, with a narrow
+Typography parser override. Production dependencies are unchanged. See the
+[advisories, package hash and verification](docs/work-log/2026-10-28-security-dev-toolchain.md).
+Separate review candidate, not merged or deployed.
+
 ## 2026-10-28 — Complete the reviewed three-site release
 
 Merge PR97/98/99/101 through PR100 and deploy clean `606a02c19f32` to all
