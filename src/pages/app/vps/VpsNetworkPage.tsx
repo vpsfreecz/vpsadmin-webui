@@ -38,12 +38,13 @@ import { getMetaActionStateId } from '../../../lib/api/haveapi';
 import { gateVpsMutation } from '../../../lib/gates/vps';
 import { ipOwnerUpdateIntent, ipRouteFreeIntent, reconcileIpAddressMutation } from '../../../lib/ipAddressMutationIntent';
 import { objectRef, type ObjectRef } from '../../../lib/objectRef';
-import type { LocalMutationGeneration, LocalMutationIntent } from '../../../lib/localLocks';
+import type { LocalMutationIntent } from '../../../lib/localLocks';
 import { preflightVpsNotBusy } from './vpsPreflight';
 import { useVps } from './VpsContext';
 import { VpsNetworkInterfacesCard } from './VpsNetworkInterfacesCard';
 import { VpsNetworkAddressesSection } from './VpsNetworkAddressesSection';
 import { VpsNetworkOverviewCard } from './VpsNetworkOverviewCard';
+import { VpsNetworkToggleDialog } from './VpsNetworkToggleDialog';
 import {
   createHostAddressesSequentially,
   HostAddressBatchCreateError,
@@ -53,6 +54,7 @@ import {
 import { AssignIpAddressModal } from '../networking/AssignIpAddressModal';
 import { VpsConfirmTarget } from './VpsPowerConfirmation';
 import {
+  type NetworkMutationContext, type VpsMutationSnapshot, type NetifMutation, type ToggleMutation, type PtrMutation, type HostMutation, type AssignHostMutation, type CreateHostsMutation, type IpMutation, type OwnerMutation,
   buildNetworkRouteSummary,
   canonicalBool,
   errorMessage,
@@ -69,29 +71,6 @@ import {
   validatePtrValue,
 } from './VpsNetworkModel';
 
-type NetworkMutationContext = {
-  lockRef: ObjectRef;
-  vpsLockRef: ObjectRef;
-  mutationGeneration: LocalMutationGeneration;
-  objectLabel: string;
-};
-type VpsMutationSnapshot = {
-  vpsId: number;
-  vpsLockRef: ObjectRef;
-  canMutateVps: boolean;
-  knownBusy: boolean;
-  permissionError: string;
-  busyError: string;
-  objectLabel: string;
-};
-type NetifMutation = VpsMutationSnapshot & { networkInterfaceId: number; params: Record<string, unknown> };
-type ToggleMutation = VpsMutationSnapshot & { enable: boolean; reason?: string };
-type PtrMutation = VpsMutationSnapshot & { hostIpId: number; reverseRecordValue: string };
-type HostMutation = VpsMutationSnapshot & { hostIpId: number };
-type AssignHostMutation = HostMutation & { networkInterfaceId: number };
-type CreateHostsMutation = VpsMutationSnapshot & { ipId: number; addresses: string[] };
-type IpMutation = VpsMutationSnapshot & { ipId: number; lockRef: ObjectRef; intent: LocalMutationIntent };
-type OwnerMutation = IpMutation & { user: number | null; environment: number | null };
 export function VpsNetworkPage() {
   const auth = useAuth();
   const { basePath, mode } = useAppMode();
@@ -272,8 +251,7 @@ export function VpsNetworkPage() {
     }
   };
   // VPS-level enable_network toggle (admin only)
-  const [confirmDisableOpen, setConfirmDisableOpen] = useState(false);
-  const [confirmEnableOpen, setConfirmEnableOpen] = useState(false);
+  const [networkToggle, setNetworkToggle] = useState<'enable' | 'disable' | null>(null);
   const [changeReason, setChangeReason] = useState('');
   const [netToggleError, setNetToggleError] = useState<string | null>(null);
   // audit:ignore missing-local-lock -- acquired by acquireMutationContext
@@ -289,12 +267,8 @@ export function VpsNetworkPage() {
     onSuccess: (r, vars, context) => {
       if (vars.vpsId === vpsId) {
         setNetToggleError(null);
-        if (vars.enable) {
-          setConfirmEnableOpen(false);
-        } else {
-          setConfirmDisableOpen(false);
-          setChangeReason('');
-        }
+        setNetworkToggle(null);
+        if (!vars.enable) setChangeReason('');
       }
       qc.invalidateQueries({ queryKey: ['vps', 'show', { id: vars.vpsId }] });
       qc.invalidateQueries({ queryKey: ['network_interface', 'list', { vpsId: vars.vpsId, limit: 100 }] });
@@ -658,12 +632,12 @@ export function VpsNetworkPage() {
         onDisableNetwork={() => {
           toggleNetM.reset();
           setNetToggleError(null);
-          setConfirmDisableOpen(true);
+          setNetworkToggle('disable');
         }}
         onEnableNetwork={() => {
           toggleNetM.reset();
           setNetToggleError(null);
-          setConfirmEnableOpen(true);
+          setNetworkToggle('enable');
         }}
         onRefreshRoutes={() => void ipsQ.refetch()}
         onRefreshHosts={() => void hostAddrsQ.refetch()}
@@ -1144,81 +1118,31 @@ export function VpsNetworkPage() {
         </div>
       </ConfirmDialog>
 
-      <ConfirmDialog
-        testId="vps.network.disable_confirm"
-        open={confirmDisableOpen}
-        title={t('vps.network.disable_dialog.title')}
-        description={t('vps.network.disable_dialog.description')}
-        danger
-        confirmLabel={t('vps.network.disable_button')}
-        confirmLoading={toggleNetM.isPending}
-        confirmDisabled={!gate.allowed}
+      <VpsNetworkToggleDialog
+        enable={networkToggle === 'enable'}
+        open={networkToggle !== null}
+        vpsId={vpsId}
+        objectLabel={objectLabel}
+        pending={toggleNetM.isPending}
+        allowed={gate.allowed}
+        error={netToggleError}
+        reason={changeReason}
+        onReasonChange={setChangeReason}
         onCancel={() => {
           toggleNetM.reset();
           setNetToggleError(null);
-          setConfirmDisableOpen(false);
+          setNetworkToggle(null);
         }}
         onConfirm={async () => {
           try {
-            await toggleNetM.mutateAsync({ ...snapshotVpsMutation(), enable: false, reason: changeReason });
+            await toggleNetM.mutateAsync({
+              ...snapshotVpsMutation(), enable: networkToggle === 'enable', reason: changeReason,
+            });
           } catch {
             // errors are shown via netToggleError
           }
         }}
-      >
-        <div className="space-y-3">
-          <VpsConfirmTarget vpsId={vpsId} objectLabel={objectLabel} testId="vps.network.disable_confirm.target" />
-          {netToggleError ? (
-            <Alert variant="danger" testId="vps.network.disable_confirm.error">
-              {netToggleError}
-            </Alert>
-          ) : null}
-          <div>
-            <div className="text-xs font-medium text-muted">{t('vps.network.change_reason.label')}</div>
-            <div className="mt-1">
-              <Input
-                testId="vps.network.disable.reason"
-                value={changeReason}
-                onChange={(e) => setChangeReason(e.target.value)}
-                placeholder={t('vps.network.change_reason.placeholder')}
-                autoComplete="off"
-              />
-            </div>
-            <div className="mt-1 text-xs text-muted">{t('vps.network.change_reason.help')}</div>
-          </div>
-        </div>
-      </ConfirmDialog>
-
-      <ConfirmDialog
-        testId="vps.network.enable_confirm"
-        open={confirmEnableOpen}
-        title={t('vps.network.enable_dialog.title')}
-        description={t('vps.network.enable_dialog.description')}
-        confirmLabel={t('vps.network.enable_button')}
-        confirmLoading={toggleNetM.isPending}
-        confirmDisabled={!gate.allowed}
-        onCancel={() => {
-          toggleNetM.reset();
-          setNetToggleError(null);
-          setConfirmEnableOpen(false);
-        }}
-        onConfirm={async () => {
-          try {
-            await toggleNetM.mutateAsync({ ...snapshotVpsMutation(), enable: true });
-          } catch {
-            // errors are shown via netToggleError
-          }
-        }}
-      >
-        <div className="space-y-3">
-          <VpsConfirmTarget vpsId={vpsId} objectLabel={objectLabel} testId="vps.network.enable_confirm.target" />
-          {netToggleError ? (
-            <Alert variant="danger" testId="vps.network.enable_confirm.error">
-              {netToggleError}
-            </Alert>
-          ) : null}
-        </div>
-      </ConfirmDialog>
+      />
     </div>
   );
 }
