@@ -1,3 +1,9 @@
+## 2026-10-28 — Prepare mobile touch fix on dev
+
+The maintainer authorizes dev-only deployment of PR99 after investigation.
+Preserve the current PR97/98 preview; main and production remain unchanged.
+See [scope and verification](docs/work-log/2026-10-28-mobile-touch-dev-preview.md).
+
 ## 2026-10-28 — Mobile Safari first-tap investigation
 
 Investigate the maintainer's intermittent missed taps on the deployed dev
