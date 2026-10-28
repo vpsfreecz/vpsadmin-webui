@@ -33,6 +33,12 @@ production update or main merge. The [mobile touch follow-up](../work-log/2026-1
 adds PR99 on dev at clean `91ac3f64cb92` while preserving those two previews.
 It records the maintainer's preference and isolated development-machine browser
 runner for subsequent dev acceptance, with fixture versus live evidence separated.
+The [completed three-site release](../work-log/2026-10-28-three-site-release.md)
+promotes PR97/98/99 plus the synchronous maintenance-preference correction
+PR101 to all three sites as clean `606a02c19f32`. It records exact-head CI,
+369 served-bundle browser checks, real anonymous/auth/runtime evidence,
+retained API/OS pins and one published WebUI-only configuration update.
+Earlier preview-only states above are historical observations.
 Check live state again before an update.
 
 The [package guide](PACKAGING.md) defines output contents and provenance. Keep

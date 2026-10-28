@@ -17,8 +17,9 @@ which missed this actual backend contract.
 Allow successful receipt-free responses only for a payload containing exactly
 that boolean field. Reject malformed supplied receipts and mixed payloads;
 retain all other blocking-action checks and the existing lifetime exception.
-On immediate completion, keep the mutation pending/locked until a fresh read of
-the frozen VPS ID confirms the exact boolean. Continue polling a valid supplied
+On immediate completion, keep the mutation pending/locked during a fresh read of
+the frozen VPS ID. Confirm success only if it returns the exact boolean; a failed
+or mismatching read retains the draft and displays failure. Continue polling a valid supplied
 action state, and preserve ambiguity guards for malformed receipts and network
 failures. No fabricated task, automatic retry, global lock clearing, API/default
 consent change, credential change or production write is introduced.
@@ -52,3 +53,14 @@ checkout and rerun the entire scoped suite with zero retries. Do not label the
 interrupted/failed first run green or relax permission/receipt assertions.
 Targeted final browser and combined release outcomes follow in the release
 receipt; they remain pending at this feature commit.
+
+
+## Completed release
+
+PR101 merged through PR100 and is deployed on dev, clankerdev and newadmin as
+clean `606a02c19f32`. Exact-head CI and combined ci:pr passed; the isolated
+candidate suite passed 51 cases, and the final three-site acceptance passed
+369 served-bundle cases without retries. See the
+[release receipt](2026-10-28-three-site-release.md) for exact revisions,
+failed-attempt history, captures, package/health checks, published configuration
+pin and the limits of fixture versus live verification.

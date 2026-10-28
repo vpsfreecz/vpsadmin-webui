@@ -1,3 +1,12 @@
+## 2026-10-28 — Complete the reviewed three-site release
+
+Merge PR97/98/99/101 through PR100 and deploy clean `606a02c19f32` to all
+three WebUI sites. Exact-head CI, paired package/runtime verification, seven
+newadmin health checks and 369 served-bundle browser cases passed. Publish one
+WebUI-only configuration pin; preserve API/OS/session/credential state and
+excluded colleagues' PRs. See the [completed receipt](docs/work-log/2026-10-28-three-site-release.md)
+for evidence, screenshots, rollback and existing uncertainty reconciliation.
+
 ## 2026-10-28 — Correct synchronous VPS preference acknowledgement
 
 A production maintenance-page report exposed an incorrect mandatory-task assumption

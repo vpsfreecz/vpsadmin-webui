@@ -273,7 +273,9 @@ update chain saves this DB-only field immediately. A supplied receipt must still
 be valid and is polled normally. Mixed payloads and other blocking operations
 retain their mandatory receipt checks; the existing lifetime-only exception is
 unchanged. The UI waits for a successful fresh read of the frozen VPS ID and
-exact boolean before confirming, while keeping its durable mutation lock.
+exact boolean before confirming. Its durable mutation lock remains held during
+the read-back attempt; an unavailable/mismatching read retains the draft and
+does not show success.
 Malformed receipt/network ambiguity does not become synchronous success.
 
 Maintenance-window edits use their separate `/maintenance_windows/:weekday`
