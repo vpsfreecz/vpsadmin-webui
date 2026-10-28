@@ -69,7 +69,7 @@ test.describe('Transactions items list keyset pagination', () => {
     await expect(page.getByTestId('transactions.items.row.251')).toBeVisible();
     await expect(page.getByTestId('transactions.items.row.250')).toHaveCount(0);
     await expect(page.getByTestId('transactions.items.row.300')).toHaveAttribute('data-row-variant', 'danger');
-    await expect(page.getByTestId('transactions.items.row.299')).toHaveAttribute('data-row-variant', 'ok');
+    await expect(page.getByTestId('transactions.items.row.299')).not.toHaveAttribute('data-row-variant', 'ok');
     await expect(page.getByTestId('transactions.items.row.300.dot')).toBeVisible();
     expect(requests[0]).toEqual({ limit: 51, fromId: null });
 
@@ -143,10 +143,14 @@ test.describe('Transactions items list keyset pagination', () => {
 
     await expect(page).toHaveURL(/\/admin\/transactions\/items\?.*transaction_chain=123/);
     await expect(page.getByTestId('transactions.items.row.300')).toBeVisible();
-    await expect(page.locator('a[href="/admin/transactions/items/300"]')).toHaveCount(2);
+    const row = page.getByTestId('transactions.items.row.300');
+    await expect(row.getByRole('link', { name: '#300', exact: true }).filter({ visible: true })).toBeVisible();
+    await expect(row.getByRole('link', { name: 'Tx 300', exact: true })).toHaveAttribute('href', '/admin/transactions/items/300');
+    await page.getByTestId('transactions.items.row.300.toggle').click();
+    const details = page.getByTestId('transactions.items.row.300.expanded');
     await expect(page.locator('a[href="/admin/transactions/123"]')).toBeVisible();
-    await expect(page.locator('a[href="/admin/transactions?user=7"]')).toBeVisible();
-    await expect(page.locator('a[href="/admin/transactions?class_name=Vps&row_id=100"]')).toBeVisible();
+    await expect(details.locator('a[href="/admin/transactions?user=7"]')).toBeVisible();
+    await expect(details.locator('a[href="/admin/transactions?class_name=Vps&row_id=100"]')).toBeVisible();
     await page.getByTestId('transactions.items.advanced.open').click();
     await expect(page.getByTestId('transactions.items.advanced.drawer')).toBeVisible();
     await expect(page.getByTestId('transactions.items.advanced.chain')).toBeVisible();

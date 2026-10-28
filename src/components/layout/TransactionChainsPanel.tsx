@@ -294,7 +294,7 @@ export function TransactionChainsPanel(props: {
           <div className="flex flex-col items-end gap-2">
             <Badge variant={badge.variant}>{badge.label}</Badge>
             {pct !== null ? (
-              <div className="text-xs text-faint">{finished && countLabel ? countLabel : countLabel ? `${countLabel} · ${pct}%` : `${pct}%`}</div>
+              <div className="text-xs text-faint">{countLabel ? `${countLabel} · ${pct}%` : `${pct}%`}</div>
             ) : null}
 
             <div className="flex items-center gap-2">

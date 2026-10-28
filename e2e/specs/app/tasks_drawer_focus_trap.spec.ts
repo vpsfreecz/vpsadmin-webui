@@ -71,14 +71,14 @@ test('@workflow-matrix @pr-smoke Tasks drawer cards stay readable in the narrow 
 
   const drawer = page.getByTestId('tasks.drawer');
   const row = page.getByTestId('tasks.row.79');
-  const actions = page.getByTestId('tasks.row.actions.79');
+  const actions = page.getByTestId('tasks.inspect.open.79');
 
   await expect(drawer).toBeVisible();
   await expect(row).toBeVisible();
   await expect(actions).toBeVisible();
   await expect(row.getByText('Stop virtual private server')).toBeVisible();
-  await expect(row.getByText(/(created|vytvořeno)/i)).toBeVisible();
-  await expect(row.getByText(/(updated|upraveno)/i)).toBeVisible();
+  await expect(row).toContainText('2026');
+  await expect(row.getByRole('progressbar')).toHaveCount(0);
 
   const drawerBox = await drawer.boundingBox();
   const rowBox = await row.boundingBox();

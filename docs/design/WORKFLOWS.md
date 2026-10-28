@@ -197,10 +197,14 @@ Nothing is changed simply by opening the page or selecting a choice.
 A deliberate Save sends only `vps.allow_admin_modifications` to the existing VPS
 update action. Owner/member and administrator scope, state gates, fresh busy
 preflight and durable uncertainty handling remain. The request freezes its VPS
-ID and choice before asynchronous lock acquisition. The returned action receipt
-is tracked in Tasks; accepted is not completed. Success requires both a successful
-finished action and a new successful VPS read with the requested boolean.
-Rejection retains the draft; a missing receipt locks retry until reconciliation.
+ID and choice before asynchronous lock acquisition. An isolated boolean preference
+write may complete synchronously without an action receipt; the API's empty update
+chain saves this DB-only field immediately. Confirm it only after a successful
+fresh read of that exact VPS returns the requested boolean. If an action receipt
+is supplied, validate and track it in Tasks and wait for successful completion
+before the same read-back. Malformed supplied receipts, network ambiguity and
+other asynchronous updates still fail closed. A rejection retains the draft;
+unconfirmed read-back never displays success or creates a fictitious task.
 Support's administrative view is read-only. No API or default-consent change is
 part of this workflow.
 
@@ -659,14 +663,40 @@ blind retry. [Finance](../../src/lib/api/finance.ts),
 ## Tasks, transactions, monitoring, incidents and OOM
 
 Transaction history uses compact aligned ID/time/owner/object/action/state
-columns on desktop and folds metadata under the action on small screens. ID
+columns on desktop and folds metadata under the action on small screens. The
+owner column appears only in administrator mode; a normal member and an admin's
+My view do not repeat their own identity in every row. This is presentation only:
+server scope, owner/session filters and authorization are unchanged. Pinned chains
+use the warning/orange row tint and the existing unpin control without a
+separate pinned badge or extra row height; failed chains retain the
+red tint even when pinned. Transaction tables use opaque semantic alert
+backgrounds for these warm tints, including hover, instead of the blue-theme
+general row blends; other tables retain their palette. The pin control exposes its pressed state and toggles
+back to Unpin. Completed unpinned chains remain neutral. Known progress always includes
+counts and percentages, including completed/failed chains. ID
 links open chain detail; named object filter pivots, direct object links and
 pinning retain their semantics. Chain detail presents one summary followed by
 chronologically ordered steps, with local text/state filters and inline readable
 input/output expansion. Copy preserves the original payload. A partial loaded
-step set is labelled explicitly; the individual-transactions list retains its
-server pagination. Successful history stays neutral while active/error work
-remains highlighted. Tasks retains its workflow with the same visual priorities.
+step set is labelled explicitly. The individual-transactions list uses the same
+compact ID/step/node/VPS/state/duration layout and responsive column contract,
+with creation time and chain navigation beneath the operation. Its chevron opens
+the shared readable step details, including start/finish times, user/type/priority,
+dependencies and exact payload copying. Node/type/chain/VPS filter pivots remain
+available, with technical filters in the expanded row. Successful items stay
+neutral; failure rows stay red. The item list retains its server pagination,
+filters, route normalization and polling. Successful history stays neutral while active/error work
+remains highlighted. Tasks applies the same priorities to tracked actions: compact
+neutral completed cards show title/state, one receipt/chain reference, target,
+creation time and step count. The title opens inspection with both timestamps,
+backend details and chain navigation. Matching action/chain IDs appear once;
+different IDs remain distinguishable. Tasks has no pin/unpin controls or pinned
+sections, including inspection and background chains; existing stored pins remain
+scoped for transaction/history pages. Hide uses a labelled 44px coarse-pointer
+icon button. Known progress includes counts and percentage even when completed. Active progress bars and failure summaries remain
+visible; no completed 100% bar or repeated update-time line consumes history
+space. Cancellation still requires confirmation and the current API capability.
+Search, account-scoped persistence, receipt merging and polling are unchanged.
 
 **Intent:** inspect asynchronous action states/chains/items, monitoring events,
 incident reports and memory-exhaustion reports/rules/tasks/stats. These explain
@@ -890,3 +920,13 @@ Definitive rejection keeps the dialog; ambiguous success/failure is reconciled b
 exact read-back and remains blocked if unverifiable. Support has no maintenance
 control and ordinary member mode has no Nodes route.
 [Review evidence](../work-log/2026-10-19-nodes-overview-maintenance.md).
+
+
+### Lookup popover touch bounds (2026-10-28)
+
+REQ-010: user/node suggestions remain inside the visual viewport and clipping
+ancestors, opening upwards or reducing their internal scroll height as needed.
+Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
+selection, outside blur, native completed-click activation and query scoping;
+never select on touch-down or replay an uncertain tap. See the
+[mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).

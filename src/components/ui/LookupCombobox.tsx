@@ -2,6 +2,7 @@ import React, { useEffect, useId, useRef, useState } from 'react';
 import { useI18n } from '../../app/i18n';
 import { Input } from './Input';
 import { clsx } from './clsx';
+import { useClippedPopover } from '../../lib/hooks/useClippedPopover';
 
 export interface LookupOption<T> {
   value: T;
@@ -35,10 +36,12 @@ export function LookupCombobox<T>(props: {
   const input = useRef<HTMLInputElement>(null);
   const wrapper = useRef<HTMLDivElement>(null);
   const list = useRef<HTMLUListElement>(null);
+  const popup = useRef<HTMLDivElement>(null);
   const blurTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const [active, setActive] = useState(-1);
   const expanded = props.open && props.showSuggestions && !props.disabled;
   const options = props.options;
+  const popupStyle = useClippedPopover(expanded, wrapper, popup);
 
   useEffect(() => {
     setActive(options.length ? 0 : -1);
@@ -128,6 +131,8 @@ export function LookupCombobox<T>(props: {
       />
       {expanded ? (
         <div
+          ref={popup}
+          style={popupStyle}
           className="absolute left-0 right-0 z-50 mt-1 max-h-64 overflow-y-auto overscroll-contain rounded-md border border-border bg-overlay-surface shadow-panel"
           data-testid={props.testId ? `${props.testId}.dropdown` : undefined}
           data-overlay="popover"

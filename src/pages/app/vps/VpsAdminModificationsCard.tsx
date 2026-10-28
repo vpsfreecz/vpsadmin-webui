@@ -70,8 +70,21 @@ export function VpsAdminModificationsCard() {
       const ref = objectRef('Vps', choice.vpsId);
       return { ref, generation: await chrome.acquireLocalLock(ref, { durable: true }) };
     },
-    onSuccess: (response, choice, context) => {
-      const id = getMetaActionStateId(response.meta)!; // updateVps requires this receipt.
+    onSuccess: async (response, choice, context) => {
+      const id = getMetaActionStateId(response.meta);
+      if (id === undefined) {
+        // This preference may be persisted immediately without a task. Read the
+        // exact submitted VPS back before confirming it or releasing its lock.
+        const queryKey = ['vps', 'show', { id: choice.vpsId }];
+        await qc.invalidateQueries({ queryKey, exact: true, refetchType: 'all' });
+        const fresh = qc.getQueryData<Vps>(queryKey);
+        const readBack = qc.getQueryState(queryKey);
+        const confirmed = readBack?.status === 'success'
+          && fresh?.id === choice.vpsId && fresh.allow_admin_modifications === choice.allow;
+        setResult(confirmed ? 'saved' : 'failed');
+        if (confirmed) setDraft(null);
+        return;
+      }
       setPending({ id, allow: choice.allow });
       chrome.trackActionState(id, {
         actionLabelKey: 'vps.admin_modifications.title',

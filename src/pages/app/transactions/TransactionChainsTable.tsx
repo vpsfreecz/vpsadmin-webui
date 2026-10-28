@@ -106,7 +106,7 @@ export function TransactionChainsTable(props: TransactionChainsTableProps) {
     <TableCard
       testId="transactions.table"
       minWidth="full"
-      tableClassName="table-fixed"
+      tableClassName="table-fixed transactions-table-status"
       footer={
         props.showPagination !== false && !props.queryId ? (
           <KeysetPagination
@@ -129,10 +129,10 @@ export function TransactionChainsTable(props: TransactionChainsTableProps) {
         <tr className="border-b border-border text-left text-xs text-muted">
           <th className="hidden w-24 px-3 py-2 md:table-cell">{t('common.id')}</th>
           <th className="hidden w-44 px-3 py-2 xl:table-cell">{t('common.created')}</th>
-          <th className="hidden w-24 px-3 py-2 xl:table-cell">{t('common.user')}</th>
+          {basePath === '/admin' ? <th className="hidden w-24 px-3 py-2 xl:table-cell">{t('common.user')}</th> : null}
           <th className="hidden w-40 px-3 py-2 xl:table-cell">{t('common.concerns')}</th>
           <th className="px-3 py-2">{t('transactions.chains.table.operation')}</th>
-          <th className="w-28 px-2 py-2 sm:w-32 sm:px-3">{t('transactions.chains.table.state_progress')}</th>
+          <th className="w-32 px-2 py-2 sm:w-44 sm:px-3">{t('transactions.chains.table.state_progress')}</th>
           <th className="w-14 px-1 py-2 sm:w-20">
             <span className="sr-only">{t('common.actions')}</span>
           </th>
@@ -158,7 +158,7 @@ export function TransactionChainsTable(props: TransactionChainsTableProps) {
               key={id}
               testId={`transactions.row.${id}`}
               to={`${basePath}/transactions/${id}`}
-              variant={failed ? 'danger' : finished ? undefined : 'warn'}
+              variant={failed ? 'danger' : row.pinned || !finished ? 'warn' : undefined}
               className="border-b border-border/60 align-middle last:border-b-0"
             >
               <td className="hidden px-3 py-2 text-xs md:table-cell">
@@ -167,6 +167,7 @@ export function TransactionChainsTable(props: TransactionChainsTableProps) {
                 </Link>
               </td>
               <td className="hidden px-3 py-2 text-xs text-muted xl:table-cell">{created}</td>
+              {basePath === '/admin' ? (
               <td className="hidden break-words px-3 py-2 text-xs xl:table-cell">
                 {userId && basePath === '/admin' ? (
                   <Link
@@ -180,6 +181,7 @@ export function TransactionChainsTable(props: TransactionChainsTableProps) {
                   (refLabel(user) ?? t('common.na'))
                 )}
               </td>
+              ) : null}
               <td className="hidden px-3 py-2 text-xs xl:table-cell">{objectLinks(chain)}</td>
               <td className="px-3 py-2">
                 <div className="flex items-start gap-2">
@@ -218,11 +220,7 @@ export function TransactionChainsTable(props: TransactionChainsTableProps) {
                 <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                   <Badge variant={badge.variant}>{badge.label}</Badge>
                   <div className="text-xs text-muted" data-testid={`transactions.row.${id}.progress`}>
-                    {finished
-                      ? (progress ?? t('common.na'))
-                      : progress && percent !== null
-                        ? `${progress} · ${percent}%`
-                        : t('common.na')}
+                    {progress && percent !== null ? `${progress} · ${percent}%` : (progress ?? t('common.na'))}
                   </div>
                 </div>
                 {percent !== null && !finished ? (
@@ -268,6 +266,7 @@ export function TransactionChainsTable(props: TransactionChainsTableProps) {
                     variant="ghost"
                     className="w-10 shrink-0"
                     onClick={() => props.onTogglePinned(id)}
+                    aria-pressed={row.pinned}
                     title={row.pinned ? t('tasks.action.unpin') : t('tasks.action.pin')}
                     ariaLabel={row.pinned ? t('transactions.chains.unpin.aria') : t('transactions.chains.pin.aria')}
                   >

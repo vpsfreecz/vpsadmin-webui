@@ -1,3 +1,43 @@
+## 2026-10-28 — Correct synchronous VPS preference acknowledgement
+
+A production maintenance-page report exposed an incorrect mandatory-task assumption
+for the DB-only admin-team preference. Recognize only that isolated boolean write
+as synchronous, verify exact VPS read-back, and retain all async/ambiguity guards.
+Protect independent Sunday edits. See [contract and evidence](docs/work-log/2026-10-28-vps-admin-preference-sync.md).
+## 2026-10-28 — Prepare approved three-site release
+
+The maintainer approves PR97/98/99 after testing dev, then explicitly adds
+the maintenance-page fix PR101 before merge and
+activation on all three WebUI sites. Preserve other contributors and existing
+OS/API/credential pins. See [release scope and evidence](docs/work-log/2026-10-28-three-site-release.md).
+
+## 2026-10-28 — Deploy mobile touch fix on dev
+
+The maintainer authorizes dev-only deployment of PR99 after investigation.
+Clean `91ac3f64cb92` preserves PR97/98 and adds the verified lookup fix after
+all exact-head CI checks pass. Main and production remain unchanged. Subsequent
+browser acceptance runs on the development machine against dev, as requested;
+intermittent physical iPhone menu taps remain unreproduced.
+See [scope and verification](docs/work-log/2026-10-28-mobile-touch-dev-preview.md).
+
+## 2026-10-28 — Mobile Safari first-tap investigation
+
+Investigate the maintainer's intermittent missed taps on the deployed dev
+preview. Confirm a user/node suggestion list can extend behind a dialog footer
+in WebKit and Chrome. Prepare bounded placement and raw-touch regression tests;
+other audited flows passed, so do not claim every reported Safari issue is fixed.
+See [evidence and limitations](docs/work-log/2026-10-28-mobile-safari-first-tap.md).
+
+## 2026-10-28 — Deploy dev review feedback refresh
+
+The maintainer requested dev-only rollout after CI for the exact PR97/98
+feedback heads: no Tasks pinning, stable pinned table rows and percentages.
+Clean `3f77b8f5720a` is deployed only on dev after all 12 GitHub checks passed.
+Combined ci:pr, 72 source and 72 served-bundle fixture checks, three unmocked
+anonymous browser contexts and auth/runtime checks passed. Preserve the previous
+paired release and independent PR histories; no main merge/production update.
+See [scope, verification and captures](docs/work-log/2026-10-28-dev-preview-feedback.md).
+
 # Project work log
 
 This is the versioned record of work on vpsAdmin WebUI Next (Clankerdev),
@@ -8,6 +48,34 @@ Git history, deployment runbooks, or issue tracker.
 Dates below use Europe/Prague unless an explicit UTC timestamp is given.
 Entries before the start date are selective retrospective summaries, not a
 complete reconstruction of the project. Missing evidence is not a passing check.
+
+## 2026-10-28 — Dev preview of PR97 and PR98
+
+Deployed an isolated combined preview at the maintainer's explicit request:
+clean runtime `08154f07c9bd`, PR97 and PR98, dev only. Combined ci:pr, 88 source
+and 88 deployed-bundle fixture checks, auth smoke and three unmocked anonymous
+browser contexts passed. Production remains at `2d361c571eac`.
+See [scope, checks and deployment receipt](docs/work-log/2026-10-28-dev-preview.md).
+Main and individual PRs remain unmerged; production is outside this request.
+
+## 2026-10-27 — Transaction table follow-up
+
+Prepared the maintainer's follow-up: hide the redundant owner column in My view,
+make pinned chains orange with failure taking precedence, and align individual
+items with the readable chain-step layout. See [design and verification](docs/work-log/2026-10-27-transactions-table-followup.md).
+Separate review candidate; not merged or deployed; independent of Tasks PR97.
+The 2026-10-28 review removes the height-changing Pinned badge and retains
+percentages for terminal chains; pin/unpin remains on the right.
+
+## 2026-10-27 — Compact tracked Tasks history
+
+Prepared denser tracked-action cards after the maintainer's screenshot review.
+Completed cards use a neutral surface, compact metadata and direct title
+inspection; active progress/errors, hide, cancellation and target scope
+remain available. See [design and verification](docs/work-log/2026-10-27-tasks-compact-history.md).
+The 2026-10-28 review removes pinning from the drawer and its inspection,
+retains pin preferences for transaction/history pages, and displays known
+completion percentages. Separate review candidate; not merged or deployed.
 
 ## 2026-10-27 — Authorized selected PR release
 

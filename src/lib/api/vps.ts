@@ -248,12 +248,17 @@ export async function updateVps(vpsId: number, params: Record<string, unknown>) 
     namespace: 'vps',
     params,
   });
-  // Expiration/reminder-only writes are handled synchronously by the
-  // lifetimes concern. Every other update fires the VPS update chain.
+  // Lifetime dates and an isolated admin-modification preference can be saved
+  // synchronously. Preserve receipt validation for every other update and for
+  // any action-state metadata that the server does provide.
   const lifetimeOnlyKeys = new Set(['expiration_date', 'remind_after_date', 'change_reason']);
   const lifetimeOnly = Object.keys(params).length > 0
     && Object.keys(params).every((key) => lifetimeOnlyKeys.has(key));
-  return lifetimeOnly ? res : requireActionStateResult(res, 'VPS update');
+  const preferenceOnly = Object.keys(params).length === 1
+    && typeof params['allow_admin_modifications'] === 'boolean';
+  const hasReceipt = ['action_state_id', 'state_id', 'action_state', 'state']
+    .some((key) => res.meta?.[key] != null);
+  return lifetimeOnly || (preferenceOnly && !hasReceipt) ? res : requireActionStateResult(res, 'VPS update');
 }
 
 export async function createVps(payload: CreateVpsPayload) {

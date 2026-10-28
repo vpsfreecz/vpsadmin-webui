@@ -57,6 +57,8 @@ export default defineConfig({
       testMatch: [
         '**/about.spec.ts',
         '**/transactions_readability.spec.ts',
+        '**/tasks_compact_history.spec.ts',
+        '**/transactions_table_followup.spec.ts',
         '**/ip_addresses_filters_pagination.spec.ts',
         '**/ip_addresses_suggested_request_budget.spec.ts',
         '**/admin_dashboard.spec.ts',
@@ -78,6 +80,7 @@ export default defineConfig({
         '**/nodes_overview_maintenance.spec.ts',
         '**/vps_header_system_summary.spec.ts',
         '**/mobile_touch_interactions.spec.ts',
+        '**/mobile_lookup_popover.spec.ts',
         '**/mobile_workflows.spec.ts',
         '**/payment_qr_images.spec.ts',
         '**/incident_create_context.spec.ts',

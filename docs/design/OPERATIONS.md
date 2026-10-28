@@ -24,6 +24,15 @@ Read-only endpoint checks on 2026-10-02 still found that clean full revision,
 healthy BFFs and the expected API separation. These dated observations are not
 permanent current-version pointers. On 2026-10-03, all three received clean
 release `f123a7fb`; its receipt records verification and retained rollback.
+The [2026-10-28 dev preview receipt](../work-log/2026-10-28-dev-preview.md)
+records PR97/PR98 on dev at clean `08154f07c9bd`, with production still at
+`2d361c571eac`. Main and feature PRs remain unmerged. This is dev-review evidence,
+not a production release approval. The [subsequent feedback refresh](../work-log/2026-10-28-dev-preview-feedback.md)
+records both exact green PR heads on dev as clean `3f77b8f5720a`, with no
+production update or main merge. The [mobile touch follow-up](../work-log/2026-10-28-mobile-touch-dev-preview.md)
+adds PR99 on dev at clean `91ac3f64cb92` while preserving those two previews.
+It records the maintainer's preference and isolated development-machine browser
+runner for subsequent dev acceptance, with fixture versus live evidence separated.
 Check live state again before an update.
 
 The [package guide](PACKAGING.md) defines output contents and provenance. Keep

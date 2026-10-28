@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useSyncExternalStore } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronDown, ChevronUp, ArrowUpRight, Search } from 'lucide-react';
 import type { Transaction } from '../../../lib/api/transactions';
@@ -12,21 +12,9 @@ import { Input } from '../../../components/ui/Input';
 import { Select } from '../../../components/ui/Select';
 import { Table } from '../../../components/ui/Table';
 import { TableRowLink } from '../../../components/ui/TableRowLink';
+import { useTransactionTableColumns } from './useTransactionTableColumns';
 import { TransactionStepDetails } from './TransactionStepDetails';
 import type { TransactionChainsTranslator } from './transactionChainSemantics';
-
-// Match the table's md/lg/xl visibility classes. A fixed colspan of seven
-// creates phantom columns in WebKit when the narrow table has only three.
-const columnBreakpoints = ['(min-width: 48rem)', '(min-width: 64rem)', '(min-width: 80rem)'];
-function subscribeColumns(onChange: () => void) {
-  const queries = columnBreakpoints.map((query) => window.matchMedia(query));
-  queries.forEach((query) => query.addEventListener('change', onChange));
-  return () => queries.forEach((query) => query.removeEventListener('change', onChange));
-}
-function visibleColumns() {
-  const [md, lg, xl] = columnBreakpoints.map((query) => window.matchMedia(query).matches);
-  return xl ? 7 : lg ? 5 : md ? 4 : 3;
-}
 
 export function TransactionChainSteps(props: {
   transactions: Transaction[];
@@ -38,7 +26,7 @@ export function TransactionChainSteps(props: {
   onToggle: (id: number) => void;
 }) {
   const { t, basePath } = props;
-  const columnCount = useSyncExternalStore(subscribeColumns, visibleColumns, () => 3);
+  const columnCount = useTransactionTableColumns();
   const [search, setSearch] = useState('');
   const [state, setState] = useState('all');
   const rows = useMemo(
@@ -95,7 +83,7 @@ export function TransactionChainSteps(props: {
       <Table
         testId="transactions.chain.detail.transactions.table"
         minWidth="full"
-        className="table-fixed"
+        className="table-fixed transactions-table-status"
         variant="list"
       >
         <thead>

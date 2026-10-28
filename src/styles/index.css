@@ -397,6 +397,20 @@
     font-variant-numeric: tabular-nums;
   }
 
+  /* Transaction failures/pins need warm, unmistakable full-row surfaces.
+     The general blue-theme row blends can look purple/grey; reuse the opaque
+     semantic alert backgrounds here, including on hover. Other tables keep
+     their existing palette. */
+  .table-list.transactions-table-status tbody tr[data-row-variant='warn'],
+  .table-list.transactions-table-status tbody tr[data-row-variant='warn'][data-row-clickable='true']:hover {
+    background-color: rgb(var(--c-warn-bg) / 1);
+  }
+
+  .table-list.transactions-table-status tbody tr[data-row-variant='danger'],
+  .table-list.transactions-table-status tbody tr[data-row-variant='danger'][data-row-clickable='true']:hover {
+    background-color: rgb(var(--c-danger-bg) / 1);
+  }
+
   /* Table header has a dedicated surface token (no transparent/sticky header bugs). */
   .table-list thead {
     background-color: rgb(var(--c-surface-2) / 1);
