@@ -1,3 +1,11 @@
+## 2026-10-28 — Prepare dev review feedback refresh
+
+The maintainer requested dev-only rollout after CI for the exact PR97/98
+feedback heads: no Tasks pinning, stable pinned table rows and percentages.
+Preparation preserves the existing preview and independent PR histories.
+See [scope and verification](docs/work-log/2026-10-28-dev-preview-feedback.md);
+this entry does not claim activation or a production/main update.
+
 # Project work log
 
 This is the versioned record of work on vpsAdmin WebUI Next (Clankerdev),
