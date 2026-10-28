@@ -30,6 +30,7 @@
     "e2e/specs/admin/user_detail_page.spec.ts",
     "e2e/specs/admin/user_packages_bulk_remove.spec.ts",
     "e2e/specs/admin/user_password_dialog.spec.ts",
+    "e2e/specs/app/action_state_transactions_responsive.spec.ts",
     "e2e/specs/app/admin_default_review_queue.spec.ts",
     "e2e/specs/app/admin_newslog.spec.ts",
     "e2e/specs/app/authenticated_home_smoke.spec.ts",
