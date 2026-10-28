@@ -53,8 +53,8 @@ test('@pr-smoke @pr-smoke-mobile transaction chains prioritize active and failed
   await expect(activeRow).toHaveAttribute('data-row-variant', 'warn');
   await expect(failedRow).toHaveAttribute('data-row-variant', 'danger');
 
-  await expect(page.getByTestId('transactions.row.9104.progress')).toHaveText('2/2');
-  await expect(page.getByTestId('transactions.row.9104.progress')).not.toContainText('100%');
+  await expect(page.getByTestId('transactions.row.9104.progress')).toHaveText('2/2 · 100%');
+  await expect(completedRow.getByRole('progressbar')).toHaveCount(0);
   await expect(page.getByTestId('transactions.row.9103.progress')).toContainText('1/4 · 25%');
   await expect(activeRow.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '25');
   await expect(failedRow.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '67');

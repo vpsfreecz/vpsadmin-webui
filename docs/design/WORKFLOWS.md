@@ -663,11 +663,13 @@ columns on desktop and folds metadata under the action on small screens. The
 owner column appears only in administrator mode; a normal member and an admin's
 My view do not repeat their own identity in every row. This is presentation only:
 server scope, owner/session filters and authorization are unchanged. Pinned chains
-use the warning/orange row tint and a pinned marker; failed chains retain the
+use the warning/orange row tint and the existing unpin control without a
+separate pinned badge or extra row height; failed chains retain the
 red tint even when pinned. Transaction tables use opaque semantic alert
 backgrounds for these warm tints, including hover, instead of the blue-theme
 general row blends; other tables retain their palette. The pin control exposes its pressed state and toggles
-back to Unpin. Completed unpinned chains remain neutral. ID
+back to Unpin. Completed unpinned chains remain neutral. Known progress always includes
+counts and percentages, including completed/failed chains. ID
 links open chain detail; named object filter pivots, direct object links and
 pinning retain their semantics. Chain detail presents one summary followed by
 chronologically ordered steps, with local text/state filters and inline readable

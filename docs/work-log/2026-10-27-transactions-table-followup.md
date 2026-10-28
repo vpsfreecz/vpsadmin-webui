@@ -10,8 +10,8 @@ Independent of Tasks PR97; no changes from open PRs #63/#74.
 - Remove the repetitive User column from member and admin My-view chain tables.
   Keep it in administrator mode. Owner/session scoping and API queries stay intact.
 - Failed/fatal chains already use the semantic danger row; preserve and verify
-  that actual full-row tint. Add orange warning tint and a pinned marker to pinned
-  chains, with failure taking precedence. Pin/unpin remains on the same row and
+  that actual full-row tint. Add orange warning tint to pinned chains, with failure taking precedence.
+  The 2026-10-28 review removes the extra Pinned badge to keep row height stable. Pin/unpin remains on the same row and
   now exposes its pressed state; persistence and pinned ordering are unchanged.
   Scoped transaction-table CSS uses existing opaque alert background tokens for
   warning/error rows (including hover): the general blue-theme row blends looked
@@ -73,3 +73,22 @@ runtime source is unchanged from the 76-case run.
 - [Expanded readable payload](assets/transactions-followup-20261027/items-expanded.png)
 - [Member view, mobile](assets/transactions-followup-20261027/member-mobile.png)
 - [Items, mobile Safari](assets/transactions-followup-20261027/items-mobile-safari.png)
+
+
+## 2026-10-28 maintainer review
+
+Remove the Pinned badge: orange row tint and the crossed pin/unpin control are
+sufficient. Pinning must not increase the row height. Show count and percentage
+for every known progress value, including completed/failed chains, as requested
+from the legacy UI. Widen the desktop state/progress column to avoid avoidable
+wrapping. Regression fixtures use 10/10 and compare heights before/after pinning
+for successful and failed rows in both languages and all three browser projects.
+Current dev preview `08154f07c9bd` predates this follow-up; PR update is not a
+production deployment or main merge.
+
+Follow-up verification: ci:pr passed (226 script, 57 BFF and 1,893 unit tests
+plus production build). Thirty targeted Chromium/mobile Chrome/mobile Safari
+checks passed, including equal successful/failed row heights before/after pinning,
+cs/dark and en/light, owner modes and explicit 100%/33% terminal values. The first
+run exposed the old UX assertion that deliberately hid terminal percentages;
+update it to require the requested value while still forbidding completed bars.

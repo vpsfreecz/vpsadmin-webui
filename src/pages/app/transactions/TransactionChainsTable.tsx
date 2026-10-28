@@ -132,7 +132,7 @@ export function TransactionChainsTable(props: TransactionChainsTableProps) {
           {basePath === '/admin' ? <th className="hidden w-24 px-3 py-2 xl:table-cell">{t('common.user')}</th> : null}
           <th className="hidden w-40 px-3 py-2 xl:table-cell">{t('common.concerns')}</th>
           <th className="px-3 py-2">{t('transactions.chains.table.operation')}</th>
-          <th className="w-28 px-2 py-2 sm:w-32 sm:px-3">{t('transactions.chains.table.state_progress')}</th>
+          <th className="w-32 px-2 py-2 sm:w-44 sm:px-3">{t('transactions.chains.table.state_progress')}</th>
           <th className="w-14 px-1 py-2 sm:w-20">
             <span className="sr-only">{t('common.actions')}</span>
           </th>
@@ -219,13 +219,8 @@ export function TransactionChainsTable(props: TransactionChainsTableProps) {
               <td className="px-2 py-2 sm:px-3">
                 <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                   <Badge variant={badge.variant}>{badge.label}</Badge>
-                  {row.pinned ? <Badge variant="warn"><Pin size={12} className="mr-1 inline-block shrink-0" aria-hidden="true" />{t('tasks.section.pinned')}</Badge> : null}
                   <div className="text-xs text-muted" data-testid={`transactions.row.${id}.progress`}>
-                    {finished
-                      ? (progress ?? t('common.na'))
-                      : progress && percent !== null
-                        ? `${progress} · ${percent}%`
-                        : t('common.na')}
+                    {progress && percent !== null ? `${progress} · ${percent}%` : (progress ?? t('common.na'))}
                   </div>
                 </div>
                 {percent !== null && !finished ? (
