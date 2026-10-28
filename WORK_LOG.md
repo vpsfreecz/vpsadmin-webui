@@ -13,9 +13,11 @@ complete reconstruction of the project. Missing evidence is not a passing check.
 
 Prepared denser tracked-action cards after the maintainer's screenshot review.
 Completed cards use a neutral surface, compact metadata and direct title
-inspection; active progress/errors, pin/hide, cancellation and target scope
+inspection; active progress/errors, hide, cancellation and target scope
 remain available. See [design and verification](docs/work-log/2026-10-27-tasks-compact-history.md).
-Separate review candidate; not merged or deployed.
+The 2026-10-28 review removes pinning from the drawer and its inspection,
+retains pin preferences for transaction/history pages, and displays known
+completion percentages. Separate review candidate; not merged or deployed.
 
 ## 2026-10-27 — Authorized selected PR release
 

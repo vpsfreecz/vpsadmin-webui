@@ -274,7 +274,7 @@ export function ActionStatesPanel(props: {
         <div className="mt-1 flex items-center justify-between gap-2">
           <div className="min-w-0 text-xs text-faint">
             {createdAt ? <div title={i18n.t('tasks.meta.created', { time: createdAt })}>{createdAt}</div> : null}
-            {pLabel ? <div aria-label={i18n.t('tasks.meta.progress', { progress: pLabel })}>{pLabel}{!finished && pct !== null ? ` · ${pct}%` : ''}</div> : null}
+            {pLabel ? <div aria-label={i18n.t('tasks.meta.progress', { progress: pLabel })}>{pLabel}{pct !== null ? ` · ${pct}%` : ''}</div> : null}
           </div>
           <div className="flex shrink-0 items-center gap-1" data-testid={`tasks.row.actions.${id}`}>
             {props.onTogglePin ? (

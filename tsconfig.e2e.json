@@ -60,6 +60,7 @@
     "e2e/specs/app/sidebar_status.spec.ts",
     "e2e/specs/app/snapshot_delete_availability.spec.ts",
     "e2e/specs/app/snapshot_export_shortcut.spec.ts",
+    "e2e/specs/app/task_storage_scope_isolation.spec.ts",
     "e2e/specs/app/tasks_compact_history.spec.ts",
     "e2e/specs/app/tasks_drawer_focus_trap.spec.ts",
     "e2e/specs/app/transaction_chain_detail_page.spec.ts",

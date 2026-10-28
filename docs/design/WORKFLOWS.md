@@ -670,8 +670,10 @@ remains highlighted. Tasks applies the same priorities to tracked actions: compa
 neutral completed cards show title/state, one receipt/chain reference, target,
 creation time and step count. The title opens inspection with both timestamps,
 backend details and chain navigation. Matching action/chain IDs appear once;
-different IDs remain distinguishable. Pin/hide use labelled icon buttons with
-44px coarse-pointer targets. Active progress bars and failure summaries remain
+different IDs remain distinguishable. Tasks has no pin/unpin controls or pinned
+sections, including inspection and background chains; existing stored pins remain
+scoped for transaction/history pages. Hide uses a labelled 44px coarse-pointer
+icon button. Known progress includes counts and percentage even when completed. Active progress bars and failure summaries remain
 visible; no completed 100% bar or repeated update-time line consumes history
 space. Cancellation still requires confirmation and the current API capability.
 Search, account-scoped persistence, receipt merging and polling are unchanged.
