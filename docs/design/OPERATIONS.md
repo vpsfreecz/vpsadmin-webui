@@ -24,7 +24,10 @@ Read-only endpoint checks on 2026-10-02 still found that clean full revision,
 healthy BFFs and the expected API separation. These dated observations are not
 permanent current-version pointers. On 2026-10-03, all three received clean
 release `f123a7fb`; its receipt records verification and retained rollback.
-Check live state again before an update.
+The [2026-10-28 dev preview receipt](../work-log/2026-10-28-dev-preview.md)
+records PR97/PR98 on dev at clean `08154f07c9bd`, with production still at
+`2d361c571eac`. Main and feature PRs remain unmerged. This is dev-review evidence,
+not a production release approval. Check live state again before an update.
 
 The [package guide](PACKAGING.md) defines output contents and provenance. Keep
 frontend and BFF revisions paired. The [service guide](NIXOS_SERVICE.md) describes

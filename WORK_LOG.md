@@ -11,7 +11,10 @@ complete reconstruction of the project. Missing evidence is not a passing check.
 
 ## 2026-10-28 — Dev preview of PR97 and PR98
 
-Prepared an isolated combined preview at the maintainer's explicit request.
+Deployed an isolated combined preview at the maintainer's explicit request:
+clean runtime `08154f07c9bd`, PR97 and PR98, dev only. Combined ci:pr, 88 source
+and 88 deployed-bundle fixture checks, auth smoke and three unmocked anonymous
+browser contexts passed. Production remains at `2d361c571eac`.
 See [scope, checks and deployment receipt](docs/work-log/2026-10-28-dev-preview.md).
 Main and individual PRs remain unmerged; production is outside this request.
 
