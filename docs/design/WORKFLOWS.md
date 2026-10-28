@@ -331,6 +331,22 @@ history must not lose entries due to a false cursor assumption.
 [DNS](../../src/lib/api/dns.ts), [transfers](../../src/lib/api/dnsTransfers.ts),
 [interfaces](../../src/lib/api/networkInterfaces.ts), [IP history](../../src/lib/api/ipAddresses.ts).
 
+### Admin IP owner search
+
+In Network → IP addresses, a bare positive number filters allocations by that
+member ID; it does not open an unrelated IP resource with the same ID. The first
+localized suggestion applies that owner filter. `#ID`, `id:ID` and the explicit
+Open IP suggestion still open IP detail. Exact addresses and login lookup retain
+their existing meanings. Numeric `q:` and legacy `q` URLs resolve directly to
+`user`, without a login lookup or unsupported API query parameter.
+
+Owner selection resets cursors/local pagination and retains other explicit
+filters. Without an explicit occupancy constraint, owned assigned and detached
+IPv4/IPv6 allocations (including historical prefixes) stay visible. Queries and
+reload/copy/back links preserve owner scope; unknown/failed login lookups never
+fall back to a broad inventory. Existing administrator-only owner-filter and
+route guards remain authoritative. [Review evidence](../work-log/2026-10-28-ip-search-owner.md).
+
 ### VPS DNS server shortcut
 
 VPS detail → More → DNS servers is the first daily shortcut in both member

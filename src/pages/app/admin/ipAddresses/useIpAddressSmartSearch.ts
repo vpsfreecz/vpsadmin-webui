@@ -146,6 +146,20 @@ export function useIpAddressSmartSearch({
     clearUrlFilters();
   };
 
+  const applyUserId = useCallback((id: number) => {
+    cancelLookup();
+    const next = new URLSearchParams(readCurrentSearchParamsSignature(searchParamsSignature));
+    next.set('user', String(id));
+    next.delete('q');
+    next.delete('from_id');
+    next.delete('page');
+    smartFeedbackSearchParamsSignatureRef.current = null;
+    setSmartValue('');
+    setSmartErrors([]);
+    setSmartSearchBlocked(false);
+    setSearchParams(next);
+  }, [cancelLookup, searchParamsSignature, setSearchParams]);
+
   const applySmartText = async (raw: string) => {
     const input = String(raw ?? '').trim();
     if (!input) return;
@@ -171,6 +185,10 @@ export function useIpAddressSmartSearch({
     if (tokens.length === 1) {
       const num = parseNumericToken(tokens[0] ?? '');
       if (num) {
+        if (!(tokens[0] ?? '').startsWith('#')) {
+          applyUserId(num);
+          return;
+        }
         smartFeedbackSearchParamsSignatureRef.current = null;
         openIp(num);
         setSmartValue('');
@@ -238,7 +256,10 @@ export function useIpAddressSmartSearch({
           break;
         }
         case 'q': {
-          if (looksLikeIpish(valueRaw)) {
+          const userId = parsePositiveInt(valueRaw);
+          if (userId) {
+            setNextInt('user', userId);
+          } else if (looksLikeIpish(valueRaw)) {
             const match = valueRaw.trim().match(/^(.+?)\/(\d+)$/);
             setNextAddress(match?.[1] ?? valueRaw.trim(), match?.[2]);
           } else {
@@ -309,8 +330,11 @@ export function useIpAddressSmartSearch({
 
     const qPlain = plain.join(' ').trim();
     if (qPlain) {
+      const userId = parsePositiveInt(qPlain);
       const match = qPlain.match(/^(.+?)\/(\d+)$/);
-      if (match && match[1] && (match[1].includes('.') || match[1].includes(':'))) {
+      if (userId) {
+        setNextInt('user', userId);
+      } else if (match && match[1] && (match[1].includes('.') || match[1].includes(':'))) {
         setNextAddress(match[1], match[2]);
       } else if (looksLikeIpish(qPlain)) {
         setNextAddress(qPlain);
@@ -406,6 +430,15 @@ export function useIpAddressSmartSearch({
     const suggestions: SmartFilterSuggestion[] = [];
     const num = parseNumericToken(smartNeedle);
     if (num) {
+      if (!smartNeedle.startsWith('#')) {
+        suggestions.push({
+          id: 'user',
+          primary: t('admin.ip_addresses.smart.suggest.user', { id: num }),
+          secondary: t('admin.ip_addresses.smart_help.examples.user'),
+          onPick: () => applyUserId(num),
+          testId: 'admin.ip_addresses.smart.suggest.user',
+        });
+      }
       suggestions.push({
         id: 'open',
         primary: t('admin.ip_addresses.smart.suggest.open', { id: num }),
@@ -441,7 +474,7 @@ export function useIpAddressSmartSearch({
     }
 
     return suggestions;
-  }, [openIp, setAddressFilter, smartNeedle, t]);
+  }, [applyUserId, openIp, setAddressFilter, smartNeedle, t]);
 
   return {
     smart,
