@@ -1,3 +1,9 @@
+## 2026-10-28 — OAuth redirect boundary review
+
+Prepared a focused BFF credential-forwarding defense and consistent local-path
+validation after dummy loopback reproductions. See the [finding and checks](docs/work-log/2026-10-28-oauth-redirect-boundaries.md).
+Not merged or deployed; no API or provider changes.
+
 ## 2026-10-28 — Complete the reviewed three-site release
 
 Merge PR97/98/99/101 through PR100 and deploy clean `606a02c19f32` to all

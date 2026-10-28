@@ -11,7 +11,8 @@ export function normalizeRouterBasename(routerBasename: string | undefined): str
 
 export function sanitizeLocalPath(path: string | null | undefined, fallback: string): string {
   const candidate = typeof path === 'string' ? path.trim() : '';
-  if (!candidate || !candidate.startsWith('/') || candidate.startsWith('//')) {
+  if (!candidate || !candidate.startsWith('/') || candidate.startsWith('//')
+    || /[\\\u0000-\u001f\u007f]/u.test(candidate)) {
     return fallback;
   }
 
