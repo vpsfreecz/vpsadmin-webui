@@ -27,6 +27,7 @@
     "src/components/ui/buttonStyles.ts",
     "src/lib/auth/useIdleSession.ts",
     "src/lib/hooks/useBodyScrollLock.ts",
+    "src/lib/hooks/useClippedPopover.ts",
     "src/lib/hooks/useDebouncedValue.ts",
     "src/lib/hooks/useFocusTrap.ts",
     "src/lib/hooks/useKeysetPagination.ts",

@@ -1,3 +1,11 @@
+## 2026-10-28 — Mobile Safari first-tap investigation
+
+Investigate the maintainer's intermittent missed taps on the deployed dev
+preview. Confirm a user/node suggestion list can extend behind a dialog footer
+in WebKit and Chrome. Prepare bounded placement and raw-touch regression tests;
+other audited flows passed, so do not claim every reported Safari issue is fixed.
+See [evidence and limitations](docs/work-log/2026-10-28-mobile-safari-first-tap.md).
+
 ## 2026-10-28 — Deploy dev review feedback refresh
 
 The maintainer requested dev-only rollout after CI for the exact PR97/98

@@ -80,6 +80,7 @@ export default defineConfig({
         '**/nodes_overview_maintenance.spec.ts',
         '**/vps_header_system_summary.spec.ts',
         '**/mobile_touch_interactions.spec.ts',
+        '**/mobile_lookup_popover.spec.ts',
         '**/mobile_workflows.spec.ts',
         '**/payment_qr_images.spec.ts',
         '**/incident_create_context.spec.ts',

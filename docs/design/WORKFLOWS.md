@@ -916,3 +916,13 @@ Definitive rejection keeps the dialog; ambiguous success/failure is reconciled b
 exact read-back and remains blocked if unverifiable. Support has no maintenance
 control and ordinary member mode has no Nodes route.
 [Review evidence](../work-log/2026-10-19-nodes-overview-maintenance.md).
+
+
+### Lookup popover touch bounds (2026-10-28)
+
+REQ-010: user/node suggestions remain inside the visual viewport and clipping
+ancestors, opening upwards or reducing their internal scroll height as needed.
+Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
+selection, outside blur, native completed-click activation and query scoping;
+never select on touch-down or replay an uncertain tap. See the
+[mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
