@@ -161,6 +161,13 @@ let
     recommendedProxySettings = false;
     extraConfig = proxyHeaders;
   };
+  # Metadata keeps the BFF's cache/CORP/Vary policies. nginx replaces nosniff
+  # explicitly, so suppress that upstream copy instead of emitting duplicates.
+  metadataProxyLocation = proxyLocation // {
+    extraConfig = proxyHeaders + ''
+      proxy_hide_header X-Content-Type-Options;
+    '';
+  };
   oauthProxyLocation = proxyLocation // {
     extraConfig = proxyHeaders + ''
       access_log off;
@@ -565,9 +572,9 @@ in
           "= /config.local.js" = {
             extraConfig = staticHeaders + ''add_header Cache-Control "no-store" always; return 404;'';
           };
-          "= /config.json" = proxyLocation;
-          "= /config.js" = proxyLocation;
-          "= /session.json" = proxyLocation;
+          "= /config.json" = metadataProxyLocation;
+          "= /config.js" = metadataProxyLocation;
+          "= /session.json" = metadataProxyLocation;
           "= /healthz" = healthProxyLocation;
           "= /oauth" = {
             extraConfig = ''access_log off; error_log /dev/null; add_header Cache-Control "no-store" always; add_header X-Content-Type-Options nosniff always; return 404;'';

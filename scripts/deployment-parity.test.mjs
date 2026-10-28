@@ -24,6 +24,8 @@ async function startFixture({
   secureHeaders,
   differentAsset = false,
   sessionToken = null,
+  sessionKey = null,
+  resourcePolicy = 'same-origin',
   assetPath = '/assets/index-test.js',
   assetContentType = 'application/javascript',
   assetCacheControl = 'public, max-age=2592000, immutable',
@@ -43,7 +45,7 @@ async function startFixture({
         ...common,
         'Content-Type': 'application/javascript',
         'Cache-Control': 'no-store',
-        ...(secureHeaders ? { 'Cross-Origin-Resource-Policy': 'same-origin' } : {}),
+        ...(secureHeaders ? { 'Cross-Origin-Resource-Policy': resourcePolicy } : {}),
       })
       response.end([
         'window.vpsAdmin = window.vpsAdmin || {};',
@@ -66,9 +68,9 @@ async function startFixture({
         ...common,
         'Content-Type': 'application/json',
         'Cache-Control': 'no-store',
-        ...(secureHeaders ? { 'Cross-Origin-Resource-Policy': 'same-origin' } : {}),
+        ...(secureHeaders ? { 'Cross-Origin-Resource-Policy': resourcePolicy } : {}),
       })
-      response.end(JSON.stringify({ accessToken: sessionToken, sessionExpiresAt: null }))
+      response.end(JSON.stringify({ accessToken: sessionToken, sessionExpiresAt: null, sessionKey }))
       return
     }
 
@@ -305,4 +307,26 @@ test('candidate config requires the root base path and HaveAPI metadata namespac
     await candidate.close()
     await reference.close()
   }
+})
+
+
+test('metadata policy rejects duplicate CORP instead of accepting header presence', async () => {
+  const candidate = await startFixture({ secureHeaders: true, resourcePolicy: ['same-origin', 'same-origin'] })
+  const reference = await startFixture({ secureHeaders: true })
+  try {
+    const report = await auditDeployments({ candidateOrigin: candidate.origin, referenceOrigin: reference.origin })
+    assert.equal(report.ok, false)
+    assert(report.candidateViolations.includes('config.js requires one same-origin cross-origin-resource-policy'))
+    assert(report.candidateViolations.includes('session.json requires one same-origin cross-origin-resource-policy'))
+  } finally { await candidate.close(); await reference.close() }
+})
+
+test('anonymous metadata rejects a session identity while redacting its value', async () => {
+  const candidate = await startFixture({ secureHeaders: true, sessionKey: secretThatMustNotLeak })
+  const reference = await startFixture({ secureHeaders: true })
+  try {
+    const report = await auditDeployments({ candidateOrigin: candidate.origin, referenceOrigin: reference.origin })
+    assert(report.candidateViolations.includes('anonymous session.json unexpectedly contains a session key'))
+    assert(!JSON.stringify(report).includes(secretThatMustNotLeak))
+  } finally { await candidate.close(); await reference.close() }
 })
