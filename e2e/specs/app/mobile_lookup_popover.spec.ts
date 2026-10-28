@@ -30,7 +30,20 @@ test.describe('@pr-smoke @pr-smoke-mobile lookup options inside dialogs', () => 
         const option = page.getByTestId('vps.filter.user.lookup.opt.8');
         const popup = page.getByTestId('vps.filter.user.lookup.dropdown');
         await expect(option).toBeAttached();
-        if (typeof viewport.resizeTo === 'number') await page.setViewportSize({ width: viewport.width, height: viewport.resizeTo });
+        if (typeof viewport.resizeTo === 'number') {
+          await page.setViewportSize({ width: viewport.width, height: viewport.resizeTo });
+          await expect.poll(() => page.getByTestId('vps.list.advanced_filters').evaluate((element) => {
+            const box = element.getBoundingClientRect();
+            return box.top >= 0 && box.bottom <= window.innerHeight;
+          })).toBe(true);
+        }
+        // setViewportSize resolves before WebKit/React finish resize layout.
+        // Wait for a genuinely exposed popup before the one deliberate scroll.
+        await expect.poll(() => popup.evaluate((element) => {
+          const box = element.getBoundingClientRect();
+          return [box.top + 2, box.bottom - 2].every((y) =>
+            element.contains(document.elementFromPoint(box.x + box.width / 2, y)));
+        })).toBe(true);
         await popup.evaluate((element) => { element.scrollTop = element.scrollHeight; });
         await expect.poll(() => option.evaluate((element) => {
           const box = element.getBoundingClientRect();
