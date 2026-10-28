@@ -385,20 +385,6 @@
       }
     },
     {
-      "path": "src/pages/app/vps/VpsNetworkPage.tsx",
-      "rule": "grown-over-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "d2472e6a27edbce3d6609c5675a172d122ba21f043f940dac5956f5d35743241",
-      "old": 1165,
-      "allowance": 1225,
-      "rationale": "At the recorded source revision, this file already contained VPS network and IP assignment flows; extract the coherent section with focused behavior coverage before removing this exception.",
-      "owner": "WebUI collection and page refactor implementer",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 1165
-      }
-    },
-    {
       "path": "src/pages/app/vps/VpsStoragePage.tsx",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
