@@ -1,7 +1,10 @@
-## 2026-10-28 — Prepare mobile touch fix on dev
+## 2026-10-28 — Deploy mobile touch fix on dev
 
 The maintainer authorizes dev-only deployment of PR99 after investigation.
-Preserve the current PR97/98 preview; main and production remain unchanged.
+Clean `91ac3f64cb92` preserves PR97/98 and adds the verified lookup fix after
+all exact-head CI checks pass. Main and production remain unchanged. Subsequent
+browser acceptance runs on the development machine against dev, as requested;
+intermittent physical iPhone menu taps remain unreproduced.
 See [scope and verification](docs/work-log/2026-10-28-mobile-touch-dev-preview.md).
 
 ## 2026-10-28 — Mobile Safari first-tap investigation
