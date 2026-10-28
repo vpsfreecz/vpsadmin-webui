@@ -1,6 +1,13 @@
+## 2026-10-28 — Correct synchronous VPS preference acknowledgement
+
+A production maintenance-page report exposed an incorrect mandatory-task assumption
+for the DB-only admin-team preference. Recognize only that isolated boolean write
+as synchronous, verify exact VPS read-back, and retain all async/ambiguity guards.
+Protect independent Sunday edits. See [contract and evidence](docs/work-log/2026-10-28-vps-admin-preference-sync.md).
 ## 2026-10-28 — Prepare approved three-site release
 
-The maintainer approves PR97/98/99 after testing dev and requests merge and
+The maintainer approves PR97/98/99 after testing dev, then explicitly adds
+the maintenance-page fix PR101 before merge and
 activation on all three WebUI sites. Preserve other contributors and existing
 OS/API/credential pins. See [release scope and evidence](docs/work-log/2026-10-28-three-site-release.md).
 

@@ -28,6 +28,25 @@ describe('blocking VPS API contracts', () => {
     });
   });
 
+  test.each([true, false])('accepts a synchronous isolated admin preference (%s)', async (allow) => {
+    globalThis.fetch = mockFetchOk({ _meta: {} }) as unknown as typeof fetch;
+    await expect(updateVps(12, { allow_admin_modifications: allow })).resolves.toBeDefined();
+  });
+
+  test.each([
+    { allow_admin_modifications: false, cpu: 4 },
+    { allow_admin_modifications: 'false' },
+    { allow_admin_modifications: false, change_reason: 'reason' },
+  ])('still requires a receipt for mixed or malformed preference writes', async (params) => {
+    globalThis.fetch = mockFetchOk({ _meta: {} }) as unknown as typeof fetch;
+    await expect(updateVps(12, params)).rejects.toMatchObject({ code: 'MISSING_ACTION_STATE' });
+  });
+
+  test('rejects an explicitly malformed async receipt on a preference write', async () => {
+    globalThis.fetch = mockFetchOk({ _meta: { action_state_id: 'invalid' } }) as unknown as typeof fetch;
+    await expect(updateVps(12, { allow_admin_modifications: true })).rejects.toMatchObject({ code: 'MISSING_ACTION_STATE' });
+  });
+
   test.each([
     ['start', () => vpsStart(12)],
     ['stop', () => vpsStop(12)],
