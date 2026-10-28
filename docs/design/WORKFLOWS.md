@@ -197,10 +197,14 @@ Nothing is changed simply by opening the page or selecting a choice.
 A deliberate Save sends only `vps.allow_admin_modifications` to the existing VPS
 update action. Owner/member and administrator scope, state gates, fresh busy
 preflight and durable uncertainty handling remain. The request freezes its VPS
-ID and choice before asynchronous lock acquisition. The returned action receipt
-is tracked in Tasks; accepted is not completed. Success requires both a successful
-finished action and a new successful VPS read with the requested boolean.
-Rejection retains the draft; a missing receipt locks retry until reconciliation.
+ID and choice before asynchronous lock acquisition. An isolated boolean preference
+write may complete synchronously without an action receipt; the API's empty update
+chain saves this DB-only field immediately. Confirm it only after a successful
+fresh read of that exact VPS returns the requested boolean. If an action receipt
+is supplied, validate and track it in Tasks and wait for successful completion
+before the same read-back. Malformed supplied receipts, network ambiguity and
+other asynchronous updates still fail closed. A rejection retains the draft;
+unconfirmed read-back never displays success or creates a fictitious task.
 Support's administrative view is read-only. No API or default-consent change is
 part of this workflow.
 

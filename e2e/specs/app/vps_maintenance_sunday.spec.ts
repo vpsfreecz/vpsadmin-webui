@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock } from '../../fixtures';
 
-const vps = { id: 123, hostname: 'sample.example', object_state: 'active', user: { id: 7 }, node: { id: 1 } };
+const vps = { id: 123, hostname: 'sample.example', object_state: 'active', allow_admin_modifications: true, user: { id: 7 }, node: { id: 1 } };
 const windows = () =>
   Array.from({ length: 7 }, (_, weekday) => ({
     id: 40 + weekday,
@@ -16,6 +16,10 @@ for (const level of [1, 90]) {
     page,
   }, testInfo) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+    let unrelatedWrites = 0;
+    page.on('request', (request) => {
+      if (request.method() === 'PUT' && /\/vpses\/123$/.test(new URL(request.url()).pathname)) unrelatedWrites += 1;
+    });
     const saved = windows();
     const writes: unknown[] = [];
     let reject = true;
@@ -73,6 +77,7 @@ for (const level of [1, 90]) {
     await open.check();
     await page.getByTestId('vps.maintenance.save').click();
     await expect(page.getByTestId('vps.maintenance.save_success')).toBeVisible();
+    expect(unrelatedWrites).toBe(0);
     expect(writes[3]).toEqual({ maintenance_window: { is_open: true, opens_at: 0, closes_at: 1440 } });
     await page.reload();
     await expect(open).toBeChecked();

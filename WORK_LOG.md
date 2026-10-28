@@ -1,3 +1,10 @@
+## 2026-10-28 — Correct synchronous VPS preference acknowledgement
+
+A production maintenance-page report exposed an incorrect mandatory-task assumption
+for the DB-only admin-team preference. Recognize only that isolated boolean write
+as synchronous, verify exact VPS read-back, and retain all async/ambiguity guards.
+Protect independent Sunday edits. See [contract and evidence](docs/work-log/2026-10-28-vps-admin-preference-sync.md).
+
 # Project work log
 
 This is the versioned record of work on vpsAdmin WebUI Next (Clankerdev),

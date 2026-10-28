@@ -263,3 +263,20 @@ read-back before another write. `master_lock` belongs to a parent resource and
 cannot be removed on the node. The frontend comparison detects stale state and
 reason, but cannot provide an atomic compare-and-swap guarantee absent from API.
 [Implementation, test scope and limitations](../work-log/2026-10-19-nodes-overview-maintenance.md).
+
+
+## Synchronous admin-team VPS preference (REQ-023)
+
+`PUT /vpses/:id` with exactly one boolean `vps.allow_admin_modifications` is
+allowed to return success without an action-state ID. The backend's empty VPS
+update chain saves this DB-only field immediately. A supplied receipt must still
+be valid and is polled normally. Mixed payloads and other blocking operations
+retain their mandatory receipt checks; the existing lifetime-only exception is
+unchanged. The UI waits for a successful fresh read of the frozen VPS ID and
+exact boolean before confirming, while keeping its durable mutation lock.
+Malformed receipt/network ambiguity does not become synchronous success.
+
+Maintenance-window edits use their separate `/maintenance_windows/:weekday`
+endpoint and must never submit this preference. The targeted regression covers
+Sunday 0, read-back, reload and independence in both directions. This is a
+frontend contract correction, not a backend change or production replay.
