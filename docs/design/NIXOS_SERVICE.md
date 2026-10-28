@@ -135,3 +135,10 @@ before claiming this evidence; then inspect rendered nginx and site-specific
 settings. The site must use its own metadata-selected backend/edge addresses
 and preserve the vpsAdmin input follow mapping; no production addresses or
 secrets are baked into this module.
+
+## Runtime metadata header ownership
+
+Metadata proxy locations replace upstream nosniff with exactly one nginx value.
+The BFF remains authoritative for metadata cache, CORP and Vary policies. Avoid
+adding a second CORP field: combined values no longer select same-origin. See
+the [audit, regression checks and legacy rollout limits](../work-log/2026-10-28-metadata-proxy-headers.md).
