@@ -6,7 +6,7 @@ deployment to dev.crucio.cz. Main and production remain outside this scope.
 
 ## Selected source and contract
 
-PR99 head: `3a453543ea000730f4f657920951d9f56767d06d`. It contains only
+PR99 head: `8cbb35952255068f59e45a4a57ee1d7197c96da5`. It contains only
 user/node popup bounds, touch regression coverage and documentation.
 Preserve already-previewed PR97 `f4305412` and PR98 `7dc259c7`; no other
 PR/input/API work is included. The preview merge resolves only shared work-log
@@ -30,3 +30,10 @@ Tasks/Transactions checks and the specifically reproduced footer occlusion.
 It does not identify every intermittent physical iPhone tap failure.
 Fixture sessions/API are browser-local, with no authenticated live mutation.
 Record actual CI, artifact paths, runtime pin and post-deploy results below.
+
+The initial candidate `31e9dd27` was staged but never activated: exact-head
+CI rejected the two Linux WebKit resize setup cases. The trace and follow-up
+are recorded in the feature work log. Preserve the strict first-touch assertion,
+wait for resized dialog/popup visibility before the one scroll, and build a
+new clean candidate containing the test-only correction. Runtime source has
+not changed. Dev remains at `3f77b8f5720a` until the updated exact head passes.
