@@ -1,3 +1,9 @@
+## 2026-10-28 — Prepare approved three-site release
+
+The maintainer approves PR97/98/99 after testing dev and requests merge and
+activation on all three WebUI sites. Preserve other contributors and existing
+OS/API/credential pins. See [release scope and evidence](docs/work-log/2026-10-28-three-site-release.md).
+
 ## 2026-10-28 — Deploy mobile touch fix on dev
 
 The maintainer authorizes dev-only deployment of PR99 after investigation.
