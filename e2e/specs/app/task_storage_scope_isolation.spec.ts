@@ -61,8 +61,8 @@ test('Tasks persistence never crosses authenticated user scope after a new docum
   await page.reload();
   await page.getByTestId('tasks.open-button').click();
   await expect(page.getByTestId('tasks.row.1101')).toBeVisible();
-  await expect(page.getByTestId('tasks.row.1102')).toBeVisible();
-  await expect(page.getByTestId('tasks.chain.row.1103')).toBeVisible();
+  await expect(page.getByTestId('tasks.row.1102')).toHaveCount(0);
+  await expect(page.getByTestId('tasks.chain.row.1103')).toHaveCount(0);
 
   // Values written by an older build are deliberately not attributable to
   // whichever account signs in next.
@@ -101,8 +101,8 @@ test('Tasks persistence never crosses authenticated user scope after a new docum
   await page.getByTestId('tasks.open-button').click();
 
   await expect(page.getByTestId('tasks.row.2201')).toBeVisible();
-  await expect(page.getByTestId('tasks.row.2202')).toBeVisible();
-  await expect(page.getByTestId('tasks.chain.row.2203')).toBeVisible();
+  await expect(page.getByTestId('tasks.row.2202')).toHaveCount(0);
+  await expect(page.getByTestId('tasks.chain.row.2203')).toHaveCount(0);
   await expect(page.getByTestId('tasks.row.1101')).toHaveCount(0);
   await expect(page.getByTestId('tasks.row.1102')).toHaveCount(0);
   await expect(page.getByTestId('tasks.chain.row.1103')).toHaveCount(0);

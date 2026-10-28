@@ -15,6 +15,8 @@ for (const language of ['cs', 'en'] as const) {
       transaction_chain: { id: 910 - index },
     }));
     await page.addInitScript(({ labels }) => {
+      localStorage.setItem('webui-next.pinned_action_states.user-1', '[9991]');
+      localStorage.setItem('webui-next.pinned_transaction_chains.user-1', '[9992]');
       sessionStorage.setItem('webui-next.tracked_action_states.user-1', JSON.stringify(labels.map((label, index) => ({
         id: 910 - index, addedAt: Date.now() - index, actionLabel: label,
         objectLabel: 'demo-server.example.test', object: { kind: 'Vps', id: 14 }, adminMemberId: 42,
@@ -26,7 +28,7 @@ for (const language of ['cs', 'en'] as const) {
         'GET vpses': () => ({ vpses: [], _meta: { total_count: 0 } }),
         'GET action_states': () => ({ action_states: states }),
         ...Object.fromEntries(states.map((state) => [`GET action_states/${state.id}`, () => ({ action_state: state })])),
-        'GET transaction_chains': () => ({ transaction_chains: [] }),
+        'GET transaction_chains': () => ({ transaction_chains: [{ id: 901, label: labels[1], state: 'done', progress: 1, size: 1, user: { id: 1 } }] }),
         'GET transaction_chains/910': () => ({ transaction_chain: { id: 910, label: labels[0], state: 'done', progress: 1, size: 1 } }),
         'GET transactions': () => ({ transactions: [] }),
       },
@@ -46,17 +48,20 @@ for (const language of ['cs', 'en'] as const) {
     // The same ID is no longer repeated as both receipt and chain metadata.
     expect((await row.innerText()).match(/#910/g)).toHaveLength(1);
     await expectNoDocumentHorizontalOverflow(page);
-    const pin = row.getByRole('button', { name: language === 'cs' ? 'Připnout' : 'Pin', exact: true });
+    const drawer = page.getByTestId('tasks.drawer');
+    await expect(page.getByTestId('tasks.chain.row.901')).toBeVisible();
+    await expect(page.getByTestId('tasks.chain.row.901')).toContainText('1/1 · 100%');
+    await expect(page.getByTestId('tasks.row.9991')).toHaveCount(0);
+    await expect(page.getByTestId('tasks.chain.row.9992')).toHaveCount(0);
+    await expect(drawer.getByText(language === 'cs' ? 'Připnuté' : 'Pinned', { exact: true })).toHaveCount(0);
+    await expect(drawer.getByRole('button', { name: /^(Pin|Unpin|Připnout|Odepnout)( |$)/ })).toHaveCount(0);
+    await expect(row).toContainText('1/1 · 100%');
+    const dismiss = row.getByRole('button', { name: language === 'cs' ? 'Skrýt' : 'Dismiss', exact: true });
     if (testInfo.project.name !== 'chromium') {
-      const pinBox = await pin.boundingBox();
-      expect(pinBox!.height).toBeGreaterThanOrEqual(44);
-      expect(pinBox!.width).toBeGreaterThanOrEqual(44);
+      const box = await dismiss.boundingBox();
+      expect(box!.height).toBeGreaterThanOrEqual(44);
+      expect(box!.width).toBeGreaterThanOrEqual(44);
     }
-    const glyph = await pin.locator('svg').boundingBox();
-    expect(glyph!.width).toBe(16);
-    expect(glyph!.height).toBe(16);
-    await pin.click();
-    await expect(row.getByRole('button', { name: language === 'cs' ? 'Odepnout' : 'Unpin', exact: true })).toHaveAttribute('aria-pressed', 'true');
     await page.getByTestId('tasks.filter-input').fill('does-not-match');
     await expect(row).toHaveCount(0);
     await page.getByTestId('tasks.filter-input').fill('demo-server');
@@ -67,10 +72,13 @@ for (const language of ['cs', 'en'] as const) {
     await expect(page.getByTestId('tasks.inspect.action_state.910')).toBeVisible();
     await expect(page.getByTestId('tasks.inspect.action_state.910')).toContainText(language === 'cs' ? 'Aktualizováno' : 'Updated');
     await expect(page.getByTestId('tasks.inspect.open_chain')).toHaveAttribute('href', '/admin/transactions/910');
+    await expect(drawer.getByRole('button', { name: /^(Pin|Unpin|Připnout|Odepnout)( |$)/ })).toHaveCount(0);
     await page.getByTestId('tasks.inspect.back').click();
-    await row.getByRole('button', { name: language === 'cs' ? 'Odepnout' : 'Unpin', exact: true }).click();
     await row.getByRole('button', { name: language === 'cs' ? 'Skrýt' : 'Dismiss', exact: true }).click();
-    await expect.poll(async () => page.evaluate(() => sessionStorage.getItem('webui-next.tracked_action_states.user-1'))).not.toContain('910');
+    await expect.poll(async () => page.evaluate(() => {
+      const stored: Array<{ id: number }> = JSON.parse(sessionStorage.getItem('webui-next.tracked_action_states.user-1') ?? '[]');
+      return stored.map((entry) => entry.id);
+    })).not.toContain(910);
     await expect(row.getByRole('button', { name: language === 'cs' ? 'Skrýt' : 'Dismiss', exact: true })).toHaveCount(0);
     await page.getByTestId('tasks.row.target.909').click();
     await expect(page).toHaveURL(/\/admin\/vps\/14\?user=42$/);

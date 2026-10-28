@@ -71,7 +71,7 @@ test('@workflow-matrix @pr-smoke Tasks drawer cards stay readable in the narrow 
 
   const drawer = page.getByTestId('tasks.drawer');
   const row = page.getByTestId('tasks.row.79');
-  const actions = page.getByTestId('tasks.row.actions.79');
+  const actions = page.getByTestId('tasks.inspect.open.79');
 
   await expect(drawer).toBeVisible();
   await expect(row).toBeVisible();

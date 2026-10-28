@@ -662,8 +662,6 @@ export function AppLayout(props: { children: React.ReactNode }) {
               <LazyActionStatesPanel
                 limit={10}
                 filterText={tasksFilter}
-                pinnedIds={pinnedActionStates}
-                onTogglePin={togglePinnedActionState}
               />
             </DeferredChromeSection>
             <div className="border-t pt-4">
@@ -671,8 +669,6 @@ export function AppLayout(props: { children: React.ReactNode }) {
                 <LazyTransactionChainsPanel
                   limit={10}
                   filterText={tasksFilter}
-                  pinnedIds={pinnedTransactionChains}
-                  onTogglePin={togglePinnedTransactionChain}
                 />
               </DeferredChromeSection>
             </div>
