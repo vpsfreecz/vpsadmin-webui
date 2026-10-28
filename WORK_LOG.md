@@ -1464,3 +1464,13 @@ with a longer administrator login at768px.
 without changing authentication, scope or menu handlers.
 **Verification / status:** candidate under verification; see the
 [per-change evidence](docs/work-log/2026-10-28-header-account-width.md).
+
+## 2026-10-28 — Reachable task transaction details on mobile
+
+**Request / reason:** the broad security/functional audit reproduced an actual
+mobile detail-toggle failure in member and admin task inspection.
+**Change:** responsive fixed-width transaction columns, context preserved below
+operation labels, dynamic expanded colspan and accessible touch targets.
+**Verification / status:** candidate under verification; see the
+[per-change evidence](docs/work-log/2026-10-28-action-state-mobile-layout.md).
+No API or authorization change, merge or deployment.
