@@ -1455,3 +1455,12 @@ Copy this structure for the next meaningful update; remove unused fields.
 **Status:** prepared / merged / deployed / blocked (state the target/revision).
 **Next / limitations:** concrete remaining step, risk or required decision.
 ```
+
+## 2026-10-28 — Bound header account labels across breakpoints
+
+**Request / reason:** the broad mobile audit reproduced global header overflow
+with a longer administrator login at768px.
+**Change:** constrain/truncate presentation and retain reachable account controls
+without changing authentication, scope or menu handlers.
+**Verification / status:** candidate under verification; see the
+[per-change evidence](docs/work-log/2026-10-28-header-account-width.md).
