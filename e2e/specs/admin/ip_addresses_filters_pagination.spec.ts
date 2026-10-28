@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
+import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 
 test('admin IP addresses traverse ascending API pages and paginate loaded rows locally', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name.startsWith('mobile-'), 'Desktop table pagination is covered separately from mobile cards.');
@@ -530,3 +530,81 @@ test('@pr-smoke @pr-smoke-mobile IP inventory keeps legacy IPv6 searchable and o
     await expect(page).toHaveURL(action === 'incidents' ? /\/incidents\?/ : /\/ip-address-assignments\?/);
   }
 });
+
+for (const language of ['cs', 'en'] as const) {
+  test(`@pr-smoke @pr-smoke-mobile ${language} numeric IP search filters user 5008 rather than IP 5008`, async ({ page }, testInfo) => {
+    await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+    await setUiSettingsLocalStorage(page, { language, theme: 'dark' });
+    const requests: Array<{ user: string | null; assigned: string | null; q: string | null }> = [];
+    const owned = [
+      { id: 9101, addr: '192.0.2.11', prefix: 32, network_interface: { id: 71, name: 'eth0' } },
+      { id: 9102, addr: '2001:db8:50::', prefix: 64 },
+      { id: 9103, addr: '2001:db8:50::1', prefix: 128 },
+    ].map((ip) => ({ ...ip, user: { id: 5008, login: 'sample-owner' }, routed: true }));
+    await installHaveApiMock(page, {
+      user: { id: 1, login: 'admin', level: 100 },
+      handlers: {
+        'GET locations': () => ({ locations: [] }),
+        'GET ip_addresses': (ctx) => {
+          const request = {
+            user: ctx.searchParams.get('ip_address[user]'),
+            assigned: ctx.searchParams.get('ip_address[assigned_to_interface]'),
+            q: ctx.searchParams.get('ip_address[q]'),
+          };
+          requests.push(request);
+          return { ip_addresses: request.user === '5008' ? owned : [], _meta: { total_count: request.user === '5008' ? 3 : 0 } };
+        },
+      },
+    });
+    await page.goto('/admin/networking/ip-addresses');
+    const input = page.getByTestId('admin.ip_addresses.smart_filter.input');
+    await input.fill('5008');
+    const suggestion = page.getByTestId('admin.ip_addresses.smart.suggest.user');
+    await expect(suggestion).toContainText(language === 'cs' ? 'IP adresy uživatele #5008' : 'IP addresses owned by user #5008');
+    await expect(page.getByTestId('admin.ip_addresses.smart.suggest.open')).toBeVisible();
+    await input.press('Enter');
+    await expect(page).toHaveURL(/\/admin\/networking\/ip-addresses\?user=5008$/);
+    await expect(page.getByTestId('admin.ip_addresses.chip.user')).toContainText('5008');
+    const kind = testInfo.project.name.startsWith('mobile-') ? 'card' : 'row';
+    for (const ip of owned) await expect(page.getByTestId(`admin.ip_addresses.${kind}.${ip.id}`)).toContainText(ip.addr);
+    await expect.poll(() => requests.at(-1)).toEqual({ user: '5008', assigned: null, q: null });
+    await expect(page.getByTestId('admin.ip_addresses.quick.occupancy.any')).toHaveClass(/bg-surface/);
+    await page.screenshot({ path: testInfo.outputPath(`owner-5008-${language}.png`), fullPage: true });
+
+    await page.reload();
+    await expect(page.getByTestId(`admin.ip_addresses.${kind}.9101`)).toBeVisible();
+    await page.getByTestId('admin.ip_addresses.clear').click();
+    await input.fill('5008');
+    if (testInfo.project.name.startsWith('mobile-')) await suggestion.tap();
+    else await suggestion.click();
+    await expect(page).toHaveURL(/(?:\?|&)user=5008(?:&|$)/);
+    await expect(page.getByTestId(`admin.ip_addresses.${kind}.9102`)).toBeVisible();
+
+    await page.goto('/admin/networking/ip-addresses?q=5008&limit=25&page=2&from_id=90');
+    await expect(page).toHaveURL(/(?:\?|&)user=5008(?:&|$)/);
+    await expect(page).not.toHaveURL(/(?:\?|&)(?:q|page|from_id)=/);
+    await expect(page.getByTestId(`admin.ip_addresses.${kind}.9103`)).toBeVisible();
+  });
+
+  test(`@pr-smoke @pr-smoke-mobile ${language} explicit IP IDs retain direct navigation`, async ({ page }) => {
+    await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+    await setUiSettingsLocalStorage(page, { language, theme: 'dark' });
+    await installHaveApiMock(page, {
+      user: { id: 1, login: 'admin', level: 100 },
+      handlers: {
+        'GET locations': () => ({ locations: [] }),
+        'GET ip_addresses': () => ({ ip_addresses: [] }),
+        'GET ip_addresses/5008': () => ({ ip_address: { id: 5008, addr: '192.0.2.80', prefix: 32, user: { id: 99, login: 'another-owner' } } }),
+      },
+    });
+    for (const query of ['#5008', 'id:5008']) {
+      await page.goto('/admin/networking/ip-addresses');
+      const input = page.getByTestId('admin.ip_addresses.smart_filter.input');
+      await input.fill(query);
+      await expect(page.getByTestId('admin.ip_addresses.smart.suggest.user')).toHaveCount(0);
+      await input.press('Enter');
+      await expect(page).toHaveURL(/\/admin\/networking\/ip-addresses\/5008$/);
+      await expect(page.getByTestId('admin.ip_address.header')).toContainText('192.0.2.80');
+    }
+  });
+}

@@ -1,3 +1,11 @@
+## 2026-10-28 — Filter admin IP inventory by numeric member ID
+
+A bare number in the admin network search incorrectly opened an IP detail.
+Make numeric input filter allocation ownership, with that suggestion first;
+retain explicit IP navigation via #ID, id:ID or the labeled alternative.
+Preserve other filters, role guards and API-backed traversal. See the
+[scope and verification](docs/work-log/2026-10-28-ip-search-owner.md).
+
 ## 2026-10-28 — Complete the reviewed three-site release
 
 Merge PR97/98/99/101 through PR100 and deploy clean `606a02c19f32` to all
