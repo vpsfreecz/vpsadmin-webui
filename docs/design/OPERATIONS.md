@@ -27,7 +27,9 @@ release `f123a7fb`; its receipt records verification and retained rollback.
 The [2026-10-28 dev preview receipt](../work-log/2026-10-28-dev-preview.md)
 records PR97/PR98 on dev at clean `08154f07c9bd`, with production still at
 `2d361c571eac`. Main and feature PRs remain unmerged. This is dev-review evidence,
-not a production release approval. Check live state again before an update.
+not a production release approval. The [subsequent feedback refresh](../work-log/2026-10-28-dev-preview-feedback.md)
+records both exact green PR heads on dev as clean `3f77b8f5720a`, with no
+production update or main merge. Check live state again before an update.
 
 The [package guide](PACKAGING.md) defines output contents and provenance. Keep
 frontend and BFF revisions paired. The [service guide](NIXOS_SERVICE.md) describes
