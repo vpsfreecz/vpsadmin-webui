@@ -74,3 +74,25 @@ Implemented candidate captures use synthetic data:
 - [Candidate after viewport resize](assets/mobile-safari-20261028/after-resize.png)
 
 PR, exact CI and dev deployment outcomes follow in the deployment receipt.
+
+## Linux WebKit CI resize sequencing
+
+The first remote browser run failed the two new viewport-resize cases. The
+retained trace shows the test scroll executing against the old downward popup
+(max-height 246px), before the resize layout flips it upward and shrinks it to
+204px. The old scroll offset then no longer reaches the end; the screenshot
+shows the last option clipped by the popup itself, rather than by the footer.
+Local macOS WebKit had completed this layout before the same test step.
+
+Require the popup's top and bottom hit-test points to be exposed after resize
+before the single deliberate scroll. Keep the last-option lower-edge hit-test,
+raw first touch, exact selected value/URL, and zero retries unchanged. The
+additional popup-visibility condition also rejects the original footer overlap;
+no failed tap is retried and no application guard or runtime code is weakened.
+The initial failed CI is retained as evidence, not counted as passing.
+
+Post-adjustment local checks: ci:quick passed. The new lookup matrix passed
+72 independent repetitions with zero retries, followed by a final 24-case run
+including explicit resized-dialog bounds. The strengthened visibility condition
+still fails against the old dev bundle on both mobile engines, preserving the
+negative regression proof. Runtime source is unchanged by this test-only follow-up.
