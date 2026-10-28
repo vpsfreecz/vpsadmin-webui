@@ -1,3 +1,11 @@
+## 2026-10-28 — Mobile Safari first-tap investigation
+
+Investigate the maintainer's intermittent missed taps on the deployed dev
+preview. Confirm a user/node suggestion list can extend behind a dialog footer
+in WebKit and Chrome. Prepare bounded placement and raw-touch regression tests;
+other audited flows passed, so do not claim every reported Safari issue is fixed.
+See [evidence and limitations](docs/work-log/2026-10-28-mobile-safari-first-tap.md).
+
 # Project work log
 
 This is the versioned record of work on vpsAdmin WebUI Next (Clankerdev),

@@ -178,6 +178,9 @@ records what was reproduced and what still needs real-device evidence. The
 combobox activation, preserves URL-bound drafts and sizes VPS cards/tables by
 content width. Modal/drawer geometry follows the visual viewport at normal zoom;
 keyboard shrinkage must leave actions visible without overriding pinch zoom.
+User/node lookup choices stay inside the visible viewport and every clipping
+scroll panel. They can open upwards when necessary; the last option must remain
+fully reachable by scrolling the choices, including near a fixed dialog footer.
 
 Interactive icons need accessible names; decorative icons are hidden from assistive
 technology. Focus moves predictably after navigation, modal open/close and errors.
