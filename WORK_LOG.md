@@ -9,6 +9,12 @@ Dates below use Europe/Prague unless an explicit UTC timestamp is given.
 Entries before the start date are selective retrospective summaries, not a
 complete reconstruction of the project. Missing evidence is not a passing check.
 
+## 2026-10-28 — Dev preview of PR97 and PR98
+
+Prepared an isolated combined preview at the maintainer's explicit request.
+See [scope, checks and deployment receipt](docs/work-log/2026-10-28-dev-preview.md).
+Main and individual PRs remain unmerged; production is outside this request.
+
 ## 2026-10-27 — Transaction table follow-up
 
 Prepared the maintainer's follow-up: hide the redundant owner column in My view,
