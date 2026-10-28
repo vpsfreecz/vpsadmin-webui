@@ -15,6 +15,8 @@ Prepared the maintainer's follow-up: hide the redundant owner column in My view,
 make pinned chains orange with failure taking precedence, and align individual
 items with the readable chain-step layout. See [design and verification](docs/work-log/2026-10-27-transactions-table-followup.md).
 Separate review candidate; not merged or deployed; independent of Tasks PR97.
+The 2026-10-28 review removes the height-changing Pinned badge and retains
+percentages for terminal chains; pin/unpin remains on the right.
 
 ## 2026-10-27 — Authorized selected PR release
 

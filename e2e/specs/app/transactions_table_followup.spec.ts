@@ -17,7 +17,7 @@ for (const view of ['member', 'admin-my-view', 'admin'] as const) {
       });
       const label = language === 'cs' ? 'Vytvoření VPS' : 'Create VPS';
       const chains = [
-        { id: 972, label, state: 'done', size: 2, progress: 2 },
+        { id: 972, label, state: 'done', size: 10, progress: 10 },
         { id: 971, label: language === 'cs' ? 'Přesun VPS' : 'Migrate VPS', state: 'failed', size: 3, progress: 1 },
         { id: 970, label: language === 'cs' ? 'Změna zdrojů' : 'Update resources', state: 'queued', size: 3, progress: 1 },
       ].map((chain) => ({ ...chain, user: { id: 1, login: 'demo-member' }, created_at: '2026-10-27T18:01:46Z', concerns: { type: 'affect', objects: [['Vps', 14]] } }));
@@ -49,12 +49,19 @@ for (const view of ['member', 'admin-my-view', 'admin'] as const) {
       await expect(failed).toHaveAttribute('data-row-variant', 'danger');
       // Use the existing accessible labels from the rendered controls in either language.
       const pinControl = row.locator('button[aria-pressed]');
+      const initialHeight = (await row.boundingBox())!.height;
+      const failedHeight = (await failed.boundingBox())!.height;
+      await expect(row).toContainText('10/10 · 100%');
+      await expect(failed).toContainText('1/3 · 33%');
       await pinControl.click();
       await expect(row).toHaveAttribute('data-row-variant', 'warn');
       await expect(pinControl).toHaveAttribute('aria-pressed', 'true');
+      expect(Math.abs((await row.boundingBox())!.height - initialHeight)).toBeLessThanOrEqual(1);
+      await expect(row.getByText(language === 'cs' ? 'Připnuté' : 'Pinned', { exact: true })).toHaveCount(0);
       await expect(pinControl).toHaveAttribute('title', language === 'cs' ? 'Odepnout' : 'Unpin');
       await failed.locator('button[aria-pressed]').click();
       await expect(failed).toHaveAttribute('data-row-variant', 'danger');
+      expect(Math.abs((await failed.boundingBox())!.height - failedHeight)).toBeLessThanOrEqual(1);
       await page.mouse.move(0, 0);
       for (const [target, token] of [[row, '--c-warn-bg'], [failed, '--c-danger-bg']] as const) {
         await expect.poll(() => target.evaluate((el, variable) => {
