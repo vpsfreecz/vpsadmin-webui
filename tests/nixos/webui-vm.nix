@@ -355,6 +355,10 @@ pkgs.testers.nixosTest {
     assert value(js[1], "cache-control") == "no-store"
     anonymous = assert_status(request(client, root + "/session.json", ["Sec-Fetch-Site: same-origin"]), 200)
     assert json.loads(anonymous[2])["accessToken"] is None
+    assert json.loads(anonymous[2])["sessionKey"] is None
+    for response in [config, js, anonymous]:
+        assert response[1].get("x-content-type-options") == ["nosniff"]
+        assert response[1].get("cross-origin-resource-policy") == ["same-origin"]
     assert_status(request(client, root + "/session.json", ["Sec-Fetch-Site: cross-site"]), 403)
     health = assert_status(request(client, root + "/healthz"), 200)
     assert health[2] == "ok"

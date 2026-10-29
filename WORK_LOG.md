@@ -25,6 +25,13 @@ ownership and reconciliation in the page. Promote its existing rejection/retry
 browser case into PR and mobile WebKit checks. See the [scope and verification](docs/work-log/2026-10-28-vps-network-dialog-cleanup.md).
 Prepared for review; no visual change, merge or deployment.
 
+## 2026-10-28 — Metadata proxy header audit
+
+Prepare single-policy runtime metadata headers and stronger parity/sessionKey
+validation after real duplicate-header observations. See the [finding and wire proof](docs/work-log/2026-10-28-metadata-proxy-headers.md).
+No service configuration applied, merge or deployment; effective legacy routes
+must be reviewed during any later approved rollout.
+
 ## 2026-10-28 — Complete the reviewed three-site release
 
 Merge PR97/98/99/101 through PR100 and deploy clean `606a02c19f32` to all
