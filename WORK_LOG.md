@@ -11,6 +11,13 @@ Typography parser override. Production dependencies are unchanged. See the
 [advisories, package hash and verification](docs/work-log/2026-10-28-security-dev-toolchain.md).
 Separate review candidate, not merged or deployed.
 
+## 2026-10-28 — Private audit evidence cleanup
+
+Reuse private filesystem helpers, omit credential-bearing diagnostic text and
+make authenticated captures opt-in in the legacy live-audit driver. See the
+[scope and limits](docs/work-log/2026-10-28-live-audit-privacy.md).
+Prepared for review; no runtime/deployment change.
+
 ## 2026-10-28 — Complete the reviewed three-site release
 
 Merge PR97/98/99/101 through PR100 and deploy clean `606a02c19f32` to all
