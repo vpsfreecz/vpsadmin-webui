@@ -264,12 +264,15 @@ function classifySession(body) {
         ? Object.keys(value).sort()
         : [],
       accessToken,
+      sessionKey: value && Object.hasOwn(value, 'sessionKey')
+        ? (value.sessionKey === null ? 'null' : 'present-redacted')
+        : 'absent',
       sessionExpiresAt: value && Object.hasOwn(value, 'sessionExpiresAt')
         ? (value.sessionExpiresAt === null ? 'null' : 'present-redacted')
         : 'absent',
     }
   } catch {
-    return { valid: false, keys: [], accessToken: 'absent', sessionExpiresAt: 'absent' }
+    return { valid: false, keys: [], accessToken: 'absent', sessionKey: 'absent', sessionExpiresAt: 'absent' }
   }
 }
 
@@ -285,6 +288,7 @@ function summarizeResponse(response, { hashBody = false } = {}) {
       maxAgeSeconds: cacheMaxAge(response.headers),
     },
     security: headerPresence(response.headers),
+    resourcePolicy: response.headers['cross-origin-resource-policy'] === 'same-origin' ? 'same-origin' : 'invalid-or-missing',
     securityContracts: securityContracts(response.headers),
     hasSetCookie: response.headers['set-cookie'] !== undefined,
     bytes: response.body.length,
@@ -390,14 +394,15 @@ function verifyCandidate(candidate) {
   addViolation(violations, candidate.config.shape.authHeader === 'X-HaveAPI-OAuth2-Token', 'candidate config.js auth header is invalid')
   addViolation(violations, candidate.config.shape.metaNamespace === '_meta', 'candidate config.js metadata namespace is invalid')
   addViolation(violations, !candidate.config.shape.containsSessionTokenAssignment, 'config.js contains a session token assignment')
-  addViolation(violations, candidate.config.security['cross-origin-resource-policy'], 'config.js is missing cross-origin-resource-policy')
+  addViolation(violations, candidate.config.resourcePolicy === 'same-origin', 'config.js requires one same-origin cross-origin-resource-policy')
   addViolation(violations, candidate.session.status === 200, 'same-origin anonymous session.json is not HTTP 200')
   addViolation(violations, candidate.session.mime === 'application/json', 'session.json is not application/json')
   addViolation(violations, candidate.session.cache.noStore, 'session.json is not marked no-store')
   addViolation(violations, candidate.session.shape.valid, 'session.json is not valid JSON')
-  addViolation(violations, candidate.session.shape.keys.join('\0') === 'accessToken\0sessionExpiresAt', 'session.json has an unexpected response shape')
+  addViolation(violations, candidate.session.shape.keys.join('\0') === 'accessToken\0sessionExpiresAt\0sessionKey', 'session.json has an unexpected response shape')
   addViolation(violations, candidate.session.shape.accessToken === 'null', 'anonymous session.json unexpectedly contains an access token')
-  addViolation(violations, candidate.session.security['cross-origin-resource-policy'], 'session.json is missing cross-origin-resource-policy')
+  addViolation(violations, candidate.session.shape.sessionKey === 'null', 'anonymous session.json unexpectedly contains a session key')
+  addViolation(violations, candidate.session.resourcePolicy === 'same-origin', 'session.json requires one same-origin cross-origin-resource-policy')
   addViolation(violations, candidate.health.status === 200, 'healthz is not HTTP 200')
   addViolation(violations, candidate.health.mime === 'text/plain', 'healthz is not text/plain')
   addViolation(violations, candidate.health.healthy, 'healthz does not contain the expected readiness marker')

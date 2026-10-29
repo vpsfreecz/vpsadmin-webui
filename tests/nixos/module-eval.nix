@@ -200,6 +200,14 @@ let
       &&
         lib.hasInfix "proxy_set_header X-Forwarded-For $vpsadmin_webui_client_ip"
           vhost.locations."= /session.json".extraConfig
+      &&
+        lib.all
+          (name: lib.hasInfix "proxy_hide_header X-Content-Type-Options;" vhost.locations.${name}.extraConfig)
+          [
+            "= /config.json"
+            "= /config.js"
+            "= /session.json"
+          ]
       && !(lib.hasInfix "Content-Security-Policy" vhost.locations."= /session.json".extraConfig)
       && lib.hasInfix "Content-Security-Policy" vhost.locations."/".extraConfig
       && lib.hasInfix "https://nominatim.openstreetmap.org" vhost.locations."/".extraConfig

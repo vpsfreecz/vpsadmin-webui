@@ -27,6 +27,7 @@
     "e2e/specs/admin/user_detail_page.spec.ts",
     "e2e/specs/admin/user_packages_bulk_remove.spec.ts",
     "e2e/specs/admin/user_password_dialog.spec.ts",
+    "e2e/specs/app/action_state_transactions_responsive.spec.ts",
     "e2e/specs/app/admin_default_review_queue.spec.ts",
     "e2e/specs/app/admin_newslog.spec.ts",
     "e2e/specs/app/authenticated_home_smoke.spec.ts",
@@ -37,6 +38,7 @@
     "e2e/specs/app/exports_filter_contract.spec.ts",
     "e2e/specs/app/filter_bar_chip_alignment.spec.ts",
     "e2e/specs/app/global_search_cold_start.spec.ts",
+    "e2e/specs/app/header_account_width.spec.ts",
     "e2e/specs/app/incident_create_context.spec.ts",
     "e2e/specs/app/incidents_responsive_layout.spec.ts",
     "e2e/specs/app/ip_addresses_environment_filter.spec.ts",
@@ -84,6 +86,7 @@
     "e2e/specs/app/vps_lifecycle_tab_actions.spec.ts",
     "e2e/specs/app/vps_list_row_click.spec.ts",
     "e2e/specs/app/vps_maintenance_sunday.spec.ts",
+    "e2e/specs/app/vps_network_editor_feedback.spec.ts",
     "e2e/specs/app/vps_overview_all_ips.spec.ts",
     "e2e/specs/app/vps_private_ip_availability.spec.ts",
     "e2e/specs/public/about.spec.ts",
@@ -1319,13 +1322,6 @@
     {
       "path": "e2e/specs/app/vps_network_destructive_feedback.spec.ts",
       "sha256": "cffb064bfd8cc6e855dc2bcbbd4c045c75ec4e3e034ed4ec1d865d3f407344e6",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/app/vps_network_editor_feedback.spec.ts",
-      "sha256": "5a169a8f588a66db2645fd4bb8f5a7c033aa231fdf270cc5e920ece8590b116b",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."

@@ -282,3 +282,11 @@ Maintenance-window edits use their separate `/maintenance_windows/:weekday`
 endpoint and must never submit this preference. The targeted regression covers
 Sunday 0, read-back, reload and independence in both directions. This is a
 frontend contract correction, not a backend change or production replay.
+
+## OAuth outbound and local navigation boundaries
+
+Server-side code exchange, refresh and revocation reject provider redirects;
+they retain bounded response bodies, deadlines and session serialization.
+Browser authorization navigation remains supported. Shared local return paths
+reject backslashes and control characters before basename handling; valid
+local query/fragment state is retained. See the [review and regression proof](../work-log/2026-10-28-oauth-redirect-boundaries.md).

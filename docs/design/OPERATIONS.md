@@ -39,6 +39,9 @@ PR101 to all three sites as clean `606a02c19f32`. It records exact-head CI,
 369 served-bundle browser checks, real anonymous/auth/runtime evidence,
 retained API/OS pins and one published WebUI-only configuration update.
 Earlier preview-only states above are historical observations.
+The [29 October audit-fix dev preview](../work-log/2026-10-29-audit-dev-preview.md)
+records the separately authorized PR102/104–111 candidate; production promotion
+and main merges remain outside that preview scope.
 Check live state again before an update.
 
 The [package guide](PACKAGING.md) defines output contents and provenance. Keep

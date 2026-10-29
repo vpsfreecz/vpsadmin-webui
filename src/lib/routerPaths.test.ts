@@ -33,6 +33,18 @@ describe('routerPaths', () => {
     expect(withRouterBasename('/app', '')).toBe('/app');
   });
 
+  it.each([
+    '/\\evil.test/path', '/\\\\evil.test/path', '/\t/evil.test/path',
+    '/\n/evil.test/path', '/\r/evil.test/path', '/app\u0000/path',
+    '/app\u007f/path',
+  ])('rejects ambiguous browser navigation targets: %j', (path) => {
+    expect(sanitizeLocalPath(path, '/app')).toBe('/app');
+    for (const basename of ['', '/ui-next']) {
+      const origin = 'https://webui.example.test';
+      expect(new URL(withRouterBasename(path, basename), origin).origin).toBe(origin);
+    }
+  });
+
   it('does not preserve the expired session notice as a post-login target', () => {
     expect(sanitizePostLoginPath('/?session=expired')).toBe('/app');
     expect(sanitizePostLoginPath('/?session=expired#top', '/admin')).toBe('/admin');

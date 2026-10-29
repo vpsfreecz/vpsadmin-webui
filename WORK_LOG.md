@@ -1,3 +1,45 @@
+## 2026-10-28 — OAuth redirect boundary review
+
+Prepared a focused BFF credential-forwarding defense and consistent local-path
+validation after dummy loopback reproductions. See the [finding and checks](docs/work-log/2026-10-28-oauth-redirect-boundaries.md).
+Not merged or deployed; no API or provider changes.
+
+## 2026-10-28 — Development tool security patches
+
+Prepared compatible Vite/Vitest and transitive security updates, with a narrow
+Typography parser override. Production dependencies are unchanged. See the
+[advisories, package hash and verification](docs/work-log/2026-10-28-security-dev-toolchain.md).
+Separate review candidate, not merged or deployed.
+
+## 2026-10-28 — Private audit evidence cleanup
+
+Reuse private filesystem helpers, omit credential-bearing diagnostic text and
+make authenticated captures opt-in in the legacy live-audit driver. See the
+[scope and limits](docs/work-log/2026-10-28-live-audit-privacy.md).
+Prepared for review; no runtime/deployment change.
+
+## 2026-10-28 — Network confirmation presentation cleanup
+
+Extract the duplicated enable/disable dialog presentation while keeping mutation
+ownership and reconciliation in the page. Promote its existing rejection/retry
+browser case into PR and mobile WebKit checks. See the [scope and verification](docs/work-log/2026-10-28-vps-network-dialog-cleanup.md).
+Prepared for review; no visual change, merge or deployment.
+
+## 2026-10-28 — Metadata proxy header audit
+
+Prepare single-policy runtime metadata headers and stronger parity/sessionKey
+validation after real duplicate-header observations. See the [finding and wire proof](docs/work-log/2026-10-28-metadata-proxy-headers.md).
+No service configuration applied, merge or deployment; effective legacy routes
+must be reviewed during any later approved rollout.
+
+## 2026-10-28 — Filter admin IP inventory by numeric member ID
+
+A bare number in the admin network search incorrectly opened an IP detail.
+Make numeric input filter allocation ownership, with that suggestion first;
+retain explicit IP navigation via #ID, id:ID or the labeled alternative.
+Preserve other filters, role guards and API-backed traversal. See the
+[scope and verification](docs/work-log/2026-10-28-ip-search-owner.md).
+
 ## 2026-10-28 — Complete the reviewed three-site release
 
 Merge PR97/98/99/101 through PR100 and deploy clean `606a02c19f32` to all
@@ -1455,3 +1497,50 @@ Copy this structure for the next meaningful update; remove unused fields.
 **Status:** prepared / merged / deployed / blocked (state the target/revision).
 **Next / limitations:** concrete remaining step, risk or required decision.
 ```
+
+## 2026-10-28 — Bound header account labels across breakpoints
+
+**Request / reason:** the broad mobile audit reproduced global header overflow
+with a longer administrator login at768px.
+**Change:** constrain/truncate presentation and retain reachable account controls
+without changing authentication, scope or menu handlers.
+**Verification / status:** candidate under verification; see the
+[per-change evidence](docs/work-log/2026-10-28-header-account-width.md).
+
+## 2026-10-28 — Reachable task transaction details on mobile
+
+**Request / reason:** the broad security/functional audit reproduced an actual
+mobile detail-toggle failure in member and admin task inspection.
+**Change:** responsive fixed-width transaction columns, context preserved below
+operation labels, dynamic expanded colspan and accessible touch targets.
+**Verification / status:** candidate under verification; see the
+[per-change evidence](docs/work-log/2026-10-28-action-state-mobile-layout.md).
+No API or authorization change, merge or deployment.
+
+## 2026-10-28 — Bounded WebUI security and cleanup review
+
+**Request / reason:** review maintainability, security boundaries and desktop/
+mobile behavior, including real API checks on dev before further releases.
+**Change / decision:** separate focused review candidates 104–110 and an evidence
+report. No merge, deployment, API change or shared infrastructure repair.
+**References:** [review report](docs/audits/webui-security-review-2026-10-28.md),
+[chronology and current limits](docs/work-log/2026-10-28-security-audit.md).
+**Verification / status:** focused review PRs prepared; no merge/deployment.
+Real two-member dev checks and candidate fixture checks are distinguished in
+the report. Complete desktop/configured WebKit passed; broad mobile Chrome
+retains 27 failures (25 selector coverage gaps, two bugs fixed by PR110).
+Own sessions are revoked and VPS removed. Two bounded NAS creates remain
+queued on the pre-existing unavailable storage node; complete cleanup and
+positive NFS/export isolation remain blocked by infrastructure.
+
+## 2026-10-29 — Audit fixes staged for dev-only preview
+
+The maintainer authorizes dev.crucio.cz deployment of our reviewed PR102 and
+PR104–111. Prepare a combined original-history candidate, exact paired packages,
+metadata proxy correction, rollback and served-bundle browser acceptance.
+[Scope, selected heads and results](docs/work-log/2026-10-29-audit-dev-preview.md).
+Completed: dev-only clean paired `1c12a219ba87`, all 1,914 units and 64
+served-bundle browser checks passed, plus actual mobile WebKit login/logout.
+Original fixture access restored/revoked; matching rollback retained. Main and
+production remain unchanged; original PRs remain open. See the receipt for
+retained setup failures, two existing mobile skips and audit limits.

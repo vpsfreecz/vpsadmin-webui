@@ -56,6 +56,8 @@ export default defineConfig({
       name: 'mobile-webkit',
       testMatch: [
         '**/about.spec.ts',
+        '**/header_account_width.spec.ts',
+        '**/action_state_transactions_responsive.spec.ts',
         '**/transactions_readability.spec.ts',
         '**/tasks_compact_history.spec.ts',
         '**/transactions_table_followup.spec.ts',
@@ -89,6 +91,7 @@ export default defineConfig({
         '**/vps_admin_modifications.spec.ts',
         '**/vps_maintenance_sunday.spec.ts',
         '**/network_address_details.spec.ts',
+        '**/vps_network_editor_feedback.spec.ts',
         '**/user_packages_bulk_remove.spec.ts',
         '**/vps_dns_shortcut.spec.ts',
       ],
