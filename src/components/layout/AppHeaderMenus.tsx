@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { AlertTriangle, Clock3, Globe, LogOut, User, WifiOff } from 'lucide-react';
 
 import { formatErrorMessage } from '../../lib/errors';
@@ -68,6 +68,17 @@ export function AppUserMenu(props: Pick<AppHeaderProps,
     sessionExpiresAt, sessionIdleLimitSeconds, theme, language, onSetTheme, onSetLanguage,
     onGoToOtherMode, onGoToProfile, onGoToPublicStatus, loginLogoutHref,
   } = props;
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (!userMenuOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      setUserMenuOpen(false);
+      triggerRef.current?.focus();
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [userMenuOpen, setUserMenuOpen]);
   const sessionRemaining = useSessionRemainingLabel(t, sessionExpiresAt);
   const sessionDisplay = sessionRemaining
     ? { menuLabel: t('auth.session_remaining.menu_label'), value: sessionRemaining }
@@ -76,7 +87,7 @@ export function AppUserMenu(props: Pick<AppHeaderProps,
       : null;
 
   return (
-    <div className="relative order-10 flex items-center gap-2 md:order-8" ref={userMenuRef}>
+    <div className="relative order-10 flex min-w-0 items-center gap-2 md:order-8" ref={userMenuRef}>
       {sessionDisplay ? (
         <div
           className={clsx(
@@ -93,16 +104,18 @@ export function AppUserMenu(props: Pick<AppHeaderProps,
       ) : null}
       <button
         className={clsx(
-          'inline-flex h-11 w-12 items-center justify-center gap-2 rounded-md border border-border bg-overlay-surface text-sm shadow-card hover:bg-surface-2',
+          'inline-flex h-11 min-w-12 max-w-full items-center justify-center gap-2 rounded-md border border-border bg-overlay-surface text-sm shadow-card hover:bg-surface-2',
           'sm:h-10 sm:w-auto sm:justify-start sm:px-3'
         )}
         onClick={() => setUserMenuOpen((v) => !v)}
+        ref={triggerRef}
+        aria-expanded={userMenuOpen}
         aria-label={t('user_menu.open')}
         data-testid="shell.user-menu-button"
       >
-        <User size={18} />
-        <span className="hidden sm:inline font-medium">{authLogin ?? '—'}</span>
-        <span className="hidden md:inline text-xs text-muted">{String(authRole ?? '—')}</span>
+        <User size={18} className="shrink-0" />
+        <span className="hidden min-w-0 max-w-40 truncate font-medium sm:inline">{authLogin ?? '—'}</span>
+        <span className="hidden shrink-0 text-xs text-muted xl:inline">{String(authRole ?? '—')}</span>
       </button>
 
       {userMenuOpen ? (

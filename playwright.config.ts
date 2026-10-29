@@ -56,6 +56,7 @@ export default defineConfig({
       name: 'mobile-webkit',
       testMatch: [
         '**/about.spec.ts',
+        '**/header_account_width.spec.ts',
         '**/transactions_readability.spec.ts',
         '**/tasks_compact_history.spec.ts',
         '**/transactions_table_followup.spec.ts',

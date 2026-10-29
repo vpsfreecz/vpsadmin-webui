@@ -154,6 +154,19 @@ describe('AppHeader', () => {
     expect(menu.className).not.toContain('mt-2');
   });
 
+  it('dismisses the account menu with Escape and restores trigger focus', () => {
+    render(<HeaderHarness />);
+    const trigger = screen.getByTestId('shell.user-menu-button');
+    fireEvent.click(trigger);
+    const menu = screen.getByTestId('shell.user-menu');
+    menu.querySelector('button')?.focus();
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(screen.queryByTestId('shell.user-menu')).not.toBeInTheDocument();
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    expect(trigger).toHaveFocus();
+  });
+
   it('does not briefly show 41 minutes when a 40-minute deadline renews between ticks', () => {
     vi.useFakeTimers();
     try {
