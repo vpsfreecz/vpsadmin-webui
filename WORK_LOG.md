@@ -1516,3 +1516,19 @@ operation labels, dynamic expanded colspan and accessible touch targets.
 **Verification / status:** candidate under verification; see the
 [per-change evidence](docs/work-log/2026-10-28-action-state-mobile-layout.md).
 No API or authorization change, merge or deployment.
+
+## 2026-10-28 — Bounded WebUI security and cleanup review
+
+**Request / reason:** review maintainability, security boundaries and desktop/
+mobile behavior, including real API checks on dev before further releases.
+**Change / decision:** separate focused review candidates 104–110 and an evidence
+report. No merge, deployment, API change or shared infrastructure repair.
+**References:** [review report](docs/audits/webui-security-review-2026-10-28.md),
+[chronology and current limits](docs/work-log/2026-10-28-security-audit.md).
+**Verification / status:** focused review PRs prepared; no merge/deployment.
+Real two-member dev checks and candidate fixture checks are distinguished in
+the report. Complete desktop/configured WebKit passed; broad mobile Chrome
+retains 27 failures (25 selector coverage gaps, two bugs fixed by PR110).
+Own sessions are revoked and VPS removed. Two bounded NAS creates remain
+queued on the pre-existing unavailable storage node; complete cleanup and
+positive NFS/export isolation remain blocked by infrastructure.
