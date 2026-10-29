@@ -245,7 +245,9 @@ async function fetchLimitedResponseText(
   timeoutError.code = 'ETIMEDOUT';
 
   const operation = (async () => {
-    response = await fetchImpl(url, { ...options, signal: controller.signal });
+    // Token and revocation POST bodies contain credentials. Never forward them
+    // to a provider redirect target, including a different path on that host.
+    response = await fetchImpl(url, { ...options, redirect: 'error', signal: controller.signal });
     const text = await readLimitedResponseText(response, maxBytes);
     return { response, text };
   })();
