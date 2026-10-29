@@ -1539,4 +1539,8 @@ The maintainer authorizes dev.crucio.cz deployment of our reviewed PR102 and
 PR104–111. Prepare a combined original-history candidate, exact paired packages,
 metadata proxy correction, rollback and served-bundle browser acceptance.
 [Scope, selected heads and results](docs/work-log/2026-10-29-audit-dev-preview.md).
-Main and production remain unchanged; current status is prepared, not deployed.
+Completed: dev-only clean paired `1c12a219ba87`, all 1,914 units and 64
+served-bundle browser checks passed, plus actual mobile WebKit login/logout.
+Original fixture access restored/revoked; matching rollback retained. Main and
+production remain unchanged; original PRs remain open. See the receipt for
+retained setup failures, two existing mobile skips and audit limits.
