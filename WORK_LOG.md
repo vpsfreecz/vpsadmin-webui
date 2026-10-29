@@ -1532,3 +1532,11 @@ retains 27 failures (25 selector coverage gaps, two bugs fixed by PR110).
 Own sessions are revoked and VPS removed. Two bounded NAS creates remain
 queued on the pre-existing unavailable storage node; complete cleanup and
 positive NFS/export isolation remain blocked by infrastructure.
+
+## 2026-10-29 — Audit fixes staged for dev-only preview
+
+The maintainer authorizes dev.crucio.cz deployment of our reviewed PR102 and
+PR104–111. Prepare a combined original-history candidate, exact paired packages,
+metadata proxy correction, rollback and served-bundle browser acceptance.
+[Scope, selected heads and results](docs/work-log/2026-10-29-audit-dev-preview.md).
+Main and production remain unchanged; current status is prepared, not deployed.
