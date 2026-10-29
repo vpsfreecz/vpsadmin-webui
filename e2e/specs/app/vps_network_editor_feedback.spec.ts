@@ -23,7 +23,7 @@ const rejected = (message: string) => ({
   body: JSON.stringify({ status: false, message, response: null }),
 });
 
-test.describe('VPS network editor failure feedback', () => {
+test.describe('@pr-smoke @pr-smoke-mobile VPS network editor failure feedback', () => {
   test('keeps rejected network edits and toggles in their dialogs for retry', async ({ page }) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
 
