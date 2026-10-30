@@ -1558,3 +1558,10 @@ Open the admin attach shortcut on VPS ID, preserve route modes and verify
 synchronous ownership-only replies against a fresh exact owner/environment read.
 [Contract, source evidence and verification](docs/work-log/2026-10-30-ip-assignment-vps-first.md).
 Prepared for review; no API change, merge or deployment.
+
+## 2026-10-30 — DNS kinds, DNSSEC responsibility and wildcard records
+
+Use consistent primary/secondary and forward/reverse terminology, keep local
+DNSSEC editing on known primary zones and accept the API's bare wildcard owner.
+[Implementation and evidence](docs/work-log/2026-10-30-dns-zone-semantics.md).
+Prepared for a dev-only preview with PR113/114; no production or main merge.
