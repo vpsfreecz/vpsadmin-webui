@@ -42,6 +42,11 @@ Earlier preview-only states above are historical observations.
 The [29 October audit-fix dev preview](../work-log/2026-10-29-audit-dev-preview.md)
 records the separately authorized PR102/104–111 candidate; production promotion
 and main merges remain outside that preview scope.
+The [30 October network/DNS preview](../work-log/2026-10-30-network-dns-dev-preview.md)
+adds PR113/114/116 on dev as clean `f1cd437d7cbd`, preserving the audit preview.
+It records VPS-first assignment, continued primary-location suggestions, DNS
+semantics and an actual DNS test blocked by the pre-existing offline DNS node;
+production and main remain unchanged.
 Check live state again before an update.
 
 The [package guide](PACKAGING.md) defines output contents and provenance. Keep

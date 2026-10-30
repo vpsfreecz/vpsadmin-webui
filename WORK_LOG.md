@@ -1571,4 +1571,7 @@ Prepared for a dev-only preview with PR113/114; no production or main merge.
 Prepare the explicitly requested dev-only preview of PR112 plus PR113/114/116.
 Preserve feature histories, current configuration and the exact rollback pair.
 [Scope, verification and activation receipt](docs/work-log/2026-10-30-network-dns-dev-preview.md).
-Preparation only; main, production, API and unrelated PRs remain unchanged.
+Dev-only runtime `f1cd437d7cbd` is activated; served acceptance passed
+115 checks (two existing mobile skips), plus all 1,944 unit tests.
+Actual secondary DNS/API checks passed; primary/wildcard completion is blocked
+by offline dev DNS node 102. Main, production, API and unrelated PRs are unchanged.
