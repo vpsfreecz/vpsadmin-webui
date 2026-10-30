@@ -730,6 +730,19 @@ objects; session filters and pagination must retain context. Large cgroup/SSH/ta
 identifiers must wrap or scroll appropriately on mobile. Monitoring decisions and
 incident creation keep failed submissions retryable where safe.
 
+Incident escalation on the VPS overview shows the registered type's API-localized
+label, server-calculated counts, effective limits, warning state and history.
+Desktop/mobile list indicators and the existing administrator list filters use
+the same selected-type summary. Counts/status/limits/warnings are per type;
+stop permission, cooldown and unfinished physical shutdown are VPS-wide.
+Nullable admin overrides inherit defaults; explicit selected-type updates are
+isolated from unrelated VPS changes and verified by readback. Exemption keeps
+collection and warnings but disables vpsAdmin escalation stops. Memory-protection
+help appears only for the memory-pressure rule. Modes and pending/failed/uncertain
+versus confirmed outcomes remain distinct. Cooldown expiry permits a new incident
+to cause another stop and never schedules one. Old APIs hide the interface; no
+new editor, navigation or local incident counting. See [contract and evidence](../work-log/2026-10-30-incident-escalation.md).
+
 Incident lists fit the available desktop content width without horizontal table
 scrolling. Subjects, codenames, hostnames and IPv6 addresses wrap without losing
 text; narrower screens use the existing cards. The administrator-only owner and

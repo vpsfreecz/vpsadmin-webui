@@ -36,3 +36,19 @@ test('lookup drafts survive pagination URL writes but hydrate on external filter
   act(() => result.current.navigate(-1));
   expect(result.current.filters.filterProps.userId).toBe('');
 });
+
+test('clear removes server incident filters and existing draft filters together', () => {
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  const { result } = renderHook(() => useVpsListSmartFilters({
+    basePath: '/admin', mode: 'admin', scope: { scope: 'all', canSwitchScope: true },
+    toasts: { toasts: [], pushToast: () => 1, push: () => 1, dismissToast: () => {}, clearToasts: () => {} }, t: key => key,
+  }), { wrapper: ({ children }) => <QueryClientProvider client={client}>
+    <MemoryRouter initialEntries={['/admin/vps?q=example&user=7&incident_status=warning&incident_enforcement_enabled=false&from_id=10']}>{children}</MemoryRouter>
+  </QueryClientProvider> });
+  expect(result.current.filtersActive).toBe(true);
+  act(() => result.current.clearFilters());
+  expect(result.current.filtersActive).toBe(false);
+  expect(result.current.search).toBe('');
+  expect(result.current.userIdNum).toBeUndefined();
+  for (const key of ['incident_status', 'incident_enforcement_enabled', 'from_id']) expect(result.current.searchParams.has(key)).toBe(false);
+});

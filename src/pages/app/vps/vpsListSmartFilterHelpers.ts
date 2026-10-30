@@ -21,7 +21,14 @@ export function numericParam(value: string): number | undefined {
 }
 
 export function vpsListFilterSignature(params: URLSearchParams): string {
-  return JSON.stringify(['q', 'node', 'user', 'user_namespace_map', 'location', 'state'].map(key => params.get(key)));
+  return JSON.stringify(['q', 'node', 'user', 'user_namespace_map', 'location', 'state', 'incident_status', 'incident_enforcement_enabled'].map(key => params.get(key)));
+}
+
+export function clearVpsListSearchParams(input: URLSearchParams): URLSearchParams {
+  const next = new URLSearchParams(input);
+  for (const key of ['q', 'node', 'user', 'user_namespace_map', 'location', 'state', 'incident_status', 'incident_enforcement_enabled', 'from_id']) next.delete(key);
+  next.set('page', '1');
+  return next;
 }
 
 export function canonicalKey(raw: string): VpsListFilterKey | null {
@@ -47,7 +54,7 @@ export function isStateLiteral(value: string): boolean {
 
 export function normalizeVpsListSearchParams(input: URLSearchParams, mode: VpsListMode) {
   const next = new URLSearchParams(input);
-  const filterKeys = ['q', 'node', 'user', 'user_namespace_map', 'location', 'state'] as const;
+  const filterKeys = ['q', 'node', 'user', 'user_namespace_map', 'location', 'state', 'incident_status', 'incident_enforcement_enabled'] as const;
   const q = (next.get('q') ?? '').trim();
   if (q) next.set('q', q);
   else next.delete('q');
@@ -66,6 +73,8 @@ export function normalizeVpsListSearchParams(input: URLSearchParams, mode: VpsLi
     next.delete('user');
   }
 
+  if (mode !== 'admin' || !['clear', 'near_limit', 'warning', 'stop_threshold'].includes(next.get('incident_status') ?? '')) next.delete('incident_status');
+  if (mode !== 'admin' || !['true', 'false'].includes(next.get('incident_enforcement_enabled') ?? '')) next.delete('incident_enforcement_enabled');
   const state = normalizeVpsListStateFilter(next.get('state'));
   if (state === 'all') next.delete('state');
   else next.set('state', state);

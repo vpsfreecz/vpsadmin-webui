@@ -4,6 +4,7 @@ import { useAppMode } from '../../../app/appMode';
 import { useAuth } from '../../../app/auth';
 import { LifecyclePanel } from '../../../components/lifetimes/LifecyclePanel';
 import { useVps } from './VpsContext';
+import { VpsIncidentCard } from './VpsIncidentCard';
 import { VpsOverviewMetricsCard } from './VpsOverviewMetricsCard';
 import {
   VpsAccessCard,
@@ -58,6 +59,8 @@ export function VpsOverviewPage() {
         ipAddressesLoading={ipAddressesLoading}
         ipAddressesError={ipAddressesError}
       />
+
+      <VpsIncidentCard vps={vps} />
 
       <VpsResourcesCard
         vps={vps}
