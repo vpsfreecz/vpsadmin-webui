@@ -144,12 +144,21 @@ Free-IP suggestions apply the advertised network availability filter before the
 capability response from an older API omits the unsupported filter.
 
 Each suggestion query has one 12-second budget covering shared capability
-discovery and its address request. Expiry settles that suggestion as an error
+discovery and all of its address pages. Expiry settles that suggestion as an error
 and allows later locations to load. It cannot start an address request after
 late metadata or accept late address results. The shared capability request and
 its five-minute cache remain available to other callers; a suggestion timeout
 does not cancel or invalidate them. Capability failures are errors, not evidence
 of an older API or an empty pool.
+
+Location filtering can include networks associated with that location whose
+primary location is elsewhere. The default sample groups by primary location,
+so it follows strictly increasing ascending-ID cursors through up to 20 pages
+of 50 until it has three eligible addresses for the requested type, or reaches
+a terminal short page. Full foreign-location pages must not imply an empty
+pool. Malformed/repeated cursors and the scan bound are errors, not empty
+success. All pages share the original deadline; manual inventory filters and
+VPS assignment eligibility remain separate from primary-location sampling.
 
 Explicit retry starts a new suggestion budget. It reuses successful cached
 metadata, retries a settled failed lookup, or joins an existing pending lookup.
