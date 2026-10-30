@@ -1575,3 +1575,10 @@ Dev-only runtime `f1cd437d7cbd` is activated; served acceptance passed
 115 checks (two existing mobile skips), plus all 1,944 unit tests.
 Actual secondary DNS/API checks passed; primary/wildcard completion is blocked
 by offline dev DNS node 102. Main, production, API and unrelated PRs are unchanged.
+
+## 2026-10-30 — PR browser completion headroom
+
+The combined preview completed 642 desktop checks but exceeded its overall
+30-minute job budget during completion. Prepare a 40-minute bounded PR budget,
+with the complete test matrix/selection/assertions preserved.
+[CI evidence and scope](docs/work-log/2026-10-30-pr-browser-ci-budget.md).
