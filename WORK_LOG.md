@@ -1565,3 +1565,10 @@ Use consistent primary/secondary and forward/reverse terminology, keep local
 DNSSEC editing on known primary zones and accept the API's bare wildcard owner.
 [Implementation and evidence](docs/work-log/2026-10-30-dns-zone-semantics.md).
 Prepared for a dev-only preview with PR113/114; no production or main merge.
+
+## 2026-10-30 — Combined network and DNS dev preview
+
+Prepare the explicitly requested dev-only preview of PR112 plus PR113/114/116.
+Preserve feature histories, current configuration and the exact rollback pair.
+[Scope, verification and activation receipt](docs/work-log/2026-10-30-network-dns-dev-preview.md).
+Preparation only; main, production, API and unrelated PRs remain unchanged.
