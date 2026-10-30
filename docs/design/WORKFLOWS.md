@@ -433,8 +433,13 @@ IP rows and mobile cards expose four icon-only links in a single compact row:
 Incidents, Assignment history, Edit, and Remove from VPS (Assign to VPS for an
 unassigned address). Incidents and history retain the exact IP filter. Edit
 opens the complete address detail with ownership and host addresses; the last
-link goes directly to its routing section and retains the existing confirmation
-before removal. Navigation never mutates an address. The controls use 20px icons,
+link opens a VPS-first assignment dialog for an unassigned address. Assigned
+addresses retain the routing section and existing confirmation before removal.
+The assignment dialog takes a VPS ID or hostname lookup first, loads that VPS's
+interfaces and shows owner/environment as read-only context. No ownership or
+environment update is a prerequisite. Re-read the IP, VPS owner and interfaces
+before submitting the reviewed interface. Never transfer an IP owned by another
+member implicitly. Preserve route-only and route-with-host-address actions. Navigation never mutates an address. The controls use 20px icons,
 compact desktop buttons and at least 44px touch targets. Localized tooltips and
 accessible names identify each action without visible text beside the icons.
 The desktop action column reserves only the width needed for those four controls.

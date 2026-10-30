@@ -87,7 +87,7 @@ export function IpAddressRowActions({
         <Pencil className={iconClass} aria-hidden="true" />
       </IconAction>
       <IconAction
-        to={`${detailPath}#route`}
+        to={assigned ? `${detailPath}#route` : `${detailPath}?action=assign#route`}
         label={routeLabel}
         testId={`${testIdPrefix}.action.route`}
       >
