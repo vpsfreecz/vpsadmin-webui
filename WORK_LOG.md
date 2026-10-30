@@ -1551,3 +1551,10 @@ Fix false empty Prague IPv4 samples when associated-location addresses fill
 page one. Bounded cursor continuation preserves the original request deadline.
 [Cause, verification and limits](docs/work-log/2026-10-30-ip-primary-location-pagination.md).
 Prepared for review; no merge or deployment.
+
+## 2026-10-30 — VPS-first IP assignment
+
+Open the admin attach shortcut on VPS ID, preserve route modes and verify
+synchronous ownership-only replies against a fresh exact owner/environment read.
+[Contract, source evidence and verification](docs/work-log/2026-10-30-ip-assignment-vps-first.md).
+Prepared for review; no API change, merge or deployment.

@@ -166,6 +166,21 @@ Joining a stalled lookup is still bounded for that caller; retry does not force
 a second shared OPTIONS request. The budget applies per query, not to the whole
 page. Priority locations load first and later locations continue progressively.
 
+An IP ownership-only PUT can complete synchronously with no action-state ID.
+For an exact owner+environment update (or owner release), accept that form only
+after a fresh exact-IP GET confirms both `user` and `charged_environment`.
+Missing, mismatched or unreadable fields retain an uncertain outcome and block
+replay. A present invalid asynchronous receipt is never reinterpreted as a
+synchronous success. Other IP updates and route assign/free still require a
+valid action-state receipt. Do not repair accounting inconsistencies in the UI.
+
+The admin assignment shortcut opens a VPS-first dialog. Use the API's assign or
+assign-with-host-address action with the selected interface, without a preceding
+ownership PUT. The server owns accounting and location-association enforcement.
+Failed preflight reads are retryable because no mutation was submitted.
+Preflight reads reject stale owners/interfaces; final authorization stays in
+the API. Durable local guards prevent duplicate/ambiguous follow-up submissions.
+
 Administrator network create/edit checks the relevant action's `enabled` input
 metadata before displaying or sending the availability control. An edit also
 requires a known current boolean state. Omitted fields preserve server state;

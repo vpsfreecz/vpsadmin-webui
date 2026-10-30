@@ -1,18 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useLocation, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useAppMode } from '../../../app/appMode';
 import { useI18n } from '../../../app/i18n';
 import { useToasts } from '../../../app/toasts';
 import { DetailShell } from '../../../components/layout/DetailShell';
-import { fetchEnvironments } from '../../../lib/api/infra';
 import {
-  assignIpAddressRoute,
-  assignIpAddressRouteWithHostAddress,
   fetchIpAddress,
   freeIpAddressRoute,
-  updateIpAddress,
 } from '../../../lib/api/ipAddresses';
 import { fetchNetworkInterfaces } from '../../../lib/api/networkInterfaces';
 import {
@@ -43,9 +39,12 @@ import { ObjectHeader } from '../../../components/ui/ObjectHeader';
 import { Select } from '../../../components/ui/Select';
 import { Table } from '../../../components/ui/Table';
 import { Textarea } from '../../../components/ui/Textarea';
-import { UserLookupInput } from '../../../components/ui/UserLookupInput';
 import { VpsLookupInput } from '../../../components/ui/VpsLookupInput';
 import { HostIpAddressRowActions } from './ipAddresses/HostIpAddressRowActions';
+import { useChrome } from '../../../components/layout/ChromeContext';
+import { objectRef } from '../../../lib/objectRef';
+import { IpAddressOwnerCard } from './ipAddresses/IpAddressOwnerCard';
+import { IpAddressRouteDialog } from './ipAddresses/IpAddressRouteDialog';
 
 function parseIdParam(v: string | undefined): number | null {
   if (!v) return null;
@@ -99,17 +98,13 @@ export function IpAddressDetailPage() {
   const { t } = useI18n();
   const { pushToast } = useToasts();
   const qc = useQueryClient();
+  const chrome = useChrome();
   const params = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const ipId = parseIdParam(params['ipAddressId']);
   const [routeOpen, setRouteOpen] = useState(false);
-  const [routeVps, setRouteVps] = useState<number | null>(null);
-  const [routeInterface, setRouteInterface] = useState('');
-  const [routeVia, setRouteVia] = useState('');
-  const [routeWithHost, setRouteWithHost] = useState(false);
   const [confirmFreeRoute, setConfirmFreeRoute] = useState(false);
-  const [ownerUser, setOwnerUser] = useState('');
-  const [ownerEnvironment, setOwnerEnvironment] = useState('');
   const [createHostsOpen, setCreateHostsOpen] = useState(false);
   const [createHostsValue, setCreateHostsValue] = useState('');
   const [ptrEditor, setPtrEditor] = useState<HostIpAddress | null>(null);
@@ -123,32 +118,23 @@ export function IpAddressDetailPage() {
     queryKey: ['ip_addresses', ipId],
     queryFn: async () => {
       if (!ipId) throw new Error(t('admin.ip.invalid_id'));
-      return (await fetchIpAddress(ipId, { includes: 'network,user,network_interface,network_interface.vps,route_via' })).data;
+      return (await fetchIpAddress(ipId, { includes: 'network,user,charged_environment,network_interface,network_interface.vps,route_via' })).data;
     },
     enabled: Boolean(ipId),
     staleTime: 30_000,
   });
 
   const ip = q.data ?? null;
+  const ipLocked = Boolean(ipId && chrome.isLocallyLocked(objectRef('IpAddress', ipId)));
   const hostAddrsQ = useQuery({
     queryKey: ['host_ip_addresses', 'by_ip', ipId],
     queryFn: async () => (await fetchHostIpAddresses({ ipAddress: ipId as number, limit: 250 })).data,
     enabled: Boolean(ipId && ip),
   });
-  const netifsQ = useQuery({
-    queryKey: ['network_interface', 'list', { vpsId: routeVps, limit: 100 }],
-    queryFn: async () => (await fetchNetworkInterfaces(routeVps as number, { limit: 100 })).data,
-    enabled: routeOpen && Boolean(routeVps),
-  });
   const hostAssignNetifsQ = useQuery({
     queryKey: ['network_interface', 'host-ip-assign', { vpsId: assignHostVps, limit: 100 }],
     queryFn: async () => (await fetchNetworkInterfaces(assignHostVps as number, { limit: 100 })).data,
     enabled: Boolean(assignHost && assignHostVps),
-  });
-  const environmentsQ = useQuery({
-    queryKey: ['environments', 'ip-owner'],
-    queryFn: async () => (await fetchEnvironments({ limit: 250 })).data,
-    staleTime: 60_000,
   });
   const isLoading = Boolean(ipId) && q.isLoading;
   const isError = Boolean(ipId) && (q.isError || !ip);
@@ -164,6 +150,15 @@ export function IpAddressDetailPage() {
     }, 0);
   }, [ip, location.hash]);
 
+  useEffect(() => {
+    if (!ip) return;
+    const search = new URLSearchParams(location.search);
+    if (search.get('action') !== 'assign') return;
+    search.delete('action');
+    if (!ip.network_interface) setRouteOpen(true);
+    navigate({ pathname: location.pathname, search: search.toString(), hash: '#route' }, { replace: true });
+  }, [ip, location.pathname, location.search, navigate]);
+
   const invalidate = async () => {
     await Promise.all([
       qc.invalidateQueries({ queryKey: ['ip_addresses'] }),
@@ -174,60 +169,16 @@ export function IpAddressDetailPage() {
     ]);
   };
 
-  const assignRouteM = useMutation({
-    mutationFn: async () => {
-      if (!ipId) throw new Error(t('admin.ip.invalid_id'));
-      const networkInterface = parsePositiveId(routeInterface);
-      if (!networkInterface) throw new Error(t('admin.ip.route.validation.interface'));
-      const via = routeVia.trim() ? parsePositiveId(routeVia) : null;
-      if (routeVia.trim() && !via) throw new Error(t('admin.ip.route.validation.route_via'));
-
-      if (routeWithHost) {
-        return assignIpAddressRouteWithHostAddress(ipId, { network_interface: networkInterface });
-      }
-      return assignIpAddressRoute(ipId, { network_interface: networkInterface, route_via: via });
-    },
-    onSuccess: async () => {
-      setRouteOpen(false);
-      setRouteVps(null);
-      setRouteInterface('');
-      setRouteVia('');
-      setRouteWithHost(false);
-      await invalidate();
-      pushToast({ variant: 'ok', title: t('admin.ip.route.toast.assigned') });
-    },
-  });
-
   const freeRouteM = useMutation({
     mutationFn: async () => {
       if (!ipId) throw new Error(t('admin.ip.invalid_id'));
+      if (chrome.isLocallyLocked(objectRef('IpAddress', ipId))) throw new Error(t('admin.ip.action_locked'));
       return freeIpAddressRoute(ipId);
     },
     onSuccess: async () => {
       setConfirmFreeRoute(false);
       await invalidate();
       pushToast({ variant: 'ok', title: t('admin.ip.route.toast.freed') });
-    },
-  });
-
-  const updateOwnerM = useMutation({
-    mutationFn: async () => {
-      if (!ipId) throw new Error(t('admin.ip.invalid_id'));
-      const user = ownerUser.trim() ? parsePositiveId(ownerUser) : null;
-      if (ownerUser.trim() && !user) throw new Error(t('admin.ip.owner.validation.user'));
-      const payload: Record<string, unknown> = { user };
-      if (user) {
-        const environment = parsePositiveId(ownerEnvironment);
-        if (!environment) throw new Error(t('admin.ip.owner.validation.environment'));
-        payload['environment'] = environment;
-      }
-      return updateIpAddress(ipId, payload);
-    },
-    onSuccess: async () => {
-      setOwnerUser('');
-      setOwnerEnvironment('');
-      await invalidate();
-      pushToast({ variant: 'ok', title: t('admin.ip.owner.toast.saved') });
     },
   });
 
@@ -298,7 +249,7 @@ export function IpAddressDetailPage() {
     },
   });
 
-  const anyMutationError = assignRouteM.error || updateOwnerM.error || createHostsM.error || updatePtrM.error || hostAssignM.error || hostFreeM.error;
+  const anyMutationError = createHostsM.error || updatePtrM.error || hostAssignM.error || hostFreeM.error;
 
   return (
     <DetailShell testId="admin.ip_address.page">
@@ -448,6 +399,7 @@ export function IpAddressDetailPage() {
                           <ActionButton
                             variant="danger"
                             testId="admin.ip.route.free"
+                            disabled={ipLocked}
                             loading={freeRouteM.isPending}
                             onClick={() => {
                               freeRouteM.reset();
@@ -460,12 +412,9 @@ export function IpAddressDetailPage() {
                           <Button
                             variant="primary"
                             testId="admin.ip.route.assign.open"
+                            disabled={ipLocked}
                             onClick={() => {
                               setRouteOpen(true);
-                              setRouteVps(null);
-                              setRouteInterface('');
-                              setRouteVia('');
-                              setRouteWithHost(false);
                             }}
                           >
                             {t('admin.ip.route.assign')}
@@ -492,33 +441,7 @@ export function IpAddressDetailPage() {
                   </CardBody>
                 </Card>
 
-                <Card testId="admin.ip_address.owner.card" className="scroll-mt-24" id="owner">
-                  <CardHeader title={t('admin.ip.owner.title')} subtitle={t('admin.ip.owner.subtitle')} />
-                  <CardBody className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] md:items-end">
-                    <label className="block">
-                      <div className="mb-1 text-sm font-medium">{t('admin.ip.owner.user')}</div>
-                      <UserLookupInput value={ownerUser} onChange={setOwnerUser} placeholder={userId ? `#${userId}` : t('admin.ip.owner.unassigned')} allowRawId />
-                    </label>
-                    <label className="block">
-                      <div className="mb-1 text-sm font-medium">{t('admin.ip.owner.environment')}</div>
-                      <Select
-                        value={ownerEnvironment}
-                        onChange={(e) => setOwnerEnvironment(e.target.value)}
-                        disabled={environmentsQ.isLoading}
-                        options={[
-                          { value: '', label: t('admin.ip.owner.environment.placeholder') },
-                          ...(environmentsQ.data ?? []).map((env: any) => ({
-                            value: String(env.id),
-                            label: String(env.label ?? env.name ?? `#${env.id}`),
-                          })),
-                        ]}
-                      />
-                    </label>
-                    <ActionButton loading={updateOwnerM.isPending} disabled={!ownerUser.trim() && !userId} onClick={() => updateOwnerM.mutate()}>
-                      {ownerUser.trim() ? t('admin.ip.owner.save') : t('admin.ip.owner.clear')}
-                    </ActionButton>
-                  </CardBody>
-                </Card>
+                <IpAddressOwnerCard key={`owner-${ip.id}`} ip={ip} onUpdated={invalidate} />
 
                 <Card testId="admin.ip_address.hosts.card" className="relative min-w-0 max-w-full overflow-x-hidden scroll-mt-24" id="hosts">
                   <CardHeader
@@ -593,62 +516,8 @@ export function IpAddressDetailPage() {
                   </CardBody>
                 </Card>
 
-                <Modal
-                  open={routeOpen}
-                  title={t('admin.ip.route.assign_title')}
-                  onClose={() => setRouteOpen(false)}
-                  footer={
-                    <div className="flex justify-end gap-2">
-                      <Button variant="secondary" onClick={() => setRouteOpen(false)} disabled={assignRouteM.isPending}>{t('common.cancel')}</Button>
-                      <ActionButton loading={assignRouteM.isPending} disabled={!routeInterface.trim()} onClick={() => assignRouteM.mutate()}>
-                        {t('admin.ip.route.assign')}
-                      </ActionButton>
-                    </div>
-                  }
-                >
-                  <div className="space-y-4">
-                    <label className="block">
-                      <div className="mb-1 text-sm font-medium">{t('admin.ip.route.vps')}</div>
-                      <VpsLookupInput value={routeVps} onChange={setRouteVps} placeholder={t('admin.ip.route.vps.placeholder')} />
-                    </label>
-                    <label className="block">
-                      <div className="mb-1 text-sm font-medium">{t('admin.ip.route.interface')}</div>
-                      <Select
-                        value={routeInterface}
-                        onChange={(e) => setRouteInterface(e.target.value)}
-                        disabled={!routeVps || netifsQ.isLoading}
-                        options={[
-                          { value: '', label: t('admin.ip.route.interface.placeholder') },
-                          ...(netifsQ.data ?? []).map((ni: any) => ({
-                            value: String(ni.id),
-                            label: `${ni.name ?? `#${ni.id}`} (#${ni.id})`,
-                          })),
-                        ]}
-                      />
-                    </label>
-                    {!routeWithHost ? (
-                      <label className="block">
-                        <div className="mb-1 text-sm font-medium">{t('admin.ip.route.route_via')}</div>
-                        <Input value={routeVia} onChange={(e) => setRouteVia(e.target.value)} placeholder={t('admin.ip.route.route_via.placeholder')} />
-                      </label>
-                    ) : null}
-                    <label className="flex items-start gap-2 text-sm">
-                      <input
-                        type="checkbox"
-                        checked={routeWithHost}
-                        onChange={(e) => {
-                          setRouteWithHost(e.target.checked);
-                          if (e.target.checked) setRouteVia('');
-                        }}
-                        className="mt-1 h-4 w-4"
-                      />
-                      <span>
-                        <span className="font-medium">{t('admin.ip.route.with_host')}</span>
-                        <span className="block text-xs text-muted">{t('admin.ip.route.with_host_help')}</span>
-                      </span>
-                    </label>
-                  </div>
-                </Modal>
+                <IpAddressRouteDialog key={`route-${ip.id}`} ip={ip} open={routeOpen}
+                  onClose={() => setRouteOpen(false)} onAssigned={invalidate} />
 
                 <Modal
                   open={createHostsOpen}
@@ -732,6 +601,7 @@ export function IpAddressDetailPage() {
                   danger
                   confirmLabel={t('admin.ip.route.free')}
                   confirmLoading={freeRouteM.isPending}
+                  confirmDisabled={ipLocked}
                   onCancel={() => {
                     freeRouteM.reset();
                     setConfirmFreeRoute(false);

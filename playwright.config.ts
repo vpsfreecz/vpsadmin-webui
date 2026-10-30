@@ -63,6 +63,7 @@ export default defineConfig({
         '**/transactions_table_followup.spec.ts',
         '**/ip_addresses_filters_pagination.spec.ts',
         '**/ip_addresses_primary_location.spec.ts',
+        '**/ip_assignment_vps_first.spec.ts',
         '**/ip_addresses_suggested_request_budget.spec.ts',
         '**/admin_dashboard.spec.ts',
         '**/sidebar_status.spec.ts',
