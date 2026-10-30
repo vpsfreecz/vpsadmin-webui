@@ -1544,3 +1544,10 @@ served-bundle browser checks passed, plus actual mobile WebKit login/logout.
 Original fixture access restored/revoked; matching rollback retained. Main and
 production remain unchanged; original PRs remain open. See the receipt for
 retained setup failures, two existing mobile skips and audit limits.
+
+## 2026-10-30 — VPS-first IP assignment
+
+Open the admin attach shortcut on VPS ID, preserve route modes and verify
+synchronous ownership-only replies against a fresh exact owner/environment read.
+[Contract, source evidence and verification](docs/work-log/2026-10-30-ip-assignment-vps-first.md).
+Prepared for review; no API change, merge or deployment.

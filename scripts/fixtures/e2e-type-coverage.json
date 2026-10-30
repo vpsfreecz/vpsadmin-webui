@@ -16,6 +16,7 @@
     "e2e/specs/admin/ip_addresses_empty_clear_filters.spec.ts",
     "e2e/specs/admin/ip_addresses_filters_pagination.spec.ts",
     "e2e/specs/admin/ip_addresses_suggested_request_budget.spec.ts",
+    "e2e/specs/admin/ip_assignment_vps_first.spec.ts",
     "e2e/specs/admin/network_availability.spec.ts",
     "e2e/specs/admin/networking_surfaces_smoke.spec.ts",
     "e2e/specs/admin/node_heatmaps.spec.ts",
