@@ -290,3 +290,17 @@ they retain bounded response bodies, deadlines and session serialization.
 Browser authorization navigation remains supported. Shared local return paths
 reject backslashes and control characters before basename handling; valid
 local query/fragment state is retained. See the [review and regression proof](../work-log/2026-10-28-oauth-redirect-boundaries.md).
+
+## DNS zone presentation and owner names
+
+`DnsZone.source` identifies local primary (`internal_source`) versus externally
+sourced secondary (`external_source`) management. `role` independently describes
+forward/reverse direction. Display terms must not rewrite these API tokens or
+filters. Missing source/signing facts remain unknown. Secondary settings omit
+`dnssec_enabled` and do not infer upstream signing from its local flag. Primary
+DNSSEC behavior is unchanged. Direct non-primary DNSSEC routes make no key read.
+
+`DnsRecord.name` accepts the exact `*` owner as well as `@` and existing wildcard
+subdomain syntax. Preserve that exact owner in POST bodies and existing names on
+updates. This does not permit `*` in a CNAME/MX/NS/PTR target, broaden content
+rules or establish that saved data has been published by authoritative DNS.

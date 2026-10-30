@@ -23,6 +23,8 @@ import { useDnsZoneContext } from './DnsZoneContext';
 import { preflightDnsZoneNotBusy } from './dnsPreflight';
 import { DNS_TTL_MAX, DNS_TTL_MIN, validateDnsTtl } from './dnsTtlContract';
 
+import { dnsZoneKind } from './DnsZoneModel';
+
 export function DnsZoneSettingsPage() {
   const { basePath } = useAppMode();
   const { t } = useI18n();
@@ -32,6 +34,7 @@ export function DnsZoneSettingsPage() {
   const { zone, refetch: refetchZone, refetchChains, zoneRef, busyLocalLock, busyTransaction, concernClasses } =
     useDnsZoneContext();
 
+  const primaryZone = dnsZoneKind(zone) === 'primary';
   const zoneLabelForToast = String((zone as any).name ?? (zone as any).label ?? `Zone #${zone.id}`);
 
   const zoneDefaults = useMemo(
@@ -76,7 +79,7 @@ export function DnsZoneSettingsPage() {
         email: email.trim() || undefined,
         default_ttl: Number(defaultTtl.trim()),
         enabled,
-        dnssec_enabled: dnssec,
+        ...(primaryZone ? { dnssec_enabled: dnssec } : {}),
       });
     },
     onMutate: () => {
@@ -215,6 +218,7 @@ export function DnsZoneSettingsPage() {
                 disabled={formDisabled}
                 testId="dns.settings.enabled"
               />
+              {primaryZone ? (
               <Checkbox
                 checked={dnssec}
                 onChange={setDnssec}
@@ -222,6 +226,7 @@ export function DnsZoneSettingsPage() {
                 disabled={formDisabled}
                 testId="dns.settings.dnssec"
               />
+              ) : null}
             </div>
           </div>
 
