@@ -13,6 +13,7 @@ import { KeysetPagination } from '../../../components/ui/KeysetPagination';
 import { VpsListResources } from './VpsListResources';
 import { VpsListRowActions } from './VpsListRowActions';
 import { VpsUsageRiskBadges } from './VpsUsageRiskBadges';
+import { VpsIncidentIndicator } from './VpsIncidentIndicator';
 import { VpsRecentFailureBadge } from './VpsRecentFailureBadge';
 import { VpsRecentOomBadge } from './VpsRecentOomBadge';
 import type { VpsListRecord, VpsListTranslator } from './vpsListSemantics';
@@ -77,6 +78,7 @@ export function VpsListMobile({
                   <div className="flex flex-col items-end gap-1">
                     <Badge variant={row.runtimeBadge.variant}>{row.runtimeBadge.label}</Badge>
                     <Badge variant={row.objectBadge.variant}>{row.objectBadge.label}</Badge>
+                    <VpsIncidentIndicator vps={vps} basePath={basePath} />
                     <VpsUsageRiskBadges diskRisk={row.diskRisk} t={t} testIdPrefix={`vps.card.${vps.id}`} />
                     {row.latestRecentFailure ? (
                       <VpsRecentFailureBadge
