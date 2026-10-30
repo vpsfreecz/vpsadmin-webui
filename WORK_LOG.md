@@ -1544,3 +1544,41 @@ served-bundle browser checks passed, plus actual mobile WebKit login/logout.
 Original fixture access restored/revoked; matching rollback retained. Main and
 production remain unchanged; original PRs remain open. See the receipt for
 retained setup failures, two existing mobile skips and audit limits.
+
+## 2026-10-30 — Continue primary-location IP suggestions
+
+Fix false empty Prague IPv4 samples when associated-location addresses fill
+page one. Bounded cursor continuation preserves the original request deadline.
+[Cause, verification and limits](docs/work-log/2026-10-30-ip-primary-location-pagination.md).
+Prepared for review; no merge or deployment.
+
+## 2026-10-30 — VPS-first IP assignment
+
+Open the admin attach shortcut on VPS ID, preserve route modes and verify
+synchronous ownership-only replies against a fresh exact owner/environment read.
+[Contract, source evidence and verification](docs/work-log/2026-10-30-ip-assignment-vps-first.md).
+Prepared for review; no API change, merge or deployment.
+
+## 2026-10-30 — DNS kinds, DNSSEC responsibility and wildcard records
+
+Use consistent primary/secondary and forward/reverse terminology, keep local
+DNSSEC editing on known primary zones and accept the API's bare wildcard owner.
+[Implementation and evidence](docs/work-log/2026-10-30-dns-zone-semantics.md).
+Prepared for a dev-only preview with PR113/114; no production or main merge.
+
+## 2026-10-30 — Combined network and DNS dev preview
+
+Prepare the explicitly requested dev-only preview of PR112 plus PR113/114/116.
+Preserve feature histories, current configuration and the exact rollback pair.
+[Scope, verification and activation receipt](docs/work-log/2026-10-30-network-dns-dev-preview.md).
+Dev-only runtime `f1cd437d7cbd` is activated; served acceptance passed
+115 checks (two existing mobile skips), plus all 1,944 unit tests.
+Actual secondary DNS/API checks passed; primary/wildcard completion is blocked
+by offline dev DNS node 102. Main, production, API and unrelated PRs are unchanged.
+
+## 2026-10-30 — PR browser completion headroom
+
+The combined preview completed 642 desktop checks but exceeded its overall
+30-minute job budget during completion. Prepare a 40-minute bounded PR budget,
+with the complete test matrix/selection/assertions preserved.
+[CI evidence and scope](docs/work-log/2026-10-30-pr-browser-ci-budget.md).

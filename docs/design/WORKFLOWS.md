@@ -319,6 +319,21 @@ backend blocker. [Datasets](../../src/lib/api/datasets.ts),
 
 ## DNS and networking
 
+Zone presentation distinguishes primary/secondary kind (`internal_source` and
+`external_source`) from forward/reverse direction. These are independent axes,
+not translations of each other. Desktop rows and mobile cards show both; detail
+and creation use the same terms. Preserve role/source API filters and existing
+URL aliases. A collapsed explanation describes local management, upstream
+transfers, direction and DNSSEC responsibility. Missing source is unknown.
+
+Only positively identified primary zones display the local DNSSEC enabled/
+disabled flag and editor. Secondary settings omit `dnssec_enabled`; their
+upstream signing state cannot be inferred from that local flag. A direct
+secondary DNSSEC route explains primary-side management without querying keys.
+Wildcard owner `*` is valid in listing/create/edit, alongside existing `*.sub`.
+Do not accept wildcard target hostnames or relax content/TTL/conflict rules.
+
+
 **Intent:** create/edit zones and records, configure transfers, servers, TSIG and
 DNSSEC, inspect logs, and manage relevant IP/interface/resolver resources.
 Administrators also have network/address inventories and allocation operations.
@@ -427,20 +442,31 @@ response ahead of useful blocks. The sample also validates returned IPv6 prefixe
 It is a /64 suggestion policy, not a deletion, a complete inventory, or a new
 backend allocation rule. Explicit address, owner, VPS, network and prefix filters
 and direct detail URLs retain existing /128 and other prefixes, including larger
-blocks. IPv4 sampling is unchanged. The suggestion cache key includes the prefix.
+blocks. IPv4 retains three suggestions per type and primary location. The suggestion cache key includes the prefix.
 
 IP rows and mobile cards expose four icon-only links in a single compact row:
 Incidents, Assignment history, Edit, and Remove from VPS (Assign to VPS for an
 unassigned address). Incidents and history retain the exact IP filter. Edit
 opens the complete address detail with ownership and host addresses; the last
-link goes directly to its routing section and retains the existing confirmation
-before removal. Navigation never mutates an address. The controls use 20px icons,
+link opens a VPS-first assignment dialog for an unassigned address. Assigned
+addresses retain the routing section and existing confirmation before removal.
+The assignment dialog takes a VPS ID or hostname lookup first, loads that VPS's
+interfaces and shows owner/environment as read-only context. No ownership or
+environment update is a prerequisite. Re-read the IP, VPS owner and interfaces
+before submitting the reviewed interface. Never transfer an IP owned by another
+member implicitly. Preserve route-only and route-with-host-address actions. Navigation never mutates an address. The controls use 20px icons,
 compact desktop buttons and at least 44px touch targets. Localized tooltips and
 accessible names identify each action without visible text beside the icons.
 The desktop action column reserves only the width needed for those four controls.
 
+Free-IP suggestions continue after full pages from associated networks whose
+primary location differs. They stop once three eligible candidates are found,
+a short page ends the result, or a 20-page safety bound is reached. Invalid
+cursors or a scan-bound failure remain visible, rather than claiming no free
+addresses exist. This is a bounded sample, not an exhaustive inventory.
+
 Free-IP suggestions have a 12-second budget per query, including capability
-discovery. A timed-out query shows the existing error or partial-results state
+discovery and all continuation pages. A timed-out query shows the existing error or partial-results state
 and allows later locations to load. Retry gives failed queries a fresh budget;
 it preserves shared metadata for other callers. A still-pending shared lookup
 may be joined again and time out again. Manual filters continue to use their

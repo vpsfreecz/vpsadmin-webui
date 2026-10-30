@@ -144,18 +144,42 @@ Free-IP suggestions apply the advertised network availability filter before the
 capability response from an older API omits the unsupported filter.
 
 Each suggestion query has one 12-second budget covering shared capability
-discovery and its address request. Expiry settles that suggestion as an error
+discovery and all of its address pages. Expiry settles that suggestion as an error
 and allows later locations to load. It cannot start an address request after
 late metadata or accept late address results. The shared capability request and
 its five-minute cache remain available to other callers; a suggestion timeout
 does not cancel or invalidate them. Capability failures are errors, not evidence
 of an older API or an empty pool.
 
+Location filtering can include networks associated with that location whose
+primary location is elsewhere. The default sample groups by primary location,
+so it follows strictly increasing ascending-ID cursors through up to 20 pages
+of 50 until it has three eligible addresses for the requested type, or reaches
+a terminal short page. Full foreign-location pages must not imply an empty
+pool. Malformed/repeated cursors and the scan bound are errors, not empty
+success. All pages share the original deadline; manual inventory filters and
+VPS assignment eligibility remain separate from primary-location sampling.
+
 Explicit retry starts a new suggestion budget. It reuses successful cached
 metadata, retries a settled failed lookup, or joins an existing pending lookup.
 Joining a stalled lookup is still bounded for that caller; retry does not force
 a second shared OPTIONS request. The budget applies per query, not to the whole
 page. Priority locations load first and later locations continue progressively.
+
+An IP ownership-only PUT can complete synchronously with no action-state ID.
+For an exact owner+environment update (or owner release), accept that form only
+after a fresh exact-IP GET confirms both `user` and `charged_environment`.
+Missing, mismatched or unreadable fields retain an uncertain outcome and block
+replay. A present invalid asynchronous receipt is never reinterpreted as a
+synchronous success. Other IP updates and route assign/free still require a
+valid action-state receipt. Do not repair accounting inconsistencies in the UI.
+
+The admin assignment shortcut opens a VPS-first dialog. Use the API's assign or
+assign-with-host-address action with the selected interface, without a preceding
+ownership PUT. The server owns accounting and location-association enforcement.
+Failed preflight reads are retryable because no mutation was submitted.
+Preflight reads reject stale owners/interfaces; final authorization stays in
+the API. Durable local guards prevent duplicate/ambiguous follow-up submissions.
 
 Administrator network create/edit checks the relevant action's `enabled` input
 metadata before displaying or sending the availability control. An edit also
@@ -290,3 +314,17 @@ they retain bounded response bodies, deadlines and session serialization.
 Browser authorization navigation remains supported. Shared local return paths
 reject backslashes and control characters before basename handling; valid
 local query/fragment state is retained. See the [review and regression proof](../work-log/2026-10-28-oauth-redirect-boundaries.md).
+
+## DNS zone presentation and owner names
+
+`DnsZone.source` identifies local primary (`internal_source`) versus externally
+sourced secondary (`external_source`) management. `role` independently describes
+forward/reverse direction. Display terms must not rewrite these API tokens or
+filters. Missing source/signing facts remain unknown. Secondary settings omit
+`dnssec_enabled` and do not infer upstream signing from its local flag. Primary
+DNSSEC behavior is unchanged. Direct non-primary DNSSEC routes make no key read.
+
+`DnsRecord.name` accepts the exact `*` owner as well as `@` and existing wildcard
+subdomain syntax. Preserve that exact owner in POST bodies and existing names on
+updates. This does not permit `*` in a CNAME/MX/NS/PTR target, broaden content
+rules or establish that saved data has been published by authoritative DNS.

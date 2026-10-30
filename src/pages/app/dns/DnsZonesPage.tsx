@@ -49,9 +49,10 @@ import {
   normalizeRole,
   normalizeSource,
   roleLabel,
-  sourceLabel,
   zoneName,
 } from './dnsZoneListSemantics';
+import { dnsZoneDnssecState, dnsZoneKindLabel } from './DnsZoneModel';
+import { DnsZoneHelp } from './DnsZoneHelp';
 import { DnsZoneCreateModal, type DnsZoneCreatedResult } from './DnsZoneCreateModal';
 
 function matchesZoneSearch(zone: DnsZone, query: string): boolean {
@@ -83,10 +84,11 @@ export function DnsZonesPage() {
     return <Badge variant="neutral">—</Badge>;
   };
 
-  const dnssecBadge = (enabled: boolean | undefined) => {
-    if (enabled === true) return <Badge variant="ok">{t('dns.zones.badge.dnssec')}</Badge>;
-    if (enabled === false) return <Badge variant="neutral">{t('dns.zones.badge.no_dnssec')}</Badge>;
-    return <Badge variant="neutral">—</Badge>;
+  const dnssecBadge = (zone: DnsZone) => {
+    const state = dnsZoneDnssecState(zone);
+    if (state === 'enabled') return <Badge variant="ok">{t('dns.zones.badge.dnssec')}</Badge>;
+    if (state === 'disabled') return <Badge variant="neutral">{t('dns.zones.badge.no_dnssec')}</Badge>;
+    return null;
   };
 
   function zoneRowVariant(zone: DnsZone) {
@@ -604,7 +606,7 @@ export function DnsZonesPage() {
       chips.push(
         <FilterChip
           key="source"
-          label={`source:${sourceLabel(sourceVal)}`}
+          label={`${t('dns.zones.create.kind.label')}: ${t(sourceVal === 'external_source' ? 'dns.zones.kind.secondary' : 'dns.zones.kind.primary')}`}
           tone="neutral"
           onRemove={() => setTextParam('source', undefined)}
           testId="dns.zones.chip.source"
@@ -756,6 +758,7 @@ export function DnsZonesPage() {
       ) : (
         <>
           {/* Mobile: cards */}
+          <DnsZoneHelp />
           <div className="space-y-3 md:hidden">
             {rows.length === 0 ? (
               <EmptyState
@@ -783,13 +786,13 @@ export function DnsZonesPage() {
                       </div>
                       <div className="flex flex-col items-end gap-1">
                         {enabledBadge(z.enabled)}
-                        {dnssecBadge(z.dnssec_enabled)}
+                        {dnssecBadge(z)}
                       </div>
                     </div>
 
                     <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted">
                       <span>
-                        {t('dns.zones.field.role')}: {z.role ? roleLabel(t, z.role) : '—'}
+                        {dnsZoneKindLabel(t, z)}{z.role ? ` · ${roleLabel(t, z.role)}` : ''}
                       </span>
                       <span>
                         {t('dns.zones.field.serial')}: {typeof z.serial === 'number' ? z.serial : '—'}
@@ -844,7 +847,7 @@ export function DnsZonesPage() {
               <tr className="border-b border-border text-left text-xs text-muted">
                 <th className="w-8 px-3 py-2"><span className="sr-only">{t('common.state')}</span></th>
                 <th className="px-3 py-2">{t('dns.zones.table.name')}</th>
-                <th className="px-3 py-2">{t('dns.zones.table.role')}</th>
+                <th className="px-3 py-2">{t('dns.zones.create.kind.label')}</th>
                 <th className="px-3 py-2">{t('dns.zones.table.status')}</th>
                 <th className="px-3 py-2">{t('dns.zones.table.security')}</th>
                 <th className="px-3 py-2">{t('dns.zones.table.serial')}</th>
@@ -878,9 +881,9 @@ export function DnsZonesPage() {
                     </Link>
                     <div className="mt-0.5 text-xs text-faint">#{z.id}</div>
                   </td>
-                  <td className="px-3 py-2">{z.role ? roleLabel(t, z.role) : '—'}</td>
+                  <td className="px-3 py-2"><div className="font-medium">{dnsZoneKindLabel(t, z)}</div><div className="text-xs text-muted">{z.role ? roleLabel(t, z.role) : t('common.na')}</div></td>
                   <td className="px-3 py-2">{enabledBadge(z.enabled)}</td>
-                  <td className="px-3 py-2">{dnssecBadge(z.dnssec_enabled)}</td>
+                  <td className="px-3 py-2">{dnssecBadge(z) ?? t('common.na')}</td>
                   <td className="px-3 py-2">{typeof z.serial === 'number' ? z.serial : '—'}</td>
                   <td className="px-3 py-2">{typeof z.default_ttl === 'number' ? z.default_ttl : '—'}</td>
                   </TableRowLink>

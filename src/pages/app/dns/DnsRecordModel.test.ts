@@ -248,3 +248,20 @@ describe('DnsRecordModel', () => {
     ]);
   });
 });
+
+describe('wildcard owner names', () => {
+  it.each(['*', '*.sub', '*.sub.example.test.'])('accepts %s without changing the API owner name', (name) => {
+    const value = { ...defaultDnsRecordDraft(), name, type: 'A', content: '192.0.2.10' };
+    expect(validateDnsRecordDraft(value, []).hasErrors).toBe(false);
+    expect(buildDnsRecordCreatePayload(42, value).name).toBe(name);
+    expect(validateExistingDnsRecord({ id: 7, name, type: 'A', content: value.content, enabled: true, ttl: 600 }, []).hasErrors).toBe(false);
+  });
+  it.each(['bad name', 'a..b', '-bad', 'a'.repeat(64)])('still rejects invalid owner %s', (name) => {
+    const value = { ...defaultDnsRecordDraft(), name, type: 'A', content: '192.0.2.10' };
+    expect(validateDnsRecordDraft(value, []).hasErrors).toBe(true);
+  });
+  it('does not accept a wildcard as a CNAME target', () => {
+    const value = { ...defaultDnsRecordDraft(), name: 'alias', type: 'CNAME', content: '*' };
+    expect(validateDnsRecordDraft(value, []).hasErrors).toBe(true);
+  });
+});

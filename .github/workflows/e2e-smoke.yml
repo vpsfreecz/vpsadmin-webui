@@ -18,7 +18,9 @@ jobs:
   smoke:
     name: PR smoke E2E (${{ matrix.project }})
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # A full PR desktop run now takes about 30 minutes before setup/reporting.
+    # Keep the complete two-worker suite and allow bounded completion headroom.
+    timeout-minutes: 40
     strategy:
       fail-fast: false
       matrix:
