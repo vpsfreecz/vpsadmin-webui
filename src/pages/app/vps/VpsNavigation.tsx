@@ -5,9 +5,17 @@ import { LinkButton } from '../../../components/ui/LinkButton';
 import { Select } from '../../../components/ui/Select';
 import { TabsNav } from '../../../components/ui/TabsNav';
 
-export function VpsTabsNav(props: { basePath: string; vpsId: number; contextSearch?: string }) {
+export function VpsTabsNav(props: {
+  basePath: string;
+  vpsId: number;
+  contextSearch?: string;
+  incidentsAvailable?: boolean;
+}) {
   const { t } = useI18n();
   const contextSearch = props.contextSearch ?? '';
+  const reportSearch = new URLSearchParams(contextSearch);
+  reportSearch.set('vps', String(props.vpsId));
+  const reportPath = `${props.basePath}/incidents?${reportSearch.toString()}`;
   const items = useMemo(
     () => [
       { label: t('vps.tabs.overview'), to: `${props.basePath}/vps/${props.vpsId}${contextSearch}`, end: true },
@@ -20,9 +28,23 @@ export function VpsTabsNav(props: { basePath: string; vpsId: number; contextSear
         end: true,
       },
       { label: t('vps.tabs.history'), to: `${props.basePath}/vps/${props.vpsId}/history${contextSearch}`, end: true },
+      {
+        label: t('vps.tabs.incidentReports'),
+        to: reportPath,
+        end: true,
+      },
+      ...(props.incidentsAvailable
+        ? [
+            {
+              label: t('vps.tabs.incidents'),
+              to: `${props.basePath}/vps/${props.vpsId}/incidents${contextSearch}`,
+              end: true,
+            },
+          ]
+        : []),
       { label: t('vps.tabs.console'), to: `${props.basePath}/vps/${props.vpsId}/console${contextSearch}`, end: true },
     ],
-    [contextSearch, props.basePath, props.vpsId, t]
+    [contextSearch, props.basePath, props.incidentsAvailable, props.vpsId, reportPath, t]
   );
 
   return <TabsNav items={items} />;
@@ -127,7 +149,9 @@ export function VpsActionsMenu(props: {
                 {t('vps.overview.admin_actions.user_data')}
               </option>
             ) : null}
-            <option value={`${props.basePath}/user-namespaces`}>{t('vps.overview.admin_actions.user_namespaces')}</option>
+            <option value={`${props.basePath}/user-namespaces`}>
+              {t('vps.overview.admin_actions.user_namespaces')}
+            </option>
             <option value={contextualVpsPath('/lifecycle/lifetime')}>{t('action.vps.lifecycle.label')}</option>
             <option value={contextualVpsPath('/lifecycle/replace')}>{t('action.vps.replace.label')}</option>
             <option value={contextualVpsPath('/lifecycle/migrate')}>{t('action.vps.migrate.label')}</option>

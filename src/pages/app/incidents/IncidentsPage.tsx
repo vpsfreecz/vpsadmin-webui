@@ -12,6 +12,8 @@ import { FilterBar } from '../../../components/layout/FilterBar';
 import { ListShell } from '../../../components/layout/ListShell';
 import { PageHeader } from '../../../components/layout/PageHeader';
 import { searchUsers } from '../../../lib/api/users';
+import { IncidentNoticeSummary } from './IncidentNoticeSummary';
+import { IncidentPolicyFilter } from './IncidentPolicyFilter';
 import { incidentCreateHref } from './incidentCreateContext';
 import { fetchIncidentReports } from '../../../lib/api/incidents';
 import { fetchMailboxes } from '../../../lib/api/mailer';
@@ -46,6 +48,7 @@ import { VpsLookupInput } from '../../../components/ui/VpsLookupInput';
 import { dotVariantFromRowVariant } from '../../../lib/variantMap';
 import {
   canonicalKey,
+  clearIncidentFilters,
   incidentRowVariant,
   looksLikeIpish,
   mailboxLabel,
@@ -92,6 +95,7 @@ export function IncidentsPage() {
   );
   const activeSearchParams = normalizedSearch.searchParams;
   const activeSearchParamsKey = activeSearchParams.toString();
+  const policyKey = activeSearchParams.get('policy_key') || undefined;
 
   const [vps, setVps] = useState(() => activeSearchParams.get('vps') ?? '');
   const [user, setUser] = useState(() => activeSearchParams.get('user') ?? '');
@@ -185,7 +189,7 @@ export function IncidentsPage() {
   }, [activeSearchParams, assignment, assignmentId, codename, filedBy, filedById, ip, isAdmin, mailbox, mailboxId, searchParamsKey, setSp, user, userId, vps, vpsId]);
 
   const filtersActive = Boolean(
-    vpsId ||
+    policyKey || vpsId ||
       (isAdmin && userId) ||
       (isAdmin && filedById) ||
       ip.trim() ||
@@ -204,7 +208,7 @@ export function IncidentsPage() {
       filedBy: filedById,
       ip: ip.trim(),
       assignment: assignmentId,
-      codename: codename.trim(),
+      codename: codename.trim(), policyKey,
       mailbox: mailboxId,
     }),
     searchParams: activeSearchParams,
@@ -225,7 +229,7 @@ export function IncidentsPage() {
         filedBy: filedById,
         ip: ip.trim(),
         assignment: assignmentId,
-        codename: codename.trim(),
+        codename: codename.trim(), policyKey,
         mailbox: mailboxId,
         scope: basePath,
       },
@@ -241,6 +245,7 @@ export function IncidentsPage() {
           ipAddr: ip.trim() || undefined,
           ipAddressAssignmentId: assignmentId,
           codename: codename.trim() || undefined,
+          policyKey,
           mailboxId,
           includes:
             isAdmin ? 'user,vps,ip_address_assignment,filed_by,mailbox' : 'vps,ip_address_assignment,filed_by',
@@ -282,6 +287,7 @@ export function IncidentsPage() {
     setMailbox('');
     setSmart('');
     setSmartErrors([]);
+    setSp(clearIncidentFilters(activeSearchParams), { flushSync: true });
   };
 
   const openIncident = (id: number) => {
@@ -627,6 +633,10 @@ export function IncidentsPage() {
       );
     }
 
+    if (policyKey) chips.push(<FilterChip key="policy" label={`${t('incidentEscalation.type')}: ${policyKey}`}
+      onRemove={() => { const next = new URLSearchParams(activeSearchParams); next.delete('policy_key'); next.delete('from_id'); next.set('page', '1'); setSp(next, { flushSync: true }); }}
+      testId="incidents.chip.policy" />);
+
     if (codename.trim()) {
       chips.push(
         <FilterChip
@@ -662,7 +672,7 @@ export function IncidentsPage() {
     }
 
     return chips;
-  }, [assignmentId, codename, filedById, ip, isAdmin, mailboxId, smartErrors, userId, vpsId]);
+  }, [activeSearchParams, assignmentId, codename, filedById, ip, isAdmin, mailboxId, policyKey, setSp, smartErrors, t, userId, vpsId]);
 
   const header = (
     <PageHeader
@@ -719,6 +729,8 @@ export function IncidentsPage() {
             >
               <SlidersHorizontal className="h-4 w-4" aria-hidden />
             </Button>
+
+            <IncidentPolicyFilter />
 
             <CopyButton className="h-11 min-w-11"
               text={shareUrl}
@@ -1049,6 +1061,7 @@ export function IncidentsPage() {
                           <div className="min-w-0 text-sm font-medium leading-5" title={subject || undefined}>
                             {subject || '—'}
                           </div>
+                          <IncidentNoticeSummary report={r} />
                         </td>
                         <td className="px-3 py-2 font-mono text-xs">
                           <span className="block" title={codename || undefined}>
@@ -1128,6 +1141,7 @@ export function IncidentsPage() {
                         <div className="mt-1 text-sm font-medium text-text" title={subject || undefined}>
                           {subject || '—'}
                         </div>
+                        <IncidentNoticeSummary report={r} />
 
                         <div className="mt-2 flex min-w-0 flex-wrap items-center gap-2 text-sm text-muted">
                           {isAdmin ? (

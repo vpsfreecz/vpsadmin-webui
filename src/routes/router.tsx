@@ -15,7 +15,6 @@ import { ErrorPage } from '../pages/ErrorPage';
 import { NotFoundPage } from '../pages/NotFoundPage';
 import { RootErrorPage } from '../pages/RootErrorPage';
 
-
 const DatasetsListPage = lazyRoute(() => import('../pages/app/datasets/DatasetsListPage'), 'DatasetsListPage');
 const DatasetLayout = lazyRoute(() => import('../pages/app/datasets/DatasetLayout'), 'DatasetLayout');
 const DatasetOverviewPage = lazyRoute(() => import('../pages/app/datasets/DatasetOverviewPage'), 'DatasetOverviewPage');
@@ -171,6 +170,7 @@ export const router = createBrowserRouter([
                 { path: 'features', element: <CoreRoutes.VpsFeaturesPage /> },
                 { path: 'maintenance', element: <CoreRoutes.VpsMaintenancePage /> },
                 { path: 'history', element: <CoreRoutes.VpsHistoryPage /> },
+                { path: 'incidents', element: <CoreRoutes.VpsIncidentPoliciesPage /> },
                 { path: 'lifecycle', element: <CoreRoutes.VpsLifecyclePage /> },
                 { path: 'lifecycle/:lifecycleAction', element: <CoreRoutes.VpsLifecyclePage /> },
                 { path: 'console', element: <CoreRoutes.VpsConsolePage /> },
@@ -372,6 +372,7 @@ export const router = createBrowserRouter([
                 { path: 'features', element: <CoreRoutes.VpsFeaturesPage /> },
                 { path: 'maintenance', element: <CoreRoutes.VpsMaintenancePage /> },
                 { path: 'history', element: <CoreRoutes.VpsHistoryPage /> },
+                { path: 'incidents', element: <CoreRoutes.VpsIncidentPoliciesPage /> },
                 { path: 'lifecycle', element: <CoreRoutes.VpsLifecyclePage /> },
                 { path: 'lifecycle/:lifecycleAction', element: <CoreRoutes.VpsLifecyclePage /> },
                 { path: 'console', element: <CoreRoutes.VpsConsolePage /> },
