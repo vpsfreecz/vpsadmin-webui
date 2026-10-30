@@ -329,20 +329,6 @@
       }
     },
     {
-      "path": "src/pages/app/dns/DnsRecordModel.ts",
-      "rule": "crossed-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "e6c88d98b54973d049b3673f5f323947f3f7909794e3ff8e5fcbd9b28108c971",
-      "old": 0,
-      "allowance": 537,
-      "rationale": "At the recorded source revision, this file already contained DNS record form validation and mapping; extract the coherent section with focused behavior coverage before removing this exception.",
-      "owner": "WebUI implementation lead",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 500
-      }
-    },
-    {
       "path": "src/pages/app/vps/VpsAccessPage.tsx",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",

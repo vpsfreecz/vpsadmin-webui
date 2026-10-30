@@ -1544,3 +1544,10 @@ served-bundle browser checks passed, plus actual mobile WebKit login/logout.
 Original fixture access restored/revoked; matching rollback retained. Main and
 production remain unchanged; original PRs remain open. See the receipt for
 retained setup failures, two existing mobile skips and audit limits.
+
+## 2026-10-30 — DNS kinds, DNSSEC responsibility and wildcard records
+
+Use consistent primary/secondary and forward/reverse terminology, keep local
+DNSSEC editing on known primary zones and accept the API's bare wildcard owner.
+[Implementation and evidence](docs/work-log/2026-10-30-dns-zone-semantics.md).
+Prepared for a dev-only preview with PR113/114; no production or main merge.

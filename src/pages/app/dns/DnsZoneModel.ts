@@ -27,3 +27,23 @@ export function isSecondaryDnsZone(zone: DnsZone): boolean {
 export function dnsZoneTransferPeerType(zone: DnsZone): 'primary_type' | 'secondary_type' {
   return isSecondaryDnsZone(zone) ? 'primary_type' : 'secondary_type';
 }
+
+/** Display only a positively identified zone kind; direction is independent. */
+export function dnsZoneKind(zone: DnsZone): 'primary' | 'secondary' | null {
+  if (isSecondaryDnsZone(zone)) return 'secondary';
+  const source = normalizedToken(zone.source);
+  const type = normalizedToken(zone.type ?? zone.zone_type);
+  return source === 'internal_source' || source === 'internal'
+    || type === 'primary_type' || type === 'primary' ? 'primary' : null;
+}
+
+export function dnsZoneKindLabel(t: (key: string) => string, zone: DnsZone): string {
+  const kind = dnsZoneKind(zone);
+  return kind ? t(`dns.zones.kind.${kind}`) : t('common.na');
+}
+
+/** A secondary's local flag does not describe its upstream DNSSEC signatures. */
+export function dnsZoneDnssecState(zone: DnsZone): 'enabled' | 'disabled' | null {
+  if (dnsZoneKind(zone) !== 'primary') return null;
+  return zone.dnssec_enabled === true ? 'enabled' : zone.dnssec_enabled === false ? 'disabled' : null;
+}

@@ -23,7 +23,7 @@ import { DnsZoneContextProvider } from './DnsZoneContext';
 import { DnsZoneRecentTransactionsCard } from './DnsZoneRecentTransactionsCard';
 import { ScopeMismatchCard } from '../../../components/layout/ScopeMismatchCard';
 import { useDnsZoneTransactionChains } from './useDnsZoneTransactionChains';
-import { isSecondaryDnsZone } from './DnsZoneModel';
+import { dnsZoneDnssecState, dnsZoneKindLabel, isSecondaryDnsZone } from './DnsZoneModel';
 
 function zoneTitle(z: any): string {
   return String(z?.name ?? z?.label ?? `Zone #${z?.id}`);
@@ -109,6 +109,7 @@ export function DnsZoneLayout() {
   }
 
   const secondaryZone = isSecondaryDnsZone(zone);
+  const dnssecState = dnsZoneDnssecState(zone);
   const tabs = secondaryZone
     ? [
         { label: t('dns.zone.tabs.transfers'), to: `${basePath}/dns/zones/${zone.id}/transfers` },
@@ -172,12 +173,12 @@ export function DnsZoneLayout() {
               ) : (
                 <Badge variant="warn">{t('common.disabled')}</Badge>
               )}
-              {zone.dnssec_enabled === true ? (
+              {dnssecState === 'enabled' ? (
                 <Badge variant="ok">{t('dns.zones.badge.dnssec')}</Badge>
-              ) : (
+              ) : dnssecState === 'disabled' ? (
                 <Badge variant="neutral">{t('dns.zones.badge.no_dnssec')}</Badge>
-              )}
-              {secondaryZone ? <Badge variant="info">{t('dns.zones.source.external')}</Badge> : null}
+              ) : null}
+              <Badge variant="info">{dnsZoneKindLabel(t, zone)}</Badge>
               {zone.role ? <Badge variant="neutral">{zoneRoleLabel(t, zone.role)}</Badge> : null}
             </>
           }

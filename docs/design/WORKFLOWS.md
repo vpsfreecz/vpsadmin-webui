@@ -319,6 +319,21 @@ backend blocker. [Datasets](../../src/lib/api/datasets.ts),
 
 ## DNS and networking
 
+Zone presentation distinguishes primary/secondary kind (`internal_source` and
+`external_source`) from forward/reverse direction. These are independent axes,
+not translations of each other. Desktop rows and mobile cards show both; detail
+and creation use the same terms. Preserve role/source API filters and existing
+URL aliases. A collapsed explanation describes local management, upstream
+transfers, direction and DNSSEC responsibility. Missing source is unknown.
+
+Only positively identified primary zones display the local DNSSEC enabled/
+disabled flag and editor. Secondary settings omit `dnssec_enabled`; their
+upstream signing state cannot be inferred from that local flag. A direct
+secondary DNSSEC route explains primary-side management without querying keys.
+Wildcard owner `*` is valid in listing/create/edit, alongside existing `*.sub`.
+Do not accept wildcard target hostnames or relax content/TTL/conflict rules.
+
+
 **Intent:** create/edit zones and records, configure transfers, servers, TSIG and
 DNSSEC, inspect logs, and manage relevant IP/interface/resolver resources.
 Administrators also have network/address inventories and allocation operations.

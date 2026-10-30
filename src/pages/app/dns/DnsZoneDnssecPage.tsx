@@ -7,6 +7,8 @@ import { CopyButton } from '../../../components/ui/CopyButton';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { ErrorState } from '../../../components/ui/ErrorState';
 import { LoadingState } from '../../../components/ui/LoadingState';
+import { Alert } from '../../../components/ui/Alert';
+import { dnsZoneKind } from './DnsZoneModel';
 import { Badge } from '../../../components/ui/Badge';
 import { fetchDnssecRecords, type DnssecRecord } from '../../../lib/api/dns';
 import { formatDateTime } from '../../../lib/format';
@@ -25,10 +27,14 @@ export function DnsZoneDnssecPage() {
   const { t } = useI18n();
   const { zone } = useDnsZoneContext();
 
+  const primaryZone = dnsZoneKind(zone) === 'primary';
   const listQ = useQuery({
     queryKey: ['dnssec_records', zone.id],
+    enabled: primaryZone,
     queryFn: async () => (await fetchDnssecRecords({ dns_zone: zone.id, limit: 200 })).data,
   });
+
+  if (!primaryZone) return <Alert variant="info" title={t('dns.zone.dnssec.title')} testId="dns.dnssec.managed_elsewhere">{t('dns.zone.dnssec.managed_elsewhere')}</Alert>;
 
   if (listQ.isLoading) return <LoadingState testId="dns.dnssec.loading" label={t('dns.zone.dnssec.loading')} />;
   if (listQ.isError) return <ErrorState testId="dns.dnssec.error" title={t('dns.zone.dnssec.load_failed')} error={listQ.error} onRetry={() => void listQ.refetch()} showBack={false} />;
