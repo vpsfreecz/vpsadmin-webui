@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import type { Mailbox } from '../../../lib/api/mailer';
 import {
   canonicalKey,
+  clearIncidentFilters,
   resolveMailboxId,
   UNSUPPORTED_INCIDENT_SEARCH_KEY,
 } from './incidentListSemantics';
@@ -65,4 +66,11 @@ describe('resolveMailboxId', () => {
     expect(resolveMailboxId(mailboxes, 'operations')).toEqual({ err: 'ambiguous' });
     expect(resolveMailboxId(mailboxes, 'billing')).toEqual({ err: 'none' });
   });
+});
+
+it('clears a URL-backed retired policy with the other report filters, retaining page size and unrelated context', () => {
+  const initial = new URLSearchParams('policy_key=retired_key&vps=12&user=7&codename=manual&page=4&from_id=90&limit=25&highlight=88');
+  const cleared = clearIncidentFilters(initial);
+  expect(Object.fromEntries(cleared)).toEqual({ page: '1', limit: '25', highlight: '88' });
+  expect(initial.get('policy_key')).toBe('retired_key');
 });

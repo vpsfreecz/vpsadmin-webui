@@ -8,6 +8,8 @@ import { PageContainer } from '../../../components/layout/PageContainer';
 import { fetchIncidentReport } from '../../../lib/api/incidents';
 import { formatDateTime } from '../../../lib/format';
 
+import { IncidentNoticeSummary } from './IncidentNoticeSummary';
+import { IncidentPolicyHistory } from './IncidentPolicyHistory';
 import { Badge } from '../../../components/ui/Badge';
 import { Button } from '../../../components/ui/Button';
 import { Card, CardBody, CardHeader } from '../../../components/ui/Card';
@@ -169,6 +171,7 @@ export function IncidentReportDetailPage() {
         <Card testId="incidents.detail.summary" className="break-words">
           <CardHeader title={t('incidents.detail.summary_title')} subtitle={r.subject ? String(r.subject) : undefined} />
           <CardBody>
+            <IncidentNoticeSummary report={r} />
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
               <div>
                 <div className="text-xs text-muted">{t('incidents.field.id')}</div>
@@ -267,6 +270,7 @@ export function IncidentReportDetailPage() {
             </pre>
           </CardBody>
         </Card>
+        {!r.notice_kind ? <IncidentPolicyHistory report={r} /> : null}
       </div>
     </PageContainer>
   );

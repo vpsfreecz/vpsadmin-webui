@@ -25,6 +25,8 @@ import { requireActionStateResult } from './apiErrors';
 import { narrowApiResult } from './apiOutput';
 import { getApi } from './sdk';
 
+export type VpsIncidentStatus = 'clear' | 'near_limit' | 'warning' | 'stop_threshold';
+
 type VpsReference = Pick<OsTemplate__ShowOutput, 'id' | 'name' | 'label'> & Record<string, unknown>;
 type VpsOwner = Pick<User__ShowOutput, 'id' | 'login' | 'full_name'> & Record<string, unknown>;
 type VpsEnvironment = Pick<Environment__ShowOutput, 'id' | 'label'> & Record<string, unknown>;
@@ -97,16 +99,20 @@ function isVps(value: unknown): value is Vps {
   const strings = [
     'hostname', 'object_state', 'expiration_date', 'remind_after_date', 'created_at',
     'cgroup_version', 'config', 'info', 'maintenance_lock', 'maintenance_lock_reason', 'map_mode',
+    'incident_action_state', 'incident_last_stop_at',
+    'incident_next_stop_allowed_at', 'incident_accounting_since',
   ] satisfies readonly (keyof Vps__IndexOutput[number])[];
   const numbers = [
     'uptime', 'process_count', 'cpu', 'cpu_idle', 'cpu_iowait', 'cpu_irq', 'cpu_limit',
     'cpu_nice', 'cpu_softirq', 'cpu_system', 'cpu_user', 'memory', 'swap', 'diskspace',
     'used_memory', 'used_swap', 'used_diskspace', 'loadavg1', 'loadavg5', 'loadavg15',
     'autostart_priority', 'start_menu_timeout', 'implicit_oom_report_rule_hit_count',
+    'incident_warning_count', 'incident_stop_threshold_count', 'incident_action_chain_id',
   ] satisfies readonly (keyof Vps__IndexOutput[number])[];
   const booleans = [
     'is_running', 'manage_hostname', 'allow_admin_modifications', 'enable_network',
     'autostart_enable', 'enable_os_template_auto_update', 'in_rescue_mode', 'onstartall',
+    'incident_enforcement_enabled',
   ] satisfies readonly (keyof Vps__IndexOutput[number])[];
   return hasOptionalStrings(value, strings)
     && numbers.every(key => value[key] === undefined || value[key] === null
@@ -185,6 +191,9 @@ export async function fetchVpsList(opts?: {
   fromId?: number;
   hostnameAny?: string;
   hostnameExact?: string;
+  incidentPolicy?: string;
+  incidentStatus?: VpsIncidentStatus;
+  incidentEnforcementEnabled?: boolean;
   user?: number;
   userNamespaceMap?: number;
   node?: number;
@@ -207,6 +216,9 @@ export async function fetchVpsList(opts?: {
   if (opts?.node !== undefined) params['node'] = opts.node;
   if (opts?.location !== undefined) params['location'] = opts.location;
   if (opts?.environment !== undefined) params['environment'] = opts.environment;
+  if (opts?.incidentPolicy !== undefined) params['incident_policy'] = opts.incidentPolicy;
+  if (opts?.incidentPolicy !== undefined && opts.incidentStatus !== undefined) params['incident_status'] = opts.incidentStatus;
+  if (opts?.incidentEnforcementEnabled !== undefined) params['incident_enforcement_enabled'] = opts.incidentEnforcementEnabled;
   if (opts?.includes) meta['includes'] = opts.includes;
   if (opts?.count !== undefined) meta['count'] = opts.count;
 
@@ -232,17 +244,17 @@ export async function updateVps(vpsId: number, params: Vps__UpdateInput) {
     path: { vps_id: vpsId },
     params,
   });
-  // Lifetime dates and an isolated admin-modification preference can be saved
-  // synchronously. Preserve receipt validation for every other update and for
-  // any action-state metadata that the server does provide.
+  // Only the isolated shared incident permission write is synchronous.
+  // Unrelated operations and any provided receipt retain their existing guards.
   const lifetimeOnlyKeys = new Set(['expiration_date', 'remind_after_date', 'change_reason']);
   const lifetimeOnly = Object.keys(params).length > 0
     && Object.keys(params).every((key) => lifetimeOnlyKeys.has(key));
   const preferenceOnly = Object.keys(params).length === 1
     && typeof params['allow_admin_modifications'] === 'boolean';
+  const incidentOnly = Object.keys(params).length === 1 && typeof params.incident_enforcement_enabled === 'boolean';
   const hasReceipt = ['action_state_id', 'state_id', 'action_state', 'state']
     .some((key) => res.meta?.[key] != null);
-  return (lifetimeOnly || preferenceOnly) && !hasReceipt ? res : requireActionStateResult(res, 'VPS update');
+  return (lifetimeOnly || preferenceOnly || incidentOnly) && !hasReceipt ? res : requireActionStateResult(res, 'VPS update');
 }
 
 export async function createVps(payload: CreateVpsPayload) {

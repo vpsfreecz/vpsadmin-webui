@@ -1,7 +1,7 @@
 import { apiWire } from '../../test/haveapiXhr';
 import { describe, expect, test, vi } from 'vitest';
 
-import { fetchIncidentReports } from './incidents';
+import { fetchIncidentReport, fetchIncidentReports } from './incidents';
 
 function mockFetchOk(response: any) {
   return vi.fn().mockResolvedValue({ ok: true, json: async () => ({ status: true, response }) });
@@ -54,4 +54,32 @@ describe('incident API wrappers', () => {
     expect(u.searchParams.has('incident_report[q]')).toBe(false);
     expect(u.searchParams.has('incident_report[subject]')).toBe(false);
   });
+});
+
+
+test('retains scoped notice metadata through actual SDK list/detail decoding', async () => {
+  const notice = { id: 12, notice_kind: 'stop_completed', trigger_incident_report_id: 7, notice_mail_state: 'failed' };
+  apiWire.respond = () => ({ json: async () => ({ status: true, response: { incident_reports: [notice, { id: 13, notice_kind: null, trigger_incident_report_id: null, notice_mail_state: null }] } }) });
+  const list = await fetchIncidentReports({ vpsId: 5 });
+  expect(list.data[0]).toMatchObject(notice);
+  expect(list.data[1]).toMatchObject({ notice_kind: null, trigger_incident_report_id: null, notice_mail_state: null });
+  apiWire.respond = () => ({ json: async () => ({ status: true, response: { incident_report: notice } }) });
+  expect((await fetchIncidentReport(12)).data).toMatchObject(notice);
+});
+test.each([
+  { notice_kind: 7 }, { notice_mail_state: {} }, { trigger_incident_report_id: '7' },
+])('rejects malformed new notice metadata at the existing output boundary (%j)', async invalid => {
+  apiWire.respond = () => ({ json: async () => ({ status: true, response: { incident_report: { id: 12, ...invalid } } }) });
+  await expect(fetchIncidentReport(12)).rejects.toMatchObject({ name: 'ApiOutputError' });
+});
+test('still decodes old reports with no notice fields', async () => {
+  apiWire.respond = () => ({ json: async () => ({ status: true, response: { incident_report: { id: 12, subject: 'Ordinary report' } } }) });
+  expect((await fetchIncidentReport(12)).data).toEqual({ id: 12, subject: 'Ordinary report' });
+});
+
+test('preserves explicit saved originating notice fields and ordinary nulls through actual SDK decoding', async () => {
+  apiWire.respond = mockFetchOk({ incident_report: { id: 88, notice_kind: 'warning', notice_policy_key: 'retired_key', notice_policy_label: 'Saved label', vps: { id: 12 } } });
+  expect((await fetchIncidentReport(88)).data).toMatchObject({ notice_policy_key: 'retired_key', notice_policy_label: 'Saved label' });
+  apiWire.respond = mockFetchOk({ incident_report: { id: 89, notice_kind: null, notice_policy_key: null, notice_policy_label: null } });
+  expect((await fetchIncidentReport(89)).data).toMatchObject({ notice_policy_key: null, notice_policy_label: null });
 });

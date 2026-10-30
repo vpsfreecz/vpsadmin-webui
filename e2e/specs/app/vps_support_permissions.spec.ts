@@ -36,7 +36,7 @@ test('@pr-smoke support account stays read-only inside the admin VPS shell', asy
   let nodeRequests = 0;
   const mutatingApiRequests: string[] = [];
   page.on('request', (request) => {
-    if (!request.url().includes('/api/v7.0/') || request.method() === 'GET') return;
+    if (!request.url().includes('/api/v7.0/') || ['GET', 'HEAD', 'OPTIONS'].includes(request.method())) return;
     const pathname = new URL(request.url()).pathname;
     // Route changes persist the last visited UI section for every authenticated
     // role. That request is unrelated to mutating the inspected VPS.
