@@ -45,6 +45,8 @@ for (const language of ['en', 'cs'] as const) {
       await expect(card.getByRole('link').first()).toHaveAttribute('href', `${prefix}/incidents?vps=123&codename=oomd`);
       await expect(page.getByTestId('vps.incident.settings')).toHaveCount(admin ? 1 : 0);
       await card.scrollIntoViewIfNeeded();
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
       await page.screenshot({ path: testInfo.outputPath('memory-summary.png'), fullPage: true, scale: 'css' });
       if (admin) {
         await card.getByRole('button', { name: language === 'en' ? 'Use default limits' : 'Použít výchozí limity' }).click();
