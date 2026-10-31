@@ -3,6 +3,15 @@ import type { ResourceRef } from './appTypes';
 import type { Node } from './nodes';
 import type { User } from './users';
 
+export type VpsIncidentStatus = 'clear' | 'near_limit' | 'warning' | 'stop_threshold';
+
+export interface VpsIncidentSettings {
+  incident_policy: string;
+  incident_warning_limit_override: number | null;
+  incident_stop_limit_override: number | null;
+  incident_enforcement_enabled: boolean;
+}
+
 export interface Vps {
   id: number;
   hostname: string;
@@ -24,6 +33,25 @@ export interface Vps {
   cgroup_version?: number | string;
   map_mode?: 'native' | 'zfs' | string;
   allow_admin_modifications?: boolean;
+  incident_policy?: string;
+  incident_policy_label?: string;
+  incident_count_7d?: number;
+  incident_count_30d?: number;
+  incident_warning_limit?: number;
+  incident_stop_limit?: number;
+  incident_warning_limit_override?: number | null;
+  incident_stop_limit_override?: number | null;
+  incident_enforcement_enabled?: boolean;
+  incident_mode?: 'observe' | 'notify' | 'enforce';
+  incident_stop_enforced?: boolean;
+  incident_status?: VpsIncidentStatus;
+  incident_last_incident_at?: string | null;
+  incident_last_warning_at?: string | null;
+  incident_last_stop_at?: string | null;
+  incident_next_stop_allowed_at?: string | null;
+  incident_action_state?: 'none' | 'pending' | 'failed' | 'uncertain';
+  incident_action_chain_id?: number | null;
+  incident_accounting_since?: string | null;
   enable_network?: boolean;
   autostart_enable?: boolean;
   autostart_priority?: number;
@@ -196,6 +224,9 @@ export async function fetchVpsList(opts?: {
   fromId?: number;
   hostnameAny?: string;
   hostnameExact?: string;
+  incidentPolicy?: string;
+  incidentStatus?: VpsIncidentStatus;
+  incidentEnforcementEnabled?: boolean;
   user?: number;
   userNamespaceMap?: number;
   node?: number;
@@ -218,6 +249,9 @@ export async function fetchVpsList(opts?: {
   if (opts?.node !== undefined) params['node'] = opts.node;
   if (opts?.location !== undefined) params['location'] = opts.location;
   if (opts?.environment !== undefined) params['environment'] = opts.environment;
+  if (opts?.incidentPolicy !== undefined) params['incident_policy'] = opts.incidentPolicy;
+  if (opts?.incidentStatus !== undefined) params['incident_status'] = opts.incidentStatus;
+  if (opts?.incidentEnforcementEnabled !== undefined) params['incident_enforcement_enabled'] = opts.incidentEnforcementEnabled;
   if (opts?.includes) meta['includes'] = opts.includes;
   if (opts?.count) meta['count'] = true;
 
@@ -232,10 +266,12 @@ export async function fetchVpsList(opts?: {
   return { ...res, data: expectArray<Vps>(res.data, 'vpses') };
 }
 
-export async function fetchVps(vpsId: number, opts?: { includes?: string; signal?: AbortSignal }) {
+export async function fetchVps(vpsId: number, opts?: { includes?: string; incidentPolicy?: string; signal?: AbortSignal }) {
   return haveApiCall<Vps>({
     method: 'GET',
     path: `/vpses/${vpsId}`,
+    namespace: 'vps',
+    params: opts?.incidentPolicy !== undefined ? { incident_policy: opts.incidentPolicy } : undefined,
     meta: opts?.includes ? { includes: opts.includes } : undefined,
     signal: opts?.signal,
   });
@@ -248,17 +284,24 @@ export async function updateVps(vpsId: number, params: Record<string, unknown>) 
     namespace: 'vps',
     params,
   });
-  // Lifetime dates and an isolated admin-modification preference can be saved
-  // synchronously. Preserve receipt validation for every other update and for
-  // any action-state metadata that the server does provide.
+  // Only isolated, explicitly selected incident settings are synchronous.
+  // Unrelated operations and any provided receipt retain their existing guards.
   const lifetimeOnlyKeys = new Set(['expiration_date', 'remind_after_date', 'change_reason']);
   const lifetimeOnly = Object.keys(params).length > 0
     && Object.keys(params).every((key) => lifetimeOnlyKeys.has(key));
   const preferenceOnly = Object.keys(params).length === 1
     && typeof params['allow_admin_modifications'] === 'boolean';
+  const incidentKeys = ['incident_warning_limit_override', 'incident_stop_limit_override', 'incident_enforcement_enabled'];
+  const incidentOnly = typeof params['incident_policy'] === 'string'
+    && /^[a-z][a-z0-9_]{0,99}$/.test(params['incident_policy'])
+    && incidentKeys.some(key => Object.prototype.hasOwnProperty.call(params, key))
+    && Object.entries(params).every(([key, value]) => key === 'incident_policy'
+      || (key === 'incident_enforcement_enabled' ? typeof value === 'boolean'
+        : ['incident_warning_limit_override', 'incident_stop_limit_override'].includes(key)
+          && (value === null || (typeof value === 'number' && Number.isSafeInteger(value) && value > 0))));
   const hasReceipt = ['action_state_id', 'state_id', 'action_state', 'state']
     .some((key) => res.meta?.[key] != null);
-  return lifetimeOnly || (preferenceOnly && !hasReceipt) ? res : requireActionStateResult(res, 'VPS update');
+  return lifetimeOnly || ((preferenceOnly || incidentOnly) && !hasReceipt) ? res : requireActionStateResult(res, 'VPS update');
 }
 
 export async function createVps(payload: CreateVpsPayload) {

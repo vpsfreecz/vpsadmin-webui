@@ -14,6 +14,7 @@ import { UsageBar } from '../../../components/ui/UsageBar';
 
 import { VpsListRowActions } from './VpsListRowActions';
 import { VpsUsageRiskBadges } from './VpsUsageRiskBadges';
+import { VpsIncidentIndicator } from './VpsIncidentIndicator';
 import { VpsRecentFailureBadge } from './VpsRecentFailureBadge';
 import type { VpsListRecord, VpsListTranslator } from './vpsListSemantics';
 
@@ -121,6 +122,7 @@ export function VpsListTable({
                 <div className="flex flex-wrap items-center gap-2" data-testid={`vps.row.${vps.id}.state`}>
                   <Badge variant={row.runtimeBadge.variant}>{row.runtimeBadge.label}</Badge>
                   <Badge variant={row.objectBadge.variant}>{row.objectBadge.label}</Badge>
+                  <VpsIncidentIndicator vps={vps} basePath={basePath} />
                   <VpsUsageRiskBadges
                     memoryRisk={row.memoryRisk}
                     diskRisk={row.diskRisk}

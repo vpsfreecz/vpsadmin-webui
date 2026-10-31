@@ -5,7 +5,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { fetchActionState } from '../../../lib/api/actionStates';
 import { fetchIpAddressesForVps } from '../../../lib/api/ipAddresses';
 import { fetchTransactionChains } from '../../../lib/api/transactions';
-import { fetchVps, vpsPasswd, vpsRestart, vpsStart, vpsStop } from '../../../lib/api/vps';
+import { type Vps, fetchVps, vpsPasswd, vpsRestart, vpsStart, vpsStop } from '../../../lib/api/vps';
+import { hasIncidentSummary } from './vpsIncidentEscalation';
 import { getMetaActionStateId, isMissingActionStateError } from '../../../lib/api/haveapi';
 import { useAppMode } from '../../../app/appMode';
 import { useAuth } from '../../../app/auth';
@@ -94,7 +95,13 @@ export function VpsLayout() {
 
   const vpsQ = useQuery({
     queryKey: ['vps', 'show', { id: vpsId }],
-    queryFn: async () => (await fetchVps(vpsId, { includes: 'node__location__environment,user,dns_resolver,user_namespace_map,os_template,dataset' })).data,
+    queryFn: async () => {
+      const previous = qc.getQueryData<Vps>(['vps', 'show', { id: vpsId }]);
+      return (await fetchVps(vpsId, {
+        includes: 'node__location__environment,user,dns_resolver,user_namespace_map,os_template,dataset',
+        incidentPolicy: previous && hasIncidentSummary(previous) ? previous.incident_policy : undefined,
+      })).data;
+    },
     enabled: Number.isFinite(vpsId) && vpsId > 0,
     refetchInterval: (query) => {
       const data = query.state.data as { is_running?: boolean } | undefined;
