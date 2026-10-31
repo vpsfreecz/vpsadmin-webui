@@ -1441,6 +1441,14 @@ this release. Scheduled autonomous development remains paused.
 
 See the [per-change investigation and verification record](docs/work-log/2026-09-30-private-ip-assignment.md).
 
+## 2026-10-31 — Member package assignment dates
+
+Show the existing assignment creation timestamp under each package name in
+administrator member detail, using the operator's account time zone. Preserve
+missing-date fallback and existing package/selection controls.
+[Contract, verification and scope](docs/work-log/2026-10-31-member-package-assigned-date.md).
+Prepared for review; no merge or deployment.
+
 ## Entry template
 
 Copy this structure for the next meaningful update; remove unused fields.

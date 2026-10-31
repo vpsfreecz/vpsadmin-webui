@@ -525,6 +525,13 @@ required, and an already soft-deleted account keeps its saved date when opened. 
 
 ### Bulk member package removal (REQ-076)
 
+The Packages tab also shows an Assigned timestamp beneath each assignment name
+(REQ-040). This is `UserClusterResourcePackage.created_at`, formatted in the
+signed-in operator's account time zone, independently of the selected member's
+zone. Show a dash when absent; never infer it from the shared definition's
+creation or the assignment's last edit. Keep the summary grouped by package and
+retain existing selection, add/edit/remove controls.
+
 In the administrator member's Packages tab, select visible removable assignments
 individually or with Select visible packages. The loaded list is still bounded
 at 500 rows; this is not an all-pages/all-members selection. Personal base

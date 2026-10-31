@@ -261,6 +261,7 @@ export const enAdmin_user = {
   "admin.user.tabs.resources": "Packages",
   "admin.user.tabs.resource_usage": "Usage",
   "admin.user.resources.title": "Assigned packages",
+  "admin.user.resources.assigned_at": "Assigned",
   "admin.user.resources.subtitle": "Add and remove resource packages for individual environments.",
   "admin.user.resources.summary.title": "Package summary",
   "admin.user.resources.summary.count": "Count",
