@@ -100,3 +100,53 @@ review handoff. Full original hosted checks remain evidence only for their
 original exact inputs. Heavy runtime/browser/build allocation and feature
 publication require lead coordination. No deployment, production mutation or
 default-branch integration occurred.
+
+## 2026-10-31 — Reviewed source and scoped browser correction
+
+Independent final application review covered all four lanes at
+`55a813b44edb915c7ed5ce68366d6d797a551606`, with no React finding and an explicit
+coherent-history/no-migrations conclusion. The lead released postreview execution
+after verifying the separate backend timestamp finding's narrow correction.
+
+The first scoped browser run at that React source remains 10 passed, one failed
+and one not run. The mobile combined-filter case exposed a second URL writer:
+pagination normalized an earlier filter URL while the next selection was pending.
+Passing the existing effective limit into each reset made its URL canonical, but
+the affected follow-up still had one pass and one desktop failure; its remaining
+old-API command never ran. The desktop trace then showed deferred router state
+losing the first selection despite the canonical URL.
+
+The bounded final correction also uses the existing `flushSync` navigation
+convention, committing each filter update before another control navigates.
+It preserves unrelated query parameters, page/cursor reset and external/Back
+navigation. It changes no shared pagination implementation, API, permissions or
+receipt behavior. Negative-before guards, 21 focused cases, final filter cases,
+types and affected audits passed. The lead directly inspected the narrow diff
+under the review skill; no full unaffected review or test rerun was required.
+
+Both affected desktop/mobile overview cases and the previously not-run mobile
+old-API case passed with retries disabled. The accepted fix was folded into the
+single application commit `4343a02cb13ba42ae50a3276715f1c8e5b7765ea`; its complete
+tree `4bee7d1455f35cd422fc385fafda18486f6ee3ea` equals the successful staged-source
+browser tree. Native Vite servers ended, with no listener on the selected port.
+The original failed results remain failed; these are scoped follow-ups, not a
+complete final-source 12-case rerun.
+
+[Four implemented synthetic captures and provenance](screenshots/2026-10-31-incident-escalation/README.md)
+show English desktop/Czech mobile detail and corrected desktop/mobile combined
+filters. The eight unchanged detail passes retain exact `55a813b4` scope; detail/
+component/adapter/catalog hashes are unchanged. Czech mobile retains that capture
+source. English desktop was recaptured at `4343a02c` with a two-line capture-only
+scroll reset so its heading/history link remain visible; that existing case and
+affected E2E types passed. The list pictures come from the corrected tested tree.
+Missing unrelated fixture data are not backend proof. The companion evidence
+commit contains Markdown/PNGs and the two capture-fixture lines, with unchanged
+runtime/toolchain and remaining test files verified separately. Existing feature
+assertions were retained.
+
+At capture time, exact published-head hosted checks remain pending. The required
+full test suites, production build and dependency audits are supplied by the
+automatic PR workflows; no duplicate full local `ci:pr` or BFF dependency restore
+is performed. Actual terminal results are recorded on PR115 and in the owning
+session evidence. Nothing was merged or deployed, and fixture results do not
+certify backend enforcement, accounting, transfer privacy or mail delivery.
