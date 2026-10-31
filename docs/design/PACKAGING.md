@@ -10,7 +10,7 @@ is disabled by default and site configuration remains separate.
 ## Reproduce the dependencies
 
 Enter `nix develop` for the locked Node and npm. The root and BFF are independent
-npm projects. Both use ordinary `buildNpmPackage` registry dependency fetching.
+npm projects. Both use ordinary `buildNpmPackage` locked dependency fetching.
 Compute each project's cache hash from its own lock:
 
 ```sh
@@ -20,7 +20,7 @@ prefetch-npm-deps bff/package-lock.json
 
 The frontend cache hash belongs to [frontend.nix](../../packages/frontend.nix);
 the separate BFF hash belongs to [bff.nix](../../packages/bff.nix). The frontend
-includes exact registry dependencies for the generated client and HaveAPI runtime,
+includes exact inputs for the generated client and HaveAPI runtime,
 with the locked XMLHttpRequest transport. See their
 [source and artifact contract](HAVEAPI_CLIENT.md). The root prefetch reports six
 bundled optional dependencies nested under `@tailwindcss/oxide-wasm32-wasi`
@@ -31,23 +31,35 @@ to work around a fetch failure.
 
 <a id="temporary-unpublished-sdk-input"></a>
 
-### Generated client registry input
+### Generated client input
 
-The root selects exact `vpsadmin-typescript-client@0.4.0`, with its canonical
-registry URL and integrity in `package-lock.json`. The release adds guarded advisory operations and inputs described in
-[the client contract](HAVEAPI_CLIENT.md#unpublished-generated-sdk); its shared
-HaveAPI runtime peer remains unchanged.
-The installed public root contains only the reviewed compiled frontend output.
+The root package uses the published `vpsadmin-typescript-client@0.5.0` registry
+archive described in [the client contract](HAVEAPI_CLIENT.md#generated-vpsadmin-typescript-sdk).
+The manifest, npm-generated lock and [SDK provenance record](../../packages/vpsadmin-typescript-client-development.json)
+select source `d8cb484748db8687554822772a98a1f873414d65`, tag `v0.5.0` and the same
+verified archive integrity. The archive includes compiled exports and declarations.
+The standard fetch and build pipeline needs no sibling checkout, private path
+or local override.
+Standard `prefetch-npm-deps` supplies the frontend hash. The shared
+HaveAPI runtime peer and separate BFF dependency graph remain unchanged.
+
+This registry release contains the required incident-policy members. It replaces
+the immutable development archive, whose original source and verification remain
+recorded in [the historical input](HAVEAPI_CLIENT.md#unpublished-generated-sdk).
+The generated SDK release prerequisite for WebUI merge is satisfied by the final
+manifest, lock and provenance; application checks, review and compatible backend
+capabilities remain separate requirements. The installed public root contains
+only the reviewed compiled frontend output.
 
 For an intentional dependency update:
 
-1. Verify the release archive, source/provenance, public exports and exact HaveAPI
+1. Verify the selected archive, source/provenance, public exports and exact HaveAPI
    peer. Keep runtime and generator versions distinct.
 2. Generate the manifest and lock with pinned npm:
    `npm install --package-lock-only --ignore-scripts --save-exact vpsadmin-typescript-client@<verified-version>`.
    Inspect the bounded lock delta and preserve unrelated dependency records.
 3. Coordinate with local runners before `npm ci`, then verify the installed
-   release and affected policy/wire and declaration checks.
+   input and affected policy/wire and declaration checks.
 4. Run `prefetch-npm-deps package-lock.json` and update only the frontend
    `npmDepsHash` for a root dependency change. The BFF lock and hash are separate.
    Commit source, lock, hash and documentation changes and complete independent
@@ -56,7 +68,7 @@ For an intentional dependency update:
 Rollback restores the matching source, manifest, lock and cache-hash set.
 The [optional local-client workflow](HAVEAPI_CLIENT.md#optional-local-generated-client-development)
 uses standard `npm pack` and a no-save npm archive override. It leaves committed
-packaging inputs unchanged; Nix continues to use the locked registry dependency.
+packaging inputs unchanged; Nix continues to use the committed locked input.
 
 ## Source, contents and provenance
 
