@@ -1,3 +1,15 @@
+## 2026-11-19: Clarify incident policy settings and filters
+
+[Scope and verification](docs/work-log/2026-11-19-incident-policy-usability.md).
+
+## 2026-11-18: Explain incident policy periods and report links
+
+[Scope and verification](docs/work-log/2026-11-18-incident-policy-explanations.md).
+
+## 2026-11-17: Organize generic incident policies in a VPS tab
+
+[Scope and verification](docs/work-log/2026-11-17-generic-incident-policies.md).
+
 ## 2026-11-09 — Consolidate the account controls under the nickname
 
 [Scope and verification](docs/work-log/2026-11-09-nickname-menu.md).
