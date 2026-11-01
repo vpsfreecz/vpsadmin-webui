@@ -11,6 +11,7 @@
     "e2e/fixtures/url.ts",
     "e2e/fixtures/vpsadmin-window.ts",
     "e2e/helpers/horizontalOverflow.ts",
+    "e2e/helpers/securityAdvisoryContract.ts",
     "e2e/specs/admin/admin_dashboard.spec.ts",
     "e2e/specs/admin/cluster_resource_maintenance.spec.ts",
     "e2e/specs/admin/ip_addresses_empty_clear_filters.spec.ts",
@@ -25,6 +26,8 @@
     "e2e/specs/admin/nodes_overview_maintenance.spec.ts",
     "e2e/specs/admin/registration_reason_presets.spec.ts",
     "e2e/specs/admin/requests_operations_smoke.spec.ts",
+    "e2e/specs/admin/security_advisory_nodes_mobile_actions.spec.ts",
+    "e2e/specs/admin/security_advisory_outages_mobile_actions.spec.ts",
     "e2e/specs/admin/user_contact_summary.spec.ts",
     "e2e/specs/admin/user_detail_page.spec.ts",
     "e2e/specs/admin/user_packages_assigned_date.spec.ts",
@@ -60,6 +63,7 @@
     "e2e/specs/app/profile_session_transaction_filter.spec.ts",
     "e2e/specs/app/profile_user_data.spec.ts",
     "e2e/specs/app/search_scope_reminder.spec.ts",
+    "e2e/specs/app/security_advisories_admin.spec.ts",
     "e2e/specs/app/security_advisory_update_mutations.spec.ts",
     "e2e/specs/app/sidebar_expanded.spec.ts",
     "e2e/specs/app/sidebar_status.spec.ts",
@@ -453,20 +457,6 @@
     {
       "path": "e2e/specs/admin/resource_package_detail_mobile_actions.spec.ts",
       "sha256": "8a8b09bde60a8e0199e0ff037849591a0afab358090fdca3f1e82aa8364d9298",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/admin/security_advisory_nodes_mobile_actions.spec.ts",
-      "sha256": "df20d6d5a98f1c715ae565b4f05767ff713a767a772414a2b44cb66e2b3a940e",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/admin/security_advisory_outages_mobile_actions.spec.ts",
-      "sha256": "77156ad3409e64ad5c9028be13b2cfd4b974855bb0537c0defed6863d056d45f",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
@@ -1118,13 +1108,6 @@
     {
       "path": "e2e/specs/app/screenshot_capture.spec.ts",
       "sha256": "bde17ff25c0ecefa5ca4e001999adb49b5c7b5737d4a3293828750043df77103",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/app/security_advisories_admin.spec.ts",
-      "sha256": "c6ca66a988658a3bfe06a774590fc2220dff27e9bf1719284aac843c16a59cf3",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."

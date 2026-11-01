@@ -4,16 +4,51 @@ import {
   fetchSecurityAdvisoryAffectedUsers,
   fetchSecurityAdvisoryAffectedVps,
   fetchSecurityAdvisoryCves,
+  fetchSecurityAdvisory,
+  fetchSecurityAdvisoryNodeStatuses,
+  type SecurityAdvisoryMutationGuards,
   type SecurityAdvisoryAffectedUser,
   type SecurityAdvisoryAffectedVps,
   type SecurityAdvisoryCve,
 } from '../../../../lib/api/securityAdvisories';
+import {
+  AdvisoryWriteError,
+  advisoryGuards,
+  nextAdvisoryRevision,
+} from '../../../../lib/api/securityAdvisoryMutations';
+
+export async function fetchAdvisoryEditSnapshot(id: number) {
+  const before = (await fetchSecurityAdvisory(id)).data;
+  const guards = advisoryGuards(before);
+  const cves = await fetchAllSecurityAdvisoryCvesForAdmin(id);
+  const statuses = (await fetchSecurityAdvisoryNodeStatuses(id, { limit: 1000, includes: 'node' })).data;
+  const after = (await fetchSecurityAdvisory(id)).data;
+  const finalGuards = advisoryGuards(after);
+  if (
+    guards.expected_content_revision !== finalGuards.expected_content_revision ||
+    guards.expected_state !== finalGuards.expected_state
+  ) {
+    throw new AdvisoryWriteError('snapshot');
+  }
+  return { advisory: before, cves, statuses, guards };
+}
+
+export function advisoryCveActions(existing: SecurityAdvisoryCve[], desired: string[]) {
+  const current = new Set(existing.map((row) => row.cve_id));
+  const wanted = new Set(desired);
+  return [
+    ...(desired.some((cve) => !current.has(cve)) ? [{ path: '/security_advisory_cves', method: 'POST' as const }] : []),
+    ...(existing.some((row) => !wanted.has(String(row.cve_id)))
+      ? [{ path: '/security_advisory_cves', method: 'DELETE' as const }]
+      : []),
+  ];
+}
 
 const MAX_CURSOR_PAGES = 1_000;
 
 async function collectCursorPages<T extends { id: number }>(
   fetchPage: (fromId: number | undefined) => Promise<{ data: T[] }>,
-  pageSize: number,
+  pageSize: number
 ): Promise<T[]> {
   const rows: T[] = [];
   const seenIds = new Set<number>();
@@ -40,36 +75,46 @@ async function collectCursorPages<T extends { id: number }>(
   throw new Error('Security advisory cursor pagination exceeded its safety limit');
 }
 
-export function fetchAllSecurityAdvisoryCvesForAdmin(
-  securityAdvisoryId: number,
-): Promise<SecurityAdvisoryCve[]> {
-  return collectCursorPages((fromId) => fetchSecurityAdvisoryCves({
-    securityAdvisoryId,
-    limit: 100,
-    fromId,
-  }), 100);
+export function fetchAllSecurityAdvisoryCvesForAdmin(securityAdvisoryId: number): Promise<SecurityAdvisoryCve[]> {
+  return collectCursorPages(
+    (fromId) =>
+      fetchSecurityAdvisoryCves({
+        securityAdvisoryId,
+        limit: 100,
+        fromId,
+      }),
+    100
+  );
 }
 
 export function fetchAllSecurityAdvisoryAffectedUsersForAdmin(
-  securityAdvisoryId: number,
+  securityAdvisoryId: number
 ): Promise<SecurityAdvisoryAffectedUser[]> {
-  return collectCursorPages((fromId) => fetchSecurityAdvisoryAffectedUsers({
-    securityAdvisoryId,
-    limit: 1_000,
-    fromId,
-    includes: 'user',
-  }), 1_000);
+  return collectCursorPages(
+    (fromId) =>
+      fetchSecurityAdvisoryAffectedUsers({
+        securityAdvisoryId,
+        limit: 1_000,
+        fromId,
+        includes: 'user',
+      }),
+    1_000
+  );
 }
 
 export function fetchAllSecurityAdvisoryAffectedVpsForAdmin(
-  securityAdvisoryId: number,
+  securityAdvisoryId: number
 ): Promise<SecurityAdvisoryAffectedVps[]> {
-  return collectCursorPages((fromId) => fetchSecurityAdvisoryAffectedVps({
-    securityAdvisoryId,
-    limit: 1_000,
-    fromId,
-    includes: 'vps,user,environment,location,node',
-  }), 1_000);
+  return collectCursorPages(
+    (fromId) =>
+      fetchSecurityAdvisoryAffectedVps({
+        securityAdvisoryId,
+        limit: 1_000,
+        fromId,
+        includes: 'vps,user,environment,location,node',
+      }),
+    1_000
+  );
 }
 
 /**
@@ -80,26 +125,32 @@ export async function reconcileSecurityAdvisoryCves(
   securityAdvisoryId: number,
   existing: SecurityAdvisoryCve[],
   desiredCves: string[],
-): Promise<void> {
+  guards: SecurityAdvisoryMutationGuards
+): Promise<number> {
   const wanted = new Set(desiredCves.map((item) => item.trim().toUpperCase()).filter(Boolean));
   const current = new Map(
     existing
       .filter((item) => typeof item.cve_id === 'string' && item.cve_id.trim())
-      .map((item) => [String(item.cve_id).trim().toUpperCase(), item]),
+      .map((item) => [String(item.cve_id).trim().toUpperCase(), item])
   );
 
   // Create additions before deleting obsolete rows. HaveAPI does not expose an
   // atomic parent+children mutation, so this ordering preserves the existing
   // CVE set if a newly requested identifier is rejected.
-  await Promise.all(
-    [...wanted]
-      .filter((cve) => !current.has(cve))
-      .map((cve) => createSecurityAdvisoryCve({ security_advisory: securityAdvisoryId, cve_id: cve })),
-  );
-
-  await Promise.all(
-    [...current.entries()]
-      .filter(([cve]) => !wanted.has(cve))
-      .map(([, item]) => deleteSecurityAdvisoryCve(item.id)),
-  );
+  let revision = guards.expected_content_revision;
+  for (const cve of [...wanted].filter((cve) => !current.has(cve))) {
+    await createSecurityAdvisoryCve({
+      security_advisory: securityAdvisoryId,
+      cve_id: cve,
+      ...guards,
+      expected_content_revision: revision,
+    });
+    revision = nextAdvisoryRevision(revision);
+  }
+  for (const [cve, item] of current) {
+    if (wanted.has(cve)) continue;
+    await deleteSecurityAdvisoryCve(item.id, { ...guards, expected_content_revision: revision });
+    revision = nextAdvisoryRevision(revision);
+  }
+  return revision;
 }

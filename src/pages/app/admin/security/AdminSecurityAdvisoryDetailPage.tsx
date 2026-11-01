@@ -16,21 +16,17 @@ import {
   fetchAllSecurityAdvisoryUpdates,
   fetchSecurityAdvisoryNodeStatuses,
   fetchSecurityAdvisoryOutageLinks,
-  publishSecurityAdvisory,
   rebuildSecurityAdvisoryAffectedVps,
-  updateSecurityAdvisory,
   type SecurityAdvisoryOutageLink,
 } from '../../../../lib/api/securityAdvisories';
 import { fetchLanguages } from '../../../../lib/api/languages';
 import { fetchNodes } from '../../../../lib/api/nodes';
 import { getMetaActionStateId } from '../../../../lib/api/haveapi';
-import { isoToLocalInput, localInputToIso } from '../../../../lib/datetimeLocal';
 import { formatErrorMessage } from '../../../../lib/errors';
 import {
   fetchAllSecurityAdvisoryAffectedUsersForAdmin,
   fetchAllSecurityAdvisoryAffectedVpsForAdmin,
   fetchAllSecurityAdvisoryCvesForAdmin,
-  reconcileSecurityAdvisoryCves,
 } from './securityAdvisoryAdminApi';
 import {
   canEditSecurityAdvisory,
@@ -38,15 +34,9 @@ import {
   resourceId,
   securityAdvisoryPublishIssues,
 } from './securityAdvisoryAdminModel';
-import {
-  securityAdvisoryEditorPayload,
-  type SecurityAdvisoryEditorValues,
-} from './SecurityAdvisoryEditorModal';
-import {
-  securityAdvisoryUpdateCreatePayload,
-  type SecurityAdvisoryUpdateValues,
-} from './SecurityAdvisoryUpdateModal';
+import { securityAdvisoryUpdateCreatePayload, type SecurityAdvisoryUpdateValues } from './SecurityAdvisoryUpdateModal';
 import { SecurityAdvisoryAffectedPanel } from './SecurityAdvisoryAffectedPanel';
+import { useSecurityAdvisoryCorrections } from './useSecurityAdvisoryCorrections';
 import { SecurityAdvisoryDetailDialogs } from './SecurityAdvisoryDetailDialogs';
 import { SecurityAdvisoryDetailHeader } from './SecurityAdvisoryDetailHeader';
 import { SecurityAdvisoryNodesPanel } from './SecurityAdvisoryNodesPanel';
@@ -93,17 +83,15 @@ export function AdminSecurityAdvisoryDetailPage() {
   });
   const statusesQ = useQuery({
     queryKey: ['security_advisory_node_statuses', advisoryId],
-    queryFn: async () => (
-      await fetchSecurityAdvisoryNodeStatuses(advisoryId, { limit: 1000, includes: 'node' })
-    ).data,
+    queryFn: async () => (await fetchSecurityAdvisoryNodeStatuses(advisoryId, { limit: 1000, includes: 'node' })).data,
     enabled: validId,
     refetchOnWindowFocus: false,
   });
   const updatesQ = useQuery({
     queryKey: ['security_advisory_updates', advisoryId],
-    queryFn: async () => (
-      await fetchAllSecurityAdvisoryUpdates({ securityAdvisoryId: advisoryId, limit: 100, includes: 'reported_by' })
-    ).data,
+    queryFn: async () =>
+      (await fetchAllSecurityAdvisoryUpdates({ securityAdvisoryId: advisoryId, limit: 100, includes: 'reported_by' }))
+        .data,
     enabled: validId,
     refetchOnWindowFocus: false,
   });
@@ -121,9 +109,8 @@ export function AdminSecurityAdvisoryDetailPage() {
   });
   const outagesQ = useQuery({
     queryKey: ['security_advisory_outage_links', advisoryId],
-    queryFn: async () => (
-      await fetchSecurityAdvisoryOutageLinks({ securityAdvisoryId: advisoryId, limit: 100, includes: 'outage' })
-    ).data,
+    queryFn: async () =>
+      (await fetchSecurityAdvisoryOutageLinks({ securityAdvisoryId: advisoryId, limit: 100, includes: 'outage' })).data,
     enabled: validId,
     refetchOnWindowFocus: false,
   });
@@ -133,11 +120,11 @@ export function AdminSecurityAdvisoryDetailPage() {
 
   const cveLabels = useMemo(
     () => advisoryCveLabels({ id: advisoryId, cves: cvesQ.data ?? [] }),
-    [advisoryId, cvesQ.data],
+    [advisoryId, cvesQ.data]
   );
   const readinessIssues = useMemo(
     () => securityAdvisoryPublishIssues({ cves: cveLabels, nodes: nodesQ.data ?? [], statuses: statusesQ.data ?? [] }),
-    [cveLabels, nodesQ.data, statusesQ.data],
+    [cveLabels, nodesQ.data, statusesQ.data]
   );
   const updates = useMemo(() => sortSecurityAdvisoryUpdates(updatesQ.data ?? []), [updatesQ.data]);
 
@@ -149,82 +136,18 @@ export function AdminSecurityAdvisoryDetailPage() {
       queryClient.invalidateQueries({ queryKey: ['security_advisory_updates', advisoryId] }),
       queryClient.invalidateQueries({ queryKey: ['security_advisory_outage_links', advisoryId] }),
       queryClient.invalidateQueries({ queryKey: ['admin', 'security_advisories'] }),
+      queryClient.invalidateQueries({
+        predicate: (query) => /security.?advis|advisories/.test(JSON.stringify(query.queryKey)),
+      }),
     ]);
   };
 
-  const [editorOpen, setEditorOpen] = useState(false);
-  const [editorError, setEditorError] = useState<string | null>(null);
-  const editM = useMutation({
-    mutationFn: async ({ values, cves }: { values: SecurityAdvisoryEditorValues; cves: string[] }) => {
-      const freshAdvisory = (await fetchSecurityAdvisory(advisoryId)).data;
-      if (!canEditSecurityAdvisory(freshAdvisory.state)) {
-        setEditorOpen(false);
-        await queryClient.invalidateQueries({ queryKey: ['security_advisory', advisoryId] });
-        throw new Error(t('admin.security_advisories.validation.parent_locked'));
-      }
-      const updated = await updateSecurityAdvisory(advisoryId, securityAdvisoryEditorPayload(values));
-      try {
-        await reconcileSecurityAdvisoryCves(advisoryId, cvesQ.data ?? [], cves);
-        return { advisory: updated.data, childError: null };
-      } catch (error) {
-        return { advisory: updated.data, childError: formatErrorMessage(error) };
-      }
-    },
-    onSuccess: async ({ childError }) => {
-      await invalidateDetail();
-      setEditorOpen(false);
-      setEditorError(null);
-      pushToast(
-        childError
-          ? { variant: 'warn', title: t('admin.security_advisories.toast.saved_without_cves'), body: childError }
-          : { variant: 'ok', title: t('admin.security_advisories.toast.saved') },
-      );
-    },
-    onError: (error) => {
-      const message = formatErrorMessage(error);
-      setEditorError(message);
-      pushToast({ variant: 'danger', title: t('admin.security_advisories.toast.save_failed'), body: message });
-    },
+  const corrections = useSecurityAdvisoryCorrections({
+    advisoryId,
+    advisory: advisoryQ.data,
+    invalidate: invalidateDetail,
+    evict: () => queryClient.removeQueries({ queryKey: ['security_advisory', advisoryId] }),
   });
-
-  const [publishOpen, setPublishOpen] = useState(false);
-  const [publishAt, setPublishAt] = useState('');
-  const [publishMail, setPublishMail] = useState(false);
-  const [publishError, setPublishError] = useState<string | null>(null);
-  const openPublish = () => {
-    setPublishAt(isoToLocalInput(advisoryQ.data?.published_at || new Date().toISOString()));
-    setPublishMail(false);
-    setPublishError(null);
-    setPublishOpen(true);
-  };
-  // audit:ignore trackActionState-no-object -- security advisories are not a supported Chrome object lock.
-  const publishM = useMutation({
-    mutationFn: async () => {
-      const freshAdvisory = (await fetchSecurityAdvisory(advisoryId)).data;
-      if (String(freshAdvisory.state ?? '') !== 'draft') {
-        setPublishOpen(false);
-        await queryClient.invalidateQueries({ queryKey: ['security_advisory', advisoryId] });
-        throw new Error(t('admin.security_advisories.validation.parent_locked'));
-      }
-      const parsed = localInputToIso(publishAt);
-      if (!parsed.valid) throw new Error(t('admin.security_advisories.validation.date'));
-      return publishSecurityAdvisory(advisoryId, { send_mail: publishMail, published_at: parsed.iso ?? null });
-    },
-    onSuccess: async (result) => {
-      const actionStateId = getMetaActionStateId(result.meta);
-      if (actionStateId) chrome.trackActionState(actionStateId);
-      setPublishOpen(false);
-      setPublishError(null);
-      await invalidateDetail();
-      pushToast({ variant: 'ok', title: t('admin.security_advisories.toast.published') });
-    },
-    onError: (error) => {
-      const message = formatErrorMessage(error);
-      setPublishError(message);
-      pushToast({ variant: 'danger', title: t('admin.security_advisories.toast.publish_failed'), body: message });
-    },
-  });
-
   const [rebuildOpen, setRebuildOpen] = useState(false);
   const rebuildM = useMutation({
     mutationFn: () => rebuildSecurityAdvisoryAffectedVps(advisoryId),
@@ -255,9 +178,7 @@ export function AdminSecurityAdvisoryDetailPage() {
         await queryClient.invalidateQueries({ queryKey: ['security_advisory', advisoryId] });
         throw new Error(t('admin.security_advisories.update.lifecycle_unavailable_body'));
       }
-      return createSecurityAdvisoryUpdate(
-        securityAdvisoryUpdateCreatePayload(advisoryId, values, parentState),
-      );
+      return createSecurityAdvisoryUpdate(securityAdvisoryUpdateCreatePayload(advisoryId, values, parentState));
     },
     onSuccess: async (result) => {
       const actionStateId = getMetaActionStateId(result.meta);
@@ -284,14 +205,8 @@ export function AdminSecurityAdvisoryDetailPage() {
     }
     createUpdateM.mutate(values);
   };
-  const {
-    editingUpdate,
-    setEditingUpdate,
-    deleteUpdateTarget,
-    setDeleteUpdateTarget,
-    editUpdateM,
-    deleteUpdateM,
-  } = useSecurityAdvisoryUpdateEditing({ invalidateDetail, setUpdateError });
+  const { editingUpdate, setEditingUpdate, deleteUpdateTarget, setDeleteUpdateTarget, editUpdateM, deleteUpdateM } =
+    useSecurityAdvisoryUpdateEditing({ invalidateDetail, setUpdateError });
 
   const [outageId, setOutageId] = useState('');
   const [linkOutageError, setLinkOutageError] = useState<string | null>(null);
@@ -337,10 +252,19 @@ export function AdminSecurityAdvisoryDetailPage() {
     },
   });
 
-  if (!validId) return <Alert variant="danger" title={t('common.error')}>{t('admin.security_advisories.invalid_id')}</Alert>;
+  if (!validId)
+    return (
+      <Alert variant="danger" title={t('common.error')}>
+        {t('admin.security_advisories.invalid_id')}
+      </Alert>
+    );
   if (advisoryQ.isLoading) return <LoadingState />;
   if (advisoryQ.error || !advisoryQ.data) {
-    return <Alert variant="danger" title={t('common.error')}>{formatErrorMessage(advisoryQ.error)}</Alert>;
+    return (
+      <Alert variant="danger" title={t('common.error')}>
+        {formatErrorMessage(advisoryQ.error)}
+      </Alert>
+    );
   }
 
   const advisory = advisoryQ.data;
@@ -370,15 +294,14 @@ export function AdminSecurityAdvisoryDetailPage() {
         readinessIssues={readinessIssues}
         languagesError={languagesQ.error}
         readinessError={cvesQ.error ?? nodesQ.error ?? statusesQ.error}
-        onEdit={() => {
-          setEditorError(null);
-          setEditorOpen(true);
-        }}
+        onEdit={() => void corrections.openEdit()}
         onRebuild={() => {
           rebuildM.reset();
           setRebuildOpen(true);
         }}
-        onPublish={openPublish}
+        onPublish={corrections.openPublish}
+        onRetract={() => corrections.openLifecycle('retract')}
+        onDelete={() => corrections.openLifecycle('delete')}
         onPostUpdate={openUpdateCreate}
         onTabChange={(tab) => setSearchParams(tab === 'overview' ? {} : { tab })}
       />
@@ -394,12 +317,13 @@ export function AdminSecurityAdvisoryDetailPage() {
       {activeTab === 'nodes' ? (
         <SecurityAdvisoryNodesPanel
           advisoryId={advisoryId}
+          advisory={advisory}
+          languages={languagesQ.data ?? []}
           nodes={nodesQ.data ?? []}
           statuses={statusesQ.data ?? []}
           loading={nodesQ.isLoading || statusesQ.isLoading}
           onChanged={() => {
-            void queryClient.invalidateQueries({ queryKey: ['security_advisory_node_statuses', advisoryId] });
-            void queryClient.invalidateQueries({ queryKey: ['security_advisory', advisoryId] });
+            void invalidateDetail();
           }}
         />
       ) : null}
@@ -457,27 +381,33 @@ export function AdminSecurityAdvisoryDetailPage() {
 
       <SecurityAdvisoryDetailDialogs
         advisory={advisory}
+        editorAdvisory={corrections.snapshot?.advisory ?? advisory}
         advisoryId={advisoryId}
         state={state}
         canEditParent={canEditParent}
         canPostUpdate={canPostUpdate}
         languages={languagesQ.data ?? []}
         cves={cveLabels}
-        editorOpen={editorOpen}
-        editorError={editorError}
-        editorSaving={editM.isPending}
-        onEditorClose={() => !editM.isPending && setEditorOpen(false)}
-        onEditorSubmit={(values, cves) => editM.mutate({ values, cves })}
-        publishOpen={publishOpen}
-        publishAt={publishAt}
-        publishMail={publishMail}
-        publishError={publishError}
-        publishSaving={publishM.isPending}
-        publishBlocked={readinessIssues.length > 0}
-        onPublishClose={() => !publishM.isPending && setPublishOpen(false)}
-        onPublishAtChange={setPublishAt}
-        onPublishMailChange={setPublishMail}
-        onPublishConfirm={() => publishM.mutate()}
+        editorCves={
+          corrections.snapshot ? advisoryCveLabels({ id: advisoryId, cves: corrections.snapshot.cves }) : cveLabels
+        }
+        editorOpen={corrections.editorOpen}
+        editorError={corrections.editorError}
+        editorSaving={corrections.editM.isPending}
+        editorBlocked={corrections.editBlocked}
+        lifecycle={corrections}
+        onEditorClose={() => !corrections.editM.isPending && corrections.setEditorOpen(false)}
+        onEditorSubmit={(values, cves) => corrections.editM.mutate({ values, cves })}
+        publishOpen={corrections.publishOpen}
+        publishAt={corrections.publishAt}
+        publishMail={corrections.publishMail}
+        publishError={corrections.publishError}
+        publishSaving={corrections.publishM.isPending}
+        publishBlocked={readinessIssues.length > 0 || corrections.publishBlocked}
+        onPublishClose={() => !corrections.publishM.isPending && corrections.setPublishOpen(false)}
+        onPublishAtChange={corrections.setPublishAt}
+        onPublishMailChange={corrections.setPublishMail}
+        onPublishConfirm={() => corrections.publishM.mutate()}
         rebuildOpen={rebuildOpen}
         rebuildSaving={rebuildM.isPending}
         rebuildError={rebuildM.isError ? formatErrorMessage(rebuildM.error) : null}

@@ -364,3 +364,25 @@ they retain bounded response bodies, deadlines and session serialization.
 Browser authorization navigation remains supported. Shared local return paths
 reject backslashes and control characters before basename handling; valid
 local query/fragment state is retained. See the [review and regression proof](../work-log/2026-10-28-oauth-redirect-boundaries.md).
+
+## Guarded advisory corrections (REQ-055)
+
+The owning API's security-advisory documentation defines the mutation contract.
+The handwritten adapters send content revision and state preconditions on parent,
+CVE and node corrections, direct retraction and namespaced DELETE bodies.
+Publication sends the required captured revision and retains its unchanged-revision
+contract; it does not accept an expected-state input. Draft creation has no
+existing revision, and its returned draft revision starts CVE reconciliation.
+
+The advisory-specific preflight reads the authenticated versioned root OPTIONS
+graph once per attempted workflow, plus existing-record lifecycle OPTIONS for
+record preparation/permission. It accepts conventional labeled choice maps using
+machine keys, and supported string arrays. Missing, malformed or denied metadata and invalid revisions stop writes; public reading and the separate announcement
+flow remain available. Root metadata never replaces server authorization or locks.
+
+Upgrade the complete API before enabling these UI writes, and upgrade every
+security-advisories sync consumer before resuming sync. Mixed API pools are not
+supported. The old unguarded UI is not a safe write rollback target. Software
+rollback does not undo corrections, retraction or deleted data; deletion recovery
+requires an existing backup. No backend migration, dependency or transport change
+is part of this UI package.

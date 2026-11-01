@@ -46,24 +46,29 @@ describe('reconcileSecurityAdvisoryCves', () => {
       return { data: null, meta: undefined } as never;
     });
 
-    await reconcileSecurityAdvisoryCves(
-      44,
-      [{ id: 1, cve_id: 'CVE-2026-1000' }],
-      ['CVE-2026-2000'],
-    );
+    await reconcileSecurityAdvisoryCves(44, [{ id: 1, cve_id: 'CVE-2026-1000' }], ['CVE-2026-2000'], {
+      expected_state: 'draft',
+      expected_content_revision: 0,
+    });
 
     expect(calls).toEqual(['create', 'delete']);
+    expect(createCve).toHaveBeenCalledWith({
+      security_advisory: 44,
+      cve_id: 'CVE-2026-2000',
+      expected_state: 'draft',
+      expected_content_revision: 0,
+    });
+    expect(deleteCve).toHaveBeenCalledWith(1, { expected_state: 'draft', expected_content_revision: 1 });
   });
 
   test('keeps existing CVEs when creating an addition fails', async () => {
     createCve.mockRejectedValue(new Error('create failed'));
 
     await expect(
-      reconcileSecurityAdvisoryCves(
-        44,
-        [{ id: 1, cve_id: 'CVE-2026-1000' }],
-        ['CVE-2026-2000'],
-      ),
+      reconcileSecurityAdvisoryCves(44, [{ id: 1, cve_id: 'CVE-2026-1000' }], ['CVE-2026-2000'], {
+        expected_state: 'draft',
+        expected_content_revision: 0,
+      })
     ).rejects.toThrow('create failed');
 
     expect(deleteCve).not.toHaveBeenCalled();
@@ -137,8 +142,9 @@ describe('security advisory admin cursor collections', () => {
     const repeatedPage = Array.from({ length: 100 }, (_, index) => ({ id: index + 1 }));
     fetchCves.mockResolvedValue({ data: repeatedPage } as never);
 
-    await expect(fetchAllSecurityAdvisoryCvesForAdmin(44))
-      .rejects.toThrow('pagination stalled before all rows were loaded');
+    await expect(fetchAllSecurityAdvisoryCvesForAdmin(44)).rejects.toThrow(
+      'pagination stalled before all rows were loaded'
+    );
     expect(fetchCves).toHaveBeenCalledTimes(2);
   });
 });

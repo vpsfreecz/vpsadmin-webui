@@ -1,7 +1,8 @@
 // Správa bezpečnostních upozornění
 export const csAdmin_security_advisories = {
   'admin.security_advisories.title': 'Bezpečnostní upozornění',
-  'admin.security_advisories.subtitle': 'Vytvářej, zveřejňuj a spravuj bezpečnostní upozornění, související CVE, dotčené nody, aktualizace a výpadky.',
+  'admin.security_advisories.subtitle':
+    'Vytvářej, zveřejňuj a spravuj bezpečnostní upozornění, související CVE, dotčené nody, aktualizace a výpadky.',
   'admin.security_advisories.fallback_title': 'Bezpečnostní upozornění #{id}',
   'admin.security_advisories.invalid_id': 'Identifikátor bezpečnostního upozornění chybí nebo není platný.',
 
@@ -22,7 +23,8 @@ export const csAdmin_security_advisories = {
   'admin.security_advisories.empty.title': 'Žádná bezpečnostní upozornění',
   'admin.security_advisories.empty.body': 'Vytvoř návrh a začni dokumentovat zranitelnost a její nápravu.',
   'admin.security_advisories.limit.title': 'Je načtená jen část katalogu upozornění',
-  'admin.security_advisories.limit.body': 'Načteno {loaded} z {total} upozornění. Zúž stav nebo použij přesný identifikátor CVE, aby hledání nebylo neúplné.',
+  'admin.security_advisories.limit.body':
+    'Načteno {loaded} z {total} upozornění. Zúž stav nebo použij přesný identifikátor CVE, aby hledání nebylo neúplné.',
 
   'admin.security_advisories.table.advisory': 'Upozornění',
   'admin.security_advisories.table.state': 'Stav',
@@ -44,12 +46,15 @@ export const csAdmin_security_advisories = {
   'admin.security_advisories.editor.languages': 'Překlady upozornění',
   'admin.security_advisories.field.cves': 'CVE',
   'admin.security_advisories.field.cves_placeholder': 'CVE-2026-12345, CVE-2026-23456',
-  'admin.security_advisories.field.cves_help': 'Zadej jeden nebo více identifikátorů CVE oddělených čárkou nebo mezerou.',
+  'admin.security_advisories.field.cves_help':
+    'Zadej jeden nebo více identifikátorů CVE oddělených čárkou nebo mezerou.',
   'admin.security_advisories.field.name': 'Název zranitelnosti',
   'admin.security_advisories.field.name_placeholder': 'Například Dirty Pipe',
-  'admin.security_advisories.field.name_help': 'Volitelný známý veřejný název. Může se zobrazit na veřejné stránce upozornění.',
+  'admin.security_advisories.field.name_help':
+    'Volitelný známý veřejný název. Může se zobrazit na veřejné stránce upozornění.',
   'admin.security_advisories.field.published_at': 'Datum zveřejnění',
-  'admin.security_advisories.field.published_at_help': 'Při přípravě návrhu nech prázdné, nebo nastav plánovaný čas zveřejnění.',
+  'admin.security_advisories.field.published_at_help':
+    'Při přípravě návrhu nech prázdné, nebo nastav plánovaný čas zveřejnění.',
   'admin.security_advisories.field.summary': 'Shrnutí',
   'admin.security_advisories.field.summary_help': 'Krátký veřejný nadpis je povinný ve všech podporovaných jazycích.',
   'admin.security_advisories.field.description': 'Popis',
@@ -60,13 +65,18 @@ export const csAdmin_security_advisories = {
   'admin.security_advisories.validation.date': 'Zadej platné datum a čas.',
   'admin.security_advisories.validation.summary_required': 'V tomto jazyce je shrnutí povinné.',
   'admin.security_advisories.validation.incomplete_languages': 'Některé překlady nejsou dokončené',
-  'admin.security_advisories.validation.incomplete_languages_body': 'Před uložením doplň shrnutí ve všech podporovaných jazycích.',
-  'admin.security_advisories.validation.languages_unavailable': 'Podporované jazyky se nepodařilo načíst. Před úpravou překladů to zkus znovu.',
-  'admin.security_advisories.validation.cves_unavailable': 'CVE se nepodařilo načíst. Před úpravou upozornění stránku obnov.',
-  'admin.security_advisories.validation.parent_locked': 'Zveřejněné ani stažené upozornění nelze upravovat přímo. Použij navazující aktualizaci.',
+  'admin.security_advisories.validation.incomplete_languages_body':
+    'Před uložením doplň shrnutí ve všech podporovaných jazycích.',
+  'admin.security_advisories.validation.languages_unavailable':
+    'Podporované jazyky se nepodařilo načíst. Před úpravou překladů to zkus znovu.',
+  'admin.security_advisories.validation.cves_unavailable':
+    'CVE se nepodařilo načíst. Před úpravou upozornění stránku obnov.',
+  'admin.security_advisories.validation.parent_locked':
+    'Zveřejněné ani stažené upozornění nelze upravovat přímo. Použij navazující aktualizaci.',
 
   'admin.security_advisories.readiness.ready': 'Připraveno ke zveřejnění',
-  'admin.security_advisories.readiness.ready_body': 'Upozornění obsahuje CVE a všechny relevantní nody mají vyřešený stav.',
+  'admin.security_advisories.readiness.ready_body':
+    'Upozornění obsahuje CVE a všechny relevantní nody mají vyřešený stav.',
   'admin.security_advisories.readiness.not_ready': 'Zatím nelze zveřejnit',
   'admin.security_advisories.readiness.data_unavailable': 'Kontroly před zveřejněním se nepodařilo načíst',
   'admin.security_advisories.readiness.missing_cves': 'Přidej alespoň jedno CVE.',
@@ -82,10 +92,12 @@ export const csAdmin_security_advisories = {
   'admin.security_advisories.publish.send_mail_help': 'Odešle lokalizované upozornění uživatelům s dotčenými VPS.',
 
   'admin.security_advisories.rebuild.title': 'Přepočítat dotčené VPS?',
-  'admin.security_advisories.rebuild.body': 'Znovu sestaví seznam dotčených VPS a uživatelů podle aktuálních stavů nodů.',
+  'admin.security_advisories.rebuild.body':
+    'Znovu sestaví seznam dotčených VPS a uživatelů podle aktuálních stavů nodů.',
 
   'admin.security_advisories.affected.users_title': 'Dotčení uživatelé',
-  'admin.security_advisories.affected.users_subtitle': 'Uživatelé, kteří vlastní alespoň jedno VPS dotčené tímto upozorněním.',
+  'admin.security_advisories.affected.users_subtitle':
+    'Uživatelé, kteří vlastní alespoň jedno VPS dotčené tímto upozorněním.',
   'admin.security_advisories.affected.vps_title': 'Dotčené VPS',
   'admin.security_advisories.affected.vps_subtitle': 'VPS zjištěná aktuálním přepočtem podle dotčených nodů.',
   'admin.security_advisories.affected.no_users': 'Nebyli nalezeni žádní dotčení uživatelé.',
@@ -99,7 +111,8 @@ export const csAdmin_security_advisories = {
   'admin.security_advisories.node_state.mitigated': 'Ošetřený',
 
   'admin.security_advisories.nodes.title': 'Stav nodů',
-  'admin.security_advisories.nodes.subtitle': 'Zaznamenej, zda je každý aktivní výpočetní nebo storage node dotčený a kdy proběhla náprava.',
+  'admin.security_advisories.nodes.subtitle':
+    'Zaznamenej, zda je každý aktivní výpočetní nebo storage node dotčený a kdy proběhla náprava.',
   'admin.security_advisories.nodes.empty.title': 'Žádné relevantní nody',
   'admin.security_advisories.nodes.empty.body': 'Nejsou dostupné žádné aktivní výpočetní ani storage nody.',
   'admin.security_advisories.nodes.error.title': 'Stav nodu se nepodařilo uložit',
@@ -123,7 +136,8 @@ export const csAdmin_security_advisories = {
   'admin.security_advisories.nodes.field.vulnerable_until': 'Zranitelný do',
   'admin.security_advisories.nodes.field.mitigated_since': 'Ošetřený od',
   'admin.security_advisories.nodes.field.note': 'Technická poznámka (veřejné API)',
-  'admin.security_advisories.nodes.field.note_help': 'Nevkládej osobní ani důvěrná data. Současné anonymní HaveAPI může toto pole vracet.',
+  'admin.security_advisories.nodes.field.note_help':
+    'Nevkládej osobní ani důvěrná data. Současné anonymní HaveAPI může toto pole vracet.',
   'admin.security_advisories.nodes.validation.title': 'Doplň požadovaná data',
   'admin.security_advisories.nodes.validation.vulnerable_until_required': 'Zadej, kdy node přestal být zranitelný.',
   'admin.security_advisories.nodes.validation.mitigated_since_required': 'Zadej, odkdy je náprava účinná.',
@@ -137,15 +151,19 @@ export const csAdmin_security_advisories = {
   'admin.security_advisories.nodes.action.continue_remaining': 'Pokračovat se zbývajícími nody',
   'admin.security_advisories.nodes.editor.title': 'Stav nodu {node}',
   'admin.security_advisories.nodes.delete.title': 'Odebrat stav nodu?',
-  'admin.security_advisories.nodes.delete.description': 'Odebrat uložený bezpečnostní stav nodu {node}? Upozornění pak nemusí být možné zveřejnit.',
+  'admin.security_advisories.nodes.delete.description':
+    'Odebrat uložený bezpečnostní stav nodu {node}? Upozornění pak nemusí být možné zveřejnit.',
   'admin.security_advisories.nodes.bulk.title': 'Nastavit stav všech nodů',
   'admin.security_advisories.nodes.bulk.progress': 'Aktualizováno {completed} z {total} nodů',
   'admin.security_advisories.nodes.bulk.warning_title': 'Přepíšou se existující stavy',
-  'admin.security_advisories.nodes.bulk.warning_body': 'Vybrané hodnoty se použijí pro všech {count} relevantních nodů.',
+  'admin.security_advisories.nodes.bulk.warning_body':
+    'Vybrané hodnoty se použijí pro všech {count} relevantních nodů.',
   'admin.security_advisories.nodes.bulk.partial_failure_title': 'Aktualizovala se jen část nodů',
-  'admin.security_advisories.nodes.bulk.partial_failure_body': 'Aktualizováno: {completed}; zbývá: {remaining}. Můžeš bezpečně pokračovat se zbytkem.',
+  'admin.security_advisories.nodes.bulk.partial_failure_body':
+    'Aktualizováno: {completed}; zbývá: {remaining}. Před pokračováním tento formulář zavři, upozornění znovu načti a zkontroluj.',
   'admin.security_advisories.nodes.bulk.confirm_title': 'Použít stav na zbývající nody?',
-  'admin.security_advisories.nodes.bulk.confirm_description': 'Nastavit {count} nodů na „{state}“? Existující stavy těchto nodů se přepíšou.',
+  'admin.security_advisories.nodes.bulk.confirm_description':
+    'Nastavit {count} nodů na „{state}“? Existující stavy těchto nodů se přepíšou.',
   'admin.security_advisories.nodes.toast.saved': 'Stav nodu byl uložen',
   'admin.security_advisories.nodes.toast.save_failed': 'Stav nodu se nepodařilo uložit',
   'admin.security_advisories.nodes.toast.deleted': 'Stav nodu byl odebrán',
@@ -159,21 +177,26 @@ export const csAdmin_security_advisories = {
   'admin.security_advisories.update.no_state_change': 'Ponechat současný stav',
   'admin.security_advisories.update.state_help': 'Aktualizací lze také stáhnout dříve zveřejněné upozornění.',
   'admin.security_advisories.update.lifecycle_unavailable_title': 'V tomto stavu nelze přidávat aktualizace',
-  'admin.security_advisories.update.lifecycle_unavailable_body': 'Návrh nejprve zveřejni. Stažené upozornění je konečné a další aktualizace už přijímat nemůže.',
+  'admin.security_advisories.update.lifecycle_unavailable_body':
+    'Návrh nejprve zveřejni. Stažené upozornění je konečné a další aktualizace už přijímat nemůže.',
   'admin.security_advisories.update.send_mail': 'Odeslat tuto aktualizaci e-mailem',
   'admin.security_advisories.update.send_mail_help': 'Upozorní dotčené uživatele pomocí lokalizovaného textu níže.',
   'admin.security_advisories.update.message': 'Zpráva',
   'admin.security_advisories.update.retract_warning_title': 'Upozornění bude staženo',
-  'admin.security_advisories.update.retract_warning_body': 'Veřejný detail zůstane dostupný, ale bude zřetelně označen jako stažený.',
+  'admin.security_advisories.update.retract_warning_body':
+    'Veřejný detail zůstane dostupný, ale bude zřetelně označen jako stažený.',
   'admin.security_advisories.update.retract_confirm_title': 'Stáhnout toto upozornění?',
-  'admin.security_advisories.update.retract_confirm_body': 'Zveřejní tuto aktualizaci a označí upozornění jako stažené.',
+  'admin.security_advisories.update.retract_confirm_body':
+    'Zveřejní tuto aktualizaci a označí upozornění jako stažené.',
   'admin.security_advisories.update.mail_confirm_title': 'Odeslat tuto aktualizaci e-mailem?',
   'admin.security_advisories.update.mail_confirm_body': 'Aktualizace se zveřejní a odešle dotčeným uživatelům.',
   'admin.security_advisories.update.delete_title': 'Smazat aktualizaci upozornění?',
-  'admin.security_advisories.update.delete_body': 'Aktualizace bude odebrána z historie upozornění. Smazání aktualizace se stažením neobnoví stav nadřazeného upozornění.',
+  'admin.security_advisories.update.delete_body':
+    'Aktualizace bude odebrána z historie upozornění. Smazání aktualizace se stažením neobnoví stav nadřazeného upozornění.',
   'admin.security_advisories.updates.empty': 'Zatím nebyly přidány žádné aktualizace.',
   'admin.security_advisories.updates.draft_help': 'Před přidáním navazujících aktualizací tento návrh zveřejni.',
-  'admin.security_advisories.updates.retracted_help': 'Upozornění je stažené. Historie aktualizací zůstává dostupná, ale další aktualizace už přidat nelze.',
+  'admin.security_advisories.updates.retracted_help':
+    'Upozornění je stažené. Historie aktualizací zůstává dostupná, ale další aktualizace už přidat nelze.',
 
   'admin.security_advisories.outages.link_title': 'Propojené výpadky',
   'admin.security_advisories.outages.link_subtitle': 'Propoj provozní výpadky, které s touto zranitelností souvisejí.',
@@ -204,4 +227,24 @@ export const csAdmin_security_advisories = {
   'admin.security_advisories.toast.outage_linked': 'Výpadek byl propojen',
   'admin.security_advisories.toast.outage_link_failed': 'Výpadek se nepodařilo propojit',
   'admin.security_advisories.toast.outage_unlinked': 'Výpadek byl odpojen',
+  'admin.security_advisories.correction.reload':
+    'Před pokračováním upozornění znovu načti a zkontroluj. Neuložené hodnoty zůstaly zachovány.',
+  'admin.security_advisories.lifecycle.retract': 'Stáhnout upozornění',
+  'admin.security_advisories.lifecycle.delete': 'Smazat upozornění',
+  'admin.security_advisories.lifecycle.retract_body':
+    'Stáhnout toto upozornění? Jeho obsah i aktualizace zůstanou zachovány. Žádný e-mail se neodešle.',
+  'admin.security_advisories.lifecycle.delete_body':
+    'Trvale smazat toto upozornění, všechny aktualizace a hodnocení nodů? Obnovení vyžaduje zálohu.',
+  'admin.security_advisories.correction.revision':
+    'K úpravám upozornění je potřeba kompatibilní API s revizemi obsahu. Po aktualizaci API stránku znovu načti.',
+  'admin.security_advisories.correction.capability':
+    'API nepodporuje úpravy upozornění s kontrolou souběžných změn. Před uložením aktualizuj API.',
+  'admin.security_advisories.correction.concurrent':
+    'Revize upozornění se neočekávaně změnila. Před pokračováním ho znovu načti a zkontroluj.',
+  'admin.security_advisories.correction.snapshot':
+    'Upozornění se během načítání změnilo. Před úpravou ho znovu načti a zkontroluj.',
+  'admin.security_advisories.field.cves_edit_help':
+    'Odkazy na CVE můžeš přidat nebo odebrat. Prázdné pole je všechny odebere.',
+  'admin.security_advisories.field.published_at_edit_help':
+    'Původní čas zveřejnění můžeš změnit. Prázdné pole ho odstraní.',
 } as const;

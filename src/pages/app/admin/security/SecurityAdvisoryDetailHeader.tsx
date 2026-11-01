@@ -36,6 +36,8 @@ export function SecurityAdvisoryDetailHeader(props: {
   onEdit: () => void;
   onRebuild: () => void;
   onPublish: () => void;
+  onRetract: () => void;
+  onDelete: () => void;
   onPostUpdate: () => void;
   onTabChange: (tab: DetailTab) => void;
 }) {
@@ -65,7 +67,9 @@ export function SecurityAdvisoryDetailHeader(props: {
         }
         actions={
           <>
-            <Button to="/admin/security-advisories" variant="ghost">{t('common.back_to_list')}</Button>
+            <Button to="/admin/security-advisories" variant="ghost">
+              {t('common.back_to_list')}
+            </Button>
             {props.canEditParent ? (
               <Button
                 variant="secondary"
@@ -83,10 +87,18 @@ export function SecurityAdvisoryDetailHeader(props: {
                 <Edit3 size={16} /> {t('common.edit')}
               </Button>
             ) : null}
+            {props.state === 'published' ? (
+              <Button variant="secondary" onClick={props.onRetract} testId="admin.security_advisory.retract">
+                {t('admin.security_advisories.lifecycle.retract')}
+              </Button>
+            ) : null}
+            <Button variant="danger" onClick={props.onDelete} testId="admin.security_advisory.delete">
+              {t('admin.security_advisories.lifecycle.delete')}
+            </Button>
             <Button variant="secondary" onClick={props.onRebuild} testId="admin.security_advisory.rebuild">
               <RotateCw size={16} /> {t('admin.security_advisories.action.rebuild')}
             </Button>
-            {props.canEditParent ? (
+            {props.state === 'draft' ? (
               <Button
                 variant="primary"
                 onClick={props.onPublish}
@@ -107,7 +119,9 @@ export function SecurityAdvisoryDetailHeader(props: {
                 variant="primary"
                 onClick={props.onPostUpdate}
                 disabled={!props.languagesReady}
-                disabledReason={!props.languagesReady ? t('admin.security_advisories.validation.languages_unavailable') : undefined}
+                disabledReason={
+                  !props.languagesReady ? t('admin.security_advisories.validation.languages_unavailable') : undefined
+                }
                 testId="admin.security_advisory.post_update"
               >
                 <Plus size={16} /> {t('admin.security_advisories.action.post_update')}
@@ -127,7 +141,7 @@ export function SecurityAdvisoryDetailHeader(props: {
               'rounded-md px-3 py-2 text-sm font-medium transition',
               props.activeTab === tab
                 ? 'bg-surface-2 text-fg ring-1 ring-border'
-                : 'text-muted hover:bg-surface-2 hover:text-fg',
+                : 'text-muted hover:bg-surface-2 hover:text-fg'
             )}
             data-testid={`admin.security_advisory.tab.${tab}`}
           >
@@ -140,7 +154,9 @@ export function SecurityAdvisoryDetailHeader(props: {
       </nav>
 
       {props.languagesError ? (
-        <Alert variant="danger" title={t('common.error')}>{formatErrorMessage(props.languagesError)}</Alert>
+        <Alert variant="danger" title={t('common.error')}>
+          {formatErrorMessage(props.languagesError)}
+        </Alert>
       ) : null}
       {props.readinessError ? (
         <Alert variant="danger" title={t('admin.security_advisories.readiness.data_unavailable')}>

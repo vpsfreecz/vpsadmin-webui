@@ -1,12 +1,8 @@
 import type { ResourceRef } from './appTypes';
+import type { SecurityAdvisoryMutationGuards } from './securityAdvisories';
 import { expectArray, haveApiCall } from './haveapi';
 
-export type SecurityAdvisoryNodeState =
-  | 'unknown'
-  | 'not_affected'
-  | 'vulnerable'
-  | 'mitigated'
-  | string;
+export type SecurityAdvisoryNodeState = 'unknown' | 'not_affected' | 'vulnerable' | 'mitigated' | string;
 
 export interface SecurityAdvisoryNodeStatus {
   id: number;
@@ -27,12 +23,10 @@ export interface SecurityAdvisoryNodeStatusCreatePayload {
   state: SecurityAdvisoryNodeState;
   vulnerable_until?: string | null;
   mitigated_since?: string | null;
-  note?: string | null;
+  [key: `${string}_note`]: string | null;
 }
 
-export type SecurityAdvisoryNodeStatusUpdatePayload = Partial<
-  Pick<SecurityAdvisoryNodeStatusCreatePayload, 'state' | 'vulnerable_until' | 'mitigated_since' | 'note'>
->;
+export type SecurityAdvisoryNodeStatusUpdatePayload = Partial<Omit<SecurityAdvisoryNodeStatusCreatePayload, 'node'>>;
 
 export interface SecurityAdvisoryAffectedUser {
   id: number;
@@ -135,7 +129,7 @@ export async function fetchSecurityAdvisoryNodeStatuses(
 
 export async function createSecurityAdvisoryNodeStatus(
   securityAdvisoryId: number,
-  params: SecurityAdvisoryNodeStatusCreatePayload
+  params: SecurityAdvisoryNodeStatusCreatePayload & SecurityAdvisoryMutationGuards
 ) {
   return haveApiCall<SecurityAdvisoryNodeStatus>({
     method: 'POST',
@@ -148,7 +142,7 @@ export async function createSecurityAdvisoryNodeStatus(
 export async function updateSecurityAdvisoryNodeStatus(
   securityAdvisoryId: number,
   nodeStatusId: number,
-  params: SecurityAdvisoryNodeStatusUpdatePayload
+  params: SecurityAdvisoryNodeStatusUpdatePayload & SecurityAdvisoryMutationGuards
 ) {
   return haveApiCall<SecurityAdvisoryNodeStatus>({
     method: 'PUT',
@@ -158,10 +152,16 @@ export async function updateSecurityAdvisoryNodeStatus(
   });
 }
 
-export async function deleteSecurityAdvisoryNodeStatus(securityAdvisoryId: number, nodeStatusId: number) {
+export async function deleteSecurityAdvisoryNodeStatus(
+  securityAdvisoryId: number,
+  nodeStatusId: number,
+  guards: SecurityAdvisoryMutationGuards
+) {
   return haveApiCall<null>({
     method: 'DELETE',
     path: `/security_advisories/${securityAdvisoryId}/node_statuses/${nodeStatusId}`,
+    namespace: 'node_status',
+    params: { ...guards },
   });
 }
 
@@ -244,10 +244,7 @@ export async function fetchSecurityAdvisoryOutageLink(
   });
 }
 
-export async function createSecurityAdvisoryOutageLink(params: {
-  outage: number;
-  security_advisory: number;
-}) {
+export async function createSecurityAdvisoryOutageLink(params: { outage: number; security_advisory: number }) {
   return haveApiCall<SecurityAdvisoryOutageLink>({
     method: 'POST',
     path: '/outage_security_advisories',

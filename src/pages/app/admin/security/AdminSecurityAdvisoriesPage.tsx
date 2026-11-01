@@ -3,6 +3,8 @@ import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/rea
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Plus, RefreshCw, Search } from 'lucide-react';
 
+import { advisoryGuards, requireAdvisoryActions } from '../../../../lib/api/securityAdvisoryMutations';
+import { advisoryCveActions } from './securityAdvisoryAdminApi';
 import { useI18n } from '../../../../app/i18n';
 import { useToasts } from '../../../../app/toasts';
 import { PageHeader } from '../../../../components/layout/PageHeader';
@@ -21,14 +23,15 @@ import {
   fetchAllSecurityAdvisories,
 } from '../../../../lib/api/securityAdvisories';
 import { fetchLanguages } from '../../../../lib/api/languages';
-import { formatErrorMessage } from '../../../../lib/errors';
+import { advisoryFailureMessage } from './advisoryFailureMessage';
 import { formatDateTime } from '../../../../lib/format';
 import { pickLocalizedField } from '../../../../lib/translations';
-import { SecurityAdvisoryEditorModal, securityAdvisoryEditorPayload, type SecurityAdvisoryEditorValues } from './SecurityAdvisoryEditorModal';
 import {
-  fetchAllSecurityAdvisoryCvesForAdmin,
-  reconcileSecurityAdvisoryCves,
-} from './securityAdvisoryAdminApi';
+  SecurityAdvisoryEditorModal,
+  securityAdvisoryEditorPayload,
+  type SecurityAdvisoryEditorValues,
+} from './SecurityAdvisoryEditorModal';
+import { fetchAllSecurityAdvisoryCvesForAdmin, reconcileSecurityAdvisoryCves } from './securityAdvisoryAdminApi';
 import { SECURITY_ADVISORY_STATES } from './securityAdvisoryAdminModel';
 
 function stateBadgeVariant(state: string): 'neutral' | 'ok' | 'warn' {
@@ -67,9 +70,7 @@ export function AdminSecurityAdvisoriesPage() {
     : '';
   const order: 'newest' | 'oldest' = searchParams.get('order') === 'oldest' ? 'oldest' : 'newest';
   const requestedLimit = positiveInteger(searchParams.get('limit'), 25);
-  const limit = ALLOWED_LIMITS.includes(requestedLimit as (typeof ALLOWED_LIMITS)[number])
-    ? requestedLimit
-    : 25;
+  const limit = ALLOWED_LIMITS.includes(requestedLimit as (typeof ALLOWED_LIMITS)[number]) ? requestedLimit : 25;
   const requestedPage = positiveInteger(searchParams.get('page'), 1);
   const exactCve = /^CVE-\d{4}-\d{4,}$/i.test(search.trim()) ? search.trim().toUpperCase() : undefined;
   const [editorOpen, setEditorOpen] = useState(false);
@@ -101,18 +102,15 @@ export function AdminSecurityAdvisoriesPage() {
   };
 
   const advisoriesQ = useQuery({
-    queryKey: [
-      'admin',
-      'security_advisories',
-      { state, order, cve: exactCve },
-    ],
-    queryFn: () => fetchAllSecurityAdvisories({
-      limit: ADMIN_SECURITY_ADVISORY_API_PAGE_SIZE,
-      state: state || undefined,
-      order,
-      cve: exactCve,
-      includes: 'created_by,published_by',
-    }),
+    queryKey: ['admin', 'security_advisories', { state, order, cve: exactCve }],
+    queryFn: () =>
+      fetchAllSecurityAdvisories({
+        limit: ADMIN_SECURITY_ADVISORY_API_PAGE_SIZE,
+        state: state || undefined,
+        order,
+        cve: exactCve,
+        includes: 'created_by,published_by',
+      }),
     refetchOnWindowFocus: false,
   });
   const languagesQ = useQuery({
@@ -147,15 +145,19 @@ export function AdminSecurityAdvisoriesPage() {
   }));
   const createM = useMutation({
     mutationFn: async ({ values, cves }: { values: SecurityAdvisoryEditorValues; cves: string[] }) => {
+      await requireAdvisoryActions([
+        { path: '/security_advisories', method: 'POST', state: false, revision: false },
+        ...advisoryCveActions([], cves),
+      ]);
       const created = await createSecurityAdvisory(securityAdvisoryEditorPayload(values));
       try {
-        await reconcileSecurityAdvisoryCves(created.data.id, [], cves);
+        await reconcileSecurityAdvisoryCves(created.data.id, [], cves, advisoryGuards(created.data));
         return { advisory: created.data, childError: null };
       } catch (error) {
         // The API cannot create the draft and child CVEs atomically. Keep the
         // successfully created draft and continue on its detail instead of
         // offering a blind retry that would create a duplicate advisory.
-        return { advisory: created.data, childError: formatErrorMessage(error) };
+        return { advisory: created.data, childError: advisoryFailureMessage(error, t) };
       }
     },
     onSuccess: async ({ advisory, childError }) => {
@@ -169,12 +171,12 @@ export function AdminSecurityAdvisoriesPage() {
               title: t('admin.security_advisories.toast.created_without_cves'),
               body: childError,
             }
-          : { variant: 'ok', title: t('admin.security_advisories.toast.created') },
+          : { variant: 'ok', title: t('admin.security_advisories.toast.created') }
       );
       navigate(`/admin/security-advisories/${advisory.id}`);
     },
     onError: (error) => {
-      const message = formatErrorMessage(error);
+      const message = advisoryFailureMessage(error, t);
       setEditorError(message);
       pushToast({ variant: 'danger', title: t('admin.security_advisories.toast.create_failed'), body: message });
     },
@@ -255,7 +257,9 @@ export function AdminSecurityAdvisoriesPage() {
       {advisoriesQ.isLoading ? (
         <LoadingState />
       ) : advisoriesQ.error ? (
-        <Alert variant="danger" title={t('common.error')}>{formatErrorMessage(advisoriesQ.error)}</Alert>
+        <Alert variant="danger" title={t('common.error')}>
+          {advisoryFailureMessage(advisoriesQ.error, t)}
+        </Alert>
       ) : rows.length === 0 ? (
         <Alert variant="neutral" title={t('admin.security_advisories.empty.title')}>
           {t('admin.security_advisories.empty.body')}
@@ -279,18 +283,35 @@ export function AdminSecurityAdvisoriesPage() {
               const summary = pickLocalizedField(advisory, 'summary', i18n.preferredLanguageCodes);
               const advisoryState = String(advisory.state ?? 'draft');
               return (
-                <tr key={advisory.id} className="table-row-tone" data-testid={`admin.security_advisories.row.${advisory.id}`}>
+                <tr
+                  key={advisory.id}
+                  className="table-row-tone"
+                  data-testid={`admin.security_advisories.row.${advisory.id}`}
+                >
                   <td className="px-4 py-3">
-                    <Link to={`/admin/security-advisories/${advisory.id}`} className="font-semibold text-accent hover:underline">
+                    <Link
+                      to={`/admin/security-advisories/${advisory.id}`}
+                      className="font-semibold text-accent hover:underline"
+                    >
                       {advisory.name || t('admin.security_advisories.fallback_title', { id: advisory.id })}
                     </Link>
                     <div className="mt-1 flex flex-wrap gap-1">
-                      {cves.map((cve) => <Badge key={cve} variant="info">{cve}</Badge>)}
+                      {cves.map((cve) => (
+                        <Badge key={cve} variant="info">
+                          {cve}
+                        </Badge>
+                      ))}
                     </div>
                     {summary ? <div className="mt-1 max-w-2xl text-xs text-muted">{summary}</div> : null}
                   </td>
-                  <td className="px-4 py-3"><Badge variant={stateBadgeVariant(advisoryState)}>{securityAdvisoryStateLabel(t, advisoryState)}</Badge></td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm text-muted">{advisory.published_at ? formatDateTime(advisory.published_at) : '—'}</td>
+                  <td className="px-4 py-3">
+                    <Badge variant={stateBadgeVariant(advisoryState)}>
+                      {securityAdvisoryStateLabel(t, advisoryState)}
+                    </Badge>
+                  </td>
+                  <td className="px-4 py-3 whitespace-nowrap text-sm text-muted">
+                    {advisory.published_at ? formatDateTime(advisory.published_at) : '—'}
+                  </td>
                   <td className="px-4 py-3 text-right tabular-nums">{count(advisory.affected_node_count)}</td>
                   <td className="px-4 py-3 text-right tabular-nums">{count(advisory.affected_user_count)}</td>
                   <td className="px-4 py-3 text-right tabular-nums">{count(advisory.affected_vps_count)}</td>

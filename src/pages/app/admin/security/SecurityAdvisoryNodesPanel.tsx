@@ -16,79 +16,63 @@ import {
   deleteSecurityAdvisoryNodeStatus,
   updateSecurityAdvisoryNodeStatus,
   type SecurityAdvisoryNodeStatus,
-  type SecurityAdvisoryNodeStatusCreatePayload,
+  type SecurityAdvisory,
 } from '../../../../lib/api/securityAdvisories';
+import { nextAdvisoryRevision } from '../../../../lib/api/securityAdvisoryMutations';
+import type { Language } from '../../../../lib/api/languages';
 import type { Node } from '../../../../lib/api/nodes';
-import { formatErrorMessage } from '../../../../lib/errors';
+import { advisoryFailureMessage } from './advisoryFailureMessage';
 import { formatDateTime } from '../../../../lib/format';
-import { relevantSecurityAdvisoryNodes } from './securityAdvisoryAdminModel';
+import {
+  useSecurityAdvisoryNodeSnapshot,
+  nodeStatusMap,
+  nodeLabel,
+  stateBadgeVariant,
+} from './useSecurityAdvisoryNodeSnapshot';
 import {
   buildSecurityAdvisoryNodeStatusPayload,
   remainingSecurityAdvisoryBulkNodeIds,
   SecurityAdvisoryNodeFormFields,
+  MobileCellLabel,
+  withoutNode,
   securityAdvisoryNodeFormValues,
   securityAdvisoryNodeStatusNodeId,
   type SecurityAdvisoryNodeFormValues,
 } from './SecurityAdvisoryNodeForm';
 
-export {
-  buildSecurityAdvisoryNodeStatusPayload,
-  remainingSecurityAdvisoryBulkNodeIds,
-  securityAdvisoryNodeStatusNodeId,
-  type SecurityAdvisoryNodeFormValues,
-} from './SecurityAdvisoryNodeForm';
-
-function nodeLabel(node: Node): string {
-  return String(node.domain_name ?? node.fqdn ?? node.name ?? `#${node.id}`);
-}
-
-function nodeStatusMap(statuses: SecurityAdvisoryNodeStatus[]): Map<number, SecurityAdvisoryNodeStatus> {
-  const result = new Map<number, SecurityAdvisoryNodeStatus>();
-  for (const status of [...statuses].sort((a, b) => a.id - b.id)) {
-    const nodeId = securityAdvisoryNodeStatusNodeId(status);
-    if (nodeId !== null) result.set(nodeId, status);
-  }
-  return result;
-}
-
-function stateBadgeVariant(state: string): 'neutral' | 'ok' | 'warn' | 'danger' {
-  if (state === 'not_affected') return 'ok';
-  if (state === 'mitigated') return 'warn';
-  if (state === 'vulnerable') return 'danger';
-  return 'neutral';
-}
-
-function MobileCellLabel(props: { children: React.ReactNode }) {
-  return (
-    <span className="text-xs font-medium text-faint md:hidden">
-      {props.children}
-    </span>
-  );
-}
-
-function withoutNode(payload: SecurityAdvisoryNodeStatusCreatePayload) {
-  const { node: _node, ...update } = payload;
-  return update;
-}
-
 export function SecurityAdvisoryNodesPanel(props: {
   advisoryId: number;
+  advisory: SecurityAdvisory;
+  languages: Language[];
   nodes: Node[];
   statuses: SecurityAdvisoryNodeStatus[];
   loading?: boolean;
   onChanged: () => void;
 }) {
-  const { t } = useI18n();
+  const i18n = useI18n();
+  const { t } = i18n;
   const { pushToast } = useToasts();
-  const relevantNodes = useMemo(() => relevantSecurityAdvisoryNodes(props.nodes), [props.nodes]);
-  const statusesByNode = useMemo(() => nodeStatusMap(props.statuses), [props.statuses]);
-
+  const {
+    activeNodes,
+    relevantNodes,
+    statusesByNode,
+    resolved,
+    guards,
+    writeBlocked,
+    setWriteBlocked,
+    capturedStatuses,
+    capture,
+    captureEditor,
+  } = useSecurityAdvisoryNodeSnapshot(props);
   const [editor, setEditor] = useState<{ node: Node; status: SecurityAdvisoryNodeStatus | null } | null>(null);
-  const [editorValues, setEditorValues] = useState<SecurityAdvisoryNodeFormValues>(() => securityAdvisoryNodeFormValues());
+  const [editorValues, setEditorValues] = useState<SecurityAdvisoryNodeFormValues>(() =>
+    securityAdvisoryNodeFormValues()
+  );
   const [editorSaving, setEditorSaving] = useState(false);
   const [editorError, setEditorError] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ node: Node; status: SecurityAdvisoryNodeStatus } | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const [bulkOpen, setBulkOpen] = useState(false);
   const [bulkConfirm, setBulkConfirm] = useState(false);
@@ -103,27 +87,37 @@ export function SecurityAdvisoryNodesPanel(props: {
   const remainingBulkIds = remainingSecurityAdvisoryBulkNodeIds(bulkTargetIds, bulkCompleted);
 
   const stateLabel = (state: string) => t(`admin.security_advisories.nodes.state.${state}`);
-  const openEditor = (node: Node, status: SecurityAdvisoryNodeStatus | null) => {
-    setEditor({ node, status });
-    setEditorValues(securityAdvisoryNodeFormValues(status));
-    setEditorError(null);
+  const openEditor = async (node: Node, status: SecurityAdvisoryNodeStatus | null) => {
+    try {
+      const current = await captureEditor(node, status);
+      setEditor({ node, status: current });
+      setEditorValues(securityAdvisoryNodeFormValues(current, props.languages, resolved));
+      setEditorError(null);
+    } catch (error) {
+      pushToast({ variant: 'danger', title: t('common.error'), body: advisoryFailureMessage(error, t) });
+    }
   };
 
   const saveEditor = async () => {
-    if (!editor || !editorPayload?.valid) return;
+    if (!editor || !editorPayload?.valid || !guards || writeBlocked || editorSaving) return;
+    setWriteBlocked(true);
     setEditorSaving(true);
     setEditorError(null);
     try {
       if (editor.status) {
-        await updateSecurityAdvisoryNodeStatus(props.advisoryId, editor.status.id, withoutNode(editorPayload.payload));
+        await updateSecurityAdvisoryNodeStatus(props.advisoryId, editor.status.id, {
+          ...withoutNode(editorPayload.payload),
+          ...guards,
+        });
       } else {
-        await createSecurityAdvisoryNodeStatus(props.advisoryId, editorPayload.payload);
+        await createSecurityAdvisoryNodeStatus(props.advisoryId, { ...editorPayload.payload, ...guards });
       }
       props.onChanged();
       setEditor(null);
       pushToast({ variant: 'ok', title: t('admin.security_advisories.nodes.toast.saved') });
     } catch (error) {
-      const message = formatErrorMessage(error);
+      const message = advisoryFailureMessage(error, t);
+      props.onChanged();
       setEditorError(message);
       pushToast({ variant: 'danger', title: t('admin.security_advisories.nodes.toast.save_failed'), body: message });
     } finally {
@@ -132,36 +126,49 @@ export function SecurityAdvisoryNodesPanel(props: {
   };
 
   const deleteStatus = async () => {
-    if (!deleteTarget) return;
+    if (!deleteTarget || !guards || writeBlocked || deleting) return;
+    setWriteBlocked(true);
     setDeleting(true);
     try {
-      await deleteSecurityAdvisoryNodeStatus(props.advisoryId, deleteTarget.status.id);
+      await deleteSecurityAdvisoryNodeStatus(props.advisoryId, deleteTarget.status.id, guards);
       setDeleteTarget(null);
       props.onChanged();
       pushToast({ variant: 'ok', title: t('admin.security_advisories.nodes.toast.deleted') });
     } catch (error) {
+      props.onChanged();
+      setDeleteError(advisoryFailureMessage(error, t));
       pushToast({
         variant: 'danger',
         title: t('admin.security_advisories.nodes.toast.delete_failed'),
-        body: formatErrorMessage(error),
+        body: advisoryFailureMessage(error, t),
       });
     } finally {
       setDeleting(false);
     }
   };
 
-  const openBulk = () => {
+  const openBulk = async () => {
+    try {
+      await capture([
+        ...new Set(activeNodes.map((node) => (statusesByNode.has(node.id) ? ('PUT' as const) : ('POST' as const)))),
+      ]);
+    } catch (error) {
+      pushToast({ variant: 'danger', title: t('common.error'), body: advisoryFailureMessage(error, t) });
+      return;
+    }
     setBulkOpen(true);
     setBulkConfirm(false);
-    setBulkValues(securityAdvisoryNodeFormValues());
-    setBulkTargetIds(relevantNodes.map((node) => node.id));
+    setBulkValues(securityAdvisoryNodeFormValues(null, props.languages, resolved));
+    setBulkTargetIds(activeNodes.map((node) => node.id));
     setBulkCompleted(new Set());
     setBulkError(null);
   };
 
   const runBulk = async () => {
     const parsed = buildSecurityAdvisoryNodeStatusPayload(0, bulkValues);
-    if (!parsed.valid) return;
+    if (!parsed.valid || !guards || writeBlocked || bulkRunning) return;
+    setWriteBlocked(true);
+    let revision = guards.expected_content_revision;
 
     setBulkConfirm(false);
     setBulkRunning(true);
@@ -172,12 +179,17 @@ export function SecurityAdvisoryNodesPanel(props: {
     try {
       for (const nodeId of remainingSecurityAdvisoryBulkNodeIds(bulkTargetIds, completed)) {
         const payload = { ...parsed.payload, node: nodeId };
-        const existing = statusesByNode.get(nodeId);
+        const existing = nodeStatusMap(capturedStatuses).get(nodeId);
+        const nextGuards = { ...guards, expected_content_revision: revision };
         if (existing) {
-          await updateSecurityAdvisoryNodeStatus(props.advisoryId, existing.id, withoutNode(payload));
+          await updateSecurityAdvisoryNodeStatus(props.advisoryId, existing.id, {
+            ...withoutNode(payload),
+            ...nextGuards,
+          });
         } else {
-          await createSecurityAdvisoryNodeStatus(props.advisoryId, payload);
+          await createSecurityAdvisoryNodeStatus(props.advisoryId, { ...payload, ...nextGuards });
         }
+        revision = nextAdvisoryRevision(revision);
         changed = true;
         completed.add(nodeId);
         setBulkCompleted(new Set(completed));
@@ -187,8 +199,8 @@ export function SecurityAdvisoryNodesPanel(props: {
       setBulkOpen(false);
       pushToast({ variant: 'ok', title: t('admin.security_advisories.nodes.toast.bulk_saved') });
     } catch (error) {
-      if (changed) props.onChanged();
-      const message = formatErrorMessage(error);
+      props.onChanged();
+      const message = advisoryFailureMessage(error, t);
       setBulkError(message);
       pushToast({
         variant: 'danger',
@@ -212,7 +224,7 @@ export function SecurityAdvisoryNodesPanel(props: {
             variant="secondary"
             className="min-h-11 md:min-h-9"
             onClick={openBulk}
-            disabled={props.loading || relevantNodes.length === 0}
+            disabled={props.loading || activeNodes.length === 0}
             testId="admin.security_advisories.nodes.bulk.open"
           >
             <Layers3 size={16} /> {t('admin.security_advisories.nodes.action.bulk')}
@@ -221,7 +233,9 @@ export function SecurityAdvisoryNodesPanel(props: {
       />
 
       {props.loading ? (
-        <CardBody><LoadingState /></CardBody>
+        <CardBody>
+          <LoadingState />
+        </CardBody>
       ) : relevantNodes.length === 0 ? (
         <CardBody>
           <Alert variant="neutral" title={t('admin.security_advisories.nodes.empty.title')}>
@@ -290,7 +304,11 @@ export function SecurityAdvisoryNodesPanel(props: {
                   </td>
                   <td className="grid min-w-0 grid-cols-[minmax(7rem,0.42fr)_minmax(0,1fr)] items-start gap-3 px-3 py-2 text-sm text-muted md:table-cell md:max-w-xs md:p-0">
                     <MobileCellLabel>{t('admin.security_advisories.nodes.table.note')}</MobileCellLabel>
-                    <span className="min-w-0 break-words">{status?.note || '—'}</span>
+                    <span className="min-w-0 break-words">
+                      {String(
+                        status?.[`${i18n.preferredLanguageCodes[0] ?? 'en'}_note`] ?? status?.['en_note'] ?? ''
+                      ) || '—'}
+                    </span>
                   </td>
                   <td className="grid min-w-0 grid-cols-[minmax(7rem,0.42fr)_minmax(0,1fr)] items-start gap-3 px-3 py-2 md:table-cell md:p-0">
                     <MobileCellLabel>{t('admin.security_advisories.nodes.table.actions')}</MobileCellLabel>
@@ -299,7 +317,8 @@ export function SecurityAdvisoryNodesPanel(props: {
                         size="sm"
                         variant="secondary"
                         className="min-h-11 w-full whitespace-nowrap md:min-h-8 md:w-auto md:whitespace-normal"
-                        onClick={() => openEditor(node, status)}
+                        onClick={() => void openEditor(node, status)}
+                        disabled={node.active === false}
                         testId={`admin.security_advisories.nodes.row.${node.id}.edit`}
                       >
                         <Pencil size={14} /> {t('admin.security_advisories.nodes.action.edit')}
@@ -309,7 +328,20 @@ export function SecurityAdvisoryNodesPanel(props: {
                           size="sm"
                           variant="danger"
                           className="min-h-11 w-full whitespace-nowrap md:min-h-8 md:w-auto md:whitespace-normal"
-                          onClick={() => setDeleteTarget({ node, status })}
+                          onClick={() => {
+                            void capture(['DELETE'])
+                              .then(() => {
+                                setDeleteError(null);
+                                setDeleteTarget({ node, status });
+                              })
+                              .catch((error) =>
+                                pushToast({
+                                  variant: 'danger',
+                                  title: t('common.error'),
+                                  body: advisoryFailureMessage(error, t),
+                                })
+                              );
+                          }}
                           testId={`admin.security_advisories.nodes.row.${node.id}.delete`}
                         >
                           <Trash2 size={14} /> {t('admin.security_advisories.nodes.action.delete')}
@@ -338,7 +370,11 @@ export function SecurityAdvisoryNodesPanel(props: {
               variant="primary"
               onClick={saveEditor}
               loading={editorSaving}
-              disabled={!editorPayload?.valid}
+              disabled={
+                !editorPayload?.valid ||
+                writeBlocked ||
+                (resolved && !['not_affected', 'mitigated'].includes(editorValues.state))
+              }
               testId="admin.security_advisories.nodes.editor.save"
             >
               {t('admin.security_advisories.nodes.action.save')}
@@ -347,11 +383,16 @@ export function SecurityAdvisoryNodesPanel(props: {
         }
       >
         <div className="space-y-4">
-          {editorError ? <Alert variant="danger" title={t('admin.security_advisories.nodes.error.title')}>{editorError}</Alert> : null}
+          {editorError ? (
+            <Alert variant="danger" title={t('admin.security_advisories.nodes.error.title')}>
+              {editorError}
+            </Alert>
+          ) : null}
           <SecurityAdvisoryNodeFormFields
             values={editorValues}
             onChange={setEditorValues}
             testId="admin.security_advisories.nodes.editor"
+            resolved={resolved}
           />
         </div>
       </Modal>
@@ -368,7 +409,14 @@ export function SecurityAdvisoryNodesPanel(props: {
         onConfirm={deleteStatus}
         onCancel={() => setDeleteTarget(null)}
         testId="admin.security_advisories.nodes.delete"
-      />
+        confirmDisabled={writeBlocked}
+      >
+        {deleteError ? (
+          <Alert variant="danger" title={t('common.error')}>
+            {deleteError}
+          </Alert>
+        ) : null}
+      </ConfirmDialog>
 
       <Modal
         open={bulkOpen}
@@ -391,7 +439,12 @@ export function SecurityAdvisoryNodesPanel(props: {
                 variant="primary"
                 onClick={() => setBulkConfirm(true)}
                 loading={bulkRunning}
-                disabled={!bulkPayload.valid || remainingBulkIds.length === 0}
+                disabled={
+                  !bulkPayload.valid ||
+                  remainingBulkIds.length === 0 ||
+                  writeBlocked ||
+                  (resolved && !['not_affected', 'mitigated'].includes(bulkValues.state))
+                }
                 testId="admin.security_advisories.nodes.bulk.apply"
               >
                 {bulkError && bulkCompleted.size > 0
@@ -419,6 +472,7 @@ export function SecurityAdvisoryNodesPanel(props: {
             values={bulkValues}
             onChange={setBulkValues}
             testId="admin.security_advisories.nodes.bulk"
+            resolved={resolved}
           />
         </div>
       </Modal>

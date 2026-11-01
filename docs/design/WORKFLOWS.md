@@ -836,6 +836,33 @@ intentionally blocked pending safe backend relation handling; translations and
 template-recipient membership have separate supported delete operations. See
 [the deletion boundary](ACTION_CONTRACTS.md#deliberately-blocked-mail-deletion).
 
+Original advisory corrections are available in draft, published and retracted
+states. They update the original report without posting an announcement or
+sending email. Publication remains draft-only. The existing published advisory
+update flow keeps its own explicit mail, state and publication-time options.
+
+Editors capture a coherent parent/child snapshot and its content revision and
+state. API capabilities are checked through authenticated OPTIONS before the
+selected workflow's first write. Parent/CVE and bulk node requests are sequential,
+with one expected revision per acknowledged correction. They are separate
+transactions: completed work remains if a later request fails. Keep unsaved
+values and show the error; close, reload and review before resuming a refused or
+uncertain operation. A failed draft-child save opens the existing created draft
+instead of offering to create another parent.
+
+Publication and mitigation inputs retain seconds and preserve null. Editing can
+leave zero CVEs or missing node assessments; only explicit add/bulk operations
+create rows. Existing retired-node assessments remain removable. Node notes use
+localized fields, preserving languages the form does not edit. Published and
+retracted node writes offer resolved states and require both mitigation times
+when mitigated. A correction refreshes affected-user/VPS and public caches.
+
+Direct retraction is silent, preserves history and affected projections, and is
+available only while published. Deletion is available in every state and its
+confirmation describes the permanent loss of the advisory, updates and node
+assessments. Navigate away only after acknowledged deletion. An uncertain
+response remains an error, without automatic retry.
+
 The admin advisory list uses padded cells and aligned column headings, including
 the first advisory column and the final action column. Numeric counts remain
 right-aligned. On narrow screens the table scrolls inside its card so all columns

@@ -7,10 +7,7 @@ import type { Language } from '../../../../lib/api/languages';
 import type { SecurityAdvisory } from '../../../../lib/api/securityAdvisories';
 import { formatDateTime } from '../../../../lib/format';
 import type { PublishReadinessIssue } from './securityAdvisoryAdminModel';
-import {
-  finiteSecurityAdvisoryCount,
-  securityAdvisoryReadinessMessage,
-} from './securityAdvisoryDetailViewModel';
+import { finiteSecurityAdvisoryCount, securityAdvisoryReadinessMessage } from './securityAdvisoryDetailViewModel';
 
 function StatCard(props: { label: ReactNode; value: ReactNode }) {
   return (
@@ -53,32 +50,36 @@ export function SecurityAdvisoryOverviewPanel(props: {
         />
       </div>
 
-      <Alert
-        variant={props.readinessIssues.length === 0 ? 'ok' : 'warn'}
-        title={
-          props.readinessIssues.length === 0
-            ? t('admin.security_advisories.readiness.ready')
-            : t('admin.security_advisories.readiness.not_ready')
-        }
-        testId="admin.security_advisory.readiness"
-      >
-        {props.readinessIssues.length === 0 ? (
-          t('admin.security_advisories.readiness.ready_body')
-        ) : (
-          <ul className="list-disc space-y-1 pl-5">
-            {props.readinessIssues.slice(0, 8).map((issue, index) => (
-              <li key={`${issue.type}-${index}`}>{securityAdvisoryReadinessMessage(issue, t)}</li>
-            ))}
-            {props.readinessIssues.length > 8 ? (
-              <li>{t('admin.security_advisories.readiness.more', { count: props.readinessIssues.length - 8 })}</li>
-            ) : null}
-          </ul>
-        )}
-      </Alert>
+      {props.advisory.state === 'draft' ? (
+        <Alert
+          variant={props.readinessIssues.length === 0 ? 'ok' : 'warn'}
+          title={
+            props.readinessIssues.length === 0
+              ? t('admin.security_advisories.readiness.ready')
+              : t('admin.security_advisories.readiness.not_ready')
+          }
+          testId="admin.security_advisory.readiness"
+        >
+          {props.readinessIssues.length === 0 ? (
+            t('admin.security_advisories.readiness.ready_body')
+          ) : (
+            <ul className="list-disc space-y-1 pl-5">
+              {props.readinessIssues.slice(0, 8).map((issue, index) => (
+                <li key={`${issue.type}-${index}`}>{securityAdvisoryReadinessMessage(issue, t)}</li>
+              ))}
+              {props.readinessIssues.length > 8 ? (
+                <li>{t('admin.security_advisories.readiness.more', { count: props.readinessIssues.length - 8 })}</li>
+              ) : null}
+            </ul>
+          )}
+        </Alert>
+      ) : null}
 
       <div className="grid gap-4 lg:grid-cols-2">
         {props.languages.map((language) => {
-          const code = String(language.code ?? '').trim().toLowerCase();
+          const code = String(language.code ?? '')
+            .trim()
+            .toLowerCase();
           if (!code) return null;
           return (
             <Card key={language.id}>

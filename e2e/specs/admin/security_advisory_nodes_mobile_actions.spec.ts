@@ -1,3 +1,4 @@
+import { advisoryContractDescription } from '../../helpers/securityAdvisoryContract';
 import { expect, test } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
@@ -6,6 +7,7 @@ import { expectNoDocumentHorizontalOverflow } from '../../helpers/horizontalOver
 const advisory = {
   id: 77,
   state: 'draft',
+  content_revision: 0,
   name: 'Linux kernel advisory',
   published_at: null,
   created_at: '2026-09-16T08:00:00.000Z',
@@ -34,6 +36,7 @@ test('@pr-smoke @pr-smoke-mobile security advisory node actions stay directly us
 
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
   await installHaveApiMock(page, {
+    description: advisoryContractDescription(),
     user: { id: 1, login: 'security-admin', level: 90 },
     handlers: {
       'GET languages': () => ({ languages: [{ id: 1, code: 'en', label: 'English' }] }),
@@ -52,7 +55,7 @@ test('@pr-smoke @pr-smoke-mobile security advisory node actions stay directly us
             state: 'mitigated',
             vulnerable_until: '2026-09-16T09:00:00.000Z',
             mitigated_since: '2026-09-16T10:00:00.000Z',
-            note: 'A-very-long-assessment-note-that-must-wrap-within-the-mobile-card-without-hiding-actions',
+            en_note: 'A-very-long-assessment-note-that-must-wrap-within-the-mobile-card-without-hiding-actions',
           },
         ],
       }),
@@ -115,7 +118,7 @@ test('@pr-smoke @pr-smoke-mobile security advisory node actions stay directly us
     expect((await remove.boundingBox())?.height).toBe(32);
   }
 
-  const proofScreenshot = process.env.E2E_SECURITY_NODE_ACTIONS_PROOF_SCREENSHOT?.trim();
+  const proofScreenshot = process.env['E2E_SECURITY_NODE_ACTIONS_PROOF_SCREENSHOT']?.trim();
   if (proofScreenshot) await page.screenshot({ path: proofScreenshot, fullPage: true });
 
   await edit.click();

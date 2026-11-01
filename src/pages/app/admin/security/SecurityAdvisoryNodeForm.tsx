@@ -7,7 +7,10 @@ import {
   type SecurityAdvisoryNodeStatus,
   type SecurityAdvisoryNodeStatusCreatePayload,
 } from '../../../../lib/api/securityAdvisories';
-import { isoToLocalInput, localInputToIso } from '../../../../lib/datetimeLocal';
+import { localInputToIso } from '../../../../lib/datetimeLocal';
+
+import type { Language } from '../../../../lib/api/languages';
+import { advisoryDateInput, advisoryDateValue } from './advisoryDateTime';
 
 const NODE_STATES = ['unknown', 'not_affected', 'vulnerable', 'mitigated'] as const;
 type KnownNodeState = (typeof NODE_STATES)[number];
@@ -16,7 +19,8 @@ export interface SecurityAdvisoryNodeFormValues {
   state: KnownNodeState;
   vulnerableUntil: string;
   mitigatedSince: string;
-  note: string;
+  notes: Record<string, string>;
+  original?: SecurityAdvisoryNodeStatus | null;
 }
 
 export type SecurityAdvisoryNodePayloadResult =
@@ -35,17 +39,22 @@ export function securityAdvisoryNodeStatusNodeId(status: SecurityAdvisoryNodeSta
 
 export function buildSecurityAdvisoryNodeStatusPayload(
   nodeId: number,
-  values: SecurityAdvisoryNodeFormValues,
+  values: SecurityAdvisoryNodeFormValues
 ): SecurityAdvisoryNodePayloadResult {
+  const notes = Object.fromEntries(
+    Object.entries(values.notes)
+      .filter(([code, note]) => !values.original || note !== String(values.original[`${code}_note`] ?? ''))
+      .map(([code, note]) => [`${code}_note`, note.trim() || null])
+  );
   if (values.state === 'not_affected' || values.state === 'unknown') {
     return {
       valid: true,
       payload: {
         node: nodeId,
         state: values.state,
-        vulnerable_until: null,
-        mitigated_since: null,
-        note: values.note.trim() || null,
+        vulnerable_until: values.original?.state === values.state ? (values.original.vulnerable_until ?? null) : null,
+        mitigated_since: values.original?.state === values.state ? (values.original.mitigated_since ?? null) : null,
+        ...notes,
       },
     };
   }
@@ -66,31 +75,41 @@ export function buildSecurityAdvisoryNodeStatusPayload(
     payload: {
       node: nodeId,
       state: values.state,
-      vulnerable_until: vulnerableUntil.iso,
-      mitigated_since: values.state === 'mitigated' ? mitigatedSince.iso : null,
-      note: values.note.trim() || null,
+      vulnerable_until: advisoryDateValue(values.vulnerableUntil, values.original?.vulnerable_until),
+      mitigated_since:
+        values.state === 'mitigated'
+          ? advisoryDateValue(values.mitigatedSince, values.original?.mitigated_since)
+          : null,
+      ...notes,
     },
   };
 }
 
 export function remainingSecurityAdvisoryBulkNodeIds(
   nodeIds: number[],
-  completedNodeIds: ReadonlySet<number>,
+  completedNodeIds: ReadonlySet<number>
 ): number[] {
   return nodeIds.filter((nodeId) => !completedNodeIds.has(nodeId));
 }
 
 export function securityAdvisoryNodeFormValues(
   status?: SecurityAdvisoryNodeStatus | null,
+  languages: Language[] = [],
+  resolved = false
 ): SecurityAdvisoryNodeFormValues {
   const state = NODE_STATES.includes(String(status?.state ?? '') as KnownNodeState)
     ? (String(status?.state) as KnownNodeState)
-    : 'unknown';
+    : resolved
+      ? 'not_affected'
+      : 'unknown';
   return {
     state,
-    vulnerableUntil: isoToLocalInput(status?.vulnerable_until),
-    mitigatedSince: isoToLocalInput(status?.mitigated_since),
-    note: String(status?.note ?? ''),
+    vulnerableUntil: advisoryDateInput(status?.vulnerable_until),
+    mitigatedSince: advisoryDateInput(status?.mitigated_since),
+    notes: Object.fromEntries(
+      languages.map((language) => [String(language.code), String(status?.[`${language.code}_note`] ?? '')])
+    ),
+    original: status,
   };
 }
 
@@ -98,6 +117,7 @@ export function SecurityAdvisoryNodeFormFields(props: {
   values: SecurityAdvisoryNodeFormValues;
   onChange: (values: SecurityAdvisoryNodeFormValues) => void;
   testId: string;
+  resolved?: boolean;
 }) {
   const { t } = useI18n();
   const payload = buildSecurityAdvisoryNodeStatusPayload(0, props.values);
@@ -114,6 +134,7 @@ export function SecurityAdvisoryNodeFormFields(props: {
           onChange={(event) => props.onChange({ ...props.values, state: event.target.value as KnownNodeState })}
           options={NODE_STATES.map((state) => ({
             value: state,
+            disabled: props.resolved && !['mitigated', 'not_affected'].includes(state),
             label: t(`admin.security_advisories.nodes.state.${state}`),
           }))}
           testId={`${props.testId}.state`}
@@ -128,6 +149,7 @@ export function SecurityAdvisoryNodeFormFields(props: {
             </span>
             <Input
               type="datetime-local"
+              step="1"
               ariaLabel={t('admin.security_advisories.nodes.field.vulnerable_until')}
               value={props.values.vulnerableUntil}
               onChange={(event) => props.onChange({ ...props.values, vulnerableUntil: event.target.value })}
@@ -141,6 +163,7 @@ export function SecurityAdvisoryNodeFormFields(props: {
               </span>
               <Input
                 type="datetime-local"
+                step="1"
                 ariaLabel={t('admin.security_advisories.nodes.field.mitigated_since')}
                 value={props.values.mitigatedSince}
                 onChange={(event) => props.onChange({ ...props.values, mitigatedSince: event.target.value })}
@@ -151,18 +174,18 @@ export function SecurityAdvisoryNodeFormFields(props: {
         </div>
       ) : null}
 
-      <div>
+      {Object.entries(props.values.notes).map(([code, note]) => (
         <Textarea
-          label={t('admin.security_advisories.nodes.field.note')}
-          value={props.values.note}
-          onChange={(event) => props.onChange({ ...props.values, note: event.target.value })}
+          key={code}
+          label={`${code.toUpperCase()} ${t('admin.security_advisories.nodes.field.note')}`}
+          value={note}
+          onChange={(event) =>
+            props.onChange({ ...props.values, notes: { ...props.values.notes, [code]: event.target.value } })
+          }
           rows={3}
-          testId={`${props.testId}.note`}
+          testId={`${props.testId}.${code}_note`}
         />
-        <p className="mt-1 text-xs text-muted">
-          {t('admin.security_advisories.nodes.field.note_help')}
-        </p>
-      </div>
+      ))}
 
       {!payload.valid ? (
         <Alert variant="warn" title={t('admin.security_advisories.nodes.validation.title')}>
@@ -171,4 +194,13 @@ export function SecurityAdvisoryNodeFormFields(props: {
       ) : null}
     </div>
   );
+}
+
+export function MobileCellLabel(props: { children: React.ReactNode }) {
+  return <span className="text-xs font-medium text-faint md:hidden">{props.children}</span>;
+}
+
+export function withoutNode(payload: SecurityAdvisoryNodeStatusCreatePayload) {
+  const { node: _node, ...update } = payload;
+  return update;
 }

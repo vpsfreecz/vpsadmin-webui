@@ -5,14 +5,14 @@ import {
   remainingSecurityAdvisoryBulkNodeIds,
   securityAdvisoryNodeStatusNodeId,
   type SecurityAdvisoryNodeFormValues,
-} from './SecurityAdvisoryNodesPanel';
+} from './SecurityAdvisoryNodeForm';
 
 function values(overrides: Partial<SecurityAdvisoryNodeFormValues> = {}): SecurityAdvisoryNodeFormValues {
   return {
     state: 'unknown',
     vulnerableUntil: '',
     mitigatedSince: '',
-    note: '',
+    notes: {},
     ...overrides,
   };
 }
@@ -26,9 +26,9 @@ describe('security advisory node status panel helpers', () => {
           state: 'not_affected',
           vulnerableUntil: '2026-07-01T10:00',
           mitigatedSince: '2026-07-02T10:00',
-          note: '  unaffected kernel  ',
-        }),
-      ),
+          notes: { en: '  unaffected kernel  ' },
+        })
+      )
     ).toEqual({
       valid: true,
       payload: {
@@ -36,24 +36,18 @@ describe('security advisory node status panel helpers', () => {
         state: 'not_affected',
         vulnerable_until: null,
         mitigated_since: null,
-        note: 'unaffected kernel',
+        en_note: 'unaffected kernel',
       },
     });
   });
 
   it('requires both timestamps for mitigated nodes', () => {
     expect(
-      buildSecurityAdvisoryNodeStatusPayload(
-        42,
-        values({ state: 'mitigated', mitigatedSince: '2026-07-02T10:00' }),
-      ),
+      buildSecurityAdvisoryNodeStatusPayload(42, values({ state: 'mitigated', mitigatedSince: '2026-07-02T10:00' }))
     ).toEqual({ valid: false, reason: 'vulnerable_until_required' });
 
     expect(
-      buildSecurityAdvisoryNodeStatusPayload(
-        42,
-        values({ state: 'mitigated', vulnerableUntil: '2026-07-01T10:00' }),
-      ),
+      buildSecurityAdvisoryNodeStatusPayload(42, values({ state: 'mitigated', vulnerableUntil: '2026-07-01T10:00' }))
     ).toEqual({ valid: false, reason: 'mitigated_since_required' });
 
     const parsed = buildSecurityAdvisoryNodeStatusPayload(
@@ -62,7 +56,7 @@ describe('security advisory node status panel helpers', () => {
         state: 'mitigated',
         vulnerableUntil: '2026-07-01T10:00',
         mitigatedSince: '2026-07-02T10:00',
-      }),
+      })
     );
     expect(parsed.valid).toBe(true);
     if (parsed.valid) {

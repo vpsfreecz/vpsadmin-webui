@@ -443,3 +443,13 @@ silently re-enable. [Recipient safety fixture](../../e2e/specs/admin/mailer_reci
 When a missing legacy action is found, add its exact action, role, preconditions,
 payload/units and acceptance example to the affected contract and requirement.
 Separate implementation defects from deployment configuration and missing evidence.
+
+## Advisory original corrections and lifecycle
+
+REQ-055 retains admin route/action gates independently of public REQ-054 access.
+Original corrections have no mail option. All original states permit corrections;
+only draft publishes, only published retracts directly, and every state permits
+confirmed deletion. Preserve explicit state/time/mail controls on separate update
+posts. Parent/CVE and bulk-node changes stop on their first conflict or uncertain
+response, retain unsaved values, and require explicit reload/review before more
+writes. Each acknowledged mutation is atomic; a whole form is not one transaction.

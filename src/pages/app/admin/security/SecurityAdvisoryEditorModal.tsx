@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import { useI18n } from '../../../../app/i18n';
 import { Alert } from '../../../../components/ui/Alert';
@@ -8,9 +8,10 @@ import { Modal } from '../../../../components/ui/Modal';
 import { Textarea } from '../../../../components/ui/Textarea';
 import type { Language } from '../../../../lib/api/languages';
 import type { SecurityAdvisory, SecurityAdvisoryPayload } from '../../../../lib/api/securityAdvisories';
-import { isoToLocalInput, localInputToIso } from '../../../../lib/datetimeLocal';
+import { localInputToIso } from '../../../../lib/datetimeLocal';
 import { clsx } from '../../../../components/ui/clsx';
 import { parseSecurityAdvisoryCves } from './securityAdvisoryAdminModel';
+import { advisoryDateInput, advisoryDateValue } from './advisoryDateTime';
 
 export interface SecurityAdvisoryTranslationValues {
   summary: string;
@@ -26,14 +27,20 @@ export interface SecurityAdvisoryEditorValues {
 }
 
 function languageCode(language: Language): string {
-  return String(language.code ?? '').trim().toLowerCase();
+  return String(language.code ?? '')
+    .trim()
+    .toLowerCase();
 }
 
 function languageLabel(language: Language): string {
   return String(language.label ?? language.code ?? `#${language.id}`);
 }
 
-function initialValues(advisory: SecurityAdvisory | null, languages: Language[], cves: string[]): SecurityAdvisoryEditorValues {
+function initialValues(
+  advisory: SecurityAdvisory | null,
+  languages: Language[],
+  cves: string[]
+): SecurityAdvisoryEditorValues {
   const translations: Record<string, SecurityAdvisoryTranslationValues> = {};
   for (const language of languages) {
     const code = languageCode(language);
@@ -47,17 +54,20 @@ function initialValues(advisory: SecurityAdvisory | null, languages: Language[],
 
   return {
     name: String(advisory?.name ?? ''),
-    publishedAt: isoToLocalInput(String(advisory?.published_at ?? '')),
+    publishedAt: advisoryDateInput(advisory?.published_at),
     cves: cves.join(', '),
     translations,
   };
 }
 
-export function securityAdvisoryEditorPayload(values: SecurityAdvisoryEditorValues): SecurityAdvisoryPayload {
+export function securityAdvisoryEditorPayload(
+  values: SecurityAdvisoryEditorValues,
+  original?: SecurityAdvisory | null
+): SecurityAdvisoryPayload {
   const parsedDate = localInputToIso(values.publishedAt);
   const payload: SecurityAdvisoryPayload = {
     name: values.name.trim() || null,
-    published_at: parsedDate.valid ? parsedDate.iso ?? null : null,
+    published_at: parsedDate.valid ? advisoryDateValue(values.publishedAt, original?.published_at) : null,
   };
 
   for (const [code, translation] of Object.entries(values.translations)) {
@@ -77,18 +87,24 @@ export function SecurityAdvisoryEditorModal(props: {
   cves: string[];
   error?: string | null;
   saving?: boolean;
+  blocked?: boolean;
   onClose: () => void;
   onSubmit: (values: SecurityAdvisoryEditorValues, cves: string[]) => void;
 }) {
   const { t } = useI18n();
-  const [values, setValues] = useState<SecurityAdvisoryEditorValues>(() => initialValues(props.advisory, props.languages, props.cves));
+  const [values, setValues] = useState<SecurityAdvisoryEditorValues>(() =>
+    initialValues(props.advisory, props.languages, props.cves)
+  );
   const codes = useMemo(() => props.languages.map(languageCode).filter(Boolean), [props.languages]);
   const [activeLanguage, setActiveLanguage] = useState(codes[0] ?? 'en');
-  const cveResult = useMemo(() => parseSecurityAdvisoryCves(values.cves), [values.cves]);
+  const cveResult = useMemo(() => parseSecurityAdvisoryCves(values.cves, props.mode === 'edit'), [values.cves]);
   const parsedDate = useMemo(() => localInputToIso(values.publishedAt), [values.publishedAt]);
 
+  const wasOpen = useRef(false);
   useEffect(() => {
-    if (!props.open) return;
+    const opening = props.open && !wasOpen.current;
+    wasOpen.current = props.open;
+    if (!opening) return;
     const next = initialValues(props.advisory, props.languages, props.cves);
     setValues(next);
     setActiveLanguage(languageCode(props.languages[0] ?? { id: 0, code: 'en' }) || 'en');
@@ -115,7 +131,11 @@ export function SecurityAdvisoryEditorModal(props: {
     <Modal
       open={props.open}
       onClose={props.onClose}
-      title={props.mode === 'create' ? t('admin.security_advisories.editor.create_title') : t('admin.security_advisories.editor.edit_title')}
+      title={
+        props.mode === 'create'
+          ? t('admin.security_advisories.editor.create_title')
+          : t('admin.security_advisories.editor.edit_title')
+      }
       size="lg"
       testId="admin.security_advisories.editor"
       footer={
@@ -127,7 +147,7 @@ export function SecurityAdvisoryEditorModal(props: {
             variant="primary"
             onClick={() => cveResult.valid && props.onSubmit(values, cveResult.cves)}
             loading={props.saving}
-            disabled={!valid}
+            disabled={!valid || props.blocked}
             testId="admin.security_advisories.editor.save"
           >
             {props.mode === 'create' ? t('admin.security_advisories.action.create_draft') : t('common.save')}
@@ -136,18 +156,30 @@ export function SecurityAdvisoryEditorModal(props: {
       }
     >
       <div className="space-y-5">
-        {props.error ? <Alert variant="danger" title={t('common.error')}>{props.error}</Alert> : null}
+        {props.error ? (
+          <Alert variant="danger" title={t('common.error')}>
+            {props.error}
+          </Alert>
+        ) : null}
 
         <div className="grid gap-4 md:grid-cols-2">
           <label className="block">
-            <span className="mb-1 block text-xs font-semibold text-muted">{t('admin.security_advisories.field.cves')}</span>
+            <span className="mb-1 block text-xs font-semibold text-muted">
+              {t('admin.security_advisories.field.cves')}
+            </span>
             <Input
               value={values.cves}
               onChange={(event) => setValues((previous) => ({ ...previous, cves: event.target.value }))}
               placeholder={t('admin.security_advisories.field.cves_placeholder')}
               testId="admin.security_advisories.editor.cves"
             />
-            <span className="mt-1 block text-xs text-faint">{t('admin.security_advisories.field.cves_help')}</span>
+            <span className="mt-1 block text-xs text-faint">
+              {t(
+                props.mode === 'edit'
+                  ? 'admin.security_advisories.field.cves_edit_help'
+                  : 'admin.security_advisories.field.cves_help'
+              )}
+            </span>
             {!cveResult.valid ? (
               <span className="mt-1 block text-xs text-danger">
                 {cveResult.reason === 'empty'
@@ -158,7 +190,9 @@ export function SecurityAdvisoryEditorModal(props: {
           </label>
 
           <label className="block">
-            <span className="mb-1 block text-xs font-semibold text-muted">{t('admin.security_advisories.field.name')}</span>
+            <span className="mb-1 block text-xs font-semibold text-muted">
+              {t('admin.security_advisories.field.name')}
+            </span>
             <Input
               value={values.name}
               onChange={(event) => setValues((previous) => ({ ...previous, name: event.target.value }))}
@@ -170,19 +204,34 @@ export function SecurityAdvisoryEditorModal(props: {
         </div>
 
         <label className="block md:max-w-sm">
-          <span className="mb-1 block text-xs font-semibold text-muted">{t('admin.security_advisories.field.published_at')}</span>
+          <span className="mb-1 block text-xs font-semibold text-muted">
+            {t('admin.security_advisories.field.published_at')}
+          </span>
           <Input
             type="datetime-local"
+            step="1"
             value={values.publishedAt}
             onChange={(event) => setValues((previous) => ({ ...previous, publishedAt: event.target.value }))}
             testId="admin.security_advisories.editor.published_at"
           />
-          <span className="mt-1 block text-xs text-faint">{t('admin.security_advisories.field.published_at_help')}</span>
-          {!parsedDate.valid ? <span className="mt-1 block text-xs text-danger">{t('admin.security_advisories.validation.date')}</span> : null}
+          <span className="mt-1 block text-xs text-faint">
+            {t(
+              props.mode === 'edit'
+                ? 'admin.security_advisories.field.published_at_edit_help'
+                : 'admin.security_advisories.field.published_at_help'
+            )}
+          </span>
+          {!parsedDate.valid ? (
+            <span className="mt-1 block text-xs text-danger">{t('admin.security_advisories.validation.date')}</span>
+          ) : null}
         </label>
 
         <div className="rounded-lg border border-border bg-surface-2/45 p-3">
-          <div className="mb-3 flex flex-wrap gap-2" role="tablist" aria-label={t('admin.security_advisories.editor.languages')}>
+          <div
+            className="mb-3 flex flex-wrap gap-2"
+            role="tablist"
+            aria-label={t('admin.security_advisories.editor.languages')}
+          >
             {props.languages.map((language) => {
               const code = languageCode(language);
               if (!code) return null;
@@ -198,7 +247,7 @@ export function SecurityAdvisoryEditorModal(props: {
                     'rounded-md px-3 py-2 text-sm font-medium ring-1 transition',
                     activeLanguage === code
                       ? 'bg-surface text-fg ring-border'
-                      : 'bg-transparent text-muted ring-transparent hover:bg-surface hover:text-fg',
+                      : 'bg-transparent text-muted ring-transparent hover:bg-surface hover:text-fg'
                   )}
                   data-testid={`admin.security_advisories.editor.language.${code}`}
                 >
@@ -210,18 +259,26 @@ export function SecurityAdvisoryEditorModal(props: {
 
           <div className="space-y-4" role="tabpanel">
             <label className="block">
-              <span className="mb-1 block text-xs font-semibold text-muted">{t('admin.security_advisories.field.summary')}</span>
+              <span className="mb-1 block text-xs font-semibold text-muted">
+                {t('admin.security_advisories.field.summary')}
+              </span>
               <Input
                 value={activeValues.summary}
                 onChange={(event) => updateTranslation('summary', event.target.value)}
                 testId={`admin.security_advisories.editor.${activeLanguage}.summary`}
               />
               <span className="mt-1 block text-xs text-faint">{t('admin.security_advisories.field.summary_help')}</span>
-              {!activeValues.summary.trim() ? <span className="mt-1 block text-xs text-danger">{t('admin.security_advisories.validation.summary_required')}</span> : null}
+              {!activeValues.summary.trim() ? (
+                <span className="mt-1 block text-xs text-danger">
+                  {t('admin.security_advisories.validation.summary_required')}
+                </span>
+              ) : null}
             </label>
 
             <label className="block">
-              <span className="mb-1 block text-xs font-semibold text-muted">{t('admin.security_advisories.field.description')}</span>
+              <span className="mb-1 block text-xs font-semibold text-muted">
+                {t('admin.security_advisories.field.description')}
+              </span>
               <Textarea
                 rows={5}
                 value={activeValues.description}
@@ -231,7 +288,9 @@ export function SecurityAdvisoryEditorModal(props: {
             </label>
 
             <label className="block">
-              <span className="mb-1 block text-xs font-semibold text-muted">{t('admin.security_advisories.field.response')}</span>
+              <span className="mb-1 block text-xs font-semibold text-muted">
+                {t('admin.security_advisories.field.response')}
+              </span>
               <Textarea
                 rows={5}
                 value={activeValues.response}

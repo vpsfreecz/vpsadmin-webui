@@ -245,20 +245,6 @@
       }
     },
     {
-      "path": "src/pages/app/admin/security/AdminSecurityAdvisoryDetailPage.tsx",
-      "rule": "crossed-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "b19876584f586809e8a1380f0d1884e40036424f332df63371289ce93571cbc7",
-      "old": 0,
-      "allowance": 535,
-      "rationale": "At the recorded source revision, this file already contained security advisory detail and editing; extract the coherent section with focused behavior coverage before removing this exception.",
-      "owner": "WebUI implementation lead",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 500
-      }
-    },
-    {
       "path": "src/pages/app/admin/user/AdminUserOverviewPage.tsx",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",

@@ -14,8 +14,8 @@ import {
 describe('security advisory admin model', () => {
   it('enforces the draft, published and retracted lifecycle', () => {
     expect(canEditSecurityAdvisory('draft')).toBe(true);
-    expect(canEditSecurityAdvisory('published')).toBe(false);
-    expect(canEditSecurityAdvisory('retracted')).toBe(false);
+    expect(canEditSecurityAdvisory('published')).toBe(true);
+    expect(canEditSecurityAdvisory('retracted')).toBe(true);
 
     expect(canPostSecurityAdvisoryUpdate('draft')).toBe(false);
     expect(canPostSecurityAdvisoryUpdate('published')).toBe(true);
@@ -33,6 +33,7 @@ describe('security advisory admin model', () => {
       cves: ['CVE-2026-1234', 'CVE-2025-99999'],
     });
     expect(parseSecurityAdvisoryCves('')).toMatchObject({ valid: false, reason: 'empty' });
+    expect(parseSecurityAdvisoryCves('', true)).toEqual({ valid: true, cves: [] });
     expect(parseSecurityAdvisoryCves('CVE-nope')).toMatchObject({
       valid: false,
       reason: 'invalid',
@@ -47,7 +48,7 @@ describe('security advisory admin model', () => {
         { id: 3, type: 'node', active: true },
         { id: 2, type: 'other', active: true },
         { id: 1, type: 'node', active: false },
-      ]).map((node) => node.id),
+      ]).map((node) => node.id)
     ).toEqual([3, 8]);
   });
 
@@ -66,7 +67,7 @@ describe('security advisory admin model', () => {
           { node_id: 1, state: 'vulnerable' },
           { node_id: 2, state: 'mitigated', vulnerable_until: null, mitigated_since: null },
         ],
-      }),
+      })
     ).toEqual([
       { type: 'missing_cves' },
       { type: 'unresolved_node', nodeId: 1, nodeName: 'node1.prg', state: 'vulnerable' },
@@ -88,7 +89,7 @@ describe('security advisory admin model', () => {
           },
           { node_id: 3, state: 'not_affected' },
         ],
-      }),
+      })
     ).toEqual([]);
   });
 

@@ -13,7 +13,13 @@ export type SecurityAdvisoryPayload = {
   published_at?: string | null;
 } & LocalizedPayload<'summary' | 'description' | 'response'>;
 
+export interface SecurityAdvisoryMutationGuards {
+  expected_content_revision: number;
+  expected_state: 'draft' | 'published' | 'retracted';
+}
+
 export interface SecurityAdvisoryPublishPayload {
+  expected_content_revision: number;
   send_mail?: boolean;
   published_at?: string | null;
 }
@@ -29,6 +35,7 @@ export interface SecurityAdvisoryCve {
 
 export interface SecurityAdvisory {
   id: number;
+  content_revision?: number;
   state?: SecurityAdvisoryState;
   name?: string | null;
   published_at?: string | null;
@@ -124,12 +131,10 @@ function numericSecurityAdvisoryId(advisory: SecurityAdvisory | undefined): numb
  * it would silently truncate the public archive.
  */
 export async function fetchAllSecurityAdvisories(opts: SecurityAdvisoryAllFilters = {}) {
-  const pageLimit = Number.isInteger(opts.limit) && Number(opts.limit) > 0
-    ? Number(opts.limit)
-    : SECURITY_ADVISORY_PAGE_LIMIT;
-  const maxPages = Number.isInteger(opts.maxPages) && Number(opts.maxPages) > 0
-    ? Number(opts.maxPages)
-    : SECURITY_ADVISORY_MAX_PAGES;
+  const pageLimit =
+    Number.isInteger(opts.limit) && Number(opts.limit) > 0 ? Number(opts.limit) : SECURITY_ADVISORY_PAGE_LIMIT;
+  const maxPages =
+    Number.isInteger(opts.maxPages) && Number(opts.maxPages) > 0 ? Number(opts.maxPages) : SECURITY_ADVISORY_MAX_PAGES;
   const { maxPages: _maxPages, ...filters } = opts;
 
   const data: SecurityAdvisory[] = [];
@@ -196,7 +201,10 @@ export async function createSecurityAdvisory(params: SecurityAdvisoryPayload) {
   });
 }
 
-export async function updateSecurityAdvisory(securityAdvisoryId: number, params: SecurityAdvisoryPayload) {
+export async function updateSecurityAdvisory(
+  securityAdvisoryId: number,
+  params: SecurityAdvisoryPayload & SecurityAdvisoryMutationGuards
+) {
   return haveApiCall<SecurityAdvisory>({
     method: 'PUT',
     path: `/security_advisories/${securityAdvisoryId}`,
@@ -205,10 +213,7 @@ export async function updateSecurityAdvisory(securityAdvisoryId: number, params:
   });
 }
 
-export async function publishSecurityAdvisory(
-  securityAdvisoryId: number,
-  params: SecurityAdvisoryPublishPayload = {}
-) {
+export async function publishSecurityAdvisory(securityAdvisoryId: number, params: SecurityAdvisoryPublishPayload) {
   return haveApiCall<SecurityAdvisory>({
     method: 'POST',
     path: `/security_advisories/${securityAdvisoryId}/publish`,
@@ -254,7 +259,9 @@ export async function fetchSecurityAdvisoryCve(
   });
 }
 
-export async function createSecurityAdvisoryCve(params: { security_advisory: number; cve_id: string }) {
+export async function createSecurityAdvisoryCve(
+  params: { security_advisory: number; cve_id: string } & SecurityAdvisoryMutationGuards
+) {
   return haveApiCall<SecurityAdvisoryCve>({
     method: 'POST',
     path: '/security_advisory_cves',
@@ -265,7 +272,7 @@ export async function createSecurityAdvisoryCve(params: { security_advisory: num
 
 export async function updateSecurityAdvisoryCve(
   securityAdvisoryCveId: number,
-  params: Partial<{ security_advisory: number; cve_id: string }>
+  params: Partial<{ cve_id: string }> & SecurityAdvisoryMutationGuards
 ) {
   return haveApiCall<SecurityAdvisoryCve>({
     method: 'PUT',
@@ -275,10 +282,12 @@ export async function updateSecurityAdvisoryCve(
   });
 }
 
-export async function deleteSecurityAdvisoryCve(securityAdvisoryCveId: number) {
+export async function deleteSecurityAdvisoryCve(securityAdvisoryCveId: number, guards: SecurityAdvisoryMutationGuards) {
   return haveApiCall<null>({
     method: 'DELETE',
     path: `/security_advisory_cves/${securityAdvisoryCveId}`,
+    namespace: 'security_advisory_cve',
+    params: { ...guards },
   });
 }
 
@@ -349,6 +358,26 @@ function advisoryCveObjects(advisory: SecurityAdvisory): SecurityAdvisoryCve[] {
 }
 
 export function advisoryCveLabels(advisory: SecurityAdvisory): string[] {
-  const labels = advisoryCveObjects(advisory).map(cveLabel).filter((v): v is string => Boolean(v));
+  const labels = advisoryCveObjects(advisory)
+    .map(cveLabel)
+    .filter((v): v is string => Boolean(v));
   return [...new Set(labels)].sort((a, b) => a.localeCompare(b));
+}
+
+export function retractSecurityAdvisory(id: number, guards: SecurityAdvisoryMutationGuards) {
+  return haveApiCall<SecurityAdvisory>({
+    method: 'POST',
+    path: `/security_advisories/${id}/retract`,
+    namespace: 'security_advisory',
+    params: { ...guards },
+  });
+}
+
+export function deleteSecurityAdvisory(id: number, guards: SecurityAdvisoryMutationGuards) {
+  return haveApiCall<null>({
+    method: 'DELETE',
+    path: `/security_advisories/${id}`,
+    namespace: 'security_advisory',
+    params: { ...guards },
+  });
 }

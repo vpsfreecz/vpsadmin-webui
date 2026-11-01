@@ -13,27 +13,26 @@ import type {
   SecurityAdvisoryOutageLink,
   SecurityAdvisoryUpdate,
 } from '../../../../lib/api/securityAdvisories';
+import type { useSecurityAdvisoryCorrections } from './useSecurityAdvisoryCorrections';
 import { localInputToIso } from '../../../../lib/datetimeLocal';
-import {
-  SecurityAdvisoryEditorModal,
-  type SecurityAdvisoryEditorValues,
-} from './SecurityAdvisoryEditorModal';
-import {
-  SecurityAdvisoryUpdateModal,
-  type SecurityAdvisoryUpdateValues,
-} from './SecurityAdvisoryUpdateModal';
+import { SecurityAdvisoryEditorModal, type SecurityAdvisoryEditorValues } from './SecurityAdvisoryEditorModal';
+import { SecurityAdvisoryUpdateModal, type SecurityAdvisoryUpdateValues } from './SecurityAdvisoryUpdateModal';
 
 export function SecurityAdvisoryDetailDialogs(props: {
   advisory: SecurityAdvisory;
+  editorAdvisory: SecurityAdvisory;
   advisoryId: number;
   state: string;
   canEditParent: boolean;
   canPostUpdate: boolean;
   languages: Language[];
   cves: string[];
+  editorCves: string[];
   editorOpen: boolean;
   editorError: string | null;
   editorSaving: boolean;
+  editorBlocked: boolean;
+  lifecycle: ReturnType<typeof useSecurityAdvisoryCorrections>;
   onEditorClose: () => void;
   onEditorSubmit: (values: SecurityAdvisoryEditorValues, cves: string[]) => void;
   publishOpen: boolean;
@@ -81,14 +80,35 @@ export function SecurityAdvisoryDetailDialogs(props: {
       <SecurityAdvisoryEditorModal
         open={props.editorOpen && props.canEditParent}
         mode="edit"
-        advisory={props.advisory}
+        advisory={props.editorAdvisory}
         languages={props.languages}
-        cves={props.cves}
+        cves={props.editorCves}
         error={props.editorError}
         saving={props.editorSaving}
+        blocked={props.editorBlocked}
         onClose={props.onEditorClose}
         onSubmit={props.onEditorSubmit}
       />
+
+      <ConfirmDialog
+        open={Boolean(props.lifecycle.lifecycleTarget)}
+        onCancel={() => !props.lifecycle.lifecycleM.isPending && props.lifecycle.setLifecycleTarget(null)}
+        onConfirm={() => props.lifecycle.lifecycleM.mutate()}
+        title={t(`admin.security_advisories.lifecycle.${props.lifecycle.lifecycleTarget?.action ?? 'delete'}`)}
+        description={t(
+          `admin.security_advisories.lifecycle.${props.lifecycle.lifecycleTarget?.action ?? 'delete'}_body`
+        )}
+        confirmLoading={props.lifecycle.lifecycleM.isPending}
+        confirmDisabled={props.lifecycle.lifecycleBlocked}
+        danger
+        testId="admin.security_advisory.lifecycle_dialog"
+      >
+        {props.lifecycle.lifecycleM.error ? (
+          <Alert variant="danger" title={t('common.error')}>
+            {String(props.lifecycle.lifecycleM.error.message)}
+          </Alert>
+        ) : null}
+      </ConfirmDialog>
 
       <Modal
         open={props.publishOpen}
@@ -117,13 +137,18 @@ export function SecurityAdvisoryDetailDialogs(props: {
           <Alert variant="warn" title={t('admin.security_advisories.publish.warning_title')}>
             {t('admin.security_advisories.publish.warning_body', { cves: props.cves.join(', ') })}
           </Alert>
-          {props.publishError ? <Alert variant="danger" title={t('common.error')}>{props.publishError}</Alert> : null}
+          {props.publishError ? (
+            <Alert variant="danger" title={t('common.error')}>
+              {props.publishError}
+            </Alert>
+          ) : null}
           <label className="block">
             <span className="mb-1 block text-xs font-semibold text-muted">
               {t('admin.security_advisories.field.published_at')}
             </span>
             <Input
               type="datetime-local"
+              step="1"
               value={props.publishAt}
               onChange={(event) => props.onPublishAtChange(event.target.value)}
               testId="admin.security_advisory.publish_dialog.published_at"
@@ -239,11 +264,7 @@ export function SecurityAdvisoryDetailDialogs(props: {
         testId="admin.security_advisory.outages.unlink"
       >
         {props.unlinkError ? (
-          <Alert
-            variant="danger"
-            title={t('common.error')}
-            testId="admin.security_advisory.outages.unlink.error"
-          >
+          <Alert variant="danger" title={t('common.error')} testId="admin.security_advisory.outages.unlink.error">
             {props.unlinkError}
           </Alert>
         ) : null}

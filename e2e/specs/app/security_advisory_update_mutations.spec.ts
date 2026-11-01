@@ -1,10 +1,7 @@
+import { advisoryContractDescription } from '../../helpers/securityAdvisoryContract';
 import { expect, test, type Page } from '@playwright/test';
 
-import {
-  bootstrapVpsAdminWindow,
-  installHaveApiMock,
-  setUiSettingsLocalStorage,
-} from '../../fixtures';
+import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 
 const languages = [
   { id: 1, code: 'en', label: 'English' },
@@ -14,6 +11,7 @@ const languages = [
 const advisory = {
   id: 77,
   state: 'published',
+  content_revision: 0,
   name: 'Linux kernel advisory',
   published_at: '2026-08-31T12:00:00.000Z',
   created_at: '2026-08-31T10:00:00.000Z',
@@ -38,13 +36,11 @@ function initialUpdate() {
   };
 }
 
-async function installAdvisoryDetailMock(
-  page: Page,
-  handlers: Record<string, (ctx: any) => unknown>,
-) {
+async function installAdvisoryDetailMock(page: Page, handlers: Record<string, (ctx: any) => unknown>) {
   await setUiSettingsLocalStorage(page, { language: 'en' });
   await bootstrapVpsAdminWindow(page, { sessionToken: 'SECURITY_UPDATE_MUTATIONS' });
   await installHaveApiMock(page, {
+    description: advisoryContractDescription(),
     user: { id: 1, login: 'security-admin', level: 100 },
     handlers: {
       'GET languages': () => ({ languages }),
@@ -95,14 +91,18 @@ test('@pr-smoke edits and deletes an advisory update with confirmation and refre
   await page.getByTestId('admin.security_advisories.update.editor.cs.message').fill('Upravená česká zpráva.');
   await page.getByTestId('admin.security_advisories.update.editor.save').click();
 
-  await expect.poll(() => putPayloads).toEqual([{
-    security_advisory_update: {
-      en_summary: 'Edited update',
-      en_message: 'Edited English message.',
-      cs_summary: 'Upravená aktualizace',
-      cs_message: 'Upravená česká zpráva.',
-    },
-  }]);
+  await expect
+    .poll(() => putPayloads)
+    .toEqual([
+      {
+        security_advisory_update: {
+          en_summary: 'Edited update',
+          en_message: 'Edited English message.',
+          cs_summary: 'Upravená aktualizace',
+          cs_message: 'Upravená česká zpráva.',
+        },
+      },
+    ]);
   await expect(page.getByTestId('admin.security_advisories.update.editor')).toHaveCount(0);
   await expect(updateCard).toContainText('Edited update');
   await expect(updateCard).toContainText('Edited English message.');
@@ -119,7 +119,9 @@ test('@pr-smoke edits and deletes an advisory update with confirmation and refre
   await expect(updateCard).toHaveCount(0);
 });
 
-test('@pr-smoke @pr-smoke-mobile advisory update PUT and DELETE 403 errors preserve the editor, confirmation and data', async ({ page }) => {
+test('@pr-smoke @pr-smoke-mobile advisory update PUT and DELETE 403 errors preserve the editor, confirmation and data', async ({
+  page,
+}) => {
   const update = initialUpdate();
   let updates = [update];
   let putCalls = 0;

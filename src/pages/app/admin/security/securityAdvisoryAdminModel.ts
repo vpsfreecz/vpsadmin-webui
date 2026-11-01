@@ -6,11 +6,10 @@ export const SECURITY_ADVISORY_NODE_STATES = ['unknown', 'not_affected', 'vulner
 export type SecurityAdvisoryNodeState = (typeof SECURITY_ADVISORY_NODE_STATES)[number];
 
 /**
- * Advisory metadata is the immutable public record once it has been published.
- * Follow-up information must be added through advisory updates instead.
+ * Original corrections remain separate from explicit advisory announcements.
  */
 export function canEditSecurityAdvisory(state: unknown): boolean {
-  return state === 'draft';
+  return ['draft', 'published', 'retracted'].includes(String(state));
 }
 
 /**
@@ -25,13 +24,8 @@ export function canPostSecurityAdvisoryUpdate(state: unknown): boolean {
  * The API exposes the complete advisory state enum, but an update is only
  * allowed to keep a published advisory published or retract it.
  */
-export function securityAdvisoryUpdateStateChange(
-  currentState: unknown,
-  requestedState: unknown,
-): 'retracted' | null {
-  return canPostSecurityAdvisoryUpdate(currentState) && requestedState === 'retracted'
-    ? 'retracted'
-    : null;
+export function securityAdvisoryUpdateStateChange(currentState: unknown, requestedState: unknown): 'retracted' | null {
+  return canPostSecurityAdvisoryUpdate(currentState) && requestedState === 'retracted' ? 'retracted' : null;
 }
 
 export interface AdvisoryNodeStatusLike {
@@ -42,17 +36,16 @@ export interface AdvisoryNodeStatusLike {
 }
 
 export type CveParseResult =
-  | { valid: true; cves: string[] }
-  | { valid: false; cves: string[]; reason: 'empty' | 'invalid'; invalid?: string };
+  { valid: true; cves: string[] } | { valid: false; cves: string[]; reason: 'empty' | 'invalid'; invalid?: string };
 
-export function parseSecurityAdvisoryCves(value: string): CveParseResult {
+export function parseSecurityAdvisoryCves(value: string, allowEmpty = false): CveParseResult {
   const values = value
     .split(/[\s,;]+/)
     .map((item) => item.trim().toUpperCase())
     .filter(Boolean);
   const cves = [...new Set(values)];
 
-  if (cves.length === 0) return { valid: false, cves: [], reason: 'empty' };
+  if (cves.length === 0 && !allowEmpty) return { valid: false, cves: [], reason: 'empty' };
 
   const invalid = cves.find((cve) => !/^CVE-\d{4}-\d{4,}$/.test(cve));
   if (invalid) return { valid: false, cves, reason: 'invalid', invalid };
@@ -92,7 +85,7 @@ export function securityAdvisoryPublishIssues(opts: {
   const statuses = new Map(
     opts.statuses
       .filter((status): status is AdvisoryNodeStatusLike & { node_id: number } => typeof status.node_id === 'number')
-      .map((status) => [status.node_id, status]),
+      .map((status) => [status.node_id, status])
   );
 
   for (const node of relevantSecurityAdvisoryNodes(opts.nodes)) {

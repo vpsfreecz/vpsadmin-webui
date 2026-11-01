@@ -169,6 +169,13 @@ Independent review candidate; not merged or deployed.
 
 ## New changes
 
+## 2026-11-01 — Guard original advisory corrections
+
+Prepare REQ-055 original and lifecycle editing with captured revision/state,
+serial child writes, precise/null dates and localized notes. Preserve public
+isolation and separate announcements. See [scope and verification](docs/work-log/2026-11-01-advisory-corrections.md).
+Not merged or deployed.
+
 ## 2026-11-01 — Align browser assertions with HaveAPI serialization
 
 Correct the exact member-delete bodies and semantic session-filter matcher.

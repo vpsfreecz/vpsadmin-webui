@@ -1,7 +1,8 @@
 // Security advisory administration
 export const enAdmin_security_advisories = {
   'admin.security_advisories.title': 'Security advisories',
-  'admin.security_advisories.subtitle': 'Create, publish, and maintain security advisories, related CVEs, affected nodes, updates, and outages.',
+  'admin.security_advisories.subtitle':
+    'Create, publish, and maintain security advisories, related CVEs, affected nodes, updates, and outages.',
   'admin.security_advisories.fallback_title': 'Security advisory #{id}',
   'admin.security_advisories.invalid_id': 'The security advisory identifier is missing or invalid.',
 
@@ -22,7 +23,8 @@ export const enAdmin_security_advisories = {
   'admin.security_advisories.empty.title': 'No security advisories',
   'admin.security_advisories.empty.body': 'Create a draft to start documenting a vulnerability and its remediation.',
   'admin.security_advisories.limit.title': 'Only part of the advisory catalogue is loaded',
-  'admin.security_advisories.limit.body': 'Loaded {loaded} of {total} advisories. Narrow the state or use an exact CVE identifier to avoid incomplete search results.',
+  'admin.security_advisories.limit.body':
+    'Loaded {loaded} of {total} advisories. Narrow the state or use an exact CVE identifier to avoid incomplete search results.',
 
   'admin.security_advisories.table.advisory': 'Advisory',
   'admin.security_advisories.table.state': 'State',
@@ -47,9 +49,11 @@ export const enAdmin_security_advisories = {
   'admin.security_advisories.field.cves_help': 'Enter one or more CVE identifiers separated by commas or whitespace.',
   'admin.security_advisories.field.name': 'Vulnerability name',
   'admin.security_advisories.field.name_placeholder': 'For example, Dirty Pipe',
-  'admin.security_advisories.field.name_help': 'Optional well-known public name. It may be shown on public advisory pages.',
+  'admin.security_advisories.field.name_help':
+    'Optional well-known public name. It may be shown on public advisory pages.',
   'admin.security_advisories.field.published_at': 'Publication date',
-  'admin.security_advisories.field.published_at_help': 'Leave empty while preparing a draft, or set the intended publication time.',
+  'admin.security_advisories.field.published_at_help':
+    'Leave empty while preparing a draft, or set the intended publication time.',
   'admin.security_advisories.field.summary': 'Summary',
   'admin.security_advisories.field.summary_help': 'A short public title is required in every supported language.',
   'admin.security_advisories.field.description': 'Description',
@@ -60,19 +64,26 @@ export const enAdmin_security_advisories = {
   'admin.security_advisories.validation.date': 'Enter a valid date and time.',
   'admin.security_advisories.validation.summary_required': 'A summary is required in this language.',
   'admin.security_advisories.validation.incomplete_languages': 'Some translations are incomplete',
-  'admin.security_advisories.validation.incomplete_languages_body': 'Add a summary in every supported language before saving.',
-  'admin.security_advisories.validation.languages_unavailable': 'Supported languages could not be loaded. Try again before editing translations.',
-  'admin.security_advisories.validation.cves_unavailable': 'CVEs could not be loaded. Reload before editing this advisory.',
-  'admin.security_advisories.validation.parent_locked': 'Published and retracted advisories cannot be edited directly. Post a follow-up update instead.',
+  'admin.security_advisories.validation.incomplete_languages_body':
+    'Add a summary in every supported language before saving.',
+  'admin.security_advisories.validation.languages_unavailable':
+    'Supported languages could not be loaded. Try again before editing translations.',
+  'admin.security_advisories.validation.cves_unavailable':
+    'CVEs could not be loaded. Reload before editing this advisory.',
+  'admin.security_advisories.validation.parent_locked':
+    'Published and retracted advisories cannot be edited directly. Post a follow-up update instead.',
 
   'admin.security_advisories.readiness.ready': 'Ready to publish',
-  'admin.security_advisories.readiness.ready_body': 'The advisory has CVEs and every relevant node has a resolved status.',
+  'admin.security_advisories.readiness.ready_body':
+    'The advisory has CVEs and every relevant node has a resolved status.',
   'admin.security_advisories.readiness.not_ready': 'Not ready to publish',
   'admin.security_advisories.readiness.data_unavailable': 'Publication checks could not be loaded',
   'admin.security_advisories.readiness.missing_cves': 'Add at least one CVE.',
   'admin.security_advisories.readiness.missing_node_status': 'Set the status of node {node}.',
-  'admin.security_advisories.readiness.missing_mitigation_times': 'Add the vulnerability and mitigation times for node {node}.',
-  'admin.security_advisories.readiness.unresolved_node': 'Resolve the status of node {node}; it is still unknown or vulnerable.',
+  'admin.security_advisories.readiness.missing_mitigation_times':
+    'Add the vulnerability and mitigation times for node {node}.',
+  'admin.security_advisories.readiness.unresolved_node':
+    'Resolve the status of node {node}; it is still unknown or vulnerable.',
   'admin.security_advisories.readiness.more': '…and {count} more issues.',
 
   'admin.security_advisories.publish.title': 'Publish security advisory',
@@ -82,7 +93,8 @@ export const enAdmin_security_advisories = {
   'admin.security_advisories.publish.send_mail_help': 'Send the localized advisory to users whose VPS are affected.',
 
   'admin.security_advisories.rebuild.title': 'Recalculate affected VPS?',
-  'admin.security_advisories.rebuild.body': 'Rebuild the list of affected VPS and users from the current node statuses.',
+  'admin.security_advisories.rebuild.body':
+    'Rebuild the list of affected VPS and users from the current node statuses.',
 
   'admin.security_advisories.affected.users_title': 'Affected users',
   'admin.security_advisories.affected.users_subtitle': 'Users who own at least one VPS affected by this advisory.',
@@ -99,7 +111,8 @@ export const enAdmin_security_advisories = {
   'admin.security_advisories.node_state.mitigated': 'Mitigated',
 
   'admin.security_advisories.nodes.title': 'Node status',
-  'admin.security_advisories.nodes.subtitle': 'Record whether each active compute or storage node is affected and when it was mitigated.',
+  'admin.security_advisories.nodes.subtitle':
+    'Record whether each active compute or storage node is affected and when it was mitigated.',
   'admin.security_advisories.nodes.empty.title': 'No relevant nodes',
   'admin.security_advisories.nodes.empty.body': 'No active compute or storage nodes are available.',
   'admin.security_advisories.nodes.error.title': 'Unable to save node status',
@@ -123,9 +136,11 @@ export const enAdmin_security_advisories = {
   'admin.security_advisories.nodes.field.vulnerable_until': 'Vulnerable until',
   'admin.security_advisories.nodes.field.mitigated_since': 'Mitigated since',
   'admin.security_advisories.nodes.field.note': 'Technical note (public API)',
-  'admin.security_advisories.nodes.field.note_help': 'Do not enter personal or confidential data. The current anonymous HaveAPI can return this field.',
+  'admin.security_advisories.nodes.field.note_help':
+    'Do not enter personal or confidential data. The current anonymous HaveAPI can return this field.',
   'admin.security_advisories.nodes.validation.title': 'Complete the required dates',
-  'admin.security_advisories.nodes.validation.vulnerable_until_required': 'Enter when the node stopped being vulnerable.',
+  'admin.security_advisories.nodes.validation.vulnerable_until_required':
+    'Enter when the node stopped being vulnerable.',
   'admin.security_advisories.nodes.validation.mitigated_since_required': 'Enter when mitigation became effective.',
   'admin.security_advisories.nodes.validation.invalid_date': 'Enter valid dates and times.',
   'admin.security_advisories.nodes.action.bulk': 'Set all nodes',
@@ -137,15 +152,19 @@ export const enAdmin_security_advisories = {
   'admin.security_advisories.nodes.action.continue_remaining': 'Continue with remaining nodes',
   'admin.security_advisories.nodes.editor.title': 'Status of {node}',
   'admin.security_advisories.nodes.delete.title': 'Remove node status?',
-  'admin.security_advisories.nodes.delete.description': 'Remove the recorded security status for node {node}? The advisory may then become unpublishable.',
+  'admin.security_advisories.nodes.delete.description':
+    'Remove the recorded security status for node {node}? The advisory may then become unpublishable.',
   'admin.security_advisories.nodes.bulk.title': 'Set status for all nodes',
   'admin.security_advisories.nodes.bulk.progress': '{completed} of {total} nodes updated',
   'admin.security_advisories.nodes.bulk.warning_title': 'This overwrites existing statuses',
-  'admin.security_advisories.nodes.bulk.warning_body': 'The selected values will be applied to all {count} relevant nodes.',
+  'admin.security_advisories.nodes.bulk.warning_body':
+    'The selected values will be applied to all {count} relevant nodes.',
   'admin.security_advisories.nodes.bulk.partial_failure_title': 'Only part of the nodes were updated',
-  'admin.security_advisories.nodes.bulk.partial_failure_body': '{completed} nodes were updated; {remaining} remain. You can safely continue with the rest.',
+  'admin.security_advisories.nodes.bulk.partial_failure_body':
+    '{completed} nodes were updated; {remaining} remain. Close this form, reload and review the advisory before continuing.',
   'admin.security_advisories.nodes.bulk.confirm_title': 'Apply status to the remaining nodes?',
-  'admin.security_advisories.nodes.bulk.confirm_description': 'Set {count} nodes to “{state}”? Existing statuses for those nodes will be overwritten.',
+  'admin.security_advisories.nodes.bulk.confirm_description':
+    'Set {count} nodes to “{state}”? Existing statuses for those nodes will be overwritten.',
   'admin.security_advisories.nodes.toast.saved': 'Node status saved',
   'admin.security_advisories.nodes.toast.save_failed': 'Node status could not be saved',
   'admin.security_advisories.nodes.toast.deleted': 'Node status removed',
@@ -159,24 +178,29 @@ export const enAdmin_security_advisories = {
   'admin.security_advisories.update.no_state_change': 'Keep current state',
   'admin.security_advisories.update.state_help': 'An update can also retract a previously published advisory.',
   'admin.security_advisories.update.lifecycle_unavailable_title': 'Updates are not available in this state',
-  'admin.security_advisories.update.lifecycle_unavailable_body': 'Publish a draft before posting updates. A retracted advisory is final and cannot receive further updates.',
+  'admin.security_advisories.update.lifecycle_unavailable_body':
+    'Publish a draft before posting updates. A retracted advisory is final and cannot receive further updates.',
   'admin.security_advisories.update.send_mail': 'Send this update by e-mail',
   'admin.security_advisories.update.send_mail_help': 'Notify affected users using the localized text below.',
   'admin.security_advisories.update.message': 'Message',
   'admin.security_advisories.update.retract_warning_title': 'The advisory will be retracted',
-  'admin.security_advisories.update.retract_warning_body': 'The public detail will remain available but will be clearly marked as retracted.',
+  'admin.security_advisories.update.retract_warning_body':
+    'The public detail will remain available but will be clearly marked as retracted.',
   'admin.security_advisories.update.retract_confirm_title': 'Retract this advisory?',
   'admin.security_advisories.update.retract_confirm_body': 'Post this update and mark the advisory as retracted.',
   'admin.security_advisories.update.mail_confirm_title': 'Send this update by e-mail?',
   'admin.security_advisories.update.mail_confirm_body': 'The update will be posted and delivered to affected users.',
   'admin.security_advisories.update.delete_title': 'Delete advisory update?',
-  'admin.security_advisories.update.delete_body': 'This removes the update from the advisory history. Deleting a retraction update does not restore the parent advisory state.',
+  'admin.security_advisories.update.delete_body':
+    'This removes the update from the advisory history. Deleting a retraction update does not restore the parent advisory state.',
   'admin.security_advisories.updates.empty': 'No updates have been posted.',
   'admin.security_advisories.updates.draft_help': 'Publish this draft before posting follow-up updates.',
-  'admin.security_advisories.updates.retracted_help': 'This advisory is retracted. Its update history remains available, but no further updates can be posted.',
+  'admin.security_advisories.updates.retracted_help':
+    'This advisory is retracted. Its update history remains available, but no further updates can be posted.',
 
   'admin.security_advisories.outages.link_title': 'Linked outages',
-  'admin.security_advisories.outages.link_subtitle': 'Connect operational outages that are related to this vulnerability.',
+  'admin.security_advisories.outages.link_subtitle':
+    'Connect operational outages that are related to this vulnerability.',
   'admin.security_advisories.outages.id_placeholder': 'Outage ID',
   'admin.security_advisories.outages.invalid_id': 'Enter a valid outage ID.',
   'admin.security_advisories.outages.duplicate': 'This outage is already linked.',
@@ -204,4 +228,23 @@ export const enAdmin_security_advisories = {
   'admin.security_advisories.toast.outage_linked': 'Outage linked',
   'admin.security_advisories.toast.outage_link_failed': 'Outage could not be linked',
   'admin.security_advisories.toast.outage_unlinked': 'Outage unlinked',
+  'admin.security_advisories.correction.reload':
+    'Reload and review the advisory before continuing. Unsaved values are retained.',
+  'admin.security_advisories.lifecycle.retract': 'Retract advisory',
+  'admin.security_advisories.lifecycle.delete': 'Delete advisory',
+  'admin.security_advisories.lifecycle.retract_body':
+    'Retract this advisory? Its reports and updates will be kept. No email will be sent.',
+  'admin.security_advisories.lifecycle.delete_body':
+    'Delete this advisory, all updates and node assessments permanently? Recovery requires a backup.',
+  'admin.security_advisories.correction.revision':
+    'Advisory writes require a compatible API with content revisions. Reload after upgrading the API.',
+  'admin.security_advisories.correction.capability':
+    'This API does not support guarded advisory changes. Upgrade the API before saving.',
+  'admin.security_advisories.correction.concurrent':
+    'The advisory revision changed unexpectedly. Reload and review before continuing.',
+  'admin.security_advisories.correction.snapshot':
+    'The advisory changed while loading. Reload and review before editing.',
+  'admin.security_advisories.field.cves_edit_help': 'Add or remove CVE links. Leave empty to remove them all.',
+  'admin.security_advisories.field.published_at_edit_help':
+    'Change the original publication time, or leave empty to clear it.',
 } as const;

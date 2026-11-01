@@ -1,3 +1,7 @@
+import { setUiSettingsLocalStorage } from '../../fixtures/uiSettings';
+import { mkdir } from 'node:fs/promises';
+import path from 'node:path';
+import { advisoryContractDescription } from '../../helpers/securityAdvisoryContract';
 import { expect, test } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock } from '../../fixtures';
@@ -16,6 +20,7 @@ test.describe('@smoke Security advisory admin management', () => {
 
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
     await installHaveApiMock(page, {
+      description: advisoryContractDescription(),
       user: { id: 1, login: 'security-admin', level: 90 },
       handlers: {
         'GET languages': () => ({ languages }),
@@ -25,6 +30,7 @@ test.describe('@smoke Security advisory admin management', () => {
           createdAdvisory = {
             id: 77,
             state: 'draft',
+            content_revision: 0,
             created_at: '2026-07-27T10:00:00.000Z',
             ...(advisoryPayload?.security_advisory ?? {}),
           };
@@ -32,6 +38,7 @@ test.describe('@smoke Security advisory admin management', () => {
         },
         'POST security_advisory_cves': ({ reqJson }) => {
           cvePayloads.push(reqJson);
+          if (createdAdvisory) createdAdvisory['content_revision'] = Number(createdAdvisory['content_revision']) + 1;
           const cve = {
             id: 900 + cvePayloads.length,
             security_advisory_id: 77,
@@ -58,28 +65,20 @@ test.describe('@smoke Security advisory admin management', () => {
     await page.getByTestId('admin.security_advisories.create').click();
     await expect(page.getByTestId('admin.security_advisories.editor')).toBeVisible();
 
-    await page
-      .getByTestId('admin.security_advisories.editor.cves')
-      .fill('cve-2026-12345; CVE-2026-23456');
+    await page.getByTestId('admin.security_advisories.editor.cves').fill('cve-2026-12345; CVE-2026-23456');
     await page.getByTestId('admin.security_advisories.editor.name').fill('Linux kernel advisory');
     await page.getByTestId('admin.security_advisories.editor.published_at').fill('2026-07-27T12:30');
 
     await page.getByTestId('admin.security_advisories.editor.en.summary').fill('Kernel vulnerability');
-    await page
-      .getByTestId('admin.security_advisories.editor.en.description')
-      .fill('Affects supported compute nodes.');
-    await page
-      .getByTestId('admin.security_advisories.editor.en.response')
-      .fill('Apply the fixed kernel and reboot.');
+    await page.getByTestId('admin.security_advisories.editor.en.description').fill('Affects supported compute nodes.');
+    await page.getByTestId('admin.security_advisories.editor.en.response').fill('Apply the fixed kernel and reboot.');
 
     await page.getByTestId('admin.security_advisories.editor.language.cs').click();
     await page.getByTestId('admin.security_advisories.editor.cs.summary').fill('Zranitelnost kernelu');
     await page
       .getByTestId('admin.security_advisories.editor.cs.description')
       .fill('Týká se podporovaných výpočetních nodů.');
-    await page
-      .getByTestId('admin.security_advisories.editor.cs.response')
-      .fill('Nasaď opravený kernel a restartuj.');
+    await page.getByTestId('admin.security_advisories.editor.cs.response').fill('Nasaď opravený kernel a restartuj.');
 
     await page.getByTestId('admin.security_advisories.editor.save').click();
 
@@ -98,8 +97,22 @@ test.describe('@smoke Security advisory admin management', () => {
       }),
     });
     expect(cvePayloads).toEqual([
-      { security_advisory_cve: { security_advisory: 77, cve_id: 'CVE-2026-12345' } },
-      { security_advisory_cve: { security_advisory: 77, cve_id: 'CVE-2026-23456' } },
+      {
+        security_advisory_cve: {
+          security_advisory: 77,
+          cve_id: 'CVE-2026-12345',
+          expected_state: 'draft',
+          expected_content_revision: 0,
+        },
+      },
+      {
+        security_advisory_cve: {
+          security_advisory: 77,
+          cve_id: 'CVE-2026-23456',
+          expected_state: 'draft',
+          expected_content_revision: 1,
+        },
+      },
     ]);
   });
 
@@ -110,6 +123,7 @@ test.describe('@smoke Security advisory admin management', () => {
     let advisory = {
       id: 77,
       state: 'draft',
+      content_revision: 0,
       name: 'Linux kernel advisory',
       published_at: null as string | null,
       created_at: '2026-07-27T10:00:00.000Z',
@@ -123,9 +137,7 @@ test.describe('@smoke Security advisory admin management', () => {
       affected_user_count: 4,
       affected_vps_count: 8,
     };
-    const cves = [
-      { id: 901, security_advisory_id: 77, cve_id: 'CVE-2026-12345' },
-    ];
+    const cves = [{ id: 901, security_advisory_id: 77, cve_id: 'CVE-2026-12345' }];
     const nodes = [
       { id: 10, active: true, type: 'node', domain_name: 'node10.prg' },
       { id: 20, active: true, type: 'storage', domain_name: 'storage20.prg' },
@@ -140,7 +152,7 @@ test.describe('@smoke Security advisory admin management', () => {
         state: 'unknown',
         vulnerable_until: null,
         mitigated_since: null,
-        note: null,
+        en_note: null,
       },
       {
         id: 502,
@@ -150,7 +162,7 @@ test.describe('@smoke Security advisory admin management', () => {
         state: 'not_affected',
         vulnerable_until: null,
         mitigated_since: null,
-        note: 'Storage is not affected',
+        en_note: 'Storage is not affected',
       },
     ];
     let updates: Array<Record<string, unknown>> = [];
@@ -158,6 +170,7 @@ test.describe('@smoke Security advisory admin management', () => {
 
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
     await installHaveApiMock(page, {
+      description: advisoryContractDescription(),
       user: { id: 1, login: 'security-admin', level: 90 },
       handlers: {
         'GET languages': () => ({ languages }),
@@ -169,16 +182,18 @@ test.describe('@smoke Security advisory admin management', () => {
         'GET outage_security_advisories': () => ({ outage_security_advisories: outageLinks }),
 
         'PUT security_advisories/77/node_statuses/501': ({ reqJson }) => {
+          advisory = { ...advisory, content_revision: advisory.content_revision + 1 };
           const attrs = (reqJson as any)?.node_status ?? {};
           statuses = statuses.map((status) =>
-            status.id === 501 ? { ...status, ...attrs, node_id: 10, node: nodes[0] } : status,
+            status.id === 501 ? { ...status, ...attrs, node_id: 10, node: nodes[0] } : status
           );
           return { node_status: statuses.find((status) => status.id === 501) };
         },
         'PUT security_advisories/77/node_statuses/502': ({ reqJson }) => {
+          advisory = { ...advisory, content_revision: advisory.content_revision + 1 };
           const attrs = (reqJson as any)?.node_status ?? {};
           statuses = statuses.map((status) =>
-            status.id === 502 ? { ...status, ...attrs, node_id: 20, node: nodes[1] } : status,
+            status.id === 502 ? { ...status, ...attrs, node_id: 20, node: nodes[1] } : status
           );
           return { node_status: statuses.find((status) => status.id === 502) };
         },
@@ -241,13 +256,9 @@ test.describe('@smoke Security advisory admin management', () => {
     await expect(page.getByTestId('admin.security_advisories.nodes.row.10')).toBeVisible();
     await page.getByTestId('admin.security_advisories.nodes.row.10.edit').click();
     await page.getByTestId('admin.security_advisories.nodes.editor.state').selectOption('mitigated');
-    await page
-      .getByTestId('admin.security_advisories.nodes.editor.vulnerable_until')
-      .fill('2026-07-27T11:00');
-    await page
-      .getByTestId('admin.security_advisories.nodes.editor.mitigated_since')
-      .fill('2026-07-27T12:00');
-    await page.getByTestId('admin.security_advisories.nodes.editor.note').fill('Fixed kernel installed');
+    await page.getByTestId('admin.security_advisories.nodes.editor.vulnerable_until').fill('2026-07-27T11:00');
+    await page.getByTestId('admin.security_advisories.nodes.editor.mitigated_since').fill('2026-07-27T12:00');
+    await page.getByTestId('admin.security_advisories.nodes.editor.en_note').fill('Fixed kernel installed');
     await page.getByTestId('admin.security_advisories.nodes.editor.save').click();
     await expect(page.getByTestId('admin.security_advisories.nodes.editor')).toHaveCount(0);
     await expect
@@ -256,8 +267,8 @@ test.describe('@smoke Security advisory admin management', () => {
           (mutation) =>
             mutation.method === 'PUT' &&
             mutation.path === '/api/v7.0/security_advisories/77/node_statuses/501' &&
-            mutation.body?.node_status?.state === 'mitigated',
-        ),
+            mutation.body?.node_status?.state === 'mitigated'
+        )
       )
       .toBeTruthy();
 
@@ -282,13 +293,12 @@ test.describe('@smoke Security advisory admin management', () => {
     await page.getByTestId('admin.security_advisory.publish_dialog.confirm').click();
     await expect(page.getByTestId('admin.security_advisory.publish_dialog')).toHaveCount(0);
     await expect(page.getByTestId('admin.security_advisory.post_update')).toBeVisible();
-    await expect(page.getByTestId('admin.security_advisory.edit')).toHaveCount(0);
+    await expect(page.getByTestId('admin.security_advisory.edit')).toBeVisible();
+    await expect(page.getByTestId('admin.security_advisory.publish')).toHaveCount(0);
     expect(
       mutations.find(
-        (mutation) =>
-          mutation.method === 'POST' &&
-          mutation.path === '/api/v7.0/security_advisories/77/publish',
-      )?.body,
+        (mutation) => mutation.method === 'POST' && mutation.path === '/api/v7.0/security_advisories/77/publish'
+      )?.body
     ).toEqual({
       security_advisory: expect.objectContaining({ send_mail: true, published_at: expect.any(String) }),
     });
@@ -297,16 +307,12 @@ test.describe('@smoke Security advisory admin management', () => {
     // second explicit confirmation before the API mutation is sent.
     await page.getByTestId('admin.security_advisory.post_update').click();
     await page.getByTestId('admin.security_advisories.update.editor.state').selectOption('retracted');
-    await page
-      .getByTestId('admin.security_advisories.update.editor.en.summary')
-      .fill('Advisory retracted');
+    await page.getByTestId('admin.security_advisories.update.editor.en.summary').fill('Advisory retracted');
     await page
       .getByTestId('admin.security_advisories.update.editor.en.message')
       .fill('The report was based on incorrect package metadata.');
     await page.getByTestId('admin.security_advisories.update.editor.language.cs').click();
-    await page
-      .getByTestId('admin.security_advisories.update.editor.cs.summary')
-      .fill('Upozornění staženo');
+    await page.getByTestId('admin.security_advisories.update.editor.cs.summary').fill('Upozornění staženo');
     await page
       .getByTestId('admin.security_advisories.update.editor.cs.message')
       .fill('Hlašení vycházelo z chybných metadat balíčku.');
@@ -325,10 +331,8 @@ test.describe('@smoke Security advisory admin management', () => {
     await expect(page.getByTestId('admin.security_advisory.update.701.delete')).toBeVisible();
     expect(
       mutations.find(
-        (mutation) =>
-          mutation.method === 'POST' &&
-          mutation.path === '/api/v7.0/security_advisory_updates',
-      )?.body,
+        (mutation) => mutation.method === 'POST' && mutation.path === '/api/v7.0/security_advisory_updates'
+      )?.body
     ).toEqual({
       security_advisory_update: expect.objectContaining({
         security_advisory: 77,
@@ -348,10 +352,8 @@ test.describe('@smoke Security advisory admin management', () => {
     await expect(page.getByRole('link', { name: '#321' })).toBeVisible();
     expect(
       mutations.find(
-        (mutation) =>
-          mutation.method === 'POST' &&
-          mutation.path === '/api/v7.0/outage_security_advisories',
-      )?.body,
+        (mutation) => mutation.method === 'POST' && mutation.path === '/api/v7.0/outage_security_advisories'
+      )?.body
     ).toEqual({ outage_security_advisory: { outage: 321, security_advisory: 77 } });
   });
 
@@ -361,6 +363,7 @@ test.describe('@smoke Security advisory admin management', () => {
     const advisory = {
       id: 77,
       state: 'draft',
+      content_revision: 0,
       name: 'Linux kernel advisory',
       published_at: null,
       created_at: '2026-07-27T10:00:00.000Z',
@@ -371,6 +374,7 @@ test.describe('@smoke Security advisory admin management', () => {
     let rebuildAttempts = 0;
 
     await installHaveApiMock(page, {
+      description: advisoryContractDescription(),
       user: { id: 1, login: 'security-admin', level: 90 },
       handlers: {
         'GET languages': () => ({ languages }),
@@ -393,7 +397,7 @@ test.describe('@smoke Security advisory admin management', () => {
     await page.getByTestId('admin.security_advisory.rebuild_dialog.confirm').click();
 
     await expect(page.getByTestId('admin.security_advisory.rebuild_dialog.error')).toContainText(
-      'Affected VPS rebuild was rejected',
+      'Affected VPS rebuild was rejected'
     );
     await expect(page.getByTestId('admin.security_advisory.rebuild_dialog')).toBeVisible();
 
@@ -408,6 +412,7 @@ test.describe('@smoke Security advisory admin management', () => {
     const advisory = {
       id: 77,
       state: 'draft',
+      content_revision: 0,
       name: 'Linux kernel advisory',
       published_at: null,
       created_at: '2026-07-27T10:00:00.000Z',
@@ -420,6 +425,7 @@ test.describe('@smoke Security advisory admin management', () => {
     let unlinkAttempts = 0;
 
     await installHaveApiMock(page, {
+      description: advisoryContractDescription(),
       user: { id: 1, login: 'security-admin', level: 90 },
       handlers: {
         'GET languages': () => ({ languages }),
@@ -461,7 +467,7 @@ test.describe('@smoke Security advisory admin management', () => {
     await page.getByTestId('admin.security_advisory.outages.link').click();
 
     await expect(page.getByTestId('admin.security_advisory.outages.link_error')).toContainText(
-      'Outage link was rejected',
+      'Outage link was rejected'
     );
     await expect(outageInput).toHaveValue('321');
 
@@ -474,7 +480,7 @@ test.describe('@smoke Security advisory admin management', () => {
     await page.getByTestId('admin.security_advisory.outages.unlink.confirm').click();
 
     await expect(page.getByTestId('admin.security_advisory.outages.unlink.error')).toContainText(
-      'Outage unlink was rejected',
+      'Outage unlink was rejected'
     );
     await expect(page.getByTestId('admin.security_advisory.outages.unlink')).toBeVisible();
 
@@ -488,6 +494,7 @@ test.describe('@smoke Security advisory admin management', () => {
   test('rejects a normal user before any advisory administration is rendered', async ({ page }) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
     await installHaveApiMock(page, {
+      description: advisoryContractDescription(),
       user: { id: 2, login: 'member', level: 1 },
       handlers: {
         'GET security_advisories': () => ({ security_advisories: [] }),
@@ -504,6 +511,7 @@ test.describe('@smoke Security advisory admin management', () => {
   test('hides advisory management from support and rejects direct route access', async ({ page }) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
     await installHaveApiMock(page, {
+      description: advisoryContractDescription(),
       user: { id: 3, login: 'support-agent', level: 21 },
       handlers: {
         'GET security_advisories': () => ({ security_advisories: [] }),
@@ -521,3 +529,104 @@ test.describe('@smoke Security advisory admin management', () => {
     await expect(page.getByTestId('admin.security_advisories.page')).toHaveCount(0);
   });
 });
+
+for (const language of ['en', 'cs'] as const) {
+  test(`published original corrections and lifecycle ${language}`, async ({ page }, testInfo) => {
+    let advisory = {
+      id: 88,
+      state: 'published',
+      content_revision: 5,
+      name: 'Synthetic kernel advisory',
+      published_at: '2026-10-15T12:34:56Z' as string | null,
+      en_summary: 'Kernel security correction',
+      en_description: 'Synthetic assessment for preview.',
+      en_response: 'Fixed by the reviewed kernel update.',
+      cs_summary: 'Bezpečnostní oprava jádra',
+      cs_description: 'Testovací hodnocení pro náhled.',
+      cs_response: 'Ošetřeno ověřenou aktualizací jádra.',
+    };
+    let deleted = false;
+    const writes: Array<Record<string, unknown>> = [];
+    await setUiSettingsLocalStorage(page, { language, theme: 'light' });
+    await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+    await installHaveApiMock(page, {
+      description: advisoryContractDescription(),
+      user: { id: 1, login: 'synthetic-admin', level: 90 },
+      handlers: {
+        'GET languages': () => ({ languages }),
+        'GET security_advisories/88': () => (deleted ? failEnvelope('Not found') : { security_advisory: advisory }),
+        'GET security_advisories': () => ({ security_advisories: deleted ? [] : [advisory] }),
+        'GET security_advisory_cves': () => ({ security_advisory_cves: [] }),
+        'GET nodes': () => ({ nodes: [] }),
+        'GET security_advisories/88/node_statuses': () => ({ node_statuses: [] }),
+        'GET security_advisory_updates': () => ({ security_advisory_updates: [] }),
+        'GET outage_security_advisories': () => ({ outage_security_advisories: [] }),
+        'PUT security_advisories/88': ({ reqJson }) => {
+          const attrs = (reqJson as { security_advisory: Record<string, unknown> }).security_advisory;
+          writes.push(attrs);
+          if (
+            attrs['expected_content_revision'] !== advisory.content_revision ||
+            attrs['expected_state'] !== advisory.state
+          )
+            return failEnvelope('Concurrent correction');
+          advisory = { ...advisory, ...attrs, content_revision: advisory.content_revision + 1 };
+          return { security_advisory: advisory };
+        },
+        'POST security_advisories/88/retract': ({ reqJson }) => {
+          const attrs = (reqJson as { security_advisory: Record<string, unknown> }).security_advisory;
+          expect(attrs).toEqual({ expected_content_revision: advisory.content_revision, expected_state: 'published' });
+          writes.push(attrs);
+          advisory = { ...advisory, state: 'retracted', content_revision: advisory.content_revision + 1 };
+          return { security_advisory: advisory };
+        },
+        'DELETE security_advisories/88': ({ reqJson }) => {
+          expect(reqJson).toEqual({
+            security_advisory: { expected_content_revision: advisory.content_revision, expected_state: 'retracted' },
+          });
+          deleted = true;
+          return null;
+        },
+      },
+    });
+    await page.goto('/admin/security-advisories/88');
+    await expect(page.getByTestId('admin.security_advisory.edit')).toBeVisible();
+    await expect(page.getByTestId('admin.security_advisory.publish')).toHaveCount(0);
+    await expect(page.getByTestId('admin.security_advisory.readiness')).toHaveCount(0);
+    await page.getByTestId('admin.security_advisory.edit').click();
+    const editor = page.getByTestId('admin.security_advisories.editor');
+    await expect(editor).toBeVisible();
+    await expect(page.getByTestId('admin.security_advisories.editor.published_at')).not.toHaveValue('');
+    const captureRoot = process.env['ADVISORY_SCREENSHOT_ROOT'];
+    if (captureRoot) {
+      await mkdir(captureRoot, { recursive: true });
+      await page.screenshot({
+        path: path.join(captureRoot, `${testInfo.project.name}-${language}-editor.png`),
+        fullPage: true,
+      });
+      await editor.getByRole('button', { name: language === 'cs' ? 'Zrušit' : 'Cancel', exact: true }).click();
+      await page.getByTestId('admin.security_advisory.delete').click();
+      await expect(page.getByTestId('admin.security_advisory.lifecycle_dialog')).toBeVisible();
+      await page.screenshot({
+        path: path.join(captureRoot, `${testInfo.project.name}-${language}-delete.png`),
+        fullPage: true,
+      });
+      await page.getByTestId('admin.security_advisory.lifecycle_dialog.cancel').click();
+      await page.getByTestId('admin.security_advisory.edit').click();
+      await expect(editor).toBeVisible();
+    }
+    if (process.env['ADVISORY_CAPTURE_ONLY'] === '1') return;
+    await page.getByTestId('admin.security_advisories.editor.published_at').fill('');
+    await page.getByTestId('admin.security_advisories.editor.save').click();
+    await expect(editor).not.toBeVisible();
+    expect(writes[0]).toMatchObject({ expected_content_revision: 5, expected_state: 'published', published_at: null });
+    await page.getByTestId('admin.security_advisory.retract').click();
+    await page.getByTestId('admin.security_advisory.lifecycle_dialog.confirm').click();
+    await expect(page.getByTestId('admin.security_advisory.retract')).toHaveCount(0);
+    await page.getByTestId('admin.security_advisory.delete').click();
+    await expect(page.getByTestId('admin.security_advisory.lifecycle_dialog')).toContainText(
+      language === 'cs' ? 'zálohu' : 'backup'
+    );
+    await page.getByTestId('admin.security_advisory.lifecycle_dialog.confirm').click();
+    await expect(page).toHaveURL(/security-advisories$/);
+  });
+}

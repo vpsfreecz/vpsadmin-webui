@@ -1,3 +1,4 @@
+import { advisoryContractDescription } from '../../helpers/securityAdvisoryContract';
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
@@ -6,6 +7,7 @@ import { expectNoDocumentHorizontalOverflow } from '../../helpers/horizontalOver
 const advisory = {
   id: 77,
   state: 'draft',
+  content_revision: 0,
   name: 'Linux kernel advisory',
   published_at: null,
   created_at: '2026-09-16T08:00:00.000Z',
@@ -55,7 +57,7 @@ async function expectActionInside(page: Page, action: Locator, tableCard: Locato
   expect(actionRect.x).toBeGreaterThanOrEqual(cardRect.x - 1);
   expect(actionRect.x + actionRect.width).toBeLessThanOrEqual(cardRect.x + cardRect.width + 1);
   expect(actionRect.x + actionRect.width).toBeLessThanOrEqual(
-    await page.evaluate(() => document.documentElement.clientWidth + 1),
+    await page.evaluate(() => document.documentElement.clientWidth + 1)
   );
   expect(actionRect.height).toBeGreaterThanOrEqual(minHeight);
 }
@@ -70,6 +72,7 @@ test('@pr-smoke @pr-smoke-mobile security advisory outage unlink stays directly 
 
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
   await installHaveApiMock(page, {
+    description: advisoryContractDescription(),
     user: { id: 1, login: 'security-admin', level: 90 },
     handlers: {
       'GET languages': () => ({ languages: [{ id: 1, code: 'en', label: 'English' }] }),
@@ -137,7 +140,7 @@ test('@pr-smoke @pr-smoke-mobile security advisory outage unlink stays directly 
     expect(await unlink.locator('xpath=..').evaluate((cell) => getComputedStyle(cell).textAlign)).toBe('right');
   }
 
-  const proofScreenshot = process.env.E2E_SECURITY_OUTAGE_ACTION_PROOF_SCREENSHOT?.trim();
+  const proofScreenshot = process.env['E2E_SECURITY_OUTAGE_ACTION_PROOF_SCREENSHOT']?.trim();
   if (proofScreenshot) await page.screenshot({ path: proofScreenshot, fullPage: true });
 
   await unlink.click();
