@@ -1670,3 +1670,18 @@ Linux dev runner, including mobile WebKit, cs/en, light/dark, existing news and
 admin heatmap regressions. Eight focused unit checks, ci:quick and build pass;
 initial setup failures and synthetic capture limits are recorded in the dated
 entry. PR124 remains reviewable; no merge or live deployment.
+
+## 2026-11-01 — Public headings and aligned summary row
+
+Remove duplicate visible headings/intro on the public overview, outages and
+advisory lists while keeping accessible h1 names. Move the brand mark to the
+summary row; use equal standard cards and remove the node gauge.
+Included in PR124; follow-up verification in the
+[public overview work log](docs/work-log/2026-11-01-public-overview-readability.md).
+No merge or deployment.
+
+Follow-up verification: ci:quick, 12 focused unit checks, production build and
+22 served-bundle public browser checks passed on remote Linux, including mobile
+WebKit. New assertions cover clipped accessible headings on all three lists,
+equal widths/fonts/value baselines and absence of the ring. Synthetic captures
+were refreshed. No merge or live deployment.

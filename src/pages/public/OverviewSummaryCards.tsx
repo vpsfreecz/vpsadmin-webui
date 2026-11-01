@@ -3,7 +3,7 @@ import React from 'react';
 import { useI18n } from '../../app/i18n';
 import { SummaryGrid } from '../../components/layout/SummaryGrid';
 import { Badge } from '../../components/ui/Badge';
-import { GaugeRing } from '../../components/ui/GaugeRing';
+import { StatusLandingMark } from '../../components/branding/StatusLandingMark';
 import { StatCard } from '../../components/ui/StatCard';
 import type { PublicClusterStats } from '../../lib/api/public';
 import type { BadgeVariant } from '../../lib/taskStatus';
@@ -30,65 +30,58 @@ export function OverviewSummaryCards(props: {
   const nodePercent = props.nodeSummary.total > 0 ? Math.round((props.nodeSummary.ok / props.nodeSummary.total) * 100) : null;
 
   return (
-    <SummaryGrid testId="public.summary-grid">
-      <div className="md:col-span-6">
-        <StatCard
-          bodyClassName="px-3 py-3"
-          testId="public.stats.members"
-          variant="featured"
-          title={i18n.t('public.overview.stats.members.title')}
-          value={loadingValue(props.statsLoading, props.statsError, props.stats?.user_count ?? '—')}
-        />
+    <div className="flex flex-col gap-4 md:flex-row md:items-center" data-testid="public.summary-row">
+      <div className="shrink-0 self-start md:self-center" aria-hidden="true" data-testid="public.summary.brand">
+        <StatusLandingMark className="text-accent/80" title={i18n.t('public.overview.title')} />
       </div>
+      <SummaryGrid className="w-full min-w-0 flex-1" testId="public.summary-grid">
+        <div className="md:col-span-4">
+          <StatCard
+            bodyClassName="px-3 py-3"
+            testId="public.stats.members"
+            title={i18n.t('public.overview.stats.members.title')}
+            value={loadingValue(props.statsLoading, props.statsError, props.stats?.user_count ?? '—')}
+          />
+        </div>
 
-      <div className="md:col-span-3">
-        <StatCard
-          bodyClassName="px-3 py-3"
-          testId="public.stats.nodes"
-          title={i18n.t('public.overview.stats.nodes.title')}
-          value={loadingValue(props.nodesLoading, props.nodesError, nodePercent == null ? '—' : `${nodePercent}%`)}
-          footer={
-            props.nodesLoading || props.nodesError
-              ? null
-              : props.nodeSummary.total > 0
-                ? i18n.t('public.overview.stats.nodes.footer', {
-                    ok: props.nodeSummary.ok,
-                    down: props.nodeSummary.down,
-                    total: props.nodeSummary.total,
-                  })
-                : i18n.t('public.overview.stats.nodes.footer.none')
-          }
-          visual={
-            props.nodesLoading || props.nodesError || nodePercent == null ? null : (
-              <GaugeRing
-                ariaLabel={i18n.t('public.overview.stats.nodes.gauge_aria')}
-                value={props.nodeSummary.ok}
-                max={props.nodeSummary.total}
-                variant={props.nodeSummary.down > 0 ? 'danger' : 'ok'}
-                center={`${nodePercent}%`}
-              />
-            )
-          }
-        />
-      </div>
+        <div className="md:col-span-4">
+          <StatCard
+            bodyClassName="px-3 py-3"
+            testId="public.stats.nodes"
+            title={i18n.t('public.overview.stats.nodes.title')}
+            value={loadingValue(props.nodesLoading, props.nodesError, nodePercent == null ? '—' : `${nodePercent}%`)}
+            footer={
+              props.nodesLoading || props.nodesError
+                ? null
+                : props.nodeSummary.total > 0
+                  ? i18n.t('public.overview.stats.nodes.footer', {
+                      ok: props.nodeSummary.ok,
+                      down: props.nodeSummary.down,
+                      total: props.nodeSummary.total,
+                    })
+                  : i18n.t('public.overview.stats.nodes.footer.none')
+            }
+          />
+        </div>
 
-      <div className="md:col-span-3">
-        <StatCard
-          bodyClassName="px-3 py-3"
-          testId="public.stats.vps"
-          title={i18n.t('public.overview.stats.vps.title')}
-          value={loadingValue(props.statsLoading, props.statsError, props.stats?.vps_count ?? '—')}
-          footer={
-            <span className="inline-flex items-center gap-2">
-              <span>{i18n.t('public.overview.stats.vps.ipv4_free')}</span>
-              <Badge variant={props.ipv4BadgeVariant}>{props.ipv4Left == null ? '—' : props.ipv4Left}</Badge>
-              {props.ipv4Level === 'warn' ? (
-                <span className="hidden text-warn sm:inline">{i18n.t('public.overview.ipv4_warn.hint')}</span>
-              ) : null}
-            </span>
-          }
-        />
-      </div>
-    </SummaryGrid>
+        <div className="md:col-span-4">
+          <StatCard
+            bodyClassName="px-3 py-3"
+            testId="public.stats.vps"
+            title={i18n.t('public.overview.stats.vps.title')}
+            value={loadingValue(props.statsLoading, props.statsError, props.stats?.vps_count ?? '—')}
+            footer={
+              <span className="inline-flex items-center gap-2">
+                <span>{i18n.t('public.overview.stats.vps.ipv4_free')}</span>
+                <Badge variant={props.ipv4BadgeVariant}>{props.ipv4Left == null ? '—' : props.ipv4Left}</Badge>
+                {props.ipv4Level === 'warn' ? (
+                  <span className="hidden text-warn sm:inline">{i18n.t('public.overview.ipv4_warn.hint')}</span>
+                ) : null}
+              </span>
+            }
+          />
+        </div>
+      </SummaryGrid>
+    </div>
   );
 }

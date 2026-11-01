@@ -48,6 +48,11 @@ No route, backend permission, publication behavior or API endpoint changes.
 **Intent:** inspect service availability, sign in, recover access or correct a
 registration without exposing private information. Public overview combines
 cluster/node status with outages/news/advisories; external heatmaps are optional.
+Overview, outage and advisory list pages retain an accessible screen-reader-only
+h1 and omit the duplicated visible page heading/intro. Detail headings remain.
+The overview brand mark sits left of three equal-width standard metric cards
+on desktop and above them on mobile. Their value font size and baseline match;
+node availability retains the percentage/counts without a circular gauge.
 Overview card headers/bodies and statistic cards use equal 12px padding. Repeated
 subtitles are omitted; real status/error content, counts and loading states stay.
 Status badges remain intentionally compact with wider horizontal than vertical

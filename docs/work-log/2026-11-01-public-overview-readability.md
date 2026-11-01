@@ -66,3 +66,35 @@ live-site deployment. Green badges deliberately keep compact pill geometry.
 ![Mobile WebKit overview](images/2026-11-01-public-overview/mobile-webkit.png)
 ![Desktop heatmap help](images/2026-11-01-public-overview/heatmap-desktop.png)
 ![Mobile WebKit heatmap help](images/2026-11-01-public-overview/heatmap-mobile-webkit.png)
+
+## Heading and summary alignment follow-up
+
+The maintainer requests removal of duplicated visible headings on overview,
+outage and security-advisory lists; preserve an h1 for screen-reader navigation.
+Move the existing heart/server mark into the summary row at its left (above
+cards on narrow screens), use equal-width standard cards and remove the node
+ring, which had shifted its value lower. All metric values now use the same
+font size and baseline; node percentage/counts, free IPv4 and alerts remain.
+Detail pages, routing, navigation and API contracts are unchanged.
+New browser assertions cover heading clipping, absence of circles, equal widths,
+value font/baseline geometry and brand position.
+
+Follow-up verification on the same remote pinned Linux runner: ci:quick,
+12 focused unit tests (six public/i18n test files) and production build pass.
+The previous bundle fails the h1 screen-reader-only assertion as expected.
+The updated served bundle passes 22 browser checks with zero retries: 12
+cs/en × light/dark × desktop/mobile Chromium/mobile WebKit readability flows,
+six existing news-language cases and four existing public overview checks.
+Each readability flow also visits the outage and advisory lists, waits for
+real fixture content, verifies that the accessible h1 occupies at most 1px,
+and captures the page. Desktop checks measure equal card widths, 24px values,
+matching value baselines within 1px and the mark wholly left of the cards.
+The ring has no SVG circle remaining in the summary. Mobile is overflow-free.
+Evidence: remote `evidence/public-news-20261101/summary-row-{before,after,checks}`.
+No browser ran on the Mac and no live release changed. The figures above now
+show this follow-up; earlier numeric results describe their earlier checkpoint.
+
+![Outage list without duplicate page heading](images/2026-11-01-public-overview/outages-desktop.png)
+![Advisory list without duplicate page heading](images/2026-11-01-public-overview/advisories-desktop.png)
+![Mobile WebKit outage list](images/2026-11-01-public-overview/outages-mobile-webkit.png)
+![Mobile WebKit advisory list](images/2026-11-01-public-overview/advisories-mobile-webkit.png)

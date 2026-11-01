@@ -18,6 +18,10 @@ for (const language of ['cs', 'en'] as const) {
           en_summary: 'Node maintenance', cs_summary: 'Údržba nodu',
         }] : [] }),
         'GET outages/1/entities': () => ({ entities: [] }),
+        'GET security_advisories': () => ({ security_advisories: [{
+          id: 1, name: 'Kernel update', state: 'published', published_at: '2026-11-01T09:00:00Z',
+          cs_summary: 'Aktualizace jádra', en_summary: 'Kernel update', cves: [],
+        }] }),
         'GET news_logs': () => ({ news_logs: [{
           id: 1, message: 'English announcement', en_message: 'English announcement',
           cs_message: 'Česká novinka', published_at: '2026-11-01T09:00:00Z',
@@ -33,6 +37,21 @@ for (const language of ['cs', 'en'] as const) {
       const overview = page.getByTestId('public.overview.page');
       await expect(page.getByTestId('public.stats.members')).toContainText('123');
       await expect(page.getByTestId('public.news.card')).toContainText(language === 'cs' ? 'Česká novinka' : 'English announcement');
+      await expect(page.getByRole('heading', { level: 1 })).toHaveClass('sr-only');
+      const stats = page.getByTestId('public.summary-grid');
+      await expect(stats.locator('circle')).toHaveCount(0);
+      const values = await stats.locator('.tabular-nums').evaluateAll(elements => elements.map(el => ({
+        y: el.getBoundingClientRect().y, size: getComputedStyle(el).fontSize,
+      })));
+      expect(values.map(value => value.size)).toEqual(['24px', '24px', '24px']);
+      if (page.viewportSize()!.width >= 768) {
+        expect(Math.max(...values.map(value => value.y)) - Math.min(...values.map(value => value.y))).toBeLessThanOrEqual(1);
+        const members = await page.getByTestId('public.stats.members').boundingBox();
+        const brand = await page.getByTestId('public.summary.brand').boundingBox();
+        expect(brand!.x + brand!.width).toBeLessThan(members!.x);
+        const cards = await stats.locator(':scope > div').evaluateAll(elements => elements.map(el => el.getBoundingClientRect().width));
+        expect(Math.max(...cards) - Math.min(...cards)).toBeLessThanOrEqual(1);
+      }
       for (const subtitle of ['Poslední oznámení', 'Latest announcements', 'Veřejný stav', 'Public status', 'Rozdělené podle lokace', 'Grouped by location']) {
         await expect(overview.getByText(subtitle, { exact: true })).toHaveCount(0);
       }
@@ -63,6 +82,19 @@ for (const language of ['cs', 'en'] as const) {
       await page.getByTestId('nodes.heatmap.close').click();
       await expect(modal).toHaveCount(0);
       await expect(page.getByTestId('nodes.heatmap.frame')).toHaveCount(0);
+      for (const path of ['/outages', '/security-advisories']) {
+        await page.goto(path);
+        const content = page.getByTestId(path === '/outages' ? 'public.outages.page' : 'public.security_advisories.page');
+        await expect(content).toContainText(path === '/security-advisories'
+          ? 'Kernel update'
+          : theme === 'dark' ? (language === 'cs' ? 'Údržba nodu' : 'Node maintenance')
+          : language === 'cs' ? 'Žádné výpadky' : 'No outages');
+        const heading = page.getByRole('heading', { level: 1 });
+        await expect(heading).toHaveClass('sr-only');
+        expect((await heading.boundingBox())!.height).toBeLessThanOrEqual(1);
+        await expectNoDocumentHorizontalOverflow(page);
+        await page.screenshot({ path: testInfo.outputPath(path === '/outages' ? 'outages.png' : 'advisories.png'), fullPage: true });
+      }
     });
   }
 }

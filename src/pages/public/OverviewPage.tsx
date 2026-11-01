@@ -5,7 +5,6 @@ import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-do
 import { NodeHeatmapProvider } from '../../components/cluster/NodeHeatmaps';
 import { getRuntimeConfig } from '../../app/config';
 import { useI18n } from '../../app/i18n';
-import { StatusLandingMark } from '../../components/branding/StatusLandingMark';
 import { Alert } from '../../components/ui/Alert';
 import { fetchNews, fetchOutages, fetchPublicNodeStatus, fetchPublicStats } from '../../lib/api/public';
 import { consumeSessionExpiredNotice } from '../../lib/auth/sessionExpiredNotice';
@@ -97,70 +96,64 @@ export function OverviewPage() {
   const newsLoading = !deferredEnabled || newsQ.isLoading;
 
   return (
-    <div className="space-y-6" data-testid="public.overview.page">
-      <div className="flex items-start gap-4">
-        <div className="shrink-0">
-          <StatusLandingMark className="text-accent/80" title={i18n.t('public.overview.title')} />
-        </div>
-        <div className="min-w-0">
-          <h1 className="text-2xl font-semibold tracking-tight">{i18n.t('public.overview.title')}</h1>
-        </div>
+    <>
+      <h1 className="sr-only">{i18n.t('public.overview.title')}</h1>
+      <div className="space-y-6" data-testid="public.overview.page">
+        {showSessionExpired ? (
+          <Alert title={i18n.t('auth.session_expired.title')} variant="warn" testId="auth.session-expired.notice">
+            {i18n.t('auth.session_expired.body')}
+          </Alert>
+        ) : null}
+
+        {outagesQ.isSuccess && outagesByCategory.current.length > 0 ? (
+          <Alert title={i18n.tc('public.overview.outage_alert.title', outagesByCategory.current.length)} variant="danger">
+            {i18n.tc('public.overview.outage_alert.body', outagesByCategory.current.length)}
+            <span className="ml-2">
+              <Link to="/outages" className="underline">{i18n.t('public.overview.outage_alert.link')}</Link>
+            </span>
+          </Alert>
+        ) : outagesQ.isSuccess ? (
+          <Alert title={i18n.t('public.overview.nominal.title')} variant="info">
+            {i18n.t('public.overview.nominal.body')}
+          </Alert>
+        ) : (
+          <Alert title={i18n.t('public.overview.checking.title')} variant="info">
+            {i18n.t('public.overview.checking.body')}
+          </Alert>
+        )}
+
+        {ipv4State === 'critical' ? (
+          <Alert title={i18n.t('public.overview.ipv4_critical.title')} variant="danger" testId="public.ipv4.alert">
+            {i18n.t('public.overview.ipv4_critical.body', { count: ipv4Left ?? 0 })}
+          </Alert>
+        ) : null}
+
+        <OverviewSummaryCards
+          stats={statsQ.data}
+          statsLoading={statsQ.isLoading}
+          statsError={statsQ.isError}
+          nodesLoading={nodesLoading}
+          nodesError={nodesQ.isError}
+          nodeSummary={nodeSummary}
+          ipv4Left={ipv4Left}
+          ipv4Level={ipv4State}
+          ipv4BadgeVariant={ipv4Badge}
+        />
+
+        <OverviewOutagesNewsCards
+          outages={outagesQ.data}
+          outagesByCategory={outagesByCategory}
+          outagesLoading={outagesLoading}
+          outagesError={outagesQ.isError}
+          news={newsQ.data}
+          newsLoading={newsLoading}
+          newsError={newsQ.isError}
+        />
+
+        <NodeHeatmapProvider>
+          <OverviewNodesSection groups={nodesByLocation} summary={nodeSummary} loading={nodesLoading} error={nodesQ.isError} />
+        </NodeHeatmapProvider>
       </div>
-
-      {showSessionExpired ? (
-        <Alert title={i18n.t('auth.session_expired.title')} variant="warn" testId="auth.session-expired.notice">
-          {i18n.t('auth.session_expired.body')}
-        </Alert>
-      ) : null}
-
-      {outagesQ.isSuccess && outagesByCategory.current.length > 0 ? (
-        <Alert title={i18n.tc('public.overview.outage_alert.title', outagesByCategory.current.length)} variant="danger">
-          {i18n.tc('public.overview.outage_alert.body', outagesByCategory.current.length)}
-          <span className="ml-2">
-            <Link to="/outages" className="underline">{i18n.t('public.overview.outage_alert.link')}</Link>
-          </span>
-        </Alert>
-      ) : outagesQ.isSuccess ? (
-        <Alert title={i18n.t('public.overview.nominal.title')} variant="info">
-          {i18n.t('public.overview.nominal.body')}
-        </Alert>
-      ) : (
-        <Alert title={i18n.t('public.overview.checking.title')} variant="info">
-          {i18n.t('public.overview.checking.body')}
-        </Alert>
-      )}
-
-      {ipv4State === 'critical' ? (
-        <Alert title={i18n.t('public.overview.ipv4_critical.title')} variant="danger" testId="public.ipv4.alert">
-          {i18n.t('public.overview.ipv4_critical.body', { count: ipv4Left ?? 0 })}
-        </Alert>
-      ) : null}
-
-      <OverviewSummaryCards
-        stats={statsQ.data}
-        statsLoading={statsQ.isLoading}
-        statsError={statsQ.isError}
-        nodesLoading={nodesLoading}
-        nodesError={nodesQ.isError}
-        nodeSummary={nodeSummary}
-        ipv4Left={ipv4Left}
-        ipv4Level={ipv4State}
-        ipv4BadgeVariant={ipv4Badge}
-      />
-
-      <OverviewOutagesNewsCards
-        outages={outagesQ.data}
-        outagesByCategory={outagesByCategory}
-        outagesLoading={outagesLoading}
-        outagesError={outagesQ.isError}
-        news={newsQ.data}
-        newsLoading={newsLoading}
-        newsError={newsQ.isError}
-      />
-
-      <NodeHeatmapProvider>
-        <OverviewNodesSection groups={nodesByLocation} summary={nodeSummary} loading={nodesLoading} error={nodesQ.isError} />
-      </NodeHeatmapProvider>
-    </div>
+    </>
   );
 }

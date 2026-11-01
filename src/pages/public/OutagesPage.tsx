@@ -114,97 +114,95 @@ export function OutagesPage() {
   }, [outagesQ.data]);
 
   return (
-    <div className="space-y-6" data-testid="public.outages.page">
-      <div className="space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight">{i18n.t('public.outages.title')}</h1>
-        <p className="text-sm text-muted">{i18n.t('public.outages.subtitle')}</p>
-      </div>
-
-      {outagesQ.isLoading ? (
-        <Spinner label={i18n.t('public.outages.loading')} />
-      ) : outagesQ.isError ? (
-        <Alert title={i18n.t('public.outages.error')} variant="danger" />
-      ) : (outagesQ.data?.length ?? 0) === 0 ? (
-        <Alert title={i18n.t('public.outages.empty.title')} variant="info">
-          {i18n.t('public.outages.empty.body')}
-        </Alert>
-      ) : (
-        <div className="space-y-4">
-          <Card>
-            <CardHeader
-              title={i18n.t('public.outages.section.ongoing')}
-              subtitle={i18n.tc('public.outages.section.count', grouped.current.length)}
-            />
-            <CardBody>
-              {grouped.current.length === 0 ? (
-                <div className="text-sm text-muted">{i18n.t('public.outages.section.none')}</div>
-              ) : (
-                <div className="space-y-2">
-                  {grouped.current.map((o) => (
-                    <OutageRow key={o.id} outage={o} />
-                  ))}
-                </div>
-              )}
-            </CardBody>
-          </Card>
-
-          <Card>
-            <CardHeader
-              title={i18n.t('public.outages.section.planned')}
-              subtitle={i18n.tc('public.outages.section.count', grouped.planned.length)}
-            />
-            <CardBody>
-              {grouped.planned.length === 0 ? (
-                <div className="text-sm text-muted">{i18n.t('public.outages.section.none')}</div>
-              ) : (
-                <div className="space-y-2">
-                  {grouped.planned.map((o) => (
-                    <OutageRow key={o.id} outage={o} />
-                  ))}
-                </div>
-              )}
-            </CardBody>
-          </Card>
-
-          <Card>
-            <CardHeader
-              title={i18n.t('public.outages.section.resolved')}
-              subtitle={i18n.tc('public.outages.section.count', grouped.resolved.length)}
-            />
-            <CardBody>
-              {grouped.resolved.length === 0 ? (
-                <div className="text-sm text-muted">{i18n.t('public.outages.section.none')}</div>
-              ) : (
-                <div className="space-y-2">
-                  {grouped.resolved.map((o) => (
-                    <OutageRow key={o.id} outage={o} />
-                  ))}
-                </div>
-              )}
-            </CardBody>
-          </Card>
-
-          {grouped.unknown.length > 0 ? (
+    <>
+      <h1 className="sr-only">{i18n.t('public.outages.title')}</h1>
+      <div className="space-y-6" data-testid="public.outages.page">
+        {outagesQ.isLoading ? (
+          <Spinner label={i18n.t('public.outages.loading')} />
+        ) : outagesQ.isError ? (
+          <Alert title={i18n.t('public.outages.error')} variant="danger" />
+        ) : (outagesQ.data?.length ?? 0) === 0 ? (
+          <Alert title={i18n.t('public.outages.empty.title')} variant="info">
+            {i18n.t('public.outages.empty.body')}
+          </Alert>
+        ) : (
+          <div className="space-y-4">
             <Card>
               <CardHeader
-                title={i18n.t('public.outages.section.other')}
-                subtitle={i18n.tc('public.outages.section.count', grouped.unknown.length)}
+                title={i18n.t('public.outages.section.ongoing')}
+                subtitle={i18n.tc('public.outages.section.count', grouped.current.length)}
               />
               <CardBody>
-                <div className="space-y-2">
-                  {grouped.unknown.map((o) => (
-                    <OutageRow key={o.id} outage={o} />
-                  ))}
-                </div>
+                {grouped.current.length === 0 ? (
+                  <div className="text-sm text-muted">{i18n.t('public.outages.section.none')}</div>
+                ) : (
+                  <div className="space-y-2">
+                    {grouped.current.map((o) => (
+                      <OutageRow key={o.id} outage={o} />
+                    ))}
+                  </div>
+                )}
               </CardBody>
             </Card>
-          ) : null}
-        </div>
-      )}
 
-      <div className="text-xs text-muted">
-        {i18n.t('public.outages.footer.admin_hint')}
+            <Card>
+              <CardHeader
+                title={i18n.t('public.outages.section.planned')}
+                subtitle={i18n.tc('public.outages.section.count', grouped.planned.length)}
+              />
+              <CardBody>
+                {grouped.planned.length === 0 ? (
+                  <div className="text-sm text-muted">{i18n.t('public.outages.section.none')}</div>
+                ) : (
+                  <div className="space-y-2">
+                    {grouped.planned.map((o) => (
+                      <OutageRow key={o.id} outage={o} />
+                    ))}
+                  </div>
+                )}
+              </CardBody>
+            </Card>
+
+            <Card>
+              <CardHeader
+                title={i18n.t('public.outages.section.resolved')}
+                subtitle={i18n.tc('public.outages.section.count', grouped.resolved.length)}
+              />
+              <CardBody>
+                {grouped.resolved.length === 0 ? (
+                  <div className="text-sm text-muted">{i18n.t('public.outages.section.none')}</div>
+                ) : (
+                  <div className="space-y-2">
+                    {grouped.resolved.map((o) => (
+                      <OutageRow key={o.id} outage={o} />
+                    ))}
+                  </div>
+                )}
+              </CardBody>
+            </Card>
+
+            {grouped.unknown.length > 0 ? (
+              <Card>
+                <CardHeader
+                  title={i18n.t('public.outages.section.other')}
+                  subtitle={i18n.tc('public.outages.section.count', grouped.unknown.length)}
+                />
+                <CardBody>
+                  <div className="space-y-2">
+                    {grouped.unknown.map((o) => (
+                      <OutageRow key={o.id} outage={o} />
+                    ))}
+                  </div>
+                </CardBody>
+              </Card>
+            ) : null}
+          </div>
+        )}
+
+        <div className="text-xs text-muted">
+          {i18n.t('public.outages.footer.admin_hint')}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
