@@ -123,7 +123,6 @@ function SessionStateBadges(props: { session: UserSession }) {
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      {props.session.current ? <Badge variant="neutral">{t('profile.sessions.badge.current')}</Badge> : null}
       {isOpenUserSession(props.session) ? (
         <Badge variant="ok">{t('profile.sessions.state.open')}</Badge>
       ) : (

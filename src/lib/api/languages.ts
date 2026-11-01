@@ -1,23 +1,30 @@
-import { expectArray, haveApiCall } from './haveapi';
+import type { Language__IndexInput, Language__IndexOutput } from 'vpsadmin-typescript-client';
+import { narrowApiResult } from './apiOutput';
+import { getApi } from './sdk';
 
-export interface Language {
-  id: number;
-  code?: string;
-  label?: string;
-  [k: string]: unknown;
+export type Language = Language__IndexOutput[number] & { id: number };
+
+function record(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+function language(value: unknown): value is Language {
+  return (
+    record(value) &&
+    typeof value['id'] === 'number' &&
+    Number.isSafeInteger(value['id']) &&
+    value['id'] > 0 &&
+    ['code', 'label'].every((key) => value[key] == null || typeof value[key] === 'string')
+  );
 }
 
 export async function fetchLanguages(opts?: { limit?: number; fromId?: number }) {
-  const params: Record<string, unknown> = {};
-  if (opts?.limit !== undefined) params['limit'] = opts.limit;
-  if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
-
-  const res = await haveApiCall<Language[]>({
-    method: 'GET',
-    path: '/languages',
-    namespace: 'language',
-    params,
-  });
-
-  return { ...res, data: expectArray<Language>(res.data, 'languages#index') };
+  const params: Language__IndexInput = { limit: opts?.limit, from_id: opts?.fromId };
+  return narrowApiResult(
+    await (await getApi()).language.index({ params }),
+    (data) => {
+      if (!Array.isArray(data) || !data.every(language)) throw new TypeError('Expected languages');
+      return data;
+    },
+    'languages#index'
+  );
 }

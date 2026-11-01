@@ -1,62 +1,82 @@
-import { expectArray, haveApiCall } from './haveapi';
+import type {
+  User__MailRoleRecipient__IndexOutput,
+  User__MailRoleRecipient__UpdateInput,
+  User__MailTemplateRecipient__IndexOutput,
+  User__MailTemplateRecipient__UpdateInput,
+} from 'vpsadmin-typescript-client';
+import { narrowApiResult } from './apiOutput';
+import { getApi } from './sdk';
 
-export interface UserMailRoleRecipient {
-  /** Role identifier (e.g. "account", "admin") */
-  id: string;
-  label?: string;
-  description?: string;
-  to?: string | null;
-  [k: string]: unknown;
+export type UserMailRoleRecipient = User__MailRoleRecipient__IndexOutput[number] & { id: string };
+export type UserMailTemplateRecipient = User__MailTemplateRecipient__IndexOutput[number] & { id: string };
+
+function record(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
-
-export interface UserMailTemplateRecipient {
-  /** Mail template name (acts as id in the API) */
-  id: string;
-  label?: string;
-  description?: string;
-  to?: string | null;
-  enabled?: boolean;
-  /** Comma-separated role identifiers used by the template (e.g. "account,admin") */
-  roles?: string;
-  [k: string]: unknown;
+function role(value: unknown): value is UserMailRoleRecipient {
+  return (
+    record(value) &&
+    typeof value['id'] === 'string' &&
+    value['id'].length > 0 &&
+    ['label', 'description', 'to'].every((key) => value[key] == null || typeof value[key] === 'string')
+  );
+}
+function template(value: unknown): value is UserMailTemplateRecipient {
+  return record(value) && (value['enabled'] == null || typeof value['enabled'] === 'boolean') && role(value);
 }
 
 export async function fetchUserMailRoleRecipients(userId: number) {
-  const res = await haveApiCall<UserMailRoleRecipient[]>({
-    method: 'GET',
-    path: `/users/${userId}/mail_role_recipients`,
-  });
-
-  return { ...res, data: expectArray<UserMailRoleRecipient>(res.data, 'users/mail_role_recipients#index') };
+  return narrowApiResult(
+    await (await getApi()).user.mail_role_recipient.index({ path: { user_id: userId } }),
+    (data) => {
+      if (!Array.isArray(data) || !data.every(role)) throw new TypeError('Expected mail role recipients');
+      return data;
+    },
+    'mail role recipients'
+  );
 }
-
-export async function updateUserMailRoleRecipient(userId: number, role: string, payload: { to?: string }) {
-  return haveApiCall<UserMailRoleRecipient>({
-    method: 'PUT',
-    path: `/users/${userId}/mail_role_recipients/${encodeURIComponent(role)}`,
-    namespace: 'mail_role_recipient',
-    params: payload,
-  });
+export async function updateUserMailRoleRecipient(
+  userId: number,
+  roleId: string,
+  params: User__MailRoleRecipient__UpdateInput
+) {
+  return narrowApiResult(
+    await (
+      await getApi()
+    ).user.mail_role_recipient.update({ path: { user_id: userId, mail_role_recipient_id: roleId }, params }),
+    (data) => {
+      if (!role(data)) throw new TypeError('Expected mail role recipient');
+      return data;
+    },
+    'mail role recipient update'
+  );
 }
-
 export async function fetchUserMailTemplateRecipients(userId: number) {
-  const res = await haveApiCall<UserMailTemplateRecipient[]>({
-    method: 'GET',
-    path: `/users/${userId}/mail_template_recipients`,
-  });
-
-  return { ...res, data: expectArray<UserMailTemplateRecipient>(res.data, 'users/mail_template_recipients#index') };
+  return narrowApiResult(
+    await (await getApi()).user.mail_template_recipient.index({ path: { user_id: userId } }),
+    (data) => {
+      if (!Array.isArray(data) || !data.every(template)) throw new TypeError('Expected mail template recipients');
+      return data;
+    },
+    'mail template recipients'
+  );
 }
-
 export async function updateUserMailTemplateRecipient(
   userId: number,
   templateName: string,
-  payload: { to?: string; enabled?: boolean }
+  params: User__MailTemplateRecipient__UpdateInput
 ) {
-  return haveApiCall<UserMailTemplateRecipient>({
-    method: 'PUT',
-    path: `/users/${userId}/mail_template_recipients/${encodeURIComponent(templateName)}`,
-    namespace: 'mail_template_recipient',
-    params: payload,
-  });
+  return narrowApiResult(
+    await (
+      await getApi()
+    ).user.mail_template_recipient.update({
+      path: { user_id: userId, mail_template_recipient_id: templateName },
+      params,
+    }),
+    (data) => {
+      if (!template(data)) throw new TypeError('Expected mail template recipient');
+      return data;
+    },
+    'mail template recipient update'
+  );
 }

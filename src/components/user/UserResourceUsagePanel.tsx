@@ -12,9 +12,9 @@ function text(value: unknown, fallback = '—') {
   return typeof value === 'string' && value.trim() ? value.trim() : fallback;
 }
 
-function format(value: unknown, resource: ClusterResource | null | undefined) {
+function format(value: unknown, resource: Pick<ClusterResource, 'name'> | null | undefined) {
   if (typeof value !== 'number') return '—';
-  const name = String(resource?.name ?? '').toLowerCase();
+  const name = text(resource?.name, '').toLowerCase();
   if (['memory', 'swap', 'diskspace'].includes(name)) {
     if (value < 1024) return `${value} MiB`;
     const gib = value / 1024;

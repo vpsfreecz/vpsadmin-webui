@@ -117,11 +117,6 @@ export function UserSessionCloseDialog(props: {
             </Alert>
           ) : null}
 
-          {session.current ? (
-            <Alert variant="danger" title={t('profile.sessions.close.current_warning.title')}>
-              {t('profile.sessions.close.current_warning.body')}
-            </Alert>
-          ) : null}
         </div>
       ) : null}
     </ConfirmDialog>

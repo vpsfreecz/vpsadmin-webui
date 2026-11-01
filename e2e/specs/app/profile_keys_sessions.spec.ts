@@ -4,6 +4,14 @@ import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
 
 test('@smoke profile: ssh keys + sessions flows', async ({ page }) => {
   const user = { id: 1, login: 'e2e', level: 1 };
+  const mutations: string[] = [];
+  page.on('request', (request) => {
+    const path = new URL(request.url()).pathname;
+    if (['POST', 'PUT', 'DELETE'].includes(request.method())
+      && (path.startsWith('/api/v7.0/users/1/public_keys') || path.startsWith('/api/v7.0/user_sessions/'))) {
+      mutations.push(`${request.method()} ${path}`);
+    }
+  });
 
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
 
@@ -77,7 +85,7 @@ test('@smoke profile: ssh keys + sessions flows', async ({ page }) => {
       },
       'DELETE users/1/public_keys/2': () => {
         keys = keys.filter((k) => k.id !== 2);
-        return { ok: true };
+        return { public_key: {} };
       },
 
       'GET user_sessions': (ctx) => {
@@ -88,20 +96,21 @@ test('@smoke profile: ssh keys + sessions flows', async ({ page }) => {
       'GET user_sessions/2': () => ({ user_session: sessions.find((s) => s.id === 2) }),
       'PUT user_sessions/1': () => {
         sessions = sessions.map((s) => (s.id === 1 ? { ...s, label: 'Firefox (renamed)' } : s));
-        return { user_session: sessions.find((s) => s.id === 1) };
+        return { user_session: {} };
       },
       'POST user_sessions/1': () => {
         sessions = sessions.map((s) => (s.id === 1 ? { ...s, closed_at: '2026-02-02T08:30:00Z' } : s));
-        return { user_session: sessions.find((s) => s.id === 1) };
+        return { user_session: {} };
       },
     },
   });
 
   await page.goto('/app/profile/keys');
-  const keysTable = page.getByTestId('profile.keys.table');
+  const keysPanel = page.getByTestId('profile.keys.card');
+  const keyRow = (id: number) => keysPanel.getByTestId(`profile.keys.row.${id}`).filter({ visible: true });
 
   // Create key
-  await expect(keysTable.getByTestId('profile.keys.row.1')).toBeVisible();
+  await expect(keyRow(1)).toBeVisible();
   await page.getByTestId('profile.keys.add').click();
   await expect(page.getByTestId('profile.keys.modal')).toBeVisible();
   await page.getByTestId('profile.keys.modal.label').fill('Office');
@@ -117,10 +126,10 @@ test('@smoke profile: ssh keys + sessions flows', async ({ page }) => {
   expect(createBody.public_key.key).toContain('ssh-ed25519');
   expect(createBody.public_key.auto_add).toBe(false);
 
-  await expect(keysTable.getByTestId('profile.keys.row.2')).toBeVisible();
+  await expect(keyRow(2)).toBeVisible();
 
   // Edit key (rename + enable auto-add)
-  await keysTable.getByTestId('profile.keys.row.2.edit').click();
+  await keyRow(2).getByTestId('profile.keys.row.2.edit').click();
   await expect(page.getByTestId('profile.keys.modal')).toBeVisible();
   await page.getByTestId('profile.keys.modal.label').fill('Office (renamed)');
   await page.getByTestId('profile.keys.modal.auto_add').click();
@@ -133,25 +142,31 @@ test('@smoke profile: ssh keys + sessions flows', async ({ page }) => {
   expect(updateBody.public_key.auto_add).toBe(true);
   // key field is optional on update when unchanged
   expect(updateBody.public_key.key).toBeUndefined();
+  await expect(page.getByTestId('profile.keys.modal')).toBeHidden();
+  await expect(keyRow(2)).toContainText('Office (renamed)');
 
   // Delete key
-  await keysTable.getByTestId('profile.keys.row.2.delete').click();
+  await keyRow(2).getByTestId('profile.keys.row.2.delete').click();
   await expect(page.getByTestId('profile.keys.delete_dialog')).toBeVisible();
 
   const deleteReqP = page.waitForRequest((r) => r.method() === 'DELETE' && r.url().includes('/users/1/public_keys/2'));
   await page.getByTestId('profile.keys.delete_dialog.confirm').click();
   await deleteReqP;
+  await expect(page.getByTestId('profile.keys.delete_dialog')).toBeHidden();
+  await expect(keyRow(2)).toBeHidden();
+  await expect(keyRow(1)).toBeVisible();
 
   // Navigate to Sessions tab
   await page.goto('/app/profile/sessions');
-  const sessionsTable = page.getByTestId('profile.sessions.table');
+  const sessionsPanel = page.getByTestId('profile.sessions.card');
+  const sessionRow = (id: number) => sessionsPanel.getByTestId(`profile.sessions.row.${id}`).filter({ visible: true });
 
   // Session rename
-  await expect(sessionsTable.getByTestId('profile.sessions.row.1')).toBeVisible();
-  await expect(sessionsTable.getByText('Request count').first()).toBeVisible();
-  await expect(sessionsTable.getByText('111').first()).toBeVisible();
-  await expect(sessionsTable.getByText('vpsadmin-webui 9a5fccf4')).toBeVisible();
-  await expect(sessionsTable.getByTestId('profile.sessions.row.1.transactions')).toBeVisible();
+  await expect(sessionRow(1)).toBeVisible();
+  await expect(sessionsPanel.getByText('Request count', { exact: true }).filter({ visible: true }).first()).toBeVisible();
+  await expect(sessionsPanel.getByText('111', { exact: true }).filter({ visible: true })).toBeVisible();
+  await expect(sessionsPanel.getByText('vpsadmin-webui 9a5fccf4').filter({ visible: true })).toBeVisible();
+  await expect(sessionRow(1).getByTestId('profile.sessions.row.1.transactions')).toBeVisible();
 
   const authFilterReqP = page.waitForRequest((r) => {
     const url = new URL(r.url());
@@ -161,19 +176,19 @@ test('@smoke profile: ssh keys + sessions flows', async ({ page }) => {
   });
   await page.getByTestId('profile.sessions.auth_type').selectOption('token');
   await authFilterReqP;
-  await expect(sessionsTable.getByTestId('profile.sessions.row.2')).toBeVisible();
-  await expect(sessionsTable.getByTestId('profile.sessions.row.1')).toBeHidden();
+  await expect(sessionRow(2)).toBeVisible();
+  await expect(sessionRow(1)).toBeHidden();
 
   const exactIdReqP = page.waitForRequest((r) => r.method() === 'GET' && r.url().includes('/user_sessions/2'));
   await page.getByTestId('profile.sessions.exact_id').fill('2');
   await exactIdReqP;
-  await expect(sessionsTable.getByTestId('profile.sessions.row.2')).toBeVisible();
+  await expect(sessionRow(2)).toBeVisible();
 
   await page.getByTestId('profile.sessions.exact_id').fill('');
   await page.getByTestId('profile.sessions.auth_type').selectOption('all');
-  await expect(sessionsTable.getByTestId('profile.sessions.row.1')).toBeVisible();
+  await expect(sessionRow(1)).toBeVisible();
 
-  await sessionsTable.getByTestId('profile.sessions.row.1.rename').click();
+  await sessionRow(1).getByTestId('profile.sessions.row.1.rename').click();
   await expect(page.getByTestId('profile.sessions.rename_modal')).toBeVisible();
   await page.getByTestId('profile.sessions.rename_modal.label').fill('Firefox (renamed)');
 
@@ -182,12 +197,24 @@ test('@smoke profile: ssh keys + sessions flows', async ({ page }) => {
   const renameReq = await renameReqP;
   const renameBody = renameReq.postDataJSON();
   expect(renameBody.user_session.label).toBe('Firefox (renamed)');
+  await expect(page.getByTestId('profile.sessions.rename_modal')).toBeHidden();
+  await expect(sessionRow(1)).toContainText('Firefox (renamed)');
 
   // Close session
-  await sessionsTable.getByTestId('profile.sessions.row.1.close').click();
+  await sessionRow(1).getByTestId('profile.sessions.row.1.close').click();
   await expect(page.getByTestId('profile.sessions.close_dialog')).toBeVisible();
   await expect(page.getByTestId('profile.sessions.close_dialog.confirm')).toBeEnabled();
   const closeReqP = page.waitForRequest((r) => r.method() === 'POST' && r.url().includes('/user_sessions/1'));
   await page.getByTestId('profile.sessions.close_dialog.confirm').click();
   await closeReqP;
+  await expect(page.getByTestId('profile.sessions.close_dialog')).toBeHidden();
+  await expect(sessionRow(1).getByText('Closed', { exact: true })).toBeVisible();
+  await expect(sessionRow(1).getByTestId('profile.sessions.row.1.close')).toBeHidden();
+  expect(mutations).toEqual([
+    'POST /api/v7.0/users/1/public_keys',
+    'PUT /api/v7.0/users/1/public_keys/2',
+    'DELETE /api/v7.0/users/1/public_keys/2',
+    'PUT /api/v7.0/user_sessions/1',
+    'POST /api/v7.0/user_sessions/1',
+  ]);
 });

@@ -60,7 +60,6 @@ describe('UsersModel', () => {
       address: ' Main street ',
       level: '2',
       info: ' Admin note ',
-      monthlyPayment: '300',
       mailerEnabled: false,
     });
 
@@ -74,7 +73,6 @@ describe('UsersModel', () => {
         address: 'Main street',
         level: 2,
         info: 'Admin note',
-        monthly_payment: 300,
         mailer_enabled: false,
       },
     });

@@ -27,11 +27,13 @@ describe('UserMailPreferencesModel', () => {
       { id: 'admin', to: '' },
     ];
 
-    expect(computeEffectiveRoleTo({ role: roles[1]!, userEmail: 'primary@example.test' })).toEqual(['primary@example.test']);
+    expect(computeEffectiveRoleTo({ role: roles[1]!, userEmail: 'primary@example.test' })).toEqual([
+      'primary@example.test',
+    ]);
 
     expect(
       computeEffectiveTemplateTo({
-        template: { id: 'explicit', to: 'template@example.test', roles: 'account' },
+        template: { id: 'explicit', to: 'template@example.test', enabled: true },
         userEmail: 'primary@example.test',
         roleRecipients: roles,
       })
@@ -39,15 +41,15 @@ describe('UserMailPreferencesModel', () => {
 
     expect(
       computeEffectiveTemplateTo({
-        template: { id: 'role', to: '', roles: 'account,admin' },
+        template: { id: 'role', to: '' },
         userEmail: 'primary@example.test',
         roleRecipients: roles,
       })
-    ).toEqual({ source: 'role', to: ['billing@example.test'], rolesUsed: ['account'] });
+    ).toEqual({ source: 'unknown', to: [], rolesUsed: [] });
 
     expect(
       computeEffectiveTemplateTo({
-        template: { id: 'disabled', enabled: false, roles: 'account' },
+        template: { id: 'disabled', enabled: false },
         userEmail: 'primary@example.test',
         roleRecipients: roles,
       })

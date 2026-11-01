@@ -1,26 +1,23 @@
 import { roleFromLevel } from '../roles';
 
 import { clusterSearch } from './clusterSearch';
-import { expectArray, haveApiCall, requireActionStateResult, type HaveApiEnvelope } from './haveapi';
 import type {
-  CreateUserPayload,
-  FetchUsersOpts,
-  User,
-  UserCompatPagination,
-} from './userTypes';
+  ActionResult,
+  User__IndexInput,
+  User__IndexGlobalOutput,
+  User__UpdateInput,
+  User__DeleteInput,
+} from 'vpsadmin-typescript-client';
+import { requireActionStateResult } from './apiErrors';
+import { narrowApiResult } from './apiOutput';
+import { getApi } from './sdk';
+import { readUser, readUsers } from './userTypes';
+import type { CreateUserPayload, FetchUsersOpts, User, UserCompatPagination } from './userTypes';
 
-export type {
-  CreateUserPayload,
-  FetchUsersOpts,
-  User,
-  UserCompatPagination,
-} from './userTypes';
+export type { CreateUserPayload, FetchUsersOpts, User, UserCompatPagination } from './userTypes';
 
 export async function fetchCurrentUser() {
-  return haveApiCall<User>({
-    method: 'GET',
-    path: '/users/current',
-  });
+  return narrowApiResult(await (await getApi()).user.current({}), readUser, 'users#current');
 }
 
 interface RawFetchUsersOpts {
@@ -39,12 +36,7 @@ interface RawFetchUsersOpts {
   info?: string;
 }
 
-interface UserListResult {
-  data: User[];
-  meta?: Record<string, unknown>;
-  envelope: HaveApiEnvelope;
-  compat?: UserCompatPagination;
-}
+type UserListResult = ActionResult<User[], User__IndexGlobalOutput> & { compat?: UserCompatPagination };
 
 const DEFAULT_LIST_LIMIT = 50;
 const COMPAT_SCAN_MAX_ROWS = 1_200;
@@ -91,13 +83,7 @@ function matchesSearchQuery(user: User, rawNeedle: string): boolean {
     return true;
   }
 
-  const haystack = [
-    user.login,
-    user.full_name,
-    user.email,
-    user.address,
-    String(user['info'] ?? ''),
-  ]
+  const haystack = [user.login, user.full_name, user.email, user.address, String(user['info'] ?? '')]
     .filter((v) => typeof v === 'string' && v.trim())
     .join('\n')
     .toLowerCase();
@@ -126,20 +112,20 @@ function needsCompatScan(opts: FetchUsersOpts): boolean {
 
   return Boolean(
     q ||
-      roleNeedsCompat ||
-      opts.lockout !== undefined ||
-      opts.passwordReset !== undefined ||
-      opts.enableMfa !== undefined ||
-      opts.enableOAuth2 !== undefined ||
-      opts.enableTokenAuth !== undefined ||
-      opts.enableBasicAuth !== undefined ||
-      opts.enableSingleSignOn !== undefined ||
-      opts.enableNewLoginNotification !== undefined
+    roleNeedsCompat ||
+    opts.lockout !== undefined ||
+    opts.passwordReset !== undefined ||
+    opts.enableMfa !== undefined ||
+    opts.enableOAuth2 !== undefined ||
+    opts.enableTokenAuth !== undefined ||
+    opts.enableBasicAuth !== undefined ||
+    opts.enableSingleSignOn !== undefined ||
+    opts.enableNewLoginNotification !== undefined
   );
 }
 
 async function rawFetchUsers(opts?: RawFetchUsersOpts): Promise<UserListResult> {
-  const params: Record<string, string | number | boolean> = {};
+  const params: User__IndexInput = {};
 
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
@@ -155,16 +141,15 @@ async function rawFetchUsers(opts?: RawFetchUsersOpts): Promise<UserListResult> 
   if (opts?.address) params['address'] = opts.address;
   if (opts?.info) params['info'] = opts.info;
 
-  const res = await haveApiCall<User[]>({
-    method: 'GET',
-    path: '/users',
-    namespace: 'user',
-    params,
-    meta: opts?.count ? { count: true } : undefined,
-    signal: opts?.signal,
-  });
+  const res = narrowApiResult(
+    await (
+      await getApi()
+    ).user.index({ params, meta: opts?.count ? { count: true } : undefined, signal: opts?.signal }),
+    readUsers,
+    'users#index'
+  );
 
-  return { ...res, data: expectArray<User>(res.data, 'users') };
+  return res;
 }
 
 export async function fetchUsers(opts?: FetchUsersOpts): Promise<UserListResult> {
@@ -274,43 +259,31 @@ export async function fetchUsers(opts?: FetchUsersOpts): Promise<UserListResult>
     return {
       ...lastResult,
       data: data.slice(0, limit),
-      meta: undefined,
-      compat: { nextFromId: complete ? undefined : nextFromId ?? cursor, complete, scannedRows: scanned },
+      compat: { nextFromId: complete ? undefined : (nextFromId ?? cursor), complete, scannedRows: scanned },
     };
   }
 
-  return {
-    data: [],
-    meta: undefined,
-    envelope: { status: true, response: { users: [] } },
-    compat: { complete: true, scannedRows: 0 },
-  };
+  throw new Error('User scan did not dispatch');
 }
 
 export async function fetchUser(userId: number, opts?: { signal?: AbortSignal }) {
-  return haveApiCall<User>({
-    method: 'GET',
-    path: `/users/${userId}`,
-    signal: opts?.signal,
-  });
+  return narrowApiResult(
+    await (await getApi()).user.show({ path: { user_id: userId }, signal: opts?.signal }),
+    readUser,
+    'users#show'
+  );
 }
 
 export async function createUser(payload: CreateUserPayload) {
-  return haveApiCall<User>({
-    method: 'POST',
-    path: '/users',
-    namespace: 'user',
-    params: payload,
-  });
+  return narrowApiResult(await (await getApi()).user.create({ params: payload }), readUser, 'users#create');
 }
 
-export async function updateUser(userId: number, payload: Record<string, unknown>) {
-  const res = await haveApiCall<User>({
-    method: 'PUT',
-    path: `/users/${userId}`,
-    namespace: 'user',
-    params: payload,
-  });
+export async function updateUser(userId: number, payload: User__UpdateInput) {
+  const res = narrowApiResult(
+    await (await getApi()).user.update({ path: { user_id: userId }, params: payload }),
+    readUser,
+    'users#update'
+  );
   // User::Update only creates a chain for an object-state transition.
   // Profile and lifetime-date-only writes are synchronous upstream.
   return Object.prototype.hasOwnProperty.call(payload, 'object_state')
@@ -318,13 +291,8 @@ export async function updateUser(userId: number, payload: Record<string, unknown
     : res;
 }
 
-export async function deleteUser(userId: number, payload?: { object_state?: string }) {
-  return haveApiCall<void>({
-    method: 'DELETE',
-    path: `/users/${userId}`,
-    namespace: 'user',
-    params: payload ?? {},
-  });
+export async function deleteUser(userId: number, payload?: User__DeleteInput) {
+  return await (await getApi()).user.delete({ path: { user_id: userId }, params: payload ?? {} });
 }
 
 /**
@@ -338,11 +306,12 @@ export async function searchUsers(opts: { q: string; limit?: number }) {
   const limit = typeof opts.limit === 'number' && opts.limit > 0 ? opts.limit : 20;
 
   if (!q) {
-    return { data: [] as User[] };
+    const data: User[] = [];
+    return { data };
   }
 
   const like = `%${q}%`;
-  const directSearches: Array<Record<string, string | number | boolean>> = [];
+  const directSearches: User__IndexInput[] = [];
   const baseParams = { limit } as const;
 
   if (/^#?\d+$/.test(q)) {
@@ -366,27 +335,24 @@ export async function searchUsers(opts: { q: string; limit?: number }) {
   directSearches.push({ ...baseParams, email: like });
 
   const settledDirect = await Promise.allSettled(
-    directSearches.map((params) =>
-      haveApiCall<User[]>({
-        method: 'GET',
-        path: '/users',
-        namespace: 'user',
-        params,
-      })
+    directSearches.map(async (params) =>
+      narrowApiResult(await (await getApi()).user.index({ params }), readUsers, 'users#index')
     )
   );
 
   const directEnvelope = settledDirect.find((res) => res.status === 'fulfilled')?.value;
   const directUsers = settledDirect.flatMap((res) => {
     if (res.status !== 'fulfilled') return [];
-    return expectArray<User>(res.value.data, 'users#search');
+    return res.value.data;
   });
 
   const clusterRes = await clusterSearch({ query: q }).catch(() => ({ data: [] }));
   const seen = new Set<number>();
   const userIds = clusterRes.data
     .map((hit) => {
-      const resource = String(hit.resource ?? '').trim().toLowerCase();
+      const resource = String(hit.resource ?? '')
+        .trim()
+        .toLowerCase();
       const id = typeof hit.id === 'number' ? hit.id : Number(hit.id);
       if (resource !== 'user' || !Number.isFinite(id) || id <= 0) return null;
       const safeId = Math.trunc(id);
@@ -423,5 +389,5 @@ export async function searchUsers(opts: { q: string; limit?: number }) {
     if (merged.length >= limit) break;
   }
 
-  return { ...(directEnvelope ?? { envelope: { status: true, response: { users: [] } } }), data: merged };
+  return { ...directEnvelope, data: merged };
 }

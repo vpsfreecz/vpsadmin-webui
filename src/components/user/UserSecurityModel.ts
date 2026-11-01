@@ -1,3 +1,4 @@
+import type { User__UpdateInput } from 'vpsadmin-typescript-client';
 import type { UserSession } from '../../lib/api/userDossier';
 import type { User } from '../../lib/api/users';
 
@@ -100,8 +101,8 @@ export function buildPasswordChangeReview(variant: UserSecurityVariant, draft: P
   };
 }
 
-export function buildPasswordPayload(variant: UserSecurityVariant, draft: PasswordDraft): Record<string, unknown> {
-  const payload: Record<string, unknown> = {
+export function buildPasswordPayload(variant: UserSecurityVariant, draft: PasswordDraft): User__UpdateInput {
+  const payload: User__UpdateInput = {
     new_password: draft.newPassword,
     logout_sessions: draft.logoutSessions,
   };
@@ -157,7 +158,7 @@ export interface SecuritySettingsReview {
 
 const securitySettingsMeta: Record<
   SecuritySettingsChangeKey,
-  { labelKey: string; payloadKey: string; impactKey: string; warningWhenDisabled?: boolean }
+  { labelKey: string; payloadKey: SecurityUserBooleanKey | SecurityUserIntegerKey; impactKey: string; warningWhenDisabled?: boolean }
 > = {
   basic: {
     labelKey: 'security.settings.auth.basic.label',
@@ -393,24 +394,25 @@ function booleanChange(
 export function buildSecuritySettingsPayload(
   stored: SecuritySettingsSnapshot,
   draft: SecuritySettingsDraft
-): { valid: true; payload: Record<string, unknown> } | { valid: false; validationKey: string } {
+): { valid: true; payload: User__UpdateInput } | { valid: false; validationKey: string } {
   const sessionParse = parseSessionMinutes(draft.sessMin);
   if (!sessionParse.valid) {
     return { valid: false, validationKey: sessionParse.validationKey };
   }
 
   const storedSessionParse = parseSessionMinutes(stored.sessMin);
-  const payload: Record<string, unknown> = {};
+  const payload: User__UpdateInput = {};
 
   for (const key of ['basic', 'token', 'sso', 'notif', 'logoutAll'] as const) {
     if (draft[key] !== stored[key]) {
-      payload[securitySettingsMeta[key].payloadKey] = draft[key];
+      const field = securitySettingsMeta[key].payloadKey;
+      if (field !== 'preferred_session_length') payload[field] = draft[key];
     }
   }
 
   const storedSeconds = storedSessionParse.valid ? storedSessionParse.seconds : 0;
   if (sessionParse.seconds !== storedSeconds) {
-    payload[securitySettingsMeta.sessMin.payloadKey] = sessionParse.seconds;
+    payload.preferred_session_length = sessionParse.seconds;
   }
 
   return { valid: true, payload };

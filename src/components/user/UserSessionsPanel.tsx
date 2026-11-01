@@ -344,7 +344,6 @@ export function UserSessionsPanel(props: {
             testId={`${prefix}.summary`}
             items={[
               { key: 'open', label: t('profile.sessions.summary.open'), value: sessionSummary.open },
-              { key: 'current', label: t('profile.sessions.summary.current'), value: sessionSummary.current },
               { key: 'token', label: t('profile.sessions.summary.tokens'), value: sessionSummary.token },
               { key: 'closed', label: t('profile.sessions.summary.closed'), value: sessionSummary.closed },
             ]}

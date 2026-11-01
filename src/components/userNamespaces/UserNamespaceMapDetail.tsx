@@ -16,7 +16,7 @@ import { Input } from '../ui/Input';
 import { Spinner } from '../ui/Spinner';
 import { TableCard } from '../ui/TableCard';
 
-import { HaveApiError, getMetaTotalCount } from '../../lib/api/haveapi';
+import { HaveApiError, getMetaTotalCount } from '../../lib/api/apiErrors';
 import { fetchVpsList } from '../../lib/api/vps';
 import {
   createUserNamespaceMapEntry,

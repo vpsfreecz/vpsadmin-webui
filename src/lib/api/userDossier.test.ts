@@ -11,11 +11,12 @@ function setMockRuntime() {
 }
 
 function mockFetchOk(response: unknown) {
-  return vi.fn(async (..._args: Parameters<typeof fetch>) =>
-    new Response(JSON.stringify({ status: true, response }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    })
+  return vi.fn(
+    async (..._args: Parameters<typeof fetch>) =>
+      new Response(JSON.stringify({ status: true, response }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
   );
 }
 
@@ -35,7 +36,7 @@ describe('user dossier TOTP wrappers', () => {
         provisioning_uri: 'otpauth://totp/example',
       },
     });
-    installHaveApiXhr( fetchMock);
+    installHaveApiXhr(fetchMock);
 
     const res = await createUserTotpDevice(42, { label: 'Phone' });
 
@@ -46,24 +47,32 @@ describe('user dossier TOTP wrappers', () => {
     expect(JSON.parse(String(init?.body))).toEqual({ totp_device: { label: 'Phone' } });
   });
 
-  it('normalizes confirm recovery code from object or scalar responses', async () => {
+  it('reads the canonical TOTP recovery-code namespace', async () => {
     setMockRuntime();
-    const fetchMock = mockFetchOk({ recovery_code: 'RECOVERY-1' });
-    installHaveApiXhr( fetchMock);
+    const fetchMock = mockFetchOk({ totp_device: { recovery_code: 'RECOVERY-1' } });
+    installHaveApiXhr(fetchMock);
 
     await expect(confirmUserTotpDevice(42, 7, { code: '123456' })).resolves.toMatchObject({ data: 'RECOVERY-1' });
 
-    installHaveApiXhr( mockFetchOk('RECOVERY-2'));
-    await expect(confirmUserTotpDevice(42, 7, { code: '654321' })).resolves.toMatchObject({ data: 'RECOVERY-2' });
+    installHaveApiXhr(mockFetchOk('RECOVERY-2'));
+    await expect(confirmUserTotpDevice(42, 7, { code: '654321' })).rejects.toThrow();
+    installHaveApiXhr(mockFetchOk({ recovery_code: 'RECOVERY-3' }));
+    await expect(confirmUserTotpDevice(42, 7, { code: '654321' })).rejects.toThrow();
   });
 
   it('rejects create and confirm responses with missing TOTP fields', async () => {
     setMockRuntime();
-    installHaveApiXhr( mockFetchOk({ totp_device: { id: 7, secret: 'SECRET123' } }));
+    installHaveApiXhr(mockFetchOk({ totp_device: { id: 7, secret: 'SECRET123' } }));
 
-    await expect(createUserTotpDevice(42, { label: 'Phone' })).rejects.toThrow('missing secret/provisioning_uri');
+    await expect(createUserTotpDevice(42, { label: 'Phone' })).rejects.toMatchObject({
+      code: 'INVALID_API_OUTPUT',
+      phase: 'post-dispatch',
+    });
 
-    installHaveApiXhr( mockFetchOk({ recovery_code: null }));
-    await expect(confirmUserTotpDevice(42, 7, { code: '123456' })).rejects.toThrow('expected recovery_code');
+    installHaveApiXhr(mockFetchOk({ totp_device: { recovery_code: null } }));
+    await expect(confirmUserTotpDevice(42, 7, { code: '123456' })).rejects.toMatchObject({
+      code: 'INVALID_API_OUTPUT',
+      phase: 'post-dispatch',
+    });
   });
 });

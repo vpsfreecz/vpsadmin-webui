@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { HaveApiError } from '../../../../lib/api/haveapi';
+import { HaveApiError } from '../../../../lib/api/apiErrors';
 import { canBulkRemovePackage, packageRemovalTargets, removePackagesSequentially } from './UserPackageBulkRemovalModel';
 
 const rows = [

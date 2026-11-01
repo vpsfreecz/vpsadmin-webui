@@ -19,10 +19,13 @@ describe('findUserByExactLogin', () => {
       },
     };
     const fetchMock = vi.mocked(apiWire.respond).mockResolvedValue(
-      new Response(JSON.stringify({
-        status: true,
-        response: { users: [{ id: 48, login: 'base48', level: 1 }] },
-      }), { status: 200, headers: { 'Content-Type': 'application/json' } })
+      new Response(
+        JSON.stringify({
+          status: true,
+          response: { users: [{ id: 48, login: 'base48', level: 1 }] },
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } }
+      )
     );
 
     await expect(findUserByExactLogin(' Base48 ')).resolves.toMatchObject({

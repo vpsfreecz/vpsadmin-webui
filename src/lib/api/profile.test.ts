@@ -32,10 +32,8 @@ function setMockRuntime(metaNamespace = '_meta') {
 }
 
 function installOkFetch(response: unknown) {
-  const fetchMock = vi.fn(async (..._args: Parameters<typeof fetch>) =>
-    makeOkResponse({ status: true, response })
-  );
-  installHaveApiXhr( fetchMock);
+  const fetchMock = vi.fn(async (..._args: Parameters<typeof fetch>) => makeOkResponse({ status: true, response }));
+  installHaveApiXhr(fetchMock);
   return fetchMock;
 }
 
@@ -114,10 +112,10 @@ describe('user dossier API wrappers', () => {
     setMockRuntime();
     const fetchMock = installOkFetch({
       _meta: { elapsed: 1 },
-      user_session: { id: 9, label: 'work-laptop' },
+      user_session: {},
     });
 
-    await updateUserSessionLabel(9, 'work-laptop');
+    await expect(updateUserSessionLabel(9, 'work-laptop')).resolves.toMatchObject({ data: {}, httpStatus: 200 });
 
     const [url, init] = getFetchCall(fetchMock);
     expect(String(url)).toContain('/v7.0/user_sessions/9');
@@ -129,14 +127,14 @@ describe('user dossier API wrappers', () => {
 
   it('closeUserSession uses POST /user_sessions/:id with empty {} body', async () => {
     setMockRuntime();
-    const fetchMock = installOkFetch({ _meta: { elapsed: 1 }, ok: true });
+    const fetchMock = installOkFetch({ _meta: { elapsed: 1 }, user_session: {} });
 
     await closeUserSession(9);
 
     const [url, init] = getFetchCall(fetchMock);
     expect(String(url)).toContain('/v7.0/user_sessions/9');
     expect(init?.method).toBe('POST');
-    expect(init?.body).toBe('{}');
+    expect(JSON.parse(String(init?.body))).toEqual({ user_session: {} });
   });
 
   it('fetchMetricsAccessTokens uses /metrics_access_tokens and metrics_access_token namespace', async () => {
@@ -172,7 +170,7 @@ describe('user dossier API wrappers', () => {
 
   it('deleteMetricsAccessToken uses DELETE /metrics_access_tokens/:id', async () => {
     setMockRuntime();
-    const fetchMock = installOkFetch({ _meta: { elapsed: 1 }, ok: true });
+    const fetchMock = installOkFetch({ _meta: { elapsed: 1 }, metrics_access_token: {} });
 
     await deleteMetricsAccessToken(9);
 

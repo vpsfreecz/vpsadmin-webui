@@ -11,7 +11,6 @@ export interface CreateUserDraft {
   address: string;
   level: string;
   info: string;
-  monthlyPayment: string;
   mailerEnabled: boolean;
 }
 
@@ -24,18 +23,17 @@ export const initialCreateUserDraft: CreateUserDraft = {
   address: '',
   level: '2',
   info: '',
-  monthlyPayment: '300',
   mailerEnabled: true,
 };
 
 export type UserSmartKey = 'id' | 'q' | 'role' | 'level' | 'mailer' | 'lockout' | 'password_reset' | 'mfa';
 
-export type CreateUserPayloadReview =
-  | { ok: true; payload: CreateUserPayload }
-  | { ok: false; errorKey: string };
+export type CreateUserPayloadReview = { ok: true; payload: CreateUserPayload } | { ok: false; errorKey: string };
 
 export function normalizeRole(raw: string | null | undefined): RoleFilter {
-  const v = String(raw ?? '').trim().toLowerCase();
+  const v = String(raw ?? '')
+    .trim()
+    .toLowerCase();
   if (v === 'admin') return 'admin';
   if (v === 'support') return 'support';
   if (v === 'user') return 'user';
@@ -43,7 +41,9 @@ export function normalizeRole(raw: string | null | undefined): RoleFilter {
 }
 
 export function parseBoolToken(value: string): boolean | null | undefined {
-  const v = String(value ?? '').trim().toLowerCase();
+  const v = String(value ?? '')
+    .trim()
+    .toLowerCase();
   if (!v) return undefined;
 
   if (v === '1' || v === 'true' || v === 'yes' || v === 'y' || v === 'on' || v === 'enabled') return true;
@@ -54,7 +54,9 @@ export function parseBoolToken(value: string): boolean | null | undefined {
 }
 
 export function canonicalUserSmartKey(raw: string): UserSmartKey | null {
-  const k = String(raw ?? '').trim().toLowerCase();
+  const k = String(raw ?? '')
+    .trim()
+    .toLowerCase();
   if (!k) return null;
 
   if (k === 'id' || k === '#') return 'id';
@@ -74,7 +76,9 @@ export function canonicalUserSmartKey(raw: string): UserSmartKey | null {
 }
 
 export function resolveRoleValue(raw: string): RoleFilter | null {
-  const v = String(raw ?? '').trim().toLowerCase();
+  const v = String(raw ?? '')
+    .trim()
+    .toLowerCase();
   if (!v) return '';
   if (v === 'all' || v === 'any' || v === '*') return '';
   if (v === 'admin' || v === 'admins') return 'admin';
@@ -92,7 +96,6 @@ export function buildCreateUserPayload(draft: CreateUserDraft): CreateUserPayloa
   const password = draft.password;
   const password2 = draft.password2;
   const level = Number(draft.level);
-  const monthly = draft.monthlyPayment.trim() ? Number(draft.monthlyPayment) : undefined;
 
   if (!login) {
     return { ok: false, errorKey: 'admin.users.create.validation.login' };
@@ -110,10 +113,6 @@ export function buildCreateUserPayload(draft: CreateUserDraft): CreateUserPayloa
     return { ok: false, errorKey: 'admin.users.create.validation.level' };
   }
 
-  if (monthly !== undefined && (!Number.isFinite(monthly) || monthly < 0)) {
-    return { ok: false, errorKey: 'admin.users.create.validation.monthly_payment' };
-  }
-
   return {
     ok: true,
     payload: {
@@ -124,7 +123,6 @@ export function buildCreateUserPayload(draft: CreateUserDraft): CreateUserPayloa
       address: draft.address.trim() || undefined,
       level,
       info: draft.info.trim() || undefined,
-      monthly_payment: monthly,
       mailer_enabled: draft.mailerEnabled,
     },
   };

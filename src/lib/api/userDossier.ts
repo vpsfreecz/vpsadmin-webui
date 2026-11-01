@@ -1,6 +1,50 @@
+import type {
+  MetricsAccessToken__CreateInput,
+  MetricsAccessToken__IndexInput,
+  UserSession__IndexInput,
+  User__KnownDevice__IndexInput,
+  User__PublicKey__CreateInput,
+  User__PublicKey__IndexInput,
+  User__PublicKey__UpdateInput,
+  User__TotpDevice__ConfirmInput,
+  User__TotpDevice__CreateInput,
+  User__TotpDevice__IndexInput,
+  User__TotpDevice__UpdateInput,
+  User__WebauthnCredential__IndexInput,
+  User__WebauthnCredential__UpdateInput,
+} from 'vpsadmin-typescript-client';
 import type { WebauthnPublicKeyCredentialJson } from '../webauthn';
-
-import { expectArray, haveApiCall } from './haveapi';
+import { narrowApiResult } from './apiOutput';
+import { getApi } from './sdk';
+import {
+  readTotpCreate,
+  readRegistration,
+  readToken,
+  readUserPublicKey,
+  readUserPublicKeyList,
+  readUserSession,
+  readUserSessionList,
+  readMetricsAccessToken,
+  readMetricsAccessTokenList,
+  readUserKnownDeviceList,
+  readUserTotpDevice,
+  readUserTotpDeviceList,
+  readUserWebauthnCredential,
+  readUserWebauthnCredentialList,
+  readTotpRecovery,
+} from './userDossierViews';
+export type {
+  UserPublicKey,
+  UserSession,
+  MetricsAccessToken,
+  UserKnownDevice,
+  UserTotpDevice,
+  UserWebauthnCredential,
+  UserSessionToken,
+  UserSessionUserRef,
+  UserTotpDeviceCreateResponse,
+  WebauthnRegistrationBeginResponse,
+} from './userDossierViews';
 
 /**
  * User dossier API wrappers
@@ -12,106 +56,43 @@ import { expectArray, haveApiCall } from './haveapi';
 
 // ---- SSH public keys -------------------------------------------------------
 
-export interface UserPublicKey {
-  id: number;
-  label?: string;
-  key?: string;
-  auto_add?: boolean;
-  fingerprint?: string;
-  comment?: string;
-  created_at?: string;
-  updated_at?: string;
-  [k: string]: unknown;
-}
-
 export async function fetchUserPublicKeys(userId: number, opts?: { fromId?: number; limit?: number }) {
-  const params: Record<string, unknown> = {};
+  const params: User__PublicKey__IndexInput = {};
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
 
-  const res = await haveApiCall<UserPublicKey[]>({
-    method: 'GET',
-    path: `/users/${userId}/public_keys`,
-    namespace: Object.keys(params).length > 0 ? 'public_key' : undefined,
-    params: Object.keys(params).length > 0 ? params : undefined,
-  });
+  const res = narrowApiResult(
+    await (
+      await getApi()
+    ).user.public_key.index({ path: { user_id: userId }, params: Object.keys(params).length > 0 ? params : undefined }),
+    readUserPublicKeyList,
+    'fetchUserPublicKeys'
+  );
 
-  return { ...res, data: expectArray<UserPublicKey>(res.data, 'users/public_keys#index') };
+  return { ...res, data: res.data };
 }
 
-export async function createUserPublicKey(
-  userId: number,
-  payload: { label: string; key: string; auto_add?: boolean }
-) {
-  return haveApiCall<UserPublicKey>({
-    method: 'POST',
-    path: `/users/${userId}/public_keys`,
-    namespace: 'public_key',
-    params: payload,
-  });
+export async function createUserPublicKey(userId: number, payload: User__PublicKey__CreateInput) {
+  return narrowApiResult(
+    await (await getApi()).user.public_key.create({ path: { user_id: userId }, params: payload }),
+    readUserPublicKey,
+    'createUserPublicKey'
+  );
 }
 
-export async function updateUserPublicKey(
-  userId: number,
-  keyId: number,
-  payload: { label?: string; key?: string; auto_add?: boolean }
-) {
-  return haveApiCall<UserPublicKey>({
-    method: 'PUT',
-    path: `/users/${userId}/public_keys/${keyId}`,
-    namespace: 'public_key',
-    params: payload,
-  });
+export async function updateUserPublicKey(userId: number, keyId: number, payload: User__PublicKey__UpdateInput) {
+  return narrowApiResult(
+    await (await getApi()).user.public_key.update({ path: { user_id: userId, public_key_id: keyId }, params: payload }),
+    readUserPublicKey,
+    'updateUserPublicKey'
+  );
 }
 
 export async function deleteUserPublicKey(userId: number, keyId: number) {
-  return haveApiCall<void>({
-    method: 'DELETE',
-    path: `/users/${userId}/public_keys/${keyId}`,
-  });
+  return await (await getApi()).user.public_key.delete({ path: { user_id: userId, public_key_id: keyId } });
 }
 
 // ---- Sessions (API tokens) -------------------------------------------------
-
-export interface UserSessionUserRef {
-  id: number;
-  login?: string;
-  [k: string]: unknown;
-}
-
-export interface UserSession {
-  id: number;
-  current?: boolean;
-  user?: UserSessionUserRef;
-  label?: string;
-  auth_type?: string;
-
-  // IPs
-  api_ip_addr?: string;
-  api_ip_ptr?: string;
-  client_ip_addr?: string;
-  client_ip_ptr?: string;
-
-  user_agent?: string;
-  client_version?: string;
-
-  scope?: string;
-  token_fragment?: string;
-  token_lifetime?: string;
-  token_interval?: number;
-
-  // Only returned by UserSession.Create
-  token_full?: string;
-
-  created_at?: string;
-  last_request_at?: string;
-  request_count?: number;
-  closed_at?: string | null;
-
-  admin?: UserSessionUserRef;
-
-  [k: string]: unknown;
-}
 
 export async function fetchUserSessions(opts?: {
   /** Admin-only: list sessions for specific user. */
@@ -128,7 +109,7 @@ export async function fetchUserSessions(opts?: {
   auth_type?: 'basic' | 'token' | 'oauth2';
   adminId?: number;
 }) {
-  const params: Record<string, unknown> = {};
+  const params: UserSession__IndexInput = {};
   if (opts?.userId !== undefined) params['user'] = opts.userId;
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
@@ -142,38 +123,38 @@ export async function fetchUserSessions(opts?: {
   if (opts?.auth_type) params['auth_type'] = opts.auth_type;
   if (opts?.adminId !== undefined) params['admin'] = opts.adminId;
 
-  const res = await haveApiCall<UserSession[]>({
-    method: 'GET',
-    path: '/user_sessions',
-    namespace: 'user_session',
-    params,
-  });
+  const res = narrowApiResult(
+    await (await getApi()).user_session.index({ params }),
+    readUserSessionList,
+    'fetchUserSessions'
+  );
 
-  return { ...res, data: expectArray<UserSession>(res.data, 'user_sessions#index') };
+  return { ...res, data: res.data };
 }
 
 export async function fetchUserSession(sessionId: number) {
-  return haveApiCall<UserSession>({
-    method: 'GET',
-    path: `/user_sessions/${sessionId}`,
-  });
+  return narrowApiResult(
+    await (await getApi()).user_session.show({ path: { user_session_id: sessionId } }),
+    readUserSession,
+    'fetchUserSession'
+  );
 }
 
 export async function updateUserSessionLabel(sessionId: number, label: string) {
-  return haveApiCall<UserSession>({
-    method: 'PUT',
-    path: `/user_sessions/${sessionId}`,
-    namespace: 'user_session',
-    params: { label },
-  });
+  return narrowApiResult(
+    await (await getApi()).user_session.update({ path: { user_session_id: sessionId }, params: { label } }),
+    (data) => {
+      if (!data || typeof data !== 'object' || Array.isArray(data))
+        throw new TypeError('Expected session update object');
+      return data;
+    },
+    'updateUserSessionLabel'
+  );
 }
 
 export async function closeUserSession(sessionId: number) {
   // In HaveAPI, the "close" action is POST /user_sessions/:id
-  return haveApiCall<void>({
-    method: 'POST',
-    path: `/user_sessions/${sessionId}`,
-  });
+  return await (await getApi()).user_session.close({ path: { user_session_id: sessionId } });
 }
 
 export async function createUserSessionToken(payload: {
@@ -185,296 +166,203 @@ export async function createUserSessionToken(payload: {
   token_interval?: number;
   scope?: string;
 }) {
-  return haveApiCall<UserSession>({
-    method: 'POST',
-    path: '/user_sessions',
-    namespace: 'user_session',
-    params: {
-      user: payload.userId,
-      label: payload.label,
-      token_lifetime: payload.token_lifetime,
-      token_interval: payload.token_interval,
-      scope: payload.scope ?? 'all',
-    },
-  });
+  return narrowApiResult(
+    await (
+      await getApi()
+    ).user_session.create({
+      params: {
+        user: payload.userId,
+        label: payload.label,
+        token_lifetime: payload.token_lifetime,
+        token_interval: payload.token_interval,
+        scope: payload.scope ?? 'all',
+      },
+    }),
+    readToken,
+    'createUserSessionToken'
+  );
 }
 
 // ---- Metrics access tokens -------------------------------------------------
 
-export interface MetricsAccessToken {
-  id: number;
-  user?: UserSessionUserRef;
-  metric_prefix?: string;
-  access_token?: string;
-  use_count?: number;
-  last_use?: string;
-  created_at?: string;
-  updated_at?: string;
-  [k: string]: unknown;
-}
-
 export async function fetchMetricsAccessTokens(opts?: { userId?: number; fromId?: number; limit?: number }) {
-  const params: Record<string, unknown> = {};
+  const params: MetricsAccessToken__IndexInput = {};
   if (opts?.userId !== undefined) params['user'] = opts.userId;
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
 
-  const res = await haveApiCall<MetricsAccessToken[]>({
-    method: 'GET',
-    path: '/metrics_access_tokens',
-    namespace: Object.keys(params).length > 0 ? 'metrics_access_token' : undefined,
-    params: Object.keys(params).length > 0 ? params : undefined,
-  });
+  const res = narrowApiResult(
+    await (await getApi()).metrics_access_token.index({ params: Object.keys(params).length > 0 ? params : undefined }),
+    readMetricsAccessTokenList,
+    'fetchMetricsAccessTokens'
+  );
 
   return {
     ...res,
-    data: expectArray<MetricsAccessToken>(res.data, 'metrics_access_tokens#index'),
+    data: res.data,
   };
 }
 
-export async function createMetricsAccessToken(payload: {
-  userId?: number;
-  metric_prefix: string;
-}) {
-  const params: Record<string, unknown> = { metric_prefix: payload.metric_prefix };
+export async function createMetricsAccessToken(payload: { userId?: number; metric_prefix: string }) {
+  const params: MetricsAccessToken__CreateInput = { metric_prefix: payload.metric_prefix };
   if (payload.userId !== undefined) params['user'] = payload.userId;
 
-  return haveApiCall<MetricsAccessToken>({
-    method: 'POST',
-    path: '/metrics_access_tokens',
-    namespace: 'metrics_access_token',
-    params,
-  });
+  return narrowApiResult(
+    await (await getApi()).metrics_access_token.create({ params }),
+    readMetricsAccessToken,
+    'createMetricsAccessToken'
+  );
 }
 
 export async function deleteMetricsAccessToken(tokenId: number) {
-  return haveApiCall<void>({
-    method: 'DELETE',
-    path: `/metrics_access_tokens/${tokenId}`,
-  });
+  return await (await getApi()).metrics_access_token.delete({ path: { metrics_access_token_id: tokenId } });
 }
 
 // ---- Known devices ---------------------------------------------------------
 
-export interface UserKnownDevice {
-  id: number;
-  api_ip_addr?: string;
-  api_ip_ptr?: string;
-  client_ip_addr?: string;
-  client_ip_ptr?: string;
-  user_agent?: string;
-  skip_multi_factor_auth_until?: string | null;
-  last_seen_at?: string;
-  created_at?: string;
-  updated_at?: string;
-  [k: string]: unknown;
-}
-
 export async function fetchUserKnownDevices(userId: number, opts?: { fromId?: number; limit?: number }) {
-  const params: Record<string, unknown> = {};
+  const params: User__KnownDevice__IndexInput = {};
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
 
-  const res = await haveApiCall<UserKnownDevice[]>({
-    method: 'GET',
-    path: `/users/${userId}/known_devices`,
-    namespace: Object.keys(params).length > 0 ? 'known_device' : undefined,
-    params: Object.keys(params).length > 0 ? params : undefined,
-  });
+  const res = narrowApiResult(
+    await (
+      await getApi()
+    ).user.known_device.index({
+      path: { user_id: userId },
+      params: Object.keys(params).length > 0 ? params : undefined,
+    }),
+    readUserKnownDeviceList,
+    'fetchUserKnownDevices'
+  );
 
   return {
     ...res,
-    data: expectArray<UserKnownDevice>(res.data, `users/${userId}/known_devices#index`),
+    data: res.data,
   };
 }
 
 export async function deleteUserKnownDevice(userId: number, deviceId: number) {
-  return haveApiCall<void>({
-    method: 'DELETE',
-    path: `/users/${userId}/known_devices/${deviceId}`,
-  });
+  return await (await getApi()).user.known_device.delete({ path: { user_id: userId, known_device_id: deviceId } });
 }
 
 // ---- TOTP devices ----------------------------------------------------------
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
-}
-
-
-export interface UserTotpDevice {
-  id: number;
-  label?: string;
-  confirmed?: boolean;
-  enabled?: boolean;
-  last_use_at?: string;
-  use_count?: number;
-  created_at?: string;
-  updated_at?: string;
-  [k: string]: unknown;
-}
-
-export interface UserTotpDeviceCreateResponse extends UserTotpDevice {
-  secret: string;
-  provisioning_uri: string;
-}
 
 export async function fetchUserTotpDevices(
   userId: number,
   opts?: { fromId?: number; limit?: number; confirmed?: boolean; enabled?: boolean }
 ) {
-  const params: Record<string, unknown> = {};
+  const params: User__TotpDevice__IndexInput = {};
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
   if (opts?.confirmed !== undefined) params['confirmed'] = opts.confirmed;
   if (opts?.enabled !== undefined) params['enabled'] = opts.enabled;
 
-  const res = await haveApiCall<UserTotpDevice[]>({
-    method: 'GET',
-    path: `/users/${userId}/totp_devices`,
-    namespace: Object.keys(params).length > 0 ? 'totp_device' : undefined,
-    params: Object.keys(params).length > 0 ? params : undefined,
-  });
+  const res = narrowApiResult(
+    await (
+      await getApi()
+    ).user.totp_device.index({
+      path: { user_id: userId },
+      params: Object.keys(params).length > 0 ? params : undefined,
+    }),
+    readUserTotpDeviceList,
+    'fetchUserTotpDevices'
+  );
 
   return {
     ...res,
-    data: expectArray<UserTotpDevice>(res.data, `users/${userId}/totp_devices#index`),
+    data: res.data,
   };
 }
 
-export async function createUserTotpDevice(userId: number, payload: { label: string }) {
-  const res = await haveApiCall<unknown>({
-    method: 'POST',
-    path: `/users/${userId}/totp_devices`,
-    namespace: 'totp_device',
-    params: payload,
-  });
-
-  const data = res.data;
-  if (!isRecord(data)) {
-    throw new Error(`users/${userId}/totp_devices#create: expected object, got ${typeof data}`);
-  }
-  if (typeof data['secret'] !== 'string' || typeof data['provisioning_uri'] !== 'string') {
-    throw new Error(`users/${userId}/totp_devices#create: missing secret/provisioning_uri`);
-  }
-
-  return { ...res, data: data as UserTotpDeviceCreateResponse };
+export async function createUserTotpDevice(userId: number, payload: User__TotpDevice__CreateInput) {
+  return narrowApiResult(
+    await (await getApi()).user.totp_device.create({ path: { user_id: userId }, params: payload }),
+    readTotpCreate,
+    'TOTP create'
+  );
 }
 
-export async function confirmUserTotpDevice(userId: number, deviceId: number, payload: { code: string }) {
-  const res = await haveApiCall<unknown>({
-    method: 'POST',
-    path: `/users/${userId}/totp_devices/${deviceId}/confirm`,
-    namespace: 'totp_device',
-    params: payload,
-  });
-
-  const data = res.data;
-
-  // HaveAPI responses differ across versions:
-  // - either `{ recovery_code: "..." }`
-  // - or directly `"..."` when the top-level key is `recovery_code`
-  const recovery =
-    typeof data === 'string'
-      ? data
-      : isRecord(data) && typeof data['recovery_code'] === 'string'
-        ? data['recovery_code']
-        : null;
-
-  if (!recovery) {
-    throw new Error(`users/${userId}/totp_devices/${deviceId}/confirm: expected recovery_code`);
-  }
-
-  return { ...res, data: recovery };
+export async function confirmUserTotpDevice(userId: number, deviceId: number, payload: User__TotpDevice__ConfirmInput) {
+  return narrowApiResult(
+    await (
+      await getApi()
+    ).user.totp_device.confirm({ path: { user_id: userId, totp_device_id: deviceId }, params: payload }),
+    readTotpRecovery,
+    'TOTP confirmation'
+  );
 }
 
-export async function updateUserTotpDevice(
-  userId: number,
-  deviceId: number,
-  payload: { label?: string; enabled?: boolean }
-) {
-  return haveApiCall<UserTotpDevice>({
-    method: 'PUT',
-    path: `/users/${userId}/totp_devices/${deviceId}`,
-    namespace: 'totp_device',
-    params: payload,
-  });
+export async function updateUserTotpDevice(userId: number, deviceId: number, payload: User__TotpDevice__UpdateInput) {
+  return narrowApiResult(
+    await (
+      await getApi()
+    ).user.totp_device.update({ path: { user_id: userId, totp_device_id: deviceId }, params: payload }),
+    readUserTotpDevice,
+    'updateUserTotpDevice'
+  );
 }
 
 export async function deleteUserTotpDevice(userId: number, deviceId: number) {
-  return haveApiCall<void>({
-    method: 'DELETE',
-    path: `/users/${userId}/totp_devices/${deviceId}`,
-  });
+  return await (await getApi()).user.totp_device.delete({ path: { user_id: userId, totp_device_id: deviceId } });
 }
 
 // ---- WebAuthn credentials --------------------------------------------------
-
-export interface UserWebauthnCredential {
-  id: number;
-  label?: string;
-  enabled?: boolean;
-  use_count?: number;
-  last_use_at?: string;
-  created_at?: string;
-  updated_at?: string;
-  [k: string]: unknown;
-}
 
 export async function fetchUserWebauthnCredentials(
   userId: number,
   opts?: { fromId?: number; limit?: number; enabled?: boolean }
 ) {
-  const params: Record<string, unknown> = {};
+  const params: User__WebauthnCredential__IndexInput = {};
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
   if (opts?.enabled !== undefined) params['enabled'] = opts.enabled;
 
-  const res = await haveApiCall<UserWebauthnCredential[]>({
-    method: 'GET',
-    path: `/users/${userId}/webauthn_credentials`,
-    namespace: Object.keys(params).length > 0 ? 'webauthn_credential' : undefined,
-    params: Object.keys(params).length > 0 ? params : undefined,
-  });
+  const res = narrowApiResult(
+    await (
+      await getApi()
+    ).user.webauthn_credential.index({
+      path: { user_id: userId },
+      params: Object.keys(params).length > 0 ? params : undefined,
+    }),
+    readUserWebauthnCredentialList,
+    'fetchUserWebauthnCredentials'
+  );
 
   return {
     ...res,
-    data: expectArray<UserWebauthnCredential>(res.data, `users/${userId}/webauthn_credentials#index`),
+    data: res.data,
   };
 }
 
 export async function updateUserWebauthnCredential(
   userId: number,
   credId: number,
-  payload: { label?: string; enabled?: boolean }
+  payload: User__WebauthnCredential__UpdateInput
 ) {
-  return haveApiCall<UserWebauthnCredential>({
-    method: 'PUT',
-    path: `/users/${userId}/webauthn_credentials/${credId}`,
-    namespace: 'webauthn_credential',
-    params: payload,
-  });
+  return narrowApiResult(
+    await (
+      await getApi()
+    ).user.webauthn_credential.update({ path: { user_id: userId, webauthn_credential_id: credId }, params: payload }),
+    readUserWebauthnCredential,
+    'updateUserWebauthnCredential'
+  );
 }
 
 export async function deleteUserWebauthnCredential(userId: number, credId: number) {
-  return haveApiCall<void>({
-    method: 'DELETE',
-    path: `/users/${userId}/webauthn_credentials/${credId}`,
-  });
+  return await (
+    await getApi()
+  ).user.webauthn_credential.delete({ path: { user_id: userId, webauthn_credential_id: credId } });
 }
 
 // ---- WebAuthn registration (current user) ---------------------------------
 
-export interface WebauthnRegistrationBeginResponse {
-  challenge_token: string;
-  options: unknown;
-}
-
 export async function beginWebauthnRegistration() {
-  return haveApiCall<WebauthnRegistrationBeginResponse>({
-    method: 'POST',
-    path: '/webauthn/registration/begin',
-  });
+  return narrowApiResult(
+    await (await getApi()).webauthn.registration.begin({}),
+    readRegistration,
+    'beginWebauthnRegistration'
+  );
 }
 
 export async function finishWebauthnRegistration(payload: {
@@ -482,10 +370,15 @@ export async function finishWebauthnRegistration(payload: {
   label: string;
   public_key_credential: WebauthnPublicKeyCredentialJson;
 }) {
-  return haveApiCall<void>({
-    method: 'POST',
-    path: '/webauthn/registration/finish',
-    namespace: 'registration',
-    params: payload,
+  return await (
+    await getApi()
+  ).webauthn.registration.finish({
+    params: {
+      ...payload,
+      public_key_credential: {
+        ...payload.public_key_credential,
+        response: { ...payload.public_key_credential.response },
+      },
+    },
   });
 }

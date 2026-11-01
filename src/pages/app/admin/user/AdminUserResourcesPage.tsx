@@ -45,10 +45,10 @@ function packageLabel(value: any) {
 
 function isPersonalPackageAssignment(row: UserClusterResourcePackage) {
   if (typeof row.is_personal === 'boolean') return row.is_personal;
-  if (typeof row.cluster_resource_package?.is_personal === 'boolean') {
-    return row.cluster_resource_package.is_personal;
+  if (typeof row.cluster_resource_package?.['is_personal'] === 'boolean') {
+    return row.cluster_resource_package['is_personal'];
   }
-  return Boolean(row.cluster_resource_package?.user);
+  return Boolean(row.cluster_resource_package?.['user']);
 }
 
 function resourceValue(value: unknown, resource: any) {
@@ -108,7 +108,7 @@ export function AdminUserResourcesPage() {
   const grouped = useMemo(() => {
     const groups = new Map<string, { environment: any; rows: UserClusterResourcePackage[] }>();
     for (const row of assignments) {
-      const environment: any = row.environment ?? row.cluster_resource_package?.environment;
+      const environment: any = row.environment ?? row.cluster_resource_package?.['environment'];
       const key = typeof environment?.id === 'number' ? String(environment.id) : 'none';
       const group = groups.get(key) ?? { environment, rows: [] };
       group.rows.push(row);

@@ -123,16 +123,6 @@ export function UsersCreateModal({
             />
           </label>
 
-          <label className="block">
-            <span className="text-sm font-medium">{t('admin.users.create.field.monthly_payment')}</span>
-            <Input
-              value={draft.monthlyPayment}
-              onChange={(e) => onChange('monthlyPayment', e.target.value)}
-              inputMode="decimal"
-              testId="admin.users.create.monthly_payment"
-            />
-          </label>
-
           <Checkbox
             checked={draft.mailerEnabled}
             onChange={(checked) => onChange('mailerEnabled', checked)}

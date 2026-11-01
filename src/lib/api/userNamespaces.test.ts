@@ -11,11 +11,12 @@ function setMockRuntime() {
 }
 
 function mockFetchOk(response: unknown) {
-  return vi.fn(async (..._args: Parameters<typeof fetch>) =>
-    new Response(JSON.stringify({ status: true, response }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    })
+  return vi.fn(
+    async (..._args: Parameters<typeof fetch>) =>
+      new Response(JSON.stringify({ status: true, response }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
   );
 }
 
@@ -28,7 +29,7 @@ describe('user namespace API wrappers', () => {
   test('namespace index sends only supported pagination, owner, size and block fields', async () => {
     setMockRuntime();
     const fetchMock = mockFetchOk({ user_namespaces: [{ id: 101, size: 65536 }] });
-    installHaveApiXhr( fetchMock);
+    installHaveApiXhr(fetchMock);
 
     await fetchUserNamespaces({
       limit: 25,
@@ -57,7 +58,7 @@ describe('user namespace API wrappers', () => {
   test('map index sends only supported pagination, owner and namespace fields', async () => {
     setMockRuntime();
     const fetchMock = mockFetchOk({ user_namespace_maps: [{ id: 501, label: 'default' }] });
-    installHaveApiXhr( fetchMock);
+    installHaveApiXhr(fetchMock);
 
     await fetchUserNamespaceMaps({
       limit: 50,
@@ -86,7 +87,7 @@ describe('user namespace API wrappers', () => {
   test('map index does not force expansion on consumers that only need references', async () => {
     setMockRuntime();
     const fetchMock = mockFetchOk({ user_namespace_maps: [{ id: 501, label: 'default' }] });
-    installHaveApiXhr( fetchMock);
+    installHaveApiXhr(fetchMock);
 
     await fetchUserNamespaceMaps({ limit: 250, userId: 84 });
 

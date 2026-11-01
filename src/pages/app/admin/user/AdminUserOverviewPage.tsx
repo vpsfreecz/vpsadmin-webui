@@ -1,3 +1,4 @@
+import { buildLifecyclePayload } from '../../../../components/lifetimes/lifecyclePayload';
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -19,7 +20,7 @@ import { Select } from '../../../../components/ui/Select';
 import { SwitchRow } from '../../../../components/ui/SwitchRow';
 
 import { updateUser } from '../../../../lib/api/users';
-import { getMetaActionStateId } from '../../../../lib/api/haveapi';
+import { getMetaActionStateId } from '../../../../lib/api/apiErrors';
 import { fetchUserPayments } from '../../../../lib/api/payments';
 import { adminDateTimeInputToIso, dateToAdminDateTimeInput } from '../../../../lib/datetimeLocal';
 import { formatDateInTimeZone, formatDateTime, formatDateTimeInTimeZone } from '../../../../lib/format';
@@ -145,22 +146,14 @@ export function AdminUserOverviewPage() {
   );
 
   const statePayload = useMemo(() => {
-    const payload: Record<string, unknown> = {};
-    const currentState = String(u.object_state ?? 'active').trim() || 'active';
-    const nextState = stateDraft.objectState.trim() || 'active';
-
-    if (nextState !== currentState) payload['object_state'] = nextState;
-    if (expirationParsed.valid && expirationParsed.iso !== (u.expiration_date ?? null)) {
-      payload['expiration_date'] = expirationParsed.iso;
-    }
-    if (remindParsed.valid && remindParsed.iso !== (u.remind_after_date ?? null)) {
-      payload['remind_after_date'] = remindParsed.iso;
-    }
-    if (Object.keys(payload).length > 0 && stateDraft.reason.trim()) {
-      payload['change_reason'] = stateDraft.reason.trim();
-    }
-
-    return payload;
+    if (u.expiration_date === undefined || u.remind_after_date === undefined || !u.object_state) return {};
+    return buildLifecyclePayload({
+      state: u.object_state, expiration: u.expiration_date, reminder: u.remind_after_date,
+    }, {
+      state: stateDraft.objectState.trim() || u.object_state,
+      expiration: expirationParsed.valid ? expirationParsed.iso : u.expiration_date,
+      reminder: remindParsed.valid ? remindParsed.iso : u.remind_after_date,
+    }, stateDraft.reason);
   }, [
     expirationParsed.iso,
     expirationParsed.valid,
@@ -379,7 +372,7 @@ export function AdminUserOverviewPage() {
                 <div className="divide-y divide-border overflow-hidden rounded-md border border-border">
                   {(paymentHistoryQ.data ?? []).slice(0, 5).map((payment) => (
                     <div key={payment.id} className="grid gap-2 px-3 py-2 text-sm sm:grid-cols-[auto_1fr]">
-                      <div className="font-semibold text-fg">{formatMoneyLike(payment.amount)}</div>
+                      <div className="font-semibold text-fg">{formatMoneyLike(payment.amount ?? undefined)}</div>
                       <div className="min-w-0 text-muted">
                         <div className="truncate">
                           {payment.from_date && payment.to_date

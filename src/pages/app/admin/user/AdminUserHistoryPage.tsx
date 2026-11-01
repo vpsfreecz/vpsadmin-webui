@@ -876,8 +876,8 @@ export function AdminUserHistoryPage() {
           {!qHistory.isLoading && !qHistory.isError ? (
             visibleHistory.length > 0 ? (
               visibleHistory.map((ev: ObjectHistoryEvent) => {
-                const badgeVariant = eventBadgeVariant(ev.event_type);
-                const rowVariant = eventVariant(ev.event_type);
+                const badgeVariant = eventBadgeVariant(ev.event_type ?? undefined);
+                const rowVariant = eventVariant(ev.event_type ?? undefined);
                 const dotVariant = dotVariantFromBadgeVariant(badgeVariant);
                 return (
                 <TableRowLink

@@ -23,10 +23,9 @@ import { LoadingState } from '../../../../components/ui/LoadingState';
 
 import { createUserPayment, fetchPaymentInstructions, fetchUserPayments } from '../../../../lib/api/payments';
 import { fetchUserAccount, updateUserAccount } from '../../../../lib/api/userAccounts';
-import { getMetaActionStateId } from '../../../../lib/api/haveapi';
+import { ClientInputError, getMetaActionStateId } from '../../../../lib/api/apiErrors';
 import { objectRef } from '../../../../lib/objectRef';
 import type { ObjectRef } from '../../../../lib/objectRef';
-
 import { formatErrorMessage } from '../../../../lib/errors';
 import { formatDateInTimeZone, formatDateTimeInTimeZone } from '../../../../lib/format';
 import { cursorFromDescendingPage } from '../../../../lib/lockIndex';
@@ -77,7 +76,6 @@ interface ManualPaymentReview {
 type PaymentSettingsReview =
   | { kind: 'paid_until'; previous: string; next: string }
   | { kind: 'monthly_payment'; previous: number | null; next: number };
-
 export function AdminUserPaymentsPage() {
   const accountTimeZone = useAccountTimeZone();
   const { basePath } = useAppMode();
@@ -189,7 +187,8 @@ export function AdminUserPaymentsPage() {
   const monthlyPaymentChanged = monthlyPaymentParsed !== null && monthlyPaymentParsed !== monthlyPayment;
 
   const paidUntilM = useMutation({
-    mutationFn: async (nextPaidUntil: string | null) => {
+    mutationFn: async (nextPaidUntil: string) => {
+      if (!nextPaidUntil) throw new ClientInputError(t('admin.user.payments.paid_until_clear_unsupported'));
       await updateUserAccount(userId, {
         paid_until: nextPaidUntil,
       });
@@ -274,12 +273,12 @@ export function AdminUserPaymentsPage() {
       toasts.pushToast({ variant: 'neutral', title: t('admin.user.payments.settings.validation.no_changes') });
       return;
     }
+    if (currentPaidUntilInput && !quickPaidUntil) {
+      toasts.pushToast({ variant: 'danger', title: t('admin.user.payments.paid_until_clear_unsupported') });
+      return;
+    }
     paidUntilM.reset();
-    setSettingsReview({
-      kind: 'paid_until',
-      previous: currentPaidUntilInput,
-      next: quickPaidUntil,
-    });
+    setSettingsReview({ kind: 'paid_until', previous: currentPaidUntilInput, next: quickPaidUntil });
   };
 
   const submitMonthlyPayment = (e: React.FormEvent) => {
@@ -490,7 +489,7 @@ export function AdminUserPaymentsPage() {
           if (settingsReview === null || settingsReviewStale || accountReviewBlocked || settingsInFlightRef.current) return;
           settingsInFlightRef.current = true;
           if (settingsReview.kind === 'paid_until') {
-            paidUntilM.mutate(settingsReview.next || null);
+            paidUntilM.mutate(settingsReview.next);
           } else {
             monthlyPaymentM.mutate(settingsReview.next);
           }

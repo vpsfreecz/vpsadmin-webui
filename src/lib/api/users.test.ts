@@ -36,9 +36,9 @@ describe('fetchUsers', () => {
   it('uses only supported upstream params when no compatibility scan is needed', async () => {
     installApiFixture();
 
-    const fetchMock = vi.mocked(apiWire.respond).mockResolvedValue(
-      makeUsersResponse([{ id: 125, login: 'admin', level: 90, mailer_enabled: false }])
-    );
+    const fetchMock = vi
+      .mocked(apiWire.respond)
+      .mockResolvedValue(makeUsersResponse([{ id: 125, login: 'admin', level: 90, mailer_enabled: false }]));
 
     const res = await fetchUsers({
       limit: 25,
@@ -143,7 +143,7 @@ describe('fetchUsers', () => {
     expect(url.searchParams.get('user[lockout]')).toBeNull();
   });
 
-  it('does not expose an unfiltered HaveAPI count for compatibility filters', async () => {
+  it('preserves server count receipt while identifying compatibility-filtered results', async () => {
     installApiFixture();
 
     vi.mocked(apiWire.respond).mockResolvedValue(
@@ -159,7 +159,8 @@ describe('fetchUsers', () => {
     const res = await fetchUsers({ limit: 25, q: 'matching', count: true });
 
     expect(res.data).toHaveLength(1);
-    expect(res.meta).toBeUndefined();
+    expect(res.meta).toEqual({ total_count: 20_000 });
+    expect(res.compat).toMatchObject({ complete: true });
   });
 
   it('returns a continuation cursor instead of a false empty end after the bounded compatibility scan', async () => {
@@ -292,7 +293,7 @@ describe('searchUsers', () => {
         return makeOkResponse({
           status: true,
           response: {
-            cluster: [
+            clusters: [
               { resource: 'User', id: 4616, value: 'stevob', attribute: 'login' },
               { resource: 'Vps', id: 12, value: 'stevob' },
             ],
@@ -352,7 +353,7 @@ describe('searchUsers', () => {
         return makeOkResponse({
           status: true,
           response: {
-            cluster: [
+            clusters: [
               { resource: 'User', id: 10, value: 'stevob', attribute: 'login' },
               { resource: 'User', id: 12, value: 'stevob-note', attribute: 'info' },
             ],
@@ -374,6 +375,26 @@ describe('searchUsers', () => {
 
     expect(res.data.map((u) => u.id)).toEqual([10, 11, 12]);
     expect(fetchMock).toHaveBeenCalledTimes(5);
+  });
+});
+
+describe('generated user output boundary', () => {
+  it('preserves null and partial language observations and retains malformed receipt evidence', async () => {
+    window.vpsAdmin = {
+      api: { url: 'https://user-boundary.example.test', version: '7.0' },
+      description: { meta: { namespace: '_meta' } },
+    };
+    const respond = vi
+      .mocked(apiWire.respond)
+      .mockResolvedValue(
+        makeUsersResponse([{ id: 4, login: 'alice', level: 1, email: null, language: { label: 'English' } }])
+      );
+    await expect(fetchUsers()).resolves.toMatchObject({
+      data: [{ email: null, language: { label: 'English' } }],
+      httpStatus: 200,
+    });
+    respond.mockResolvedValue(makeUsersResponse([{ id: 4, login: 'alice', level: 1, language: { id: '2' } }]));
+    await expect(fetchUsers()).rejects.toMatchObject({ phase: 'post-dispatch', result: { httpStatus: 200 } });
   });
 });
 
@@ -409,7 +430,6 @@ describe('admin user mutations', () => {
       address: 'Test street',
       level: 2,
       info: 'created from webui',
-      monthly_payment: 300,
       mailer_enabled: true,
     });
 
@@ -427,7 +447,6 @@ describe('admin user mutations', () => {
         address: 'Test street',
         level: 2,
         info: 'created from webui',
-        monthly_payment: 300,
         mailer_enabled: true,
       },
     });
@@ -436,9 +455,9 @@ describe('admin user mutations', () => {
   it('deletes a user with the selected object state', async () => {
     installApiFixture();
 
-    const fetchMock = vi.mocked(apiWire.respond).mockResolvedValue(
-      makeOkResponse({ status: true, response: {} })
-    );
+    const fetchMock = vi
+      .mocked(apiWire.respond)
+      .mockResolvedValue(makeOkResponse({ status: true, response: { user: {} } }));
 
     await deleteUser(42, { object_state: 'deleted' });
 

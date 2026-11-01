@@ -1,6 +1,7 @@
+import type { User__UpdateInput } from 'vpsadmin-typescript-client';
 import type { UserMailRoleRecipient, UserMailTemplateRecipient } from '../../lib/api/userMail';
 
-export type EffectiveToSource = 'disabled' | 'template' | 'role' | 'primary';
+export type EffectiveToSource = 'disabled' | 'template' | 'unknown';
 export type MailTemplateView = 'all' | 'changed' | 'disabled';
 
 export interface EffectiveTemplateRecipients {
@@ -29,15 +30,6 @@ export function normalizeEmailsForApi(raw: string): string {
     .join(',');
 }
 
-export function parseRoles(rolesRaw: string | undefined): string[] {
-  if (!rolesRaw) return [];
-
-  return rolesRaw
-    .split(',')
-    .map((s) => s.trim())
-    .filter(Boolean);
-}
-
 export function parseEmails(raw: string | null | undefined): string[] {
   if (!raw) return [];
 
@@ -58,7 +50,7 @@ export function getUserLanguageId(user: { language?: unknown } | null | undefine
   return '';
 }
 
-export function computeEffectiveRoleTo(args: { role: UserMailRoleRecipient; userEmail?: string }): string[] {
+export function computeEffectiveRoleTo(args: { role: UserMailRoleRecipient; userEmail?: string | null }): string[] {
   const override = parseEmails(args.role.to);
   if (override.length > 0) return override;
   return args.userEmail ? [args.userEmail] : [];
@@ -66,31 +58,17 @@ export function computeEffectiveRoleTo(args: { role: UserMailRoleRecipient; user
 
 export function computeEffectiveTemplateTo(args: {
   template: UserMailTemplateRecipient;
-  userEmail?: string;
+  userEmail?: string | null;
   roleRecipients: UserMailRoleRecipient[];
 }): EffectiveTemplateRecipients {
-  const enabled = args.template.enabled !== false;
-  if (!enabled) return { source: 'disabled', to: [], rolesUsed: [] };
+  if (args.template.enabled === false) return { source: 'disabled', to: [], rolesUsed: [] };
+  if (args.template.enabled !== true) return { source: 'unknown', to: [], rolesUsed: [] };
 
   const templateTo = parseEmails(args.template.to);
   if (templateTo.length > 0) return { source: 'template', to: templateTo, rolesUsed: [] };
 
-  const roles = parseRoles(args.template.roles);
-  const roleTo: string[] = [];
-  const rolesUsed: string[] = [];
-
-  for (const r of roles) {
-    const recp = args.roleRecipients.find((x) => String(x.id) === r);
-    const addr = parseEmails(recp?.to ?? null);
-    if (addr.length > 0) {
-      roleTo.push(...addr);
-      rolesUsed.push(r);
-    }
-  }
-
-  if (roleTo.length > 0) return { source: 'role', to: roleTo, rolesUsed };
-
-  return { source: 'primary', to: args.userEmail ? [args.userEmail] : [], rolesUsed: [] };
+  // The API does not expose which roles this template uses.
+  return { source: 'unknown', to: [], rolesUsed: [] };
 }
 
 export function isMailTemplateChanged(template: UserMailTemplateRecipient): boolean {
@@ -128,8 +106,8 @@ export function buildMailSettingsPayload(args: {
   storedMailerEnabled: boolean;
   languageId: string;
   storedLanguageId: string;
-}): Record<string, unknown> {
-  const payload: Record<string, unknown> = {};
+}): User__UpdateInput {
+  const payload: User__UpdateInput = {};
   if (args.mailerEnabled !== args.storedMailerEnabled) payload['mailer_enabled'] = args.mailerEnabled;
   if (args.languageId !== args.storedLanguageId) payload['language'] = Number(args.languageId);
   return payload;

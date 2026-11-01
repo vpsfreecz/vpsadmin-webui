@@ -21,7 +21,6 @@ const sessions: UserSession[] = [
     id: 1,
     label: 'Laptop Firefox',
     auth_type: 'oauth2',
-    current: true,
     api_ip_addr: '203.0.113.10',
     user: { id: 1, login: 'alice' },
   },
@@ -63,12 +62,10 @@ describe('UserSessionsModel', () => {
     expect(formatUserSessionPrimaryIp({ id: 100 })).toBe('—');
   });
 
-
-
-  it('requires explicit confirmation for current sessions and API tokens', () => {
+  it('requires explicit confirmation for API tokens without assuming current-session identity', () => {
     expect(USER_SESSION_CLOSE_CONFIRMATION).toBe('CLOSE');
     expect(isUserSessionAccessToken(sessions[1]!)).toBe(true);
-    expect(userSessionCloseRequiresTypedConfirmation(sessions[0]!)).toBe(true);
+    expect(userSessionCloseRequiresTypedConfirmation(sessions[0]!)).toBe(false);
     expect(userSessionCloseRequiresTypedConfirmation(sessions[1]!)).toBe(true);
     expect(userSessionCloseRequiresTypedConfirmation({ id: 20, auth_type: 'oauth2' })).toBe(false);
   });
@@ -78,7 +75,6 @@ describe('UserSessionsModel', () => {
       total: 3,
       open: 2,
       closed: 1,
-      current: 1,
       token: 1,
       oauth2: 1,
       basic: 1,

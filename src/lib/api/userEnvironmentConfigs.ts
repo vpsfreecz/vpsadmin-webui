@@ -1,4 +1,53 @@
-import { expectArray, haveApiCall } from './haveapi';
+import type {
+  Environment__ShowOutput,
+  User__EnvironmentConfig__IndexInput,
+  User__EnvironmentConfig__IndexOutput,
+  User__EnvironmentConfig__UpdateInput,
+} from 'vpsadmin-typescript-client';
+import { narrowApiResult } from './apiOutput';
+import { getApi } from './sdk';
+
+export type UserEnvironmentConfig = Omit<User__EnvironmentConfig__IndexOutput[number], 'id' | 'environment'> & {
+  id: number;
+  environment?: UserEnvironmentConfigEnvironmentRef | null;
+};
+export type UserEnvironmentConfigEnvironmentRef = Pick<Environment__ShowOutput, 'id' | 'label'>;
+
+function record(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+function reference(value: unknown): boolean {
+  return (
+    record(value) &&
+    (value['id'] == null ||
+      (typeof value['id'] === 'number' && Number.isSafeInteger(value['id']) && value['id'] > 0)) &&
+    ['label', 'login'].every((key) => value[key] == null || typeof value[key] === 'string')
+  );
+}
+
+function isUserEnvironmentConfig(value: unknown): value is UserEnvironmentConfig {
+  return (
+    record(value) &&
+    typeof value['id'] === 'number' &&
+    Number.isSafeInteger(value['id']) &&
+    value['id'] > 0 &&
+    ['vps_lifetime', 'max_vps_count'].every(
+      (key) => value[key] == null || (typeof value[key] === 'number' && Number.isFinite(value[key]))
+    ) &&
+    ['can_create_vps', 'can_destroy_vps', 'default'].every(
+      (key) => value[key] == null || typeof value[key] === 'boolean'
+    ) &&
+    (value['environment'] == null || reference(value['environment']))
+  );
+}
+function readUserEnvironmentConfig(value: unknown): UserEnvironmentConfig {
+  if (!isUserEnvironmentConfig(value)) throw new TypeError('Expected UserEnvironmentConfig');
+  return value;
+}
+function readUserEnvironmentConfigList(value: unknown): UserEnvironmentConfig[] {
+  if (!Array.isArray(value)) throw new TypeError('Expected UserEnvironmentConfig collection');
+  return value.map(readUserEnvironmentConfig);
+}
 
 /**
  * User environment configs (env_cfg*)
@@ -6,29 +55,6 @@ import { expectArray, haveApiCall } from './haveapi';
  * Backend resource:
  * - User::EnvironmentConfig (route: /users/:id/environment_configs)
  */
-
-export interface UserEnvironmentConfigEnvironmentRef {
-  id: number;
-  label?: string;
-  [k: string]: unknown;
-}
-
-export interface UserEnvironmentConfig {
-  id: number;
-  environment?: UserEnvironmentConfigEnvironmentRef;
-
-  can_create_vps?: boolean;
-  can_destroy_vps?: boolean;
-  /** Seconds; 0 means unlimited */
-  vps_lifetime?: number;
-  /** 0 means unlimited */
-  max_vps_count?: number;
-
-  /** Admin-only: whether the config is inherited from the environment */
-  default?: boolean;
-
-  [k: string]: unknown;
-}
 
 export async function fetchUserEnvironmentConfigs(
   userId: number,
@@ -38,33 +64,38 @@ export async function fetchUserEnvironmentConfigs(
     limit?: number;
   }
 ) {
-  const params: Record<string, unknown> = {};
+  const params: User__EnvironmentConfig__IndexInput = {};
   if (opts?.environmentId !== undefined) params['environment'] = opts.environmentId;
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
 
-  const res = await haveApiCall<UserEnvironmentConfig[]>({
-    method: 'GET',
-    path: `/users/${userId}/environment_configs`,
-    namespace: Object.keys(params).length > 0 ? 'environment_config' : undefined,
-    params: Object.keys(params).length > 0 ? params : undefined,
-  });
+  const res = narrowApiResult(
+    await (
+      await getApi()
+    ).user.environment_config.index({
+      path: { user_id: userId },
+      params: Object.keys(params).length > 0 ? params : undefined,
+    }),
+    readUserEnvironmentConfigList,
+    'fetchUserEnvironmentConfigs'
+  );
 
   return {
     ...res,
-    data: expectArray<UserEnvironmentConfig>(res.data, 'users/environment_configs#index'),
+    data: res.data,
   };
 }
 
 export async function updateUserEnvironmentConfig(
   userId: number,
   configId: number,
-  payload: Partial<Pick<UserEnvironmentConfig, 'can_create_vps' | 'can_destroy_vps' | 'vps_lifetime' | 'max_vps_count' | 'default'>>
+  payload: User__EnvironmentConfig__UpdateInput
 ) {
-  return haveApiCall<UserEnvironmentConfig>({
-    method: 'PUT',
-    path: `/users/${userId}/environment_configs/${configId}`,
-    namespace: 'environment_config',
-    params: payload,
-  });
+  return narrowApiResult(
+    await (
+      await getApi()
+    ).user.environment_config.update({ path: { user_id: userId, environment_config_id: configId }, params: payload }),
+    readUserEnvironmentConfig,
+    'updateUserEnvironmentConfig'
+  );
 }

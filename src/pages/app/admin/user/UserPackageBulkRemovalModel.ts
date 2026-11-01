@@ -1,5 +1,5 @@
 import type { UserClusterResourcePackage } from '../../../../lib/api/clusterResourcePackages';
-import { HaveApiError, isAmbiguousMutationError } from '../../../../lib/api/haveapi';
+import { HaveApiError, isAmbiguousMutationError } from '../../../../lib/api/apiErrors';
 
 export interface PackageRemovalTarget {
   id: number;
@@ -15,8 +15,13 @@ export function canBulkRemovePackage(row: UserClusterResourcePackage, userId: nu
   if (!Number.isSafeInteger(row.id) || row.id <= 0) return false;
   if (row.user?.id !== undefined && row.user.id !== userId) return false;
   const pkg = row.cluster_resource_package;
-  if (row.is_personal === true || pkg?.is_personal === true || pkg?.user) return false;
-  return row.is_personal === false || pkg?.is_personal === false || pkg?.user === null;
+  if (row.is_personal === true || pkg?.['is_personal'] === true || pkg?.['user']) return false;
+  return row.is_personal === false || pkg?.['is_personal'] === false || pkg?.['user'] === null;
+}
+
+function environmentLabel(value: unknown): string | undefined {
+  if (!value || typeof value !== 'object' || Array.isArray(value) || !('label' in value)) return undefined;
+  return typeof value.label === 'string' && value.label.trim() ? value.label : undefined;
 }
 
 export function packageRemovalTargets(
@@ -33,7 +38,8 @@ export function packageRemovalTargets(
     targets.push({
       id: row.id,
       label: row.cluster_resource_package?.label || row.label || `#${row.cluster_resource_package?.id ?? row.id}`,
-      environment: row.environment?.label || row.cluster_resource_package?.environment?.label || '—',
+      environment:
+        environmentLabel(row.environment) ?? environmentLabel(row.cluster_resource_package?.['environment']) ?? '—',
     });
   }
   return targets;

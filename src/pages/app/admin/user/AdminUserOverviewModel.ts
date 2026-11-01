@@ -1,3 +1,4 @@
+import type { User__UpdateInput } from 'vpsadmin-typescript-client';
 import { dateToAdminDateTimeInput, isoToAdminDateTimeInput } from '../../../../lib/datetimeLocal';
 import { isValidTimeZone } from '../../../../lib/timeZones';
 
@@ -19,7 +20,7 @@ export interface StateDraft {
   reason: string;
 }
 
-export type EditUserPayload = Record<string, unknown> & {
+export type EditUserPayload = User__UpdateInput & {
   login: string;
   full_name: string;
   email: string;

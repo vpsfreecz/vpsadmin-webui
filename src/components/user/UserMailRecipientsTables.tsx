@@ -50,14 +50,10 @@ function SourceBadge(props: { source: EffectiveToSource }) {
     return <Badge variant="info">{t('mail.prefs.effective.source.template')}</Badge>;
   }
 
-  if (props.source === 'role') {
-    return <Badge variant="warn">{t('mail.prefs.effective.source.role')}</Badge>;
-  }
-
-  return <Badge variant="neutral">{t('mail.prefs.effective.source.primary')}</Badge>;
+  return <Badge variant="neutral">{t('common.na')}</Badge>;
 }
 
-function recipientIdentity(recipient: { id: string; label?: string }): string {
+function recipientIdentity(recipient: { id: string; label?: string | null }): string {
   const id = String(recipient.id);
   const label = recipient.label?.trim();
   return label && label !== id ? `${label} (${id})` : id;

@@ -1,27 +1,20 @@
 import { getRuntimeConfig } from '../../app/config';
+import { staticTForDocument } from '../staticI18n';
+import { HaveApiError, ClientInputError } from './apiErrors';
+import { narrowApiResult } from './apiOutput';
+import { getApi } from './sdk';
 
-import { HaveApiError, haveApiCall } from './haveapi';
-
-export interface WebuiUserSetting {
-  id?: number;
-  namespace?: string;
-  key?: string;
-  value?: unknown;
-  [k: string]: unknown;
-}
-
-const RESOURCE_NAMESPACE = 'webui_user_setting';
-const DEFAULT_PATH = '/webui_user_settings';
-
-function resourcePath(): string {
-  const cfg = getRuntimeConfig();
-  const configured = cfg.uiSettings.server.path;
-  return configured.includes('webui_user_settings') ? configured : DEFAULT_PATH;
+function requireCanonicalSettingsPath(): void {
+  const configured = getRuntimeConfig().uiSettings.server.path;
+  if (typeof configured !== 'string' || configured.replace(/\/+$/, '') !== '/webui_user_settings') {
+    throw new ClientInputError(
+      staticTForDocument(typeof document === 'undefined' ? undefined : document, 'errors.settings_path_unsupported')
+    );
+  }
 }
 
 function parseStoredValue(value: unknown): unknown {
   if (typeof value !== 'string') return value;
-
   try {
     return JSON.parse(value);
   } catch {
@@ -29,35 +22,30 @@ function parseStoredValue(value: unknown): unknown {
   }
 }
 
-function pickSetting(data: unknown, namespace: string, key: string): WebuiUserSetting | undefined {
-  if (Array.isArray(data)) {
-    return data.find((row) => {
-      if (!row || typeof row !== 'object') return false;
-      const rec = row as WebuiUserSetting;
-      return rec.namespace === namespace && rec.key === key;
-    }) as WebuiUserSetting | undefined;
-  }
-
-  if (data && typeof data === 'object') {
-    return data as WebuiUserSetting;
-  }
-
-  return undefined;
-}
-
 export async function fetchWebuiUserSetting(namespace: string, key: string): Promise<unknown | undefined> {
-  const path = resourcePath();
-
+  requireCanonicalSettingsPath();
   try {
-    const res = await haveApiCall<unknown>({
-      method: 'GET',
-      path,
-      namespace: RESOURCE_NAMESPACE,
-      params: { namespace, key },
-    });
-
-    const setting = pickSetting(res.data, namespace, key);
-    return setting && 'value' in setting ? parseStoredValue(setting.value) : undefined;
+    const result = await (await getApi()).webui_user_setting.index({ params: { namespace, key } });
+    const settings = narrowApiResult(
+      result,
+      (data) => {
+        if (!Array.isArray(data)) throw new TypeError('Expected settings collection');
+        for (const row of data) {
+          if (
+            !row ||
+            typeof row !== 'object' ||
+            Array.isArray(row) ||
+            typeof row.namespace !== 'string' ||
+            typeof row.key !== 'string'
+          )
+            throw new TypeError('Expected setting identity');
+        }
+        return data;
+      },
+      'UI settings'
+    );
+    const setting = settings.data.find((row) => row.namespace === namespace && row.key === key);
+    return setting ? parseStoredValue(setting.value) : undefined;
   } catch (error) {
     if (error instanceof HaveApiError && error.httpStatus === 404) return undefined;
     throw error;
@@ -65,12 +53,18 @@ export async function fetchWebuiUserSetting(namespace: string, key: string): Pro
 }
 
 export async function saveWebuiUserSetting(namespace: string, key: string, value: unknown): Promise<void> {
-  // Upstream Set is an upsert at /{namespace}/{key}; collection PUT/POST
-  // are not routes and cannot persist preferences across sessions.
-  await haveApiCall<unknown>({
-    method: 'PUT',
-    path: `${resourcePath().replace(/\/$/, '')}/${encodeURIComponent(namespace)}/${encodeURIComponent(key)}`,
-    namespace: RESOURCE_NAMESPACE,
-    params: { value: JSON.stringify(value) },
-  });
+  requireCanonicalSettingsPath();
+  let serialized: string | undefined;
+  try {
+    serialized = JSON.stringify(value);
+  } catch {
+    throw new ClientInputError(
+      staticTForDocument(typeof document === 'undefined' ? undefined : document, 'common.validation_error')
+    );
+  }
+  if (serialized === undefined)
+    throw new ClientInputError(
+      staticTForDocument(typeof document === 'undefined' ? undefined : document, 'common.validation_error')
+    );
+  await (await getApi()).webui_user_setting.set({ path: { namespace, key }, params: { value: serialized } });
 }

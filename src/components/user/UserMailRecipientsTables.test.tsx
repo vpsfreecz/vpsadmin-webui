@@ -72,7 +72,6 @@ const templates = [
     id: 'vps_created',
     label: 'VPS created',
     description: 'Sent after a VPS has been created.',
-    roles: 'account',
     to: 'created@example.test',
     enabled: true,
   },
@@ -80,13 +79,12 @@ const templates = [
     id: 'vps_deleted',
     label: 'VPS deleted',
     description: 'Sent after a VPS has been deleted.',
-    roles: 'account',
     to: 'deleted@example.test',
     enabled: true,
   },
 ];
 
-function renderTables() {
+function renderTables(templateRows = templates) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
@@ -106,7 +104,7 @@ function renderTables() {
         userId={9}
         userEmail="primary@example.test"
         roleRecipients={roleRecipients}
-        templates={templates}
+        templates={templateRows}
         isLoading={false}
         isError={false}
         error={null}
@@ -170,6 +168,14 @@ describe('UserMailRecipientsTables accessibility', () => {
     expect(
       screen.getByRole('button', { name: 'Copy effective recipients for template VPS deleted (vps_deleted)' })
     ).toHaveTextContent('common.copy');
+  });
+
+  it('does not invent an effective recipient when template roles are unavailable', () => {
+    renderTables([{ id: 'unknown', label: 'Unknown', description: '', to: '', enabled: true }]);
+    expect(
+      screen.queryByRole('button', { name: 'Copy effective recipients for template Unknown (unknown)' })
+    ).not.toBeInTheDocument();
+    expect(screen.getAllByText('common.na').length).toBeGreaterThan(0);
   });
 
   it('keeps save and reset actions scoped to the edited recipient', async () => {

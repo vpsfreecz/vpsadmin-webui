@@ -23,7 +23,7 @@ export function isUserSessionAccessToken(session: UserSession): boolean {
 
 export function userSessionCloseRequiresTypedConfirmation(session: UserSession | null | undefined): boolean {
   if (!session) return false;
-  return Boolean(session.current || isUserSessionAccessToken(session));
+  return isUserSessionAccessToken(session);
 }
 
 
@@ -87,7 +87,6 @@ export interface UserSessionSummary {
   total: number;
   open: number;
   closed: number;
-  current: number;
   token: number;
   oauth2: number;
   basic: number;
@@ -96,14 +95,12 @@ export interface UserSessionSummary {
 export function buildUserSessionSummary(sessions: readonly UserSession[] | undefined): UserSessionSummary {
   const rows = sessions ?? [];
   let open = 0;
-  let current = 0;
   let token = 0;
   let oauth2 = 0;
   let basic = 0;
 
   for (const session of rows) {
     if (isOpenUserSession(session)) open += 1;
-    if (session.current) current += 1;
 
     if (session.auth_type === 'token') token += 1;
     else if (session.auth_type === 'oauth2') oauth2 += 1;
@@ -114,7 +111,6 @@ export function buildUserSessionSummary(sessions: readonly UserSession[] | undef
     total: rows.length,
     open,
     closed: rows.length - open,
-    current,
     token,
     oauth2,
     basic,

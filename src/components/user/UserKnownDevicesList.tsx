@@ -38,7 +38,7 @@ function KnownDeviceMobileCard(props: {
 }) {
   const { t } = useI18n();
   const device = props.device;
-  const ua = parseUserAgent(device.user_agent);
+  const ua = parseUserAgent(device.user_agent ?? undefined);
 
   return (
     <div
@@ -108,7 +108,7 @@ function KnownDeviceTableRow(props: {
   onForget: (deviceId: number) => void;
 }) {
   const device = props.device;
-  const ua = parseUserAgent(device.user_agent);
+  const ua = parseUserAgent(device.user_agent ?? undefined);
 
   return (
     <tr

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { getMetaTotalCount } from '../../../../lib/api/haveapi';
+import { getMetaTotalCount } from '../../../../lib/api/apiErrors';
 import { fetchUsers, type FetchUsersOpts } from '../../../../lib/api/users';
 import { useCountedKeysetPagination } from '../../../../lib/hooks/useCountedKeysetPagination';
 import { useKeysetPagination } from '../../../../lib/hooks/useKeysetPagination';
@@ -36,7 +36,7 @@ export function useUsersListPaging(options: {
   const users = (query.data?.data ?? []) as UserListRecord[];
   const counted = useCountedKeysetPagination({
     pagination,
-    totalCount: getMetaTotalCount(query.data?.meta),
+    totalCount: query.data?.compat ? undefined : getMetaTotalCount(query.data?.meta),
     rows: users,
     loadPage: async (fromId) => (await request(fromId)).data as UserListRecord[],
     direction: 'asc',

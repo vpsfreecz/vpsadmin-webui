@@ -10,7 +10,7 @@ import { DetailShell } from '../../../../components/layout/DetailShell';
 
 import { fetchUser, type User } from '../../../../lib/api/users';
 import { fetchVpsList } from '../../../../lib/api/vps';
-import { getMetaTotalCount } from '../../../../lib/api/haveapi';
+import { getMetaTotalCount } from '../../../../lib/api/apiErrors';
 import { roleFromLevel } from '../../../../lib/roles';
 
 import { buildAdminUserSecurityStatuses } from '../../../../components/user/UserSecurityModel';

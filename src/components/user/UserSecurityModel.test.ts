@@ -24,10 +24,10 @@ describe('UserSecurityModel', () => {
       id: 1,
       login: 'alice',
       level: 1,
-      enable_basic_auth: 1,
+      enable_basic_auth: true,
       enable_token_auth: false,
-      enable_multi_factor_auth: 1,
-      preferred_session_length: '600',
+      enable_multi_factor_auth: true,
+      preferred_session_length: 600,
     };
 
     expect(userBooleanField(user, 'enable_basic_auth', false)).toBe(true);
@@ -41,8 +41,14 @@ describe('UserSecurityModel', () => {
     expect(parseSessionMinutes('20')).toEqual({ valid: true, raw: '20', minutes: 20, seconds: 1200 });
     expect(parseSessionMinutes('2.6')).toEqual({ valid: true, raw: '2.6', minutes: 3, seconds: 180 });
     expect(parseSessionMinutes('0')).toEqual({ valid: true, raw: '0', minutes: 0, seconds: 0 });
-    expect(parseSessionMinutes('')).toMatchObject({ valid: false, validationKey: 'security.settings.review.validation.session_length_required' });
-    expect(parseSessionMinutes('-1')).toMatchObject({ valid: false, validationKey: 'security.settings.review.validation.session_length_invalid' });
+    expect(parseSessionMinutes('')).toMatchObject({
+      valid: false,
+      validationKey: 'security.settings.review.validation.session_length_required',
+    });
+    expect(parseSessionMinutes('-1')).toMatchObject({
+      valid: false,
+      validationKey: 'security.settings.review.validation.session_length_invalid',
+    });
   });
 
   test('builds password review and payload for profile/admin modes', () => {
@@ -124,22 +130,26 @@ describe('UserSecurityModel', () => {
       valid: false,
       validationKey: 'security.settings.review.validation.session_length_invalid',
     });
-    expect(buildSecuritySettingsReview(stored, neverDraft).warningKeys).toContain('security.settings.review.warning.never_expire');
+    expect(buildSecuritySettingsReview(stored, neverDraft).warningKeys).toContain(
+      'security.settings.review.warning.never_expire'
+    );
   });
 
-
   test('summarizes healthy profile security posture', () => {
-    const posture = buildUserSecurityPosture({
-      id: 1,
-      login: 'alice',
-      level: 1,
-      enable_basic_auth: true,
-      enable_single_sign_on: false,
-      enable_oauth2_auth: true,
-      enable_multi_factor_auth: true,
-      enable_new_login_notification: true,
-      preferred_session_length: 1200,
-    }, 'profile');
+    const posture = buildUserSecurityPosture(
+      {
+        id: 1,
+        login: 'alice',
+        level: 1,
+        enable_basic_auth: true,
+        enable_single_sign_on: false,
+        enable_oauth2_auth: true,
+        enable_multi_factor_auth: true,
+        enable_new_login_notification: true,
+        preferred_session_length: 1200,
+      },
+      'profile'
+    );
 
     expect(posture).toMatchObject({
       status: 'ready',
@@ -156,17 +166,20 @@ describe('UserSecurityModel', () => {
   });
 
   test('flags limited interactive login and never-expiring sessions in posture', () => {
-    const posture = buildUserSecurityPosture({
-      id: 2,
-      login: 'bob',
-      level: 1,
-      enable_basic_auth: false,
-      enable_single_sign_on: false,
-      enable_oauth2_auth: false,
-      enable_multi_factor_auth: false,
-      enable_new_login_notification: false,
-      preferred_session_length: 0,
-    }, 'profile');
+    const posture = buildUserSecurityPosture(
+      {
+        id: 2,
+        login: 'bob',
+        level: 1,
+        enable_basic_auth: false,
+        enable_single_sign_on: false,
+        enable_oauth2_auth: false,
+        enable_multi_factor_auth: false,
+        enable_new_login_notification: false,
+        preferred_session_length: 0,
+      },
+      'profile'
+    );
 
     expect(posture.status).toBe('limited');
     expect(posture.criticalCount).toBe(1);
@@ -176,19 +189,22 @@ describe('UserSecurityModel', () => {
   });
 
   test('includes admin-only lockout and password reset posture items', () => {
-    const posture = buildUserSecurityPosture({
-      id: 3,
-      login: 'carol',
-      level: 3,
-      enable_basic_auth: true,
-      enable_single_sign_on: true,
-      enable_oauth2_auth: true,
-      enable_multi_factor_auth: true,
-      enable_new_login_notification: true,
-      preferred_session_length: 1200,
-      lockout: true,
-      password_reset: true,
-    }, 'admin');
+    const posture = buildUserSecurityPosture(
+      {
+        id: 3,
+        login: 'carol',
+        level: 3,
+        enable_basic_auth: true,
+        enable_single_sign_on: true,
+        enable_oauth2_auth: true,
+        enable_multi_factor_auth: true,
+        enable_new_login_notification: true,
+        preferred_session_length: 1200,
+        lockout: true,
+        password_reset: true,
+      },
+      'admin'
+    );
 
     expect(posture).toMatchObject({
       status: 'locked',
@@ -205,8 +221,6 @@ describe('UserSecurityModel', () => {
     { lockout: true, passwordReset: false, lockoutState: 'locked', passwordResetState: 'not-required' },
     { lockout: false, passwordReset: true, lockoutState: 'unlocked', passwordResetState: 'required' },
     { lockout: true, passwordReset: true, lockoutState: 'locked', passwordResetState: 'required' },
-    { lockout: 1, passwordReset: 0, lockoutState: 'locked', passwordResetState: 'not-required' },
-    { lockout: 0, passwordReset: 1, lockoutState: 'unlocked', passwordResetState: 'required' },
   ])(
     'builds admin header statuses for lockout=$lockout and password_reset=$passwordReset',
     ({ lockout, passwordReset, lockoutState, passwordResetState }) => {
