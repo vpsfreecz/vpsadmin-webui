@@ -19,9 +19,9 @@ import { ConfirmDialog } from '../../../../components/ui/ConfirmDialog';
 import { Input } from '../../../../components/ui/Input';
 import { toneSurfaceClass } from '../../../../components/ui/tone';
 
-function ratioLabel(used: number, total: number) {
-  const u = Number.isFinite(used) ? used : 0;
-  const t = Number.isFinite(total) ? total : 0;
+function ratioLabel(used: unknown, total: unknown) {
+  const u = typeof used === 'number' && Number.isFinite(used) ? used : '—';
+  const t = typeof total === 'number' && Number.isFinite(total) ? total : '—';
   return `${u} / ${t}`;
 }
 
@@ -46,22 +46,29 @@ export function ClusterSummaryPage() {
   const stats = statsQ.data;
   const cluster = clusterQ.data;
   const clusterLocked = Boolean(cluster?.maintenance_lock);
-  const clusterLockReason = typeof cluster?.maintenance_lock_reason === 'string' ? cluster.maintenance_lock_reason.trim() : '';
+  const clusterLockReason =
+    typeof cluster?.maintenance_lock_reason === 'string' ? cluster.maintenance_lock_reason.trim() : '';
 
   const nodesVariant = useMemo(() => {
-    if (!stats) return 'neutral' as const;
+    if (!stats || typeof stats.nodes_online !== 'number' || typeof stats.node_count !== 'number')
+      return 'neutral' as const;
     if (stats.nodes_online >= stats.node_count) return 'ok' as const;
     if (stats.nodes_online === 0) return 'danger' as const;
     return 'warn' as const;
   }, [stats]);
 
   const maintenanceM = useMutation({
-    mutationFn: async (lock: boolean) => setClusterMaintenance({ lock, reason: lock ? lockReason.trim() || undefined : undefined }),
+    mutationFn: async (lock: boolean) =>
+      setClusterMaintenance({ lock, reason: lock ? lockReason.trim() || undefined : undefined }),
     onSuccess: (_res, lock) => {
       pushToast({
         variant: lock ? 'warn' : 'ok',
-        title: lock ? t('admin.cluster.summary.maintenance.toast.lock.title') : t('admin.cluster.summary.maintenance.toast.unlock.title'),
-        body: lock ? t('admin.cluster.summary.maintenance.toast.lock.body') : t('admin.cluster.summary.maintenance.toast.unlock.body'),
+        title: lock
+          ? t('admin.cluster.summary.maintenance.toast.lock.title')
+          : t('admin.cluster.summary.maintenance.toast.unlock.title'),
+        body: lock
+          ? t('admin.cluster.summary.maintenance.toast.lock.body')
+          : t('admin.cluster.summary.maintenance.toast.unlock.body'),
       });
       setConfirmMode(null);
       if (!lock) setLockReason('');
@@ -97,7 +104,11 @@ export function ClusterSummaryPage() {
       <Card testId="admin.cluster.summary.maintenance" className={toneSurfaceClass(clusterLocked ? 'warn' : 'muted')}>
         <CardHeader
           title={t('admin.cluster.summary.maintenance.title')}
-          subtitle={clusterLocked ? t('admin.cluster.summary.maintenance.subtitle.locked') : t('admin.cluster.summary.maintenance.subtitle.unlocked')}
+          subtitle={
+            clusterLocked
+              ? t('admin.cluster.summary.maintenance.subtitle.locked')
+              : t('admin.cluster.summary.maintenance.subtitle.unlocked')
+          }
         />
         <CardBody>
           <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
@@ -106,10 +117,16 @@ export function ClusterSummaryPage() {
                 <StatusDot
                   variant={clusterLocked ? 'warn' : 'ok'}
                   size="md"
-                  ariaLabel={clusterLocked ? t('admin.cluster.summary.maintenance.aria.locked') : t('admin.cluster.summary.maintenance.aria.unlocked')}
+                  ariaLabel={
+                    clusterLocked
+                      ? t('admin.cluster.summary.maintenance.aria.locked')
+                      : t('admin.cluster.summary.maintenance.aria.unlocked')
+                  }
                 />
                 <Badge variant={clusterLocked ? 'warn' : 'ok'} testId="admin.cluster.summary.maintenance.badge">
-                  {clusterLocked ? t('admin.cluster.summary.maintenance.status.locked') : t('admin.cluster.summary.maintenance.status.unlocked')}
+                  {clusterLocked
+                    ? t('admin.cluster.summary.maintenance.status.locked')
+                    : t('admin.cluster.summary.maintenance.status.unlocked')}
                 </Badge>
               </div>
               <p className="text-sm text-muted" data-testid="admin.cluster.summary.maintenance.body">
@@ -220,7 +237,10 @@ export function ClusterSummaryPage() {
       </div>
 
       <Card testId="admin.cluster.summary.shortcuts.ops">
-        <CardHeader title={t('admin.cluster.summary.shortcuts.ops.title')} subtitle={t('admin.cluster.summary.shortcuts.ops.subtitle')} />
+        <CardHeader
+          title={t('admin.cluster.summary.shortcuts.ops.title')}
+          subtitle={t('admin.cluster.summary.shortcuts.ops.subtitle')}
+        />
         <CardBody>
           <div className="flex flex-wrap gap-2">
             <LinkButton to="/admin/outages" variant="secondary" size="sm">

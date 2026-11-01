@@ -20,7 +20,9 @@ export function locationLabel(loc: unknown): string | undefined {
   return undefined;
 }
 
-export function buildNodeStatusKeys(v: Partial<Pick<PublicNodeStatus, 'name' | 'fqdn'>> & { domain_name?: unknown }): string[] {
+export function buildNodeStatusKeys(
+  v: { name?: string | null; fqdn?: string | null } & { domain_name?: unknown }
+): string[] {
   const out: string[] = [];
   const push = (s: unknown) => {
     if (typeof s === 'string' && s.trim()) out.push(s.trim().toLowerCase());
@@ -45,7 +47,7 @@ export function isMaintenanceLocked(lock: unknown): boolean {
 
 export function statusBadge(
   t: (key: any, params?: Record<string, unknown>) => string,
-  status: boolean | undefined
+  status: boolean | null | undefined
 ): { variant: BadgeVariant; label: string } {
   if (status === true) return { variant: 'ok', label: t('state.up') };
   if (status === false) return { variant: 'danger', label: t('state.down') };
@@ -103,12 +105,13 @@ export function nodeLockReason(node: Node | undefined): string {
 }
 
 export function parseMetricsWindow(raw: string | null | undefined): MetricsWindow {
-  const v = String(raw ?? '').trim().toLowerCase();
+  const v = String(raw ?? '')
+    .trim()
+    .toLowerCase();
   if (v === '24h') return '24h';
   if (v === '7d') return '7d';
   return '6h';
 }
-
 
 export function metricsWindowMs(w: MetricsWindow): number {
   switch (w) {
@@ -139,10 +142,7 @@ export function safePercent(num: unknown, den: unknown): number | null {
   return (n / d) * 100;
 }
 
-export function buildNodeMetricSeries(
-  rows: NodeStatus[],
-  fallbackTotalMemory: number | undefined,
-) {
+export function buildNodeMetricSeries(rows: NodeStatus[], fallbackTotalMemory: number | undefined) {
   const load1: { x: string; y: number }[] = [];
   const cpuIdle: { x: string; y: number }[] = [];
   const memoryUsedPercent: { x: string; y: number }[] = [];
@@ -155,10 +155,7 @@ export function buildNodeMetricSeries(
     if (typeof sample.cpu_idle === 'number' && Number.isFinite(sample.cpu_idle)) {
       cpuIdle.push({ x: sample.created_at, y: sample.cpu_idle });
     }
-    const memoryPercent = safePercent(
-      sample.used_memory,
-      sample.total_memory ?? fallbackTotalMemory,
-    );
+    const memoryPercent = safePercent(sample.used_memory, sample.total_memory ?? fallbackTotalMemory);
     if (memoryPercent !== null && Number.isFinite(memoryPercent)) {
       memoryUsedPercent.push({ x: sample.created_at, y: memoryPercent });
     }
@@ -168,14 +165,12 @@ export function buildNodeMetricSeries(
 }
 
 export function sortStatusesByTimeAsc(list: NodeStatus[]): NodeStatus[] {
-  return list
-    .slice()
-    .sort((a, b) => {
-      const ta = a.created_at ? new Date(a.created_at).getTime() : Number.NaN;
-      const tb = b.created_at ? new Date(b.created_at).getTime() : Number.NaN;
-      if (!Number.isFinite(ta) && !Number.isFinite(tb)) return 0;
-      if (!Number.isFinite(ta)) return -1;
-      if (!Number.isFinite(tb)) return 1;
-      return ta - tb;
-    });
+  return list.slice().sort((a, b) => {
+    const ta = a.created_at ? new Date(a.created_at).getTime() : Number.NaN;
+    const tb = b.created_at ? new Date(b.created_at).getTime() : Number.NaN;
+    if (!Number.isFinite(ta) && !Number.isFinite(tb)) return 0;
+    if (!Number.isFinite(ta)) return -1;
+    if (!Number.isFinite(tb)) return 1;
+    return ta - tb;
+  });
 }

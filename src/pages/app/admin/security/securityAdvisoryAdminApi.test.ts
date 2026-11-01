@@ -6,6 +6,7 @@ vi.mock('../../../../lib/api/securityAdvisories', () => ({
   fetchSecurityAdvisoryAffectedUsers: vi.fn(),
   fetchSecurityAdvisoryAffectedVps: vi.fn(),
   fetchSecurityAdvisoryCves: vi.fn(),
+  fetchSecurityAdvisory: vi.fn(),
 }));
 
 import {
@@ -14,6 +15,7 @@ import {
   fetchSecurityAdvisoryAffectedUsers,
   fetchSecurityAdvisoryAffectedVps,
   fetchSecurityAdvisoryCves,
+  fetchSecurityAdvisory,
 } from '../../../../lib/api/securityAdvisories';
 import {
   fetchAllSecurityAdvisoryAffectedUsersForAdmin,
@@ -27,23 +29,34 @@ const deleteCve = vi.mocked(deleteSecurityAdvisoryCve);
 const fetchAffectedUsers = vi.mocked(fetchSecurityAdvisoryAffectedUsers);
 const fetchAffectedVps = vi.mocked(fetchSecurityAdvisoryAffectedVps);
 const fetchCves = vi.mocked(fetchSecurityAdvisoryCves);
+const receipt = <T>(data: T) => ({
+  data,
+  meta: {},
+  httpStatus: 200,
+  envelope: { status: true as const, response: {} },
+});
 
 describe('reconcileSecurityAdvisoryCves', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    createCve.mockResolvedValue({ data: { id: 3 }, meta: undefined } as never);
-    deleteCve.mockResolvedValue({ data: null, meta: undefined } as never);
+    vi.mocked(fetchSecurityAdvisory)
+      .mockReset()
+      .mockResolvedValueOnce(receipt({ id: 44, state: 'draft', content_revision: 0 }))
+      .mockResolvedValueOnce(receipt({ id: 44, state: 'draft', content_revision: 1 }))
+      .mockResolvedValueOnce(receipt({ id: 44, state: 'draft', content_revision: 2 }));
+    createCve.mockResolvedValue(receipt({ id: 3 }));
+    deleteCve.mockResolvedValue(receipt({}));
   });
 
   test('creates additions before deleting obsolete CVEs', async () => {
     const calls: string[] = [];
     createCve.mockImplementation(async () => {
       calls.push('create');
-      return { data: { id: 3 }, meta: undefined } as never;
+      return receipt({ id: 3 });
     });
     deleteCve.mockImplementation(async () => {
       calls.push('delete');
-      return { data: null, meta: undefined } as never;
+      return receipt({});
     });
 
     await reconcileSecurityAdvisoryCves(44, [{ id: 1, cve_id: 'CVE-2026-1000' }], ['CVE-2026-2000'], {
@@ -69,8 +82,60 @@ describe('reconcileSecurityAdvisoryCves', () => {
         expected_state: 'draft',
         expected_content_revision: 0,
       })
-    ).rejects.toThrow('create failed');
+    ).rejects.toMatchObject({ originalError: expect.objectContaining({ message: 'create failed' }) });
 
+    expect(deleteCve).not.toHaveBeenCalled();
+  });
+});
+
+describe('frozen advisory child preconditions', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(fetchSecurityAdvisory).mockReset();
+  });
+  test.each([
+    { state: 'published', content_revision: 0 },
+    { state: 'draft', content_revision: 8 },
+  ])('denies a changed parent before writing: %o', async (observed) => {
+    vi.mocked(fetchSecurityAdvisory).mockResolvedValue(receipt({ id: 44, ...observed }));
+    await expect(
+      reconcileSecurityAdvisoryCves(44, [], ['CVE-2026-2000'], {
+        expected_state: 'draft',
+        expected_content_revision: 0,
+      })
+    ).rejects.toMatchObject({
+      completed: [],
+      remaining: ['CVE-2026-2000'],
+      originalError: expect.objectContaining({ kind: 'snapshot' }),
+    });
+    expect(createCve).not.toHaveBeenCalled();
+    expect(deleteCve).not.toHaveBeenCalled();
+  });
+  test.each([
+    { state: 'published', content_revision: 1 },
+    { state: 'draft', content_revision: 2 },
+  ])('retains the accepted send and never substitutes a newer stamp: %o', async (observed) => {
+    vi.mocked(fetchSecurityAdvisory)
+      .mockResolvedValueOnce(receipt({ id: 44, state: 'draft', content_revision: 0 }))
+      .mockResolvedValueOnce(receipt({ id: 44, ...observed }));
+    createCve.mockResolvedValue(receipt({ id: 3 }));
+    await expect(
+      reconcileSecurityAdvisoryCves(44, [], ['CVE-2026-2000', 'CVE-2026-2001'], {
+        expected_state: 'draft',
+        expected_content_revision: 0,
+      })
+    ).rejects.toMatchObject({
+      completed: ['+CVE-2026-2000'],
+      remaining: ['+CVE-2026-2001'],
+      originalError: expect.objectContaining({ kind: 'snapshot' }),
+    });
+    expect(createCve).toHaveBeenCalledTimes(1);
+    expect(createCve).toHaveBeenCalledWith({
+      security_advisory: 44,
+      cve_id: 'CVE-2026-2000',
+      expected_state: 'draft',
+      expected_content_revision: 0,
+    });
     expect(deleteCve).not.toHaveBeenCalled();
   });
 });

@@ -42,15 +42,14 @@ test('@pr-smoke @pr-smoke-mobile security advisory node actions stay directly us
       'GET languages': () => ({ languages: [{ id: 1, code: 'en', label: 'English' }] }),
       'GET security_advisories/77': () => ({ security_advisory: advisory }),
       'GET security_advisory_cves': () => ({
-        security_advisory_cves: [{ id: 901, security_advisory_id: 77, cve_id: 'CVE-2026-12345' }],
+        security_advisory_cves: [{ id: 901, security_advisory: { id: 77 }, cve_id: 'CVE-2026-12345' }],
       }),
       'GET nodes': () => ({ nodes: [node] }),
       'GET security_advisories/77/node_statuses': () => ({
         node_statuses: [
           {
             id: 501,
-            security_advisory_id: 77,
-            node_id: node.id,
+            security_advisory: { id: 77 },
             node,
             state: 'mitigated',
             vulnerable_until: '2026-09-16T09:00:00.000Z',

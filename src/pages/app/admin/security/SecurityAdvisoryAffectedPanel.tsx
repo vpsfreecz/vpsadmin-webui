@@ -9,15 +9,13 @@ import { LoadingState } from '../../../../components/ui/LoadingState';
 import { TableCard } from '../../../../components/ui/TableCard';
 import type {
   SecurityAdvisoryAffectedUser,
-  SecurityAdvisoryAffectedVps,
-} from '../../../../lib/api/securityAdvisories';
+  SecurityAdvisoryAffectedVps } from '../../../../lib/api/securityAdvisories';
 import { formatErrorMessage } from '../../../../lib/errors';
 import { formatDateTime } from '../../../../lib/format';
 import { resourceId, resourceLabel } from './securityAdvisoryAdminModel';
 import {
   finiteSecurityAdvisoryCount,
-  nodeStateTranslationKey,
-} from './securityAdvisoryDetailViewModel';
+  nodeStateTranslationKey } from './securityAdvisoryDetailViewModel';
 
 export function SecurityAdvisoryAffectedPanel(props: {
   users: SecurityAdvisoryAffectedUser[];
@@ -57,15 +55,19 @@ export function SecurityAdvisoryAffectedPanel(props: {
               </thead>
               <tbody>
                 {props.users.map((row) => {
-                  const id = resourceId(row.user, row.user_id);
+                  const id = resourceId(row.user);
                   return (
                     <tr key={row.id} className="table-row-tone">
                       <td>{resourceLabel(row.user)}</td>
                       <td className="text-right tabular-nums">{finiteSecurityAdvisoryCount(row.vps_count)}</td>
                       <td className="text-right">
                         {id ? (
-                          <Button to={`/admin/users/${id}`} size="sm" variant="secondary">{t('common.open')}</Button>
-                        ) : '—'}
+                          <Button to={`/admin/users/${id}`} size="sm" variant="secondary">
+                            {t('common.open')}
+                          </Button>
+                        ) : (
+                          '—'
+                        )}
                       </td>
                     </tr>
                   );
@@ -83,7 +85,9 @@ export function SecurityAdvisoryAffectedPanel(props: {
             subtitle={t('admin.security_advisories.affected.vps_subtitle')}
           />
           {props.vps.length === 0 ? (
-            <CardBody><Alert variant="neutral" title={t('admin.security_advisories.affected.no_vps')} /></CardBody>
+            <CardBody>
+              <Alert variant="neutral" title={t('admin.security_advisories.affected.no_vps')} />
+            </CardBody>
           ) : (
             <TableCard minWidth="xl">
               <thead>
@@ -98,7 +102,7 @@ export function SecurityAdvisoryAffectedPanel(props: {
               </thead>
               <tbody>
                 {props.vps.map((row) => {
-                  const id = resourceId(row.vps, row.vps_id);
+                  const id = resourceId(row.vps);
                   return (
                     <tr key={row.id} className="table-row-tone">
                       <td>
@@ -106,7 +110,9 @@ export function SecurityAdvisoryAffectedPanel(props: {
                           <Link className="font-medium text-accent hover:underline" to={`/admin/vps/${id}`}>
                             {resourceLabel(row.vps)}
                           </Link>
-                        ) : resourceLabel(row.vps)}
+                        ) : (
+                          resourceLabel(row.vps)
+                        )}
                       </td>
                       <td>{resourceLabel(row.user)}</td>
                       <td>{resourceLabel(row.node)}</td>

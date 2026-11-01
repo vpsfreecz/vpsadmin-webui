@@ -6,7 +6,11 @@ import type {
   SecurityAdvisoryNodeStatus,
   SecurityAdvisoryMutationGuards,
 } from '../../../../lib/api/securityAdvisories';
-import { advisoryGuards, requireAdvisoryActions } from '../../../../lib/api/securityAdvisoryMutations';
+import {
+  advisoryGuards,
+  requireAdvisoryActions,
+  type AdvisoryAction,
+} from '../../../../lib/api/securityAdvisoryMutations';
 import { relevantSecurityAdvisoryNodes } from './securityAdvisoryAdminModel';
 import { fetchAdvisoryEditSnapshot } from './securityAdvisoryAdminApi';
 import { securityAdvisoryNodeStatusNodeId } from './SecurityAdvisoryNodeForm';
@@ -41,7 +45,7 @@ export function useSecurityAdvisoryNodeSnapshot(props: {
   const [guards, setGuards] = useState<SecurityAdvisoryMutationGuards | null>(null);
   const [writeBlocked, setWriteBlocked] = useState(false);
   const [capturedStatuses, setCapturedStatuses] = useState<SecurityAdvisoryNodeStatus[]>([]);
-  const capture = async (methods: Array<'POST' | 'PUT' | 'DELETE'>) => {
+  const capture = async (actions: Array<'create' | 'update' | 'delete'>) => {
     const snapshot = await fetchAdvisoryEditSnapshot(props.advisoryId);
     // Reject changes to the rendered parent before capturing current child values.
     const rendered = advisoryGuards(props.advisory);
@@ -52,10 +56,7 @@ export function useSecurityAdvisoryNodeSnapshot(props: {
       throw new Error(t('admin.security_advisories.correction.reload'));
     }
     await requireAdvisoryActions(
-      methods.map((method) => ({
-        method: method as 'POST' | 'PUT' | 'DELETE',
-        path: `/security_advisories/${props.advisoryId}/node_statuses`,
-      })),
+      actions.map((action): AdvisoryAction => ({ resource: 'node_status', action })),
       snapshot.guards
     );
     setGuards(snapshot.guards);
@@ -64,7 +65,7 @@ export function useSecurityAdvisoryNodeSnapshot(props: {
     return snapshot;
   };
   const captureEditor = async (node: Node, status: SecurityAdvisoryNodeStatus | null) => {
-    const snapshot = await capture([status ? 'PUT' : 'POST']);
+    const snapshot = await capture([status ? 'update' : 'create']);
     const current = nodeStatusMap(snapshot.statuses).get(node.id) ?? null;
     if (status ? current?.id !== status.id : current !== null) {
       throw new Error(t('admin.security_advisories.correction.reload'));

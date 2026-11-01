@@ -120,7 +120,7 @@ export function LocationsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const smartInputRef = useRef<HTMLInputElement | null>(null);
 
-  const [q, setQ] = useState(() => searchParams.get('q') ?? '');
+  const [removedSearch, setRemovedSearch] = useState(() => searchParams.has('q'));
   const [environment, setEnvironment] = useState(() => searchParams.get('environment') ?? '');
   const [hasHypervisor, setHasHypervisor] = useState(() => searchParams.get('has_hypervisor') ?? '');
   const [hasStorage, setHasStorage] = useState(() => searchParams.get('has_storage') ?? '');
@@ -135,7 +135,7 @@ export function LocationsPage() {
 
   // Sync local state on navigation.
   useEffect(() => {
-    const urlQ = searchParams.get('q') ?? '';
+
     const urlE = searchParams.get('environment') ?? '';
     const urlH = searchParams.get('has_hypervisor') ?? '';
     const urlS = searchParams.get('has_storage') ?? '';
@@ -144,7 +144,7 @@ export function LocationsPage() {
     const urlV = searchParams.get('shares_ver') ?? '';
     const urlP = searchParams.get('shares_primary') ?? '';
 
-    if (urlQ !== q) setQ(urlQ);
+
     if (urlE !== environment) setEnvironment(urlE);
     if (urlH !== hasHypervisor) setHasHypervisor(urlH);
     if (urlS !== hasStorage) setHasStorage(urlS);
@@ -156,7 +156,6 @@ export function LocationsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
-  const qTrim = useMemo(() => q.trim(), [q]);
   const environmentId = useMemo(() => parsePositiveInt(environment), [environment]);
   const hasHypervisorBool = useMemo(() => parseBoolParam(hasHypervisor), [hasHypervisor]);
   const hasStorageBool = useMemo(() => parseBoolParam(hasStorage), [hasStorage]);
@@ -175,8 +174,7 @@ export function LocationsPage() {
   useEffect(() => {
     const next = new URLSearchParams(searchParams);
 
-    if (qTrim) next.set('q', qTrim);
-    else next.delete('q');
+    if (next.has('q')) { next.delete('q'); setRemovedSearch(true); }
 
     if (environmentId) next.set('environment', String(environmentId));
     else next.delete('environment');
@@ -214,8 +212,7 @@ export function LocationsPage() {
     hasHypervisorBool,
     hasStorageBool,
     hvTrim,
-    qTrim,
-    searchParams,
+        searchParams,
     setSearchParams,
     sharesPrimaryBool,
     sharesVersion,
@@ -238,7 +235,6 @@ export function LocationsPage() {
     queryKey: [
       'cluster.locations',
       {
-        q: qTrim,
         environmentId,
         hasHypervisorBool,
         hasStorageBool,
@@ -252,7 +248,6 @@ export function LocationsPage() {
       (
         await fetchLocations({
           limit: 500,
-          q: qTrim || undefined,
           environmentId,
           hasHypervisor: hasHypervisorBool,
           hasStorage: hasStorageBool,
@@ -323,7 +318,7 @@ export function LocationsPage() {
   function clearAllFilters() {
     setSmart('');
     setSmartErrors([]);
-    setQ('');
+
     setEnvironment('');
     setHasHypervisor('');
     setHasStorage('');
@@ -342,7 +337,6 @@ export function LocationsPage() {
     }
 
     const tokens = tokenizeSmartInput(raw);
-    let nextQ = qTrim;
     let nextEnvironment = environment;
     let nextHasHypervisor = hasHypervisor;
     let nextHasStorage = hasStorage;
@@ -356,9 +350,7 @@ export function LocationsPage() {
       const kv = splitKeyValueToken(token);
 
       if (!kv) {
-        const n = parseNumericToken(token);
-        if (n !== null) nextQ = String(n);
-        else nextQ = unquoteSmartValue(token);
+        errors.push(t('filters.unsupported_text_search_removed'));
         continue;
       }
 
@@ -370,20 +362,6 @@ export function LocationsPage() {
       }
 
       switch (key) {
-        case 'q':
-        case 'search':
-        case 'label':
-        case 'name':
-        case 'domain':
-        case 'description':
-          nextQ = value;
-          break;
-        case 'id': {
-          const n = parseNumericToken(value);
-          if (n === null) errors.push(t('filters.smart.error.numeric_only', { key, value }));
-          else nextQ = String(n);
-          break;
-        }
         case 'environment':
         case 'env': {
           const n = parseNumericToken(value);
@@ -458,7 +436,6 @@ export function LocationsPage() {
 
     setSmart('');
     setSmartErrors([]);
-    setQ(nextQ);
     setEnvironment(nextEnvironment);
     setHasHypervisor(nextHasHypervisor);
     setHasStorage(nextHasStorage);
@@ -470,7 +447,6 @@ export function LocationsPage() {
 
   const activeChips = useMemo(() => {
     const chips: React.ReactNode[] = [];
-    if (qTrim) chips.push(<FilterChip key="q" label={`q:${qTrim}`} onRemove={() => setQ('')} />);
     if (environmentId) chips.push(<FilterChip key="env" label={`${t('common.environment')}: ${environmentId}`} onRemove={() => setEnvironment('')} />);
     if (hasHypervisorBool === true) chips.push(<FilterChip key="hv-yes" label={t('admin.cluster.locations.smart.chip.hypervisor_yes')} tone="info" onRemove={() => setHasHypervisor('')} />);
     else if (hasHypervisorBool === false) chips.push(<FilterChip key="hv-no" label={t('admin.cluster.locations.smart.chip.hypervisor_no')} tone="warn" onRemove={() => setHasHypervisor('')} />);
@@ -483,9 +459,9 @@ export function LocationsPage() {
     else if (sharesWithId && sharesPrimaryBool === false) chips.push(<FilterChip key="primary-no" label={t('admin.cluster.locations.smart.chip.primary_no')} tone="warn" onRemove={() => setSharesPrimary('')} />);
     smartErrors.forEach((msg, i) => chips.push(<FilterChip key={`err-${i}`} label={msg} tone="danger" onRemove={() => setSmartErrors((prev) => prev.filter((_, idx) => idx !== i))} />));
     return chips;
-  }, [environmentId, hasHypervisorBool, hasStorageBool, hvTrim, qTrim, shareLocations, sharesPrimaryBool, sharesVersion, sharesWithId, smartErrors, t]);
+  }, [environmentId, hasHypervisorBool, hasStorageBool, hvTrim, shareLocations, sharesPrimaryBool, sharesVersion, sharesWithId, smartErrors, t]);
 
-  const smartSuggestions = useMemo<SmartFilterSuggestion[]>(() => {
+  const smartSuggestions: SmartFilterSuggestion[] = (() => {
     const raw = smart.trim();
     if (!raw) return [];
     if (raw === '?') {
@@ -500,44 +476,9 @@ export function LocationsPage() {
       }];
     }
 
-    const suggestions: SmartFilterSuggestion[] = [];
-    const numeric = parseNumericToken(raw);
-    if (numeric !== null) {
-      suggestions.push({
-        id: 'id',
-        primary: t('admin.cluster.locations.smart.suggestion.id', { id: numeric }),
-        secondary: t('admin.cluster.locations.smart.suggestion.id_hint'),
-        onPick: () => {
-          setQ(String(numeric));
-          setSmart('');
-          setSmartErrors([]);
-        },
-      });
-    }
-
-    const kv = splitKeyValueToken(raw);
-    if (kv) {
-      suggestions.push({
-        id: 'apply',
-        primary: t('filters.smart.suggest.apply.primary'),
-        secondary: raw,
-        onPick: () => applySmart(raw),
-      });
-      return suggestions;
-    }
-
-    suggestions.push({
-      id: 'search',
-      primary: t('admin.cluster.locations.smart.suggestion.search', { value: raw }),
-      secondary: t('admin.cluster.locations.smart.suggestion.search_hint'),
-      onPick: () => {
-        setQ(raw);
-        setSmart('');
-        setSmartErrors([]);
-      },
-    });
-    return suggestions;
-  }, [smart, t]);
+    if (!splitKeyValueToken(raw)) return [];
+    return [{ id: 'apply', primary: t('filters.smart.suggest.apply.primary'), secondary: raw, onPick: () => applySmart(raw) }];
+  })();
 
   const [editor, setEditor] = useState<EditorState>(null);
   const [form, setForm] = useState<FormState>(() => initForm());
@@ -608,6 +549,7 @@ export function LocationsPage() {
 
   return (
     <div className="mt-4 space-y-4" data-testid="admin.cluster.locations.page">
+      {removedSearch ? <Alert variant="info" title={t('filters.unsupported_text_search_removed')} /> : null}
       <FilterBar testId="admin.cluster.locations.filters" below={activeChips.length > 0 ? <div className="flex flex-wrap gap-2">{activeChips}</div> : null}>
         <div className="flex min-w-0 flex-1 flex-col gap-2">
           <SmartFilterInput
@@ -619,8 +561,8 @@ export function LocationsPage() {
               if (smartErrors.length) setSmartErrors([]);
             }}
             onSubmit={() => applySmart()}
-            placeholder={t('admin.cluster.locations.filter.search_placeholder')}
-            ariaLabel={t('admin.cluster.locations.filter.search_placeholder')}
+            placeholder={t('filters.advanced.title')}
+            ariaLabel={t('filters.advanced.title')}
             suggestions={smartSuggestions}
             suffix={
               <button
@@ -644,7 +586,7 @@ export function LocationsPage() {
             {t('common.refresh')}
           </Button>
           <CopyButton text={shareUrl} label={t('common.copy_link')} testId="admin.cluster.locations.copy_link" />
-          {(qTrim || environment || hasHypervisor || hasStorage || hypervisorType || sharesWith || sharesVer || sharesPrimary || smartErrors.length > 0) ? (
+          {(environment || hasHypervisor || hasStorage || hypervisorType || sharesWith || sharesVer || sharesPrimary || smartErrors.length > 0) ? (
             <Button variant="secondary" onClick={clearAllFilters} testId="admin.cluster.locations.filter.clear">
               {t('common.clear_filters')}
             </Button>
@@ -669,15 +611,6 @@ export function LocationsPage() {
         }
       >
         <div className="space-y-4">
-          <div>
-            <div className="mb-1 text-sm font-medium text-fg">{t('common.search')}</div>
-            <Input
-              testId="admin.cluster.locations.advanced.q"
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder={t('admin.cluster.locations.filter.search_placeholder')}
-            />
-          </div>
 
           <div>
             <div className="mb-1 text-sm font-medium text-fg">{t('common.environment')}</div>
@@ -757,17 +690,14 @@ export function LocationsPage() {
         open={helpOpen}
         onClose={() => setHelpOpen(false)}
         title={t('admin.cluster.locations.smart.help.title')}
-        intro={t('admin.cluster.locations.smart.help.intro')}
+        intro={t('filters.advanced.title')}
         examples={[
           { example: '?', description: t('admin.cluster.locations.smart.help.example_help') },
-          { example: 'prg', description: t('admin.cluster.locations.smart.help.example_search') },
           { example: 'environment:1', description: t('admin.cluster.locations.smart.help.example_environment') },
           { example: 'hypervisor:true hv:vpsadminos', description: t('admin.cluster.locations.smart.help.example_hv') },
           { example: 'share:2 ver:4 primary:true', description: t('admin.cluster.locations.smart.help.example_share') },
         ]}
         topKeys={[
-          { key: 'q', description: t('admin.cluster.locations.smart.key.q'), example: 'q:prg' },
-          { key: 'id', description: t('admin.cluster.locations.smart.key.id'), example: 'id:2' },
           { key: 'environment', description: t('admin.cluster.locations.smart.key.environment'), example: 'environment:1' },
           { key: 'hypervisor', description: t('admin.cluster.locations.smart.key.hypervisor'), example: 'hypervisor:true' },
           { key: 'storage', description: t('admin.cluster.locations.smart.key.storage'), example: 'storage:false' },
@@ -779,7 +709,6 @@ export function LocationsPage() {
           { key: 'primary', description: t('admin.cluster.locations.smart.key.primary'), example: 'primary:true' },
         ]}
         inference={[
-          t('admin.cluster.locations.smart.help.inference.text'),
           t('admin.cluster.locations.smart.help.inference.number'),
           t('admin.cluster.locations.smart.help.inference.keyvalue'),
         ]}
@@ -864,7 +793,7 @@ export function LocationsPage() {
                       {canManageClusterMaintenance(auth.role) ? (
                         <MaintenanceControl
                           value={loc.maintenance_lock}
-                          reason={loc.maintenance_lock_reason}
+                          reason={loc.maintenance_lock_reason ?? undefined}
                           label={locLabel(loc)}
                           testId={`admin.cluster.locations.row.${loc.id}.maintenance`}
                           setMaintenance={(opts) => setLocationMaintenance(loc.id, opts)}

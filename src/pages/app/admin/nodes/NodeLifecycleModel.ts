@@ -164,10 +164,10 @@ function updateOptionalInteger(
   field: string,
   min: number,
   nullable: boolean
-): number | null | undefined {
+): number | undefined {
   if (value.trim()) return requiredInteger(value, field, min);
   if (before === undefined || before === null) return undefined;
-  if (nullable) return null;
+  void nullable;
   throw new Error(field);
 }
 

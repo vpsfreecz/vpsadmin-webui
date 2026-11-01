@@ -69,7 +69,7 @@ function inlineResultsFromClusterSearch(basePath: string, t: AppHeaderProps['t']
     seen.add(key);
 
     const fallback = clusterResourceRefLabel(t, resource, id);
-    const primary = String(hit.value ?? hit.label ?? fallback).trim();
+    const primary = String(hit.value ?? fallback).trim();
     const attr = String(hit.attribute ?? '').trim();
 
     out.push({

@@ -4,7 +4,7 @@ import { ExternalLink, Grid2X2 } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 
 import { useI18n } from '../../app/i18n';
-import { publicApiCall } from '../../lib/api/public';
+import { fetchPublicNodeHeatmapConfig } from '../../lib/api/systemConfig';
 import { nodeHeatmapUrl, type HeatmapNode } from '../../lib/nodeHeatmap';
 import { Button } from '../ui/Button';
 import { Modal } from '../ui/Modal';
@@ -20,14 +20,12 @@ export function NodeHeatmapProvider({ children }: { children: React.ReactNode })
   const location = useLocation();
   const config = useQuery({
     queryKey: ['public', 'system_config', 'webui', 'goresheat_url'],
-    queryFn: async () => (await publicApiCall<{ value?: unknown }>({
-      path: '/system_configs/webui/goresheat_url',
-    })).data,
+    queryFn: async () => (await fetchPublicNodeHeatmapConfig()).data,
     staleTime: 5 * 60 * 1000,
     retry: false,
   });
   const [selected, setSelected] = useState<{ url: string; name: string } | null>(null);
-  const baseUrl = config.data?.value;
+  const baseUrl = config.data?.['value'];
 
   useEffect(() => { setSelected(null); }, [location.pathname, baseUrl]);
 
@@ -77,7 +75,9 @@ export function useNodeHeatmapsAvailable(nodes: HeatmapNode[]): boolean {
   return nodes.some((node) => nodeHeatmapUrl(baseUrl, node) !== null);
 }
 
-export function NodeHeatmapButton({ node, showLabel = false, className }: { node: HeatmapNode; showLabel?: boolean; className?: string }) {
+export function NodeHeatmapButton({ node, showLabel = false, className,
+}: { node: HeatmapNode; showLabel?: boolean; className?: string;
+}) {
   const { t } = useI18n();
   const { baseUrl, open } = useContext(Heatmaps);
   const url = nodeHeatmapUrl(baseUrl, node);

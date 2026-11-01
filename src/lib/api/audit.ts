@@ -1,24 +1,20 @@
-import { expectArray, haveApiCall } from './haveapi';
+import { isOperationsRecord, isOperationsReference, type OperationsReference } from './operationsReference';
+import type {
+  Location__ShowOutput,
+  ObjectHistory__IndexOutput,
+} from 'vpsadmin-typescript-client';
+import type { ObjectHistory__IndexInput } from 'vpsadmin-typescript-client';
+import { getApi } from './sdk';
+import { narrowApiResult } from './apiOutput';
 
-export interface ResourceRef {
-  id: number;
-  label?: string;
-  login?: string;
-  api_ip_addr?: string;
-  [k: string]: unknown;
-}
+export type ResourceRef = OperationsReference;
 
-export interface ObjectHistoryEvent {
+export type ObjectHistoryEvent = Omit<ObjectHistory__IndexOutput[number], 'id' | 'user' | 'user_session'> & {
   id: number;
-  user?: ResourceRef;
-  user_session?: ResourceRef;
-  object?: string;
-  object_id?: number;
-  event_type?: string;
-  event_data?: unknown;
-  created_at?: string;
+  user?: OperationsReference | null;
+  user_session?: OperationsReference | null;
   [k: string]: unknown;
-}
+};
 
 export async function fetchObjectHistoryEvents(opts?: {
   limit?: number;
@@ -31,7 +27,7 @@ export async function fetchObjectHistoryEvents(opts?: {
   objectId?: number;
   eventType?: string;
 }) {
-  const params: Record<string, unknown> = {};
+  const params: ObjectHistory__IndexInput = {};
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
 
@@ -46,20 +42,47 @@ export async function fetchObjectHistoryEvents(opts?: {
   const et = opts?.eventType ? String(opts.eventType).trim() : '';
   if (et) params['event_type'] = et;
 
-  const res = await haveApiCall<ObjectHistoryEvent[]>({
-    method: 'GET',
-    path: '/object_histories',
-    namespace: 'object_history',
-    params,
-    meta: { includes: 'user,user_session', ...(opts?.count ? { count: true } : {}) },
-  });
+  const res = await (
+    await getApi()
+  ).object_history.index({ params,
+    meta: { includes: 'user,user_session', ...(opts?.count ? { count: true } : {}) } });
 
-  return { ...res, data: expectArray<ObjectHistoryEvent>(res.data, 'object_histories#index') };
+  return narrowApiResult(res, narrowObjectHistoryEventList, 'object_histories#index');
 }
 
 export async function fetchObjectHistoryEvent(historyId: number) {
-  return haveApiCall<ObjectHistoryEvent>({
-    method: 'GET',
-    path: `/object_histories/${historyId}`,
-  });
+  return narrowApiResult(
+    await (await getApi()).object_history.show({ path: { object_history_id: historyId } }),
+    narrowObjectHistoryEvent,
+    'object_history.show'
+  );
+}
+
+function isObjectHistoryEvent(value: unknown): value is ObjectHistoryEvent {
+  return (
+    isOperationsRecord(value) &&
+    typeof value['id'] === 'number' &&
+    Number.isSafeInteger(value['id']) &&
+    value['id'] > 0 &&
+    ['created_at', 'event_type', 'object'].every(
+      (key) => value[key] === undefined || value[key] === null || typeof value[key] === 'string'
+    ) &&
+    ['object_id'].every(
+      (key) =>
+        value[key] === undefined ||
+        value[key] === null ||
+        (typeof value[key] === 'number' && Number.isFinite(value[key]))
+    ) &&
+    ['user', 'user_session'].every(
+      (key) => value[key] === undefined || value[key] === null || isOperationsReference(value[key])
+    )
+  );
+}
+function narrowObjectHistoryEvent(value: unknown): ObjectHistoryEvent {
+  if (!isObjectHistoryEvent(value)) throw new TypeError('Invalid ObjectHistoryEvent fields');
+  return value;
+}
+function narrowObjectHistoryEventList(value: unknown): ObjectHistoryEvent[] {
+  if (!Array.isArray(value)) throw new TypeError('Expected ObjectHistoryEvent list');
+  return value.map(narrowObjectHistoryEvent);
 }

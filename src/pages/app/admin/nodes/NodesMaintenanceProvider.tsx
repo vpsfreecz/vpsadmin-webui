@@ -12,7 +12,7 @@ import { ConfirmDialog } from '../../../../components/ui/ConfirmDialog';
 import { Input } from '../../../../components/ui/Input';
 import { LoadingState } from '../../../../components/ui/LoadingState';
 import { fetchNode, fetchNodeMaintenanceCapability, setNodeMaintenance } from '../../../../lib/api/nodes';
-import { isAmbiguousMutationError } from '../../../../lib/api/haveapi';
+import { isAmbiguousMutationError } from '../../../../lib/api/apiErrors';
 import { formatErrorMessage } from '../../../../lib/errors';
 import { reconcileMaintenanceAttempt, type MaintenanceState } from '../cluster/MaintenanceControl';
 import { preflightNodeNotBusy } from '../adminPreflight';
@@ -198,7 +198,7 @@ function NodeMaintenanceDialog({ target, onClose }: { target: Target; onClose: (
           lock: !unlock,
           reason: unlock ? undefined : reason.trim() || undefined,
           previousState: node.maintenance_lock as MaintenanceState,
-          previousReason: node.maintenance_lock_reason,
+          previousReason: node.maintenance_lock_reason ?? undefined,
         });
       }}
     >

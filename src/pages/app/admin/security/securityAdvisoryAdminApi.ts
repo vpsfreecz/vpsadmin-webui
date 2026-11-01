@@ -6,12 +6,14 @@ import {
   fetchSecurityAdvisoryCves,
   fetchSecurityAdvisory,
   fetchSecurityAdvisoryNodeStatuses,
+  type SecurityAdvisory,
   type SecurityAdvisoryMutationGuards,
   type SecurityAdvisoryAffectedUser,
   type SecurityAdvisoryAffectedVps,
   type SecurityAdvisoryCve,
 } from '../../../../lib/api/securityAdvisories';
 import {
+  type AdvisoryAction,
   AdvisoryWriteError,
   advisoryGuards,
   nextAdvisoryRevision,
@@ -22,6 +24,7 @@ export async function fetchAdvisoryEditSnapshot(id: number) {
   const guards = advisoryGuards(before);
   const cves = await fetchAllSecurityAdvisoryCvesForAdmin(id);
   const statuses = (await fetchSecurityAdvisoryNodeStatuses(id, { limit: 1000, includes: 'node' })).data;
+  if (statuses.length >= 1000) throw new AdvisoryWriteError('snapshot');
   const after = (await fetchSecurityAdvisory(id)).data;
   const finalGuards = advisoryGuards(after);
   if (
@@ -33,13 +36,13 @@ export async function fetchAdvisoryEditSnapshot(id: number) {
   return { advisory: before, cves, statuses, guards };
 }
 
-export function advisoryCveActions(existing: SecurityAdvisoryCve[], desired: string[]) {
+export function advisoryCveActions(existing: SecurityAdvisoryCve[], desired: string[]): AdvisoryAction[] {
   const current = new Set(existing.map((row) => row.cve_id));
   const wanted = new Set(desired);
   return [
-    ...(desired.some((cve) => !current.has(cve)) ? [{ path: '/security_advisory_cves', method: 'POST' as const }] : []),
+    ...(desired.some((cve) => !current.has(cve)) ? [{ resource: 'cve' as const, action: 'create' as const }] : []),
     ...(existing.some((row) => !wanted.has(String(row.cve_id)))
-      ? [{ path: '/security_advisory_cves', method: 'DELETE' as const }]
+      ? [{ resource: 'cve' as const, action: 'delete' as const }]
       : []),
   ];
 }
@@ -117,10 +120,34 @@ export function fetchAllSecurityAdvisoryAffectedVpsForAdmin(
   );
 }
 
-/**
- * Reconcile the child CVE resources after the advisory itself is saved. CVEs
- * are keyed by their normalized identifier, so unchanged rows keep their ids.
- */
+export class AdvisoryChildSequenceError extends Error {
+  constructor(
+    readonly completed: readonly string[],
+    readonly remaining: readonly string[],
+    readonly originalError: unknown
+  ) {
+    super('Advisory child sequence stopped', { cause: originalError });
+    this.name = 'AdvisoryChildSequenceError';
+  }
+}
+
+export async function requireAdvisorySnapshot(
+  id: number,
+  guards: SecurityAdvisoryMutationGuards
+): Promise<SecurityAdvisory> {
+  const current = (await fetchSecurityAdvisory(id)).data;
+  const observed = advisoryGuards(current);
+  if (
+    current.id !== id ||
+    observed.expected_state !== guards.expected_state ||
+    observed.expected_content_revision !== guards.expected_content_revision
+  ) {
+    throw new AdvisoryWriteError('snapshot');
+  }
+  return current;
+}
+
+/** Add before removing; preserve accepted sends even when their read-back fails. */
 export async function reconcileSecurityAdvisoryCves(
   securityAdvisoryId: number,
   existing: SecurityAdvisoryCve[],
@@ -133,24 +160,49 @@ export async function reconcileSecurityAdvisoryCves(
       .filter((item) => typeof item.cve_id === 'string' && item.cve_id.trim())
       .map((item) => [String(item.cve_id).trim().toUpperCase(), item])
   );
-
-  // Create additions before deleting obsolete rows. HaveAPI does not expose an
-  // atomic parent+children mutation, so this ordering preserves the existing
-  // CVE set if a newly requested identifier is rejected.
+  const tasks = [
+    ...[...wanted]
+      .filter((cve) => !current.has(cve))
+      .map((cve) => ({
+        label: '+' + cve,
+        write: (revision: number) =>
+          createSecurityAdvisoryCve({
+            security_advisory: securityAdvisoryId,
+            cve_id: cve,
+            ...guards,
+            expected_content_revision: revision,
+          }),
+      })),
+    ...[...current]
+      .filter(([cve]) => !wanted.has(cve))
+      .map(([cve, item]) => ({
+        label: '-' + cve,
+        write: (revision: number) =>
+          deleteSecurityAdvisoryCve(item.id, { ...guards, expected_content_revision: revision }),
+      })),
+  ];
   let revision = guards.expected_content_revision;
-  for (const cve of [...wanted].filter((cve) => !current.has(cve))) {
-    await createSecurityAdvisoryCve({
-      security_advisory: securityAdvisoryId,
-      cve_id: cve,
-      ...guards,
-      expected_content_revision: revision,
-    });
-    revision = nextAdvisoryRevision(revision);
+  try {
+    await requireAdvisorySnapshot(securityAdvisoryId, guards);
+  } catch (cause) {
+    throw new AdvisoryChildSequenceError([], desiredCves, cause);
   }
-  for (const [cve, item] of current) {
-    if (wanted.has(cve)) continue;
-    await deleteSecurityAdvisoryCve(item.id, { ...guards, expected_content_revision: revision });
-    revision = nextAdvisoryRevision(revision);
+  const completed: string[] = [];
+  for (let index = 0; index < tasks.length; index += 1) {
+    const task = tasks[index];
+    if (!task) continue;
+    try {
+      await task.write(revision);
+      completed.push(task.label);
+      revision = nextAdvisoryRevision(revision);
+      await requireAdvisorySnapshot(securityAdvisoryId, { ...guards, expected_content_revision: revision });
+    } catch (cause) {
+      throw new AdvisoryChildSequenceError(
+        completed,
+        tasks.slice(index + (completed.includes(task.label) ? 1 : 0)).map((item) => item.label),
+        cause
+      );
+    }
   }
   return revision;
 }

@@ -1,71 +1,74 @@
+import { isOperationsRecord, isOperationsReference, type OperationsReference } from './operationsReference';
+import type {
+  SecurityAdvisory__NodeStatus__CreateInput,
+  SecurityAdvisory__NodeStatus__UpdateInput,
+  UserSecurityAdvisory__IndexOutput,
+  VpsSecurityAdvisory__IndexOutput,
+} from 'vpsadmin-typescript-client';
+import type {
+  Location__ShowOutput,
+  OutageSecurityAdvisory__IndexOutput,
+  SecurityAdvisory__NodeStatus__IndexOutput,
+} from 'vpsadmin-typescript-client';
+import type {
+  OutageSecurityAdvisory__IndexInput,
+  SecurityAdvisory__NodeStatus__IndexInput,
+  UserSecurityAdvisory__IndexInput,
+  VpsSecurityAdvisory__IndexInput,
+} from 'vpsadmin-typescript-client';
+import { getApi } from './sdk';
+import { narrowApiResult } from './apiOutput';
 import type { ResourceRef } from './appTypes';
 import type { SecurityAdvisoryMutationGuards } from './securityAdvisories';
-import { expectArray, haveApiCall } from './haveapi';
 
 export type SecurityAdvisoryNodeState = 'unknown' | 'not_affected' | 'vulnerable' | 'mitigated' | string;
 
-export interface SecurityAdvisoryNodeStatus {
+export type SecurityAdvisoryNodeStatus = Omit<
+  SecurityAdvisory__NodeStatus__IndexOutput[number],
+  'id' | 'node' | 'security_advisory'
+> & {
   id: number;
-  security_advisory?: ResourceRef | number;
-  security_advisory_id?: number;
-  node?: ResourceRef | number;
-  node_id?: number;
-  node_name?: string;
-  state?: SecurityAdvisoryNodeState;
-  vulnerable_until?: string | null;
-  mitigated_since?: string | null;
-  note?: string | null;
+  node?: OperationsReference | null;
+  security_advisory?: OperationsReference | null;
   [k: string]: unknown;
-}
+};
 
-export interface SecurityAdvisoryNodeStatusCreatePayload {
-  node: number;
-  state: SecurityAdvisoryNodeState;
-  vulnerable_until?: string | null;
-  mitigated_since?: string | null;
-  [key: `${string}_note`]: string | null;
-}
+export type SecurityAdvisoryNodeStatusCreatePayload = SecurityAdvisory__NodeStatus__CreateInput;
+export type SecurityAdvisoryNodeStatusUpdatePayload = SecurityAdvisory__NodeStatus__UpdateInput;
 
-export type SecurityAdvisoryNodeStatusUpdatePayload = Partial<Omit<SecurityAdvisoryNodeStatusCreatePayload, 'node'>>;
-
-export interface SecurityAdvisoryAffectedUser {
+export type SecurityAdvisoryAffectedUser = Omit<
+  UserSecurityAdvisory__IndexOutput[number],
+  'id' | 'security_advisory' | 'user'
+> & {
   id: number;
-  security_advisory?: ResourceRef | number;
-  security_advisory_id?: number;
-  user?: ResourceRef | number;
-  user_id?: number;
-  vps_count?: number;
+  security_advisory?: OperationsReference | null;
+  user?: OperationsReference | null;
   [k: string]: unknown;
-}
+};
 
-export interface SecurityAdvisoryAffectedVps {
+export type SecurityAdvisoryAffectedVps = Omit<
+  VpsSecurityAdvisory__IndexOutput[number],
+  'id' | 'environment' | 'location' | 'node' | 'security_advisory' | 'user' | 'vps'
+> & {
   id: number;
-  security_advisory?: ResourceRef | number;
-  security_advisory_id?: number;
-  vps?: ResourceRef | number;
-  vps_id?: number;
-  user?: ResourceRef | number;
-  user_id?: number;
-  environment?: ResourceRef | number;
-  environment_id?: number;
-  location?: ResourceRef | number;
-  location_id?: number;
-  node?: ResourceRef | number;
-  node_id?: number;
-  node_state?: SecurityAdvisoryNodeState;
-  vulnerable_until?: string | null;
-  mitigated_since?: string | null;
+  environment?: OperationsReference | null;
+  location?: OperationsReference | null;
+  node?: OperationsReference | null;
+  security_advisory?: OperationsReference | null;
+  user?: OperationsReference | null;
+  vps?: OperationsReference | null;
   [k: string]: unknown;
-}
+};
 
-export interface SecurityAdvisoryOutageLink {
+export type SecurityAdvisoryOutageLink = Omit<
+  OutageSecurityAdvisory__IndexOutput[number],
+  'id' | 'outage' | 'security_advisory'
+> & {
   id: number;
-  outage?: ResourceRef | number;
-  outage_id?: number;
-  security_advisory?: ResourceRef | number;
-  security_advisory_id?: number;
+  outage?: OperationsReference | null;
+  security_advisory?: OperationsReference | null;
   [k: string]: unknown;
-}
+};
 
 export interface SecurityAdvisoryNodeStatusFilters {
   nodeId?: number;
@@ -107,36 +110,37 @@ export async function fetchSecurityAdvisoryNodeStatuses(
   securityAdvisoryId: number,
   opts?: SecurityAdvisoryNodeStatusFilters
 ) {
-  const params: Record<string, unknown> = {};
+  const params: SecurityAdvisory__NodeStatus__IndexInput = {};
   if (opts?.nodeId !== undefined) params['node'] = opts.nodeId;
   if (opts?.state) params['state'] = opts.state;
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
 
-  const res = await haveApiCall<SecurityAdvisoryNodeStatus[]>({
-    method: 'GET',
-    path: `/security_advisories/${securityAdvisoryId}/node_statuses`,
-    namespace: 'node_status',
+  const res = await (
+    await getApi()
+  ).security_advisory.node_status.index({
+    path: { security_advisory_id: securityAdvisoryId },
     params,
     meta: opts?.includes ? { includes: opts.includes } : undefined,
   });
 
-  return {
-    ...res,
-    data: expectArray<SecurityAdvisoryNodeStatus>(res.data, 'security_advisory#node_statuses#index'),
-  };
+  return narrowApiResult(res, narrowSecurityAdvisoryNodeStatusList, 'security_advisory#node_statuses#index');
 }
 
 export async function createSecurityAdvisoryNodeStatus(
   securityAdvisoryId: number,
   params: SecurityAdvisoryNodeStatusCreatePayload & SecurityAdvisoryMutationGuards
 ) {
-  return haveApiCall<SecurityAdvisoryNodeStatus>({
-    method: 'POST',
-    path: `/security_advisories/${securityAdvisoryId}/node_statuses`,
-    namespace: 'node_status',
-    params: { ...params },
-  });
+  return narrowApiResult(
+    await (
+      await getApi()
+    ).security_advisory.node_status.create({
+      path: { security_advisory_id: securityAdvisoryId },
+      params: { ...params },
+    }),
+    narrowSecurityAdvisoryNodeStatus,
+    'security_advisory.node_status.create'
+  );
 }
 
 export async function updateSecurityAdvisoryNodeStatus(
@@ -144,12 +148,16 @@ export async function updateSecurityAdvisoryNodeStatus(
   nodeStatusId: number,
   params: SecurityAdvisoryNodeStatusUpdatePayload & SecurityAdvisoryMutationGuards
 ) {
-  return haveApiCall<SecurityAdvisoryNodeStatus>({
-    method: 'PUT',
-    path: `/security_advisories/${securityAdvisoryId}/node_statuses/${nodeStatusId}`,
-    namespace: 'node_status',
-    params: { ...params },
-  });
+  return narrowApiResult(
+    await (
+      await getApi()
+    ).security_advisory.node_status.update({
+      path: { security_advisory_id: securityAdvisoryId, node_status_id: nodeStatusId },
+      params: { ...params },
+    }),
+    narrowSecurityAdvisoryNodeStatus,
+    'security_advisory.node_status.update'
+  );
 }
 
 export async function deleteSecurityAdvisoryNodeStatus(
@@ -157,37 +165,28 @@ export async function deleteSecurityAdvisoryNodeStatus(
   nodeStatusId: number,
   guards: SecurityAdvisoryMutationGuards
 ) {
-  return haveApiCall<null>({
-    method: 'DELETE',
-    path: `/security_advisories/${securityAdvisoryId}/node_statuses/${nodeStatusId}`,
-    namespace: 'node_status',
+  return (await getApi()).security_advisory.node_status.delete({
+    path: { security_advisory_id: securityAdvisoryId, node_status_id: nodeStatusId },
     params: { ...guards },
   });
 }
 
 export async function fetchSecurityAdvisoryAffectedUsers(opts?: SecurityAdvisoryAffectedUserFilters) {
-  const params: Record<string, unknown> = {};
+  const params: UserSecurityAdvisory__IndexInput = {};
   if (opts?.securityAdvisoryId !== undefined) params['security_advisory'] = opts.securityAdvisoryId;
   if (opts?.userId !== undefined) params['user'] = opts.userId;
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
 
-  const res = await haveApiCall<SecurityAdvisoryAffectedUser[]>({
-    method: 'GET',
-    path: '/user_security_advisories',
-    namespace: 'user_security_advisory',
-    params,
-    meta: opts?.includes ? { includes: opts.includes } : undefined,
-  });
+  const res = await (
+    await getApi()
+  ).user_security_advisory.index({ params, meta: opts?.includes ? { includes: opts.includes } : undefined });
 
-  return {
-    ...res,
-    data: expectArray<SecurityAdvisoryAffectedUser>(res.data, 'user_security_advisories#index'),
-  };
+  return narrowApiResult(res, narrowSecurityAdvisoryAffectedUserList, 'user_security_advisories#index');
 }
 
 export async function fetchSecurityAdvisoryAffectedVps(opts?: SecurityAdvisoryAffectedVpsFilters) {
-  const params: Record<string, unknown> = {};
+  const params: VpsSecurityAdvisory__IndexInput = {};
   if (opts?.securityAdvisoryId !== undefined) params['security_advisory'] = opts.securityAdvisoryId;
   if (opts?.vpsId !== undefined) params['vps'] = opts.vpsId;
   if (opts?.userId !== undefined) params['user'] = opts.userId;
@@ -197,65 +196,143 @@ export async function fetchSecurityAdvisoryAffectedVps(opts?: SecurityAdvisoryAf
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
 
-  const res = await haveApiCall<SecurityAdvisoryAffectedVps[]>({
-    method: 'GET',
-    path: '/vps_security_advisories',
-    namespace: 'vps_security_advisory',
-    params,
-    meta: opts?.includes ? { includes: opts.includes } : undefined,
-  });
+  const res = await (
+    await getApi()
+  ).vps_security_advisory.index({ params, meta: opts?.includes ? { includes: opts.includes } : undefined });
 
-  return {
-    ...res,
-    data: expectArray<SecurityAdvisoryAffectedVps>(res.data, 'vps_security_advisories#index'),
-  };
+  return narrowApiResult(res, narrowSecurityAdvisoryAffectedVpsList, 'vps_security_advisories#index');
 }
 
 export async function fetchSecurityAdvisoryOutageLinks(opts?: SecurityAdvisoryOutageLinkFilters) {
-  const params: Record<string, unknown> = {};
+  const params: OutageSecurityAdvisory__IndexInput = {};
   if (opts?.outageId !== undefined) params['outage'] = opts.outageId;
   if (opts?.securityAdvisoryId !== undefined) params['security_advisory'] = opts.securityAdvisoryId;
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
 
-  const res = await haveApiCall<SecurityAdvisoryOutageLink[]>({
-    method: 'GET',
-    path: '/outage_security_advisories',
-    namespace: 'outage_security_advisory',
-    params,
-    meta: opts?.includes ? { includes: opts.includes } : undefined,
-  });
+  const res = await (
+    await getApi()
+  ).outage_security_advisory.index({ params, meta: opts?.includes ? { includes: opts.includes } : undefined });
 
-  return {
-    ...res,
-    data: expectArray<SecurityAdvisoryOutageLink>(res.data, 'outage_security_advisories#index'),
-  };
+  return narrowApiResult(res, narrowSecurityAdvisoryOutageLinkList, 'outage_security_advisories#index');
 }
 
 export async function fetchSecurityAdvisoryOutageLink(
   outageSecurityAdvisoryId: number,
   opts?: { includes?: string; signal?: AbortSignal }
 ) {
-  return haveApiCall<SecurityAdvisoryOutageLink>({
-    method: 'GET',
-    path: `/outage_security_advisories/${outageSecurityAdvisoryId}`,
-    meta: opts?.includes ? { includes: opts.includes } : undefined,
-    signal: opts?.signal,
-  });
+  return narrowApiResult(
+    await (
+      await getApi()
+    ).outage_security_advisory.show({
+      path: { outage_security_advisory_id: outageSecurityAdvisoryId },
+      meta: opts?.includes ? { includes: opts.includes } : undefined,
+      signal: opts?.signal,
+    }),
+    narrowSecurityAdvisoryOutageLink,
+    'outage_security_advisory.show'
+  );
 }
 
 export async function createSecurityAdvisoryOutageLink(params: { outage: number; security_advisory: number }) {
-  return haveApiCall<SecurityAdvisoryOutageLink>({
-    method: 'POST',
-    path: '/outage_security_advisories',
-    namespace: 'outage_security_advisory',
-    params: { ...params },
-  });
+  return narrowApiResult(
+    await (await getApi()).outage_security_advisory.create({ params: { ...params } }),
+    narrowSecurityAdvisoryOutageLink,
+    'outage_security_advisory.create'
+  );
 }
 
 export async function deleteSecurityAdvisoryOutageLink(outageSecurityAdvisoryId: number) {
-  return haveApiCall<null>({
-    method: 'DELETE',
-    path: `/outage_security_advisories/${outageSecurityAdvisoryId}`,
+  return (await getApi()).outage_security_advisory.delete({
+    path: { outage_security_advisory_id: outageSecurityAdvisoryId },
   });
+}
+
+function isSecurityAdvisoryNodeStatus(value: unknown): value is SecurityAdvisoryNodeStatus {
+  return (
+    isOperationsRecord(value) &&
+    typeof value['id'] === 'number' &&
+    Number.isSafeInteger(value['id']) &&
+    value['id'] > 0 &&
+    ['cs_note', 'en_note', 'mitigated_since', 'state', 'vulnerable_until'].every(
+      (key) => value[key] === undefined || value[key] === null || typeof value[key] === 'string'
+    ) &&
+    ['node', 'security_advisory'].every(
+      (key) => value[key] === undefined || value[key] === null || isOperationsReference(value[key])
+    )
+  );
+}
+function narrowSecurityAdvisoryNodeStatus(value: unknown): SecurityAdvisoryNodeStatus {
+  if (!isSecurityAdvisoryNodeStatus(value)) throw new TypeError('Invalid SecurityAdvisoryNodeStatus fields');
+  return value;
+}
+function narrowSecurityAdvisoryNodeStatusList(value: unknown): SecurityAdvisoryNodeStatus[] {
+  if (!Array.isArray(value)) throw new TypeError('Expected SecurityAdvisoryNodeStatus list');
+  return value.map(narrowSecurityAdvisoryNodeStatus);
+}
+
+function isSecurityAdvisoryOutageLink(value: unknown): value is SecurityAdvisoryOutageLink {
+  return (
+    isOperationsRecord(value) &&
+    typeof value['id'] === 'number' &&
+    Number.isSafeInteger(value['id']) &&
+    value['id'] > 0 &&
+    ['outage_id', 'security_advisory_id'].every(
+      (key) =>
+        value[key] === undefined ||
+        value[key] === null ||
+        (typeof value[key] === 'number' && Number.isFinite(value[key]))
+    ) &&
+    ['outage', 'security_advisory'].every(
+      (key) => value[key] === undefined || value[key] === null || isOperationsReference(value[key])
+    )
+  );
+}
+function narrowSecurityAdvisoryOutageLink(value: unknown): SecurityAdvisoryOutageLink {
+  if (!isSecurityAdvisoryOutageLink(value)) throw new TypeError('Invalid SecurityAdvisoryOutageLink fields');
+  return value;
+}
+function narrowSecurityAdvisoryOutageLinkList(value: unknown): SecurityAdvisoryOutageLink[] {
+  if (!Array.isArray(value)) throw new TypeError('Expected SecurityAdvisoryOutageLink list');
+  return value.map(narrowSecurityAdvisoryOutageLink);
+}
+
+function narrowSecurityAdvisoryAffectedUserList(
+  data: UserSecurityAdvisory__IndexOutput
+): SecurityAdvisoryAffectedUser[] {
+  if (!Array.isArray(data)) throw new TypeError('Expected advisory relation list');
+  return data.map((value) => {
+    if (!isSecurityAdvisoryAffectedUser(value)) throw new TypeError('Invalid advisory relation');
+    return value;
+  });
+}
+
+function isSecurityAdvisoryAffectedUser(value: unknown): value is SecurityAdvisoryAffectedUser {
+  return (
+    isOperationsRecord(value) &&
+    typeof value['id'] === 'number' &&
+    Number.isSafeInteger(value['id']) &&
+    value['id'] > 0 &&
+    ['security_advisory', 'user'].every((key) => value[key] == null || isOperationsReference(value[key]))
+  );
+}
+
+function narrowSecurityAdvisoryAffectedVpsList(data: VpsSecurityAdvisory__IndexOutput): SecurityAdvisoryAffectedVps[] {
+  if (!Array.isArray(data)) throw new TypeError('Expected advisory relation list');
+  return data.map((value) => {
+    if (!isSecurityAdvisoryAffectedVps(value)) throw new TypeError('Invalid advisory relation');
+    return value;
+  });
+}
+
+function isSecurityAdvisoryAffectedVps(value: unknown): value is SecurityAdvisoryAffectedVps {
+  return (
+    isOperationsRecord(value) &&
+    typeof value['id'] === 'number' &&
+    Number.isSafeInteger(value['id']) &&
+    value['id'] > 0 &&
+    ['environment', 'location', 'node', 'security_advisory', 'user', 'vps'].every(
+      (key) => value[key] == null || isOperationsReference(value[key])
+    )
+  );
 }

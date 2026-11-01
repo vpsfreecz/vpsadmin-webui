@@ -1,40 +1,45 @@
-import { expectArray, haveApiCall } from './haveapi';
+import { isOperationsRecord, isOperationsReference, type OperationsReference } from './operationsReference';
+import type {
+  ClusterResourcePackage__IndexOutput,
+  ClusterResourcePackage__Item__IndexOutput,
+  Location__ShowOutput,
+  UserClusterResourcePackage__IndexOutput,
+} from 'vpsadmin-typescript-client';
+import type {
+  ClusterResourcePackage__IndexInput,
+  ClusterResourcePackage__Item__IndexInput,
+  UserClusterResourcePackage__IndexInput,
+} from 'vpsadmin-typescript-client';
+import { getApi } from './sdk';
+import { narrowApiResult } from './apiOutput';
 
 import type { User } from './app';
 import type { Environment } from './infra';
 import type { ClusterResource } from './clusterResources';
 
-export interface ClusterResourcePackage {
-  id: number;
-  label?: string;
-  environment?: Environment | null;
-  user?: User | null;
-  is_personal?: boolean;
-  created_at?: string;
-  updated_at?: string;
-  [k: string]: unknown;
-}
+export type ClusterResourcePackage = Omit<
+  ClusterResourcePackage__IndexOutput[number],
+  'id' | 'environment' | 'user'
+> & {
+  id: number; environment?: OperationsReference | null;
+  user?: OperationsReference | null; [k: string]: unknown };
 
-export interface ClusterResourcePackageItem {
-  id: number;
-  cluster_resource?: ClusterResource | null;
-  value?: number;
-  [k: string]: unknown;
-}
+export type ClusterResourcePackageItem = Omit<
+  ClusterResourcePackage__Item__IndexOutput[number],
+  'id' | 'cluster_resource'
+> & { id: number; cluster_resource?: OperationsReference | null; [k: string]: unknown };
 
-export interface UserClusterResourcePackage {
+export type UserClusterResourcePackage = Omit<
+  UserClusterResourcePackage__IndexOutput[number],
+  'id' | 'added_by' | 'cluster_resource_package' | 'environment' | 'user'
+> & {
   id: number;
-  environment?: Environment | null;
-  user?: User | null;
-  cluster_resource_package?: ClusterResourcePackage | null;
-  label?: string;
-  is_personal?: boolean;
-  comment?: string;
-  added_by?: User | null;
-  created_at?: string;
-  updated_at?: string;
+  added_by?: OperationsReference | null;
+  cluster_resource_package?: OperationsReference | null;
+  environment?: OperationsReference | null;
+  user?: OperationsReference | null;
   [k: string]: unknown;
-}
+};
 
 export async function fetchClusterResourcePackages(opts?: {
   limit?: number;
@@ -42,77 +47,79 @@ export async function fetchClusterResourcePackages(opts?: {
   environmentId?: number;
   userId?: number | null;
 }) {
-  const params: Record<string, unknown> = {};
+  const params: ClusterResourcePackage__IndexInput = {};
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
 
   if (opts?.environmentId !== undefined) params['environment'] = opts.environmentId;
   if (opts?.userId !== undefined) params['user'] = opts.userId;
 
-  const res = await haveApiCall<ClusterResourcePackage[]>({
-    method: 'GET',
-    path: '/cluster_resource_packages',
-    namespace: 'cluster_resource_package',
-    params,
-    meta: { includes: 'environment,user' },
-  });
+  const res = await (await getApi()).cluster_resource_package.index({ params,
+    meta: { includes: 'environment,user' } });
 
-  return { ...res, data: expectArray<ClusterResourcePackage>(res.data, 'cluster_resource_packages#index') };
+  return narrowApiResult(res, narrowClusterResourcePackageList, 'cluster_resource_packages#index');
 }
 
 export async function fetchClusterResourcePackage(id: number) {
-  return haveApiCall<ClusterResourcePackage>({
-    method: 'GET',
-    path: `/cluster_resource_packages/${id}`,
-    namespace: 'cluster_resource_package',
-    meta: { includes: 'environment,user' },
-  });
+  return narrowApiResult(
+    await (
+      await getApi()
+    ).cluster_resource_package.show({
+      path: { cluster_resource_package_id: id },
+      meta: { includes: 'environment,user' },
+    }),
+    narrowClusterResourcePackage,
+    'cluster_resource_package.show'
+  );
 }
 
 export async function createClusterResourcePackage(payload: { label: string }) {
-  return haveApiCall<ClusterResourcePackage>({
-    method: 'POST',
-    path: '/cluster_resource_packages',
-    namespace: 'cluster_resource_package',
-    params: {
-      label: payload.label,
-    },
-  });
+  return narrowApiResult(
+    await (
+      await getApi()
+    ).cluster_resource_package.create({
+      params: {
+        label: payload.label,
+      },
+    }),
+    narrowClusterResourcePackage,
+    'cluster_resource_package.create'
+  );
 }
 
 export async function updateClusterResourcePackage(payload: { id: number; label: string }) {
-  return haveApiCall<ClusterResourcePackage>({
-    method: 'PUT',
-    path: `/cluster_resource_packages/${payload.id}`,
-    namespace: 'cluster_resource_package',
-    params: {
-      label: payload.label,
-    },
-  });
+  return narrowApiResult(
+    await (
+      await getApi()
+    ).cluster_resource_package.update({
+      path: { cluster_resource_package_id: payload.id},
+      params: {
+        label: payload.label,
+      },
+    }),
+    narrowClusterResourcePackage,
+    'cluster_resource_package.update'
+  );
 }
 
 export async function deleteClusterResourcePackage(id: number) {
-  return haveApiCall<void>({
-    method: 'DELETE',
-    path: `/cluster_resource_packages/${id}`,
-    namespace: 'cluster_resource_package',
-  });
+  return (await getApi()).cluster_resource_package.delete({ path: { cluster_resource_package_id: id } });
 }
 
 export async function fetchClusterResourcePackageItems(pkgId: number, opts?: { limit?: number; fromId?: number }) {
-  const params: Record<string, unknown> = {};
+  const params: ClusterResourcePackage__Item__IndexInput = {};
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
 
-  const res = await haveApiCall<ClusterResourcePackageItem[]>({
-    method: 'GET',
-    path: `/cluster_resource_packages/${pkgId}/items`,
-    namespace: 'item',
+  const res = await (
+    await getApi()
+  ).cluster_resource_package.item.index({
+    path: { cluster_resource_package_id: pkgId },
     params,
     meta: { includes: 'cluster_resource' },
   });
 
-  return { ...res, data: expectArray<ClusterResourcePackageItem>(res.data, `cluster_resource_packages/${pkgId}/items#index`) };
+  return narrowApiResult(res, narrowClusterResourcePackageItemList, `cluster_resource_packages/${pkgId}/items#index`);
 }
 
 export async function createClusterResourcePackageItem(payload: {
@@ -120,33 +127,39 @@ export async function createClusterResourcePackageItem(payload: {
   clusterResourceId: number;
   value: number;
 }) {
-  return haveApiCall<ClusterResourcePackageItem>({
-    method: 'POST',
-    path: `/cluster_resource_packages/${payload.pkgId}/items`,
-    namespace: 'item',
-    params: {
-      cluster_resource: payload.clusterResourceId,
-      value: payload.value,
-    },
-  });
+  return narrowApiResult(
+    await (
+      await getApi()
+    ).cluster_resource_package.item.create({
+      path: { cluster_resource_package_id: payload.pkgId },
+      params: {
+        cluster_resource: payload.clusterResourceId,
+        value: payload.value,
+      },
+    }),
+    narrowClusterResourcePackageItem,
+    'cluster_resource_package.item.create'
+  );
 }
 
 export async function updateClusterResourcePackageItem(payload: { pkgId: number; itemId: number; value: number }) {
-  return haveApiCall<ClusterResourcePackageItem>({
-    method: 'PUT',
-    path: `/cluster_resource_packages/${payload.pkgId}/items/${payload.itemId}`,
-    namespace: 'item',
-    params: {
-      value: payload.value,
-    },
-  });
+  return narrowApiResult(
+    await (
+      await getApi()
+    ).cluster_resource_package.item.update({
+      path: { cluster_resource_package_id: payload.pkgId, item_id: payload.itemId },
+      params: {
+        value: payload.value,
+      },
+    }),
+    narrowClusterResourcePackageItem,
+    'cluster_resource_package.item.update'
+  );
 }
 
 export async function deleteClusterResourcePackageItem(payload: { pkgId: number; itemId: number }) {
-  return haveApiCall<void>({
-    method: 'DELETE',
-    path: `/cluster_resource_packages/${payload.pkgId}/items/${payload.itemId}`,
-    namespace: 'item',
+  return (await getApi()).cluster_resource_package.item.delete({
+    path: { cluster_resource_package_id: payload.pkgId, item_id: payload.itemId },
   });
 }
 
@@ -158,7 +171,7 @@ export async function fetchUserClusterResourcePackages(opts?: {
   clusterResourcePackageId?: number;
   addedById?: number;
 }) {
-  const params: Record<string, unknown> = {};
+  const params: UserClusterResourcePackage__IndexInput = {};
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
 
@@ -167,18 +180,14 @@ export async function fetchUserClusterResourcePackages(opts?: {
   if (opts?.clusterResourcePackageId !== undefined) params['cluster_resource_package'] = opts.clusterResourcePackageId;
   if (opts?.addedById !== undefined) params['added_by'] = opts.addedById;
 
-  const res = await haveApiCall<UserClusterResourcePackage[]>({
-    method: 'GET',
-    path: '/user_cluster_resource_packages',
-    namespace: 'user_cluster_resource_package',
+  const res = await (
+    await getApi()
+  ).user_cluster_resource_package.index({
     params,
     meta: { includes: 'environment,user,added_by,cluster_resource_package' },
   });
 
-  return {
-    ...res,
-    data: expectArray<UserClusterResourcePackage>(res.data, 'user_cluster_resource_packages#index'),
-  };
+  return narrowApiResult(res, narrowUserClusterResourcePackageList, 'user_cluster_resource_packages#index');
 }
 
 export async function createUserClusterResourcePackage(payload: {
@@ -188,35 +197,113 @@ export async function createUserClusterResourcePackage(payload: {
   comment?: string;
   fromPersonal?: boolean;
 }) {
-  return haveApiCall<UserClusterResourcePackage>({
-    method: 'POST',
-    path: '/user_cluster_resource_packages',
-    namespace: 'user_cluster_resource_package',
-    params: {
-      environment: payload.environmentId,
-      user: payload.userId,
-      cluster_resource_package: payload.clusterResourcePackageId,
-      comment: payload.comment ?? '',
-      from_personal: Boolean(payload.fromPersonal),
-    },
-  });
+  return narrowApiResult(
+    await (
+      await getApi()
+    ).user_cluster_resource_package.create({
+      params: {
+        environment: payload.environmentId,
+        user: payload.userId,
+        cluster_resource_package: payload.clusterResourcePackageId,
+        comment: payload.comment ?? '',
+        from_personal: Boolean(payload.fromPersonal),
+      },
+    }),
+    narrowUserClusterResourcePackage,
+    'user_cluster_resource_package.create'
+  );
 }
 
 export async function updateUserClusterResourcePackage(payload: { id: number; comment: string }) {
-  return haveApiCall<UserClusterResourcePackage>({
-    method: 'PUT',
-    path: `/user_cluster_resource_packages/${payload.id}`,
-    namespace: 'user_cluster_resource_package',
-    params: {
-      comment: payload.comment,
-    },
-  });
+  return narrowApiResult(
+    await (
+      await getApi()
+    ).user_cluster_resource_package.update({
+      path: { user_cluster_resource_package_id: payload.id },
+      params: {
+        comment: payload.comment,
+      },
+    }),
+    narrowUserClusterResourcePackage,
+    'user_cluster_resource_package.update'
+  );
 }
 
 export async function deleteUserClusterResourcePackage(id: number) {
-  return haveApiCall<void>({
-    method: 'DELETE',
-    path: `/user_cluster_resource_packages/${id}`,
-    namespace: 'user_cluster_resource_package',
-  });
+  return (await getApi()).user_cluster_resource_package.delete({ path: { user_cluster_resource_package_id: id } });
+}
+
+function isClusterResourcePackage(value: unknown): value is ClusterResourcePackage {
+  return (
+    isOperationsRecord(value) &&
+    typeof value['id'] === 'number' &&
+    Number.isSafeInteger(value['id']) &&
+    value['id'] > 0 &&
+    ['created_at', 'label', 'updated_at'].every(
+      (key) => value[key] === undefined || value[key] === null || typeof value[key] === 'string'
+    ) &&
+    ['environment', 'user'].every(
+      (key) => value[key] === undefined || value[key] === null || isOperationsReference(value[key])
+    )
+  );
+}
+function narrowClusterResourcePackage(value: unknown): ClusterResourcePackage {
+  if (!isClusterResourcePackage(value)) throw new TypeError('Invalid ClusterResourcePackage fields');
+  return value;
+}
+function narrowClusterResourcePackageList(value: unknown): ClusterResourcePackage[] {
+  if (!Array.isArray(value)) throw new TypeError('Expected ClusterResourcePackage list');
+  return value.map(narrowClusterResourcePackage);
+}
+
+function isClusterResourcePackageItem(value: unknown): value is ClusterResourcePackageItem {
+  return (
+    isOperationsRecord(value) &&
+    typeof value['id'] === 'number' &&
+    Number.isSafeInteger(value['id']) &&
+    value['id'] > 0 &&
+    ['value'].every(
+      (key) =>
+        value[key] === undefined ||
+        value[key] === null ||
+        (typeof value[key] === 'number' && Number.isFinite(value[key]))
+    ) &&
+    ['cluster_resource'].every(
+      (key) => value[key] === undefined || value[key] === null || isOperationsReference(value[key])
+    )
+  );
+}
+function narrowClusterResourcePackageItem(value: unknown): ClusterResourcePackageItem {
+  if (!isClusterResourcePackageItem(value)) throw new TypeError('Invalid ClusterResourcePackageItem fields');
+  return value;
+}
+function narrowClusterResourcePackageItemList(value: unknown): ClusterResourcePackageItem[] {
+  if (!Array.isArray(value)) throw new TypeError('Expected ClusterResourcePackageItem list');
+  return value.map(narrowClusterResourcePackageItem);
+}
+
+function isUserClusterResourcePackage(value: unknown): value is UserClusterResourcePackage {
+  return (
+    isOperationsRecord(value) &&
+    typeof value['id'] === 'number' &&
+    Number.isSafeInteger(value['id']) &&
+    value['id'] > 0 &&
+    ['comment', 'created_at', 'label', 'updated_at'].every(
+      (key) => value[key] === undefined || value[key] === null || typeof value[key] === 'string'
+    ) &&
+    ['is_personal'].every(
+      (key) => value[key] === undefined || value[key] === null || typeof value[key] === 'boolean'
+    ) &&
+    ['added_by', 'cluster_resource_package', 'environment', 'user'].every(
+      (key) => value[key] === undefined || value[key] === null || isOperationsReference(value[key])
+    )
+  );
+}
+function narrowUserClusterResourcePackage(value: unknown): UserClusterResourcePackage {
+  if (!isUserClusterResourcePackage(value)) throw new TypeError('Invalid UserClusterResourcePackage fields');
+  return value;
+}
+function narrowUserClusterResourcePackageList(value: unknown): UserClusterResourcePackage[] {
+  if (!Array.isArray(value)) throw new TypeError('Expected UserClusterResourcePackage list');
+  return value.map(narrowUserClusterResourcePackage);
 }

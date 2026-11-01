@@ -14,7 +14,10 @@ vi.mock('../../../../app/i18n', () => ({
   useI18n: () => ({ t: (key: string) => key, preferredLanguageCodes: ['en'] }),
 }));
 vi.mock('../../../../app/toasts', () => ({ useToasts: () => ({ pushToast: mocks.pushToast }) }));
-vi.mock('./securityAdvisoryAdminApi', () => ({ fetchAdvisoryEditSnapshot: vi.fn() }));
+vi.mock('./securityAdvisoryAdminApi', () => ({
+  fetchAdvisoryEditSnapshot: vi.fn(),
+  requireAdvisorySnapshot: vi.fn(async () => ({})),
+}));
 vi.mock('../../../../lib/api/securityAdvisoryMutations', async (original) => ({
   ...(await original<typeof import('../../../../lib/api/securityAdvisoryMutations')>()),
   requireAdvisoryActions: vi.fn(),
@@ -29,14 +32,14 @@ const advisory = { id: 88, state: 'published', content_revision: 9 };
 const guards = { expected_state: 'published' as const, expected_content_revision: 9 };
 const current: SecurityAdvisoryNodeStatus = {
   id: 501,
-  node: 42,
+  node: { id: 42 },
   state: 'mitigated',
   vulnerable_until: '2026-10-15T12:34:17+02:00',
   mitigated_since: '2026-10-15T12:34:43+02:00',
   en_note: 'Current English note',
   cs_note: 'Aktuální česká poznámka',
 };
-const stale: SecurityAdvisoryNodeStatus = { id: 501, node: 42, state: 'not_affected', en_note: 'Old note' };
+const stale: SecurityAdvisoryNodeStatus = { id: 501, node: { id: 42 }, state: 'not_affected', en_note: 'Old note' };
 
 function renderPanel(statuses = [stale]) {
   return render(
@@ -58,7 +61,12 @@ describe('coherent node editor snapshot', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(fetchAdvisoryEditSnapshot).mockResolvedValue({ advisory, guards, cves: [], statuses: [current] });
-    vi.mocked(updateSecurityAdvisoryNodeStatus).mockResolvedValue({ data: current, envelope: { status: true } });
+    vi.mocked(updateSecurityAdvisoryNodeStatus).mockResolvedValue({
+      data: current,
+      meta: {},
+      httpStatus: 200,
+      envelope: { status: true, response: {} },
+    });
   });
 
   it('keeps current assessment values when fresh parent props accompany a stale child row', async () => {
@@ -91,7 +99,7 @@ describe('coherent node editor snapshot', () => {
   it.each([
     { name: 'removed row', statuses: [] },
     { name: 'replacement row', statuses: [{ ...current, id: 502 }] },
-    { name: 'different node', statuses: [{ ...current, node: 43 }] },
+    { name: 'different node', statuses: [{ ...current, node: { id: 43 } }] },
   ])('rejects a $name instead of adopting it for the clicked row', async ({ statuses }) => {
     vi.mocked(fetchAdvisoryEditSnapshot).mockResolvedValue({ advisory, guards, cves: [], statuses });
     renderPanel();

@@ -7,7 +7,7 @@ import { Badge } from '../../../../components/ui/Badge';
 import { Button, type ButtonSize } from '../../../../components/ui/Button';
 import { ConfirmDialog } from '../../../../components/ui/ConfirmDialog';
 import { Input } from '../../../../components/ui/Input';
-import { isAmbiguousMutationError } from '../../../../lib/api/haveapi';
+import { isAmbiguousMutationError } from '../../../../lib/api/apiErrors';
 import { formatErrorMessage } from '../../../../lib/errors';
 
 export type MaintenanceState = 'no' | 'lock' | 'master_lock';

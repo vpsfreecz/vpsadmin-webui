@@ -1,3 +1,4 @@
+import { beforeEach } from 'vitest';
 import { apiWire } from '../../test/haveapiXhr';
 import { describe, expect, test, vi } from 'vitest';
 
@@ -5,8 +6,7 @@ import {
   fetchTransaction,
   fetchTransactionChain,
   fetchTransactionChains,
-  fetchTransactions,
-} from './transactions';
+  fetchTransactions } from './transactions';
 
 function mockFetchOk(response: any) {
   return vi.fn().mockResolvedValue({ ok: true, json: async () => ({ status: true, response }) });
@@ -20,7 +20,9 @@ function lastFetchUrl() {
 
 describe('transactions API wrappers', () => {
   test('fetchTransactionChains forwards HaveAPI index filters', async () => {
-    apiWire.respond = mockFetchOk({ transaction_chain: [{ id: 10, label: 'chain' }], _meta: { total_count: 1 } }) as any;
+    apiWire.respond = mockFetchOk({
+      transaction_chains: [{ id: 10, label: 'chain' }], _meta: { total_count: 1 },
+    }) as any;
 
     const res = await fetchTransactionChains({
       limit: 25,
@@ -50,7 +52,7 @@ describe('transactions API wrappers', () => {
   });
 
   test('fetchTransactions forwards only filters supported by the transaction index', async () => {
-    apiWire.respond = mockFetchOk({ transaction: [{ id: 501, name: 'tx' }] }) as any;
+    apiWire.respond = mockFetchOk({ transactions: [{ id: 501, name: 'tx' }] }) as any;
 
     const res = await fetchTransactions({
       limit: 100,
@@ -94,4 +96,12 @@ describe('transactions API wrappers', () => {
     expect(lastFetchUrl().pathname).toBe('/v7.0/transactions/501');
     expect(lastFetchUrl().search).toBe('');
   });
+});
+
+beforeEach(() => {
+  window.vpsAdmin = {
+    api: { url: 'https://api.example.test', version: 'v7.0' },
+    sessionToken: 'test-token',
+    description: { meta: { namespace: '_meta' }, authentication: { token: { http_header: 'X-Auth-Token' } } },
+  };
 });

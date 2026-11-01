@@ -1,79 +1,139 @@
-import { expectArray, haveApiCall } from './haveapi';
+import type {
+  Node__KernelHistory__IndexOutput,
+  NodeSystemState__IndexOutput,
+  NodeKernelParameter__IndexOutput,
+  NodeSysctl__IndexOutput,
+  NodeSoftwareVersion__IndexOutput,
+  NodeKernelEvidence__IndexOutput,
+} from 'vpsadmin-typescript-client';
+import { getApi } from './sdk';
+import { narrowApiResult } from './apiOutput';
 
-export interface KernelHistoryEvent {
-  id: number;
-  event_type: string;
-  livepatch_action?: string | null;
-  booted_release?: string | null;
-  reported_release?: string | null;
-  effective_at?: string | null;
-  observed_after?: string | null;
-  observed_before: string;
-  source: string;
-  confidence: string;
-  current: boolean;
-}
+export type KernelHistoryEvent = Omit<Node__KernelHistory__IndexOutput[number], 'id'> & {
+  id: number };
+export type NodeSystemState = Omit<NodeSystemState__IndexOutput[number], 'id'> & {
+  id: number };
+export type KernelParameter = Omit<NodeKernelParameter__IndexOutput[number], 'id'> & { id: number };
+export type NodeSysctl = Omit<NodeSysctl__IndexOutput[number], 'id'> & {
+  id: number };
+export type NodeSoftwareVersion = Omit<NodeSoftwareVersion__IndexOutput[number], 'id'> & {
+  id: number };
+export type KernelEvidence = Omit<NodeKernelEvidence__IndexOutput[number], 'id'> & { id: number };
 
-export interface NodeSystemState {
-  id: number;
-  cpus?: number | null;
-  total_memory?: number | null;
-  total_swap?: number | null;
-  cgroup_version?: string | null;
-  first_observed_at: string;
-  last_observed_at: string;
-  current: boolean;
+export interface NodeHistoryPageOptions { fromId?: number; signal?: AbortSignal;
 }
-
-export interface KernelParameter { id: number; position: number; name: string; value: string | null }
-export interface NodeSysctl {
-  id: number;
-  name: string;
-  configured_value: string | null;
-  effective_value: string | null;
-  available: boolean;
-}
-export interface NodeSoftwareVersion {
-  id: number;
-  generation: string;
-  component: string;
-  version: string | null;
-  revision: string | null;
-  revision_dirty: boolean;
-}
-export interface KernelEvidence { id: number; kernel_command_line: string | null; observed_at?: string | null }
-
-export interface NodeHistoryPageOptions { fromId?: number; signal?: AbortSignal }
 export const NODE_HISTORY_PAGE_SIZE = 50;
 
-async function list<T>(path: string, namespace: string, params: Record<string, unknown>, options: NodeHistoryPageOptions) {
-  const result = await haveApiCall<T[]>({
-    method: 'GET', path, namespace,
-    params: { ...params, limit: NODE_HISTORY_PAGE_SIZE, from_id: options.fromId },
-    signal: options.signal,
+/** History views keep absent/null observations; only rendered entity identity is mandatory. */
+function historyRows<T extends { id?: number | null }>(data: T[]): Array<T & { id: number }> {
+  if (!Array.isArray(data)) throw new TypeError('Expected node history list');
+  return data.map((value) => {
+    if (
+      !value ||
+      typeof value !== 'object' ||
+      Array.isArray(value) ||
+      typeof value.id !== 'number' ||
+      !Number.isSafeInteger(value.id) ||
+      value.id <= 0
+    )
+      throw new TypeError('Invalid node history identity');
+    for (const [key, field] of Object.entries(value)) {
+      if (field == null || key === '_meta') continue;
+      if (['current', 'available', 'revision_dirty'].includes(key)) {
+        if (typeof field !== 'boolean') throw new TypeError('Invalid node history flag');
+      } else if (['id', 'cpus', 'total_memory', 'total_swap', 'position'].includes(key)) {
+        if (typeof field !== 'number' || !Number.isFinite(field)) throw new TypeError('Invalid node history number');
+      } else if (
+        [
+          'event_type',
+          'livepatch_action',
+          'booted_release',
+          'reported_release',
+          'effective_at',
+          'observed_after',
+          'observed_before',
+          'source',
+          'confidence',
+          'cgroup_version',
+          'first_observed_at',
+          'last_observed_at',
+          'name',
+          'value',
+          'configured_value',
+          'effective_value',
+          'generation',
+          'component',
+          'version',
+          'revision',
+          'kernel_command_line',
+          'observed_at',
+        ].includes(key) &&
+        typeof field !== 'string'
+      )
+        throw new TypeError('Invalid node history text');
+    }
+    return { ...value, id: value.id };
   });
-  return expectArray<T>(result.data, path);
 }
 
-export function fetchNodeKernelHistory(nodeId: number, options: NodeHistoryPageOptions = {}) {
-  return list<KernelHistoryEvent>(`/nodes/${nodeId}/kernel_history`, 'kernel_history', {}, options);
-}
-export function fetchNodeSystemHistory(nodeId: number, options: NodeHistoryPageOptions = {}) {
-  return list<NodeSystemState>('/node_system_states', 'node_system_state', { node: nodeId }, options);
-}
-export function fetchNodeKernelParameters(nodeId: number, options: NodeHistoryPageOptions = {}) {
-  return list<KernelParameter>('/node_kernel_parameters', 'node_kernel_parameter', { node: nodeId, source: 'current' }, options);
-}
-export function fetchNodeSysctls(nodeId: number, options: NodeHistoryPageOptions = {}) {
-  return list<NodeSysctl>('/node_sysctls', 'node_sysctl', { node: nodeId, source: 'current' }, options);
-}
-export function fetchNodeSoftwareVersions(nodeId: number, options: NodeHistoryPageOptions = {}) {
-  return list<NodeSoftwareVersion>('/node_software_versions', 'node_software_version', { node: nodeId, source: 'current' }, options);
-}
-export async function fetchNodeKernelEvidence(nodeId: number, signal?: AbortSignal) {
-  const result = await haveApiCall<KernelEvidence[]>({
-    method: 'GET', path: '/node_kernel_evidences', namespace: 'node_kernel_evidence',
-    params: { node: nodeId, limit: 1 }, signal,
+export async function fetchNodeKernelHistory(nodeId: number, options: NodeHistoryPageOptions = {}) {
+  const result = await (
+    await getApi()
+  ).node.kernel_history.index({
+    path: { node_id: nodeId },
+    params: { limit: NODE_HISTORY_PAGE_SIZE, from_id: options.fromId },
+    signal: options.signal,
   });
-  return expectArray<KernelEvidence>(result.data, 'node_kernel_evidences')[0] ?? null;
+  const rows = narrowApiResult(result, historyRows, 'node history').data;
+  return rows;
+}
+
+export async function fetchNodeSystemHistory(nodeId: number, options: NodeHistoryPageOptions = {}) {
+  const result = await (
+    await getApi()
+  ).node_system_state.index({
+    params: { node: nodeId, limit: NODE_HISTORY_PAGE_SIZE, from_id: options.fromId },
+    signal: options.signal,
+  });
+  const rows = narrowApiResult(result, historyRows, 'node history').data;
+  return rows;
+}
+
+export async function fetchNodeKernelParameters(nodeId: number, options: NodeHistoryPageOptions = {}) {
+  const result = await (
+    await getApi()
+  ).node_kernel_parameter.index({
+    params: { node: nodeId, source: 'current', limit: NODE_HISTORY_PAGE_SIZE, from_id: options.fromId },
+    signal: options.signal,
+  });
+  const rows = narrowApiResult(result, historyRows, 'node history').data;
+  return rows;
+}
+
+export async function fetchNodeSysctls(nodeId: number, options: NodeHistoryPageOptions = {}) {
+  const result = await (
+    await getApi()
+  ).node_sysctl.index({
+    params: { node: nodeId, source: 'current', limit: NODE_HISTORY_PAGE_SIZE, from_id: options.fromId },
+    signal: options.signal,
+  });
+  const rows = narrowApiResult(result, historyRows, 'node history').data;
+  return rows;
+}
+
+export async function fetchNodeSoftwareVersions(nodeId: number, options: NodeHistoryPageOptions = {}) {
+  const result = await (
+    await getApi()
+  ).node_software_version.index({
+    params: { node: nodeId, source: 'current', limit: NODE_HISTORY_PAGE_SIZE, from_id: options.fromId },
+    signal: options.signal,
+  });
+  const rows = narrowApiResult(result, historyRows, 'node history').data;
+  return rows;
+}
+
+export async function fetchNodeKernelEvidence(nodeId: number, signal?: AbortSignal) {
+  const result = await (await getApi()).node_kernel_evidence.index({ params: { node: nodeId, limit: 1 }, signal });
+  const rows = narrowApiResult(result, historyRows, 'node history').data;
+  return rows[0] ?? null;
 }

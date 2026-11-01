@@ -1,3 +1,4 @@
+import { beforeEach } from 'vitest';
 import { apiWire } from '../../test/haveapiXhr';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -10,16 +11,25 @@ function mockFetchOk(response: unknown) {
 describe('security advisory update mutations', () => {
   it('updates localized text and deletes the selected update without a parent mutation', async () => {
     apiWire.respond = mockFetchOk({ security_advisory_update: { id: 8 } }) as typeof fetch;
-    await updateSecurityAdvisoryUpdate(8, { en_summary: 'Updated', en_message: null });
+    await updateSecurityAdvisoryUpdate(8, { cs_summary: 'Aktualizace', en_summary: 'Updated', en_message: null });
     let [url, init] = vi.mocked(apiWire.respond).mock.calls.at(-1) as [string, RequestInit];
     expect(new URL(url).pathname).toBe('/v7.0/security_advisory_updates/8');
     expect(init.method).toBe('PUT');
-    expect(JSON.parse(String(init.body))).toEqual({ security_advisory_update: { en_summary: 'Updated', en_message: null } });
+    expect(JSON.parse(String(init.body))).toEqual({ security_advisory_update: { cs_summary: 'Aktualizace', en_summary: 'Updated', en_message: null },
+    });
 
-    apiWire.respond = mockFetchOk(null) as typeof fetch;
+    apiWire.respond = mockFetchOk({ security_advisory_update: {} }) as typeof fetch;
     await deleteSecurityAdvisoryUpdate(8);
     [url, init] = vi.mocked(apiWire.respond).mock.calls.at(-1) as [string, RequestInit];
     expect(new URL(url).pathname).toBe('/v7.0/security_advisory_updates/8');
     expect(init.method).toBe('DELETE');
   });
+});
+
+beforeEach(() => {
+  window.vpsAdmin = {
+    api: { url: 'https://api.example.test', version: 'v7.0' },
+    sessionToken: 'test-token',
+    description: { meta: { namespace: '_meta' }, authentication: { token: { http_header: 'X-Auth-Token' } } },
+  };
 });

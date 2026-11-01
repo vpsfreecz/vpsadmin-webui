@@ -64,8 +64,8 @@ describe('security advisory admin model', () => {
         cves: [],
         nodes,
         statuses: [
-          { node_id: 1, state: 'vulnerable' },
-          { node_id: 2, state: 'mitigated', vulnerable_until: null, mitigated_since: null },
+          { node: { id: 1 }, state: 'vulnerable' },
+          { node: { id: 2 }, state: 'mitigated', vulnerable_until: null, mitigated_since: null },
         ],
       })
     ).toEqual([
@@ -80,14 +80,14 @@ describe('security advisory admin model', () => {
         cves: ['CVE-2026-1234'],
         nodes,
         statuses: [
-          { node_id: 1, state: 'not_affected' },
+          { node: { id: 1 }, state: 'not_affected' },
           {
-            node_id: 2,
+            node: { id: 2 },
             state: 'mitigated',
             vulnerable_until: '2026-07-01T10:00:00Z',
             mitigated_since: '2026-07-01T10:00:00Z',
           },
-          { node_id: 3, state: 'not_affected' },
+          { node: { id: 3 }, state: 'not_affected' },
         ],
       })
     ).toEqual([]);

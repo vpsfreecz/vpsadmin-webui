@@ -8,7 +8,10 @@ describe('advisory timestamp and note preservation', () => {
     expect(advisoryDateValue(advisoryDateInput(original), original)).toBe(original);
     expect(advisoryDateValue('', original)).toBeNull();
     expect(
-      securityAdvisoryEditorPayload({ name: '', cves: '', translations: {}, publishedAt: '' }).published_at
+      securityAdvisoryEditorPayload(
+        { name: '', cves: '', translations: {}, publishedAt: '' },
+        { id: 88, state: 'published', published_at: original }
+      ).published_at
     ).toBeNull();
   });
   it('writes localized notes without touching an unloaded language or truncating mitigation time', () => {

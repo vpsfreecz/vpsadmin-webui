@@ -1,172 +1,45 @@
-import { expectArray, HaveApiError, haveApiCall } from './haveapi';
-import type { Location } from './appTypes';
+import { isOperationsRecord, isOperationsReference, type OperationsReference } from './operationsReference';
+import type { Node__CreateInput, Node__UpdateInput, ActionDescription } from 'vpsadmin-typescript-client';
+import type {
+  Node__EvacuateOutput,
+  Node__IndexOutput,
+  Node__Status__IndexOutput,
+  Pool__IndexOutput,
+} from 'vpsadmin-typescript-client';
+import type { Node__IndexInput, Node__Status__IndexInput, Pool__IndexInput } from 'vpsadmin-typescript-client';
+import { getApi } from './sdk';
+import { narrowApiResult } from './apiOutput';
+import { HaveApiError, ClientInputError, isAmbiguousMutationError } from './apiErrors';
 
-export interface Node {
+export type Node = Omit<Node__IndexOutput[number], 'id' | 'location'> & {
   id: number;
-  active?: boolean;
-  name?: string;
-  domain_name?: string;
-  fqdn?: string;
-  type?: string;
-  hypervisor_type?: string;
-  location?: Location;
-  ip_addr?: string;
-  max_tx?: number;
-  max_rx?: number;
-  max_vps?: number;
-
-  last_report?: string;
-  vps_running?: number;
-  vps_stopped?: number;
-  vps_total?: number;
-  vps_free?: number;
-
-  // Live metrics (availability depends on the API action)
-  status?: boolean;
-  uptime?: number;
-  loadavg1?: number;
-  loadavg5?: number;
-  loadavg15?: number;
-  process_count?: number;
-
-  cpus?: number;
-
-  cpu_user?: number;
-  cpu_nice?: number;
-  cpu_system?: number;
-  cpu_idle?: number;
-  cpu_iowait?: number;
-  cpu_irq?: number;
-  cpu_softirq?: number;
-  cpu_guest?: number;
-
-  total_memory?: number;
-  used_memory?: number;
-  total_swap?: number;
-  used_swap?: number;
-
-  arc_c_max?: number;
-  arc_c?: number;
-  arc_size?: number;
-  arc_hitpercent?: number;
-
-  version?: string;
-  kernel?: string;
-  cgroup_version?: string;
-
-  pool_state?: string;
-  pool_scan?: string;
-  pool_scan_percent?: number;
-  pool_checked_at?: string;
-  pool_status?: boolean;
-
-  maintenance_lock?: string;
-  maintenance_lock_reason?: string;
-
+  location?: OperationsReference | null;
+  vps_running?: number | null;
+  vps_stopped?: number | null;
+  vps_total?: number | null;
+  vps_free?: number | null;
   [k: string]: unknown;
-}
+};
 
-export interface NodeStatus {
+export type NodeStatus = Omit<Node__Status__IndexOutput[number], 'id'> & { id: number; [k: string]: unknown };
+
+export type NodeEvacuateResult = Node__EvacuateOutput & { [k: string]: unknown };
+
+export type NodePool = Omit<Pool__IndexOutput[number], 'id' | 'node'> & {
   id: number;
-  uptime?: number;
-  loadavg1?: number;
-  loadavg5?: number;
-  loadavg15?: number;
-  process_count?: number;
-  cpus?: number;
-
-  cpu_user?: number;
-  cpu_nice?: number;
-  cpu_system?: number;
-  cpu_idle?: number;
-  cpu_iowait?: number;
-  cpu_irq?: number;
-  cpu_softirq?: number;
-  cpu_guest?: number;
-
-  total_memory?: number;
-  used_memory?: number;
-  total_swap?: number;
-  used_swap?: number;
-
-  arc_c_max?: number;
-  arc_c?: number;
-  arc_size?: number;
-  arc_hitpercent?: number;
-
-  version?: string;
-  kernel?: string;
-
-  created_at?: string;
-
+  node?: OperationsReference | null;
   [k: string]: unknown;
-}
+};
 
-export interface NodeEvacuateResult {
-  migration_plan_id?: number;
-  [k: string]: unknown;
-}
+export type NodeCreateInput = Node__CreateInput;
 
-export interface NodePool {
-  id: number;
-  node?: { id?: number; name?: string; domain_name?: string } | number;
-  label?: string;
-  name?: string;
-  filesystem?: string;
-  role?: string | number;
-  state?: string | number;
-  scan?: string | number;
-  scan_percent?: number;
-  // Current upstream returns allocation metrics to admins, but omits them from
-  // limited-role output and older deployments may not have them. A device
-  // inventory is not part of the upstream Pool contract at all. Keep these
-  // fields optional so missing data is never mistaken for zero capacity.
-  total_space?: number;
-  used_space?: number;
-  available_space?: number;
-  checked_at?: string;
-  maintenance_lock?: 'no' | 'lock' | 'master_lock' | string;
-  maintenance_lock_reason?: string | null;
-  [k: string]: unknown;
-}
-
-export interface NodeCreateInput {
-  name: string;
-  type: 'node' | 'storage' | 'mailer' | 'dns_server';
-  location: number;
-  ip_addr: string;
-  hypervisor_type?: 'vpsadminos';
-  max_tx?: number;
-  max_rx?: number;
-  max_vps?: number;
-  cpus?: number;
-  total_memory?: number;
-  total_swap?: number;
-  maintenance?: boolean;
-}
-
-export interface NodeUpdateInput {
-  active?: boolean;
-  name?: string;
-  fqdn?: string;
-  hypervisor_type?: 'vpsadminos';
-  ip_addr?: string;
-  max_tx?: number | null;
-  max_rx?: number | null;
-  max_vps?: number | null;
-}
+export type NodeUpdateInput = Omit<Node__UpdateInput, 'type' | 'location'>;
 
 export type NodeCreateCapacityField = 'cpus' | 'total_memory' | 'total_swap';
 
-export interface NodeWriteParameterDescription {
-  required?: boolean;
-  nullable?: boolean;
-  [k: string]: unknown;
-}
-
 export interface NodeWriteCapabilityDescription {
   input?: {
-    parameters?: Record<string, NodeWriteParameterDescription | unknown>;
+    parameters?: Record<string, unknown>;
     [k: string]: unknown;
   };
   [k: string]: unknown;
@@ -184,8 +57,7 @@ export type NodeUpdateNullability = Record<NodeNullableUpdateField, boolean>;
 const NODE_CREATE_CAPACITY_FIELDS: readonly NodeCreateCapacityField[] = [
   'cpus',
   'total_memory',
-  'total_swap',
-];
+  'total_swap'];
 
 /** Read requiredness from the effective OPTIONS contract of the deployed API. */
 export function nodeCreateCapacityRequirements(
@@ -203,36 +75,21 @@ export function nodeCreateCapacityRequirements(
     result[field] = Boolean(
       descriptor
       && typeof descriptor === 'object'
-      && (descriptor as NodeWriteParameterDescription).required === true
+      && isOperationsRecord(descriptor) && descriptor['required'] === true
     );
   }
   return result;
 }
 
-/**
- * HaveAPI only accepts `null` for parameters explicitly marked nullable in the
- * effective update contract. The deployed 4.1 and current 4.2 node contracts
- * do not mark any of these limits nullable, but reading OPTIONS keeps a future
- * nullable contract honest without pretending that an omitted field was
- * cleared.
- */
+/** The saved generated contract restricts these limits to numbers, even if newer live metadata expands it. */
 export function nodeUpdateNullability(
   capability: NodeWriteCapabilityDescription | undefined
 ): NodeUpdateNullability {
-  const parameters = capability?.input?.parameters;
+  void capability;
   return {
-    max_tx: parameterIsNullable(parameters?.['max_tx']),
-    max_rx: parameterIsNullable(parameters?.['max_rx']),
-    max_vps: parameterIsNullable(parameters?.['max_vps']),
-  };
-}
-
-function parameterIsNullable(value: unknown): boolean {
-  return Boolean(
-    value
-    && typeof value === 'object'
-    && (value as NodeWriteParameterDescription).nullable === true
-  );
+    max_tx: false,
+    max_rx: false,
+    max_vps: false };
 }
 
 /**
@@ -263,7 +120,7 @@ export async function fetchNodes(
     includes?: string;
   } = {}
 ) {
-  const params: Record<string, string | number | boolean> = {};
+  const params: Node__IndexInput = {};
   if (opts.limit !== undefined) params['limit'] = opts.limit;
   if (opts.fromId !== undefined) params['from_id'] = opts.fromId;
   if (opts.state) params['state'] = opts.state;
@@ -271,42 +128,30 @@ export async function fetchNodes(
   if (opts.type) params['type'] = opts.type;
   if (opts.hypervisorType) params['hypervisor_type'] = opts.hypervisorType;
 
-  const res = await haveApiCall<unknown>({
-    method: 'GET',
-    path: '/nodes',
-    namespace: 'node',
-    params,
-    meta: opts.includes ? { includes: opts.includes } : undefined,
-  });
+  const res = await (
+    await getApi()
+  ).node.index({ params,
+    meta: opts.includes ? { includes: opts.includes } : undefined });
 
-  // Be tolerant: some deployments wrap the list under a `nodes` key.
-  const raw = res.data as unknown;
-  let list: unknown = raw;
-  if (!Array.isArray(raw) && raw && typeof raw === 'object') {
-    const maybeNodes = (raw as { nodes?: unknown }).nodes;
-    if (Array.isArray(maybeNodes)) list = maybeNodes;
-  }
-
-  return { ...res, data: expectArray<Node>(list, 'nodes') };
+  return narrowApiResult(res, narrowNodeList, 'nodes');
 }
 
 /** Admin-only enrichment; preserves the paginated Node.Index inventory. */
 export async function fetchNodeOverview(signal?: AbortSignal) {
-  const res = await haveApiCall<unknown>({ method: 'GET', path: '/nodes/overview_list', signal });
-  return { ...res, data: expectArray<Node>(res.data, 'nodes/overview_list') };
+  const res = await (await getApi()).node.overview_list({ signal });
+  return narrowApiResult(res, narrowNodeList, 'nodes/overview_list');
 }
 
 export async function fetchNodeMaintenanceCapability(nodeId: number) {
-  return haveApiCall<NodeWriteCapabilityDescription>({
-    method: 'OPTIONS', path: `/nodes/${nodeId}/set_maintenance?method=POST`,
-  });
+  return narrowApiResult(
+    await (await getApi()).node.set_maintenance.describe({ path: { node_id: nodeId } }),
+    narrowNodeCapability,
+    'node capability'
+  );
 }
 
 export async function fetchNode(nodeId: number) {
-  return haveApiCall<Node>({
-    method: 'GET',
-    path: `/nodes/${nodeId}`,
-  });
+  return narrowApiResult(await (await getApi()).node.show({ path: { node_id: nodeId } }), narrowNode, 'node.show');
 }
 
 /**
@@ -315,100 +160,63 @@ export async function fetchNode(nodeId: number) {
  * or unavailable instead of showing a form that cannot be submitted.
  */
 export async function fetchNodeCreateCapability() {
-  return haveApiCall<NodeWriteCapabilityDescription>({
-    method: 'OPTIONS',
-    path: '/nodes?method=POST',
-  });
+  return narrowApiResult(await (await getApi()).node.create.describe(), narrowNodeCapability, 'node capability');
 }
 
 export async function fetchNodeUpdateCapability(nodeId: number) {
-  return haveApiCall<NodeWriteCapabilityDescription>({
-    method: 'OPTIONS',
-    path: `/nodes/${nodeId}?method=PUT`,
-  });
+  return narrowApiResult(
+    await (await getApi()).node.update.describe({ path: { node_id: nodeId } }),
+    narrowNodeCapability,
+    'node capability'
+  );
 }
 
 export async function createNode(payload: NodeCreateInput) {
   try {
-    return await haveApiCall<Node>({
-      method: 'POST',
-      path: '/nodes',
-      namespace: 'node',
-      params: { ...payload },
-    });
+    return narrowApiResult(await (await getApi()).node.create({ params: { ...payload } }), narrowNode, 'node.create');
   } catch (error) {
-    const isDefinitiveApiRejection = error instanceof HaveApiError
-      && (error.httpStatus === undefined || error.httpStatus < 500);
-    if (isDefinitiveApiRejection) throw error;
+    if (error instanceof ClientInputError || (error instanceof HaveApiError && !isAmbiguousMutationError(error)))
+      throw error;
     throw new NodeCreateIndeterminateError(error);
   }
 }
 
 export async function updateNode(nodeId: number, payload: NodeUpdateInput) {
-  return haveApiCall<void>({
-    method: 'PUT',
-    path: `/nodes/${nodeId}`,
-    namespace: 'node',
-    params: { ...payload },
-  });
+  return (await getApi()).node.update({ path: { node_id: nodeId }, params: { ...payload } });
 }
 
 export async function fetchNodePools(nodeId: number, opts?: { limit?: number; signal?: AbortSignal }) {
-  const params: Record<string, number> = { node: nodeId };
+  const params: Pool__IndexInput = { node: nodeId };
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
 
-  const res = await haveApiCall<unknown>({
-    method: 'GET',
-    path: '/pools',
-    namespace: 'pool',
-    params,
-    signal: opts?.signal,
-  });
+  const res = await (await getApi()).pool.index({ params, signal: opts?.signal });
 
-  const raw = res.data as unknown;
-  let list: unknown = raw;
-  if (!Array.isArray(raw) && raw && typeof raw === 'object') {
-    const maybePools = (raw as { pools?: unknown }).pools;
-    if (Array.isArray(maybePools)) list = maybePools;
-  }
-
-  return { ...res, data: expectArray<NodePool>(list, `nodes/${nodeId}/pools`) };
+  return narrowApiResult(res, narrowNodePoolList, 'node pools');
 }
 
 export async function fetchPool(poolId: number, opts?: { signal?: AbortSignal }) {
-  const res = await haveApiCall<unknown>({
-    method: 'GET',
-    path: `/pools/${poolId}`,
-    signal: opts?.signal,
-  });
-  const raw = res.data;
-
-  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
-    throw new TypeError(`pools/${poolId}: expected object`);
-  }
-
-  const pool = raw as NodePool;
-  if (!Number.isSafeInteger(pool.id) || pool.id !== poolId) {
-    throw new TypeError(`pools/${poolId}: response id does not match requested pool`);
-  }
-
-  return { ...res, data: pool };
+  const res = await (await getApi()).pool.show({ path: { pool_id: poolId }, signal: opts?.signal });
+  return narrowApiResult(
+    res,
+    (data) => {
+      const pool = narrowNodePool(data);
+      if (pool.id !== poolId) throw new TypeError('response id does not match requested pool');
+      return pool;
+    },
+    'pool'
+  );
 }
 
 export async function setPoolMaintenance(poolId: number, opts: { lock: boolean; reason?: string }) {
-  return haveApiCall<void>({
-    method: 'POST',
-    path: `/pools/${poolId}/set_maintenance`,
-    namespace: 'pool',
+  return (await getApi()).pool.set_maintenance({
+    path: { pool_id: poolId },
     params: { lock: opts.lock, reason: opts.reason },
   });
 }
 
 export async function setNodeMaintenance(nodeId: number, opts: { lock: boolean; reason?: string }) {
-  return haveApiCall<void>({
-    method: 'POST',
-    path: `/nodes/${nodeId}/set_maintenance`,
-    namespace: 'node',
+  return (await getApi()).node.set_maintenance({
+    path: { node_id: nodeId },
     params: { lock: opts.lock, reason: opts.reason },
   });
 }
@@ -425,29 +233,235 @@ export async function evacuateNode(
     reason?: string;
   }
 ) {
-  return haveApiCall<NodeEvacuateResult>({
-    method: 'POST',
-    path: `/nodes/${nodeId}/evacuate`,
-    namespace: 'node',
-    params: opts,
-  });
+  return narrowApiResult(
+    await (await getApi()).node.evacuate({ path: { node_id: nodeId }, params: opts }),
+    narrowNodeEvacuateResult,
+    'node.evacuate'
+  );
 }
 
 export async function fetchNodeStatuses(
   nodeId: number,
   opts?: { limit?: number; fromId?: number; from?: string; to?: string }
 ) {
-  const params: Record<string, string | number> = {};
+  const params: Node__Status__IndexInput = {};
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
   if (opts?.from) params['from'] = opts.from;
   if (opts?.to) params['to'] = opts.to;
 
-  const res = await haveApiCall<NodeStatus[]>({
-    method: 'GET',
-    path: `/nodes/${nodeId}/statuses`,
-    namespace: 'status',
-    params,
-  });
-  return { ...res, data: expectArray<NodeStatus>(res.data, `nodes/${nodeId}/statuses`) };
+  const res = await (await getApi()).node.status.index({ path: { node_id: nodeId }, params });
+  return narrowApiResult(res, narrowNodeStatusList, `nodes/${nodeId}/statuses`);
+}
+
+function isNode(value: unknown): value is Node {
+  return (
+    isOperationsRecord(value) &&
+    typeof value['id'] === 'number' &&
+    Number.isSafeInteger(value['id']) &&
+    value['id'] > 0 &&
+    [
+      'cgroup_version',
+      'domain_name',
+      'fqdn',
+      'hypervisor_type',
+      'ip_addr',
+      'kernel',
+      'maintenance_lock',
+      'maintenance_lock_reason',
+      'name',
+      'pool_checked_at',
+      'pool_scan',
+      'pool_state',
+      'type',
+      'version',
+    ].every((key) => value[key] === undefined || value[key] === null || typeof value[key] === 'string') &&
+    [
+      'arc_c',
+      'arc_c_max',
+      'arc_hitpercent',
+      'arc_size',
+      'cpu_guest',
+      'cpu_idle',
+      'cpu_iowait',
+      'cpu_irq',
+      'cpu_nice',
+      'cpu_softirq',
+      'cpu_system',
+      'cpu_user',
+      'cpus',
+      'loadavg1',
+      'loadavg15',
+      'loadavg5',
+      'max_rx',
+      'max_tx',
+      'max_vps',
+      'pool_scan_percent',
+      'process_count',
+      'total_memory',
+      'total_swap',
+      'uptime',
+      'used_memory',
+      'used_swap',
+      'vps_running',
+      'vps_stopped',
+      'vps_total',
+      'vps_free',
+    ].every(
+      (key) =>
+        value[key] === undefined ||
+        value[key] === null ||
+        (typeof value[key] === 'number' && Number.isFinite(value[key]))
+    ) &&
+    ['active', 'pool_status', 'status'].every(
+      (key) => value[key] === undefined || value[key] === null || typeof value[key] === 'boolean'
+    ) &&
+    ['location'].every((key) => value[key] === undefined || value[key] === null || isOperationsReference(value[key]))
+  );
+}
+function narrowNode(value: unknown): Node {
+  if (!isNode(value)) throw new TypeError('Invalid Node fields');
+  return value;
+}
+function narrowNodeList(value: unknown): Node[] {
+  if (!Array.isArray(value)) throw new TypeError('Expected Node list');
+  return value.map(narrowNode);
+}
+
+function isNodeStatus(value: unknown): value is NodeStatus {
+  return (
+    isOperationsRecord(value) &&
+    typeof value['id'] === 'number' &&
+    Number.isSafeInteger(value['id']) &&
+    value['id'] > 0 &&
+    ['cgroup_version', 'created_at', 'kernel', 'version'].every(
+      (key) => value[key] === undefined || value[key] === null || typeof value[key] === 'string'
+    ) &&
+    [
+      'arc_c',
+      'arc_c_max',
+      'arc_hitpercent',
+      'arc_size',
+      'cpu_guest',
+      'cpu_idle',
+      'cpu_iowait',
+      'cpu_irq',
+      'cpu_nice',
+      'cpu_softirq',
+      'cpu_system',
+      'cpu_user',
+      'cpus',
+      'loadavg1',
+      'loadavg15',
+      'loadavg5',
+      'process_count',
+      'total_memory',
+      'total_swap',
+      'uptime',
+      'used_memory',
+      'used_swap',
+    ].every(
+      (key) =>
+        value[key] === undefined ||
+        value[key] === null ||
+        (typeof value[key] === 'number' && Number.isFinite(value[key]))
+    )
+  );
+}
+function narrowNodeStatus(value: unknown): NodeStatus {
+  if (!isNodeStatus(value)) throw new TypeError('Invalid NodeStatus fields');
+  return value;
+}
+function narrowNodeStatusList(value: unknown): NodeStatus[] {
+  if (!Array.isArray(value)) throw new TypeError('Expected NodeStatus list');
+  return value.map(narrowNodeStatus);
+}
+
+function isNodeEvacuateResult(value: unknown): value is NodeEvacuateResult {
+  return (
+    isOperationsRecord(value) &&
+    ['migration_plan_id'].every(
+      (key) =>
+        value[key] === undefined ||
+        value[key] === null ||
+        (typeof value[key] === 'number' && Number.isFinite(value[key]))
+    )
+  );
+}
+function narrowNodeEvacuateResult(value: unknown): NodeEvacuateResult {
+  if (!isNodeEvacuateResult(value)) throw new TypeError('Invalid NodeEvacuateResult fields');
+  return value;
+}
+function isNodePool(value: unknown): value is NodePool {
+  return (
+    isOperationsRecord(value) &&
+    typeof value['id'] === 'number' &&
+    Number.isSafeInteger(value['id']) &&
+    value['id'] > 0 &&
+    [
+      'checked_at',
+      'filesystem',
+      'label',
+      'maintenance_lock',
+      'maintenance_lock_reason',
+      'name',
+      'role',
+      'scan',
+      'sharenfs',
+      'state',
+      'sync',
+    ].every((key) => value[key] === undefined || value[key] === null || typeof value[key] === 'string') &&
+    [
+      'avail',
+      'available_space',
+      'compressratio',
+      'max_datasets',
+      'quota',
+      'recordsize',
+      'refcompressratio',
+      'referenced',
+      'refquota',
+      'scan_percent',
+      'total_space',
+      'used',
+      'used_space',
+    ].every(
+      (key) =>
+        value[key] === undefined ||
+        value[key] === null ||
+        (typeof value[key] === 'number' && Number.isFinite(value[key]))
+    ) &&
+    ['atime', 'compression', 'is_open', 'refquota_check', 'relatime'].every(
+      (key) => value[key] === undefined || value[key] === null || typeof value[key] === 'boolean'
+    ) &&
+    ['node'].every((key) => value[key] === undefined || value[key] === null || isOperationsReference(value[key]))
+  );
+}
+function narrowNodePool(value: unknown): NodePool {
+  if (!isNodePool(value)) throw new TypeError('Invalid NodePool fields');
+  return value;
+}
+function narrowNodePoolList(value: unknown): NodePool[] {
+  if (!Array.isArray(value)) throw new TypeError('Expected NodePool list');
+  return value.map(narrowNodePool);
+}
+
+function narrowNodeCapability(value: ActionDescription): NodeWriteCapabilityDescription {
+  if (!isOperationsRecord(value)) throw new TypeError('Invalid node capability');
+  const input = value['input'];
+  if (input === undefined || input === null) throw new TypeError('Missing node capability input');
+  if (!isOperationsRecord(input)) throw new TypeError('Invalid node capability input');
+  const parameters = input['parameters'];
+  if (parameters === undefined || parameters === null) throw new TypeError('Missing node capability parameters');
+  if (!isOperationsRecord(parameters)) throw new TypeError('Invalid node capability parameters');
+  for (const descriptor of Object.values(parameters)) {
+    if (
+      !isOperationsRecord(descriptor) ||
+      ['required', 'nullable', 'protected'].some(
+        (key) => descriptor[key] != null && typeof descriptor[key] !== 'boolean'
+      )
+    )
+      throw new TypeError('Invalid node parameter description');
+  }
+  return { ...value, input: { ...input, parameters } };
 }

@@ -74,7 +74,7 @@ test('@pr-smoke edits and deletes an advisory update with confirmation and refre
       deleteCalls += 1;
       deletePayloads.push(reqJson);
       updates = [];
-      return null;
+      return { security_advisory_update: {} };
     },
   });
 
@@ -114,7 +114,7 @@ test('@pr-smoke edits and deletes an advisory update with confirmation and refre
 
   await page.getByTestId('admin.security_advisory.update.delete_confirm.confirm').click();
   await expect.poll(() => deleteCalls).toBe(1);
-  expect(deletePayloads).toEqual([{}]);
+  expect(deletePayloads).toEqual([{ security_advisory_update: {} }]);
   await expect(page.getByTestId('admin.security_advisory.update.delete_confirm')).toHaveCount(0);
   await expect(updateCard).toHaveCount(0);
 });
@@ -141,7 +141,7 @@ test('@pr-smoke @pr-smoke-mobile advisory update PUT and DELETE 403 errors prese
       deleteCalls += 1;
       if (deleteCalls > 1) {
         updates = [];
-        return null;
+        return { security_advisory_update: {} };
       }
       return {
         status: 403,

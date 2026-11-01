@@ -79,7 +79,7 @@ function renderPage(path = '/ui-next/security-advisories/17') {
 }
 
 function apiResult<T>(data: T) {
-  return { data, envelope: { status: true } };
+  return { data, meta: {}, httpStatus: 200, envelope: { status: true as const, response: {} } };
 }
 
 function mockEmptyPublicRelations() {
@@ -123,7 +123,7 @@ describe('SecurityAdvisoryDetailPage', () => {
           node: { id: 4, name: 'node4.prg' },
           state: 'mitigated',
           mitigated_since: '2026-06-02T12:00:00Z',
-          note: 'Internal operator note must not be public.',
+          en_note: 'Internal operator note must not be public.',
         },
       ]));
     vi.mocked(fetchAllSecurityAdvisoryUpdates).mockResolvedValue(apiResult([

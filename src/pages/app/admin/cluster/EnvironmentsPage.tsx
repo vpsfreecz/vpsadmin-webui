@@ -8,8 +8,10 @@ import { useI18n } from '../../../../app/i18n';
 import { useToasts } from '../../../../app/toasts';
 import { formatErrorMessage } from '../../../../lib/errors';
 import { parseBoolParam, parseNonNegativeInt } from '../../../../lib/parse';
-import { parseNumericToken, splitKeyValueToken, tokenizeSmartInput, unquoteSmartValue } from '../../../../lib/smartFilter';
-import { createEnvironment, fetchEnvironments, setEnvironmentMaintenance, updateEnvironment, type Environment } from '../../../../lib/api/infra';
+import { parseNumericToken, splitKeyValueToken, tokenizeSmartInput, unquoteSmartValue,
+} from '../../../../lib/smartFilter';
+import { createEnvironment, fetchEnvironments, setEnvironmentMaintenance, updateEnvironment, type Environment,
+} from '../../../../lib/api/infra';
 import { EnvironmentsList, formatEnvironmentLifetime } from './EnvironmentsList';
 
 import { FilterBar } from '../../../../components/layout/FilterBar';
@@ -30,8 +32,7 @@ import { SmartInputHelp } from '../../../../components/ui/SmartInputHelp';
 import { SwitchRow } from '../../../../components/ui/SwitchRow';
 import { Textarea } from '../../../../components/ui/Textarea';
 
-type EditorState =
-  | null
+type EditorState = null
   | {
       mode: 'create' | 'edit';
       env?: Environment;
@@ -101,7 +102,7 @@ export function EnvironmentsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const smartInputRef = useRef<HTMLInputElement | null>(null);
 
-  const [q, setQ] = useState(() => searchParams.get('q') ?? '');
+  const [removedSearch, setRemovedSearch] = useState(() => searchParams.has('q'));
   const [hasHypervisor, setHasHypervisor] = useState(() => searchParams.get('has_hypervisor') ?? '');
   const [hasStorage, setHasStorage] = useState(() => searchParams.get('has_storage') ?? '');
   const [smart, setSmart] = useState('');
@@ -111,16 +112,12 @@ export function EnvironmentsPage() {
 
   // Sync local state on navigation.
   useEffect(() => {
-    const urlQ = searchParams.get('q') ?? '';
     const urlH = searchParams.get('has_hypervisor') ?? '';
     const urlS = searchParams.get('has_storage') ?? '';
-    if (urlQ !== q) setQ(urlQ);
     if (urlH !== hasHypervisor) setHasHypervisor(urlH);
     if (urlS !== hasStorage) setHasStorage(urlS);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
-
-  const qTrim = useMemo(() => q.trim(), [q]);
   const hasHypervisorBool = useMemo(() => parseBoolParam(hasHypervisor), [hasHypervisor]);
   const hasStorageBool = useMemo(() => parseBoolParam(hasStorage), [hasStorage]);
 
@@ -128,8 +125,10 @@ export function EnvironmentsPage() {
   useEffect(() => {
     const next = new URLSearchParams(searchParams);
 
-    if (qTrim) next.set('q', qTrim);
-    else next.delete('q');
+    if (next.has('q')) {
+      next.delete('q');
+      setRemovedSearch(true);
+    }
 
     if (hasHypervisorBool === true) next.set('has_hypervisor', 'true');
     else if (hasHypervisorBool === false) next.set('has_hypervisor', 'false');
@@ -140,15 +139,14 @@ export function EnvironmentsPage() {
     else next.delete('has_storage');
 
     if (next.toString() !== searchParams.toString()) setSearchParams(next, { replace: true });
-  }, [hasHypervisorBool, hasStorageBool, qTrim, searchParams, setSearchParams]);
+  }, [hasHypervisorBool, hasStorageBool, searchParams, setSearchParams]);
 
   const envQ = useQuery({
-    queryKey: ['cluster.environments', { q: qTrim, hasHypervisorBool, hasStorageBool }],
+    queryKey: ['cluster.environments', { hasHypervisorBool, hasStorageBool }],
     queryFn: async () =>
       (
         await fetchEnvironments({
           limit: 500,
-          q: qTrim || undefined,
           hasHypervisor: hasHypervisorBool,
           hasStorage: hasStorageBool,
         })
@@ -174,7 +172,7 @@ export function EnvironmentsPage() {
   function clearAllFilters() {
     setSmart('');
     setSmartErrors([]);
-    setQ('');
+
     setHasHypervisor('');
     setHasStorage('');
   }
@@ -188,7 +186,6 @@ export function EnvironmentsPage() {
     }
 
     const tokens = tokenizeSmartInput(raw);
-    let nextQ = qTrim;
     let nextHasHypervisor = hasHypervisor;
     let nextHasStorage = hasStorage;
     const errors: string[] = [];
@@ -197,9 +194,7 @@ export function EnvironmentsPage() {
       const kv = splitKeyValueToken(token);
 
       if (!kv) {
-        const n = parseNumericToken(token);
-        if (n !== null) nextQ = String(n);
-        else nextQ = unquoteSmartValue(token);
+        errors.push(t('filters.unsupported_text_search_removed'));
         continue;
       }
 
@@ -212,19 +207,6 @@ export function EnvironmentsPage() {
       }
 
       switch (key) {
-        case 'q':
-        case 'search':
-        case 'label':
-        case 'name':
-        case 'domain':
-          nextQ = value;
-          break;
-        case 'id': {
-          const n = parseNumericToken(value);
-          if (n === null) errors.push(t('filters.smart.error.numeric_only', { key, value }));
-          else nextQ = String(n);
-          break;
-        }
         case 'hypervisor':
         case 'has_hypervisor': {
           if (value === 'all') nextHasHypervisor = '';
@@ -258,7 +240,6 @@ export function EnvironmentsPage() {
 
     setSmart('');
     setSmartErrors([]);
-    setQ(nextQ);
     setHasHypervisor(nextHasHypervisor);
     setHasStorage(nextHasStorage);
   }
@@ -274,30 +255,58 @@ export function EnvironmentsPage() {
 
   const activeChips = useMemo(() => {
     const chips: React.ReactNode[] = [];
-    if (qTrim) chips.push(<FilterChip key="q" label={`q:${qTrim}`} onRemove={() => setQ('')} />);
     if (hasHypervisorBool === true) {
       chips.push(
-        <FilterChip key="hv-yes" label={t('admin.cluster.environments.smart.chip.hypervisor_yes')} tone="info" onRemove={() => setHasHypervisor('')} />
+        <FilterChip
+          key="hv-yes"
+          label={t('admin.cluster.environments.smart.chip.hypervisor_yes')}
+          tone="info"
+          onRemove={() => setHasHypervisor('')}
+        />
       );
     } else if (hasHypervisorBool === false) {
       chips.push(
-        <FilterChip key="hv-no" label={t('admin.cluster.environments.smart.chip.hypervisor_no')} tone="warn" onRemove={() => setHasHypervisor('')} />
+        <FilterChip
+          key="hv-no"
+          label={t('admin.cluster.environments.smart.chip.hypervisor_no')}
+          tone="warn"
+          onRemove={() => setHasHypervisor('')}
+        />
       );
     }
     if (hasStorageBool === true) {
       chips.push(
-        <FilterChip key="storage-yes" label={t('admin.cluster.environments.smart.chip.storage_yes')} tone="info" onRemove={() => setHasStorage('')} />
+        <FilterChip
+          key="storage-yes"
+          label={t('admin.cluster.environments.smart.chip.storage_yes')}
+          tone="info"
+          onRemove={() => setHasStorage('')}
+        />
       );
     } else if (hasStorageBool === false) {
       chips.push(
-        <FilterChip key="storage-no" label={t('admin.cluster.environments.smart.chip.storage_no')} tone="warn" onRemove={() => setHasStorage('')} />
+        <FilterChip
+          key="storage-no"
+          label={t('admin.cluster.environments.smart.chip.storage_no')}
+          tone="warn"
+          onRemove={() => setHasStorage('')}
+        />
       );
     }
-    smartErrors.forEach((msg, i) => chips.push(<FilterChip key={`err-${i}`} label={msg} tone="danger" onRemove={() => setSmartErrors((prev) => prev.filter((_, idx) => idx !== i))} />));
+    smartErrors.forEach((msg, i) =>
+      chips.push(
+        <FilterChip
+          key={`err-${i}`}
+          label={msg}
+          tone="danger"
+          onRemove={() => setSmartErrors((prev) => prev.filter((_, idx) => idx !== i))}
+        />
+      )
+    );
     return chips;
-  }, [hasHypervisorBool, hasStorageBool, qTrim, smartErrors, t]);
+  }, [hasHypervisorBool, hasStorageBool, smartErrors, t]);
 
-  const smartSuggestions = useMemo<SmartFilterSuggestion[]>(() => {
+  const smartSuggestions: SmartFilterSuggestion[] = (() => {
     const raw = smart.trim();
     if (!raw) return [];
     if (raw === '?') {
@@ -314,45 +323,11 @@ export function EnvironmentsPage() {
       ];
     }
 
-    const suggestions: SmartFilterSuggestion[] = [];
-    const numeric = parseNumericToken(raw);
-    if (numeric !== null) {
-      suggestions.push({
-        id: 'id',
-        primary: t('admin.cluster.environments.smart.suggestion.id', { id: numeric }),
-        secondary: t('admin.cluster.environments.smart.suggestion.id_hint'),
-        onPick: () => {
-          setQ(String(numeric));
-          setSmart('');
-          setSmartErrors([]);
-        },
-      });
-    }
-
-    const kv = splitKeyValueToken(raw);
-    if (kv) {
-      suggestions.push({
-        id: 'apply',
-        primary: t('filters.smart.suggest.apply.primary'),
-        secondary: raw,
-        onPick: () => applySmart(raw),
-      });
-      return suggestions;
-    }
-
-    suggestions.push({
-      id: 'search',
-      primary: t('admin.cluster.environments.smart.suggestion.search', { value: raw }),
-      secondary: t('admin.cluster.environments.smart.suggestion.search_hint'),
-      onPick: () => {
-        setQ(raw);
-        setSmart('');
-        setSmartErrors([]);
-      },
-    });
-
-    return suggestions;
-  }, [smart, t]);
+    if (!splitKeyValueToken(raw)) return [];
+    return [
+      { id: 'apply', primary: t('filters.smart.suggest.apply.primary'), secondary: raw, onPick: () => applySmart(raw) },
+    ];
+  })();
 
   const [editor, setEditor] = useState<EditorState>(null);
   const [form, setForm] = useState<FormState>(() => initForm());
@@ -393,7 +368,10 @@ export function EnvironmentsPage() {
       await qc.invalidateQueries({ queryKey: ['cluster.environments'] });
       pushToast({
         variant: 'ok',
-        title: editor?.mode === 'create' ? t('admin.cluster.environments.toast.created') : t('admin.cluster.environments.toast.saved'),
+        title:
+          editor?.mode === 'create'
+            ? t('admin.cluster.environments.toast.created')
+            : t('admin.cluster.environments.toast.saved'),
       });
       closeEditor();
     },
@@ -417,7 +395,11 @@ export function EnvironmentsPage() {
 
   return (
     <div className="mt-4 space-y-4" data-testid="admin.cluster.environments.page">
-      <FilterBar testId="admin.cluster.environments.filters" below={activeChips.length > 0 ? <div className="flex flex-wrap gap-2">{activeChips}</div> : null}>
+      {removedSearch ? <Alert variant="info" title={t('filters.unsupported_text_search_removed')} /> : null}
+      <FilterBar
+        testId="admin.cluster.environments.filters"
+        below={activeChips.length > 0 ? <div className="flex flex-wrap gap-2">{activeChips}</div> : null}
+      >
         <div className="flex min-w-0 flex-1 flex-col gap-2">
           <SmartFilterInput
             ref={smartInputRef}
@@ -428,8 +410,8 @@ export function EnvironmentsPage() {
               if (smartErrors.length) setSmartErrors([]);
             }}
             onSubmit={() => applySmart()}
-            placeholder={t('admin.cluster.environments.filter.search_placeholder')}
-            ariaLabel={t('admin.cluster.environments.filter.search_placeholder')}
+            placeholder={t('filters.advanced.title')}
+            ariaLabel={t('filters.advanced.title')}
             suggestions={smartSuggestions}
             suffix={
               <button
@@ -445,7 +427,11 @@ export function EnvironmentsPage() {
           />
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Button variant="secondary" onClick={() => setAdvancedOpen(true)} testId="admin.cluster.environments.advanced">
+          <Button
+            variant="secondary"
+            onClick={() => setAdvancedOpen(true)}
+            testId="admin.cluster.environments.advanced"
+          >
             <SlidersHorizontal className="h-4 w-4" aria-hidden />
             <span>{t('filters.advanced.label')}</span>
           </Button>
@@ -453,7 +439,7 @@ export function EnvironmentsPage() {
             {t('common.refresh')}
           </Button>
           <CopyButton text={shareUrl} label={t('common.copy_link')} testId="admin.cluster.environments.copy_link" />
-          {(qTrim || hasHypervisor || hasStorage || smartErrors.length > 0) ? (
+          {hasHypervisor || hasStorage || smartErrors.length > 0 ? (
             <Button variant="secondary" onClick={clearAllFilters} testId="admin.cluster.environments.filter.clear">
               {t('common.clear_filters')}
             </Button>
@@ -464,7 +450,9 @@ export function EnvironmentsPage() {
         </div>
       </FilterBar>
 
-      <Modal showCloseButton closeTestId="drawer.close"
+      <Modal
+        showCloseButton
+        closeTestId="drawer.close"
         open={advancedOpen}
         onClose={() => setAdvancedOpen(false)}
         size="lg"
@@ -472,23 +460,20 @@ export function EnvironmentsPage() {
         testId="admin.cluster.environments.advanced.drawer"
         footer={
           <div className="flex items-center justify-between gap-2">
-            <Button variant="secondary" onClick={clearAllFilters}>{t('common.clear_filters')}</Button>
-            <Button variant="primary" onClick={() => setAdvancedOpen(false)}>{t('common.done')}</Button>
+            <Button variant="secondary" onClick={clearAllFilters}>
+              {t('common.clear_filters')}
+            </Button>
+            <Button variant="primary" onClick={() => setAdvancedOpen(false)}>
+              {t('common.done')}
+            </Button>
           </div>
         }
       >
         <div className="space-y-4">
           <div>
-            <div className="mb-1 text-sm font-medium text-fg">{t('common.search')}</div>
-            <Input
-              testId="admin.cluster.environments.advanced.q"
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder={t('admin.cluster.environments.filter.search_placeholder')}
-            />
-          </div>
-          <div>
-            <div className="mb-1 text-sm font-medium text-fg">{t('admin.cluster.environments.smart.key.hypervisor')}</div>
+            <div className="mb-1 text-sm font-medium text-fg">
+              {t('admin.cluster.environments.smart.key.hypervisor')}
+            </div>
             <Select
               testId="admin.cluster.environments.filter.has_hypervisor"
               value={hasHypervisor}
@@ -512,22 +497,21 @@ export function EnvironmentsPage() {
         open={helpOpen}
         onClose={() => setHelpOpen(false)}
         title={t('admin.cluster.environments.smart.help.title')}
-        intro={t('admin.cluster.environments.smart.help.intro')}
+        intro={t('filters.advanced.title')}
         examples={[
           { example: '?', description: t('admin.cluster.environments.smart.help.example_help') },
-          { example: 'production', description: t('admin.cluster.environments.smart.help.example_search') },
-          { example: 'id:2', description: t('admin.cluster.environments.smart.help.example_id') },
           { example: 'hypervisor:true', description: t('admin.cluster.environments.smart.help.example_hypervisor') },
           { example: 'storage:false', description: t('admin.cluster.environments.smart.help.example_storage') },
         ]}
         topKeys={[
-          { key: 'q', description: t('admin.cluster.environments.smart.key.q'), example: 'q:production' },
-          { key: 'id', description: t('admin.cluster.environments.smart.key.id'), example: 'id:2' },
-          { key: 'hypervisor', description: t('admin.cluster.environments.smart.key.hypervisor'), example: 'hypervisor:true' },
+          {
+            key: 'hypervisor',
+            description: t('admin.cluster.environments.smart.key.hypervisor'),
+            example: 'hypervisor:true',
+          },
           { key: 'storage', description: t('admin.cluster.environments.smart.key.storage'), example: 'storage:false' },
         ]}
         inference={[
-          t('admin.cluster.environments.smart.help.inference.text'),
           t('admin.cluster.environments.smart.help.inference.number'),
           t('admin.cluster.environments.smart.help.inference.keyvalue'),
         ]}
@@ -565,13 +549,21 @@ export function EnvironmentsPage() {
       <Modal
         open={Boolean(editor)}
         onClose={closeEditor}
-        title={editor?.mode === 'create' ? t('admin.cluster.environments.editor.create_title') : t('admin.cluster.environments.editor.edit_title')}
+        title={
+          editor?.mode === 'create'
+            ? t('admin.cluster.environments.editor.create_title')
+            : t('admin.cluster.environments.editor.edit_title')
+        }
         testId="admin.cluster.environments.editor"
         size="lg"
       >
         <div className="space-y-4">
           {formTouched && payloadInfo.errors.length > 0 ? (
-            <Alert variant="warn" title={t('common.validation_error')} testId="admin.cluster.environments.editor.validation">
+            <Alert
+              variant="warn"
+              title={t('common.validation_error')}
+              testId="admin.cluster.environments.editor.validation"
+            >
               {t('admin.cluster.environments.editor.validation_body')}
             </Alert>
           ) : null}

@@ -1,3 +1,4 @@
+import { requireAdvisorySnapshot } from './securityAdvisoryAdminApi';
 import React, { useMemo, useState } from 'react';
 import { Layers3, Pencil, Trash2 } from 'lucide-react';
 
@@ -34,6 +35,7 @@ import {
   remainingSecurityAdvisoryBulkNodeIds,
   SecurityAdvisoryNodeFormFields,
   MobileCellLabel,
+  SecurityAdvisoryNodeTableHead,
   withoutNode,
   securityAdvisoryNodeFormValues,
   securityAdvisoryNodeStatusNodeId,
@@ -112,6 +114,10 @@ export function SecurityAdvisoryNodesPanel(props: {
       } else {
         await createSecurityAdvisoryNodeStatus(props.advisoryId, { ...editorPayload.payload, ...guards });
       }
+      await requireAdvisorySnapshot(props.advisoryId, {
+        ...guards,
+        expected_content_revision: nextAdvisoryRevision(guards.expected_content_revision),
+      });
       props.onChanged();
       setEditor(null);
       pushToast({ variant: 'ok', title: t('admin.security_advisories.nodes.toast.saved') });
@@ -125,12 +131,30 @@ export function SecurityAdvisoryNodesPanel(props: {
     }
   };
 
+  const openDelete = async (node: Node, status: SecurityAdvisoryNodeStatus) => {
+    try {
+      const snapshot = await capture(['delete']);
+      const current = nodeStatusMap(snapshot.statuses).get(node.id);
+      if (!current || current.id !== status.id) {
+        throw new Error(t('admin.security_advisories.correction.reload'));
+      }
+      setDeleteError(null);
+      setDeleteTarget({ node, status: current });
+    } catch (error) {
+      pushToast({ variant: 'danger', title: t('common.error'), body: advisoryFailureMessage(error, t) });
+    }
+  };
+
   const deleteStatus = async () => {
     if (!deleteTarget || !guards || writeBlocked || deleting) return;
     setWriteBlocked(true);
     setDeleting(true);
     try {
       await deleteSecurityAdvisoryNodeStatus(props.advisoryId, deleteTarget.status.id, guards);
+      await requireAdvisorySnapshot(props.advisoryId, {
+        ...guards,
+        expected_content_revision: nextAdvisoryRevision(guards.expected_content_revision),
+      });
       setDeleteTarget(null);
       props.onChanged();
       pushToast({ variant: 'ok', title: t('admin.security_advisories.nodes.toast.deleted') });
@@ -150,7 +174,9 @@ export function SecurityAdvisoryNodesPanel(props: {
   const openBulk = async () => {
     try {
       await capture([
-        ...new Set(activeNodes.map((node) => (statusesByNode.has(node.id) ? ('PUT' as const) : ('POST' as const)))),
+        ...new Set(
+          activeNodes.map((node) => (statusesByNode.has(node.id) ? ('update' as const) : ('create' as const)))
+        ),
       ]);
     } catch (error) {
       pushToast({ variant: 'danger', title: t('common.error'), body: advisoryFailureMessage(error, t) });
@@ -193,6 +219,7 @@ export function SecurityAdvisoryNodesPanel(props: {
         changed = true;
         completed.add(nodeId);
         setBulkCompleted(new Set(completed));
+        await requireAdvisorySnapshot(props.advisoryId, { ...guards, expected_content_revision: revision });
       }
 
       if (changed) props.onChanged();
@@ -248,17 +275,7 @@ export function SecurityAdvisoryNodesPanel(props: {
           tableClassName="block md:table md:min-w-table-lg"
           testId="admin.security_advisories.nodes.table"
         >
-          <thead className="hidden md:table-header-group">
-            <tr>
-              <th>{t('admin.security_advisories.nodes.table.node')}</th>
-              <th>{t('admin.security_advisories.nodes.table.type')}</th>
-              <th>{t('admin.security_advisories.nodes.table.state')}</th>
-              <th>{t('admin.security_advisories.nodes.table.vulnerable_until')}</th>
-              <th>{t('admin.security_advisories.nodes.table.mitigated_since')}</th>
-              <th>{t('admin.security_advisories.nodes.table.note')}</th>
-              <th className="text-right">{t('admin.security_advisories.nodes.table.actions')}</th>
-            </tr>
-          </thead>
+          <SecurityAdvisoryNodeTableHead />
           <tbody className="block md:table-row-group">
             {relevantNodes.map((node) => {
               const status = statusesByNode.get(node.id) ?? null;
@@ -328,20 +345,7 @@ export function SecurityAdvisoryNodesPanel(props: {
                           size="sm"
                           variant="danger"
                           className="min-h-11 w-full whitespace-nowrap md:min-h-8 md:w-auto md:whitespace-normal"
-                          onClick={() => {
-                            void capture(['DELETE'])
-                              .then(() => {
-                                setDeleteError(null);
-                                setDeleteTarget({ node, status });
-                              })
-                              .catch((error) =>
-                                pushToast({
-                                  variant: 'danger',
-                                  title: t('common.error'),
-                                  body: advisoryFailureMessage(error, t),
-                                })
-                              );
-                          }}
+                          onClick={() => void openDelete(node, status)}
                           testId={`admin.security_advisories.nodes.row.${node.id}.delete`}
                         >
                           <Trash2 size={14} /> {t('admin.security_advisories.nodes.action.delete')}
@@ -447,8 +451,8 @@ export function SecurityAdvisoryNodesPanel(props: {
                 }
                 testId="admin.security_advisories.nodes.bulk.apply"
               >
-                {bulkError && bulkCompleted.size > 0
-                  ? t('admin.security_advisories.nodes.action.continue_remaining')
+                {writeBlocked
+                  ? t('admin.security_advisories.nodes.action.review_required')
                   : t('admin.security_advisories.nodes.action.apply')}
               </Button>
             </div>

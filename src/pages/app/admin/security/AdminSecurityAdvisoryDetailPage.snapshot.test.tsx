@@ -15,6 +15,7 @@ const mocks = vi.hoisted(() => ({
     content_revision: 5,
     published_at: '2026-10-15T12:34:17.000Z',
     en_summary: 'Synthetic assessment',
+    cs_summary: 'Synthetic Czech assessment',
   } as SecurityAdvisory,
 }));
 vi.mock('../../../../app/i18n', () => ({
@@ -29,7 +30,12 @@ vi.mock('../../../../lib/api/securityAdvisoryMutations', async (original) => ({
   requireAdvisoryActions: vi.fn(),
 }));
 vi.mock('../../../../lib/api/languages', () => ({
-  fetchLanguages: vi.fn(async () => ({ data: [{ id: 1, code: 'en', label: 'English' }] })),
+  fetchLanguages: vi.fn(async () => ({
+    data: [
+      { id: 1, code: 'en', label: 'English' },
+      { id: 2, code: 'cs', label: 'Česky' },
+    ],
+  })),
 }));
 vi.mock('../../../../lib/api/nodes', () => ({ fetchNodes: vi.fn(async () => ({ data: [] })) }));
 vi.mock('../../../../lib/api/securityAdvisories', async (original) => ({
@@ -42,7 +48,7 @@ vi.mock('../../../../lib/api/securityAdvisories', async (original) => ({
   updateSecurityAdvisory: vi.fn<typeof import('../../../../lib/api/securityAdvisories').updateSecurityAdvisory>(
     async (_id, payload) => {
       mocks.advisory = { ...mocks.advisory, ...payload, content_revision: Number(mocks.advisory.content_revision) + 1 };
-      return { data: { ...mocks.advisory }, envelope: { status: true } };
+      return { data: { ...mocks.advisory }, meta: {}, httpStatus: 200, envelope: { status: true, response: {} } };
     }
   ),
   createSecurityAdvisoryUpdate: vi.fn(async () => ({ data: { id: 333 } })),
@@ -73,6 +79,7 @@ describe('original editor and announcement snapshot boundaries', () => {
       content_revision: 5,
       published_at: '2026-10-15T12:34:17.000Z',
       en_summary: 'Synthetic assessment',
+      cs_summary: 'Synthetic Czech assessment',
     };
   });
 
@@ -108,6 +115,10 @@ describe('original editor and announcement snapshot boundaries', () => {
       fireEvent.change(screen.getByTestId('admin.security_advisories.update.editor.en.summary'), {
         target: { value: 'Separate announcement' },
       });
+      fireEvent.click(screen.getByTestId('admin.security_advisories.update.editor.language.cs'));
+      fireEvent.change(screen.getByTestId('admin.security_advisories.update.editor.cs.summary'), {
+        target: { value: 'Samostatné oznámení' },
+      });
       fireEvent.click(screen.getByTestId('admin.security_advisories.update.editor.save'));
       await waitFor(() =>
         expect(createSecurityAdvisoryUpdate).toHaveBeenCalledWith({
@@ -115,6 +126,8 @@ describe('original editor and announcement snapshot boundaries', () => {
           published_at: correctedTime,
           state: null,
           send_mail: false,
+          cs_summary: 'Samostatné oznámení',
+          cs_message: null,
           en_summary: 'Separate announcement',
           en_message: null,
         })

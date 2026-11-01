@@ -773,8 +773,8 @@ export function AuditPage() {
             <tbody>
               {events.map((ev) => {
                 const label = ev.event_type ? String(ev.event_type) : na;
-                const variant = eventVariant(ev.event_type);
-                const badgeVariant = eventBadgeVariant(ev.event_type);
+                const variant = eventVariant(ev.event_type ?? undefined);
+                const badgeVariant = eventBadgeVariant(ev.event_type ?? undefined);
                 const dotVariant = dotVariantFromBadgeVariant(badgeVariant);
                 const summary = eventDataSummary(ev);
 
@@ -795,7 +795,7 @@ export function AuditPage() {
                     <td className="px-3 py-2 text-xs text-muted">{sessionLabel(ev, na)}</td>
                     <td className="px-3 py-2 text-xs text-muted">{trackedObjectLabel(ev, na)}</td>
                     <td className="px-3 py-2">
-                      <Badge variant={eventBadgeVariant(ev.event_type)}>{label}</Badge>
+                      <Badge variant={eventBadgeVariant(ev.event_type ?? undefined)}>{label}</Badge>
                     </td>
                     <td className="px-3 py-2 text-xs text-faint">{summary || na}</td>
                   </TableRowLink>

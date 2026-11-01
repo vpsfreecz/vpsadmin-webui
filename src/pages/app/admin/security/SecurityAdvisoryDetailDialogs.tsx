@@ -1,3 +1,4 @@
+import { AdvisoryPartialResult } from './AdvisoryPartialResult';
 import { Send } from 'lucide-react';
 
 import { useI18n } from '../../../../app/i18n';
@@ -77,6 +78,9 @@ export function SecurityAdvisoryDetailDialogs(props: {
 
   return (
     <>
+      {!props.editorOpen && props.lifecycle.partialResult ? (
+        <AdvisoryPartialResult result={props.lifecycle.partialResult} onReview={props.lifecycle.reviewPartial} />
+      ) : null}
       <SecurityAdvisoryEditorModal
         open={props.editorOpen && props.canEditParent}
         mode="edit"
@@ -86,6 +90,8 @@ export function SecurityAdvisoryDetailDialogs(props: {
         error={props.editorError}
         saving={props.editorSaving}
         blocked={props.editorBlocked}
+        partialResult={props.lifecycle.partialResult}
+        onReviewPartial={props.lifecycle.reviewPartial}
         onClose={props.onEditorClose}
         onSubmit={props.onEditorSubmit}
       />

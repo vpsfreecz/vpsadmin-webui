@@ -2,8 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   securityAdvisoryUpdateCreatePayload,
-  type SecurityAdvisoryUpdateValues,
-} from './SecurityAdvisoryUpdateModal';
+  type SecurityAdvisoryUpdateValues } from './SecurityAdvisoryUpdateModal';
 import { isoToLocalInput } from '../../../../lib/datetimeLocal';
 
 describe('securityAdvisoryUpdateCreatePayload', () => {
@@ -15,6 +14,7 @@ describe('securityAdvisoryUpdateCreatePayload', () => {
       originalPublishedAt: publishedAt,
       sendMail: false,
       translations: {
+        cs: { summary: 'Průběh opatření', message: '' },
         en: {
           summary: 'Mitigation is in progress',
           message: 'The advisory itself remains published at the original time.',
@@ -27,6 +27,8 @@ describe('securityAdvisoryUpdateCreatePayload', () => {
       state: null,
       published_at: publishedAt,
       send_mail: false,
+      cs_summary: 'Průběh opatření',
+      cs_message: null,
       en_summary: 'Mitigation is in progress',
       en_message: 'The advisory itself remains published at the original time.',
     });
@@ -37,7 +39,7 @@ describe('securityAdvisoryUpdateCreatePayload', () => {
       state: 'retracted',
       publishedAt: '2026-07-21T10:14',
       sendMail: false,
-      translations: { en: { summary: 'Lifecycle attempt', message: '' } },
+      translations: { cs: { summary: 'Změna stavu', message: '' }, en: { summary: 'Lifecycle attempt', message: '' } },
     };
 
     expect(securityAdvisoryUpdateCreatePayload(42, values, 'draft').state).toBeNull();

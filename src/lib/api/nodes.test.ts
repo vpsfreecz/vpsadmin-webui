@@ -1,7 +1,8 @@
+import { beforeEach } from 'vitest';
 import { apiWire, installHaveApiXhr } from '../../test/haveapiXhr';
 import { describe, expect, test, vi } from 'vitest';
 
-import { HaveApiError } from './haveapi';
+import { HaveApiError } from './apiErrors';
 import {
   NodeCreateReconciliationIncompleteError,
   reconcileNodeCreate,
@@ -90,13 +91,15 @@ describe('nodes API wrappers', () => {
   });
 
   test('fetchPool rejects a mismatched read-back identity', async () => {
-    apiWire.respond = mockFetchOk({ pool: { id: 12, node: 5, maintenance_lock: 'no' } }) as typeof fetch;
+    apiWire.respond = mockFetchOk({ pool: { id: 12, node: { id: 5 }, maintenance_lock: 'no' } }) as typeof fetch;
 
-    await expect(fetchPool(11)).rejects.toThrow('response id does not match requested pool');
+    await expect(fetchPool(11)).rejects.toMatchObject({
+      cause: { message: 'response id does not match requested pool' },
+    });
   });
 
   test('setPoolMaintenance locks the selected pool with a reason', async () => {
-    installHaveApiXhr( mockFetchOk({}));
+    installHaveApiXhr( mockFetchOk({ pool: {} }));
 
     await setPoolMaintenance(11, { lock: true, reason: 'Disk replacement' });
 
@@ -109,7 +112,7 @@ describe('nodes API wrappers', () => {
   });
 
   test('setPoolMaintenance unlocks without sending a reason', async () => {
-    installHaveApiXhr( mockFetchOk({}));
+    installHaveApiXhr( mockFetchOk({ pool: {} }));
 
     await setPoolMaintenance(12, { lock: false });
 
@@ -180,8 +183,7 @@ describe('nodes API wrappers', () => {
 
     await expect(reconcileNodeCreate(
       { name: 'node42', ip_addr: '192.0.2.42' },
-      { pageSize: 2, maxNodes: 10 },
-    )).resolves.toEqual({ status: 'found', node: { id: 42, name: 'node42', ip_addr: '192.0.2.42' } });
+      { pageSize: 2, maxNodes: 10 })).resolves.toEqual({ status: 'found', node: { id: 42, name: 'node42', ip_addr: '192.0.2.42' } });
 
     expect(apiWire.respond).toHaveBeenCalledTimes(2);
     const calls = vi.mocked(apiWire.respond).mock.calls;
@@ -208,8 +210,7 @@ describe('nodes API wrappers', () => {
 
     await expect(reconcileNodeCreate(
       { name: 'node42', ip_addr: '192.0.2.42' },
-      { pageSize: 2, maxNodes: 2 },
-    )).rejects.toBeInstanceOf(NodeCreateReconciliationIncompleteError);
+      { pageSize: 2, maxNodes: 2 })).rejects.toBeInstanceOf(NodeCreateReconciliationIncompleteError);
   });
 
   test('catches a late node commit during the settling window', async () => {
@@ -225,8 +226,8 @@ describe('nodes API wrappers', () => {
 
     await expect(reconcileNodeCreateAfterSettling(
       { name: 'node42', ip_addr: '192.0.2.42' },
-      { pageSize: 2, maxNodes: 10, attempts: 4, settleDelayMs: 0, sleep },
-    )).resolves.toEqual({ status: 'found', node: { id: 42, name: 'node42', ip_addr: '192.0.2.42' } });
+      { pageSize: 2, maxNodes: 10, attempts: 4, settleDelayMs: 0, sleep }
+      )).resolves.toEqual({ status: 'found', node: { id: 42, name: 'node42', ip_addr: '192.0.2.42' } });
 
     expect(apiWire.respond).toHaveBeenCalledTimes(2);
     expect(sleep).toHaveBeenCalledTimes(1);
@@ -240,8 +241,8 @@ describe('nodes API wrappers', () => {
 
     await expect(reconcileNodeCreateAfterSettling(
       { name: 'node42', ip_addr: '192.0.2.42' },
-      { pageSize: 2, maxNodes: 10, attempts: 4, settleDelayMs: 0, sleep },
-    )).resolves.toEqual({ status: 'unresolved' });
+      { pageSize: 2, maxNodes: 10, attempts: 4, settleDelayMs: 0, sleep }
+      )).resolves.toEqual({ status: 'unresolved' });
 
     expect(apiWire.respond).toHaveBeenCalledTimes(4);
     expect(sleep).toHaveBeenCalledTimes(3);
@@ -252,16 +253,26 @@ describe('nodes API wrappers', () => {
 test('node overview uses the existing admin action without pagination and accepts cancellation', async () => {
   const controller = new AbortController();
   installHaveApiXhr(mockFetchOk({ nodes: [{ id: 5, status: true, vps_running: 0, maintenance_lock: 'no' }] }));
-  expect((await fetchNodeOverview(controller.signal)).data).toEqual([{ id: 5, status: true, vps_running: 0, maintenance_lock: 'no' }]);
+  expect((await fetchNodeOverview(controller.signal)).data).toEqual([{ id: 5, status: true, vps_running: 0, maintenance_lock: 'no' },
+  ]);
   const [url] = lastFetchCall();
   expect(new URL(String(url)).pathname).toBe('/v7.0/nodes/overview_list');
   expect(new URL(String(url)).search).toBe('');
   controller.abort();
   await expect(fetchNodeOverview(controller.signal)).rejects.toMatchObject({ name: 'AbortError' });
   expect(apiWire.requests).toHaveLength(1);
+  installHaveApiXhr(mockFetchOk({ input: { parameters: { lock: { type: 'Boolean' } } } }));
   await fetchNodeMaintenanceCapability(5);
   const [capabilityUrl, capabilityInit] = lastFetchCall();
   expect(new URL(String(capabilityUrl)).pathname).toBe('/v7.0/nodes/5/set_maintenance');
   expect(new URL(String(capabilityUrl)).searchParams.get('method')).toBe('POST');
   expect(capabilityInit?.method).toBe('OPTIONS');
+});
+
+beforeEach(() => {
+  window.vpsAdmin = {
+    api: { url: 'https://api.example.test', version: 'v7.0' },
+    sessionToken: 'test-token',
+    description: { meta: { namespace: '_meta' }, authentication: { token: { http_header: 'X-Auth-Token' } } },
+  };
 });

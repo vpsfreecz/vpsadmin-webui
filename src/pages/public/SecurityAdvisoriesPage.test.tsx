@@ -67,7 +67,7 @@ function renderPage() {
 }
 
 function apiResult<T>(data: T) {
-  return { data, envelope: { status: true } };
+  return { data, meta: {}, httpStatus: 200, envelope: { status: true as const, response: {} } };
 }
 
 function advisoryListResult(data: SecurityAdvisory[]) {

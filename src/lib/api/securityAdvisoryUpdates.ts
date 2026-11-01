@@ -1,34 +1,30 @@
+import { isOperationsRecord, isOperationsReference, type OperationsReference } from './operationsReference';
+import type {
+  SecurityAdvisoryUpdate__CreateInput,
+  SecurityAdvisoryUpdate__UpdateInput,
+} from 'vpsadmin-typescript-client';
+import type {
+  Location__ShowOutput,
+  SecurityAdvisoryUpdate__IndexOutput,
+} from 'vpsadmin-typescript-client';
+import type { SecurityAdvisoryUpdate__IndexInput } from 'vpsadmin-typescript-client';
+import { getApi } from './sdk';
+import { narrowApiResult } from './apiOutput';
 import type { ResourceRef } from './appTypes';
-import { expectArray, haveApiCall } from './haveapi';
 import type { SecurityAdvisoryState } from './securityAdvisories';
 
-type LocalizedPayload<Field extends string, Value = string> = Partial<
-  Record<`${string}_${Field}`, Value>
->;
-
-export interface SecurityAdvisoryUpdate {
+export type SecurityAdvisoryUpdate = Omit<
+  SecurityAdvisoryUpdate__IndexOutput[number],
+  'id' | 'reported_by' | 'security_advisory'
+> & {
   id: number;
-  security_advisory?: ResourceRef | number;
-  security_advisory_id?: number;
-  state?: SecurityAdvisoryState | null;
-  reported_by?: ResourceRef | number | null;
-  reported_by_id?: number | null;
-  reporter_name?: string | null;
-  name?: string | null;
-  created_at?: string;
-  updated_at?: string | null;
+  reported_by?: OperationsReference | null;
+  security_advisory?: OperationsReference | null;
   [k: string]: unknown;
-}
+};
 
-export type SecurityAdvisoryUpdateTextPayload = LocalizedPayload<'summary'> &
-  LocalizedPayload<'message', string | null>;
-
-export type SecurityAdvisoryUpdateCreatePayload = {
-  security_advisory: number;
-  state?: SecurityAdvisoryState | null;
-  published_at?: string | null;
-  send_mail?: boolean;
-} & SecurityAdvisoryUpdateTextPayload;
+export type SecurityAdvisoryUpdateTextPayload = SecurityAdvisoryUpdate__UpdateInput;
+export type SecurityAdvisoryUpdateCreatePayload = SecurityAdvisoryUpdate__CreateInput;
 
 export interface SecurityAdvisoryUpdateFilters {
   securityAdvisoryId?: number;
@@ -44,32 +40,23 @@ export interface SecurityAdvisoryUpdateAllFilters extends SecurityAdvisoryUpdate
 }
 
 export async function fetchSecurityAdvisoryUpdates(opts?: SecurityAdvisoryUpdateFilters) {
-  const params: Record<string, unknown> = {};
+  const params: SecurityAdvisoryUpdate__IndexInput = {};
   if (opts?.securityAdvisoryId !== undefined) params['security_advisory'] = opts.securityAdvisoryId;
   if (opts?.since) params['since'] = opts.since;
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
 
-  const res = await haveApiCall<SecurityAdvisoryUpdate[]>({
-    method: 'GET',
-    path: '/security_advisory_updates',
-    namespace: 'security_advisory_update',
-    params,
-    meta: opts?.includes ? { includes: opts.includes } : undefined,
-  });
+  const res = await (
+    await getApi()
+  ).security_advisory_update.index({ params, meta: opts?.includes ? { includes: opts.includes } : undefined });
 
-  return {
-    ...res,
-    data: expectArray<SecurityAdvisoryUpdate>(res.data, 'security_advisory_updates#index'),
-  };
+  return narrowApiResult(res, narrowSecurityAdvisoryUpdateList, 'security_advisory_updates#index');
 }
 
 const SECURITY_ADVISORY_UPDATE_PAGE_LIMIT = 100;
 const SECURITY_ADVISORY_UPDATE_MAX_PAGES = 100;
 
-function numericSecurityAdvisoryUpdateId(
-  update: SecurityAdvisoryUpdate | undefined,
-): number | undefined {
+function numericSecurityAdvisoryUpdateId(update: SecurityAdvisoryUpdate | undefined): number | undefined {
   const id = update?.id;
   return typeof id === 'number' && Number.isFinite(id) ? id : undefined;
 }
@@ -79,15 +66,13 @@ function numericSecurityAdvisoryUpdateId(
  * the first request. The API may include the cursor row again on the next
  * page, so results are de-duplicated by their numeric ID.
  */
-export async function fetchAllSecurityAdvisoryUpdates(
-  opts: SecurityAdvisoryUpdateAllFilters = {},
-) {
-  const pageLimit = Number.isInteger(opts.limit) && Number(opts.limit) > 0
-    ? Number(opts.limit)
-    : SECURITY_ADVISORY_UPDATE_PAGE_LIMIT;
-  const maxPages = Number.isInteger(opts.maxPages) && Number(opts.maxPages) > 0
-    ? Number(opts.maxPages)
-    : SECURITY_ADVISORY_UPDATE_MAX_PAGES;
+export async function fetchAllSecurityAdvisoryUpdates(opts: SecurityAdvisoryUpdateAllFilters = {}) {
+  const pageLimit =
+    Number.isInteger(opts.limit) && Number(opts.limit) > 0 ? Number(opts.limit) : SECURITY_ADVISORY_UPDATE_PAGE_LIMIT;
+  const maxPages =
+    Number.isInteger(opts.maxPages) && Number(opts.maxPages) > 0
+      ? Number(opts.maxPages)
+      : SECURITY_ADVISORY_UPDATE_MAX_PAGES;
   const { maxPages: _maxPages, ...filters } = opts;
 
   const data: SecurityAdvisoryUpdate[] = [];
@@ -135,40 +120,78 @@ export async function fetchAllSecurityAdvisoryUpdates(
 
 export async function fetchSecurityAdvisoryUpdate(
   securityAdvisoryUpdateId: number,
-  opts?: { includes?: string; signal?: AbortSignal },
+  opts?: { includes?: string; signal?: AbortSignal }
 ) {
-  return haveApiCall<SecurityAdvisoryUpdate>({
-    method: 'GET',
-    path: `/security_advisory_updates/${securityAdvisoryUpdateId}`,
-    meta: opts?.includes ? { includes: opts.includes } : undefined,
-    signal: opts?.signal,
-  });
+  return narrowApiResult(
+    await (
+      await getApi()
+    ).security_advisory_update.show({
+      path: { security_advisory_update_id: securityAdvisoryUpdateId },
+      meta: opts?.includes ? { includes: opts.includes } : undefined,
+      signal: opts?.signal,
+    }),
+    narrowSecurityAdvisoryUpdate,
+    'security_advisory_update.show'
+  );
 }
 
 export async function createSecurityAdvisoryUpdate(params: SecurityAdvisoryUpdateCreatePayload) {
-  return haveApiCall<SecurityAdvisoryUpdate>({
-    method: 'POST',
-    path: '/security_advisory_updates',
-    namespace: 'security_advisory_update',
-    params: { ...params },
-  });
+  return narrowApiResult(
+    await (await getApi()).security_advisory_update.create({ params: { ...params } }),
+    narrowSecurityAdvisoryUpdate,
+    'security_advisory_update.create'
+  );
 }
 
 export async function updateSecurityAdvisoryUpdate(
   securityAdvisoryUpdateId: number,
-  params: SecurityAdvisoryUpdateTextPayload,
+  params: SecurityAdvisoryUpdateTextPayload
 ) {
-  return haveApiCall<SecurityAdvisoryUpdate>({
-    method: 'PUT',
-    path: `/security_advisory_updates/${securityAdvisoryUpdateId}`,
-    namespace: 'security_advisory_update',
-    params: { ...params },
-  });
+  return narrowApiResult(
+    await (
+      await getApi()
+    ).security_advisory_update.update({
+      path: { security_advisory_update_id: securityAdvisoryUpdateId },
+      params: { ...params },
+    }),
+    narrowSecurityAdvisoryUpdate,
+    'security_advisory_update.update'
+  );
 }
 
 export async function deleteSecurityAdvisoryUpdate(securityAdvisoryUpdateId: number) {
-  return haveApiCall<null>({
-    method: 'DELETE',
-    path: `/security_advisory_updates/${securityAdvisoryUpdateId}`,
+  return (await getApi()).security_advisory_update.delete({
+    path: { security_advisory_update_id: securityAdvisoryUpdateId },
   });
+}
+
+function isSecurityAdvisoryUpdate(value: unknown): value is SecurityAdvisoryUpdate {
+  return (
+    isOperationsRecord(value) &&
+    typeof value['id'] === 'number' &&
+    Number.isSafeInteger(value['id']) &&
+    value['id'] > 0 &&
+    [
+      'created_at',
+      'cs_message',
+      'cs_summary',
+      'en_message',
+      'en_summary',
+      'name',
+      'reporter_name',
+      'state',
+      'updated_at',
+    ].every((key) => value[key] === undefined || value[key] === null || typeof value[key] === 'string') &&
+    ['reported_by', 'security_advisory'].every(
+      (key) => value[key] === undefined || value[key] === null || isOperationsReference(value[key])
+    )
+  );
+}
+function narrowSecurityAdvisoryUpdate(value: unknown): SecurityAdvisoryUpdate {
+  if (!isSecurityAdvisoryUpdate(value)) throw new TypeError('Invalid SecurityAdvisoryUpdate fields');
+  return value;
+}
+function narrowSecurityAdvisoryUpdateList(value: unknown): SecurityAdvisoryUpdate[] {
+  if (!Array.isArray(value)) throw new TypeError('Expected SecurityAdvisoryUpdate list');
+  return value.map(narrowSecurityAdvisoryUpdate);
 }

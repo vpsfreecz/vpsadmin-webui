@@ -1,10 +1,11 @@
+import { AdvisoryPartialResult } from './AdvisoryPartialResult';
 import React, { useMemo, useState } from 'react';
 import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Plus, RefreshCw, Search } from 'lucide-react';
 
 import { advisoryGuards, requireAdvisoryActions } from '../../../../lib/api/securityAdvisoryMutations';
-import { advisoryCveActions } from './securityAdvisoryAdminApi';
+import { advisoryCveActions, AdvisoryChildSequenceError } from './securityAdvisoryAdminApi';
 import { useI18n } from '../../../../app/i18n';
 import { useToasts } from '../../../../app/toasts';
 import { PageHeader } from '../../../../components/layout/PageHeader';
@@ -143,12 +144,11 @@ export function AdminSecurityAdvisoriesPage() {
     ...advisory,
     cves: cveQueries[index]?.data ?? advisory.cves ?? [],
   }));
+  const [partialResult, setPartialResult] = useState<AdvisoryPartialResult | null>(null);
   const createM = useMutation({
     mutationFn: async ({ values, cves }: { values: SecurityAdvisoryEditorValues; cves: string[] }) => {
-      await requireAdvisoryActions([
-        { path: '/security_advisories', method: 'POST', state: false, revision: false },
-        ...advisoryCveActions([], cves),
-      ]);
+      if (partialResult) throw new Error(t('admin.security_advisories.correction.reload'));
+      await requireAdvisoryActions([{ resource: 'advisory', action: 'create' }, ...advisoryCveActions([], cves)]);
       const created = await createSecurityAdvisory(securityAdvisoryEditorPayload(values));
       try {
         await reconcileSecurityAdvisoryCves(created.data.id, [], cves, advisoryGuards(created.data));
@@ -157,13 +157,16 @@ export function AdminSecurityAdvisoriesPage() {
         // The API cannot create the draft and child CVEs atomically. Keep the
         // successfully created draft and continue on its detail instead of
         // offering a blind retry that would create a duplicate advisory.
+        const sequenceError =
+          error instanceof AdvisoryChildSequenceError ? error : new AdvisoryChildSequenceError([], cves, error);
+        setPartialResult({ advisoryId: created.data.id, desiredCves: Object.freeze([...cves]), sequenceError });
         return { advisory: created.data, childError: advisoryFailureMessage(error, t) };
       }
     },
     onSuccess: async ({ advisory, childError }) => {
       await queryClient.invalidateQueries({ queryKey: ['admin', 'security_advisories'] });
-      setEditorOpen(false);
-      setEditorError(null);
+      setEditorError(childError);
+      if (!childError) setEditorOpen(false);
       pushToast(
         childError
           ? {
@@ -173,7 +176,7 @@ export function AdminSecurityAdvisoriesPage() {
             }
           : { variant: 'ok', title: t('admin.security_advisories.toast.created') }
       );
-      navigate(`/admin/security-advisories/${advisory.id}`);
+      if (!childError) navigate(`/admin/security-advisories/${advisory.id}`);
     },
     onError: (error) => {
       const message = advisoryFailureMessage(error, t);
@@ -184,6 +187,7 @@ export function AdminSecurityAdvisoriesPage() {
 
   return (
     <div className="space-y-4" data-testid="admin.security_advisories.page">
+      {!editorOpen && partialResult ? <AdvisoryPartialResult result={partialResult} created /> : null}
       <PageHeader
         title={t('admin.security_advisories.title')}
         description={t('admin.security_advisories.subtitle')}
@@ -203,7 +207,9 @@ export function AdminSecurityAdvisoriesPage() {
                 setEditorError(null);
                 setEditorOpen(true);
               }}
-              disabled={languagesQ.isLoading || languagesQ.isError || !languagesQ.data?.length}
+              disabled={
+                partialResult !== null || languagesQ.isLoading || languagesQ.isError || !languagesQ.data?.length
+              }
               disabledReason={
                 languagesQ.isError || (!languagesQ.isLoading && !languagesQ.data?.length)
                   ? t('admin.security_advisories.validation.languages_unavailable')
@@ -352,6 +358,8 @@ export function AdminSecurityAdvisoriesPage() {
         cves={[]}
         error={editorError}
         saving={createM.isPending}
+        blocked={partialResult !== null}
+        partialResult={partialResult}
         onClose={() => !createM.isPending && setEditorOpen(false)}
         onSubmit={(values, cves) => createM.mutate({ values, cves })}
       />

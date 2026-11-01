@@ -24,11 +24,22 @@ export interface SecurityAdvisoryNodeFormValues {
 }
 
 export type SecurityAdvisoryNodePayloadResult =
-  | { valid: true; payload: SecurityAdvisoryNodeStatusCreatePayload }
-  | { valid: false; reason: 'vulnerable_until_required' | 'mitigated_since_required' | 'invalid_date' };
+  | {
+      valid: true;
+      payload: Omit<SecurityAdvisoryNodeStatusCreatePayload, 'expected_content_revision' | 'expected_state'>;
+    }
+  | {
+      valid: false;
+      reason: 'vulnerable_until_required' | 'mitigated_since_required' | 'invalid_date' | 'unsupported_language';
+    };
 
-export function securityAdvisoryNodeStatusNodeId(status: SecurityAdvisoryNodeStatus): number | null {
-  if (typeof status.node_id === 'number' && Number.isFinite(status.node_id)) return status.node_id;
+export function securityAdvisoryNodeStatusNodeId(
+  status: Pick<SecurityAdvisoryNodeStatus, 'id'> & {
+    node?: SecurityAdvisoryNodeStatus['node'] | number;
+    node_id?: unknown;
+  }
+): number | null {
+  if (typeof status['node_id'] === 'number' && Number.isFinite(status['node_id'])) return status['node_id'];
   if (typeof status.node === 'number' && Number.isFinite(status.node)) return status.node;
   if (status.node && typeof status.node === 'object') {
     const id = status.node.id;
@@ -41,11 +52,13 @@ export function buildSecurityAdvisoryNodeStatusPayload(
   nodeId: number,
   values: SecurityAdvisoryNodeFormValues
 ): SecurityAdvisoryNodePayloadResult {
-  const notes = Object.fromEntries(
-    Object.entries(values.notes)
-      .filter(([code, note]) => !values.original || note !== String(values.original[`${code}_note`] ?? ''))
-      .map(([code, note]) => [`${code}_note`, note.trim() || null])
-  );
+  const notes: Pick<SecurityAdvisoryNodeStatusCreatePayload, 'cs_note' | 'en_note'> = {};
+  for (const [code, note] of Object.entries(values.notes)) {
+    if (values.original && note === String(values.original[`${code}_note`] ?? '')) continue;
+    if (code === 'cs') notes.cs_note = note.trim() || null;
+    else if (code === 'en') notes.en_note = note.trim() || null;
+    else return { valid: false, reason: 'unsupported_language' };
+  }
   if (values.state === 'not_affected' || values.state === 'unknown') {
     return {
       valid: true,
@@ -189,7 +202,11 @@ export function SecurityAdvisoryNodeFormFields(props: {
 
       {!payload.valid ? (
         <Alert variant="warn" title={t('admin.security_advisories.nodes.validation.title')}>
-          {t(`admin.security_advisories.nodes.validation.${payload.reason}`)}
+          {t(
+            payload.reason === 'unsupported_language'
+              ? 'admin.security_advisories.validation.language_profile_unsupported'
+              : `admin.security_advisories.nodes.validation.${payload.reason}`
+          )}
         </Alert>
       ) : null}
     </div>
@@ -200,7 +217,26 @@ export function MobileCellLabel(props: { children: React.ReactNode }) {
   return <span className="text-xs font-medium text-faint md:hidden">{props.children}</span>;
 }
 
-export function withoutNode(payload: SecurityAdvisoryNodeStatusCreatePayload) {
+export function withoutNode(
+  payload: Omit<SecurityAdvisoryNodeStatusCreatePayload, 'expected_content_revision' | 'expected_state'>
+) {
   const { node: _node, ...update } = payload;
   return update;
+}
+
+export function SecurityAdvisoryNodeTableHead() {
+  const { t } = useI18n();
+  return (
+    <thead className="hidden md:table-header-group">
+      <tr>
+        <th>{t('admin.security_advisories.nodes.table.node')}</th>
+        <th>{t('admin.security_advisories.nodes.table.type')}</th>
+        <th>{t('admin.security_advisories.nodes.table.state')}</th>
+        <th>{t('admin.security_advisories.nodes.table.vulnerable_until')}</th>
+        <th>{t('admin.security_advisories.nodes.table.mitigated_since')}</th>
+        <th>{t('admin.security_advisories.nodes.table.note')}</th>
+        <th className="text-right">{t('admin.security_advisories.nodes.table.actions')}</th>
+      </tr>
+    </thead>
+  );
 }

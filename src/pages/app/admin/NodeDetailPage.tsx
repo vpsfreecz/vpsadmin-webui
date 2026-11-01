@@ -13,7 +13,7 @@ import {
 } from '../../../lib/api/nodes';
 import { fetchActiveTransactionChains, fetchTransactions } from '../../../lib/api/transactions';
 import { fetchPublicNodeStatus } from '../../../lib/api/public';
-import { getMetaActionStateId } from '../../../lib/api/haveapi';
+import { getMetaActionStateId } from '../../../lib/api/apiErrors';
 import { useAppMode } from '../../../app/appMode';
 import { useAuth } from '../../../app/auth';
 import { useI18n } from '../../../app/i18n';

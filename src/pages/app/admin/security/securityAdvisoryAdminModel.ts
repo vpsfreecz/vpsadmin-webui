@@ -29,8 +29,9 @@ export function securityAdvisoryUpdateStateChange(currentState: unknown, request
 }
 
 export interface AdvisoryNodeStatusLike {
+  node?: unknown;
   node_id?: number;
-  state?: string;
+  state?: string | null;
   vulnerable_until?: string | null;
   mitigated_since?: string | null;
 }
@@ -84,8 +85,8 @@ export function securityAdvisoryPublishIssues(opts: {
 
   const statuses = new Map(
     opts.statuses
-      .filter((status): status is AdvisoryNodeStatusLike & { node_id: number } => typeof status.node_id === 'number')
-      .map((status) => [status.node_id, status])
+      .map((status) => [resourceId(status.node, status.node_id), status] as const)
+      .filter((entry): entry is readonly [number, AdvisoryNodeStatusLike] => entry[0] !== null)
   );
 
   for (const node of relevantSecurityAdvisoryNodes(opts.nodes)) {
@@ -112,12 +113,12 @@ export function securityAdvisoryPublishIssues(opts: {
 }
 
 export function resourceId(value: unknown, fallback?: unknown): number | null {
-  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'number' && Number.isSafeInteger(value) && value > 0) return value;
   if (value && typeof value === 'object') {
     const id = (value as Record<string, unknown>)['id'];
-    if (typeof id === 'number' && Number.isFinite(id)) return id;
+    if (typeof id === 'number' && Number.isSafeInteger(id) && id > 0) return id;
   }
-  if (typeof fallback === 'number' && Number.isFinite(fallback)) return fallback;
+  if (typeof fallback === 'number' && Number.isSafeInteger(fallback) && fallback > 0) return fallback;
   return null;
 }
 

@@ -1,3 +1,4 @@
+import type { AdvisoryPartialResult } from './AdvisoryPartialResult';
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
@@ -16,10 +17,11 @@ import {
   requireAdvisoryActions,
   nextAdvisoryRevision,
 } from '../../../../lib/api/securityAdvisoryMutations';
-import { getMetaActionStateId } from '../../../../lib/api/haveapi';
+import { getMetaActionStateId } from '../../../../lib/api/apiErrors';
 import { localInputToIso } from '../../../../lib/datetimeLocal';
 import { advisoryFailureMessage } from './advisoryFailureMessage';
 import {
+  AdvisoryChildSequenceError,
   advisoryCveActions,
   fetchAdvisoryEditSnapshot,
   reconcileSecurityAdvisoryCves,
@@ -38,6 +40,7 @@ export function useSecurityAdvisoryCorrections(opts: {
   const chrome = useChrome();
   const navigate = useNavigate();
   const [snapshot, setSnapshot] = useState<Awaited<ReturnType<typeof fetchAdvisoryEditSnapshot>> | null>(null);
+  const [partialResult, setPartialResult] = useState<AdvisoryPartialResult | null>(null);
   const [editorOpen, setEditorOpen] = useState(false);
   const [editorError, setEditorError] = useState<string | null>(null);
   const [editBlocked, setEditBlocked] = useState(false);
@@ -47,10 +50,10 @@ export function useSecurityAdvisoryCorrections(opts: {
     setOpening(true);
     try {
       const next = await fetchAdvisoryEditSnapshot(opts.advisoryId);
-      await requireAdvisoryActions([{ path: `/security_advisories/${opts.advisoryId}`, method: 'PUT' }], next.guards);
+      await requireAdvisoryActions([{ resource: 'advisory', action: 'update' }], next.guards);
       setSnapshot(next);
       setEditorError(null);
-      setEditBlocked(false);
+      setEditBlocked(partialResult !== null);
       setEditorOpen(true);
     } catch (error) {
       pushToast({ variant: 'danger', title: t('common.error'), body: advisoryFailureMessage(error, t) });
@@ -62,10 +65,7 @@ export function useSecurityAdvisoryCorrections(opts: {
     mutationFn: async ({ values, cves }: { values: SecurityAdvisoryEditorValues; cves: string[] }) => {
       if (!snapshot || editBlocked) throw new Error(t('admin.security_advisories.correction.reload'));
       await requireAdvisoryActions(
-        [
-          { path: `/security_advisories/${opts.advisoryId}`, method: 'PUT' },
-          ...advisoryCveActions(snapshot.cves, cves),
-        ],
+        [{ resource: 'advisory', action: 'update' }, ...advisoryCveActions(snapshot.cves, cves)],
         snapshot.guards
       );
       // Any refusal or uncertain response requires a new explicit load, including partial CVE success.
@@ -74,15 +74,18 @@ export function useSecurityAdvisoryCorrections(opts: {
         ...securityAdvisoryEditorPayload(values, snapshot.advisory),
         ...snapshot.guards,
       });
-      const revision = nextAdvisoryRevision(snapshot.guards.expected_content_revision, updated.data.content_revision);
       try {
+        const revision = nextAdvisoryRevision(snapshot.guards.expected_content_revision, updated.data.content_revision);
         await reconcileSecurityAdvisoryCves(opts.advisoryId, snapshot.cves, cves, {
           ...snapshot.guards,
           expected_content_revision: revision,
         });
       } catch (error) {
+        const sequence =
+          error instanceof AdvisoryChildSequenceError ? error : new AdvisoryChildSequenceError([], cves, error);
         throw new Error(
-          `${t('admin.security_advisories.toast.saved_without_cves')} ${advisoryFailureMessage(error, t)}`
+          `${t('admin.security_advisories.toast.saved_without_cves')} ${advisoryFailureMessage(error, t)}`,
+          { cause: sequence }
         );
       }
     },
@@ -90,7 +93,19 @@ export function useSecurityAdvisoryCorrections(opts: {
       setEditorOpen(false);
       await opts.invalidate();
     },
-    onError: async (error) => {
+    onError: async (error, variables) => {
+      const sequence =
+        error instanceof AdvisoryChildSequenceError
+          ? error
+          : error instanceof Error && error.cause instanceof AdvisoryChildSequenceError
+            ? error.cause
+            : null;
+      if (sequence)
+        setPartialResult({
+          advisoryId: opts.advisoryId,
+          desiredCves: Object.freeze([...variables.cves]),
+          sequenceError: sequence,
+        });
       setEditorError(advisoryFailureMessage(error, t));
       await opts.invalidate();
     },
@@ -117,10 +132,7 @@ export function useSecurityAdvisoryCorrections(opts: {
       const guards = advisoryGuards(publishTarget);
       if (guards.expected_state !== 'draft' || !localInputToIso(publishAt).valid)
         throw new Error(t('admin.security_advisories.validation.date'));
-      await requireAdvisoryActions(
-        [{ path: `/security_advisories/${opts.advisoryId}/publish`, method: 'POST', state: false }],
-        guards
-      );
+      await requireAdvisoryActions([{ resource: 'advisory', action: 'publish' }], guards);
       setPublishBlocked(true);
       return publishSecurityAdvisory(opts.advisoryId, {
         expected_content_revision: guards.expected_content_revision,
@@ -149,8 +161,9 @@ export function useSecurityAdvisoryCorrections(opts: {
       await requireAdvisoryActions(
         [
           {
-            path: `/security_advisories/${advisory.id}${action === 'retract' ? '/retract' : ''}`,
-            method: action === 'retract' ? 'POST' : 'DELETE',
+            resource: 'advisory',
+            action,
+            id: advisory.id,
           },
         ],
         guards
@@ -180,6 +193,11 @@ export function useSecurityAdvisoryCorrections(opts: {
   };
   return {
     snapshot,
+    partialResult,
+    reviewPartial: async () => {
+      setEditorOpen(false);
+      await opts.invalidate();
+    },
     editorOpen,
     setEditorOpen,
     editorError,

@@ -1,3 +1,4 @@
+import { beforeEach } from 'vitest';
 import { apiWire } from '../../test/haveapiXhr';
 import { describe, expect, test, vi } from 'vitest';
 
@@ -27,8 +28,7 @@ describe('cluster resource packages API wrappers', () => {
     expect(res.data).toEqual([{ id: 77, label: 'Personal package', is_personal: true }]);
 
     const [url] = vi.mocked(apiWire.respond).mock.calls.find(([input]) =>
-      new URL(input).pathname.endsWith('/cluster_resource_packages'),
-    )!;
+      new URL(input).pathname.endsWith('/cluster_resource_packages'))!;
     const u = new URL(url);
 
     expect(u.pathname).toBe('/v7.0/cluster_resource_packages');
@@ -50,11 +50,18 @@ describe('cluster resource packages API wrappers', () => {
     await fetchClusterResourcePackages({ userId: null, limit: 500 });
 
     const [url] = vi.mocked(apiWire.respond).mock.calls.find(([input]) =>
-      new URL(input).pathname.endsWith('/cluster_resource_packages'),
-    )!;
+      new URL(input).pathname.endsWith('/cluster_resource_packages'))!;
     const u = new URL(url);
 
     expect(u.searchParams.has('cluster_resource_package[user]')).toBe(true);
     expect(u.searchParams.get('cluster_resource_package[user]')).toBe('');
   });
+});
+
+beforeEach(() => {
+  window.vpsAdmin = {
+    api: { url: 'https://api.example.test', version: 'v7.0' },
+    sessionToken: 'test-token',
+    description: { meta: { namespace: '_meta' }, authentication: { token: { http_header: 'X-Auth-Token' } } },
+  };
 });

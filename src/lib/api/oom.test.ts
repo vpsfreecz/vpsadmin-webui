@@ -1,3 +1,4 @@
+import { beforeEach } from 'vitest';
 import { apiWire } from '../../test/haveapiXhr';
 import { describe, expect, test, vi } from 'vitest';
 
@@ -52,4 +53,12 @@ describe('oom API wrappers', () => {
       expect(u.searchParams.get(`oom_report[${unsupported}]`)).toBeNull();
     }
   });
+});
+
+beforeEach(() => {
+  window.vpsAdmin = {
+    api: { url: 'https://api.example.test', version: 'v7.0' },
+    sessionToken: 'test-token',
+    description: { meta: { namespace: '_meta' }, authentication: { token: { http_header: 'X-Auth-Token' } } },
+  };
 });

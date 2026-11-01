@@ -35,7 +35,7 @@ import {
   type NodeReviewChange,
 } from './NodeLifecycleModel';
 
-export type NodeEditorMutationResult = { data?: Node | void; meta?: Record<string, unknown> };
+export type NodeEditorMutationResult = { data?: Node | Record<string, never>; meta?: Record<string, unknown> };
 type Translate = I18nContextValue['t'];
 
 function locationText(location: Location): string {
@@ -73,11 +73,7 @@ function validationMessage(t: Translate, error: unknown): string {
   return t('admin.node.editor.validation.generic');
 }
 
-function Review(props: {
-  changes: NodeReviewChange[];
-  edit: boolean;
-  t: Translate;
-}) {
+function Review(props: { changes: NodeReviewChange[]; edit: boolean; t: Translate }) {
   return (
     <div className="overflow-hidden rounded-lg border border-border" data-testid="admin.node.editor.review">
       <div className="bg-surface-2 px-3 py-2 text-sm font-semibold">{props.t('admin.node.editor.review.title')}</div>
@@ -86,8 +82,16 @@ function Review(props: {
           <div key={change.key} className="grid gap-1 px-3 py-2 sm:grid-cols-[11rem_minmax(0,1fr)] sm:gap-3">
             <dt className="text-xs font-semibold text-muted">{fieldLabel(props.t, change.key)}</dt>
             <dd className="min-w-0 text-sm">
-              {props.edit ? <span className="break-all text-faint line-through">{reviewValue(props.t, change.key, change.before)}</span> : null}
-              {props.edit ? <span className="mx-2 text-faint" aria-hidden="true">→</span> : null}
+              {props.edit ? (
+                <span className="break-all text-faint line-through">
+                  {reviewValue(props.t, change.key, change.before)}
+                </span>
+              ) : null}
+              {props.edit ? (
+                <span className="mx-2 text-faint" aria-hidden="true">
+                  →
+                </span>
+              ) : null}
               <span className="break-all font-medium text-fg">{reviewValue(props.t, change.key, change.after)}</span>
             </dd>
           </div>
@@ -97,7 +101,11 @@ function Review(props: {
   );
 }
 
-function NodeFieldInput({ inputId, label, ...inputProps }: Omit<InputProps, 'inputId' | 'label'> & {
+function NodeFieldInput({
+  inputId,
+  label,
+  ...inputProps
+}: Omit<InputProps, 'inputId' | 'label'> & {
   inputId: string;
   label: string;
 }) {
@@ -137,13 +145,9 @@ export function NodeEditorModal(props: {
     () => nodeCreateCapacityRequirements(props.createCapability),
     [props.createCapability]
   );
-  const capacityIsRequired = capacityRequirements.cpus
-    || capacityRequirements.total_memory
-    || capacityRequirements.total_swap;
-  const updateNullability = useMemo(
-    () => nodeUpdateNullability(props.updateCapability),
-    [props.updateCapability]
-  );
+  const capacityIsRequired =
+    capacityRequirements.cpus || capacityRequirements.total_memory || capacityRequirements.total_swap;
+  const updateNullability = useMemo(() => nodeUpdateNullability(props.updateCapability), [props.updateCapability]);
 
   const locationsQ = useQuery({
     queryKey: ['locations', 'node_editor', { limit: 500, includes: 'environment' }],
@@ -157,9 +161,7 @@ export function NodeEditorModal(props: {
       editSessionRef.current = null;
       return;
     }
-    const sessionKey = props.mode === 'create'
-      ? 'create'
-      : `edit:${String(props.node?.id ?? 'unknown')}`;
+    const sessionKey = props.mode === 'create' ? 'create' : `edit:${String(props.node?.id ?? 'unknown')}`;
     if (editSessionRef.current === sessionKey) return;
     editSessionRef.current = sessionKey;
     setCreateDraft(emptyNodeCreateDraft());
@@ -234,7 +236,12 @@ export function NodeEditorModal(props: {
         {t('common.cancel')}
       </Button>
       {review ? (
-        <Button variant="secondary" onClick={() => setReview(false)} disabled={submitting} testId="admin.node.editor.back">
+        <Button
+          variant="secondary"
+          onClick={() => setReview(false)}
+          disabled={submitting}
+          testId="admin.node.editor.back"
+        >
           {t('common.back')}
         </Button>
       ) : null}
@@ -264,7 +271,11 @@ export function NodeEditorModal(props: {
     >
       <div className="space-y-4">
         {!props.capabilityAvailable ? (
-          <Alert variant="warn" title={t('admin.node.editor.capability_unavailable.title')} testId="admin.node.editor.capability_error">
+          <Alert
+            variant="warn"
+            title={t('admin.node.editor.capability_unavailable.title')}
+            testId="admin.node.editor.capability_error"
+          >
             {t('admin.node.editor.capability_unavailable.body')}
           </Alert>
         ) : null}
@@ -292,7 +303,13 @@ export function NodeEditorModal(props: {
               </Alert>
             ) : null}
             <div className="grid gap-3 sm:grid-cols-2">
-              <NodeFieldInput inputId="admin-node-editor-create-name" label={fieldLabel(t, 'name')} value={createDraft.name} onChange={(e) => setCreateDraft((d) => ({ ...d, name: e.target.value }))} testId="admin.node.editor.name" />
+              <NodeFieldInput
+                inputId="admin-node-editor-create-name"
+                label={fieldLabel(t, 'name')}
+                value={createDraft.name}
+                onChange={(e) => setCreateDraft((d) => ({ ...d, name: e.target.value }))}
+                testId="admin.node.editor.name"
+              />
               <div>
                 <label htmlFor="admin-node-editor-create-role" className="mb-1 block text-xs font-semibold text-muted">
                   {fieldLabel(t, 'type')}
@@ -309,7 +326,10 @@ export function NodeEditorModal(props: {
                 />
               </div>
               <div>
-                <label htmlFor="admin-node-editor-create-location" className="mb-1 block text-xs font-semibold text-muted">
+                <label
+                  htmlFor="admin-node-editor-create-location"
+                  className="mb-1 block text-xs font-semibold text-muted"
+                >
                   {fieldLabel(t, 'location')}
                 </label>
                 <Select
@@ -321,24 +341,79 @@ export function NodeEditorModal(props: {
                   testId="admin.node.editor.location"
                 />
               </div>
-              <NodeFieldInput inputId="admin-node-editor-create-ip" label={fieldLabel(t, 'ip_addr')} value={createDraft.ipAddress} onChange={(e) => setCreateDraft((d) => ({ ...d, ipAddress: e.target.value }))} inputMode="decimal" testId="admin.node.editor.ip" />
+              <NodeFieldInput
+                inputId="admin-node-editor-create-ip"
+                label={fieldLabel(t, 'ip_addr')}
+                value={createDraft.ipAddress}
+                onChange={(e) => setCreateDraft((d) => ({ ...d, ipAddress: e.target.value }))}
+                inputMode="decimal"
+                testId="admin.node.editor.ip"
+              />
               {createDraft.role === 'node' ? (
-                <NodeFieldInput inputId="admin-node-editor-create-max-vps" label={fieldLabel(t, 'max_vps')} value={createDraft.maxVps} onChange={(e) => setCreateDraft((d) => ({ ...d, maxVps: e.target.value }))} type="number" min={0} testId="admin.node.editor.max_vps" />
+                <NodeFieldInput
+                  inputId="admin-node-editor-create-max-vps"
+                  label={fieldLabel(t, 'max_vps')}
+                  value={createDraft.maxVps}
+                  onChange={(e) => setCreateDraft((d) => ({ ...d, maxVps: e.target.value }))}
+                  type="number"
+                  min={0}
+                  testId="admin.node.editor.max_vps"
+                />
               ) : null}
-              <NodeFieldInput inputId="admin-node-editor-create-max-tx" label={fieldLabel(t, 'max_tx')} value={createDraft.maxTx} onChange={(e) => setCreateDraft((d) => ({ ...d, maxTx: e.target.value }))} type="number" min={0} />
-              <NodeFieldInput inputId="admin-node-editor-create-max-rx" label={fieldLabel(t, 'max_rx')} value={createDraft.maxRx} onChange={(e) => setCreateDraft((d) => ({ ...d, maxRx: e.target.value }))} type="number" min={0} />
+              <NodeFieldInput
+                inputId="admin-node-editor-create-max-tx"
+                label={fieldLabel(t, 'max_tx')}
+                value={createDraft.maxTx}
+                onChange={(e) => setCreateDraft((d) => ({ ...d, maxTx: e.target.value }))}
+                type="number"
+                min={0}
+              />
+              <NodeFieldInput
+                inputId="admin-node-editor-create-max-rx"
+                label={fieldLabel(t, 'max_rx')}
+                value={createDraft.maxRx}
+                onChange={(e) => setCreateDraft((d) => ({ ...d, maxRx: e.target.value }))}
+                type="number"
+                min={0}
+              />
             </div>
             <div className="rounded-lg border border-border bg-surface-2 p-3">
               <div className="font-semibold">{t('admin.node.editor.bootstrap.title')}</div>
               <p className="mt-1 text-xs text-muted" data-testid="admin.node.editor.bootstrap.description">
-                {t(capacityIsRequired
-                  ? 'admin.node.editor.bootstrap.description.required'
-                  : 'admin.node.editor.bootstrap.description.optional')}
+                {t(
+                  capacityIsRequired
+                    ? 'admin.node.editor.bootstrap.description.required'
+                    : 'admin.node.editor.bootstrap.description.optional'
+                )}
               </p>
               <div className="mt-3 grid gap-3 sm:grid-cols-3">
-                <NodeFieldInput inputId="admin-node-editor-create-cpus" label={`${fieldLabel(t, 'cpus')}${capacityRequirements.cpus ? ' *' : ''}`} value={createDraft.cpus} onChange={(e) => setCreateDraft((d) => ({ ...d, cpus: e.target.value }))} type="number" min={1} testId="admin.node.editor.cpus" />
-                <NodeFieldInput inputId="admin-node-editor-create-memory" label={`${fieldLabel(t, 'total_memory')}${capacityRequirements.total_memory ? ' *' : ''}`} value={createDraft.totalMemory} onChange={(e) => setCreateDraft((d) => ({ ...d, totalMemory: e.target.value }))} type="number" min={1} testId="admin.node.editor.memory" />
-                <NodeFieldInput inputId="admin-node-editor-create-swap" label={`${fieldLabel(t, 'total_swap')}${capacityRequirements.total_swap ? ' *' : ''}`} value={createDraft.totalSwap} onChange={(e) => setCreateDraft((d) => ({ ...d, totalSwap: e.target.value }))} type="number" min={0} testId="admin.node.editor.swap" />
+                <NodeFieldInput
+                  inputId="admin-node-editor-create-cpus"
+                  label={`${fieldLabel(t, 'cpus')}${capacityRequirements.cpus ? ' *' : ''}`}
+                  value={createDraft.cpus}
+                  onChange={(e) => setCreateDraft((d) => ({ ...d, cpus: e.target.value }))}
+                  type="number"
+                  min={1}
+                  testId="admin.node.editor.cpus"
+                />
+                <NodeFieldInput
+                  inputId="admin-node-editor-create-memory"
+                  label={`${fieldLabel(t, 'total_memory')}${capacityRequirements.total_memory ? ' *' : ''}`}
+                  value={createDraft.totalMemory}
+                  onChange={(e) => setCreateDraft((d) => ({ ...d, totalMemory: e.target.value }))}
+                  type="number"
+                  min={1}
+                  testId="admin.node.editor.memory"
+                />
+                <NodeFieldInput
+                  inputId="admin-node-editor-create-swap"
+                  label={`${fieldLabel(t, 'total_swap')}${capacityRequirements.total_swap ? ' *' : ''}`}
+                  value={createDraft.totalSwap}
+                  onChange={(e) => setCreateDraft((d) => ({ ...d, totalSwap: e.target.value }))}
+                  type="number"
+                  min={0}
+                  testId="admin.node.editor.swap"
+                />
               </div>
             </div>
             <Checkbox
@@ -356,15 +431,55 @@ export function NodeEditorModal(props: {
               {t('admin.node.editor.immutable.body')}
             </Alert>
             <div className="grid gap-3 sm:grid-cols-2">
-              <NodeFieldInput inputId="admin-node-editor-edit-name" label={fieldLabel(t, 'name')} value={editDraft.name} onChange={(e) => setEditDraft((d) => ({ ...d, name: e.target.value }))} testId="admin.node.editor.name" />
-              <NodeFieldInput inputId="admin-node-editor-edit-ip" label={fieldLabel(t, 'ip_addr')} value={editDraft.ipAddress} onChange={(e) => setEditDraft((d) => ({ ...d, ipAddress: e.target.value }))} inputMode="decimal" testId="admin.node.editor.ip" />
+              <NodeFieldInput
+                inputId="admin-node-editor-edit-name"
+                label={fieldLabel(t, 'name')}
+                value={editDraft.name}
+                onChange={(e) => setEditDraft((d) => ({ ...d, name: e.target.value }))}
+                testId="admin.node.editor.name"
+              />
+              <NodeFieldInput
+                inputId="admin-node-editor-edit-ip"
+                label={fieldLabel(t, 'ip_addr')}
+                value={editDraft.ipAddress}
+                onChange={(e) => setEditDraft((d) => ({ ...d, ipAddress: e.target.value }))}
+                inputMode="decimal"
+                testId="admin.node.editor.ip"
+              />
               {props.node?.type === 'node' ? (
-                <NodeFieldInput inputId="admin-node-editor-edit-max-vps" label={fieldLabel(t, 'max_vps')} value={editDraft.maxVps} onChange={(e) => setEditDraft((d) => ({ ...d, maxVps: e.target.value }))} type="number" min={0} testId="admin.node.editor.max_vps" />
+                <NodeFieldInput
+                  inputId="admin-node-editor-edit-max-vps"
+                  label={fieldLabel(t, 'max_vps')}
+                  value={editDraft.maxVps}
+                  onChange={(e) => setEditDraft((d) => ({ ...d, maxVps: e.target.value }))}
+                  type="number"
+                  min={0}
+                  testId="admin.node.editor.max_vps"
+                />
               ) : null}
-              <NodeFieldInput inputId="admin-node-editor-edit-max-tx" label={fieldLabel(t, 'max_tx')} value={editDraft.maxTx} onChange={(e) => setEditDraft((d) => ({ ...d, maxTx: e.target.value }))} type="number" min={0} />
-              <NodeFieldInput inputId="admin-node-editor-edit-max-rx" label={fieldLabel(t, 'max_rx')} value={editDraft.maxRx} onChange={(e) => setEditDraft((d) => ({ ...d, maxRx: e.target.value }))} type="number" min={0} />
+              <NodeFieldInput
+                inputId="admin-node-editor-edit-max-tx"
+                label={fieldLabel(t, 'max_tx')}
+                value={editDraft.maxTx}
+                onChange={(e) => setEditDraft((d) => ({ ...d, maxTx: e.target.value }))}
+                type="number"
+                min={0}
+              />
+              <NodeFieldInput
+                inputId="admin-node-editor-edit-max-rx"
+                label={fieldLabel(t, 'max_rx')}
+                value={editDraft.maxRx}
+                onChange={(e) => setEditDraft((d) => ({ ...d, maxRx: e.target.value }))}
+                type="number"
+                min={0}
+              />
             </div>
-            <Checkbox checked={editDraft.active} onChange={(active) => setEditDraft((d) => ({ ...d, active }))} label={fieldLabel(t, 'active')} testId="admin.node.editor.active" />
+            <Checkbox
+              checked={editDraft.active}
+              onChange={(active) => setEditDraft((d) => ({ ...d, active }))}
+              label={fieldLabel(t, 'active')}
+              testId="admin.node.editor.active"
+            />
           </>
         )}
       </div>

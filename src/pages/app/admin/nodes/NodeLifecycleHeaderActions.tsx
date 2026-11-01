@@ -6,7 +6,7 @@ import { useI18n } from '../../../../app/i18n';
 import { useChrome } from '../../../../components/layout/ChromeContext';
 import { Button } from '../../../../components/ui/Button';
 import { CopyButton } from '../../../../components/ui/CopyButton';
-import { getMetaActionStateId } from '../../../../lib/api/haveapi';
+import { getMetaActionStateId } from '../../../../lib/api/apiErrors';
 import {
   fetchNodeUpdateCapability,
   updateNode,

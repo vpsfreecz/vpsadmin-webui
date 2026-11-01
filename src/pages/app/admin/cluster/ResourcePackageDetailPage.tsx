@@ -27,7 +27,7 @@ import { TableCard } from '../../../../components/ui/TableCard';
 import { Textarea } from '../../../../components/ui/Textarea';
 import { UserLookupInput } from '../../../../components/ui/UserLookupInput';
 
-import { getMetaTotalCount } from '../../../../lib/api/haveapi';
+import { getMetaTotalCount } from '../../../../lib/api/apiErrors';
 import { fetchClusterResources, type ClusterResource } from '../../../../lib/api/clusterResources';
 import { fetchEnvironments, type Environment } from '../../../../lib/api/infra';
 import { parsePositiveInt } from '../../../../lib/parse';

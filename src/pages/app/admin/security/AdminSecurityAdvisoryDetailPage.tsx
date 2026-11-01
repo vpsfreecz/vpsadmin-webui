@@ -21,7 +21,7 @@ import {
 } from '../../../../lib/api/securityAdvisories';
 import { fetchLanguages } from '../../../../lib/api/languages';
 import { fetchNodes } from '../../../../lib/api/nodes';
-import { getMetaActionStateId } from '../../../../lib/api/haveapi';
+import { getMetaActionStateId } from '../../../../lib/api/apiErrors';
 import { formatErrorMessage } from '../../../../lib/errors';
 import {
   fetchAllSecurityAdvisoryAffectedUsersForAdmin,

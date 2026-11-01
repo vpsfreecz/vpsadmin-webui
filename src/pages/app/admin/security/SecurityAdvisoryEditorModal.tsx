@@ -1,3 +1,5 @@
+import type { SecurityAdvisory__CreateInput } from 'vpsadmin-typescript-client';
+import { AdvisoryPartialResult } from './AdvisoryPartialResult';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import { useI18n } from '../../../../app/i18n';
@@ -60,6 +62,11 @@ function initialValues(
   };
 }
 
+export function securityAdvisoryEditorPayload(values: SecurityAdvisoryEditorValues): SecurityAdvisory__CreateInput;
+export function securityAdvisoryEditorPayload(
+  values: SecurityAdvisoryEditorValues,
+  original: SecurityAdvisory
+): SecurityAdvisoryPayload;
 export function securityAdvisoryEditorPayload(
   values: SecurityAdvisoryEditorValues,
   original?: SecurityAdvisory | null
@@ -71,11 +78,24 @@ export function securityAdvisoryEditorPayload(
   };
 
   for (const [code, translation] of Object.entries(values.translations)) {
-    payload[`${code}_summary`] = translation.summary.trim();
-    payload[`${code}_description`] = translation.description.trim();
-    payload[`${code}_response`] = translation.response.trim();
+    if (code === 'cs') {
+      payload.cs_summary = translation.summary.trim();
+      payload.cs_description = translation.description.trim();
+      payload.cs_response = translation.response.trim();
+    } else if (code === 'en') {
+      payload.en_summary = translation.summary.trim();
+      payload.en_description = translation.description.trim();
+      payload.en_response = translation.response.trim();
+    } else throw new Error('Unsupported generated advisory language profile');
   }
 
+  if (!original) {
+    const cs = payload.cs_summary;
+    const en = payload.en_summary;
+    if (typeof cs !== 'string' || typeof en !== 'string')
+      throw new Error('Unsupported generated advisory language profile');
+    return { ...payload, cs_summary: cs, en_summary: en };
+  }
   return payload;
 }
 
@@ -88,6 +108,8 @@ export function SecurityAdvisoryEditorModal(props: {
   error?: string | null;
   saving?: boolean;
   blocked?: boolean;
+  partialResult?: AdvisoryPartialResult | null;
+  onReviewPartial?: () => void;
   onClose: () => void;
   onSubmit: (values: SecurityAdvisoryEditorValues, cves: string[]) => void;
 }) {
@@ -97,7 +119,10 @@ export function SecurityAdvisoryEditorModal(props: {
   );
   const codes = useMemo(() => props.languages.map(languageCode).filter(Boolean), [props.languages]);
   const [activeLanguage, setActiveLanguage] = useState(codes[0] ?? 'en');
-  const cveResult = useMemo(() => parseSecurityAdvisoryCves(values.cves, props.mode === 'edit'), [values.cves]);
+  const cveResult = useMemo(
+    () => parseSecurityAdvisoryCves(values.cves, props.mode === 'edit'),
+    [values.cves, props.mode]
+  );
   const parsedDate = useMemo(() => localInputToIso(values.publishedAt), [values.publishedAt]);
 
   const wasOpen = useRef(false);
@@ -111,7 +136,8 @@ export function SecurityAdvisoryEditorModal(props: {
   }, [props.advisory, props.cves, props.languages, props.open]);
 
   const missingSummary = codes.find((code) => !values.translations[code]?.summary.trim());
-  const valid = codes.length > 0 && cveResult.valid && parsedDate.valid && !missingSummary;
+  const unsupportedLanguage = codes.some((code) => code !== 'cs' && code !== 'en');
+  const valid = !unsupportedLanguage && codes.length > 0 && cveResult.valid && parsedDate.valid && !missingSummary;
   const activeValues = values.translations[activeLanguage] ?? { summary: '', description: '', response: '' };
 
   const updateTranslation = (field: keyof SecurityAdvisoryTranslationValues, value: string) => {
@@ -156,6 +182,18 @@ export function SecurityAdvisoryEditorModal(props: {
       }
     >
       <div className="space-y-5">
+        {props.partialResult ? (
+          <AdvisoryPartialResult
+            result={props.partialResult}
+            created={props.mode === 'create'}
+            onReview={props.onReviewPartial}
+          />
+        ) : null}
+        {unsupportedLanguage ? (
+          <Alert variant="danger" title={t('common.error')}>
+            {t('admin.security_advisories.validation.language_profile_unsupported')}
+          </Alert>
+        ) : null}
         {props.error ? (
           <Alert variant="danger" title={t('common.error')}>
             {props.error}

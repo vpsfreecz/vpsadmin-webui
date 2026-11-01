@@ -40,10 +40,10 @@ function stateVariant(state: unknown): 'ok' | 'danger' | 'warn' | 'neutral' {
 }
 
 function recordId(value: unknown): number | null {
-  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'number' && Number.isSafeInteger(value) && value > 0) return value;
   if (!value || typeof value !== 'object') return null;
   const id = (value as Record<string, unknown>)['id'];
-  return typeof id === 'number' && Number.isFinite(id) ? id : null;
+  return typeof id === 'number' && Number.isSafeInteger(id) && id > 0 ? id : null;
 }
 
 function recordLabel(value: unknown, fallback: string): string {
@@ -64,7 +64,7 @@ function cveHref(cve: SecurityAdvisoryCve, label: string): string {
 }
 
 function nodeLabel(status: SecurityAdvisoryNodeStatus, fallback: string): string {
-  return status.node_name?.trim() || recordLabel(status.node, fallback);
+  return recordLabel(status.node, fallback);
 }
 
 function outageInfo(
@@ -302,15 +302,15 @@ export function SecurityAdvisoryDetailPage() {
             ) : (
               <div className="divide-y divide-border">
                 {ownVpsQ.data?.map((row: SecurityAdvisoryAffectedVps) => {
-                  const vpsId = row.vps_id ?? recordId(row.vps);
+                  const vpsId = recordId(row.vps);
                   const vpsName = recordLabel(
                     row.vps,
-                    `${i18n.t('common.vps')} #${vpsId ?? row.id}`,
+                    vpsId === null ? i18n.t('common.na') : `${i18n.t('common.vps')} #${vpsId}`,
                   );
-                  const nodeId = row.node_id ?? recordId(row.node);
+                  const nodeId = recordId(row.node);
                   const affectedNode = recordLabel(
                     row.node,
-                    i18n.t('public.security_advisory_detail.nodes.fallback', { id: nodeId ?? row.id }),
+                    nodeId === null ? i18n.t('common.na') : i18n.t('public.security_advisory_detail.nodes.fallback', { id: nodeId }),
                   );
                   const nodeState = row.node_state ?? 'unknown';
 
@@ -369,7 +369,7 @@ export function SecurityAdvisoryDetailPage() {
                   <div key={status.id} className="flex flex-wrap items-start justify-between gap-3 py-3 first:pt-0 last:pb-0">
                     <div>
                       <div className="font-medium text-fg">
-                        {nodeLabel(status, i18n.t('public.security_advisory_detail.nodes.fallback', { id: status.node_id ?? status.id }))}
+                        {nodeLabel(status, recordId(status.node) === null ? i18n.t('common.na') : i18n.t('public.security_advisory_detail.nodes.fallback', { id: recordId(status.node) }))}
                       </div>
                       <div className="mt-1 text-xs text-muted">
                         {status.vulnerable_until

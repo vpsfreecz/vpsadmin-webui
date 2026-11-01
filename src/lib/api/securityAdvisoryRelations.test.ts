@@ -17,6 +17,10 @@ it('uses localized notes and namespaced guards for every node mutation', async (
   });
   await updateSecurityAdvisoryNodeStatus(4, 9, { ...guards, en_note: null });
   expect(JSON.parse(String(apiWire.requests.at(-1)!.body))).toEqual({ node_status: { ...guards, en_note: null } });
+  apiWire.respond = vi.fn(async () => ({
+    ok: true,
+    json: async () => ({ status: true, response: { node_status: {} } }),
+  })) as typeof apiWire.respond;
   await deleteSecurityAdvisoryNodeStatus(4, 9, guards);
   expect(JSON.parse(String(apiWire.requests.at(-1)!.body))).toEqual({ node_status: guards });
 });

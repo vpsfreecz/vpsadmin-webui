@@ -28,7 +28,7 @@ import { SmartInputHelp } from '../../../../components/ui/SmartInputHelp';
 import { TableCard } from '../../../../components/ui/TableCard';
 import { UserLookupInput } from '../../../../components/ui/UserLookupInput';
 
-import { getMetaTotalCount } from '../../../../lib/api/haveapi';
+import { getMetaTotalCount } from '../../../../lib/api/apiErrors';
 import { fetchEnvironments } from '../../../../lib/api/infra';
 import {
   createClusterResourcePackage,

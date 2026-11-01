@@ -143,7 +143,7 @@ describe('NodeLifecycleModel', () => {
     expect(() => buildNodeUpdateInput(node, draft)).toThrow('max_vps');
   });
 
-  it('sends null only when OPTIONS explicitly marks a limit nullable', () => {
+  it('rejects clears outside the static SDK contract even when live OPTIONS says nullable', () => {
     const node = { id: 12, active: true, name: 'node12', type: 'node', ip_addr: '192.0.2.12', max_vps: 100 };
     const draft = nodeEditDraft(node);
     draft.maxVps = '';
@@ -151,8 +151,8 @@ describe('NodeLifecycleModel', () => {
       input: { parameters: { max_vps: { nullable: true }, max_tx: {}, max_rx: {} } },
     });
 
-    expect(nullability).toEqual({ max_tx: false, max_rx: false, max_vps: true });
-    expect(buildNodeUpdateInput(node, draft, nullability)).toEqual({ max_vps: null });
+    expect(nullability).toEqual({ max_tx: false, max_rx: false, max_vps: false });
+    expect(() => buildNodeUpdateInput(node, draft, nullability)).toThrow('max_vps');
   });
 
   it('recognizes an unchanged draft', () => {

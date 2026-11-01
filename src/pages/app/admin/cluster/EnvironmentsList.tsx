@@ -6,8 +6,7 @@ import type { Environment } from '../../../../lib/api/infra';
 import { formatDurationSeconds } from '../../../../lib/format';
 import {
   ClusterResourceActionControls,
-  ClusterResourceActions,
-} from './ClusterResourceActions';
+  ClusterResourceActions } from './ClusterResourceActions';
 import type { MaintenanceChange } from './MaintenanceControl';
 
 type Props = {
@@ -72,8 +71,8 @@ function EnvironmentActions(props: {
   const actions = {
     role: props.role,
     maintenance: {
-      value: props.row.environment.maintenance_lock,
-      reason: props.row.environment.maintenance_lock_reason,
+      value: props.row.environment.maintenance_lock ?? undefined,
+      reason: props.row.environment.maintenance_lock_reason ?? undefined,
       label: props.row.label,
       testId: `${props.testIdPrefix}.maintenance`,
       setMaintenance: (change: MaintenanceChange) => props.onSetMaintenance(props.row.environment, change),
@@ -126,11 +125,19 @@ export function EnvironmentsList(props: Props) {
                 </div>
                 <div className="flex items-start justify-between gap-3">
                   <dt className="min-w-0 text-faint">{t('admin.cluster.environments.col.create_vps')}</dt>
-                  <dd className="shrink-0"><Badge variant={row.canCreate ? 'ok' : 'neutral'}>{row.canCreate ? t('common.yes') : t('common.no')}</Badge></dd>
+                  <dd className="shrink-0">
+                    <Badge variant={row.canCreate ? 'ok' : 'neutral'}>
+                      {row.canCreate ? t('common.yes') : t('common.no')}
+                    </Badge>
+                  </dd>
                 </div>
                 <div className="flex items-start justify-between gap-3">
                   <dt className="min-w-0 text-faint">{t('admin.cluster.environments.col.destroy_vps')}</dt>
-                  <dd className="shrink-0"><Badge variant={row.canDestroy ? 'warn' : 'neutral'}>{row.canDestroy ? t('common.yes') : t('common.no')}</Badge></dd>
+                  <dd className="shrink-0">
+                    <Badge variant={row.canDestroy ? 'warn' : 'neutral'}>
+                      {row.canDestroy ? t('common.yes') : t('common.no')}
+                    </Badge>
+                  </dd>
                 </div>
                 <div className="flex items-start justify-between gap-3">
                   <dt className="min-w-0 text-faint">{t('admin.cluster.environments.col.max_vps')}</dt>
@@ -142,7 +149,11 @@ export function EnvironmentsList(props: Props) {
                 </div>
                 <div className="flex items-start justify-between gap-3">
                   <dt className="min-w-0 text-faint">{t('admin.cluster.environments.col.ip_ownership')}</dt>
-                  <dd className="shrink-0"><Badge variant={row.userOwnsIp ? 'ok' : 'warn'}>{row.userOwnsIp ? t('common.yes') : t('common.no')}</Badge></dd>
+                  <dd className="shrink-0">
+                    <Badge variant={row.userOwnsIp ? 'ok' : 'warn'}>
+                      {row.userOwnsIp ? t('common.yes') : t('common.no')}
+                    </Badge>
+                  </dd>
                 </div>
               </dl>
 
@@ -159,11 +170,21 @@ export function EnvironmentsList(props: Props) {
           <tr>
             <th className="px-3 py-2 text-left text-xs font-semibold text-muted">{t('common.name')}</th>
             <th className="px-3 py-2 text-left text-xs font-semibold text-muted">{t('common.domain')}</th>
-            <th className="px-3 py-2 text-left text-xs font-semibold text-muted">{t('admin.cluster.environments.col.create_vps')}</th>
-            <th className="px-3 py-2 text-left text-xs font-semibold text-muted">{t('admin.cluster.environments.col.destroy_vps')}</th>
-            <th className="px-3 py-2 text-left text-xs font-semibold text-muted">{t('admin.cluster.environments.col.max_vps')}</th>
-            <th className="px-3 py-2 text-left text-xs font-semibold text-muted">{t('admin.cluster.environments.col.lifetime')}</th>
-            <th className="px-3 py-2 text-left text-xs font-semibold text-muted">{t('admin.cluster.environments.col.ip_ownership')}</th>
+            <th className="px-3 py-2 text-left text-xs font-semibold text-muted">
+              {t('admin.cluster.environments.col.create_vps')}
+            </th>
+            <th className="px-3 py-2 text-left text-xs font-semibold text-muted">
+              {t('admin.cluster.environments.col.destroy_vps')}
+            </th>
+            <th className="px-3 py-2 text-left text-xs font-semibold text-muted">
+              {t('admin.cluster.environments.col.max_vps')}
+            </th>
+            <th className="px-3 py-2 text-left text-xs font-semibold text-muted">
+              {t('admin.cluster.environments.col.lifetime')}
+            </th>
+            <th className="px-3 py-2 text-left text-xs font-semibold text-muted">
+              {t('admin.cluster.environments.col.ip_ownership')}
+            </th>
             <th className="px-3 py-2 text-right text-xs font-semibold text-muted">{t('common.actions')}</th>
           </tr>
         </thead>
@@ -175,11 +196,23 @@ export function EnvironmentsList(props: Props) {
                 {row.description ? <div className="mt-0.5 text-xs text-muted">{row.description}</div> : null}
               </td>
               <td className="px-3 py-2 text-sm">{row.domain}</td>
-              <td className="px-3 py-2"><Badge variant={row.canCreate ? 'ok' : 'neutral'}>{row.canCreate ? t('common.yes') : t('common.no')}</Badge></td>
-              <td className="px-3 py-2"><Badge variant={row.canDestroy ? 'warn' : 'neutral'}>{row.canDestroy ? t('common.yes') : t('common.no')}</Badge></td>
+              <td className="px-3 py-2">
+                <Badge variant={row.canCreate ? 'ok' : 'neutral'}>
+                  {row.canCreate ? t('common.yes') : t('common.no')}
+                </Badge>
+              </td>
+              <td className="px-3 py-2">
+                <Badge variant={row.canDestroy ? 'warn' : 'neutral'}>
+                  {row.canDestroy ? t('common.yes') : t('common.no')}
+                </Badge>
+              </td>
               <td className="px-3 py-2 text-sm">{row.maxVpsCount}</td>
               <td className="px-3 py-2 text-sm">{row.lifetime}</td>
-              <td className="px-3 py-2"><Badge variant={row.userOwnsIp ? 'ok' : 'warn'}>{row.userOwnsIp ? t('common.yes') : t('common.no')}</Badge></td>
+              <td className="px-3 py-2">
+                <Badge variant={row.userOwnsIp ? 'ok' : 'warn'}>
+                  {row.userOwnsIp ? t('common.yes') : t('common.no')}
+                </Badge>
+              </td>
               {renderActions(row, `admin.cluster.environments.row.${row.environment.id}`)}
             </tr>
           ))}
