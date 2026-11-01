@@ -34,6 +34,17 @@ for (const path of ['/', '/news']) {
     await switchLanguage('CS');
     await expect(page.locator('html')).toHaveAttribute('lang', 'cs');
     await expect(content).toContainText('Česká novinka');
+    if (path === '/' && page.viewportSize()!.width >= 640) {
+      const title = await content.getByText('Novinky', { exact: true }).boundingBox();
+      const action = await content.getByRole('link', { name: 'Všechny novinky', exact: true }).boundingBox();
+      expect(title).not.toBeNull();
+      expect(action).not.toBeNull();
+      expect(action!.y - title!.y).toBeGreaterThan(0.5);
+      expect(action!.y - title!.y).toBeLessThanOrEqual(4);
+      const message = await content.getByText('Česká novinka', { exact: true }).boundingBox();
+      expect(message).not.toBeNull();
+      expect(Math.abs(message!.x - title!.x)).toBeLessThanOrEqual(1);
+    }
     await expect(content).not.toContainText('English announcement');
     await expect(content).toContainText('Legacy fallback');
     await expect(content).toContainText('English-only announcement');

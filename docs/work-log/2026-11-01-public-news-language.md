@@ -49,3 +49,24 @@ staging, not authenticated production data or a production deployment.
 ![Desktop Czech overview news](images/2026-11-01-public-news/desktop.png)
 
 ![Mobile WebKit Czech overview news](images/2026-11-01-public-news/mobile-webkit.png)
+
+## Header alignment follow-up
+
+The maintainer additionally requests that All news sits slightly lower, aligned
+with the Novinky title. Align only the public news CardHeader on its first
+baseline at the existing row breakpoint. The title and link have different font
+sizes/line heights; top alignment placed the smaller action text too high.
+Keep the shared CardHeader default, all other cards and 16px left padding intact;
+small screens retain the existing stacked layout.
+
+The geometry regression fails on the previous served bundle with a zero-pixel
+vertical offset, reproducing the high action alignment. The updated production
+bundle passes all six existing anonymous news checks with zero retries across
+desktop Chromium, mobile Chromium and mobile WebKit on the remote dev runner.
+The desktop assertion verifies a small positive action offset (0.5–4px) and
+matching title/message left edges (within 1px). Mobile retains its stacked header
+and no horizontal overflow. The captures above were replaced with these results.
+The production build, strict E2E typecheck and design-document audit also pass.
+Evidence is retained under the remote runner's
+`evidence/public-news-20261101/alignment-{before,after,build,checks}` logs/output.
+This update belongs to PR124; it does not merge or deploy that PR.

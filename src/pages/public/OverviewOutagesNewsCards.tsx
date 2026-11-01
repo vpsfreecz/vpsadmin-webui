@@ -37,6 +37,7 @@ export function OverviewOutagesNewsCards(props: {
       <div data-testid="public.news.card">
         <Card>
           <CardHeader
+            className="sm:items-baseline"
             title={i18n.t('public.overview.news.title')}
             subtitle={i18n.t('public.overview.news.subtitle')}
             actions={<Link to="/news" className="text-sm underline">{i18n.t('public.overview.news.all')}</Link>}

@@ -1643,3 +1643,16 @@ Select cached bilingual news using the current UI language on the public
 overview, matching the existing news list and member dashboard.
 [Cause, contract and verification](docs/work-log/2026-11-01-public-news-language.md).
 Prepared for review; no API change, merge or deployment.
+
+
+## 2026-11-01 — Public news header alignment
+
+Align All news with the Novinky title baseline in the public overview, retaining
+shared card padding and mobile stacking. Included in the existing public-news
+review PR124; no merge or deployment.
+
+Verification: the previous bundle fails the new alignment assertion; the updated
+bundle passes all six remote desktop/mobile news browser cases with zero retries.
+Production build, strict E2E typecheck and design-document audit pass. Updated
+synthetic desktop/mobile screenshots are in the dated entry. PR124 remains for
+review; no live release was changed.
