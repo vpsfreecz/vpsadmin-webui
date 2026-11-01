@@ -364,3 +364,14 @@ they retain bounded response bodies, deadlines and session serialization.
 Browser authorization navigation remains supported. Shared local return paths
 reject backslashes and control characters before basename handling; valid
 local query/fragment state is retained. See the [review and regression proof](../work-log/2026-10-28-oauth-redirect-boundaries.md).
+
+## Anonymous overview advisory preview
+
+REQ-054: `fetchPublicSecurityAdvisories()` uses `publicHaveApiCall` via
+`publicApiCall` for one GET `/security_advisories`, namespaced parameters
+`security_advisory[limit]=5`, `[state]=published`, `[order]=newest`. It sends no
+session credentials, even if the browser has a session. The helper validates an
+array, filters exact published states, sorts by publication date/ID and caps at
+five. This is a preview with an archive link, not a complete paginated result;
+public archive behavior is unchanged. Failed previews have their own explicit
+error state. No new backend endpoint or permission is required.

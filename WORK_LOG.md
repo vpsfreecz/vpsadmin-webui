@@ -1635,3 +1635,68 @@ Preserve advanced shared main while pinning approved runtime 70bd11d9.
 Completed on all three sites: 90 pre-merge CI checks, Nix packages, 1,930 runtime
 unit tests and 252 served browser checks passed. One config pin was published;
 source/main boundaries, initial failures and remaining audit limits are recorded.
+
+
+## 2026-11-01 — Anonymous overview news language
+
+Select cached bilingual news using the current UI language on the public
+overview, matching the existing news list and member dashboard.
+[Cause, contract and verification](docs/work-log/2026-11-01-public-news-language.md).
+Prepared for review; no API change, merge or deployment.
+
+
+## 2026-11-01 — Public news header alignment
+
+Align All news with the Novinky title baseline in the public overview, retaining
+shared card padding and mobile stacking. Included in the existing public-news
+review PR124; no merge or deployment.
+
+Verification: the previous bundle fails the new alignment assertion; the updated
+bundle passes all six remote desktop/mobile news browser cases with zero retries.
+Production build, strict E2E typecheck and design-document audit pass. Updated
+synthetic desktop/mobile screenshots are in the dated entry. PR124 remains for
+review; no live release was changed.
+
+## 2026-11-01 — Public overview spacing and heatmap reading guide
+
+Unify public cards at 12px insets, remove redundant subtitles and explain how to
+read heatmap colors/time/columns and pause it. Preserve compact status badges
+and shared defaults on other pages. Included in PR124 for review.
+[Scope, wording sources and verification](docs/work-log/2026-11-01-public-overview-readability.md).
+No merge or deployment.
+
+Verification: 28 served production-bundle browser checks passed on the remote
+Linux dev runner, including mobile WebKit, cs/en, light/dark, existing news and
+admin heatmap regressions. Eight focused unit checks, ci:quick and build pass;
+initial setup failures and synthetic capture limits are recorded in the dated
+entry. PR124 remains reviewable; no merge or live deployment.
+
+## 2026-11-01 — Public headings and aligned summary row
+
+Remove duplicate visible headings/intro on the public overview, outages and
+advisory lists while keeping accessible h1 names. Move the brand mark to the
+summary row; use equal standard cards and remove the node gauge.
+Included in PR124; follow-up verification in the
+[public overview work log](docs/work-log/2026-11-01-public-overview-readability.md).
+No merge or deployment.
+
+Follow-up verification: ci:quick, 12 focused unit checks, production build and
+22 served-bundle public browser checks passed on remote Linux, including mobile
+WebKit. New assertions cover clipped accessible headings on all three lists,
+equal widths/fonts/value baselines and absence of the ring. Synthetic captures
+were refreshed. No merge or live deployment.
+
+## 2026-11-01 — Prioritize public status information
+
+Order the overview as outages, news, published advisories, nodes, member/VPS
+statistics, then resolved outages. Hide empty outage sections and the redundant
+nominal banner/node tile. Add a bounded credential-free advisory preview and
+split independently positioned cards. Included in PR124 for review.
+[Design, API contract and verification](docs/work-log/2026-11-01-public-overview-readability.md).
+No merge or deployment.
+
+Information-priority verification: ci:quick, design inventory regeneration,
+19 focused unit tests, production build and 28 served public browser cases pass
+on remote Linux. Coverage includes mixed/empty/resolved outages, preview ordering,
+draft exclusion, no credential headers, error isolation and mobile WebKit.
+Synthetic screenshots and evidence are in the dated entry. No live deployment.

@@ -172,42 +172,40 @@ export function SecurityAdvisoriesPage() {
   }), [visibleAdvisories, visibleCvesQ.data]);
 
   return (
-    <div className="space-y-6" data-testid="public.security_advisories.page">
-      <div className="space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight">{i18n.t('public.security_advisories.title')}</h1>
-        <p className="text-sm text-muted">{i18n.t('public.security_advisories.subtitle')}</p>
-      </div>
-
-      {advisoriesQ.isLoading ? (
-        <Spinner label={i18n.t('public.security_advisories.loading')} />
-      ) : advisoriesQ.isError ? (
-        <Alert title={i18n.t('public.security_advisories.error')} variant="danger" />
-      ) : (advisoriesQ.data?.length ?? 0) === 0 ? (
-        <Alert title={i18n.t('public.security_advisories.empty.title')} variant="info">
-          {i18n.t('public.security_advisories.empty.body')}
-        </Alert>
-      ) : (
-        <div className="space-y-4">
-          {renderedAdvisories.map((advisory) => (
-            <SecurityAdvisoryRow
-              key={advisory.id}
-              advisory={advisory}
-              showPersonalImpact={showPersonalImpact}
+    <>
+      <h1 className="sr-only">{i18n.t('public.security_advisories.title')}</h1>
+      <div className="space-y-6" data-testid="public.security_advisories.page">
+        {advisoriesQ.isLoading ? (
+          <Spinner label={i18n.t('public.security_advisories.loading')} />
+        ) : advisoriesQ.isError ? (
+          <Alert title={i18n.t('public.security_advisories.error')} variant="danger" />
+        ) : (advisoriesQ.data?.length ?? 0) === 0 ? (
+          <Alert title={i18n.t('public.security_advisories.empty.title')} variant="info">
+            {i18n.t('public.security_advisories.empty.body')}
+          </Alert>
+        ) : (
+          <div className="space-y-4">
+            {renderedAdvisories.map((advisory) => (
+              <SecurityAdvisoryRow
+                key={advisory.id}
+                advisory={advisory}
+                showPersonalImpact={showPersonalImpact}
+              />
+            ))}
+            <KeysetPagination
+              page={page}
+              pageCount={pageCount}
+              totalPagesKnown
+              canPrev={page > 1}
+              canNext={page < pageCount}
+              onPrev={() => setPage((current) => Math.max(1, current - 1))}
+              onNext={() => setPage((current) => Math.min(pageCount, current + 1))}
+              onGoToPage={setPage}
+              testId="public.security_advisories.pagination"
             />
-          ))}
-          <KeysetPagination
-            page={page}
-            pageCount={pageCount}
-            totalPagesKnown
-            canPrev={page > 1}
-            canNext={page < pageCount}
-            onPrev={() => setPage((current) => Math.max(1, current - 1))}
-            onNext={() => setPage((current) => Math.min(pageCount, current + 1))}
-            onGoToPage={setPage}
-            testId="public.security_advisories.pagination"
-          />
-        </div>
-      )}
-    </div>
+          </div>
+        )}
+      </div>
+    </>
   );
 }

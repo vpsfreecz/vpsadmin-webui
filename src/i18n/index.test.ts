@@ -38,8 +38,7 @@ describe('i18n dictionaries', () => {
     expect(dictionaries.cs['profile.user.login']).toBe('Login');
   });
 
-  it('uses outage terminology for planned outage counters', () => {
-    expect(dictionaries.cs['public.overview.outages.subtitle']).toContain('odstávky');
+  it('uses outage terminology for dashboard counters', () => {
     expect(dictionaries.cs['dashboard.section.outages.subtitle']).toContain('odstávky');
     expect(dictionaries.cs['dashboard.widget.outages.collapsed_summary']).toContain('odstávky');
   });

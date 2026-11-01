@@ -1,4 +1,5 @@
 import { expectArray, publicHaveApiCall } from './haveapi';
+import type { SecurityAdvisory } from './securityAdvisories';
 
 export interface PublicApiCallOpts {
   path: string;
@@ -155,4 +156,24 @@ export async function fetchNews(opts?: { limit?: number }) {
     params: opts?.limit ? { limit: opts.limit } : undefined,
   });
   return { ...res, data: expectArray<NewsLog>(res.data, 'news_logs') };
+}
+
+/** A bounded homepage preview; keep credentials out even for signed-in visitors. */
+export async function fetchPublicSecurityAdvisories() {
+  const res = await publicApiCall<SecurityAdvisory[]>({
+    path: '/security_advisories',
+    namespace: 'security_advisory',
+    params: { limit: 5, state: 'published', order: 'newest' },
+  });
+  return {
+    ...res,
+    data: expectArray<SecurityAdvisory>(res.data, 'security_advisories')
+      .filter(advisory => advisory.state === 'published')
+      .sort((a, b) => {
+        const at = Date.parse(a.published_at ?? '') || 0;
+        const bt = Date.parse(b.published_at ?? '') || 0;
+        return bt - at || b.id - a.id;
+      })
+      .slice(0, 5),
+  };
 }
