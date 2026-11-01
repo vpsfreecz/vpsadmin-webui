@@ -1573,3 +1573,11 @@ The combined preview completed 642 desktop checks but exceeded its overall
 30-minute job budget during completion. Prepare a 40-minute bounded PR budget,
 with the complete test matrix/selection/assertions preserved.
 [CI evidence and scope](docs/work-log/2026-10-30-pr-browser-ci-budget.md).
+
+## 2026-11-01 — Approved three-site release without DNS PR116
+
+Prepare the maintainer-approved audit/network/package-date release, retaining
+original histories and excluding PR116/117 plus colleagues' pending work.
+Keep the newly advanced shared main intact and use an exact approved runtime pin.
+[Scope, source/main distinction, checks and deployment receipt](docs/work-log/2026-11-01-approved-three-site-release.md).
+Preparation only; activation and main integration require their recorded gates.
