@@ -331,6 +331,22 @@ history must not lose entries due to a false cursor assumption.
 [DNS](../../src/lib/api/dns.ts), [transfers](../../src/lib/api/dnsTransfers.ts),
 [interfaces](../../src/lib/api/networkInterfaces.ts), [IP history](../../src/lib/api/ipAddresses.ts).
 
+### Admin IP owner search
+
+In Network → IP addresses, a bare positive number filters allocations by that
+member ID; it does not open an unrelated IP resource with the same ID. The first
+localized suggestion applies that owner filter. `#ID`, `id:ID` and the explicit
+Open IP suggestion still open IP detail. Exact addresses and login lookup retain
+their existing meanings. Numeric `q:` and legacy `q` URLs resolve directly to
+`user`, without a login lookup or unsupported API query parameter.
+
+Owner selection resets cursors/local pagination and retains other explicit
+filters. Without an explicit occupancy constraint, owned assigned and detached
+IPv4/IPv6 allocations (including historical prefixes) stay visible. Queries and
+reload/copy/back links preserve owner scope; unknown/failed login lookups never
+fall back to a broad inventory. Existing administrator-only owner-filter and
+route guards remain authoritative. [Review evidence](../work-log/2026-10-28-ip-search-owner.md).
+
 ### VPS DNS server shortcut
 
 VPS detail → More → DNS servers is the first daily shortcut in both member
@@ -411,20 +427,31 @@ response ahead of useful blocks. The sample also validates returned IPv6 prefixe
 It is a /64 suggestion policy, not a deletion, a complete inventory, or a new
 backend allocation rule. Explicit address, owner, VPS, network and prefix filters
 and direct detail URLs retain existing /128 and other prefixes, including larger
-blocks. IPv4 sampling is unchanged. The suggestion cache key includes the prefix.
+blocks. IPv4 retains three suggestions per type and primary location. The suggestion cache key includes the prefix.
 
 IP rows and mobile cards expose four icon-only links in a single compact row:
 Incidents, Assignment history, Edit, and Remove from VPS (Assign to VPS for an
 unassigned address). Incidents and history retain the exact IP filter. Edit
 opens the complete address detail with ownership and host addresses; the last
-link goes directly to its routing section and retains the existing confirmation
-before removal. Navigation never mutates an address. The controls use 20px icons,
+link opens a VPS-first assignment dialog for an unassigned address. Assigned
+addresses retain the routing section and existing confirmation before removal.
+The assignment dialog takes a VPS ID or hostname lookup first, loads that VPS's
+interfaces and shows owner/environment as read-only context. No ownership or
+environment update is a prerequisite. Re-read the IP, VPS owner and interfaces
+before submitting the reviewed interface. Never transfer an IP owned by another
+member implicitly. Preserve route-only and route-with-host-address actions. Navigation never mutates an address. The controls use 20px icons,
 compact desktop buttons and at least 44px touch targets. Localized tooltips and
 accessible names identify each action without visible text beside the icons.
 The desktop action column reserves only the width needed for those four controls.
 
+Free-IP suggestions continue after full pages from associated networks whose
+primary location differs. They stop once three eligible candidates are found,
+a short page ends the result, or a 20-page safety bound is reached. Invalid
+cursors or a scan-bound failure remain visible, rather than claiming no free
+addresses exist. This is a bounded sample, not an exhaustive inventory.
+
 Free-IP suggestions have a 12-second budget per query, including capability
-discovery. A timed-out query shows the existing error or partial-results state
+discovery and all continuation pages. A timed-out query shows the existing error or partial-results state
 and allows later locations to load. Retry gives failed queries a fresh budget;
 it preserves shared metadata for other callers. A still-pending shared lookup
 may be joined again and time out again. Manual filters continue to use their
@@ -524,6 +551,13 @@ clamped). The administrator can override it; Save and confirmation remain
 required, and an already soft-deleted account keeps its saved date when opened. A view switch preserves the operator identity; impersonation does not.
 
 ### Bulk member package removal (REQ-076)
+
+The Packages tab also shows an Assigned timestamp beneath each assignment name
+(REQ-040). This is `UserClusterResourcePackage.created_at`, formatted in the
+signed-in operator's account time zone, independently of the selected member's
+zone. Show a dash when absent; never infer it from the shared definition's
+creation or the assignment's last edit. Keep the summary grouped by package and
+retain existing selection, add/edit/remove controls.
 
 In the administrator member's Packages tab, select visible removable assignments
 individually or with Select visible packages. The loaded list is still bounded

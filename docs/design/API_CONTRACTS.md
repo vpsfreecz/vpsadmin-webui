@@ -47,7 +47,7 @@ a search of the whole collection.
 | Migration plans | `state` and `user`; no free-text query. This does not limit the separate destination-node picker for a VPS migration. | [adapter](../../src/lib/api/migrations.ts), [fixture contract](../../e2e/specs/admin/migration_plans_filter_contract.spec.ts) |
 | Transaction items | `transaction_chain`, `node`, `type`, `success`, `done`; no item-name/text search. Transaction **chains** have a different contract which does accept `name`, as well as state, object and user/session filters. | [both adapters](../../src/lib/api/transactions.ts), [item-filter fixture](../../e2e/specs/app/transaction_items_filter_accessibility.spec.ts) |
 | User namespaces / maps | No text or label search. Namespaces support `size`; maps support `user_namespace`. Owner filtering, and namespace `block_count`, are exposed only in admin scope with admin fields enabled and no fixed owner. Removing an invalid/disallowed URL filter resets cursor/page. | [scope/URL rules](../../src/components/userNamespaces/userNamespaceFilterSemantics.ts), [fixture contract](../../e2e/specs/app/user_namespace_filter_contract.spec.ts) |
-| Resource packages | Adapter filters are `environment` and `user`, not package-label text. Global/personal/all scope normalization is handled by the list model. | [adapter](../../src/lib/api/clusterResourcePackages.ts), [model](../../src/pages/app/admin/cluster/ResourcePackagesListModel.ts), [model tests](../../src/pages/app/admin/cluster/ResourcePackagesListModel.test.ts) |
+| Resource packages | Adapter filters are `environment` and `user`, not package-label text. Assignment history uses the existing `UserClusterResourcePackage.created_at` output, not the definition timestamp or `updated_at`; no new request or API mutation is needed. Global/personal/all scope normalization is handled by the list model. | [adapter](../../src/lib/api/clusterResourcePackages.ts), [model](../../src/pages/app/admin/cluster/ResourcePackagesListModel.ts), [model tests](../../src/pages/app/admin/cluster/ResourcePackagesListModel.test.ts) |
 
 These test links are verification entry points, not a claim of a fresh live run.
 Any extension needs a verified endpoint contract and scope/pagination regression
@@ -194,18 +194,42 @@ Free-IP suggestions apply the advertised network availability filter before the
 capability response from an older API omits the unsupported filter.
 
 Each suggestion query has one 12-second budget covering shared capability
-discovery and its address request. Expiry settles that suggestion as an error
+discovery and all of its address pages. Expiry settles that suggestion as an error
 and allows later locations to load. It cannot start an address request after
 late metadata or accept late address results. The shared capability request and
 its five-minute cache remain available to other callers; a suggestion timeout
 does not cancel or invalidate them. Capability failures are errors, not evidence
 of an older API or an empty pool.
 
+Location filtering can include networks associated with that location whose
+primary location is elsewhere. The default sample groups by primary location,
+so it follows strictly increasing ascending-ID cursors through up to 20 pages
+of 50 until it has three eligible addresses for the requested type, or reaches
+a terminal short page. Full foreign-location pages must not imply an empty
+pool. Malformed/repeated cursors and the scan bound are errors, not empty
+success. All pages share the original deadline; manual inventory filters and
+VPS assignment eligibility remain separate from primary-location sampling.
+
 Explicit retry starts a new suggestion budget. It reuses successful cached
 metadata, retries a settled failed lookup, or joins an existing pending lookup.
 Joining a stalled lookup is still bounded for that caller; retry does not force
 a second shared OPTIONS request. The budget applies per query, not to the whole
 page. Priority locations load first and later locations continue progressively.
+
+An IP ownership-only PUT can complete synchronously with no action-state ID.
+For an exact owner+environment update (or owner release), accept that form only
+after a fresh exact-IP GET confirms both `user` and `charged_environment`.
+Missing, mismatched or unreadable fields retain an uncertain outcome and block
+replay. A present invalid asynchronous receipt is never reinterpreted as a
+synchronous success. Other IP updates and route assign/free still require a
+valid action-state receipt. Do not repair accounting inconsistencies in the UI.
+
+The admin assignment shortcut opens a VPS-first dialog. Use the API's assign or
+assign-with-host-address action with the selected interface, without a preceding
+ownership PUT. The server owns accounting and location-association enforcement.
+Failed preflight reads are retryable because no mutation was submitted.
+Preflight reads reject stale owners/interfaces; final authorization stays in
+the API. Durable local guards prevent duplicate/ambiguous follow-up submissions.
 
 Administrator network create/edit checks the relevant action's `enabled` input
 metadata before displaying or sending the availability control. An edit also
@@ -332,3 +356,11 @@ Maintenance-window edits use their separate `/maintenance_windows/:weekday`
 endpoint and must never submit this preference. The targeted regression covers
 Sunday 0, read-back, reload and independence in both directions. This is a
 frontend contract correction, not a backend change or production replay.
+
+## OAuth outbound and local navigation boundaries
+
+Server-side code exchange, refresh and revocation reject provider redirects;
+they retain bounded response bodies, deadlines and session serialization.
+Browser authorization navigation remains supported. Shared local return paths
+reject backslashes and control characters before basename handling; valid
+local query/fragment state is retained. See the [review and regression proof](../work-log/2026-10-28-oauth-redirect-boundaries.md).

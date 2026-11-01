@@ -213,7 +213,8 @@ export function IpAddressesFilters({
         intro={t('admin.ip_addresses.smart_help.intro')}
         examples={[
           { example: '?', description: t('admin.ip_addresses.smart_help.examples.help') },
-          { example: '123', description: t('admin.ip_addresses.smart_help.examples.open_id') },
+          { example: '5008', description: t('admin.ip_addresses.smart_help.examples.user') },
+          { example: '#123', description: t('admin.ip_addresses.smart_help.examples.open_id') },
           { example: '192.0.2.10', description: t('admin.ip_addresses.smart_help.examples.search') },
           { example: 'addr:192.0.2.10', description: t('admin.ip_addresses.smart_help.examples.addr') },
           { example: 'addr:192.0.2.0/24', description: t('admin.ip_addresses.smart_help.examples.addr_prefix') },
@@ -239,7 +240,7 @@ export function IpAddressesFilters({
         ]}
         inference={[
           t('admin.ip_addresses.smart_help.inference.enter_applies'),
-          t('admin.ip_addresses.smart_help.inference.number_opens'),
+          t('admin.ip_addresses.smart_help.inference.number_filters_user'),
           t('admin.ip_addresses.smart_help.inference.key_value'),
         ]}
         onInsertKey={(key) => {

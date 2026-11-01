@@ -1,4 +1,5 @@
-import { expectArray, haveApiCall, requireActionStateResult } from './haveapi';
+import { expectArray, haveApiCall, MissingActionStateError, requireActionStateResult } from './haveapi';
+import { normalizeObjectId } from '../objectRef';
 import type { ResourceRef } from './appTypes';
 import type { NetworkInterface } from './networkInterfaces';
 import type { User } from './users';
@@ -27,7 +28,7 @@ export interface IpAddress {
   size?: number;
   network_interface?: NetworkInterface | ResourceRef | null;
   user?: User | ResourceRef | null;
-  charged_environment?: ResourceRef;
+  charged_environment?: ResourceRef | null;
   addr?: string;
   routed?: boolean;
   vps?: Vps | ResourceRef;
@@ -107,6 +108,18 @@ export async function fetchIpAddress(ipAddressId: number, opts?: { includes?: st
   });
 }
 
+function ownerUpdateTarget(params: Record<string, unknown>): { user: number | null; environment: number | null } | null {
+  if (!Object.hasOwn(params, 'user') || Object.keys(params).some((key) => key !== 'user' && key !== 'environment')) return null;
+  if (params['user'] === null && !Object.hasOwn(params, 'environment')) return { user: null, environment: null };
+  const user = normalizeObjectId(params['user']);
+  const environment = normalizeObjectId(params['environment']);
+  return user && environment ? { user, environment } : null;
+}
+
+function referenceId(value: unknown): number | null {
+  return normalizeObjectId(value && typeof value === 'object' && 'id' in value ? value.id : value);
+}
+
 export async function updateIpAddress(ipAddressId: number, params: Record<string, unknown>) {
   const res = await haveApiCall<IpAddress>({
     method: 'PUT',
@@ -114,7 +127,29 @@ export async function updateIpAddress(ipAddressId: number, params: Record<string
     namespace: 'ip_address',
     params,
   });
-  return requireActionStateResult(res, 'IP address update');
+  const target = ownerUpdateTarget(params);
+  const hasReceipt = ['action_state_id', 'state_id', 'action_state', 'state']
+    .some((key) => res.meta?.[key] != null);
+  if (!target || hasReceipt) return requireActionStateResult(res, 'IP address update');
+
+  // Ownership without node work is a synchronous API operation. Confirm its
+  // exact owner/accounting target with a fresh read before reporting success.
+  const unverified = () => new MissingActionStateError('IP ownership verification', res);
+  if (!res.data || res.data.id !== ipAddressId) throw unverified();
+  let verified: IpAddress;
+  try {
+    verified = (await fetchIpAddress(ipAddressId, { includes: 'user,charged_environment' })).data;
+  } catch {
+    throw unverified();
+  }
+  if (!verified || verified.id !== ipAddressId
+      || !Object.hasOwn(verified, 'user') || !Object.hasOwn(verified, 'charged_environment')
+      || (target.user === null
+        ? verified.user !== null || verified.charged_environment !== null
+        : referenceId(verified.user) !== target.user || referenceId(verified.charged_environment) !== target.environment)) {
+    throw unverified();
+  }
+  return { ...res, data: verified };
 }
 
 export async function assignIpAddressRoute(

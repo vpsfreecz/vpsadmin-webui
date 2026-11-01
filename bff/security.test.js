@@ -2,6 +2,8 @@
 
 const assert = require('node:assert/strict');
 const test = require('node:test');
+const http = require('node:http');
+const { once } = require('node:events');
 
 const {
   DEFAULT_OAUTH_STATE_MAX_AGE_MS,
@@ -278,6 +280,42 @@ test('bounded OAuth fetch returns the response and complete body on time', async
 
   assert.equal(result.response, response);
   assert.equal(result.text, 'hello');
+});
+
+test('OAuth POST redirects never forward credentials or contact the redirect target', async (t) => {
+  let targetRequests = 0;
+  const target = http.createServer((_req, res) => {
+    targetRequests += 1;
+    res.end('{}');
+  });
+  target.listen(0, '127.0.0.1');
+  await once(target, 'listening');
+  const provider = http.createServer((req, res) => {
+    res.writeHead(Number(req.url.slice(1)), {
+      location: `http://127.0.0.1:${target.address().port}/unexpected`,
+    });
+    res.end();
+  });
+  provider.listen(0, '127.0.0.1');
+  await once(provider, 'listening');
+  t.after(async () => {
+    for (const server of [provider, target]) {
+      server.closeAllConnections();
+      await new Promise((resolve) => server.close(resolve));
+    }
+  });
+
+  for (const status of [301, 302, 303, 307, 308]) {
+    await assert.rejects(fetchLimitedResponseText(
+      `http://127.0.0.1:${provider.address().port}/${status}`,
+      {
+        method: 'POST',
+        redirect: 'follow', // Callers cannot weaken the provider boundary.
+        body: new URLSearchParams({ client_secret: 'dummy-test-secret' }),
+      },
+    ));
+    assert.equal(targetRequests, 0);
+  }
 });
 
 test('runtime config is explicitly non-cacheable and same-origin only', () => {

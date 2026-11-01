@@ -31,6 +31,12 @@ before Express derives `req.ip`. The address can be a NAT or proxy peer and is
 descriptive metadata, not an authorization factor. Existing sessions keep their
 recorded metadata. This change does not alter cookies or the file session store.
 
+Provider token and revocation requests reject HTTP redirects. A POST body can
+contain the OAuth client secret, code or refresh token; it must never be
+forwarded to a redirect destination. Configure the final provider endpoints.
+The existing response-size and timeout limits still apply. Authorization-page
+navigation in the browser remains the normal OAuth flow.
+
 ## HaveAPI auth header (important)
 
 The deployed environment needs the SPA to use a specific auth header when calling HaveAPI:

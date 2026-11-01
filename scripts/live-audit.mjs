@@ -3,13 +3,18 @@ import { chromium } from '@playwright/test';
 import fs from 'node:fs';
 import path from 'node:path';
 
-const baseURL = process.env.E2E_BASE_URL ?? 'https://dev.crucio.cz';
+import { assertExactDevOrigin } from './live-route-sweep-manifest.mjs';
+import { ensurePrivateDirectory, writePrivateFile } from './live-route-sweep-privacy.mjs';
+import { diagnosticKind, responseMetadata } from './live-audit-diagnostics.mjs';
+
+const baseURL = assertExactDevOrigin(process.env.E2E_BASE_URL ?? 'https://dev.crucio.cz', 'E2E_BASE_URL');
 const token = process.env.E2E_LIVE_SESSION_TOKEN
   ?? (process.env.E2E_LIVE_SESSION_TOKEN_FILE
     ? fs.readFileSync(process.env.E2E_LIVE_SESSION_TOKEN_FILE, 'utf8').trim()
     : '');
-const apiUrl = process.env.E2E_LIVE_API_URL ?? baseURL;
+const apiUrl = assertExactDevOrigin(process.env.E2E_LIVE_API_URL ?? baseURL, 'E2E_LIVE_API_URL');
 const apiVersion = process.env.E2E_LIVE_API_VERSION ?? '7.0';
+if (!/^\d+(?:\.\d+)*$/.test(apiVersion)) throw new Error('Invalid API version');
 const vpsId = process.env.E2E_LIVE_VPS_ID;
 const swapTargetVpsId = process.env.E2E_LIVE_SWAP_TARGET_VPS_ID;
 const datasetId = process.env.E2E_LIVE_DATASET_ID;
@@ -22,7 +27,10 @@ if (!token) {
   process.exit(2);
 }
 
-fs.mkdirSync(outDir, { recursive: true });
+ensurePrivateDirectory(outDir);
+const captureScreenshots = process.env.E2E_LIVE_AUDIT_AUTH_SCREENSHOTS === '1';
+const captureVideo = process.env.E2E_LIVE_AUDIT_VIDEO === '1';
+const videosDir = captureVideo ? ensurePrivateDirectory(path.join(outDir, 'videos'), outDir) : undefined;
 
 const configBody = [
   'window.vpsAdmin = window.vpsAdmin || {};',
@@ -37,7 +45,7 @@ const context = await browser.newContext({
   baseURL,
   ignoreHTTPSErrors: process.env.E2E_IGNORE_HTTPS_ERRORS !== '0',
   viewport: { width: 1680, height: 1200 },
-  recordVideo: { dir: path.join(outDir, 'videos'), size: { width: 1680, height: 1200 } },
+  ...(videosDir ? { recordVideo: { dir: videosDir, size: { width: 1680, height: 1200 } } } : {}),
 });
 const page = await context.newPage();
 const checks = [];
@@ -45,21 +53,16 @@ const responses = [];
 const consoleMessages = [];
 let authRejected = false;
 
-page.on('pageerror', (err) => consoleMessages.push({ type: 'pageerror', text: err.message }));
+page.on('pageerror', (err) => consoleMessages.push({ type: 'pageerror', kind: diagnosticKind(err) }));
 page.on('console', (msg) => {
-  if (['error', 'warning'].includes(msg.type())) consoleMessages.push({ type: msg.type(), text: msg.text() });
+  if (['error', 'warning'].includes(msg.type())) consoleMessages.push({ type: msg.type() });
 });
 page.on('response', async (res) => {
   const url = res.url();
   const contentType = res.headers()['content-type'] || '';
   if (res.status() === 401 && url.includes('/users/current')) authRejected = true;
   if (url.includes('/assets/') || url.includes('/v7.0') || url.includes('/api/')) {
-    responses.push({
-      url,
-      status: res.status(),
-      contentType,
-      body: res.status() >= 400 ? await res.text().catch(() => '') : '',
-    });
+    responses.push(responseMetadata(url, res.status(), contentType));
   }
 });
 await page.route('**/config.js', (route) =>
@@ -71,7 +74,8 @@ async function ready() {
 }
 
 async function shot(name) {
-  await page.screenshot({ path: path.join(outDir, `${name}.png`), fullPage: true });
+  if (!captureScreenshots) return;
+  writePrivateFile(path.join(outDir, `${name}.png`), await page.screenshot({ fullPage: true }), outDir);
 }
 
 async function goto(name, url) {
@@ -85,7 +89,7 @@ async function check(name, fn) {
     await fn();
     checks.push({ name, ok: true });
   } catch (err) {
-    checks.push({ name, ok: false, error: err?.message ?? String(err) });
+    checks.push({ name, ok: false, error: diagnosticKind(err) });
     await shot(`error-${String(checks.length).padStart(2, '0')}-${name.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}`).catch(() => {});
   }
 }
@@ -111,9 +115,12 @@ async function writeReportAndExit(exitCode = 0) {
     consoleMessages: consoleMessages.slice(-120),
   };
 
-  fs.writeFileSync(path.join(outDir, 'report.json'), JSON.stringify(report, null, 2));
+  writePrivateFile(path.join(outDir, 'report.json'), JSON.stringify(report, null, 2), outDir);
   await context.close();
   await browser.close();
+  if (videosDir) {
+    for (const entry of fs.readdirSync(videosDir)) fs.chmodSync(path.join(videosDir, entry), 0o600);
+  }
 
   console.log(JSON.stringify({
     outDir,

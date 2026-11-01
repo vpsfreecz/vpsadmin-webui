@@ -8,6 +8,7 @@ import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Table } from '../../components/ui/Table';
 import { TransactionInlineDetails } from '../../components/ui/TransactionInlineDetails';
+import { useTransactionTableColumns } from './transactions/useTransactionTableColumns';
 import { formatDateTime } from '../../lib/format';
 import {
   classifyTransaction,
@@ -28,22 +29,23 @@ export function ActionStateTransactionsTable(props: {
   onToggleExpandedTx: (txId: number) => void;
 }) {
   const { t } = useI18n();
+  const columnCount = useTransactionTableColumns(3);
 
   return (
-    <div className="overflow-x-auto">
-      <Table testId="action_state.detail.transactions.table" minWidth="lg" variant="list">
+    <div className="min-w-0">
+      <Table testId="action_state.detail.transactions.table" minWidth="full" className="table-fixed" variant="list">
         <thead>
           <tr className="border-b border-border text-left text-xs text-muted">
-            <th className="px-4 py-2">{t('common.id')}</th>
-            <th className="px-4 py-2">{t('common.state')}</th>
+            <th className="hidden w-20 px-2 py-2 md:table-cell">{t('common.id')}</th>
+            <th className="w-24 px-2 py-2 sm:w-32">{t('common.state')}</th>
             <th className="px-4 py-2">{t('common.name')}</th>
-            <th className="px-4 py-2">{t('common.node')}</th>
-            <th className="px-4 py-2">{t('common.vps')}</th>
-            <th className="px-4 py-2">{t('common.created')}</th>
-            <th className="px-4 py-2">{t('common.started')}</th>
-            <th className="px-4 py-2">{t('common.finished')}</th>
-            <th className="px-4 py-2">{t('transactions.tx.success_label')}</th>
-            <th className="px-4 py-2">
+            <th className="hidden w-24 px-2 py-2 lg:table-cell">{t('common.node')}</th>
+            <th className="hidden w-24 px-2 py-2 xl:table-cell">{t('common.vps')}</th>
+            <th className="hidden w-28 px-2 py-2 xl:table-cell">{t('common.created')}</th>
+            <th className="hidden w-28 px-2 py-2 xl:table-cell">{t('common.started')}</th>
+            <th className="hidden w-28 px-2 py-2 xl:table-cell">{t('common.finished')}</th>
+            <th className="hidden w-16 px-2 py-2 xl:table-cell">{t('transactions.tx.success_label')}</th>
+            <th className="w-12 px-1 py-2">
               <span className="sr-only">{t('transactions.tx.details')}</span>
             </th>
           </tr>
@@ -68,7 +70,7 @@ export function ActionStateTransactionsTable(props: {
             return (
               <React.Fragment key={hasTxId ? txId : name}>
                 <tr className="border-b border-border">
-                  <td className="px-4 py-2 text-xs text-muted">
+                  <td className="hidden px-2 py-2 text-xs text-muted md:table-cell">
                     {hasTxId ? (
                       <Link className="text-accent hover:underline" to={`${props.basePath}/transactions/items/${txId}`}>
                         #{txId}
@@ -77,23 +79,50 @@ export function ActionStateTransactionsTable(props: {
                       t('common.na')
                     )}
                   </td>
-                  <td className="px-4 py-2">
-                    <div className="flex flex-wrap gap-2">
+                  <td className="px-2 py-2">
+                    <div className="flex flex-wrap gap-1">
                       <Badge variant={badge.variant}>{badge.label}</Badge>
                       {isFailed ? <Badge variant="danger">{t('transactions.tx.failed_here')}</Badge> : null}
-                      {!isFailed && isCurrent ? <Badge variant="warn">{t('transactions.tx.current_step')}</Badge> : null}
+                      {!isFailed && isCurrent ? (
+                        <Badge variant="warn">{t('transactions.tx.current_step')}</Badge>
+                      ) : null}
                       <Badge variant={operationBadgeVariant(txOp)}>{operationSeverityLabel(txOp, t)}</Badge>
                     </div>
                   </td>
-                  <td className="px-4 py-2">
-                    <div className="font-medium">{name}</div>
+                  <td className="min-w-0 break-words px-2 py-2">
+                    <div className="break-words font-medium">{name}</div>
+                    <div className="mt-1 flex flex-wrap gap-x-2 gap-y-1 break-words text-xs text-muted">
+                      {hasTxId ? (
+                        <Link
+                          className="min-w-0 max-w-full break-words text-accent md:hidden"
+                          to={`${props.basePath}/transactions/items/${txId}`}
+                        >
+                          #{txId}
+                        </Link>
+                      ) : null}
+                      {nodeId ? (
+                        <span className="min-w-0 max-w-full break-words lg:hidden">
+                          {refLabel(tx.node) || `#${nodeId}`}
+                        </span>
+                      ) : null}
+                      {vpsId ? (
+                        <Link
+                          className="min-w-0 max-w-full break-words text-accent xl:hidden"
+                          to={`${props.basePath}/vps/${vpsId}`}
+                        >
+                          {t('common.vps')} #{vpsId}
+                        </Link>
+                      ) : null}
+                    </div>
                     <div className="mt-1 text-xs text-muted">
                       {operationCategoryLabel(txOp, t)}
                       {rawNameDiffers ? ` · ${t('operation.raw_name', { name: txOp.rawLabel })}` : null}
-                      {typeof tx.type === 'number' ? ` · ${t('transactions.items.row.type_chip', { type: tx.type })}` : null}
+                      {typeof tx.type === 'number'
+                        ? ` · ${t('transactions.items.row.type_chip', { type: tx.type })}`
+                        : null}
                     </div>
                   </td>
-                  <td className="px-4 py-2 text-xs">
+                  <td className="hidden break-words px-2 py-2 text-xs lg:table-cell">
                     {nodeId && props.basePath === '/admin' ? (
                       <Link className="text-accent hover:underline" to={`${props.basePath}/nodes/${nodeId}`}>
                         {refLabel(tx.node) || `#${nodeId}`}
@@ -104,7 +133,7 @@ export function ActionStateTransactionsTable(props: {
                       <span className="text-faint">{t('common.na')}</span>
                     )}
                   </td>
-                  <td className="px-4 py-2 text-xs">
+                  <td className="hidden break-words px-2 py-2 text-xs xl:table-cell">
                     {vpsId ? (
                       <Link className="text-accent hover:underline" to={`${props.basePath}/vps/${vpsId}`}>
                         {refLabel(tx.vps) || `#${vpsId}`}
@@ -113,19 +142,21 @@ export function ActionStateTransactionsTable(props: {
                       <span className="text-faint">{t('common.na')}</span>
                     )}
                   </td>
-                  <td className="px-4 py-2 text-xs text-muted">{formatDateTime(tx.created_at)}</td>
-                  <td className="px-4 py-2 text-xs text-muted">{formatDateTime(started)}</td>
-                  <td className="px-4 py-2 text-xs text-muted">{formatDateTime(finished)}</td>
-                  <td className="px-4 py-2 text-xs text-muted">{success ?? t('common.na')}</td>
-                  <td className="px-4 py-2">
+                  <td className="hidden px-2 py-2 text-xs text-muted xl:table-cell">{formatDateTime(tx.created_at)}</td>
+                  <td className="hidden px-2 py-2 text-xs text-muted xl:table-cell">{formatDateTime(started)}</td>
+                  <td className="hidden px-2 py-2 text-xs text-muted xl:table-cell">{formatDateTime(finished)}</td>
+                  <td className="hidden px-2 py-2 text-xs text-muted xl:table-cell">{success ?? t('common.na')}</td>
+                  <td className="px-1 py-2">
                     {hasTxId ? (
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="h-8 w-8 px-0"
+                        className="min-h-11 w-10 px-0"
                         ariaLabel={expanded ? t('common.collapse') : t('common.expand')}
                         title={t('transactions.tx.details')}
                         testId={`action_state.detail.tx.toggle.${txId}`}
+                        aria-expanded={expanded}
+                        aria-controls={`action-state-transaction-${txId}`}
                         onClick={() => props.onToggleExpandedTx(txId)}
                       >
                         {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -134,9 +165,18 @@ export function ActionStateTransactionsTable(props: {
                   </td>
                 </tr>
                 {expanded ? (
-                  <tr className="border-b border-border bg-surface-2" data-testid={`action_state.detail.tx.expanded.${txId}`}>
-                    <td colSpan={10} className="px-4 py-4">
-                      <TransactionInlineDetails tx={tx} t={t} basePath={props.basePath} raw={tx} maxHeightClass="max-h-80" />
+                  <tr
+                    className="border-b border-border bg-surface-2"
+                    data-testid={`action_state.detail.tx.expanded.${txId}`}
+                  >
+                    <td id={`action-state-transaction-${txId}`} colSpan={columnCount} className="px-2 py-4 sm:px-4">
+                      <TransactionInlineDetails
+                        tx={tx}
+                        t={t}
+                        basePath={props.basePath}
+                        raw={tx}
+                        maxHeightClass="max-h-80"
+                      />
                     </td>
                   </tr>
                 ) : null}

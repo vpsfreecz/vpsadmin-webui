@@ -163,6 +163,10 @@ server {
     proxy_set_header Host \$host;
     proxy_set_header X-Forwarded-Proto \$scheme;
     proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+    # nginx owns these fields; do not combine them with the BFF copy.
+    proxy_hide_header Cache-Control;
+    proxy_hide_header Cross-Origin-Resource-Policy;
+    proxy_hide_header X-Content-Type-Options;
     add_header Cache-Control "no-store, max-age=0" always;
     add_header Cross-Origin-Resource-Policy same-origin always;
     add_header X-Content-Type-Options nosniff always;
@@ -173,6 +177,10 @@ server {
     proxy_set_header Host \$host;
     proxy_set_header X-Forwarded-Proto \$scheme;
     proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+    # nginx owns these fields; do not combine them with the BFF copy.
+    proxy_hide_header Cache-Control;
+    proxy_hide_header Cross-Origin-Resource-Policy;
+    proxy_hide_header X-Content-Type-Options;
     add_header Cache-Control "no-store, max-age=0" always;
     add_header Cross-Origin-Resource-Policy same-origin always;
     add_header X-Content-Type-Options nosniff always;
@@ -280,6 +288,10 @@ server {
     proxy_set_header Host \$host;
     proxy_set_header X-Forwarded-Proto https;
     proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+    # nginx owns these fields; do not combine them with the BFF copy.
+    proxy_hide_header Cache-Control;
+    proxy_hide_header Cross-Origin-Resource-Policy;
+    proxy_hide_header X-Content-Type-Options;
     add_header Cache-Control "no-store, max-age=0" always;
     add_header Cross-Origin-Resource-Policy same-origin always;
     add_header X-Content-Type-Options nosniff always;
@@ -295,6 +307,10 @@ server {
     proxy_set_header Host \$host;
     proxy_set_header X-Forwarded-Proto https;
     proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+    # nginx owns these fields; do not combine them with the BFF copy.
+    proxy_hide_header Cache-Control;
+    proxy_hide_header Cross-Origin-Resource-Policy;
+    proxy_hide_header X-Content-Type-Options;
     add_header Cache-Control "no-store, max-age=0" always;
     add_header Cross-Origin-Resource-Policy same-origin always;
     add_header X-Content-Type-Options nosniff always;
