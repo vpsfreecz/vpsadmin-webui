@@ -3,7 +3,7 @@
 Reviewed source: `3f31fce5cd58f3ace204c27e917b85527bfc08c0`, 2026-10-03.
 This reverse map starts from the code surface, not only recovered recent requests.
 The [generated inventory](IMPLEMENTATION_INVENTORY.md) lists 257 route declarations
-(including layouts/indexes/redirects) and 72 API modules. Each module is assigned
+(including layouts/indexes/redirects) and 73 API modules. Each module is assigned
 once below so omissions are visible. The audit checks that assignment, not the
 completeness of every action, permission or backend field. Counts are not test coverage.
 
@@ -11,7 +11,7 @@ completeness of every action, permission or backend field. Counts are not test c
 
 | Area / requirements | API modules | Behavioral documentation and scope |
 | --- | --- | --- |
-| Shared transport and type definitions; REQ-011/012/013/046 | [apiErrors](../../src/lib/api/apiErrors.ts), [apiOutput](../../src/lib/api/apiOutput.ts), [apiRequestPolicy](../../src/lib/api/apiRequestPolicy.ts), [sdk](../../src/lib/api/sdk.ts), [ascendingIdCollection](../../src/lib/api/ascendingIdCollection.ts), [haveapiRequestClient](../../src/lib/api/haveapiRequestClient.ts), [app](../../src/lib/api/app.ts), [appTypes](../../src/lib/api/appTypes.ts), [userTypes](../../src/lib/api/userTypes.ts) | [Contract](API_CONTRACTS.md). Actual-package requests, application errors, receipt-preserving output narrowing and shared types. app/appTypes/userTypes are composition/type modules, not extra screens. |
+| Shared transport and type definitions; REQ-011/012/013/046 | [apiErrors](../../src/lib/api/apiErrors.ts), [apiOutput](../../src/lib/api/apiOutput.ts), [apiRequestPolicy](../../src/lib/api/apiRequestPolicy.ts), [sdk](../../src/lib/api/sdk.ts), [ascendingIdCollection](../../src/lib/api/ascendingIdCollection.ts), [haveapiRequestClient](../../src/lib/api/haveapiRequestClient.ts), [operationsReference](../../src/lib/api/operationsReference.ts), [app](../../src/lib/api/app.ts), [appTypes](../../src/lib/api/appTypes.ts), [userTypes](../../src/lib/api/userTypes.ts) | [Contract](API_CONTRACTS.md). Actual-package requests, application errors, receipt-preserving output narrowing and shared types. operationsReference validates partial included references without dispatch or protocol decoding. app/appTypes/userTypes are composition/type modules, not extra screens. |
 | Shell preferences and lookup; REQ-005/009/013 | [webuiUserSettings](../../src/lib/api/webuiUserSettings.ts), [languages](../../src/lib/api/languages.ts), [clusterSearch](../../src/lib/api/clusterSearch.ts), [userLookups](../../src/lib/api/userLookups.ts) | [Contract](CONFIGURATION.md). Keyed preferences, language catalog and scoped object lookup/search; these feed multiple routes. |
 | VPS lifecycle and configuration; REQ-014/015/017/018/020/021/023/028 | [vps](../../src/lib/api/vps.ts), [vpsAccess](../../src/lib/api/vpsAccess.ts), [vpsFeatures](../../src/lib/api/vpsFeatures.ts), [vpsMaintenance](../../src/lib/api/vpsMaintenance.ts), [vpsMounts](../../src/lib/api/vpsMounts.ts) | [Contract](ACTION_CONTRACTS.md#vps-and-resources). Create/power/delete/console, access, feature settings, maintenance and mounts; migration form has its own contract below. |
 | User-data; REQ-042/046 | [vpsUserData](../../src/lib/api/vpsUserData.ts) | [Contract](API_CONTRACTS.md). Shared owner/VPS data adapter; pending server filter/cursor dependency is explicit. |

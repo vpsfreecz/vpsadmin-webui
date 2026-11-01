@@ -822,6 +822,10 @@ for verification and release status.
 return tracked results and retain errors. A node route being present is not proof
 that every action is allowed for support/member roles. History cursors and status
 sampling intervals need their real API semantics.
+Sysctl history distinguishes missing observations, explicit unavailability and
+explicitly unconfigured values. A match or difference requires an available
+observation and actual configured/effective strings; missing values never imply
+a match.
 [Nodes](../../src/lib/api/nodes.ts), [history](../../src/lib/api/nodeHistory.ts),
 [cluster](../../src/lib/api/cluster.ts), [migrations](../../src/lib/api/migrations.ts).
 
@@ -867,6 +871,15 @@ The admin advisory list uses padded cells and aligned column headings, including
 the first advisory column and the final action column. Numeric counts remain
 right-aligned. On narrow screens the table scrolls inside its card so all columns
 and the Open action stay reachable without widening the page.
+
+Advisory parent writes and CVE changes are separate steps. If CVE work stops
+after a parent write succeeds, the editor retains that advisory's identity and
+requested CVEs, with accepted changes and remaining intentions requiring review.
+An uncertain send stays in the review set. The accepted parent is not created
+again to recover the child failure. Further changes require reviewing the current
+advisory. Review closes the edit dialog and refreshes current detail while keeping
+the stopped intention. Stopped node batches also require review rather than
+claiming safe continuation.
 
 News creation and editing show Czech and English text together, independently of
 UI language. English is required by the existing API; an empty Czech translation

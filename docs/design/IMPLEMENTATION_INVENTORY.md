@@ -315,6 +315,7 @@ API implements every parameter; see [API contracts](API_CONTRACTS.md).
 - [nodeHistory.ts](../../src/lib/api/nodeHistory.ts)
 - [nodes.ts](../../src/lib/api/nodes.ts)
 - [oom.ts](../../src/lib/api/oom.ts)
+- [operationsReference.ts](../../src/lib/api/operationsReference.ts)
 - [osTemplates.ts](../../src/lib/api/osTemplates.ts)
 - [outageScopePaging.ts](../../src/lib/api/outageScopePaging.ts)
 - [outageViews.ts](../../src/lib/api/outageViews.ts)

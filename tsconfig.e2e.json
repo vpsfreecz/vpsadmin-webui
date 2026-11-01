@@ -1,8 +1,15 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "types": ["node", "@playwright/test"]
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "types": [
+      "node",
+      "@playwright/test"
+    ]
   },
   "files": [
     "e2e/fixtures/bootstrap.ts",
@@ -17,6 +24,7 @@
     "e2e/helpers/securityAdvisoryContract.ts",
     "e2e/specs/admin/admin_dashboard.spec.ts",
     "e2e/specs/admin/cluster_resource_maintenance.spec.ts",
+    "e2e/specs/admin/host_ip_addresses_responsive_actions.spec.ts",
     "e2e/specs/admin/ip_addresses_empty_clear_filters.spec.ts",
     "e2e/specs/admin/ip_addresses_filters_pagination.spec.ts",
     "e2e/specs/admin/ip_addresses_primary_location.spec.ts",
@@ -86,6 +94,7 @@
     "e2e/specs/app/transactions_table_followup.spec.ts",
     "e2e/specs/app/ui_preferences_persistence.spec.ts",
     "e2e/specs/app/user_network_page.spec.ts",
+    "e2e/specs/app/user_requests_smoke.spec.ts",
     "e2e/specs/app/vps_admin_modifications.spec.ts",
     "e2e/specs/app/vps_console_controls.spec.ts",
     "e2e/specs/app/vps_console_page.spec.ts",
@@ -102,6 +111,7 @@
     "e2e/specs/app/vps_list_row_click.spec.ts",
     "e2e/specs/app/vps_maintenance_sunday.spec.ts",
     "e2e/specs/app/vps_network_editor_feedback.spec.ts",
+    "e2e/specs/app/vps_network_tab_actions.spec.ts",
     "e2e/specs/app/vps_overview_all_ips.spec.ts",
     "e2e/specs/app/vps_private_ip_availability.spec.ts",
     "e2e/specs/app/vps_storage_tab_mounts.spec.ts",
