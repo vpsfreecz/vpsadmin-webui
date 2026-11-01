@@ -1,3 +1,4 @@
+import { clickShellControl } from '../../helpers/shellNavigation';
 import { expect, test, type Page } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock, jsonFulfill } from '../../fixtures';
@@ -163,7 +164,7 @@ test.describe('@workflow-matrix VPS resource mutation regressions', () => {
     // Configuration updates are background tasks: they must be tracked without
     // forcing the blocking progress overlay used by access/power actions.
     await expect(page.getByTestId('modal.action_progress')).toBeHidden();
-    await page.getByTestId('tasks.open-button').click();
+    await clickShellControl(page, 'tasks.open-button');
     await expect(page.getByTestId('tasks.row.812')).toContainText('Save VPS configuration');
     await expect(page.getByTestId('tasks.row.812')).toContainText('Failed');
   });

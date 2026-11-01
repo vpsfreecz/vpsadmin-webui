@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Activity, Menu, Search } from 'lucide-react';
+import { Activity, Maximize2, Search } from 'lucide-react';
 
 import { readSessionIdleLimitSeconds } from '../../lib/auth/idleSession';
 import { useAuth } from '../../app/auth';
@@ -21,6 +21,7 @@ import {
 } from '../../lib/search/userGlobalSearch';
 import { Badge } from '../ui/Badge';
 import { clsx } from '../ui/clsx';
+import { useClippedPopover } from '../../lib/hooks/useClippedPopover';
 import { useDebouncedValue } from '../../lib/hooks/useDebouncedValue';
 import { AppSyncPopover, AppUserMenu } from './AppHeaderMenus';
 import { SearchScopeReminder } from './SearchScopeReminder';
@@ -92,7 +93,7 @@ export function AppHeader(props: AppHeaderProps) {
     mode,
     canSwitchMode,
     shortcutHint,
-    onOpenMobileNav,
+    onNavigate,
     onOpenPalette,
     showSyncIndicator,
     syncRef,
@@ -224,7 +225,10 @@ export function AppHeader(props: AppHeaderProps) {
     return null;
   }, [normalizedSearch, searchBusy, searchError, searchResults.length, t]);
 
+  const searchFormRef = useRef<HTMLFormElement>(null);
+  const searchPopupRef = useRef<HTMLDivElement>(null);
   const inlineSearchPopupOpen = searchOpen && Boolean(normalizedSearch);
+  const searchPopupStyle = useClippedPopover(inlineSearchPopupOpen, searchFormRef, searchPopupRef);
   const inlineSearchExpanded = inlineSearchPopupOpen
     && !searchBusy
     && !searchError
@@ -244,37 +248,18 @@ export function AppHeader(props: AppHeaderProps) {
     navigate(result.href);
     setSearch('');
     setSearchOpen(false);
+    onNavigate?.();
   };
 
   return (
-    <header className="sticky top-0 z-10 border-b border-border bg-bg" data-testid="shell.header">
-      <div className="flex items-center gap-2 px-4 py-2 md:py-3">
-        <button
-          className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-border bg-overlay-surface shadow-card hover:bg-surface-2 md:hidden"
-          onClick={onOpenMobileNav}
-          aria-label={t('nav.open')}
-          data-testid="shell.mobile-nav-button"
-        >
-          <Menu size={20} />
-        </button>
-
-        <button
-          type="button"
-          className="order-6 inline-flex h-11 w-12 items-center justify-center rounded-md border border-border bg-overlay-surface shadow-card hover:bg-surface-2 sm:hidden"
-          onClick={onOpenPalette}
-          aria-label={t('palette.open')}
-          aria-haspopup="dialog"
-          title={t('palette.open')}
-          data-testid="palette.open"
-        >
-          <Search size={18} aria-hidden="true" />
-        </button>
-
+    <div className="space-y-2" data-testid="shell.controls">
+      <div className="flex min-w-0 items-center gap-2">
         <form
+          ref={searchFormRef}
           className={clsx(
-            'relative order-6 hidden h-11 items-center gap-2 rounded-md border border-border bg-overlay-surface px-3 text-sm shadow-card sm:flex sm:w-56',
+            'relative flex h-11 min-w-0 flex-1 items-center gap-2 rounded-md border border-border bg-overlay-surface px-2 text-sm shadow-card',
             'focus-within:ring-2 focus-within:ring-accent/40',
-            'md:order-3 md:h-10 md:w-72 lg:w-80'
+            'md:h-10'
           )}
           role="search"
           onSubmit={(e) => {
@@ -336,13 +321,13 @@ export function AppHeader(props: AppHeaderProps) {
             role="combobox"
             data-testid="shell.inline-search.input"
           />
-          <span className="hidden shrink-0 rounded border border-border bg-surface-2 px-2 py-0.5 text-xs text-faint lg:inline" title={t('palette.shortcut_title')}>
-            {shortcutHint}
-          </span>
+
 
           {inlineSearchPopupOpen ? (
             <div
-              className="absolute left-0 top-[calc(100%+0.5rem)] z-50 w-drawer-md overflow-hidden rounded-md border border-border bg-overlay-surface shadow-panel"
+              ref={searchPopupRef}
+              style={searchPopupStyle}
+              className="absolute left-0 top-[calc(100%+0.5rem)] z-50 w-full overflow-y-auto overscroll-contain rounded-md border border-border bg-overlay-surface shadow-panel"
               data-testid="shell.inline-search.results"
               data-overlay="popover"
               data-overlay-surface="overlay"
@@ -355,7 +340,7 @@ export function AppHeader(props: AppHeaderProps) {
                   id={INLINE_SEARCH_LISTBOX_ID}
                   role="listbox"
                   aria-label={t('search.inline.aria')}
-                  className="max-h-96 overflow-y-auto py-1"
+                  className="py-1"
                 >
                   {searchResults.map((result, index) => {
                     const showGroup = !canUseClusterSearch && result.group && (
@@ -386,8 +371,8 @@ export function AppHeader(props: AppHeaderProps) {
                           onClick={() => openInlineResult(result)}
                           data-testid={`shell.inline-search.result.${index}`}
                         >
-                          <span className="font-medium text-fg">{result.primary}</span>
-                          <span className="text-xs text-muted">{result.secondary}</span>
+                          <span className="max-w-full break-words font-medium text-fg">{result.primary}</span>
+                          <span className="max-w-full break-words text-xs text-muted">{result.secondary}</span>
                         </button>
                       </React.Fragment>
                     );
@@ -409,14 +394,24 @@ export function AppHeader(props: AppHeaderProps) {
           ) : null}
         </form>
 
-        <div className="order-5 flex-1 md:order-4" />
+        <button
+          type="button"
+          className="inline-flex h-11 w-11 shrink-0 md:h-10 md:w-10 [@media(any-pointer:coarse)]:min-h-11 [@media(any-pointer:coarse)]:min-w-11 items-center justify-center rounded-md border border-border bg-overlay-surface text-muted hover:bg-surface-2"
+          onClick={onOpenPalette}
+          aria-label={t('palette.open')}
+          aria-haspopup="dialog"
+          title={`${t('palette.open')} (${shortcutHint})`}
+          data-testid="palette.open"
+        ><Maximize2 size={16} aria-hidden="true" /></button>
+      </div>
+      {canSwitchMode || showSyncIndicator ? <div className="flex flex-wrap items-center gap-2">
 
         {canSwitchMode ? (
           <Badge
             variant={mode === 'admin' ? 'black' : 'neutral'}
             testId="scope.indicator"
             title={mode === 'admin' ? t('scope.indicator.admin_hint') : t('scope.indicator.my_hint')}
-            className="order-7 md:order-5"
+            className="max-w-full"
           >
             <span className="md:hidden">
               {mode === 'admin' ? t('scope.indicator.admin_short') : t('scope.indicator.my_short')}
@@ -441,32 +436,18 @@ export function AppHeader(props: AppHeaderProps) {
           />
         ) : null}
 
+      </div> : null}
+      <div className="flex flex-col gap-2">
         <button
-          className={clsx(
-            'relative inline-flex h-11 w-12 items-center justify-center rounded-md border border-border bg-overlay-surface text-sm shadow-card hover:bg-surface-2',
-            'order-9 md:order-7 sm:h-10 sm:w-auto sm:justify-start sm:gap-2 sm:px-3'
-          )}
+          className="flex min-h-11 w-full items-center gap-2 rounded-md bg-surface md:min-h-9 [@media(any-pointer:coarse)]:min-h-11 px-3 text-left text-sm text-muted hover:bg-surface-2 hover:text-fg"
           onClick={onOpenTasks}
           aria-label={t('common.open_tasks')}
           data-testid="tasks.open-button"
         >
-          <Activity size={18} />
-          <span className="hidden sm:inline">{t('tasks.title')}</span>
-
-          {tasksFailedCount > 0 || tasksActiveCount > 0 ? (
-            <span className="ml-1 hidden items-center gap-1 sm:flex">
-              {tasksFailedCount > 0 ? <Badge variant="danger">{tasksFailedCount}</Badge> : null}
-              {tasksActiveCount > 0 ? <Badge variant="warn">{tasksActiveCount}</Badge> : null}
-            </span>
-          ) : null}
-
-          {tasksFailedCount > 0 || tasksActiveCount > 0 ? (
-            <span className="absolute -right-1 -top-1 sm:hidden">
-              <Badge variant={tasksFailedCount > 0 ? 'danger' : 'warn'}>
-                {tasksFailedCount > 0 ? tasksFailedCount : tasksActiveCount}
-              </Badge>
-            </span>
-          ) : null}
+          <Activity size={18} className="shrink-0" />
+          <span className="flex-1">{t('tasks.title')}</span>
+          {tasksFailedCount > 0 ? <Badge variant="danger">{tasksFailedCount}</Badge> : null}
+          {tasksActiveCount > 0 ? <Badge variant="warn">{tasksActiveCount}</Badge> : null}
         </button>
 
         <AppUserMenu
@@ -478,6 +459,7 @@ export function AppHeader(props: AppHeaderProps) {
           setUserMenuOpen={setUserMenuOpen}
           authLogin={authLogin}
           authRole={authRole}
+          onNavigate={onNavigate}
           sessionExpiresAt={sessionExpiresAt}
           sessionIdleLimitSeconds={sessionIdleLimitSeconds}
           theme={theme}
@@ -490,6 +472,6 @@ export function AppHeader(props: AppHeaderProps) {
           loginLogoutHref={loginLogoutHref}
         />
       </div>
-    </header>
+    </div>
   );
 }

@@ -1,3 +1,4 @@
+import { clickShellControl } from '../../helpers/shellNavigation';
 import { expect, test } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock } from '../../fixtures';
@@ -8,7 +9,7 @@ function alphaFromComputedBg(bg: string): number {
   // - rgba(r, g, b, a)
   const m = bg.match(/rgba?\(([^)]+)\)/i);
   if (!m) return 1;
-  const parts = m[1].split(',').map((s) => s.trim());
+  const parts = (m[1] ?? '').split(',').map((s) => s.trim());
   if (parts.length < 4) return 1;
   const a = Number(parts[3]);
   return Number.isFinite(a) ? a : 1;
@@ -37,7 +38,7 @@ test.describe('@smoke Header popovers', () => {
     await expect(page.getByTestId('vps.list')).toBeVisible();
 
     // Sticky header and chrome controls must be fully opaque, and controls must not visually collapse into the header surface.
-    const header = page.getByTestId('shell.header');
+    const header = page.getByTestId('shell.sidebar');
     await expect(header).toBeVisible();
     const headerBg = await header.evaluate((el) => window.getComputedStyle(el).backgroundColor);
     expect(alphaFromComputedBg(headerBg)).toBeGreaterThanOrEqual(0.999);
@@ -58,7 +59,7 @@ test.describe('@smoke Header popovers', () => {
     expect(alphaFromComputedBg(userButtonBg)).toBeGreaterThanOrEqual(0.999);
 
     // User menu popover
-    await page.getByTestId('shell.user-menu-button').click();
+    await clickShellControl(page, 'shell.user-menu-button');
     const userMenu = page.getByTestId('shell.user-menu');
     await expect(userMenu).toBeVisible();
     const userMenuBg = await userMenu.evaluate((el) => window.getComputedStyle(el).backgroundColor);

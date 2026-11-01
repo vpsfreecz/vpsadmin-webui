@@ -1,3 +1,4 @@
+import { clickShellControl } from '../../helpers/shellNavigation';
 import { expect, test } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
@@ -59,7 +60,7 @@ test('Tasks persistence never crosses authenticated user scope after a new docum
   });
 
   await page.reload();
-  await page.getByTestId('tasks.open-button').click();
+  await clickShellControl(page, 'tasks.open-button');
   await expect(page.getByTestId('tasks.row.1101')).toBeVisible();
   await expect(page.getByTestId('tasks.row.1102')).toHaveCount(0);
   await expect(page.getByTestId('tasks.chain.row.1103')).toHaveCount(0);
@@ -98,7 +99,7 @@ test('Tasks persistence never crosses authenticated user scope after a new docum
   });
 
   await page.goto('/app/vps');
-  await page.getByTestId('tasks.open-button').click();
+  await clickShellControl(page, 'tasks.open-button');
 
   await expect(page.getByTestId('tasks.row.2201')).toBeVisible();
   await expect(page.getByTestId('tasks.row.2202')).toHaveCount(0);

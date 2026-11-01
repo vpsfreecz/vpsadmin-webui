@@ -1,3 +1,4 @@
+import { clickShellControl } from '../../helpers/shellNavigation';
 import { expect, test } from '@playwright/test';
 import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 import { expectNoDocumentHorizontalOverflow } from '../../helpers/horizontalOverflow';
@@ -34,7 +35,7 @@ for (const language of ['cs', 'en'] as const) {
       },
     });
     await page.goto('/admin/vps?user=84');
-    await page.getByTestId('tasks.open-button').click();
+    await clickShellControl(page, 'tasks.open-button');
     const row = page.getByTestId('tasks.row.910');
     await expect(row).toBeVisible();
     await expect(page.getByTestId('tasks.row.target.910')).toHaveAttribute('href', '/admin/vps/14?user=42');
@@ -104,7 +105,7 @@ test('@pr-smoke @pr-smoke-mobile active progress, failures and unknown totals re
     },
   });
   await page.goto('/app/vps');
-  await page.getByTestId('tasks.open-button').click();
+  await clickShellControl(page, 'tasks.open-button');
   const running = page.getByTestId('tasks.row.920');
   await expect(running.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '40');
   await expect(page.getByTestId('tasks.row.failure.921')).toContainText('Synthetic failure');
@@ -143,7 +144,7 @@ test('@pr-smoke @pr-smoke-mobile inspection polls active receipts and stops afte
     },
   });
   await page.goto('/app/vps');
-  await page.getByTestId('tasks.open-button').click();
+  await clickShellControl(page, 'tasks.open-button');
   await page.getByTestId('tasks.inspect.open.930').click();
   const detail = page.getByTestId('tasks.inspect.action_state.930');
   await expect(detail).toContainText('Running action ID');

@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { fetchContextualHelpBoxes } from './helpBoxes';
-import { fetchNews, fetchOutages, fetchPublicStats } from './public';
+import { fetchNews, fetchOutages, fetchPublicStats, fetchPublicSecurityAdvisories } from './public';
 
 function makeOkResponse(response: unknown) {
   return new Response(JSON.stringify({ status: true, response }), {
@@ -25,6 +25,14 @@ function installFetch() {
 
     if (href.includes('/news_logs?')) {
       return makeOkResponse({ news_logs: [] });
+    }
+
+    if (href.includes('/security_advisories?')) {
+      return makeOkResponse({ security_advisories: [
+        ...Array.from({ length: 7 }, (_, i) => ({ id: i + 1, state: 'published', published_at: `2026-01-0${i + 1}T00:00:00Z` })),
+        { id: 99, state: 'draft', published_at: '2027-01-01T00:00:00Z' },
+        { id: 98, state: 'retracted', published_at: '2027-01-01T00:00:00Z' },
+      ] });
     }
 
     if (href.includes('/help_boxes?')) {
@@ -55,15 +63,18 @@ describe('public API helpers', () => {
     await fetchPublicStats();
     await fetchOutages({ limit: 25 });
     await fetchNews({ limit: 5 });
+    const preview = await fetchPublicSecurityAdvisories();
+    expect(preview.data.map(row => row.id)).toEqual([7, 6, 5, 4, 3]);
     await fetchContextualHelpBoxes('public', 'index', 'public');
 
-    expect(fetchMock).toHaveBeenCalledTimes(4);
+    expect(fetchMock).toHaveBeenCalledTimes(5);
 
     const urls = fetchMock.mock.calls.map(([url]) => String(url));
     expect(urls).toEqual([
       'https://api.example.test/v7.0/cluster/public_stats',
       'https://api.example.test/v7.0/outages?outage%5Blimit%5D=25',
       'https://api.example.test/v7.0/news_logs?news_log%5Blimit%5D=5',
+      'https://api.example.test/v7.0/security_advisories?security_advisory%5Blimit%5D=5&security_advisory%5Bstate%5D=published&security_advisory%5Border%5D=newest',
       'https://api.example.test/v7.0/help_boxes?help_box%5Bpage%5D=public&help_box%5Baction%5D=index&help_box%5Bview%5D=true',
     ]);
 

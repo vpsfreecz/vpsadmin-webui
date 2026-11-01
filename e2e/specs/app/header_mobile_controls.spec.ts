@@ -1,10 +1,11 @@
+import { clickShellControl, openShellNavigation } from '../../helpers/shellNavigation';
 import { expect, test } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
 import { expectNoDocumentHorizontalOverflow } from '../../helpers/horizontalOverflow';
 
 test.describe('@smoke @smoke-mobile @pr-smoke @pr-smoke-mobile Header controls', () => {
-  test('exposes search, tasks and account controls (touch targets on mobile)', async ({ page }, testInfo) => {
+  test('exposes search, tasks and account controls (touch targets on mobile)', async ({ page, isMobile }) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
 
     await installHaveApiMock(page, {
@@ -17,7 +18,8 @@ test.describe('@smoke @smoke-mobile @pr-smoke @pr-smoke-mobile Header controls',
     await page.goto('/app/vps');
     await expect(page.getByTestId('vps.list')).toBeVisible();
 
-    await expect(page.getByTestId('shell.header')).toBeVisible();
+    await openShellNavigation(page);
+    await expect(page.getByTestId('shell.controls')).toBeVisible();
 
     const inlineSearch = page.getByTestId('shell.inline-search');
     const mobileSearch = page.getByTestId('palette.open');
@@ -28,10 +30,10 @@ test.describe('@smoke @smoke-mobile @pr-smoke @pr-smoke-mobile Header controls',
     await expect(tasks).toBeVisible();
     await expect(account).toBeVisible();
 
-    if (testInfo.project.name === 'mobile-chrome') {
+    if (isMobile) {
       await expect(nav).toBeVisible();
       await expect(mobileSearch).toBeVisible();
-      await expect(inlineSearch).toBeHidden();
+      await expect(inlineSearch).toBeVisible();
 
       for (const loc of [mobileSearch, tasks, account]) {
         const box = await loc.boundingBox();
@@ -71,11 +73,11 @@ test.describe('@smoke @smoke-mobile @pr-smoke @pr-smoke-mobile Header controls',
       await expect(palette).toBeHidden();
     } else {
       await expect(nav).toBeHidden();
-      await expect(mobileSearch).toBeHidden();
+      await expect(mobileSearch).toBeVisible();
       await expect(inlineSearch).toBeVisible();
     }
 
-    await account.click();
+    await clickShellControl(page, 'shell.user-menu-button');
     await expect(page.getByTestId('shell.user-menu')).toBeVisible();
     await expect(page.getByTestId('shell.user-menu.account')).toBeVisible();
     await expect(page.getByTestId('shell.user-menu.public-status')).toBeVisible();

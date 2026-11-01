@@ -48,6 +48,28 @@ No route, backend permission, publication behavior or API endpoint changes.
 **Intent:** inspect service availability, sign in, recover access or correct a
 registration without exposing private information. Public overview combines
 cluster/node status with outages/news/advisories; external heatmaps are optional.
+Public overview order is active/planned (and unclassified) outages, news,
+published security advisories, detailed node status, member/VPS statistics,
+then resolved outages. Empty outage sections and the nominal-status banner are
+omitted; pending/error states remain explicit. Current and planned outages may
+coexist at the top, up to three per category; the resolved preview shows three.
+The advisory preview makes one credential-free public GET with limit 5,
+state=published and order=newest, defensively excludes all other states and
+caps/sorts the result. Names and localized plain-text summaries link to the
+public detail/archive. It makes no CVE or private affected-object requests.
+The separate complete advisory archive and authenticated dashboard are unchanged.
+Overview, outage and advisory list pages retain an accessible screen-reader-only
+h1 and omit the duplicated visible page heading/intro. Detail headings remain.
+The overview brand mark sits left of equal-width member/VPS metric cards
+on desktop and above them on mobile. Their value font size and baseline match;
+node availability retains the percentage/counts without a circular gauge.
+Overview card headers/bodies and statistic cards use equal 12px padding. Repeated
+subtitles are omitted; real status/error content, counts and loading states stay.
+Status badges remain intentionally compact with wider horizontal than vertical
+insets. Heatmap dialogs explain left-to-right CPU user/system/idle and disk I/O,
+time flowing down from the newest row, black/white percentage endpoints, the
+inverted meaning of idle, and click/tap to pause and display device labels.
+External iframe content and access rules are unchanged.
 The authenticated dashboard's Cluster status widget offers the same icon-only
 heatmap action in desktop rows and mobile node cards, in both member and admin
 views (REQ-025/026). It reuses the public heatmap configuration, node eligibility
@@ -60,6 +82,8 @@ password-reset shortcut (maintainer decision, 2026-09-30). Password recovery
 remains available through sign-in and the login-required/expired-session screen
 using the configured provider flow. Token-scoped registration
 correction exposes only the request allowed by that token.
+
+**Anonymous theme (REQ-005/009):** the public header offers compact system/light/dark controls, with named selected states and keyboard focus. Small screens expose labeled choices in the navigation menu. The same local preference survives reload and follows system changes in system mode; no private settings request is made. Tablet navigation uses the menu until the full navigation and preference controls fit.
 
 **Failure contract:** public API failure is not “all healthy”; unavailable heatmaps
 must not break node lists. Auth callback errors offer a way back. Expiry redirects
@@ -87,6 +111,13 @@ On desktop the publication time sits beside the complete message; on narrow
 screens it sits above it. Short announcements do not get separate card headers
 or visible internal IDs. Preserve existing ordering, localized/sanitized HTML,
 links, full long messages, missing-date fallback and loading/error/empty states.
+The overview’s All news link aligns with the first title baseline on wider
+screens; mobile keeps the stacked header and consistent header/body padding.
+The anonymous overview uses the same localized message selection as `/news` and
+the authenticated dashboard: explicit cs/en switching updates cached text
+immediately, regardless of the browser locale. Missing translations retain the
+existing preferred-language/legacy fallback. Public bilingual reads remain
+anonymous; existing global locale invalidation/refetch behavior is unchanged.
 
 ## VPS creation, detail and power
 
@@ -465,6 +496,14 @@ Admin IP desktop and mobile flags add a Network disabled warning only for an
 explicit false state. Existing rows, service links and actions remain visible.
 
 ## Account profile and user administration
+
+The session countdown or Never expires link in navigation opens the current
+view's `/profile/security#session-length`, scrolls to the inactivity setting and
+focuses its input after the panel loads. Repeating the link on that route also
+focuses it. This navigation never saves settings or renews a session beyond the
+existing activity policy; changing the limit still requires the normal Save.
+The member/admin scope switch, preferences, public status and logout remain
+available from the navigation account menu (REQ-004/006/010/012).
 
 Administrator member editing uses a named Role select instead of a numeric
 privilege input. Choices match the legacy UI: User, Power User, Admin,

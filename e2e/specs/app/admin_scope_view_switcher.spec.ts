@@ -1,3 +1,4 @@
+import { clickShellControl } from '../../helpers/shellNavigation';
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 
@@ -47,7 +48,7 @@ test.describe('@smoke @smoke-mobile Admin scope switcher', () => {
     await page.goto('/admin/vps?from_id=50&page=2');
     await expect(page.getByTestId('vps.list')).toBeVisible();
 
-    await page.getByTestId('shell.user-menu-button').click();
+    await clickShellControl(page, 'shell.user-menu-button');
     await page.getByTestId('shell.user-menu.scope.mine').click();
 
     await expectNormalizedVpsListUrl(page, '/app/vps');
@@ -56,7 +57,7 @@ test.describe('@smoke @smoke-mobile Admin scope switcher', () => {
     await page.goto('/admin/nodes');
     await expect(page.getByTestId('admin.nodes.page')).toBeVisible();
 
-    await page.getByTestId('shell.user-menu-button').click();
+    await clickShellControl(page, 'shell.user-menu-button');
     await page.getByTestId('shell.user-menu.scope.mine').click();
 
     await expect(page).toHaveURL('/app');
@@ -80,7 +81,7 @@ test.describe('@smoke @smoke-mobile Admin scope switcher', () => {
     await page.goto('/app/vps');
     await expect(page.getByTestId('vps.list')).toBeVisible();
 
-    await page.getByTestId('shell.user-menu-button').click();
+    await clickShellControl(page, 'shell.user-menu-button');
     await page.getByTestId('shell.user-menu.scope.all').click();
 
     await expectNormalizedVpsListUrl(page, '/admin/vps');

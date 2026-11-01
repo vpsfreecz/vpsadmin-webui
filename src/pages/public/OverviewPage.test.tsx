@@ -7,7 +7,7 @@ import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { markSessionExpiredNotice } from '../../lib/auth/sessionExpiredNotice';
-import { fetchNews, fetchOutages, fetchPublicNodeStatus, fetchPublicStats } from '../../lib/api/public';
+import { fetchNews, fetchOutages, fetchPublicNodeStatus, fetchPublicStats, fetchPublicSecurityAdvisories } from '../../lib/api/public';
 import { OverviewPage } from './OverviewPage';
 
 vi.mock('../../app/config', () => ({
@@ -33,6 +33,7 @@ vi.mock('../../lib/api/public', () => ({
   fetchOutages: vi.fn(),
   fetchPublicNodeStatus: vi.fn(),
   fetchPublicStats: vi.fn(),
+  fetchPublicSecurityAdvisories: vi.fn(),
 }));
 
 function LocationProbe() {
@@ -72,6 +73,7 @@ function renderPage(initialEntry = '/?session=expired') {
 }
 
 function installOverviewMocks() {
+  vi.mocked(fetchPublicSecurityAdvisories).mockResolvedValue({ data: [], envelope: { status: true, response: {} } });
   vi.mocked(fetchPublicStats).mockResolvedValue({
     data: {
       user_count: 42,

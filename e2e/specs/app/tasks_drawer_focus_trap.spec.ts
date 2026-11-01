@@ -1,3 +1,4 @@
+import { clickShellControl, openShellNavigation } from '../../helpers/shellNavigation';
 import { expect, test } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
@@ -14,6 +15,7 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke @smoke-mobile Tasks dra
 
   await page.goto('/app/vps');
 
+  await openShellNavigation(page);
   const openBtn = page.getByTestId('tasks.open-button');
   await expect(openBtn).toBeVisible();
 
@@ -32,7 +34,8 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke @smoke-mobile Tasks dra
 
   // The Tasks drawer is intentionally non-modal: the current page remains visible and usable behind it.
   await expect(page.getByTestId('vps.list')).toBeVisible();
-  await expect(openBtn).toBeVisible();
+  if ((page.viewportSize()?.width ?? 0) >= 768) await expect(openBtn).toBeVisible();
+  else await expect(page.getByTestId('nav.drawer')).toBeHidden();
 
   // Escape still closes the panel without navigating away from the underlying page.
   await page.keyboard.press('Escape');
@@ -67,7 +70,7 @@ test('@workflow-matrix @pr-smoke Tasks drawer cards stay readable in the narrow 
 
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.goto('/app/vps');
-  await page.getByTestId('tasks.open-button').click();
+  await clickShellControl(page, 'tasks.open-button');
 
   const drawer = page.getByTestId('tasks.drawer');
   const row = page.getByTestId('tasks.row.79');
@@ -131,7 +134,7 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile Tasks keep the tracked action 
 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/admin/vps?user=84');
-  await page.getByTestId('tasks.open-button').click();
+  await clickShellControl(page, 'tasks.open-button');
 
   const row = page.getByTestId('tasks.row.91');
   await expect(row.getByRole('button', { name: 'Restart', exact: true })).toBeVisible();
@@ -180,7 +183,7 @@ test('@workflow-matrix @pr-smoke-mobile Tasks inspection labels running, complet
 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/app/vps');
-  await page.getByTestId('tasks.open-button').click();
+  await clickShellControl(page, 'tasks.open-button');
 
   for (const [id, expectedLabel] of [
     [81, 'Running action ID'],
@@ -266,7 +269,7 @@ test('@workflow-matrix @pr-smoke Tasks drawer can inspect action state transacti
   });
 
   await page.goto('/app/vps');
-  await page.getByTestId('tasks.open-button').click();
+  await clickShellControl(page, 'tasks.open-button');
   await page.getByTestId('tasks.inspect.open.79').click();
 
   await expect(page.getByTestId('tasks.inspect.action_state.79')).toBeVisible();
@@ -380,7 +383,7 @@ test('@pr-smoke Tasks drawer lets admins expand transaction chains and continue 
   });
 
   await page.goto('/admin/vps');
-  await page.getByTestId('tasks.open-button').click();
+  await clickShellControl(page, 'tasks.open-button');
 
   await expect(page.getByTestId('tasks.drawer')).toHaveAttribute('aria-modal', 'false');
   await expect(page.locator('[data-overlay-backdrop="true"]')).toHaveCount(0);
