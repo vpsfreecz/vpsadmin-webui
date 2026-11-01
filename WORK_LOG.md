@@ -1558,3 +1558,10 @@ Open the admin attach shortcut on VPS ID, preserve route modes and verify
 synchronous ownership-only replies against a fresh exact owner/environment read.
 [Contract, source evidence and verification](docs/work-log/2026-10-30-ip-assignment-vps-first.md).
 Prepared for review; no API change, merge or deployment.
+
+## 2026-10-30 — PR browser completion headroom
+
+The combined preview completed 642 desktop checks but exceeded its overall
+30-minute job budget during completion. Prepare a 40-minute bounded PR budget,
+with the complete test matrix/selection/assertions preserved.
+[CI evidence and scope](docs/work-log/2026-10-30-pr-browser-ci-budget.md).
