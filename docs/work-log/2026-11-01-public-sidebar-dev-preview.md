@@ -1,6 +1,7 @@
 # Dev preview: public preferences, overview and authenticated navigation
 
-Status: prepared, not yet deployed. Target: dev.crucio.cz only.
+Status: deployed to dev.crucio.cz only on 2026-11-01 at 21:57 UTC.
+Feature PRs remain open; production is unchanged.
 The maintainer requests all current chat UI changes on dev for review.
 
 ## Exact scope
@@ -59,3 +60,74 @@ symlink. Root headroom increases to approximately 1065 MiB. Receipt:
 `/data/webui-public-sidebar-preview-20261101/cache-relocation.json`.
 No GC, store-liveness bypass, VM/session data deletion or unrelated service
 changes were performed. Build temporary files and caches stay on `/data`.
+
+## Verified candidate and activation
+
+Deployed source: `4dec43bb9b6451df81053a1768d1190b7d67c916`, a clean preview
+branch above the approved running basis. Integration branch:
+`dev/public-sidebar-dev-preview-20261101`. It combines the selected feature
+deltas without merging any feature PR or adopting the newer main API client.
+
+Remote Linux checks passed:
+
+- `ci:quick`, including 112 checked E2E sources and the unchanged deferred baseline.
+- 230 script tests, 58 BFF tests, 1937 unit tests across 309 files, production build.
+- Clean paired Nix frontend/BFF plus provenance, source contents, package contents
+  and module evaluation checks. Six selected outputs built/evaluated successfully.
+- Compiled candidate browser acceptance: 81 public/sidebar/account/scope checks
+  across Chromium, mobile Chrome and mobile WebKit; 14 first-touch checks across
+  both mobile engines; four existing overview checks across Chromium/mobile Chrome.
+  All 99 final cases passed with zero retries.
+- All six GitHub checks at each exact PR123/124/125 head passed. Combined preview
+  [CI run 41354158812](https://github.com/vpsfreecz/vpsadmin-webui/actions/runs/41354158812)
+  passed all three jobs at the deployed revision. The earlier formatting failure
+  in run 41352807867 remains documented above.
+
+The additional existing-overview run initially failed two low-IPv4 cases because
+our served-build harness incorrectly copied the legacy test-only `publicStatus`
+override into the strict BFF config response. Bootstrap correctly rejected the
+extra field. Correct the isolated harness to emit the actual config schema;
+retain the existing init-script override and all assertions. All four cases
+then passed against the exact unchanged candidate. This was a harness defect,
+not a product/config relaxation. Preserve both attempt logs.
+
+Validate the staged configuration with existing systemd LoadCredential settings
+and the actual service account; validate nginx and retain the old hashed assets.
+Under `/run/lock/clankerdev-dev-deploy.lock`, recheck the old paired revision,
+configuration hashes and unrelated service PIDs before activation. Switch both
+release pointers and restart only `webui-next-bff`. No nginx config change or
+reload, API restart, VM mutation, secret/session replacement or production action.
+
+The live frontend and actual BFF process both match the clean deployed revision.
+Health is `ok`; configuration hashes and the PIDs of `vpsadmin-api`,
+`webui-next-bff-kra` and `vpsadmin-supervisor` remain unchanged. Exact paired rollback
+is retained at the previous `70bd11d9` release. Root headroom after build/staging
+is approximately 844 MiB; the remaining host-capacity constraint is not resolved.
+
+## Post-deployment evidence
+
+Auth endpoint smoke passes on `https://dev.crucio.cz`. Real anonymous Chromium,
+mobile Chrome and mobile WebKit checks pass for revision, dev-only API origin,
+About/deep routes, theme persistence, one-tap menu/language controls, denied admin
+access, JavaScript MIME types and absence of page errors/horizontal overflow.
+Public captures use live anonymous dev data; authenticated screenshots use
+synthetic fixtures. These checks do not certify a real two-account API audit.
+
+Post-deployment fixture acceptance on the actual dev HTTPS origin passed all
+81 public/sidebar/account/scope checks plus 14 first-touch cases: 95/95, zero
+retries, across Chromium, mobile Chrome and mobile WebKit. Authenticated roles
+use synthetic sessions and intercepted APIs, not real member credentials.
+
+An additional settled-page live anonymous check waited for deferred sections to
+finish. All five real public API reads (statistics, node status, outages, news,
+published advisories) returned HTTP 200 in each browser. Screenshots were
+refreshed after loading completed; loading placeholders are not used as proof.
+The isolated candidate nginx listener is stopped after successful acceptance.
+The deployed source remains `4dec43bb`; this documentation-only receipt does not
+require rebuilding or switching the release.
+
+Sanitized test logs/captures are under
+`/data/webui-browser-runner/evidence/public-sidebar-preview-20261101`.
+Private paired deployment/configuration/CI/scope receipts are under
+`/data/webui-public-sidebar-preview-20261101/private` (not committed).
+No release screenshots or reports were added to the configuration repository.

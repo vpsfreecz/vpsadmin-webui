@@ -1666,3 +1666,12 @@ Synthetic screenshots and evidence are in the dated entry. No live deployment.
   tests 1960/1960, script tests 232/232, BFF tests 58/58, ci:quick and build.
   Synthetic desktop/mobile captures are included; no merge/deployment.
   [Implementation and evidence](docs/work-log/2026-11-01-sidebar-controls.md).
+
+## 2026-11-01 — Combined public/sidebar dev preview
+
+Deploy only the selected PR123/124/125 feature deltas over live `70bd11d9` as
+`4dec43bb`, preserving the existing HaveAPI transport, dependencies and BFF/API
+basis. Feature PRs remain open and production is unchanged. Combined CI, paired
+Nix checks, 1937 unit/230 script/58 BFF tests and 99 candidate browser checks pass.
+Real anonymous deployed checks (all five public reads HTTP 200), auth smoke and
+95/95 deployed fixture browser checks pass with zero retries. [Scope, evidence and rollback](docs/work-log/2026-11-01-public-sidebar-dev-preview.md).

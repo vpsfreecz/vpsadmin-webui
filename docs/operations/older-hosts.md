@@ -91,3 +91,14 @@ they were not deleted. Capacity cleanup is outstanding. Keep new build/staging
 work off the root filesystem and inspect current free space before every release.
 Dev also retains its pre-existing self-signed certificate/SAN mismatch. Those
 host issues were not fixed by a frontend release or this documentation update.
+
+### Dev capacity follow-up, 2026-11-01
+
+For the public/sidebar preview, move the verified rebuildable root Nix cache to
+`/data/cache-relocations/nix-root-20261101-public-preview` and retain
+`/root/.cache/nix` as a compatibility symlink. File/structure/SHA256 verification
+preserved 625 entries and 417775643 bytes. No global GC or VM/session data deletion
+was used. Root headroom is approximately 844 MiB after the paired Nix build; the
+underlying capacity constraint remains. Keep subsequent build/cache work on
+`/data` and recheck headroom. See the
+[dev-only preview receipt](../work-log/2026-11-01-public-sidebar-dev-preview.md).
