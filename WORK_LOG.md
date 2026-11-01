@@ -1544,3 +1544,10 @@ served-bundle browser checks passed, plus actual mobile WebKit login/logout.
 Original fixture access restored/revoked; matching rollback retained. Main and
 production remain unchanged; original PRs remain open. See the receipt for
 retained setup failures, two existing mobile skips and audit limits.
+
+## 2026-10-30 — Continue primary-location IP suggestions
+
+Fix false empty Prague IPv4 samples when associated-location addresses fill
+page one. Bounded cursor continuation preserves the original request deadline.
+[Cause, verification and limits](docs/work-log/2026-10-30-ip-primary-location-pagination.md).
+Prepared for review; no merge or deployment.
