@@ -1628,8 +1628,10 @@ with the complete test matrix/selection/assertions preserved.
 
 ## 2026-11-01 — Approved three-site release without DNS PR116
 
-Prepare the maintainer-approved audit/network/package-date release, retaining
-original histories and excluding PR116/117 plus colleagues' pending work.
-Keep the newly advanced shared main intact and use an exact approved runtime pin.
+Merge and deploy the maintainer-approved audit/network/package-date release,
+retaining original histories and excluding PR116/117 plus colleagues' pending work.
+Preserve advanced shared main while pinning approved runtime 70bd11d9.
 [Scope, source/main distinction, checks and deployment receipt](docs/work-log/2026-11-01-approved-three-site-release.md).
-Preparation only; activation and main integration require their recorded gates.
+Completed on all three sites: 90 pre-merge CI checks, Nix packages, 1,930 runtime
+unit tests and 252 served browser checks passed. One config pin was published;
+source/main boundaries, initial failures and remaining audit limits are recorded.
