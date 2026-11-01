@@ -8,7 +8,7 @@ import { useAuth } from '../../../../app/auth';
 import { useI18n } from '../../../../app/i18n';
 import { useToasts } from '../../../../app/toasts';
 import { createMailTemplate, fetchMailTemplates, type MailTemplate } from '../../../../lib/api/mailer';
-import { isAmbiguousMutationError } from '../../../../lib/api/haveapi';
+import { isAmbiguousMutationError } from '../../../../lib/api/apiErrors';
 import { formatErrorMessage } from '../../../../lib/errors';
 import { formatDateTime } from '../../../../lib/format';
 

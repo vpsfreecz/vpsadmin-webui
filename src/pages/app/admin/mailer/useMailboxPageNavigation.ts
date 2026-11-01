@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
-import { getMetaTotalCount } from '../../../../lib/api/haveapi';
+import { getMetaTotalCount } from '../../../../lib/api/apiErrors';
 import { fetchMailboxes, type Mailbox } from '../../../../lib/api/mailer';
 import { useCountedKeysetPagination } from '../../../../lib/hooks/useCountedKeysetPagination';
 import { useKeysetPagination } from '../../../../lib/hooks/useKeysetPagination';

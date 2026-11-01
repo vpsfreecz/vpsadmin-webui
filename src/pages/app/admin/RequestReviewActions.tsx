@@ -6,7 +6,7 @@ import { useChrome } from '../../../components/layout/ChromeContext';
 import { useI18n } from '../../../app/i18n';
 import { useToasts } from '../../../app/toasts';
 
-import { getMetaActionStateId, isAmbiguousMutationError } from '../../../lib/api/haveapi';
+import { getMetaActionStateId, isAmbiguousMutationError } from '../../../lib/api/apiErrors';
 import { isLocalLockPersistenceError, type LocalMutationGeneration } from '../../../lib/localLocks';
 import { objectRef, objectRefKey } from '../../../lib/objectRef';
 import type { ResolveUserRequestAction } from '../../../lib/api/requests';
@@ -36,6 +36,7 @@ import {
   requestMissingRequiredUser,
   requestOverrides,
   requestReviewActions,
+  requestNeedsEligibleTemplate,
   resourceId,
   safePositiveInteger,
 } from './RequestReviewModel';
@@ -113,7 +114,12 @@ export function RequestReviewActions(props: {
   const invalidNumericOverrides = invalidNumericResolveOverrideKeys(resolveAction, overrides, touchedOverrides);
   const invalidNumericOverride = invalidNumericOverrides.size > 0;
   const actionStillAllowed = props.isAdmin && actions.includes(resolveAction);
-  const canSubmit = !submitting && !requestLock && actionStillAllowed && !reasonMissing && !invalidNumericOverride;
+  const templateChanged = overrideTemplateId !== undefined && overrideTemplateId !== requestTemplateId;
+  const templateRequired = props.reqType === 'registration'
+    && requestNeedsEligibleTemplate(resolveAction, approveCreateVps, templateChanged);
+  const templateUnavailable = templateRequired && !resources.templateEligible
+    && !resources.templateChoicesLoading && !resources.templateChoicesError;
+  const canSubmit = (!templateRequired || resources.templateEligible) && !submitting && !requestLock && actionStillAllowed && !reasonMissing && !invalidNumericOverride;
 
   useEffect(() => {
     if (!resolveOpen || submitting || actionStillAllowed) return;
@@ -175,6 +181,10 @@ export function RequestReviewActions(props: {
     let settleError: unknown;
 
     try {
+      const changedTemplate = safePositiveInteger(options.overrides.osTemplate) !== requestTemplateId;
+      if (props.reqType === 'registration' && requestNeedsEligibleTemplate(action, options.approveCreateVps, changedTemplate) && !resources.templateEligible) {
+        throw new Error(t(resources.templateChoicesError ? 'requests.resolve.overrides.resources_error' : 'requests.resolve.template_unavailable'));
+      }
       await fetchReviewTarget(props.reqType, props.reqId, reviewedState.current);
       mutationGeneration = await chrome.acquireLocalLock(requestRef, { durable: true });
       mutationStarted = true;
@@ -331,7 +341,8 @@ export function RequestReviewActions(props: {
         testId={`${props.testIdPrefix}.modal`}
         footer={
           <div>
-            {resolveError ? (
+            {templateUnavailable ? <Alert variant="warn">{t('requests.resolve.template_unavailable')}</Alert> : null}
+          {resolveError ? (
               <div role="alert">
                 <Alert variant="danger" title={t('requests.resolve.toast.error.title')} testId={`${props.testIdPrefix}.error`}>
                   {resolveError}

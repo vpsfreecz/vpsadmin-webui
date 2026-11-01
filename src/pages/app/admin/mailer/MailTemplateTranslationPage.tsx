@@ -13,7 +13,7 @@ import {
   type MailTemplate,
   type MailTemplateTranslation,
 } from '../../../../lib/api/mailer';
-import { HaveApiError, isAmbiguousMutationError } from '../../../../lib/api/haveapi';
+import { HaveApiError, isAmbiguousMutationError } from '../../../../lib/api/apiErrors';
 import { DetailShell } from '../../../../components/layout/DetailShell';
 
 import { Badge } from '../../../../components/ui/Badge';

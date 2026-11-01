@@ -7,7 +7,6 @@ import { useI18n } from '../../../../app/i18n';
 
 import { DetailShell } from '../../../../components/layout/DetailShell';
 
-import { fetchTransaction } from '../../../../lib/api/transactions';
 import { fetchMailLog } from '../../../../lib/api/mailer';
 import { formatDateTime } from '../../../../lib/format';
 import { resourceId, refLabel } from '../../../../lib/resources';
@@ -18,7 +17,6 @@ import { Card, CardBody, CardHeader } from '../../../../components/ui/Card';
 import { Checkbox } from '../../../../components/ui/Checkbox';
 import { CopyButton } from '../../../../components/ui/CopyButton';
 import { ErrorState } from '../../../../components/ui/ErrorState';
-import { LinkButton } from '../../../../components/ui/LinkButton';
 import { LoadingState } from '../../../../components/ui/LoadingState';
 import { ObjectHeader } from '../../../../components/ui/ObjectHeader';
 import { SandboxedHtml } from '../../../../components/ui/SandboxedHtml';
@@ -46,22 +44,12 @@ export function MailLogDetailPage() {
     queryFn: () => fetchMailLog(idNum),
   });
 
-  const mail = q.data?.data as any;
+  const mail = q.data?.data;
 
   const subject = safeStr(mail?.subject) || t('mailer.log.row.no_subject');
 
   const userId = resourceId(mail?.user);
   const tplId = resourceId(mail?.mail_template);
-  const txId = resourceId(mail?.mail_transaction);
-
-  const txQ = useQuery({
-    queryKey: ['transaction', txId],
-    enabled: Boolean(txId),
-    queryFn: () => fetchTransaction(txId as number),
-    staleTime: 10_000,
-  });
-
-  const chainId = resourceId((txQ.data as any)?.data?.transaction_chain);
 
   const title = subject;
 
@@ -133,17 +121,7 @@ export function MailLogDetailPage() {
         titleAfter={<Badge variant="neutral">{formatDateTime(createdAt)}</Badge>}
         actions={
           <div className="flex flex-wrap items-center gap-2">
-            {txId ? (
-              <LinkButton to={`${basePath}/transactions/items/${txId}`} variant="secondary" size="sm" testId="admin.mailer.log.detail.open_tx">
-                {t('common.open_transaction')}
-              </LinkButton>
-            ) : null}
 
-            {chainId ? (
-              <LinkButton to={`${basePath}/transactions/${chainId}`} variant="secondary" size="sm" testId="admin.mailer.log.detail.open_chain">
-                {t('common.open_chain')}
-              </LinkButton>
-            ) : null}
 
             <Button variant="secondary" size="sm" onClick={() => window.print()} testId="admin.mailer.log.detail.print">
               {t('mailer.log.detail.print')}
@@ -220,27 +198,7 @@ export function MailLogDetailPage() {
                   </div>
                 ) : null}
 
-                {txId ? (
-                  <div>
-                    <div className="text-xs text-muted">{t('mailer.log.row.transaction')}</div>
-                    <div className="mt-1 text-sm">
-                      <Link className="text-accent hover:underline" to={`${basePath}/transactions/items/${txId}`}>
-                        #{txId}
-                      </Link>
-                    </div>
-                  </div>
-                ) : null}
 
-                {chainId ? (
-                  <div>
-                    <div className="text-xs text-muted">{t('common.chain')}</div>
-                    <div className="mt-1 text-sm">
-                      <Link className="text-accent hover:underline" to={`${basePath}/transactions/${chainId}`}>
-                        #{chainId}
-                      </Link>
-                    </div>
-                  </div>
-                ) : null}
               </div>
             </CardBody>
           </Card>

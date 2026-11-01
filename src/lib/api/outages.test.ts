@@ -80,6 +80,7 @@ describe('outage admin API wrappers', () => {
       impact: 'network',
       auto_resolve: true,
       en_summary: 'Maintenance',
+      cs_summary: 'Udrzba',
     });
 
     let [url, init] = lastFetchCall();
@@ -93,6 +94,7 @@ describe('outage admin API wrappers', () => {
         impact: 'network',
         auto_resolve: true,
         en_summary: 'Maintenance',
+        cs_summary: 'Udrzba',
       },
     });
 
@@ -121,7 +123,7 @@ describe('outage admin API wrappers', () => {
   });
 
   test('entity and handler wrappers match nested outage contracts', async () => {
-    apiWire.respond = mockFetchOk({ entity: { id: 3 }, handler: { id: 4 } }) as any;
+    apiWire.respond = mockFetchOk({ entity: { id: 3, name: 'Environment' }, handler: { id: 4 } }) as any;
 
     await createOutageEntity(7, { name: 'Node', entity_id: 12 });
     let [url, init] = lastFetchCall();
@@ -189,8 +191,8 @@ describe('outage admin API wrappers', () => {
       { outage: { id: 7 } },
       scopeResponse('entities', []),
       scopeResponse('handlers', []),
-      { entity: { id: 3 } },
-      { entity: { id: 4 } },
+      { entity: { id: 3, name: 'Environment' } },
+      { entity: { id: 4, name: 'Node' } },
       { handler: { id: 5 } },
       { outage: { id: 7 } },
     ]) as any;
@@ -244,9 +246,9 @@ describe('outage admin API wrappers', () => {
           { id: 5, user: { id: 99 } },
         ]));
       }
-      if (method === 'POST' && path.endsWith('/entities')) return haveApiResponse({ entity: { id: 9 } });
+      if (method === 'POST' && path.endsWith('/entities')) return haveApiResponse({ entity: { id: 9, name: 'Node' } });
       if (method === 'POST' && path.endsWith('/handlers')) return haveApiResponse({ handler: { id: 8 } });
-      if (method === 'DELETE') return haveApiResponse(null);
+      if (method === 'DELETE') return haveApiResponse(path.includes('/entities/') ? { entity: {} } : { handler: {} });
       if (method === 'POST' && path.endsWith('/rebuild_affected_vps')) return haveApiResponse({ outage: { id: 7 } });
       throw new Error(`Unexpected request: ${method} ${path}`);
     }) as unknown as typeof apiWire.respond;
@@ -285,7 +287,7 @@ describe('outage admin API wrappers', () => {
     ];
     let handlers: any[] = [
       { id: 4, user: { id: 42 } },
-      { id: 5, user_id: 99 },
+      { id: 5, user: { id: 99 } },
     ];
     let nextEntityId = 9;
     let nextHandlerId = 8;
@@ -308,7 +310,7 @@ describe('outage admin API wrappers', () => {
       }
       if (method === 'POST' && path === '/v7.0/outages/7/handlers') {
         const body = JSON.parse(String(init?.body));
-        const handler = { id: nextHandlerId++, user_id: body.handler.user };
+        const handler = { id: nextHandlerId++, user: { id: body.handler.user } };
         handlers.push(handler);
         if (failWantedHandler && body.handler.user === 100) {
           failWantedHandler = false;
@@ -320,12 +322,12 @@ describe('outage admin API wrappers', () => {
       if (method === 'DELETE' && path.startsWith('/v7.0/outages/7/entities/')) {
         const id = Number(path.split('/').at(-1));
         entities = entities.filter((entity) => entity.id !== id);
-        return haveApiResponse(null);
+        return haveApiResponse({ entity: {} });
       }
       if (method === 'DELETE' && path.startsWith('/v7.0/outages/7/handlers/')) {
         const id = Number(path.split('/').at(-1));
         handlers = handlers.filter((handler) => handler.id !== id);
-        return haveApiResponse(null);
+        return haveApiResponse({ handler: {} });
       }
       if (method === 'POST' && path === '/v7.0/outages/7/rebuild_affected_vps') {
         return haveApiResponse({ outage: { id: 7 } });
@@ -355,7 +357,7 @@ describe('outage admin API wrappers', () => {
     ]);
     expect(handlers).toEqual([
       { id: 4, user: { id: 42 } },
-      { id: 5, user_id: 99 },
+      { id: 5, user: { id: 99 } },
     ]);
   });
 
@@ -459,7 +461,7 @@ describe('outage admin API wrappers', () => {
     }) as unknown as typeof apiWire.respond;
 
     await expect(createOutageWithSystems(
-      { type: 'planned_outage', impact: 'network', en_summary: 'Maintenance' },
+      { type: 'planned_outage', impact: 'network', en_summary: 'Maintenance', cs_summary: 'Udrzba', begins_at: '2026-05-28T10:00:00.000Z', duration: 30 },
       { entities: [], handlers: [] }
     )).rejects.toBeInstanceOf(OutageCreateIndeterminateError);
     expect((apiWire.respond as any).mock.calls).toHaveLength(1);

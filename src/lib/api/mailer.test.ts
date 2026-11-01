@@ -28,7 +28,7 @@ function lastFetchCall() {
 
 describe('mailer API wrappers', () => {
   test('fetchMailTemplates forwards only supported pagination parameters', async () => {
-    installHaveApiXhr( mockFetchOk({ mail_templates: [], _meta: { total_count: 0 } }));
+    installHaveApiXhr(mockFetchOk({ mail_templates: [], _meta: { total_count: 0 } }));
 
     const optionsWithUnsupportedFilters = {
       limit: 25,
@@ -46,14 +46,16 @@ describe('mailer API wrappers', () => {
     const u = new URL(url);
 
     expect(u.pathname).toBe('/v7.0/mail_templates');
-    expect(Array.from(u.searchParams.entries())).toEqual([
-      ['mail_template[limit]', '25'],
-      ['mail_template[from_id]', '91'],
-    ]);
+    expect(Array.from(u.searchParams.entries()).sort()).toEqual(
+      [
+        ['mail_template[limit]', '25'],
+        ['mail_template[from_id]', '91'],
+      ].sort()
+    );
   });
 
   test('mail template create sends identifiers while ordinary update only sends safe mutable fields', async () => {
-    installHaveApiXhr( mockFetchOk({ mail_template: { id: 7 } }));
+    installHaveApiXhr(mockFetchOk({ mail_template: { id: 7 } }));
 
     await createMailTemplate({
       name: 'registration',
@@ -95,7 +97,7 @@ describe('mailer API wrappers', () => {
   });
 
   test('nested mail template reads request the relations rendered by the UI', async () => {
-    installHaveApiXhr( mockFetchOk({ recipients: [], _meta: { total_count: 0 } }));
+    installHaveApiXhr(mockFetchOk({ recipients: [], _meta: { total_count: 0 } }));
 
     await fetchMailTemplateRecipients(7, { limit: 50, fromId: 9 });
 
@@ -106,7 +108,7 @@ describe('mailer API wrappers', () => {
     expect(parsed.searchParams.get('recipient[from_id]')).toBe('9');
     expect(parsed.searchParams.get('_meta[includes]')).toBe('mail_recipient');
 
-    installHaveApiXhr( mockFetchOk({ translations: [], _meta: { total_count: 0 } }));
+    installHaveApiXhr(mockFetchOk({ translations: [], _meta: { total_count: 0 } }));
     await fetchMailTemplateTranslations(7, { limit: 25, fromId: 11 });
 
     [url] = lastFetchCall();
@@ -116,7 +118,7 @@ describe('mailer API wrappers', () => {
     expect(parsed.searchParams.get('translation[from_id]')).toBe('11');
     expect(parsed.searchParams.get('_meta[includes]')).toBe('language');
 
-    installHaveApiXhr( mockFetchOk({ translation: { id: 13 } }));
+    installHaveApiXhr(mockFetchOk({ translation: { id: 13 } }));
     await fetchMailTemplateTranslation(7, 13);
 
     [url] = lastFetchCall();
@@ -126,7 +128,7 @@ describe('mailer API wrappers', () => {
   });
 
   test('translation update preserves explicit nulls when MIME bodies are cleared', async () => {
-    installHaveApiXhr( mockFetchOk({ translation: { id: 13 } }));
+    installHaveApiXhr(mockFetchOk({ translation: { id: 13 } }));
 
     await updateMailTemplateTranslation(7, 13, {
       from: 'noreply@example.test',
@@ -149,7 +151,7 @@ describe('mailer API wrappers', () => {
   });
 
   test('recipient update preserves explicit nulls when address fields are cleared', async () => {
-    installHaveApiXhr( mockFetchOk({ mail_recipient: { id: 19 } }));
+    installHaveApiXhr(mockFetchOk({ mail_recipient: { id: 19 } }));
 
     await updateMailRecipient(19, {
       label: 'Operations',
@@ -172,15 +174,17 @@ describe('mailer API wrappers', () => {
   });
 
   test('fetchMailRecipient reads the authoritative recipient before an edit update', async () => {
-    installHaveApiXhr( mockFetchOk({
-      mail_recipient: {
-        id: 19,
-        label: 'Operations',
-        to: 'ops@example.test',
-        cc: null,
-        bcc: null,
-      },
-    }));
+    installHaveApiXhr(
+      mockFetchOk({
+        mail_recipient: {
+          id: 19,
+          label: 'Operations',
+          to: 'ops@example.test',
+          cc: null,
+          bcc: null,
+        },
+      })
+    );
 
     const result = await fetchMailRecipient(19);
 
@@ -215,10 +219,12 @@ describe('mailer API wrappers', () => {
     const u = new URL(url);
 
     expect(u.pathname).toBe('/v7.0/mail_logs');
-    expect(Array.from(u.searchParams.entries())).toEqual([
-      ['mail_log[limit]', '50'],
-      ['mail_log[from_id]', '123'],
-    ]);
+    expect(Array.from(u.searchParams.entries()).sort()).toEqual(
+      [
+        ['mail_log[limit]', '50'],
+        ['mail_log[from_id]', '123'],
+      ].sort()
+    );
   });
 
   test('fetchMailboxes forwards pagination/count and never sends unsupported filters', async () => {
@@ -268,9 +274,11 @@ describe('mailer API wrappers', () => {
     expect(u.pathname).toBe('/v7.0/mail_recipients');
     expect(u.searchParams.get('mail_recipient[limit]')).toBe('25');
     expect(u.searchParams.get('mail_recipient[from_id]')).toBe('9');
-    expect(Array.from(u.searchParams.entries())).toEqual([
-      ['mail_recipient[limit]', '25'],
-      ['mail_recipient[from_id]', '9'],
-    ]);
+    expect(Array.from(u.searchParams.entries()).sort()).toEqual(
+      [
+        ['mail_recipient[limit]', '25'],
+        ['mail_recipient[from_id]', '9'],
+      ].sort()
+    );
   });
 });

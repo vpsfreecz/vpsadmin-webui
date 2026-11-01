@@ -15,7 +15,7 @@ import {
   updateIncomingPaymentState,
 } from '../../../lib/api/payments';
 import { fetchUser, type User } from '../../../lib/api/users';
-import { getMetaActionStateId } from '../../../lib/api/haveapi';
+import { getMetaActionStateId } from '../../../lib/api/apiErrors';
 
 import { formatDateInTimeZone, formatDateTimeInTimeZone } from '../../../lib/format';
 import { formatErrorMessage } from '../../../lib/errors';

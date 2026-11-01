@@ -109,7 +109,7 @@ test('@workflow-matrix @smoke user requests: lists and opens only the signed-in 
   await expect(page.getByText('Review actions')).toHaveCount(0);
   await expect(page.getByTestId('admin.requests.list')).toHaveCount(0);
 
-  const listScreenshot = process.env.E2E_USER_REQUESTS_SCREENSHOT?.trim();
+  const listScreenshot = process.env['E2E_USER_REQUESTS_SCREENSHOT']?.trim();
   if (listScreenshot) await page.screenshot({ path: listScreenshot, fullPage: true });
 
   await page.getByTestId(`${rowPrefix}.registration.54`).click();
@@ -178,7 +178,7 @@ test('@smoke user requests: admin self view explicitly scopes both indexes and r
   await expect(page.getByText('FOREIGN REQUEST')).toHaveCount(0);
   expect(indexUrls).toHaveLength(2);
 
-  const emptyScreenshot = process.env.E2E_USER_REQUESTS_EMPTY_SCREENSHOT?.trim();
+  const emptyScreenshot = process.env['E2E_USER_REQUESTS_EMPTY_SCREENSHOT']?.trim();
   if (emptyScreenshot) await page.screenshot({ path: emptyScreenshot, fullPage: true });
 
   const registrationsUrl = indexUrls.find((url) => url.pathname.endsWith('/registrations'));
@@ -328,7 +328,7 @@ test('user requests: independent ID spaces paginate the complete merged history 
   await setUiSettingsLocalStorage(page, { language: 'en' });
   await bootstrapVpsAdminWindow(page);
   await installHaveApiMock(page, {
-    user: { id: '10', login: 'alice', level: 1 } as any,
+    user: { id: 10, login: 'alice', level: 1 },
     handlers: {
       'GET user_request/registrations': ({ url }) => {
         const requestUrl = new URL(url);

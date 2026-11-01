@@ -113,12 +113,14 @@ function initOutageForm(outage?: Outage): OutageFormState {
   };
 }
 
-function formPayload(form: OutageFormState, includeState = false): OutagePayload {
+function formPayload(form: OutageFormState): OutagePayload {
   const duration = form.duration.trim() ? Number(form.duration) : null;
+  const beginsAt = fromOutageDateTimeInput(form.beginsAt);
+  if (beginsAt === null || duration === null || !Number.isFinite(duration)) throw new Error('Invalid outage form');
   const payload: OutagePayload = {
-    begins_at: fromOutageDateTimeInput(form.beginsAt),
+    begins_at: beginsAt,
     finished_at: fromOutageDateTimeInput(form.finishedAt),
-    duration: Number.isFinite(duration) ? duration : null,
+    duration,
     type: form.type,
     impact: form.impact,
     auto_resolve: form.autoResolve,
@@ -127,14 +129,12 @@ function formPayload(form: OutageFormState, includeState = false): OutagePayload
     cs_summary: form.csSummary,
     cs_description: form.csDescription,
   };
-  if (includeState) payload.state = form.state;
   return payload;
 }
-
 function updatePayload(
   form: OutageFormState,
   outageId: number,
-  currentState?: string
+  currentState?: string | null
 ): OutageUpdatePayload {
   const duration = form.duration.trim() ? Number(form.duration) : null;
   return {
@@ -142,7 +142,7 @@ function updatePayload(
     send_mail: form.sendMail,
     begins_at: fromOutageDateTimeInput(form.beginsAt),
     finished_at: fromOutageDateTimeInput(form.finishedAt),
-    duration: Number.isFinite(duration) ? duration : null,
+    duration: duration !== null && Number.isFinite(duration) ? duration : undefined,
     impact: form.impact,
     state: form.state !== currentState ? form.state : undefined,
     en_summary: form.enSummary || undefined,
@@ -712,7 +712,7 @@ function AdminOutageDetailPage({ outageId }: { outageId: number | undefined }) {
               ) : <Badge key={entity.id} variant="neutral">{label}</Badge>;
             })}</div>
           ) : <div className="text-sm text-muted">{t('admin.outages.empty.systems')}</div>}
-          <div className="mt-4 text-sm text-muted">{handlers.length ? handlers.map((h) => h.full_name || h.reporter_name || `#${outageHandlerUserId(h) ?? h.id}`).join(', ') : t('admin.outages.empty.handlers')}</div>
+          <div className="mt-4 text-sm text-muted">{handlers.length ? handlers.map((h) => h.full_name || `#${outageHandlerUserId(h) ?? h.id}`).join(', ') : t('admin.outages.empty.handlers')}</div>
         </CardBody>
       </Card>
 
@@ -722,11 +722,11 @@ function AdminOutageDetailPage({ outageId }: { outageId: number | undefined }) {
         usersQ={usersQ}
         vpsQ={vpsQ}
         exportsQ={exportsQ}
-        userTotal={outage.affected_user_count}
+        userTotal={outage.affected_user_count ?? undefined}
         vpsTotal={(outage.affected_direct_vps_count != null || outage.affected_indirect_vps_count != null)
           ? (outage.affected_direct_vps_count ?? 0) + (outage.affected_indirect_vps_count ?? 0)
           : undefined}
-        exportTotal={outage.affected_export_count}
+        exportTotal={outage.affected_export_count ?? undefined}
       />
 
       <OutageUpdatesCard

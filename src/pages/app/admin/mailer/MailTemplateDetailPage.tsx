@@ -21,7 +21,7 @@ import {
   type MailTemplateTranslation,
 } from '../../../../lib/api/mailer';
 import { fetchLanguages, type Language } from '../../../../lib/api/languages';
-import { HaveApiError, isAmbiguousMutationError } from '../../../../lib/api/haveapi';
+import { HaveApiError, isAmbiguousMutationError } from '../../../../lib/api/apiErrors';
 import { formatErrorMessage } from '../../../../lib/errors';
 import { formatDateTime } from '../../../../lib/format';
 import { resourceId, refLabel } from '../../../../lib/resources';

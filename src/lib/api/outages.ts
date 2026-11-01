@@ -1,25 +1,33 @@
-import type { ResourceRef, User, Vps } from './app';
-import type { ExportItem } from './exports';
-import { expectArray, HaveApiError, haveApiCall } from './haveapi';
+import type {
+  Outage__CreateInput,
+  Outage__UpdateInput,
+  Outage__IndexInput,
+  Outage__Entity__CreateInput,
+  OutageUpdate__CreateInput,
+  Component__ShowOutput,
+  Component__IndexInput,
+  UserOutage__IndexOutput,
+  VpsOutage__IndexOutput,
+  ExportOutage__IndexOutput,
+} from 'vpsadmin-typescript-client';
+import { expectArray, isAmbiguousMutationError } from './apiErrors';
+import { narrowApiResult } from './apiOutput';
+import { getApi } from './sdk';
 import { fetchAllOutageEntities, fetchAllOutageHandlers } from './outageScopePaging';
 import {
-  type Outage,
-  type OutageEntity,
+  narrowOutage,
+  narrowOutageEntity,
+  narrowOutageHandler,
+  narrowOutageUpdate,
   type OutageHandler,
-  type OutageUpdate,
-} from './public';
+  type OutageEntity,
+} from './outageViews';
 
 export type OutageAdminState = 'staged' | 'announced' | 'cancelled' | 'resolved';
 export { fetchAllOutageEntities, fetchAllOutageHandlers, OutageScopeReadError } from './outageScopePaging';
 export type OutageAdminType = 'planned_outage' | 'unplanned_outage';
 export type OutageImpact =
-  | 'tbd'
-  | 'performance'
-  | 'network'
-  | 'system_restart'
-  | 'system_reset'
-  | 'unavailability'
-  | 'export';
+  'tbd' | 'performance' | 'network' | 'system_restart' | 'system_reset' | 'unavailability' | 'export';
 
 export interface OutageFilters {
   limit?: number;
@@ -35,52 +43,18 @@ export interface OutageFilters {
   environment?: number;
   location?: number;
   node?: number;
-  vpsadmin?: number;
   entityName?: string;
   entityId?: number;
   order?: string;
 }
 
-export interface OutagePayload {
-  begins_at?: string | null;
-  finished_at?: string | null;
-  duration?: number | null;
-  type?: OutageAdminType;
-  impact?: string;
-  state?: string;
-  auto_resolve?: boolean;
-  en_summary?: string;
-  en_description?: string;
-  cs_summary?: string;
-  cs_description?: string;
-}
-
-export interface OutageSystemsPayload {
-  entities: Array<{ name: string; entity_id?: number | null }>;
+export type OutagePayload = Outage__CreateInput;
+export type OutageSystemsPayload = {
+  entities: Array<Outage__Entity__CreateInput & { name: string }>;
   handlers: number[];
-}
-
-export interface OutageComponent {
-  id: number;
-  name?: string;
-  label?: string;
-  description?: string;
-  [k: string]: unknown;
-}
-
-export interface OutageUpdatePayload {
-  outage: number;
-  send_mail?: boolean;
-  begins_at?: string | null;
-  finished_at?: string | null;
-  duration?: number | null;
-  impact?: string;
-  state?: string;
-  en_summary?: string;
-  en_description?: string;
-  cs_summary?: string;
-  cs_description?: string;
-}
+};
+export type OutageComponent = Component__ShowOutput & { id: number };
+export type OutageUpdatePayload = OutageUpdate__CreateInput;
 
 export function outageStateTransitionPayload(
   outageId: number,
@@ -94,35 +68,15 @@ export function outageStateTransitionPayload(
   };
 }
 
-export interface OutageAffectedUser {
-  id: number;
-  user?: User | ResourceRef;
-  vps_count?: number;
-  export_count?: number;
-  [k: string]: unknown;
-}
+export type OutageAffectedUser = UserOutage__IndexOutput[number] & { id: number };
+export type OutageAffectedVps = VpsOutage__IndexOutput[number] & { id: number };
+export type OutageAffectedExport = ExportOutage__IndexOutput[number] & { id: number };
 
-export interface OutageAffectedVps {
-  id: number;
-  outage?: Outage | ResourceRef;
-  vps?: Vps | ResourceRef;
-  direct?: boolean;
-  user?: User | ResourceRef;
-  environment?: ResourceRef;
-  location?: ResourceRef;
-  node?: ResourceRef;
-  [k: string]: unknown;
-}
-
-export interface OutageAffectedExport {
-  id: number;
-  outage?: Outage | ResourceRef;
-  export?: ExportItem | ResourceRef;
-  user?: User | ResourceRef;
-  environment?: ResourceRef;
-  location?: ResourceRef;
-  node?: ResourceRef;
-  [k: string]: unknown;
+function identified<T extends { id?: number | null }>(row: T): T & { id: number } {
+  if (!row || typeof row !== 'object' || !Number.isSafeInteger(row.id) || typeof row.id !== 'number' || row.id <= 0) {
+    throw new Error('Invalid outage resource identity');
+  }
+  return { ...row, id: row.id };
 }
 
 /**
@@ -137,15 +91,12 @@ export class OutageSystemsApplyError extends Error {
   readonly originalError: unknown;
   readonly rollbackError?: unknown;
 
-  constructor(opts: {
-    outageId: number;
-    rollbackSucceeded: boolean;
-    originalError: unknown;
-    rollbackError?: unknown;
-  }) {
-    super(opts.rollbackSucceeded
-      ? `Affected scope for outage #${opts.outageId} was not saved; the previous scope was restored.`
-      : `Affected scope for outage #${opts.outageId} may be partially saved; reload the outage before retrying.`);
+  constructor(opts: { outageId: number; rollbackSucceeded: boolean; originalError: unknown; rollbackError?: unknown }) {
+    super(
+      opts.rollbackSucceeded
+        ? `Affected scope for outage #${opts.outageId} was not saved; the previous scope was restored.`
+        : `Affected scope for outage #${opts.outageId} may be partially saved; reload the outage before retrying.`
+    );
     this.name = 'OutageSystemsApplyError';
     this.outageId = opts.outageId;
     this.rollbackSucceeded = opts.rollbackSucceeded;
@@ -165,9 +116,11 @@ export class OutageCreateWithSystemsError extends Error {
   readonly systemsError: OutageSystemsApplyError;
 
   constructor(outageId: number, systemsError: OutageSystemsApplyError) {
-    super(systemsError.rollbackSucceeded
-      ? `Outage #${outageId} was created without its affected scope; open the staged report and retry the scope change.`
-      : `Outage #${outageId} was created, but its affected scope may be partially saved; reload the staged report before retrying.`);
+    super(
+      systemsError.rollbackSucceeded
+        ? `Outage #${outageId} was created without its affected scope; open the staged report and retry the scope change.`
+        : `Outage #${outageId} was created, but its affected scope may be partially saved; reload the staged report before retrying.`
+    );
     this.name = 'OutageCreateWithSystemsError';
     this.outageId = outageId;
     this.rollbackSucceeded = systemsError.rollbackSucceeded;
@@ -190,8 +143,8 @@ export class OutageCreateIndeterminateError extends Error {
   }
 }
 
-function outageListParams(opts?: OutageFilters): Record<string, unknown> {
-  const params: Record<string, unknown> = {};
+function outageListParams(opts?: OutageFilters): Outage__IndexInput {
+  const params: Outage__IndexInput = {};
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
   if (opts?.type) params['type'] = opts.type;
@@ -205,7 +158,6 @@ function outageListParams(opts?: OutageFilters): Record<string, unknown> {
   if (opts?.environment !== undefined) params['environment'] = opts.environment;
   if (opts?.location !== undefined) params['location'] = opts.location;
   if (opts?.node !== undefined) params['node'] = opts.node;
-  if (opts?.vpsadmin !== undefined) params['vpsadmin'] = opts.vpsadmin;
   if (opts?.entityName) params['entity_name'] = opts.entityName;
   if (opts?.entityId !== undefined) params['entity_id'] = opts.entityId;
   if (opts?.order) params['order'] = opts.order;
@@ -213,36 +165,30 @@ function outageListParams(opts?: OutageFilters): Record<string, unknown> {
 }
 
 export async function fetchAdminOutages(opts?: OutageFilters) {
-  const res = await haveApiCall<Outage[]>({
-    method: 'GET',
-    path: '/outages',
-    namespace: 'outage',
-    params: outageListParams(opts),
-  });
-  return { ...res, data: expectArray<Outage>(res.data, 'outages#index') };
+  const res = await (await getApi()).outage.index({ params: outageListParams(opts) });
+  return narrowApiResult(
+    res,
+    (data) => expectArray<(typeof data)[number]>(data, 'outage records').map(narrowOutage),
+    'outage records'
+  );
 }
 
 export async function fetchOutageComponents(opts?: { limit?: number; fromId?: number }) {
-  const params: Record<string, unknown> = {};
+  const params: Component__IndexInput = {};
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
 
-  const res = await haveApiCall<OutageComponent[]>({
-    method: 'GET',
-    path: '/components',
-    namespace: 'component',
-    params,
-  });
-  return { ...res, data: expectArray<OutageComponent>(res.data, 'components#index') };
+  const res = await (await getApi()).component.index({ params });
+  return narrowApiResult(
+    res,
+    (data) => expectArray<(typeof data)[number]>(data, 'outage records').map(identified),
+    'outage records'
+  );
 }
 
 export async function createOutage(params: OutagePayload) {
-  return haveApiCall<Outage>({
-    method: 'POST',
-    path: '/outages',
-    namespace: 'outage',
-    params: { ...params },
-  });
+  const res = await (await getApi()).outage.create({ params: { ...params } });
+  return narrowApiResult(res, narrowOutage, 'outage.create');
 }
 
 export async function createOutageWithSystems(params: OutagePayload, systems: OutageSystemsPayload) {
@@ -250,9 +196,7 @@ export async function createOutageWithSystems(params: OutagePayload, systems: Ou
   try {
     res = await createOutage(params);
   } catch (error) {
-    const isDefinitiveApiRejection = error instanceof HaveApiError
-      && (error.httpStatus === undefined || error.httpStatus < 500);
-    if (isDefinitiveApiRejection) throw error;
+    if (!isAmbiguousMutationError(error)) throw error;
     throw new OutageCreateIndeterminateError(error);
   }
   const outageId = res.data.id;
@@ -267,84 +211,54 @@ export async function createOutageWithSystems(params: OutagePayload, systems: Ou
   return res;
 }
 
-export async function updateOutage(outageId: number, params: OutagePayload) {
-  return haveApiCall<Outage>({
-    method: 'PUT',
-    path: `/outages/${outageId}`,
-    namespace: 'outage',
-    params: { ...params },
-  });
+export async function updateOutage(outageId: number, params: Outage__UpdateInput) {
+  const res = await (await getApi()).outage.update({ path: { outage_id: outageId }, params: { ...params } });
+  return narrowApiResult(res, narrowOutage, 'outage.update');
 }
 
 export async function rebuildOutageAffectedVps(outageId: number) {
-  return haveApiCall<Outage>({
-    method: 'POST',
-    path: `/outages/${outageId}/rebuild_affected_vps`,
-  });
+  return (await getApi()).outage.rebuild_affected_vps({ path: { outage_id: outageId } });
 }
 
 export async function createOutageUpdate(params: OutageUpdatePayload) {
-  return haveApiCall<OutageUpdate>({
-    method: 'POST',
-    path: '/outage_updates',
-    namespace: 'outage_update',
-    params: { ...params },
-  });
+  const res = await (await getApi()).outage_update.create({ params: { ...params } });
+  return narrowApiResult(res, narrowOutageUpdate, 'outage_update.create');
 }
 
-export async function createOutageEntity(outageId: number, params: { name: string; entity_id?: number | null }) {
-  return haveApiCall<OutageEntity>({
-    method: 'POST',
-    path: `/outages/${outageId}/entities`,
-    namespace: 'entity',
-    params,
-  });
+export async function createOutageEntity(outageId: number, params: Outage__Entity__CreateInput & { name: string }) {
+  const res = await (await getApi()).outage.entity.create({ path: { outage_id: outageId }, params });
+  return narrowApiResult(res, narrowOutageEntity, 'outage.entity.create');
 }
 
 export async function deleteOutageEntity(outageId: number, entityId: number) {
-  return haveApiCall<null>({
-    method: 'DELETE',
-    path: `/outages/${outageId}/entities/${entityId}`,
-  });
+  return (await getApi()).outage.entity.delete({ path: { outage_id: outageId, entity_id: entityId } });
 }
 
 export async function createOutageHandler(outageId: number, params: { user: number }) {
-  return haveApiCall<OutageHandler>({
-    method: 'POST',
-    path: `/outages/${outageId}/handlers`,
-    namespace: 'handler',
-    params,
-  });
+  const res = await (await getApi()).outage.handler.create({ path: { outage_id: outageId }, params });
+  return narrowApiResult(res, narrowOutageHandler, 'outage.handler.create');
 }
 
 export async function deleteOutageHandler(outageId: number, handlerId: number) {
-  return haveApiCall<null>({
-    method: 'DELETE',
-    path: `/outages/${outageId}/handlers/${handlerId}`,
-  });
+  return (await getApi()).outage.handler.delete({ path: { outage_id: outageId, handler_id: handlerId } });
 }
 
 export function outageHandlerUserId(h: OutageHandler): number | null {
-  const raw = (h as any).user_id ?? (h as any).user?.id;
-  return typeof raw === 'number' && Number.isFinite(raw) ? raw : null;
+  const raw = h.user?.id;
+  return typeof raw === 'number' && Number.isSafeInteger(raw) && raw > 0 ? raw : null;
 }
 
 function outageEntityKey(name: string, entityId: number | null | undefined): string {
   return `${name}:${entityId ?? ''}`;
 }
 
-function currentOutageSystems(
-  entities: OutageEntity[],
-  handlers: OutageHandler[]
-): OutageSystemsPayload {
+function currentOutageSystems(entities: OutageEntity[], handlers: OutageHandler[]): OutageSystemsPayload {
   return {
     entities: entities.map((entity) => ({
       name: entity.name,
-      entity_id: entity.entity_id ?? null,
+      ...(entity.entity_id == null ? {} : { entity_id: entity.entity_id }),
     })),
-    handlers: handlers
-      .map(outageHandlerUserId)
-      .filter((value): value is number => value !== null),
+    handlers: handlers.map(outageHandlerUserId).filter((value): value is number => value !== null),
   };
 }
 
@@ -362,16 +276,14 @@ async function applyOutageSystemsUnsafe(
     if (!currentKeys.has(outageEntityKey(entity.name, entity.entity_id))) {
       await createOutageEntity(outageId, {
         name: entity.name,
-        entity_id: entity.entity_id ?? null,
+        ...(entity.entity_id == null ? {} : { entity_id: entity.entity_id }),
       });
     }
   }
 
   const wantedHandlers = new Set(wanted.handlers);
   const currentHandlerIds = new Set(
-    currentHandlers
-      .map(outageHandlerUserId)
-      .filter((value): value is number => value !== null)
+    currentHandlers.map(outageHandlerUserId).filter((value): value is number => value !== null)
   );
 
   for (const user of wantedHandlers) {
@@ -394,10 +306,7 @@ async function applyOutageSystemsUnsafe(
   await rebuildOutageAffectedVps(outageId);
 }
 
-export async function applyOutageSystems(
-  outageId: number,
-  wanted: OutageSystemsPayload
-) {
+export async function applyOutageSystems(outageId: number, wanted: OutageSystemsPayload) {
   // Never mutate from a possibly truncated snapshot supplied by the UI. Both
   // nested indexes are keyset-paginated, so obtain a verified complete scope
   // first. If this fails or hits a safety cap, no writes are attempted.
@@ -408,12 +317,7 @@ export async function applyOutageSystems(
   const original = currentOutageSystems(currentEntities, currentHandlers);
 
   try {
-    await applyOutageSystemsUnsafe(
-      outageId,
-      currentEntities,
-      currentHandlers,
-      wanted
-    );
+    await applyOutageSystemsUnsafe(outageId, currentEntities, currentHandlers, wanted);
   } catch (originalError) {
     try {
       // A failed HTTP request is ambiguous: the server can commit a write and
@@ -422,12 +326,7 @@ export async function applyOutageSystems(
         fetchAllOutageEntities(outageId),
         fetchAllOutageHandlers(outageId),
       ]);
-      await applyOutageSystemsUnsafe(
-        outageId,
-        actualEntities,
-        actualHandlers,
-        original
-      );
+      await applyOutageSystemsUnsafe(outageId, actualEntities, actualHandlers, original);
       throw new OutageSystemsApplyError({
         outageId,
         rollbackSucceeded: true,
@@ -446,34 +345,32 @@ export async function applyOutageSystems(
 }
 
 export async function fetchUserOutages(outageId: number) {
-  const res = await haveApiCall<OutageAffectedUser[]>({
-    method: 'GET',
-    path: '/user_outages',
-    namespace: 'user_outage',
-    params: { outage: outageId },
-    meta: { includes: 'user' },
-  });
-  return { ...res, data: expectArray<OutageAffectedUser>(res.data, 'user_outages#index') };
+  const res = await (await getApi()).user_outage.index({ params: { outage: outageId }, meta: { includes: 'user' } });
+  return narrowApiResult(
+    res,
+    (data) => expectArray<(typeof data)[number]>(data, 'outage records').map(identified),
+    'outage records'
+  );
 }
 
 export async function fetchVpsOutages(outageId: number) {
-  const res = await haveApiCall<OutageAffectedVps[]>({
-    method: 'GET',
-    path: '/vps_outages',
-    namespace: 'vps_outage',
-    params: { outage: outageId },
-    meta: { includes: 'vps,user,environment,location,node' },
-  });
-  return { ...res, data: expectArray<OutageAffectedVps>(res.data, 'vps_outages#index') };
+  const res = await (
+    await getApi()
+  ).vps_outage.index({ params: { outage: outageId }, meta: { includes: 'vps,user,environment,location,node' } });
+  return narrowApiResult(
+    res,
+    (data) => expectArray<(typeof data)[number]>(data, 'outage records').map(identified),
+    'outage records'
+  );
 }
 
 export async function fetchExportOutages(outageId: number) {
-  const res = await haveApiCall<OutageAffectedExport[]>({
-    method: 'GET',
-    path: '/export_outages',
-    namespace: 'export_outage',
-    params: { outage: outageId },
-    meta: { includes: 'export,user,environment,location,node' },
-  });
-  return { ...res, data: expectArray<OutageAffectedExport>(res.data, 'export_outages#index') };
+  const res = await (
+    await getApi()
+  ).export_outage.index({ params: { outage: outageId }, meta: { includes: 'export,user,environment,location,node' } });
+  return narrowApiResult(
+    res,
+    (data) => expectArray<(typeof data)[number]>(data, 'outage records').map(identified),
+    'outage records'
+  );
 }

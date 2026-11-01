@@ -7,6 +7,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { RequestReviewActions } from './RequestReviewActions';
 import { fetchReviewTarget, resolveReviewedRequest } from './RequestResolveMutation';
 
+const resourceState = vi.hoisted(() => ({ templateEligible: true }));
 const acquireLocalLock = vi.fn();
 const settleLocalLock = vi.fn();
 const trackActionState = vi.fn();
@@ -44,6 +45,9 @@ vi.mock('./RequestResolveResources', () => ({
     nodes: [],
     locations: [],
     templates: [],
+    templateEligible: resourceState.templateEligible,
+    templateChoicesLoading: false,
+    templateChoicesError: false,
     languages: [],
     nodeResourcesLoading: false,
     nodeResourcesError: false,
@@ -60,11 +64,33 @@ const resolveMock = vi.mocked(resolveReviewedRequest);
 describe('RequestReviewActions behavior', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    resourceState.templateEligible = true;
     acquireLocalLock.mockResolvedValue(1);
     fetchTargetMock.mockResolvedValue({ id: 19327, state: 'awaiting' } as never);
     resolveMock.mockResolvedValue({ data: {}, meta: {} } as never);
   });
 
+
+  it('blocks provisioning with an unavailable template while retaining unchanged correction review', async () => {
+    resourceState.templateEligible = false;
+    const user = userEvent.setup();
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    render(<QueryClientProvider client={queryClient}>
+      <RequestReviewActions request={{ id: 19327, state: 'awaiting', login: 'alice', language: { id: 1, code: 'en' }, year_of_birth: 1990, os_template: { id: 5 }, location: { id: 7 } }}
+        reqType="registration" reqId={19327} isAdmin basePath="/admin" testIdPrefix="request" />
+    </QueryClientProvider>);
+    await user.click(screen.getByTestId('request.action.approve'));
+    expect(screen.getByTestId('request.submit')).toBeDisabled();
+    expect(screen.getByText('requests.resolve.template_unavailable')).toBeVisible();
+    expect(resolveMock).not.toHaveBeenCalled();
+    await user.click(screen.getByRole('button', { name: 'common.cancel' }));
+    await user.click(screen.getByTestId('request.action.request_correction'));
+    await user.type(screen.getByTestId('request.reason'), 'Please review the template.');
+    expect(screen.queryByText('requests.resolve.template_unavailable')).not.toBeInTheDocument();
+    expect(screen.getByTestId('request.submit')).not.toBeDisabled();
+    await user.click(screen.getByTestId('request.submit'));
+    await waitFor(() => expect(resolveMock).toHaveBeenCalledWith('registration', 19327, 'request_correction', expect.anything()));
+  });
   it('closes an ignored request immediately without opening the resolution dialog', async () => {
     const user = userEvent.setup();
     const queryClient = new QueryClient({

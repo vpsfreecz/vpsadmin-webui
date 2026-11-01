@@ -1,39 +1,105 @@
-import { expectArray, haveApiCall } from './haveapi';
+import type {
+  IncomingPayment__ShowOutput,
+  IncomingPayment__IndexInput,
+  IncomingPayment__UpdateInput,
+  UserPayment__ShowOutput,
+  UserPayment__CreateInput,
+  UserPayment__IndexInput,
+  PaymentStats__EstimateIncomeInput,
+  PaymentStats__EstimateIncomeOutput,
+  User__ShowOutput,
+  OsTemplate__ShowOutput,
+} from 'vpsadmin-typescript-client';
+import { expectArray } from './apiErrors';
+import { narrowApiResult } from './apiOutput';
+import { getApi } from './sdk';
 
-export interface ResourceRef {
+export type ResourceRef = Pick<OsTemplate__ShowOutput, 'id' | 'label' | 'name'> &
+  Pick<User__ShowOutput, 'login'> &
+  Record<string, unknown>;
+export type IncomingPayment = IncomingPayment__ShowOutput & { id: number };
+export type IncomingPaymentState = NonNullable<IncomingPayment__UpdateInput['state']>;
+export type UserPayment = Omit<UserPayment__ShowOutput, 'incoming_payment' | 'user' | 'accounted_by'> & {
   id: number;
-  label?: string;
-  login?: string;
-  name?: string;
-  [k: string]: unknown;
+  incoming_payment?: ResourceRef | null;
+  user?: ResourceRef | null;
+  accounted_by?: ResourceRef | null;
+};
+export type CreateUserPaymentInput = UserPayment__CreateInput &
+  ({ user: number; incoming_payment: number } | { user: number; amount: number });
+export type IncomeEstimateSelection = 'exactly_until' | 'all_until';
+export type EstimateIncomeInput = PaymentStats__EstimateIncomeInput & { select: IncomeEstimateSelection };
+export type IncomeEstimate = {
+  [K in keyof PaymentStats__EstimateIncomeOutput]-?: NonNullable<PaymentStats__EstimateIncomeOutput[K]>;
+};
+
+function record(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-export type IncomingPaymentState = 'queued' | 'unmatched' | 'processed' | 'ignored' | string;
+function id(value: unknown): value is number {
+  return typeof value === 'number' && Number.isSafeInteger(value) && value > 0;
+}
 
-/**
- * Exact incoming_payment output contract. The resource does not expose a
- * linked user payment, user, or paid-until value; reconciliation UI must use
- * the state and bank reference fields below instead of inventing relations.
- */
-export interface IncomingPayment {
-  id: number;
-  transaction_id?: string;
-  state?: IncomingPaymentState;
-  date?: string;
-  amount?: number;
-  currency?: string;
-  src_amount?: number;
-  src_currency?: string;
-  account_name?: string;
-  user_ident?: string;
-  user_message?: string;
-  vs?: string;
-  ks?: string;
-  ss?: string;
-  transaction_type?: string;
-  comment?: string;
-  created_at?: string;
-  [k: string]: unknown;
+function strings(row: Record<string, unknown>, keys: readonly string[]): boolean {
+  return keys.every((key) => row[key] == null || typeof row[key] === 'string');
+}
+
+function reference(value: unknown): value is ResourceRef | null | undefined {
+  return (
+    value == null ||
+    (record(value) &&
+      (value['id'] == null || id(value['id'])) &&
+      strings(value, ['label', 'name', 'login', 'transaction_id']))
+  );
+}
+
+function isIncomingPayment(value: unknown): value is IncomingPayment {
+  return (
+    record(value) &&
+    id(value['id']) &&
+    strings(value, [
+      'transaction_id',
+      'state',
+      'date',
+      'currency',
+      'src_currency',
+      'account_name',
+      'user_ident',
+      'user_message',
+      'vs',
+      'ks',
+      'ss',
+      'transaction_type',
+      'comment',
+      'created_at',
+    ]) &&
+    ['amount', 'src_amount'].every(
+      (key) => value[key] == null || (typeof value[key] === 'number' && Number.isFinite(value[key]))
+    )
+  );
+}
+
+function incomingPayment(value: unknown): IncomingPayment {
+  if (!isIncomingPayment(value)) throw new Error('Invalid incoming payment identity or fields');
+  return value;
+}
+
+function isUserPayment(value: unknown): value is UserPayment {
+  return (
+    record(value) &&
+    id(value['id']) &&
+    strings(value, ['from_date', 'to_date', 'created_at']) &&
+    (value['amount'] == null || (typeof value['amount'] === 'number' && Number.isFinite(value['amount']))) &&
+    reference(value['incoming_payment']) &&
+    reference(value['user']) &&
+    reference(value['accounted_by'])
+  );
+}
+
+function userPayment(value: unknown): UserPayment {
+  if (!isUserPayment(value)) throw new Error('Invalid user payment identity or fields');
+  return value;
 }
 
 export async function fetchIncomingPayments(opts?: {
@@ -42,85 +108,36 @@ export async function fetchIncomingPayments(opts?: {
   state?: string;
   count?: boolean;
 }) {
-  const params: Record<string, unknown> = {};
-  if (opts?.limit !== undefined) params['limit'] = opts.limit;
-  if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
-  if (opts?.state) params['state'] = opts.state;
-
-  const res = await haveApiCall<IncomingPayment[]>({
-    method: 'GET',
-    path: '/incoming_payments',
-    namespace: 'incoming_payment',
-    params,
-    meta: opts?.count ? { count: true } : undefined,
-  });
-
-  return { ...res, data: expectArray<IncomingPayment>(res.data, 'incoming_payments#index') };
+  const params: IncomingPayment__IndexInput = {
+    limit: opts?.limit,
+    from_id: opts?.fromId,
+    state: opts?.state || undefined,
+  };
+  const res = await (
+    await getApi()
+  ).incoming_payment.index({ params, meta: opts?.count ? { count: true } : undefined });
+  return narrowApiResult(
+    res,
+    (data) => expectArray<unknown>(data, 'incoming payments').map(incomingPayment),
+    'incoming payments'
+  );
 }
 
 export async function fetchIncomingPayment(paymentId: number) {
-  return haveApiCall<IncomingPayment>({
-    method: 'GET',
-    path: `/incoming_payments/${paymentId}`,
-  });
+  const res = await (await getApi()).incoming_payment.show({ path: { incoming_payment_id: paymentId } });
+  return narrowApiResult(res, incomingPayment, 'incoming payment');
 }
 
 export async function updateIncomingPaymentState(paymentId: number, state: IncomingPaymentState) {
-  return haveApiCall<IncomingPayment>({
-    method: 'PUT',
-    path: `/incoming_payments/${paymentId}`,
-    namespace: 'incoming_payment',
-    params: { state },
-  });
+  const res = await (
+    await getApi()
+  ).incoming_payment.update({ path: { incoming_payment_id: paymentId }, params: { state } });
+  return narrowApiResult(res, incomingPayment, 'incoming payment update');
 }
 
-export interface UserPayment {
-  id: number;
-  incoming_payment?: ResourceRef;
-  user?: ResourceRef;
-  amount?: number;
-  accounted_by?: ResourceRef;
-  from_date?: string;
-  to_date?: string;
-  created_at?: string;
-  [k: string]: unknown;
-}
-
-export type CreateUserPaymentInput =
-  | {
-      /** Target user ID */
-      user: number;
-      /** Attach this incoming payment */
-      incoming_payment: number;
-    }
-  | {
-      /** Target user ID */
-      user: number;
-      /** Manual payment amount (default currency) */
-      amount: number;
-    };
-
-/**
- * Create an accepted user payment.
- *
- * Modes:
- * - from incoming payment: { user, incoming_payment }
- * - manual: { user, amount }
- */
-export async function createUserPayment(opts: CreateUserPaymentInput) {
-  const params: Record<string, unknown> = {
-    user: opts.user,
-  };
-
-  if ('incoming_payment' in opts) params['incoming_payment'] = opts.incoming_payment;
-  if ('amount' in opts) params['amount'] = opts.amount;
-
-  return haveApiCall<UserPayment>({
-    method: 'POST',
-    path: '/user_payments',
-    namespace: 'user_payment',
-    params,
-  });
+export async function createUserPayment(params: CreateUserPaymentInput) {
+  const res = await (await getApi()).user_payment.create({ params });
+  return narrowApiResult(res, userPayment, 'user payment create');
 }
 
 export async function fetchUserPayments(opts?: {
@@ -130,83 +147,44 @@ export async function fetchUserPayments(opts?: {
   accountedById?: number;
   includes?: string;
 }) {
-  const params: Record<string, unknown> = {};
-  if (opts?.limit !== undefined) params['limit'] = opts.limit;
-  if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
-  if (opts?.userId !== undefined) params['user'] = opts.userId;
-  if (opts?.accountedById !== undefined) params['accounted_by'] = opts.accountedById;
-
-  const res = await haveApiCall<UserPayment[]>({
-    method: 'GET',
-    path: '/user_payments',
-    namespace: 'user_payment',
-    params,
-    meta: opts?.includes ? { includes: opts.includes } : undefined,
-  });
-
-  return { ...res, data: expectArray<UserPayment>(res.data, 'user_payments#index') };
+  const params: UserPayment__IndexInput = {
+    limit: opts?.limit,
+    from_id: opts?.fromId,
+    user: opts?.userId,
+    accounted_by: opts?.accountedById,
+  };
+  const res = await (
+    await getApi()
+  ).user_payment.index({ params, meta: opts?.includes ? { includes: opts.includes } : undefined });
+  return narrowApiResult(res, (data) => expectArray<unknown>(data, 'user payments').map(userPayment), 'user payments');
 }
 
 export async function fetchPaymentInstructions(userId: number) {
-  const res = await haveApiCall<string | { instructions?: string }>({
-    method: 'GET',
-    path: `/users/${userId}/get_payment_instructions`,
-  });
-
-  if (typeof res.data === 'string') {
-    return { ...res, data: { instructions: res.data } };
-  }
-
-  return { ...res, data: { instructions: String(res.data?.instructions ?? '') } };
+  const res = await (await getApi()).user.get_payment_instructions({ path: { user_id: userId } });
+  return narrowApiResult(
+    res,
+    (data) => {
+      if (!record(data) || typeof data['instructions'] !== 'string') throw new Error('Missing payment instructions');
+      return { instructions: data['instructions'] };
+    },
+    'payment instructions'
+  );
 }
 
-export type IncomeEstimateSelection = 'exactly_until' | 'all_until';
-
-export interface EstimateIncomeInput {
-  year: number;
-  month: number;
-  select: IncomeEstimateSelection;
-  duration: number;
-}
-
-export interface IncomeEstimate {
-  user_count: number;
-  estimated_income: number;
-}
-
-function finiteApiNumber(value: unknown, field: keyof IncomeEstimate): number {
-  const numberValue = typeof value === 'number' ? value : Number(value);
-  if (!Number.isFinite(numberValue)) {
-    throw new Error(`payment_stats#estimate_income: invalid ${field}`);
-  }
-  return numberValue;
-}
-
-/**
- * Estimate income for users matching a paid-until period.
- *
- * The API contract intentionally does not declare a currency for
- * `estimated_income`, so callers must present it as a raw API value.
- */
+/** Currency is not declared by this action; present estimated_income as the raw API value. */
 export async function estimateIncome(input: EstimateIncomeInput, opts?: { signal?: AbortSignal }) {
-  const res = await haveApiCall<IncomeEstimate>({
-    method: 'GET',
-    path: '/payment_stat/estimate_income',
-    namespace: 'payment_stat',
-    params: {
-      year: input.year,
-      month: input.month,
-      select: input.select,
-      duration: input.duration,
+  const res = await (await getApi()).payment_stats.estimate_income({ params: input, signal: opts?.signal });
+  return narrowApiResult(
+    res,
+    (data) => {
+      if (typeof data.user_count !== 'number' || !Number.isSafeInteger(data.user_count) || data.user_count < 0) {
+        throw new Error('payment_stats#estimate_income: invalid user_count');
+      }
+      if (typeof data.estimated_income !== 'number' || !Number.isFinite(data.estimated_income)) {
+        throw new Error('payment_stats#estimate_income: invalid estimated_income');
+      }
+      return { user_count: data.user_count, estimated_income: data.estimated_income };
     },
-    signal: opts?.signal,
-  });
-
-  return {
-    ...res,
-    data: {
-      user_count: Math.max(0, Math.trunc(finiteApiNumber(res.data?.user_count, 'user_count'))),
-      estimated_income: finiteApiNumber(res.data?.estimated_income, 'estimated_income'),
-    },
-  };
+    'income estimate'
+  );
 }

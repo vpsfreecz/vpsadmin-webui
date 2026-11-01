@@ -54,10 +54,7 @@ function scopeKey(item: OutageScopeSelection): string {
   return `${item.kind}:${item.apiName ?? ''}:${item.id ?? ''}`;
 }
 
-export function addScopeSelection(
-  items: OutageScopeSelection[],
-  item: OutageScopeSelection
-): OutageScopeSelection[] {
+export function addScopeSelection(items: OutageScopeSelection[], item: OutageScopeSelection): OutageScopeSelection[] {
   if (items.some((candidate) => scopeKey(candidate) === scopeKey(item))) return items;
   return [...items, item];
 }
@@ -76,9 +73,9 @@ export function outageEntityName(item: OutageScopeSelection): string {
 
 export function desiredOutageSystems(form: OutageSystemsFormState): OutageSystemsPayload {
   return {
-    entities: form.scope.map((item) => item.id === null
-      ? { name: outageEntityName(item) }
-      : { name: outageEntityName(item), entity_id: item.id }),
+    entities: form.scope.map((item) =>
+      item.id === null ? { name: outageEntityName(item) } : { name: outageEntityName(item), entity_id: item.id }
+    ),
     handlers: form.handlers.map((handler) => handler.id),
   };
 }
@@ -90,10 +87,7 @@ function entityKind(entity: OutageEntity): OutageScopeKind {
   return 'Custom';
 }
 
-export function initOutageSystemsForm(
-  entities: OutageEntity[],
-  handlers: OutageHandler[]
-): OutageSystemsFormState {
+export function initOutageSystemsForm(entities: OutageEntity[], handlers: OutageHandler[]): OutageSystemsFormState {
   return {
     scope: entities.map((entity) => ({
       kind: entityKind(entity),
@@ -104,10 +98,12 @@ export function initOutageSystemsForm(
     handlers: handlers.flatMap((handler) => {
       const id = outageHandlerUserId(handler);
       if (id === null) return [];
-      return [{
-        id,
-        label: handler.full_name || handler.reporter_name || `#${id}`,
-      }];
+      return [
+        {
+          id,
+          label: handler.full_name || `#${id}`,
+        },
+      ];
     }),
   };
 }

@@ -30,11 +30,11 @@ import {
   paymentHistoryMonths,
 } from './PaymentHistoryModel';
 
-function resourceHref(basePath: string, resource: ResourceRef | undefined): string | undefined {
+function resourceHref(basePath: string, resource: ResourceRef | null | undefined): string | undefined {
   return resource?.id ? `${basePath}/users/${resource.id}` : undefined;
 }
 
-function ResourceLink(props: { basePath: string; resource?: ResourceRef }) {
+function ResourceLink(props: { basePath: string; resource?: ResourceRef | null }) {
   const label = resourceRefLabel(props.resource);
   const href = resourceHref(props.basePath, props.resource);
   return href ? <Link className="text-accent hover:underline" to={href}>{label}</Link> : <>{label}</>;

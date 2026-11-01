@@ -490,7 +490,6 @@ export function MailboxesPage() {
                 const port = Number((mb as any).port ?? 0);
                 const user = String((mb as any).user ?? '');
                 const ssl = Boolean((mb as any).enable_ssl);
-                const handlers = Number((mb as any).handlers_count ?? 0);
                 const updatedAt = (mb as any).updated_at;
 
                 return (
@@ -518,7 +517,7 @@ export function MailboxesPage() {
                       <Badge variant={ssl ? 'ok' : 'warn'}>{ssl ? t('mailer.mailboxes.ssl.on') : t('mailer.mailboxes.ssl.off')}</Badge>
                     </td>
                     <td className="px-3 py-2 text-right">
-                      <span className="font-medium">{handlers}</span>
+                      <span className="text-faint">—</span>
                     </td>
                     <td className="px-3 py-2 text-right">
                       {updatedAt ? (

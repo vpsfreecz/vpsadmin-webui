@@ -14,15 +14,19 @@ import { LoadingState } from '../../components/ui/LoadingState';
 import { Select } from '../../components/ui/Select';
 import { Textarea } from '../../components/ui/Textarea';
 
-import { fetchLocations, type Location } from '../../lib/api/infra';
-import { fetchLanguages, type Language } from '../../lib/api/languages';
-import { fetchOsTemplates, type OsTemplate } from '../../lib/api/osTemplates';
 import {
   previewRegistrationRequest,
+  fetchRegistrationCorrectionLocations,
+  fetchRegistrationCorrectionTemplates,
+  fetchRegistrationCorrectionLanguages,
+  type RegistrationCorrectionLocation,
+  type RegistrationCorrectionTemplate,
+  type RegistrationCorrectionLanguage,
   updateRegistrationRequestByToken,
   type RegistrationRequest,
 } from '../../lib/api/requests';
 import { browserTimeZone, isValidTimeZone, timeZoneOptions } from '../../lib/timeZones';
+import { formatErrorMessage } from '../../lib/errors';
 
 type FormState = {
   login: string;
@@ -128,21 +132,21 @@ export function RegistrationCorrectionPage() {
   const locationsQ = useQuery({
     queryKey: ['locations', 'public', 'index'],
     enabled: Boolean(requestId && token),
-    queryFn: async () => (await fetchLocations({ limit: 500 })).data,
+    queryFn: async () => (await fetchRegistrationCorrectionLocations()).data,
     staleTime: 60_000,
   });
 
   const templatesQ = useQuery({
     queryKey: ['os_templates', 'public', 'index'],
     enabled: Boolean(requestId && token),
-    queryFn: async () => (await fetchOsTemplates({ limit: 500, enabled: true })).data,
+    queryFn: async () => (await fetchRegistrationCorrectionTemplates()).data,
     staleTime: 60_000,
   });
 
   const languagesQ = useQuery({
     queryKey: ['languages', 'public', 'index'],
     enabled: Boolean(requestId && token),
-    queryFn: async () => (await fetchLanguages({ limit: 250 })).data,
+    queryFn: async () => (await fetchRegistrationCorrectionLanguages()).data,
     staleTime: 60_000,
   });
 
@@ -173,7 +177,7 @@ export function RegistrationCorrectionPage() {
     const req = previewQ.data;
     const currentId = refId(req?.os_template);
     const fallback = currentId
-      ? ({ id: currentId, label: refLabel(req?.os_template) ?? `#${currentId}` } as OsTemplate)
+      ? ({ id: currentId, label: refLabel(req?.os_template) ?? `#${currentId}` } satisfies RegistrationCorrectionTemplate)
       : null;
     return ensureOption(templatesQ.data ?? [], currentId, fallback);
   }, [previewQ.data, templatesQ.data]);
@@ -182,7 +186,7 @@ export function RegistrationCorrectionPage() {
     const req = previewQ.data;
     const currentId = refId(req?.location);
     const fallback = currentId
-      ? ({ id: currentId, label: refLabel(req?.location) ?? `#${currentId}` } as Location)
+      ? ({ id: currentId, label: refLabel(req?.location) ?? `#${currentId}` } satisfies RegistrationCorrectionLocation)
       : null;
     return ensureOption(locationsQ.data ?? [], currentId, fallback);
   }, [locationsQ.data, previewQ.data]);
@@ -191,7 +195,7 @@ export function RegistrationCorrectionPage() {
     const req = previewQ.data;
     const currentId = refId(req?.language);
     const fallback = currentId
-      ? ({ id: currentId, label: refLabel(req?.language) ?? `#${currentId}` } as Language)
+      ? ({ id: currentId, label: refLabel(req?.language) ?? `#${currentId}` } satisfies RegistrationCorrectionLanguage)
       : null;
     return ensureOption(languagesQ.data ?? [], currentId, fallback);
   }, [languagesQ.data, previewQ.data]);
@@ -204,6 +208,7 @@ export function RegistrationCorrectionPage() {
   const mutation = useMutation({
     mutationFn: async () => {
       if (!requestId || !token) throw new Error(t('requests.correction.invalid.body'));
+      if (!templatesQ.data?.some(template => template.id === Number(form.os_template))) throw new Error(t('common.select'));
       const payload = {
         login: form.login.trim(),
         full_name: form.full_name.trim(),
@@ -246,6 +251,8 @@ export function RegistrationCorrectionPage() {
     !form.address.trim() ||
     !parsePositiveInt(form.year_of_birth) ||
     !parsePositiveInt(form.os_template) ||
+    templatesQ.isError || templatesQ.isFetching ||
+    !templatesQ.data?.some(template => template.id === Number(form.os_template)) ||
     !parsePositiveInt(form.location) ||
     !form.currency.trim() ||
     !parsePositiveInt(form.language);
@@ -281,6 +288,12 @@ export function RegistrationCorrectionPage() {
           <Badge variant="neutral">#{request.id}</Badge>
         </div>
       </div>
+
+      {locationsQ.isError || templatesQ.isError || languagesQ.isError ? (
+        <Alert title={t('common.error')} variant="danger">
+          {formatErrorMessage(locationsQ.error ?? templatesQ.error ?? languagesQ.error)}
+        </Alert>
+      ) : null}
 
       {request.admin_response ? (
         <Alert title={t('requests.correction.admin_message.title')} variant="info">

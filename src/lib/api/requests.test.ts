@@ -24,9 +24,7 @@ function mockFetchOk(response: Record<string, unknown>): typeof fetch {
     json: async () => ({ status: true, response }),
   };
 
-  return vi.fn<typeof fetch>().mockResolvedValue(
-    result as Response
-  );
+  return vi.fn<typeof fetch>().mockResolvedValue(result as Response);
 }
 
 function lastFetchCall() {
@@ -42,13 +40,16 @@ describe('requests API wrappers', () => {
     expect(assertOwnedUserRequest(owned, 7)).toBe(owned);
 
     expect(() => assertOwnedUserRequest({ id: 2 }, 7)).toThrow(UserRequestOwnershipError);
-    expect(() => assertOwnedUserRequest({ id: 3, user: { id: 8 } }, 7)).toThrow(
-      UserRequestOwnershipError
-    );
-    expect(() => assertOwnedUserRequests([
-      { id: 4, user: { id: 7 } },
-      { id: 5, user: { id: 8 } },
-    ], 7)).toThrow(UserRequestOwnershipError);
+    expect(() => assertOwnedUserRequest({ id: 3, user: { id: 8 } }, 7)).toThrow(UserRequestOwnershipError);
+    expect(() =>
+      assertOwnedUserRequests(
+        [
+          { id: 4, user: { id: 7 } },
+          { id: 5, user: { id: 8 } },
+        ],
+        7
+      )
+    ).toThrow(UserRequestOwnershipError);
   });
 
   test('fetchMyChangeRequests sends only owner-safe index parameters', async () => {
@@ -109,16 +110,12 @@ describe('requests API wrappers', () => {
     apiWire.respond = mockFetchOk({
       registrations: [{ id: 11, user: { id: 99 }, email: 'private@example.test' }],
     });
-    await expect(fetchMyRegistrationRequests(7, { limit: 25 })).rejects.toBeInstanceOf(
-      UserRequestOwnershipError
-    );
+    await expect(fetchMyRegistrationRequests(7, { limit: 25 })).rejects.toBeInstanceOf(UserRequestOwnershipError);
 
     apiWire.respond = mockFetchOk({
       change: { id: 12, user: { id: 99 }, address: 'Private address' },
     });
-    await expect(fetchMyChangeRequest(12, 7)).rejects.toBeInstanceOf(
-      UserRequestOwnershipError
-    );
+    await expect(fetchMyChangeRequest(12, 7)).rejects.toBeInstanceOf(UserRequestOwnershipError);
   });
 
   test('fetchRegistrationRequests forwards only supported structured filters', async () => {
@@ -285,5 +282,82 @@ describe('requests API wrappers', () => {
         address: 'New address',
       },
     });
+  });
+});
+
+describe('registration correction public contract', () => {
+  test.each([false, true])('keeps correction and dropdowns anonymous with browser auth=%s', async (loggedIn) => {
+    const original = window.vpsAdmin;
+    window.vpsAdmin = {
+      api: { url: 'https://correction.example.test/mounted', version: '7.0' },
+      accessToken: loggedIn ? 'private-admin-token' : undefined,
+      webuiNext: { haveApi: { authHeader: 'X-Token', metaNamespace: '_meta' } },
+    };
+    try {
+      apiWire.respond = vi.fn(async (url) => {
+        const path = new URL(url).pathname;
+        const response = path.endsWith('/locations')
+          ? { locations: [{ id: 1, label: 'Prague' }] }
+          : path.endsWith('/os_templates')
+            ? { os_templates: [{ id: 2, name: 'Debian', hypervisor_type: 'vpsadminos' }] }
+            : path.endsWith('/languages')
+              ? { languages: [{ id: 3, code: 'en', label: 'English' }] }
+              : { registration: { id: 7 } };
+        return { status: 200, json: async () => ({ status: true, response }) };
+      });
+      const {
+        fetchRegistrationCorrectionLocations,
+        fetchRegistrationCorrectionTemplates,
+        fetchRegistrationCorrectionLanguages,
+      } = await import('./requests');
+      await previewRegistrationRequest(7, 'token/segment');
+      await fetchRegistrationCorrectionLocations();
+      expect((await fetchRegistrationCorrectionTemplates()).data[0]).not.toHaveProperty('enabled');
+      await fetchRegistrationCorrectionLanguages();
+      await updateRegistrationRequestByToken(7, 'token/segment', {
+        login: 'alice',
+        full_name: 'Alice',
+        email: 'alice@example.test',
+        address: 'Prague',
+        year_of_birth: 1990,
+        os_template: 2,
+        location: 1,
+        currency: 'CZK',
+        language: 3,
+        time_zone: null,
+      });
+      expect(apiWire.requests).toHaveLength(5);
+      for (const request of apiWire.requests) {
+        expect(request.headers).not.toHaveProperty('X-Token');
+        expect(request.headers).not.toHaveProperty('Accept-Language');
+        const url = new URL(request.url);
+        expect(url.search).not.toContain('token');
+        if (url.pathname.includes('/registrations/'))
+          expect(url.pathname).toBe('/mounted/v7.0/user_request/registrations/7/token%2Fsegment');
+        else expect(url.pathname).not.toContain('token');
+        expect(request.body ?? '').not.toContain('token/segment');
+      }
+    } finally {
+      window.vpsAdmin = original;
+    }
+  });
+
+  test('leaves anonymous denial visible without auth recovery or fallback', async () => {
+    const original = window.vpsAdmin;
+    const fetch = vi.fn();
+    vi.stubGlobal('fetch', fetch);
+    window.vpsAdmin = { api: { url: 'https://correction-denied.example.test', version: '7.0' }, accessToken: 'admin' };
+    try {
+      apiWire.respond = vi.fn(async () => ({
+        status: 401,
+        json: async () => ({ status: false, message: 'Denied', response: null }),
+      }));
+      await expect(previewRegistrationRequest(7, 'token')).rejects.toThrow('Denied');
+      expect(apiWire.requests).toHaveLength(1);
+      expect(fetch).not.toHaveBeenCalled();
+    } finally {
+      window.vpsAdmin = original;
+      vi.unstubAllGlobals();
+    }
   });
 });

@@ -6,7 +6,7 @@ import { useAppMode } from '../../../app/appMode';
 import { useI18n } from '../../../app/i18n';
 
 import { fetchIncomingPayments, updateIncomingPaymentState } from '../../../lib/api/payments';
-import { getMetaTotalCount } from '../../../lib/api/haveapi';
+import { getMetaTotalCount } from '../../../lib/api/apiErrors';
 import { useCountedKeysetPagination } from '../../../lib/hooks/useCountedKeysetPagination';
 import { useKeysetPagination } from '../../../lib/hooks/useKeysetPagination';
 import { useTierSlowIntervalMs } from '../../../lib/refreshTiers';

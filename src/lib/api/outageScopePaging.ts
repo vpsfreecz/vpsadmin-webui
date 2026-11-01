@@ -1,5 +1,8 @@
-import { expectArray, getMetaTotalCount, haveApiCall } from './haveapi';
-import type { OutageEntity, OutageHandler } from './public';
+import { expectArray, getMetaTotalCount } from './apiErrors';
+import { narrowApiResult } from './apiOutput';
+import { getApi } from './sdk';
+import { narrowOutageEntity, narrowAdminOutageHandler } from './outageViews';
+import type { OutageEntity, OutageHandler } from './outageViews';
 
 export class OutageScopeReadError extends Error {
   readonly outageId: number;
@@ -20,25 +23,33 @@ const MAX_PAGES = 50;
 const MAX_ITEMS = PAGE_LIMIT * MAX_PAGES;
 
 async function fetchEntityPage(outageId: number, fromId?: number) {
-  const res = await haveApiCall<OutageEntity[]>({
-    method: 'GET',
-    path: `/outages/${outageId}/entities`,
-    namespace: 'entity',
-    params: { limit: PAGE_LIMIT, ...(fromId !== undefined ? { from_id: fromId } : {}) },
+  const res = await (
+    await getApi()
+  ).outage.entity.index({
+    path: { outage_id: outageId },
+    params: { limit: PAGE_LIMIT, from_id: fromId },
     meta: { count: true },
   });
-  return { ...res, data: expectArray<OutageEntity>(res.data, 'outage entities#index') };
+  return narrowApiResult(
+    res,
+    (data) => expectArray<unknown>(data, 'outage scope').map(narrowOutageEntity),
+    'outage entity scope'
+  );
 }
 
 async function fetchHandlerPage(outageId: number, fromId?: number) {
-  const res = await haveApiCall<OutageHandler[]>({
-    method: 'GET',
-    path: `/outages/${outageId}/handlers`,
-    namespace: 'handler',
-    params: { limit: PAGE_LIMIT, ...(fromId !== undefined ? { from_id: fromId } : {}) },
+  const res = await (
+    await getApi()
+  ).outage.handler.index({
+    path: { outage_id: outageId },
+    params: { limit: PAGE_LIMIT, from_id: fromId },
     meta: { count: true },
   });
-  return { ...res, data: expectArray<OutageHandler>(res.data, 'outage handlers#index') };
+  return narrowApiResult(
+    res,
+    (data) => expectArray<unknown>(data, 'outage scope').map(narrowAdminOutageHandler),
+    'outage handler scope'
+  );
 }
 
 async function fetchCompleteScope<T extends { id: number }>(opts: {
@@ -72,8 +83,17 @@ async function fetchCompleteScope<T extends { id: number }>(opts: {
     }
 
     for (const row of result.data) {
-      if (!Number.isSafeInteger(row.id) || row.id <= 0 || (fromId !== undefined && row.id <= fromId) || seen.has(row.id)) {
-        throw new OutageScopeReadError(opts.outageId, opts.scope, 'keyset pagination stalled or returned duplicate/out-of-order ids');
+      if (
+        !Number.isSafeInteger(row.id) ||
+        row.id <= 0 ||
+        (fromId !== undefined && row.id <= fromId) ||
+        seen.has(row.id)
+      ) {
+        throw new OutageScopeReadError(
+          opts.outageId,
+          opts.scope,
+          'keyset pagination stalled or returned duplicate/out-of-order ids'
+        );
       }
       seen.add(row.id);
       rows.push(row);

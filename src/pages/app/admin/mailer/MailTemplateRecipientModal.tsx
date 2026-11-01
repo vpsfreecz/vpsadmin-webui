@@ -7,7 +7,7 @@ import {
   createMailRecipient,
   fetchMailRecipients,
 } from '../../../../lib/api/mailer';
-import { isAmbiguousMutationError } from '../../../../lib/api/haveapi';
+import { isAmbiguousMutationError } from '../../../../lib/api/apiErrors';
 import { formatErrorMessage } from '../../../../lib/errors';
 
 import { Alert } from '../../../../components/ui/Alert';

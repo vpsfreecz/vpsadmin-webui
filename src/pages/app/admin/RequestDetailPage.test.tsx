@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, RouterProvider, type InitialEntry } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { HaveApiError } from '../../../lib/api/haveapi';
+import { HaveApiError } from '../../../lib/api/apiErrors';
 import {
   fetchChangeRequest,
   fetchRegistrationRequest,

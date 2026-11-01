@@ -13,7 +13,7 @@ import {
   updateMailTemplateTranslation,
   type MailTemplateTranslation,
 } from '../../../../lib/api/mailer';
-import { HaveApiError } from '../../../../lib/api/haveapi';
+import { HaveApiError } from '../../../../lib/api/apiErrors';
 import { MailTemplateTranslationPage } from './MailTemplateTranslationPage';
 
 vi.mock('../../../../app/appMode', () => ({

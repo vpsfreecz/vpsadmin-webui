@@ -54,15 +54,11 @@ export function AdminHelpBoxesPage() {
   const [pageFilter, setPageFilter] = useState(() => searchParams.get('page') ?? '');
   const [actionFilter, setActionFilter] = useState(() => searchParams.get('action') ?? '');
   const [contentSearch, setContentSearch] = useState(() => searchParams.get('search') ?? '');
-  // Filter tri-state:
-  // - '__all__' => do not filter by language
-  // - ''        => default language (NULL)
-  // - '123'     => language id
-  const [languageFilter, setLanguageFilter] = useState<string>(() => searchParams.get('language') ?? '__all__');
+  const [removedLanguageFilter] = useState(() => searchParams.has('language') && searchParams.get('language') === '');
+  const [languageFilter, setLanguageFilter] = useState<string>(() => searchParams.get('language') || '__all__');
 
-  const languageParam: number | null | undefined = useMemo(() => {
+  const languageParam: number | undefined = useMemo(() => {
     if (languageFilter === '__all__') return undefined;
-    if (languageFilter === '') return null;
     const n = Number(languageFilter);
     return Number.isFinite(n) ? Math.trunc(n) : undefined;
   }, [languageFilter]);
@@ -158,8 +154,10 @@ export function AdminHelpBoxesPage() {
   const editorOrderParsed = useMemo(() => parseIntOrNull(editorOrder), [editorOrder]);
   const editorLangParsed = editorLanguage.trim() ? Number(editorLanguage) : null;
   const editorLangId = editorLangParsed !== null ? editorLangParsed : null;
+  const localizedEdit = editorMode === 'edit' && editorTarget?.language?.id != null;
+  const languageClearUnsupported = localizedEdit && editorLangId === null;
 
-  const editorValid = Boolean(editorPage.trim()) && Boolean(editorAction.trim()) && Boolean(editorContent.trim()) && editorOrderParsed !== null;
+  const editorValid = Boolean(editorPage.trim()) && Boolean(editorAction.trim()) && Boolean(editorContent.trim()) && editorOrderParsed !== null && !languageClearUnsupported;
 
   const saveM = useMutation({
     mutationFn: async () => {
@@ -167,6 +165,7 @@ export function AdminHelpBoxesPage() {
       if (!editorAction.trim()) throw new Error(t('admin.help_boxes.validation.action'));
       if (!editorContent.trim()) throw new Error(t('admin.help_boxes.validation.content'));
       if (editorOrderParsed === null) throw new Error(t('admin.help_boxes.validation.order'));
+      if (languageClearUnsupported) throw new Error(t('admin.help_boxes.validation.language_clear_unsupported'));
 
       if (editorMode === 'create') {
         await createHelpBox({
@@ -174,7 +173,7 @@ export function AdminHelpBoxesPage() {
           action: editorAction.trim(),
           content: editorContent,
           order: editorOrderParsed,
-          language: editorLangId,
+          ...(editorLangId === null ? {} : { language: editorLangId }),
         });
       } else {
         if (!editorTarget) throw new Error('Missing target');
@@ -183,7 +182,7 @@ export function AdminHelpBoxesPage() {
           action: editorAction.trim(),
           content: editorContent,
           order: editorOrderParsed,
-          language: editorLangId,
+          ...(editorLangId === null || editorLangId === editorTarget.language?.id ? {} : { language: editorLangId }),
         });
       }
     },
@@ -226,6 +225,7 @@ export function AdminHelpBoxesPage() {
 
   return (
     <div className="space-y-4" data-testid="admin.help_boxes.page">
+      {removedLanguageFilter ? <Alert variant="warn">{t('admin.help_boxes.filter.unlocalized_removed')}</Alert> : null}
       <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div className="grid gap-3 md:grid-cols-4">
           <div>
@@ -252,7 +252,6 @@ export function AdminHelpBoxesPage() {
             <div className="text-xs text-faint">{t('admin.help_boxes.filter.language')}</div>
             <Select value={languageFilter} onChange={(e) => setLanguageFilter(e.target.value)} testId="admin.help_boxes.filter.language">
               <option value="__all__">{t('common.all')}</option>
-              <option value="">{t('common.default')}</option>
               {languages.map((l) => (
                 <option key={l.id} value={String(l.id)}>
                   {String(l.label ?? l.code ?? l.id)}
@@ -548,13 +547,14 @@ export function AdminHelpBoxesPage() {
             <div>
               <div className="text-xs text-faint">{t('admin.help_boxes.field.language')}</div>
               <Select value={editorLanguage} onChange={(e) => setEditorLanguage(e.target.value)} testId="admin.help_boxes.editor.language">
-                <option value="">{t('common.default')}</option>
+                <option value="" disabled={localizedEdit}>{t('common.default')}</option>
                 {languages.map((l) => (
                   <option key={l.id} value={String(l.id)}>
                     {String(l.label ?? l.code ?? l.id)}
                   </option>
                 ))}
               </Select>
+              {localizedEdit ? <div className="mt-1 text-xs text-muted">{t('admin.help_boxes.validation.language_clear_unsupported')}</div> : null}
             </div>
 
             <div>

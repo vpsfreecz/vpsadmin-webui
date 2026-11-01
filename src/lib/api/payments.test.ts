@@ -103,7 +103,7 @@ describe('payments API wrappers', () => {
   });
 
   test('fetchPaymentInstructions uses user subresource path', async () => {
-    apiWire.respond = mockFetchOk({ instructions: 'Use VS 123.' });
+    apiWire.respond = mockFetchOk({ user: { instructions: 'Use VS 123.' } });
 
     const res = await fetchPaymentInstructions(7);
 
@@ -114,16 +114,14 @@ describe('payments API wrappers', () => {
     expect(res.data.instructions).toBe('Use VS 123.');
   });
 
-  test('fetchPaymentInstructions normalizes legacy string responses', async () => {
+  test('fetchPaymentInstructions rejects legacy scalar responses', async () => {
     apiWire.respond = mockFetchOk('Account: 123456/0100\nVS: 42');
 
-    const res = await fetchPaymentInstructions(42);
-
-    expect(res.data.instructions).toBe('Account: 123456/0100\nVS: 42');
+    await expect(fetchPaymentInstructions(42)).rejects.toThrow('Missing response namespace');
   });
 
   test('estimateIncome uses the singular custom action and namespaced GET parameters', async () => {
-    apiWire.respond = mockFetchOk({ user_count: 12, estimated_income: 36_000 });
+    apiWire.respond = mockFetchOk({ payment_stat: { user_count: 12, estimated_income: 36_000 } });
 
     const res = await estimateIncome({
       year: 2026,
@@ -145,14 +143,15 @@ describe('payments API wrappers', () => {
   });
 
   test('estimateIncome accepts a wrapped action response and rejects malformed totals', async () => {
-    apiWire.respond = mockFetchOk({ payment_stats: { user_count: '4', estimated_income: '1200' } });
+    apiWire.respond = mockFetchOk({ payment_stat: { user_count: 4, estimated_income: 1200 } });
 
     const res = await estimateIncome({ year: 2026, month: 7, select: 'all_until', duration: 1 });
     expect(res.data).toEqual({ user_count: 4, estimated_income: 1200 });
 
-    apiWire.respond = mockFetchOk({ user_count: 4, estimated_income: 'not-a-number' });
-    await expect(
-      estimateIncome({ year: 2026, month: 7, select: 'all_until', duration: 1 })
-    ).rejects.toThrow('invalid estimated_income');
+    apiWire.respond = mockFetchOk({ payment_stat: { user_count: 4, estimated_income: 'not-a-number' } });
+    await expect(estimateIncome({ year: 2026, month: 7, select: 'all_until', duration: 1 })).rejects.toMatchObject({
+      name: 'ApiOutputError',
+      phase: 'post-dispatch',
+    });
   });
 });

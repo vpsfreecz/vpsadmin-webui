@@ -1,122 +1,80 @@
-import { expectArray, haveApiCall } from './haveapi';
-import { publicApiCall } from './public';
+import type {
+  HelpBox__CreateInput,
+  HelpBox__UpdateInput,
+  HelpBox__IndexInput,
+  HelpBox__ShowOutput,
+  Language__ShowOutput,
+} from 'vpsadmin-typescript-client';
+import { expectArray } from './apiErrors';
+import { narrowApiResult } from './apiOutput';
+import { getApi, getPublicApi } from './sdk';
 
-export interface HelpBoxLanguage {
+export type HelpBoxLanguage = Pick<Language__ShowOutput, 'id' | 'code' | 'label'>;
+export type HelpBox = Omit<HelpBox__ShowOutput, 'language'> & {
   id: number;
-  code?: string;
-  label?: string;
-  [k: string]: unknown;
-}
-
-export interface HelpBox {
-  id: number;
-  page?: string;
-  action?: string;
   language?: HelpBoxLanguage | null;
-  content?: string;
-  order?: number;
-  [k: string]: unknown;
+};
+export type ContextualHelpAccessMode = 'public' | 'authenticated';
+
+function isHelpBox(value: unknown): value is HelpBox {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const row = value as Record<string, unknown>;
+  if (typeof row['id'] !== 'number' || !Number.isSafeInteger(row['id']) || row['id'] <= 0) return false;
+  if (!['page', 'action', 'content'].every((key) => row[key] == null || typeof row[key] === 'string')) return false;
+  if (row['order'] != null && (typeof row['order'] !== 'number' || !Number.isFinite(row['order']))) return false;
+  const lang = row['language'];
+  if (lang == null) return true;
+  if (typeof lang !== 'object' || Array.isArray(lang)) return false;
+  const ref = lang as Record<string, unknown>;
+  return (
+    (ref['id'] == null || (typeof ref['id'] === 'number' && Number.isSafeInteger(ref['id']) && ref['id'] > 0)) &&
+    ['code', 'label'].every((key) => ref[key] == null || typeof ref[key] === 'string')
+  );
 }
 
-export type ContextualHelpAccessMode = 'public' | 'authenticated';
+function narrowHelpBox(value: unknown): HelpBox {
+  if (!isHelpBox(value)) throw new Error('Invalid help box identity or fields');
+  return value;
+}
 
 export async function fetchHelpBoxesAdmin(opts?: {
   page?: string;
   action?: string;
-  language?: number | null;
+  language?: number;
   fromId?: number;
   limit?: number;
 }) {
-  const params: Record<string, unknown> = {};
-  if (opts?.page) params['page'] = opts.page;
-  if (opts?.action) params['action'] = opts.action;
-  if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
-  if (opts?.limit !== undefined) params['limit'] = opts.limit;
-  if (opts && Object.prototype.hasOwnProperty.call(opts, 'language')) {
-    // language is a resource param and can be explicitly null
-    params['language'] = opts.language;
-  }
-
-  const res = await haveApiCall<HelpBox[]>({
-    method: 'GET',
-    path: '/help_boxes',
-    namespace: 'help_box',
-    params,
-  });
-
-  return { ...res, data: expectArray<HelpBox>(res.data, 'help_boxes#index') };
-}
-
-export async function createHelpBox(payload: {
-  page: string;
-  action: string;
-  language?: number | null;
-  order?: number;
-  content: string;
-}) {
-  const params: Record<string, unknown> = {
-    page: payload.page,
-    action: payload.action,
-    content: payload.content,
+  const params: HelpBox__IndexInput = {
+    page: opts?.page || undefined,
+    action: opts?.action || undefined,
+    language: opts?.language,
+    from_id: opts?.fromId,
+    limit: opts?.limit,
   };
-
-  if (payload.order !== undefined) params['order'] = payload.order;
-  if (Object.prototype.hasOwnProperty.call(payload, 'language')) params['language'] = payload.language;
-
-  return haveApiCall<HelpBox>({
-    method: 'POST',
-    path: '/help_boxes',
-    namespace: 'help_box',
-    params,
-  });
+  const res = await (await getApi()).help_box.index({ params });
+  return narrowApiResult(res, (data) => expectArray<unknown>(data, 'help boxes').map(narrowHelpBox), 'help boxes');
 }
 
-export async function updateHelpBox(
-  id: number,
-  payload: {
-    page?: string;
-    action?: string;
-    language?: number | null;
-    order?: number;
-    content?: string;
-  }
-) {
-  const params: Record<string, unknown> = {};
-  if (payload.page !== undefined) params['page'] = payload.page;
-  if (payload.action !== undefined) params['action'] = payload.action;
-  if (payload.content !== undefined) params['content'] = payload.content;
-  if (payload.order !== undefined) params['order'] = payload.order;
-  if (Object.prototype.hasOwnProperty.call(payload, 'language')) params['language'] = payload.language;
+export async function createHelpBox(payload: HelpBox__CreateInput) {
+  const res = await (await getApi()).help_box.create({ params: payload });
+  return narrowApiResult(res, narrowHelpBox, 'help box create');
+}
 
-  return haveApiCall<HelpBox>({
-    method: 'PUT',
-    path: `/help_boxes/${id}`,
-    namespace: 'help_box',
-    params,
-  });
+export async function updateHelpBox(id: number, payload: HelpBox__UpdateInput) {
+  const res = await (await getApi()).help_box.update({ path: { help_box_id: id }, params: payload });
+  return narrowApiResult(res, narrowHelpBox, 'help box update');
 }
 
 export async function deleteHelpBox(id: number) {
-  return haveApiCall<void>({
-    method: 'DELETE',
-    path: `/help_boxes/${id}`,
-    namespace: 'help_box',
-  });
+  return (await getApi()).help_box.delete({ path: { help_box_id: id } });
 }
 
-export async function fetchContextualHelpBoxes(
-  page: string,
-  action: string,
-  accessMode: ContextualHelpAccessMode
-) {
-  const request = {
-    path: '/help_boxes',
-    namespace: 'help_box',
-    params: { page, action, view: true },
-  };
-  const res = accessMode === 'authenticated'
-    ? await haveApiCall<HelpBox[]>({ method: 'GET', ...request })
-    : await publicApiCall<HelpBox[]>(request);
-
-  return { ...res, data: expectArray<HelpBox>(res.data, 'help_boxes#view') };
+export async function fetchContextualHelpBoxes(page: string, action: string, accessMode: ContextualHelpAccessMode) {
+  const api = accessMode === 'authenticated' ? await getApi() : getPublicApi();
+  const res = await api.help_box.index({ params: { page, action, view: true } });
+  return narrowApiResult(
+    res,
+    (data) => expectArray<unknown>(data, 'contextual help').map(narrowHelpBox),
+    'contextual help'
+  );
 }

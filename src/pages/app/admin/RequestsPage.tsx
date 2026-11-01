@@ -10,7 +10,7 @@ import { useChrome } from '../../../components/layout/ChromeContext';
 import { ListShell } from '../../../components/layout/ListShell';
 import { PageHeader } from '../../../components/layout/PageHeader';
 import type { SmartFilterSuggestion } from '../../../components/ui/SmartFilterInput';
-import { getMetaActionStateId, HaveApiError, isAmbiguousMutationError } from '../../../lib/api/haveapi';
+import { getMetaActionStateId, HaveApiError, isAmbiguousMutationError } from '../../../lib/api/apiErrors';
 import {
   fetchChangeRequest,
   fetchChangeRequests,

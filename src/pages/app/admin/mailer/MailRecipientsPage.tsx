@@ -11,7 +11,7 @@ import {
   fetchMailRecipients,
   type MailRecipient,
 } from '../../../../lib/api/mailer';
-import { isAmbiguousMutationError } from '../../../../lib/api/haveapi';
+import { isAmbiguousMutationError } from '../../../../lib/api/apiErrors';
 
 import { ListShell } from '../../../../components/layout/ListShell';
 import { PageHeader } from '../../../../components/layout/PageHeader';

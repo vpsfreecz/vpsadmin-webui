@@ -1,4 +1,4 @@
-import { HaveApiError } from '../../../lib/api/haveapi';
+import { HaveApiError } from '../../../lib/api/apiErrors';
 
 export type FraudCheckStatus = 'pending' | 'failed' | 'success';
 export type InferredRequestType = 'registration' | 'change';

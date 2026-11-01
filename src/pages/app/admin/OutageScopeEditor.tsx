@@ -8,8 +8,8 @@ import { Input } from '../../../components/ui/Input';
 import { Select } from '../../../components/ui/Select';
 import { Spinner } from '../../../components/ui/Spinner';
 import { UserLookupInput } from '../../../components/ui/UserLookupInput';
-import { fetchEnvironments, fetchLocations } from '../../../lib/api/infra';
-import { fetchNodes } from '../../../lib/api/nodes';
+import { fetchEnvironments, fetchLocations, type Location } from '../../../lib/api/infra';
+import { fetchNodes, type Node } from '../../../lib/api/nodes';
 import { fetchOutageComponents } from '../../../lib/api/outages';
 import { parsePositiveInt } from '../../../lib/parse';
 import {
@@ -20,7 +20,9 @@ import {
   type OutageSystemsFormState,
 } from './outageAdminModel';
 
-function optionLabel(value: { id: number; label?: string; domain?: string; name?: string; domain_name?: string; fqdn?: string }) {
+type ScopeOption = Pick<Location, 'id' | 'label' | 'domain'> & Pick<Node, 'name' | 'domain_name' | 'fqdn'>;
+
+function optionLabel(value: ScopeOption) {
   return value.label || value.fqdn || value.domain_name || value.domain || value.name || `#${value.id}`;
 }
 

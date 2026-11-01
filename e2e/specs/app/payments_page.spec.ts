@@ -26,7 +26,7 @@ test('user payments page: shows status, instructions and history', async ({ page
 
   haveApiMock.addHandler('GET users/1/get_payment_instructions', () => {
     return {
-      hash: {
+      user: {
         instructions: '<h3>Payment in CZK</h3><table><tr><td>IBAN:</td><td>CZ00TEST</td></tr><tr><td>VS:</td><td>1</td></tr></table>',
       },
     };
@@ -87,7 +87,7 @@ test('@pr-smoke @pr-smoke-mobile user payment history uses a hidden lookahead an
     },
   }));
   haveApiMock.addHandler('GET users/1/get_payment_instructions', () => ({
-    instructions: 'VS: 1',
+    user: { instructions: 'VS: 1' },
   }));
   haveApiMock.addHandler('GET user_payments', ({ searchParams }) => {
     const limit = Number(searchParams.get('user_payment[limit]') ?? 50);
@@ -184,7 +184,7 @@ test('user payments page: localizes and constrains legacy payment instruction HT
 
   haveApiMock.addHandler('GET users/53/get_payment_instructions', () => {
     return {
-      hash: {
+      user: {
         instructions: `
           <h3>General info</h3>
           <p>Payments can be made either in CZK or EUR, see below for bank account numbers.</p>
@@ -279,7 +279,8 @@ test('@pr-smoke @pr-smoke-mobile user payments copy sanitized localized text wit
     },
   }));
   haveApiMock.addHandler('GET users/53/get_payment_instructions', () => ({
-    instructions: `
+    user: {
+      instructions: `
       <h3 onclick="bad()">Payment in CZK</h3>
       <p>Payments can be made either in CZK or EUR, see below for bank account numbers.</p>
       <table>
@@ -288,6 +289,7 @@ test('@pr-smoke @pr-smoke-mobile user payments copy sanitized localized text wit
       </table>
       <script>window.PWNED = true</script>
     `,
+    },
   }));
   haveApiMock.addHandler('GET user_payments', () => ({ user_payments: [] }));
 

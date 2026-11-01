@@ -15,19 +15,22 @@ describe('outage admin model', () => {
   test('deduplicates scope and handler selections', () => {
     const node = { kind: 'Node' as const, id: 12, label: 'node12.prg' };
     expect(addScopeSelection(addScopeSelection([], node), node)).toEqual([node]);
-    expect(addHandlerSelection(addHandlerSelection([], { id: 42, label: 'Operator' }), { id: 42, label: 'Changed label' }))
-      .toEqual([{ id: 42, label: 'Operator' }]);
+    expect(
+      addHandlerSelection(addHandlerSelection([], { id: 42, label: 'Operator' }), { id: 42, label: 'Changed label' })
+    ).toEqual([{ id: 42, label: 'Operator' }]);
   });
 
   test('maps structured selections to the outage API payload', () => {
-    expect(desiredOutageSystems({
-      scope: [
-        { kind: 'Environment', id: 2, label: 'Production' },
-        { kind: 'Node', id: 12, label: 'node12.prg' },
-        { kind: 'Custom', id: null, label: 'External status page', apiName: 'External status page' },
-      ],
-      handlers: [{ id: 42, label: 'Operator' }],
-    })).toEqual({
+    expect(
+      desiredOutageSystems({
+        scope: [
+          { kind: 'Environment', id: 2, label: 'Production' },
+          { kind: 'Node', id: 12, label: 'node12.prg' },
+          { kind: 'Custom', id: null, label: 'External status page', apiName: 'External status page' },
+        ],
+        handlers: [{ id: 42, label: 'Operator' }],
+      })
+    ).toEqual({
       entities: [
         { name: 'Environment', entity_id: 2 },
         { name: 'Node', entity_id: 12 },
@@ -43,13 +46,15 @@ describe('outage admin model', () => {
   });
 
   test('restores existing API entities and handlers as labeled selections', () => {
-    expect(initOutageSystemsForm(
-      [
-        { id: 1, name: 'Node', entity_id: 12, label: 'node12.prg' },
-        { id: 2, name: 'External status page', entity_id: null },
-      ],
-      [{ id: 3, user_id: 42, full_name: 'Operator' }]
-    )).toEqual({
+    expect(
+      initOutageSystemsForm(
+        [
+          { id: 1, name: 'Node', entity_id: 12, label: 'node12.prg' },
+          { id: 2, name: 'External status page', entity_id: null },
+        ],
+        [{ id: 3, user: { id: 42 }, full_name: 'Operator' }]
+      )
+    ).toEqual({
       scope: [
         { kind: 'Node', id: 12, label: 'node12.prg', apiName: undefined },
         { kind: 'Custom', id: null, label: 'External status page', apiName: 'External status page' },

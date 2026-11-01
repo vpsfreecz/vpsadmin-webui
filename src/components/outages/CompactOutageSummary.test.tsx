@@ -57,6 +57,8 @@ describe('CompactOutageSummary', () => {
         { id: 3, name: 'Node', entity_id: 216, label: 'node7.brq' },
         { id: 4, name: 'Node', entity_id: 217, label: 'node8.brq' },
       ],
+      meta: {},
+      httpStatus: 200,
       envelope: { status: true, response: {} },
     });
 

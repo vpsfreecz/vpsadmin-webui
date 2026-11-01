@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { HaveApiError } from '../../../lib/api/haveapi';
+import { HaveApiError } from '../../../lib/api/apiErrors';
 import {
   fraudCheckStatus,
   inferRequestReviewType,

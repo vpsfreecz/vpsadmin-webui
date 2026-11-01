@@ -6,7 +6,7 @@ import { Card } from '../../../../components/ui/Card';
 import type { MailTemplate } from '../../../../lib/api/mailer';
 import { formatDateTime } from '../../../../lib/format';
 
-function visibilityLabelKey(value: string | undefined): string {
+function visibilityLabelKey(value: string | null | undefined): string {
   if (value === 'visible') return 'mailer.templates.visibility.visible';
   if (value === 'invisible') return 'mailer.templates.visibility.invisible';
   return 'mailer.templates.visibility.default';

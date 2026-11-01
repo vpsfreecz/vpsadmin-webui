@@ -9,7 +9,7 @@ import { useToasts } from '../../../app/toasts';
 import { PageContainer } from '../../../components/layout/PageContainer';
 import { fetchVps, type Vps } from '../../../lib/api/vps';
 import { createIncidentReport, fetchIpAddressAssignments, type IpAddressAssignment } from '../../../lib/api/incidents';
-import { getMetaActionStateId } from '../../../lib/api/haveapi';
+import { getMetaActionStateId } from '../../../lib/api/apiErrors';
 import { formatErrorMessage } from '../../../lib/errors';
 import { incidentReturnHref } from '../incidents/incidentCreateContext';
 import { parsePositiveInt } from '../../../lib/parse';

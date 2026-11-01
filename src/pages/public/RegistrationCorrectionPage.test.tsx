@@ -6,13 +6,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { fetchLocations } from '../../lib/api/infra';
-import { fetchLanguages } from '../../lib/api/languages';
-import { fetchOsTemplates } from '../../lib/api/osTemplates';
-import {
-  previewRegistrationRequest,
-  updateRegistrationRequestByToken,
-} from '../../lib/api/requests';
+import { previewRegistrationRequest, updateRegistrationRequestByToken, fetchRegistrationCorrectionLocations, fetchRegistrationCorrectionTemplates, fetchRegistrationCorrectionLanguages } from '../../lib/api/requests';
 import { RegistrationCorrectionPage } from './RegistrationCorrectionPage';
 
 vi.mock('../../app/i18n', () => ({
@@ -23,20 +17,14 @@ vi.mock('../../app/i18n', () => ({
   }),
 }));
 
-vi.mock('../../lib/api/infra', () => ({
-  fetchLocations: vi.fn(),
-}));
 
-vi.mock('../../lib/api/languages', () => ({
-  fetchLanguages: vi.fn(),
-}));
 
-vi.mock('../../lib/api/osTemplates', () => ({
-  fetchOsTemplates: vi.fn(),
-}));
 
 vi.mock('../../lib/api/requests', () => ({
   previewRegistrationRequest: vi.fn(),
+  fetchRegistrationCorrectionLocations: vi.fn(),
+  fetchRegistrationCorrectionTemplates: vi.fn(),
+  fetchRegistrationCorrectionLanguages: vi.fn(),
   updateRegistrationRequestByToken: vi.fn(),
 }));
 
@@ -56,7 +44,7 @@ function renderPage(pathname: string) {
           <Route path="/requests/registrations/:requestId/:token" element={<RegistrationCorrectionPage />} />
         </Routes>
       </MemoryRouter>
-    </QueryClientProvider>,
+    </QueryClientProvider>
   );
 }
 
@@ -81,14 +69,16 @@ function installHappyPathMocks(timeZone: string | null = 'Europe/Prague') {
       time_zone: timeZone,
     },
   } as any);
-  vi.mocked(fetchLocations).mockResolvedValue({ data: [{ id: 9, label: 'Prague' }] } as any);
-  vi.mocked(fetchOsTemplates).mockResolvedValue({ data: [{ id: 5, label: 'Debian 12' }] } as any);
-  vi.mocked(fetchLanguages).mockResolvedValue({ data: [{ id: 1, label: 'English' }] } as any);
+  vi.mocked(fetchRegistrationCorrectionLocations).mockResolvedValue({ data: [{ id: 9, label: 'Prague' }] } as any);
+  vi.mocked(fetchRegistrationCorrectionTemplates).mockResolvedValue({ data: [{ id: 5, label: 'Debian 12' }] } as any);
+  vi.mocked(fetchRegistrationCorrectionLanguages).mockResolvedValue({ data: [{ id: 1, label: 'English' }] } as any);
 }
 
 function installSuccessfulUpdateMock() {
   vi.mocked(updateRegistrationRequestByToken).mockResolvedValue({
     data: { id: 17 },
+    httpStatus: 200,
+    meta: {},
     envelope: { status: true, response: { registration: { id: 17 } } },
   });
 }
@@ -113,9 +103,9 @@ describe('RegistrationCorrectionPage', () => {
 
     expect(await screen.findByText('requests.correction.invalid.title')).toBeVisible();
     expect(previewRegistrationRequest).not.toHaveBeenCalled();
-    expect(fetchLocations).not.toHaveBeenCalled();
-    expect(fetchOsTemplates).not.toHaveBeenCalled();
-    expect(fetchLanguages).not.toHaveBeenCalled();
+    expect(fetchRegistrationCorrectionLocations).not.toHaveBeenCalled();
+    expect(fetchRegistrationCorrectionTemplates).not.toHaveBeenCalled();
+    expect(fetchRegistrationCorrectionLanguages).not.toHaveBeenCalled();
   });
 
   it('renders the form with a basename-aware back link', async () => {

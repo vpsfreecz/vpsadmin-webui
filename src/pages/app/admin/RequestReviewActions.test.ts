@@ -130,3 +130,17 @@ describe('requestReviewActions', () => {
     )).toBe(false);
   });
 });
+
+
+describe('request template eligibility gate', () => {
+  test('requires known eligibility only for provisioning or an actual template change', async () => {
+    const { requestNeedsEligibleTemplate } = await import('./RequestReviewModel');
+    expect(requestNeedsEligibleTemplate('approve', true, false)).toBe(true);
+    expect(requestNeedsEligibleTemplate('approve', false, true)).toBe(true);
+    expect(requestNeedsEligibleTemplate('request_correction', false, true)).toBe(true);
+    expect(requestNeedsEligibleTemplate('request_correction', true, false)).toBe(false);
+    expect(requestNeedsEligibleTemplate('approve', false, false)).toBe(false);
+    expect(requestNeedsEligibleTemplate('deny', true, true)).toBe(false);
+    expect(requestNeedsEligibleTemplate('ignore', true, true)).toBe(false);
+  });
+});

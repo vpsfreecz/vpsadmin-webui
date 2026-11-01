@@ -1,4 +1,4 @@
-import { getMetaTotalCount } from '../../../lib/api/haveapi';
+import { getMetaTotalCount } from '../../../lib/api/apiErrors';
 import {
   fetchMyChangeRequests,
   fetchMyRegistrationRequests,

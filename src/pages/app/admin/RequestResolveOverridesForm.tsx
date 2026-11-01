@@ -9,9 +9,10 @@ import type { RequestResolveOverrides, RequestReviewType } from './RequestReview
 
 type SelectResource = {
   id: number;
-  label?: string;
-  name?: string;
-  code?: string;
+  label?: string | null;
+  name?: string | null;
+  code?: string | null;
+  disabled?: boolean;
 };
 
 function resourceOptionLabel(resource: SelectResource): string {
@@ -132,7 +133,7 @@ export function RequestResolveOverridesForm(props: {
             >
               <option value="">{t('common.select')}</option>
               {props.templates.map((template) => (
-                <option key={template.id} value={String(template.id)}>{resourceOptionLabel(template)}</option>
+                <option key={template.id} value={String(template.id)} disabled={template.disabled}>{resourceOptionLabel(template)}</option>
               ))}
             </Select>
             <Select

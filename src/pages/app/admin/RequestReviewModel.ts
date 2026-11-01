@@ -220,3 +220,9 @@ export function requestOverrides(
     changeReason: stringField(request, 'change_reason'),
   };
 }
+
+/** Non-provisioning review may repair an unavailable current template. */
+export function requestNeedsEligibleTemplate(action: ResolveUserRequestAction, createVps: boolean, templateChanged: boolean): boolean {
+  return (action === 'approve' && createVps)
+    || ((action === 'approve' || action === 'request_correction') && templateChanged);
+}

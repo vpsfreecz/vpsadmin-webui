@@ -1,65 +1,26 @@
-import { expectArray, haveApiCall } from './haveapi';
+import type { NewsLog__CreateInput, NewsLog__UpdateInput } from 'vpsadmin-typescript-client';
+import { expectArray } from './apiErrors';
+import { narrowApiResult } from './apiOutput';
+import { narrowNewsLogRecord, type NewsLogRecord } from './newsLogViews';
+import { getApi } from './sdk';
 
-export interface NewsLog {
-  id: number;
-  message?: string;
-  cs_message?: string;
-  en_message?: string;
-  published_at?: string;
-  created_at?: string;
-  updated_at?: string;
-  [k: string]: unknown;
-}
+export type NewsLog = NewsLogRecord;
 
 export async function fetchNewsLogs(opts?: { since?: string }) {
-  const params: Record<string, unknown> = {};
-  if (opts?.since) params['since'] = opts.since;
-
-  const res = await haveApiCall<NewsLog[]>({
-    method: 'GET',
-    path: '/news_logs',
-    params,
-  });
-
-  return { ...res, data: expectArray<NewsLog>(res.data, 'news_logs#index') };
+  const res = await (await getApi()).news_log.index({ params: { since: opts?.since || undefined } });
+  return narrowApiResult(res, (data) => expectArray<unknown>(data, 'news logs').map(narrowNewsLogRecord), 'news logs');
 }
 
-export async function createNewsLog(payload: { en_message: string; cs_message: string; published_at?: string | null }) {
-  const params: Record<string, unknown> = {
-    en_message: payload.en_message,
-    cs_message: payload.cs_message,
-  };
-
-  if (payload.published_at) params['published_at'] = payload.published_at;
-
-  return haveApiCall<NewsLog>({
-    method: 'POST',
-    path: '/news_logs',
-    namespace: 'news_log',
-    params,
-  });
+export async function createNewsLog(payload: NewsLog__CreateInput) {
+  const res = await (await getApi()).news_log.create({ params: payload });
+  return narrowApiResult(res, narrowNewsLogRecord, 'news create');
 }
 
-export async function updateNewsLog(id: number, payload: { en_message: string; cs_message: string; published_at?: string | null }) {
-  const params: Record<string, unknown> = {
-    en_message: payload.en_message,
-    cs_message: payload.cs_message,
-  };
-
-  // Explicitly allow clearing published_at.
-  if (payload.published_at !== undefined) params['published_at'] = payload.published_at;
-
-  return haveApiCall<NewsLog>({
-    method: 'PUT',
-    path: `/news_logs/${id}`,
-    namespace: 'news_log',
-    params,
-  });
+export async function updateNewsLog(id: number, payload: NewsLog__UpdateInput) {
+  const res = await (await getApi()).news_log.update({ path: { news_log_id: id }, params: payload });
+  return narrowApiResult(res, narrowNewsLogRecord, 'news update');
 }
 
 export async function deleteNewsLog(id: number) {
-  return haveApiCall<void>({
-    method: 'DELETE',
-    path: `/news_logs/${id}`,
-  });
+  return (await getApi()).news_log.delete({ path: { news_log_id: id } });
 }
