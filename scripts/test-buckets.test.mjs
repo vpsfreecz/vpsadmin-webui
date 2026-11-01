@@ -15,11 +15,12 @@ function walk(directory) {
 }
 
 test('every script test belongs to exactly one nonbrowser or browser bucket', () => {
-  assert.equal(scripts['test:scripts'], 'node --test scripts/*.test.mjs');
+  assert.equal(scripts['test:scripts'], 'node --test scripts/*.test.mjs scripts/integration/*.test.mjs');
   assert.equal(scripts['test:scripts:browser'], 'node --test scripts/browser-tests/*.test.mjs');
   const all = walk(path.join(root, 'scripts')).map((file) => path.relative(root, file).replaceAll(path.sep, '/'));
-  const nonbrowser = all.filter((file) => /^scripts\/[^/]+\.test\.mjs$/.test(file));
+  const nonbrowser = all.filter((file) => /^scripts\/(?:integration\/)?[^/]+\.test\.mjs$/.test(file));
   const browser = all.filter((file) => /^scripts\/browser-tests\/[^/]+\.test\.mjs$/.test(file));
   assert.deepEqual([...nonbrowser, ...browser].sort(), all.sort());
+  assert(nonbrowser.includes('scripts/integration/vpsadmin-sdk-contract.test.mjs'));
   assert(browser.includes('scripts/browser-tests/live-vps-certification-browser-proxy.test.mjs'));
 });
