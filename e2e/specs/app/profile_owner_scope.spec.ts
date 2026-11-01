@@ -1,3 +1,4 @@
+import { clickShellControl } from '../../helpers/shellNavigation';
 import { test, expect } from '@playwright/test';
 import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage, jsonFulfill, failEnvelope } from '../../fixtures';
 
@@ -62,7 +63,7 @@ for (const language of ['en', 'cs'] as const) {
       await expect(page.getByTestId('profile.sessions.row.100')).toHaveCount(0);
       expect(sessionOwners.every((id) => id === '1')).toBe(true);
       failSessions = false;
-      await page.getByTestId('shell.user-menu-button').click();
+      await clickShellControl(page, 'shell.user-menu-button');
       await page.getByTestId('shell.user-menu.account').click();
       await expect(page).toHaveURL(new RegExp(`${base}/profile$`));
       await page.locator(`a[href="${base}/profile/sessions"]`).click();

@@ -1,3 +1,4 @@
+import { clickShellControl } from '../../helpers/shellNavigation';
 import { expect, test } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock, seedTrackedActionStates } from '../../fixtures';
@@ -39,7 +40,7 @@ test.describe('Task completion toasts', () => {
 
     await page.goto('/app/vps');
     await expect.poll(() => showCalls).toBeGreaterThan(0);
-    await page.getByTestId('tasks.open-button').click();
+    await clickShellControl(page, 'tasks.open-button');
     await expect(page.getByTestId('tasks.row.41')).toBeVisible();
     await expect(page.getByTestId('toast.action.open_tasks.41')).toHaveCount(0);
   });

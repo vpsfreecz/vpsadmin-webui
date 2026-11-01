@@ -1,3 +1,4 @@
+import { openShellNavigation } from '../../helpers/shellNavigation';
 import { expect, test } from '@playwright/test';
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
 import { expectNoDocumentHorizontalOverflow } from '../../helpers/horizontalOverflow';
@@ -17,9 +18,11 @@ for (const actor of [
     });
     await page.goto(`/${actor.mode}/vps`);
     const button = page.getByTestId('shell.user-menu-button');
+    await openShellNavigation(page);
     await expect(button).toBeVisible();
     for (const width of [320, 390, 640, 768, 1024, 1280]) {
       await page.setViewportSize({ width, height: 900 });
+      await openShellNavigation(page);
       await expectNoDocumentHorizontalOverflow(page);
       if (isMobile) await button.tap();
       else await button.click();
@@ -39,7 +42,7 @@ for (const actor of [
       await expect(button).toBeFocused();
       if (width === 768 || width === 1280) {
         const shot = await page
-          .getByTestId('shell.header')
+          .getByTestId('shell.sidebar')
           .screenshot({ path: testInfo.outputPath(`header-${actor.mode}-${width}.png`) });
         await testInfo.attach(`Header ${actor.name} ${width}px`, { body: shot, contentType: 'image/png' });
       }

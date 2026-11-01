@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
 import { useAuth } from '../../../app/auth';
 import { useI18n } from '../../../app/i18n';
@@ -16,6 +17,25 @@ export function ProfileSecurityPage() {
   const auth = useAuth();
   const { t } = useI18n();
 
+  const location = useLocation();
+  useEffect(() => {
+    if (location.hash !== '#session-length') return;
+    const focusSetting = () => {
+      const setting = document.getElementById('session-length');
+      const input = setting?.querySelector('input');
+      if (!setting || !input) return false;
+      setting.scrollIntoView({ block: 'center' });
+      input.focus({ preventScroll: true });
+      return true;
+    };
+    if (focusSetting()) return;
+    // The security panel may still be loading after the route mounts.
+    const observer = new MutationObserver(() => {
+      if (focusSetting()) observer.disconnect();
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, [location.key, location.hash]);
   const userId = auth.user?.id ?? null;
 
   return (

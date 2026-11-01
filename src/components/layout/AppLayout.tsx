@@ -33,7 +33,7 @@ import { useTaskCompletionToasts } from './useTaskCompletionToasts';
 import { ImpersonationBanner } from './ImpersonationBanner';
 import { AppMainContent } from './AppMainContent';
 import { AppHeader } from './AppHeader';
-import { AppSidebar, buildSidebarNavItems } from './AppSidebar';
+import { AppSidebar, MobileNavigationTrigger, buildSidebarNavItems } from './AppSidebar';
 import { FrontendFreshnessGuard } from './FrontendFreshnessGuard';
 import { useLocalMutationLocks } from './useLocalMutationLocks';
 import { SkipToMainContentLink } from './MainContentAccessibility';
@@ -102,7 +102,16 @@ export function AppLayout(props: { children: React.ReactNode }) {
   const [blockingActionStateId, setBlockingActionStateId] = useState<number | null>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const syncRef = useRef<HTMLDivElement>(null);
-  useEffect(() => setMobileNavOpen(false), [location.pathname]);
+  const closeNavigation = useCallback(() => {
+    setMobileNavOpen(false);
+    setUserMenuOpen(false);
+    setSyncOpen(false);
+  }, []);
+  useEffect(closeNavigation, [closeNavigation, location.pathname]);
+  const openPalette = useCallback(() => {
+    closeNavigation();
+    setPaletteOpen(true);
+  }, [closeNavigation]);
   const shortcutHint =
     typeof navigator !== 'undefined' && /mac/i.test(String((navigator as any).platform ?? '')) ? '⌘K · /' : 'Ctrl K · /';
 
@@ -124,12 +133,12 @@ export function AppLayout(props: { children: React.ReactNode }) {
       }
 
       e.preventDefault();
-      setPaletteOpen(true);
+      openPalette();
     };
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, []);
+  }, [openPalette]);
 
   // Cross-scope toasts: consume on mount (switching /app <-> /admin unmounts providers).
   useEffect(() => {
@@ -372,7 +381,7 @@ export function AppLayout(props: { children: React.ReactNode }) {
     return trackedActionStates.find((x) => x.id === blockingActionStateId) ?? null;
   }, [blockingActionStateId, trackedActionStates]);
 
-  const openTasks = useCallback(() => setTasksOpen(true), []);
+  const openTasks = useCallback(() => { closeNavigation(); setTasksOpen(true); }, [closeNavigation]);
   const closeTasks = useCallback(() => setTasksOpen(false), []);
   const toggleTasks = useCallback(() => setTasksOpen((v) => !v), []);
 
@@ -628,8 +637,44 @@ export function AppLayout(props: { children: React.ReactNode }) {
         */}
         <AppSidebar
           mobileNavOpen={mobileNavOpen}
-          onCloseMobileNav={() => setMobileNavOpen(false)}
+          onCloseMobileNav={closeNavigation}
           navItems={navItems}
+          controls={
+            <AppHeader
+              t={i18n.t}
+              mode={mode}
+              canSwitchMode={canSwitchMode}
+              shortcutHint={shortcutHint}
+              onNavigate={closeNavigation}
+              onOpenPalette={openPalette}
+              showSyncIndicator={showSyncIndicator}
+              syncRef={syncRef}
+              syncOpen={syncOpen}
+              setSyncOpen={setSyncOpen}
+              syncStatus={syncStatus === 'offline' ? 'offline' : 'error'}
+              syncTitle={syncTitle}
+              syncBody={syncBody}
+              syncError={syncError}
+              onRetrySync={retrySync}
+              tasksFailedCount={tasksFailedCount}
+              tasksActiveCount={tasksActiveCount}
+              onOpenTasks={openTasks}
+              userMenuRef={userMenuRef}
+              userMenuOpen={userMenuOpen}
+              setUserMenuOpen={setUserMenuOpen}
+              authLogin={auth.user?.login}
+              authRole={auth.role ? String(auth.role) : undefined}
+              sessionExpiresAt={auth.sessionExpiresAt}
+              theme={ui.settings.theme}
+              language={ui.settings.language}
+              onSetTheme={ui.setTheme}
+              onSetLanguage={ui.setLanguage}
+              onGoToOtherMode={goToOtherMode}
+              onGoToProfile={() => { closeNavigation(); navigate(`${basePath}/profile`); }}
+              onGoToPublicStatus={() => navigate('/')}
+              loginLogoutHref={loginLogoutHref}
+            />
+          }
         />
 
         <Drawer
@@ -697,40 +742,7 @@ export function AppLayout(props: { children: React.ReactNode }) {
         <div className="min-w-0 flex-1">
           <div className="mx-auto flex min-h-screen max-w-screen-2xl flex-col">
             <ImpersonationBanner />
-            <AppHeader
-              t={i18n.t}
-              mode={mode}
-              canSwitchMode={canSwitchMode}
-              shortcutHint={shortcutHint}
-              onOpenMobileNav={() => setMobileNavOpen(true)}
-              onOpenPalette={() => setPaletteOpen(true)}
-              showSyncIndicator={showSyncIndicator}
-              syncRef={syncRef}
-              syncOpen={syncOpen}
-              setSyncOpen={setSyncOpen}
-              syncStatus={syncStatus === 'offline' ? 'offline' : 'error'}
-              syncTitle={syncTitle}
-              syncBody={syncBody}
-              syncError={syncError}
-              onRetrySync={retrySync}
-              tasksFailedCount={tasksFailedCount}
-              tasksActiveCount={tasksActiveCount}
-              onOpenTasks={openTasks}
-              userMenuRef={userMenuRef}
-              userMenuOpen={userMenuOpen}
-              setUserMenuOpen={setUserMenuOpen}
-              authLogin={auth.user?.login}
-              authRole={auth.role ? String(auth.role) : undefined}
-              sessionExpiresAt={auth.sessionExpiresAt}
-              theme={ui.settings.theme}
-              language={ui.settings.language}
-              onSetTheme={ui.setTheme}
-              onSetLanguage={ui.setLanguage}
-              onGoToOtherMode={goToOtherMode}
-              onGoToProfile={() => navigate(`${basePath}/profile`)}
-              onGoToPublicStatus={() => navigate('/')}
-              loginLogoutHref={loginLogoutHref}
-            />
+            <MobileNavigationTrigger open={mobileNavOpen} onOpen={() => setMobileNavOpen(true)} />
 
             <AppMainContent pathname={location.pathname} mode={mode}>{props.children}</AppMainContent>
           </div>

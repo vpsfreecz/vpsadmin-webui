@@ -5,7 +5,7 @@ export interface AppHeaderProps {
   mode: 'user' | 'admin';
   canSwitchMode: boolean;
   shortcutHint: string;
-  onOpenMobileNav: () => void;
+  onNavigate?: () => void;
   onOpenPalette: () => void;
   showSyncIndicator: boolean;
   syncRef: React.RefObject<HTMLDivElement | null>;

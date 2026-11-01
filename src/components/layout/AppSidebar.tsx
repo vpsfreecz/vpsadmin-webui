@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link, useMatch } from 'react-router-dom';
 import {
   Activity,
@@ -18,6 +18,7 @@ import {
   Layers,
   ListOrdered,
   Mail,
+  Menu,
   MemoryStick,
   Network,
   Server,
@@ -294,13 +295,39 @@ export function AppLogo(props: { subtitle: string }) {
   );
 }
 
+/** Mobile has one entry point; desktop controls live entirely in the sidebar. */
+export function MobileNavigationTrigger(props: { open: boolean; onOpen: () => void }) {
+  const { t } = useI18n();
+  return (
+    <header className="sticky top-0 z-10 border-b border-border bg-bg px-4 py-2 md:hidden [@media(max-height:640px)]:block" data-testid="shell.header">
+      <button
+        type="button"
+        className="inline-flex min-h-11 items-center gap-2 rounded-md px-3 text-sm hover:bg-surface-2"
+        onClick={props.onOpen}
+        aria-label={t('nav.open')}
+        aria-expanded={props.open}
+        data-testid="shell.mobile-nav-button"
+      >
+        <Menu size={20} aria-hidden="true" />
+        <span>{t('nav.navigation')}</span>
+      </button>
+    </header>
+  );
+}
+
 export function AppSidebar(props: {
   mobileNavOpen: boolean;
   onCloseMobileNav: () => void;
   navItems: NavItem[];
+  controls: React.ReactNode;
 }) {
-  const { mobileNavOpen, onCloseMobileNav, navItems } = props;
+  const { mobileNavOpen, onCloseMobileNav, navItems, controls } = props;
   const { t } = useI18n();
+  useEffect(() => {
+    const desktop = window.matchMedia('(min-width: 768px) and (min-height: 641px)');
+    desktop.addEventListener('change', onCloseMobileNav);
+    return () => desktop.removeEventListener('change', onCloseMobileNav);
+  }, [onCloseMobileNav]);
   const primaryNavItems = primarySidebarNavItems(navItems);
   const navSections = sidebarNavSections(primaryNavItems);
   const footerNavItems = sidebarFooterNavItems(primaryNavItems);
@@ -318,7 +345,7 @@ export function AppSidebar(props: {
         closeTestId="nav.drawer.close"
       >
         <div className="space-y-4">
-          <AppLogo subtitle={t('app.logo.subtitle')} />
+          {mobileNavOpen ? controls : null}
 
           <nav className="space-y-1" data-document-title-nav="section">
             <NavigationSections
@@ -345,17 +372,20 @@ export function AppSidebar(props: {
               <NavigationLink key={item.id} item={item} surface="drawer" onClick={onCloseMobileNav} />
             ))}
           </nav>
+          <div className="border-t border-border pt-3" data-testid="shell.brand.drawer">
+            <AppLogo subtitle={t('app.logo.subtitle')} />
+          </div>
           <BuildFooter onNavigate={onCloseMobileNav} />
         </div>
       </Drawer>
 
       <aside
         data-testid="shell.sidebar"
-        className="sticky top-0 hidden h-screen w-64 shrink-0 border-r border-border bg-surface md:block"
+        className="sticky top-0 hidden h-screen w-64 shrink-0 border-r border-border bg-surface md:block [@media(max-height:640px)]:hidden"
       >
         <div className="flex h-full min-h-0 flex-col">
-          <div className="shrink-0 p-4">
-            <AppLogo subtitle={t('app.logo.subtitle')} />
+          <div className="shrink-0 border-b border-border p-2">
+            {!mobileNavOpen ? controls : null}
           </div>
 
           <nav
@@ -390,6 +420,9 @@ export function AppSidebar(props: {
               <NavigationLink key={item.id} item={item} surface="sidebar" compact />
             ))}
           </nav>
+          <div className="shrink-0 border-t border-border px-4 py-3" data-testid="shell.brand.sidebar">
+            <AppLogo subtitle={t('app.logo.subtitle')} />
+          </div>
           <div className="shrink-0 border-t border-border px-4 py-1">
             <BuildFooter />
           </div>

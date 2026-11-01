@@ -1,3 +1,4 @@
+import { clickShellControl, openShellNavigation } from '../../helpers/shellNavigation';
 import { expect, test, type Page } from '@playwright/test';
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
 
@@ -23,6 +24,7 @@ async function setup(page: Page, seconds = 2400) {
     },
   });
   await page.goto('/app');
+  await openShellNavigation(page);
   await expect(page.getByTestId('shell.user-menu-button')).toBeVisible();
 }
 
@@ -33,7 +35,7 @@ test('@pr-smoke session counts down despite polling, renews on interaction and s
   await page.clock.fastForward(61_000);
   await expect(remaining).toHaveText('39 min');
   // A real input extends the inactivity deadline. Merely rendering/polling does not.
-  await page.getByTestId('shell.user-menu-button').click();
+  await clickShellControl(page, 'shell.user-menu-button');
   await expect(remaining).toHaveText('40 min');
   await page.clock.fastForward(121_000);
   await expect(remaining).toHaveText('38 min');
@@ -52,6 +54,7 @@ test('@pr-smoke @pr-smoke-mobile session logs out after inactivity, including a 
 test('@pr-smoke @pr-smoke-mobile disabled session timeout does not log out an idle user', async ({ page }) => {
   await setup(page, 0);
   await page.clock.fastForward(61 * 60_000);
+  await openShellNavigation(page);
   await expect(page.getByTestId('shell.user-menu-button')).toBeVisible();
   await expect(page).not.toHaveURL(/\/oauth\/logout/);
 });

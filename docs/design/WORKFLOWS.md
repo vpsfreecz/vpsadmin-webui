@@ -466,6 +466,14 @@ explicit false state. Existing rows, service links and actions remain visible.
 
 ## Account profile and user administration
 
+The session countdown or Never expires link in navigation opens the current
+view's `/profile/security#session-length`, scrolls to the inactivity setting and
+focuses its input after the panel loads. Repeating the link on that route also
+focuses it. This navigation never saves settings or renews a session beyond the
+existing activity policy; changing the limit still requires the normal Save.
+The member/admin scope switch, preferences, public status and logout remain
+available from the navigation account menu (REQ-004/006/010/012).
+
 Administrator member editing uses a named Role select instead of a numeric
 privilege input. Choices match the legacy UI: User, Power User, Admin,
 Super Admin and Master Admin. An existing nonstandard level remains selectable
