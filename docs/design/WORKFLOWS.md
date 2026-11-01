@@ -48,6 +48,13 @@ No route, backend permission, publication behavior or API endpoint changes.
 **Intent:** inspect service availability, sign in, recover access or correct a
 registration without exposing private information. Public overview combines
 cluster/node status with outages/news/advisories; external heatmaps are optional.
+Overview card headers/bodies and statistic cards use equal 12px padding. Repeated
+subtitles are omitted; real status/error content, counts and loading states stay.
+Status badges remain intentionally compact with wider horizontal than vertical
+insets. Heatmap dialogs explain left-to-right CPU user/system/idle and disk I/O,
+time flowing down from the newest row, black/white percentage endpoints, the
+inverted meaning of idle, and click/tap to pause and display device labels.
+External iframe content and access rules are unchanged.
 The authenticated dashboard's Cluster status widget offers the same icon-only
 heatmap action in desktop rows and mobile node cards, in both member and admin
 views (REQ-025/026). It reuses the public heatmap configuration, node eligibility

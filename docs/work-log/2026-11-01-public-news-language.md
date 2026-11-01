@@ -70,3 +70,10 @@ The production build, strict E2E typecheck and design-document audit also pass.
 Evidence is retained under the remote runner's
 `evidence/public-news-20261101/alignment-{before,after,build,checks}` logs/output.
 This update belongs to PR124; it does not merge or deploy that PR.
+
+## Further public overview feedback
+
+PR124 also includes the maintainer's follow-up to remove redundant subtitles,
+unify card padding and explain heatmap reading. The news captures above were
+refreshed from the same implementation. See
+[scope, visual evidence and verification](2026-11-01-public-overview-readability.md).

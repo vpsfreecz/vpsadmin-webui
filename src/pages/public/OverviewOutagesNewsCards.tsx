@@ -37,12 +37,11 @@ export function OverviewOutagesNewsCards(props: {
       <div data-testid="public.news.card">
         <Card>
           <CardHeader
-            className="sm:items-baseline"
+            className="px-3 py-3 sm:items-baseline"
             title={i18n.t('public.overview.news.title')}
-            subtitle={i18n.t('public.overview.news.subtitle')}
             actions={<Link to="/news" className="text-sm underline">{i18n.t('public.overview.news.all')}</Link>}
           />
-          <CardBody>
+          <CardBody className="px-3 py-3">
             {props.newsLoading ? (
               <Spinner label={i18n.t('public.overview.news.loading')} />
             ) : props.newsError ? (
@@ -67,15 +66,11 @@ export function OverviewOutagesNewsCards(props: {
       <div data-testid="public.outages.card">
         <Card>
           <CardHeader
+            className="px-3 py-3 sm:items-baseline"
             title={i18n.t('public.overview.outages.title')}
-            subtitle={i18n.t('public.overview.outages.subtitle', {
-              current: props.outagesByCategory.current.length,
-              planned: props.outagesByCategory.planned.length,
-              resolved: props.outagesByCategory.resolved.length,
-            })}
             actions={<Link to="/outages" className="text-sm underline">{i18n.t('public.overview.outages.all')}</Link>}
           />
-          <CardBody>
+          <CardBody className="px-3 py-3">
             {props.outagesLoading ? (
               <Spinner label={i18n.t('public.overview.outages.loading')} />
             ) : props.outagesError ? (

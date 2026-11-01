@@ -104,7 +104,6 @@ export function OverviewPage() {
         </div>
         <div className="min-w-0">
           <h1 className="text-2xl font-semibold tracking-tight">{i18n.t('public.overview.title')}</h1>
-          <p className="mt-1 text-sm text-muted">{i18n.t('public.overview.subtitle')}</p>
         </div>
       </div>
 

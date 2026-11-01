@@ -33,19 +33,19 @@ export function OverviewSummaryCards(props: {
     <SummaryGrid testId="public.summary-grid">
       <div className="md:col-span-6">
         <StatCard
+          bodyClassName="px-3 py-3"
           testId="public.stats.members"
           variant="featured"
           title={i18n.t('public.overview.stats.members.title')}
-          subtitle={i18n.t('public.overview.stats.members.subtitle')}
           value={loadingValue(props.statsLoading, props.statsError, props.stats?.user_count ?? '—')}
         />
       </div>
 
       <div className="md:col-span-3">
         <StatCard
+          bodyClassName="px-3 py-3"
           testId="public.stats.nodes"
           title={i18n.t('public.overview.stats.nodes.title')}
-          subtitle={i18n.t('public.overview.stats.nodes.subtitle')}
           value={loadingValue(props.nodesLoading, props.nodesError, nodePercent == null ? '—' : `${nodePercent}%`)}
           footer={
             props.nodesLoading || props.nodesError
@@ -74,9 +74,9 @@ export function OverviewSummaryCards(props: {
 
       <div className="md:col-span-3">
         <StatCard
+          bodyClassName="px-3 py-3"
           testId="public.stats.vps"
           title={i18n.t('public.overview.stats.vps.title')}
-          subtitle={i18n.t('public.overview.stats.vps.subtitle')}
           value={loadingValue(props.statsLoading, props.statsError, props.stats?.vps_count ?? '—')}
           footer={
             <span className="inline-flex items-center gap-2">

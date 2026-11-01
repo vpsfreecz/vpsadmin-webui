@@ -1656,3 +1656,17 @@ bundle passes all six remote desktop/mobile news browser cases with zero retries
 Production build, strict E2E typecheck and design-document audit pass. Updated
 synthetic desktop/mobile screenshots are in the dated entry. PR124 remains for
 review; no live release was changed.
+
+## 2026-11-01 — Public overview spacing and heatmap reading guide
+
+Unify public cards at 12px insets, remove redundant subtitles and explain how to
+read heatmap colors/time/columns and pause it. Preserve compact status badges
+and shared defaults on other pages. Included in PR124 for review.
+[Scope, wording sources and verification](docs/work-log/2026-11-01-public-overview-readability.md).
+No merge or deployment.
+
+Verification: 28 served production-bundle browser checks passed on the remote
+Linux dev runner, including mobile WebKit, cs/en, light/dark, existing news and
+admin heatmap regressions. Eight focused unit checks, ci:quick and build pass;
+initial setup failures and synthetic capture limits are recorded in the dated
+entry. PR124 remains reviewable; no merge or live deployment.
