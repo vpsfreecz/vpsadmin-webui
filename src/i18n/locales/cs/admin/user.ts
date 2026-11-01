@@ -261,6 +261,7 @@ export const csAdmin_user = {
   "admin.user.tabs.resources": "Balíčky",
   "admin.user.tabs.resource_usage": "Využití",
   "admin.user.resources.title": "Přiřazené balíčky",
+  "admin.user.resources.assigned_at": "Přiděleno",
   "admin.user.resources.subtitle": "Přidávej a odebírej balíčky prostředků pro jednotlivá prostředí.",
   "admin.user.resources.summary.title": "Souhrn balíčků",
   "admin.user.resources.summary.count": "Počet",
