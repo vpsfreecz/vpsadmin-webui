@@ -52,6 +52,7 @@ test('@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile public overview shows key 
       }),
       'GET outages': () => ({ outages: [] }),
       'GET news_logs': () => ({ news_logs: [] }),
+      'GET security_advisories': () => ({ security_advisories: [] }),
       'GET help_boxes': () => ({ help_boxes: [] }),
       'GET users/current': () => jsonFulfill(failEnvelope('Unauthorized'), 401),
     },
@@ -65,7 +66,7 @@ test('@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile public overview shows key 
 
   // Primary stats
   await expect(page.getByTestId('public.stats.members')).toBeVisible();
-  await expect(page.getByTestId('public.stats.nodes')).toBeVisible();
+  await expect(page.getByTestId('public.stats.nodes')).toHaveCount(0);
   await expect(page.getByTestId('public.stats.vps')).toBeVisible();
   expect(publicRequests.length).toBeGreaterThanOrEqual(2);
   for (const request of publicRequests) {
@@ -184,6 +185,7 @@ test('public overview shows IPv4 critical alert when low', async ({ page }) => {
       'GET nodes/public_status': () => ({ nodes: [] }),
       'GET outages': () => ({ outages: [] }),
       'GET news_logs': () => ({ news_logs: [] }),
+      'GET security_advisories': () => ({ security_advisories: [] }),
       'GET help_boxes': () => ({ help_boxes: [] }),
       'GET users/current': () => jsonFulfill(failEnvelope('Unauthorized'), 401),
     },

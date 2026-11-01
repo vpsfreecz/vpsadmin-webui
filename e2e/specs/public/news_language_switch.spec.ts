@@ -14,6 +14,7 @@ for (const path of ['/', '/news']) {
       'GET cluster/public_stats': () => ({ public_stats: { user_count: 0, vps_count: 0, ipv4_left: 10 } }),
       'GET nodes/public_status': () => ({ nodes: [] }),
       'GET outages': () => ({ outages: [] }),
+      'GET security_advisories': () => ({ security_advisories: [] }),
       'GET news_logs': () => { return { news_logs: [
         { id: 1, message: 'English announcement', en_message: 'English announcement', cs_message: 'Česká novinka', published_at: '2026-11-01T09:00:00Z' },
         { id: 2, message: 'Legacy fallback' },

@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { NodeHeatmapProvider } from '../../components/cluster/NodeHeatmaps';
 import { getRuntimeConfig } from '../../app/config';
 import { useI18n } from '../../app/i18n';
 import { Alert } from '../../components/ui/Alert';
-import { fetchNews, fetchOutages, fetchPublicNodeStatus, fetchPublicStats } from '../../lib/api/public';
+import { fetchNews, fetchOutages, fetchPublicNodeStatus, fetchPublicStats, fetchPublicSecurityAdvisories } from '../../lib/api/public';
 import { consumeSessionExpiredNotice } from '../../lib/auth/sessionExpiredNotice';
 import {
   categorizePublicOutages,
@@ -17,7 +17,9 @@ import {
   summarizePublicNodes,
 } from './OverviewModel';
 import { OverviewNodesSection } from './OverviewNodesSection';
-import { OverviewOutagesNewsCards } from './OverviewOutagesNewsCards';
+import { OverviewNewsCard } from './OverviewNewsCard';
+import { OverviewOutagesCard } from './OverviewOutagesCard';
+import { OverviewAdvisoriesCard } from './OverviewAdvisoriesCard';
 import { OverviewSummaryCards } from './OverviewSummaryCards';
 import { useDeferredOverviewQueries } from './useDeferredOverviewQueries';
 
@@ -80,6 +82,12 @@ export function OverviewPage() {
     enabled: deferredEnabled,
   });
 
+  const advisoriesQ = useQuery({
+    queryKey: ['public', 'security_advisories', { surface: 'overview', state: 'published', limit: 5 }],
+    queryFn: async () => (await fetchPublicSecurityAdvisories()).data,
+    enabled: deferredEnabled,
+  });
+
   const unknownLocationLabel = i18n.t('public.nodes.location_unknown');
   const outagesByCategory = useMemo(() => categorizePublicOutages(outagesQ.data ?? []), [outagesQ.data]);
   const nodesByLocation = useMemo(
@@ -105,54 +113,34 @@ export function OverviewPage() {
           </Alert>
         ) : null}
 
-        {outagesQ.isSuccess && outagesByCategory.current.length > 0 ? (
-          <Alert title={i18n.tc('public.overview.outage_alert.title', outagesByCategory.current.length)} variant="danger">
-            {i18n.tc('public.overview.outage_alert.body', outagesByCategory.current.length)}
-            <span className="ml-2">
-              <Link to="/outages" className="underline">{i18n.t('public.overview.outage_alert.link')}</Link>
-            </span>
-          </Alert>
-        ) : outagesQ.isSuccess ? (
-          <Alert title={i18n.t('public.overview.nominal.title')} variant="info">
-            {i18n.t('public.overview.nominal.body')}
-          </Alert>
-        ) : (
-          <Alert title={i18n.t('public.overview.checking.title')} variant="info">
-            {i18n.t('public.overview.checking.body')}
-          </Alert>
-        )}
+        <OverviewOutagesCard groups={outagesByCategory} loading={outagesLoading} error={outagesQ.isError} />
+        <OverviewNewsCard news={newsQ.data} newsLoading={newsLoading} newsError={newsQ.isError} />
+        <OverviewAdvisoriesCard
+          advisories={advisoriesQ.data}
+          loading={!deferredEnabled || advisoriesQ.isLoading}
+          error={advisoriesQ.isError}
+        />
+
+        <NodeHeatmapProvider>
+          <OverviewNodesSection groups={nodesByLocation} summary={nodeSummary} loading={nodesLoading} error={nodesQ.isError} />
+        </NodeHeatmapProvider>
 
         {ipv4State === 'critical' ? (
           <Alert title={i18n.t('public.overview.ipv4_critical.title')} variant="danger" testId="public.ipv4.alert">
             {i18n.t('public.overview.ipv4_critical.body', { count: ipv4Left ?? 0 })}
           </Alert>
         ) : null}
-
         <OverviewSummaryCards
           stats={statsQ.data}
           statsLoading={statsQ.isLoading}
           statsError={statsQ.isError}
-          nodesLoading={nodesLoading}
-          nodesError={nodesQ.isError}
-          nodeSummary={nodeSummary}
           ipv4Left={ipv4Left}
           ipv4Level={ipv4State}
           ipv4BadgeVariant={ipv4Badge}
         />
-
-        <OverviewOutagesNewsCards
-          outages={outagesQ.data}
-          outagesByCategory={outagesByCategory}
-          outagesLoading={outagesLoading}
-          outagesError={outagesQ.isError}
-          news={newsQ.data}
-          newsLoading={newsLoading}
-          newsError={newsQ.isError}
-        />
-
-        <NodeHeatmapProvider>
-          <OverviewNodesSection groups={nodesByLocation} summary={nodeSummary} loading={nodesLoading} error={nodesQ.isError} />
-        </NodeHeatmapProvider>
+        {!outagesLoading && !outagesQ.isError ? (
+          <OverviewOutagesCard groups={outagesByCategory} loading={false} error={false} resolved />
+        ) : null}
       </div>
     </>
   );

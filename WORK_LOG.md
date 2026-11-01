@@ -1685,3 +1685,18 @@ Follow-up verification: ci:quick, 12 focused unit checks, production build and
 WebKit. New assertions cover clipped accessible headings on all three lists,
 equal widths/fonts/value baselines and absence of the ring. Synthetic captures
 were refreshed. No merge or live deployment.
+
+## 2026-11-01 — Prioritize public status information
+
+Order the overview as outages, news, published advisories, nodes, member/VPS
+statistics, then resolved outages. Hide empty outage sections and the redundant
+nominal banner/node tile. Add a bounded credential-free advisory preview and
+split independently positioned cards. Included in PR124 for review.
+[Design, API contract and verification](docs/work-log/2026-11-01-public-overview-readability.md).
+No merge or deployment.
+
+Information-priority verification: ci:quick, design inventory regeneration,
+19 focused unit tests, production build and 28 served public browser cases pass
+on remote Linux. Coverage includes mixed/empty/resolved outages, preview ordering,
+draft exclusion, no credential headers, error isolation and mobile WebKit.
+Synthetic screenshots and evidence are in the dated entry. No live deployment.

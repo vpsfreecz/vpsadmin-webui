@@ -1,7 +1,7 @@
 # Public overview spacing and explanations — 1 November 2026
 
 Prepared for review in PR124, following the maintainer's public overview feedback.
-No merge, API change or live deployment. REQ-054.
+No merge, backend API change or live deployment. REQ-054.
 
 Use the smaller shared 12px alert inset for public card headers, bodies and
 statistics. The shared Card/Alert/Badge defaults elsewhere remain unchanged;
@@ -98,3 +98,48 @@ show this follow-up; earlier numeric results describe their earlier checkpoint.
 ![Advisory list without duplicate page heading](images/2026-11-01-public-overview/advisories-desktop.png)
 ![Mobile WebKit outage list](images/2026-11-01-public-overview/outages-mobile-webkit.png)
 ![Mobile WebKit advisory list](images/2026-11-01-public-overview/advisories-mobile-webkit.png)
+
+## Information-priority follow-up
+
+The maintainer requests this public order: outages (when present), news,
+security advisories, nody, members. Render one vertical DOM order on all screen
+sizes. Current and planned outages coexist; unclassified rows remain visible,
+and resolved records appear only at the very bottom. Remove the nominal banner
+and duplicate compact node-percentage tile. Keep the detailed node status and
+bottom aligned member/VPS stats with the existing mark. Split the former coupled
+news/outage component into small independent cards; keep news selection intact.
+
+Add a five-row published-advisory preview using the credential-free public
+transport, exact state/newest/limit parameters and defensive filtering/sorting.
+No draft/retracted content, auth headers, CVE fan-out or private affected-object
+lookups belong in this preview. Keep separate loading/error/empty states and
+links to the existing full public archive/details. API/schema/roles unchanged.
+Terminology revision remains a65a4dfeb92a59df4a80a737a20bcbf8558793ff; no
+external KB contract is claimed.
+
+Information-priority verification on the remote pinned Linux runner: ci:quick,
+regenerated design inventory (no inventory diff), 19 focused unit checks across
+eight files and production build pass. Public-helper coverage seeds a session
+sentinel and verifies no authorization headers, exact published/newest/limit
+query parameters, draft/retracted filtering, ordering and a five-row cap. Outage
+unit cases cover absence, mixed current/planned/unclassified rows, a bounded
+resolved preview and explicit pending/error states.
+
+The preceding bundle fails the new advisory-preview assertion (block absent).
+The updated served bundle passes 28 browser cases with zero retries: 12
+cs/en × light/dark × desktop Chromium/mobile Chromium/mobile WebKit readability
+flows; six existing news locale checks; four original overview checks; and six
+new independent outage/advisory failure cases. Readability flows assert the
+actual vertical DOM order, mixed live/planned records at the top, resolved-only
+preview last, empty outage sections hidden, absence of the nominal banner and
+draft data, 12px padding, consistent bottom-member/VPS geometry, no overflow,
+heatmap interaction and other public pages. Failures do not hide healthy news
+or statistics. All source comes from the task checkout; synthetic feature data
+is not a live API authorization audit. Evidence:
+`evidence/public-news-20261101/information-order-{before,after,checks}`.
+
+The captures above now reflect this current order, with empty outages in the
+light desktop image and mixed ongoing/planned/resolved fixtures in the dark and
+mobile images. Earlier counts/layout descriptions are checkpoint history.
+Public/API scope, existing detail/archive pages and shared UI defaults remain
+unchanged; this feature is still only prepared in PR124, not merged/deployed.

@@ -48,9 +48,19 @@ No route, backend permission, publication behavior or API endpoint changes.
 **Intent:** inspect service availability, sign in, recover access or correct a
 registration without exposing private information. Public overview combines
 cluster/node status with outages/news/advisories; external heatmaps are optional.
+Public overview order is active/planned (and unclassified) outages, news,
+published security advisories, detailed node status, member/VPS statistics,
+then resolved outages. Empty outage sections and the nominal-status banner are
+omitted; pending/error states remain explicit. Current and planned outages may
+coexist at the top, up to three per category; the resolved preview shows three.
+The advisory preview makes one credential-free public GET with limit 5,
+state=published and order=newest, defensively excludes all other states and
+caps/sorts the result. Names and localized plain-text summaries link to the
+public detail/archive. It makes no CVE or private affected-object requests.
+The separate complete advisory archive and authenticated dashboard are unchanged.
 Overview, outage and advisory list pages retain an accessible screen-reader-only
 h1 and omit the duplicated visible page heading/intro. Detail headings remain.
-The overview brand mark sits left of three equal-width standard metric cards
+The overview brand mark sits left of equal-width member/VPS metric cards
 on desktop and above them on mobile. Their value font size and baseline match;
 node availability retains the percentage/counts without a circular gauge.
 Overview card headers/bodies and statistic cards use equal 12px padding. Repeated
