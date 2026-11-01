@@ -7,11 +7,14 @@ import type { Location as InfraLocation } from '../../../../lib/api/infra';
 import {
   buildSuggestedIpQueryPlan,
   PRIORITY_LOCATION_COUNT,
+  sampleSuggestedIps,
   sampleSuggestedIpsByLocationAndType,
   SUGGESTED_IP_QUERY_LIMIT,
+  SUGGESTED_IPS_PER_TYPE,
 } from './suggestedFreeIps';
 
 const SUGGESTED_IP_REQUEST_TIMEOUT_MS = 12_000;
+const MAX_SUGGESTED_IP_PAGES = 20;
 
 function waitForRequest<T>(promise: Promise<T>, signal: AbortSignal): Promise<T> {
   return new Promise((resolve, reject) => {
@@ -87,22 +90,44 @@ export function useProgressiveSuggestedIpQueries(
             capability?.input?.parameters ?? {}, 'network_enabled'
           );
           timedSignal.signal.throwIfAborted();
-          const response = await waitForRequest(fetchIpAddresses({
-            limit: SUGGESTED_IP_QUERY_LIMIT,
-            location: query.locationId,
-            version: query.version,
-            prefix: query.prefix,
-            role: query.role,
-            user: null,
-            assignedToInterface: false,
-            ...(supportsEnabled ? { networkEnabled: true } : {}),
-            order: 'asc',
-            purpose: 'vps',
-            includes: 'network__primary_location__environment',
-            signal: timedSignal.signal,
-          }), timedSignal.signal);
-          timedSignal.signal.throwIfAborted();
-          return response.data.filter((ip) => ip.network?.enabled !== false);
+          const items: IpAddress[] = [];
+          let fromId: number | undefined;
+          for (let page = 0; page < MAX_SUGGESTED_IP_PAGES; page += 1) {
+            timedSignal.signal.throwIfAborted();
+            const response = await waitForRequest(fetchIpAddresses({
+              limit: SUGGESTED_IP_QUERY_LIMIT,
+              fromId,
+              location: query.locationId,
+              version: query.version,
+              prefix: query.prefix,
+              role: query.role,
+              user: null,
+              assignedToInterface: false,
+              ...(supportsEnabled ? { networkEnabled: true } : {}),
+              order: 'asc',
+              purpose: 'vps',
+              includes: 'network__primary_location__environment',
+              signal: timedSignal.signal,
+            }), timedSignal.signal);
+            timedSignal.signal.throwIfAborted();
+            let lastId = fromId ?? 0;
+            if (response.data.length > SUGGESTED_IP_QUERY_LIMIT) {
+              throw new Error('Invalid IP suggestion page size');
+            }
+            for (const ip of response.data) {
+              if (!Number.isSafeInteger(ip.id) || ip.id <= lastId) {
+                throw new Error('Invalid IP suggestion cursor');
+              }
+              lastId = ip.id;
+            }
+            items.push(...sampleSuggestedIps(
+              response.data.filter((ip) => ip.network?.enabled !== false),
+              query.locationId,
+            ));
+            if (items.length >= SUGGESTED_IPS_PER_TYPE || response.data.length < SUGGESTED_IP_QUERY_LIMIT) return items;
+            fromId = lastId;
+          }
+          throw new Error('IP suggestion scan limit reached');
         } finally {
           timedSignal.cleanup();
         }

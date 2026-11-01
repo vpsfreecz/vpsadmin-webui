@@ -19,7 +19,7 @@ prefetch-npm-deps bff/package-lock.json
 ```
 
 The recorded hashes for the current lockfiles are
-`sha256-ujVCNq8qjDfRlfeyu4jv9v+6q5H2u/ozQ/f+rRPoAmQ=` and
+`sha256-TlJjsHvAx/4mNyWUfOa6OguUg4kgwK7aHw6KjhUIkRo=` and
 `sha256-pifjCWQ5ShvtQw1V3bAlmutW43nPi93hDVW8Q4HuVMw=`, respectively.
 Each derivation uses its own hash. The frontend includes the exact registry
 HaveAPI dependency and locked XMLHttpRequest transport; see its

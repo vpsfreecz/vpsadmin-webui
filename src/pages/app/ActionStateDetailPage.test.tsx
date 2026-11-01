@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { ActionStateDetailPage } from './ActionStateDetailPage';
 
@@ -90,6 +90,22 @@ function renderPage(path = '/admin/action-states/900') {
 }
 
 describe('ActionStateDetailPage', () => {
+  beforeEach(() => {
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn((query: string): MediaQueryList => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: () => false,
+      }))
+    );
+  });
+  afterEach(() => vi.unstubAllGlobals());
   test('loads related transaction chain and expands a transaction debug row', async () => {
     mocks.fetchActionState.mockResolvedValue({
       data: {

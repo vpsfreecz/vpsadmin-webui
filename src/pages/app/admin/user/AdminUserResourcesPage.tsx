@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useI18n } from '../../../../app/i18n';
+import { useAccountTimeZone } from '../../../../app/accountTimeZone';
 import { useToasts } from '../../../../app/toasts';
 import { Alert } from '../../../../components/ui/Alert';
 import { Badge } from '../../../../components/ui/Badge';
@@ -27,6 +28,7 @@ import {
 } from '../../../../lib/api/clusterResourcePackages';
 import { fetchEnvironments } from '../../../../lib/api/infra';
 import { formatErrorMessage } from '../../../../lib/errors';
+import { formatDateTimeInTimeZone } from '../../../../lib/format';
 import { useAdminUserContext } from './AdminUserLayout';
 
 function label(value: unknown, fallback = '—') {
@@ -62,6 +64,7 @@ function resourceValue(value: unknown, resource: any) {
 
 export function AdminUserResourcesPage() {
   const { t } = useI18n();
+  const accountTimeZone = useAccountTimeZone();
   const { user } = useAdminUserContext();
   const qc = useQueryClient();
   const { pushToast } = useToasts();
@@ -243,6 +246,11 @@ export function AdminUserResourcesPage() {
                   onChange={(checked) => bulk.toggle(row.id, checked)} /> : null}
                 <div className="min-w-0 flex-1">
                   <div className="font-medium">{packageLabel(pkg)} <span className="text-xs text-muted">#{row.id}</span></div>
+                  <div className="mt-1 text-xs text-muted" data-testid={`admin.user.resources.assignment.${row.id}.assigned_at`}>
+                    {t('admin.user.resources.assigned_at')}: {row.created_at ? (
+                      <time dateTime={row.created_at}>{formatDateTimeInTimeZone(row.created_at, accountTimeZone)}</time>
+                    ) : '—'}
+                  </div>
                   {row.comment ? <div className="mt-1 text-sm text-muted">{row.comment}</div> : null}
                   {items.length ? (
                     <div className="mt-2 flex flex-wrap gap-1.5" aria-label={t('admin.user.resources.limits')}>

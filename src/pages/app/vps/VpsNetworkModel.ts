@@ -1,7 +1,32 @@
+import type { ObjectRef } from '../../../lib/objectRef';
+import type { LocalMutationGeneration, LocalMutationIntent } from '../../../lib/localLocks';
 import type { IpAddress } from '../../../lib/api/ipAddresses';
 import type { HostIpAddress } from '../../../lib/api/networking';
 import type { NetworkInterface, NetworkInterfaceAccounting } from '../../../lib/api/networkInterfaces';
 
+export type NetworkMutationContext = {
+  lockRef: ObjectRef;
+  vpsLockRef: ObjectRef;
+  mutationGeneration: LocalMutationGeneration;
+  objectLabel: string;
+};
+export type VpsMutationSnapshot = {
+  vpsId: number;
+  vpsLockRef: ObjectRef;
+  canMutateVps: boolean;
+  knownBusy: boolean;
+  permissionError: string;
+  busyError: string;
+  objectLabel: string;
+};
+export type NetifMutation = VpsMutationSnapshot & { networkInterfaceId: number; params: Record<string, unknown> };
+export type ToggleMutation = VpsMutationSnapshot & { enable: boolean; reason?: string };
+export type PtrMutation = VpsMutationSnapshot & { hostIpId: number; reverseRecordValue: string };
+export type HostMutation = VpsMutationSnapshot & { hostIpId: number };
+export type AssignHostMutation = HostMutation & { networkInterfaceId: number };
+export type CreateHostsMutation = VpsMutationSnapshot & { ipId: number; addresses: string[] };
+export type IpMutation = VpsMutationSnapshot & { ipId: number; lockRef: ObjectRef; intent: LocalMutationIntent };
+export type OwnerMutation = IpMutation & { user: number | null; environment: number | null };
 export type NetworkRouteState = 'active' | 'detached' | 'routed' | 'busy';
 export type HostPtrState = 'set' | 'missing';
 
