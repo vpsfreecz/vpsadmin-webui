@@ -87,6 +87,11 @@ On desktop the publication time sits beside the complete message; on narrow
 screens it sits above it. Short announcements do not get separate card headers
 or visible internal IDs. Preserve existing ordering, localized/sanitized HTML,
 links, full long messages, missing-date fallback and loading/error/empty states.
+The anonymous overview uses the same localized message selection as `/news` and
+the authenticated dashboard: explicit cs/en switching updates cached text
+immediately, regardless of the browser locale. Missing translations retain the
+existing preferred-language/legacy fallback. Public bilingual reads remain
+anonymous; existing global locale invalidation/refetch behavior is unchanged.
 
 ## VPS creation, detail and power
 

@@ -10,6 +10,7 @@ import { Spinner } from '../../components/ui/Spinner';
 import { StackedBar } from '../../components/ui/StackedBar';
 import type { NewsLog, Outage } from '../../lib/api/public';
 import { formatDateTime } from '../../lib/time';
+import { pickLocalizedFieldFrom } from '../../lib/translations';
 import type { PublicOutagesByCategory } from './OverviewModel';
 
 function visibleOutages(groups: PublicOutagesByCategory): Outage[] {
@@ -52,7 +53,7 @@ export function OverviewOutagesNewsCards(props: {
                 {props.news?.slice(0, 5).map((news) => (
                   <div key={news.id} className="space-y-1">
                     <div className="text-xs text-muted">{formatDateTime(news.published_at)}</div>
-                    <NewsMessage html={news.message} />
+                    <NewsMessage html={pickLocalizedFieldFrom(news, ['message', 'body', 'text'], i18n.preferredLanguageCodes) ?? news.message} />
                   </div>
                 ))}
               </div>
