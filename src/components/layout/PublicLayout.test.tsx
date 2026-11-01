@@ -10,6 +10,8 @@ const authState = vi.hoisted(() => ({
 const uiSettingsState = vi.hoisted(() => ({
   language: 'system' as 'system' | 'en' | 'cs',
   setLanguage: vi.fn(),
+  theme: 'system' as 'system' | 'light' | 'dark',
+  setTheme: vi.fn(),
 }));
 
 vi.mock('../../app/config', () => ({
@@ -35,7 +37,8 @@ vi.mock('../../app/i18n', () => ({
 
 vi.mock('../../app/uiSettings', () => ({
   useUiSettings: () => ({
-    settings: { language: uiSettingsState.language },
+    settings: { language: uiSettingsState.language, theme: uiSettingsState.theme },
+    setTheme: uiSettingsState.setTheme,
     setLanguage: uiSettingsState.setLanguage,
   }),
 }));
@@ -75,6 +78,8 @@ describe('PublicLayout', () => {
     authState.status = 'anonymous';
     uiSettingsState.language = 'system';
     uiSettingsState.setLanguage.mockClear();
+    uiSettingsState.theme = 'system';
+    uiSettingsState.setTheme.mockClear();
   });
 
   it('keeps the public index visible for anonymous visitors', () => {
@@ -117,6 +122,18 @@ describe('PublicLayout', () => {
     fireEvent.click(screen.getByTestId('public.language.cs'));
 
     expect(uiSettingsState.setLanguage).toHaveBeenCalledWith('cs');
+  });
+
+  it('offers all anonymous theme choices with an accessible selected state', () => {
+    renderAt('/');
+    for (const choice of ['light', 'dark', 'system']) {
+      fireEvent.click(screen.getByTestId(`public.theme.desktop.${choice}`));
+      expect(uiSettingsState.setTheme).toHaveBeenLastCalledWith(choice);
+    }
+    expect(screen.getByTestId('public.theme.desktop.system')).toHaveAttribute('aria-pressed', 'true');
+    fireEvent.click(screen.getByRole('button', { name: 'public.menu.open' }));
+    fireEvent.click(screen.getByTestId('public.theme.mobile.light'));
+    expect(uiSettingsState.setTheme).toHaveBeenLastCalledWith('light');
   });
 
   it('keeps sign-in as the public entry point without a password recovery shortcut', () => {
