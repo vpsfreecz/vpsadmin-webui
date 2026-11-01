@@ -19,7 +19,7 @@ function idOf(value: unknown): number | null {
 function ipAddrLabel(row: HostIpAddress): string {
   const ip = row.ip_address;
   if (ip && typeof ip === 'object') {
-    const addr = String(ip.ip_addr ?? ip.addr ?? '').trim();
+    const addr = String(ip['ip_addr'] ?? ip.addr ?? '').trim();
     if (addr) return addr;
   }
   return '—';
@@ -177,7 +177,7 @@ export function HostIpAddressesTable(props: {
               <td className="block px-3 pb-3 pt-1 md:table-cell md:p-0 md:text-right">
                 <MobileCellLabel>{t('common.actions')}</MobileCellLabel>
                 <HostIpAddressRowActions
-                  assigned={row.assigned}
+                  assigned={row.assigned ?? undefined}
                   userCreated={row.user_created === true}
                   allowStateActions={!props.partial}
                   testIdPrefix={`admin.host_ip_addresses.row.${id}`}

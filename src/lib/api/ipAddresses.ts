@@ -1,40 +1,21 @@
-import { expectArray, haveApiCall, MissingActionStateError, requireActionStateResult } from './haveapi';
-import { normalizeObjectId } from '../objectRef';
-import type { ResourceRef } from './appTypes';
-import type { NetworkInterface } from './networkInterfaces';
-import type { User } from './users';
-import type { Vps } from './vps';
+import type {
+  IpAddress__AssignInput,
+  IpAddress__AssignWithHostAddressInput,
+  IpAddress__IndexInput,
+  IpAddress__UpdateInput,
+} from 'vpsadmin-typescript-client';
+import { isRecord, isId, fields, ipReference } from './networkingViews';
+import type { NetworkReference, IpReference } from './networkingViews';
+import { narrowApiResult } from './apiOutput';
+import { getApi } from './sdk';
+import { expectArray, MissingActionStateError, requireActionStateResult } from './apiErrors';
 
-export interface Network {
-  id: number;
-  address?: string;
-  prefix?: number;
-  ip_version?: number;
-  role?: string;
-  purpose?: string;
-  enabled?: boolean;
-  primary_location?: {
-    id?: number;
-    label?: string;
-    environment?: { id?: number; label?: string } | null;
-  } | null;
-  [k: string]: unknown;
-}
+export type Network = NetworkReference;
 
-export interface IpAddress {
-  id: number;
-  network?: Network;
-  prefix?: number;
-  size?: number;
-  network_interface?: NetworkInterface | ResourceRef | null;
-  user?: User | ResourceRef | null;
-  charged_environment?: ResourceRef | null;
-  addr?: string;
-  routed?: boolean;
-  vps?: Vps | ResourceRef;
-  route_via?: ResourceRef;
-  order?: number;
-  [k: string]: unknown;
+export type IpAddress = IpReference & { id: number };
+function narrowIpAddress(value: unknown): IpAddress {
+  if (!ipReference(value) || !isId(value.id)) throw new TypeError('Invalid IP address identity or fields');
+  return { ...value, id: value.id };
 }
 
 export async function fetchIpAddresses(opts?: {
@@ -59,7 +40,7 @@ export async function fetchIpAddresses(opts?: {
   count?: boolean;
   signal?: AbortSignal;
 }) {
-  const params: Record<string, string | number | boolean | null> = {};
+  const params: IpAddress__IndexInput = {};
 
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
@@ -79,54 +60,72 @@ export async function fetchIpAddresses(opts?: {
   if (opts?.networkEnabled !== undefined) params['network_enabled'] = opts.networkEnabled;
   if (opts?.order) params['order'] = opts.order;
 
-  const res = await haveApiCall<IpAddress[]>({
-    method: 'GET',
-    path: '/ip_addresses',
-    namespace: 'ip_address',
-    params,
-    meta: opts?.includes || opts?.count ? {
-      ...(opts?.includes ? { includes: opts.includes } : {}),
-      ...(opts?.count ? { count: true } : {}),
-    } : undefined,
-    signal: opts?.signal,
-  });
+  const res = narrowApiResult(
+    await (
+      await getApi()
+    ).ip_address.index({
+      params,
+      meta:
+        opts?.includes || opts?.count
+          ? {
+              ...(opts?.includes ? { includes: opts.includes } : {}),
+              ...(opts?.count ? { count: true } : {}),
+            }
+          : undefined,
+      signal: opts?.signal,
+    }),
+    (data) => expectArray<unknown>(data, 'ip_address list').map(narrowIpAddress),
+    'ip_address index'
+  );
 
-  return { ...res, data: expectArray<IpAddress>(res.data, 'ip_addresses') };
+  return res;
 }
 
 export async function fetchIpAddressIndexCapability() {
-  return haveApiCall<{ input?: { parameters?: Record<string, unknown> } }>({
-    method: 'OPTIONS', path: '/ip_addresses?method=GET',
-  });
+  return narrowApiResult(
+    await (await getApi()).ip_address.index.describe(),
+    narrowIpAddressIndexCapability,
+    'IP address index capability'
+  );
 }
 
 export async function fetchIpAddress(ipAddressId: number, opts?: { includes?: string }) {
-  return haveApiCall<IpAddress>({
-    method: 'GET',
-    path: `/ip_addresses/${ipAddressId}`,
-    meta: opts?.includes ? { includes: opts.includes } : undefined,
-  });
+  return narrowApiResult(
+    await (
+      await getApi()
+    ).ip_address.show({
+      path: { ip_address_id: ipAddressId },
+      meta: opts?.includes ? { includes: opts.includes } : undefined,
+    }),
+    narrowIpAddress,
+    'ip_address show'
+  );
 }
 
-function ownerUpdateTarget(params: Record<string, unknown>): { user: number | null; environment: number | null } | null {
+function ownerUpdateTarget(params: IpAddress__UpdateInput): { user: number | null; environment: number | null } | null {
   if (!Object.hasOwn(params, 'user') || Object.keys(params).some((key) => key !== 'user' && key !== 'environment')) return null;
   if (params['user'] === null && !Object.hasOwn(params, 'environment')) return { user: null, environment: null };
-  const user = normalizeObjectId(params['user']);
-  const environment = normalizeObjectId(params['environment']);
+  const user = isId(params.user) ? params.user : null;
+  const environment = isId(params.environment) ? params.environment : null;
   return user && environment ? { user, environment } : null;
 }
 
 function referenceId(value: unknown): number | null {
-  return normalizeObjectId(value && typeof value === 'object' && 'id' in value ? value.id : value);
+  const id = isRecord(value) ? value['id'] : value;
+  return isId(id) ? id : null;
 }
 
-export async function updateIpAddress(ipAddressId: number, params: Record<string, unknown>) {
-  const res = await haveApiCall<IpAddress>({
-    method: 'PUT',
-    path: `/ip_addresses/${ipAddressId}`,
-    namespace: 'ip_address',
-    params,
-  });
+export async function updateIpAddress(ipAddressId: number, params: IpAddress__UpdateInput) {
+  const res = narrowApiResult(
+    await (
+      await getApi()
+    ).ip_address.update({
+      path: { ip_address_id: ipAddressId },
+      params,
+    }),
+    narrowIpAddress,
+    'ip_address update'
+  );
   const target = ownerUpdateTarget(params);
   const hasReceipt = ['action_state_id', 'state_id', 'action_state', 'state']
     .some((key) => res.meta?.[key] != null);
@@ -152,63 +151,98 @@ export async function updateIpAddress(ipAddressId: number, params: Record<string
   return { ...res, data: verified };
 }
 
-export async function assignIpAddressRoute(
-  ipAddressId: number,
-  payload: { network_interface: number; route_via?: number | null }
-) {
-  const params: Record<string, unknown> = {
+export async function assignIpAddressRoute(ipAddressId: number, payload: IpAddress__AssignInput) {
+  const params: IpAddress__AssignInput = {
     network_interface: payload.network_interface,
   };
   if (payload.route_via !== undefined && payload.route_via !== null) params['route_via'] = payload.route_via;
 
-  const res = await haveApiCall<IpAddress>({
-    method: 'POST',
-    path: `/ip_addresses/${ipAddressId}/assign`,
-    namespace: 'ip_address',
-    params,
-  });
+  const res = narrowApiResult(
+    await (
+      await getApi()
+    ).ip_address.assign({
+      path: { ip_address_id: ipAddressId },
+      params,
+    }),
+    narrowIpAddress,
+    'ip_address assign'
+  );
   return requireActionStateResult(res, 'IP address route assign');
 }
 
 export async function assignIpAddressRouteWithHostAddress(
   ipAddressId: number,
-  payload: { network_interface: number; host_ip_address?: number | null }
+  payload: IpAddress__AssignWithHostAddressInput
 ) {
-  const params: Record<string, unknown> = {
+  const params: IpAddress__AssignWithHostAddressInput = {
     network_interface: payload.network_interface,
   };
   if (payload.host_ip_address !== undefined && payload.host_ip_address !== null) {
     params['host_ip_address'] = payload.host_ip_address;
   }
 
-  const res = await haveApiCall<IpAddress>({
-    method: 'POST',
-    path: `/ip_addresses/${ipAddressId}/assign_with_host_address`,
-    namespace: 'ip_address',
-    params,
-  });
+  const res = narrowApiResult(
+    await (
+      await getApi()
+    ).ip_address.assign_with_host_address({
+      path: { ip_address_id: ipAddressId },
+      params,
+    }),
+    narrowIpAddress,
+    'ip_address assign_with_host_address'
+  );
   return requireActionStateResult(res, 'IP address route and host address assign');
 }
 
 export async function freeIpAddressRoute(ipAddressId: number) {
-  const res = await haveApiCall<IpAddress>({
-    method: 'POST',
-    path: `/ip_addresses/${ipAddressId}/free`,
-  });
+  const res = narrowApiResult(
+    await (
+      await getApi()
+    ).ip_address.free({
+      path: { ip_address_id: ipAddressId },
+    }),
+    narrowIpAddress,
+    'ip_address free'
+  );
   return requireActionStateResult(res, 'IP address route free');
 }
 
 export async function fetchIpAddressesForVps(vpsId: number, opts?: { limit?: number; includes?: string }) {
-  const res = await haveApiCall<IpAddress[]>({
-    method: 'GET',
-    path: '/ip_addresses',
-    namespace: 'ip_address',
-    params: {
-      vps: vpsId,
-      order: 'interface',
-      limit: opts?.limit ?? 250,
-    },
-    meta: { includes: opts?.includes ?? 'network,user,network_interface' },
-  });
-  return { ...res, data: expectArray<IpAddress>(res.data, 'ip_addresses') };
+  const res = narrowApiResult(
+    await (
+      await getApi()
+    ).ip_address.index({
+      params: {
+        vps: vpsId,
+        order: 'interface',
+        limit: opts?.limit ?? 250,
+      },
+      meta: { includes: opts?.includes ?? 'network,user,network_interface' },
+    }),
+    (data) => expectArray<unknown>(data, 'ip_address list').map(narrowIpAddress),
+    'ip_address index'
+  );
+  return res;
+}
+
+function narrowIpAddressIndexCapability(value: unknown): {
+  input?: { parameters?: Record<string, unknown> | null } | null;
+} {
+  if (!isRecord(value)) throw new TypeError('Invalid IP address capability');
+  const input = value['input'];
+  if (input === undefined || input === null) return { ...value, input };
+  if (!isRecord(input)) throw new TypeError('Invalid IP address capability input');
+  const parameters = input['parameters'];
+  if (parameters === undefined || parameters === null) return { ...value, input: { ...input, parameters } };
+  if (!isRecord(parameters)) throw new TypeError('Invalid IP address capability parameters');
+  if (Object.prototype.hasOwnProperty.call(parameters, 'network_enabled')) {
+    const enabled = parameters['network_enabled'];
+    if (
+      !isRecord(enabled) ||
+      enabled['type'] !== 'Boolean' ||
+      !fields(enabled, [], [], ['required', 'nullable', 'protected'])
+    )
+      throw new TypeError('Invalid network availability capability');
+  }
+  return { ...value, input: { ...input, parameters } };
 }

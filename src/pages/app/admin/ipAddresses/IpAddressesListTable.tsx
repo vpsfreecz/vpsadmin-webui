@@ -32,6 +32,7 @@ import {
   networkLabel,
   userLabel,
   vpsLabel,
+  type IpLocationFallback,
 } from './ipAddressListSemantics';
 
 interface PaginationProps {
@@ -52,7 +53,7 @@ interface IpAddressesListTableProps {
   ipDetailBasePath: string;
   basePath: string;
   na: string;
-  locationFallback?: { label?: string | null; environment?: { label?: string | null } | null } | null;
+  locationFallback?: IpLocationFallback | null;
   canPaginate: boolean;
   pagination: PaginationProps;
 }

@@ -10,26 +10,13 @@ function positiveId(value: unknown): number | null {
   return positiveId((value as { id?: unknown }).id);
 }
 
-function relatedVpses(ip: IpAddress): unknown[] {
-  const networkInterface = ip.network_interface;
-  const nested = networkInterface && typeof networkInterface === 'object'
-    ? (networkInterface as { vps?: unknown }).vps
-    : undefined;
-
-  return [ip.vps, nested].filter((candidate) => positiveId(candidate) !== null);
-}
-
 function ipAddressBelongsToUser(ip: IpAddress, expectedUserId?: number): boolean {
   const userId = positiveId(expectedUserId);
   if (userId === null) return false;
 
   if (positiveId(ip.user) === userId) return true;
 
-  return relatedVpses(ip).some((vps) => (
-    vps !== null
-    && typeof vps === 'object'
-    && positiveId((vps as { user?: unknown }).user) === userId
-  ));
+  return positiveId(ip.network_interface?.vps?.user) === userId;
 }
 
 export class IncompleteIpSearchError extends Error {}

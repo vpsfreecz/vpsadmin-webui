@@ -18,7 +18,7 @@ import {
 } from '../../../../lib/api/ipAddresses';
 import { fetchNetworkInterfaces } from '../../../../lib/api/networkInterfaces';
 import { fetchVps } from '../../../../lib/api/vps';
-import { getMetaActionStateId } from '../../../../lib/api/haveapi';
+import { getMetaActionStateId } from '../../../../lib/api/apiErrors';
 import { formatErrorMessage } from '../../../../lib/errors';
 import { normalizeObjectId, objectRef } from '../../../../lib/objectRef';
 
@@ -76,9 +76,9 @@ export function IpAddressRouteDialog(props: {
       });
       if (
         freshIp.data?.id !== snapshot.ip ||
-        freshIp.data.network_interface ||
+        freshIp.data.network_interface !== null ||
         freshIp.data.network?.enabled === false ||
-        (freshIp.data.user && freshIp.data.user.id !== snapshot.owner) ||
+        (freshIp.data.user !== null && freshIp.data.user?.id !== snapshot.owner) ||
         freshVps.data?.id !== snapshot.vps ||
         freshVps.data.user?.id !== snapshot.owner ||
         !freshInterfaces.data.some((item) => item.id === snapshot.iface && (!item.vps || item.vps.id === snapshot.vps))
@@ -87,7 +87,7 @@ export function IpAddressRouteDialog(props: {
       }
       return snapshot.withHost
         ? assignIpAddressRouteWithHostAddress(snapshot.ip, { network_interface: snapshot.iface })
-        : assignIpAddressRoute(snapshot.ip, { network_interface: snapshot.iface, route_via: snapshot.via });
+        : assignIpAddressRoute(snapshot.ip, { network_interface: snapshot.iface, route_via: snapshot.via ?? undefined });
     },
     onMutate: async (snapshot) => {
       const lockRef = objectRef('IpAddress', snapshot.ip);
@@ -186,7 +186,7 @@ export function IpAddressRouteDialog(props: {
         {target.data?.id === vps ? (
           <div className="rounded-md border border-border bg-surface-2 p-3 text-sm" data-testid="admin.ip.route.target">
             <div className="font-medium">
-              {t('object_kind.vps')} #{target.data.id} · {target.data.hostname}
+              {t('object_kind.vps')} #{target.data.id} · {target.data.hostname || `#${target.data.id}`}
             </div>
             <div>
               {t('admin.ip.owner.user')}: {target.data.user?.login ?? t('common.na')} {owner ? `(#${owner})` : ''}
@@ -213,7 +213,7 @@ export function IpAddressRouteDialog(props: {
               { value: '', label: t('admin.ip.route.interface.placeholder') },
               ...(interfaces.data ?? []).map((item) => ({
                 value: String(item.id),
-                label: `${item.name} (#${item.id})`,
+                label: `${item.name || `#${item.id}`} (#${item.id})`,
               })),
             ]}
           />

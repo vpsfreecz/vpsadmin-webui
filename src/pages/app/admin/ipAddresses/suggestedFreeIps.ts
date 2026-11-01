@@ -52,7 +52,7 @@ function isBrnoProductionLocation(location: InfraLocation): boolean {
 function environmentKey(location: InfraLocation): string {
   const environment = location.environment;
   if (environment?.id !== undefined) return String(environment.id);
-  if (environment?.label) return environment.label;
+  if (typeof environment?.label === 'string' && environment.label) return environment.label;
   return 'unknown';
 }
 

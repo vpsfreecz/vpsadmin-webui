@@ -77,13 +77,13 @@ export function DnsZonesPage() {
   const { t } = useI18n();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const enabledBadge = (enabled: boolean | undefined) => {
+  const enabledBadge = (enabled: boolean | null | undefined) => {
     if (enabled === true) return <Badge variant="ok">{t('common.enabled')}</Badge>;
     if (enabled === false) return <Badge variant="warn">{t('common.disabled')}</Badge>;
     return <Badge variant="neutral">—</Badge>;
   };
 
-  const dnssecBadge = (enabled: boolean | undefined) => {
+  const dnssecBadge = (enabled: boolean | null | undefined) => {
     if (enabled === true) return <Badge variant="ok">{t('dns.zones.badge.dnssec')}</Badge>;
     if (enabled === false) return <Badge variant="neutral">{t('dns.zones.badge.no_dnssec')}</Badge>;
     return <Badge variant="neutral">—</Badge>;

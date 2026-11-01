@@ -38,7 +38,7 @@ describe('NetworkLookupInput', () => {
   });
 
   test('loads a bounded exact scope, filters it locally, and selects a match', async () => {
-    vi.mocked(fetchNetworks).mockResolvedValue({
+    vi.mocked(fetchNetworks).mockResolvedValue({ httpStatus: 200, meta: {},
       data: networks,
       envelope: { status: true, response: {} },
     });

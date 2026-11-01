@@ -1,4 +1,5 @@
-import type { ResourceRef } from '../../../../lib/api/appTypes';
+import type { OwnerReference, VpsReference, NodeReference, LocationReference } from '../../../../lib/api/networkingViews';
+import { fields, isRecord, optionalId } from '../../../../lib/api/networkingViews';
 import type { NetworkInterfaceMonitorRow } from '../../../../lib/api/networking';
 
 export type LiveTrafficTotals = {
@@ -16,16 +17,16 @@ export type LiveTrafficTalker = {
   total: number;
 };
 
-type RelatedObject = ResourceRef & {
-  hostname?: string;
-  login?: string;
-  domain_name?: string;
-  user?: RelatedObject;
-  node?: RelatedObject;
-};
+type RelatedObject = Pick<VpsReference, 'id' | 'hostname'> & Pick<OwnerReference, 'login'>
+  & Pick<NodeReference, 'name' | 'domain_name'> & Pick<LocationReference, 'label'>
+  & { user?: unknown; node?: unknown; [key: string]: unknown };
 
+function isRelatedObject(value: unknown): value is RelatedObject {
+  return isRecord(value) && optionalId(value['id'])
+    && fields(value, ['hostname', 'login', 'domain_name', 'name', 'label']);
+}
 export function relatedObject(value: unknown): RelatedObject | null {
-  return value && typeof value === 'object' ? value as RelatedObject : null;
+  return isRelatedObject(value) ? value : null;
 }
 
 export function monitorInterface(row: NetworkInterfaceMonitorRow): RelatedObject | null {
@@ -54,10 +55,10 @@ export function objectLabel(
     const candidate = String(value[field] ?? '').trim();
     if (candidate) return candidate;
   }
-  return Number.isInteger(value.id) && value.id > 0 ? `#${value.id}` : fallback;
+  return typeof value.id === 'number' && Number.isSafeInteger(value.id) && value.id > 0 ? `#${value.id}` : fallback;
 }
 
-export function perSecond(value: number | undefined, delta: number | undefined): number {
+export function perSecond(value: number | null | undefined, delta: number | null | undefined): number {
   const amount = Number(value ?? 0);
   const seconds = Number(delta ?? 1);
   if (!Number.isFinite(amount)) return 0;

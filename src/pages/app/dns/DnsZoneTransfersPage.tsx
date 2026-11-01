@@ -18,7 +18,7 @@ import { LinkButton } from '../../../components/ui/LinkButton';
 import { formatDateTime } from '../../../lib/format';
 import { useKeysetPagination } from '../../../lib/hooks/useKeysetPagination';
 import { cursorFromDescendingPage } from '../../../lib/lockIndex';
-import { getMetaActionStateId } from '../../../lib/api/haveapi';
+import { getMetaActionStateId } from '../../../lib/api/apiErrors';
 import { formatErrorMessage } from '../../../lib/errors';
 import {
   fetchDnsServerZones,

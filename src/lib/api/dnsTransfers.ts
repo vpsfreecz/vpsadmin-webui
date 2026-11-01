@@ -1,69 +1,35 @@
-import { expectArray, haveApiCall } from './haveapi';
+import type {
+  DnsServerZoneTransferLog__IndexInput,
+  DnsServerZoneTransferLog__IndexOutput,
+  DnsZoneTransfer__CreateInput,
+  DnsZoneTransfer__IndexInput,
+  DnsZoneTransfer__IndexOutput,
+} from 'vpsadmin-typescript-client';
+import { isRecord, isId, fields, optional, reference, ipReference, optionalId } from './networkingViews';
+import type { DnsReference } from './networkingViews';
+import { narrowApiResult } from './apiOutput';
+import { getApi } from './sdk';
+import { expectArray } from './apiErrors';
+import type { HostIpAddress } from './networking';
+import type { DnsServerZone } from './dns';
 import { withoutDnsSecrets } from './dnsSecretScrubber';
-import type { DnsServerZone, DnsZone, ResourceRef } from './dns';
 
-export interface HostIpAddress {
+export type DnsZoneTransfer = Omit<
+  DnsZoneTransfer__IndexOutput[number],
+  'id' | 'dns_zone' | 'dns_tsig_key' | 'host_ip_address'
+> & {
   id: number;
-  ip_address?: ResourceRef & { ip_addr?: string; addr?: string };
-  addr?: string;
-  reverse_record_value?: string | null;
-  vps?: ResourceRef & { hostname?: string };
-  user?: ResourceRef & { login?: string };
-  network_interface?: ResourceRef & { name?: string };
-  [k: string]: unknown;
-}
+  dns_zone?: DnsReference | null;
+  dns_tsig_key?: DnsReference | null;
+  host_ip_address?: Partial<HostIpAddress> | null;
+  [key: string]: unknown;
+};
 
-export interface DnsZoneTransfer {
+export type DnsServerZoneTransferLog = Omit<DnsServerZoneTransferLog__IndexOutput[number], 'id' | 'dns_server_zone'> & {
   id: number;
-  dns_zone?: ResourceRef & { name?: string };
-  host_ip_address?: HostIpAddress | ResourceRef;
-  peer_type?: string;
-  dns_tsig_key?: ResourceRef & { name?: string } | null;
-  created_at?: string;
-  updated_at?: string;
-  [k: string]: unknown;
-}
-
-export interface DnsServerZoneTransferLog {
-  id: number;
-  dns_server_zone?: DnsServerZone | ResourceRef;
-  event_at?: string;
-  status?: string;
-  reason_code?: string | null;
-  reason?: string | null;
-  primary_addr?: string | null;
-  serial?: number | null;
-  message?: string | null;
-  created_at?: string;
-  updated_at?: string;
-  [k: string]: unknown;
-}
-
-export async function fetchHostIpAddresses(opts?: {
-  fromId?: number;
-  limit?: number;
-  q?: string;
-  user?: number;
-  vps?: number;
-  assigned?: boolean;
-}) {
-  const params: Record<string, unknown> = {};
-  if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
-  if (opts?.limit !== undefined) params['limit'] = opts.limit;
-  if (opts?.q !== undefined) params['q'] = opts.q;
-  if (opts?.user !== undefined) params['user'] = opts.user;
-  if (opts?.vps !== undefined) params['vps'] = opts.vps;
-  if (opts?.assigned !== undefined) params['assigned'] = opts.assigned;
-
-  const res = await haveApiCall<HostIpAddress[]>({
-    method: 'GET',
-    path: '/host_ip_addresses',
-    namespace: 'host_ip_address',
-    params,
-    meta: { includes: 'ip_address,user,vps,network_interface' },
-  });
-  return { ...res, data: expectArray<HostIpAddress>(res.data, 'host_ip_addresses#index') };
-}
+  dns_server_zone?: Partial<DnsServerZone> | null;
+  [key: string]: unknown;
+};
 
 export async function fetchDnsZoneTransfers(opts?: {
   fromId?: number;
@@ -73,7 +39,7 @@ export async function fetchDnsZoneTransfers(opts?: {
   peer_type?: string;
   dns_tsig_key?: number;
 }) {
-  const params: Record<string, unknown> = {};
+  const params: DnsZoneTransfer__IndexInput = {};
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
   if (opts?.dns_zone !== undefined) params['dns_zone'] = opts.dns_zone;
@@ -81,36 +47,42 @@ export async function fetchDnsZoneTransfers(opts?: {
   if (opts?.peer_type !== undefined) params['peer_type'] = opts.peer_type;
   if (opts?.dns_tsig_key !== undefined) params['dns_tsig_key'] = opts.dns_tsig_key;
 
-  const res = await haveApiCall<DnsZoneTransfer[]>({
-    method: 'GET',
-    path: '/dns_zone_transfers',
-    namespace: 'dns_zone_transfer',
-    params,
-    meta: { includes: 'dns_zone,host_ip_address,dns_tsig_key' },
-  });
-  const safeRes = withoutDnsSecrets(res);
-  return {
-    ...safeRes,
-    data: expectArray<DnsZoneTransfer>(safeRes.data, 'dns_zone_transfers#index'),
-  };
+  const raw = withoutDnsSecrets(
+    await (
+      await getApi()
+    ).dns_zone_transfer.index({
+      params,
+      meta: { includes: 'dns_zone,host_ip_address,dns_tsig_key' },
+    })
+  );
+  const safeRes = narrowApiResult(
+    raw,
+    (data) => expectArray<unknown>(data, 'dns_zone_transfer list').map(narrowDnsZoneTransfer),
+    'dns_zone_transfer index'
+  );
+  return safeRes;
 }
 
-export async function createDnsZoneTransfer(payload: {
-  dns_zone: number;
-  host_ip_address: number;
-  peer_type?: string;
-  dns_tsig_key?: number;
-}) {
-  return haveApiCall<DnsZoneTransfer>({
-    method: 'POST',
-    path: '/dns_zone_transfers',
-    namespace: 'dns_zone_transfer',
-    params: payload,
-  });
+export async function createDnsZoneTransfer(payload: DnsZoneTransfer__CreateInput) {
+  return narrowApiResult(
+    withoutDnsSecrets(
+      await (
+        await getApi()
+      ).dns_zone_transfer.create({
+        params: payload,
+      })
+    ),
+    narrowDnsZoneTransfer,
+    'dns_zone_transfer create'
+  );
 }
 
 export async function deleteDnsZoneTransfer(id: number) {
-  return haveApiCall<void>({ method: 'DELETE', path: `/dns_zone_transfers/${id}` });
+  return await (
+    await getApi()
+  ).dns_zone_transfer.delete({
+    path: { dns_zone_transfer_id: id },
+  });
 }
 
 export async function fetchDnsServerZoneTransferLogs(opts?: {
@@ -123,7 +95,7 @@ export async function fetchDnsServerZoneTransferLogs(opts?: {
   primary_addr?: string;
   order?: 'oldest' | 'latest';
 }) {
-  const params: Record<string, unknown> = {};
+  const params: DnsServerZoneTransferLog__IndexInput = {};
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
   if (opts?.dns_zone !== undefined) params['dns_zone'] = opts.dns_zone;
@@ -133,19 +105,100 @@ export async function fetchDnsServerZoneTransferLogs(opts?: {
   if (opts?.primary_addr !== undefined) params['primary_addr'] = opts.primary_addr;
   if (opts?.order !== undefined) params['order'] = opts.order;
 
-  const res = await haveApiCall<DnsServerZoneTransferLog[]>({
-    method: 'GET',
-    path: '/dns_server_zone_transfer_logs',
-    namespace: 'dns_server_zone_transfer_log',
-    params,
-    meta: { includes: 'dns_server_zone__dns_server,dns_server_zone__dns_zone' },
-  });
+  const res = narrowApiResult(
+    await (
+      await getApi()
+    ).dns_server_zone_transfer_log.index({
+      params,
+      meta: { includes: 'dns_server_zone__dns_server,dns_server_zone__dns_zone' },
+    }),
+    (data) => expectArray<unknown>(data, 'dns_server_zone_transfer_log list').map(narrowDnsServerZoneTransferLog),
+    'dns_server_zone_transfer_log index'
+  );
 
-  return {
-    ...res,
-    data: expectArray<DnsServerZoneTransferLog>(
-      res.data,
-      'dns_server_zone_transfer_logs#index'
-    ),
-  };
+  return res;
+}
+
+function isDnsZoneTransfer(value: unknown): value is DnsZoneTransfer {
+  if (
+    !isRecord(value) ||
+    !isId(value['id']) ||
+    !fields(value, ['created_at', 'peer_type', 'updated_at'], [], []) ||
+    !['dns_zone', 'dns_tsig_key'].every((key) => optional(value[key], reference)) ||
+    !optional(value['host_ip_address'], hostReference)
+  )
+    return false;
+  return true;
+}
+function narrowDnsZoneTransfer(value: unknown): DnsZoneTransfer {
+  if (!isDnsZoneTransfer(value)) throw new TypeError('Invalid DnsZoneTransfer identity or fields');
+  return value;
+}
+
+function isDnsServerZoneTransferLog(value: unknown): value is DnsServerZoneTransferLog {
+  if (
+    !isRecord(value) ||
+    !isId(value['id']) ||
+    !fields(
+      value,
+      [
+        'created_at',
+        'event_at',
+        'event_key',
+        'message',
+        'primary_addr',
+        'raw_message',
+        'reason',
+        'reason_code',
+        'source_cursor',
+        'status',
+        'updated_at',
+      ],
+      ['serial'],
+      []
+    ) ||
+    !optional(value['dns_server_zone'], serverZoneReference)
+  )
+    return false;
+  return true;
+}
+function narrowDnsServerZoneTransferLog(value: unknown): DnsServerZoneTransferLog {
+  if (!isDnsServerZoneTransferLog(value)) throw new TypeError('Invalid DnsServerZoneTransferLog identity or fields');
+  return value;
+}
+
+function hostReference(value: unknown): boolean {
+  return (
+    isRecord(value) &&
+    optionalId(value['id']) &&
+    fields(value, ['addr', 'reverse_record_value'], [], ['assigned', 'user_created']) &&
+    optional(value['ip_address'], ipReference)
+  );
+}
+
+function serverZoneReference(value: unknown): boolean {
+  return (
+    reference(value) &&
+    isRecord(value) &&
+    fields(
+      value,
+      [
+        'type',
+        'loaded_at',
+        'expires_at',
+        'refresh_at',
+        'last_check_at',
+        'last_transfer_at',
+        'last_transfer_status',
+        'last_transfer_reason_code',
+        'last_transfer_reason',
+        'last_transfer_primary_addr',
+        'created_at',
+        'updated_at',
+      ],
+      ['serial', 'last_transfer_serial', 'last_transfer_log_id']
+    ) &&
+    optional(value['dns_zone'], reference) &&
+    optional(value['dns_server'], reference)
+  );
 }

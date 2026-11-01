@@ -87,3 +87,10 @@ describe('unresolved assignment hydration', () => {
     await expect(fetchAssignedIpAddresses(7, new Set([123]))).rejects.toThrow('Example API failure');
   });
 });
+
+it('keeps assignment-history VPS context separate from current allocation associations', () => {
+  const row = assignmentIpAddress({ id: 1, vps: { id: 123 }, ip_address: { id: 10, network_interface: { id: 9 } } });
+  expect(row?.vpsId).toBe(123);
+  expect(row?.ip).not.toHaveProperty('vps');
+  expect(row?.ip.network_interface).not.toHaveProperty('vps');
+});

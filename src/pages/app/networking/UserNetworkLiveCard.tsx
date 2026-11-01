@@ -1,3 +1,4 @@
+import type { InterfaceReference, VpsReference } from '../../../lib/api/networkingViews';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
@@ -12,8 +13,6 @@ import { StatCard } from '../../../components/ui/StatCard';
 import { StatusDot } from '../../../components/ui/StatusDot';
 import { TableCard } from '../../../components/ui/TableCard';
 import { TimeSeriesChart } from '../../../components/ui/TimeSeriesChart';
-import type { ResourceRef } from '../../../lib/api/appTypes';
-import type { NetworkInterface } from '../../../lib/api/networkInterfaces';
 import {
   fetchNetworkInterfaceMonitor,
   type NetworkInterfaceMonitorRow,
@@ -22,7 +21,6 @@ import { formatBytesIec } from '../../../lib/bytes';
 import { formatDateTime } from '../../../lib/format';
 import { TIER_A_VISIBLE_MS } from '../../../lib/refreshTiers';
 import { useDocumentVisibility } from '../../../lib/useDocumentVisibility';
-import type { Vps } from '../../../lib/api/vps';
 import { resourceId } from './IpAddressAssignmentModel';
 
 type LiveSample = {
@@ -33,23 +31,23 @@ type LiveSample = {
 
 const LIVE_HISTORY_POINTS = 60;
 
-function networkInterface(row: NetworkInterfaceMonitorRow): NetworkInterface | ResourceRef | null {
+function networkInterface(row: NetworkInterfaceMonitorRow): InterfaceReference | null {
   const value = row.network_interface;
   return value && typeof value === 'object' ? value : null;
 }
 
-function rowVps(row: NetworkInterfaceMonitorRow): Vps | ResourceRef | null {
+function rowVps(row: NetworkInterfaceMonitorRow): VpsReference | null {
   const ni = networkInterface(row);
   if (!ni || typeof ni !== 'object') return null;
-  const value = (ni as NetworkInterface).vps;
-  return value && typeof value === 'object' ? value as Vps | ResourceRef : null;
+  const value = ni.vps;
+  return value && typeof value === 'object' ? value : null;
 }
 
 function rowVpsLabel(row: NetworkInterfaceMonitorRow): string {
   const vps = rowVps(row);
   const id = resourceId(vps);
   if (vps && typeof vps === 'object') {
-    const label = String((vps as Vps).hostname ?? (vps as ResourceRef).label ?? '').trim();
+    const label = String(vps.hostname ?? vps['label'] ?? '').trim();
     if (label) return label;
   }
   return id ? `#${id}` : '—';
@@ -59,7 +57,7 @@ function rowInterfaceLabel(row: NetworkInterfaceMonitorRow): string {
   const ni = networkInterface(row);
   const id = resourceId(ni);
   if (ni && typeof ni === 'object') {
-    const label = String((ni as NetworkInterface).name ?? (ni as ResourceRef).label ?? '').trim();
+    const label = String(ni.name ?? ni['label'] ?? '').trim();
     if (label) return label;
   }
   return id ? `#${id}` : '—';
@@ -69,7 +67,7 @@ function rowKey(row: NetworkInterfaceMonitorRow): string {
   return `${resourceId(rowVps(row)) ?? 'vps'}:${resourceId(networkInterface(row)) ?? row.id}`;
 }
 
-function perSecond(value: number | undefined, delta: number | undefined): number {
+function perSecond(value: number | null | undefined, delta: number | null | undefined): number {
   const amount = Number(value ?? 0);
   const seconds = Number(delta ?? 1);
   if (!Number.isFinite(amount)) return 0;

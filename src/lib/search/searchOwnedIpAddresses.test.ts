@@ -4,7 +4,7 @@ import { searchOwnedIpAddresses } from './searchOwnedIpAddresses';
 
 vi.mock('../api/ipAddresses', () => ({ fetchIpAddresses: vi.fn() }));
 beforeEach(() => vi.resetAllMocks());
-const response = (data: IpAddress[]) => ({ data }) as Awaited<ReturnType<typeof fetchIpAddresses>>;
+const response = (data: IpAddress[]): Awaited<ReturnType<typeof fetchIpAddresses>> => ({ data, meta: {}, envelope: { status: true, response: { ip_addresses: data } }, httpStatus: 200 });
 
 it.each(['203.0.113.20', '2001:db8::20'])('finds a VPS-assigned %s without the direct-owner filter', async (addr) => {
   vi.mocked(fetchIpAddresses).mockImplementation(async (opts) => response(opts?.user ? [] : [
@@ -53,4 +53,9 @@ it('does not infer administrator ordering from an explicit My-view owner', async
   vi.mocked(fetchIpAddresses).mockResolvedValue(response(Array.from({ length: 100 }, (_, i) => ({ id: i + 1 }))));
   await expect(searchOwnedIpAddresses({ addr: '192.0.2.1', scopeUserId: 42, isAdmin: false })).rejects.toThrow('incomplete');
   expect(fetchIpAddresses).toHaveBeenCalledOnce();
+});
+
+it('does not use a fabricated root VPS association as allocation ownership', async () => {
+  vi.mocked(fetchIpAddresses).mockResolvedValue(response([{ id: 1, vps: { id: 8, user: { id: 42 } } }]));
+  expect(await searchOwnedIpAddresses({ addr: '192.0.2.1', expectedUserId: 42 })).toEqual([]);
 });

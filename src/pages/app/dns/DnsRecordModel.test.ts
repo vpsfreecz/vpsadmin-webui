@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { HaveApiError } from '../../../lib/api/haveapi';
+import { HaveApiError } from '../../../lib/api/apiErrors';
 import type { DnsRecord } from '../../../lib/api/dns';
 import {
   DNS_RECORD_TYPES,

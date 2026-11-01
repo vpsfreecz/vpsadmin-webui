@@ -13,7 +13,7 @@ function ip(overrides: Partial<IpAddress> = {}): IpAddress {
   return {
     id: 10,
     addr: '198.51.100.10',
-    network_interface: null as unknown as undefined,
+    network_interface: null,
     user: { id: 7 },
     charged_environment: { id: 3 },
     ...overrides,
@@ -71,4 +71,16 @@ describe('IP address mutation intent reconciliation', () => {
     expect(ipOwnerUpdateIntent(ip(), 7, 3)).toBeNull();
     expect(ipOwnerUpdateIntent(ip(), 77, null)).toBeNull();
   });
+});
+
+it('does not clear uncertain writes from omitted or partial associations', () => {
+  const assigned = ip({ network_interface: { id: 501, vps: { id: 123 } } });
+  const free = ipRouteFreeIntent(assigned)!;
+  expect(reconcileIpAddressMutation(lock(free), ip({ network_interface: undefined }))).toBe('busy');
+  expect(reconcileIpAddressMutation(lock(free), ip({ network_interface: {} }))).toBe('busy');
+  expect(ipRouteAssignIntent(ip({ network_interface: undefined }), 501, 123)).toBeNull();
+  expect(ipOwnerUpdateIntent(ip({ user: undefined }), null, null)).toBeNull();
+  const clearOwner = ipOwnerUpdateIntent(ip(), null, null)!;
+  expect(reconcileIpAddressMutation(lock(clearOwner), ip({ user: undefined, charged_environment: undefined }))).toBe('busy');
+  expect(reconcileIpAddressMutation(lock(clearOwner), ip({ user: null, charged_environment: null }))).toBe('clear');
 });

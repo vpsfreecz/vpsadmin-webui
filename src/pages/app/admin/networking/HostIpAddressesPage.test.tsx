@@ -1,12 +1,12 @@
 // i18n-ignore-file
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { I18nProvider } from '../../../../app/i18n';
-import { fetchHostIpAddress, fetchHostIpAddresses } from '../../../../lib/api/networking';
+import { assignHostIpAddress, fetchHostIpAddress, fetchHostIpAddresses } from '../../../../lib/api/networking';
 import { HostIpAddressesPage } from './HostIpAddressesPage';
 
 const state = vi.hoisted(() => ({ language: 'en' as 'en' | 'cs', role: 'admin' as 'admin' | 'user' }));
@@ -17,7 +17,8 @@ vi.mock('../../../../app/auth', () => ({
   useAuth: () => ({ status: 'authenticated', role: state.role, user: { id: 9 } }),
 }));
 vi.mock('../../../../app/toasts', () => ({ useToasts: () => ({ pushToast: vi.fn() }) }));
-vi.mock('../../../../lib/api/networking', () => ({
+vi.mock('../../../../lib/api/networking', async (importOriginal) => ({
+  ...await importOriginal<typeof import('../../../../lib/api/networking')>(),
   fetchHostIpAddresses: vi.fn(), fetchHostIpAddress: vi.fn(),
   assignHostIpAddress: vi.fn(), deleteHostIpAddress: vi.fn(),
   freeHostIpAddress: vi.fn(), updateHostIpAddress: vi.fn(),
@@ -96,5 +97,45 @@ describe('host IP inventory', () => {
       expect(opts).not.toHaveProperty('q');
       expect(opts).not.toHaveProperty('fromId', 10);
     }
+  });
+});
+
+const routedHost = { id: 9, addr: '192.0.2.9', assigned: false, user_created: true, ip_address: { id: 42, network_interface: { id: 12, name: 'eth0' } } };
+const hostReceipt = (data: typeof routedHost) => ({ data, meta: {}, envelope: { status: true, response: { host_ip_address: data } }, httpStatus: 200 });
+
+describe('host assignment uses the reviewed existing route', () => {
+  it.each(['en', 'cs'] as const)('shows the real %s interface without selectors and submits only the host ID after exact revalidation', async (language) => {
+    state.language = language;
+    vi.mocked(fetchHostIpAddresses).mockResolvedValue({ ...hostReceipt(routedHost), data: [routedHost] });
+    vi.mocked(fetchHostIpAddress).mockResolvedValue(hostReceipt(routedHost));
+    vi.mocked(assignHostIpAddress).mockResolvedValue({ ...hostReceipt(routedHost), meta: { action_state_id: 8 } });
+    renderPage();
+    fireEvent.click(await screen.findByTestId('admin.host_ip_addresses.row.9.assign'));
+    const dialog = await screen.findByRole('dialog');
+    expect(dialog).toHaveTextContent('eth0');
+    expect(dialog.querySelector('select')).toBeNull();
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: language === 'en' ? 'Assign' : 'Přiřadit' }));
+    await waitFor(() => expect(assignHostIpAddress).toHaveBeenCalledExactlyOnceWith(9));
+    expect(fetchHostIpAddress).toHaveBeenCalledWith(9);
+  });
+
+  it('keeps an unrouted parent unavailable', async () => {
+    const host = { ...routedHost, ip_address: { id: 42, network_interface: null } };
+    vi.mocked(fetchHostIpAddresses).mockResolvedValue({ data: [host], meta: {}, envelope: { status: true }, httpStatus: 200 });
+    renderPage();
+    fireEvent.click(await screen.findByTestId('admin.host_ip_addresses.row.9.assign'));
+    expect(within(screen.getByRole('dialog')).getByRole('button', { name: 'Assign' })).toBeDisabled();
+    expect(assignHostIpAddress).not.toHaveBeenCalled();
+  });
+
+  it('keeps the confirmation open and sends no write when the parent route changed', async () => {
+    vi.mocked(fetchHostIpAddresses).mockResolvedValue({ ...hostReceipt(routedHost), data: [routedHost] });
+    vi.mocked(fetchHostIpAddress).mockResolvedValue(hostReceipt({ ...routedHost, ip_address: { id: 42, network_interface: { id: 13, name: 'eth1' } } }));
+    renderPage();
+    fireEvent.click(await screen.findByTestId('admin.host_ip_addresses.row.9.assign'));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Assign' }));
+    expect(await screen.findByText('The parent IP address route changed. Review the current interface before assigning the host address.')).toBeInTheDocument();
+    expect(assignHostIpAddress).not.toHaveBeenCalled();
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
   });
 });

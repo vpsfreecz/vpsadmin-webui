@@ -12,7 +12,7 @@ import {
   updateDnsRecord,
   type DnsRecord,
 } from '../../../lib/api/dns';
-import { getMetaActionStateId } from '../../../lib/api/haveapi';
+import { getMetaActionStateId } from '../../../lib/api/apiErrors';
 import { formatErrorMessage } from '../../../lib/errors';
 import { gateDnsAction } from '../../../lib/gates/dns';
 

@@ -1,3 +1,4 @@
+import type { DnsRecord__CreateInput, DnsRecord__UpdateInput } from 'vpsadmin-typescript-client';
 import type { DnsRecord } from '../../../lib/api/dns';
 import {
   DNS_TTL_MAX,
@@ -53,28 +54,8 @@ export interface DnsRecordPreviewItem {
   after?: string | number | boolean | null;
 }
 
-export type DnsRecordCreatePayload = {
-  dns_zone: number;
-  name: string;
-  type: string;
-  content: string;
-  ttl?: number;
-  priority?: number;
-  comment?: string;
-  enabled: boolean;
-  dynamic_update_enabled: boolean;
-};
-
-export type DnsRecordUpdatePayload = {
-  content: string;
-  ttl?: number | null;
-  priority?: number;
-  comment?: string;
-  enabled: boolean;
-  dynamic_update_enabled: boolean;
-};
-
-
+export type DnsRecordCreatePayload = DnsRecord__CreateInput;
+export type DnsRecordUpdatePayload = DnsRecord__UpdateInput;
 
 type DnsRecordCompat = DnsRecord & { dynamic?: boolean };
 
@@ -127,7 +108,7 @@ export function recordDynamicEnabled(record: DnsRecord): boolean {
   return compat.dynamic === true;
 }
 
-export function dnsZoneLabel(zone: { id: number; name?: string; label?: string }): string {
+export function dnsZoneLabel(zone: { id: number; name?: string | null; label?: string | null }): string {
   return String(zone.name ?? zone.label ?? `Zone #${zone.id}`);
 }
 
@@ -190,7 +171,7 @@ function normalizedRecordName(value: string): string {
   return trimmed.replace(/\.$/, '');
 }
 
-function sameRecordName(a: string | undefined, b: string): boolean {
+function sameRecordName(a: string | null | undefined, b: string): boolean {
   return normalizedRecordName(String(a ?? '')) === normalizedRecordName(b);
 }
 

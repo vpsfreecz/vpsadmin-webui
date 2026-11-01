@@ -17,7 +17,7 @@ import { Select } from '../../../components/ui/Select';
 import { fetchDnsServerZones, fetchDnsServers, createDnsServerZone, deleteDnsServerZone, type DnsServerZone } from '../../../lib/api/dns';
 import { useKeysetPagination } from '../../../lib/hooks/useKeysetPagination';
 import { cursorFromDescendingPage } from '../../../lib/lockIndex';
-import { getMetaActionStateId } from '../../../lib/api/haveapi';
+import { getMetaActionStateId } from '../../../lib/api/apiErrors';
 import { formatErrorMessage } from '../../../lib/errors';
 
 import { useDnsZoneContext } from './DnsZoneContext';

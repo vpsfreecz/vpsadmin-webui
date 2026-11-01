@@ -43,10 +43,10 @@ function deferred<T>() {
 }
 
 const capabilityResult = () => {
-  const data = { input: { parameters: { network_enabled: {} } } };
-  return { data, envelope: { status: true, response: data } };
+  const data = { input: { parameters: { network_enabled: { type: 'Boolean' } } } };
+  return { httpStatus: 200, meta: {}, data, envelope: { status: true, response: data } };
 };
-const addressResult = (data: IpAddress[] = []) => ({ data, envelope: { status: true } });
+const addressResult = (data: IpAddress[] = []) => ({ httpStatus: 200, meta: {}, data, envelope: { status: true } });
 const suggestionKey = (location = 10) => ['ip_addresses', 'suggested_free', location, 4, 'public_access', 'any'];
 const capabilityKey = ['ip-address-index-capability'];
 async function advance(milliseconds = 0) {
@@ -63,8 +63,8 @@ afterEach(() => {
 
 beforeEach(() => {
   vi.resetAllMocks();
-  const capability = { input: { parameters: { network_enabled: {} } } };
-  vi.mocked(fetchIpAddressIndexCapability).mockResolvedValue({
+  const capability = { input: { parameters: { network_enabled: { type: 'Boolean' } } } };
+  vi.mocked(fetchIpAddressIndexCapability).mockResolvedValue({ httpStatus: 200, meta: {},
     data: capability, envelope: { status: true, response: capability },
   });
 });
@@ -404,7 +404,7 @@ describe('suggested IP availability', () => {
     vi.mocked(fetchIpAddresses).mockImplementation(async (opts) => {
       const candidates = opts?.version === 4 && opts.role === 'public_access' ? rows : [];
       const filtered = opts?.networkEnabled ? candidates.filter((row) => row.network?.enabled) : candidates;
-      return { data: filtered.slice(0, opts?.limit), envelope: { status: true } };
+      return { httpStatus: 200, meta: {}, data: filtered.slice(0, opts?.limit), envelope: { status: true } };
     });
     const { result } = renderSuggestions();
     await waitFor(() => expect(result.current.isLoading).toBe(false));
@@ -416,7 +416,7 @@ describe('suggested IP availability', () => {
   });
 
   it('keeps the local stale-response guard even when the server filter is advertised', async () => {
-    vi.mocked(fetchIpAddresses).mockImplementation(async (opts) => ({
+    vi.mocked(fetchIpAddresses).mockImplementation(async (opts) => ({ httpStatus: 200, meta: {},
       data: opts?.version === 4 && opts.role === 'public_access' ? [ip(1, false), ip(2, true)] : [],
       envelope: { status: true },
     }));
@@ -427,10 +427,10 @@ describe('suggested IP availability', () => {
 
   it('omits the unsupported filter after a successful older-API capability response', async () => {
     const capability = { input: { parameters: {} } };
-    vi.mocked(fetchIpAddressIndexCapability).mockResolvedValue({
+    vi.mocked(fetchIpAddressIndexCapability).mockResolvedValue({ httpStatus: 200, meta: {},
       data: capability, envelope: { status: true, response: capability },
     });
-    vi.mocked(fetchIpAddresses).mockImplementation(async (opts) => ({
+    vi.mocked(fetchIpAddresses).mockImplementation(async (opts) => ({ httpStatus: 200, meta: {},
       data: opts?.version === 4 && opts.role === 'public_access' ? [ip(1), ip(2, false)] : [],
       envelope: { status: true },
     }));

@@ -10,9 +10,10 @@ import {
   fetchIpAddress,
   freeIpAddressRoute,
 } from '../../../lib/api/ipAddresses';
-import { fetchNetworkInterfaces } from '../../../lib/api/networkInterfaces';
 import {
   assignHostIpAddress,
+  hostAssignmentTarget,
+  fetchHostIpAddress,
   createHostIpAddress,
   deleteHostIpAddress,
   fetchHostIpAddresses,
@@ -36,10 +37,8 @@ import { Input } from '../../../components/ui/Input';
 import { LoadingState } from '../../../components/ui/LoadingState';
 import { Modal } from '../../../components/ui/Modal';
 import { ObjectHeader } from '../../../components/ui/ObjectHeader';
-import { Select } from '../../../components/ui/Select';
 import { Table } from '../../../components/ui/Table';
 import { Textarea } from '../../../components/ui/Textarea';
-import { VpsLookupInput } from '../../../components/ui/VpsLookupInput';
 import { HostIpAddressRowActions } from './ipAddresses/HostIpAddressRowActions';
 import { useChrome } from '../../../components/layout/ChromeContext';
 import { objectRef } from '../../../lib/objectRef';
@@ -84,11 +83,6 @@ function labelFromResourceRef(v: any, fields: string[] = ['label', 'name', 'host
   return '—';
 }
 
-function parsePositiveId(raw: string): number | null {
-  const n = Number(raw.trim());
-  return Number.isInteger(n) && n > 0 ? n : null;
-}
-
 function hostAddr(row: HostIpAddress): string {
   return String((row as any).addr ?? (row as any).ip_addr ?? `#${row.id}`);
 }
@@ -111,8 +105,7 @@ export function IpAddressDetailPage() {
   const [ptrValue, setPtrValue] = useState('');
   const [deleteHost, setDeleteHost] = useState<HostIpAddress | null>(null);
   const [assignHost, setAssignHost] = useState<HostIpAddress | null>(null);
-  const [assignHostVps, setAssignHostVps] = useState<number | null>(null);
-  const [assignHostInterface, setAssignHostInterface] = useState('');
+  const assignTarget = hostAssignmentTarget(assignHost);
 
   const q = useQuery({
     queryKey: ['ip_addresses', ipId],
@@ -130,11 +123,6 @@ export function IpAddressDetailPage() {
     queryKey: ['host_ip_addresses', 'by_ip', ipId],
     queryFn: async () => (await fetchHostIpAddresses({ ipAddress: ipId as number, limit: 250 })).data,
     enabled: Boolean(ipId && ip),
-  });
-  const hostAssignNetifsQ = useQuery({
-    queryKey: ['network_interface', 'host-ip-assign', { vpsId: assignHostVps, limit: 100 }],
-    queryFn: async () => (await fetchNetworkInterfaces(assignHostVps as number, { limit: 100 })).data,
-    enabled: Boolean(assignHost && assignHostVps),
   });
   const isLoading = Boolean(ipId) && q.isLoading;
   const isError = Boolean(ipId) && (q.isError || !ip);
@@ -216,14 +204,19 @@ export function IpAddressDetailPage() {
   const hostAssignM = useMutation({
     mutationFn: async () => {
       if (!assignHost) throw new Error(t('admin.ip.hosts.validation.missing'));
-      const networkInterface = parsePositiveId(assignHostInterface);
-      if (!networkInterface) throw new Error(t('admin.ip.route.validation.interface'));
-      return assignHostIpAddress(assignHost.id, { network_interface: networkInterface });
+      const reviewed = hostAssignmentTarget(assignHost);
+      if (!reviewed) throw new Error(t('admin.host_ip_addresses.assign.interface_required'));
+      const currentHost = (await fetchHostIpAddress(assignHost.id)).data;
+      if (currentHost.id !== assignHost.id || currentHost.assigned !== false) throw new Error(t('admin.host_ip_addresses.action.error'));
+      const current = hostAssignmentTarget(currentHost);
+      if (!current) throw new Error(t('admin.host_ip_addresses.assign.interface_required'));
+      if (current.parentId !== reviewed.parentId || current.interfaceId !== reviewed.interfaceId) {
+        throw new Error(t('admin.host_ip_addresses.assign.route_changed'));
+      }
+      return assignHostIpAddress(assignHost.id);
     },
     onSuccess: async () => {
       setAssignHost(null);
-      setAssignHostVps(null);
-      setAssignHostInterface('');
       await invalidate();
       pushToast({ variant: 'ok', title: t('admin.ip.hosts.toast.assigned') });
     },
@@ -497,8 +490,6 @@ export function IpAddressDetailPage() {
                                   }}
                                   onAssign={() => {
                                     setAssignHost(host);
-                                    setAssignHostVps(null);
-                                    setAssignHostInterface('');
                                   }}
                                   onFree={() => hostFreeM.mutate(host.id)}
                                   onDelete={() => {
@@ -563,33 +554,20 @@ export function IpAddressDetailPage() {
                   footer={
                     <div className="flex justify-end gap-2">
                       <Button variant="secondary" onClick={() => setAssignHost(null)} disabled={hostAssignM.isPending}>{t('common.cancel')}</Button>
-                      <ActionButton loading={hostAssignM.isPending} disabled={!assignHostInterface.trim()} onClick={() => hostAssignM.mutate()}>
+                      <ActionButton loading={hostAssignM.isPending} disabled={!assignTarget} onClick={() => hostAssignM.mutate()}>
                         {t('admin.ip.hosts.assign')}
                       </ActionButton>
                     </div>
                   }
                 >
                   <div className="space-y-4">
-                    <label className="block">
-                      <div className="mb-1 text-sm font-medium">{t('admin.ip.route.vps')}</div>
-                      <VpsLookupInput value={assignHostVps} onChange={setAssignHostVps} placeholder={t('admin.ip.route.vps.placeholder')} />
-                    </label>
-                    <label className="block">
+                    <div>{assignHost ? hostAddr(assignHost) : '—'}</div>
+                    <div>
                       <div className="mb-1 text-sm font-medium">{t('admin.ip.route.interface')}</div>
-                      <Select
-                        value={assignHostInterface}
-                        onChange={(e) => setAssignHostInterface(e.target.value)}
-                        disabled={!assignHostVps || hostAssignNetifsQ.isLoading}
-                        options={[
-                          { value: '', label: t('admin.ip.route.interface.placeholder') },
-                          ...(hostAssignNetifsQ.data ?? []).map((ni: any) => ({
-                            value: String(ni.id),
-                            label: `${ni.name ?? `#${ni.id}`} (#${ni.id})`,
-                          })),
-                        ]}
-                      />
-                    </label>
+                      <div data-testid="admin.ip.hosts.assign.parent_interface">{assignTarget?.interfaceName || (assignTarget ? `#${assignTarget.interfaceId}` : '—')}</div>
+                    </div>
                     <div className="text-xs text-muted">{t('admin.ip.hosts.assign_help')}</div>
+                    {hostAssignM.isError ? <Alert variant="danger" title={t('common.error')}>{formatErrorMessage(hostAssignM.error)}</Alert> : null}
                   </div>
                 </Modal>
 

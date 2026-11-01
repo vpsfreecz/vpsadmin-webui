@@ -1,3 +1,4 @@
+import type { IpAddress__UpdateInput } from 'vpsadmin-typescript-client';
 import React, { useMemo, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useI18n } from '../../../../app/i18n';
@@ -12,7 +13,7 @@ import { Select } from '../../../../components/ui/Select';
 import { UserLookupInput } from '../../../../components/ui/UserLookupInput';
 import { fetchEnvironments } from '../../../../lib/api/infra';
 import { fetchIpAddress, updateIpAddress, type IpAddress } from '../../../../lib/api/ipAddresses';
-import { getMetaActionStateId } from '../../../../lib/api/haveapi';
+import { getMetaActionStateId } from '../../../../lib/api/apiErrors';
 import { formatErrorMessage } from '../../../../lib/errors';
 import { objectRef, normalizeObjectId } from '../../../../lib/objectRef';
 
@@ -33,7 +34,7 @@ export function IpAddressOwnerCard(props: { ip: IpAddress; onUpdated: () => Prom
     staleTime: 60_000,
   });
   const save = useMutation({
-    mutationFn: ({ id, params }: { id: number; params: Record<string, unknown> }) => updateIpAddress(id, params),
+    mutationFn: ({ id, params }: { id: number; params: IpAddress__UpdateInput }) => updateIpAddress(id, params),
     onMutate: async ({ id }) => {
       const lockRef = objectRef('IpAddress', id);
       const generation = await chrome.acquireLocalLock(lockRef, { durable: true });
@@ -61,8 +62,12 @@ export function IpAddressOwnerCard(props: { ip: IpAddress; onUpdated: () => Prom
     const owner = user.trim() ? normalizeObjectId(user.trim()) : null;
     if (user.trim() && !owner) return;
     const env = normalizeObjectId(environment);
-    if (owner && !env) return;
-    save.mutate({ id: props.ip.id, params: owner ? { user: owner, environment: env } : { user: null } });
+    if (owner) {
+      if (!env) return;
+      save.mutate({ id: props.ip.id, params: { user: owner, environment: env } });
+    } else {
+      save.mutate({ id: props.ip.id, params: { user: null } });
+    }
   };
 
   return (
@@ -91,11 +96,10 @@ export function IpAddressOwnerCard(props: { ip: IpAddress; onUpdated: () => Prom
           {t('admin.ip.owner.current', {
             owner: currentOwner
               ? `${props.ip.user?.login ?? ''} (#${currentOwner})`.trim()
-              : t('admin.ip.owner.unassigned'),
+              : props.ip.user === null ? t('admin.ip.owner.unassigned') : t('common.na'),
             environment:
               props.ip.charged_environment?.label ??
-              props.ip.charged_environment?.name ??
-              (props.ip.charged_environment ? `#${props.ip.charged_environment.id}` : t('common.na')),
+              (normalizeObjectId(props.ip.charged_environment?.id) ? `#${props.ip.charged_environment?.id}` : t('common.na')),
           })}
         </div>
         <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] md:items-end">

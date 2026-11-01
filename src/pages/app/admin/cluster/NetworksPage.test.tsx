@@ -40,8 +40,8 @@ beforeEach(() => {
   vi.clearAllMocks();
   vi.mocked(fetchLocations).mockResolvedValue({ data: [] } as never);
   vi.mocked(fetchNetworks).mockResolvedValue({ data: [network] } as never);
-  const capability = { input: { parameters: { enabled: {} } } };
-  vi.mocked(fetchNetworkWriteCapability).mockResolvedValue({ data: capability, envelope: { status: true, response: capability } });
+  const capability = { input: { parameters: { enabled: { type: 'Boolean' } } } };
+  vi.mocked(fetchNetworkWriteCapability).mockResolvedValue({ data: capability, meta: {}, envelope: { status: true, response: capability }, httpStatus: 200 });
   vi.mocked(updateNetwork).mockResolvedValue({ data: network } as never);
 });
 afterEach(() => { state.language = 'en'; vi.restoreAllMocks(); });
@@ -154,7 +154,7 @@ describe('network availability editor', () => {
 
   it('omits unavailable controls and payload fields for an older API', async () => {
     const capability = { input: { parameters: { managed: {} } } };
-    vi.mocked(fetchNetworkWriteCapability).mockResolvedValue({ data: capability, envelope: { status: true, response: capability } });
+    vi.mocked(fetchNetworkWriteCapability).mockResolvedValue({ data: capability, meta: {}, envelope: { status: true, response: capability }, httpStatus: 200 });
     const { enabled: _enabled, available_to_users: _available, owned_unassigned: _unassigned, ...oldNetwork } = network;
     vi.mocked(fetchNetworks).mockResolvedValue({ data: [oldNetwork] } as never);
     renderPage();

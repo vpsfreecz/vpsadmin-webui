@@ -126,7 +126,7 @@ describe('dns API wrappers', () => {
     const u = new URL(String(url));
 
     expect(u.pathname).toBe('/v7.0/dns_record_logs');
-    expect(Array.from(u.searchParams.entries())).toEqual([
+    expect(Array.from(u.searchParams.entries()).sort()).toEqual([
       ['dns_record_log[from_id]', '456'],
       ['dns_record_log[limit]', '25'],
       ['dns_record_log[user]', '7'],
@@ -135,7 +135,7 @@ describe('dns API wrappers', () => {
       ['dns_record_log[change_type]', 'update_record'],
       ['dns_record_log[name]', 'www'],
       ['dns_record_log[type]', 'AAAA'],
-    ]);
+    ].sort());
     expect(u.searchParams.has('dns_record_log[q]')).toBe(false);
     expect(u.searchParams.has('dns_record_log[unknown_filter]')).toBe(false);
   });

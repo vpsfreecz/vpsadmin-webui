@@ -1,4 +1,5 @@
 import type { ResourceRef } from '../../../../lib/api/appTypes';
+import type { Location__ShowOutput } from 'vpsadmin-typescript-client';
 import type { IpAddress, Network } from '../../../../lib/api/ipAddresses';
 import type { NetworkInterface } from '../../../../lib/api/networkInterfaces';
 import type { User } from '../../../../lib/api/users';
@@ -20,7 +21,6 @@ export type IpSmartKey =
 
 export type IpListOrder = 'asc' | 'desc' | 'interface';
 
-type IdLike = number | string | ResourceRef | null | undefined;
 type UserLike = User | ResourceRef | string | number | null | undefined;
 type VpsLike = Vps | ResourceRef | string | number | null | undefined;
 type NetworkLike = Network | {
@@ -49,24 +49,12 @@ function ipRow(ip: IpAddress): IpAddressListRecord {
   return ip as IpAddressListRecord;
 }
 
-export function idFromResourceRef(value: IdLike): number | null {
-  if (!value) return null;
-  if (typeof value === 'number') return Number.isFinite(value) ? value : null;
-  if (typeof value === 'string') {
-    const parsed = Number(value);
-    return Number.isFinite(parsed) ? parsed : null;
-  }
-
-  if (typeof value === 'object') {
-    const id = 'id' in value ? value.id : undefined;
-    if (typeof id === 'number') return Number.isFinite(id) ? id : null;
-    if (typeof id === 'string') {
-      const parsed = Number(id);
-      return Number.isFinite(parsed) ? parsed : null;
-    }
-  }
-
-  return null;
+export function idFromResourceRef(value: unknown): number | null {
+  const id = value && typeof value === 'object' && !Array.isArray(value)
+    ? ('id' in value ? value.id : undefined)
+    : value;
+  const parsed = typeof id === 'number' ? id : typeof id === 'string' && id.trim() ? Number(id) : undefined;
+  return typeof parsed === 'number' && Number.isSafeInteger(parsed) && parsed > 0 ? parsed : null;
 }
 
 export function ipId(ip: IpAddress): number {
@@ -121,10 +109,7 @@ export function environmentLabel(ip: IpAddress, na: string): string {
   return locationLabel || environmentLabel || na;
 }
 
-export type IpLocationFallback = {
-  label?: string | null;
-  environment?: { label?: string | null } | null;
-};
+export type IpLocationFallback = Pick<Location__ShowOutput, 'label' | 'environment'>;
 
 export function locationMark(ip: IpAddress, fallback?: IpLocationFallback | null): { code: string; label: string } | null {
   const network = ipRow(ip).network;

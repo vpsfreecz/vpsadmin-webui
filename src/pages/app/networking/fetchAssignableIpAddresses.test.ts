@@ -10,11 +10,11 @@ const ip: IpAddress = {
     primary_location: { id: 10, environment: { id: 1 } } },
 };
 function respond(rows: IpAddress[]) {
-  fetchAddresses.mockResolvedValueOnce({ data: rows, meta: {}, envelope: { status: true } });
+  fetchAddresses.mockResolvedValueOnce({ httpStatus: 200, data: rows, meta: {}, envelope: { status: true } });
 }
 beforeEach(() => {
   vi.resetAllMocks();
-  vi.mocked(fetchIpAddressIndexCapability).mockResolvedValue({ data: { input: { parameters: { network_enabled: {} } } }, meta: {}, envelope: { status: true } });
+  vi.mocked(fetchIpAddressIndexCapability).mockResolvedValue({ httpStatus: 200, data: { input: { parameters: { network_enabled: { type: 'Boolean' } } } }, meta: {}, envelope: { status: true } });
 });
 
 describe('assignment candidates', () => {
@@ -70,7 +70,7 @@ describe('assignment candidates', () => {
   });
 
   test('keeps old APIs usable without sending an unsupported availability filter', async () => {
-    vi.mocked(fetchIpAddressIndexCapability).mockResolvedValue({ data: { input: { parameters: {} } }, meta: {}, envelope: { status: true } });
+    vi.mocked(fetchIpAddressIndexCapability).mockResolvedValue({ httpStatus: 200, data: { input: { parameters: {} } }, meta: {}, envelope: { status: true } });
     respond([ip]);
     expect(await fetchAssignableIpAddresses(11, 'ipv4_private')).toEqual([ip]);
     expect(fetchAddresses.mock.calls[0]?.[0]).not.toHaveProperty('networkEnabled');

@@ -1,36 +1,42 @@
-import { expectArray, haveApiCall } from './haveapi';
-import type { Location } from './infra';
+import type {
+  DnsResolver__CreateInput,
+  DnsResolver__DeleteInput,
+  DnsResolver__IndexInput,
+  DnsResolver__IndexOutput,
+  DnsResolver__UpdateInput,
+} from 'vpsadmin-typescript-client';
+import { isRecord, isId, fields, optional, locationReference } from './networkingViews';
+import type { LocationReference } from './networkingViews';
+import { narrowApiResult } from './apiOutput';
+import { getApi } from './sdk';
+import { expectArray } from './apiErrors';
 
-export interface DnsResolver {
+export type DnsResolver = Omit<DnsResolver__IndexOutput[number], 'id' | 'location'> & {
   id: number;
-  ip_addr?: string;
-  label?: string;
-  is_universal?: boolean;
-  location?: Location | null;
-  [k: string]: unknown;
-}
+  location?: LocationReference | null;
+  [key: string]: unknown;
+};
 
-export async function fetchDnsResolvers(opts?: {
-  limit?: number;
-  fromId?: number;
-  vpsId?: number;
-}) {
-  const params: Record<string, unknown> = {};
+export async function fetchDnsResolvers(opts?: { limit?: number; fromId?: number; vpsId?: number }) {
+  const params: DnsResolver__IndexInput = {};
 
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
 
   if (opts?.vpsId !== undefined) params['vps'] = opts.vpsId;
 
-  const res = await haveApiCall<DnsResolver[]>({
-    method: 'GET',
-    path: '/dns_resolvers',
-    namespace: 'dns_resolver',
-    params,
-    meta: { includes: 'location' },
-  });
+  const res = narrowApiResult(
+    await (
+      await getApi()
+    ).dns_resolver.index({
+      params,
+      meta: { includes: 'location' },
+    }),
+    (data) => expectArray<unknown>(data, 'dns_resolver list').map(narrowDnsResolver),
+    'dns_resolver index'
+  );
 
-  return { ...res, data: expectArray<DnsResolver>(res.data, 'dns_resolvers#index') };
+  return res;
 }
 
 export async function createDnsResolver(opts: {
@@ -39,7 +45,7 @@ export async function createDnsResolver(opts: {
   isUniversal: boolean;
   locationId?: number | null;
 }) {
-  const params: Record<string, unknown> = {
+  const params: DnsResolver__CreateInput = {
     ip_addr: opts.ipAddr,
     label: opts.label,
     is_universal: opts.isUniversal,
@@ -49,12 +55,15 @@ export async function createDnsResolver(opts: {
     params['location'] = opts.locationId ?? null;
   }
 
-  return haveApiCall<DnsResolver>({
-    method: 'POST',
-    path: '/dns_resolvers',
-    namespace: 'dns_resolver',
-    params,
-  });
+  return narrowApiResult(
+    await (
+      await getApi()
+    ).dns_resolver.create({
+      params,
+    }),
+    narrowDnsResolver,
+    'dns_resolver create'
+  );
 }
 
 export async function updateDnsResolver(opts: {
@@ -64,7 +73,7 @@ export async function updateDnsResolver(opts: {
   isUniversal: boolean;
   locationId?: number | null;
 }) {
-  const params: Record<string, unknown> = {
+  const params: DnsResolver__UpdateInput = {
     ip_addr: opts.ipAddr,
     label: opts.label,
     is_universal: opts.isUniversal,
@@ -74,22 +83,41 @@ export async function updateDnsResolver(opts: {
     params['location'] = opts.locationId ?? null;
   }
 
-  return haveApiCall<DnsResolver>({
-    method: 'PUT',
-    path: `/dns_resolvers/${opts.id}`,
-    namespace: 'dns_resolver',
+  return narrowApiResult(
+    await (
+      await getApi()
+    ).dns_resolver.update({
+      path: { dns_resolver_id: opts.id },
+      params,
+    }),
+    narrowDnsResolver,
+    'dns_resolver update'
+  );
+}
+
+export async function deleteDnsResolver(opts: { id: number; force?: boolean }) {
+  const params: DnsResolver__DeleteInput = {};
+  if (opts.force !== undefined) params['force'] = opts.force;
+
+  return await (
+    await getApi()
+  ).dns_resolver.delete({
+    path: { dns_resolver_id: opts.id },
     params,
   });
 }
 
-export async function deleteDnsResolver(opts: { id: number; force?: boolean }) {
-  const params: Record<string, unknown> = {};
-  if (opts.force !== undefined) params['force'] = opts.force;
-
-  return haveApiCall<unknown>({
-    method: 'DELETE',
-    path: `/dns_resolvers/${opts.id}`,
-    namespace: 'dns_resolver',
-    params,
-  });
+function isDnsResolver(value: unknown): value is DnsResolver {
+  if (
+    !isRecord(value) ||
+    !isId(value['id']) ||
+    !fields(value, ['ip_addr', 'label'], [], ['is_universal']) ||
+    !optional(value['location'], locationReference)
+  )
+    return false;
+  return true;
+}
+function narrowDnsResolver(value: unknown): DnsResolver {
+  if (!isDnsResolver(value)) throw new TypeError('Invalid DnsResolver identity or fields');
+  return value;
 }

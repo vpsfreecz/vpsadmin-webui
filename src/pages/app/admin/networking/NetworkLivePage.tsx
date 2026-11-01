@@ -30,7 +30,7 @@ const DEFAULT_LIMIT = 50;
 const LIVE_POLL_MS = TIER_A_VISIBLE_MS * 2;
 const LIVE_ORDER = '-updated_at';
 
-function optionLabel(value: { id: number; label?: string; domain?: string; description?: string }): string {
+function optionLabel(value: { id: number; label?: string | null; domain?: string | null; description?: string | null }): string {
   return String(value.label ?? value.domain ?? value.description ?? `#${value.id}`).trim();
 }
 

@@ -1,3 +1,4 @@
+import type { InterfaceReference, VpsReference } from '../../../lib/api/networkingViews';
 import React, { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
@@ -12,13 +13,11 @@ import { StatCard } from '../../../components/ui/StatCard';
 import { TableCard } from '../../../components/ui/TableCard';
 import { TimeSeriesChart } from '../../../components/ui/TimeSeriesChart';
 import { formatBytesIec } from '../../../lib/bytes';
-import type { ResourceRef } from '../../../lib/api/appTypes';
 import {
   fetchNetworkInterfaceAccountings,
   type NetworkInterface,
   type NetworkInterfaceAccounting,
 } from '../../../lib/api/networkInterfaces';
-import type { Vps } from '../../../lib/api/vps';
 import { resourceId } from './IpAddressAssignmentModel';
 
 type MonthRef = { year: number; month: number };
@@ -83,18 +82,18 @@ function sumBytes(row: NetworkInterfaceAccounting): { in: number; out: number; t
   };
 }
 
-function rowNetworkInterface(row: NetworkInterfaceAccounting): NetworkInterface | ResourceRef | null {
+function rowNetworkInterface(row: NetworkInterfaceAccounting): InterfaceReference | null {
   const ni = row.network_interface;
   if (!ni || typeof ni !== 'object') return null;
   return ni;
 }
 
-function rowVps(row: NetworkInterfaceAccounting): Vps | ResourceRef | null {
+function rowVps(row: NetworkInterfaceAccounting): VpsReference | null {
   const ni = rowNetworkInterface(row);
   if (!ni || typeof ni !== 'object') return null;
-  const vps = (ni as NetworkInterface).vps;
+  const vps = ni.vps;
   if (!vps || typeof vps !== 'object') return null;
-  return vps as Vps | ResourceRef;
+  return vps;
 }
 
 function rowVpsId(row: NetworkInterfaceAccounting): number | null {
@@ -105,7 +104,7 @@ function rowVpsLabel(row: NetworkInterfaceAccounting): string {
   const vps = rowVps(row);
   const id = rowVpsId(row);
   if (vps && typeof vps === 'object') {
-    const hostname = String((vps as Vps).hostname ?? (vps as ResourceRef).label ?? '').trim();
+    const hostname = String(vps.hostname ?? vps['label'] ?? '').trim();
     if (hostname) return hostname;
   }
   return id ? `#${id}` : '—';
@@ -114,10 +113,10 @@ function rowVpsLabel(row: NetworkInterfaceAccounting): string {
 function rowInterfaceLabel(row: NetworkInterfaceAccounting): string {
   const ni = rowNetworkInterface(row);
   if (ni && typeof ni === 'object') {
-    const name = String((ni as NetworkInterface).name ?? (ni as ResourceRef).label ?? '').trim();
+    const name = String(ni.name ?? ni['label'] ?? '').trim();
     if (name) return name;
   }
-  const id = resourceId(ni as ResourceRef | null);
+  const id = resourceId(ni);
   return id ? `#${id}` : '—';
 }
 
@@ -159,9 +158,9 @@ function aggregateCurrentInterfaces(rows: NetworkInterfaceAccounting[], current:
   for (const row of rows) {
     if (monthKey({ year: Number(row.year), month: Number(row.month) }) !== key) continue;
 
-    const interfaceId = resourceId(row.network_interface as ResourceRef | number | string | null | undefined);
+    const interfaceId = resourceId(row.network_interface);
     const vpsId = rowVpsId(row);
-    const rowKey = `${vpsId ?? 'vps'}:${interfaceId ?? row.id}`;
+    const rowKey = `${vpsId ?? 'vps'}:${interfaceId ?? 'unknown-interface'}`;
     const existing = byInterface.get(rowKey) ?? {
       key: rowKey,
       vpsId,

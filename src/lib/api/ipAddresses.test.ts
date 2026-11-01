@@ -241,7 +241,7 @@ describe('network address API wrappers', () => {
     });
   });
 
-  test('freeIpAddressRoute posts route free without a namespaced payload', async () => {
+  test('freeIpAddressRoute posts the generated empty route input', async () => {
     apiWire.respond = mockFetchOk({ ip_address: { id: 42 }, _meta: { action_state_id: 903 } }) as typeof fetch;
 
     await freeIpAddressRoute(42);
@@ -249,7 +249,7 @@ describe('network address API wrappers', () => {
     const [url, init] = lastFetchCall();
     expect(new URL(url).pathname).toBe('/v7.0/ip_addresses/42/free');
     expect(init?.method).toBe('POST');
-    expect(init?.body).toBe('{}');
+    expect(JSON.parse(String(init?.body))).toEqual({ ip_address: {} });
   });
 
   test('updateIpAddress sends owner changes through the ip_address namespace', async () => {
@@ -274,6 +274,9 @@ describe('network address API wrappers', () => {
     apiWire.respond = fetch as typeof globalThis.fetch;
     const result = await updateIpAddress(42, { user: 7, environment: 2 });
     expect(result.data.user?.id).toBe(7);
+    expect(result.envelope.response).toMatchObject({ ip_address: { id: 42 } });
+    expect(result.httpStatus).toBe(200);
+    expect(fetch.mock.calls[0]?.[1]?.method).toBe('PUT');
     expect(fetch.mock.calls).toHaveLength(2);
     expect(new URL(fetch.mock.calls[1]![0]).pathname).toBe('/v7.0/ip_addresses/42');
     expect(fetch.mock.calls[1]?.[1]?.method).toBe('GET');
@@ -342,14 +345,12 @@ describe('network address API wrappers', () => {
       },
     });
 
-    await assignHostIpAddress(9, { network_interface: 501 });
+    await assignHostIpAddress(9);
     [url, init] = lastFetchCall();
     expect(new URL(url).pathname).toBe('/v7.0/host_ip_addresses/9/assign');
     expect(init?.method).toBe('POST');
     expect(JSON.parse(String(init?.body))).toEqual({
-      host_ip_address: {
-        network_interface: 501,
-      },
+      host_ip_address: {},
     });
 
     await freeHostIpAddress(9);
@@ -369,7 +370,7 @@ describe('network address API wrappers', () => {
     ['route and host assign', () => assignIpAddressRouteWithHostAddress(42, { network_interface: 501 })],
     ['route free', () => freeIpAddressRoute(42)],
     ['host IP update', () => updateHostIpAddress(9, { reverse_record_value: 'host.example.org.' })],
-    ['host IP assign', () => assignHostIpAddress(9, { network_interface: 501 })],
+    ['host IP assign', () => assignHostIpAddress(9)],
     ['host IP free', () => freeHostIpAddress(9)],
     ['host IP delete', () => deleteHostIpAddress(9)],
   ])('%s fails closed without an action-state id', async (_label, mutation) => {

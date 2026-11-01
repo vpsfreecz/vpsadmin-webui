@@ -1,6 +1,9 @@
 import { expect, test, type Page } from '@playwright/test';
 
+import type { IpReference } from '../../../src/lib/api/networkingViews';
 import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock } from '../../fixtures';
+
+type IpAddressFixture = IpReference & { id: number };
 
 const vps = {
   id: 123,
@@ -19,7 +22,7 @@ const vps = {
   loadavg1: 0.12,
   node: { id: 1, domain_name: 'node1.example', location: { id: 10, label: 'Prague' } },
   os_template: { label: 'debian' },
-  dns_resolver: 'inherit',
+  dns_resolver: null,
 };
 
 const netifs = [
@@ -244,7 +247,8 @@ test.describe('@pr-smoke VPS network tab', () => {
   test('assigns routes and manages interface addresses and PTR', async ({ page }) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
 
-    let currentIps = [...ips];
+    const hostAssignmentRequests: string[] = [];
+    let currentIps: IpAddressFixture[] = ips.map((ip) => ({ ...ip, charged_environment: { id: 2 } }));
     let hostAddresses = [
       {
         id: 50,
@@ -272,6 +276,10 @@ test.describe('@pr-smoke VPS network tab', () => {
         'GET network_interfaces': () => ({ network_interfaces: netifs }),
         'GET network_interface_accountings': () => ({ network_interface_accountings: acct }),
         'GET host_ip_addresses': () => ({ host_ip_addresses: hostAddresses }),
+        'GET host_ip_addresses/51': () => {
+          hostAssignmentRequests.push('read');
+          return { host_ip_address: hostAddresses.find((h) => h.id === 51) };
+        },
         'GET environments': () => ({ environments: [{ id: 3, label: 'env-test' }] }),
         'POST ip_addresses/2/assign': () => {
           currentIps = currentIps.map((ip) => (ip.id === 2 ? { ...ip, network_interface: { id: 1 }, routed: true } : ip));
@@ -282,10 +290,15 @@ test.describe('@pr-smoke VPS network tab', () => {
           return { ip_address: currentIps.find((ip) => ip.id === 1), _meta: { action_state_id: 1203 } };
         },
         'PUT ip_addresses/1': () => {
-          currentIps = currentIps.map((ip) => (ip.id === 1 ? { ...ip, user: { id: 77, login: 'new-owner' } } : ip));
+          currentIps = currentIps.map((ip) => (ip.id === 1 ? {
+            ...ip,
+            user: { id: 77, login: 'new-owner' },
+            charged_environment: { id: 3 },
+          } : ip));
           return { ip_address: currentIps.find((ip) => ip.id === 1), _meta: { action_state_id: 1204 } };
         },
         'POST host_ip_addresses/51/assign': () => {
+          hostAssignmentRequests.push('assign');
           hostAddresses = hostAddresses.map((h) => (h.id === 51 ? { ...h, assigned: true } : h));
           return { host_ip_address: hostAddresses.find((h) => h.id === 51), _meta: { action_state_id: 1205 } };
         },
@@ -330,18 +343,20 @@ test.describe('@pr-smoke VPS network tab', () => {
     await expect(page.getByTestId('vps.network.ip_addresses.add_modal')).toBeHidden();
 
     await page.getByTestId('vps.network.host_addresses.row.51.assign').click();
-    await expect(page.getByTestId('vps.network.host_addresses.assign.interface')).toHaveValue('1');
+    const hostAssignDialog = page.getByTestId('vps.network.host_addresses.assign');
+    await expect(hostAssignDialog).toContainText('198.51.100.11');
+    await expect(hostAssignDialog.getByTestId('vps.network.host_addresses.assign.target')).toContainText('vps123.example');
+    await expect(hostAssignDialog.getByTestId('vps.network.host_addresses.assign.target')).toContainText('#123');
+    await expect(hostAssignDialog.getByTestId('vps.network.host_addresses.assign.interface')).toContainText('eth0');
+    await expect(hostAssignDialog.getByRole('combobox')).toHaveCount(0);
 
     const assignHostReq = page.waitForRequest(
       (r) => r.method() === 'POST' && r.url().includes('/api/v7.0/host_ip_addresses/51/assign')
     );
     await page.getByTestId('vps.network.host_addresses.assign.submit').click();
-    expect((await assignHostReq).postDataJSON()).toEqual({
-      host_ip_address: {
-        network_interface: 1,
-      },
-    });
-    await expect(page.getByTestId('vps.network.host_addresses.assign')).toBeHidden();
+    expect((await assignHostReq).postDataJSON()).toEqual({ host_ip_address: {} });
+    await expect(hostAssignDialog).toBeHidden();
+    expect(hostAssignmentRequests).toEqual(['read', 'assign']);
 
     await page.getByTestId('vps.network.host_addresses.row.50.ptr').click();
     await page.getByTestId('vps.network.host_addresses.ptr.value').fill('new.example.test.');
@@ -355,6 +370,7 @@ test.describe('@pr-smoke VPS network tab', () => {
         reverse_record_value: 'new.example.test.',
       },
     });
+    await expect(page.getByTestId('vps.network.host_addresses.ptr')).toBeHidden();
 
     await page.getByTestId('vps.network.host_addresses.row.50.free').click();
     await expect(page.getByTestId('vps.network.host_addresses.free_confirm')).toBeVisible();
@@ -362,7 +378,8 @@ test.describe('@pr-smoke VPS network tab', () => {
       (r) => r.method() === 'POST' && r.url().includes('/api/v7.0/host_ip_addresses/50/free')
     );
     await page.getByTestId('vps.network.host_addresses.free_confirm.confirm').click();
-    expect((await freeHostReq).postData()).toBe('{}');
+    expect((await freeHostReq).postDataJSON()).toEqual({ host_ip_address: {} });
+    await expect(page.getByTestId('vps.network.host_addresses.free_confirm')).toBeHidden();
 
     await page.getByTestId('vps.network.ip_addresses.item.1.owner').click();
     await page.getByTestId('vps.network.ip_addresses.owner.user').fill('77');
@@ -377,6 +394,7 @@ test.describe('@pr-smoke VPS network tab', () => {
         environment: 3,
       },
     });
+    await expect(page.getByTestId('vps.network.ip_addresses.owner')).toBeHidden();
 
     await page.getByTestId('vps.network.ip_addresses.item.1.free_route').click();
     await expect(page.getByTestId('vps.network.ip_addresses.free_route_confirm')).toBeVisible();
@@ -384,7 +402,8 @@ test.describe('@pr-smoke VPS network tab', () => {
       (r) => r.method() === 'POST' && r.url().includes('/api/v7.0/ip_addresses/1/free')
     );
     await page.getByTestId('vps.network.ip_addresses.free_route_confirm.confirm').click();
-    expect((await freeRouteReq).postData()).toBe('{}');
+    expect((await freeRouteReq).postDataJSON()).toEqual({ ip_address: {} });
+    await expect(page.getByTestId('vps.network.ip_addresses.free_route_confirm')).toBeHidden();
   });
 
   test('busy VPS transaction gates networking mutations with an explanation', async ({ page }) => {
@@ -568,7 +587,7 @@ test.describe('@pr-smoke VPS network tab', () => {
         primary_location: { id: 10, label: 'Prague' },
       },
     };
-    let currentIps = [freeIp];
+    let currentIps: IpAddressFixture[] = [freeIp];
     let hostAddresses: Array<Record<string, unknown>> = [];
     let assignPayload: unknown;
 

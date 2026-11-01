@@ -29,7 +29,7 @@ describe('DNS resolver API wrapper', () => {
       ['dns_resolver[limit]', '25'],
       ['dns_resolver[from_id]', '91'],
       ['dns_resolver[vps]', '17'],
-    ]);
+    ].sort());
     expect(Array.from(parsed.searchParams.keys()).sort()).toEqual([
       '_meta[includes]',
       'dns_resolver[from_id]',

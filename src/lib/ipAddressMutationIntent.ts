@@ -1,40 +1,36 @@
-import type { ResourceRef } from './api/appTypes';
 import type { IpAddress } from './api/ipAddresses';
-import type { NetworkInterface } from './api/networkInterfaces';
 import type { LocalLock, LocalMutationIntent } from './localLocks';
 
 export type IpAddressMutationReconcileResult = 'clear' | 'busy' | 'error';
 
-type IdLike = number | string | ResourceRef | null | undefined;
 
-function resourceId(value: IdLike): number | null {
-  if (typeof value === 'number') return Number.isInteger(value) && value > 0 ? value : null;
+function resourceId(value: unknown): number | null {
+  if (typeof value === 'number') return Number.isSafeInteger(value) && value > 0 ? value : null;
   if (typeof value === 'string') {
     const parsed = Number(value);
-    return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+    return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : null;
   }
   if (!value || typeof value !== 'object') return null;
-  return resourceId(value.id);
+  return 'id' in value ? resourceId(value.id) : null;
 }
 
-function networkInterfaceId(ip: IpAddress): number | null {
-  return resourceId(ip.network_interface as IdLike);
+function networkInterfaceId(ip: IpAddress): number | null | undefined {
+  if (ip.network_interface === null) return null;
+  return resourceId(ip.network_interface) ?? undefined;
 }
 
 function networkInterfaceVpsId(ip: IpAddress): number | null {
-  const direct = resourceId(ip.vps as IdLike);
-  if (direct) return direct;
-  const networkInterface = ip.network_interface;
-  if (!networkInterface || typeof networkInterface !== 'object') return null;
-  return resourceId((networkInterface as NetworkInterface).vps as IdLike);
+  return resourceId(ip.network_interface?.vps);
 }
 
-function ownerId(ip: IpAddress): number | null {
-  return resourceId(ip.user as IdLike);
+function ownerId(ip: IpAddress): number | null | undefined {
+  if (ip.user === null) return null;
+  return resourceId(ip.user) ?? undefined;
 }
 
-function chargedEnvironmentId(ip: IpAddress): number | null {
-  return resourceId(ip.charged_environment as IdLike);
+function chargedEnvironmentId(ip: IpAddress): number | null | undefined {
+  if (ip.charged_environment === null) return null;
+  return resourceId(ip.charged_environment) ?? undefined;
 }
 
 export function ipRouteAssignIntent(
@@ -42,8 +38,8 @@ export function ipRouteAssignIntent(
   expectedNetworkInterfaceId: number,
   expectedVpsId: number
 ): LocalMutationIntent | null {
-  if (!Number.isInteger(expectedNetworkInterfaceId) || expectedNetworkInterfaceId <= 0
-    || !Number.isInteger(expectedVpsId) || expectedVpsId <= 0
+  if (!Number.isSafeInteger(expectedNetworkInterfaceId) || expectedNetworkInterfaceId <= 0
+    || !Number.isSafeInteger(expectedVpsId) || expectedVpsId <= 0
     || networkInterfaceId(ip) !== null) return null;
   return {
     type: 'ip-route-assign',
@@ -71,6 +67,7 @@ export function ipOwnerUpdateIntent(
   if ((expectedUserId === null) !== (expectedEnvironmentId === null)) return null;
   const previousUserId = ownerId(ip);
   const previousEnvironmentId = chargedEnvironmentId(ip);
+  if (previousUserId === undefined || previousEnvironmentId === undefined) return null;
   if (previousUserId === expectedUserId && previousEnvironmentId === expectedEnvironmentId) return null;
   return {
     type: 'ip-owner-update',

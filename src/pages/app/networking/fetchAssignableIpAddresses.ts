@@ -36,8 +36,9 @@ export async function fetchAssignableIpAddresses(
   // A reserved/preselected address may fall outside the first page. Re-query
   // it with the same location/purpose filters instead of trusting cached data.
   const verified = await Promise.all(extras.map(async (ip) => {
+    if (typeof ip.network?.id !== 'number' || typeof ip.addr !== 'string' || typeof ip.prefix !== 'number') return [];
     const response = await fetchIpAddresses({
-      ...filters, network: ip.network!.id, addr: ip.addr, prefix: ip.prefix, limit: 1,
+      ...filters, network: ip.network.id, addr: ip.addr, prefix: ip.prefix, limit: 1,
     });
     return response.data.filter((row) => row.id === ip.id);
   }));

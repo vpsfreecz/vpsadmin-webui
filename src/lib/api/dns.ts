@@ -1,58 +1,49 @@
-import { expectArray, haveApiCall } from './haveapi';
+import type {
+  DnsRecordLog__IndexInput,
+  DnsRecordLog__IndexOutput,
+  DnsRecord__CreateInput,
+  DnsRecord__IndexInput,
+  DnsRecord__IndexOutput,
+  DnsRecord__UpdateInput,
+  DnsServerZone__CreateInput,
+  DnsServerZone__IndexInput,
+  DnsServerZone__IndexOutput,
+  DnsServer__CreateInput,
+  DnsServer__IndexInput,
+  DnsServer__IndexOutput,
+  DnsServer__UpdateInput,
+  DnsZone__CreateInput,
+  DnsZone__IndexInput,
+  DnsZone__IndexOutput,
+  DnsZone__UpdateInput,
+  DnssecRecord__IndexInput,
+  DnssecRecord__IndexOutput,
+} from 'vpsadmin-typescript-client';
+import { isRecord, isId, fields, optional, reference } from './networkingViews';
+import type { DnsReference } from './networkingViews';
+import { narrowApiResult } from './apiOutput';
+import { getApi } from './sdk';
+import { expectArray } from './apiErrors';
 
-export interface ResourceRef {
+export type ResourceRef = DnsReference;
+export type DnsZone = Omit<DnsZone__IndexOutput[number], 'id' | 'user'> & {
   id: number;
-  [k: string]: unknown;
-}
-export interface DnsZone {
+  user?: DnsReference | null;
+  [key: string]: unknown;
+};
+export type DnsRecord = Omit<DnsRecord__IndexOutput[number], 'id' | 'user' | 'dns_zone'> & {
   id: number;
-  user?: ResourceRef;
-  name?: string;
-  label?: string;
-  role?: string;
-  source?: string;
-  type?: string;
-  zone_type?: string;
-  reverse_network_address?: string;
-  reverse_network_prefix?: number;
-  dnssec_enabled?: boolean;
-  serial?: number;
-  enabled?: boolean;
-  default_ttl?: number;
-  email?: string;
-  created_at?: string;
-  updated_at?: string;
-  [k: string]: unknown;
-}
-export interface DnsRecord {
+  user?: DnsReference | null;
+  dns_zone?: DnsReference | null;
+  [key: string]: unknown;
+};
+export type DnsRecordLog = Omit<DnsRecordLog__IndexOutput[number], 'id' | 'user' | 'dns_zone' | 'transaction_chain'> & {
   id: number;
-  user?: ResourceRef;
-  dns_zone?: ResourceRef;
-  name?: string;
-  type?: string;
-  content?: string;
-  ttl?: number | null;
-  priority?: number;
-  comment?: string;
-  enabled?: boolean;
-  managed?: boolean;
-  dynamic_update_enabled?: boolean;
-  dynamic_update_url?: string;
-  [k: string]: unknown;
-}
-export interface DnsRecordLog {
-  id: number;
-  user?: ResourceRef;
-  dns_zone?: ResourceRef;
-  dns_zone_name?: string;
-  change_type?: string;
-  name?: string;
-  type?: string;
-  attr_changes?: unknown;
-  transaction_chain?: ResourceRef;
-  created_at?: string;
-  [k: string]: unknown;
-}
+  user?: DnsReference | null;
+  dns_zone?: DnsReference | null;
+  transaction_chain?: DnsReference | null;
+  [key: string]: unknown;
+};
 
 export async function fetchDnsZones(opts?: {
   fromId?: number;
@@ -64,7 +55,7 @@ export async function fetchDnsZones(opts?: {
   source?: string;
   signal?: AbortSignal;
 }) {
-  const params: Record<string, unknown> = {};
+  const params: DnsZone__IndexInput = {};
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
   if (opts?.user !== undefined) params['user'] = opts.user;
@@ -73,126 +64,112 @@ export async function fetchDnsZones(opts?: {
   if (opts?.role !== undefined) params['role'] = opts.role;
   if (opts?.source !== undefined) params['source'] = opts.source;
 
-  const res = await haveApiCall<DnsZone[]>({
-    method: 'GET',
-    path: '/dns_zones',
-    namespace: 'dns_zone',
-    params,
-    signal: opts?.signal,
-  });
-  return { ...res, data: expectArray<DnsZone>(res.data, 'dns_zones#index') };
+  const res = narrowApiResult(
+    await (
+      await getApi()
+    ).dns_zone.index({
+      params,
+      signal: opts?.signal,
+    }),
+    (data) => expectArray<unknown>(data, 'dns_zone list').map(narrowDnsZone),
+    'dns_zone index'
+  );
+  return res;
 }
 
 export async function fetchDnsZone(zoneId: number) {
-  return haveApiCall<DnsZone>({
-    method: 'GET',
-    path: `/dns_zones/${zoneId}`,
-  });
+  return narrowApiResult(
+    await (
+      await getApi()
+    ).dns_zone.show({
+      path: { dns_zone_id: zoneId },
+    }),
+    narrowDnsZone,
+    'dns_zone show'
+  );
 }
 
-export async function createDnsZone(payload: {
-  user?: number;
-  name: string;
-  label?: string;
-  email?: string;
-  default_ttl?: number;
-  dnssec_enabled?: boolean;
-  enabled?: boolean;
-  seed_vps?: number;
-  role?: string;
-  source?: string;
-  reverse_network_address?: string;
-  reverse_network_prefix?: number;
-}) {
-  return haveApiCall<DnsZone>({
-    method: 'POST',
-    path: '/dns_zones',
-    namespace: 'dns_zone',
-    params: payload,
-  });
+export async function createDnsZone(payload: DnsZone__CreateInput) {
+  return narrowApiResult(
+    await (
+      await getApi()
+    ).dns_zone.create({
+      params: payload,
+    }),
+    narrowDnsZone,
+    'dns_zone create'
+  );
 }
 
-export async function updateDnsZone(zoneId: number, payload: {
-  label?: string;
-  email?: string;
-  default_ttl?: number;
-  dnssec_enabled?: boolean;
-  enabled?: boolean;
-}) {
-  return haveApiCall<DnsZone>({
-    method: 'PUT',
-    path: `/dns_zones/${zoneId}`,
-    namespace: 'dns_zone',
-    params: payload,
-  });
+export async function updateDnsZone(zoneId: number, payload: DnsZone__UpdateInput) {
+  return narrowApiResult(
+    await (
+      await getApi()
+    ).dns_zone.update({
+      path: { dns_zone_id: zoneId },
+      params: payload,
+    }),
+    narrowDnsZone,
+    'dns_zone update'
+  );
 }
 
 export async function deleteDnsZone(zoneId: number) {
-  return haveApiCall<void>({
-    method: 'DELETE',
-    path: `/dns_zones/${zoneId}`,
+  return await (
+    await getApi()
+  ).dns_zone.delete({
+    path: { dns_zone_id: zoneId },
   });
 }
 
-export async function fetchDnsRecords(opts?: {
-  user?: number;
-  dns_zone?: number;
-}) {
-  const params: Record<string, unknown> = {};
+export async function fetchDnsRecords(opts?: { user?: number; dns_zone?: number }) {
+  const params: DnsRecord__IndexInput = {};
   if (opts?.user !== undefined) params['user'] = opts.user;
   if (opts?.dns_zone !== undefined) params['dns_zone'] = opts.dns_zone;
 
-  const res = await haveApiCall<DnsRecord[]>({
-    method: 'GET',
-    path: '/dns_records',
-    namespace: 'dns_record',
-    params,
-  });
+  const res = narrowApiResult(
+    await (
+      await getApi()
+    ).dns_record.index({
+      params,
+    }),
+    (data) => expectArray<unknown>(data, 'dns_record list').map(narrowDnsRecord),
+    'dns_record index'
+  );
 
-  return { ...res, data: expectArray<DnsRecord>(res.data, 'dns_records#index') };
+  return res;
 }
 
-export async function createDnsRecord(payload: {
-  user?: number;
-  dns_zone: number;
-  name: string;
-  type: string;
-  content: string;
-  ttl?: number;
-  priority?: number;
-  comment?: string;
-  enabled?: boolean;
-  dynamic_update_enabled?: boolean;
-}) {
-  return haveApiCall<DnsRecord>({
-    method: 'POST',
-    path: '/dns_records',
-    namespace: 'dns_record',
-    params: payload,
-  });
+export async function createDnsRecord(payload: DnsRecord__CreateInput) {
+  return narrowApiResult(
+    await (
+      await getApi()
+    ).dns_record.create({
+      params: payload,
+    }),
+    narrowDnsRecord,
+    'dns_record create'
+  );
 }
 
-export async function updateDnsRecord(recordId: number, payload: {
-  user?: number;
-  content?: string;
-  ttl?: number | null;
-  priority?: number;
-  comment?: string;
-  enabled?: boolean;
-  dynamic_update_enabled?: boolean;
-}) {
-  return haveApiCall<DnsRecord>({
-    method: 'PUT',
-    path: `/dns_records/${recordId}`,
-    namespace: 'dns_record',
-    params: payload,
-  });
+export async function updateDnsRecord(recordId: number, payload: DnsRecord__UpdateInput) {
+  return narrowApiResult(
+    await (
+      await getApi()
+    ).dns_record.update({
+      path: { dns_record_id: recordId },
+      params: payload,
+    }),
+    narrowDnsRecord,
+    'dns_record update'
+  );
 }
 
 export async function deleteDnsRecord(recordId: number) {
-  return haveApiCall<void>({
-    method: 'DELETE',
-    path: `/dns_records/${recordId}`,
+  return await (
+    await getApi()
+  ).dns_record.delete({
+    path: { dns_record_id: recordId },
   });
 }
 
@@ -206,7 +183,7 @@ export async function fetchDnsRecordLogs(opts?: {
   name?: string;
   type?: string;
 }) {
-  const params: Record<string, unknown> = {};
+  const params: DnsRecordLog__IndexInput = {};
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
   if (opts?.user !== undefined) params['user'] = opts.user;
@@ -216,124 +193,100 @@ export async function fetchDnsRecordLogs(opts?: {
   if (opts?.name !== undefined) params['name'] = opts.name;
   if (opts?.type !== undefined) params['type'] = opts.type;
 
-  const res = await haveApiCall<DnsRecordLog[]>({
-    method: 'GET',
-    path: '/dns_record_logs',
-    namespace: 'dns_record_log',
-    params,
-  });
+  const res = narrowApiResult(
+    await (
+      await getApi()
+    ).dns_record_log.index({
+      params,
+    }),
+    (data) => expectArray<unknown>(data, 'dns_record_log list').map(narrowDnsRecordLog),
+    'dns_record_log index'
+  );
 
-  return { ...res, data: expectArray<DnsRecordLog>(res.data, 'dns_record_logs#index') };
+  return res;
 }
 
-
-export interface DnssecRecord {
+export type DnssecRecord = Omit<DnssecRecord__IndexOutput[number], 'id' | 'dns_zone'> & {
   id: number;
-  dns_zone?: ResourceRef & { name?: string };
-  keyid?: number;
-  dnskey_algorithm?: number;
-  dnskey_pubkey?: string;
-  ds_algorithm?: number;
-  ds_digest_type?: number;
-  ds_digest?: string;
-  created_at?: string;
-  updated_at?: string;
-  [k: string]: unknown;
-}
+  dns_zone?: DnsReference | null;
+  [key: string]: unknown;
+};
 
-export interface DnsServer {
+export type DnsServer = Omit<DnsServer__IndexOutput[number], 'id' | 'node'> & {
   id: number;
-  node?: ResourceRef & { domain_name?: string };
-  name?: string;
-  ipv4_addr?: string;
-  ipv6_addr?: string;
-  hidden?: boolean;
-  enable_user_dns_zones?: boolean;
-  user_dns_zone_type?: string;
-  [k: string]: unknown;
-}
+  node?: DnsReference | null;
+  [key: string]: unknown;
+};
 
-export interface DnsServerZone {
+export type DnsServerZone = Omit<DnsServerZone__IndexOutput[number], 'id' | 'dns_server' | 'dns_zone'> & {
   id: number;
-  dns_server?: DnsServer | ResourceRef;
-  dns_zone?: DnsZone | ResourceRef;
-  type?: string;
-  serial?: number;
-  loaded_at?: string | null;
-  expires_at?: string | null;
-  refresh_at?: string | null;
-  last_check_at?: string | null;
-  last_transfer_at?: string | null;
-  last_transfer_status?: string | null;
-  last_transfer_reason_code?: string | null;
-  last_transfer_reason?: string | null;
-  last_transfer_primary_addr?: string | null;
-  last_transfer_serial?: number | null;
-  last_transfer_log_id?: number | null;
-  created_at?: string;
-  updated_at?: string;
-  [k: string]: unknown;
-}
+  dns_server?: DnsReference | null;
+  dns_zone?: DnsReference | null;
+  [key: string]: unknown;
+};
 
 export async function fetchDnssecRecords(opts?: { fromId?: number; limit?: number; dns_zone?: number }) {
-  const params: Record<string, unknown> = {};
+  const params: DnssecRecord__IndexInput = {};
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
   if (opts?.dns_zone !== undefined) params['dns_zone'] = opts.dns_zone;
-  const res = await haveApiCall<DnssecRecord[]>({
-    method: 'GET',
-    path: '/dnssec_records',
-    namespace: 'dnssec_record',
-    params,
-    meta: { includes: 'dns_zone' },
-  });
-  return { ...res, data: expectArray<DnssecRecord>(res.data, 'dnssec_records#index') };
+  const res = narrowApiResult(
+    await (
+      await getApi()
+    ).dnssec_record.index({
+      params,
+      meta: { includes: 'dns_zone' },
+    }),
+    (data) => expectArray<unknown>(data, 'dnssec_record list').map(narrowDnssecRecord),
+    'dnssec_record index'
+  );
+  return res;
 }
 
-export async function fetchDnsServers(opts?: {
-  fromId?: number;
-  limit?: number;
-  count?: boolean;
-}) {
-  const params: Record<string, unknown> = {};
+export async function fetchDnsServers(opts?: { fromId?: number; limit?: number; count?: boolean }) {
+  const params: DnsServer__IndexInput = {};
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
-  const res = await haveApiCall<DnsServer[]>({
-    method: 'GET',
-    path: '/dns_servers',
-    namespace: 'dns_server',
-    params,
-    meta: { includes: 'node', ...(opts?.count ? { count: true } : {}) },
-  });
-  return { ...res, data: expectArray<DnsServer>(res.data, 'dns_servers#index') };
+  const res = narrowApiResult(
+    await (
+      await getApi()
+    ).dns_server.index({
+      params,
+      meta: { includes: 'node', ...(opts?.count ? { count: true } : {}) },
+    }),
+    (data) => expectArray<unknown>(data, 'dns_server list').map(narrowDnsServer),
+    'dns_server index'
+  );
+  return res;
 }
 
-export async function createDnsServer(payload: {
-  node: number;
-  name: string;
-  ipv4_addr?: string;
-  ipv6_addr?: string;
-  hidden?: boolean;
-  enable_user_dns_zones?: boolean;
-  user_dns_zone_type?: string;
-}) {
-  return haveApiCall<DnsServer>({ method: 'POST', path: '/dns_servers', namespace: 'dns_server', params: payload });
+export async function createDnsServer(payload: DnsServer__CreateInput) {
+  return narrowApiResult(
+    await (await getApi()).dns_server.create({ params: payload }),
+    narrowDnsServer,
+    'dns_server create'
+  );
 }
 
-export async function updateDnsServer(id: number, payload: {
-  node?: number;
-  name?: string;
-  ipv4_addr?: string;
-  ipv6_addr?: string;
-  hidden?: boolean;
-  enable_user_dns_zones?: boolean;
-  user_dns_zone_type?: string;
-}) {
-  return haveApiCall<DnsServer>({ method: 'PUT', path: `/dns_servers/${id}`, namespace: 'dns_server', params: payload });
+export async function updateDnsServer(id: number, payload: DnsServer__UpdateInput) {
+  return narrowApiResult(
+    await (
+      await getApi()
+    ).dns_server.update({
+      path: { dns_server_id: id },
+      params: payload,
+    }),
+    narrowDnsServer,
+    'dns_server update'
+  );
 }
 
 export async function deleteDnsServer(id: number) {
-  return haveApiCall<void>({ method: 'DELETE', path: `/dns_servers/${id}` });
+  return await (
+    await getApi()
+  ).dns_server.delete({
+    path: { dns_server_id: id },
+  });
 }
 
 export async function fetchDnsServerZones(opts?: {
@@ -342,28 +295,177 @@ export async function fetchDnsServerZones(opts?: {
   dns_server?: number;
   dns_zone?: number;
 }) {
-  const params: Record<string, unknown> = {};
+  const params: DnsServerZone__IndexInput = {};
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
   if (opts?.dns_server !== undefined) params['dns_server'] = opts.dns_server;
   if (opts?.dns_zone !== undefined) params['dns_zone'] = opts.dns_zone;
-  const res = await haveApiCall<DnsServerZone[]>({
-    method: 'GET',
-    path: '/dns_server_zones',
-    namespace: 'dns_server_zone',
-    params,
-    meta: { includes: 'dns_server,dns_zone' },
-  });
-  return { ...res, data: expectArray<DnsServerZone>(res.data, 'dns_server_zones#index') };
+  const res = narrowApiResult(
+    await (
+      await getApi()
+    ).dns_server_zone.index({
+      params,
+      meta: { includes: 'dns_server,dns_zone' },
+    }),
+    (data) => expectArray<unknown>(data, 'dns_server_zone list').map(narrowDnsServerZone),
+    'dns_server_zone index'
+  );
+  return res;
 }
 
-export async function createDnsServerZone(payload: { dns_server: number; dns_zone: number; type?: string }) {
-  return haveApiCall<DnsServerZone>({ method: 'POST', path: '/dns_server_zones', namespace: 'dns_server_zone', params: payload });
+export async function createDnsServerZone(payload: DnsServerZone__CreateInput) {
+  return narrowApiResult(
+    await (await getApi()).dns_server_zone.create({ params: payload }),
+    narrowDnsServerZone,
+    'dns_server_zone create'
+  );
 }
 
 export async function deleteDnsServerZone(id: number) {
-  return haveApiCall<void>({ method: 'DELETE', path: `/dns_server_zones/${id}` });
+  return await (
+    await getApi()
+  ).dns_server_zone.delete({
+    path: { dns_server_zone_id: id },
+  });
 }
 
 export * from './dnsTransfers';
 export * from './dnsTsigKeys';
+
+function isDnsZone(value: unknown): value is DnsZone {
+  if (
+    !isRecord(value) ||
+    !isId(value['id']) ||
+    !fields(
+      value,
+      [
+        'created_at',
+        'email',
+        'label',
+        'name',
+        'reverse_network_address',
+        'reverse_network_prefix',
+        'role',
+        'source',
+        'updated_at',
+      ],
+      ['default_ttl', 'serial'],
+      ['dnssec_enabled', 'enabled']
+    ) ||
+    !['user'].every((key) => optional(value[key], reference))
+  )
+    return false;
+  return true;
+}
+function narrowDnsZone(value: unknown): DnsZone {
+  if (!isDnsZone(value)) throw new TypeError('Invalid DnsZone identity or fields');
+  return value;
+}
+
+function isDnsRecord(value: unknown): value is DnsRecord {
+  if (
+    !isRecord(value) ||
+    !isId(value['id']) ||
+    !fields(
+      value,
+      ['comment', 'content', 'created_at', 'dynamic_update_url', 'name', 'type', 'updated_at'],
+      ['priority', 'ttl'],
+      ['dynamic_update_enabled', 'enabled', 'managed']
+    ) ||
+    !['user', 'dns_zone'].every((key) => optional(value[key], reference))
+  )
+    return false;
+  return true;
+}
+function narrowDnsRecord(value: unknown): DnsRecord {
+  if (!isDnsRecord(value)) throw new TypeError('Invalid DnsRecord identity or fields');
+  return value;
+}
+
+function isDnsRecordLog(value: unknown): value is DnsRecordLog {
+  if (
+    !isRecord(value) ||
+    !isId(value['id']) ||
+    !fields(value, ['change_type', 'created_at', 'dns_zone_name', 'name', 'type', 'updated_at'], ['raw_user_id'], []) ||
+    !['user', 'dns_zone', 'transaction_chain'].every((key) => optional(value[key], reference))
+  )
+    return false;
+  return true;
+}
+function narrowDnsRecordLog(value: unknown): DnsRecordLog {
+  if (!isDnsRecordLog(value)) throw new TypeError('Invalid DnsRecordLog identity or fields');
+  return value;
+}
+
+function isDnssecRecord(value: unknown): value is DnssecRecord {
+  if (
+    !isRecord(value) ||
+    !isId(value['id']) ||
+    !fields(
+      value,
+      ['created_at', 'dnskey_pubkey', 'ds_digest', 'updated_at'],
+      ['dnskey_algorithm', 'ds_algorithm', 'ds_digest_type', 'keyid'],
+      []
+    ) ||
+    !['dns_zone'].every((key) => optional(value[key], reference))
+  )
+    return false;
+  return true;
+}
+function narrowDnssecRecord(value: unknown): DnssecRecord {
+  if (!isDnssecRecord(value)) throw new TypeError('Invalid DnssecRecord identity or fields');
+  return value;
+}
+
+function isDnsServer(value: unknown): value is DnsServer {
+  if (
+    !isRecord(value) ||
+    !isId(value['id']) ||
+    !fields(
+      value,
+      ['created_at', 'ipv4_addr', 'ipv6_addr', 'name', 'updated_at', 'user_dns_zone_type'],
+      [],
+      ['enable_user_dns_zones', 'hidden']
+    ) ||
+    !['node'].every((key) => optional(value[key], reference))
+  )
+    return false;
+  return true;
+}
+function narrowDnsServer(value: unknown): DnsServer {
+  if (!isDnsServer(value)) throw new TypeError('Invalid DnsServer identity or fields');
+  return value;
+}
+
+function isDnsServerZone(value: unknown): value is DnsServerZone {
+  if (
+    !isRecord(value) ||
+    !isId(value['id']) ||
+    !fields(
+      value,
+      [
+        'created_at',
+        'expires_at',
+        'last_check_at',
+        'last_transfer_at',
+        'last_transfer_primary_addr',
+        'last_transfer_reason',
+        'last_transfer_reason_code',
+        'last_transfer_status',
+        'loaded_at',
+        'refresh_at',
+        'type',
+        'updated_at',
+      ],
+      ['last_transfer_log_id', 'last_transfer_serial', 'serial'],
+      []
+    ) ||
+    !['dns_server', 'dns_zone'].every((key) => optional(value[key], reference))
+  )
+    return false;
+  return true;
+}
+function narrowDnsServerZone(value: unknown): DnsServerZone {
+  if (!isDnsServerZone(value)) throw new TypeError('Invalid DnsServerZone identity or fields');
+  return value;
+}

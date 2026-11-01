@@ -1,28 +1,20 @@
-import { expectArray, haveApiCall } from './haveapi';
+import type {
+  DnsTsigKey__CreateInput,
+  DnsTsigKey__IndexInput,
+  DnsTsigKey__IndexOutput,
+} from 'vpsadmin-typescript-client';
+import { isRecord, isId, fields, optional, reference } from './networkingViews';
+import type { OwnerReference } from './networkingViews';
+import { narrowApiResult } from './apiOutput';
+import { getApi } from './sdk';
+import { expectArray } from './apiErrors';
 import { withoutDnsSecrets } from './dnsSecretScrubber';
-import type { ResourceRef } from './dns';
 
-interface DnsTsigKey {
+export type DnsTsigKeySummary = Omit<DnsTsigKey__IndexOutput[number], 'id' | 'user' | 'secret'> & {
   id: number;
-  user?: ResourceRef & { login?: string };
-  name?: string;
-  algorithm?: string;
-  secret?: string;
-  created_at?: string;
-  updated_at?: string;
-  [k: string]: unknown;
-}
-
-/** A TSIG key as it is safe to keep in list/query state. */
-export interface DnsTsigKeySummary {
-  id: number;
-  user?: ResourceRef & { login?: string };
-  name?: string;
-  algorithm?: string;
-  created_at?: string;
-  updated_at?: string;
-  [k: string]: unknown;
-}
+  user?: OwnerReference | null;
+  [key: string]: unknown;
+};
 
 export interface DnsTsigKeyOneTimeSecret {
   name: string;
@@ -38,12 +30,7 @@ export interface CreateDnsTsigKeyOptions {
 }
 
 /** Algorithms accepted by the upstream DnsTsigKey model. */
-export const DNS_TSIG_ALGORITHMS = [
-  'hmac-sha224',
-  'hmac-sha256',
-  'hmac-sha384',
-  'hmac-sha512',
-] as const;
+export const DNS_TSIG_ALGORITHMS = ['hmac-sha224', 'hmac-sha256', 'hmac-sha384', 'hmac-sha512'] as const;
 
 export async function fetchDnsTsigKeys(opts?: {
   fromId?: number;
@@ -52,36 +39,29 @@ export async function fetchDnsTsigKeys(opts?: {
   algorithm?: string;
   count?: boolean;
 }) {
-  const params: Record<string, unknown> = {};
+  const params: DnsTsigKey__IndexInput = {};
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
   if (opts?.user !== undefined) params['user'] = opts.user;
   if (opts?.algorithm !== undefined) params['algorithm'] = opts.algorithm;
 
-  const res = await haveApiCall<DnsTsigKey[]>({
-    method: 'GET',
-    path: '/dns_tsig_keys',
-    namespace: 'dns_tsig_key',
-    params,
-    meta: { includes: 'user', ...(opts?.count ? { count: true } : {}) },
-  });
-
-  // Scrub the complete result: HaveAPI envelopes and metadata are cached too.
-  const safeRes = withoutDnsSecrets(res);
-  const safeRows = expectArray<DnsTsigKeySummary>(safeRes.data, 'dns_tsig_keys#index');
-  return { ...safeRes, data: safeRows };
+  const result = withoutDnsSecrets(
+    await (
+      await getApi()
+    ).dns_tsig_key.index({
+      params,
+      meta: { includes: 'user', ...(opts?.count ? { count: true } : {}) },
+    })
+  );
+  return narrowApiResult(
+    result,
+    (data) => expectArray<unknown>(data, 'TSIG key list').map(narrowDnsTsigKey),
+    'TSIG key list'
+  );
 }
 
-export async function createDnsTsigKey(
-  payload: { user?: number; name: string; algorithm?: string },
-  options?: CreateDnsTsigKeyOptions
-) {
-  const result = await haveApiCall<DnsTsigKey>({
-    method: 'POST',
-    path: '/dns_tsig_keys',
-    namespace: 'dns_tsig_key',
-    params: payload,
-  });
+export async function createDnsTsigKey(payload: DnsTsigKey__CreateInput, options?: CreateDnsTsigKeyOptions) {
+  const result = await (await getApi()).dns_tsig_key.create({ params: payload });
 
   const secret = typeof result.data?.secret === 'string' ? result.data.secret : '';
   if (secret) {
@@ -91,13 +71,28 @@ export async function createDnsTsigKey(
     });
   }
 
-  return withoutDnsSecrets(result) as {
-    data: DnsTsigKeySummary;
-    meta?: Record<string, unknown>;
-    envelope: typeof result.envelope;
-  };
+  return narrowApiResult(withoutDnsSecrets(result), narrowDnsTsigKey, 'TSIG key summary');
 }
 
 export async function deleteDnsTsigKey(id: number) {
-  return haveApiCall<void>({ method: 'DELETE', path: `/dns_tsig_keys/${id}` });
+  return await (
+    await getApi()
+  ).dns_tsig_key.delete({
+    path: { dns_tsig_key_id: id },
+  });
+}
+
+function isDnsTsigKey(value: unknown): value is DnsTsigKeySummary {
+  if (
+    !isRecord(value) ||
+    !isId(value['id']) ||
+    !fields(value, ['algorithm', 'created_at', 'name', 'updated_at'], [], []) ||
+    !optional(value['user'], reference)
+  )
+    return false;
+  return true;
+}
+function narrowDnsTsigKey(value: unknown): DnsTsigKeySummary {
+  if (!isDnsTsigKey(value)) throw new TypeError('Invalid DnsTsigKey identity or fields');
+  return value;
 }

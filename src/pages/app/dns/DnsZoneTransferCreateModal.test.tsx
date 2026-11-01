@@ -37,7 +37,7 @@ afterEach(() => {
 
 describe('DNS transfer host IP selection', () => {
   it('uses the owner and eligibility filters for an exact address outside the suggestion sample', async () => {
-    vi.mocked(fetchHostIpAddresses).mockImplementation(async (opts) => ({
+    vi.mocked(fetchHostIpAddresses).mockImplementation(async (opts) => ({ httpStatus: 200, meta: {},
       data: opts?.addr === '192.0.2.199' ? [{ id: 199, addr: '192.0.2.199' }] : [],
       envelope: { status: true, response: {} },
     }));

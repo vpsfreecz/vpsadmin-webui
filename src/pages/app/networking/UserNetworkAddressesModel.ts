@@ -1,6 +1,4 @@
-import type { ResourceRef } from '../../../lib/api/appTypes';
 import { fetchIpAddresses, type IpAddress } from '../../../lib/api/ipAddresses';
-import type { NetworkInterface } from '../../../lib/api/networkInterfaces';
 import { fetchIpAddressAssignments, type IpAddressAssignment } from '../../../lib/api/networking';
 import { resourceId } from './IpAddressAssignmentModel';
 
@@ -13,25 +11,15 @@ export function assignmentIpAddress(assignment: IpAddressAssignment): ScopedIpAd
   const source = assignment.ip_address;
   if (!source || typeof source !== 'object' || !resourceId(source)) return null;
 
-  const embedded = source as IpAddress & { ip_addr?: string };
-  const assignmentVps = assignment.vps ?? embedded.vps;
-  const networkInterface = embedded.network_interface;
-  const expandedInterface =
-    networkInterface && typeof networkInterface === 'object'
-      ? { ...networkInterface, vps: (networkInterface as NetworkInterface).vps ?? assignmentVps }
-      : networkInterface;
+  const id = resourceId(source);
+  if (id === null) return null;
   const ip: IpAddress = {
-    ...embedded,
-    addr: embedded.addr ?? embedded.ip_addr ?? assignment.ip_addr,
-    prefix: embedded.prefix ?? assignment.ip_prefix,
-    vps: embedded.vps ?? assignmentVps,
-    network_interface: expandedInterface,
+    ...source,
+    id,
+    addr: source.addr ?? assignment.ip_addr,
+    prefix: source.prefix ?? assignment.ip_prefix,
   };
-
-  return {
-    ip,
-    vpsId: resourceId(assignmentVps) ?? ipVpsId(ip),
-  };
+  return { ip, vpsId: ipVpsId(ip) ?? resourceId(assignment.vps) };
 }
 
 export async function fetchAssignedIpAddresses(
@@ -65,7 +53,7 @@ export async function fetchAssignedIpAddresses(
   const unresolvedVpsIds = [
     ...new Set(
       scopedRows
-        .filter(({ ip }) => ip.user === undefined || ip.network_interface === undefined)
+        .filter(({ ip }) => ip.user === undefined || ip.network_interface === undefined || ipVpsId(ip) === null)
         .map(({ vpsId }) => vpsId!)
     ),
   ];
@@ -100,22 +88,18 @@ export async function fetchAssignedIpAddresses(
 }
 
 function interfaceId(ip: IpAddress): number | null {
-  return resourceId(ip.network_interface as ResourceRef | number | string | null | undefined);
+  return resourceId(ip.network_interface);
 }
 
 export function interfaceName(ip: IpAddress): string {
-  const networkInterface = ip.network_interface as NetworkInterface | ResourceRef | null | undefined;
+  const networkInterface = ip.network_interface;
   const id = interfaceId(ip);
   if (!networkInterface || typeof networkInterface !== 'object') return id ? `#${id}` : '—';
-  return String(networkInterface.name ?? networkInterface.label ?? '').trim() || (id ? `#${id}` : '—');
+  return String(networkInterface.name ?? networkInterface['label'] ?? '').trim() || (id ? `#${id}` : '—');
 }
 
 export function ipVpsId(ip: IpAddress): number | null {
-  const direct = resourceId(ip.vps as ResourceRef | number | string | null | undefined);
-  if (direct) return direct;
-  const networkInterface = ip.network_interface as NetworkInterface | ResourceRef | null | undefined;
-  if (!networkInterface || typeof networkInterface !== 'object') return null;
-  return resourceId((networkInterface as NetworkInterface).vps);
+  return resourceId(ip.network_interface?.vps);
 }
 
 /** Assignment identity is not proof of allocation ownership. */

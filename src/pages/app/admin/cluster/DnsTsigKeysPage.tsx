@@ -24,7 +24,7 @@ import { Select } from '../../../../components/ui/Select';
 import { UserLookupInput } from '../../../../components/ui/UserLookupInput';
 import { TableCard } from '../../../../components/ui/TableCard';
 import { DNS_TSIG_ALGORITHMS, fetchDnsTsigKeys, createDnsTsigKey, deleteDnsTsigKey, type DnsTsigKeySummary } from '../../../../lib/api/dns';
-import { getMetaTotalCount } from '../../../../lib/api/haveapi';
+import { getMetaTotalCount } from '../../../../lib/api/apiErrors';
 import { useCountedKeysetPagination } from '../../../../lib/hooks/useCountedKeysetPagination';
 import { useKeysetPagination } from '../../../../lib/hooks/useKeysetPagination';
 import { formatDateTime } from '../../../../lib/format';

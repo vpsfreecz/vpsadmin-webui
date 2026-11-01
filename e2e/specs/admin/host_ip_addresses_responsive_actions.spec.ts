@@ -155,7 +155,7 @@ test('@pr-smoke @pr-smoke-mobile rejected host IP deletion stays in context and 
             body: JSON.stringify({ status: false, message: 'Host address is still assigned', response: null }),
           };
         }
-        return { _meta: { action_state_id: 703 } };
+        return { host_ip_address: {}, _meta: { action_state_id: 703 } };
       },
     },
   });

@@ -11,11 +11,11 @@ import { formatDateTime } from '../../../lib/format';
 
 export function dnsZoneTransferPeerLabel(transfer: DnsZoneTransfer): string {
   const host = transfer.host_ip_address;
-  if (!host) return `#${transfer.id}`;
+  if (!host) return '—';
   const ip = 'ip_address' in host ? host.ip_address : undefined;
-  const ipAddress = ip && typeof ip === 'object' && 'ip_addr' in ip ? ip.ip_addr : undefined;
+  const ipAddress = ip && typeof ip === 'object' && 'ip_addr' in ip ? ip['ip_addr'] : undefined;
   const address = 'addr' in host ? host.addr : undefined;
-  return String(ipAddress ?? address ?? `#${host.id ?? transfer.id}`);
+  return String(ipAddress ?? address ?? (typeof host.id === 'number' ? `#${host.id}` : '—'));
 }
 
 function peerTypeLabel(t: (key: string) => string, value: unknown): string {

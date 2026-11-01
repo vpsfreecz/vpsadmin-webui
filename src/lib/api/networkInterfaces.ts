@@ -1,33 +1,25 @@
-import { expectArray, haveApiCall, requireActionStateResult } from './haveapi';
-import type { ResourceRef } from './appTypes';
+import type {
+  NetworkInterfaceAccounting__IndexInput,
+  NetworkInterfaceAccounting__IndexOutput,
+  NetworkInterface__IndexOutput,
+  NetworkInterface__UpdateInput,
+} from 'vpsadmin-typescript-client';
+import { isRecord, isId, fields, optional, reference, interfaceReference } from './networkingViews';
+import type { VpsReference, InterfaceReference } from './networkingViews';
+import { narrowApiResult } from './apiOutput';
+import { getApi } from './sdk';
+import { expectArray, requireActionStateResult } from './apiErrors';
 
-export interface NetworkInterface {
+export type NetworkInterface = Omit<NetworkInterface__IndexOutput[number], 'id' | 'vps'> & {
   id: number;
-  vps?: ResourceRef;
-  name: string;
-  type?: string;
-  mac?: string;
-  max_tx?: number;
-  max_rx?: number;
-  enable?: boolean;
-  [k: string]: unknown;
-}
+  vps?: VpsReference | null;
+  [key: string]: unknown;
+};
 
-export interface NetworkInterfaceAccounting {
-  id: number;
-  network_interface?: NetworkInterface | ResourceRef;
-  bytes?: number;
-  bytes_in?: number;
-  bytes_out?: number;
-  packets?: number;
-  packets_in?: number;
-  packets_out?: number;
-  year?: number;
-  month?: number;
-  created_at?: string;
-  updated_at?: string;
-  [k: string]: unknown;
-}
+export type NetworkInterfaceAccounting = Omit<NetworkInterfaceAccounting__IndexOutput[number], 'network_interface'> & {
+  network_interface?: InterfaceReference | null;
+  [key: string]: unknown;
+};
 
 export interface NetworkInterfaceAccountingListOpts {
   vps?: number;
@@ -44,30 +36,37 @@ export interface NetworkInterfaceAccountingListOpts {
 }
 
 export async function fetchNetworkInterfaces(vpsId: number, opts?: { limit?: number }) {
-  const res = await haveApiCall<NetworkInterface[]>({
-    method: 'GET',
-    path: '/network_interfaces',
-    namespace: 'network_interface',
-    params: {
-      vps: vpsId,
-      limit: opts?.limit ?? 100,
-    },
-  });
-  return { ...res, data: expectArray<NetworkInterface>(res.data, 'network_interfaces') };
+  const res = narrowApiResult(
+    await (
+      await getApi()
+    ).network_interface.index({
+      params: {
+        vps: vpsId,
+        limit: opts?.limit ?? 100,
+      },
+    }),
+    (data) => expectArray<unknown>(data, 'network_interface list').map(narrowNetworkInterface),
+    'network_interface index'
+  );
+  return res;
 }
 
-export async function updateNetworkInterface(netifId: number, params: Record<string, unknown>) {
-  const res = await haveApiCall<NetworkInterface>({
-    method: 'PUT',
-    path: `/network_interfaces/${netifId}`,
-    namespace: 'network_interface',
-    params,
-  });
+export async function updateNetworkInterface(netifId: number, params: NetworkInterface__UpdateInput) {
+  const res = narrowApiResult(
+    await (
+      await getApi()
+    ).network_interface.update({
+      path: { network_interface_id: netifId },
+      params,
+    }),
+    narrowNetworkInterface,
+    'network_interface update'
+  );
   return requireActionStateResult(res, 'network interface update');
 }
 
 export async function fetchNetworkInterfaceAccountings(opts?: NetworkInterfaceAccountingListOpts) {
-  const params: Record<string, unknown> = {};
+  const params: NetworkInterfaceAccounting__IndexInput = {};
   if (opts?.vps !== undefined) params['vps'] = opts.vps;
   if (opts?.user !== undefined) params['user'] = opts.user;
   if (opts?.environment !== undefined) params['environment'] = opts.environment;
@@ -79,17 +78,17 @@ export async function fetchNetworkInterfaceAccountings(opts?: NetworkInterfaceAc
   if (opts?.fromBytes !== undefined) params['from_bytes'] = opts.fromBytes;
   if (opts?.order) params['order'] = opts.order;
 
-  const res = await haveApiCall<NetworkInterfaceAccounting[]>({
-    method: 'GET',
-    path: '/network_interface_accountings',
-    namespace: 'network_interface_accounting',
-    params,
-    meta: opts?.includes ? { includes: opts.includes } : undefined,
-  });
-  return {
-    ...res,
-    data: expectArray<NetworkInterfaceAccounting>(res.data, 'network_interface_accountings'),
-  };
+  const res = narrowApiResult(
+    await (
+      await getApi()
+    ).network_interface_accounting.index({
+      params,
+      meta: opts?.includes ? { includes: opts.includes } : undefined,
+    }),
+    (data) => expectArray<unknown>(data, 'network_interface_accounting list').map(narrowNetworkInterfaceAccounting),
+    'network_interface_accounting index'
+  );
+  return res;
 }
 
 export async function fetchNetworkInterfaceAccountingForVps(vpsId: number, year: number, month: number) {
@@ -99,4 +98,39 @@ export async function fetchNetworkInterfaceAccountingForVps(vpsId: number, year:
     month,
     limit: 250,
   });
+}
+
+function isNetworkInterface(value: unknown): value is NetworkInterface {
+  if (
+    !isRecord(value) ||
+    !isId(value['id']) ||
+    !fields(value, ['mac', 'name', 'type'], ['max_rx', 'max_tx'], ['enable']) ||
+    !optional(value['vps'], reference)
+  )
+    return false;
+  return true;
+}
+function narrowNetworkInterface(value: unknown): NetworkInterface {
+  if (!isNetworkInterface(value)) throw new TypeError('Invalid NetworkInterface identity or fields');
+  return value;
+}
+
+function isNetworkInterfaceAccounting(value: unknown): value is NetworkInterfaceAccounting {
+  if (
+    !isRecord(value) ||
+    !fields(
+      value,
+      ['created_at', 'updated_at'],
+      ['bytes', 'bytes_in', 'bytes_out', 'month', 'packets', 'packets_in', 'packets_out', 'year'],
+      []
+    ) ||
+    !optional(value['network_interface'], interfaceReference)
+  )
+    return false;
+  return true;
+}
+function narrowNetworkInterfaceAccounting(value: unknown): NetworkInterfaceAccounting {
+  if (!isNetworkInterfaceAccounting(value))
+    throw new TypeError('Invalid NetworkInterfaceAccounting identity or fields');
+  return value;
 }

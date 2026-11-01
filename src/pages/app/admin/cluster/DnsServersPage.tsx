@@ -22,7 +22,7 @@ import { Select } from '../../../../components/ui/Select';
 import { TableCard } from '../../../../components/ui/TableCard';
 import { fetchNodes } from '../../../../lib/api/nodes';
 import { fetchDnsServers, createDnsServer, updateDnsServer, deleteDnsServer, type DnsServer } from '../../../../lib/api/dns';
-import { getMetaTotalCount } from '../../../../lib/api/haveapi';
+import { getMetaTotalCount } from '../../../../lib/api/apiErrors';
 import { useCountedKeysetPagination } from '../../../../lib/hooks/useCountedKeysetPagination';
 import { useKeysetPagination } from '../../../../lib/hooks/useKeysetPagination';
 import { formatErrorMessage } from '../../../../lib/errors';

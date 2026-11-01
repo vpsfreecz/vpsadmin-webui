@@ -1,4 +1,4 @@
-import { HaveApiError } from '../../../lib/api/haveapi';
+import { HaveApiError } from '../../../lib/api/apiErrors';
 import { formatErrorMessage } from '../../../lib/errors';
 
 import type { DnsRecordFormField } from './DnsRecordModel';

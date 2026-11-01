@@ -34,7 +34,7 @@ describe('IpAddressLookupInput', () => {
   });
 
   test('uses a bounded user scope and filters partial addresses locally', async () => {
-    vi.mocked(fetchIpAddresses).mockResolvedValue({
+    vi.mocked(fetchIpAddresses).mockResolvedValue({ httpStatus: 200, meta: {},
       data: [
         { id: 480, addr: '83.167.228.48', prefix: 32 },
         { id: 481, addr: '192.0.2.1', prefix: 32 },

@@ -42,7 +42,9 @@ function deferred<T>() {
   return { promise, resolve, reject };
 }
 
-const addressResult = (data: IpAddress[] = []) => ({ data, envelope: { status: true } });
+const addressResult = (data: IpAddress[] = []): Awaited<ReturnType<typeof fetchIpAddresses>> => ({
+  data, meta: {}, httpStatus: 200, envelope: { status: true, response: { ip_addresses: data } },
+});
 const suggestionKey = () => ['ip_addresses', 'suggested_free', 10, 4, 'public_access', 'any'];
 async function advance(milliseconds = 0) {
   await act(async () => { await vi.advanceTimersByTimeAsync(milliseconds); });
@@ -58,9 +60,9 @@ afterEach(() => {
 
 beforeEach(() => {
   vi.resetAllMocks();
-  const capability = { input: { parameters: { network_enabled: {} } } };
+  const capability = { input: { parameters: { network_enabled: { type: 'Boolean' } } } };
   vi.mocked(fetchIpAddressIndexCapability).mockResolvedValue({
-    data: capability, envelope: { status: true, response: capability },
+    data: capability, meta: {}, httpStatus: 200, envelope: { status: true, response: capability },
   });
 });
 
