@@ -38,6 +38,11 @@ for (const path of ['/', '/news']) {
     await expect(content).toContainText('Legacy fallback');
     await expect(content).toContainText('English-only announcement');
     await expectNoDocumentHorizontalOverflow(page);
+    const closeMenu = page.getByRole('button', { name: /^(Close menu|Zavřít menu)$/ });
+    if (await closeMenu.isVisible()) {
+      if (hasTouch) await closeMenu.tap(); else await closeMenu.click();
+    }
+    await content.evaluate((el) => window.scrollTo(0, window.scrollY + el.getBoundingClientRect().top - 80));
     await content.screenshot({ path: testInfo.outputPath('anonymous-news-cs.png') });
     await switchLanguage('EN');
     await expect(content).toContainText('English announcement');
