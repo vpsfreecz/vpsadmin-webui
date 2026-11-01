@@ -5,7 +5,7 @@ import { getRuntimeConfig } from './config';
 import { fetchCurrentUser, type User } from '../lib/api/users';
 import { canUseAdminUi, roleFromLevel, type UserRole } from '../lib/roles';
 import { clearStoredOAuthToken } from '../lib/auth/tokenStore';
-import { HaveApiError, isExpiredSessionError, SESSION_EXPIRED_EVENT } from '../lib/api/haveapi';
+import { HaveApiError, isExpiredSessionError, SESSION_EXPIRED_EVENT } from '../lib/api/apiErrors';
 import { markSessionExpiredNotice } from '../lib/auth/sessionExpiredNotice';
 import { getBffSessionKey } from '../lib/auth/bffSession';
 import { bindBffImpersonationToSession, browserSessionStorage } from '../lib/auth/impersonation';
@@ -43,11 +43,7 @@ function buildLogoutUrl(base: string | undefined, nextPath: string): string {
   return `${normalized}/?page=logout&next=${encodeURIComponent(nextPath)}`;
 }
 
-function buildEndpointUrl(
-  explicitUrl: string | undefined,
-  fallbackUrl: string,
-  nextPath: string
-): string {
+function buildEndpointUrl(explicitUrl: string | undefined, fallbackUrl: string, nextPath: string): string {
   if (!explicitUrl) return fallbackUrl;
 
   // If the explicit URL is same-origin, we can safely append `next=` so the backend can
@@ -136,19 +132,11 @@ export function AuthProvider(props: {
 
   const baseUrl = cfg.webuiUrl ?? (typeof window !== 'undefined' ? window.location.origin : undefined);
 
-  const loginUrl = buildEndpointUrl(
-    cfg.loginUrl,
-    buildLoginUrl(baseUrl, props.nextPath),
-    props.nextPath
-  );
+  const loginUrl = buildEndpointUrl(cfg.loginUrl, buildLoginUrl(baseUrl, props.nextPath), props.nextPath);
   // Logout must always land on the public overview. Returning to the current
   // protected route would immediately render a "login required" screen.
   const logoutNextPath = withRouterBasename('/', cfg.routerBasename);
-  const logoutUrl = buildEndpointUrl(
-    cfg.logoutUrl,
-    buildLogoutUrl(baseUrl, logoutNextPath),
-    logoutNextPath
-  );
+  const logoutUrl = buildEndpointUrl(cfg.logoutUrl, buildLogoutUrl(baseUrl, logoutNextPath), logoutNextPath);
 
   const idleDeadline = useIdleSession(
     readSessionIdleLimitSeconds(q.data?.preferred_session_length),
@@ -164,7 +152,7 @@ export function AuthProvider(props: {
       markSessionExpiredNotice();
       // Use the real logout endpoint to destroy the BFF session/revoke tokens.
       hardReplace(logoutUrl);
-    },
+    }
   );
   const sessionExpiresAt = idleDeadline;
 
@@ -274,7 +262,18 @@ export function AuthProvider(props: {
       logoutUrl,
       sessionExpiresAt,
     };
-  }, [sessionExpiresAt, enabled, q.isLoading, q.isError, q.data, q.error, sessionExpired, loginUrl, logoutUrl, redirectExpiredSessions]);
+  }, [
+    sessionExpiresAt,
+    enabled,
+    q.isLoading,
+    q.isError,
+    q.data,
+    q.error,
+    sessionExpired,
+    loginUrl,
+    logoutUrl,
+    redirectExpiredSessions,
+  ]);
 
   return <AuthContext.Provider value={value}>{props.children}</AuthContext.Provider>;
 }

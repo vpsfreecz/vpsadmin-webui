@@ -247,4 +247,8 @@ export const csAdmin_security_advisories = {
     'Odkazy na CVE můžeš přidat nebo odebrat. Prázdné pole je všechny odebere.',
   'admin.security_advisories.field.published_at_edit_help':
     'Původní čas zveřejnění můžeš změnit. Prázdné pole ho odstraní.',
+
+  "admin.security_advisories.validation.revision_changed": "Bezpečnostní upozornění se od kontroly změnilo. Neuložené úpravy zůstaly ve formuláři. Před pokračováním načti a zkontroluj aktuální verzi.",
+  "admin.security_advisories.validation.revision_unavailable": "Revize bezpečnostního upozornění není dostupná. Změny nelze odeslat, dokud se nenačte aktuální upozornění.",
+  "admin.security_advisories.validation.language_profile_unsupported": "API vyžaduje jazyk, který tento klient nepodporuje. Před odesláním změn je potřeba aktualizovat generovaného klienta.",
 } as const;

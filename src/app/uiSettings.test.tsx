@@ -8,22 +8,13 @@ const authState = vi.hoisted(() => ({
   status: 'authenticated' as string,
 }));
 
-const haveApiCallMock = vi.hoisted(() => vi.fn());
+const settingsApi = vi.hoisted(() => ({ fetch: vi.fn(), save: vi.fn() }));
 
-vi.mock('./auth', () => ({
-  useAuth: () => ({
-    status: authState.status,
-  }),
+vi.mock('./auth', () => ({ useAuth: () => ({ status: authState.status }) }));
+vi.mock('../lib/api/webuiUserSettings', () => ({
+  fetchWebuiUserSetting: settingsApi.fetch,
+  saveWebuiUserSetting: settingsApi.save,
 }));
-
-vi.mock('../lib/api/haveapi', () => {
-  class HaveApiError extends Error {}
-
-  return {
-    HaveApiError,
-    haveApiCall: haveApiCallMock,
-  };
-});
 
 import { UiSettingsProvider, useUiSettings } from './uiSettings';
 import { DEFAULT_SETTINGS, STORAGE_KEY, toUiSettingsJson } from './uiSettingsModel';
@@ -97,7 +88,8 @@ function renderProvider() {
 
 beforeEach(() => {
   authState.status = 'authenticated';
-  haveApiCallMock.mockReset();
+  settingsApi.fetch.mockReset();
+  settingsApi.save.mockReset();
   window.localStorage.clear();
   serverWindowConfig();
 });
@@ -115,151 +107,64 @@ function waitForDebounce() {
 
 describe('UiSettingsProvider', () => {
   it('keeps local settings available when server load fails', async () => {
-    window.localStorage.setItem(
-      STORAGE_KEY,
-      toUiSettingsJson({
-        ...DEFAULT_SETTINGS,
-        theme: 'dark',
-      }),
-    );
-    haveApiCallMock.mockRejectedValueOnce(new Error('load failed'));
-
+    window.localStorage.setItem(STORAGE_KEY, toUiSettingsJson({ ...DEFAULT_SETTINGS, theme: 'dark' }));
+    settingsApi.fetch.mockRejectedValueOnce(new Error('load failed'));
     renderProvider();
-
     expect(await screen.findByTestId('theme')).toHaveTextContent('dark');
     await waitFor(() => expect(screen.getByTestId('load-error')).toHaveTextContent('load failed'));
-    expect(haveApiCallMock).toHaveBeenCalledWith({
-      method: 'GET',
-      path: '/webui_user_settings',
-      namespace: 'webui_user_setting',
-      params: {
-        namespace: 'ui_setting',
-        key: 'settings',
-      },
-    });
+    expect(settingsApi.fetch).toHaveBeenCalledWith('ui_setting', 'settings');
   });
 
   it('keeps changed settings visible when a debounced server save fails', async () => {
-    haveApiCallMock
-      .mockResolvedValueOnce({
-        data: {
-          namespace: 'ui_setting',
-          key: 'settings',
-          value: toUiSettingsJson(DEFAULT_SETTINGS),
-        },
-      })
-      .mockRejectedValueOnce(new Error('save failed'));
-
+    settingsApi.fetch.mockResolvedValueOnce(toUiSettingsJson(DEFAULT_SETTINGS));
+    settingsApi.save.mockRejectedValueOnce(new Error('save failed'));
     renderProvider();
-
+    await waitFor(() => expect(settingsApi.fetch).toHaveBeenCalledOnce());
     await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('idle'));
     fireEvent.click(screen.getByText('dark'));
-
     expect(screen.getByTestId('theme')).toHaveTextContent('dark');
-
     await waitForDebounce();
-
     await waitFor(() => expect(screen.getByTestId('save-error')).toHaveTextContent('save failed'));
     expect(screen.getByTestId('theme')).toHaveTextContent('dark');
   });
 
   it('resets preferences and preserves dismissed tips unless included', async () => {
-    haveApiCallMock.mockResolvedValue({
-      data: {
-        namespace: 'ui_setting',
-        key: 'settings',
-        value: toUiSettingsJson({
-          ...DEFAULT_SETTINGS,
-          theme: 'dark',
-          tips: {
-            sidebarTimeZone: 'dismissed',
-          },
-        }),
-      },
-    });
-
+    settingsApi.fetch.mockResolvedValue(toUiSettingsJson({
+      ...DEFAULT_SETTINGS, theme: 'dark', tips: { sidebarTimeZone: 'dismissed' },
+    }));
+    settingsApi.save.mockResolvedValue(undefined);
     renderProvider();
-
     await waitFor(() => expect(screen.getByTestId('theme')).toHaveTextContent('dark'));
     expect(screen.getByTestId('tip')).toHaveTextContent('dismissed');
-
-    await act(async () => {
-      fireEvent.click(screen.getByText('reset keep tips'));
-    });
-
+    await act(async () => { fireEvent.click(screen.getByText('reset keep tips')); });
     await waitFor(() => expect(screen.getByTestId('theme')).toHaveTextContent('system'));
     expect(screen.getByTestId('tip')).toHaveTextContent('dismissed');
-
-    expect(haveApiCallMock).toHaveBeenCalledWith({
-      method: 'PUT',
-      path: '/webui_user_settings/ui_setting/settings',
-      namespace: 'webui_user_setting',
-      params: {
-        value: toUiSettingsJson({
-          ...DEFAULT_SETTINGS,
-          tips: {
-            sidebarTimeZone: 'dismissed',
-          },
-        }),
-      },
+    expect(settingsApi.save).toHaveBeenCalledWith('ui_setting', 'settings', {
+      ...DEFAULT_SETTINGS, tips: { sidebarTimeZone: 'dismissed' },
     });
-
-    await act(async () => {
-      fireEvent.click(screen.getByText('reset tips'));
-    });
-
+    await act(async () => { fireEvent.click(screen.getByText('reset tips')); });
     await waitFor(() => expect(screen.getByTestId('tip')).toHaveTextContent('visible'));
   });
 
   it('does not re-show the time zone tip after persisted dismissal and avoids duplicate rerender calls', async () => {
-    haveApiCallMock
-      .mockResolvedValueOnce({
-        data: {
-          namespace: 'ui_setting',
-          key: 'settings',
-          value: toUiSettingsJson(DEFAULT_SETTINGS),
-        },
-      })
-      .mockResolvedValue(undefined);
-
-    const { rerender } = render(
-      <UiSettingsProvider>
-        <Probe />
-      </UiSettingsProvider>,
-    );
-
-    await waitFor(() => expect(screen.getByTestId('tip')).toHaveTextContent('visible'));
+    settingsApi.fetch.mockResolvedValueOnce(toUiSettingsJson(DEFAULT_SETTINGS));
+    settingsApi.save.mockResolvedValue(undefined);
+    const { rerender } = render(<UiSettingsProvider><Probe /></UiSettingsProvider>);
+    await waitFor(() => expect(settingsApi.fetch).toHaveBeenCalledOnce());
+    await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('idle'));
     fireEvent.click(screen.getByText('dismiss tip'));
-
     await waitForDebounce();
-
     await waitFor(() => expect(screen.getByTestId('tip')).toHaveTextContent('dismissed'));
-
-    rerender(
-      <UiSettingsProvider>
-        <Probe />
-      </UiSettingsProvider>,
-    );
-
+    rerender(<UiSettingsProvider><Probe /></UiSettingsProvider>);
     await waitForDebounce();
-
     expect(screen.getByTestId('tip')).toHaveTextContent('dismissed');
-    const putCalls = haveApiCallMock.mock.calls.filter(([opts]) => opts.method === 'PUT');
-    expect(putCalls).toHaveLength(1);
+    expect(settingsApi.save).toHaveBeenCalledOnce();
   });
 
   it('does not call the settings API for authenticated public pages', async () => {
-    authState.status = 'authenticated';
-    serverWindowConfig();
-
-    render(
-      <UiSettingsProvider serverSyncEnabled={false}>
-        <Probe />
-      </UiSettingsProvider>,
-    );
-
+    render(<UiSettingsProvider serverSyncEnabled={false}><Probe /></UiSettingsProvider>);
     await waitForDebounce();
-
-    expect(haveApiCallMock).not.toHaveBeenCalled();
+    expect(settingsApi.fetch).not.toHaveBeenCalled();
+    expect(settingsApi.save).not.toHaveBeenCalled();
   });
 });

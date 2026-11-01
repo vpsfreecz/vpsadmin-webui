@@ -67,4 +67,5 @@ export const enAdminCluster_os_templates = {
   "admin.cluster.os_templates.smart.suggestion.id_hint": "Search by template id",
   "admin.cluster.os_templates.smart.suggestion.search": "Search templates for “{value}”",
   "admin.cluster.os_templates.smart.suggestion.search_hint": "Matches label and internal name",
+  "admin.cluster.os_templates.unsupported_filters_removed": "The search, enabled and supported filters are unavailable. These filters have been removed from this link.",
 } as const;

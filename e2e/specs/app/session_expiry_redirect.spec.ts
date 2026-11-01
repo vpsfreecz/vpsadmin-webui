@@ -8,7 +8,7 @@ test('@smoke expired session redirects to public overview with a fresh notice', 
     handlers: {
       'GET users/current': () =>
         jsonFulfill({ status: false, message: 'Session expired', response: null }, 401),
-      'GET cluster/public_stats': () => ({ public_stats: { user_count: 10, vps_count: 20, ipv4_left: 30 } }),
+      'GET cluster/public_stats': () => ({ cluster: { user_count: 10, vps_count: 20, ipv4_left: 30 } }),
       'GET nodes/public_status': () => ({ nodes: [] }),
       'GET outages': () => ({ outages: [] }),
       'GET news_logs': () => ({ news_logs: [] }),

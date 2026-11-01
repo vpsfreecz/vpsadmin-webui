@@ -37,4 +37,6 @@ export const csAdmin_help_boxes = {
   "admin.help_boxes.validation.content": "Obsah je povinný.",
   "admin.help_boxes.validation.order": "Pořadí musí být celé číslo.",
   "admin.help_boxes.validation.page": "Stránka je povinná.",
+  "admin.help_boxes.filter.unlocalized_removed": "Filtrování nápověd bez jazyka není dostupné. Filtr jazyka z odkazu byl odstraněn.",
+  "admin.help_boxes.validation.language_clear_unsupported": "Jazyk této nápovědy nelze odebrat. Vyber jazyk nebo ponech původní.",
 } as const;

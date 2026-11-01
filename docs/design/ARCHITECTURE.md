@@ -32,7 +32,7 @@ flowchart LR
 - [AppLayout](../../src/components/layout/AppLayout.tsx) owns authenticated shell,
   scope navigation, task surfaces and synchronization feedback. Feature pages live
   in `src/pages`; shared UI and operation primitives live in `src/components`.
-- [HaveAPI client](../../src/lib/api/haveapi.ts) and typed domain adapters under
+- [generated SDK binding](../../src/lib/api/sdk.ts) and typed domain adapters under
   `src/lib/api` preserve application policy and project validated results. The
   installed HaveAPI `AsyncClient` owns XHR, serialization and wire validation for
   all authenticated, public and description requests; no parallel fetch client

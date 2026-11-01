@@ -5,10 +5,10 @@ export const enAdmin_host_ip_addresses = {
   "admin.host_ip_addresses.action.error_missing": "Missing host IP address.",
   "admin.host_ip_addresses.action.free": "Remove",
   "admin.host_ip_addresses.action.ptr": "PTR",
-  "admin.host_ip_addresses.assign.help": "Pick the VPS and network interface where this host address should be placed.",
+  "admin.host_ip_addresses.assign.help": "The host address will be assigned to the network interface where its parent IP address is routed.",
   "admin.host_ip_addresses.assign.interface": "Network interface",
   "admin.host_ip_addresses.assign.interface.placeholder": "Choose interface…",
-  "admin.host_ip_addresses.assign.interface_required": "Choose a network interface.",
+  "admin.host_ip_addresses.assign.interface_required": "The parent IP address has no available routed network interface.",
   "admin.host_ip_addresses.assign.title": "Assign host IP address",
   "admin.host_ip_addresses.assign.vps": "VPS",
   "admin.host_ip_addresses.assign.vps.placeholder": "Hostname or ID…",
@@ -36,4 +36,5 @@ export const enAdmin_host_ip_addresses = {
   "admin.host_ip_addresses.toast.deleted": "Host address deleted",
   "admin.host_ip_addresses.toast.freed": "Host address removed",
   "admin.host_ip_addresses.toast.ptr_saved": "Reverse record saved",
+  "admin.host_ip_addresses.assign.route_changed": "The parent IP address route changed. Review the current interface before assigning the host address.",
 } as const;

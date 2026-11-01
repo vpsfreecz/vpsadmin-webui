@@ -37,4 +37,6 @@ export const enAdmin_help_boxes = {
   "admin.help_boxes.validation.content": "Content is required.",
   "admin.help_boxes.validation.order": "Order must be an integer.",
   "admin.help_boxes.validation.page": "Page is required.",
+  "admin.help_boxes.filter.unlocalized_removed": "Filtering for help boxes without a language is unavailable. The language filter from this link has been removed.",
+  "admin.help_boxes.validation.language_clear_unsupported": "The language of this help box cannot be cleared. Choose a language or keep the current one.",
 } as const;

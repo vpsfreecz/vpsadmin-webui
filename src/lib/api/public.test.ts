@@ -17,7 +17,7 @@ function installFetch() {
     const href = String(url);
 
     if (href.endsWith('/cluster/public_stats')) {
-      return makeOkResponse({ public_stats: { user_count: 1, vps_count: 2, ipv4_left: 3 } });
+      return makeOkResponse({ cluster: { user_count: 1, vps_count: 2, ipv4_left: 3 } });
     }
 
     if (href.includes('/outages?')) {
@@ -65,7 +65,7 @@ describe('public API helpers', () => {
       'https://api.example.test/v7.0/cluster/public_stats',
       'https://api.example.test/v7.0/outages?outage[limit]=25',
       'https://api.example.test/v7.0/news_logs?news_log[limit]=5',
-      'https://api.example.test/v7.0/help_boxes?help_box[page]=public&help_box[action]=index&help_box[view]=true',
+      'https://api.example.test/v7.0/help_boxes?help_box[action]=index&help_box[page]=public&help_box[view]=true',
     ]);
 
     expect(urls.some((url) => url === 'https://api.example.test/v7.0' || url === 'https://api.example.test/v7.0/')).toBe(false);
@@ -96,7 +96,7 @@ describe('public API helpers', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
     const [url, init] = fetchMock.mock.calls[0]!;
     expect(String(url)).toBe(
-      'https://api.example.test/v7.0/help_boxes?help_box[page]=vps&help_box[action]=show&help_box[view]=true'
+      'https://api.example.test/v7.0/help_boxes?help_box[action]=show&help_box[page]=vps&help_box[view]=true'
     );
     const headers = new Headers(init?.headers);
     expect(headers.get('X-Configured-Auth-Header')).toBe('exact-session-token');

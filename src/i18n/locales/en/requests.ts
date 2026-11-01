@@ -394,4 +394,5 @@ export const enRequests = {
   ...enRequestReviewSafety,
   ...enFinance,
   ...enPaymentReview,
+  "requests.resolve.template_unavailable": "The selected OS template is unavailable for this request. Choose an available template before continuing.",
 } as const;

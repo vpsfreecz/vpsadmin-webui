@@ -314,4 +314,5 @@ export const enAdmin_user = {
   "admin.user.resources.bulk.confirm_body": "Member {user} will lose the resources provided by these packages. Only these assignments will be removed; package definitions stay available.",
   "admin.user.resources.bulk.changed": "The selected list has changed. Close this dialog and review your selection again.",
   "admin.user.resources.bulk.target": "{label} · #{id}",
+  "admin.user.payments.paid_until_clear_unsupported": "The paid-until date cannot be cleared. Enter a date or keep the current value.",
 } as const;

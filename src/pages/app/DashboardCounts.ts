@@ -1,4 +1,4 @@
-import { getMetaTotalCount } from "../../lib/api/haveapi";
+import { getMetaTotalCount } from "../../lib/api/apiErrors";
 
 const DEFAULT_PAGE_SIZE = 200;
 const DEFAULT_MAX_PAGES = 20;

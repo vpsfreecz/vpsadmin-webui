@@ -2,7 +2,8 @@ import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { apiWire, installHaveApiXhr } from '../../test/haveapiXhr';
-import { HaveApiError, haveApiCall } from '../../lib/api/haveapi';
+import { HaveApiError } from '../../lib/api/apiErrors';
+import { getApi } from '../../lib/api/sdk';
 import { isLocalLockPersistenceError, type LocalMutationGeneration } from '../../lib/localLocks';
 import { objectRef } from '../../lib/objectRef';
 import { useLocalMutationLocks } from './useLocalMutationLocks';
@@ -38,7 +39,7 @@ describe('shared mutation guard with actual HaveAPI receipts', () => {
       let generation: LocalMutationGeneration | undefined;
       try {
         generation = await hook.result.current.acquireLocalLock(ref, { durable: true });
-        await haveApiCall({ method: 'POST', path: '/vpses/123/start' });
+        await (await getApi()).vps.start({ path: { vps_id: 123 } });
       } catch (error) {
         hook.result.current.settleLocalLock(ref, error, generation);
         return error;
@@ -67,7 +68,7 @@ describe('shared mutation guard with actual HaveAPI receipts', () => {
     const ref = objectRef('Vps', 123);
     await act(async () => {
       const generation = await hook.result.current.acquireLocalLock(ref, { durable: true });
-      const error = await haveApiCall({ method: 'POST', path: '/vpses/123/start' }).catch((error) => error);
+      const error = await (await getApi()).vps.start({ path: { vps_id: 123 } }).catch((error) => error);
       expect(error).toBeInstanceOf(HaveApiError);
       hook.result.current.settleLocalLock(ref, error, generation);
     });

@@ -1,17 +1,17 @@
+import { policyRequest } from '../../test/apiPolicyRequest';
 import { installHaveApiXhr } from '../../test/haveapiXhr';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import {
   getMetaActionStateId,
   HaveApiError,
-  haveApiCall,
   isAmbiguousMutationError,
   isExpiredSessionError,
   MALFORMED_HAVEAPI_ENVELOPE_ERROR_CODE,
   MissingActionStateError,
   requireActionStateResult,
   SESSION_EXPIRED_EVENT,
-} from './haveapi';
+} from './apiErrors';
 import { bindBffImpersonationToSession, writeImpersonationState } from '../auth/impersonation';
 
 const BFF_KEY = 'a'.repeat(64);
@@ -71,12 +71,12 @@ afterEach(() => {
   document.documentElement.lang = "";
 });
 
-describe('haveApiCall', () => {
+describe('policyRequest', () => {
   it.each(['cs', 'en'])('requests API labels in the UI language %s', async language => {
     setMockRuntime();
     document.documentElement.lang = language;
     const fetchMock = installOkFetch({ transaction: [] });
-    await haveApiCall({ path: '/transactions' });
+    await policyRequest({ path: '/transactions' });
     expect(new Headers(getFetchCall(fetchMock)[1]?.headers).get('Accept-Language')).toBe(language);
   });
 
@@ -84,10 +84,10 @@ describe('haveApiCall', () => {
     setMockRuntime();
     const fetchMock = installOkFetch({ _meta: { elapsed: 1 }, vps: [] });
 
-    await haveApiCall<any[]>({
+    await policyRequest({
       method: 'GET',
       path: '/vps',
-      namespace: 'vps',
+      inputNamespace: 'vps',
       params: { limit: 10, hostname_any: 'abc' },
       meta: { count: true },
     });
@@ -109,10 +109,10 @@ describe('haveApiCall', () => {
     setMockRuntime('meta');
     const fetchMock = installOkFetch({ meta: { elapsed: 1 }, ok: true });
 
-    await haveApiCall<any>({
+    await policyRequest({
       method: 'DELETE',
       path: '/vps/1',
-      namespace: 'vps',
+      inputNamespace: 'vps',
       params: { force: true },
       meta: { api: 'test' },
     });
@@ -129,7 +129,7 @@ describe('haveApiCall', () => {
     setMockRuntime('meta');
     const fetchMock = installOkFetch({ meta: { elapsed: 1 }, ok: true });
 
-    await haveApiCall<any>({
+    await policyRequest({
       method: 'POST',
       path: '/vps/1/start',
     });
@@ -144,7 +144,7 @@ describe('haveApiCall', () => {
     setMockRuntime();
     const fetchMock = installOkFetch({ _meta: { elapsed: 1 }, ok: true });
 
-    await haveApiCall<any>({ method: 'GET', path: '/users/current' });
+    await policyRequest({ method: 'GET', path: '/users/current' });
     const [, init1] = getFetchCall(fetchMock, 0);
     expect(new Headers(init1?.headers).get('X-Auth-Token')).toBe('tok_123');
 
@@ -152,7 +152,7 @@ describe('haveApiCall', () => {
       window.vpsAdmin.sessionToken = 'tok_456';
     }
 
-    await haveApiCall<any>({ method: 'GET', path: '/users/current' });
+    await policyRequest({ method: 'GET', path: '/users/current' });
     const [, init2] = getFetchCall(fetchMock, 1);
     expect(new Headers(init2?.headers).get('X-Auth-Token')).toBe('tok_456');
   });
@@ -161,7 +161,7 @@ describe('haveApiCall', () => {
     setStandaloneRuntime();
     const fetchMock = installOkFetch({ _meta: { elapsed: 1 }, user: { id: 1 } });
 
-    await haveApiCall<any>({ method: 'GET', path: '/users/current' });
+    await policyRequest({ method: 'GET', path: '/users/current' });
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
     const [url, init] = getFetchCall(fetchMock);
@@ -175,7 +175,7 @@ describe('haveApiCall', () => {
     bindBffImpersonationToSession(BFF_KEY, sessionStorage);
     const fetchMock = installOkFetch({ _meta: {}, user: { id: 1 } });
 
-    await haveApiCall<any>({ method: 'GET', path: '/users/current' });
+    await policyRequest({ method: 'GET', path: '/users/current' });
 
     const headers = new Headers(getFetchCall(fetchMock)[1]?.headers);
     expect(headers.get('X-HaveAPI-OAuth2-Token')).toBe('oauth_123');
@@ -193,7 +193,7 @@ describe('haveApiCall', () => {
     bindBffImpersonationToSession(BFF_KEY, sessionStorage); // restored after navigation
     const fetchMock = installOkFetch({ _meta: {}, user: { id: 17 } });
 
-    await haveApiCall<any>({ method: 'GET', path: '/users/current' });
+    await policyRequest({ method: 'GET', path: '/users/current' });
 
     const headers = new Headers(getFetchCall(fetchMock)[1]?.headers);
     expect(headers.get('X-HaveAPI-Auth-Token')).toBe('impersonation-token');
@@ -215,7 +215,7 @@ describe('haveApiCall', () => {
     }));
     installHaveApiXhr( fetchMock);
 
-    await expect(haveApiCall<any>({ method: 'GET', path: '/users/current' })).rejects.toMatchObject({ httpStatus: 401 });
+    await expect(policyRequest({ method: 'GET', path: '/users/current' })).rejects.toMatchObject({ httpStatus: 401 });
     expect(fetchMock).toHaveBeenCalledTimes(1);
     const headers = new Headers(fetchMock.mock.calls[0]?.[1]?.headers);
     expect(headers.get('X-HaveAPI-Auth-Token')).toBe('impersonation-token');
@@ -237,7 +237,7 @@ describe('haveApiCall', () => {
     );
 
     try {
-      await haveApiCall<any>({ method: 'GET', path: '/action_states' });
+      await policyRequest({ method: 'GET', path: '/action_states' });
       throw new Error('expected request to fail');
     } catch (err) {
       expect(isExpiredSessionError(err)).toBe(true);
@@ -259,7 +259,7 @@ describe('haveApiCall', () => {
     );
 
     try {
-      await haveApiCall<any>({ method: 'GET', path: '/action_states' });
+      await policyRequest({ method: 'GET', path: '/action_states' });
       throw new Error('expected request to fail');
     } catch (err) {
       expect(isExpiredSessionError(err)).toBe(true);
@@ -277,7 +277,7 @@ describe('haveApiCall', () => {
     setMockRuntime();
     installHaveApiXhr( vi.fn(async () => makeOkResponse(body)));
 
-    const error = await haveApiCall<any>({ method: 'POST', path: '/vpses/123/start' })
+    const error = await policyRequest({ method: 'POST', path: '/vpses/123/start' })
       .then(() => undefined, (err: unknown) => err);
 
     expect(error).toBeInstanceOf(HaveApiError);
@@ -294,7 +294,7 @@ describe('haveApiCall', () => {
       response: null,
     })));
 
-    const error = await haveApiCall<any>({ method: 'POST', path: '/vpses/123/start' })
+    const error = await policyRequest({ method: 'POST', path: '/vpses/123/start' })
       .then(() => undefined, (err: unknown) => err);
 
     expect(error).toBeInstanceOf(HaveApiError);

@@ -314,4 +314,5 @@ export const csAdmin_user = {
   "admin.user.resources.bulk.confirm_body": "Člen {user} ztratí zdroje poskytované těmito balíčky. Odeberou se pouze tato přiřazení; definice balíčků zůstanou dostupné.",
   "admin.user.resources.bulk.changed": "Vybraný seznam se změnil. Zavři dialog a znovu zkontroluj výběr.",
   "admin.user.resources.bulk.target": "{label} · #{id}",
+  "admin.user.payments.paid_until_clear_unsupported": "Datum „Zaplaceno do“ nelze smazat. Zadej datum nebo ponech původní hodnotu.",
 } as const;

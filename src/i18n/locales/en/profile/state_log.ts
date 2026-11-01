@@ -8,6 +8,6 @@ export const enProfile_state_log = {
   "lifetimes.state_log.col.user": "User",
   "lifetimes.state_log.empty": "No state log entries.",
   "lifetimes.state_log.error": "Failed to load state log.",
-  "lifetimes.state_log.hint": "Use pagination to browse older entries.",
+  "lifetimes.state_log.hint": "Showing up to {limit} earliest records. The current API cannot reliably load further history.",
   "lifetimes.state_log.title": "State log: {label}",
 } as const;

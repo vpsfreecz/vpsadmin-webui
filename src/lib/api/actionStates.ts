@@ -1,64 +1,56 @@
-import { expectArray, haveApiCall } from './haveapi';
+import type { ActionState__IndexInput, ActionState__PollInput, ActionState__ShowOutput } from 'vpsadmin-typescript-client';
+import { narrowApiResult } from './apiOutput';
+import { getApi } from './sdk';
 
-export interface ActionState {
-  id: number;
-  label?: string;
-  finished?: boolean;
-  status?: boolean; // true = proceeding, false = failing
-  current?: number;
-  total?: number;
-  unit?: string;
-  can_cancel?: boolean;
-  created_at?: string;
-  updated_at?: string;
-  [k: string]: unknown;
+/** Task view: validated identity, generated nullable fields and unknown diagnostics. */
+export type ActionState = Omit<ActionState__ShowOutput, 'id'> & { id: number; [key: string]: unknown };
+
+function actionState(value: ActionState__ShowOutput): ActionState {
+  if (!value || typeof value !== 'object' || Array.isArray(value)
+    || typeof value.id !== 'number' || !Number.isSafeInteger(value.id) || value.id <= 0) {
+    throw new Error('Invalid action-state identity');
+  }
+  for (const key of ['label', 'unit', 'created_at', 'updated_at'] as const) {
+    if (value[key] != null && typeof value[key] !== 'string') throw new Error(`Invalid action-state ${key}`);
+  }
+  for (const key of ['finished', 'status', 'can_cancel'] as const) {
+    if (value[key] != null && typeof value[key] !== 'boolean') throw new Error(`Invalid action-state ${key}`);
+  }
+  for (const key of ['current', 'total'] as const) {
+    if (value[key] != null && (typeof value[key] !== 'number' || !Number.isFinite(value[key]))) {
+      throw new Error(`Invalid action-state ${key}`);
+    }
+  }
+  return { ...value, id: value.id };
 }
 
 export async function fetchActionStates(opts?: { limit?: number; fromId?: number; order?: 'newest' | 'oldest' }) {
-  const params: Record<string, string | number | boolean> = {};
-  if (opts?.limit !== undefined) params['limit'] = opts.limit;
-  if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
-  if (opts?.order) params['order'] = opts.order;
-
-  const res = await haveApiCall<ActionState[]>({
-    method: 'GET',
-    path: '/action_states',
-    namespace: 'action_state',
-    params,
-  });
-
-  return { ...res, data: expectArray<ActionState>(res.data, 'action_states') };
+  const params: ActionState__IndexInput = {
+    limit: opts?.limit, from_id: opts?.fromId, order: opts?.order,
+  };
+  const result = await (await getApi()).action_state.index({ params });
+  return narrowApiResult(result, data => {
+    if (!Array.isArray(data)) throw new Error('Invalid action-state collection');
+    return data.map(actionState);
+  }, 'action states');
 }
 
 export async function fetchActionState(actionStateId: number) {
-  return haveApiCall<ActionState>({
-    method: 'GET',
-    path: `/action_states/${actionStateId}`,
-  });
+  const result = await (await getApi()).action_state.show({ path: { action_state_id: actionStateId } });
+  return narrowApiResult(result, actionState, 'action state');
 }
 
 export async function pollActionState(
   actionStateId: number,
-  opts?: { timeout?: number; updateIn?: number; status?: boolean; current?: number; total?: number }
+  opts?: { timeout?: number; updateIn?: number; status?: boolean; current?: number; total?: number },
 ) {
-  const params: Record<string, string | number | boolean> = {};
-  if (opts?.timeout !== undefined) params['timeout'] = opts.timeout;
-  if (opts?.updateIn !== undefined) params['update_in'] = opts.updateIn;
-  if (opts?.status !== undefined) params['status'] = opts.status;
-  if (opts?.current !== undefined) params['current'] = opts.current;
-  if (opts?.total !== undefined) params['total'] = opts.total;
-
-  return haveApiCall<ActionState>({
-    method: 'GET',
-    path: `/action_states/${actionStateId}/poll`,
-    namespace: 'action_state',
-    params,
-  });
+  const params: ActionState__PollInput = {
+    timeout: opts?.timeout, update_in: opts?.updateIn, status: opts?.status, current: opts?.current, total: opts?.total,
+  };
+  const result = await (await getApi()).action_state.poll({ path: { action_state_id: actionStateId }, params });
+  return narrowApiResult(result, actionState, 'action-state poll');
 }
 
 export async function cancelActionState(actionStateId: number) {
-  return haveApiCall<void>({
-    method: 'POST',
-    path: `/action_states/${actionStateId}/cancel`,
-  });
+  return (await getApi()).action_state.cancel({ path: { action_state_id: actionStateId } });
 }

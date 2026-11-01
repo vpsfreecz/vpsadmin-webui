@@ -11,7 +11,7 @@ const required = [
   'bff/package.json', 'bff/package-lock.json', 'docs/design/README.md',
   'docs/design/IMPLEMENTATION_INVENTORY.md', 'public/config.local.js.example',
   'scripts/audit-design-docs.mjs', 'scripts/design-inventory.mjs',
-  'src/routes/router.tsx', 'src/lib/api/haveapi.ts', 'UI_REDESIGN.md',
+  'src/routes/router.tsx', 'src/lib/api/sdk.ts', 'src/lib/api/apiRequestPolicy.ts', 'src/lib/api/apiErrors.ts', 'src/lib/api/apiOutput.ts', 'UI_REDESIGN.md',
   'packages/haveapi-client-provenance.json',
 ];
 

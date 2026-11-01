@@ -1,158 +1,90 @@
-import { expectArray, publicHaveApiCall } from './haveapi';
+import { expectArray } from './apiErrors';
+import type { Cluster__PublicStatsOutput, Location__ShowOutput, Node__PublicStatusOutput } from 'vpsadmin-typescript-client';
+import { narrowApiResult } from './apiOutput';
+import { getPublicApi } from './sdk';
+import { narrowOutage, narrowOutageEntity, narrowOutageHandler, narrowOutageUpdate } from './outageViews';
+import { narrowPublicNewsLog } from './newsLogViews';
 
-export interface PublicApiCallOpts {
-  path: string;
-  namespace?: string;
-  params?: Record<string, unknown>;
-}
-
-export function publicApiCall<T>(opts: PublicApiCallOpts) {
-  return publicHaveApiCall<T>(opts);
-}
-
-export interface PublicClusterStats {
-  user_count: number;
-  vps_count: number;
-  ipv4_left: number;
-}
-
-export interface LocationRef {
-  id?: number;
-  label?: string;
-}
-
-export interface PublicNodeStatus {
+/** Public summaries require real counts; unknown values are never fabricated as zero. */
+export type PublicClusterStats = Required<{ [K in keyof Cluster__PublicStatsOutput]: NonNullable<Cluster__PublicStatsOutput[K]> }>;
+export type LocationRef = Pick<Location__ShowOutput, 'id' | 'label'>;
+export type PublicNodeStatus = Omit<Node__PublicStatusOutput[number], 'status' | 'name' | 'location'> & {
   status: boolean;
   name: string;
-  fqdn?: string;
-  location?: LocationRef;
-  last_report?: string;
-  vps_count?: number;
-  vps_free?: number;
-  kernel?: string;
-  type?: string;
-  hypervisor_type?: string;
-  cpu_idle?: number;
-  maintenance_lock?: string;
-  maintenance_lock_reason?: string;
-  // Additional fields may appear depending on node role / exports.
-  [k: string]: unknown;
+  location?: LocationRef | null;
+  [key: string]: unknown;
+};
+
+function publicStats(value: Cluster__PublicStatsOutput): PublicClusterStats {
+  if (!value || typeof value !== 'object') throw new Error('Invalid public statistics');
+  const { user_count, vps_count, ipv4_left } = value;
+  if (typeof user_count !== 'number' || !Number.isFinite(user_count)
+    || typeof vps_count !== 'number' || !Number.isFinite(vps_count)
+    || typeof ipv4_left !== 'number' || !Number.isFinite(ipv4_left)) throw new Error('Invalid public counts');
+  return { ...value, user_count, vps_count, ipv4_left };
 }
 
-export type OutageState = string;
-export interface Outage {
-  id: number;
-  begins_at?: string;
-  finished_at?: string | null;
-  duration?: number | null;
-  type?: string;
-  state?: OutageState;
-  impact?: string;
-  auto_resolve?: boolean;
-  affected?: boolean;
-  affected_user_count?: number;
-  affected_direct_vps_count?: number;
-  affected_indirect_vps_count?: number;
-  affected_export_count?: number;
-  // translation fields: e.g. en_summary, cs_description, ...
-  [k: string]: unknown;
+function publicNode(value: Node__PublicStatusOutput[number]): PublicNodeStatus {
+  if (!value || typeof value !== 'object' || Array.isArray(value)
+    || typeof value.name !== 'string' || typeof value.status !== 'boolean') throw new Error('Invalid public node');
+  for (const key of ['fqdn', 'last_report', 'kernel', 'type', 'hypervisor_type', 'maintenance_lock',
+    'maintenance_lock_reason', 'cgroup_version', 'pool_checked_at', 'pool_scan', 'pool_state'] as const) {
+    if (value[key] != null && typeof value[key] !== 'string') throw new Error(`Invalid public-node ${key}`);
+  }
+  for (const key of ['cpu_idle', 'vps_count', 'vps_free', 'pool_scan_percent'] as const) {
+    if (value[key] != null && (typeof value[key] !== 'number' || !Number.isFinite(value[key]))) throw new Error(`Invalid public-node ${key}`);
+  }
+  if (value.pool_status != null && typeof value.pool_status !== 'boolean') throw new Error('Invalid public-node pool status');
+  const { location, ...rest } = value;
+  if (location == null) return { ...rest, name: value.name, status: value.status, ...(location === undefined ? {} : { location }) };
+  if (typeof location !== 'object' || Array.isArray(location)) throw new Error('Invalid public-node location');
+  const { id, label, ...locationDetails } = location;
+  if (id != null && (typeof id !== 'number' || !Number.isSafeInteger(id) || id <= 0)) throw new Error('Invalid public-node location ID');
+  if (label != null && typeof label !== 'string') throw new Error('Invalid public-node location label');
+  return { ...rest, name: value.name, status: value.status, location: {
+    ...locationDetails, ...(id === undefined ? {} : { id }), ...(label === undefined ? {} : { label }),
+  } };
 }
 
-export interface OutageEntity {
-  id: number;
-  name: string;
-  entity_id?: number | null;
-  label?: string;
-}
-
-export interface OutageHandler {
-  id: number;
-  full_name?: string;
-  note?: string;
-  reporter_name?: string;
-  [k: string]: unknown;
-}
-
-export interface OutageUpdate {
-  id: number;
-  outage?: { id: number; begins_at?: string };
-  type?: string;
-  begins_at?: string;
-  finished_at?: string | null;
-  duration?: number | null;
-  state?: string;
-  impact?: string;
-  created_at?: string;
-  reporter_name?: string;
-  [k: string]: unknown;
-}
-
-export interface NewsLog {
-  id: number;
-  message: string;
-  published_at?: string;
-  created_at?: string;
-  updated_at?: string;
-  [k: string]: unknown;
-}
+export type { Outage, OutageEntity, OutageHandler, OutageUpdate } from './outageViews';
+export type { PublicNewsLog as NewsLog } from './newsLogViews';
 
 export async function fetchPublicStats() {
-  return publicApiCall<PublicClusterStats>({
-    path: '/cluster/public_stats',
-  });
+  return narrowApiResult(await getPublicApi().cluster.public_stats(), publicStats, 'public statistics');
 }
 
 export async function fetchPublicNodeStatus() {
-  const res = await publicApiCall<PublicNodeStatus[]>({
-    path: '/nodes/public_status',
-  });
-  return { ...res, data: expectArray<PublicNodeStatus>(res.data, 'nodes/public_status') };
+  return narrowApiResult(await getPublicApi().node.public_status(), data => {
+    if (!Array.isArray(data)) throw new Error('Invalid public node collection');
+    return data.map(publicNode);
+  }, 'public node status');
 }
 
 export async function fetchOutages(opts?: { limit?: number }) {
-  const res = await publicApiCall<Outage[]>({
-    path: '/outages',
-    namespace: 'outage',
-    params: opts?.limit ? { limit: opts.limit } : undefined,
-  });
-  return { ...res, data: expectArray<Outage>(res.data, 'outages') };
+  return narrowApiResult(await getPublicApi().outage.index({ params: { limit: opts?.limit } }), data =>
+    expectArray<unknown>(data, 'public outages').map(narrowOutage), 'public outages');
 }
 
 export async function fetchOutage(outageId: number) {
-  return publicApiCall<Outage>({
-    path: `/outages/${outageId}`,
-  });
+  return narrowApiResult(await getPublicApi().outage.show({ path: { outage_id: outageId } }), narrowOutage, 'public outage');
 }
 
 export async function fetchOutageEntities(outageId: number) {
-  const res = await publicApiCall<OutageEntity[]>({
-    path: `/outages/${outageId}/entities`,
-  });
-  return { ...res, data: expectArray<OutageEntity>(res.data, `outages/${outageId}/entities`) };
+  return narrowApiResult(await getPublicApi().outage.entity.index({ path: { outage_id: outageId } }), data =>
+    expectArray<unknown>(data, 'public outage entities').map(narrowOutageEntity), 'public outage entities');
 }
 
 export async function fetchOutageHandlers(outageId: number) {
-  const res = await publicApiCall<OutageHandler[]>({
-    path: `/outages/${outageId}/handlers`,
-  });
-  return { ...res, data: expectArray<OutageHandler>(res.data, `outages/${outageId}/handlers`) };
+  return narrowApiResult(await getPublicApi().outage.handler.index({ path: { outage_id: outageId } }), data =>
+    expectArray<unknown>(data, 'public outage handlers').map(narrowOutageHandler), 'public outage handlers');
 }
 
 export async function fetchOutageUpdates(outageId: number) {
-  // Index input is namespaced under outage_update[...] in the query string.
-  const res = await publicApiCall<OutageUpdate[]>({
-    path: '/outage_updates',
-    namespace: 'outage_update',
-    params: { outage: outageId },
-  });
-  return { ...res, data: expectArray<OutageUpdate>(res.data, 'outage_updates') };
+  return narrowApiResult(await getPublicApi().outage_update.index({ params: { outage: outageId } }), data =>
+    expectArray<unknown>(data, 'public outage updates').map(narrowOutageUpdate), 'public outage updates');
 }
 
 export async function fetchNews(opts?: { limit?: number }) {
-  const res = await publicApiCall<NewsLog[]>({
-    path: '/news_logs',
-    namespace: 'news_log',
-    params: opts?.limit ? { limit: opts.limit } : undefined,
-  });
-  return { ...res, data: expectArray<NewsLog>(res.data, 'news_logs') };
+  return narrowApiResult(await getPublicApi().news_log.index({ params: { limit: opts?.limit } }), data =>
+    expectArray<unknown>(data, 'public news').map(narrowPublicNewsLog), 'public news');
 }

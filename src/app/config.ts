@@ -3,9 +3,7 @@ import { browserSessionStorage, getValidatedBffSessionKey, readImpersonationStat
 import { selectedRuntimeMode } from './runtimeMode';
 
 export type AuthConfig =
-  | { kind: 'oauth2'; accessToken: string }
-  | { kind: 'token'; sessionToken: string }
-  | { kind: 'none' };
+  { kind: 'oauth2'; accessToken: string } | { kind: 'token'; sessionToken: string } | { kind: 'none' };
 
 export type OAuth2Flow = 'pkce' | 'implicit';
 
@@ -74,7 +72,8 @@ export type UiSettingsPersistence = 'local' | 'server';
 
 export interface UiSettingsServerConfig {
   /**
-   * HaveAPI path used to fetch and update UI settings for the current user.
+   * Settings resource path; only /webui_user_settings (with optional trailing
+   * slashes) is accepted by the generated settings adapter.
    *
    * Default upstream resource:
    *   GET /v{apiVersion}/webui_user_settings
@@ -148,21 +147,15 @@ export function getRuntimeConfig(): RuntimeConfig {
 
   const env = (key: string): string | undefined => viteEnv[key] ?? nodeEnv?.[key];
 
-  const apiUrl = trimTrailingSlash(
-    win?.vpsAdmin?.api?.url ?? env('VITE_API_URL') ?? 'https://api.vpsfree.cz'
-  );
+  const apiUrl = trimTrailingSlash(win?.vpsAdmin?.api?.url ?? env('VITE_API_URL') ?? 'https://api.vpsfree.cz');
 
-  const apiVersion = normalizeApiVersion(
-    win?.vpsAdmin?.api?.version ?? env('VITE_API_VERSION') ?? '7.0'
-  );
+  const apiVersion = normalizeApiVersion(win?.vpsAdmin?.api?.version ?? env('VITE_API_VERSION') ?? '7.0');
 
   const apiBaseUrl = `${apiUrl}/v${apiVersion}`;
 
   // Router basename is used to support sub-path deployments (e.g. /ui-next).
   const routerBasename = normalizeBasename(
-    win?.vpsAdmin?.webuiNext?.basePath ??
-      env('VITE_ROUTER_BASENAME') ??
-      env('VITE_BASE_PATH')
+    win?.vpsAdmin?.webuiNext?.basePath ?? env('VITE_ROUTER_BASENAME') ?? env('VITE_BASE_PATH')
   );
 
   // OAuth2 client config (used by the SPA for login).
@@ -186,29 +179,20 @@ export function getRuntimeConfig(): RuntimeConfig {
     env('VITE_OAUTH2_CLIENT_ID') ??
     (typeof window !== 'undefined' ? window.location.hostname : '');
 
-  const oauthScope =
-    (oauthFromWindow?.scope as string | undefined) ??
-    env('VITE_OAUTH2_SCOPE') ??
-    'all';
+  const oauthScope = (oauthFromWindow?.scope as string | undefined) ?? env('VITE_OAUTH2_SCOPE') ?? 'all';
 
-  const oauthType =
-    (oauthFromWindow?.type as string | undefined) ??
-    env('VITE_OAUTH2_TYPE') ??
-    'web_server';
+  const oauthType = (oauthFromWindow?.type as string | undefined) ?? env('VITE_OAUTH2_TYPE') ?? 'web_server';
 
   const oauthFlowCandidate =
-    (oauthFromWindow?.flow as OAuth2Flow | undefined) ??
-    (env('VITE_OAUTH2_FLOW') as OAuth2Flow | undefined);
+    (oauthFromWindow?.flow as OAuth2Flow | undefined) ?? (env('VITE_OAUTH2_FLOW') as OAuth2Flow | undefined);
   const oauthFlow: OAuth2Flow = oauthFlowCandidate === 'implicit' ? 'implicit' : 'pkce';
 
   const oauthStorageCandidate =
-    (oauthFromWindow?.storage as StorageKind | undefined) ??
-    (env('VITE_OAUTH2_STORAGE') as StorageKind | undefined);
+    (oauthFromWindow?.storage as StorageKind | undefined) ?? (env('VITE_OAUTH2_STORAGE') as StorageKind | undefined);
   const oauthStorage: StorageKind = oauthStorageCandidate === 'local' ? 'local' : 'session';
 
   const oauthRedirectPathCandidate =
-    (oauthFromWindow?.redirectPath as string | undefined) ??
-    env('VITE_OAUTH2_REDIRECT_PATH');
+    (oauthFromWindow?.redirectPath as string | undefined) ?? env('VITE_OAUTH2_REDIRECT_PATH');
   const oauthRedirectPath = oauthRedirectPathCandidate
     ? oauthRedirectPathCandidate.trim()
     : `${routerBasename}/oauth/callback`;
@@ -249,8 +233,7 @@ export function getRuntimeConfig(): RuntimeConfig {
   const uiSettingsFromWindow = win?.vpsAdmin?.webuiNext?.uiSettings ?? win?.vpsAdmin?.uiSettings;
 
   const persistenceEnv = env('VITE_UI_SETTINGS_PERSISTENCE');
-  const persistenceCandidate =
-    uiSettingsFromWindow?.persistence ?? uiSettingsFromWindow?.mode ?? persistenceEnv;
+  const persistenceCandidate = uiSettingsFromWindow?.persistence ?? uiSettingsFromWindow?.mode ?? persistenceEnv;
 
   const persistence: UiSettingsPersistence = persistenceCandidate === 'local' ? 'local' : 'server';
 
@@ -267,18 +250,12 @@ export function getRuntimeConfig(): RuntimeConfig {
     'ui';
 
   const serverField =
-    uiSettingsFromWindow?.server?.field ??
-    uiSettingsFromWindow?.field ??
-    env('VITE_UI_SETTINGS_FIELD') ??
-    'settings';
+    uiSettingsFromWindow?.server?.field ?? uiSettingsFromWindow?.field ?? env('VITE_UI_SETTINGS_FIELD') ?? 'settings';
 
   const webuiUrlCandidate = win?.vpsAdmin?.webui?.url ?? env('VITE_WEBUI_URL');
   const webuiUrl = webuiUrlCandidate ? trimTrailingSlash(webuiUrlCandidate) : undefined;
-  const legacyWebuiUrlCandidate =
-    win?.vpsAdmin?.webuiNext?.legacyUrl ?? env('VITE_LEGACY_WEBUI_URL');
-  const legacyWebuiUrl = legacyWebuiUrlCandidate
-    ? trimTrailingSlash(legacyWebuiUrlCandidate)
-    : undefined;
+  const legacyWebuiUrlCandidate = win?.vpsAdmin?.webuiNext?.legacyUrl ?? env('VITE_LEGACY_WEBUI_URL');
+  const legacyWebuiUrl = legacyWebuiUrlCandidate ? trimTrailingSlash(legacyWebuiUrlCandidate) : undefined;
 
   // Optional explicit auth endpoints.
   const loginUrlCandidate = win?.vpsAdmin?.webuiNext?.loginUrl ?? env('VITE_LOGIN_URL');
@@ -290,11 +267,9 @@ export function getRuntimeConfig(): RuntimeConfig {
   const passwordRecoveryUrl = passwordRecoveryUrlCandidate?.trim() || undefined;
   const sessionExpiresAt = readOptionalTimestamp(win?.vpsAdmin?.webuiNext?.sessionExpiresAt);
 
-  const haveApiAuthHeader =
-    win?.vpsAdmin?.webuiNext?.haveApi?.authHeader ?? env('VITE_HAVEAPI_AUTH_HEADER');
+  const haveApiAuthHeader = win?.vpsAdmin?.webuiNext?.haveApi?.authHeader ?? env('VITE_HAVEAPI_AUTH_HEADER');
 
-  const haveApiMetaNamespace =
-    win?.vpsAdmin?.webuiNext?.haveApi?.metaNamespace ?? env('VITE_HAVEAPI_META_NAMESPACE');
+  const haveApiMetaNamespace = win?.vpsAdmin?.webuiNext?.haveApi?.metaNamespace ?? env('VITE_HAVEAPI_META_NAMESPACE');
 
   const serverTimeZoneCandidate =
     win?.vpsAdmin?.webuiNext?.serverTimeZone ??
@@ -305,14 +280,10 @@ export function getRuntimeConfig(): RuntimeConfig {
   // Public status landing tuning.
   // Allow runtime overrides from window and optional env variables.
   const publicStatusFromWindow = (win as any)?.vpsAdmin?.webuiNext?.publicStatus as
-    | Partial<PublicStatusConfig>
-    | undefined;
+    Partial<PublicStatusConfig> | undefined;
 
   let ipv4Warn = readNumber(publicStatusFromWindow?.ipv4Warn ?? env('VITE_PUBLIC_IPV4_WARN'), 64);
-  let ipv4Critical = readNumber(
-    publicStatusFromWindow?.ipv4Critical ?? env('VITE_PUBLIC_IPV4_CRITICAL'),
-    16
-  );
+  let ipv4Critical = readNumber(publicStatusFromWindow?.ipv4Critical ?? env('VITE_PUBLIC_IPV4_CRITICAL'), 16);
 
   // Normalize thresholds.
   ipv4Warn = Math.max(0, Math.round(ipv4Warn));
@@ -350,9 +321,7 @@ export function getRuntimeConfig(): RuntimeConfig {
     haveApi: {
       // The BFF public header names the OAuth provider. API-issued
       // impersonation tokens use the separate token-provider header.
-      authHeader: requiredBff && auth.kind === 'token'
-        ? 'X-HaveAPI-Auth-Token'
-        : haveApiAuthHeader,
+      authHeader: requiredBff && auth.kind === 'token' ? 'X-HaveAPI-Auth-Token' : haveApiAuthHeader,
       metaNamespace: haveApiMetaNamespace,
     },
     serverTimeZone: serverTimeZoneCandidate,

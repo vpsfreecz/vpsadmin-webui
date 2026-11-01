@@ -70,7 +70,7 @@ describe('getRuntimeConfig', () => {
     expect(cfg.uiSettings.server.namespace).toBe('ui');
   });
 
-  it('reads ui settings persistence config from window.vpsAdmin.webuiNext', () => {
+  it('extracts raw ui settings config without accepting its path for adapter dispatch', () => {
     window.vpsAdmin = {
       api: { url: 'https://api.example.test', version: '7.0' },
       webuiNext: {

@@ -5,10 +5,10 @@ export const csAdmin_host_ip_addresses = {
   "admin.host_ip_addresses.action.error_missing": "Chybí host IP adresa.",
   "admin.host_ip_addresses.action.free": "Odebrat",
   "admin.host_ip_addresses.action.ptr": "PTR",
-  "admin.host_ip_addresses.assign.help": "Vyber VPS a síťové rozhraní, na které se má host adresa umístit.",
+  "admin.host_ip_addresses.assign.help": "Host adresa se přiřadí k síťovému rozhraní, na které je routovaná její nadřazená IP adresa.",
   "admin.host_ip_addresses.assign.interface": "Síťové rozhraní",
   "admin.host_ip_addresses.assign.interface.placeholder": "Vyber rozhraní…",
-  "admin.host_ip_addresses.assign.interface_required": "Vyber síťové rozhraní.",
+  "admin.host_ip_addresses.assign.interface_required": "Není dostupné rozhraní, na které je nadřazená IP adresa routovaná.",
   "admin.host_ip_addresses.assign.title": "Přiřadit host IP adresu",
   "admin.host_ip_addresses.assign.vps": "VPS",
   "admin.host_ip_addresses.assign.vps.placeholder": "Hostname nebo ID…",
@@ -36,4 +36,5 @@ export const csAdmin_host_ip_addresses = {
   "admin.host_ip_addresses.toast.deleted": "Host adresa smazána",
   "admin.host_ip_addresses.toast.freed": "Host adresa odebrána",
   "admin.host_ip_addresses.toast.ptr_saved": "Reverzní záznam uložen",
+  "admin.host_ip_addresses.assign.route_changed": "Routa nadřazené IP adresy se změnila. Před přiřazením host adresy zkontroluj aktuální rozhraní.",
 } as const;

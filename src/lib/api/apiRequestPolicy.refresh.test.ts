@@ -1,8 +1,9 @@
+import { policyRequest } from '../../test/apiPolicyRequest';
 import { installHaveApiXhr } from '../../test/haveapiXhr';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { loadBffRuntimeSession } from '../../app/runtimeBootstrap';
 import { rememberBffSession } from '../auth/bffSession';
-import { haveApiCall, isExpiredSessionError, isAmbiguousMutationError, SESSION_EXPIRED_EVENT } from './haveapi';
+import { isExpiredSessionError, isAmbiguousMutationError, SESSION_EXPIRED_EVENT } from './apiErrors';
 
 const key = 'a'.repeat(64);
 const sessionUrl = new URL('/session.json', window.location.href).href;
@@ -37,14 +38,14 @@ describe('BFF request recovery', () => {
     });
     installHaveApiXhr(fetchMock);
     vi.stubGlobal('fetch', fetchMock);
-    expect((await haveApiCall({ path: '/things' })).data).toEqual([1]);
+    expect((await policyRequest({ path: '/things' })).data).toEqual({ things: [1] });
   });
 
   it.each([403, 500])('does not recover HTTP %s', async status => {
     setup(); const fetchMock = vi.fn(async () => json({ status: false }, status));
     installHaveApiXhr(fetchMock);
     vi.stubGlobal('fetch', fetchMock);
-    await expect(haveApiCall({ path: '/things' })).rejects.toMatchObject({ httpStatus: status });
+    await expect(policyRequest({ path: '/things' })).rejects.toMatchObject({ httpStatus: status });
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
@@ -58,9 +59,9 @@ describe('BFF request recovery', () => {
     });
     installHaveApiXhr(fetchMock);
     vi.stubGlobal('fetch', fetchMock);
-    const opts = { path: '/things', namespace: 'thing', params: { owner: 3 }, meta: { limit: 2 } };
-    const results = await Promise.all([haveApiCall(opts), haveApiCall(opts)]);
-    expect(results.map(r => r.data)).toEqual([[42], [42]]);
+    const opts = { path: '/things', inputNamespace: 'thing', params: { owner: 3 }, meta: { limit: 2 } };
+    const results = await Promise.all([policyRequest(opts), policyRequest(opts)]);
+    expect(results.map(r => r.data)).toEqual([{ things: [42] }, { things: [42] }]);
     expect(fetchMock.mock.calls.filter(([url]) => url === sessionUrl)).toHaveLength(1);
     const calls = fetchMock.mock.calls.filter(([url]) => url !== sessionUrl);
     expect(new Set(calls.map(([url]) => url)).size).toBe(1);
@@ -82,7 +83,7 @@ describe('BFF request recovery', () => {
     });
     installHaveApiXhr(fetchMock);
     vi.stubGlobal('fetch', fetchMock);
-    await haveApiCall({ path: '/things' });
+    await policyRequest({ path: '/things' });
     for (const [, init] of fetchMock.mock.calls.filter(([url]) => url !== sessionUrl)) {
       expect(new Headers(init?.headers).get('Accept-Language')).toBe(language);
     }
@@ -100,7 +101,7 @@ describe('BFF request recovery', () => {
     });
     installHaveApiXhr(fetchMock);
     vi.stubGlobal('fetch', fetchMock);
-    await expect(haveApiCall({ path: '/things' })).rejects.toMatchObject({ httpStatus: 401 });
+    await expect(policyRequest({ path: '/things' })).rejects.toMatchObject({ httpStatus: 401 });
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(window.vpsAdmin?.accessToken).toBe('old');
   });
@@ -111,7 +112,7 @@ describe('BFF request recovery', () => {
       ? json({ sessionKey: key, accessToken: 'new' }) : denied());
     installHaveApiXhr(fetchMock);
     vi.stubGlobal('fetch', fetchMock);
-    await expect(haveApiCall({ path: '/things' })).rejects.toMatchObject({ httpStatus: 401 });
+    await expect(policyRequest({ path: '/things' })).rejects.toMatchObject({ httpStatus: 401 });
     expect(fetchMock).toHaveBeenCalledTimes(3);
   });
 
@@ -124,15 +125,15 @@ describe('BFF request recovery', () => {
     });
     installHaveApiXhr(fetchMock);
     vi.stubGlobal('fetch', fetchMock);
-    const opts = { method, path: '/things', namespace: 'thing', params: { name: 'original' } };
-    const error = await haveApiCall(opts).catch(error => error);
+    const opts = { method, path: '/things', inputNamespace: 'thing', params: { name: 'original' } };
+    const error = await policyRequest(opts).catch(error => error);
     expect(error).toBeInstanceOf(Error);
     expect(isExpiredSessionError(error)).toBe(false);
     expect(isAmbiguousMutationError(error)).toBe(false);
     expect(fetchMock.mock.calls.filter(([url]) => url !== sessionUrl)).toHaveLength(1);
     expect(expired).not.toHaveBeenCalled();
-    const result = await haveApiCall(opts);
-    expect(result.data).toEqual({ id: 42 });
+    const result = await policyRequest(opts);
+    expect(result.data).toEqual({ thing: { id: 42 } });
     const writes = fetchMock.mock.calls.filter(([url]) => url !== sessionUrl);
     expect(writes).toHaveLength(2);
     expect(writes[0]?.[1]?.body).toBe(writes[1]?.[1]?.body);
@@ -149,7 +150,7 @@ describe('BFF request recovery', () => {
     installHaveApiXhr(fetchMock);
     vi.stubGlobal('fetch', fetchMock);
     const [read, write] = await Promise.allSettled([
-      haveApiCall({ path: '/things' }), haveApiCall({ method: 'POST', path: '/things' }),
+      policyRequest({ path: '/things' }), policyRequest({ method: 'POST', path: '/things' }),
     ]);
     expect(read.status).toBe('fulfilled'); expect(write.status).toBe('rejected');
     if (write.status === 'rejected') expect(isExpiredSessionError(write.reason)).toBe(false);
@@ -163,7 +164,7 @@ describe('BFF request recovery', () => {
       ? json({ sessionKey: key, accessToken: 'new' }) : denied());
     installHaveApiXhr(fetchMock);
     vi.stubGlobal('fetch', fetchMock);
-    await expect(haveApiCall({ method: 'POST', path: '/things' })).rejects.toThrow(
+    await expect(policyRequest({ method: 'POST', path: '/things' })).rejects.toThrow(
       language === 'cs' ? 'Přihlášení bylo obnoveno.' : 'Your session was renewed.');
   });
 
@@ -173,7 +174,7 @@ describe('BFF request recovery', () => {
       ? json({ sessionKey: 'b'.repeat(64), accessToken: 'new-account' }) : denied());
     installHaveApiXhr(fetchMock);
     vi.stubGlobal('fetch', fetchMock);
-    const error = await haveApiCall({ method: 'POST', path: '/things' }).catch(error => error);
+    const error = await policyRequest({ method: 'POST', path: '/things' }).catch(error => error);
     expect(isExpiredSessionError(error)).toBe(true);
     expect(window.vpsAdmin?.accessToken).toBe('old');
     expect(fetchMock.mock.calls.filter(([url]) => url !== sessionUrl)).toHaveLength(1);
@@ -183,7 +184,7 @@ describe('BFF request recovery', () => {
     setup(); const fetchMock = vi.fn(async () => new Response(body, { status: 401 }));
     installHaveApiXhr(fetchMock);
     vi.stubGlobal('fetch', fetchMock);
-    const error = await haveApiCall({ method: 'POST', path: '/things' }).catch(error => error);
+    const error = await policyRequest({ method: 'POST', path: '/things' }).catch(error => error);
     expect(isAmbiguousMutationError(error)).toBe(true);
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
@@ -192,7 +193,7 @@ describe('BFF request recovery', () => {
     setup(); rememberBffSession(sessionUrl, undefined, 'old');
     const fetchMock = vi.fn(async () => denied()); installHaveApiXhr(fetchMock);
     vi.stubGlobal('fetch', fetchMock);
-    await expect(haveApiCall({ path: '/things' })).rejects.toMatchObject({ httpStatus: 401 });
+    await expect(policyRequest({ path: '/things' })).rejects.toMatchObject({ httpStatus: 401 });
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
@@ -205,7 +206,7 @@ describe('BFF request recovery', () => {
     });
     installHaveApiXhr(fetchMock);
     vi.stubGlobal('fetch', fetchMock);
-    await expect(haveApiCall({ path: '/things', signal: controller.signal })).rejects.toMatchObject({ name: 'AbortError' });
+    await expect(policyRequest({ path: '/things', signal: controller.signal })).rejects.toMatchObject({ name: 'AbortError' });
     expect(fetchMock).toHaveBeenCalledTimes(2); expect(expired).not.toHaveBeenCalled();
     window.removeEventListener(SESSION_EXPIRED_EVENT, expired);
   });
@@ -219,7 +220,7 @@ describe('BFF request recovery', () => {
     });
     installHaveApiXhr(fetchMock);
     vi.stubGlobal('fetch', fetchMock);
-    await expect(haveApiCall({ path: '/things' })).rejects.toMatchObject({ httpStatus: 401 });
+    await expect(policyRequest({ path: '/things' })).rejects.toMatchObject({ httpStatus: 401 });
     expect(window.vpsAdmin?.accessToken).toBeUndefined();
   });
 });

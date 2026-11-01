@@ -5,7 +5,11 @@ published `haveapi-client@0.32.0` npm dependency. Authenticated, public and
 fallback-description requests use this library through the WebUI policy in
 [API contracts](API_CONTRACTS.md#production-haveapi-client). The package owns
 XHR, request serialization and wire decoding; WebUI retains session renewal,
-per-request authentication/language and domain result projection. BFF session
+per-request authentication/language and receipt-preserving domain output narrowing.
+The generated SDK owns operation paths, input validation, descriptions and exact
+output namespaces; its complete RequestSpec passes through the shared policy.
+See the [migration record](../work-log/2026-11-01-typescript-client-migration.md)
+for candidate artifact inputs and the current dependency publication boundary. BFF session
 and OAuth exchanges keep their separate implementation.
 
 ## Published source and artifact

@@ -1,16 +1,16 @@
+import { policyRequest, publicPolicyRequest } from '../../test/apiPolicyRequest';
+import { getApi } from './sdk';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { apiWire, installHaveApiXhr } from '../../test/haveapiXhr';
 import { rememberBffSession } from '../auth/bffSession';
 import { AsyncError } from 'haveapi-client';
-import { requestHaveApi } from './haveapiRequestClient';
+import { executeHaveApiRequest } from './haveapiRequestClient';
 import {
-  haveApiCall,
-  publicHaveApiCall,
   HaveApiError,
   isAmbiguousMutationError,
   MALFORMED_HAVEAPI_ENVELOPE_ERROR_CODE,
   requireActionStateResult,
-} from './haveapi';
+} from './apiErrors';
 
 const sessionUrl = new URL('/session.json', window.location.href).href;
 const key = 'a'.repeat(64);
@@ -40,7 +40,7 @@ describe('production HaveAPI AsyncClient requests', () => {
     vi.stubGlobal('fetch', fetch);
     const send = vi.fn(async () => ok({ things: [7] }));
     installHaveApiXhr(send);
-    expect((await haveApiCall({ path: 'things' })).data).toEqual([7]);
+    expect((await policyRequest({ path: '/things', outputNamespace: 'things' })).data).toEqual([7]);
     expect(send).toHaveBeenCalledOnce();
     expect(apiWire.requests[0]).toMatchObject({
       method: 'GET',
@@ -53,11 +53,11 @@ describe('production HaveAPI AsyncClient requests', () => {
   it('reads scalar getters once and keeps original query/language across auth renewal', async () => {
     document.documentElement.lang = 'cs';
     let reads = 0;
-    const params = Object.defineProperty({}, 'owner', { enumerable: true, get: () => ++reads });
+    const params = Object.defineProperty({}, 'limit', { enumerable: true, get: () => ++reads });
     const send = vi.fn(async (_url: string, init?: RequestInit) =>
       new Headers(init?.headers).get('X-Token') === 'old'
         ? json({ status: false, message: 'Unauthorized', response: null }, 401)
-        : ok({ things: [7] })
+        : ok({ vpses: [7] })
     );
     installHaveApiXhr(send);
     const sessionFetch = vi.fn(async () => {
@@ -67,33 +67,24 @@ describe('production HaveAPI AsyncClient requests', () => {
       });
     });
     vi.stubGlobal('fetch', sessionFetch);
-    await haveApiCall({ path: '/things', namespace: 'thing', params });
+    await (await getApi()).vps.index({ params });
     expect(reads).toBe(1);
     expect(sessionFetch).toHaveBeenCalledOnce();
     expect(send).toHaveBeenCalledTimes(2);
     const [first, second] = apiWire.requests;
     expect(second?.url).toBe(first?.url);
-    expect(new URL(second!.url).searchParams.get('thing[owner]')).toBe('1');
+    expect(new URL(second!.url).searchParams.get('vps[limit]')).toBe('1');
     expect(second?.headers).toMatchObject({ 'Accept-Language': 'cs', 'X-Token': 'new' });
-  });
-
-  it('omits unnamespaced params and rejects non-scalar query fields before XHR', async () => {
-    installHaveApiXhr(async () => ok({ things: [] }));
-    await haveApiCall({ path: '/things', params: { ignored: 3 } });
-    expect(new URL(apiWire.requests[0]!.url).search).toBe('');
-    await expect(haveApiCall({ path: '/things', namespace: 'thing', params: { owner: [3] } })).rejects.toBeInstanceOf(
-      HaveApiError
-    );
-    expect(apiWire.requests).toHaveLength(1);
   });
 
   it('preserves validated namespace/meta/action-state projection for JSON writes', async () => {
     installHaveApiXhr(async () => ok({ thing: { id: 7 }, _meta: { action_state_id: 91 } }));
-    const result = await haveApiCall({
+    const result = await policyRequest({
       method: 'POST',
       path: '/things',
-      namespace: 'thing',
+      inputNamespace: 'thing',
       params: { name: 'x' },
+      outputNamespace: 'thing',
       meta: { includes: 'owner' },
     });
     expect(JSON.parse(apiWire.requests[0]!.body!)).toEqual({ thing: { name: 'x' }, _meta: { includes: 'owner' } });
@@ -101,23 +92,10 @@ describe('production HaveAPI AsyncClient requests', () => {
     expect(requireActionStateResult(result, 'create').meta).toEqual({ action_state_id: 91 });
   });
 
-  it.each([
-    [null, null, undefined],
-    [[1, 2], [1, 2], undefined],
-    [{ thing: 7, meta: { count: 1 } }, 7, { count: 1 }],
-    [{ thing: 7, other: 8, _meta: { count: 2 } }, { thing: 7, other: 8, _meta: { count: 2 } }, { count: 2 }],
-  ])('preserves raw/null and legacy namespace projection for %j', async (response, data, meta) => {
-    installHaveApiXhr(async () => ok(response));
-    const result = await haveApiCall({ path: '/things' });
-    expect(result.data).toEqual(data);
-    expect(result.meta).toEqual(meta);
-    expect(result.envelope.response).toEqual(response);
-  });
-
   it('uses the configured metadata namespace for validation and projection', async () => {
     window.vpsAdmin!.webuiNext!.haveApi!.metaNamespace = 'page';
     installHaveApiXhr(async () => ok({ things: [7], page: { total_count: 1 } }));
-    const result = await haveApiCall({ path: '/things' });
+    const result = await policyRequest({ path: '/things', outputNamespace: 'things' });
     expect(result.data).toEqual([7]);
     expect(result.meta).toEqual({ total_count: 1 });
   });
@@ -125,8 +103,8 @@ describe('production HaveAPI AsyncClient requests', () => {
   it('keeps public requests separate and anonymous after authenticated dispatches', async () => {
     document.documentElement.lang = 'cs';
     installHaveApiXhr(async () => ok({ things: [] }));
-    await haveApiCall({ path: '/things' });
-    await publicHaveApiCall({ path: '/things' });
+    await policyRequest({ path: '/things' });
+    await publicPolicyRequest({ path: '/things' });
     expect(apiWire.requests).toHaveLength(2);
     expect(apiWire.requests[0]?.headers['X-Token']).toBe('old');
     expect(apiWire.requests[1]?.headers).toEqual({ Accept: 'application/json' });
@@ -135,7 +113,7 @@ describe('production HaveAPI AsyncClient requests', () => {
   it('resolves a relative configured API base without changing its version path', async () => {
     window.vpsAdmin!.api = { url: '/api', version: '7.0' };
     installHaveApiXhr(async () => ok({ things: [] }));
-    await haveApiCall({ path: '/things' });
+    await policyRequest({ path: '/things' });
     expect(apiWire.requests[0]?.url).toBe(new URL('/api/v7.0/things', location.href).href);
   });
 
@@ -148,7 +126,7 @@ describe('production HaveAPI AsyncClient requests', () => {
     installHaveApiXhr(send);
     for (const host of ['https://discovery-one.example.test', 'https://discovery-two.example.test']) {
       window.vpsAdmin = { api: { url: host, version: '7.0' }, sessionToken: 'live' };
-      expect((await haveApiCall({ path: '/things' })).data).toBe(7);
+      expect((await policyRequest({ path: '/things', outputNamespace: 'thing' })).data).toBe(7);
     }
     expect(apiWire.requests.filter((request) => request.method === 'OPTIONS').map((request) => request.url)).toEqual([
       'https://discovery-one.example.test/v7.0/',
@@ -164,7 +142,7 @@ describe('production HaveAPI AsyncClient requests', () => {
   it.each([200, 422])('keeps nested HTTP %s rejection authoritative with its envelope', async (status) => {
     const envelope = { status: false, message: 'Rejected', response: null, errors: { vps: { memory: ['too large'] } } };
     installHaveApiXhr(async () => json(envelope, status));
-    const error = await haveApiCall({ method: 'POST', path: '/things' }).catch((error) => error);
+    const error = await policyRequest({ method: 'POST', path: '/things' }).catch((error) => error);
     expect(error).toBeInstanceOf(HaveApiError);
     expect(error.envelope).toEqual(envelope);
     expect(error.cause).toBeInstanceOf(AsyncError);
@@ -179,7 +157,7 @@ describe('production HaveAPI AsyncClient requests', () => {
     vi.stubGlobal('fetch', sessionFetch);
     const envelope = { status: true, response: { thing: 7, _meta: { action_state_id: 91 } } };
     installHaveApiXhr(async () => json(envelope, status));
-    const error = await haveApiCall({ method: 'POST', path: '/things' }).catch((error) => error);
+    const error = await policyRequest({ method: 'POST', path: '/things' }).catch((error) => error);
     expect(error).toBeInstanceOf(HaveApiError);
     expect(error.httpStatus).toBe(status);
     expect(error.envelope).toEqual(envelope);
@@ -196,7 +174,7 @@ describe('production HaveAPI AsyncClient requests', () => {
     const sessionFetch = vi.fn();
     vi.stubGlobal('fetch', sessionFetch);
     installHaveApiXhr(async () => new Response(body, { status: 401 }));
-    const error = await haveApiCall({ path: '/things' }).catch((error) => error);
+    const error = await policyRequest({ path: '/things' }).catch((error) => error);
     expect(error).toBeInstanceOf(HaveApiError);
     expect(isAmbiguousMutationError(error)).toBe(true);
     expect(sessionFetch).not.toHaveBeenCalled();
@@ -207,7 +185,7 @@ describe('production HaveAPI AsyncClient requests', () => {
     'keeps unusable successful replies ambiguous',
     async (body) => {
       installHaveApiXhr(async () => json(body));
-      const error = await haveApiCall({ method: 'POST', path: '/things' }).catch((error) => error);
+      const error = await policyRequest({ method: 'POST', path: '/things' }).catch((error) => error);
       expect(error.envelope.errors).toBe(MALFORMED_HAVEAPI_ENVELOPE_ERROR_CODE);
       expect(error.cause).toBeInstanceOf(AsyncError);
       expect(error.cause.kind).toBe('protocol');
@@ -220,13 +198,13 @@ describe('production HaveAPI AsyncClient requests', () => {
   it('settles pre-dispatch and in-flight cancellation through the actual package', async () => {
     const controller = new AbortController();
     controller.abort();
-    await expect(haveApiCall({ path: '/things', signal: controller.signal })).rejects.toMatchObject({
+    await expect(policyRequest({ path: '/things', signal: controller.signal })).rejects.toMatchObject({
       name: 'AbortError',
     });
     expect(apiWire.requests).toHaveLength(0);
     installHaveApiXhr(() => new Promise(() => {}));
     const active = new AbortController();
-    const pending = haveApiCall({ path: '/things', signal: active.signal });
+    const pending = policyRequest({ path: '/things', signal: active.signal });
     await vi.waitFor(() => expect(apiWire.requests).toHaveLength(1));
     active.abort();
     await expect(pending).rejects.toMatchObject({ name: 'AbortError' });
@@ -237,7 +215,7 @@ describe('production HaveAPI AsyncClient requests', () => {
     installHaveApiXhr(async () => {
       throw new TypeError('network lost');
     });
-    const error = await haveApiCall({ method: 'POST', path: '/things' }).catch((error) => error);
+    const error = await policyRequest({ method: 'POST', path: '/things' }).catch((error) => error);
     expect(error).toBeInstanceOf(TypeError);
     expect(error.cause).toBeInstanceOf(AsyncError);
     expect(error.cause.kind).toBe('transport');
@@ -248,7 +226,7 @@ describe('production HaveAPI AsyncClient requests', () => {
     vi.useFakeTimers();
     try {
       installHaveApiXhr(() => new Promise(() => {}));
-      const pending = requestHaveApi('https://api.example.test/v7.0', 'authenticated', {
+      const pending = executeHaveApiRequest('https://api.example.test/v7.0', 'authenticated', {
         method: 'POST', path: '/things', timeoutMs: 25,
       });
       const rejected = expect(pending).rejects.toMatchObject({ name: 'TimeoutError' });

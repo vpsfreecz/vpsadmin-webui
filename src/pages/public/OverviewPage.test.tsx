@@ -78,19 +78,19 @@ function installOverviewMocks() {
       vps_count: 13,
       ipv4_left: 1000,
     },
-    envelope: { status: true, response: {} },
+    envelope: { status: true, response: {} }, meta: {}, httpStatus: 200,
   });
   vi.mocked(fetchPublicNodeStatus).mockResolvedValue({
     data: [],
-    envelope: { status: true, response: {} },
+    envelope: { status: true, response: {} }, meta: {}, httpStatus: 200,
   });
   vi.mocked(fetchOutages).mockResolvedValue({
     data: [],
-    envelope: { status: true, response: {} },
+    envelope: { status: true, response: {} }, meta: {}, httpStatus: 200,
   });
   vi.mocked(fetchNews).mockResolvedValue({
     data: [],
-    envelope: { status: true, response: {} },
+    envelope: { status: true, response: {} }, meta: {}, httpStatus: 200,
   });
 }
 

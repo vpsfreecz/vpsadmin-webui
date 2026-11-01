@@ -19,7 +19,7 @@ claims. Local adapter tests verify serialization, not deployed backend capabilit
 
 | Contract | Implemented/required behavior | Evidence and caution |
 | --- | --- | --- |
-| UI settings | PUT `/webui_user_settings/{namespace}/{key}` with value-only resource body; URI-encode namespace/key. | [adapter](../../src/lib/api/webuiUserSettings.ts); collection PUT + POST fallback caused the persistence bug fixed by PR519. |
+| UI settings | Generated Index filters by namespace/key and Set writes the JSON-string value at `/webui_user_settings/{namespace}/{key}`. Only the canonical configured resource path (optional trailing slashes) is supported; invalid paths fail before binding/dispatch. Namespace/key are encoded once by the SDK. | [adapter](../../src/lib/api/webuiUserSettings.ts); collection PUT + POST fallback caused the persistence bug fixed by PR519. |
 | Session JSON | Same-origin JSON with accessToken, sessionKey, sessionExpiresAt; anonymous values null; no secrets in executable config. | [server](../../bff/server.js), [auth](../../src/app/auth.tsx); retain origin/security checks. |
 | New OAuth session identity | The authorization-code exchange sends one validated callback `req.ip` in `Client-IP` and exact `User-Agent: vpsadmin-webui`; invalid IP fails before provider contact. Refresh and revocation use that User-Agent without Client-IP. | [BFF contract](../../bff/README.md), [server](../../bff/server.js); this describes new session metadata, not retroactive changes or browser authorization identity. |
 | Resource overrides | Explicit admin override only where backend action supports it. | PR503; do not infer that every create/edit endpoint accepts one universal flag. |
@@ -59,61 +59,99 @@ The [node lifecycle model](../../src/pages/app/admin/nodes/NodeLifecycleModel.ts
 keeps role, location and bootstrap CPU/memory/swap capacity out of the edit payload,
 although they participate in creation. Updates contain only changed `active`,
 `name`, `ip_addr`, `max_tx`, `max_rx` and `max_vps` fields. Blank optional limits
-must not become zero: clearing a populated limit sends null only when its API
-metadata permits null; otherwise validation rejects the edit. An already-unset
-limit is omitted. See [model cases](../../src/pages/app/admin/nodes/NodeLifecycleModel.test.ts).
+must not become zero. The generated update contract does not permit null limits,
+so clearing a populated limit rejects the edit before dispatch. An already-unset
+limit is omitted; real zero values remain valid. See [model cases](../../src/pages/app/admin/nodes/NodeLifecycleModel.test.ts).
 Do not infer editability from the create form or silently add unsupported update
 fields when reorganizing the node page.
 
 ## Production HaveAPI client
 
-All generic authenticated, public and fallback-description requests use the
-installed HaveAPI `AsyncClient` through
-[the package adapter](../../src/lib/api/haveapiRequestClient.ts). The package owns
-XHR, query/body encoding, JSON parsing and envelope validation. There is no
-alternate fetch transport or injectable production client. The
-[package provenance guide](HAVEAPI_CLIENT.md) records the dependency and
-reproducible build inputs.
+The generated `vpsadmin-typescript-client` constructs operations and live
+root/action descriptions. [SDK bindings](../../src/lib/api/sdk.ts) supply
+separate public/authenticated clients at the configured, already-versioned API
+base, including any mount prefix. The [request policy](../../src/lib/api/apiRequestPolicy.ts)
+receives the complete `RequestSpec` and returns the complete `RequestResult`.
+Output namespace, headers, signal and timeout survive this boundary. The installed
+HaveAPI runtime owns XHR, query/body encoding, JSON parsing and envelope validation;
+WebUI does not decode a second envelope or guess an SDK output namespace.
 
-[haveApiCall](../../src/lib/api/haveapi.ts) keeps separate lazy authenticated and
-public clients per resolved, already-versioned API base. It uses low-level
-`request`, without library setup/authentication or a token cache. A supplied
-window description or configured header and metadata namespace avoids discovery;
-otherwise one anonymous `OPTIONS /` request per base reads the description.
-Configured, described and existing fallback auth-header precedence is retained.
-Each authenticated dispatch reads live credentials; a call retains its original
-language and scalar query values across recovery. Public calls use Accept only,
-without auth, language, description discovery or session recovery. XHR keeps its
-ordinary same-origin credential behavior.
+Authentication and language are read for each authenticated dispatch, including
+impersonation. Explicit request headers survive; the current authentication
+header takes precedence over a stale supplied credential. Separate anonymous
+clients do not inherit runtime authentication or language, renew sessions or
+perform description discovery for ordinary public operations. Public bindings use
+configured metadata first, then valid supplied metadata or a namespace already
+discovered anonymously for the same API base; they do not discard custom
+metadata receipts or start discovery on behalf of a public operation. BFF session and
+OAuth requests remain separate protocols.
 
-Domain-helper signatures and result shapes remain stable. WebUI admits scalar
-query values and omits params without an input namespace; AsyncClient encodes the
-request. WebUI projects validated data into the existing single-namespace result,
-with configured, `_meta` and `meta` lookup, raw arrays/null and multiple namespaces
-preserved. It retains `HaveApiError`, request context, nested validation errors,
-HTTP 200 API rejection semantics, action-state receipts and uncertain-mutation
-guards. Missing success payloads, invalid metadata and malformed replies are
-protocol failures, distinct from valid null or an authoritative API rejection.
-Mapped API/protocol failures retain the original `AsyncError` as their cause,
-including any validated envelope, response and metadata receipt supplied by the
-library. A protocol failure stays uncertain even when that receipt is available.
-An HTTP failure with a validated `status: true` envelope is also contradictory
-and uncertain: retain both signals and the library receipt, do not renew or
-replay, and keep shared mutation protection until reconciliation. Ordinary
-`status: false` 4xx rejections retain their authoritative guard-release behavior.
+A supplied window description or configured auth header and metadata namespace
+avoids discovery. Otherwise generated anonymous `api.describe()` reads the root
+on the same mounted/versioned base. This executor never waits for authenticated
+discovery, preventing recursion. Discovery fields used for authentication and
+metadata binding are checked at runtime; generated declarations alone do not
+validate application data. Failed/malformed discovery does not authorize a
+requested operation; its original error/receipt remains as the binding error
+cause. Since only anonymous OPTIONS was attempted, this does not mark an
+operation that has not been dispatched as an uncertain write. Clients are scoped by resolved API base, public/auth policy
+and effective metadata namespace. Namespace overrides are passed to the generator,
+which maps canonical object metadata keys and preserves the raw envelope. Names
+that collide with generated action fields or reserved names fail before dispatch.
 
 Only a validated OAuth HTTP 401 rejection may recover the same BFF session.
-Concurrent reads share renewal and retry once with fresh auth and original
-inputs/language. Rejected writes may renew the session but require explicit
-resubmission; they never replay. Changed identity, logout, impersonation,
-HTTP 403, a malformed 401 response, transport errors and abort retain their guards. BFF
-config/session JSON and OAuth token requests remain separate protocols.
+Concurrent reads share renewal and retry once with fresh authentication and their
+original inputs, language and request options. GET and OPTIONS may retry; rejected
+writes may renew but require explicit resubmission. Changed identity, logout,
+impersonation, HTTP 403, malformed 401 responses, transport loss and abort keep
+their established safeguards. A changed API base cannot reuse a stale binding
+with new credentials.
 
-The [actual-package tests](../../src/lib/api/haveapiRequestClient.test.ts) feed
-serialized HTTP replies through controlled XHR; they do not mock the library or
-delegate HaveAPI requests to fetch. Ordinary domain and app fixtures cover the
-public/authenticated call paths. Synthetic fixtures do not certify OAuth exchange,
-backend permissions, live task completion or deployment.
+[Shared errors](../../src/lib/api/apiErrors.ts) preserve API validation details,
+request context and contradictory HTTP/envelope evidence. A protocol error or an
+HTTP failure containing a successful API envelope remains an uncertain mutation;
+the original runtime error and available full receipt remain attached. A generated
+`ClientInputError` proves pre-dispatch failure and is distinct from transport
+`TypeError`. Domain [output narrowing](../../src/lib/api/apiOutput.ts) keeps
+`data`, metadata, envelope and HTTP status together. Rejected post-dispatch
+application output raises `ApiOutputError` with that receipt and remains uncertain.
+A required asynchronous receipt must still be validated before tracking completion.
+An action with an empty output declaration retains its declared namespace: VPS
+Start returns vps:{} plus blocking metadata. Missing namespace is a protocol
+failure; a valid empty output with no required action-state ID is a distinct
+missing-receipt failure. Neither permits an automatic duplicate mutation.
+
+Every vpsAdmin operation now uses the generated SDK. The historical generic
+wrapper and single-namespace projection are removed. Domain view types derive
+from generated outputs, retaining nullable/absent fields and partial associations;
+each workflow validates the identity and fields it actually needs. Existing
+[actual-package fixtures](../../src/lib/api/haveapiRequestClient.test.ts) feed
+serialized replies through controlled XHR. Mocked policy/binding tests establish
+source behavior only; they do not certify a packaged runtime, backend permissions,
+OAuth exchange, task completion or deployment.
+
+## Generated-backed domain boundaries
+
+Generated declarations describe the saved API schema; they do not validate a live
+response or grant permission. Domain guards require actual IDs for navigation or
+mutation targets and preserve optional/null scalar fields and partial relations.
+Malformed present fields fail with the original receipt. In particular, a missing
+association does not establish a successful detach during uncertain-write recovery.
+
+| Area | Supported boundary |
+| --- | --- |
+| Public status/content | Public statistics use the cluster namespace. Public outage handlers may omit user; admin scope changes separately require user.id. Public news requires localized message, while editing uses en_message/cs_message. |
+| Correction tokens | Preview/Update and Location, OS-template and Language choices use public bindings even in an authenticated browser. The anonymous template list is server-scoped; omitted eligibility flags are not fabricated. Admin resolution uses authenticated bindings and actual eligibility for approval/create-VPS or a changed template. |
+| Account/profile | User creation omits unsupported monthly_payment. Paid-until cannot be cleared with null; reminder clearing uses the observed lifecycle expiry. TOTP consumes recovery_code only. Session output has no current marker; label update may return an empty framed object. Mail contacts do not infer undeclared role/primary data. |
+| Storage | Clone descendants are unconditional. Mount creation omits unsupported type/master fields; update keeps mountpoint/mode read-only. Current disk usage remains available without fabricated history. |
+| Host addresses | Assign uses its path only and the actual parent-interface route. A fresh Show must confirm the reviewed parent before send; a missing/changed route blocks the action. VPS context in assignment history is not an allocation association. |
+| Filters | User-data, traffic, environments and locations do not send unsupported text queries. OS-template admin list filters do not send q/enabled/supported. Stale links reset unsupported filters/cursors with the approved explanation; supported scope and pagination remain. |
+| Help/mail | Unlocalized HelpBox filtering and clearing a localized language are unsupported. Missing mailbox handler counts remain unavailable; no nonexistent mail-transaction link is offered. |
+| Operational history | StateLog accepts limit only. The drawer shows the earliest 50 chronological records with no offset/continuation claim. |
+
+These are source-backed limits of the generated contract. Live capability fields
+must also be validated before exposing an action; static input typing cannot be
+bypassed because an OPTIONS response appears to allow an unsupported input.
 
 ## Pagination: known blockers
 
@@ -236,7 +274,11 @@ metadata before displaying or sending the availability control. An edit also
 requires a known current boolean state. Omitted fields preserve server state;
 false is sent explicitly when disabling. The dialog shows network identity and
 existing assigned/owned counts. Disabled networks remain in ordinary lists.
-A failed capability lookup shows the error and a retry action. Cached capability
+A failed capability lookup shows the error and a retry action. Generated live
+action descriptions are narrowed before enabling availability: missing fields
+remain unsupported, while malformed containers or a present non-Boolean enabled
+parameter raise a receipt-preserving ApiOutputError rather than appearing as an
+older API. Cached capability
 data cannot authorize availability writes while a lookup is pending, fetching
 or errored. Other fields remain editable.
 
@@ -386,3 +428,32 @@ supported. The old unguarded UI is not a safe write rollback target. Software
 rollback does not undo corrections, retraction or deleted data; deletion recovery
 requires an existing backup. No backend migration, dependency or transport change
 is part of this UI package.
+
+## Generated user/settings contract limits
+
+User/session output models validate real navigable identity; nullable scalar and
+partial association facts retain their meaning. Compatibility user scanning keeps
+its 1,200-row/12-batch budget and complete receipt; a compatibility-page count is
+not a server snapshot and does not replace scan completeness. TOTP recovery uses
+the generated recovery_code field. Session label updates may acknowledge with an
+empty user_session object; fetched session views still require real identity.
+The API does not identify a current session for the removed badge/count behavior.
+
+Mail template outputs do not declare role membership. An empty template recipient
+therefore displays the existing unavailable state without inferring a primary or
+role destination, and without a copy target; explicit recipients and disabled
+state remain available. A populated paid-until date cannot be cleared through
+this API: local validation preserves the reviewed value/draft and sends no write.
+Valid date and zero monthly-amount updates keep the exact account owner and review.
+User creation does not accept monthly_payment; the separate account editor remains
+the supported operation, without an extra post-create mutation. Reminder clearing
+uses the observed expiration through the existing lifecycle payload helper; unknown
+lifecycle fields disable edits.
+
+Public correction preview/update and its Location, OS-template and Language choices
+use generated public bindings even in an authenticated browser. Anonymous OS-template
+lists are server-filtered to enabled/supported choices and omit those flags; the
+client does not fabricate them. Administrative template eligibility uses explicit
+true flags. A known unavailable selected template blocks only a required creation
+or changed-template submission; load failures retain their load error and unchanged
+correction/deny/ignore paths remain valid.

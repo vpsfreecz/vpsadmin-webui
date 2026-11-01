@@ -110,7 +110,7 @@ test('public pages do not call webui_user_settings', async ({ page }) => {
         settingsCalls += 1;
         return { webui_user_settings: [] };
       },
-      'GET cluster/public_stats': () => ({ public_stats: { user_count: 0, vps_count: 0, ipv4_left: 999 } }),
+      'GET cluster/public_stats': () => ({ cluster: { user_count: 0, vps_count: 0, ipv4_left: 999 } }),
       'GET nodes/public_status': () => ({ nodes: [] }),
       'GET outages': () => ({ outages: [] }),
       'GET news_logs': () => ({ news_logs: [] }),
@@ -209,7 +209,7 @@ test('@pr-smoke @pr-smoke-mobile dark theme survives session expiry and a fresh 
         return { webui_user_setting: { namespace: 'ui', key: 'settings', value: payload.webui_user_setting.value } };
       },
       'GET vpses': () => ({ vpses: [] }),
-      'GET cluster/public_stats': () => ({ public_stats: {} }),
+      'GET cluster/public_stats': () => ({ cluster: {} }),
       'GET nodes/public_status': () => ({ nodes: [] }),
       'GET outages': () => ({ outages: [] }),
       'GET news_logs': () => ({ news_logs: [] }),

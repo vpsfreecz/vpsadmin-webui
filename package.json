@@ -12,7 +12,7 @@
     "preview": "npm run env:check && vite preview",
     "test": "npm run env:check && vitest run",
     "test:watch": "npm run env:check && vitest",
-    "test:scripts": "node --test scripts/*.test.mjs",
+    "test:scripts": "node --test scripts/*.test.mjs scripts/integration/*.test.mjs",
     "test:scripts:browser": "node --test scripts/browser-tests/*.test.mjs",
     "test:bff": "node --test bff/*.test.js",
     "typecheck": "tsc --noEmit",
@@ -81,7 +81,8 @@
     "lucide-react": "^0.562.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "react-router-dom": "7.18.2"
+    "react-router-dom": "7.18.2",
+    "vpsadmin-typescript-client": "0.4.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.61.0",

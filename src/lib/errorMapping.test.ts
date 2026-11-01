@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'vitest';
 
-import { HaveApiError } from './api/haveapi';
+import { ClientInputError, HaveApiError } from './api/apiErrors';
 import { buildErrorDetails, classifyError, errorI18nKeys } from './errorMapping';
+
+describe('local input classification', () => {
+  it('does not label a proven pre-dispatch field error as network loss', () => {
+    expect(classifyError(new ClientInputError('Invalid connection field')).kind).toBe('unexpected');
+    expect(classifyError(new TypeError('Network connection lost')).kind).toBe('network');
+  });
+});
 
 describe('classifyError', () => {
   it('maps HTTP status codes from HaveApiError', () => {

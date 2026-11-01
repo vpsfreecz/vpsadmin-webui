@@ -394,4 +394,5 @@ export const csRequests = {
   ...csRequestReviewSafety,
   ...csFinance,
   ...csPaymentReview,
+  "requests.resolve.template_unavailable": "Vybraná šablona OS není pro tento požadavek dostupná. Před pokračováním vyber dostupnou šablonu.",
 } as const;

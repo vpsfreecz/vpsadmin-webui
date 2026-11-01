@@ -37,7 +37,7 @@ export function NewsPage() {
           <ol className="divide-y divide-border" aria-label={i18n.t('public.news.title')}>
             {newsQ.data?.map((n) => (
               <li key={n.id} className="grid min-w-0 gap-1 px-4 py-2 even:bg-surface-2 sm:grid-cols-[12rem_minmax(0,1fr)] sm:gap-4" data-testid="public.news.item">
-                <time dateTime={n.published_at} className="text-sm leading-relaxed text-muted">
+                <time dateTime={n.published_at ?? undefined} className="text-sm leading-relaxed text-muted">
                   {formatDateTime(n.published_at)}
                 </time>
                 <NewsMessage

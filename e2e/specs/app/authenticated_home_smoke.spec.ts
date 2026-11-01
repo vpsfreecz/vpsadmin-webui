@@ -47,9 +47,13 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke @smoke-mobile authentic
 
 test('@smoke authenticated dashboard skips HaveAPI description bootstrap in standalone mode', async ({ page }) => {
   const descriptionRequests: string[] = [];
+  const currentUserRequests: Request[] = [];
 
   page.on('request', (request) => {
     const url = new URL(request.url());
+    if (request.method() === 'GET' && url.pathname === '/api/v7.0/users/current') {
+      currentUserRequests.push(request);
+    }
     if (
       ['GET', 'OPTIONS'].includes(request.method()) &&
       ['/api', '/api/', '/api/v7.0', '/api/v7.0/'].includes(url.pathname)
@@ -60,7 +64,6 @@ test('@smoke authenticated dashboard skips HaveAPI description bootstrap in stan
 
   await bootstrapVpsAdminWindow(page, {
     sessionToken: 'TEST_USER_SESSION',
-    description: false,
     webuiNext: {
       haveApi: {
         authHeader: 'X-HaveAPI-Auth-Token',
@@ -68,6 +71,10 @@ test('@smoke authenticated dashboard skips HaveAPI description bootstrap in stan
       },
     },
   });
+  await page.route('**/config.js', route => route.fulfill({
+    contentType: 'application/javascript',
+    body: 'delete window.vpsAdmin.description;',
+  }));
 
   await installHaveApiMock(page, {
     user: { id: 10, login: 'alice', level: 1 },
@@ -82,5 +89,11 @@ test('@smoke authenticated dashboard skips HaveAPI description bootstrap in stan
   await page.goto('/app');
 
   await expect(page.getByTestId('app.dashboard.page')).toBeVisible();
+  expect(await page.evaluate(() => window.vpsAdmin?.description)).toBeUndefined();
   expect(descriptionRequests).toEqual([]);
+  expect(currentUserRequests.length).toBeGreaterThan(0);
+  for (const request of currentUserRequests) {
+    expect(request.resourceType()).toBe('xhr');
+    expect(request.headers()['x-haveapi-auth-token']).toBe('TEST_USER_SESSION');
+  }
 });

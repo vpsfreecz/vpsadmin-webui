@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { HaveApiError } from '../../../lib/api/haveapi';
+import { HaveApiError } from '../../../lib/api/apiErrors';
 import type { LocalLock } from '../../../lib/localLocks';
 import type { ObjectRef } from '../../../lib/objectRef';
 import { AdminObjectMutationRecovery } from './AdminObjectMutationRecovery';

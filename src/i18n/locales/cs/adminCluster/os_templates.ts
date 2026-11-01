@@ -67,4 +67,5 @@ export const csAdminCluster_os_templates = {
   "admin.cluster.os_templates.smart.suggestion.id_hint": "Hledání podle ID šablony",
   "admin.cluster.os_templates.smart.suggestion.search": "Hledat šablony „{value}“",
   "admin.cluster.os_templates.smart.suggestion.search_hint": "Hledá v popisku a interním jménu",
+  "admin.cluster.os_templates.unsupported_filters_removed": "Filtry vyhledávání, povolení a podpory nejsou dostupné. Tyto filtry byly z odkazu odstraněny.",
 } as const;

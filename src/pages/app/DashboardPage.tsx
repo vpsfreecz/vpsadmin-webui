@@ -207,7 +207,7 @@ export function DashboardPage() {
           vps={{
             isLoading: isAdminScope ? clusterStatsQ.isLoading : vpsQ.isLoading,
             isError: isAdminScope ? clusterStatsQ.isError : vpsQ.isError,
-            totalCount: isAdminScope ? clusterStatsQ.data?.vps_count : vpsQ.data?.totalCount,
+            totalCount: isAdminScope ? clusterStatsQ.data?.vps_count ?? undefined : vpsQ.data?.totalCount,
           }}
           datasets={{
             isLoading: datasetsQ.isLoading,

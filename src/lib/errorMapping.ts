@@ -1,4 +1,5 @@
-import { HaveApiError, type HaveApiRequestInfo } from './api/haveapi';
+import { ClientInputError, HaveApiError, type HaveApiRequestInfo } from './api/apiErrors';
+import { ApiOutputError } from './api/apiOutput';
 import { stringifyUnknown } from './errors';
 import { staticT } from './staticI18n';
 
@@ -42,6 +43,10 @@ export function classifyError(err: unknown): {
       haveApiErrors: err.envelope?.errors,
       request: err.request,
     };
+  }
+
+  if (err instanceof ClientInputError || err instanceof ApiOutputError) {
+    return { kind: 'unexpected', message: err.message || staticT('common.unknown_error') };
   }
 
   // Fetch/network errors often surface as TypeError("Failed to fetch") in browsers.

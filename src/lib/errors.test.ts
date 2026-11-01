@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { HaveApiError } from './api/haveapi';
+import { HaveApiError } from './api/apiErrors';
 import { makeStaticTranslator } from './staticI18n';
 import { formatErrorMessage } from './errors';
 

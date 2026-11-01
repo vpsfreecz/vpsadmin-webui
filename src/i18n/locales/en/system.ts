@@ -77,4 +77,5 @@ export const enSystem = {
   'errors.item.template': 'template',
   'errors.item.ip_address': 'IP address',
   'errors.item.dataset': 'dataset',
+  "errors.settings_path_unsupported": "Server settings sync is unavailable: the configured settings path must be /webui_user_settings.",
 } as const;

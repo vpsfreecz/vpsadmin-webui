@@ -45,4 +45,5 @@ export const enCommon_filters = {
   'filters.smart.suggestions_available.few': '{count} suggestions available.',
   'filters.smart.suggestions_available.other': '{count} suggestions available.',
   'filters.smart.no_suggestions': 'No filter suggestions.',
+  "filters.unsupported_text_search_removed": "Text search is unavailable here. The search filter from this link has been removed.",
 } as const;

@@ -268,12 +268,15 @@ wrappers; page-level action guards and API authorization still apply.
 | `/admin/_design` | page/redirect | `<DesignSandboxPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/router.tsx) |
 | `/admin/*` | page/redirect | `<NotFoundPage appBasePath="/admin" />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/router.tsx) |
 
-## API adapter modules (65)
+## API adapter modules (73)
 
 Read these for request/response details. File presence does not prove that the deployed
 API implements every parameter; see [API contracts](API_CONTRACTS.md).
 
 - [actionStates.ts](../../src/lib/api/actionStates.ts)
+- [apiErrors.ts](../../src/lib/api/apiErrors.ts)
+- [apiOutput.ts](../../src/lib/api/apiOutput.ts)
+- [apiRequestPolicy.ts](../../src/lib/api/apiRequestPolicy.ts)
 - [app.ts](../../src/lib/api/app.ts)
 - [appTypes.ts](../../src/lib/api/appTypes.ts)
 - [ascendingIdCollection.ts](../../src/lib/api/ascendingIdCollection.ts)
@@ -290,7 +293,6 @@ API implements every parameter; see [API contracts](API_CONTRACTS.md).
 - [dnsTsigKeys.ts](../../src/lib/api/dnsTsigKeys.ts)
 - [exports.ts](../../src/lib/api/exports.ts)
 - [finance.ts](../../src/lib/api/finance.ts)
-- [haveapi.ts](../../src/lib/api/haveapi.ts)
 - [haveapiRequestClient.ts](../../src/lib/api/haveapiRequestClient.ts)
 - [helpBoxes.ts](../../src/lib/api/helpBoxes.ts)
 - [incidents.ts](../../src/lib/api/incidents.ts)
@@ -305,7 +307,9 @@ API implements every parameter; see [API contracts](API_CONTRACTS.md).
 - [monitoring.ts](../../src/lib/api/monitoring.ts)
 - [networkInterfaces.ts](../../src/lib/api/networkInterfaces.ts)
 - [networking.ts](../../src/lib/api/networking.ts)
+- [networkingViews.ts](../../src/lib/api/networkingViews.ts)
 - [networks.ts](../../src/lib/api/networks.ts)
+- [newsLogViews.ts](../../src/lib/api/newsLogViews.ts)
 - [newslog.ts](../../src/lib/api/newslog.ts)
 - [nodeCreateReconciliation.ts](../../src/lib/api/nodeCreateReconciliation.ts)
 - [nodeHistory.ts](../../src/lib/api/nodeHistory.ts)
@@ -313,10 +317,12 @@ API implements every parameter; see [API contracts](API_CONTRACTS.md).
 - [oom.ts](../../src/lib/api/oom.ts)
 - [osTemplates.ts](../../src/lib/api/osTemplates.ts)
 - [outageScopePaging.ts](../../src/lib/api/outageScopePaging.ts)
+- [outageViews.ts](../../src/lib/api/outageViews.ts)
 - [outages.ts](../../src/lib/api/outages.ts)
 - [payments.ts](../../src/lib/api/payments.ts)
 - [public.ts](../../src/lib/api/public.ts)
 - [requests.ts](../../src/lib/api/requests.ts)
+- [sdk.ts](../../src/lib/api/sdk.ts)
 - [securityAdvisories.ts](../../src/lib/api/securityAdvisories.ts)
 - [securityAdvisoryMutations.ts](../../src/lib/api/securityAdvisoryMutations.ts)
 - [securityAdvisoryRelations.ts](../../src/lib/api/securityAdvisoryRelations.ts)
@@ -325,6 +331,7 @@ API implements every parameter; see [API contracts](API_CONTRACTS.md).
 - [transactions.ts](../../src/lib/api/transactions.ts)
 - [userAccounts.ts](../../src/lib/api/userAccounts.ts)
 - [userDossier.ts](../../src/lib/api/userDossier.ts)
+- [userDossierViews.ts](../../src/lib/api/userDossierViews.ts)
 - [userEnvironmentConfigs.ts](../../src/lib/api/userEnvironmentConfigs.ts)
 - [userLookups.ts](../../src/lib/api/userLookups.ts)
 - [userMail.ts](../../src/lib/api/userMail.ts)
@@ -336,5 +343,6 @@ API implements every parameter; see [API contracts](API_CONTRACTS.md).
 - [vpsFeatures.ts](../../src/lib/api/vpsFeatures.ts)
 - [vpsMaintenance.ts](../../src/lib/api/vpsMaintenance.ts)
 - [vpsMounts.ts](../../src/lib/api/vpsMounts.ts)
+- [vpsStorageOutput.ts](../../src/lib/api/vpsStorageOutput.ts)
 - [vpsUserData.ts](../../src/lib/api/vpsUserData.ts)
 - [webuiUserSettings.ts](../../src/lib/api/webuiUserSettings.ts)

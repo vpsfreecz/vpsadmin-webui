@@ -171,7 +171,7 @@ export function OutageDetailPage() {
                 {handlersQ.data?.map((h) => (
                   <div key={h.id} className="text-sm">
                     <div className="font-medium">
-                      {h.full_name ?? h.reporter_name ?? i18n.t('public.outage_detail.handlers.fallback', { id: h.id })}
+                      {h.full_name ?? i18n.t('public.outage_detail.handlers.fallback', { id: h.id })}
                     </div>
                     {h.note ? <div className="text-muted">{h.note}</div> : null}
                   </div>

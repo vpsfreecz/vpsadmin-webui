@@ -45,4 +45,5 @@ export const csCommon_filters = {
   'filters.smart.suggestions_available.few': 'Jsou dostupné {count} návrhy.',
   'filters.smart.suggestions_available.other': 'Je dostupných {count} návrhů.',
   'filters.smart.no_suggestions': 'Žádné návrhy filtrů.',
+  "filters.unsupported_text_search_removed": "Textové vyhledávání zde není dostupné. Filtr vyhledávání z odkazu byl odstraněn.",
 } as const;

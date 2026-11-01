@@ -27,7 +27,7 @@ test('bootstrap applies explicit theme + language from localStorage', async ({ p
   await installHaveApiMock(page, {
     user: { id: 1, login: 'test', level: 1 },
     handlers: {
-      'GET cluster/public_stats': () => ({ public_stats: { user_count: 0, vps_count: 0, ipv4_left: 999 } }),
+      'GET cluster/public_stats': () => ({ cluster: { user_count: 0, vps_count: 0, ipv4_left: 999 } }),
       'GET nodes/public_status': () => ({ nodes: [] }),
       'GET outages': () => ({ outages: [] }),
       'GET news_logs': () => ({ news_logs: [] }),

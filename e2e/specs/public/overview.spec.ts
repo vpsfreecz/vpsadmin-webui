@@ -26,7 +26,7 @@ test('@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile public overview shows key 
     user: { id: 1, login: 'test', level: 1 },
     handlers: {
       'GET cluster/public_stats': () => ({
-        public_stats: { user_count: 123, vps_count: 456, ipv4_left: 200 },
+        cluster: { user_count: 123, vps_count: 456, ipv4_left: 200 },
       }),
       'GET nodes/public_status': () => ({
         nodes: [
@@ -179,7 +179,7 @@ test('public overview shows IPv4 critical alert when low', async ({ page }) => {
     user: { id: 1, login: 'test', level: 1 },
     handlers: {
       'GET cluster/public_stats': () => ({
-        public_stats: { user_count: 1, vps_count: 1, ipv4_left: 10 },
+        cluster: { user_count: 1, vps_count: 1, ipv4_left: 10 },
       }),
       'GET nodes/public_status': () => ({ nodes: [] }),
       'GET outages': () => ({ outages: [] }),

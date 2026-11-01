@@ -17,7 +17,7 @@ test('@smoke contextual help renders on the public surface', async ({ page }) =>
   await installHaveApiMock(page, {
     handlers: {
       'GET users/current': () => jsonFulfill(failEnvelope('Unauthorized'), 401),
-      'GET cluster/public_stats': () => ({ public_stats: { user_count: 1, vps_count: 1, ipv4_left: 100 } }),
+      'GET cluster/public_stats': () => ({ cluster: { user_count: 1, vps_count: 1, ipv4_left: 100 } }),
       'GET nodes/public_status': () => ({ nodes: [] }),
       'GET outages': () => ({ outages: [] }),
       'GET news_logs': () => ({ news_logs: [] }),

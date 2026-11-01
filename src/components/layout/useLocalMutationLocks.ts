@@ -17,7 +17,7 @@ import {
   type LocalMutationGeneration,
   type LocalMutationIntent,
 } from '../../lib/localLocks';
-import { isAmbiguousMutationError } from '../../lib/api/haveapi';
+import { isAmbiguousMutationError } from '../../lib/api/apiErrors';
 import { objectRefKey, type ObjectRef } from '../../lib/objectRef';
 import {
   corruptStoredLock, generationLeaseName, generatedKey, inspectStoredLock, LEASE_GENERATION_PREFIX,

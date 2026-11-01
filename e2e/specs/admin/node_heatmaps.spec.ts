@@ -21,7 +21,7 @@ for (const language of ['cs', 'en'] as const) {
           'GET system_configs/webui/goresheat_url': () => ({ system_config: { value: 'https://heatmap.example/charts/' } }),
           'GET nodes': () => ({ nodes }),
           'GET nodes/public_status': () => ({ nodes }),
-          'GET cluster/public_stats': () => ({ public_stats: { user_count: 1, vps_count: 1, ipv4_left: 1 } }),
+          'GET cluster/public_stats': () => ({ cluster: { user_count: 1, vps_count: 1, ipv4_left: 1 } }),
         },
       });
       let frameRequests = 0;

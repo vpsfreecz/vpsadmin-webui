@@ -18,7 +18,7 @@ for (const language of ['cs', 'en'] as const) {
             object_state: 'active', is_running: true, cpus: 2, memory: 1024,
             node: { id: 1, domain_name: 'node.example.test' },
           } }),
-          'GET cluster/public_stats': () => ({ public_stats: { user_count: 0, vps_count: 0, ipv4_left: 999 } }),
+          'GET cluster/public_stats': () => ({ cluster: { user_count: 0, vps_count: 0, ipv4_left: 999 } }),
           'GET nodes/public_status': () => ({ nodes: [] }),
           'GET outages': () => ({ outages: [] }),
           'GET news_logs': () => ({ news_logs: [] }),

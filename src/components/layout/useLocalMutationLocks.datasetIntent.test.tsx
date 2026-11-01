@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { MissingActionStateError } from '../../lib/api/haveapi';
+import { MissingActionStateError } from '../../lib/api/apiErrors';
 import type { LocalMutationGeneration } from '../../lib/localLocks';
 import { objectRef } from '../../lib/objectRef';
 import { useLocalMutationLocks } from './useLocalMutationLocks';

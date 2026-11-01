@@ -77,4 +77,5 @@ export const csSystem = {
   'errors.item.template': 'šablona',
   'errors.item.ip_address': 'IP adresa',
   'errors.item.dataset': 'dataset',
+  "errors.settings_path_unsupported": "Synchronizace nastavení se serverem není dostupná: cesta pro nastavení musí být /webui_user_settings.",
 } as const;

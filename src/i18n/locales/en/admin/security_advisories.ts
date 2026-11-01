@@ -247,4 +247,8 @@ export const enAdmin_security_advisories = {
   'admin.security_advisories.field.cves_edit_help': 'Add or remove CVE links. Leave empty to remove them all.',
   'admin.security_advisories.field.published_at_edit_help':
     'Change the original publication time, or leave empty to clear it.',
+
+  "admin.security_advisories.validation.revision_changed": "The advisory changed since it was reviewed. Unsaved edits remain in the form. Reload and review the current version before continuing.",
+  "admin.security_advisories.validation.revision_unavailable": "The advisory revision is unavailable. Changes cannot be submitted until the current advisory is loaded.",
+  "admin.security_advisories.validation.language_profile_unsupported": "The API requires a language this client does not support. Update the generated client before submitting changes.",
 } as const;
