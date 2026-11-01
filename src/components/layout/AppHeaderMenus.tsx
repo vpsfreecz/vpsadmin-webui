@@ -1,7 +1,9 @@
+import { Link } from 'react-router-dom';
 import React, { useEffect, useRef, useState } from 'react';
 import { AlertTriangle, Clock3, Globe, LogOut, User, WifiOff } from 'lucide-react';
 
 import { formatErrorMessage } from '../../lib/errors';
+import { useClippedPopover } from '../../lib/hooks/useClippedPopover';
 import { Button } from '../ui/Button';
 import { clsx } from '../ui/clsx';
 import type { AppHeaderProps } from './AppHeaderTypes';
@@ -11,11 +13,10 @@ export function AppSyncPopover(props: Pick<AppHeaderProps,
 >) {
   const { t, syncRef, syncOpen, setSyncOpen, syncStatus, syncTitle, syncBody, syncError, onRetrySync } = props;
   return (
-    <div className="relative order-8 md:order-6" ref={syncRef}>
+    <div className="relative w-full" ref={syncRef}>
       <button
         className={clsx(
-          'inline-flex h-11 w-12 items-center justify-center rounded-md border border-border bg-overlay-surface text-sm shadow-card hover:bg-surface-2',
-          'sm:h-10 sm:w-auto sm:justify-start sm:gap-2 sm:px-3',
+          'flex min-h-11 w-full items-center gap-2 rounded-md px-3 text-left text-sm hover:bg-surface-2',
           syncStatus === 'offline' ? 'text-danger' : 'text-warn'
         )}
         onClick={() => setSyncOpen((v) => !v)}
@@ -24,11 +25,11 @@ export function AppSyncPopover(props: Pick<AppHeaderProps,
         data-testid="shell.sync-indicator"
       >
         {syncStatus === 'offline' ? <WifiOff size={18} /> : <AlertTriangle size={18} />}
-        <span className="hidden sm:inline">{syncTitle}</span>
+        <span className="min-w-0">{syncTitle}</span>
       </button>
       {syncOpen ? (
         <div
-          className="absolute right-0 mt-2 w-64 rounded-md border border-border bg-overlay-surface p-2 shadow-panel"
+          className="relative z-50 mt-2 w-full rounded-md border border-border bg-overlay-surface p-2 shadow-panel"
           data-testid="shell.sync-panel"
           data-overlay="popover"
           data-overlay-surface="overlay"
@@ -61,18 +62,21 @@ export function AppSyncPopover(props: Pick<AppHeaderProps,
 
 export function AppUserMenu(props: Pick<AppHeaderProps,
   't' | 'mode' | 'canSwitchMode' | 'userMenuRef' | 'userMenuOpen' | 'setUserMenuOpen' | 'authLogin' | 'authRole' |
-  'sessionExpiresAt' | 'theme' | 'language' | 'onSetTheme' | 'onSetLanguage' | 'onGoToOtherMode' | 'onGoToProfile' | 'onGoToPublicStatus' | 'loginLogoutHref'
+  'onNavigate' | 'sessionExpiresAt' | 'theme' | 'language' | 'onSetTheme' | 'onSetLanguage' | 'onGoToOtherMode' | 'onGoToProfile' | 'onGoToPublicStatus' | 'loginLogoutHref'
 > & { sessionIdleLimitSeconds: number | null }) {
   const {
     t, mode, canSwitchMode, userMenuRef, userMenuOpen, setUserMenuOpen, authLogin, authRole,
-    sessionExpiresAt, sessionIdleLimitSeconds, theme, language, onSetTheme, onSetLanguage,
+    onNavigate, sessionExpiresAt, sessionIdleLimitSeconds, theme, language, onSetTheme, onSetLanguage,
     onGoToOtherMode, onGoToProfile, onGoToPublicStatus, loginLogoutHref,
   } = props;
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
+  const popupStyle = useClippedPopover(userMenuOpen, userMenuRef, popupRef);
   useEffect(() => {
     if (!userMenuOpen) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return;
+      event.preventDefault();
       setUserMenuOpen(false);
       triggerRef.current?.focus();
     };
@@ -87,26 +91,25 @@ export function AppUserMenu(props: Pick<AppHeaderProps,
       : null;
 
   return (
-    <div className="relative order-10 flex min-w-0 items-center gap-2 md:order-8" ref={userMenuRef}>
+    <div className="relative flex min-w-0 flex-col gap-2" ref={userMenuRef}>
       {sessionDisplay ? (
-        <div
-          className={clsx(
-            'hidden h-10 items-center gap-1.5 rounded-md border border-border bg-overlay-surface px-2.5 text-xs font-medium text-muted shadow-card',
-            'lg:inline-flex'
-          )}
+        <Link
+          to={`${mode === 'admin' ? '/admin' : '/app'}/profile/security#session-length`}
+          onClick={() => {
+            setUserMenuOpen(false);
+            onNavigate?.();
+          }}
+          className="flex min-h-11 items-center gap-2 rounded-md px-3 md:min-h-9 [@media(any-pointer:coarse)]:min-h-11 text-sm text-muted hover:bg-surface-2 hover:text-fg"
           aria-label={`${sessionDisplay.menuLabel}: ${sessionDisplay.value}`}
           title={`${sessionDisplay.menuLabel}: ${sessionDisplay.value}`}
           data-testid="shell.session-remaining"
         >
-          <Clock3 size={15} />
+          <Clock3 size={18} className="shrink-0" />
           <span>{sessionDisplay.value}</span>
-        </div>
+        </Link>
       ) : null}
       <button
-        className={clsx(
-          'inline-flex h-11 min-w-12 max-w-full items-center justify-center gap-2 rounded-md border border-border bg-overlay-surface text-sm shadow-card hover:bg-surface-2',
-          'sm:h-10 sm:w-auto sm:justify-start sm:px-3'
-        )}
+        className="flex min-h-11 w-full min-w-0 items-center gap-2 rounded-md bg-surface px-3 text-left text-sm text-muted hover:bg-surface-2 hover:text-fg md:min-h-9 [@media(any-pointer:coarse)]:min-h-11"
         onClick={() => setUserMenuOpen((v) => !v)}
         ref={triggerRef}
         aria-expanded={userMenuOpen}
@@ -114,13 +117,15 @@ export function AppUserMenu(props: Pick<AppHeaderProps,
         data-testid="shell.user-menu-button"
       >
         <User size={18} className="shrink-0" />
-        <span className="hidden min-w-0 max-w-40 truncate font-medium sm:inline">{authLogin ?? '—'}</span>
-        <span className="hidden shrink-0 text-xs text-muted xl:inline">{String(authRole ?? '—')}</span>
+        <span className="min-w-0 flex-1 truncate font-medium">{authLogin ?? '—'}</span>
+        <span className="shrink-0 text-xs text-muted">{String(authRole ?? '—')}</span>
       </button>
 
       {userMenuOpen ? (
         <div
-          className="absolute right-0 top-[calc(100%+0.5rem)] z-50 max-h-modal w-drawer-md overflow-y-auto overscroll-contain rounded-md border border-border bg-overlay-surface p-2 shadow-panel"
+          ref={popupRef}
+          style={popupStyle}
+          className="absolute left-0 top-[calc(100%+0.5rem)] z-50 w-full overflow-y-auto overscroll-contain rounded-md border border-border bg-overlay-surface p-2 shadow-panel"
           data-testid="shell.user-menu"
           data-overlay="popover"
           data-overlay-surface="overlay"

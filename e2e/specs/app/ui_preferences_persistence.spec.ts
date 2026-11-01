@@ -1,3 +1,4 @@
+import { clickShellControl, openShellNavigation } from '../../helpers/shellNavigation';
 import { expect, test } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock, jsonFulfill } from '../../fixtures';
@@ -77,7 +78,7 @@ test('@pr-smoke @pr-smoke-mobile authenticated UI preferences load from and save
   if (desktopSidebar) await expect(page.getByTestId('nav.sidebar.vps')).toHaveText('VPS');
   await expect(page.getByRole('button', { name: /collapse sidebar|expand sidebar|sbalit panel|rozbalit panel/i })).toHaveCount(0);
 
-  await page.getByTestId('shell.user-menu-button').click();
+  await clickShellControl(page, 'shell.user-menu-button');
   await page.getByTestId('shell.user-menu.theme.light').click();
 
   await expect.poll(() => writes.length).toBeGreaterThanOrEqual(1);
@@ -218,7 +219,7 @@ test('@pr-smoke @pr-smoke-mobile dark theme survives session expiry and a fresh 
   });
   await page.goto('/app/vps');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
-  await page.getByTestId('shell.user-menu-button').click();
+  await clickShellControl(page, 'shell.user-menu-button');
   await page.getByTestId('shell.user-menu.theme.dark').click();
   await expect.poll(() => savedTheme).toBe('dark');
   authenticated = false;
@@ -232,6 +233,7 @@ test('@pr-smoke @pr-smoke-mobile dark theme survives session expiry and a fresh 
   await page.evaluate(() => localStorage.removeItem('vpsadmin.uiSettings.v1'));
   authenticated = true;
   await page.goto('/app/vps');
+  await openShellNavigation(page);
   await expect(page.getByTestId('shell.user-menu-button')).toBeVisible();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
 });

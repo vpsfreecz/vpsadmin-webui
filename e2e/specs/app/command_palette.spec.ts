@@ -1,3 +1,4 @@
+import { openShellNavigation } from '../../helpers/shellNavigation';
 import { expect, test, type Page } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
@@ -168,8 +169,9 @@ test.describe('Command palette', () => {
     await page.goto('/app/vps');
     await expect(page.getByTestId('vps.list')).toBeVisible();
 
+    await openShellNavigation(page);
     const returnTarget = testInfo.project.name === 'mobile-chrome'
-      ? page.getByTestId('palette.open')
+      ? page.getByTestId('shell.mobile-nav-button')
       : page.getByTestId('shell.inline-search.input');
     await returnTarget.focus();
     await openCommandPalette(page);
@@ -702,7 +704,7 @@ test.describe('Command palette', () => {
       const transitions: string[] = [];
       const record = () => {
         const status = container.querySelector<HTMLElement>('[role="status"]');
-        const next = status?.dataset.testid;
+        const next = status?.dataset['testid'];
         if (next && transitions.at(-1) !== next) transitions.push(next);
       };
       record();

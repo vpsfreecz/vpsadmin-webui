@@ -1,3 +1,4 @@
+import { clickShellControl } from '../../helpers/shellNavigation';
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock } from '../../fixtures';
@@ -48,14 +49,15 @@ test.describe('@pr-smoke-mobile Mobile first-touch interactions', () => {
         // Selecting the current destination must still dismiss navigation.
         await page.getByTestId('nav.drawer.vps').tap();
         await expect(page.getByTestId('nav.drawer')).toBeHidden();
-        await page.getByTestId('tasks.open-button').tap();
+        await clickShellControl(page, 'tasks.open-button', true);
         await expect(page.getByTestId('tasks.drawer')).toBeVisible();
         await page.getByTestId('tasks.close-button').tap();
         await expect(page.getByTestId('tasks.drawer')).toBeHidden();
-        await page.getByTestId('shell.user-menu-button').tap();
+        await clickShellControl(page, 'shell.user-menu-button', true);
         await expect(page.getByTestId('shell.user-menu')).toBeVisible();
-        await page.getByTestId('shell.user-menu-button').tap();
+        await clickShellControl(page, 'shell.user-menu-button', true);
         await expect(page.getByTestId('shell.user-menu')).toBeHidden();
+        await page.getByTestId('nav.drawer.close').tap();
       }
       await expectNoDocumentHorizontalOverflow(page);
     });
@@ -64,7 +66,7 @@ test.describe('@pr-smoke-mobile Mobile first-touch interactions', () => {
       await page.setViewportSize(viewport);
       await setup(page);
       await page.goto('/app/vps');
-      await page.getByTestId('palette.open').tap();
+      await clickShellControl(page, 'palette.open', true);
       await expect(page.getByTestId('palette.modal')).toBeVisible();
       await page.getByTestId('palette.input').fill('touch');
       const result = page.getByTestId('palette.result.0');
@@ -124,7 +126,7 @@ test.describe('@pr-smoke-mobile Mobile first-touch interactions', () => {
     await expect(page.getByTestId('vps.list')).toBeVisible();
     const before = await page.getByTestId('shell.header').boundingBox();
     try {
-      await page.getByTestId('palette.open').tap();
+      await clickShellControl(page, 'palette.open', true);
       await expect.poll(() => requested).toBe(true);
       const loading = page.getByTestId('shell.command_palette.loading');
       await expect(loading).toHaveAttribute('role', 'dialog');
@@ -134,7 +136,7 @@ test.describe('@pr-smoke-mobile Mobile first-touch interactions', () => {
       await page.getByTestId('shell.command_palette.loading.close').tap();
       await expect(loading).toBeHidden();
       // Reopening while the same import is pending must also need just one tap.
-      await page.getByTestId('palette.open').tap();
+      await clickShellControl(page, 'palette.open', true);
       await expect(loading).toBeVisible();
     } finally {
       release();

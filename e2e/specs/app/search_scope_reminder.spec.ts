@@ -1,3 +1,4 @@
+import { clickShellControl } from '../../helpers/shellNavigation';
 import { expect, test, type Page } from '@playwright/test';
 import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 
@@ -22,7 +23,7 @@ async function setup(page: Page, language: 'cs' | 'en', level = 99, mode = 'app'
 }
 
 async function searchInput(page: Page, mobile: boolean) {
-  if (mobile) await page.getByTestId('palette.open').tap();
+  if (mobile) await clickShellControl(page, 'palette.open', true);
   return page.getByTestId(mobile ? 'palette.input' : 'shell.inline-search.input');
 }
 

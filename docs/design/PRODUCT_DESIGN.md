@@ -17,7 +17,13 @@ privileges in the administrator surface; this is not a third product experience.
 
 Sidebar destinations reflect tasks, not the API table list. VPS storage belongs
 with the VPS; NAS and backups are separate member destinations. Tasks is a global
-header affordance, not a duplicate primary action-states menu item. Administrators
+navigation action, not a duplicate primary action-states destination. Search, Tasks,
+session duration and account preferences occupy the top of the sidebar; there
+is no additional desktop header toolbar. Branding sits directly above About.
+Mobile has one navigation trigger, with the same controls inside its drawer.
+Only one controls instance mounts at a time, so search and outside-click refs
+never point at a hidden duplicate. Tasks/search close mobile navigation before
+opening their own panel. Account submenus retain Escape and focus restoration. Administrators
 see service, operations, users/finance, infrastructure and content groups.
 Outages and security advisories form a separate quiet block above About in the
 sidebar footer and mobile drawer, with role/mode-appropriate read or management
@@ -34,6 +40,8 @@ removed the optional icon-only mode: desktop navigation always shows its labels
 and has no collapse/expand control. Legacy local/server collapse preferences
 normalize to false while other preferences remain intact. Mobile navigation
 still opens as a labelled drawer and closes after selecting a destination.
+Windows at most 640px high also use this drawer, including landscape tablets,
+so fixed sidebar controls/footer cannot squeeze the destination list to zero.
 
 ## Visual language
 

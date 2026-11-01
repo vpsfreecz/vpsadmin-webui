@@ -1,3 +1,4 @@
+import { clickShellControl } from '../../helpers/shellNavigation';
 import { expect, test } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
@@ -117,7 +118,7 @@ for (const language of ['cs', 'en'] as const) {
     await expect(page.getByRole('link', { name: label, exact: true }).first()).toBeVisible();
     await page.goto('/app/transactions/123');
     await expect(page.getByTestId('transactions.chain.detail.tx.702')).toContainText(label);
-    await page.getByTestId('tasks.open-button').click();
+    await clickShellControl(page, 'tasks.open-button');
     await page.getByTestId('tasks.chain.toggle.123').click();
     await expect(page.getByTestId('tasks.chain.tx.card.702')).toContainText(label);
     await page.goto('/app/transactions/items/702');
@@ -128,7 +129,7 @@ for (const language of ['cs', 'en'] as const) {
       await page.screenshot({ path: `docs/work-log/assets/transaction-api-labels-20261006/${testInfo.project.name}-${language}.png`, fullPage: true });
     }
     const other = language === 'cs' ? 'en' : 'cs';
-    await page.getByTestId('shell.user-menu-button').click();
+    await clickShellControl(page, 'shell.user-menu-button');
     await page.getByTestId(`shell.user-menu.language.${other}`).click();
     await expect(header.getByRole('heading', { name: other === 'cs' ? 'Vytvoření VPS' : 'Create VPS', exact: true })).toBeVisible();
     expect(seen).toContain(other);

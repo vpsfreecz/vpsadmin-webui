@@ -1,3 +1,4 @@
+import { clickShellControl } from '../../helpers/shellNavigation';
 import { expect, test, type Page } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
@@ -202,7 +203,7 @@ test.describe('@smoke VPS storage tab mounts', () => {
   test('@workflow-matrix creates mount by finding dataset and posting', async ({ page }) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
 
-    let mounts = [
+    let mounts: Array<{ id: number; mountpoint: string; type: string; mode: string; enabled: boolean; on_start_fail: string; use_default_map: boolean; current_state: string; expiration_date?: string; dataset: { id: number; name: string }; created_at: string }> = [
       {
         id: 1,
         mountpoint: '/mnt/old',
@@ -313,7 +314,7 @@ test.describe('@smoke VPS storage tab mounts', () => {
 
     await expect(page.getByTestId('vps.storage.mounts.create')).toBeHidden();
     await expect(page.getByTestId('modal.action_progress')).toBeHidden();
-    await page.getByTestId('tasks.open-button').click();
+    await clickShellControl(page, 'tasks.open-button');
     await expect(page.getByTestId('tasks.row.703')).toBeVisible();
     await expect(mountItem(page, 2)).toBeVisible();
   });

@@ -1,3 +1,4 @@
+import { clickShellControl } from '../../helpers/shellNavigation';
 import { expect, test, type Page } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock } from '../../fixtures';
@@ -276,7 +277,7 @@ test.describe('@workflow-matrix VPS power failure regressions', () => {
 
     await expect(page.getByTestId('modal.action_progress')).toBeVisible();
     await expect(page.getByTestId('modal.action_progress')).toBeHidden();
-    await page.getByTestId('tasks.open-button').click();
+    await clickShellControl(page, 'tasks.open-button');
     await expect(page.getByTestId('tasks.row.790').getByText('Start', { exact: true })).toBeVisible();
     await expect(page.getByTestId('tasks.row.790')).toContainText('vps123.example');
     await expect(page.getByTestId('tasks.row.790')).toContainText('Failed');

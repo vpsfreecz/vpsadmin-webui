@@ -73,7 +73,6 @@ function HeaderHarness(props: { onOpenPalette?: () => void } = {}) {
         mode="user"
         canSwitchMode={false}
         shortcutHint="⌘K"
-        onOpenMobileNav={() => undefined}
         onOpenPalette={props.onOpenPalette ?? (() => undefined)}
         showSyncIndicator={false}
         syncRef={syncRef}
@@ -109,7 +108,7 @@ function HeaderHarness(props: { onOpenPalette?: () => void } = {}) {
 
 function LocationProbe() {
   const location = useLocation();
-  return <output data-testid="shell.location-path">{location.pathname}</output>;
+  return <output data-testid="shell.location-path">{location.pathname}{location.hash}</output>;
 }
 
 describe('AppHeader', () => {
@@ -142,13 +141,13 @@ describe('AppHeader', () => {
     expect(onOpenPalette).toHaveBeenCalledTimes(1);
   });
 
-  it('anchors the user menu below the top-right trigger', () => {
+  it('anchors the user menu inside the navigation', () => {
     render(<HeaderHarness />);
 
     fireEvent.click(screen.getByTestId('shell.user-menu-button'));
 
     const menu = screen.getByTestId('shell.user-menu');
-    expect(menu).toHaveClass('right-0');
+    expect(menu).toHaveClass('left-0');
     expect(menu).toHaveClass('top-[calc(100%+0.5rem)]');
     expect(menu.className).not.toContain('top-full');
     expect(menu.className).not.toContain('mt-2');
@@ -181,10 +180,12 @@ describe('AppHeader', () => {
     }
   });
 
-  it('keeps session time informational and out of the user menu', () => {
+  it('links session time directly to its profile setting without opening the account menu', () => {
     render(<HeaderHarness />);
 
+    expect(screen.getByTestId('shell.session-remaining')).toHaveAttribute('href', '/app/profile/security#session-length');
     fireEvent.click(screen.getByTestId('shell.session-remaining'));
+    expect(screen.getByTestId('shell.location-path')).toHaveTextContent('/app/profile/security#session-length');
     expect(screen.queryByTestId('shell.user-menu')).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId('shell.user-menu-button'));

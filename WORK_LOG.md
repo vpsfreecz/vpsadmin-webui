@@ -1635,3 +1635,15 @@ Preserve advanced shared main while pinning approved runtime 70bd11d9.
 Completed on all three sites: 90 pre-merge CI checks, Nix packages, 1,930 runtime
 unit tests and 252 served browser checks passed. One config pin was published;
 source/main boundaries, initial failures and remaining audit limits are recorded.
+
+
+## 2026-11-01 — Authenticated sidebar controls (prepared)
+
+- Moved search, Tasks, session duration and account controls into navigation;
+  moved branding above About and removed the extra desktop toolbar.
+- Session duration opens/focuses the actual profile inactivity setting without
+  saving. Member/admin destinations, search scope and task behavior are retained.
+- Remote verification passed: final compiled-browser acceptance 88/88, unit
+  tests 1960/1960, script tests 232/232, BFF tests 58/58, ci:quick and build.
+  Synthetic desktop/mobile captures are included; no merge/deployment.
+  [Implementation and evidence](docs/work-log/2026-11-01-sidebar-controls.md).

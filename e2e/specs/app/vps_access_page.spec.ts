@@ -1,3 +1,4 @@
+import { clickShellControl } from '../../helpers/shellNavigation';
 import { expect, test } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
@@ -143,7 +144,7 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile VPS access page generates root
   await page.getByTestId('vps.access.generated_password.clear').click();
   await expect(page.getByTestId('vps.access.generated_password')).toHaveCount(0);
 
-  await page.getByTestId('tasks.open-button').click();
+  await clickShellControl(page, 'tasks.open-button');
   await expect(page.getByTestId('tasks.drawer')).toHaveAttribute('aria-modal', 'false');
   await expect(
     page.getByTestId('tasks.row.700').getByRole('button', { name: 'Generate root password', exact: true }),
@@ -170,7 +171,7 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile VPS access page generates root
   expect(keyReq.postDataJSON()).toEqual({ vps: { public_key: 8 } });
   await expect(page.getByText(/Public key deployed: workstation/)).toBeVisible();
 
-  await page.getByTestId('tasks.open-button').click();
+  await clickShellControl(page, 'tasks.open-button');
   await expect(
     page.getByTestId('tasks.row.701').getByRole('button', { name: 'Deploy SSH public key', exact: true }),
   ).toBeVisible();

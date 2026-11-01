@@ -1,3 +1,4 @@
+import { clickShellControl } from '../../helpers/shellNavigation';
 import { expect, test } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
@@ -117,7 +118,7 @@ for (const language of ['cs', 'en'] as const) {
     await page.screenshot({ path: test.info().outputPath(`operation-names-${language}.png`), fullPage: true });
     await page.getByTestId('transactions.row.9206').getByRole('link', { name: names[0], exact: true }).click();
     await expect(page.getByRole('heading', { name: names[0], exact: true })).toBeVisible();
-    await page.getByTestId('tasks.open-button').click();
+    await clickShellControl(page, 'tasks.open-button');
     await expect(page.getByTestId('tasks.chain.open.9206')).toHaveText(names[0] ?? '');
     await expect(page.getByTestId('tasks.chain.row.9206')).not.toContainText(language === 'cs' ? 'Backend název:' : 'Backend name:');
   });
