@@ -1217,7 +1217,7 @@ test.describe('@pr-smoke VPS lifecycle tab', () => {
     await page.getByTestId('vps.lifecycle.delete.submit.confirm_dialog.confirm').click();
 
     const req = await reqPromise;
-    expect(req.postDataJSON()).toEqual({});
+    expect(req.postDataJSON()).toEqual({ vps: {} });
     await expect(page).toHaveURL(/\/app\/vps$/);
   });
 

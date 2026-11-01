@@ -202,25 +202,33 @@ test('@pr-smoke @pr-smoke-mobile invalid user_session is removed before the page
   await page.addInitScript(() => {
     const instrumentedWindow = window as typeof window & { __unfilteredTransactionChainRequestLocations?: string[] };
     instrumentedWindow.__unfilteredTransactionChainRequestLocations = [];
-    const originalFetch = window.fetch.bind(window);
+    const openedRequests = new WeakMap<XMLHttpRequest, { method: string; url: URL }>();
+    const originalOpen = XMLHttpRequest.prototype.open;
+    const originalSend = XMLHttpRequest.prototype.send;
 
-    window.fetch = (...args: Parameters<typeof window.fetch>) => {
-      const input = args[0];
-      const rawUrl =
-        typeof input === 'string'
-          ? input
-          : input instanceof URL
-            ? input.href
-            : input.url;
-      const requestUrl = new URL(rawUrl, window.location.href);
-      const isPageRequest = requestUrl.searchParams.get('transaction_chain[limit]') === '51';
-      const isUnfiltered = !requestUrl.searchParams.has('transaction_chain[user_session]');
+    XMLHttpRequest.prototype.open = function (
+      this: XMLHttpRequest,
+      ...args: [method: string, url: string | URL, async?: boolean, username?: string | null, password?: string | null]
+    ) {
+      const result = Reflect.apply(originalOpen, this, args);
+      openedRequests.set(this, {
+        method: args[0].toUpperCase(),
+        url: new URL(args[1], window.location.href),
+      });
+      return result;
+    };
 
-      if (requestUrl.pathname.endsWith('/transaction_chains') && isPageRequest && isUnfiltered) {
+    XMLHttpRequest.prototype.send = function (this: XMLHttpRequest, ...args: Parameters<XMLHttpRequest['send']>) {
+      const request = openedRequests.get(this);
+      if (
+        request?.method === 'GET'
+        && request.url.pathname === '/api/v7.0/transaction_chains'
+        && request.url.searchParams.get('transaction_chain[limit]') === '51'
+        && !request.url.searchParams.has('transaction_chain[user_session]')
+      ) {
         instrumentedWindow.__unfilteredTransactionChainRequestLocations?.push(window.location.href);
       }
-
-      return originalFetch(...args);
+      return Reflect.apply(originalSend, this, args);
     };
   });
 

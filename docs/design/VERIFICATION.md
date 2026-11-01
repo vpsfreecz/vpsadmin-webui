@@ -287,6 +287,13 @@ backend permissions or deployment. Historical pilot results are scoped to their 
 verification of the installed release. Current package inputs and reproduction
 are in the [provenance guide](HAVEAPI_CLIENT.md).
 
+Browser request observers compare the exact method and pathname, then use
+`URL.searchParams` for decoded query keys and values. Resource-body assertions
+retain the exact namespace even for empty inputs, including the absence of extra
+mutation fields. Dispatch-order checks capture the browser URL synchronously at
+native XHR send, alongside positive request and recorder counts.
+See the [serialization fixture correction](../work-log/2026-11-01-browser-wire-expectations.md).
+
 ## Recorded release evidence (2026-09-27)
 
 The [work log](../../WORK_LOG.md) records release `fd290b5e` (PR517–520), including

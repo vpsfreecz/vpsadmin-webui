@@ -127,6 +127,14 @@ Independent review candidate; not merged or deployed.
 
 ## New changes
 
+## 2026-11-01 — Align browser assertions with HaveAPI serialization
+
+Correct the exact member-delete bodies and semantic session-filter matcher.
+Observe transaction request dispatch through native XHR, preserving normalization
+ordering and the UI/flow assertions. Adopt both profile specs into strict E2E types.
+See the [original evidence and verification boundary](docs/work-log/2026-11-01-browser-wire-expectations.md).
+Prepared for review; no application or dependency change.
+
 ## 2026-10-31 — HaveAPI JavaScript 0.32.0
 
 Use the actual published npm archive with matching lock, provenance and normal

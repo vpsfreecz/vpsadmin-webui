@@ -24,7 +24,7 @@ test('@smoke profile: ssh keys + sessions flows', async ({ page }) => {
       auth_type: 'oauth2',
       created_at: '2026-02-01T12:00:00Z',
       last_request_at: '2026-02-02T08:00:00Z',
-      closed_at: null,
+      closed_at: null as string | null,
       api_ip_addr: '203.0.113.10',
       api_ip_ptr: 'user.example.test',
       client_ip_addr: '203.0.113.10',
@@ -68,7 +68,7 @@ test('@smoke profile: ssh keys + sessions flows', async ({ page }) => {
           auto_add: false,
           created_at: '2026-02-02T08:00:00Z',
         };
-        keys = [keys[0], created];
+        keys = [keys[0]!, created];
         return { public_key: created };
       },
       'PUT users/1/public_keys/2': () => {
@@ -153,9 +153,12 @@ test('@smoke profile: ssh keys + sessions flows', async ({ page }) => {
   await expect(sessionsTable.getByText('vpsadmin-webui 9a5fccf4')).toBeVisible();
   await expect(sessionsTable.getByTestId('profile.sessions.row.1.transactions')).toBeVisible();
 
-  const authFilterReqP = page.waitForRequest(
-    (r) => r.method() === 'GET' && r.url().includes('/user_sessions?') && r.url().includes('user_session%5Bauth_type%5D=token')
-  );
+  const authFilterReqP = page.waitForRequest((r) => {
+    const url = new URL(r.url());
+    return r.method() === 'GET'
+      && url.pathname === '/api/v7.0/user_sessions'
+      && url.searchParams.get('user_session[auth_type]') === 'token';
+  });
   await page.getByTestId('profile.sessions.auth_type').selectOption('token');
   await authFilterReqP;
   await expect(sessionsTable.getByTestId('profile.sessions.row.2')).toBeVisible();

@@ -242,7 +242,7 @@ test.describe('@workflow-matrix @smoke VPS list row navigation', () => {
     await page.getByTestId('vps.list.delete_confirm.confirm').click();
 
     const req = await reqPromise;
-    expect(req.postDataJSON()).toEqual({});
+    expect(req.postDataJSON()).toEqual({ vps: {} });
     await expect(page).toHaveURL(/\/app\/vps(?:\?|$)/);
   });
 
