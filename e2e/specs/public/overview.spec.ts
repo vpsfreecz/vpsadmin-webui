@@ -1,6 +1,12 @@
 import { expect, test } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock, jsonFulfill, setUiSettingsLocalStorage } from '../../fixtures';
+import {
+  bootstrapVpsAdminWindow,
+  failEnvelope,
+  installHaveApiMock,
+  jsonFulfill,
+  setUiSettingsLocalStorage,
+} from '../../fixtures';
 
 /**
  * Public status landing smoke.
@@ -69,13 +75,13 @@ test('@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile public overview shows key 
 
   const nodesSection = page.getByTestId('public.nodes.section');
   const visibleLocationPanels = nodesSection.locator(
-    '[data-cluster-location][data-cluster-location-layout="panel"]:visible',
+    '[data-cluster-location][data-cluster-location-layout="panel"]:visible'
   );
   const prahaPanel = nodesSection.locator(
-    '[data-cluster-location="Praha"][data-cluster-location-layout="panel"]:visible',
+    '[data-cluster-location="Praha"][data-cluster-location-layout="panel"]:visible'
   );
   const brnoPanel = nodesSection.locator(
-    '[data-cluster-location="Brno"][data-cluster-location-layout="panel"]:visible',
+    '[data-cluster-location="Brno"][data-cluster-location-layout="panel"]:visible'
   );
 
   await expect(visibleLocationPanels).toHaveCount(2);
@@ -88,15 +94,15 @@ test('@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile public overview shows key 
 
   for (const panel of [prahaPanel, brnoPanel]) {
     const summary = panel.locator('[data-testid$=".summary"]');
-    await expect.poll(() => summary.evaluate((badge) => {
-      const badgeRect = badge.getBoundingClientRect();
-      const panelRect = badge.closest('[data-cluster-location]')?.getBoundingClientRect();
-      return Boolean(
-        panelRect
-        && badgeRect.left >= panelRect.left
-        && badgeRect.right <= panelRect.right + 1
-      );
-    })).toBe(true);
+    await expect
+      .poll(() =>
+        summary.evaluate((badge) => {
+          const badgeRect = badge.getBoundingClientRect();
+          const panelRect = badge.closest('[data-cluster-location]')?.getBoundingClientRect();
+          return Boolean(panelRect && badgeRect.left >= panelRect.left && badgeRect.right <= panelRect.right + 1);
+        })
+      )
+      .toBe(true);
   }
 
   const prahaSummary = prahaPanel.locator('summary');
@@ -114,19 +120,27 @@ test('@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile public overview shows key 
 
   await prahaSummary.getByText('Praha', { exact: true }).click();
   await expect(prahaPanel).not.toHaveAttribute('open', '');
-  await expect.poll(() => prahaSummary.evaluate((summary) => ({
-    focused: document.activeElement === summary,
-    focusVisible: summary.matches(':focus-visible'),
-    boxShadow: getComputedStyle(summary).boxShadow,
-  }))).toEqual({ focused: true, focusVisible: false, boxShadow: 'none' });
+  await expect
+    .poll(() =>
+      prahaSummary.evaluate((summary) => ({
+        focused: document.activeElement === summary,
+        focusVisible: summary.matches(':focus-visible'),
+        boxShadow: getComputedStyle(summary).boxShadow,
+      }))
+    )
+    .toEqual({ focused: true, focusVisible: false, boxShadow: 'none' });
 
   await prahaSummary.click({ position: { x: 8, y: 8 } });
   await expect(prahaPanel).toHaveAttribute('open', '');
-  await expect.poll(() => prahaSummary.evaluate((summary) => ({
-    focused: document.activeElement === summary,
-    focusVisible: summary.matches(':focus-visible'),
-    boxShadow: getComputedStyle(summary).boxShadow,
-  }))).toEqual({ focused: true, focusVisible: false, boxShadow: 'none' });
+  await expect
+    .poll(() =>
+      prahaSummary.evaluate((summary) => ({
+        focused: document.activeElement === summary,
+        focusVisible: summary.matches(':focus-visible'),
+        boxShadow: getComputedStyle(summary).boxShadow,
+      }))
+    )
+    .toEqual({ focused: true, focusVisible: false, boxShadow: 'none' });
 
   await page.locator('body').click({ position: { x: 4, y: 4 } });
   let keyboardReachedSummary = false;
@@ -136,13 +150,17 @@ test('@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile public overview shows key 
     if (keyboardReachedSummary) break;
   }
   expect(keyboardReachedSummary).toBe(true);
-  await expect.poll(() => prahaSummary.evaluate((summary) => ({
-    focusVisible: summary.matches(':focus-visible'),
-    boxShadow: getComputedStyle(summary).boxShadow,
-  }))).toEqual({
-    focusVisible: true,
-    boxShadow: expect.not.stringMatching(/^none$/),
-  });
+  await expect
+    .poll(() =>
+      prahaSummary.evaluate((summary) => ({
+        focusVisible: summary.matches(':focus-visible'),
+        boxShadow: getComputedStyle(summary).boxShadow,
+      }))
+    )
+    .toEqual({
+      focusVisible: true,
+      boxShadow: expect.not.stringMatching(/^none$/),
+    });
 
   const clusterProofScreenshot = process.env['E2E_CLUSTER_PUBLIC_PROOF_SCREENSHOT']?.trim();
   if (clusterProofScreenshot) {
