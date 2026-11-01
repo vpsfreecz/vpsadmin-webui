@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { BuildFooter } from './BuildFooter';
+import { PublicThemeSwitcher } from './PublicThemeSwitcher';
 
 import { getRuntimeConfig } from '../../app/config';
 import { useAuth } from '../../app/auth';
@@ -161,7 +162,7 @@ function PublicLayoutInner() {
               vpsAdmin
             </NavLink>
 
-            <nav className="hidden md:flex items-center gap-1" data-document-title-nav="section">
+            <nav className="hidden lg:flex items-center gap-1" data-document-title-nav="section">
               <NavItem to="/">{i18n.t('public.nav.overview')}</NavItem>
               <NavItem to="/outages">{i18n.t('public.nav.outages')}</NavItem>
               <NavItem to="/security-advisories">{i18n.t('public.nav.security_advisories')}</NavItem>
@@ -170,17 +171,20 @@ function PublicLayoutInner() {
             <div className="flex-1" />
 
             <PublicLanguageSwitcher language={ui.settings.language} onSetLanguage={ui.setLanguage} t={i18n.t} />
+            <div className="hidden sm:block">
+              <PublicThemeSwitcher preference={ui.settings.theme} onSetTheme={ui.setTheme} t={i18n.t} compact testId="public.theme.desktop" />
+            </div>
 
             <a
               href={primaryHref}
-              className="hidden md:inline-flex items-center rounded-md border border-border bg-overlay-surface px-3 py-2 text-sm font-medium shadow-card hover:bg-surface-2"
+              className="hidden lg:inline-flex items-center rounded-md border border-border bg-overlay-surface px-3 py-2 text-sm font-medium shadow-card hover:bg-surface-2"
             >
               {primaryLabel}
             </a>
 
             <button
               type="button"
-              className="md:hidden inline-flex items-center justify-center rounded-md border border-border bg-overlay-surface p-2 shadow-card hover:bg-surface-2"
+              className="lg:hidden inline-flex items-center justify-center rounded-md border border-border bg-overlay-surface p-2 shadow-card hover:bg-surface-2"
               aria-label={mobileOpen ? i18n.t('public.menu.close') : i18n.t('public.menu.open')}
               onClick={() => setMobileOpen((v) => !v)}
             >
@@ -189,12 +193,12 @@ function PublicLayoutInner() {
           </div>
 
           {mobileOpen && (
-            <div className="md:hidden pb-4">
+            <div className="lg:hidden pb-4">
               <div className="flex flex-col gap-1" data-document-title-nav="section">
                 <NavItem to="/">{i18n.t('public.nav.overview')}</NavItem>
                 <NavItem to="/outages">{i18n.t('public.nav.outages')}</NavItem>
                 <NavItem to="/security-advisories">{i18n.t('public.nav.security_advisories')}</NavItem>
-                <div className="mt-2 flex items-center gap-1 rounded-lg border border-border bg-overlay-surface p-1 shadow-card">
+                <div className="mt-2 flex items-center gap-1 rounded-lg border border-border bg-overlay-surface p-1 shadow-card sm:hidden">
                   <button
                     type="button"
                     className={languageButtonClass(ui.settings.language === 'system')}
@@ -219,6 +223,10 @@ function PublicLayoutInner() {
                   >
                     CS
                   </button>
+                </div>
+
+                <div className="mt-2 sm:hidden">
+                  <PublicThemeSwitcher preference={ui.settings.theme} onSetTheme={ui.setTheme} t={i18n.t} testId="public.theme.mobile" />
                 </div>
 
                 <a

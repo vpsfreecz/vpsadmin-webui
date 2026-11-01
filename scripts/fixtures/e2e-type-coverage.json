@@ -97,7 +97,8 @@
     "e2e/specs/public/about.spec.ts",
     "e2e/specs/public/news_compact.spec.ts",
     "e2e/specs/public/overview.spec.ts",
-    "e2e/specs/public/theme_language_bootstrap.spec.ts"
+    "e2e/specs/public/theme_language_bootstrap.spec.ts",
+    "e2e/specs/public/theme_switcher.spec.ts"
   ],
   "deferred": [
     {

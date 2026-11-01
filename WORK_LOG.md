@@ -1635,3 +1635,11 @@ Preserve advanced shared main while pinning approved runtime 70bd11d9.
 Completed on all three sites: 90 pre-merge CI checks, Nix packages, 1,930 runtime
 unit tests and 252 served browser checks passed. One config pin was published;
 source/main boundaries, initial failures and remaining audit limits are recorded.
+
+
+## 2026-11-01 — Anonymous theme controls
+
+Expose the existing local light/dark/system preference in the public header and
+mobile menu, retaining accessible state, touch targets and reload persistence.
+[Scope and verification](docs/work-log/2026-11-01-public-theme-switch.md).
+Prepared for review; no merge or deployment.
