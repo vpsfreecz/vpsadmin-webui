@@ -263,6 +263,53 @@ describe('network address API wrappers', () => {
     });
   });
 
+  test.each([undefined, { action_state_id: null }])('confirms synchronous ownership with a fresh exact read (%j)', async (meta) => {
+    const fetch = mockFetchOk({ ip_address: { id: 42, user: { id: 7 }, charged_environment: { id: 2 } } });
+    fetch.mockResolvedValueOnce({ ok: true, json: async () => ({ status: true, response: { ip_address: { id: 42 }, _meta: meta } }) });
+    globalThis.fetch = fetch as typeof globalThis.fetch;
+    const result = await updateIpAddress(42, { user: 7, environment: 2 });
+    expect(result.data.user?.id).toBe(7);
+    expect(fetch.mock.calls).toHaveLength(2);
+    expect(new URL(fetch.mock.calls[1]![0]).pathname).toBe('/v7.0/ip_addresses/42');
+    expect(fetch.mock.calls[1]?.[1]?.method).toBe('GET');
+  });
+
+  test('does not replay a synchronous owner write when its verification read fails', async () => {
+    const calls = mockFetchOk({ ip_address: { id: 42 } });
+    calls.mockReset();
+    calls.mockResolvedValueOnce({ ok: true, json: async () => ({ status: true, response: { ip_address: { id: 42 } } }) });
+    calls.mockRejectedValueOnce(new TypeError('Network error'));
+    globalThis.fetch = calls as typeof fetch;
+    await expect(updateIpAddress(42, { user: 7, environment: 2 })).rejects.toMatchObject({ code: 'MISSING_ACTION_STATE' });
+    expect(calls).toHaveBeenCalledTimes(2);
+    expect(calls.mock.calls[1]?.[1]?.method).toBe('GET');
+  });
+
+  test('confirms a synchronous owner release only after both ownership fields are null', async () => {
+    globalThis.fetch = mockFetchOk({ ip_address: { id: 42, user: null, charged_environment: null } }) as typeof fetch;
+    await expect(updateIpAddress(42, { user: null })).resolves.toMatchObject({ data: { user: null, charged_environment: null } });
+    expect(vi.mocked(globalThis.fetch)).toHaveBeenCalledTimes(2);
+  });
+
+  test.each([
+    { id: 99, user: { id: 7 }, charged_environment: { id: 2 } },
+    { id: 42, user: { id: 8 }, charged_environment: { id: 2 } },
+    { id: 42, user: { id: 7 }, charged_environment: { id: 3 } },
+    { id: 42, user: { id: 7 } },
+  ])('keeps unverified ownership ambiguous (%j)', async (readback) => {
+    const fetch = mockFetchOk({ ip_address: readback });
+    fetch.mockResolvedValueOnce({ ok: true, json: async () => ({ status: true, response: { ip_address: { id: 42 } } }) });
+    globalThis.fetch = fetch as typeof globalThis.fetch;
+    await expect(updateIpAddress(42, { user: 7, environment: 2 })).rejects.toMatchObject({ code: 'MISSING_ACTION_STATE' });
+    expect(fetch.mock.calls).toHaveLength(2);
+  });
+
+  test.each([0, -1, 'invalid'])('does not reinterpret a malformed asynchronous receipt as synchronous (%j)', async (state) => {
+    globalThis.fetch = mockFetchOk({ ip_address: { id: 42, user: { id: 7 }, charged_environment: { id: 2 } }, _meta: { action_state_id: state } }) as typeof fetch;
+    await expect(updateIpAddress(42, { user: 7, environment: 2 })).rejects.toMatchObject({ code: 'MISSING_ACTION_STATE' });
+    expect(vi.mocked(globalThis.fetch)).toHaveBeenCalledTimes(1);
+  });
+
   test('host IP wrappers cover create, PTR update, assign, free and delete endpoints', async () => {
     globalThis.fetch = mockFetchOk({
       host_ip_address: { id: 9 },

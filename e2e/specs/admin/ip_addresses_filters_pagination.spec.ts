@@ -75,7 +75,7 @@ test('admin IP addresses traverse ascending API pages and paginate loaded rows l
   await expect(assignmentsAction).toHaveAttribute('aria-label', 'Assignment history');
   await expect(routeAction).toHaveAttribute('aria-label', 'Assign to VPS');
   await expect(routeAction).toHaveAttribute('title', 'Assign to VPS');
-  await expect(routeAction).toHaveAttribute('href', '/admin/ip-addresses/125#route');
+  await expect(routeAction).toHaveAttribute('href', '/admin/ip-addresses/125?action=assign#route');
   await expect(editAction).toHaveAttribute('aria-label', 'Edit');
   await expect(editAction).toHaveAttribute('href', '/admin/ip-addresses/125');
   await expect(incidentsAction).toHaveText('');

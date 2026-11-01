@@ -133,20 +133,6 @@
       }
     },
     {
-      "path": "src/pages/app/admin/IpAddressDetailPage.tsx",
-      "rule": "grown-over-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "facd7814605a02c3a6421c662d6a3535d5e9ad439cc91d5294fbbfa034e6ae94",
-      "old": 763,
-      "allowance": 776,
-      "rationale": "At the recorded source revision, this file already contained IP address detail and actions; extract the coherent section with focused behavior coverage before removing this exception.",
-      "owner": "WebUI implementation lead",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 763
-      }
-    },
-    {
       "path": "src/pages/app/admin/MigrationPlanDetailPage.tsx",
       "rule": "grown-over-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
