@@ -23,7 +23,7 @@ export type NetifMutation = VpsMutationSnapshot & { networkInterfaceId: number; 
 export type ToggleMutation = VpsMutationSnapshot & { enable: boolean; reason?: string };
 export type PtrMutation = VpsMutationSnapshot & { hostIpId: number; reverseRecordValue: string };
 export type HostMutation = VpsMutationSnapshot & { hostIpId: number };
-export type AssignHostMutation = HostMutation & { networkInterfaceId: number };
+export type AssignHostMutation = HostMutation & { parentInterfaceId: number };
 export type CreateHostsMutation = VpsMutationSnapshot & { ipId: number; addresses: string[] };
 export type IpMutation = VpsMutationSnapshot & { ipId: number; lockRef: ObjectRef; intent: LocalMutationIntent };
 export type OwnerMutation = IpMutation & { user: number | null; environment: number | null };
@@ -37,7 +37,7 @@ export interface NetworkRouteSummary {
   ipCount: number;
   assignedIpCount: number;
   unassignedIpCount: number;
-  routedIpCount: number;
+  routedIpCount: number | null;
   hostAddressCount: number;
   assignedHostAddressCount: number;
   ptrRecordCount: number;
@@ -186,8 +186,10 @@ export function ipHasInterface(ip: IpAddress): boolean {
   return idFromResourceRef(ip.network_interface as ResourceLike) !== null;
 }
 
-export function ipIsRouted(ip: IpAddress): boolean {
-  return ip.routed === true;
+export function ipIsRouted(ip: IpAddress): boolean | null {
+  if (ip.route_via === null) return false;
+  const id = ip.route_via?.id;
+  return typeof id === 'number' && Number.isSafeInteger(id) && id > 0 ? true : null;
 }
 
 export function routeStateForIp(ip: IpAddress, busy: boolean): NetworkRouteState {
@@ -228,7 +230,7 @@ export function buildNetworkRouteSummary(args: {
 }): NetworkRouteSummary {
   const disabledInterfaceCount = args.netifs.filter((ni) => ni.enable === false).length;
   const assignedIpCount = args.ips.filter(ipHasInterface).length;
-  const routedIpCount = args.ips.filter(ipIsRouted).length;
+  const routedIpCount = args.ips.some(ip => ipIsRouted(ip) === null) ? null : args.ips.filter(ip => ipIsRouted(ip) === true).length;
   const assignedHostAddressCount = args.hostAddresses.filter(hostAssigned).length;
   const ptrRecordCount = args.hostAddresses.filter((row) => hostPtrState(row) === 'set').length;
 

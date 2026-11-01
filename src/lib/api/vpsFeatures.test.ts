@@ -10,9 +10,9 @@ function mockFetchOk(response: unknown) {
 describe('VPS feature blocking mutation contracts', () => {
   test.each([
     ['single update', () => updateVpsFeature(12, 3, true)],
-    ['update all', () => updateVpsFeaturesAll(12, { quota: true })],
+    ['update all', () => updateVpsFeaturesAll(12, { tun: true })],
   ])('fails closed when %s omits its action-state id', async (_action, call) => {
-    apiWire.respond = mockFetchOk({ _meta: {} }) as unknown as typeof fetch;
+    apiWire.respond = mockFetchOk({ feature: {}, _meta: {} }) as unknown as typeof fetch;
     await expect(call()).rejects.toMatchObject({ code: 'MISSING_ACTION_STATE' });
   });
 });

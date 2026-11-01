@@ -19,8 +19,8 @@ export function filterDatasetPage(rows: Dataset[], query: string): Dataset[] {
       dataset.id,
       `#${dataset.id}`,
       dataset.name,
-      dataset.full_name,
-      dataset.label,
+      dataset['full_name'],
+      dataset['label'],
       ...resourceFields(dataset.vps, ['id', 'hostname']),
       ...resourceFields(dataset.user, ['id', 'login']),
     ];

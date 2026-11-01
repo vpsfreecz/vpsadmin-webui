@@ -31,7 +31,7 @@ import {
   updateDatasetExpansion,
   type DatasetExpansion,
 } from '../../../lib/api/datasets';
-import { getMetaActionStateId } from '../../../lib/api/haveapi';
+import { getMetaActionStateId } from '../../../lib/api/apiErrors';
 import { formatErrorMessage } from '../../../lib/errors';
 import { formatDateTime, formatDurationSeconds, formatMiB } from '../../../lib/format';
 import { useKeysetPagination } from '../../../lib/hooks/useKeysetPagination';
@@ -139,7 +139,7 @@ export function DatasetExpansionPage() {
       const added = parseExpansionGiB(form.addedSpaceGiB);
       const maxSeconds = parseExpansionDays(form.maxOverDays);
       if (added === null) throw new Error(t('dataset.expansion.validation.added_space'));
-      if (maxSeconds === null) throw new Error(t('dataset.expansion.validation.max_days'));
+      if (maxSeconds == null) throw new Error(t('dataset.expansion.validation.max_days'));
       if (form.mode === 'register') {
         const original = parseExpansionGiB(form.originalRefquotaGiB);
         if (original === null) throw new Error(t('dataset.expansion.validation.original_refquota'));

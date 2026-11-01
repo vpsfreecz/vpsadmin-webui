@@ -60,15 +60,14 @@ describe('VpsAccessModel', () => {
     expect(groups.map((group) => group.keys.map((key) => key.id))).toEqual([[1, 2], [3, 4]]);
   });
 
-  it('normalizes host key display fields from multiple API shapes', () => {
+  it('uses canonical host-key fingerprint fields without inventing key material', () => {
     const key: VpsSshHostKey = {
       algorithm: 'ssh-ed25519',
-      sha256_fingerprint: 'SHA256:host',
-      host_key: 'ssh-ed25519 AAAA',
+      fingerprint: 'SHA256:host',
     };
 
     expect(hostKeyDisplayType(key)).toBe('ssh-ed25519');
     expect(hostKeyDisplayFingerprint(key)).toBe('SHA256:host');
-    expect(hostKeyMaterial(key)).toBe('ssh-ed25519 AAAA');
+    expect(hostKeyMaterial(key)).toBe('');
   });
 });

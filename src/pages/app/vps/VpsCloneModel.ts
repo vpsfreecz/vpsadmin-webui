@@ -7,7 +7,6 @@ export type CloneForm = {
   node: string;
   location: string;
   hostname: string;
-  subdatasets: boolean;
   datasetPlans: boolean;
   resources: boolean;
   features: boolean;
@@ -26,7 +25,6 @@ export function defaultCloneForm(vps: Pick<Vps, 'id' | 'hostname'>, opts: { owne
     node: opts.nodeId ? String(opts.nodeId) : '',
     location: opts.locationId ? String(opts.locationId) : '',
     hostname: `${vpsHostname(vps)}-${vps.id}-clone`,
-    subdatasets: true,
     datasetPlans: true,
     resources: true,
     features: true,
@@ -42,7 +40,6 @@ export function isCloneTargetReady(form: Pick<CloneForm, 'user' | 'node' | 'loca
 export function buildVpsClonePayload(form: CloneForm, context: ClonePayloadContext): VpsClonePayload {
   const payload: VpsClonePayload = {
     hostname: form.hostname.trim() || undefined,
-    subdatasets: form.subdatasets,
     dataset_plans: form.datasetPlans,
     resources: form.resources,
     features: form.features,
@@ -77,8 +74,7 @@ export function cloneTargetDescription(form: CloneForm, context: ClonePayloadCon
 }
 
 export function cloneCopiedOptionKeys(form: CloneForm): string[] {
-  const keys: string[] = [];
-  if (form.subdatasets) keys.push('vps.lifecycle.clone.option.subdatasets');
+  const keys: string[] = ['vps.lifecycle.clone.option.subdatasets'];
   if (form.datasetPlans) keys.push('vps.lifecycle.clone.option.dataset_plans');
   if (form.resources) keys.push('vps.lifecycle.clone.option.resources');
   if (form.features) keys.push('vps.lifecycle.clone.option.features');

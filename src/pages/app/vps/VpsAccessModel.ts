@@ -57,15 +57,15 @@ export function findDuplicatePublicKeyGroups(keys: VpsPublicKey[]): DuplicatePub
 }
 
 export function hostKeyDisplayType(key: VpsSshHostKey): string {
-  return valueString(key.key_type) ?? valueString(key.type) ?? valueString(key.algorithm) ?? '—';
+  return valueString(key.algorithm) ?? '—';
 }
 
 export function hostKeyDisplayFingerprint(key: VpsSshHostKey): string {
-  return valueString(key.fingerprint) ?? valueString(key.sha256_fingerprint) ?? valueString(key.md5_fingerprint) ?? '—';
+  return valueString(key.fingerprint) ?? '—';
 }
 
 export function hostKeyMaterial(key: VpsSshHostKey): string {
-  return valueString(key.public_key) ?? valueString(key.key) ?? valueString(key.host_key) ?? '';
+  return ''; // The API exposes host-key fingerprints, not public-key material.
 }
 
 export function hostKeyMeta(key: VpsSshHostKey): string {

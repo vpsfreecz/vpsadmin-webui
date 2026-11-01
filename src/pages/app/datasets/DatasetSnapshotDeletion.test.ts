@@ -13,7 +13,7 @@ describe('snapshot deletion evidence', () => {
     [false, false, 'only_nas'],
   ])('checks exact primary=%s and backup=%s membership', async (primary, backup, expected) => {
     vi.mocked(fetchDatasets).mockImplementation(async (options) => ({
-      envelope: { status: true },
+      envelope: { status: true }, meta: {}, httpStatus: 200,
       data: (options?.role === 'primary' ? primary : backup) ? [{ id: 10, name: 'NAS' }] : [],
     }));
     expect(await readSnapshotDeletionState(10)).toBe(expected);
@@ -21,7 +21,7 @@ describe('snapshot deletion evidence', () => {
     expect(fetchDatasets).toHaveBeenCalledWith({ subtree: 10, toDepth: 0, role: 'backup', limit: 1 });
   });
   it('never treats another dataset or a failed query as evidence', async () => {
-    vi.mocked(fetchDatasets).mockResolvedValue({ envelope: { status: true }, data: [{ id: 99, name: 'other' }] });
+    vi.mocked(fetchDatasets).mockResolvedValue({ envelope: { status: true }, meta: {}, httpStatus: 200, data: [{ id: 99, name: 'other' }] });
     expect(await readSnapshotDeletionState(10)).toBe('unknown');
     vi.mocked(fetchDatasets).mockRejectedValue(new Error('read failed'));
     await expect(readSnapshotDeletionState(10)).rejects.toThrow('read failed');

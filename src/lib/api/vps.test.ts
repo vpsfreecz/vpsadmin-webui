@@ -246,7 +246,6 @@ describe('vps API wrappers', () => {
       user: 1,
       node: 5,
       hostname: 'source-12-clone',
-      subdatasets: true,
       dataset_plans: true,
       resources: true,
       features: false,
@@ -263,7 +262,6 @@ describe('vps API wrappers', () => {
         user: 1,
         node: 5,
         hostname: 'source-12-clone',
-        subdatasets: true,
         dataset_plans: true,
         resources: true,
         features: false,
@@ -279,7 +277,6 @@ describe('vps API wrappers', () => {
       hostname: 'source-12-playground',
       environment: 9,
       location: 2,
-      subdatasets: true,
       dataset_plans: true,
       resources: true,
       features: true,
@@ -296,7 +293,6 @@ describe('vps API wrappers', () => {
         hostname: 'source-12-playground',
         environment: 9,
         location: 2,
-        subdatasets: true,
         dataset_plans: true,
         resources: true,
         features: true,
@@ -306,7 +302,7 @@ describe('vps API wrappers', () => {
   });
 
   test('vpsSwapWith posts legacy swap payload', async () => {
-    apiWire.respond = mockFetchOk({ _meta: { action_state_id: 3370 } }) as unknown as typeof fetch;
+    apiWire.respond = mockFetchOk({ vps: {}, _meta: { action_state_id: 3370 } }) as unknown as typeof fetch;
 
     await vpsSwapWith(12, {
       vps: 14,
@@ -356,7 +352,7 @@ describe('vps API wrappers', () => {
   });
 
   test('vpsBoot posts legacy rescue boot payload', async () => {
-    apiWire.respond = mockFetchOk({ _meta: { action_state_id: 3870 } }) as unknown as typeof fetch;
+    apiWire.respond = mockFetchOk({ vps: {}, _meta: { action_state_id: 3870 } }) as unknown as typeof fetch;
 
     await vpsBoot(12, {
       os_template: 6,
@@ -377,7 +373,7 @@ describe('vps API wrappers', () => {
   });
 
   test('vpsReinstall posts legacy reinstall payload', async () => {
-    apiWire.respond = mockFetchOk({ _meta: { action_state_id: 4080 } }) as unknown as typeof fetch;
+    apiWire.respond = mockFetchOk({ vps: {}, _meta: { action_state_id: 4080 } }) as unknown as typeof fetch;
 
     await vpsReinstall(12, { os_template: 6 });
 
@@ -394,7 +390,7 @@ describe('vps API wrappers', () => {
   });
 
   test('vpsMigrate posts legacy migration payload', async () => {
-    apiWire.respond = mockFetchOk({ _meta: { action_state_id: 4250 } }) as unknown as typeof fetch;
+    apiWire.respond = mockFetchOk({ vps: {}, _meta: { action_state_id: 4250 } }) as unknown as typeof fetch;
 
     await vpsMigrate(12, {
       node: 7,
@@ -427,7 +423,7 @@ describe('vps API wrappers', () => {
   });
 
   test('vpsDelete sends lazy delete payload through vps namespace', async () => {
-    apiWire.respond = mockFetchOk({ _meta: { action_state_id: 4600 } }) as unknown as typeof fetch;
+    apiWire.respond = mockFetchOk({ vps: {}, _meta: { action_state_id: 4600 } }) as unknown as typeof fetch;
 
     await vpsDelete(12, { lazy: true });
 
@@ -456,7 +452,7 @@ describe('vps API wrappers', () => {
   });
 
   test('hard delete sends only the explicit lazy=false option', async () => {
-    apiWire.respond = mockFetchOk({ _meta: { action_state_id: 4600 } }) as unknown as typeof fetch;
+    apiWire.respond = mockFetchOk({ vps: {}, _meta: { action_state_id: 4600 } }) as unknown as typeof fetch;
     await vpsDelete(12, { lazy: false });
     const [, init] = lastFetchCall();
     expect(init?.method).toBe('DELETE');
@@ -483,13 +479,13 @@ describe('vps API wrappers', () => {
     let [url, init] = lastFetchCall();
     expect(new URL(url).pathname).toBe('/v7.0/vpses/12/console_token');
     expect(init?.method).toBe('POST');
-    expect(JSON.parse(String(init?.body))).toEqual({});
+    expect(JSON.parse(String(init?.body))).toEqual({ console_token: {} });
 
     await deleteConsoleToken(12);
 
     [url, init] = lastFetchCall();
     expect(new URL(url).pathname).toBe('/v7.0/vpses/12/console_token');
     expect(init?.method).toBe('DELETE');
-    expect(JSON.parse(String(init?.body))).toEqual({});
+    expect(JSON.parse(String(init?.body))).toEqual({ console_token: {} });
   });
 });

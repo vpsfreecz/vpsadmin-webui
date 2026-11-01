@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { HaveApiError } from '../../../lib/api/haveapi';
+import { HaveApiError } from '../../../lib/api/apiErrors';
 import type { Vps } from '../../../lib/api/vps';
 import {
   CONFIG_FIELD_META,

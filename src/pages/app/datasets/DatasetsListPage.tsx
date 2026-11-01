@@ -48,8 +48,12 @@ import { DatasetPageSearchEmpty, DatasetPageSearchNotice } from './DatasetPageSe
 import { filterDatasetPage } from './DatasetsListModel';
 
 function datasetLabel(ds: Dataset): string {
-  const label = ds.full_name ?? ds.name ?? ds.label;
+  const label = ds['full_name'] ?? ds.name ?? ds['label'];
   return String(label ?? `#${ds.id}`);
+}
+
+function datasetCount(dataset: Dataset, key: string): number | undefined {
+  const value = dataset[key]; return typeof value === 'number' && Number.isFinite(value) ? value : undefined;
 }
 
 function datasetObjectState(ds: Dataset): string {
@@ -65,7 +69,6 @@ function canonicalKey(raw: string): 'q' | 'user' | 'vps' | 'id' | null {
     .trim()
     .toLowerCase();
   if (!k) return null;
-
   if (k === 'q' || k === 'query' || k === 'search') return 'q';
   if (k === 'user' || k === 'owner') return 'user';
   if (k === 'vps' || k === 'vm') return 'vps';
@@ -187,9 +190,9 @@ export function DatasetsListPage(props: DatasetsListPageProps = {}) {
 
   const pageRows = datasetsQ.data ?? [];
   const rows = useMemo(() => filterDatasetPage(pageRows, qText), [pageRows, qText]);
-  const showSnapshotColumn = rows.some((ds) => hasValue(ds.snapshots_count));
-  const showMountColumn = rows.some((ds) => hasValue(ds.mount_count));
-  const showExportColumn = rows.some((ds) => hasValue(ds.export_count));
+  const showSnapshotColumn = rows.some((ds) => hasValue(ds['snapshots_count']));
+  const showMountColumn = rows.some((ds) => hasValue(ds['mount_count']));
+  const showExportColumn = rows.some((ds) => hasValue(ds['export_count']));
   const showStateColumn = rows.some((ds) => hasValue((ds as any).object_state));
   const showRelatedMeta = showSnapshotColumn || showMountColumn || showExportColumn;
 
@@ -710,17 +713,17 @@ export function DatasetsListPage(props: DatasetsListPageProps = {}) {
                       ) : null}
                       {showRelatedMeta && showSnapshotColumn ? (
                         <span>
-                          {t('dataset.field.snapshots')}: {ds.snapshots_count ?? 0}
+                          {t('dataset.field.snapshots')}: {datasetCount(ds, 'snapshots_count') ?? t('common.na')}
                         </span>
                       ) : null}
                       {showRelatedMeta && showMountColumn ? (
                         <span>
-                          {t('dataset.field.mounts')}: {ds.mount_count ?? 0}
+                          {t('dataset.field.mounts')}: {datasetCount(ds, 'mount_count') ?? t('common.na')}
                         </span>
                       ) : null}
                       {showRelatedMeta && showExportColumn ? (
                         <span>
-                          {t('dataset.field.exports')}: {ds.export_count ?? 0}
+                          {t('dataset.field.exports')}: {datasetCount(ds, 'export_count') ?? t('common.na')}
                         </span>
                       ) : null}
                     </div>
@@ -833,9 +836,9 @@ export function DatasetsListPage(props: DatasetsListPageProps = {}) {
                     <td className="px-3 py-2">
                       <DatasetUsage used={ds.used} refquota={ds.refquota} avail={ds.avail} />
                     </td>
-                    {showSnapshotColumn ? <td className="px-3 py-2">{ds.snapshots_count ?? 0}</td> : null}
-                    {showMountColumn ? <td className="px-3 py-2">{ds.mount_count ?? 0}</td> : null}
-                    {showExportColumn ? <td className="px-3 py-2">{ds.export_count ?? 0}</td> : null}
+                    {showSnapshotColumn ? <td className="px-3 py-2">{datasetCount(ds, 'snapshots_count') ?? t('common.na')}</td> : null}
+                    {showMountColumn ? <td className="px-3 py-2">{datasetCount(ds, 'mount_count') ?? t('common.na')}</td> : null}
+                    {showExportColumn ? <td className="px-3 py-2">{datasetCount(ds, 'export_count') ?? t('common.na')}</td> : null}
                     {showStateColumn ? (
                       <td className="px-3 py-2">
                         {state ? <Badge variant={state.variant}>{state.label}</Badge> : <span className="text-faint">—</span>}

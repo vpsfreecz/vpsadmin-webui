@@ -1,34 +1,24 @@
-import { expectArray, haveApiCall } from './haveapi';
-import type { ResourceRef } from './appTypes';
-import type { User } from './users';
+import type { MigrationPlan__CreateInput, MigrationPlan__IndexInput, MigrationPlan__VpsMigration__CreateInput, MigrationPlan__VpsMigration__IndexInput } from 'vpsadmin-typescript-client';
+import type { MigrationPlan__ShowOutput, MigrationPlan__VpsMigration__ShowOutput } from 'vpsadmin-typescript-client';
+import { narrowApiResult } from './apiOutput';
+import { fields, positiveId, reference, rows, object, type StorageReference } from './vpsStorageOutput';
 
-export interface MigrationPlan {
-  id: number;
-  state?: string;
-  stop_on_error?: boolean;
-  send_mail?: boolean;
-  concurrency?: number;
-  reason?: string;
-  user?: User | ResourceRef;
-  created_at?: string;
-  finished_at?: string;
-  [k: string]: unknown;
+export type MigrationPlan = Omit<MigrationPlan__ShowOutput, 'id' | 'user'> & { id: number; user?: StorageReference | null; } & Record<string, unknown>;
+function isMigrationPlan(value: unknown): value is MigrationPlan {
+  return fields(value, ['state', 'reason', 'created_at', 'finished_at'], ['concurrency'], ['stop_on_error', 'send_mail']) && positiveId(value['id'])
+    && reference(value['user']);
 }
 
-export interface VpsMigration {
-  id: number;
-  state?: string;
-  transaction_chain?: ResourceRef;
-  src_node?: ResourceRef;
-  vps?: ResourceRef;
-  dst_node?: ResourceRef;
-  maintenance_window?: boolean;
-  cleanup_data?: boolean;
-  created_at?: string;
-  started_at?: string;
-  finished_at?: string;
-  [k: string]: unknown;
+export type VpsMigration = Omit<MigrationPlan__VpsMigration__ShowOutput, 'id' | 'transaction_chain' | 'src_node' | 'vps' | 'dst_node'> & { id: number; transaction_chain?: StorageReference | null; src_node?: StorageReference | null; vps?: StorageReference | null; dst_node?: StorageReference | null; } & Record<string, unknown>;
+function isVpsMigration(value: unknown): value is VpsMigration {
+  return fields(value, ['state', 'created_at', 'started_at', 'finished_at'], [], ['maintenance_window', 'cleanup_data']) && positiveId(value['id'])
+    && reference(value['transaction_chain'])
+    && reference(value['src_node'])
+    && reference(value['vps'])
+    && reference(value['dst_node']);
 }
+
+import { getApi } from './sdk';
 
 // Migration plans (admin)
 
@@ -38,92 +28,73 @@ export async function fetchMigrationPlans(opts?: {
   state?: string;
   userId?: number;
 }) {
-  const params: Record<string, string | number | boolean> = {};
+  const params: MigrationPlan__IndexInput = {};
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
   if (opts?.state) params['state'] = opts.state;
   if (opts?.userId !== undefined) params['user'] = opts.userId;
 
-  const res = await haveApiCall<MigrationPlan[]>({
-    method: 'GET',
-    path: '/migration_plans',
-    namespace: 'migration_plan',
+  const res = await (await getApi()).migration_plan.index({
     params,
   });
 
-  return { ...res, data: expectArray<MigrationPlan>(res.data, 'migration_plans') };
+  return narrowApiResult(res, data => rows(data, isMigrationPlan), 'fetchMigrationPlans');
 }
 
 export async function fetchMigrationPlan(planId: number) {
-  return haveApiCall<MigrationPlan>({
-    method: 'GET',
-    path: `/migration_plans/${planId}`,
+  const res = await (await getApi()).migration_plan.show({
+    path: { migration_plan_id: planId },
   });
+  return narrowApiResult(res, data => object(data, isMigrationPlan), 'fetchMigrationPlan');
 }
 
-export async function createMigrationPlan(opts?: {
-  stop_on_error?: boolean;
-  send_mail?: boolean;
-  concurrency?: number;
-  reason?: string;
-}) {
-  return haveApiCall<MigrationPlan>({
-    method: 'POST',
-    path: `/migration_plans`,
-    namespace: 'migration_plan',
+export async function createMigrationPlan(opts?: MigrationPlan__CreateInput) {
+  const res = await (await getApi()).migration_plan.create({
     params: opts,
   });
+  return narrowApiResult(res, data => object(data, isMigrationPlan), 'createMigrationPlan');
 }
 
 export async function createMigrationPlanVpsMigration(
   planId: number,
-  opts: {
-    vps: number;
-    dst_node: number;
-    maintenance_window?: boolean;
-    cleanup_data?: boolean;
-  }
+  opts: MigrationPlan__VpsMigration__CreateInput
 ) {
-  return haveApiCall<VpsMigration>({
-    method: 'POST',
-    path: `/migration_plans/${planId}/vps_migrations`,
-    namespace: 'vps_migration',
+  const res = await (await getApi()).migration_plan.vps_migration.create({
+    path: { migration_plan_id: planId },
     params: opts,
   });
+  return narrowApiResult(res, data => object(data, isVpsMigration), 'createMigrationPlanVpsMigration');
 }
 
 export async function fetchMigrationPlanVpsMigrations(planId: number, opts?: { limit?: number; fromId?: number }) {
-  const params: Record<string, string | number | boolean> = {};
+  const params: MigrationPlan__VpsMigration__IndexInput = {};
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
 
-  const res = await haveApiCall<VpsMigration[]>({
-    method: 'GET',
-    path: `/migration_plans/${planId}/vps_migrations`,
-    namespace: 'vps_migration',
+  const res = await (await getApi()).migration_plan.vps_migration.index({
+    path: { migration_plan_id: planId },
     params,
   });
 
-  return { ...res, data: expectArray<VpsMigration>(res.data, 'vps_migrations') };
+  return narrowApiResult(res, data => rows(data, isVpsMigration), 'fetchMigrationPlanVpsMigrations');
 }
 
 export async function startMigrationPlan(planId: number) {
-  return haveApiCall<MigrationPlan>({
-    method: 'POST',
-    path: `/migration_plans/${planId}/start`,
+  const res = await (await getApi()).migration_plan.start({
+    path: { migration_plan_id: planId },
   });
+  return narrowApiResult(res, data => object(data, isMigrationPlan), 'startMigrationPlan');
 }
 
 export async function cancelMigrationPlan(planId: number) {
-  return haveApiCall<MigrationPlan>({
-    method: 'POST',
-    path: `/migration_plans/${planId}/cancel`,
+  const res = await (await getApi()).migration_plan.cancel({
+    path: { migration_plan_id: planId },
   });
+  return narrowApiResult(res, data => object(data, isMigrationPlan), 'cancelMigrationPlan');
 }
 
 export async function deleteMigrationPlan(planId: number) {
-  return haveApiCall<void>({
-    method: 'DELETE',
-    path: `/migration_plans/${planId}`,
+  return (await getApi()).migration_plan.delete({
+    path: { migration_plan_id: planId },
   });
 }

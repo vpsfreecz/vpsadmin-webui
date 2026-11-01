@@ -113,7 +113,7 @@ export function DatasetLookupInput(props: {
         >
           {suggestions.map((dataset) => {
             const id = Number(dataset.id);
-            const name = String(dataset.full_name ?? dataset.name ?? formatLookupId(id));
+            const name = String(dataset['full_name'] ?? dataset.name ?? formatLookupId(id));
             return (
               <button
                 type="button"

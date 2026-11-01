@@ -1,42 +1,29 @@
-import { expectArray, haveApiCall } from './haveapi';
-import type { ResourceRef } from './appTypes';
+import type { Vps__MaintenanceWindow__ShowOutput, Vps__MaintenanceWindow__UpdateInput, Vps__MaintenanceWindow__UpdateAllInput } from 'vpsadmin-typescript-client';
+import { getApi } from './sdk';
+import { narrowApiResult } from './apiOutput';
+import { fields, object, rows } from './vpsStorageOutput';
 
-export interface VpsMaintenanceWindow {
-  id: number;
-  vps?: ResourceRef;
-  /** API weekday: Sunday = 0, Monday = 1, …, Saturday = 6. */
-  weekday: number;
-  is_open: boolean;
-  opens_at?: number | null;
-  closes_at?: number | null;
-  [k: string]: unknown;
+/** API weekday: Sunday = 0, Monday = 1, …, Saturday = 6. */
+export type VpsMaintenanceWindow = Vps__MaintenanceWindow__ShowOutput & { weekday: number; is_open: boolean };
+function isWindow(value: unknown): value is VpsMaintenanceWindow {
+  return fields(value, [], ['opens_at', 'closes_at'])
+    && typeof value['weekday'] === 'number' && Number.isInteger(value['weekday']) && value['weekday'] >= 0 && value['weekday'] <= 6
+    && typeof value['is_open'] === 'boolean';
 }
 
 export async function fetchVpsMaintenanceWindows(vpsId: number) {
-  const res = await haveApiCall<VpsMaintenanceWindow[]>({
-    method: 'GET',
-    path: `/vpses/${vpsId}/maintenance_windows`,
-  });
-  return {
-    ...res,
-    data: expectArray<VpsMaintenanceWindow>(res.data, `vpses/${vpsId}/maintenance_windows`),
-  };
+  const res = await (await getApi()).vps.maintenance_window.index({ path: { vps_id: vpsId } });
+  return narrowApiResult(res, data => rows(data, isWindow), 'VPS maintenance windows');
 }
 
-export async function updateVpsMaintenanceWindow(vpsId: number, weekday: number, params: Record<string, unknown>) {
-  return haveApiCall<VpsMaintenanceWindow>({
-    method: 'PUT',
-    path: `/vpses/${vpsId}/maintenance_windows/${weekday}`,
-    namespace: 'maintenance_window',
-    params,
+export async function updateVpsMaintenanceWindow(vpsId: number, weekday: number, params: Vps__MaintenanceWindow__UpdateInput) {
+  const res = await (await getApi()).vps.maintenance_window.update({
+    path: { vps_id: vpsId, maintenance_window_id: weekday }, params,
   });
+  return narrowApiResult(res, data => object(data, isWindow), 'VPS maintenance window');
 }
 
-export async function updateAllVpsMaintenanceWindows(vpsId: number, params: Record<string, unknown>) {
-  return haveApiCall<void>({
-    method: 'PUT',
-    path: `/vpses/${vpsId}/maintenance_windows`,
-    namespace: 'maintenance_window',
-    params,
-  });
+export async function updateAllVpsMaintenanceWindows(vpsId: number, params: Vps__MaintenanceWindow__UpdateAllInput) {
+  const res = await (await getApi()).vps.maintenance_window.update_all({ path: { vps_id: vpsId }, params });
+  return narrowApiResult(res, data => rows(data, isWindow), 'VPS maintenance windows');
 }

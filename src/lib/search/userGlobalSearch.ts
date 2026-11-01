@@ -228,7 +228,7 @@ async function fetchCachedDnsZones(opts: {
 }
 
 function associatedVps(ip: IpAddress): { id: number; hostname?: string } | null {
-  const direct = ip.vps;
+  const direct = ip.network_interface?.vps;
   const networkInterface = ip.network_interface;
   const nested = networkInterface && typeof networkInterface === 'object'
     ? (networkInterface as { vps?: unknown }).vps

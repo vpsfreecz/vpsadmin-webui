@@ -93,7 +93,8 @@ export function VpsReinstallCard(props: {
   const { t } = useI18n();
   const tpl = selectedTemplate(props.form, props.templates);
   const target = String(props.vps.hostname || `#${props.vps.id}`).trim();
-  const ownerId = props.vps.user?.id;
+  const owner = props.vps.user?.id;
+  const ownerId = typeof owner === 'number' && Number.isSafeInteger(owner) && owner > 0 ? owner : undefined;
   const userDataMissing = Boolean(initializationError(props.form, ownerId));
   const userDataWillRun = props.form.userDataEnabled && !userDataMissing;
   const disabled = !props.form.osTemplate || userDataMissing || !props.gate.allowed;

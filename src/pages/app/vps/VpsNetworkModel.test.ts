@@ -9,20 +9,26 @@ import {
   hostPtrState,
   ipAddressLabel,
   routeStateForIp,
+  ipIsRouted,
   validateHostAddressInput,
   validatePtrValue,
 } from './VpsNetworkModel';
 
 describe('VpsNetworkModel', () => {
+  it('keeps an omitted via-host relation unknown instead of inventing a routed flag', () => {
+    expect(ipIsRouted({ id: 1 })).toBeNull();
+    expect(ipIsRouted({ id: 1, route_via: {} })).toBeNull();
+    expect(buildNetworkRouteSummary({ netifs: [], ips: [{ id: 1 }], hostAddresses: [] }).routedIpCount).toBeNull();
+  });
   it('groups routes by interface and summarizes daily network state', () => {
     const netifs: NetworkInterface[] = [
       { id: 10, name: 'eth0', enable: true },
       { id: 11, name: 'eth1', enable: false },
     ];
     const ips: IpAddress[] = [
-      { id: 1, addr: '198.51.100.10', network_interface: netifs[0], routed: true },
-      { id: 2, addr: '198.51.100.11', network_interface: netifs[1], routed: false },
-      { id: 3, addr: '198.51.100.12', routed: false },
+      { id: 1, addr: '198.51.100.10', network_interface: netifs[0], route_via: { id: 50 } },
+      { id: 2, addr: '198.51.100.11', network_interface: netifs[1], route_via: null },
+      { id: 3, addr: '198.51.100.12', route_via: null },
     ];
     const hosts: HostIpAddress[] = [
       { id: 50, addr: '198.51.100.10', assigned: true, reverse_record_value: 'vps.example.test.' },
@@ -50,9 +56,9 @@ describe('VpsNetworkModel', () => {
 
   it('labels route and PTR states for badges', () => {
     const iface: NetworkInterface = { id: 1, name: 'eth0' };
-    const routed: IpAddress = { id: 1, addr: '2001:db8::10', network_interface: iface, routed: true };
-    const active: IpAddress = { id: 2, addr: '198.51.100.10', network_interface: iface, routed: false };
-    const detached: IpAddress = { id: 3, addr: '198.51.100.11', routed: false };
+    const routed: IpAddress = { id: 1, addr: '2001:db8::10', network_interface: iface, route_via: { id: 50 } };
+    const active: IpAddress = { id: 2, addr: '198.51.100.10', network_interface: iface, route_via: null };
+    const detached: IpAddress = { id: 3, addr: '198.51.100.11', route_via: null };
 
     expect(ipAddressLabel(routed)).toBe('2001:db8::10');
     expect(routeStateForIp(routed, false)).toBe('routed');

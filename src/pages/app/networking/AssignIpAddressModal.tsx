@@ -10,7 +10,7 @@ import { Alert } from '../../../components/ui/Alert';
 import { Button } from '../../../components/ui/Button';
 import { Modal } from '../../../components/ui/Modal';
 import { Select } from '../../../components/ui/Select';
-import { getMetaActionStateId, isAmbiguousMutationError } from '../../../lib/api/haveapi';
+import { getMetaActionStateId, isAmbiguousMutationError } from '../../../lib/api/apiErrors';
 import {
   assignIpAddressRoute,
   assignIpAddressRouteWithHostAddress,

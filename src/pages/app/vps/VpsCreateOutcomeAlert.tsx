@@ -3,7 +3,7 @@ import React from 'react';
 import { useI18n } from '../../../app/i18n';
 import { Alert } from '../../../components/ui/Alert';
 import { Button } from '../../../components/ui/Button';
-import { isMissingActionStateError } from '../../../lib/api/haveapi';
+import { isMissingActionStateError } from '../../../lib/api/apiErrors';
 
 export function VpsCreateOutcomeAlert(props: {
   phase: 'uncertain' | 'accepted';

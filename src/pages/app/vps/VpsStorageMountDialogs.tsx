@@ -33,29 +33,19 @@ function boolLabel(t: ReturnType<typeof useI18n>['t'], value: boolean): string {
 
 function diffFieldLabel(t: ReturnType<typeof useI18n>['t'], field: MountDiffField): string {
   switch (field) {
-    case 'mountpoint':
-      return t('vps.storage.review.field.mountpoint');
-    case 'type':
-      return t('vps.storage.review.field.type');
-    case 'mode':
-      return t('vps.storage.review.field.mode');
     case 'on_start_fail':
       return t('vps.storage.review.field.on_start_fail');
     case 'enabled':
       return t('vps.storage.review.field.enabled');
     case 'master_enabled':
       return t('vps.storage.review.field.master_enabled');
-    case 'use_default_map':
-      return t('vps.storage.review.field.use_default_map');
   }
 }
 
-function valueLabel(t: ReturnType<typeof useI18n>['t'], value: string | boolean): string {
+function valueLabel(t: ReturnType<typeof useI18n>['t'], value: string | boolean | undefined): string {
   if (typeof value === 'boolean') return boolLabel(t, value);
   if (value === 'rw') return t('vps.storage.mode.rw');
   if (value === 'ro') return t('vps.storage.mode.ro');
-  if (value === 'nfs') return t('vps.storage.type.nfs');
-  if (value === 'bind') return t('vps.storage.type.bind');
   if (value === 'ignore') return t('vps.storage.on_start_fail.ignore.label');
   if (value === 'umount') return t('vps.storage.on_start_fail.umount.label');
   if (value === 'fail') return t('vps.storage.on_start_fail.fail.label');
@@ -89,7 +79,7 @@ function MountReviewPanel(props: { draft: MountDraft; canAdmin: boolean; operati
         <div>
           <div className="text-xs text-faint">{t('vps.storage.review.field.access')}</div>
           <div className="font-medium">
-            {valueLabel(t, draft.type)} · {valueLabel(t, draft.mode)}
+            {valueLabel(t, draft.mode)}
           </div>
         </div>
         <div>
@@ -99,11 +89,10 @@ function MountReviewPanel(props: { draft: MountDraft; canAdmin: boolean; operati
       </div>
 
       <ul className="list-disc space-y-1 pl-5 text-xs text-muted">
-        <li>{t(modeRiskKey)}</li>
-        <li>{t(startRiskKey)}</li>
-        <li>{draft.enabled ? t('vps.storage.review.risk.enabled') : t('vps.storage.review.risk.disabled')}</li>
-        <li>{draft.useDefaultMap ? t('vps.storage.review.risk.default_map') : t('vps.storage.review.risk.custom_map')}</li>
-        {props.canAdmin ? <li>{draft.masterEnabled ? t('vps.storage.review.risk.master_enabled') : t('vps.storage.review.risk.master_disabled')}</li> : null}
+        {draft.mode ? <li>{t(modeRiskKey)}</li> : null}
+        {draft.onStartFail ? <li>{t(startRiskKey)}</li> : null}
+        {draft.enabled !== undefined ? <li>{draft.enabled ? t('vps.storage.review.risk.enabled') : t('vps.storage.review.risk.disabled')}</li> : null}
+        {props.canAdmin && props.operation === 'edit' && draft.masterEnabled !== undefined ? <li>{draft.masterEnabled ? t('vps.storage.review.risk.master_enabled') : t('vps.storage.review.risk.master_disabled')}</li> : null}
       </ul>
 
       {props.diff && props.diff.length > 0 ? (
@@ -184,6 +173,7 @@ function MountFormFields(props: {
           <Input
             testId={`vps.storage.mounts.${props.mode}.mountpoint`}
             value={draft.mountpoint}
+            disabled={props.mode === 'edit'}
             onChange={(e) => props.onDraftPatch({ mountpoint: e.target.value })}
             placeholder="/mnt/data"
             autoComplete="off"
@@ -191,27 +181,14 @@ function MountFormFields(props: {
         </div>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div>
-          <div className="text-xs font-medium text-muted">{t(`vps.storage.${props.mode}.field.type`)}</div>
-          <div className="mt-1">
-            <Select
-              testId={`vps.storage.mounts.${props.mode}.type`}
-              value={draft.type}
-              onChange={(e) => props.onDraftPatch({ type: e.target.value === 'bind' ? 'bind' : 'nfs' })}
-              options={[
-                { value: 'nfs', label: t('vps.storage.type.nfs') },
-                { value: 'bind', label: t('vps.storage.type.bind') },
-              ]}
-            />
-          </div>
-        </div>
+      <div>
         <div>
           <div className="text-xs font-medium text-muted">{t(`vps.storage.${props.mode}.field.mode`)}</div>
           <div className="mt-1">
             <Select
               testId={`vps.storage.mounts.${props.mode}.mode`}
-              value={draft.mode}
+              value={draft.mode ?? ''}
+              disabled={props.mode === 'edit'}
               onChange={(e) => props.onDraftPatch({ mode: e.target.value === 'ro' ? 'ro' : 'rw' })}
               options={[
                 { value: 'rw', label: t('vps.storage.mode.rw') },
@@ -227,7 +204,7 @@ function MountFormFields(props: {
         <div className="mt-1">
           <Select
             testId={`vps.storage.mounts.${props.mode}.on_start_fail`}
-            value={draft.onStartFail}
+            value={draft.onStartFail ?? ''}
             onChange={(e) => props.onDraftPatch({ onStartFail: e.target.value === 'umount' || e.target.value === 'fail' ? e.target.value : 'ignore' })}
             options={props.startFailOptions.map((option) => ({ value: option.value, label: option.label }))}
           />
@@ -240,19 +217,21 @@ function MountFormFields(props: {
           <input
             data-testid={`vps.storage.mounts.${props.mode}.enabled`}
             type="checkbox"
-            checked={draft.enabled}
+            checked={draft.enabled ?? false}
+            disabled={props.mode === 'edit' && draft.enabled === undefined}
             onChange={(e) => props.onDraftPatch({ enabled: e.target.checked })}
             className="h-4 w-4 rounded border-border bg-surface text-accent focus:ring-2 focus:ring-focus/35 focus:ring-offset-2 focus:ring-offset-bg"
           />
           <span>{t(`vps.storage.${props.mode}.field.enabled`)}</span>
         </label>
 
-        {props.canAdmin ? (
+        {props.canAdmin && props.mode === 'edit' ? (
           <label className="flex items-center gap-2 text-sm">
             <input
               data-testid={`vps.storage.mounts.${props.mode}.master_enabled`}
               type="checkbox"
-              checked={draft.masterEnabled}
+              checked={draft.masterEnabled ?? false}
+              disabled={draft.masterEnabled === undefined}
               onChange={(e) => props.onDraftPatch({ masterEnabled: e.target.checked })}
               className="h-4 w-4 rounded border-border bg-surface text-accent focus:ring-2 focus:ring-focus/35 focus:ring-offset-2 focus:ring-offset-bg"
             />
@@ -260,16 +239,6 @@ function MountFormFields(props: {
           </label>
         ) : null}
 
-        <label className="flex items-center gap-2 text-sm">
-          <input
-            data-testid={`vps.storage.mounts.${props.mode}.use_default_map`}
-            type="checkbox"
-            checked={draft.useDefaultMap}
-            onChange={(e) => props.onDraftPatch({ useDefaultMap: e.target.checked })}
-            className="h-4 w-4 rounded border-border bg-surface text-accent focus:ring-2 focus:ring-focus/35 focus:ring-offset-2 focus:ring-offset-bg"
-          />
-          <span>{t(`vps.storage.${props.mode}.field.use_default_map`)}</span>
-        </label>
       </div>
     </div>
   );

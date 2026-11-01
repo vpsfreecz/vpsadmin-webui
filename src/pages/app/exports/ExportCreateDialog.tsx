@@ -10,7 +10,7 @@ import { useToasts } from '../../../app/toasts';
 import { useChrome } from '../../../components/layout/ChromeContext';
 import { fetchDataset, fetchDatasetSnapshots, type Snapshot } from '../../../lib/api/datasets';
 import { createExport } from '../../../lib/api/exports';
-import { getMetaActionStateId } from '../../../lib/api/haveapi';
+import { getMetaActionStateId } from '../../../lib/api/apiErrors';
 import { objectRef } from '../../../lib/objectRef';
 
 import { ExportCreateDrawer } from './ExportCreateDrawer';
@@ -92,7 +92,7 @@ export function ExportCreateDialog(props: {
           title: t('scope.mismatch.title'),
           body: t('scope.mismatch.body', {
             object: t('object_kind.dataset'),
-            label: `“${String(selectedDatasetQ.data.full_name ?? selectedDatasetQ.data.name ?? `#${selectedDatasetId}`)}”`,
+            label: `“${String(selectedDatasetQ.data['full_name'] ?? selectedDatasetQ.data.name ?? `#${selectedDatasetId}`)}”`,
           }),
         }
       : undefined;

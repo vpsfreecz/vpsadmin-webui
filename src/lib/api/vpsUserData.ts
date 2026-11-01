@@ -1,5 +1,16 @@
-import { expectArray, haveApiCall, requireActionStateResult } from './haveapi';
-import type { ResourceRef } from './app';
+import type { VpsUserData__CreateInput, VpsUserData__UpdateInput } from 'vpsadmin-typescript-client';
+import type { VpsUserData__ShowOutput } from 'vpsadmin-typescript-client';
+import { narrowApiResult } from './apiOutput';
+import { fields, positiveId, reference, rows, object, type StorageReference } from './vpsStorageOutput';
+
+export type VpsUserData = Omit<VpsUserData__ShowOutput, 'id' | 'user'> & { id: number; user?: StorageReference | null; } & Record<string, unknown>;
+function isVpsUserData(value: unknown): value is VpsUserData {
+  return fields(value, ['label', 'format', 'content', 'created_at', 'updated_at'], [], []) && positiveId(value['id'])
+    && reference(value['user']);
+}
+
+import { getApi } from './sdk';
+import { requireActionStateResult } from './apiErrors';
 
 export type VpsUserDataFormat =
   | 'script'
@@ -9,102 +20,65 @@ export type VpsUserDataFormat =
   | 'nixos_flake_configuration'
   | 'nixos_flake_uri';
 
-export interface VpsUserData {
-  id: number;
-  user?: ResourceRef;
-  label: string;
-  format: VpsUserDataFormat | string;
-  content?: string;
-  created_at?: string;
-  updated_at?: string;
-  [k: string]: unknown;
-}
-
 export async function fetchVpsUserDataList(opts?: {
   user?: number;
   format?: string;
-  q?: string;
   limit?: number;
   fromId?: number | null;
-}): Promise<{ data: VpsUserData[]; meta?: Record<string, unknown> }> {
-  const res = await haveApiCall<unknown>({
-    method: 'GET',
-    path: '/vps_user_data',
-    namespace: 'vps_user_data',
+}) {
+  const res = await (await getApi()).vps_user_data.index({
     params: {
       user: opts?.user,
       format: opts?.format,
-      q: opts?.q,
       limit: opts?.limit,
       from_id: opts?.fromId ?? undefined,
     },
   });
 
-  return {
-    data: expectArray<VpsUserData>(res.data as any, 'vps_user_data.index'),
-    meta: res.meta,
-  };
+  return narrowApiResult(res, data => rows(data, isVpsUserData), 'fetchVpsUserDataList');
 }
 
-export async function fetchVpsUserData(id: number): Promise<{ data: VpsUserData; meta?: Record<string, unknown> }> {
-  const res = await haveApiCall<VpsUserData>({
-    method: 'GET',
-    path: `/vps_user_data/${id}`,
+export async function fetchVpsUserData(id: number) {
+  const res = await (await getApi()).vps_user_data.show({
+    path: { vps_user_data_id: id },
   });
 
-  return { data: res.data as any, meta: res.meta };
+  return narrowApiResult(res, data => object(data, isVpsUserData), 'fetchVpsUserData');
 }
 
-export async function createVpsUserData(payload: {
-  user?: number;
-  label: string;
-  format: string;
-  content: string;
-}): Promise<{ data: VpsUserData; meta?: Record<string, unknown> }> {
-  const res = await haveApiCall<VpsUserData>({
-    method: 'POST',
-    path: '/vps_user_data',
-    namespace: 'vps_user_data',
-    params: payload as any,
+export async function createVpsUserData(payload: VpsUserData__CreateInput) {
+  const res = await (await getApi()).vps_user_data.create({
+    params: payload,
   });
 
-  return { data: res.data as any, meta: res.meta };
+  return narrowApiResult(res, data => object(data, isVpsUserData), 'createVpsUserData');
 }
 
 export async function updateVpsUserData(
   id: number,
-  payload: {
-    label?: string;
-    format?: string;
-    content?: string;
-  }
-): Promise<{ data: VpsUserData; meta?: Record<string, unknown> }> {
-  const res = await haveApiCall<VpsUserData>({
-    method: 'PUT',
-    path: `/vps_user_data/${id}`,
-    namespace: 'vps_user_data',
-    params: payload as any,
+  payload: VpsUserData__UpdateInput
+) {
+  const res = await (await getApi()).vps_user_data.update({
+    path: { vps_user_data_id: id },
+    params: payload,
   });
 
-  return { data: res.data as any, meta: res.meta };
+  return narrowApiResult(res, data => object(data, isVpsUserData), 'updateVpsUserData');
 }
 
-export async function deleteVpsUserData(id: number): Promise<void> {
-  await haveApiCall<null>({
-    method: 'DELETE',
-    path: `/vps_user_data/${id}`,
+export async function deleteVpsUserData(id: number) {
+  return (await getApi()).vps_user_data.delete({
+    path: { vps_user_data_id: id },
   });
 }
 
-export async function deployVpsUserData(id: number, vpsId: number): Promise<{ meta?: Record<string, unknown> }> {
-  const res = await haveApiCall<null>({
-    method: 'POST',
-    path: `/vps_user_data/${id}/deploy`,
-    namespace: 'vps_user_data',
+export async function deployVpsUserData(id: number, vpsId: number) {
+  const res = await (await getApi()).vps_user_data.deploy({
+    path: { vps_user_data_id: id },
     params: {
       vps: vpsId,
     },
   });
 
-  return requireActionStateResult({ meta: res.meta }, 'VPS user-data deployment');
+  return requireActionStateResult(res, 'VPS user-data deployment');
 }

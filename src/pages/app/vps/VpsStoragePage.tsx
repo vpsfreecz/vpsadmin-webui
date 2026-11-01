@@ -1,3 +1,4 @@
+import type { Vps__Mount__CreateInput } from 'vpsadmin-typescript-client';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -9,7 +10,7 @@ import { useObjectScope } from '../../../app/objectScope';
 import { useChrome } from '../../../components/layout/ChromeContext';
 import { Alert } from '../../../components/ui/Alert';
 import { fetchDataset, updateDataset } from '../../../lib/api/datasets';
-import { getMetaActionStateId, isMissingActionStateError } from '../../../lib/api/haveapi';
+import { getMetaActionStateId, isMissingActionStateError } from '../../../lib/api/apiErrors';
 import { datasetCapabilities, gateDatasetAction } from '../../../lib/gates/dataset';
 import { createVpsMount, deleteVpsMount, fetchVpsMounts, findDatasetByName, updateVpsMount, type Dataset, type VpsMount } from '../../../lib/api/vpsMounts';
 import { gateVpsMutation } from '../../../lib/gates/vps';
@@ -84,7 +85,7 @@ export function VpsStoragePage() {
   };
 
   const createMountM = useMutation({
-    mutationFn: async (variables: VpsMutationSnapshot & { params: Record<string, unknown> }) => {
+    mutationFn: async (variables: VpsMutationSnapshot & { params: Vps__Mount__CreateInput }) => {
       await preflight(variables);
       return createVpsMount(variables.vpsId, variables.params);
     },
@@ -175,7 +176,6 @@ export function VpsStoragePage() {
 
   const busyLocal = busyLocalLock || createMountM.isPending || updateMountM.isPending || deleteMountM.isPending;
   const gate = gateVpsMutation({ vps, busyLocal, busyTransaction });
-
   const [draft, setDraft] = useState<MountDraft>(() => defaultMountDraft());
   const patchDraft = (patch: Partial<MountDraft>) => setDraft((current) => ({ ...current, ...patch }));
 

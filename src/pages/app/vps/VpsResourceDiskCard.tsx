@@ -15,7 +15,7 @@ import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
 import { Input } from '../../../components/ui/Input';
 import { Spinner } from '../../../components/ui/Spinner';
 import { fetchDataset, updateDataset } from '../../../lib/api/datasets';
-import { getMetaActionStateId, isMissingActionStateError, requireActionStateResult } from '../../../lib/api/haveapi';
+import { getMetaActionStateId, isMissingActionStateError, requireActionStateResult } from '../../../lib/api/apiErrors';
 import { fetchActiveTransactionChains } from '../../../lib/api/transactions';
 import { gateDatasetAction } from '../../../lib/gates/dataset';
 import { formatMiB } from '../../../lib/format';

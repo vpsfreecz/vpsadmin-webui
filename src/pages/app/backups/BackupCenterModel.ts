@@ -54,7 +54,7 @@ export function resourceLabel(value: unknown, fallback = '—'): string {
 }
 
 export function datasetBackupLabel(dataset: Dataset): string {
-  return String(dataset.label ?? dataset.full_name ?? dataset.name ?? `#${dataset.id}`);
+  return String(dataset['label'] ?? dataset['full_name'] ?? dataset.name ?? `#${dataset.id}`);
 }
 
 export function datasetBackupKind(dataset: Dataset): 'vps' | 'nas' {
@@ -73,8 +73,8 @@ export function filterBackupDatasets(datasets: Dataset[], query: string): Datase
     const haystack = [
       dataset.id,
       dataset.name,
-      dataset.full_name,
-      dataset.label,
+      dataset['full_name'],
+      dataset['label'],
       resourceLabel(dataset.vps, ''),
     ]
       .filter(Boolean)

@@ -26,7 +26,7 @@ import {
   type Dataset,
   type DatasetEditablePayload,
 } from '../../../lib/api/datasets';
-import { getMetaActionStateId } from '../../../lib/api/haveapi';
+import { getMetaActionStateId } from '../../../lib/api/apiErrors';
 import { datasetCapabilities, gateDatasetAction } from '../../../lib/gates/dataset';
 import { resourceId } from '../../../lib/resources';
 

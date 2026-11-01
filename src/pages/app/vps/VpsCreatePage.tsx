@@ -14,10 +14,10 @@ import { Card, CardBody, CardHeader } from '../../../components/ui/Card';
 import { ErrorState } from '../../../components/ui/ErrorState';
 import { LoadingState } from '../../../components/ui/LoadingState';
 import { fetchDefaultObjectClusterResources } from '../../../lib/api/clusterResources';
-import { isAmbiguousMutationError, isMissingActionStateError } from '../../../lib/api/haveapi';
+import { isAmbiguousMutationError, isMissingActionStateError } from '../../../lib/api/apiErrors';
 import { fetchLocations } from '../../../lib/api/infra';
 import { fetchNodes } from '../../../lib/api/nodes';
-import { fetchOsTemplates } from '../../../lib/api/osTemplates';
+import { fetchOsTemplates, isOsTemplateAvailable, fetchOsTemplate } from '../../../lib/api/osTemplates';
 import { fetchUser } from '../../../lib/api/users';
 import { createVps } from '../../../lib/api/vps';
 import { vpsCreatePageSessionId } from '../../../lib/vpsCreatePageSession';
@@ -140,8 +140,8 @@ export function VpsCreatePage() {
     enabled: needsAdminPayload && selectedLocationId !== undefined,
   });
   const templatesQ = useQuery({
-    queryKey: ['os_templates', { limit: 500, enabled: true, hypervisorType: 'vpsadminos' }],
-    queryFn: async () => (await fetchOsTemplates({ limit: 500, enabled: true, hypervisorType: 'vpsadminos' })).data,
+    queryKey: ['os_templates', auth.user?.id, auth.role, { limit: 500, hypervisorType: 'vpsadminos' }],
+    queryFn: async () => (await fetchOsTemplates({ limit: 500, hypervisorType: 'vpsadminos' })).data.filter(template => isOsTemplateAvailable(template, auth.role)),
   });
   const defaultResourcesQ = useQuery({
     queryKey: ['default_object_cluster_resources', { environment: selectedEnvironmentId ?? null, className: 'Vps' }],
@@ -186,7 +186,11 @@ export function VpsCreatePage() {
   const canSubmit = validationKeys.length === 0;
   // audit:ignore missing-local-lock missing-local-lock-release -- create uses its own durable receipt before a VPS id exists.
   const createM = useMutation({
-    mutationFn: (variables: CreateMutationVariables) => createVps(variables.payload),
+    mutationFn: async (variables: CreateMutationVariables) => {
+      const templateId = variables.payload.os_template;
+      if (templateId === undefined || !isOsTemplateAvailable((await fetchOsTemplate(templateId)).data, auth.role)) throw new Error(t('gate.blocked.permission.body'));
+      return createVps(variables.payload);
+    },
     onMutate: async (variables): Promise<CreateMutationContext> => {
       try {
         const marker = await beginVpsCreateOutcomeGuard({

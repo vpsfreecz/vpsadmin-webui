@@ -1,113 +1,86 @@
-import { expectArray, haveApiCall } from './haveapi';
+import type { OsFamily__IndexInput, OsTemplate__CreateInput, OsTemplate__IndexInput, OsTemplate__UpdateInput } from 'vpsadmin-typescript-client';
+import type { OsFamily__ShowOutput, OsTemplate__ShowOutput } from 'vpsadmin-typescript-client';
+import { narrowApiResult } from './apiOutput';
+import { fields, positiveId, reference, rows, object, type StorageReference } from './vpsStorageOutput';
 
-export interface OsFamily {
-  id: number;
-  label?: string;
-  description?: string;
-  [k: string]: unknown;
+export type OsFamily = Omit<OsFamily__ShowOutput, 'id'> & { id: number; } & Record<string, unknown>;
+function isOsFamily(value: unknown): value is OsFamily {
+  return fields(value, ['label', 'description'], [], []) && positiveId(value['id']);
 }
 
-export interface OsTemplate {
-  id: number;
-  os_family?: OsFamily | { id: number };
-  name?: string;
-  label?: string;
-  info?: string;
-  enabled?: boolean;
-  supported?: boolean;
-  order?: number;
-
-  hypervisor_type?: string;
-  cgroup_version?: string;
-
-  manage_hostname?: boolean;
-  manage_dns_resolver?: boolean;
-  enable_script?: boolean;
-  enable_cloud_init?: boolean;
-
-  vendor?: string;
-  variant?: string;
-  arch?: string;
-  distribution?: string;
-  version?: string;
-
-  config?: string;
-
-  uses_count?: number;
-
-  [k: string]: unknown;
+export type OsTemplate = Omit<OsTemplate__ShowOutput, 'id' | 'os_family'> & { id: number; os_family?: StorageReference | null; } & Record<string, unknown>;
+function isOsTemplate(value: unknown): value is OsTemplate {
+  return fields(value, ['name', 'label', 'info', 'hypervisor_type', 'cgroup_version', 'vendor', 'variant', 'arch', 'distribution', 'version', 'config'], ['order'], ['enabled', 'supported', 'manage_hostname', 'manage_dns_resolver', 'enable_script', 'enable_cloud_init']) && positiveId(value['id'])
+    && reference(value['os_family']);
 }
+
+import { getApi } from './sdk';
 
 export async function fetchOsFamilies(opts?: { limit?: number }) {
-  const params: Record<string, unknown> = {};
+  const params: OsFamily__IndexInput = {};
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
 
-  const res = await haveApiCall<OsFamily[]>({
-    method: 'GET',
-    path: '/os_families',
-    namespace: 'os_family',
+  const res = await (await getApi()).os_family.index({
     params,
   });
 
-  return { ...res, data: expectArray<OsFamily>(res.data, 'os_families#index') };
+  return narrowApiResult(res, data => rows(data, isOsFamily), 'fetchOsFamilies');
 }
 
 export async function fetchOsTemplates(opts?: {
   limit?: number;
 
-  q?: string;
   osFamily?: number;
-  enabled?: boolean;
-  supported?: boolean;
   hypervisorType?: string;
   cgroupVersion?: string;
   enableScript?: boolean;
   enableCloudInit?: boolean;
 }) {
-  const params: Record<string, unknown> = {};
+  const params: OsTemplate__IndexInput = {};
 
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
 
-  if (opts?.q) params['q'] = opts.q;
   if (opts?.osFamily !== undefined) params['os_family'] = opts.osFamily;
-  if (opts?.enabled !== undefined) params['enabled'] = opts.enabled;
-  if (opts?.supported !== undefined) params['supported'] = opts.supported;
   if (opts?.hypervisorType) params['hypervisor_type'] = opts.hypervisorType;
   if (opts?.cgroupVersion) params['cgroup_version'] = opts.cgroupVersion;
   if (opts?.enableScript !== undefined) params['enable_script'] = opts.enableScript;
   if (opts?.enableCloudInit !== undefined) params['enable_cloud_init'] = opts.enableCloudInit;
 
-  const res = await haveApiCall<OsTemplate[]>({
-    method: 'GET',
-    path: '/os_templates',
-    namespace: 'os_template',
+  const res = await (await getApi()).os_template.index({
     params,
   });
 
-  return { ...res, data: expectArray<OsTemplate>(res.data, 'os_templates#index') };
+  return narrowApiResult(res, data => rows(data, isOsTemplate), 'fetchOsTemplates');
 }
 
-export async function createOsTemplate(payload: Record<string, unknown>) {
-  return haveApiCall<OsTemplate>({
-    method: 'POST',
-    path: '/os_templates',
-    namespace: 'os_template',
+export async function createOsTemplate(payload: OsTemplate__CreateInput) {
+  const res = await (await getApi()).os_template.create({
     params: payload,
   });
+  return narrowApiResult(res, data => object(data, isOsTemplate), 'createOsTemplate');
 }
 
-export async function updateOsTemplate(osTemplateId: number, payload: Record<string, unknown>) {
-  return haveApiCall<OsTemplate>({
-    method: 'PUT',
-    path: `/os_templates/${osTemplateId}`,
-    namespace: 'os_template',
+export async function updateOsTemplate(osTemplateId: number, payload: OsTemplate__UpdateInput) {
+  const res = await (await getApi()).os_template.update({
+    path: { os_template_id: osTemplateId },
     params: payload,
   });
+  return narrowApiResult(res, data => object(data, isOsTemplate), 'updateOsTemplate');
 }
 
 export async function deleteOsTemplate(osTemplateId: number) {
-  return haveApiCall<void>({
-    method: 'DELETE',
-    path: `/os_templates/${osTemplateId}`,
+  return (await getApi()).os_template.delete({
+    path: { os_template_id: osTemplateId },
   });
+}
+
+/** Enabled is omitted by the authenticated non-admin Index whitelist. */
+export function isOsTemplateAvailable(template: OsTemplate, role: unknown): boolean {
+  if (role === 'admin') return template.enabled === true;
+  return (role === 'user' || role === 'support') && (template.enabled === true || template.enabled === undefined);
+}
+
+export async function fetchOsTemplate(id: number) {
+  const result = await (await getApi()).os_template.show({ path: { os_template_id: id } });
+  return narrowApiResult(result, data => object(data, isOsTemplate), 'OS template');
 }

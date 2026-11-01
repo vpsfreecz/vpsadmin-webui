@@ -10,8 +10,8 @@ import { Card, CardBody, CardHeader } from '../../../components/ui/Card';
 import { Checkbox } from '../../../components/ui/Checkbox';
 import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
 import { Spinner } from '../../../components/ui/Spinner';
-import { fetchVpsFeatures, updateVpsFeaturesAll, type VpsFeature } from '../../../lib/api/vpsFeatures';
-import { getMetaActionStateId, isMissingActionStateError } from '../../../lib/api/haveapi';
+import { fetchVpsFeatures, updateVpsFeaturesAll, isEditableVpsFeatureName, type VpsFeature } from '../../../lib/api/vpsFeatures';
+import { getMetaActionStateId, isMissingActionStateError } from '../../../lib/api/apiErrors';
 import { gateVpsMutation } from '../../../lib/gates/vps';
 import { objectRef } from '../../../lib/objectRef';
 import { preflightVpsNotBusy } from './vpsPreflight';
@@ -20,13 +20,13 @@ import { freezeVpsMutationSnapshot, type VpsMutationSnapshot } from './VpsMutati
 import { VpsConfirmTarget } from './VpsPowerConfirmation';
 
 function featureLabel(f: VpsFeature): string {
-  return (f.label as any) ?? f.name;
+  return f.label || f.name || `#${f.id}`;
 }
 
 function mapFeatures(list: VpsFeature[] | undefined): Record<string, boolean> {
   const out: Record<string, boolean> = {};
   for (const f of list ?? []) {
-    if (!f?.name) continue;
+    if (!f?.name || !isEditableVpsFeatureName(f.name)) continue;
     if (typeof f.enabled !== 'boolean') continue;
     out[String(f.name)] = f.enabled;
   }
@@ -194,7 +194,7 @@ export function VpsFeaturesPage() {
               {list.map((f) => {
                 const name = String(f.name ?? '');
                 const enabled = Boolean(effective[name]);
-                return canMutateVps ? (
+                return canMutateVps && isEditableVpsFeatureName(name) && typeof f.enabled === 'boolean' ? (
                   <Checkbox
                     key={f.id}
                     testId={`vps.features.item.${f.id}`}
@@ -217,7 +217,7 @@ export function VpsFeaturesPage() {
                       <div className="text-xs text-muted">{name}</div>
                     </div>
                     <span className="text-xs font-medium text-muted">
-                      {enabled ? t('common.enabled') : t('common.disabled')}
+                      {f.enabled == null ? t('common.na') : enabled ? t('common.enabled') : t('common.disabled')}
                     </span>
                   </div>
                 );

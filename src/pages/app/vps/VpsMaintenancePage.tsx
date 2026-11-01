@@ -10,7 +10,7 @@ import { Card, CardBody, CardHeader } from '../../../components/ui/Card';
 import { Select } from '../../../components/ui/Select';
 import { Spinner } from '../../../components/ui/Spinner';
 import { fetchVpsMaintenanceWindows, updateVpsMaintenanceWindow, type VpsMaintenanceWindow } from '../../../lib/api/vpsMaintenance';
-import { getMetaActionStateId } from '../../../lib/api/haveapi';
+import { getMetaActionStateId } from '../../../lib/api/apiErrors';
 import { formatErrorMessage } from '../../../lib/errors';
 import { gateVpsMutation } from '../../../lib/gates/vps';
 import { preflightVpsNotBusy } from './vpsPreflight';

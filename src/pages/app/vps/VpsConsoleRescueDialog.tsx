@@ -1,3 +1,4 @@
+import { useAuth } from '../../../app/auth';
 import { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useI18n } from '../../../app/i18n';
@@ -9,8 +10,8 @@ import { Checkbox } from '../../../components/ui/Checkbox';
 import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
 import { Input } from '../../../components/ui/Input';
 import { Select } from '../../../components/ui/Select';
-import { fetchOsTemplates } from '../../../lib/api/osTemplates';
-import { getMetaActionStateId, isMissingActionStateError } from '../../../lib/api/haveapi';
+import { fetchOsTemplates, isOsTemplateAvailable, fetchOsTemplate } from '../../../lib/api/osTemplates';
+import { getMetaActionStateId, isMissingActionStateError } from '../../../lib/api/apiErrors';
 import { vpsBoot } from '../../../lib/api/vps';
 import { gateVpsMutation } from '../../../lib/gates/vps';
 import { useVps } from './VpsContext';
@@ -26,17 +27,18 @@ export function VpsConsoleRescueDialog({ onClose }: { onClose: () => void }) {
   const { t } = useI18n();
   const { basePath } = useAppMode();
   const chrome = useChrome();
+  const auth = useAuth();
   const { vps, vpsRef, canMutateVps, busyLocalLock, busyTransaction, refetch, refetchChains } = useVps();
   const [form, setForm] = useState(() => defaultBootForm(vps.os_template?.id ?? null));
   const objectLabel = String(vps.hostname || `#${vps.id}`);
   const templatesQ = useQuery({
-    queryKey: ['os_templates', 'console-rescue'],
-    queryFn: async () => (await fetchOsTemplates({ limit: 500, enabled: true, hypervisorType: 'vpsadminos' })).data,
+    queryKey: ['os_templates', auth.user?.id, auth.role, 'console-rescue'],
+    queryFn: async () => (await fetchOsTemplates({ limit: 500, hypervisorType: 'vpsadminos' })).data.filter(template => isOsTemplateAvailable(template, auth.role)),
     staleTime: 60_000,
   });
   const templates = (templatesQ.data ?? []).filter(
     (template) =>
-      template.enabled !== false &&
+      isOsTemplateAvailable(template, auth.role) &&
       (!template.hypervisor_type || template.hypervisor_type === 'vpsadminos') &&
       (!vps.node?.cgroup_version ||
         !template.cgroup_version ||
@@ -49,7 +51,10 @@ export function VpsConsoleRescueDialog({ onClose }: { onClose: () => void }) {
     !templatesQ.isError && templates.some((template) => String(template.id) === form.osTemplate) && mountValid;
   const bootM = useMutation({
     mutationFn: (variables: LifecycleMutationVariables<ReturnType<typeof buildVpsBootPayload>>) =>
-      executeLifecycleMutation(variables, vpsBoot),
+      executeLifecycleMutation(variables, async (id, payload) => {
+        if (payload.os_template === undefined || !isOsTemplateAvailable((await fetchOsTemplate(payload.os_template)).data, auth.role)) throw new Error(t('gate.blocked.permission.body'));
+        return vpsBoot(id, payload);
+      }),
     onMutate: async (variables) => ({
       lockRef: variables.lockRef,
       mutationGeneration: await chrome.acquireLocalLock(variables.lockRef, { durable: true }),

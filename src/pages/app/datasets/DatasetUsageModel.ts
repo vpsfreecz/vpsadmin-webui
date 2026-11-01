@@ -15,9 +15,9 @@ function positiveNumber(value: unknown): number | undefined {
 }
 
 export function datasetUsageBreakdown(values: {
-  used?: number;
-  refquota?: number;
-  avail?: number;
+  used?: number | null;
+  refquota?: number | null;
+  avail?: number | null;
 }): DatasetUsageBreakdown | null {
   const used = nonNegativeNumber(values.used);
   if (used === undefined) return null;

@@ -20,7 +20,7 @@ const vps = {
   dataset: { id: 10, name: 'tank/data' },
   node: { id: 1, domain_name: 'node1.example' },
   os_template: { label: 'debian' },
-  dns_resolver: 'inherit',
+  dns_resolver: null,
 };
 
 const dataset = {
@@ -69,7 +69,7 @@ test.describe('@smoke VPS storage tab mounts', () => {
             vpsUpdateCount += 1;
             return { vps };
           },
-          'PUT datasets/10': () => ({ _meta: { action_state_id: 905 } }),
+          'PUT datasets/10': () => ({ dataset: {}, _meta: { action_state_id: 905 } }),
           'GET action_states/905': () => ({
             action_state: {
               id: 905,
@@ -119,13 +119,14 @@ test.describe('@smoke VPS storage tab mounts', () => {
   test('resets a mount deletion confirm when the VPS route changes', async ({ page }) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
     const mounts = [{
-      id: 1, mountpoint: '/mnt/old', type: 'nfs', mode: 'ro', enabled: true,
-      on_start_fail: 'ignore', use_default_map: true, dataset: { id: 9, name: 'tank/old' },
+      id: 1, mountpoint: '/mnt/old', mode: 'ro', enabled: true,
+      on_start_fail: 'ignore', dataset: { id: 9, name: 'tank/old' },
     }];
     await installHaveApiMock(page, {
       user: { id: 1, login: 'user', level: 1 },
       handlers: {
         'GET vpses/123': () => ({ vps }),
+        'GET datasets/10': () => ({ dataset }),
         'GET vpses/456': () => ({ vps: { ...vps, id: 456, hostname: 'vps456.example', dataset: null } }),
         'GET ip_addresses': () => ({ ip_addresses: [] }),
         'GET transaction_chains': () => ({ transaction_chains: [] }),
@@ -165,12 +166,22 @@ test.describe('@smoke VPS storage tab mounts', () => {
       user: { id: 1, login: 'user', level: 1 },
       handlers: {
         'GET vpses/123': () => ({ vps }),
-        'GET datasets/10': () => dataset,
-        'GET datasets/11': () => childDataset,
+        'GET datasets/10': () => ({ dataset }),
+        'GET datasets/11': () => ({ dataset: childDataset }),
         'GET ip_addresses': () => ({ ip_addresses: [] }),
         'GET transaction_chains': () => ({ transaction_chains: [], _meta: { total_count: 0 } }),
         'GET vpses/123/mounts': () => ({ mounts: [] }),
-        'POST datasets': () => ({ dataset: childDataset }),
+        'POST datasets': () => ({ dataset: childDataset, _meta: { action_state_id: 906 } }),
+        'GET action_states/906': () => ({
+          action_state: {
+            id: 906,
+            label: 'Create subdataset',
+            status: true,
+            finished: true,
+            current: 1,
+            total: 1,
+          },
+        }),
       },
     });
 
@@ -206,11 +217,9 @@ test.describe('@smoke VPS storage tab mounts', () => {
       {
         id: 1,
         mountpoint: '/mnt/old',
-        type: 'nfs',
         mode: 'ro',
         enabled: true,
         on_start_fail: 'ignore',
-        use_default_map: true,
         current_state: 'mounted',
         expiration_date: '2026-02-28T00:00:00Z',
         dataset: { id: 9, name: 'tank/old' },
@@ -231,12 +240,11 @@ test.describe('@smoke VPS storage tab mounts', () => {
           const created = {
             id: 2,
             mountpoint: '/mnt/data',
-            type: 'nfs',
-            mode: 'rw',
+                mode: 'rw',
             enabled: true,
             on_start_fail: 'ignore',
-            use_default_map: true,
-            current_state: 'mounted',
+                current_state: 'mounted',
+            expiration_date: '2026-02-28T00:00:00Z',
             dataset: { ...dataset },
             created_at: '2026-01-31T01:00:00Z',
           };
@@ -303,11 +311,9 @@ test.describe('@smoke VPS storage tab mounts', () => {
       mount: {
         dataset: 10,
         mountpoint: '/mnt/data',
-        type: 'nfs',
         mode: 'rw',
         on_start_fail: 'ignore',
         enabled: true,
-        use_default_map: true,
       },
     });
 
@@ -325,11 +331,9 @@ test.describe('@smoke VPS storage tab mounts', () => {
       {
         id: 1,
         mountpoint: '/mnt/old',
-        type: 'nfs',
         mode: 'ro',
         enabled: true,
         on_start_fail: 'ignore',
-        use_default_map: true,
         dataset: { id: 9, name: 'tank/old' },
         created_at: '2026-01-31T00:00:00Z',
       },
@@ -339,13 +343,24 @@ test.describe('@smoke VPS storage tab mounts', () => {
       user: { id: 1, login: 'user', level: 1 },
       handlers: {
         'GET vpses/123': () => ({ vps }),
+        'GET datasets/10': () => ({ dataset }),
         'GET ip_addresses': () => ({ ip_addresses: [] }),
         'GET transaction_chains': () => ({ transaction_chains: [] }),
         'GET vpses/123/mounts': () => ({ mounts }),
         'DELETE vpses/123/mounts/1': () => {
           mounts = mounts.filter((m) => m.id !== 1);
-          return { _meta: { action_state_id: 704 } };
+          return { mount: {}, _meta: { action_state_id: 704 } };
         },
+        'GET action_states/704': () => ({
+          action_state: {
+            id: 704,
+            label: 'Delete mount',
+            status: true,
+            finished: true,
+            current: 1,
+            total: 1,
+          },
+        }),
       },
     });
 
@@ -383,13 +398,11 @@ test.describe('@smoke VPS storage tab mounts', () => {
             {
               id: 1,
               mountpoint: '/mnt/old',
-              type: 'nfs',
-              mode: 'ro',
+                    mode: 'ro',
               enabled: true,
               master_enabled: false,
               on_start_fail: 'ignore',
-              use_default_map: true,
-              current_state: 'mounted',
+                    current_state: 'mounted',
               dataset: { id: 9, name: 'tank/old' },
               created_at: '2026-01-31T00:00:00Z',
             },
@@ -406,7 +419,7 @@ test.describe('@smoke VPS storage tab mounts', () => {
     await expect(mountItem(page, 1)).toContainText('No');
 
     await page.getByTestId('vps.storage.mounts.add').click();
-    await expect(page.getByTestId('vps.storage.mounts.create.master_enabled')).toBeVisible();
+    await expect(page.getByTestId('vps.storage.mounts.create.master_enabled')).toHaveCount(0);
   });
 
   test('keeps mounts visible and explains missing root dataset references', async ({ page }) => {
@@ -428,12 +441,10 @@ test.describe('@smoke VPS storage tab mounts', () => {
             {
               id: 1,
               mountpoint: '/mnt/old',
-              type: 'nfs',
-              mode: 'ro',
+                    mode: 'ro',
               enabled: true,
               on_start_fail: 'ignore',
-              use_default_map: true,
-              current_state: 'mounted',
+                    current_state: 'mounted',
               dataset: { id: 9, name: 'tank/old' },
               created_at: '2026-01-31T00:00:00Z',
             },

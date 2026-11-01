@@ -114,7 +114,7 @@ export function VpsOverviewPage() {
           <LifecyclePanel
             kind="vps"
             id={vps.id}
-            objectLabel={vps.hostname}
+            objectLabel={vps.hostname || `#${vps.id}`}
             objectState={vps.object_state}
             expirationDate={vps.expiration_date}
             remindAfterDate={vps.remind_after_date}

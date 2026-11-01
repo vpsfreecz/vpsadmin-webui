@@ -12,11 +12,11 @@ import { Alert } from '../../../components/ui/Alert';
 import { Button } from '../../../components/ui/Button';
 import { Card, CardBody, CardHeader } from '../../../components/ui/Card';
 import { LifecyclePanel } from '../../../components/lifetimes/LifecyclePanel';
-import { getMetaActionStateId, isMissingActionStateError } from '../../../lib/api/haveapi';
+import { getMetaActionStateId, isMissingActionStateError } from '../../../lib/api/apiErrors';
 import { fetchLocations } from '../../../lib/api/infra';
 import { fetchIpAddressesForVps } from '../../../lib/api/ipAddresses';
 import { fetchMigrationNodes } from './VpsMigrationNodes';
-import { fetchOsTemplates } from '../../../lib/api/osTemplates';
+import { fetchOsTemplates, isOsTemplateAvailable, fetchOsTemplate } from '../../../lib/api/osTemplates';
 import {
   fetchVps,
   fetchVpsList,
@@ -172,8 +172,8 @@ export function VpsLifecyclePage() {
     && (requestedAction === 'reinstall' || requestedAction === 'template' || requestedAction === 'boot');
 
   const templatesQ = useQuery({
-    queryKey: ['os_templates', 'vps-lifecycle', { limit: 500, enabled: true, hypervisorType: 'vpsadminos' }],
-    queryFn: async () => (await fetchOsTemplates({ limit: 500, enabled: true, hypervisorType: 'vpsadminos' })).data,
+    queryKey: ['os_templates', auth.user?.id, auth.role, 'vps-lifecycle', { limit: 500, hypervisorType: 'vpsadminos' }],
+    queryFn: async () => (await fetchOsTemplates({ limit: 500, hypervisorType: 'vpsadminos' })).data.filter(template => isOsTemplateAvailable(template, auth.role)),
     enabled: templatesNeeded,
     staleTime: 60_000,
   });
@@ -383,7 +383,10 @@ export function VpsLifecyclePage() {
   });
 
   const templateM = useMutation({
-    mutationFn: (variables: LifecycleMutationVariables<ReturnType<typeof buildVpsTemplatePayload>>) => executeLifecycleMutation(variables, updateVps),
+    mutationFn: (variables: LifecycleMutationVariables<ReturnType<typeof buildVpsTemplatePayload>>) => executeLifecycleMutation(variables, async (id, payload) => {
+      if (payload.os_template === undefined || !isOsTemplateAvailable((await fetchOsTemplate(payload.os_template)).data, auth.role)) throw new Error(t('gate.blocked.permission.body'));
+      return updateVps(id, payload);
+    }),
     onMutate: acquireMutationContext,
     onSuccess: (res, variables, context) => {
       track(res.meta, 'action.vps.template.label', variables, context);
@@ -396,7 +399,10 @@ export function VpsLifecyclePage() {
   });
 
   const bootM = useMutation({
-    mutationFn: (variables: LifecycleMutationVariables<ReturnType<typeof buildVpsBootPayload>>) => executeLifecycleMutation(variables, vpsBoot),
+    mutationFn: (variables: LifecycleMutationVariables<ReturnType<typeof buildVpsBootPayload>>) => executeLifecycleMutation(variables, async (id, payload) => {
+      if (payload.os_template === undefined || !isOsTemplateAvailable((await fetchOsTemplate(payload.os_template)).data, auth.role)) throw new Error(t('gate.blocked.permission.body'));
+      return vpsBoot(id, payload);
+    }),
     onMutate: acquireMutationContext,
     onSuccess: (res, variables, context) => {
       track(res.meta, 'action.vps.boot.label', variables, context);
@@ -408,7 +414,10 @@ export function VpsLifecyclePage() {
   });
 
   const reinstallM = useMutation({
-    mutationFn: (variables: LifecycleMutationVariables<ReturnType<typeof buildVpsReinstallPayload>>) => executeLifecycleMutation(variables, vpsReinstall),
+    mutationFn: (variables: LifecycleMutationVariables<ReturnType<typeof buildVpsReinstallPayload>>) => executeLifecycleMutation(variables, async (id, payload) => {
+      if (payload.os_template === undefined || !isOsTemplateAvailable((await fetchOsTemplate(payload.os_template)).data, auth.role)) throw new Error(t('gate.blocked.permission.body'));
+      return vpsReinstall(id, payload);
+    }),
     onMutate: acquireMutationContext,
     onSuccess: (res, variables, context) => {
       track(res.meta, 'action.vps.reinstall.label', variables, context);

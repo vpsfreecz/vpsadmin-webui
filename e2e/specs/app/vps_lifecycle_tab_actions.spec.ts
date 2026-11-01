@@ -615,7 +615,6 @@ test.describe('@pr-smoke VPS lifecycle tab', () => {
     expect(req.postDataJSON()).toEqual({
       vps: {
         hostname: 'admin-clone',
-        subdatasets: true,
         dataset_plans: true,
         resources: true,
         features: true,
@@ -1251,7 +1250,6 @@ test.describe('@pr-smoke VPS lifecycle tab', () => {
     expect(req.postDataJSON()).toEqual({
       vps: {
         hostname: 'vps123-playground',
-        subdatasets: true,
         dataset_plans: true,
         resources: true,
         features: true,

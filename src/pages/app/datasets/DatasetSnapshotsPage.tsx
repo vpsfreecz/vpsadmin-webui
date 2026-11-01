@@ -17,7 +17,7 @@ import { LoadingState } from '../../../components/ui/LoadingState';
 import { Modal } from '../../../components/ui/Modal';
 
 import { fetchActiveTransactionChains } from '../../../lib/api/transactions';
-import { HaveApiError, getMetaActionStateId, getMetaTotalCount, isAmbiguousMutationError } from '../../../lib/api/haveapi';
+import { HaveApiError, getMetaActionStateId, getMetaTotalCount, isAmbiguousMutationError } from '../../../lib/api/apiErrors';
 import {
   createDatasetSnapshot,
   createSnapshotDownload,

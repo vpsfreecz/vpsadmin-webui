@@ -1,3 +1,4 @@
+import type { Vps__UpdateInput } from 'vpsadmin-typescript-client';
 import type { Location } from '../../../lib/api/infra';
 import type { Node } from '../../../lib/api/nodes';
 import type { Vps, VpsBootPayload, VpsMigratePayload, VpsReplacePayload } from '../../../lib/api/vps';
@@ -116,7 +117,7 @@ export function toIsoDateTime(value: string): string | undefined {
   return d.toISOString();
 }
 
-export function buildVpsTemplatePayload(form: TemplateForm): Record<string, unknown> {
+export function buildVpsTemplatePayload(form: TemplateForm): Pick<Vps__UpdateInput, 'os_template' | 'enable_os_template_auto_update'> {
   return {
     os_template: parseRequiredId(form.osTemplate),
     enable_os_template_auto_update: form.autoUpdate,
@@ -152,7 +153,7 @@ export function findMigrateTargetNode(rawNode: string, nodes: Node[]): Node | un
 }
 
 export function buildMigrateTargetContext(vps: Vps, targetNode?: Node): MigrateTargetContext {
-  const sourceLocation = (vps.node?.location ?? vps['location']) as Location | undefined;
+  const sourceLocation = vps.node?.location ?? vps['location'];
   const sourceLocationId = resourceId(sourceLocation);
   const sourceEnvironmentId = locationEnvironmentId(sourceLocation);
   const targetLocation = nodeLocation(targetNode);

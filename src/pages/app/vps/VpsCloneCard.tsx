@@ -155,7 +155,6 @@ export function VpsCloneCard(props: {
       </ActionImpactSummary>
 
       <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
-        <Checkbox checked={props.form.subdatasets} onChange={(subdatasets) => setForm({ subdatasets, confirm: false })} label={t('vps.lifecycle.clone.option.subdatasets')} testId="vps.lifecycle.clone.subdatasets" />
         <Checkbox checked={props.form.datasetPlans} onChange={(datasetPlans) => setForm({ datasetPlans, confirm: false })} label={t('vps.lifecycle.clone.option.dataset_plans')} testId="vps.lifecycle.clone.dataset_plans" />
         <Checkbox checked={props.form.resources} onChange={(resources) => setForm({ resources, confirm: false })} label={t('vps.lifecycle.clone.option.resources')} testId="vps.lifecycle.clone.resources" />
         <Checkbox checked={props.form.features} onChange={(features) => setForm({ features, confirm: false })} label={t('vps.lifecycle.clone.option.features')} testId="vps.lifecycle.clone.features" />

@@ -37,7 +37,7 @@ function toRow(template: OsTemplate): TemplateRow {
   const distribution = typeof template.distribution === 'string' ? template.distribution : '';
   const version = typeof template.version === 'string' ? template.version : '';
   const name = typeof template.name === 'string' ? template.name : '';
-  const usesCount = typeof template.uses_count === 'number' ? template.uses_count : undefined;
+  const usesCount = typeof template['uses_count'] === 'number' ? template['uses_count'] : undefined;
 
   return {
     template,
@@ -53,7 +53,7 @@ export function OsTemplatesList({ templates, onEdit, onDelete }: Props) {
   const { t } = useI18n();
   const rows = templates.map(toRow);
 
-  const statusBadge = (value: boolean | undefined, onKey: string, offKey: string) => ({
+  const statusBadge = (value: boolean | null | undefined, onKey: string, offKey: string) => ({
     label: value ? t(onKey) : t(offKey),
     variant: value ? ('ok' as const) : ('warn' as const),
   });

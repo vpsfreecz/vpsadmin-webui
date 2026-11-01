@@ -1,5 +1,4 @@
 import type React from 'react';
-import type { ResourceRef } from '../../../lib/api/appTypes';
 import type { IpAddress } from '../../../lib/api/ipAddresses';
 import type { TransactionChain } from '../../../lib/api/transactions';
 import type { Vps, VpsStatus } from '../../../lib/api/vps';
@@ -47,19 +46,20 @@ export function resourceLabel(value: unknown): string | undefined {
   return undefined;
 }
 
-export function resourceId(value: ResourceRef | undefined | null): number | undefined {
+export function resourceId(value: { id?: unknown } | undefined | null): number | undefined {
   const id = value?.id;
-  return typeof id === 'number' && Number.isFinite(id) ? id : undefined;
+  return typeof id === 'number' && Number.isSafeInteger(id) && id > 0 ? id : undefined;
 }
 
 export function ownerLabel(vps: Vps): string | undefined {
-  if (!vps.user) return undefined;
-  return vps.user.login || `#${vps.user.id}`;
+  const login = vps.user?.login;
+  if (typeof login === 'string' && login.trim()) return login;
+  const id = ownerId(vps);
+  return id === undefined ? undefined : `#${id}`;
 }
 
 export function ownerId(vps: Vps): number | undefined {
-  const id = vps.user?.id;
-  return typeof id === 'number' && Number.isFinite(id) ? id : undefined;
+  return resourceId(vps.user);
 }
 
 export function shouldShowVpsOwner(props: {

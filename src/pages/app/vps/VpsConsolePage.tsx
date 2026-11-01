@@ -5,7 +5,7 @@ import { Maximize2, Minimize2, PlugZap, RotateCw, Trash2 } from 'lucide-react';
 import { VpsConsoleFrame } from './VpsConsoleFrame';
 import { useI18n } from '../../../app/i18n';
 import { createConsoleToken, deleteConsoleToken } from '../../../lib/api/vps';
-import { HaveApiError } from '../../../lib/api/haveapi';
+import { HaveApiError } from '../../../lib/api/apiErrors';
 import { Alert } from '../../../components/ui/Alert';
 import { Button } from '../../../components/ui/Button';
 import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';

@@ -21,7 +21,7 @@ import { createDataset, fetchDatasets, type Dataset } from '../../../lib/api/dat
 import { datasetCapabilities } from '../../../lib/gates/dataset';
 
 function datasetLabel(dataset: Dataset): string {
-  return String(dataset.full_name ?? dataset.name ?? dataset.label ?? `#${dataset.id}`);
+  return String(dataset['full_name'] ?? dataset.name ?? dataset['label'] ?? `#${dataset.id}`);
 }
 
 function parseGiB(raw: string): number | undefined {

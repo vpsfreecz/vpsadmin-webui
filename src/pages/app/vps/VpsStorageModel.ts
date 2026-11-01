@@ -1,21 +1,20 @@
+import type { Vps__Mount__CreateInput, Vps__Mount__UpdateInput } from 'vpsadmin-typescript-client';
+import type { StorageReference } from '../../../lib/api/vpsStorageOutput';
 import type { ResourceRef } from '../../../lib/api/appTypes';
 import type { Dataset as StorageDataset } from '../../../lib/api/datasets';
 import type { Dataset, VpsMount } from '../../../lib/api/vpsMounts';
 
-export type MountType = 'nfs' | 'bind';
 export type MountMode = 'ro' | 'rw';
 export type MountStartFail = 'ignore' | 'umount' | 'fail';
 export type StorageTone = 'neutral' | 'ok' | 'warn' | 'danger' | 'info';
 
 export interface MountDraft {
-  dataset: Dataset | ResourceRef | null;
+  dataset: Dataset | StorageReference | null;
   mountpoint: string;
-  type: MountType;
-  mode: MountMode;
-  onStartFail: MountStartFail;
-  enabled: boolean;
-  masterEnabled: boolean;
-  useDefaultMap: boolean;
+  mode: MountMode | undefined;
+  onStartFail: MountStartFail | undefined;
+  enabled: boolean | undefined;
+  masterEnabled: boolean | undefined;
 }
 
 export interface MountValidationResult {
@@ -24,12 +23,12 @@ export interface MountValidationResult {
 }
 
 export type MountValidationIssue = 'dataset_required' | 'mountpoint_required' | 'mountpoint_absolute' | 'mountpoint_root';
-export type MountDiffField = 'mountpoint' | 'type' | 'mode' | 'on_start_fail' | 'enabled' | 'master_enabled' | 'use_default_map';
+export type MountDiffField = 'on_start_fail' | 'enabled' | 'master_enabled';
 
 export interface MountDiffItem {
   field: MountDiffField;
-  before: string | boolean;
-  after: string | boolean;
+  before: string | boolean | undefined;
+  after: string | boolean | undefined;
 }
 
 export interface RootDatasetSummary {
@@ -163,37 +162,29 @@ export function defaultMountDraft(): MountDraft {
   return {
     dataset: null,
     mountpoint: '',
-    type: 'nfs',
     mode: 'rw',
     onStartFail: 'ignore',
     enabled: true,
     masterEnabled: true,
-    useDefaultMap: true,
   };
 }
 
-export function parseMountType(value: unknown): MountType {
-  return value === 'bind' ? 'bind' : 'nfs';
+export function parseMountMode(value: unknown): MountMode | undefined {
+  return value === 'ro' || value === 'rw' ? value : undefined;
 }
 
-export function parseMountMode(value: unknown): MountMode {
-  return value === 'ro' ? 'ro' : 'rw';
-}
-
-export function parseMountStartFail(value: unknown): MountStartFail {
-  return value === 'umount' || value === 'fail' ? value : 'ignore';
+export function parseMountStartFail(value: unknown): MountStartFail | undefined {
+  return value === 'umount' || value === 'fail' || value === 'ignore' ? value : undefined;
 }
 
 export function mountDraftFromMount(mount: VpsMount): MountDraft {
   return {
     dataset: mount.dataset ?? null,
     mountpoint: String(mount.mountpoint ?? ''),
-    type: parseMountType(mount.type),
     mode: parseMountMode(mount.mode),
     onStartFail: parseMountStartFail(mount.on_start_fail),
-    enabled: canonicalBool(mount.enabled, true),
-    masterEnabled: canonicalBool(mount.master_enabled, true),
-    useDefaultMap: canonicalBool(mount.use_default_map, true),
+    enabled: mount.enabled ?? undefined,
+    masterEnabled: mount.master_enabled ?? undefined,
   };
 }
 
@@ -209,57 +200,41 @@ export function validateMountDraft(draft: MountDraft, opts: { requireDataset: bo
   return { ok: issues.length === 0, issues };
 }
 
-export function buildCreateMountPayload(draft: MountDraft, canAdmin: boolean): Record<string, unknown> {
-  return compact({
-    dataset: datasetId(draft.dataset) ?? undefined,
-    mountpoint: draft.mountpoint.trim(),
-    type: draft.type,
-    mode: draft.mode,
-    on_start_fail: draft.onStartFail,
-    enabled: draft.enabled,
-    master_enabled: canAdmin ? draft.masterEnabled : undefined,
-    use_default_map: draft.useDefaultMap,
-  });
+export function buildCreateMountPayload(draft: MountDraft, _canAdmin: boolean): Vps__Mount__CreateInput {
+  const id = datasetId(draft.dataset);
+  if (!id) throw new Error('dataset_required');
+  return {
+    dataset: id, mountpoint: draft.mountpoint.trim(), mode: draft.mode,
+    on_start_fail: draft.onStartFail, enabled: draft.enabled,
+  };
 }
 
-export function buildUpdateMountPayload(draft: MountDraft, canAdmin: boolean): Record<string, unknown> {
-  return compact({
-    mountpoint: draft.mountpoint.trim(),
-    type: draft.type,
-    mode: draft.mode,
-    on_start_fail: draft.onStartFail,
-    enabled: draft.enabled,
-    master_enabled: canAdmin ? draft.masterEnabled : undefined,
-    use_default_map: draft.useDefaultMap,
-  });
+export function buildUpdateMountPayload(draft: MountDraft, canAdmin: boolean): Vps__Mount__UpdateInput {
+  return {
+    on_start_fail: draft.onStartFail, enabled: draft.enabled,
+    ...(canAdmin && draft.masterEnabled !== undefined ? { master_enabled: draft.masterEnabled } : {}),
+  };
 }
 
 function mountComparable(mount: VpsMount) {
   return {
     mountpoint: String(mount.mountpoint ?? ''),
-    type: parseMountType(mount.type),
     mode: parseMountMode(mount.mode),
     onStartFail: parseMountStartFail(mount.on_start_fail),
-    enabled: canonicalBool(mount.enabled, true),
-    masterEnabled: canonicalBool(mount.master_enabled, true),
-    useDefaultMap: canonicalBool(mount.use_default_map, true),
+    enabled: mount.enabled ?? undefined,
+    masterEnabled: mount.master_enabled ?? undefined,
   };
 }
 
 export function buildMountDiff(draft: MountDraft, mount: VpsMount, canAdmin: boolean): MountDiffItem[] {
   const current = mountComparable(mount);
   const diff: MountDiffItem[] = [];
-  const nextMountpoint = draft.mountpoint.trim();
 
-  if (nextMountpoint !== current.mountpoint) diff.push({ field: 'mountpoint', before: current.mountpoint, after: nextMountpoint });
-  if (draft.type !== current.type) diff.push({ field: 'type', before: current.type, after: draft.type });
-  if (draft.mode !== current.mode) diff.push({ field: 'mode', before: current.mode, after: draft.mode });
   if (draft.onStartFail !== current.onStartFail) diff.push({ field: 'on_start_fail', before: current.onStartFail, after: draft.onStartFail });
   if (draft.enabled !== current.enabled) diff.push({ field: 'enabled', before: current.enabled, after: draft.enabled });
   if (canAdmin && draft.masterEnabled !== current.masterEnabled) {
     diff.push({ field: 'master_enabled', before: current.masterEnabled, after: draft.masterEnabled });
   }
-  if (draft.useDefaultMap !== current.useDefaultMap) diff.push({ field: 'use_default_map', before: current.useDefaultMap, after: draft.useDefaultMap });
 
   return diff;
 }
@@ -272,7 +247,7 @@ export function mountDeleteConfirmation(mount: VpsMount): string {
   return String(mount.mountpoint ?? mount.id);
 }
 
-export function rootDatasetSummary(rootDataset: StorageDataset | null | undefined, fallback: DatasetLike | null | undefined): RootDatasetSummary {
+export function rootDatasetSummary(rootDataset: StorageDataset | null | undefined, fallback: unknown): RootDatasetSummary {
   const source = rootDataset ?? fallback;
   const used = finiteNumber(recordNumber(source, 'used'));
   const available = finiteNumber(recordNumber(source, 'avail'));

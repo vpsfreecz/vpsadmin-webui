@@ -6,7 +6,7 @@ import { formatMiB } from '../../../lib/format';
 import { usageSeverityFromRatio } from '../../../lib/usage';
 import { datasetUsageBreakdown } from './DatasetUsageModel';
 
-export function DatasetUsage(props: { used?: number; refquota?: number; avail?: number }) {
+export function DatasetUsage(props: { used?: number | null; refquota?: number | null; avail?: number | null }) {
   const { t } = useI18n();
   const used = typeof props.used === 'number' && Number.isFinite(props.used) ? props.used : undefined;
   const quota =

@@ -52,8 +52,8 @@ export function locationLabel(location: Location): string {
   return String(location.label ?? location.description ?? location.domain ?? `#${location.id}`);
 }
 
-export function locationEnvironmentId(location: Location | undefined): number | undefined {
-  const nested = resourceId(location?.environment);
+export function locationEnvironmentId(location: unknown): number | undefined {
+  const nested = resourceId(asRecord(location)?.['environment']);
   if (nested !== null) return nested;
 
   const raw = asRecord(location)?.['environment_id'];
@@ -75,7 +75,7 @@ export function pickedNodeLabel(node: { id?: number; domain_name?: unknown; name
   return name || id || '';
 }
 
-export function nodeLocation(node: Node | undefined): Location | undefined {
+export function nodeLocation(node: Node | undefined) {
   const location = node?.location;
   return location && typeof location === 'object' ? location : undefined;
 }

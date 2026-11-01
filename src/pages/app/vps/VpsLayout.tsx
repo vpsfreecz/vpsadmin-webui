@@ -6,7 +6,7 @@ import { fetchActionState } from '../../../lib/api/actionStates';
 import { fetchIpAddressesForVps } from '../../../lib/api/ipAddresses';
 import { fetchTransactionChains } from '../../../lib/api/transactions';
 import { fetchVps, vpsPasswd, vpsRestart, vpsStart, vpsStop } from '../../../lib/api/vps';
-import { getMetaActionStateId, isMissingActionStateError } from '../../../lib/api/haveapi';
+import { getMetaActionStateId, isMissingActionStateError } from '../../../lib/api/apiErrors';
 import { useAppMode } from '../../../app/appMode';
 import { useAuth } from '../../../app/auth';
 import { useObjectScope } from '../../../app/objectScope';

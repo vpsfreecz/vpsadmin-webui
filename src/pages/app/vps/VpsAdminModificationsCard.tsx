@@ -7,7 +7,7 @@ import { Alert } from '../../../components/ui/Alert';
 import { Button } from '../../../components/ui/Button';
 import { Card, CardBody, CardHeader } from '../../../components/ui/Card';
 import { fetchActionState } from '../../../lib/api/actionStates';
-import { getMetaActionStateId } from '../../../lib/api/haveapi';
+import { getMetaActionStateId } from '../../../lib/api/apiErrors';
 import { updateVps, type Vps } from '../../../lib/api/vps';
 import { formatErrorMessage } from '../../../lib/errors';
 import { gateVpsMutation } from '../../../lib/gates/vps';

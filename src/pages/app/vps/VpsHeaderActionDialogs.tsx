@@ -2,7 +2,7 @@ import React, { type Dispatch, type SetStateAction } from 'react';
 
 import { useI18n } from '../../../app/i18n';
 import type { ActionState } from '../../../lib/api/actionStates';
-import { isMissingActionStateError } from '../../../lib/api/haveapi';
+import { isMissingActionStateError } from '../../../lib/api/apiErrors';
 import { actionStateProgressLabel, actionStateProgressPercent } from '../../../lib/taskStatus';
 import { Button } from '../../../components/ui/Button';
 import { Checkbox } from '../../../components/ui/Checkbox';

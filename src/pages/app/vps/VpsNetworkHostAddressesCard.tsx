@@ -9,7 +9,7 @@ import { Card, CardBody, CardHeader } from '../../../components/ui/Card';
 import { Spinner } from '../../../components/ui/Spinner';
 import type { HostIpAddress } from '../../../lib/api/networking';
 import type { GateDecision } from '../../../lib/gates/types';
-import { hostAddr, hostAssigned, hostPtrState, hostPtrValue, hostRouteLabel } from './VpsNetworkModel';
+import { hostAddr, hostAssigned, hostPtrState, hostPtrValue, hostRouteLabel, idFromResourceRef } from './VpsNetworkModel';
 
 export function VpsNetworkHostAddressesCard(props: {
   canMutate: boolean;
@@ -165,7 +165,7 @@ export function VpsNetworkHostAddressesCard(props: {
                             variant="primary"
                             size="sm"
                             testId={`vps.network.host_addresses.row.${id}.assign`}
-                            disabled={!gate.allowed}
+                            disabled={!gate.allowed || row.assigned !== false || !idFromResourceRef(row.ip_address) || !idFromResourceRef(row.ip_address?.network_interface)}
                             disabledReason={!gate.allowed ? gate.reason : undefined}
                             loading={props.assignHostPending}
                             onClick={() => props.onAssign(row)}

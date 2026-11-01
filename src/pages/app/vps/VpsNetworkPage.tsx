@@ -1,3 +1,4 @@
+import { VpsHostAssignmentDialog } from './VpsHostAssignmentDialog';
 import React, { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
@@ -28,13 +29,14 @@ import {
   createHostIpAddress,
   deleteHostIpAddress,
   fetchHostIpAddresses,
+  fetchHostIpAddress,
   freeHostIpAddress,
   updateHostIpAddress,
   type HostIpAddress,
 } from '../../../lib/api/networking';
 import { fetchNetworkInterfaceAccountingForVps, fetchNetworkInterfaces, updateNetworkInterface, type NetworkInterface } from '../../../lib/api/networkInterfaces';
 import { updateVps } from '../../../lib/api/vps';
-import { getMetaActionStateId } from '../../../lib/api/haveapi';
+import { getMetaActionStateId } from '../../../lib/api/apiErrors';
 import { gateVpsMutation } from '../../../lib/gates/vps';
 import { ipOwnerUpdateIntent, ipRouteFreeIntent, reconcileIpAddressMutation } from '../../../lib/ipAddressMutationIntent';
 import { objectRef, type ObjectRef } from '../../../lib/objectRef';
@@ -128,7 +130,8 @@ export function VpsNetworkPage() {
   const [ptrEditor, setPtrEditor] = useState<HostIpAddress | null>(null);
   const [ptrValue, setPtrValue] = useState('');
   const [assignHost, setAssignHost] = useState<HostIpAddress | null>(null);
-  const [assignHostInterface, setAssignHostInterface] = useState('');
+  const assignHostParentInterfaceId = idFromResourceRef(assignHost?.ip_address?.network_interface);
+
   const [freeHost, setFreeHost] = useState<HostIpAddress | null>(null);
   const [deleteHost, setDeleteHost] = useState<HostIpAddress | null>(null);
   const [freeRouteIp, setFreeRouteIp] = useState<IpAddress | null>(null);
@@ -352,12 +355,17 @@ export function VpsNetworkPage() {
     onSettled: (_data, error, _variables, context) => context && chrome.settleLocalLock(context.lockRef, error, context.mutationGeneration),
   });
   const assignHostM = useMutation({
-    mutationFn: (payload: AssignHostMutation) => assignHostIpAddress(payload.hostIpId, { network_interface: payload.networkInterfaceId }),
+    mutationFn: async (payload: AssignHostMutation) => {
+      const fresh = (await fetchHostIpAddress(payload.hostIpId)).data;
+      if (fresh.assigned !== false || !idFromResourceRef(fresh.ip_address) || idFromResourceRef(fresh.ip_address?.network_interface) !== payload.parentInterfaceId) {
+        throw new Error(t('admin.host_ip_addresses.assign.route_changed'));
+      }
+      return assignHostIpAddress(payload.hostIpId);
+    },
     onMutate: (payload) => acquireMutationContext(payload),
     onSuccess: async (res, variables, context) => {
       if (variables.vpsId === vpsId) {
         setAssignHost(null);
-        setAssignHostInterface('');
       }
       trackNetworkAction(res.meta, 'action.vps.network.host_assign.label', context);
       await refreshNetworkData(variables.vpsId);
@@ -476,9 +484,8 @@ export function VpsNetworkPage() {
   };
   const submitFreeHost = () => freeHost && freeHostM.mutate({ ...snapshotVpsMutation(), hostIpId: freeHost.id });
   const submitAssignHost = () => {
-    const networkInterfaceId = parsePositiveId(assignHostInterface);
-    if (!assignHost || !networkInterfaceId) return;
-    assignHostM.mutate({ ...snapshotVpsMutation(), hostIpId: assignHost.id, networkInterfaceId });
+    if (!assignHost || assignHost.assigned !== false || !idFromResourceRef(assignHost.ip_address) || !assignHostParentInterfaceId || !assignHostParent) return;
+    assignHostM.mutate({ ...snapshotVpsMutation(), hostIpId: assignHost.id, parentInterfaceId: assignHostParentInterfaceId });
   };
   const submitDeleteHost = () => deleteHost && deleteHostM.mutate({ ...snapshotVpsMutation(), hostIpId: deleteHost.id });
   const submitFreeRoute = () => {
@@ -511,6 +518,7 @@ export function VpsNetworkPage() {
   const gate = gateVpsMutation({ vps, busyLocal, busyTransaction });
 
   const netifs = netifsQ.data ?? [];
+  const assignHostParent = netifs.find(ni => ni.id === assignHostParentInterfaceId);
   const ips = ipsQ.data ?? [];
   const hostRows = hostAddrsQ.data ?? [];
   const unassignedIps = ipByNetif.get(-1) ?? [];
@@ -668,8 +676,6 @@ export function VpsNetworkPage() {
         onAssignHost={(row) => {
           assignHostM.reset();
           setAssignHost(row);
-          const networkInterfaceId = idFromResourceRef(row.ip_address?.network_interface);
-          setAssignHostInterface(networkInterfaceId ? String(networkInterfaceId) : '');
         }}
         onFreeHost={(row) => {
           freeHostM.reset();
@@ -898,77 +904,10 @@ export function VpsNetworkPage() {
         </div>
       </ConfirmDialog>
 
-      <Modal
-        open={!!assignHost}
-        testId="vps.network.host_addresses.assign"
-        title={
-          assignHost
-            ? t('vps.network.host_addresses.assign.title_for_ip', { address: hostAddr(assignHost) })
-            : t('vps.network.host_addresses.assign.title')
-        }
-        onClose={() => {
-          if (assignHostM.isPending) return;
-          assignHostM.reset();
-          setAssignHost(null);
-          setAssignHostInterface('');
-        }}
-        footer={
-          <div className="flex items-center justify-end gap-2">
-            <Button
-              variant="secondary"
-              testId="vps.network.host_addresses.assign.cancel"
-              onClick={() => {
-                assignHostM.reset();
-                setAssignHost(null);
-                setAssignHostInterface('');
-              }}
-              disabled={assignHostM.isPending}
-            >
-              {t('common.cancel')}
-            </Button>
-            <ActionButton
-              testId="vps.network.host_addresses.assign.submit"
-              loading={assignHostM.isPending}
-              disabled={!assignHostInterface || !gate.allowed}
-              disabledReason={!gate.allowed ? gate.reason : undefined}
-              onClick={submitAssignHost}
-            >
-              {t('vps.network.host_addresses.action.assign')}
-            </ActionButton>
-          </div>
-        }
-      >
-        <div className="space-y-4">
-          <label className="block">
-            <div className="mb-1 text-sm font-medium">{t('vps.network.ip_addresses.assign.interface')}</div>
-            <Select
-              testId="vps.network.host_addresses.assign.interface"
-              value={assignHostInterface}
-              onChange={(e) => setAssignHostInterface(e.target.value)}
-              options={[
-                { value: '', label: t('vps.network.ip_addresses.assign.interface.placeholder') },
-                ...netifs.map((ni) => ({
-                  value: String(ni.id),
-                  label: `${ni.name ?? `#${ni.id}`} (#${ni.id})`,
-                })),
-              ]}
-            />
-          </label>
-          <div className="rounded-md border border-border bg-surface-2 p-3 text-xs text-muted">
-            {assignHost
-              ? t('vps.network.host_addresses.assign.preview', {
-                  address: hostAddr(assignHost),
-                  interface: netifs.find((ni) => String(ni.id) === assignHostInterface)?.name ?? (assignHostInterface ? `#${assignHostInterface}` : '—'),
-                })
-              : null}
-          </div>
-          {assignHostM.isError ? (
-            <Alert variant="danger" testId="vps.network.host_addresses.assign.error">
-              {errorMessage(assignHostM.error)}
-            </Alert>
-          ) : null}
-        </div>
-      </Modal>
+      <VpsHostAssignmentDialog host={assignHost} parent={assignHostParent} vpsId={vpsId} objectLabel={objectLabel}
+        eligible={!!assignHostParent && assignHost?.assigned === false && gate.allowed}
+        pending={assignHostM.isPending} error={assignHostM.isError ? errorMessage(assignHostM.error) : null}
+        onClose={() => { if (!assignHostM.isPending) { assignHostM.reset(); setAssignHost(null); } }} onConfirm={submitAssignHost} />
 
       <Modal
         open={!!ownerIp}

@@ -5,7 +5,7 @@ import { Plus } from 'lucide-react';
 
 import { fetchActiveTransactionChains, fetchTransactionChains } from '../../lib/api/transactions';
 import { fetchVpsList, vpsDelete, vpsRestart, vpsStart, vpsStop } from '../../lib/api/vps';
-import { getMetaActionStateId } from '../../lib/api/haveapi';
+import { getMetaActionStateId } from '../../lib/api/apiErrors';
 import { useAppMode } from '../../app/appMode';
 import { useObjectScope } from '../../app/objectScope';
 import { useI18n } from '../../app/i18n';

@@ -14,12 +14,11 @@ import {
   updateVpsUserData,
   type VpsUserData,
 } from '../../lib/api/vpsUserData';
-import { getMetaActionStateId } from '../../lib/api/haveapi';
+import { getMetaActionStateId } from '../../lib/api/apiErrors';
 import { objectRef } from '../../lib/objectRef';
 import { formatErrorMessage } from '../../lib/errors';
 import { cursorFromDescendingPage } from '../../lib/lockIndex';
 import { useKeysetPagination } from '../../lib/hooks/useKeysetPagination';
-import { parseNumericToken, splitKeyValueToken, tokenizeSmartInput, unquoteSmartValue } from '../../lib/smartFilter';
 
 import { useChrome } from '../layout/ChromeContext';
 import { Alert } from '../ui/Alert';
@@ -35,7 +34,6 @@ import {
   buildUserDataValidationHints,
   canSaveUserDataForm,
   initUserDataForm,
-  resolveUserDataFormat,
   safeUserDataId,
   type UserDataEditorState,
   type UserDataFormState,
@@ -62,101 +60,34 @@ export function UserDataTemplatesPanel(props: {
 
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const qRaw = searchParams.get('q') ?? '';
-  const qTrim = qRaw.trim();
   const formatFilter = (searchParams.get('format') ?? '').trim();
-
-  const [smart, setSmart] = useState('');
-  const [smartErrors, setSmartErrors] = useState<string[]>([]);
-  const filtersActive = Boolean(qTrim) || Boolean(formatFilter) || smartErrors.length > 0;
+  const [removedTextSearch, setRemovedTextSearch] = useState(false);
+  const filtersActive = Boolean(formatFilter);
   const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
 
   function setFilters(nextVals: UserDataFilterValues) {
     const next = new URLSearchParams(searchParams);
-    if (nextVals.q && nextVals.q.trim()) next.set('q', nextVals.q.trim());
-    else next.delete('q');
-    if (nextVals.format && nextVals.format.trim()) next.set('format', nextVals.format.trim());
+    next.delete('q');
+    if (nextVals.format.trim()) next.set('format', nextVals.format.trim());
     else next.delete('format');
     next.delete('from');
     setSearchParams(next, { replace: true });
   }
 
-  function clearFilters() {
-    setFilters({ q: '', format: '' });
-    setSmart('');
-    setSmartErrors([]);
-  }
+  function clearFilters() { setFilters({ format: '' }); }
 
-  function applySmart(rawInput?: string) {
-    const raw = String(rawInput ?? smart).trim();
-    if (!raw || raw === '?') return;
-
-    const tokens = tokenizeSmartInput(raw);
-    let nextQ = qTrim;
-    let nextFormat = formatFilter;
-    const errors: string[] = [];
-
-    for (const token of tokens) {
-      const kv = splitKeyValueToken(token);
-      if (!kv) {
-        const n = parseNumericToken(token);
-        nextQ = n !== null ? String(n) : unquoteSmartValue(token);
-        continue;
-      }
-
-      const key = kv.rawKey.trim().toLowerCase();
-      const value = unquoteSmartValue(kv.rawValue).trim();
-      if (!value) {
-        errors.push(t('filters.smart.error.missing_value', { key }));
-        continue;
-      }
-
-      switch (key) {
-        case 'q':
-        case 'search':
-        case 'label':
-          nextQ = value;
-          break;
-        case 'id': {
-          const n = parseNumericToken(value);
-          if (n === null) errors.push(t('filters.smart.error.numeric_only', { key, value }));
-          else nextQ = String(n);
-          break;
-        }
-        case 'format':
-        case 'f': {
-          const match = resolveUserDataFormat(value);
-          if (match === null) errors.push(t('filters.smart.error.option_unresolved', { key, value }));
-          else nextFormat = match;
-          break;
-        }
-        default:
-          errors.push(t('filters.smart.error.unknown_key', { key }));
-      }
-    }
-
-    setSmartErrors(errors);
-    if (errors.length > 0) return;
-    setFilters({ q: nextQ, format: nextFormat });
-    setSmart('');
-  }
-
-  // Keep URL clean (trim/normalize).
   React.useEffect(() => {
+    if (!searchParams.has('q')) return;
     const next = new URLSearchParams(searchParams);
-
-    if (qTrim) next.set('q', qTrim);
-    else next.delete('q');
-
-    if (formatFilter) next.set('format', formatFilter);
-    else next.delete('format');
-
-    if (next.toString() !== searchParams.toString()) setSearchParams(next, { replace: true });
-  }, [formatFilter, qTrim, searchParams, setSearchParams]);
+    next.delete('q');
+    next.delete('from');
+    setRemovedTextSearch(true);
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams]);
 
   const pagination = useKeysetPagination({
     id: props.testIdPrefix,
-    filterKey: JSON.stringify({ q: qTrim, f: formatFilter, u: props.userIdForAdmin ?? null }),
+    filterKey: JSON.stringify({ f: formatFilter, u: props.userIdForAdmin ?? null }),
     searchParams,
     setSearchParams,
     defaultLimit: 50,
@@ -170,7 +101,6 @@ export function UserDataTemplatesPanel(props: {
       {
         limit: pagination.limit,
         fromId: pagination.fromId,
-        q: qTrim,
         format: formatFilter,
         user: isAdmin ? props.userIdForAdmin ?? null : null,
       },
@@ -180,7 +110,6 @@ export function UserDataTemplatesPanel(props: {
         await fetchVpsUserDataList({
           limit: pagination.limit,
           fromId: pagination.fromId,
-          q: qTrim || undefined,
           format: formatFilter || undefined,
           user: isAdmin ? props.userIdForAdmin : undefined,
         })
@@ -320,19 +249,13 @@ export function UserDataTemplatesPanel(props: {
   return (
     <>
       <div className="space-y-4" data-testid={`${prefix}.panel`}>
+        {removedTextSearch ? <Alert variant="neutral">{t('filters.unsupported_text_search_removed')}</Alert> : null}
         <UserDataTemplatesFilters
           prefix={prefix}
-          qRaw={qRaw}
-          qTrim={qTrim}
           formatFilter={formatFilter}
-          smart={smart}
-          smartErrors={smartErrors}
           filtersActive={filtersActive}
           shareUrl={shareUrl}
           formatOptions={formatOptions}
-          setSmart={setSmart}
-          onApplySmart={applySmart}
-          onRemoveSmartError={(idx) => setSmartErrors((cur) => cur.filter((_, i) => i !== idx))}
           onSetFilters={setFilters}
           onClearFilters={clearFilters}
           onCreate={openCreate}

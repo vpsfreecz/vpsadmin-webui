@@ -15,7 +15,7 @@ import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
 import { Input } from '../../../components/ui/Input';
 import { Select, type SelectOption } from '../../../components/ui/Select';
 import { fetchDnsResolvers } from '../../../lib/api/dnsResolvers';
-import { getMetaActionStateId, isMissingActionStateError } from '../../../lib/api/haveapi';
+import { getMetaActionStateId, isMissingActionStateError } from '../../../lib/api/apiErrors';
 import { explicitUserNamespaceOwnerId, fetchUserNamespaceMaps } from '../../../lib/api/userNamespaces';
 import { updateVps } from '../../../lib/api/vps';
 import { gateVpsMutation } from '../../../lib/gates/vps';

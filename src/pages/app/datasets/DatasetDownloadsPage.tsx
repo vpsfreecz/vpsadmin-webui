@@ -13,7 +13,7 @@ import { ConfirmDialog } from "../../../components/ui/ConfirmDialog";
 import { ErrorState } from "../../../components/ui/ErrorState";
 import { LoadingState } from "../../../components/ui/LoadingState";
 import { fetchTransactionChains } from "../../../lib/api/transactions";
-import { getMetaActionStateId, getMetaTotalCount } from "../../../lib/api/haveapi";
+import { getMetaActionStateId, getMetaTotalCount } from "../../../lib/api/apiErrors";
 import {
   createSnapshotDownload,
   deleteSnapshotDownload,
@@ -56,11 +56,7 @@ export function DatasetDownloadsPage() {
   const chrome = useChrome();
   const { t } = useI18n();
   const { role } = useAuth();
-  const datasetLabelForToast =
-    dataset.label ??
-    dataset.full_name ??
-    dataset.name ??
-    `Dataset #${dataset.id}`;
+  const datasetLabelForToast = dataset.name || `Dataset #${dataset.id}`;
 
   const [searchParams, setSearchParams] = useSearchParams();
   const pagination = useKeysetPagination({

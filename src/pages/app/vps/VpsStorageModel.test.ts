@@ -18,37 +18,39 @@ import {
 import type { VpsMount } from '../../../lib/api/vpsMounts';
 
 describe('VpsStorageModel', () => {
-  it('builds legacy-compatible create and update mount payloads', () => {
+  it('summarizes partial and null root references without inventing identity or capacity', () => {
+    expect(rootDatasetSummary(null, { name: 'root', id: null })).toMatchObject({
+      id: null, label: 'root', used: null, available: null, capacityPercent: null,
+    });
+    for (const fallback of [undefined, null, {}, { id: null }]) {
+      expect(rootDatasetSummary(null, fallback)).toMatchObject({
+        id: null, used: null, available: null, capacityPercent: null,
+      });
+    }
+  });
+
+  it('builds only declared create and mutable update mount payloads', () => {
     const draft = {
       ...defaultMountDraft(),
       dataset: { id: 77, name: 'tank/data' },
       mountpoint: ' /srv/data ',
-      type: 'bind' as const,
       mode: 'ro' as const,
       onStartFail: 'fail' as const,
       enabled: false,
       masterEnabled: false,
-      useDefaultMap: false,
     };
 
     expect(buildCreateMountPayload(draft, true)).toEqual({
       dataset: 77,
       mountpoint: '/srv/data',
-      type: 'bind',
       mode: 'ro',
       on_start_fail: 'fail',
       enabled: false,
-      master_enabled: false,
-      use_default_map: false,
     });
 
     expect(buildUpdateMountPayload(draft, false)).toEqual({
-      mountpoint: '/srv/data',
-      type: 'bind',
-      mode: 'ro',
       on_start_fail: 'fail',
       enabled: false,
-      use_default_map: false,
     });
   });
 
@@ -72,18 +74,15 @@ describe('VpsStorageModel', () => {
       id: 10,
       dataset: { id: 7, name: 'tank/app' },
       mountpoint: '/srv/app',
-      type: 'nfs',
       mode: 'rw',
       on_start_fail: 'ignore',
       enabled: true,
       master_enabled: true,
-      use_default_map: true,
     };
 
     const draft = { ...mountDraftFromMount(mount), mode: 'ro' as const, onStartFail: 'umount' as const, masterEnabled: false };
 
     expect(buildMountDiff(draft, mount, false)).toEqual([
-      { field: 'mode', before: 'rw', after: 'ro' },
       { field: 'on_start_fail', before: 'ignore', after: 'umount' },
     ]);
 

@@ -57,7 +57,7 @@ describe('vps access API wrappers', () => {
 
   it('deploys a saved public key through the vps deploy_public_key action', async () => {
     setMockRuntime();
-    const fetchMock = installOkFetch({ _meta: { action_state: 43 } });
+    const fetchMock = installOkFetch({ vps: {}, _meta: { action_state: 43 } });
 
     await deployVpsPublicKey(13, 7);
 

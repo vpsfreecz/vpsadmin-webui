@@ -14,7 +14,7 @@ import type { Location } from '../../../lib/api/infra';
 import type { Node } from '../../../lib/api/nodes';
 import type { OsTemplate } from '../../../lib/api/osTemplates';
 import type { User } from '../../../lib/api/users';
-import { isMissingActionStateError } from '../../../lib/api/haveapi';
+import { isMissingActionStateError } from '../../../lib/api/apiErrors';
 import { formatErrorMessage } from '../../../lib/errors';
 import {
   formatMib,

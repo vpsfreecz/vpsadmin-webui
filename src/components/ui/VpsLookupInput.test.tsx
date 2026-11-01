@@ -22,7 +22,7 @@ vi.mock('../../app/i18n', () => ({
 }));
 
 function reply(data: Vps[]) {
-  return { data, envelope: { status: true, response: {} } };
+  return { data, meta: {}, envelope: { status: true, response: {} }, httpStatus: 200 };
 }
 
 function deferred<T>() {

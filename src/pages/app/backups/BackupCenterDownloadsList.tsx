@@ -44,7 +44,7 @@ export function BackupCenterDownloadsList(props: {
       datasetLabel,
       snapshotLabel,
       detailPath: snapshotDownloadDatasetPath(download, dataset),
-      expiration: String(download.expiration_date ?? download.expires_at ?? ''),
+      expiration: String(download.expiration_date ?? download['expires_at'] ?? ''),
     };
   });
 

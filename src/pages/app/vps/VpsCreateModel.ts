@@ -85,9 +85,10 @@ export function optionalResource(raw: string): number | undefined {
   return toPositiveInt(trimmed);
 }
 
-export function labelOf(x: { id: number; label?: string; name?: string; domain?: string; fqdn?: string }): string {
-  const main = x.label || x.name || x.fqdn || x.domain || `#${x.id}`;
-  return `${main} (#${x.id})`;
+export function labelOf(x: { id?: unknown; label?: unknown; name?: unknown; domain?: unknown; fqdn?: unknown }): string {
+  const main = [x.label, x.name, x.fqdn, x.domain].find((value): value is string => typeof value === 'string' && Boolean(value.trim()));
+  const id = typeof x.id === 'number' && Number.isSafeInteger(x.id) && x.id > 0 ? x.id : undefined;
+  return main && id ? `${main} (#${id})` : main || (id ? `#${id}` : '—');
 }
 
 export function templateLabel(t: OsTemplate): string {

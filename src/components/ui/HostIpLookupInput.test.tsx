@@ -51,7 +51,7 @@ describe('HostIpLookupInput', () => {
   test('exposes a keyboard-operable combobox and selects an eligible result', async () => {
     vi.mocked(fetchHostIpAddresses).mockResolvedValue({
       data: [{ id: 12, addr: '192.0.2.12' }],
-      envelope: { status: true, response: {} },
+      envelope: { status: true, response: {} }, meta: {}, httpStatus: 200,
     });
     const { onChange } = renderLookup({ filters: { usableFor: 'vps', routed: true } });
     const input = screen.getByRole('combobox', { name: 'Host IP' });
@@ -74,7 +74,7 @@ describe('HostIpLookupInput', () => {
   test('checks an outside-sample eligible ID with the same filters before selecting it', async () => {
     vi.mocked(fetchHostIpAddresses).mockImplementation(async (opts) => ({
       data: opts?.fromId === 10 ? [{ id: 11, addr: '192.0.2.11' }] : [{ id: 12, addr: '192.0.2.12' }],
-      envelope: { status: true, response: {} },
+      envelope: { status: true, response: {} }, meta: {}, httpStatus: 200,
     }));
     const { onChange } = renderLookup({ filters: { usableFor: 'vps', routed: true } });
     const input = screen.getByRole('combobox', { name: 'Host IP' });
@@ -92,7 +92,7 @@ describe('HostIpLookupInput', () => {
   test('rejects an ID filtered out by the server without treating the sample as exhaustive', async () => {
     vi.mocked(fetchHostIpAddresses).mockImplementation(async (opts) => ({
       data: opts?.fromId === 10 ? [{ id: 13, addr: '192.0.2.13' }] : [{ id: 12, addr: '192.0.2.12' }],
-      envelope: { status: true, response: {} },
+      envelope: { status: true, response: {} }, meta: {}, httpStatus: 200,
     }));
     const { onChange } = renderLookup({
       filters: { usableFor: 'vps', routed: true },
@@ -117,7 +117,7 @@ describe('HostIpLookupInput', () => {
     language.value = lang;
     vi.mocked(fetchHostIpAddresses).mockImplementation(async (opts) => {
       if (opts?.fromId === 10) throw new Error('private backend response');
-      return { data: [], envelope: { status: true, response: {} } };
+      return { data: [], envelope: { status: true, response: {} }, meta: {}, httpStatus: 200 };
     });
     const { onChange } = renderLookup({ filters: { usableFor: 'vps', routed: true } });
     const input = screen.getByRole('combobox', { name: 'Host IP' });
@@ -133,7 +133,7 @@ describe('HostIpLookupInput', () => {
     let resolveExact!: (value: Awaited<ReturnType<typeof fetchHostIpAddresses>>) => void;
     vi.mocked(fetchHostIpAddresses).mockImplementation(async (opts) => {
       if (opts?.fromId === 10) return new Promise((resolve) => { resolveExact = resolve; });
-      return { data: [{ id: 12, addr: '192.0.2.12' }], envelope: { status: true, response: {} } };
+      return { data: [{ id: 12, addr: '192.0.2.12' }], envelope: { status: true, response: {} }, meta: {}, httpStatus: 200 };
     });
     const { onChange, rerenderLookup } = renderLookup({ userId: 1, filters: { usableFor: 'vps', routed: true } });
     const input = screen.getByRole('combobox', { name: 'Host IP' });
@@ -144,14 +144,14 @@ describe('HostIpLookupInput', () => {
     await waitFor(() => expect(input).toBeDisabled());
     rerenderLookup({ userId: 2, filters: { usableFor: 'vps', routed: true } });
     await waitFor(() => expect(input).not.toBeDisabled());
-    resolveExact({ data: [{ id: 11, addr: '192.0.2.11' }], envelope: { status: true, response: {} } });
+    resolveExact({ data: [{ id: 11, addr: '192.0.2.11' }], envelope: { status: true, response: {} }, meta: {}, httpStatus: 200 });
     await waitFor(() => expect(onChange).not.toHaveBeenCalledWith(11));
     expect(onChange).toHaveBeenLastCalledWith(null);
   });
 
   test('uses exact addr with eligibility filters and no unsupported q', async () => {
     vi.mocked(fetchHostIpAddresses).mockResolvedValue({
-      data: [{ id: 99, addr: '192.0.2.99' }], envelope: { status: true, response: {} },
+      data: [{ id: 99, addr: '192.0.2.99' }], envelope: { status: true, response: {} }, meta: {}, httpStatus: 200,
     });
     renderLookup({ filters: { usableFor: 'vps', routed: true } });
     const input = screen.getByRole('combobox', { name: 'Host IP' });
@@ -168,7 +168,7 @@ describe('HostIpLookupInput', () => {
     ['cs', 'Zobrazují se jen návrhy z načtených adres. Pro vyhledání zadej přesnou IP adresu.'],
   ] as const)('renders the %s sample notice from the real catalog', async (lang, copy) => {
     language.value = lang;
-    vi.mocked(fetchHostIpAddresses).mockResolvedValue({ data: [], envelope: { status: true, response: {} } });
+    vi.mocked(fetchHostIpAddresses).mockResolvedValue({ data: [], envelope: { status: true, response: {} }, meta: {}, httpStatus: 200 });
     renderLookup({ filters: { usableFor: 'vps', routed: true } });
     fireEvent.focus(screen.getByRole('combobox', { name: 'Host IP' }));
     expect(await screen.findByText(copy)).toBeInTheDocument();

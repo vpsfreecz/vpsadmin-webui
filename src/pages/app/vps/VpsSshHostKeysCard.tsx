@@ -49,7 +49,7 @@ export function VpsSshHostKeysCard(props: {
           <>
             <div className="grid gap-3 md:grid-cols-2" data-testid="vps.access.host_keys.fingerprints">
               {hostKeys.map((key, index) => {
-                const rowId = valueString(key.id) ?? String(index + 1);
+                const rowId = valueString(key.id ?? undefined) ?? String(index + 1);
                 const fingerprint = hostKeyDisplayFingerprint(key);
 
                 return (
@@ -79,7 +79,7 @@ export function VpsSshHostKeysCard(props: {
                 <tbody>
                   {hostKeys.map((key, index) => {
                     const material = hostKeyMaterial(key);
-                    const rowId = valueString(key.id) ?? String(index + 1);
+                    const rowId = valueString(key.id ?? undefined) ?? String(index + 1);
 
                     return (
                       <tr key={rowId} data-testid={`vps.access.host_keys.row.${rowId}`}>

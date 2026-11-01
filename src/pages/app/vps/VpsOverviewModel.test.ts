@@ -11,11 +11,31 @@ import {
   classifyIpAddress,
   primarySshIpAddress,
   resourceLabel,
+  resourceId,
+  ownerId,
+  ownerLabel,
   shouldShowVpsOwner,
   sortChainsForOverview,
 } from './VpsOverviewModel';
 
 describe('VpsOverviewModel', () => {
+  it('keeps partial owner identities unavailable without fabricating labels', () => {
+    expect(ownerLabel({ id: 12, user: { login: 'member' } })).toBe('member');
+    expect(ownerId({ id: 12, user: { login: 'member' } })).toBeUndefined();
+    expect(ownerLabel({ id: 12, user: { id: 8, login: null } })).toBe('#8');
+    for (const user of [undefined, null, {}, { id: null }, { login: '' }]) {
+      expect(ownerId({ id: 12, user })).toBeUndefined();
+      expect(ownerLabel({ id: 12, user })).toBeUndefined();
+    }
+  });
+
+  it('uses only a real positive safe ID from a partial relation', () => {
+    expect(resourceId({ id: 8 })).toBe(8);
+    for (const relation of [undefined, null, {}, { id: null }, { id: '8' }, { id: 0 }, { id: -1 }, { id: 1.5 }]) {
+      expect(resourceId(relation)).toBeUndefined();
+    }
+  });
+
   describe('shouldShowVpsOwner', () => {
     it('hides the owner row for the current owner in user mode', () => {
       expect(shouldShowVpsOwner({ mode: 'user', ownerId: 10, currentUserId: 10 })).toBe(false);

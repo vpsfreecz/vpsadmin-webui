@@ -37,14 +37,10 @@ test.describe('Profile: user data templates', () => {
       },
       handlers: {
         'GET vps_user_data': async ({ params }) => {
-          const q = (params['vps_user_data[q]'] ?? '').toString().trim().toLowerCase();
+          expect(params['vps_user_data[q]']).toBeUndefined();
           const format = (params['vps_user_data[format]'] ?? '').toString().trim();
 
           let out = [...templates].sort((a, b) => b.id - a.id);
-
-          if (q) {
-            out = out.filter((x) => x.label.toLowerCase().includes(q) || `#${x.id}`.includes(q));
-          }
 
           if (format) {
             out = out.filter((x) => x.format === format);
@@ -299,7 +295,7 @@ test.describe('Profile: user data templates', () => {
 });
 
 for (const language of ['cs', 'en'] as const) {
-  test(`@pr-smoke @pr-smoke-mobile centered template editor and filters remain usable (${language})`, async ({ page, hasTouch }, testInfo) => {
+  test(`@pr-smoke @pr-smoke-mobile centered template editor and supported filters remain usable (${language})`, async ({ page, hasTouch }, testInfo) => {
     await bootstrapVpsAdminWindow(page);
     await setUiSettingsLocalStorage(page, { language, theme: 'dark' });
     await installHaveApiMock(page, { handlers: { 'GET vps_user_data': () => [] } });
@@ -329,11 +325,8 @@ for (const language of ['cs', 'en'] as const) {
     await expect(dialog).toBeHidden();
     // Safari touch activation does not focus buttons; keyboard activation does.
     if (!hasTouch) await expect(open).toBeFocused();
-    const filtersOpen = page.getByTestId('profile.user_data.filters.advanced');
-    if (hasTouch) await filtersOpen.tap(); else await filtersOpen.click();
-    const filters = page.getByTestId('profile.user_data.filters.advanced.drawer');
-    await expectCenteredDialog(page, filters);
-    await filters.getByTestId('drawer.close').click();
-    await expect(filters).toBeHidden();
+    await expect(page.getByTestId('profile.user_data.filters.advanced')).toHaveCount(0);
+    await expect(page.getByTestId('profile.user_data.filters.search')).toHaveCount(0);
+    await expect(page.getByTestId('profile.user_data.filters.format')).toBeVisible();
   });
 }

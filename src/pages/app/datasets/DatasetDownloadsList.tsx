@@ -28,7 +28,7 @@ import {
 } from "./DatasetDownloadStatusView";
 
 function formatLabel(
-  fmt: SnapshotDownloadFormat | undefined,
+  fmt: string | null | undefined,
   t: (k: string) => string,
 ): string {
   if (fmt === "archive") return t("dataset.download.format.archive");

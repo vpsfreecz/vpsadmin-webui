@@ -1,19 +1,16 @@
-import type { ResourceRef } from '../../../lib/api/appTypes';
 import type { IpAddress } from '../../../lib/api/ipAddresses';
 import type { Vps } from '../../../lib/api/vps';
 
 export type AssignableIpKind = 'ipv4_public' | 'ipv4_private' | 'ipv6';
 
-type IdLike = number | string | ResourceRef | null | undefined;
-
-export function resourceId(value: IdLike): number | null {
-  if (typeof value === 'number') return Number.isInteger(value) && value > 0 ? value : null;
-  if (typeof value === 'string') {
+export function resourceId(value: unknown): number | null {
+  if (typeof value === 'number') return Number.isSafeInteger(value) && value > 0 ? value : null;
+  if (typeof value === 'string' && /^\d+$/.test(value)) {
     const parsed = Number(value);
-    return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+    return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : null;
   }
-  if (!value || typeof value !== 'object') return null;
-  return resourceId(value.id as number | string | undefined);
+  if (!value || typeof value !== 'object' || Array.isArray(value) || !('id' in value)) return null;
+  return resourceId(value.id);
 }
 
 export function vpsLocationId(vps: Vps | null | undefined): number | null {
@@ -52,12 +49,12 @@ export function matchesAssignableIpKind(ip: IpAddress, kind: AssignableIpKind): 
 }
 
 export function isAssignedIp(ip: IpAddress): boolean {
-  return resourceId(ip.network_interface as ResourceRef | number | string | null | undefined) !== null;
+  return resourceId(ip.network_interface) !== null;
 }
 
 export function isOwnedByUser(ip: IpAddress, userId: number | null | undefined): boolean {
   if (!userId) return false;
-  return resourceId(ip.user as ResourceRef | number | string | null | undefined) === userId;
+  return resourceId(ip.user) === userId;
 }
 
 export function isVisibleUserIp(ip: IpAddress, userId: number | null | undefined): boolean {

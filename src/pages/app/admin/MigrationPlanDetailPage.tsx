@@ -5,7 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createMigrationPlanVpsMigration, cancelMigrationPlan, deleteMigrationPlan, fetchMigrationPlan, fetchMigrationPlanVpsMigrations, startMigrationPlan, type MigrationPlan, type VpsMigration } from '../../../lib/api/migrations';
 import { fetchActiveTransactionChains } from '../../../lib/api/transactions';
 import { fetchNodes } from '../../../lib/api/nodes';
-import { getMetaActionStateId, isAmbiguousMutationError } from '../../../lib/api/haveapi';
+import { getMetaActionStateId, isAmbiguousMutationError } from '../../../lib/api/apiErrors';
 import { useAppMode } from '../../../app/appMode';
 import { useI18n } from '../../../app/i18n';
 import { useChrome } from '../../../components/layout/ChromeContext';

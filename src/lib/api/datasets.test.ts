@@ -190,7 +190,7 @@ describe('datasets API wrappers', () => {
 
   test('rollback requires a valid action-state id', async () => {
     setMockRuntime();
-    installHaveApiXhr( mockFetchOk({ ok: true, _meta: {} }));
+    installHaveApiXhr( mockFetchOk({ snapshot: {}, _meta: {} }));
 
     await expect(rollbackDatasetSnapshot(123, 9)).rejects.toMatchObject({
       code: 'MISSING_ACTION_STATE',
@@ -199,7 +199,7 @@ describe('datasets API wrappers', () => {
 
   test('rollback accepts and preserves a valid action-state id', async () => {
     setMockRuntime();
-    const fetchMock = mockFetchOk({ _meta: { action_state_id: 812 } });
+    const fetchMock = mockFetchOk({ snapshot: {}, _meta: { action_state_id: 812 } });
     installHaveApiXhr( fetchMock);
 
     await expect(rollbackDatasetSnapshot(123, 9)).resolves.toMatchObject({
@@ -227,7 +227,7 @@ describe('datasets API wrappers', () => {
 
   test('updateDataset sends editable properties to dataset namespace', async () => {
     setMockRuntime();
-    const fetchMock = mockFetchOk(null);
+    const fetchMock = mockFetchOk({ dataset: {} });
     installHaveApiXhr( fetchMock);
 
     await updateDataset(123, { quota: 20480, sync: 'standard', admin_override: true, admin_lock_type: 'not_more' });
@@ -242,7 +242,7 @@ describe('datasets API wrappers', () => {
 
   test('deleteDataset uses dataset endpoint', async () => {
     setMockRuntime();
-    const fetchMock = mockFetchOk(null);
+    const fetchMock = mockFetchOk({ dataset: {} });
     installHaveApiXhr( fetchMock);
 
     await deleteDataset(123);

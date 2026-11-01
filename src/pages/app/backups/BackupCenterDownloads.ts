@@ -4,7 +4,7 @@ import {
   type Dataset,
   type SnapshotDownload,
 } from '../../../lib/api/datasets';
-import { getMetaTotalCount } from '../../../lib/api/haveapi';
+import { getMetaTotalCount } from '../../../lib/api/apiErrors';
 import { cursorFromAscendingPage } from '../../../lib/lockIndex';
 
 const DEFAULT_PAGE_LIMIT = 100;

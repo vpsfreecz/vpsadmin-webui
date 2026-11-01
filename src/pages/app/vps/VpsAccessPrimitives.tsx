@@ -2,7 +2,7 @@ import React, { useId, useState } from 'react';
 
 import { useI18n } from '../../../app/i18n';
 import { Button } from '../../../components/ui/Button';
-import { isMissingActionStateError } from '../../../lib/api/haveapi';
+import { isMissingActionStateError } from '../../../lib/api/apiErrors';
 import type { ApiResult, VpsGeneratedPassword, VpsPasswordType, VpsPublicKey } from '../../../lib/api/vpsAccess';
 
 export type GeneratedCredential = {

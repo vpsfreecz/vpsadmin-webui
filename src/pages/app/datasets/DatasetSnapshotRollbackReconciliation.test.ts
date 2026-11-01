@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { isAmbiguousMutationError } from '../../../lib/api/haveapi';
+import { isAmbiguousMutationError } from '../../../lib/api/apiErrors';
 import {
   createDatasetSnapshotRollbackIntent,
   prepareDatasetSnapshotRollbackIntent,

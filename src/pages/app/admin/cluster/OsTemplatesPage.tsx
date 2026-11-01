@@ -1,3 +1,4 @@
+import type { OsTemplate__CreateInput } from 'vpsadmin-typescript-client';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { CircleHelp, SlidersHorizontal } from 'lucide-react';
@@ -35,7 +36,7 @@ import { SwitchRow } from '../../../../components/ui/SwitchRow';
 import { Textarea } from '../../../../components/ui/Textarea';
 import { OsTemplatesList } from './OsTemplatesList';
 function osFamilyLabel(f: OsFamily): string {
-  const label = typeof (f as any).label === 'string' ? String((f as any).label).trim() : '';
+  const label = f.label?.trim() ?? '';
   return label || `#${f.id}`;
 }
 type EditorState =
@@ -72,12 +73,10 @@ type FormState = {
 };
 
 function initForm(tpl?: OsTemplate): FormState {
-  const f: any = tpl ?? {};
+  const f: Partial<OsTemplate> = tpl ?? {};
 
   const osFamilyId =
-    typeof f.os_family === 'number'
-      ? String(f.os_family)
-      : typeof f.os_family?.id === 'number'
+    typeof f.os_family?.id === 'number'
         ? String(f.os_family.id)
         : '';
 
@@ -108,11 +107,12 @@ function initForm(tpl?: OsTemplate): FormState {
   };
 }
 
-function buildPayload(form: FormState) {
+function buildPayload(form: FormState): OsTemplate__CreateInput {
   const osFamilyId = parsePositiveInt(form.osFamilyId.trim());
   const order = parsePositiveInt(form.order.trim());
+  if (!osFamilyId) throw new Error('Invalid OS family');
 
-  const payload: Record<string, unknown> = {
+  const payload: OsTemplate__CreateInput = {
     os_family: osFamilyId,
     label: form.label.trim(),
     info: form.info.trim() || undefined,
@@ -128,11 +128,11 @@ function buildPayload(form: FormState) {
     enable_script: form.enableScript,
     enable_cloud_init: form.enableCloudInit,
 
-    vendor: form.vendor.trim() || undefined,
-    variant: form.variant.trim() || undefined,
-    arch: form.arch.trim() || undefined,
-    distribution: form.distribution.trim() || undefined,
-    version: form.version.trim() || undefined,
+    vendor: form.vendor.trim(),
+    variant: form.variant.trim(),
+    arch: form.arch.trim(),
+    distribution: form.distribution.trim(),
+    version: form.version.trim(),
 
     config: form.config,
   };
@@ -145,99 +145,33 @@ export function OsTemplatesPage() {
   const { pushToast } = useToasts();
   const qc = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
-  const smartInputRef = useRef<HTMLInputElement | null>(null);
-
-  const [q, setQ] = useState(() => searchParams.get('q') ?? '');
   const [osFamily, setOsFamily] = useState(() => searchParams.get('os_family') ?? '');
-  const [enabled, setEnabled] = useState(() => searchParams.get('enabled') ?? '');
-  const [supported, setSupported] = useState(() => searchParams.get('supported') ?? '');
   const [hypervisorType, setHypervisorType] = useState(() => searchParams.get('hypervisor_type') ?? '');
   const [cgroupVersion, setCgroupVersion] = useState(() => searchParams.get('cgroup_version') ?? '');
   const [enableScript, setEnableScript] = useState(() => searchParams.get('enable_script') ?? '');
   const [enableCloudInit, setEnableCloudInit] = useState(() => searchParams.get('enable_cloud_init') ?? '');
-  const [smart, setSmart] = useState('');
-  const [smartErrors, setSmartErrors] = useState<string[]>([]);
-  const [helpOpen, setHelpOpen] = useState(false);
   const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [removedFilters, setRemovedFilters] = useState(false);
+  const osFamilyId = parsePositiveInt(osFamily.trim());
+  const hvTrim = hypervisorType.trim();
+  const cgTrim = cgroupVersion.trim();
+  const enableScriptBool = parseBoolParam(enableScript);
+  const enableCloudInitBool = parseBoolParam(enableCloudInit);
 
-  // Sync local state on browser navigation.
-  useEffect(() => {
-    const urlQ = searchParams.get('q') ?? '';
-    const urlFam = searchParams.get('os_family') ?? '';
-    const urlEnabled = searchParams.get('enabled') ?? '';
-    const urlSupported = searchParams.get('supported') ?? '';
-    const urlHv = searchParams.get('hypervisor_type') ?? '';
-    const urlCg = searchParams.get('cgroup_version') ?? '';
-    const urlEs = searchParams.get('enable_script') ?? '';
-    const urlCi = searchParams.get('enable_cloud_init') ?? '';
-
-    if (urlQ !== q) setQ(urlQ);
-    if (urlFam !== osFamily) setOsFamily(urlFam);
-    if (urlEnabled !== enabled) setEnabled(urlEnabled);
-    if (urlSupported !== supported) setSupported(urlSupported);
-    if (urlHv !== hypervisorType) setHypervisorType(urlHv);
-    if (urlCg !== cgroupVersion) setCgroupVersion(urlCg);
-    if (urlEs !== enableScript) setEnableScript(urlEs);
-    if (urlCi !== enableCloudInit) setEnableCloudInit(urlCi);
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
-
-  const qTrim = useMemo(() => q.trim(), [q]);
-  const osFamilyId = useMemo(() => parsePositiveInt(osFamily.trim()), [osFamily]);
-  const enabledBool = useMemo(() => parseBoolParam(enabled), [enabled]);
-  const supportedBool = useMemo(() => parseBoolParam(supported), [supported]);
-  const hvTrim = useMemo(() => hypervisorType.trim(), [hypervisorType]);
-  const cgTrim = useMemo(() => cgroupVersion.trim(), [cgroupVersion]);
-  const enableScriptBool = useMemo(() => parseBoolParam(enableScript), [enableScript]);
-  const enableCloudInitBool = useMemo(() => parseBoolParam(enableCloudInit), [enableCloudInit]);
-
-  // Persist filters in URL (shareable).
   useEffect(() => {
     const next = new URLSearchParams(searchParams);
-
-    if (qTrim) next.set('q', qTrim);
-    else next.delete('q');
-
-    if (osFamilyId) next.set('os_family', String(osFamilyId));
-    else if (!osFamily.trim()) next.delete('os_family');
-
-    if (enabledBool === true) next.set('enabled', 'true');
-    else if (enabledBool === false) next.set('enabled', 'false');
-    else next.delete('enabled');
-
-    if (supportedBool === true) next.set('supported', 'true');
-    else if (supportedBool === false) next.set('supported', 'false');
-    else next.delete('supported');
-
-    if (hvTrim) next.set('hypervisor_type', hvTrim);
-    else next.delete('hypervisor_type');
-
-    if (cgTrim) next.set('cgroup_version', cgTrim);
-    else next.delete('cgroup_version');
-
-    if (enableScriptBool === true) next.set('enable_script', 'true');
-    else if (enableScriptBool === false) next.set('enable_script', 'false');
-    else next.delete('enable_script');
-
-    if (enableCloudInitBool === true) next.set('enable_cloud_init', 'true');
-    else if (enableCloudInitBool === false) next.set('enable_cloud_init', 'false');
-    else next.delete('enable_cloud_init');
-
+    const unsupported = ['q', 'enabled', 'supported'].some(key => next.has(key));
+    for (const key of ['q', 'enabled', 'supported']) next.delete(key);
+    if (unsupported) setRemovedFilters(true);
+    for (const [key, value] of [
+      ['os_family', osFamily], ['hypervisor_type', hypervisorType], ['cgroup_version', cgroupVersion],
+      ['enable_script', enableScript], ['enable_cloud_init', enableCloudInit],
+    ]) {
+      if (value?.trim()) next.set(key!, value.trim());
+      else next.delete(key!);
+    }
     if (next.toString() !== searchParams.toString()) setSearchParams(next, { replace: true });
-  }, [
-    cgTrim,
-    enableCloudInitBool,
-    enableScriptBool,
-    enabledBool,
-    hvTrim,
-    osFamilyId,
-    osFamily,
-    qTrim,
-    searchParams,
-    setSearchParams,
-    supportedBool,
-  ]);
+  }, [osFamily, hypervisorType, cgroupVersion, enableScript, enableCloudInit, searchParams, setSearchParams]);
 
   const familiesQ = useQuery({
     queryKey: ['os_families', 'index'],
@@ -245,15 +179,14 @@ export function OsTemplatesPage() {
     staleTime: 60_000,
   });
 
+  const familyOptions = useMemo<SelectOption[]>(() => [{ value: '', label: t('common.all') }, ...(familiesQ.data ?? []).map(family => ({ value: String(family.id), label: osFamilyLabel(family) }))], [familiesQ.data, t]);
+
   const listQ = useQuery({
     queryKey: [
       'os_templates',
       'index',
       {
-        q: qTrim,
         osFamilyId,
-        enabled: enabledBool,
-        supported: supportedBool,
         hv: hvTrim,
         cg: cgTrim,
         enableScript: enableScriptBool,
@@ -264,10 +197,7 @@ export function OsTemplatesPage() {
       (
         await fetchOsTemplates({
           limit: 500,
-          q: qTrim || undefined,
           osFamily: osFamilyId,
-          enabled: enabledBool,
-          supported: supportedBool,
           hypervisorType: hvTrim || undefined,
           cgroupVersion: cgTrim || undefined,
           enableScript: enableScriptBool,
@@ -280,151 +210,9 @@ export function OsTemplatesPage() {
   const rows: OsTemplate[] = listQ.data ?? [];
   const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
 
-  function focusSmartInput() {
-    window.requestAnimationFrame(() => smartInputRef.current?.focus());
-  }
-
-  function insertSmartKey(key: string) {
-    setSmart((prev) => {
-      const trim = prev.trim();
-      return trim ? `${trim} ${key}:` : `${key}:`;
-    });
-    focusSmartInput();
-  }
-
   function clearAllFilters() {
-    setSmart('');
-    setSmartErrors([]);
-    setQ('');
-    setOsFamily('');
-    setEnabled('');
-    setSupported('');
-    setHypervisorType('');
-    setCgroupVersion('');
-    setEnableScript('');
-    setEnableCloudInit('');
+    setOsFamily(''); setHypervisorType(''); setCgroupVersion(''); setEnableScript(''); setEnableCloudInit('');
   }
-
-  function applySmart(rawInput?: string) {
-    const raw = String(rawInput ?? smart).trim();
-    if (!raw) return;
-    if (raw === '?') {
-      setHelpOpen(true);
-      return;
-    }
-
-    const tokens = raw.match(/\S+/g) ?? [];
-    let nextQ = qTrim;
-    let nextFamily = osFamily;
-    let nextEnabled = enabled;
-    let nextSupported = supported;
-    let nextHv = hypervisorType;
-    let nextCg = cgroupVersion;
-    let nextScript = enableScript;
-    let nextCloudInit = enableCloudInit;
-    const errors: string[] = [];
-
-    for (const token of tokens) {
-      const kv = splitKeyValueToken(token);
-      if (!kv) {
-        const n = parseNumericToken(token);
-        if (n !== undefined) nextQ = String(n);
-        else nextQ = unquoteSmartValue(token);
-        continue;
-      }
-      const key = kv.key.trim().toLowerCase();
-      const value = unquoteSmartValue(kv.value).trim();
-      if (!value) {
-        errors.push(t('filters.smart.error.missing_value', { key }));
-        continue;
-      }
-      switch (key) {
-        case 'q':
-        case 'search':
-        case 'label':
-        case 'name':
-          nextQ = value;
-          break;
-        case 'id': {
-          const n = parseNumericToken(value);
-          if (n === undefined) errors.push(t('filters.smart.error.numeric_only', { key, value }));
-          else nextQ = String(n);
-          break;
-        }
-        case 'family':
-        case 'os_family': {
-          const n = parseNumericToken(value);
-          if (n === undefined) errors.push(t('filters.smart.error.numeric_only', { key, value }));
-          else nextFamily = String(n);
-          break;
-        }
-        case 'enabled': {
-          const b = parseBoolParam(value);
-          if (b === undefined) errors.push(t('filters.smart.error.option_unresolved', { key, value }));
-          else nextEnabled = b ? 'true' : 'false';
-          break;
-        }
-        case 'supported': {
-          const b = parseBoolParam(value);
-          if (b === undefined) errors.push(t('filters.smart.error.option_unresolved', { key, value }));
-          else nextSupported = b ? 'true' : 'false';
-          break;
-        }
-        case 'hv':
-        case 'hypervisor':
-        case 'hypervisor_type':
-          nextHv = value;
-          break;
-        case 'cgroup':
-        case 'cgroup_version':
-          nextCg = value;
-          break;
-        case 'script':
-        case 'enable_script': {
-          const b = parseBoolParam(value);
-          if (b === undefined) errors.push(t('filters.smart.error.option_unresolved', { key, value }));
-          else nextScript = b ? 'true' : 'false';
-          break;
-        }
-        case 'cloudinit':
-        case 'enable_cloud_init': {
-          const b = parseBoolParam(value);
-          if (b === undefined) errors.push(t('filters.smart.error.option_unresolved', { key, value }));
-          else nextCloudInit = b ? 'true' : 'false';
-          break;
-        }
-        default:
-          errors.push(t('filters.smart.error.unknown_key', { key }));
-      }
-    }
-
-    if (errors.length > 0) {
-      setSmartErrors(errors);
-      pushToast({ variant: 'danger', title: t('common.error'), body: errors[0] });
-      return;
-    }
-
-    setSmart('');
-    setSmartErrors([]);
-    setQ(nextQ);
-    setOsFamily(nextFamily);
-    setEnabled(nextEnabled);
-    setSupported(nextSupported);
-    setHypervisorType(nextHv);
-    setCgroupVersion(nextCg);
-    setEnableScript(nextScript);
-    setEnableCloudInit(nextCloudInit);
-  }
-
-  const familyOptions: SelectOption[] = useMemo(() => {
-    const opts: SelectOption[] = [{ value: '', label: t('common.all') }];
-    const fams = familiesQ.data ?? [];
-    for (const f of fams) {
-      if (typeof f.id !== 'number') continue;
-      opts.push({ value: String(f.id), label: osFamilyLabel(f) });
-    }
-    return opts;
-  }, [familiesQ.data, t]);
 
   const triBoolOptions: SelectOption[] = useMemo(
     () => [
@@ -453,44 +241,6 @@ export function OsTemplatesPage() {
     ],
     [t]
   );
-
-  const activeChips = useMemo(() => {
-    const chips: React.ReactNode[] = [];
-    if (qTrim) chips.push(<FilterChip key="q" label={`q:${qTrim}`} onRemove={() => setQ('')} />);
-    if (osFamilyId) chips.push(<FilterChip key="fam" label={`${t('admin.cluster.os_templates.form.os_family')}: ${osFamilyId}`} onRemove={() => setOsFamily('')} />);
-    if (enabledBool === true) chips.push(<FilterChip key="en-t" label={t('common.enabled')} tone="ok" onRemove={() => setEnabled('')} />);
-    if (enabledBool === false) chips.push(<FilterChip key="en-f" label={t('common.disabled')} tone="warn" onRemove={() => setEnabled('')} />);
-    if (supportedBool === true) chips.push(<FilterChip key="sup-t" label={t('common.supported')} tone="ok" onRemove={() => setSupported('')} />);
-    if (supportedBool === false) chips.push(<FilterChip key="sup-f" label={t('common.unsupported')} tone="warn" onRemove={() => setSupported('')} />);
-    if (hvTrim) chips.push(<FilterChip key="hv" label={`hv:${hvTrim}`} onRemove={() => setHypervisorType('')} />);
-    if (cgTrim) chips.push(<FilterChip key="cg" label={`cgroup:${cgTrim}`} onRemove={() => setCgroupVersion('')} />);
-    if (enableScriptBool === true) chips.push(<FilterChip key="script-t" label={t('admin.cluster.os_templates.form.enable_script')} tone="info" onRemove={() => setEnableScript('')} />);
-    if (enableScriptBool === false) chips.push(<FilterChip key="script-f" label={`${t('admin.cluster.os_templates.form.enable_script')}: ${t('common.no')}`} tone="warn" onRemove={() => setEnableScript('')} />);
-    if (enableCloudInitBool === true) chips.push(<FilterChip key="ci-t" label={t('admin.cluster.os_templates.form.enable_cloud_init')} tone="info" onRemove={() => setEnableCloudInit('')} />);
-    if (enableCloudInitBool === false) chips.push(<FilterChip key="ci-f" label={`${t('admin.cluster.os_templates.form.enable_cloud_init')}: ${t('common.no')}`} tone="warn" onRemove={() => setEnableCloudInit('')} />);
-    smartErrors.forEach((msg, i) => chips.push(<FilterChip key={`err-${i}`} label={msg} tone="danger" onRemove={() => setSmartErrors((prev) => prev.filter((_, idx) => idx !== i))} />));
-    return chips;
-  }, [cgTrim, enableCloudInitBool, enableScriptBool, enabledBool, hvTrim, osFamilyId, qTrim, smartErrors, supportedBool, t]);
-
-  const smartSuggestions = useMemo<SmartFilterSuggestion[]>(() => {
-    const raw = smart.trim();
-    if (!raw) return [];
-    if (raw === '?') {
-      return [{ id: 'help', primary: t('filters.help.open'), secondary: t('admin.cluster.os_templates.smart.help.intro'), onPick: () => { setHelpOpen(true); setSmart(''); } }];
-    }
-    const suggestions: SmartFilterSuggestion[] = [];
-    const numeric = parseNumericToken(raw);
-    if (numeric !== undefined) {
-      suggestions.push({ id: 'id', primary: t('admin.cluster.os_templates.smart.suggestion.id', { id: numeric }), secondary: t('admin.cluster.os_templates.smart.suggestion.id_hint'), onPick: () => { setQ(String(numeric)); setSmart(''); setSmartErrors([]); } });
-    }
-    const kv = splitKeyValueToken(raw);
-    if (kv) {
-      suggestions.push({ id: 'apply', primary: t('filters.smart.suggest.apply.primary'), secondary: raw, onPick: () => applySmart(raw) });
-      return suggestions;
-    }
-    suggestions.push({ id: 'search', primary: t('admin.cluster.os_templates.smart.suggestion.search', { value: raw }), secondary: t('admin.cluster.os_templates.smart.suggestion.search_hint'), onPick: () => { setQ(raw); setSmart(''); setSmartErrors([]); } });
-    return suggestions;
-  }, [smart, t]);
 
   const [editor, setEditor] = useState<EditorState>(null);
   const [form, setForm] = useState<FormState>(() => initForm(undefined));
@@ -581,43 +331,12 @@ export function OsTemplatesPage() {
         </Alert>
       ) : null}
 
-      <FilterBar testId="admin.cluster.os_templates.filters" below={activeChips.length > 0 ? <div className="flex flex-wrap gap-2">{activeChips}</div> : null}>
-        <div className="flex min-w-0 flex-1 flex-col gap-2">
-          <SmartFilterInput
-            ref={smartInputRef}
-            testId="admin.cluster.os_templates.filter.q"
-            value={smart}
-            onChange={setSmart}
-            onSubmit={() => applySmart()}
-            placeholder={t('admin.cluster.os_templates.filter.search_placeholder')}
-            ariaLabel={t('admin.cluster.os_templates.filter.search_placeholder')}
-            suggestions={smartSuggestions}
-            suffix={
-              <button
-                type="button"
-                className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted hover:bg-surface-2 hover:text-fg"
-                aria-label={t('filters.help.open')}
-                title={t('filters.help.open')}
-                onClick={() => setHelpOpen(true)}
-              >
-                <CircleHelp className="h-4 w-4" aria-hidden />
-              </button>
-            }
-          />
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Button variant="secondary" onClick={() => setAdvancedOpen(true)} testId="admin.cluster.os_templates.advanced">
-            <SlidersHorizontal className="h-4 w-4" aria-hidden />
-            <span>{t('filters.advanced.label')}</span>
-          </Button>
-          <CopyButton text={shareUrl} label={t('common.copy_link')} testId="admin.cluster.os_templates.copy_link" />
-          {(qTrim || osFamily || enabled || supported || hypervisorType || cgroupVersion || enableScript || enableCloudInit || smartErrors.length > 0) ? (
-            <Button variant="secondary" onClick={clearAllFilters} testId="admin.cluster.os_templates.filter.clear">{t('common.clear_filters')}</Button>
-          ) : null}
-          <Button testId="admin.cluster.os_templates.create" variant="primary" onClick={openCreate}>
-            {t('admin.cluster.os_templates.create.button')}
-          </Button>
-        </div>
+      {removedFilters ? <Alert variant="neutral">{t('admin.cluster.os_templates.unsupported_filters_removed')}</Alert> : null}
+      <FilterBar testId="admin.cluster.os_templates.filters">
+        <Button variant="secondary" onClick={() => setAdvancedOpen(true)} testId="admin.cluster.os_templates.advanced">{t('filters.advanced.label')}</Button>
+        <CopyButton text={shareUrl} label={t('common.copy_link')} testId="admin.cluster.os_templates.copy_link" />
+        {(osFamily || hypervisorType || cgroupVersion || enableScript || enableCloudInit) ? <Button variant="secondary" onClick={clearAllFilters} testId="admin.cluster.os_templates.filter.clear">{t('common.clear_filters')}</Button> : null}
+        <Button testId="admin.cluster.os_templates.create" variant="primary" onClick={openCreate}>{t('admin.cluster.os_templates.create.button')}</Button>
       </FilterBar>
 
       <Modal showCloseButton closeTestId="drawer.close"
@@ -635,20 +354,8 @@ export function OsTemplatesPage() {
       >
         <div className="space-y-4">
           <div>
-            <div className="mb-1 text-sm font-medium text-fg">{t('common.search')}</div>
-            <Input testId="admin.cluster.os_templates.advanced.q" value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('admin.cluster.os_templates.filter.search_placeholder')} />
-          </div>
-          <div>
             <div className="mb-1 text-sm font-medium text-fg">{t('admin.cluster.os_templates.form.os_family')}</div>
             <Select testId="admin.cluster.os_templates.filter.os_family" value={osFamily} onChange={(e) => setOsFamily(e.target.value)} options={familyOptions} />
-          </div>
-          <div>
-            <div className="mb-1 text-sm font-medium text-fg">{t('admin.cluster.os_templates.form.enabled')}</div>
-            <Select testId="admin.cluster.os_templates.filter.enabled" value={enabled} onChange={(e) => setEnabled(e.target.value)} options={triBoolOptions} />
-          </div>
-          <div>
-            <div className="mb-1 text-sm font-medium text-fg">{t('admin.cluster.os_templates.form.supported')}</div>
-            <Select testId="admin.cluster.os_templates.filter.supported" value={supported} onChange={(e) => setSupported(e.target.value)} options={triBoolOptions} />
           </div>
           <div>
             <div className="mb-1 text-sm font-medium text-fg">{t('admin.cluster.os_templates.form.hypervisor_type')}</div>
@@ -668,37 +375,6 @@ export function OsTemplatesPage() {
           </div>
         </div>
       </Modal>
-
-      <SmartInputHelp
-        open={helpOpen}
-        onClose={() => setHelpOpen(false)}
-        title={t('admin.cluster.os_templates.smart.help.title')}
-        intro={t('admin.cluster.os_templates.smart.help.intro')}
-        examples={[
-          { example: '?', description: t('admin.cluster.os_templates.smart.help.example_help') },
-          { example: 'debian', description: t('admin.cluster.os_templates.smart.help.example_search') },
-          { example: 'enabled:true supported:true', description: t('admin.cluster.os_templates.smart.help.example_flags') },
-          { example: 'family:1', description: t('admin.cluster.os_templates.smart.help.example_family') },
-        ]}
-        topKeys={[
-          { key: 'q', description: t('admin.cluster.os_templates.smart.key.q'), example: 'q:debian' },
-          { key: 'family', description: t('admin.cluster.os_templates.smart.key.family'), example: 'family:1' },
-          { key: 'enabled', description: t('admin.cluster.os_templates.smart.key.enabled'), example: 'enabled:true' },
-          { key: 'supported', description: t('admin.cluster.os_templates.smart.key.supported'), example: 'supported:true' },
-          { key: 'hv', description: t('admin.cluster.os_templates.smart.key.hv'), example: 'hv:vpsadminos' },
-          { key: 'cgroup', description: t('admin.cluster.os_templates.smart.key.cgroup'), example: 'cgroup:cgroup_v2' },
-          { key: 'script', description: t('admin.cluster.os_templates.smart.key.script'), example: 'script:false' },
-          { key: 'cloudinit', description: t('admin.cluster.os_templates.smart.key.cloudinit'), example: 'cloudinit:true' },
-        ]}
-        inference={[
-          t('admin.cluster.os_templates.smart.help.inference.text'),
-          t('admin.cluster.os_templates.smart.help.inference.number'),
-          t('admin.cluster.os_templates.smart.help.inference.keyvalue'),
-        ]}
-        onInsertKey={insertSmartKey}
-        testId="admin.cluster.os_templates.smart.help"
-        keyRowTestIdPrefix="admin.cluster.os_templates.smart.help.key"
-      />
 
       {listQ.isLoading ? <LoadingState testId="admin.cluster.os_templates.loading" /> : null}
 

@@ -10,8 +10,8 @@ import { useChrome } from '../layout/ChromeContext';
 
 import { updateUser } from '../../lib/api/users';
 import { updateVps } from '../../lib/api/vps';
-import { getMetaActionStateId } from '../../lib/api/haveapi';
-import { fetchUserStateLogs, fetchVpsStateLogs } from '../../lib/api/lifetimes';
+import { getMetaActionStateId } from '../../lib/api/apiErrors';
+import { fetchUserStateLogs, fetchVpsStateLogs, type StateLog } from '../../lib/api/lifetimes';
 import {
   adminDateTimeInputToIso,
   isoToAdminDateTimeInput,
@@ -33,7 +33,6 @@ import { TableCard } from '../ui/TableCard';
 import { Textarea } from '../ui/Textarea';
 import {
   type LifetimeKind,
-  normalizeStateLogValue,
   type SnoozePreset,
   snoozeIso,
   softDeleteExpirationInput,
@@ -251,23 +250,23 @@ export function LifecyclePanel(props: {
   // ----------------------
 
   const [logOpen, setLogOpen] = useState(false);
-  const [logOffset, setLogOffset] = useState(0);
   const logLimit = 50;
 
   const logQ = useQuery({
-    queryKey: ['lifetimes', props.kind, props.id, 'state_logs', logOffset, logLimit],
+    queryKey: ['lifetimes', auth.user?.id, auth.role, mode, props.kind, props.id, 'state_logs', logLimit],
     queryFn: async () => {
-      if (props.kind === 'vps') return (await fetchVpsStateLogs(props.id, { limit: logLimit, offset: logOffset })).data;
-      return (await fetchUserStateLogs(props.id, { limit: logLimit, offset: logOffset })).data;
+      if (props.kind === 'vps') return (await fetchVpsStateLogs(props.id, { limit: logLimit })).data;
+      return (await fetchUserStateLogs(props.id, { limit: logLimit })).data;
     },
     enabled: canAdministerLifetime && logOpen,
     staleTime: 10_000,
   });
 
-  const logs = logQ.data ?? [];
+  const logs = (logQ.data ?? []).slice(0, logLimit);
+  React.useEffect(() => { setLogOpen(false); }, [props.kind, props.id, auth.user?.id, auth.role, mode]);
 
-  const stateLabel = (s: any): string => {
-    const raw = String(normalizeStateLogValue<string>(s, 'state') ?? '').trim();
+  const stateLabel = (s: StateLog): string => {
+    const raw = String(s.state ?? '').trim();
     if (!raw) return t('state.unknown');
     // For known lifetime states, prefer i18n labels
     if (raw === 'active') return t('state.active');
@@ -278,9 +277,9 @@ export function LifecyclePanel(props: {
     return raw;
   };
 
-  const changedAtIso = (s: any): string | undefined => normalizeStateLogValue<string>(s, 'changed_at', 'created_at');
-  const expAtIso = (s: any): string | undefined => normalizeStateLogValue<string>(s, 'expiration', 'expiration_date');
-  const remindAtIso = (s: any): string | undefined => normalizeStateLogValue<string>(s, 'remind_after', 'remind_after_date');
+  const changedAtIso = (s: StateLog) => s.changed_at ?? undefined;
+  const expAtIso = (s: StateLog) => s.expiration ?? undefined;
+  const remindAtIso = (s: StateLog) => s.remind_after ?? undefined;
 
   return (
     <>
@@ -293,7 +292,7 @@ export function LifecyclePanel(props: {
                 <Button size="sm" variant="secondary" onClick={openAdminEditor} testId="lifetimes.admin.edit">
                   {t('lifetimes.action.set_state')}
                 </Button>
-                <Button size="sm" variant="secondary" onClick={() => { setLogOffset(0); setLogOpen(true); }} testId="lifetimes.admin.log">
+                <Button size="sm" variant="secondary" onClick={() => { setLogOpen(true); }} testId="lifetimes.admin.log">
                   {t('lifetimes.action.state_log')}
                 </Button>
               </div>
@@ -532,7 +531,7 @@ export function LifecyclePanel(props: {
 
       {/* Admin state log drawer */}
       <Drawer
-        open={logOpen}
+        open={logOpen && canAdministerLifetime}
         onClose={() => setLogOpen(false)}
         side="right"
         width="lg"
@@ -561,21 +560,21 @@ export function LifecyclePanel(props: {
                 </thead>
                 <tbody className="divide-y divide-border">
                   {logs.map((s) => {
-                    const stateRaw = String(normalizeStateLogValue<string>(s as any, 'state') ?? '').trim();
+                    const stateRaw = String(s.state ?? '').trim();
                     const b = objectStateBadge(stateRaw || 'unknown', t);
 
-                    const u = (s as any).user as any | undefined;
+                    const u = s.user;
                     const userLabel = u?.login ?? u?.label ?? (typeof u?.id === 'number' ? `#${u.id}` : t('common.na'));
 
                     return (
                       <tr key={s.id}>
                         <td className="py-2 pr-3 align-top whitespace-nowrap">{formatDateTime(changedAtIso(s) ?? null)}</td>
                         <td className="py-2 pr-3 align-top"><Badge variant={b.variant}>{stateLabel(s)}</Badge></td>
-                        <td className="py-2 pr-3 align-top whitespace-nowrap">{expAtIso(s) ? formatDateTime(expAtIso(s) as any) : t('common.na')}</td>
-                        <td className="py-2 pr-3 align-top whitespace-nowrap">{remindAtIso(s) ? formatDateTime(remindAtIso(s) as any) : t('common.na')}</td>
+                        <td className="py-2 pr-3 align-top whitespace-nowrap">{expAtIso(s) ? formatDateTime(expAtIso(s)) : t('common.na')}</td>
+                        <td className="py-2 pr-3 align-top whitespace-nowrap">{remindAtIso(s) ? formatDateTime(remindAtIso(s)) : t('common.na')}</td>
                         <td className="py-2 pr-3 align-top whitespace-nowrap">{userLabel}</td>
                         <td className="py-2 align-top">
-                          <div className="max-w-xl whitespace-pre-wrap break-words text-xs text-muted">{String((s as any).reason ?? '') || '—'}</div>
+                          <div className="max-w-xl whitespace-pre-wrap break-words text-xs text-muted">{String(s.reason ?? '') || '—'}</div>
                         </td>
                       </tr>
                     );
@@ -584,29 +583,7 @@ export function LifecyclePanel(props: {
               </table>
             </TableCard>
 
-            <div className="flex items-center justify-between">
-              <div className="text-xs text-faint">{t('lifetimes.state_log.hint')}</div>
-              <div className="flex items-center gap-2">
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={() => setLogOffset(Math.max(0, logOffset - logLimit))}
-                  disabled={logOffset <= 0}
-                  testId="lifetimes.state_log.prev"
-                >
-                  {t('pagination.prev')}
-                </Button>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={() => setLogOffset(logOffset + logLimit)}
-                  disabled={logs.length < logLimit}
-                  testId="lifetimes.state_log.next"
-                >
-                  {t('pagination.next')}
-                </Button>
-              </div>
-            </div>
+            <div className="text-xs text-faint">{t('lifetimes.state_log.hint', { limit: logLimit })}</div>
           </div>
         )}
       </Drawer>

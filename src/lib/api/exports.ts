@@ -1,50 +1,33 @@
-import { expectArray, haveApiCall } from './haveapi';
+import type { Export__CreateInput, Export__Host__CreateInput, Export__Host__IndexInput, Export__Host__UpdateInput, Export__IndexInput, Export__UpdateInput, HostIpAddress__IndexInput } from 'vpsadmin-typescript-client';
+import type { HostIpAddress__ShowOutput, Export__ShowOutput, Export__Host__ShowOutput } from 'vpsadmin-typescript-client';
+import { narrowApiResult } from './apiOutput';
+import { fields, positiveId, reference, rows, object, type StorageReference } from './vpsStorageOutput';
 
-export interface ResourceRef {
-  id: number;
-  [k: string]: unknown;
+export type HostIpAddress = Omit<HostIpAddress__ShowOutput, 'id' | 'ip_address'> & { id: number; ip_address?: StorageReference | null; } & Record<string, unknown>;
+function isHostIpAddress(value: unknown): value is HostIpAddress {
+  return fields(value, ['addr', 'reverse_record_value'], [], ['assigned', 'user_created']) && positiveId(value['id'])
+    && reference(value['ip_address']);
 }
 
-export interface HostIpAddress {
-  id: number;
-  ip_address?: ResourceRef;
-  addr?: string;
-  assigned?: boolean;
-  user_created?: boolean;
-  reverse_record_value?: string | null;
-  [k: string]: unknown;
+export type ExportItem = Omit<Export__ShowOutput, 'id' | 'dataset' | 'snapshot' | 'user' | 'ip_address' | 'host_ip_address'> & { id: number; dataset?: StorageReference | null; snapshot?: StorageReference | null; user?: StorageReference | null; ip_address?: StorageReference | null; host_ip_address?: StorageReference | null; } & Record<string, unknown>;
+function isExportItem(value: unknown): value is ExportItem {
+  return fields(value, ['path', 'expiration_date', 'created_at', 'updated_at'], ['threads'], ['all_vps', 'rw', 'sync', 'subtree_check', 'root_squash', 'enabled']) && positiveId(value['id'])
+    && reference(value['dataset'])
+    && reference(value['snapshot'])
+    && reference(value['user'])
+    && reference(value['ip_address'])
+    && reference(value['host_ip_address']);
 }
 
-export interface ExportItem {
-  id: number;
-  dataset?: ResourceRef;
-  snapshot?: ResourceRef | null;
-  user?: ResourceRef;
-  ip_address?: ResourceRef;
-  host_ip_address?: ResourceRef;
-  path?: string;
-  all_vps?: boolean;
-  rw?: boolean;
-  sync?: boolean;
-  subtree_check?: boolean;
-  root_squash?: boolean;
-  threads?: number;
-  enabled?: boolean;
-  expiration_date?: string | null;
-  created_at?: string;
-  updated_at?: string;
-  [k: string]: unknown;
+export type ExportHost = Omit<Export__Host__ShowOutput, 'id' | 'ip_address'> & { id: number; ip_address?: StorageReference | null; } & Record<string, unknown>;
+function isExportHost(value: unknown): value is ExportHost {
+  return fields(value, [], [], ['rw', 'sync', 'subtree_check', 'root_squash']) && positiveId(value['id'])
+    && reference(value['ip_address']);
 }
 
-export interface ExportHost {
-  id: number;
-  ip_address?: ResourceRef;
-  rw?: boolean;
-  sync?: boolean;
-  subtree_check?: boolean;
-  root_squash?: boolean;
-  [k: string]: unknown;
-}
+import { getApi } from './sdk';
+
+export type ResourceRef = StorageReference;
 
 export async function fetchExports(opts?: {
   fromId?: number;
@@ -52,120 +35,79 @@ export async function fetchExports(opts?: {
   user?: number;
   includes?: string;
 }) {
-  const params: Record<string, unknown> = {};
+  const params: Export__IndexInput = {};
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
   if (opts?.user !== undefined) params['user'] = opts.user;
 
-  const res = await haveApiCall<ExportItem[]>({
-    method: 'GET',
-    path: '/exports',
-    namespace: 'export',
+  const res = await (await getApi()).export.index({
     params,
     meta: opts?.includes ? { includes: opts.includes } : undefined,
   });
 
-  return { ...res, data: expectArray<ExportItem>(res.data, 'exports#index') };
+  return narrowApiResult(res, data => rows(data, isExportItem), 'fetchExports');
 }
 
 export async function fetchExport(exportId: number, opts?: { includes?: string }) {
-  return haveApiCall<ExportItem>({
-    method: 'GET',
-    path: `/exports/${exportId}`,
+  const res = await (await getApi()).export.show({
+    path: { export_id: exportId },
     meta: opts?.includes ? { includes: opts.includes } : undefined,
   });
+  return narrowApiResult(res, data => object(data, isExportItem), 'fetchExport');
 }
 
-export async function createExport(payload: {
-  dataset?: number;
-  snapshot?: number;
-  all_vps?: boolean;
-  rw?: boolean;
-  sync?: boolean;
-  subtree_check?: boolean;
-  root_squash?: boolean;
-  threads?: number;
-  enabled?: boolean;
-}) {
-  return haveApiCall<ExportItem>({
-    method: 'POST',
-    path: '/exports',
-    namespace: 'export',
+export async function createExport(payload: Export__CreateInput) {
+  const res = await (await getApi()).export.create({
     params: payload,
   });
+  return narrowApiResult(res, data => object(data, isExportItem), 'createExport');
 }
 
-export async function updateExport(exportId: number, payload: {
-  all_vps?: boolean;
-  rw?: boolean;
-  sync?: boolean;
-  subtree_check?: boolean;
-  root_squash?: boolean;
-  threads?: number;
-  enabled?: boolean;
-}) {
-  return haveApiCall<ExportItem>({
-    method: 'PUT',
-    path: `/exports/${exportId}`,
-    namespace: 'export',
+export async function updateExport(exportId: number, payload: Export__UpdateInput) {
+  const res = await (await getApi()).export.update({
+    path: { export_id: exportId },
     params: payload,
   });
+  return narrowApiResult(res, data => object(data, isExportItem), 'updateExport');
 }
 
 export async function deleteExport(exportId: number) {
-  return haveApiCall<void>({
-    method: 'DELETE',
-    path: `/exports/${exportId}`,
+  return (await getApi()).export.delete({
+    path: { export_id: exportId },
   });
 }
 
 export async function fetchExportHosts(exportId: number, opts?: { fromId?: number; limit?: number; includes?: string }) {
-  const params: Record<string, unknown> = {};
+  const params: Export__Host__IndexInput = {};
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
-  const res = await haveApiCall<ExportHost[]>({
-    method: 'GET',
-    path: `/exports/${exportId}/hosts`,
-    namespace: 'host',
+  const res = await (await getApi()).export.host.index({
+    path: { export_id: exportId },
     params,
     meta: opts?.includes ? { includes: opts.includes } : undefined,
   });
-  return { ...res, data: expectArray<ExportHost>(res.data, `exports/${exportId}/hosts#index`) };
+  return narrowApiResult(res, data => rows(data, isExportHost), 'fetchExportHosts');
 }
 
-export async function createExportHost(exportId: number, payload: {
-  ip_address: number;
-  rw?: boolean;
-  sync?: boolean;
-  subtree_check?: boolean;
-  root_squash?: boolean;
-}) {
-  return haveApiCall<ExportHost>({
-    method: 'POST',
-    path: `/exports/${exportId}/hosts`,
-    namespace: 'host',
+export async function createExportHost(exportId: number, payload: Export__Host__CreateInput) {
+  const res = await (await getApi()).export.host.create({
+    path: { export_id: exportId },
     params: payload,
   });
+  return narrowApiResult(res, data => object(data, isExportHost), 'createExportHost');
 }
 
-export async function updateExportHost(exportId: number, hostId: number, payload: {
-  rw?: boolean;
-  sync?: boolean;
-  subtree_check?: boolean;
-  root_squash?: boolean;
-}) {
-  return haveApiCall<ExportHost>({
-    method: 'PUT',
-    path: `/exports/${exportId}/hosts/${hostId}`,
-    namespace: 'host',
+export async function updateExportHost(exportId: number, hostId: number, payload: Export__Host__UpdateInput) {
+  const res = await (await getApi()).export.host.update({
+    path: { export_id: exportId, host_id: hostId },
     params: payload,
   });
+  return narrowApiResult(res, data => object(data, isExportHost), 'updateExportHost');
 }
 
 export async function deleteExportHost(exportId: number, hostId: number) {
-  return haveApiCall<void>({
-    method: 'DELETE',
-    path: `/exports/${exportId}/hosts/${hostId}`,
+  return (await getApi()).export.host.delete({
+    path: { export_id: exportId, host_id: hostId },
   });
 }
 
@@ -183,7 +125,7 @@ export async function fetchHostIpAddresses(opts?: {
   includes?: string;
   signal?: AbortSignal;
 }) {
-  const params: Record<string, unknown> = {};
+  const params: HostIpAddress__IndexInput = {};
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
   if (opts?.addr !== undefined) params['addr'] = opts.addr;
@@ -195,14 +137,11 @@ export async function fetchHostIpAddresses(opts?: {
   if (opts?.routed !== undefined) params['routed'] = opts.routed;
   if (opts?.order !== undefined) params['order'] = opts.order;
 
-  const res = await haveApiCall<HostIpAddress[]>({
-    method: 'GET',
-    path: '/host_ip_addresses',
-    namespace: 'host_ip_address',
+  const res = await (await getApi()).host_ip_address.index({
     params,
     meta: opts?.includes ? { includes: opts.includes } : undefined,
     signal: opts?.signal,
   });
 
-  return { ...res, data: expectArray<HostIpAddress>(res.data, 'host_ip_addresses#index') };
+  return narrowApiResult(res, data => rows(data, isHostIpAddress), 'fetchHostIpAddresses');
 }

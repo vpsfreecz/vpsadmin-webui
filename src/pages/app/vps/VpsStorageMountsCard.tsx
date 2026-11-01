@@ -14,16 +14,16 @@ import { canonicalBool, datasetId, datasetLabel, mountStateTone } from './VpsSto
 
 function MountBadges(props: { mount: VpsMount; canAdmin: boolean }) {
   const { t } = useI18n();
-  const enabled = canonicalBool(props.mount.enabled, true);
-  const masterEnabled = canonicalBool(props.mount.master_enabled, true);
+  const enabled = props.mount.enabled;
+  const masterEnabled = props.mount.master_enabled;
 
   return (
     <div className="flex shrink-0 flex-wrap items-center gap-2">
-      <Badge variant={enabled ? 'ok' : 'warn'}>{enabled ? t('common.enabled') : t('common.disabled')}</Badge>
+      <Badge variant={enabled == null ? 'neutral' : enabled ? 'ok' : 'warn'}>{enabled == null ? t('common.na') : enabled ? t('common.enabled') : t('common.disabled')}</Badge>
       <Badge variant={mountStateTone(props.mount)}>{String(props.mount.current_state ?? t('common.na'))}</Badge>
       {props.canAdmin ? (
         <Badge variant={masterEnabled ? 'neutral' : 'warn'}>
-          {t('vps.storage.mounts.master_short')}: {masterEnabled ? t('common.yes') : t('common.no')}
+          {t('vps.storage.mounts.master_short')}: {masterEnabled == null ? t('common.na') : masterEnabled ? t('common.yes') : t('common.no')}
         </Badge>
       ) : null}
     </div>
@@ -97,11 +97,9 @@ export function VpsStorageMountsCard(props: {
 
                     <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
                       <span>{t('vps.storage.mounts.field.mode', { mode: String(mount.mode ?? '—') })}</span>
-                      <span>{t('vps.storage.mounts.field.type', { type: String(mount.type ?? '—') })}</span>
                       <span>{t('vps.storage.mounts.field.on_start_fail', { value: String(mount.on_start_fail ?? '—') })}</span>
                       <span>
                         {t('vps.storage.mounts.field.default_map', {
-                          value: canonicalBool(mount.use_default_map, true) ? t('common.yes') : t('common.no'),
                         })}
                       </span>
                       {mount.expiration_date ? <span>{t('vps.storage.mounts.field.expiration', { value: formatDateTime(mount.expiration_date) })}</span> : null}
@@ -144,7 +142,6 @@ export function VpsStorageMountsCard(props: {
                         </td>
                         <td className="px-4 py-3">
                           <div className="font-medium text-fg">{String(mount.mode ?? '—')}</div>
-                          <div className="mt-0.5 text-xs text-muted">{String(mount.type ?? '—')}</div>
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex flex-wrap gap-1.5">
@@ -162,9 +159,8 @@ export function VpsStorageMountsCard(props: {
                             <summary className="cursor-pointer font-medium text-fg">{t('common.details')}</summary>
                             <div className="mt-2 max-w-sm space-y-1 break-words">
                               <div>{t('vps.storage.mounts.field.on_start_fail', { value: String(mount.on_start_fail ?? '—') })}</div>
-                              <div>{t('vps.storage.mounts.field.default_map', { value: canonicalBool(mount.use_default_map, true) ? t('common.yes') : t('common.no') })}</div>
                               <div>{t('vps.storage.mounts.field.expiration', { value: formatDateTime(mount.expiration_date) })}</div>
-                              <div>{t('vps.storage.mounts.field.updated')}: {formatDateTime(mount.updated_at)}</div>
+                              <div>{t('vps.storage.mounts.field.updated')}: {formatDateTime(typeof mount['updated_at'] === 'string' ? mount['updated_at'] : undefined)}</div>
                             </div>
                           </details>
                         </td>

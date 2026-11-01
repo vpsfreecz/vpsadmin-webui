@@ -106,18 +106,7 @@ export function VpsOverviewMetricsCard(props: { vps: Vps; collapsedByDefault?: b
     return out;
   }, [metricsRows, props.vps.memory]);
 
-  const diskUsedPercentPoints = React.useMemo(() => {
-    const out: { x: number; y: number }[] = [];
-    for (const s of metricsRows) {
-      const ts = s.created_at ? new Date(s.created_at) : null;
-      if (!ts || !Number.isFinite(ts.getTime())) continue;
-      const total = typeof s.total_diskspace === 'number' ? s.total_diskspace : props.vps.diskspace;
-      const p = safePercent(s.used_diskspace, total);
-      if (p == null) continue;
-      out.push({ x: ts.getTime() / 1000, y: p });
-    }
-    return out;
-  }, [metricsRows, props.vps.diskspace]);
+  const diskUsedPercentPoints: { x: number; y: number }[] = [];
 
   const body = (() => {
     if (metricsQ.isLoading) {
@@ -144,8 +133,8 @@ export function VpsOverviewMetricsCard(props: { vps: Vps; collapsedByDefault?: b
     const memTotal = metricsLast?.total_memory ?? props.vps.memory;
     const memPct = safePercent(memUsedNow, memTotal);
 
-    const diskUsedNow = metricsLast?.used_diskspace ?? props.vps.used_diskspace;
-    const diskTotal = metricsLast?.total_diskspace ?? props.vps.diskspace;
+    const diskUsedNow = props.vps.used_diskspace;
+    const diskTotal = props.vps.diskspace;
     const diskPct = safePercent(diskUsedNow, diskTotal);
 
     const loadNow1 = metricsLast?.loadavg1 ?? props.vps.loadavg1;

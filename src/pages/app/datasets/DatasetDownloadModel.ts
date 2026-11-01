@@ -181,7 +181,7 @@ export function refLabel(ref: unknown, fallback: string): string {
 export function downloadExpiration(
   download: SnapshotDownload,
 ): string | undefined {
-  for (const raw of [download.expiration_date, download.expires_at]) {
+  for (const raw of [download.expiration_date, download['expires_at']]) {
     if (typeof raw === "string" && raw.trim()) return raw;
   }
   return undefined;

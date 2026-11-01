@@ -39,7 +39,6 @@ describe('VPS clone model', () => {
       user: 45,
       node: 12,
       hostname: 'stage.example',
-      subdatasets: true,
       dataset_plans: false,
       resources: false,
       features: true,
@@ -59,7 +58,6 @@ describe('VPS clone model', () => {
         form({
           location: '#7',
           hostname: '',
-          subdatasets: false,
           features: false,
           stop: false,
         }),
@@ -69,7 +67,6 @@ describe('VPS clone model', () => {
       location: 7,
       environment: 9,
       hostname: undefined,
-      subdatasets: false,
       dataset_plans: true,
       resources: true,
       features: false,
@@ -99,7 +96,8 @@ describe('VPS clone model', () => {
       location: 'Brno',
       environment: '#22',
     });
-    expect(cloneCopiedOptionKeys(form({ subdatasets: false, features: false }))).toEqual([
+    expect(cloneCopiedOptionKeys(form({ features: false }))).toEqual([
+      'vps.lifecycle.clone.option.subdatasets',
       'vps.lifecycle.clone.option.dataset_plans',
       'vps.lifecycle.clone.option.resources',
     ]);

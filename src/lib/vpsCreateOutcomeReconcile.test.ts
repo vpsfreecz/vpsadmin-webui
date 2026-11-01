@@ -28,7 +28,7 @@ describe('reconcileVpsCreateOutcome', () => {
         user: { id: 42, login: 'owner', level: 1 },
         node: { id: 5, location: { id: 7 } },
       },
-      envelope: { status: true },
+      envelope: { status: true }, meta: {}, httpStatus: 200,
     });
 
     await expect(reconcileVpsCreateOutcome({ ...marker, candidateVpsId: 123 })).resolves.toMatchObject({
@@ -46,7 +46,7 @@ describe('reconcileVpsCreateOutcome', () => {
         user: { id: 99, login: 'other', level: 1 },
         node: { id: 5, location: { id: 7 } },
       },
-      envelope: { status: true },
+      envelope: { status: true }, meta: {}, httpStatus: 200,
     });
 
     await expect(reconcileVpsCreateOutcome({ ...marker, candidateVpsId: 123 })).resolves.toEqual({

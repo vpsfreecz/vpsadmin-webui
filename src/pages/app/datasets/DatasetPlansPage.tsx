@@ -58,7 +58,7 @@ function technicalRefLabel(ref: unknown, fallback: string): string {
 }
 
 function assignedEnvironmentPlan(plan: DatasetInPoolPlan): EnvironmentDatasetPlan | ResourceRef | undefined {
-  return plan.environment_dataset_plan;
+  return plan.environment_dataset_plan ?? undefined;
 }
 
 function basePlanFromEnvironmentPlan(plan: EnvironmentDatasetPlan | ResourceRef | undefined): DatasetPlan | undefined {

@@ -54,7 +54,9 @@ vi.mock('../../../lib/api/infra', () => ({
 
 vi.mock('../../../lib/api/nodes', () => ({ fetchNodes: vi.fn() }));
 
-vi.mock('../../../lib/api/osTemplates', () => ({
+vi.mock('../../../lib/api/osTemplates', async importOriginal => ({
+  ...await importOriginal<typeof import('../../../lib/api/osTemplates')>(),
+  fetchOsTemplate: vi.fn().mockResolvedValue({ data: { id: 6, label: 'Debian', enabled: true }, meta: {} }),
   fetchOsTemplates: vi.fn().mockResolvedValue({ data: [{ id: 6, label: 'Debian' }], meta: {} }),
 }));
 
@@ -83,7 +85,7 @@ vi.mock('../../../lib/vpsCreateOutcomeReconcile', () => ({
 describe('VpsCreatePage accepted action binding', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(fetchDefaultObjectClusterResources).mockResolvedValue({ data: [], meta: {}, envelope: { status: true } });
+    vi.mocked(fetchDefaultObjectClusterResources).mockResolvedValue({ data: [], meta: {}, httpStatus: 200, envelope: { status: true } });
     testState.userId = 9;
     const pending = { id: 'receipt-1', createdAt: 1, phase: 'pending', identity: { hostname: 'accepted-vps' } };
     testState.readLatest.mockReturnValue(null);
@@ -118,7 +120,7 @@ describe('VpsCreatePage accepted action binding', () => {
       { id: 4, cluster_resource: { id: 4, name: 'swap' }, value: 1024 },
       { id: 5, cluster_resource: { id: 5, name: 'ipv4' }, value: 2 },
       { id: 6, cluster_resource: { id: 6, name: 'ipv6' }, value: 2 },
-    ], meta: {}, envelope: { status: true } }));
+    ], meta: {}, httpStatus: 200, envelope: { status: true } }));
     await waitFor(() => expect(screen.getByTestId('vps.create.ipv6')).toHaveValue(2));
     expect(screen.getByTestId('vps.create.cpu')).toHaveValue(choice === 'manual' ? 1 : 2);
     expect(screen.getByTestId('vps.create.memory')).toHaveValue(choice === 'manual' ? 4096 : 2048);
@@ -128,7 +130,7 @@ describe('VpsCreatePage accepted action binding', () => {
     vi.mocked(fetchDefaultObjectClusterResources).mockResolvedValue({ data: [
       { id: 1, cluster_resource: { id: 1, name: 'cpu' }, value: 16 },
       { id: 6, cluster_resource: { id: 6, name: 'ipv6' }, value: 3 },
-    ], meta: {}, envelope: { status: true } });
+    ], meta: {}, httpStatus: 200, envelope: { status: true } });
     await act(async () => { await client.invalidateQueries({ queryKey: ['default_object_cluster_resources'] }); });
     await waitFor(() => expect(screen.getByTestId('vps.create.ipv6')).toHaveValue(3));
     expect(screen.getByTestId('vps.create.cpu')).toHaveValue(choice === 'manual' ? 1 : 2);
