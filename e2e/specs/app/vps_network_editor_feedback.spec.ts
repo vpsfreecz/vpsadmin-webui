@@ -33,12 +33,14 @@ test.describe('@pr-smoke @pr-smoke-mobile VPS network editor failure feedback', 
     let ownerAttempts = 0;
     let disableAttempts = 0;
     let enableAttempts = 0;
+    const hostAssignmentRequests: string[] = [];
     const ipAddresses = [{
       id: 1,
       addr: '198.51.100.10',
       network_interface: networkInterface,
       routed: true,
       user: { id: 20, login: 'old-owner' },
+      charged_environment: { id: 3 },
       network: {
         role: 'public_access',
         purpose: 'vps',
@@ -73,35 +75,52 @@ test.describe('@pr-smoke @pr-smoke-mobile VPS network editor failure feedback', 
         'GET network_interface_accountings': () => ({ network_interface_accountings: [] }),
         'GET ip_addresses': () => ({ ip_addresses: ipAddresses }),
         'GET host_ip_addresses': () => ({ host_ip_addresses: hostAddresses }),
+        'GET host_ip_addresses/51': () => {
+          hostAssignmentRequests.push('read');
+          return { host_ip_address: hostAddresses[1] };
+        },
         'GET environments': () => ({ environments: [{ id: 3, label: 'env-test' }] }),
         'GET transaction_chains': () => ({ transaction_chains: [] }),
-        'PUT host_ip_addresses/50': () => {
+        'PUT host_ip_addresses/50': (ctx) => {
+          expect(ctx.request.postDataJSON()).toEqual({
+            host_ip_address: { reverse_record_value: 'new.example.test.' },
+          });
           ptrAttempts += 1;
           return ptrAttempts === 1
             ? rejected('PTR record changed on the server.')
             : { host_ip_address: hostAddresses[0], _meta: { action_state_id: 911 } };
         },
-        'POST host_ip_addresses/51/assign': () => {
+        'POST host_ip_addresses/51/assign': (ctx) => {
+          expect(ctx.request.postDataJSON()).toEqual({ host_ip_address: {} });
+          hostAssignmentRequests.push('assign');
           assignAttempts += 1;
           return assignAttempts === 1
             ? rejected('Interface assignment changed on the server.')
             : { host_ip_address: { ...hostAddresses[1], assigned: true }, _meta: { action_state_id: 912 } };
         },
-        'PUT ip_addresses/1': () => {
+        'PUT ip_addresses/1': (ctx) => {
+          expect(ctx.request.postDataJSON()).toEqual({ ip_address: { user: 77, environment: 3 } });
           ownerAttempts += 1;
           return ownerAttempts === 1
             ? rejected('Address ownership changed on the server.')
             : { ip_address: { ...ipAddresses[0], user: { id: 77, login: 'new-owner' } }, _meta: { action_state_id: 913 } };
         },
         'PUT vpses/123': (ctx) => {
-          const body = ctx.request.postDataJSON?.() as { vps?: { enable_network?: boolean } };
-          const requested = body.vps?.enable_network;
+          const body = ctx.request.postDataJSON();
+          if (!body || typeof body !== 'object' || !('vps' in body)
+            || !body.vps || typeof body.vps !== 'object' || !('enable_network' in body.vps)
+            || typeof body.vps.enable_network !== 'boolean') {
+            throw new Error('Expected a VPS network toggle request');
+          }
+          const requested = body.vps.enable_network;
           if (requested === false) {
+            expect(body).toEqual({ vps: { enable_network: false, change_reason: 'maintenance window' } });
             disableAttempts += 1;
             if (disableAttempts === 1) return rejected('Network disable was rejected.');
             networkEnabled = false;
             return { vps: { ...baseVps, enable_network: false }, _meta: { action_state_id: 914 } };
           }
+          expect(body).toEqual({ vps: { enable_network: true } });
           enableAttempts += 1;
           if (enableAttempts === 1) return rejected('Network enable was rejected.');
           networkEnabled = true;
@@ -126,12 +145,21 @@ test.describe('@pr-smoke @pr-smoke-mobile VPS network editor failure feedback', 
     await expect(page.getByTestId('vps.network.host_addresses.ptr')).toBeHidden();
 
     await page.getByTestId('vps.network.host_addresses.row.51.assign').click();
-    await expect(page.getByTestId('vps.network.host_addresses.assign.interface')).toHaveValue('501');
+    const assignDialog = page.getByTestId('vps.network.host_addresses.assign');
+    await expect(assignDialog).toContainText('198.51.100.21');
+    await expect(assignDialog.getByTestId('vps.network.host_addresses.assign.target')).toContainText('vps123.example');
+    await expect(assignDialog.getByTestId('vps.network.host_addresses.assign.target')).toContainText('#123');
+    await expect(assignDialog.getByTestId('vps.network.host_addresses.assign.interface')).toContainText('eth0');
+    await expect(assignDialog.getByRole('combobox')).toHaveCount(0);
     await page.getByTestId('vps.network.host_addresses.assign.submit').click();
     await expect(page.getByTestId('vps.network.host_addresses.assign.error')).toContainText('Interface assignment changed on the server.');
-    await expect(page.getByTestId('vps.network.host_addresses.assign.interface')).toHaveValue('501');
+    await expect(assignDialog).toContainText('198.51.100.21');
+    await expect(assignDialog.getByTestId('vps.network.host_addresses.assign.interface')).toContainText('eth0');
+    await expect(assignDialog.getByRole('combobox')).toHaveCount(0);
+    expect(hostAssignmentRequests).toEqual(['read', 'assign']);
     await page.getByTestId('vps.network.host_addresses.assign.submit').click();
-    await expect(page.getByTestId('vps.network.host_addresses.assign')).toBeHidden();
+    await expect(assignDialog).toBeHidden();
+    expect(hostAssignmentRequests).toEqual(['read', 'assign', 'read', 'assign']);
 
     await page.getByTestId('vps.network.ip_addresses.item.1.owner').click();
     await page.getByTestId('vps.network.ip_addresses.owner.user').fill('77');
