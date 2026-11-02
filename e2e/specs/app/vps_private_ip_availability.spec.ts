@@ -6,11 +6,11 @@ const vps = {
   is_running: false, node: { id: 11, location: { id: 11, environment: { id: 2 } } },
 };
 const ips = [
-  { id: 81, addr: '10.20.0.1', prefix: 32, network: {
+  { id: 81, addr: '10.20.0.1', prefix: 32, network_interface: null, network: {
     id: 31, ip_version: 4, role: 'private_access', purpose: 'any',
     primary_location: { id: 11, environment: { id: 2 } },
   } },
-  { id: 82, addr: '10.21.0.1', prefix: 32, network: {
+  { id: 82, addr: '10.21.0.1', prefix: 32, network_interface: null, network: {
     id: 32, ip_version: 4, role: 'private_access', purpose: 'vps',
     primary_location: { id: 10, environment: { id: 1 } },
   } },
