@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import type { Dataset__UpdateOutput, Vps__UpdateOutput } from 'vpsadmin-typescript-client';
 import { bootstrapVpsAdminWindow, installHaveApiMock, jsonFulfill, setUiSettingsLocalStorage } from '../../fixtures';
 
 // Synthetic API fixtures: these tests never mutate a real VPS or dataset.
@@ -25,14 +26,14 @@ async function setup(page: Page, options: { level?: number; language?: 'cs' | 'e
       'PUT datasets/10': ctx => {
         state.diskWrites.push(ctx.json);
         if (state.failDisk) return jsonFulfill({ status: false, message: 'Resource allocation failed', response: null }, 422);
-        if (state.missingTask) return {};
+        if (state.missingTask) return { dataset: {} satisfies Dataset__UpdateOutput };
         Object.assign(state.dataset, (ctx.json as any).dataset);
-        return { _meta: { action_state_id: 901 } };
+        return { dataset: {} satisfies Dataset__UpdateOutput, _meta: { action_state_id: 901 } };
       },
       'PUT vpses/123': ctx => {
         state.vpsWrites.push(ctx.json);
         Object.assign(state.vps, (ctx.json as any).vps);
-        return { vps: state.vps, _meta: { action_state_id: 902 } };
+        return { vps: {} satisfies Vps__UpdateOutput, _meta: { action_state_id: 902 } };
       },
       'GET action_states/901': () => ({ action_state: { id: 901, finished: true, status: true, current: 1, total: 1 } }),
       'GET action_states/902': () => ({ action_state: { id: 902, finished: true, status: true, current: 1, total: 1 } }),
