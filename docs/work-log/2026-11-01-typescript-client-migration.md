@@ -367,3 +367,60 @@ device. Bilingual HelpBox behavior and complete date/reset/filter coverage remai
 unproven. Final history and final-head package reconciliation are pending. The
 branch remains unmerged, the SDK remains unpublished, and this campaign introduces
 no database migration or deployment.
+
+## CI follow-up after branch publication
+
+Core CI run [41366168908](https://github.com/vpsfreecz/vpsadmin-webui/actions/runs/41366168908)
+passed all three jobs on published source
+`14cfdcb6d2a3bc337fd445932fd38916b3dcd9ab`. The broader Playwright smoke run
+[41366168907](https://github.com/vpsfreecz/vpsadmin-webui/actions/runs/41366168907)
+on that same source ended cancelled. Each job's authoritative annotation reports
+that it exceeded the existing 40-minute maximum. Its logs also contain real
+assertion failures before cancellation: 32 Chromium, 35 mobile Chrome and 42
+mobile WebKit case headings across 30 spec files. These headings are not terminal
+suite totals. The jobs retained traces but no complete HTML report or final
+passed/skipped/unrun counts, so complete execution coverage remains unknown.
+
+Six ordinary repair commits after that published checkpoint end at
+`4279c2384c2a9e74fd11f6b41e4a33686edeab23`. They correct the 30 observed leaf
+specs and adopt the 14 edited deferred files into strict E2E coverage. Replies now
+use their declared namespaces and field types; query assertions retain exact
+pairs without imposing parameter order. The centered-dialog spec retains all 27
+routes, covering the supported inline user-data filters and editor in place of
+the removed Advanced control. Existing malformed-response, rejection, uncertain
+outcome, permission and no-replay assertions remain. Production code, shared mock
+behavior, dependencies and CI selection/time limits are unchanged. Published
+history is retained.
+
+The combined strict gate passed with 118 checked files, 164 deferred and zero
+diagnostics. Original baseline hashes and sourceRevision are unchanged. Final
+affected independent review of the committed repair boundary completed with
+Blocking 0, Important 0 and Advisory 0, including the complete branch-history and
+migration assessment. It found no database or persisted-format migration.
+
+Local selection maps the original 109 project-specific failure headings to 100
+cases: WebKit-origin cases run in mobile Chrome for fixture/touch acceptance,
+with nine overlapping headings deduplicated. The user-data route maps to its new
+supported-editor title. The initial news filter selected five cases: the two
+mapped Czech/English positive cases plus three existing role-visibility negatives.
+It passed with durable exit 0 after 44.44 seconds (native summary: five passed in
+42.1 seconds). The remaining 98 mapped cases passed in a separate operation with
+durable exit 0 after 457.546 seconds (native summary: 98 passed in 7.6 minutes).
+Both operations tested clean source
+`4279c2384c2a9e74fd11f6b41e4a33686edeab23` with retries disabled.
+
+The five-plus-98 execution counts do not establish 103 distinct original CI
+cases or actual WebKit-engine acceptance. The news run has bounded known-process,
+root-group and listener absence evidence; no initial complete descendant tuple
+was captured. The longer run retained 22 exact process identities, whose PIDs,
+groups and test-server listener were subsequently absent. Both durable terminal
+results passed. These later checks do not replace the earlier failed/incomplete
+attempts or their recorded cleanup limits.
+
+The existing [requirement evidence](../design/EVIDENCE_MATRIX.md) remains the
+project entry point. The earlier A/B browser runs, API23 and immutable package
+results retain their exact revisions and scope; the second API attempt's cleanup
+remains externally unconfirmed. Final-head Nix/provenance verification and the
+complete unchanged three-project CI browser matrix remain pending for the repair
+candidate. Later unseen failures are not ruled out. The branch remains unmerged,
+the SDK remains unpublished, and no deployment is claimed.
