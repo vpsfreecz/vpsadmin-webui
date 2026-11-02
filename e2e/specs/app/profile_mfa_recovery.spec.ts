@@ -134,10 +134,12 @@ test('@pr-smoke @pr-smoke-mobile profile: unexpected TOTP provisioning URI is ne
       'GET users/1/webauthn_credentials': () => ({ webauthn_credentials: [] }),
       'GET users/1/known_devices': () => ({ known_devices: [] }),
       'POST users/1/totp_devices': () => ({
-        id: 12,
-        label: 'Phone',
-        secret: 'SECRET123',
-        provisioning_uri: 'javascript:alert(document.domain)',
+        totp_device: {
+          id: 12,
+          label: 'Phone',
+          secret: 'SECRET123',
+          provisioning_uri: 'javascript:alert(document.domain)',
+        },
       }),
     },
   });

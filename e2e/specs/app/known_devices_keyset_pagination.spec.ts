@@ -81,7 +81,7 @@ async function setupKnownDevicesApi(
     haveApi.addHandler(`DELETE users/${options.targetUserId}/known_devices/${device.id}`, () => {
       activeIds.delete(device.id);
       deletedIds.push(device.id);
-      return { ok: true };
+      return { known_device: {} };
     });
   }
 

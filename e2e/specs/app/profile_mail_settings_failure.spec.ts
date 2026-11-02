@@ -7,18 +7,21 @@ test('@pr-smoke @pr-smoke-mobile profile mail settings keep a failed save in con
 }) => {
   let saveAttempts = 0;
   let mailerEnabled = true;
+  const member = {
+    id: 1,
+    login: 'member',
+    level: 1,
+    email: 'member@example.test',
+    language: { id: 1, label: 'English' },
+  };
 
   await setupHaveApiMock(page, {
     user: { id: 1, login: 'member', level: 1 },
     handlers: {
       'GET users/1': () => ({
         user: {
-          id: 1,
-          login: 'member',
-          level: 1,
-          email: 'member@example.test',
+          ...member,
           mailer_enabled: mailerEnabled,
-          language: { id: 1, label: 'English' },
         },
       }),
       'GET languages': () => ({ languages: [{ id: 1, label: 'English' }] }),
@@ -41,7 +44,7 @@ test('@pr-smoke @pr-smoke-mobile profile mail settings keep a failed save in con
 
         const userPayload = (reqJson as { user?: { mailer_enabled?: boolean } } | undefined)?.user;
         mailerEnabled = userPayload?.mailer_enabled ?? mailerEnabled;
-        return { user: { id: 1, mailer_enabled: mailerEnabled } };
+        return { user: { ...member, mailer_enabled: mailerEnabled } };
       },
     },
   });

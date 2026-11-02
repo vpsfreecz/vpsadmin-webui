@@ -115,7 +115,7 @@ test('@pr-smoke @smoke profile: metrics token review and revoke guards', async (
       },
       'DELETE metrics_access_tokens/2': () => {
         tokens = tokens.filter((token) => token.id !== 2);
-        return { ok: true };
+        return { metrics_access_token: {} };
       },
     },
   });
@@ -171,7 +171,7 @@ test('@pr-smoke-mobile @smoke-mobile profile: metrics token cards keep secrets a
       'GET metrics_access_tokens': () => ({ metrics_access_tokens: tokens }),
       'DELETE metrics_access_tokens/2': () => {
         tokens = tokens.filter((token) => token.id !== 2);
-        return { ok: true };
+        return { metrics_access_token: {} };
       },
     },
   });
@@ -233,7 +233,7 @@ test('@pr-smoke-mobile @smoke-mobile admin: user metrics token cards preserve ow
       },
       'DELETE metrics_access_tokens/2': () => {
         tokens = tokens.filter((token) => token.id !== 2);
-        return { ok: true };
+        return { metrics_access_token: {} };
       },
     },
   });

@@ -1,8 +1,12 @@
+import assert from 'node:assert/strict';
+
 import { test, expect } from '@playwright/test';
 
 import { failEnvelope, installHaveApiMock } from '../../fixtures/haveapi';
 
-type EntryKind = 'uid' | 'gid';
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
 
 test('profile: user namespaces - create map and edit entries', async ({ page }) => {
   const namespaces = [{ id: 101, size: 65536 }];
@@ -39,13 +43,16 @@ test('profile: user namespaces - create map and edit entries', async ({ page }) 
 
       'POST user_namespace_maps': async (ctx) => {
         const b = await ctx.request.postDataJSON();
-        expect(b.user_namespace_map.label).toBeTruthy();
+        assert(isRecord(b) && isRecord(b['user_namespace_map']));
+        const input = b['user_namespace_map'];
+        assert(typeof input['label'] === 'string');
+        expect(input['label']).toBeTruthy();
         // For profile create, user_namespace is selected by dropdown/autoselect
-        expect(b.user_namespace_map.user_namespace).toBe(101);
+        expect(input['user_namespace']).toBe(101);
 
         const m = {
           id: nextMapId++,
-          label: b.user_namespace_map.label,
+          label: input['label'],
           user_namespace: namespaces[0],
         };
         maps = [m, ...maps];
@@ -56,9 +63,12 @@ test('profile: user namespaces - create map and edit entries', async ({ page }) 
 
       'PUT user_namespace_maps/501': async (ctx) => {
         const b = await ctx.request.postDataJSON();
-        expect(b.user_namespace_map.user_namespace).toBe(101);
+        assert(isRecord(b) && isRecord(b['user_namespace_map']));
+        const input = b['user_namespace_map'];
+        assert(typeof input['label'] === 'string');
+        expect(input['user_namespace']).toBe(101);
         const m = maps.find((x) => x.id === 501);
-        m.label = b.user_namespace_map.label;
+        m.label = input['label'];
         return { user_namespace_map: m };
       },
 
@@ -66,13 +76,19 @@ test('profile: user namespaces - create map and edit entries', async ({ page }) 
 
       'POST user_namespace_maps/501/entries': async (ctx) => {
         const b = await ctx.request.postDataJSON();
-        const kind: EntryKind = b.entry.kind;
+        assert(isRecord(b) && isRecord(b['entry']));
+        const input = b['entry'];
+        const kind = input['kind'];
+        assert(kind === 'uid' || kind === 'gid');
+        assert(typeof input['vps_id'] === 'number');
+        assert(typeof input['ns_id'] === 'number');
+        assert(typeof input['count'] === 'number');
         const e = {
           id: nextEntryId++,
           kind,
-          vps_id: b.entry.vps_id,
-          ns_id: b.entry.ns_id,
-          count: b.entry.count,
+          vps_id: input['vps_id'],
+          ns_id: input['ns_id'],
+          count: input['count'],
         };
         entries = [...entries, e];
         return { entry: e };
@@ -80,16 +96,21 @@ test('profile: user namespaces - create map and edit entries', async ({ page }) 
 
       'PUT user_namespace_maps/501/entries/1001': async (ctx) => {
         const b = await ctx.request.postDataJSON();
+        assert(isRecord(b) && isRecord(b['entry']));
+        const input = b['entry'];
+        assert(typeof input['vps_id'] === 'number');
+        assert(typeof input['ns_id'] === 'number');
+        assert(typeof input['count'] === 'number');
         const e = entries.find((x) => x.id === 1001);
-        e.vps_id = b.entry.vps_id;
-        e.ns_id = b.entry.ns_id;
-        e.count = b.entry.count;
+        e.vps_id = input['vps_id'];
+        e.ns_id = input['ns_id'];
+        e.count = input['count'];
         return { entry: e };
       },
 
       'DELETE user_namespace_maps/501/entries/1002': async () => {
         entries = entries.filter((e) => e.id !== 1002);
-        return { ok: true };
+        return { entry: {} };
       },
 
       // Used-by-VPS chip
@@ -210,13 +231,13 @@ test('@pr-smoke @pr-smoke-mobile profile: rejected namespace deletions stay in c
         entryDeleteAttempts += 1;
         if (entryDeleteAttempts === 1) return failEnvelope('Entry deletion was rejected');
         entries = [];
-        return { ok: true };
+        return { entry: {} };
       },
       'DELETE user_namespace_maps/501': () => {
         mapDeleteAttempts += 1;
         if (mapDeleteAttempts === 1) return failEnvelope('Map deletion was rejected');
         maps = [];
-        return { ok: true };
+        return { user_namespace_map: {} };
       },
     },
   });
@@ -269,7 +290,7 @@ test('@pr-smoke @pr-smoke-mobile profile: rejected map-list deletion stays in it
         deleteAttempts += 1;
         if (deleteAttempts === 1) return failEnvelope('List deletion was rejected');
         maps = [];
-        return { ok: true };
+        return { user_namespace_map: {} };
       },
     },
   });
