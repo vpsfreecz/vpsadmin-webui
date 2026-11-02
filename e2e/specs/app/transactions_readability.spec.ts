@@ -56,7 +56,7 @@ for (const language of ['cs', 'en'] as const) {
         type: 9001,
         priority: 0,
         input,
-        output: { error: 'Synthetic delivery failure' },
+        output: JSON.stringify({ error: 'Synthetic delivery failure' }),
         node: { id: 3, domain_name: 'node3.demo' },
         vps: { id: 30398 },
       },

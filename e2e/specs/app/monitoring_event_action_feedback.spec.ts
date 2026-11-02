@@ -24,12 +24,12 @@ test('@pr-smoke @pr-smoke-mobile rejected monitoring decisions stay in their dia
       'POST monitored_events/201/acknowledge': () => {
         acknowledgeAttempts += 1;
         if (acknowledgeAttempts === 1) return failEnvelope('Acknowledgement was rejected');
-        return {};
+        return { monitored_event: {} };
       },
       'POST monitored_events/201/ignore': () => {
         ignoreAttempts += 1;
         if (ignoreAttempts === 1) return failEnvelope('Ignore request was rejected');
-        return {};
+        return { monitored_event: {} };
       },
     },
   });

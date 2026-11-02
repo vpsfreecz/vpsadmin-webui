@@ -25,7 +25,7 @@ for (const view of ['member', 'admin-my-view', 'admin'] as const) {
       const transactions = [
         { id: 7402, label: language === 'cs' ? 'Odeslání e-mailu' : 'Send mail', name: 'Send', done: 'done', success: 1 },
         { id: 7401, label: language === 'cs' ? 'Příprava sítě' : 'Prepare network', name: 'Configure', done: 'done', success: 0 },
-      ].map((tx) => ({ ...tx, type: 9001, priority: 0, user: { id: 1, login: 'demo-member' }, node: { id: 3, label: 'node3.demo' }, vps: { id: 14 }, transaction_chain: { id: 972 }, created_at: '2026-10-27T18:01:46Z', started_at: '2026-10-27T18:01:47Z', finished_at: '2026-10-27T18:01:49Z', input: payload, output: tx.success ? { execute: { status: 'ok' } } : { error: 'Synthetic network failure' } }));
+      ].map((tx) => ({ ...tx, type: 9001, priority: 0, user: { id: 1, login: 'demo-member' }, node: { id: 3, label: 'node3.demo' }, vps: { id: 14 }, transaction_chain: { id: 972 }, created_at: '2026-10-27T18:01:46Z', started_at: '2026-10-27T18:01:47Z', finished_at: '2026-10-27T18:01:49Z', input: payload, output: JSON.stringify(tx.success ? { execute: { status: 'ok' } } : { error: 'Synthetic network failure' }) }));
       const writes: string[] = [];
       page.on('request', (request) => {
         if (/\/(transaction_chains|transactions)(\/|$)/.test(new URL(request.url()).pathname) && !['GET', 'HEAD', 'OPTIONS'].includes(request.method())) writes.push(request.method());

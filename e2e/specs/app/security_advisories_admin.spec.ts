@@ -387,7 +387,7 @@ test.describe('@smoke Security advisory admin management', () => {
         'POST security_advisories/77/rebuild_affected_vps': () => {
           rebuildAttempts += 1;
           if (rebuildAttempts === 1) return failEnvelope('Affected VPS rebuild was rejected');
-          return null;
+          return { security_advisory: {} };
         },
       },
     });
@@ -456,7 +456,7 @@ test.describe('@smoke Security advisory admin management', () => {
           unlinkAttempts += 1;
           if (unlinkAttempts === 1) return failEnvelope('Outage unlink was rejected');
           outageLinks = [];
-          return null;
+          return { outage_security_advisory: {} };
         },
       },
     });
