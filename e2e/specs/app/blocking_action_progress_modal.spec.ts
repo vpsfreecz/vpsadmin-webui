@@ -88,13 +88,13 @@ test.describe('Blocking action progress modal', () => {
             diskspace: 20480,
           },
         }),
-        'GET vpses/1/statuses': () => [],
-        'GET ip_addresses': () => [
+        'GET vpses/1/statuses': () => ({ statuses: [] }),
+        'GET ip_addresses': () => ({ ip_addresses: [
           { id: 1, addr: '203.0.113.10', family: 4, network: { role: 'public', purpose: 'public' } },
-        ],
+        ] }),
 
         // Action
-        'POST vpses/1/start': () => ({ _meta: { action_state_id: 42 } }),
+        'POST vpses/1/start': () => ({ vps: {}, _meta: { action_state_id: 42 } }),
 
         // Progress polling
         'GET action_states/42': () => {
@@ -172,9 +172,9 @@ test.describe('Blocking action progress modal', () => {
                 diskspace: 20480,
               },
             }),
-            'GET vpses/1/statuses': () => [],
-            'GET ip_addresses': () => [],
-            'POST vpses/1/start': () => ({ _meta: { action_state_id: scenario.id } }),
+            'GET vpses/1/statuses': () => ({ statuses: [] }),
+            'GET ip_addresses': () => ({ ip_addresses: [] }),
+            'POST vpses/1/start': () => ({ vps: {}, _meta: { action_state_id: scenario.id } }),
             [`GET action_states/${scenario.id}`]: () => {
               showCalls += 1;
               return {

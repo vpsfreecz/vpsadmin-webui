@@ -170,7 +170,7 @@ test.describe('@pr-smoke-mobile Mobile first-touch interactions', () => {
 
   test('VPS suggestions stay usable after selecting the owner filter', async ({ page }) => {
     const mock = await setup(page);
-    mock.addHandler('GET users', () => ({ users: [{ id: 7, login: 'alice' }] }));
+    mock.addHandler('GET users', () => ({ users: [{ id: 7, login: 'alice', level: 1 }] }));
     mock.addHandler('GET vpses', () => ({ vpses: [vps] }));
     mock.addHandler('GET network_interface_monitors', () => ({ network_interface_monitors: [] }));
     await page.goto('/admin/networking/live?paused=1');

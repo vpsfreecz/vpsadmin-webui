@@ -64,7 +64,7 @@ test('@pr-smoke @pr-smoke-mobile @smoke-mobile admin OS-template actions stay re
             }),
           };
         }
-        return {};
+        return { os_template: {} };
       },
     },
   });

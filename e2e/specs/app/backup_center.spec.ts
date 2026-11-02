@@ -536,7 +536,7 @@ test.describe('Backup center', () => {
         }),
         'POST datasets/10/snapshots/31/rollback': () => {
           rollbackCalls += 1;
-          return { _meta: { action_state_id: 731 } };
+          return { snapshot: {}, _meta: { action_state_id: 731 } };
         },
         'GET action_states/731': () => ({
           action_state: { id: 731, finished: true, status: true, current: 1, total: 1 },

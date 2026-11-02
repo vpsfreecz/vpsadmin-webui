@@ -71,7 +71,7 @@ test('@pr-smoke @pr-smoke-mobile export host actions follow the card width witho
   await installHaveApiMock(page, {
     user: { id: 1, login: 'demo', level: 1 },
     handlers: {
-      'GET exports/10': () => exportItem,
+      'GET exports/10': () => ({ export: exportItem }),
       'GET exports/10/hosts': () => ({ hosts: [host, { ...host, id: 12, ip_address: { id: 10, addr: '2001:db8:1234:5678:1234:5678:1234:5678' }, rw: false }], _meta: { total_count: 2 } }),
       'GET ip_addresses': () => ({ ip_addresses: [host.ip_address], _meta: { total_count: 1 } }),
     },
@@ -164,8 +164,8 @@ for (const scenario of ['selected-hosts', 'all-vps', 'snapshot'] as const) {
       });
     });
     await installHaveApiMock(page, { user: { id: 1, login: 'demo', level: 1 }, handlers: {
-      'GET exports/10': () => ({ ...exportItem, all_vps: scenario === 'all-vps',
-        snapshot: scenario === 'snapshot' ? { id: 30, name: 'backup-example' } : null }),
+      'GET exports/10': () => ({ export: { ...exportItem, all_vps: scenario === 'all-vps',
+        snapshot: scenario === 'snapshot' ? { id: 30, name: 'backup-example' } : null } }),
       'GET exports/10/hosts': () => ({ hosts: [host,
         { ...host, id: 12, ip_address: { id: 10, addr: '2001:db8:1234:5678:1234:5678:1234:5678' }, rw: false },
         { ...host, id: 13, ip_address: { id: 11, addr: '203.0.113.13' } }], _meta: { total_count: 3 } }),

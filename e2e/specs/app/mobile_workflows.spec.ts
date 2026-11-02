@@ -25,7 +25,7 @@ async function setup(page: Page, language: 'cs' | 'en') {
     handlers: {
       'GET vpses': () => ({ vpses: [vps], _meta: { total_count: 1 } }),
       'GET vpses/123': () => ({ vps }),
-      'GET users': () => ({ users: [{ id: 8, login: 'alice', full_name: 'Alice Example' }] }),
+      'GET users': () => ({ users: [{ id: 8, login: 'alice', level: 1, full_name: 'Alice Example' }] }),
       'GET nodes': ({ url }) => ({
         nodes: [vps.node, { ...vps.node, id: 2, domain_name: 'node2.example' }].filter(
           (node) => node.id > Number(url.searchParams.get('node[from_id]') ?? url.searchParams.get('from_id') ?? 0)
@@ -167,7 +167,7 @@ test.describe('@pr-smoke-mobile Mobile workflow hardening', () => {
       const mock = await setup(page, language);
       let calls = 0;
       mock.addHandler('POST vpses/123/migrate', () =>
-        ++calls === 1 ? failEnvelope('Synthetic destination rejection') : { _meta: { action_state_id: 510 } }
+        ++calls === 1 ? failEnvelope('Synthetic destination rejection') : { vps: {}, _meta: { action_state_id: 510 } }
       );
       mock.addHandler('GET action_states/510', () => ({
         action_state: { id: 510, label: 'Migrate VPS', status: true, finished: false, current: 1, total: 2 },

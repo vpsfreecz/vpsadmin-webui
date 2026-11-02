@@ -16,7 +16,7 @@ test.describe('@pr-smoke @pr-smoke-mobile lookup options inside dialogs', () => 
             'GET vpses': () => ({ vpses: [] }),
             'GET nodes': () => ({ nodes: [] }),
             'GET users': () => ({ users: Array.from({ length: 8 }, (_, index) => ({
-              id: index + 1, login: `alice${index + 1}`, full_name: 'Synthetic member', email: `alice${index + 1}@example.test`,
+              id: index + 1, login: `alice${index + 1}`, level: 1, full_name: 'Synthetic member', email: `alice${index + 1}@example.test`,
             })) }),
             'GET help_boxes': () => ({ help_boxes: [] }),
           },

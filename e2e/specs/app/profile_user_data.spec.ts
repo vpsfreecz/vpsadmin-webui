@@ -46,7 +46,7 @@ test.describe('Profile: user data templates', () => {
             out = out.filter((x) => x.format === format);
           }
 
-          return out;
+          return { vps_user_data: out };
         },
 
         'POST vps_user_data': async ({ reqJson }) => {
@@ -63,7 +63,7 @@ test.describe('Profile: user data templates', () => {
           };
 
           templates = [tpl, ...templates];
-          return tpl;
+          return { vps_user_data: tpl };
         },
 
         'PUT vps_user_data/102': async ({ reqJson }) => {
@@ -80,16 +80,18 @@ test.describe('Profile: user data templates', () => {
               : x
           );
 
-          return templates.find((x) => x.id === 102);
+          const template = templates.find((x) => x.id === 102);
+          if (!template) throw new Error('Missing fixture template');
+          return { vps_user_data: template };
         },
 
         'DELETE vps_user_data/102': async () => {
           templates = templates.filter((x) => x.id !== 102);
-          return null;
+          return { vps_user_data: {} };
         },
 
         'POST vps_user_data/102/deploy': async () => {
-          return { _meta: { action_state_id: 999 } };
+          return { vps_user_data: {}, _meta: { action_state_id: 999 } };
         },
 
         'GET action_states/999': async () => {
@@ -182,7 +184,7 @@ test.describe('Profile: user data templates', () => {
         user: { id: 1, login: 'e2e', level: 1 },
       },
       handlers: {
-        'GET vps_user_data': () => templates,
+        'GET vps_user_data': () => ({ vps_user_data: templates }),
         'DELETE vps_user_data/101': () => {
           deleteAttempts += 1;
           if (deleteAttempts === 1) {
@@ -194,7 +196,7 @@ test.describe('Profile: user data templates', () => {
           }
 
           templates = [];
-          return null;
+          return { vps_user_data: {} };
         },
       },
     });
@@ -244,7 +246,7 @@ test.describe('Profile: user data templates', () => {
           }),
           'POST vps_user_data/101/deploy': () => {
             deployRequests += 1;
-            return { _meta: {} };
+            return { vps_user_data: {}, _meta: {} };
           },
         },
       });
@@ -298,7 +300,7 @@ for (const language of ['cs', 'en'] as const) {
   test(`@pr-smoke @pr-smoke-mobile centered template editor and supported filters remain usable (${language})`, async ({ page, hasTouch }, testInfo) => {
     await bootstrapVpsAdminWindow(page);
     await setUiSettingsLocalStorage(page, { language, theme: 'dark' });
-    await installHaveApiMock(page, { handlers: { 'GET vps_user_data': () => [] } });
+    await installHaveApiMock(page, { handlers: { 'GET vps_user_data': () => ({ vps_user_data: [] }) } });
     await page.goto('/app/profile/user-data');
     const open = page.getByTestId('profile.user_data.create');
     if (hasTouch) await open.tap(); else await open.click();
