@@ -72,7 +72,7 @@ async function setup(
           return { status: false, message: state.rejection };
         }
         state.deleted = true;
-        return { _meta: { action_state_id: 801 } };
+        return { snapshot: {}, _meta: { action_state_id: 801 } };
       },
       'GET action_states/801': () => ({
         action_state: { id: 801, finished: true, status: true, current: 1, total: 1 },

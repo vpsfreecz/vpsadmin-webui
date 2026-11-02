@@ -44,8 +44,11 @@ async function setup(
       'GET ip_addresses': () => ({ ip_addresses: [] }),
       'POST vpses/123/console_token': () => {
         tokens++;
-        return { token: 'FIXTURE', expiration: '2099-01-01T00:00:00Z' };
+        return { console_token: { token: 'FIXTURE', expiration: '2099-01-01T00:00:00Z' } };
       },
+      'GET os_templates/5': () => ({
+        os_template: { id: 5, label: 'Debian test', enabled: true, hypervisor_type: 'vpsadminos', cgroup_version: 'cgroup_any' },
+      }),
       'GET os_templates': () => ({
         os_templates: [
           { id: 5, label: 'Debian test', enabled: true, hypervisor_type: 'vpsadminos', cgroup_version: 'cgroup_any' },
@@ -123,7 +126,7 @@ for (const language of ['cs', 'en'] as const) {
     await page.getByTestId('vps.console.rescue.mount').uncheck();
     state.mock.addHandler('POST vpses/123/boot', ({ params }) => {
       state.calls.push({ action: 'boot', params });
-      return { vps: null, _meta: { action_state_id: 900 } };
+      return { vps: {}, _meta: { action_state_id: 900 } };
     });
     state.mock.addHandler('GET action_states/900', () => ({
       action_state: { id: 900, finished: true, status: true, current: 1, total: 1 },
@@ -201,7 +204,7 @@ test('@pr-smoke @pr-smoke-mobile rescue keeps uncertain submissions blocked', as
   const state = await setup(page, 'en');
   state.mock.addHandler('POST vpses/123/boot', ({ params }) => {
     state.calls.push({ action: 'boot', params });
-    return { vps: null, _meta: {} };
+    return { vps: {}, _meta: {} };
   });
   await activate(page.getByTestId('vps.console.control.rescue'), hasTouch);
   await activate(page.getByTestId('vps.console.rescue.confirm'), hasTouch);

@@ -22,7 +22,7 @@ const vps = {
     location: { label: 'dc1', remote_console_server: '/_console' },
   },
   os_template: { label: 'debian' },
-  dns_resolver: 'inherit',
+  dns_resolver: null,
 };
 
 async function routeConsoleStub(page: Page) {
@@ -52,14 +52,14 @@ test.describe('@smoke VPS console page', () => {
         'GET transaction_chains': () => ({ transaction_chains: [] }),
         'POST vpses/123/console_token': () => {
           createCalls += 1;
-          return {
+          return { console_token: {
             token: createCalls === 1 ? 'T1' : 'T2',
             expiration: '2027-01-31T00:00:00Z',
-          };
+          } };
         },
         'DELETE vpses/123/console_token': () => {
           deleteCalls += 1;
-          return {};
+          return { console_token: {} };
         },
       },
     });
@@ -150,10 +150,10 @@ test.describe('@smoke VPS console page', () => {
         'GET transaction_chains': () => ({ transaction_chains: [] }),
         'POST vpses/123/console_token': () => {
           createCalls += 1;
-          return {
+          return { console_token: {
             token: 'ADMIN',
             expiration: '2027-01-31T00:00:00Z',
-          };
+          } };
         },
       },
     });
@@ -219,7 +219,7 @@ test.describe('@smoke VPS console page', () => {
         'GET transaction_chains': () => ({ transaction_chains: [] }),
         'POST vpses/123/console_token': () => {
           createCalls += 1;
-          return { token: `T${createCalls}`, expiration: '2027-01-31T00:00:00Z' };
+          return { console_token: { token: `T${createCalls}`, expiration: '2027-01-31T00:00:00Z' } };
         },
         'DELETE vpses/123/console_token': () => {
           deleteCalls += 1;
@@ -256,14 +256,14 @@ test.describe('@smoke VPS console page', () => {
         'GET transaction_chains': () => ({ transaction_chains: [] }),
         'POST vpses/123/console_token': () => {
           createCalls += 1;
-          return { token: `T${createCalls}`, expiration: '2027-01-31T00:00:00Z' };
+          return { console_token: { token: `T${createCalls}`, expiration: '2027-01-31T00:00:00Z' } };
         },
         'DELETE vpses/123/console_token': () => {
           deleteCalls += 1;
           if (deleteCalls === 1) {
             return { status: false, message: 'temporary revoke failure', response: null };
           }
-          return {};
+          return { console_token: {} };
         },
       },
     });
@@ -363,9 +363,9 @@ for (const language of ['cs', 'en'] as const) {
         'GET transaction_chains': () => ({ transaction_chains: [] }),
         'POST vpses/123/console_token': () => {
           createCalls += 1;
-          return { token: 'SYNTHETIC_REVIEW', expiration: '2027-01-31T00:00:00Z' };
+          return { console_token: { token: 'SYNTHETIC_REVIEW', expiration: '2027-01-31T00:00:00Z' } };
         },
-        'DELETE vpses/123/console_token': () => { deleteCalls += 1; return {}; },
+        'DELETE vpses/123/console_token': () => { deleteCalls += 1; return { console_token: {} }; },
       },
     });
     await page.goto('/app/vps/123/console');

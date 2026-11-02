@@ -26,7 +26,7 @@ for (const level of [1, 90]) {
         'GET vpses/123/maintenance_windows': () => ({ maintenance_windows: [] }),
         'PUT vpses/123': (ctx) => {
           writes.push(ctx.request.postDataJSON());
-          return { _meta: { action_state_id: 8001 } };
+          return { vps: {}, _meta: { action_state_id: 8001 } };
         },
         'GET action_states/8001': () => {
           if (complete) allow = false;
@@ -120,7 +120,7 @@ for (const outcome of ['rejected', 'malformed-receipt'] as const) {
         'GET vpses/123/maintenance_windows': () => ({ maintenance_windows: [] }),
         'PUT vpses/123': () => {
           writes += 1;
-          return outcome === 'rejected' ? failEnvelope('Example rejected change') : { _meta: { action_state_id: 'invalid' } };
+          return outcome === 'rejected' ? failEnvelope('Example rejected change') : { vps: {}, _meta: { action_state_id: 'invalid' } };
         },
       },
     });
@@ -159,7 +159,7 @@ for (const outcome of ['failed-action', 'readback-mismatch', 'unknown-action-sta
         'GET vpses/123/maintenance_windows': () => ({ maintenance_windows: [] }),
         'PUT vpses/123': () => {
           submitted = true;
-          return { _meta: { action_state_id: 8002 } };
+          return { vps: {}, _meta: { action_state_id: 8002 } };
         },
         'GET action_states/8002': () => ({
           action_state: {
@@ -211,7 +211,7 @@ for (const level of [1, 90]) {
           const body = ctx.request.postDataJSON() as { vps: { allow_admin_modifications: boolean } };
           writes.push(body); allow = body.vps.allow_admin_modifications; submitted = true;
           // Empty successful output is the immediate-save API contract.
-          return {};
+          return { vps: {} };
         },
         'PUT vpses/123/maintenance_windows/0': (ctx) => {
           const body = ctx.request.postDataJSON() as { maintenance_window: typeof sunday };
@@ -261,7 +261,7 @@ for (const outcome of ['mismatch', 'unavailable'] as const) {
         } },
         'GET transaction_chains': () => ({ transaction_chains: [] }),
         'GET vpses/123/maintenance_windows': () => ({ maintenance_windows: [] }),
-        'PUT vpses/123': () => { submitted = true; writes += 1; return {}; },
+        'PUT vpses/123': () => { submitted = true; writes += 1; return { vps: {} }; },
       },
     });
     await page.goto('/app/vps/123/maintenance');

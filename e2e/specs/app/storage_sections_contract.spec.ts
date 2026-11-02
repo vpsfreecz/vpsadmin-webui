@@ -42,7 +42,7 @@ test.describe('User storage section contract', () => {
       dataset: { id: 101, name: 'tank/vps/mail/root' },
       node: { id: 1, domain_name: 'node1.example' },
       os_template: { label: 'debian' },
-      dns_resolver: 'inherit',
+      dns_resolver: null,
     };
     const nasDataset = {
       id: 202,
@@ -70,8 +70,8 @@ test.describe('User storage section contract', () => {
               : [vpsDataset, nasDataset];
           return { datasets, _meta: { total_count: datasets.length } };
         },
-        'GET datasets/101': () => vpsDataset,
-        'GET datasets/202': () => nasDataset,
+        'GET datasets/101': () => ({ dataset: vpsDataset }),
+        'GET datasets/202': () => ({ dataset: nasDataset }),
         'GET datasets/101/snapshots': () => ({ snapshots: [], _meta: { total_count: 0 } }),
         'GET datasets/202/snapshots': () => ({ snapshots: [], _meta: { total_count: 0 } }),
         'GET snapshot_downloads': () => ({ snapshot_downloads: [], _meta: { total_count: 0 } }),

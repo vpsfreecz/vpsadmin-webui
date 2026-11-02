@@ -71,7 +71,7 @@ for (const language of ['cs', 'en'] as const) {
         'GET transaction_chains': () => ({ transaction_chains: [] }),
         'POST vpses/123/console_token': () => {
           creations++;
-          return { token: 'FIXTURE', expiration: '2027-12-31T00:00:00Z' };
+          return { console_token: { token: 'FIXTURE', expiration: '2027-12-31T00:00:00Z' } };
         },
       },
     });

@@ -36,7 +36,7 @@ test.describe('@pr-smoke @pr-smoke-mobile Dataset snapshots keyset pagination', 
     await installHaveApiMock(page, {
       user: { id: 1, login: 'test', level: 1 },
       handlers: {
-        'GET datasets/10': () => dataset,
+        'GET datasets/10': () => ({ dataset: dataset }),
         'GET datasets/10/snapshots': ({ searchParams }) => {
           requestedSnapshotParams.push(new URLSearchParams(searchParams));
           const fromId = Number(searchParams.get('snapshot[from_id]') ?? 0);

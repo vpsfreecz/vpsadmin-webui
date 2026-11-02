@@ -18,7 +18,7 @@ test.describe("@smoke Dataset downloads", () => {
     await installHaveApiMock(page, {
       user: { id: 1, login: "admin", level: 99 },
       handlers: {
-        "GET datasets/10": () => ({
+        "GET datasets/10": () => ({ dataset: {
           id: 10,
           full_name: "tank/vps/ds10",
           name: "ds10",
@@ -29,7 +29,7 @@ test.describe("@smoke Dataset downloads", () => {
           export_count: 0,
           object_state: "active",
           vps: { id: 300, hostname: "alpha.example" },
-        }),
+        } }),
 
         "GET snapshot_downloads": () => ({ snapshot_downloads: [] }),
 
@@ -37,7 +37,7 @@ test.describe("@smoke Dataset downloads", () => {
           snapshots: [
             {
               id: 200,
-              dataset: 10,
+              dataset: { id: 10 },
               name: "snap-200",
               label: "snap-200",
               created_at: "2026-01-26T00:00:00.000Z",
@@ -68,19 +68,19 @@ test.describe("@smoke Dataset downloads", () => {
     await installHaveApiMock(page, {
       user: { id: 1, login: "admin", level: 99 },
       handlers: {
-        "GET datasets/10": () => ({
+        "GET datasets/10": () => ({ dataset: {
           id: 10,
           full_name: "tank/vps/ds10",
           name: "ds10",
           object_state: "active",
           vps: { id: 300, hostname: "alpha.example" },
-        }),
+        } }),
         "GET transaction_chains": () => ({ transaction_chains: [] }),
         "GET snapshot_downloads": () => ({ snapshot_downloads: [] }),
         "GET datasets/10/snapshots": () => ({
           snapshots: [{
             id: 200,
-            dataset: 10,
+            dataset: { id: 10 },
             name: "snap-200",
             label: "Before migration",
             created_at: "2026-01-26T00:00:00.000Z",
@@ -126,7 +126,7 @@ test.describe("@smoke Dataset downloads", () => {
     const requestedSnapshotParams: URLSearchParams[] = [];
     const makeSnapshot = (id: number) => ({
       id,
-      dataset: 10,
+      dataset: { id: 10 },
       name: `snap-${id}`,
       label: `Snapshot ${id}`,
       created_at: "2026-01-26T00:00:00.000Z",
@@ -142,7 +142,7 @@ test.describe("@smoke Dataset downloads", () => {
     await installHaveApiMock(page, {
       user: { id: 1, login: "admin", level: 99 },
       handlers: {
-        "GET datasets/10": () => ({
+        "GET datasets/10": () => ({ dataset: {
           id: 10,
           full_name: "tank/vps/ds10",
           name: "ds10",
@@ -153,7 +153,7 @@ test.describe("@smoke Dataset downloads", () => {
           export_count: 0,
           object_state: "active",
           vps: { id: 300, hostname: "alpha.example" },
-        }),
+        } }),
         "GET snapshot_downloads": () => ({ snapshot_downloads: [] }),
         "GET datasets/10/snapshots": ({ searchParams }) => {
           requestedSnapshotParams.push(new URLSearchParams(searchParams));
@@ -194,7 +194,7 @@ test.describe("@smoke Dataset downloads", () => {
     await installHaveApiMock(page, {
       user: { id: 1, login: "admin", level: 99 },
       handlers: {
-        "GET datasets/10": () => ({
+        "GET datasets/10": () => ({ dataset: {
           id: 10,
           full_name: "tank/vps/ds10",
           name: "ds10",
@@ -205,20 +205,20 @@ test.describe("@smoke Dataset downloads", () => {
           export_count: 0,
           object_state: "active",
           vps: { id: 300, hostname: "alpha.example" },
-        }),
+        } }),
         "GET transaction_chains": () => ({ transaction_chains: [] }),
         "GET datasets/10/snapshots": () => ({
           snapshots: [
             {
               id: 200,
-              dataset: 10,
+              dataset: { id: 10 },
               name: "snap-200",
               label: "base",
               created_at: "2026-01-25T00:00:00.000Z",
             },
             {
               id: 201,
-              dataset: 10,
+              dataset: { id: 10 },
               name: "snap-201",
               label: "target",
               created_at: "2026-01-26T00:00:00.000Z",
@@ -321,7 +321,7 @@ test.describe("@smoke Dataset downloads", () => {
     await installHaveApiMock(page, {
       user: { id: 1, login: "admin", level: 99 },
       handlers: {
-        "GET datasets/10": () => ({
+        "GET datasets/10": () => ({ dataset: {
           id: 10,
           full_name: "tank/vps/ds10",
           name: "ds10",
@@ -332,7 +332,7 @@ test.describe("@smoke Dataset downloads", () => {
           export_count: 0,
           object_state: "active",
           vps: { id: 300, hostname: "alpha.example" },
-        }),
+        } }),
 
         "GET snapshot_downloads": () => ({
           snapshot_downloads: [
@@ -455,7 +455,7 @@ test.describe("@smoke Dataset downloads", () => {
     await installHaveApiMock(page, {
       user: { id: 1, login: "admin", level: 99 },
       handlers: {
-        "GET datasets/10": () => ({
+        "GET datasets/10": () => ({ dataset: {
           id: 10,
           full_name: "tank/vps/ds10",
           name: "ds10",
@@ -466,7 +466,7 @@ test.describe("@smoke Dataset downloads", () => {
           export_count: 0,
           object_state: "active",
           vps: { id: 300, hostname: "alpha.example" },
-        }),
+        } }),
 
         "GET snapshot_downloads": () => {
           if (deleted) {
@@ -493,7 +493,7 @@ test.describe("@smoke Dataset downloads", () => {
         "DELETE snapshot_downloads/501": () => {
           deleteCalls += 1;
           deleted = true;
-          return { ok: true };
+          return { snapshot_download: {} };
         },
       },
     });
@@ -514,7 +514,7 @@ test.describe("@smoke Dataset downloads", () => {
       page.getByTestId("dataset.downloads.delete_confirm").locator("input"),
     ).toHaveCount(0);
 
-    const proofScreenshot = process.env.E2E_PROOF_SCREENSHOT?.trim();
+    const proofScreenshot = process.env["E2E_PROOF_SCREENSHOT"]?.trim();
     if (proofScreenshot) {
       await page.screenshot({ path: proofScreenshot, fullPage: true });
     }
@@ -542,7 +542,7 @@ test.describe("@smoke Dataset downloads", () => {
     await installHaveApiMock(page, {
       user: { id: 2, login: "member", level: 1 },
       handlers: {
-        "GET datasets/10": () => ({
+        "GET datasets/10": () => ({ dataset: {
           id: 10,
           full_name: "tank/vps/ds10",
           name: "ds10",
@@ -553,7 +553,7 @@ test.describe("@smoke Dataset downloads", () => {
           export_count: 1,
           object_state: "active",
           vps: { id: 300, hostname: "alpha.example" },
-        }),
+        } }),
 
         "GET snapshot_downloads": () => ({
           snapshot_downloads: deleted
@@ -577,7 +577,7 @@ test.describe("@smoke Dataset downloads", () => {
         "DELETE snapshot_downloads/501": () => {
           deleteCalls += 1;
           deleted = true;
-          return { ok: true };
+          return { snapshot_download: {} };
         },
       },
     });
@@ -613,7 +613,7 @@ test.describe("@smoke Dataset downloads", () => {
     await installHaveApiMock(page, {
       user: { id: 1, login: "admin", level: 99 },
       handlers: {
-        "GET datasets/10": () => ({
+        "GET datasets/10": () => ({ dataset: {
           id: 10,
           full_name: "tank/vps/ds10",
           name: "ds10",
@@ -624,19 +624,19 @@ test.describe("@smoke Dataset downloads", () => {
           export_count: 0,
           object_state: "active",
           vps: { id: 300, hostname: "alpha.example" },
-        }),
+        } }),
         "GET datasets/10/snapshots": () => ({
           snapshots: [
             {
               id: 200,
-              dataset: 10,
+              dataset: { id: 10 },
               name: "snap-200",
               label: "snap-200",
               created_at: "2026-01-26T00:00:00.000Z",
             },
             {
               id: 201,
-              dataset: 10,
+              dataset: { id: 10 },
               name: "snap-201",
               label: "snap-201",
               created_at: "2099-01-27T00:00:00.000Z",

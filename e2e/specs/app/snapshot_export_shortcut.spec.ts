@@ -21,11 +21,11 @@ for (const mode of ['member', 'admin'] as const) {
     await installHaveApiMock(page, {
       user: { id: 1, login: 'backup-test', level: cs ? 1 : 99 },
       handlers: {
-        'GET datasets/10': () => dataset,
+        'GET datasets/10': () => ({ dataset: dataset }),
         'GET datasets': () => ({ datasets: [dataset], _meta: { total_count: 1 } }),
         'GET transaction_chains': () => ({ transaction_chains: [] }),
-        'GET exports/70': () => ({ id: 70, dataset, snapshot: snapshots[2], user: dataset.user, enabled: true }),
-        'GET exports/71': () => ({ id: 71, dataset, snapshot: snapshots[1], user: dataset.user, enabled: true }),
+        'GET exports/70': () => ({ export: { id: 70, dataset, snapshot: snapshots[2], user: dataset.user, enabled: true } }),
+        'GET exports/71': () => ({ export: { id: 71, dataset, snapshot: snapshots[1], user: dataset.user, enabled: true } }),
         'GET exports/70/hosts': () => ({ hosts: [] }),
         'GET exports/71/hosts': () => ({ hosts: [] }),
         'GET datasets/10/snapshots': ({ searchParams }) => {

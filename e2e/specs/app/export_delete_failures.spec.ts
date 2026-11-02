@@ -42,14 +42,14 @@ test('@pr-smoke @pr-smoke-mobile rejected export deletion stays in context and a
     user: { id: 1, login: 'demo', level: 1 },
     handlers: {
       'GET exports': () => ({ exports: [] }),
-      'GET exports/10': () => exportItem,
+      'GET exports/10': () => ({ export: exportItem }),
       'GET exports/10/hosts': () => ({ hosts: [host], _meta: { total_count: 1 } }),
       'GET ip_addresses': () => ({ ip_addresses: [host.ip_address], _meta: { total_count: 1 } }),
       'DELETE exports/10': () => {
         deleteCalls += 1;
         return deleteCalls === 1
           ? rejected('Export is still mounted')
-          : { _meta: { action_state_id: 901 } };
+          : { export: {}, _meta: { action_state_id: 901 } };
       },
     },
   });
@@ -76,14 +76,14 @@ test('@pr-smoke @pr-smoke-mobile rejected export host deletion stays in context 
   await installHaveApiMock(page, {
     user: { id: 1, login: 'demo', level: 1 },
     handlers: {
-      'GET exports/10': () => exportItem,
+      'GET exports/10': () => ({ export: exportItem }),
       'GET exports/10/hosts': () => ({ hosts, _meta: { total_count: hosts.length } }),
       'GET ip_addresses': () => ({ ip_addresses: [host.ip_address], _meta: { total_count: 1 } }),
       'DELETE exports/10/hosts/11': () => {
         deleteCalls += 1;
         if (deleteCalls === 1) return rejected('Host access changed on the server');
         hosts.length = 0;
-        return { _meta: { action_state_id: 902 } };
+        return { host: {}, _meta: { action_state_id: 902 } };
       },
     },
   });
