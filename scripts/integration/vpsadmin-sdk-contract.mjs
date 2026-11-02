@@ -183,7 +183,7 @@ async function main() {
   for (const path of ['dist/index.js', 'dist/generated/runtime.js', 'dist/generated/api.js', 'tools/generator.json', 'schema/schema.json']) {
     const packed = spawnSync('tar', ['-xOf', archive, `package/${path}`], { maxBuffer: 16 * 1024 * 1024 });
     assert.equal(packed.status, 0, 'Archive identity read failed');
-    assert.equal(sha256(packed.stdout), sha256(readFileSync(join(sdkRoot, path))), 'Installed SDK differs from archive');
+    assert.equal(sha256(packed.stdout), sha256(readFileSync(join(sdkRoot, path))), 'Installed generated client differs from archive');
   }
   const sdk = await import(pathToFileURL(join(sdkRoot, 'dist/index.js')));
   const runtime = createRequire(import.meta.url)(runtimeFile);
@@ -222,5 +222,5 @@ async function main() {
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
-  main().catch((error) => { console.error(`SDK contract failed (${error.name}); no response or credential values logged`); process.exitCode = 1; });
+  main().catch((error) => { console.error(`Generated client contract failed (${error.name}); no response or credential values logged`); process.exitCode = 1; });
 }

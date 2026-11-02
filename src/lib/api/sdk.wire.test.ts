@@ -23,7 +23,7 @@ afterEach(() => {
   window.vpsAdmin = undefined; document.documentElement.lang = ''; vi.unstubAllGlobals();
 });
 
-describe('immutable generated SDK through actual HaveAPI XHR', () => {
+describe('immutable generated client through actual HaveAPI XHR', () => {
   it('uses the generated output namespace once and preserves includes/count and raw receipt', async () => {
     const envelope = { status: true, response: { vpses: [{ id: 7, hostname: 'test' }], other: ['untouched'], _meta: { total_count: 1 } } };
     installHaveApiXhr(() => response(envelope));

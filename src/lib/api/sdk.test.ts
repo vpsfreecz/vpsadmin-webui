@@ -17,7 +17,7 @@ beforeEach(() => {
 });
 afterEach(() => { window.vpsAdmin = undefined; });
 
-describe('generated SDK bindings', () => {
+describe('generated client bindings', () => {
   it('constructs clients and rejects invalid operation input without dispatch or discovery', async () => {
     const api = await getApi();
     expect(getPublicApi()).not.toBe(api);

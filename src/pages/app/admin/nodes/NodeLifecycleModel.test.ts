@@ -143,7 +143,7 @@ describe('NodeLifecycleModel', () => {
     expect(() => buildNodeUpdateInput(node, draft)).toThrow('max_vps');
   });
 
-  it('rejects clears outside the static SDK contract even when live OPTIONS says nullable', () => {
+  it('rejects clears outside the static generated client contract even when live OPTIONS says nullable', () => {
     const node = { id: 12, active: true, name: 'node12', type: 'node', ip_addr: '192.0.2.12', max_vps: 100 };
     const draft = nodeEditDraft(node);
     draft.maxVps = '';

@@ -7,11 +7,23 @@ import { test } from 'node:test';
 import { checkPackageSource } from './check-package-source.mjs';
 
 const required = [
-  'package.json', 'package-lock.json', 'vite.config.ts', 'build/buildInfo.ts',
-  'bff/package.json', 'bff/package-lock.json', 'docs/design/README.md',
-  'docs/design/IMPLEMENTATION_INVENTORY.md', 'public/config.local.js.example',
-  'scripts/audit-design-docs.mjs', 'scripts/design-inventory.mjs',
-  'src/routes/router.tsx', 'src/lib/api/sdk.ts', 'src/lib/api/apiRequestPolicy.ts', 'src/lib/api/apiErrors.ts', 'src/lib/api/apiOutput.ts', 'UI_REDESIGN.md',
+  'package.json',
+  'package-lock.json',
+  'vite.config.ts',
+  'build/buildInfo.ts',
+  'bff/package.json',
+  'bff/package-lock.json',
+  'docs/design/README.md',
+  'docs/design/IMPLEMENTATION_INVENTORY.md',
+  'public/config.local.js.example',
+  'scripts/audit-design-docs.mjs',
+  'scripts/design-inventory.mjs',
+  'src/routes/router.tsx',
+  'src/lib/api/sdk.ts',
+  'src/lib/api/apiRequestPolicy.ts',
+  'src/lib/api/apiErrors.ts',
+  'src/lib/api/apiOutput.ts',
+  'UI_REDESIGN.md',
   'packages/haveapi-client-provenance.json',
 ];
 
@@ -23,19 +35,30 @@ function fixture(callback) {
       fs.mkdirSync(path.dirname(file), { recursive: true });
       fs.writeFileSync(file, 'fixture\n');
     }
-    const provenance = JSON.parse(fs.readFileSync(new URL('../packages/haveapi-client-provenance.json', import.meta.url)));
-    const xhr = JSON.parse(fs.readFileSync(new URL('../package-lock.json', import.meta.url))).packages['node_modules/xmlhttprequest'];
+    const provenance = JSON.parse(
+      fs.readFileSync(new URL('../packages/haveapi-client-provenance.json', import.meta.url))
+    );
+    const xhr = JSON.parse(fs.readFileSync(new URL('../package-lock.json', import.meta.url))).packages[
+      'node_modules/xmlhttprequest'
+    ];
     const dependencies = { 'haveapi-client': provenance.version };
     fs.writeFileSync(path.join(root, 'packages/haveapi-client-provenance.json'), JSON.stringify(provenance));
     fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify({ dependencies }));
-    fs.writeFileSync(path.join(root, 'package-lock.json'), JSON.stringify({ packages: {
-      '': { dependencies },
-      'node_modules/haveapi-client': {
-        version: provenance.version, resolved: provenance.resolved, integrity: provenance.integrity,
-        dependencies: { xmlhttprequest: 'latest' },
-      },
-      'node_modules/xmlhttprequest': xhr,
-    } }));
+    fs.writeFileSync(
+      path.join(root, 'package-lock.json'),
+      JSON.stringify({
+        packages: {
+          '': { dependencies },
+          'node_modules/haveapi-client': {
+            version: provenance.version,
+            resolved: provenance.resolved,
+            integrity: provenance.integrity,
+            dependencies: { xmlhttprequest: 'latest' },
+          },
+          'node_modules/xmlhttprequest': xhr,
+        },
+      })
+    );
     callback(root);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
@@ -58,12 +81,15 @@ test('rejects generated, private and symlink entries', () => {
     fs.mkdirSync(path.join(root, 'node_modules'));
     fs.writeFileSync(path.join(root, '.env.production'), 'secret');
     fs.symlinkSync(path.join(root, 'package.json'), path.join(root, 'linked-package.json'));
-    assert.throws(() => checkPackageSource(root), (error) => {
-      assert.match(error.message, /Generated directory in source: node_modules/);
-      assert.match(error.message, /Private environment\/configuration file in source: .env.production/);
-      assert.match(error.message, /Source symlink is not supported: linked-package.json/);
-      return true;
-    });
+    assert.throws(
+      () => checkPackageSource(root),
+      (error) => {
+        assert.match(error.message, /Generated directory in source: node_modules/);
+        assert.match(error.message, /Private environment\/configuration file in source: .env.production/);
+        assert.match(error.message, /Source symlink is not supported: linked-package.json/);
+        return true;
+      }
+    );
   });
 });
 
@@ -81,7 +107,10 @@ test('rejects an external source symlink before a build can follow it', () => {
 });
 
 test('rejects a substituted HaveAPI archive or integrity', () => {
-  for (const [field, value] of [['resolved', 'file:vendor/client.tgz'], ['integrity', 'sha512-changed']]) {
+  for (const [field, value] of [
+    ['resolved', 'file:vendor/client.tgz'],
+    ['integrity', 'sha512-changed'],
+  ]) {
     fixture((root) => {
       const file = path.join(root, 'package-lock.json');
       const lock = JSON.parse(fs.readFileSync(file, 'utf8'));

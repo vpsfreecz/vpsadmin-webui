@@ -41,7 +41,7 @@ beforeEach(() => {
   };
 });
 
-test('the SDK encodes configuration path segments once and preserves false', async () => {
+test('the generated client encodes configuration path segments once and preserves false', async () => {
   const { updateSystemConfig } = await import('./systemConfig');
   apiWire.respond = mockFetchOk({ system_config: { category: 'plugin/test', name: 'key?percent%', value: false } });
   await updateSystemConfig({ category: 'plugin/test', name: 'key?percent%', value: false });

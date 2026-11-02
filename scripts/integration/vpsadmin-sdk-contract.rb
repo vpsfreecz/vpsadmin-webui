@@ -53,7 +53,7 @@ begin
     templates = { supported: base_template.id }
     { disabled: [false, true], unsupported: [true, false] }.each do |name, flags|
       template = base_template.dup
-      template.assign_attributes(label: "SDK contract #{name}", variant: "sdk-#{name}", enabled: flags[0], supported: flags[1])
+      template.assign_attributes(label: "Generated client contract #{name}", variant: "sdk-#{name}", enabled: flags[0], supported: flags[1])
       template.save!
       templates[name] = template.id
     end

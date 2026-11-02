@@ -19,7 +19,7 @@ claims. Local adapter tests verify serialization, not deployed backend capabilit
 
 | Contract | Implemented/required behavior | Evidence and caution |
 | --- | --- | --- |
-| UI settings | Generated Index filters by namespace/key and Set writes the JSON-string value at `/webui_user_settings/{namespace}/{key}`. Only the canonical configured resource path (optional trailing slashes) is supported; invalid paths fail before binding/dispatch. Namespace/key are encoded once by the SDK. | [adapter](../../src/lib/api/webuiUserSettings.ts); collection PUT + POST fallback caused the persistence bug fixed by PR519. |
+| UI settings | Generated Index filters by namespace/key and Set writes the JSON-string value at `/webui_user_settings/{namespace}/{key}`. Only the canonical configured resource path (optional trailing slashes) is supported; invalid paths fail before binding/dispatch. Namespace/key are encoded once by the generated client. | [adapter](../../src/lib/api/webuiUserSettings.ts); collection PUT + POST fallback caused the persistence bug fixed by PR519. |
 | Session JSON | Same-origin JSON with accessToken, sessionKey, sessionExpiresAt; anonymous values null; no secrets in executable config. | [server](../../bff/server.js), [auth](../../src/app/auth.tsx); retain origin/security checks. |
 | New OAuth session identity | The authorization-code exchange sends one validated callback `req.ip` in `Client-IP` and exact `User-Agent: vpsadmin-webui`; invalid IP fails before provider contact. Refresh and revocation use that User-Agent without Client-IP. | [BFF contract](../../bff/README.md), [server](../../bff/server.js); this describes new session metadata, not retroactive changes or browser authorization identity. |
 | Resource overrides | Explicit admin override only where backend action supports it. | PR503; do not infer that every create/edit endpoint accepts one universal flag. |
@@ -68,13 +68,13 @@ fields when reorganizing the node page.
 ## Production HaveAPI client
 
 The generated `vpsadmin-typescript-client` constructs operations and live
-root/action descriptions. [SDK bindings](../../src/lib/api/sdk.ts) supply
+root/action descriptions. [Generated client bindings](../../src/lib/api/sdk.ts) supply
 separate public/authenticated clients at the configured, already-versioned API
 base, including any mount prefix. The [request policy](../../src/lib/api/apiRequestPolicy.ts)
 receives the complete `RequestSpec` and returns the complete `RequestResult`.
 Output namespace, headers, signal and timeout survive this boundary. The installed
 HaveAPI runtime owns XHR, query/body encoding, JSON parsing and envelope validation;
-WebUI does not decode a second envelope or guess an SDK output namespace.
+WebUI does not decode a second envelope or guess the client's output namespace.
 
 Authentication and language are read for each authenticated dispatch, including
 impersonation. Explicit request headers survive; the current authentication
@@ -121,7 +121,7 @@ Start returns vps:{} plus blocking metadata. Missing namespace is a protocol
 failure; a valid empty output with no required action-state ID is a distinct
 missing-receipt failure. Neither permits an automatic duplicate mutation.
 
-Every vpsAdmin operation now uses the generated SDK. The historical generic
+Every vpsAdmin operation now uses the generated client. The historical generic
 wrapper and single-namespace projection are removed. Domain view types derive
 from generated outputs, retaining nullable/absent fields and partial associations;
 each workflow validates the identity and fields it actually needs. Existing

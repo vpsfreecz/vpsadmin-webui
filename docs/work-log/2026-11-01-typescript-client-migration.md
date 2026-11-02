@@ -3,7 +3,7 @@
 Requirements: REQ-005, REQ-007, REQ-011, REQ-012, REQ-054, REQ-056, REQ-060,
 REQ-061, REQ-068.
 
-The maintainer requested full generated SDK use for vpsAdmin operations and removal
+The maintainer requested full generated client use for vpsAdmin operations and removal
 of duplicated request contracts. The shared boundary now accepts the complete
 RequestSpec and preserves RequestResult, while keeping WebUI auth/language,
 renewal, public isolation, action-state evidence and uncertain-write policy.
@@ -19,7 +19,7 @@ outside the API directory.
 
 ## Source preparation and dependency evidence
 
-Source development began against SDK `383e8556208f330472961077cce4dcb546231c8a`
+Source development began against generated client `383e8556208f330472961077cce4dcb546231c8a`
 from generator `7cffd0b6b6959abf5b5af810ba81004b8defc13c`. The immutable
 0.3.0 archive has SHA-256
 `e067ba78b54871c83e6bda1c4ab8a12e0575bb990a88fb39090e92fa3532e6f6`
@@ -32,7 +32,7 @@ installed into node_modules alongside the locked HaveAPI 0.32.0 peer. No local
 archive path was written to a committed manifest/lock. This is an unpublished
 source-development candidate, not a distributable dependency or runtime acceptance.
 Foundation review required a selectorless explicit-help rejection and smaller
-internal output descriptors. The verified successor SDK
+internal output descriptors. The verified successor generated client
 `b650f21fa83c314b3c21aaf62f0d9dda2b08befd`, generator
 `172c752ef65792de177279956917259d2c3f9b37`, replaces the installed source candidate.
 Its archive SHA-256 is
@@ -41,17 +41,17 @@ and integrity is
 `sha512-3GUpjTRa6hYPiIBRzumFM/MQ/tOu49yVvAW7o2CECSrZ/Ic5vObtwF0EqVT7wNDXPOVMfph+54eEZAM59Utngg==`.
 Every installed archive file matches; public declarations are unchanged. The old
 archive and its receipt are retained as source-development evidence. The final
-provenance refresh uses SDK `99ee06654ef956a09b52749f4cd02d1435362087`
+provenance refresh uses generated client `99ee06654ef956a09b52749f4cd02d1435362087`
 and generator `eea3ae5e82c3db23d5f5bc9f1a5e7784117c4e1b`. Its archive SHA-256 is
 `f3bb42d0392fb738f5c70fe1415cc8742ab943a31c2ed2a85af5ccbd385d831f`, with integrity
 `sha512-6Q74ddIgGzeav9mvPubc33g5Sd+Ni7ZOLtKnNVzP/sW1Cxmw59nLiib50H27HBYc0UgoVfjlxuqH0WmX7hR3jw==`.
 All 1,360 installed archive entries match. Relative to the accepted b650 artifact,
 only generator commit provenance changes; generated sources, all 1,352 built
-modules and dependency inputs are unchanged. The maintainer directed that the SDK
+modules and dependency inputs are unchanged. The maintainer directed that the generated client
 remain unpublished, then authorized temporary support for refining unpublished
 candidates. The root now uses the verified archive through the ordinary relative
 file dependency described in [packaging](../design/PACKAGING.md#temporary-unpublished-sdk-input).
-The compact provenance and npm-generated lock identify the exact bytes. No SDK
+The compact provenance and npm-generated lock identify the exact bytes. No generated client
 source build, release tag, default-branch integration or publication is involved.
 
 ## Copy and visible control impact
@@ -126,7 +126,7 @@ Source-backed controls now match the generated input contract:
   through the existing lifecycle workflow. Sessions have no invented current
   marker, TOTP reads only recovery_code, and empty mail-recipient data has no
   fabricated role/primary fallback or copy target.
-- Public correction tokens and all three correction dropdowns use anonymous SDK
+- Public correction tokens and all three correction dropdowns use anonymous generated client
   bindings even in an authenticated browser. Admin approval/template changes
   check actual eligibility; unrelated review outcomes retain their own rules.
 - HelpBox unlocalized filtering and clearing a localized language are unavailable.
@@ -160,7 +160,7 @@ replace final package/review/browser checks.
 The test-only [isolated API driver](../../scripts/integration/vpsadmin-sdk-contract.mjs)
 and [Ruby fixture](../../scripts/integration/vpsadmin-sdk-contract.rb) reuse the
 guarded schema-export Bootstrap/TestDb and all six plugins with Puma on loopback.
-They use the actual HaveAPI 0.32 runtime and installed verified SDK. The 23-call
+They use the actual HaveAPI 0.32 runtime and installed verified generated client. The 23-call
 public/member/admin matrix covers descriptions, identity, template eligibility,
 count/limit/from_id, user-scoped settings persistence/deletion and API
 validation/authentication errors. Four pure safety/child-shutdown tests and JS/Ruby
@@ -191,30 +191,32 @@ A fresh verification utility owns the API run. Bootstrap/matrix deadlines are
 The fixture stops Puma before native TestDb cleanup. Success evidence appears
 after child shutdown and contains provenance/call counts without credentials or
 response values. Dependency/service failures stop for diagnosis without installs,
-stubs or automatic retry. This proves only the stated isolated DB-backed SDK/API
-contracts; deployed servers, OAuth/BFF, browser behavior and asynchronous VPS
+stubs or automatic retry. This proves only the stated isolated DB-backed contracts
+between the generated client and API; deployed servers, OAuth/BFF, browser behavior and asynchronous VPS
 worker completion remain outside its evidence.
 
-## Temporary SDK package verification
+<a id="temporary-sdk-package-verification"></a>
+
+## Temporary generated client package verification
 
 The approved input is the unchanged 337,414-byte
 `vendor/vpsadmin-typescript-client-0.3.0-99ee06654ef9.tgz`; its archive size,
 SHA-256/SHA-512 and source/generator/schema graph are recorded in
 [the compact provenance](../../packages/vpsadmin-typescript-client-provenance.json).
-The SDK's prior exact-archive checker evidence remains applicable. Pinned npm
+The generated client's prior exact-archive checker evidence remains applicable. Pinned npm
 generated the file dependency and lock from refreshed WebUI main
 `63d484fc070dbee633d32624de545e834d483701`; all unrelated package records and
 the BFF lock/hash are unchanged.
 
 The existing frontend fetchNpmDeps hooks validate the source before projecting
-only the SDK package entry out of the temporary remote-prefetch lock. The cache
+only the generated client package entry out of the temporary remote-prefetch lock. The cache
 receives the original lock bytes; the ordinary npm hook keeps its lock comparison
 and offline installation. The existing source filter retains the archive and the
 public install allowlist excludes it. Source-checker tests pass all 10 cases,
 including missing/tampered archives, manifest/lock/revision mismatch and symlinks.
 
 A fresh watcher ran clean npm ci (410 packages, 18.2 seconds), an installed ESM
-export check (1.1 seconds) and four focused SDK/policy suites (38 tests, 10.2
+export check (1.1 seconds) and four focused client/policy suites (38 tests, 10.2
 seconds), all passing. The authorized dependency-cache hash probe used
 `nix build --no-link --print-out-paths .#frontend.npmDeps` with lib.fakeHash and
 reported the expected hash mismatch in about 10 seconds. Its actual output hash,
@@ -235,7 +237,7 @@ checks recorded below.
 ## Final source review corrections
 
 Independent review found no Blocking findings, two Important findings and two
-Advisory findings; the temporary SDK/Nix support and history/migration boundary
+Advisory findings; the temporary client packaging and history/migration boundary
 were accepted. The bounded corrections retain structured partial CVE intentions
 and the accepted parent identity for create/edit, prevent duplicate parent
 creation after child failure, and let Review close the edit dialog and refresh
@@ -257,14 +259,14 @@ audit retains 25 accepted exceptions with no unaccepted, invalid or aggregate
 failures. The coordinated affected compiler and 26 Node validator cases then
 passed before the corrections were committed. The lead accepted all four review
 remedies.
-SDK archive, runtime, dependency graph and Nix cache inputs remain unchanged.
+The generated client archive, runtime, dependency graph and Nix cache inputs remain unchanged.
 
 ## Nix local-archive lock-fixer correction
 
 The first full Nix graph on `1ab9853312a95b5448e99fd6f83f846453de17a5`
 validated the canonical cache lock but failed in the pinned npm hook before npm
 installation. Its upstream `--map-cache` inventories remote cache entries;
-`--fixup-lockfile` then required an integrity map entry for the restored local SDK
+`--fixup-lockfile` then required an integrity map entry for the restored local generated client
 and panicked with `dependency should have a hash`. Ordinary npm installation,
 runtime tests and the Vite build remained passing evidence for their own scope;
 they did not establish Nix package success.
@@ -281,7 +283,7 @@ archive, FOD hash, BFF hook and application inputs remain unchanged.
 All 12 source-checker tests pass, including map preservation, idempotence and
 failure cases with unchanged map/lock bytes. The actual pinned fixer passes on a
 disposable canonical lock and explicit fixture map containing 478 remote entries
-plus the verified SDK entry; the lock stays byte-identical (SHA-256
+plus the verified generated client entry; the lock stays byte-identical (SHA-256
 `585e8f48b194d8165731ca546fb709c94d531ee48224de9fff805416cb8b0f8e`).
 This fixture map is not evidence of a remote cache build. The earlier realized
 dependency-cache path was absent during the quick check; evaluation still selects
@@ -306,14 +308,14 @@ The real five-output Nix graph passed on immutable source
 `7cad7ffb3a0a294c30349680e2eb4f80c63a3926`: frontend, BFF, provenance, source
 contents and package contents. Both packages report schema 1, that exact commit,
 `dirty: false` and provenance source `environment`. This exercised the actual
-offline npm installation and lock fixer, and verified that the SDK archive stays
+offline npm installation and lock fixer, and verified that the generated client archive stays
 outside the public installed package. It supersedes the earlier package-build
 failure for this source. It does not establish package provenance for a later
 fixture or consolidated-history head; final-head Nix reconciliation remains
 pending.
 
 The third isolated API run passed all 23 calls with durable exit 0 in 62.664
-seconds, using API `610a96f8ce523afbcd3e4374a70047dbe3264b0d`, SDK
+seconds, using API `610a96f8ce523afbcd3e4374a70047dbe3264b0d`, generated client
 `99ee06654ef956a09b52749f4cd02d1435362087` and HaveAPI 0.32.0. Its final
 evidence records the generator/schema/tooling and six-plugin input graph after
 native child shutdown. A separate exact-ownership check confirmed that its
@@ -365,7 +367,7 @@ remain the entry point for scene coverage. Passing the selected A/B cases does
 not certify every changed control, unvisited scene, browser engine or physical
 device. Bilingual HelpBox behavior and complete date/reset/filter coverage remain
 unproven. Final history and final-head package reconciliation are pending. The
-branch remains unmerged, the SDK remains unpublished, and this campaign introduces
+branch remains unmerged, the generated client remains unpublished, and this campaign introduces
 no database migration or deployment.
 
 ## CI follow-up after branch publication
@@ -423,4 +425,36 @@ results retain their exact revisions and scope; the second API attempt's cleanup
 remains externally unconfirmed. Final-head Nix/provenance verification and the
 complete unchanged three-project CI browser matrix remain pending for the repair
 candidate. Later unseen failures are not ruled out. The branch remains unmerged,
-the SDK remains unpublished, and no deployment is claimed.
+the generated client remains unpublished, and no deployment is claimed.
+
+## Optional local client development and terminology
+
+The maintainer requested an optional local generated client workflow while merged
+code uses a released dependency. The [client guide](../design/HAVEAPI_CLIENT.md#optional-local-generated-client-development)
+now documents an explicit build/pack snapshot, a no-save npm install with lock
+writes and lifecycle scripts disabled, entrypoint/peer verification, focused
+consumer checks and a forced Vite cache restart. It also documents `npm ci` and
+another forced restart to restore the committed graph. The temporary install
+ignores the lock for resolution, so other `node_modules` dependencies may change.
+This procedure has not yet been exercised; its install/restore acceptance follows
+committed affected review.
+
+Building does not regenerate client source. Regeneration retains its exact
+recorded HaveAPI HEAD guard. The existing 99ee archive remains the earlier tested
+input, including its original README; later source-documentation corrections do
+not change or relabel its bytes. No archive, generated source, runtime, manifest,
+lock, provenance or Nix hash changes in this package.
+
+A compatible published client must be selected before merging this migration.
+No release version or publication approval is inferred. Until that separate
+dependency transition, the committed relative archive and its Nix adapter remain
+necessary. The optional npm procedure will remain usable after the registry
+transition; Nix and the isolated API runner continue to verify committed inputs.
+
+Introduced human prose, diagnostics and test descriptions now say "generated
+client" or "generated TypeScript client for the vpsAdmin API". Internal filenames,
+imports, flags and identifiers are unchanged. Original artifact names, exact
+receipts, review reports and tested revision claims remain historical evidence.
+Commit-message wording was reconciled separately with original trees and dates
+preserved; this source/documentation follow-up adds no API or persisted-state
+behavior and grants no merge, publication or deployment.

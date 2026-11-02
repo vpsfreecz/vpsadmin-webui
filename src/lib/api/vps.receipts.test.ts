@@ -4,7 +4,7 @@ import { fetchVpsList, vpsStart } from './vps';
 function mockFetchOk(response: unknown) { return vi.fn().mockResolvedValue({ ok: true, json: async () => ({ status: true, response }) }); }
 function lastFetchCall() { return vi.mocked(apiWire.respond).mock.calls.at(-1)!; }
 describe('generated VPS actual-package receipts', () => {
-  test('SDK list preserves actual-XHR metadata, nullable rows and partial included associations', async () => {
+  test('generated client list preserves actual-XHR metadata, nullable rows and partial included associations', async () => {
     const row = {
       id: 12, hostname: null, cpu: 0, is_running: false,
       user: { login: 'member' }, node: { location: { id: 2, environment: { label: 'test' } } },
@@ -22,7 +22,7 @@ describe('generated VPS actual-package receipts', () => {
     expect(result.data[0]?.user).not.toHaveProperty('id');
   });
 
-  test('SDK start preserves the actual-XHR action receipt without replaying the request', async () => {
+  test('generated client start preserves the actual-XHR action receipt without replaying the request', async () => {
     const response = { vps: {}, _meta: { action_state_id: 81, extra: false } };
     apiWire.respond = mockFetchOk(response);
 
