@@ -42,6 +42,7 @@ const handlers = {
     ],
   }),
   'GET os_templates': () => ({ os_templates: osTemplates }),
+  'GET os_templates/6': () => ({ os_template: osTemplates[0] }),
   'GET default_object_cluster_resources': () => ({
     default_object_cluster_resources: ['cpu', 'memory', 'diskspace', 'swap', 'ipv4', 'ipv6', 'ipv4_private'].map(
       (name, index) => ({ id: index + 1, cluster_resource: { name }, value: [2, 2048, 10240, 512, 1, 1, 0][index] })
@@ -196,7 +197,7 @@ test.describe('@pr-smoke @pr-smoke-mobile VPS initialization templates', () => {
         },
         'POST vpses/123/reinstall': ({ reqJson }) => {
           bodies.push(reqJson);
-          return bodies.length === 1 ? failEnvelope('Reinstall rejected by API') : { _meta: { action_state_id: 502 } };
+          return bodies.length === 1 ? failEnvelope('Reinstall rejected by API') : { vps: {}, _meta: { action_state_id: 502 } };
         },
       },
     });

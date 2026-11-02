@@ -18,10 +18,9 @@ test('@smoke @smoke-mobile @pr-smoke @pr-smoke-mobile user data create and edit 
   await installHaveApiMock(page, {
     authorize: {
       user: { id: 1, login: 'e2e', level: 1 },
-      identity: { id: 1, provider: 'mock' },
     },
     handlers: {
-      'GET vps_user_data': () => [TEMPLATE],
+      'GET vps_user_data': () => ({ vps_user_data: [TEMPLATE] }),
     },
   });
 

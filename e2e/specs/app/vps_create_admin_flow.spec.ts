@@ -3,6 +3,15 @@ import { expect, test } from '@playwright/test';
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
 
 function choicesHandlers() {
+  const osTemplate = {
+    id: 6,
+    label: 'Debian 12',
+    distribution: 'Debian',
+    version: '12',
+    arch: 'x86_64',
+    enabled: true,
+    os_family: { id: 1, label: 'Linux' },
+  };
   return {
     'GET users/1': () => ({ user: { id: 1, login: 'admin', full_name: 'Admin Example', level: 99 } }),
     'GET locations': () => ({
@@ -25,18 +34,8 @@ function choicesHandlers() {
         },
       ],
     }),
-    'GET os_templates': () => ({
-      os_templates: [
-        {
-          id: 6,
-          label: 'Debian 12',
-          distribution: 'Debian',
-          version: '12',
-          arch: 'x86_64',
-          os_family: { id: 1, label: 'Linux' },
-        },
-      ],
-    }),
+    'GET os_templates': () => ({ os_templates: [osTemplate] }),
+    'GET os_templates/6': () => ({ os_template: osTemplate }),
     'GET default_object_cluster_resources': () => ({
       default_object_cluster_resources: [
         { id: 1, cluster_resource: { name: 'cpu' }, value: 2 },

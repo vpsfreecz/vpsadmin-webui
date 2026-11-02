@@ -11,6 +11,14 @@ async function installCreateMock(
   createHandler: HaveApiHandler,
   extraHandlers: Record<string, HaveApiHandler> = {}
 ) {
+  const osTemplate = {
+    id: 6,
+    label: 'Debian 12',
+    distribution: 'Debian',
+    version: '12',
+    arch: 'x86_64',
+    os_family: { id: 1, label: 'Linux' },
+  };
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST_USER' });
   await installHaveApiMock(page, {
     user: { id: 2, login: 'member', level: 1 },
@@ -18,18 +26,8 @@ async function installCreateMock(
       'GET locations': () => ({
         locations: [{ id: 2, label: 'Praha', environment: { id: 1, label: 'Test' } }],
       }),
-      'GET os_templates': () => ({
-        os_templates: [
-          {
-            id: 6,
-            label: 'Debian 12',
-            distribution: 'Debian',
-            version: '12',
-            arch: 'x86_64',
-            os_family: { id: 1, label: 'Linux' },
-          },
-        ],
-      }),
+      'GET os_templates': () => ({ os_templates: [osTemplate] }),
+      'GET os_templates/6': () => ({ os_template: osTemplate }),
       'GET default_object_cluster_resources': () => ({
         default_object_cluster_resources: [
           { id: 1, cluster_resource: { name: 'cpu' }, value: 2 },

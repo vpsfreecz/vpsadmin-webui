@@ -26,7 +26,7 @@ const vps = {
   },
   user: { id: 10, login: 'alice' },
   os_template: { id: 6, label: 'Debian 12' },
-  dns_resolver: 'inherit',
+  dns_resolver: null,
 };
 
 const dataset = {
@@ -91,8 +91,7 @@ test('@workflow-matrix @smoke VPS detail tabs expose storage, access, lifecycle,
       }),
       'GET transaction_chains': () => ({ transaction_chains: [] }),
       'POST vpses/123/console_token': () => ({
-        token: 'T1',
-        expiration: '2027-01-31T00:00:00Z',
+        console_token: { token: 'T1', expiration: '2027-01-31T00:00:00Z' },
       }),
     },
   });

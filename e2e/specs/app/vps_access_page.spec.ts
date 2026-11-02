@@ -24,7 +24,7 @@ const vps = {
   node: { id: 1, domain_name: 'node1.example', location: { id: 2, label: 'Praha' } },
   user: { id: 42, login: 'owner' },
   os_template: { id: 6, label: 'Debian 12' },
-  dns_resolver: 'inherit',
+  dns_resolver: null,
 };
 
 const longPublicKeyLabel = `workstation-${'primary'.repeat(18)}`;
@@ -39,13 +39,13 @@ const publicKeys = [
 const hostKeys = [
   {
     id: 1,
-    key_type: 'ssh-ed25519',
+    algorithm: 'ssh-ed25519',
     fingerprint: 'SHA256:host-ed25519',
     public_key: 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAITestHostKey',
     bits: 256,
     created_at: '2026-01-24T12:00:00Z',
   },
-  { id: 2, key_type: 'ssh-rsa', fingerprint: 'SHA256:host-rsa', public_key: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQ' },
+  { id: 2, algorithm: 'ssh-rsa', fingerprint: 'SHA256:host-rsa', public_key: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQ' },
 ];
 
 test('@workflow-matrix @pr-smoke @pr-smoke-mobile VPS access page generates root password and deploys saved SSH key', async ({ page }) => {
@@ -62,7 +62,7 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile VPS access page generates root
       'GET users/42/public_keys': () => ({ public_keys: publicKeys, _meta: { total_count: 2 } }),
       'GET vpses/123/ssh_host_keys': () => ({ ssh_host_keys: hostKeys, _meta: { total_count: 2 } }),
       'POST vpses/123/passwd': () => ({ vps: { password: 'Root-123!' }, _meta: { action_state_id: 700 } }),
-      'POST vpses/123/deploy_public_key': () => ({ _meta: { action_state_id: 701 } }),
+      'POST vpses/123/deploy_public_key': () => ({ vps: {}, _meta: { action_state_id: 701 } }),
       'GET action_states/700': () => ({
         action_state: { id: 700, label: 'Passwd', finished: true, status: true, current: 1, total: 1 },
       }),
@@ -215,7 +215,7 @@ test('@workflow-matrix @pr-smoke VPS access reports failed SSH key deployment an
       'GET transaction_chains': () => ({ transaction_chains: [] }),
       'GET users/42/public_keys': () => ({ public_keys: publicKeys, _meta: { total_count: 2 } }),
       'GET vpses/123/ssh_host_keys': () => ({ ssh_host_keys: hostKeys, _meta: { total_count: 2 } }),
-      'POST vpses/123/deploy_public_key': () => ({ _meta: { action_state_id: 702 } }),
+      'POST vpses/123/deploy_public_key': () => ({ vps: {}, _meta: { action_state_id: 702 } }),
       'GET action_states/702': () => ({
         action_state: { id: 702, label: 'Deploy public key', finished: true, status: false, current: 1, total: 1 },
       }),

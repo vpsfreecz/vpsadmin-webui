@@ -49,7 +49,7 @@ for (const language of ['cs', 'en'] as const) {
           expect(vps.object_state).toBe('active');
           starts++;
           vps.is_running = true;
-          return { _meta: { action_state_id: 702 } };
+          return { vps: {}, _meta: { action_state_id: 702 } };
         },
         'GET action_states/702': () => ({
           action_state: { id: 702, status: true, finished: true, current: 1, total: 1 },
