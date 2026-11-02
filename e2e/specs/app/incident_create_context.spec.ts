@@ -118,10 +118,10 @@ test('@pr-smoke @pr-smoke-mobile DNS record creation keeps the zone on the submi
   await bootstrapVpsAdminWindow(page, { sessionToken: 'CONTEXT_TEST' });
   const payloads: unknown[] = [];
   await installHaveApiMock(page, { user: { id: 1, login: 'admin', level: 99 }, handlers: {
-    'GET dns_zones/10': () => ({ id: 10, name: 'example.test', enabled: true, default_ttl: 600, object_state: 'active' }),
+    'GET dns_zones/10': () => ({ dns_zone: { id: 10, name: 'example.test', enabled: true, default_ttl: 600, object_state: 'active' } }),
     'GET dns_records': () => ({ dns_records: [] }),
     'GET dns_record_logs': () => ({ dns_record_logs: [] }),
-    'POST dns_records': ({ json }) => { payloads.push(json); return { dns_record: { id: 101, dns_zone: 10, name: 'context', type: 'A', content: '192.0.2.5' } }; },
+    'POST dns_records': ({ json }) => { payloads.push(json); return { dns_record: { id: 101, dns_zone: { id: 10 }, name: 'context', type: 'A', content: '192.0.2.5' } }; },
   } });
   await page.goto('/admin/dns/zones/10');
   await activate(page.getByTestId('dns.records.create.open'), isMobile);

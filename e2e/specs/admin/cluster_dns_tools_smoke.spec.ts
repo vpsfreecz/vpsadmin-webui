@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
 
 test('@smoke @pr-smoke admin cluster dns tools pages render', async ({ page }) => {
-  let listParams: URLSearchParams | null = null;
+  const listParams: { current: URLSearchParams | null } = { current: null };
   let dnsServerListParams: URLSearchParams | null = null;
   let createdKey: any;
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
@@ -16,7 +16,7 @@ test('@smoke @pr-smoke admin cluster dns tools pages render', async ({ page }) =
       },
       'GET nodes': () => ({ nodes: [{ id: 11, domain_name: 'node1.example.test' }] }),
       'GET dns_tsig_keys': ({ searchParams }) => {
-        listParams = new URLSearchParams(searchParams);
+        listParams.current = new URLSearchParams(searchParams);
         return { dns_tsig_keys: [{ id: 7, name: 'transfer-key', algorithm: 'hmac-sha256', secret: 'admin-list-secret-must-not-render', user: { id: 10, login: 'alice' } }], _meta: { total_count: 1 } };
       },
       'POST dns_tsig_keys': async ({ request }) => {
@@ -44,7 +44,7 @@ test('@smoke @pr-smoke admin cluster dns tools pages render', async ({ page }) =
   await expect(page.getByTestId('admin.cluster.dns_tsig.pagination.page.1')).toBeVisible();
   await expect(page.getByTestId('admin.cluster.dns_tsig.row.7.delete')).toHaveAttribute('aria-label', 'Delete');
   await expect(page.getByText('admin-list-secret-must-not-render', { exact: true })).toHaveCount(0);
-  expect(listParams?.has('dns_tsig_key[q]')).toBe(false);
+  expect(listParams.current?.has('dns_tsig_key[q]')).toBe(false);
 
   await page.getByTestId('admin.cluster.dns_tsig.create.open').click();
   const modal = page.getByTestId('admin.cluster.dns_tsig.create.modal');
@@ -144,7 +144,7 @@ test('@pr-smoke @pr-smoke-mobile failed admin DNS deletions stay in context and 
             body: JSON.stringify({ status: false, message: 'DNS server is still in use', response: null }),
           };
         }
-        return {};
+        return { dns_server: {} };
       },
       'GET dns_tsig_keys': () => ({
         dns_tsig_keys: [{
@@ -164,7 +164,7 @@ test('@pr-smoke @pr-smoke-mobile failed admin DNS deletions stay in context and 
             body: JSON.stringify({ status: false, message: 'TSIG key is referenced by a zone', response: null }),
           };
         }
-        return {};
+        return { dns_tsig_key: {} };
       },
     },
   });

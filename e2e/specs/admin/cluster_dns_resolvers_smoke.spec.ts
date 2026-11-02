@@ -28,7 +28,7 @@ test.describe('@smoke @pr-smoke @pr-smoke-mobile Admin cluster DNS resolvers', (
           return { dns_resolver: created };
         },
         'PUT dns_resolvers/1': () => ({ dns_resolver: resolvers.find((r) => r.id === 1), _meta: { state_id: 123 } }),
-        'DELETE dns_resolvers/1': () => ({ _meta: { state_id: 456 } }),
+        'DELETE dns_resolvers/1': () => ({ dns_resolver: {}, _meta: { state_id: 456 } }),
       },
     });
   });
@@ -63,7 +63,7 @@ test.describe('@smoke @pr-smoke @pr-smoke-mobile Admin cluster DNS resolvers', (
       expect(url.searchParams.get('dns_resolver[is_universal]')).toBeNull();
       expect(url.searchParams.get('dns_resolver[location]')).toBeNull();
     }
-    expect(reqs[reqs.length - 1].searchParams.get('dns_resolver[limit]')).toBe('50');
+    expect(reqs.at(-1)?.searchParams.get('dns_resolver[limit]')).toBe('50');
   });
 
   test('creates, edits and deletes', async ({ page }) => {
@@ -149,7 +149,7 @@ test('@pr-smoke @pr-smoke-mobile keeps rejected DNS resolver changes in context 
         deleteAttempts += 1;
         if (deleteAttempts === 1) return failEnvelope('Resolver is still in use');
         resolvers = resolvers.filter((resolver) => resolver.id !== 3);
-        return { _meta: { state_id: 456 } };
+        return { dns_resolver: {}, _meta: { state_id: 456 } };
       },
     },
   });

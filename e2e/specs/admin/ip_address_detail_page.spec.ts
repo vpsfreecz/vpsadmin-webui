@@ -52,7 +52,7 @@ test('@pr-smoke @pr-smoke-mobile admin ip address detail: shows header and links
   await expectNoDocumentHorizontalOverflow(page);
   await expectTableHorizontalScrollUsable(page, 'admin.ip.hosts.table');
 
-  const proofScreenshot = process.env.E2E_IP_DETAIL_ACTIONS_PROOF_SCREENSHOT?.trim();
+  const proofScreenshot = process.env['E2E_IP_DETAIL_ACTIONS_PROOF_SCREENSHOT']?.trim();
   if (proofScreenshot) await page.screenshot({ path: proofScreenshot, fullPage: true });
 });
 
@@ -100,7 +100,7 @@ test('@pr-smoke @pr-smoke-mobile admin ip address destructive confirmations keep
             body: JSON.stringify({ status: false, message: 'Host address is still assigned', response: null }),
           };
         }
-        return { _meta: { action_state_id: 702 } };
+        return { host_ip_address: {}, _meta: { action_state_id: 702 } };
       },
     },
   });

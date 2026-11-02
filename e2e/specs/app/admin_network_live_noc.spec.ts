@@ -19,7 +19,7 @@ test('@pr-smoke @pr-smoke-mobile admin live network center uses bounded API filt
         nodes: [{ id: 4, domain_name: 'node4.example', fqdn: 'node4.example' }],
       }),
       'GET users': () => ({
-        users: [{ id: 7, login: 'alice', full_name: 'Alice Operator' }],
+        users: [{ id: 7, login: 'alice', full_name: 'Alice Operator', level: 1 }],
       }),
       'GET vpses': (ctx) => {
         vpsRequests.push(new URL(ctx.url.href));
@@ -139,7 +139,7 @@ test('@pr-smoke @pr-smoke-mobile admin live network center uses bounded API filt
   await page.waitForTimeout(10_500);
   expect(monitorRequests).toHaveLength(hiddenRequestCount);
 
-  const screenshot = process.env.E2E_ADMIN_NETWORK_LIVE_SCREENSHOT?.trim();
+  const screenshot = process.env['E2E_ADMIN_NETWORK_LIVE_SCREENSHOT']?.trim();
   if (screenshot) {
     const suffix = testInfo.project.name === 'mobile-chrome' ? '-mobile' : '-desktop';
     await page.screenshot({ path: screenshot.replace(/\.png$/i, `${suffix}.png`), fullPage: true });
