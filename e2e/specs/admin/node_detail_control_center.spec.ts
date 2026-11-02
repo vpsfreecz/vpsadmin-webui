@@ -13,7 +13,7 @@ const node = {
   domain_name: 'node5.example',
   fqdn: 'node5.example',
   status: true,
-  maintenance_lock: false,
+  maintenance_lock: 'no',
   role: 'hypervisor',
   hypervisor_type: 'vpsadminos',
   pool_state: 'online',
@@ -36,7 +36,9 @@ async function installNodeHandlers(
       'GET nodes': () => ({
         nodes: [node, { id: 6, domain_name: 'node6.example', location: { label: 'DC2' } }],
       }),
-      'GET nodes/public_status': () => [{ id: 5, status: true, last_report_at: '2026-08-22T10:00:00Z' }],
+      'GET nodes/public_status': () => ({
+        nodes: [{ id: 5, name: 'node5', status: true, last_report: '2026-08-22T10:00:00Z' }],
+      }),
       'GET nodes/5/statuses': () => ({ statuses: [] }),
       'GET transactions': () => ({ transactions: [] }),
       'GET pools': poolsHandler,
@@ -51,7 +53,7 @@ test.describe('Admin node detail control center', () => {
       pools: [
         {
           id: 11,
-          node: 5,
+          node: { id: 5, domain_name: node.domain_name },
           label: 'fast',
           name: 'tank',
           filesystem: 'tank/fast',
@@ -66,11 +68,11 @@ test.describe('Admin node detail control center', () => {
         },
         {
           id: 12,
-          node: 5,
+          node: { id: 5, domain_name: node.domain_name },
           name: 'backup',
-          role: 2,
-          state: 2,
-          scan: 3,
+          role: 'backup',
+          state: 'degraded',
+          scan: 'resilver',
           scan_percent: 10,
           total_space: 4096,
           used_space: 1024,
@@ -137,7 +139,7 @@ test.describe('Admin node detail control center', () => {
       pools: [
         {
           id: 21,
-          node: 5,
+          node: { id: 5, domain_name: node.domain_name },
           name: 'limited',
           role: 'hypervisor',
           state: 'online',
@@ -188,13 +190,13 @@ test.describe('Admin node detail control center', () => {
           return { node };
         },
         'GET nodes': () => ({ nodes: [node, { id: 6, domain_name: 'node6.example' }] }),
-        'GET nodes/public_status': () => [],
+        'GET nodes/public_status': () => ({ nodes: [] }),
         'GET transactions': () => {
           transactionReads += 1;
           return { transactions: [] };
         },
         'GET transaction_chains': () => ({ transaction_chains: [] }),
-        'POST nodes/5/set_maintenance': () => ({}),
+        'POST nodes/5/set_maintenance': () => ({ node: {} }),
       },
     });
 
@@ -223,7 +225,7 @@ test.describe('Admin node detail control center', () => {
         'POST nodes/5/set_maintenance': async () => {
           maintenanceCalls += 1;
           await maintenanceGate;
-          return {};
+          return { node: {} };
         },
       },
     );
@@ -264,7 +266,7 @@ test.describe('Admin node detail control center', () => {
         'POST nodes/5/set_maintenance': () => {
           maintenanceCalls += 1;
           if (maintenanceCalls === 1) return failEnvelope('Node maintenance lock was rejected');
-          return {};
+          return { node: {} };
         },
       },
     );

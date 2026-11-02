@@ -15,22 +15,24 @@ test.describe('@smoke Admin cluster summary maintenance', () => {
       user: { id: 1, login: 'admin', level: 90 },
       handlers: {
         'GET cluster/full_stats': () => ({
-          nodes_online: 9,
-          node_count: 10,
-          vps_running: 120,
-          vps_stopped: 4,
-          vps_suspended: 2,
-          vps_deleted: 1,
-          vps_count: 127,
-          user_active: 80,
-          user_suspended: 2,
-          user_deleted: 1,
-          user_count: 83,
-          ipv4_used: 120,
-          ipv4_count: 160,
+          cluster: {
+            nodes_online: 9,
+            node_count: 10,
+            vps_running: 120,
+            vps_stopped: 4,
+            vps_suspended: 2,
+            vps_deleted: 1,
+            vps_count: 127,
+            user_active: 80,
+            user_suspended: 2,
+            user_deleted: 1,
+            user_count: 83,
+            ipv4_used: 120,
+            ipv4_count: 160,
+          },
         }),
         'GET cluster': () => ({ cluster }),
-        'POST cluster/set_maintenance': () => ({ _meta: {} }),
+        'POST cluster/set_maintenance': () => ({ cluster: {} }),
       },
     });
 
@@ -77,19 +79,21 @@ test.describe('@smoke Admin cluster summary maintenance', () => {
       user: { id: 1, login: 'admin', level: 90 },
       handlers: {
         'GET cluster/full_stats': () => ({
-          nodes_online: 9,
-          node_count: 10,
-          vps_running: 120,
-          vps_stopped: 4,
-          vps_suspended: 2,
-          vps_deleted: 1,
-          vps_count: 127,
-          user_active: 80,
-          user_suspended: 2,
-          user_deleted: 1,
-          user_count: 83,
-          ipv4_used: 120,
-          ipv4_count: 160,
+          cluster: {
+            nodes_online: 9,
+            node_count: 10,
+            vps_running: 120,
+            vps_stopped: 4,
+            vps_suspended: 2,
+            vps_deleted: 1,
+            vps_count: 127,
+            user_active: 80,
+            user_suspended: 2,
+            user_deleted: 1,
+            user_count: 83,
+            ipv4_used: 120,
+            ipv4_count: 160,
+          },
         }),
         'GET cluster': () => ({ cluster }),
         'POST cluster/set_maintenance': ({ reqJson }) => {
@@ -105,7 +109,7 @@ test.describe('@smoke Admin cluster summary maintenance', () => {
             cluster.maintenance_lock = false;
             cluster.maintenance_lock_reason = '';
           }
-          return { _meta: {} };
+          return { cluster: {} };
         },
       },
     });

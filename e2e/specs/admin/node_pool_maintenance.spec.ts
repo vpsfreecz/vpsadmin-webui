@@ -22,7 +22,7 @@ const node = {
 function pool(id: number, overrides: Record<string, unknown> = {}) {
   return {
     id,
-    node: 5,
+    node: { id: 5, domain_name: node.domain_name },
     label: `pool-${id}`,
     name: `tank-${id}`,
     role: 'hypervisor',
@@ -48,7 +48,7 @@ async function installAdminNodeHandlers(
     handlers: {
       'GET nodes/5': () => ({ node }),
       'GET nodes': () => ({ nodes: [node] }),
-      'GET nodes/public_status': () => [],
+      'GET nodes/public_status': () => ({ nodes: [] }),
       'GET nodes/5/statuses': () => ({ statuses: [] }),
       'GET transactions': () => ({ transactions: [] }),
       ...handlers,
@@ -85,7 +85,7 @@ test('@pr-smoke @pr-smoke-mobile admin locks and unlocks a real pool, while inhe
       const input = (reqJson as { pool?: { lock?: boolean; reason?: string } })?.pool ?? {};
       pools[0].maintenance_lock = input.lock ? 'lock' : 'no';
       pools[0].maintenance_lock_reason = input.lock ? String(input.reason ?? '') : '';
-      return {};
+      return { pool: {} };
     },
   });
 
@@ -167,7 +167,7 @@ test('@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile a definitively rejected po
 
       pools[0].maintenance_lock = 'lock';
       pools[0].maintenance_lock_reason = 'Keep this reason';
-      return {};
+      return { pool: {} };
     },
   });
 
@@ -339,7 +339,7 @@ test('a null reason in an exact non-applied read-back permits a safe retry', asy
       }
       pools[0].maintenance_lock = 'lock';
       pools[0].maintenance_lock_reason = 'Retry after read-back';
-      return {};
+      return { pool: {} };
     },
   });
 
@@ -429,7 +429,7 @@ test('@pr-smoke @pr-smoke-mobile a successful pool lock keeps stale actions disa
       mutations += 1;
       pools[0].maintenance_lock = 'lock';
       pools[0].maintenance_lock_reason = 'Slow refresh';
-      return {};
+      return { pool: {} };
     },
   });
 
@@ -484,7 +484,7 @@ test('a successful mutation that finishes outside Storage forces a refresh befor
       await mutationGate;
       pools[0].maintenance_lock = 'lock';
       pools[0].maintenance_lock_reason = 'Finished outside Storage';
-      return {};
+      return { pool: {} };
     },
   });
 
@@ -528,7 +528,7 @@ test('an ordinary user cannot reach pool maintenance controls or invoke the admi
       },
       'POST pools/11/set_maintenance': () => {
         mutations += 1;
-        return {};
+        return { pool: {} };
       },
     },
   });

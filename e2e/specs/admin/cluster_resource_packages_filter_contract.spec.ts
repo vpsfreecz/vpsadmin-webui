@@ -38,7 +38,7 @@ test.describe('Admin resource package filter contract', () => {
           _meta: { total_count: 1 },
         }),
         'GET users': () => ({
-          users: [{ id: 8, login: 'bob' }],
+          users: [{ id: 8, login: 'bob', level: 1 }],
           _meta: { total_count: 1 },
         }),
         'GET cluster_resource_packages': ({ url, searchParams }) => {

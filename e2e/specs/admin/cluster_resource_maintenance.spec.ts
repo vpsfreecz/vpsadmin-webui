@@ -53,14 +53,14 @@ test('@pr-smoke environment and location maintenance lock and unlock with exact 
         const input = (reqJson as any)?.environment ?? {};
         environment.maintenance_lock = input.lock ? 'lock' : 'no';
         environment.maintenance_lock_reason = input.lock ? String(input.reason ?? '') : '';
-        return {};
+        return { environment: {} };
       },
       'POST locations/7/set_maintenance': ({ reqJson }) => {
         locationPayloads.push(reqJson);
         const input = (reqJson as any)?.location ?? {};
         location.maintenance_lock = input.lock ? 'lock' : 'no';
         location.maintenance_lock_reason = input.lock ? String(input.reason ?? '') : '';
-        return {};
+        return { location: {} };
       },
     },
   });
