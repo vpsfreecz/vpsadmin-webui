@@ -23,7 +23,7 @@ test.describe('DNS zone records live API contract', () => {
 
     const records = Array.from({ length: 100 }, (_, i) => 300 - i).map((id) => ({
       id,
-      dns_zone: 10,
+      dns_zone: { id: 10 },
       name: `host${id}`,
       ttl: 3600,
       type: id % 3 === 0 ? 'A' : id % 3 === 1 ? 'AAAA' : 'TXT',
@@ -40,7 +40,7 @@ test.describe('DNS zone records live API contract', () => {
     await installHaveApiMock(page, {
       user: { id: 1, login: 'test', level: 1 },
       handlers: {
-        'GET dns_zones/10': () => zone,
+        'GET dns_zones/10': () => ({ dns_zone: zone }),
         'GET dns_record_logs': () => ({ dns_record_logs: [], _meta: { total_count: 0 } }),
         'GET dns_records': ({ searchParams }) => {
           recordRequestQueries.push(searchParams.toString());

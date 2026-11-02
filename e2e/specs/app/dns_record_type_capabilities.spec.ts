@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import type { DnsRecord__CreateOutput } from 'vpsadmin-typescript-client';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
 
@@ -6,31 +7,43 @@ test.describe('DNS record type capabilities', () => {
   test('@pr-smoke @pr-smoke-mobile exposes and validates every live API record type', async ({ page }, testInfo) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
 
-    let createPayload: Record<string, any> | undefined;
-    let records: Array<Record<string, any>> = [];
+    let createPayload: unknown;
+    let records: DnsRecord__CreateOutput[] = [];
 
     await installHaveApiMock(page, {
       user: { id: 1, login: 'test', level: 1 },
       handlers: {
         'GET dns_zones/10': () => ({
-          id: 10,
-          name: 'example.test.',
-          enabled: true,
-          dnssec_enabled: false,
-          default_ttl: 600,
-          object_state: 'active',
+          dns_zone: {
+            id: 10,
+            name: 'example.test.',
+            enabled: true,
+            dnssec_enabled: false,
+            default_ttl: 600,
+            object_state: 'active',
+          },
         }),
         'GET dns_records': () => ({ dns_records: records }),
         'GET dns_record_logs': () => ({ dns_record_logs: [] }),
         'POST dns_records': async ({ request }) => {
           createPayload = await request.postDataJSON();
-          const input = createPayload?.dns_record ?? {};
+          if (!createPayload || typeof createPayload !== 'object' || !('dns_record' in createPayload)) {
+            throw new Error('Expected a namespaced DNS record request');
+          }
+          const input = createPayload.dns_record;
+          if (!input || typeof input !== 'object' || Array.isArray(input)) {
+            throw new Error('Expected DNS record input fields');
+          }
+          const priority = 'priority' in input ? input.priority : undefined;
+          if (priority !== undefined && priority !== null && typeof priority !== 'number') {
+            throw new Error('Expected a numeric DNS record priority');
+          }
           const created = {
             id: 101,
             ...input,
-            dns_zone: 10,
+            dns_zone: { id: 10 },
             enabled: true,
-            priority: input.priority ?? null,
+            priority: priority ?? null,
             dynamic_update_url: null,
           };
           records = [created];
@@ -99,7 +112,7 @@ test.describe('DNS record type capabilities', () => {
     await typeSelect.selectOption('DS');
     await content.fill(`60485 13 2 ${'A'.repeat(64)}`);
 
-    const screenshot = process.env.E2E_DNS_RECORD_TYPES_SCREENSHOT?.trim();
+    const screenshot = process.env['E2E_DNS_RECORD_TYPES_SCREENSHOT']?.trim();
     if (screenshot) {
       await content.evaluate((input) => {
         input.scrollLeft = 0;
@@ -111,9 +124,9 @@ test.describe('DNS record type capabilities', () => {
 
     await submit.click();
 
-    await expect.poll(() => createPayload?.dns_record?.type).toBe('DS');
-    expect(createPayload?.dns_record).not.toHaveProperty('priority');
-    expect(createPayload?.dns_record?.dynamic_update_enabled).toBe(false);
+    await expect.poll(() => createPayload).toMatchObject({ dns_record: { type: 'DS' } });
+    expect(createPayload).not.toHaveProperty('dns_record.priority');
+    expect(createPayload).toMatchObject({ dns_record: { dynamic_update_enabled: false } });
     const recordItem = page.viewportSize()!.width < 768
       ? page.getByTestId('dns.record.card.101')
       : page.getByTestId('dns.record.row.101');

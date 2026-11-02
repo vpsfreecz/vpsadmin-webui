@@ -41,7 +41,7 @@ test('@pr-smoke @pr-smoke-mobile DNS transfer deletion failure stays in context 
         deleteCalls += 1;
         return deleteCalls === 1
           ? rejected('Transfer peer is still in use')
-          : { _meta: { action_state_id: 701 } };
+          : { dns_zone_transfer: {}, _meta: { action_state_id: 701 } };
       },
     },
   });
@@ -95,7 +95,7 @@ test('@pr-smoke @pr-smoke-mobile DNS server relation deletion failure stays in c
         deleteCalls += 1;
         return deleteCalls === 1
           ? rejected('DNS server relation changed on the server')
-          : { _meta: { action_state_id: 702 } };
+          : { dns_server_zone: {}, _meta: { action_state_id: 702 } };
       },
     },
   });

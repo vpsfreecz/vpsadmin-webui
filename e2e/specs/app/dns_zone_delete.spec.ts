@@ -11,15 +11,17 @@ test.describe('DNS zone deletion', () => {
       handlers: {
         'GET dns_zones': () => ({ dns_zones: [] }),
         'GET dns_zones/10': () => ({
-          id: 10,
-          name: 'example.com',
-          enabled: true,
-          dnssec_enabled: false,
-          object_state: 'active',
+          dns_zone: {
+            id: 10,
+            name: 'example.com',
+            enabled: true,
+            dnssec_enabled: false,
+            object_state: 'active',
+          },
         }),
         // Zone layout calls this for "recent tx" best-effort.
         'GET dns_record_logs': () => ({ dns_record_logs: [] }),
-        'DELETE dns_zones/10': () => ({}),
+        'DELETE dns_zones/10': () => ({ dns_zone: {} }),
       },
     });
 
@@ -43,11 +45,13 @@ test.describe('DNS zone deletion', () => {
       handlers: {
         'GET dns_zones': () => ({ dns_zones: [] }),
         'GET dns_zones/10': () => ({
-          id: 10,
-          name: 'example.com',
-          enabled: true,
-          dnssec_enabled: false,
-          object_state: 'active',
+          dns_zone: {
+            id: 10,
+            name: 'example.com',
+            enabled: true,
+            dnssec_enabled: false,
+            object_state: 'active',
+          },
         }),
         'GET dns_record_logs': () => ({ dns_record_logs: [] }),
         'DELETE dns_zones/10': () => {
@@ -59,7 +63,7 @@ test.describe('DNS zone deletion', () => {
               body: JSON.stringify({ status: false, message: 'Zone still has protected records' }),
             };
           }
-          return { _meta: { action_state_id: 801 } };
+          return { dns_zone: {}, _meta: { action_state_id: 801 } };
         },
       },
     });

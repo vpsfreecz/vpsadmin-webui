@@ -86,7 +86,7 @@ test('@pr-smoke @pr-smoke-mobile rejected TSIG key deletion stays in context and
           };
         }
         keys.length = 0;
-        return {};
+        return { dns_tsig_key: {} };
       },
     },
   });

@@ -37,7 +37,7 @@ async function setup(page: Page, language: 'cs' | 'en', level: number) {
         const payload = ctx.request.postDataJSON() as { vps: { dns_resolver?: number } };
         writes.push(payload);
         resolverId = payload.vps.dns_resolver ?? resolverId;
-        return { _meta: { action_state_id: 801 } };
+        return { vps: {}, _meta: { action_state_id: 801 } };
       },
       'GET action_states/801': () => ({
         action_state: { id: 801, finished: true, status: true, current: 1, total: 1 },

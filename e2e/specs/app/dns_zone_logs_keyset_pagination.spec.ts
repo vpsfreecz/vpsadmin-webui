@@ -43,7 +43,7 @@ test.describe('DNS zone logs filters and keyset pagination', () => {
     await installHaveApiMock(page, {
       user: { id: 1, login: 'test', level: 1 },
       handlers: {
-        'GET dns_zones/10': () => zone,
+        'GET dns_zones/10': () => ({ dns_zone: zone }),
         'GET dns_record_logs': ({ searchParams }) => {
           recordLogRequestQueries.push(searchParams.toString());
 
@@ -149,6 +149,7 @@ test.describe('DNS zone logs filters and keyset pagination', () => {
     );
     await expect.poll(() => listRequestQueries().length).toBeGreaterThan(0);
     const normalizedRequest = listRequestQueries()[0];
+    if (!normalizedRequest) throw new Error('Expected the normalized DNS log request');
     expect(normalizedRequest.has('dns_record_log[from_id]')).toBe(false);
     expect(normalizedRequest.has('dns_record_log[q]')).toBe(false);
     expect(normalizedRequest.has('dns_record_log[name]')).toBe(false);
