@@ -37,9 +37,10 @@ for (const source of ['embedded', 'external'] as const) {
         user: { id: 7, login: 'qr-test-member', level: 1, preferred_session_length: 2400 },
         handlers: {
           'GET users/7/get_payment_instructions': () => ({
-            instructions: Object.entries(sources)
-              .map(
-                ([currency, src]) => `
+            user: {
+              instructions: Object.entries(sources)
+                .map(
+                  ([currency, src]) => `
             <h3>Payment in ${currency}</h3>
             <table><tr><td>Test reference:</td><td>SYNTHETIC ${currency}</td>
               <td rowspan="8"><img alt="${currency} QR" src="${src}"></td></tr>
@@ -47,8 +48,9 @@ for (const source of ['embedded', 'external'] as const) {
               ${Array.from({ length: 6 }, (_, i) => `<tr><td>Test field ${i + 1}:</td><td>SYNTHETIC ${currency}</td></tr>`).join('')}
             </table>
           `
-              )
-              .join(''),
+                )
+                .join(''),
+            },
           }),
           'GET user_payments': () => ({ user_payments: [] }),
         },
@@ -180,11 +182,11 @@ for (const language of ['cs', 'en'] as const) {
     await setupHaveApiMock(page, {
       user: { id: 7, login: 'payment-test-member', level: 1, preferred_session_length: 2400 },
       handlers: {
-        'GET users/7/get_payment_instructions': () => ({ instructions:
+        'GET users/7/get_payment_instructions': () => ({ user: { instructions:
           '<h3>General info</h3><p>If you need an invoice, please write to support at <a href="mailto:podpora@vpsfree.cz">podpora@vpsfree.cz</a> or support@vpsfree.org and we will issue it. Do not forget to include your billing credentials.</p>'
           + table(values.slice(0, 6), 'CZK') + table(values.slice(6), 'EUR')
           + (language === 'cs' ? '<h3>Variabilní symbol a zpráva</h3><p>Pokud vaše banka\n    nepodporuje variabilní symboly, můžete své členské ID\n    poslat ve zprávě pro příjemce jako <code>/VS/53</code>. Přesné znění\n    závisí na vaší bance.</p>' : ''),
-        }),
+        } }),
         'GET user_payments': () => ({ user_payments: [] }),
       },
     });
@@ -234,13 +236,13 @@ for (const language of ['cs', 'en'] as const) {
       await setupHaveApiMock(page, {
         user: { id: 7, login: 'payment-test-member', level: 1, preferred_session_length: 2400 },
         handlers: {
-          'GET users/7/get_payment_instructions': () => ({ instructions:
+          'GET users/7/get_payment_instructions': () => ({ user: { instructions:
             ['CZK', 'EUR'].map(currency => `<h3>Payment in ${currency}</h3><table>
               <tr><td>Message (<a href="#message">more info</a>):</td><td>/VS/53</td><td rowspan="6"><img alt="${currency} QR" src="${currency === 'CZK' ? qrImages.CZK : qrImages.EUR}"></td></tr>
               ${[['Bank account for CZK (CZ):', '2200041594/2010'], ['IBAN:', 'CZ0420100000002200041594'], ['BIC:', 'FIOBCZPPXXX'], ['Variable symbol:', '53'], ['Sum:', `300 ${currency} per month`]].map(([label, value]) => `<tr><td>${label}</td><td>${value}</td></tr>`).join('')}
               </table>`).join('')
             + `<h3 id="message">${heading}</h3><p>${paragraph}</p>`,
-          }),
+          } }),
           'GET user_payments': () => ({ user_payments: [] }),
         },
       });

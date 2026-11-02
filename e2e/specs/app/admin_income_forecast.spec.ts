@@ -15,7 +15,7 @@ test('@pr-smoke @pr-smoke-mobile admin income forecast uses six bounded real cal
         const month = Number(ctx.searchParams.get('payment_stat[month]'));
         const duration = Number(ctx.searchParams.get('payment_stat[duration]'));
         return {
-          payment_stats: {
+          payment_stat: {
             user_count: month,
             estimated_income: month * 1_000 + duration * 100,
           },
@@ -71,7 +71,7 @@ test('@pr-smoke @pr-smoke-mobile admin income forecast uses six bounded real cal
     await expect(page.getByTestId('admin.finance.forecast.table').locator('tbody tr')).toHaveCount(3);
   }
 
-  const screenshot = process.env.E2E_ADMIN_FINANCE_FORECAST_SCREENSHOT?.trim();
+  const screenshot = process.env['E2E_ADMIN_FINANCE_FORECAST_SCREENSHOT']?.trim();
   if (screenshot) {
     const suffix = testInfo.project.name === 'mobile-chrome' ? '-mobile' : '-desktop';
     await page.screenshot({ path: screenshot.replace(/\.png$/i, `${suffix}.png`), fullPage: true });
@@ -95,7 +95,7 @@ test('admin income forecast keeps the last successful calculation after a refres
             body: JSON.stringify({ status: false, message: 'forecast unavailable', response: null }),
           };
         }
-        return { user_count: 4, estimated_income: 1_200 };
+        return { payment_stat: { user_count: 4, estimated_income: 1_200 } };
       },
     },
   });

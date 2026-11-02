@@ -192,9 +192,9 @@ test.describe('@smoke @pr-smoke @pr-smoke-mobile Admin mailer log contract', () 
     await expect(next).toBeDisabled();
 
     await expect.poll(() => mailLogRequests.length).toBe(2);
-    expect(Array.from(mailLogRequests[1]?.searchParams.entries() ?? [])).toEqual([
-      ['mail_log[limit]', '26'],
+    expect(Array.from(mailLogRequests[1]?.searchParams.entries() ?? []).sort()).toEqual([
       ['mail_log[from_id]', '124'],
+      ['mail_log[limit]', '26'],
     ]);
   });
 });

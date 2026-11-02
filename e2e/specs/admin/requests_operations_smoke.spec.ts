@@ -339,7 +339,7 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke admin requests: success
         };
       },
       'GET locations': () => ({ locations: [{ id: 7, label: 'Prague' }, { id: 8, label: 'Brno' }] }),
-      'GET os_templates': () => ({ os_templates: [{ id: 5, label: 'Debian 13', cgroup_version: 'cgroup_v2' }] }),
+      'GET os_templates': () => ({ os_templates: [{ id: 5, label: 'Debian 13', cgroup_version: 'cgroup_v2', enabled: true, supported: true }] }),
       'GET languages': () => ({ languages: [{ id: 2, label: 'Čeština' }] }),
       'POST user_request/registrations/125/resolve': async ({ reqJson }) => {
         resolveCalls += 1;
@@ -618,6 +618,9 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke @smoke-mobile admin req
       'GET user_request/registrations': () => ({ registrations: [registration(124)] }),
       'GET user_request/changes': () => ({ changes: [] }),
       'GET user_request/registrations/124': () => ({ registration: registration(124) }),
+      'GET nodes': () => ({ nodes: [] }),
+      'GET locations': () => ({ locations: [{ id: 7, label: 'Prague' }] }),
+      'GET os_templates': () => ({ os_templates: [{ id: 5, label: 'Debian 13', cgroup_version: 'cgroup_v2', enabled: true, supported: true }] }),
       'POST user_request/registrations/124/resolve': () => failEnvelope('Cannot approve this request'),
     },
   });
@@ -1255,7 +1258,7 @@ test('@workflow-matrix @smoke admin requests: stale detail is rechecked immediat
       },
       'GET nodes': () => ({ nodes: [] }),
       'GET locations': () => ({ locations: [{ id: 7, label: 'Prague' }] }),
-      'GET os_templates': () => ({ os_templates: [{ id: 5, label: 'Debian 13', cgroup_version: 'cgroup_v2' }] }),
+      'GET os_templates': () => ({ os_templates: [{ id: 5, label: 'Debian 13', cgroup_version: 'cgroup_v2', enabled: true, supported: true }] }),
       'POST user_request/registrations/911/resolve': () => { resolveCalls += 1; return {}; },
     },
   });
@@ -1290,7 +1293,7 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke @smoke-mobile admin req
       },
       'GET nodes': () => ({ nodes: [] }),
       'GET locations': () => ({ locations: [{ id: 7, label: 'Prague' }] }),
-      'GET os_templates': () => ({ os_templates: [{ id: 5, label: 'Debian 13', cgroup_version: 'cgroup_v2' }] }),
+      'GET os_templates': () => ({ os_templates: [{ id: 5, label: 'Debian 13', cgroup_version: 'cgroup_v2', enabled: true, supported: true }] }),
       'POST user_request/registrations/912/resolve': () => { resolveCalls += 1; return {}; },
     },
   });

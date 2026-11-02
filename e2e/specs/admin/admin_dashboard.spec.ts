@@ -62,6 +62,7 @@ async function newsDashboard(page: Page, language: 'cs' | 'en', level: number, p
           {
             id: 42,
             published_at: '2026-10-19T09:00:00Z',
+            message: language === 'cs' ? 'Vyzkoušej nové webové rozhraní vpsAdminu.' : 'Try the new vpsAdmin web interface.',
             cs_message: 'Vyzkoušej nové webové rozhraní vpsAdminu.',
             en_message: 'Try the new vpsAdmin web interface.',
           },
