@@ -588,3 +588,66 @@ final-head Nix derivation/provenance checks remain pending. Earlier API,
 local-client cycle and Nix results keep their actual input scope. The user keeps
 the released-client transition pending; a compatible published dependency is
 still required before merge.
+
+## Fourth browser CI repair
+
+Core CI [41508552632](https://github.com/vpsfreecz/vpsadmin-webui/actions/runs/41508552632)
+passed all three jobs on `20aa0e9e`. Browser run
+[41508552554](https://github.com/vpsfreecz/vpsadmin-webui/actions/runs/41508552554)
+completed WebKit with 274 passed and 2 skipped. Both Chrome jobs reached their
+native 40-minute limits and ended as cancelled with partial failure output.
+The retained logs contain 20 failing headings across six additional specs;
+completed Chrome totals are not inferred. These WebKit results retain their
+actual `20aa0e9e` inputs.
+
+The six leaf fixtures now represent inherited DNS resolvers and known
+unassigned available IPs with explicit null associations. Successful VPS and
+dataset replies use their declared namespaces beside the existing action-state
+receipts. The separate missing-receipt scenario still omits its receipt.
+Production guards, permissions, request payloads, retry counts and uncertainty
+assertions remain unchanged. No production source, shared mock, dependency,
+generated client archive or runtime changed.
+
+Four edited deferred specs were adopted as whole files, bringing strict
+coverage to 140 checked and 142 deferred. The original baseline, sourceRevision,
+all surviving deferrals and compiler options are unchanged. The combined strict
+gate passed on `be42b595` with zero diagnostics. Later lifecycle changes have
+separate whole-file strict and lint evidence at source SHA-256
+`78cac0595f40b5b29f54225d7d2e23501a793faed7e00cdbbf9dcb86db879959`;
+that evidence does not relabel the earlier combined execution.
+
+The native runs exposed two Start request assertions that still expected an
+unnamespaced empty object and missing fresh Show fixtures for selected rescue
+templates. Both assertions now require `{ vps: {} }`. The selected-template Show
+handlers return the same rows as the existing index. These narrow corrections
+retain the independent review with zero findings at `b1b37ccf` and its direct
+remedy dispositions. The owning history preserves the reviewed source lineage,
+one generated-client input stream and no database or persisted-format migrations.
+
+All four local attempts used two workers, no retries, a first-failure stop and
+the existing 900-second limit:
+
+| Tested source | Selected cases | Native result                                                                  |
+| ------------- | -------------- | ------------------------------------------------------------------------------ |
+| `b1b37ccf`    | 136            | 6 passed, 1 failed, 1 interrupted, 128 unrun; exit 1 after 35.091 seconds      |
+| `be42b595`    | 130            | 14 passed, 1 timed out, 2 interrupted, 113 unrun; exit 1 after 119.295 seconds |
+| `a27a0768`    | 120            | 12 passed, 1 failed, 1 interrupted, 106 unrun; exit 1 after 65.313 seconds     |
+| `451dfe1d`    | 114            | 114 passed; exit 0 after 487.744 seconds                                       |
+
+The accepted union covers exactly 136 unique identities across the six specs:
+68 Chromium and 68 mobile Chrome. It combines 114 fresh expected passes on
+`451dfe1d`, each on retry 0 without errors, with 22 individually proven passes
+from unchanged files: 3 on `b1b37ccf`, 13 on `be42b595` and 6 on `a27a0768`.
+It is not a single-head execution of all 136 cases. Whole-file and shared-input
+proof supports the retained passes; all 90 lifecycle identities ran afresh on
+`451dfe1d`. Original failures, interruptions and unrun scope remain recorded.
+The final owned-effects proof found all 19 captured identities, their groups and
+sessions, operation-era worktree processes and listener 5187 absent.
+
+The [existing evidence matrix](../design/EVIDENCE_MATRIX.md) remains the project
+entry point. Exact-final-head Nix packages and the full CI matrix still need
+verification after this evidence append, including native WebKit on the final
+source. Earlier API, local-client and Nix results retain their actual input
+scope. The user keeps the released-client transition pending; a compatible
+published dependency remains required before merge. No registry release,
+default-branch integration or deployment is claimed.
