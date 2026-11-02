@@ -23,7 +23,7 @@ const vps = {
   user: { id: 7, login: 'owner' },
   os_template: { id: 6, label: 'Debian latest' },
   dataset: { id: 901, name: 'tank/vps/123/root' },
-  dns_resolver: 'inherit',
+  dns_resolver: null,
 };
 
 const osTemplates = [
@@ -93,6 +93,8 @@ async function installLifecycleMock(page: Page, options?: {
       'GET vpses/321/state_logs': () => ({ state_logs: [] }),
       'GET transaction_chains': () => ({ transaction_chains: [] }),
       'GET os_templates': () => ({ os_templates: osTemplates }),
+      'GET os_templates/7': () => ({ os_template: osTemplates[1] }),
+      'GET os_templates/6': () => ({ os_template: osTemplates[0] }),
       'GET nodes': (ctx) => options?.nodes ? options.nodes(Number(ctx.url.searchParams.get('node[from_id]') ?? ctx.url.searchParams.get('from_id') ?? 0)) : ({
         nodes: [
           { id: 1, domain_name: 'node1.example', location: { id: 2, label: 'Praha-2', environment: { id: 1, label: 'prod' } } },
@@ -101,20 +103,20 @@ async function installLifecycleMock(page: Page, options?: {
         ].filter((node) => node.id > Number(ctx.url.searchParams.get('node[from_id]') ?? ctx.url.searchParams.get('from_id') ?? 0)),
       }),
       'PUT vpses/123': options?.updateVps ?? (() => ({ vps, _meta: { action_state_id: 506 } })),
-      'POST vpses/123/start': () => ({ _meta: { action_state_id: 503 } }),
-      'POST vpses/123/stop': () => ({ _meta: { action_state_id: 504 } }),
-      'POST vpses/123/restart': () => ({ _meta: { action_state_id: 505 } }),
+      'POST vpses/123/start': () => ({ vps: {}, _meta: { action_state_id: 503 } }),
+      'POST vpses/123/stop': () => ({ vps: {}, _meta: { action_state_id: 504 } }),
+      'POST vpses/123/restart': () => ({ vps: {}, _meta: { action_state_id: 505 } }),
       'GET action_states/503': () => runningActionState(503, 'Start VPS'),
       'GET action_states/504': () => runningActionState(504, 'Stop VPS'),
       'GET action_states/505': () => runningActionState(505, 'Restart VPS'),
       'POST vpses/123/clone': () => ({ vps: { id: 456, hostname: 'admin-clone' }, _meta: { action_state_id: 507 } }),
-      'POST vpses/123/swap_with': () => ({ _meta: { action_state_id: 508 } }),
+      'POST vpses/123/swap_with': () => ({ vps: {}, _meta: { action_state_id: 508 } }),
       'POST vpses/123/replace': () => ({ vps: { id: 789, hostname: 'replacement' }, _meta: { action_state_id: 509 } }),
-      'POST vpses/123/boot': () => ({ _meta: { action_state_id: 501 } }),
-      'POST vpses/123/reinstall': options?.reinstallVps ?? (() => ({ _meta: { action_state_id: 502 } })),
-      'POST vpses/123/migrate': options?.migrateVps ?? (() => ({ _meta: { action_state_id: 510 } })),
+      'POST vpses/123/boot': () => ({ vps: {}, _meta: { action_state_id: 501 } }),
+      'POST vpses/123/reinstall': options?.reinstallVps ?? (() => ({ vps: {}, _meta: { action_state_id: 502 } })),
+      'POST vpses/123/migrate': options?.migrateVps ?? (() => ({ vps: {}, _meta: { action_state_id: 510 } })),
       'GET action_states/510': () => runningActionState(510, 'Migrate VPS'),
-      'DELETE vpses/123': () => ({ _meta: { action_state_id: 511 } }),
+      'DELETE vpses/123': () => ({ vps: {}, _meta: { action_state_id: 511 } }),
     },
   });
 
@@ -305,7 +307,7 @@ test.describe('@pr-smoke VPS lifecycle tab', () => {
     await page.getByTestId('vps.lifecycle.start.submit').click();
 
     const req = await reqPromise;
-    expect(req.postDataJSON()).toEqual({});
+    expect(req.postDataJSON()).toEqual({ vps: {} });
 
     await expect(page.getByTestId('modal.action_progress')).toBeVisible();
     await page.getByTestId('modal.action_progress.open_tasks').click();
@@ -328,7 +330,7 @@ test.describe('@pr-smoke VPS lifecycle tab', () => {
         },
         'GET ip_addresses': () => ({ ip_addresses: [] }),
         'GET transaction_chains': () => ({ transaction_chains: [] }),
-        'POST vpses/123/start': () => ({ _meta: { action_state_id: 516 } }),
+        'POST vpses/123/start': () => ({ vps: {}, _meta: { action_state_id: 516 } }),
         'GET action_states/516': () => runningActionState(516, 'Start VPS'),
       },
     });
@@ -350,8 +352,8 @@ test.describe('@pr-smoke VPS lifecycle tab', () => {
         'GET vpses/123': () => ({ vps: { ...vps, is_running: true } }),
         'GET ip_addresses': () => ({ ip_addresses: [] }),
         'GET transaction_chains': () => ({ transaction_chains: [] }),
-        'POST vpses/123/stop': () => ({ _meta: { action_state_id: 514 } }),
-        'POST vpses/123/restart': () => ({ _meta: { action_state_id: 515 } }),
+        'POST vpses/123/stop': () => ({ vps: {}, _meta: { action_state_id: 514 } }),
+        'POST vpses/123/restart': () => ({ vps: {}, _meta: { action_state_id: 515 } }),
         'GET action_states/514': () => runningActionState(514, 'Stop VPS'),
       },
     });
@@ -386,7 +388,7 @@ test.describe('@pr-smoke VPS lifecycle tab', () => {
         'GET vpses/123': () => ({ vps: { ...vps, is_running: true } }),
         'GET ip_addresses': () => ({ ip_addresses: [] }),
         'GET transaction_chains': () => ({ transaction_chains: [] }),
-        'POST vpses/123/restart': () => ({ _meta: { action_state_id: 515 } }),
+        'POST vpses/123/restart': () => ({ vps: {}, _meta: { action_state_id: 515 } }),
         'GET action_states/515': () => runningActionState(515, 'Restart VPS'),
       },
     });
@@ -547,7 +549,7 @@ test.describe('@pr-smoke VPS lifecycle tab', () => {
         attempts += 1;
         return attempts === 1
           ? failEnvelope('Reinstall rejected by API')
-          : { _meta: { action_state_id: 502 } };
+          : { vps: {}, _meta: { action_state_id: 502 } };
       },
     });
 
@@ -682,7 +684,7 @@ test.describe('@pr-smoke VPS lifecycle tab', () => {
         'GET locations': () => ({ locations: [{ id: 2, label: 'Praha-2' }] }),
         'GET ip_addresses': () => ({ ip_addresses: [] }),
         'GET transaction_chains': () => ({ transaction_chains: [] }),
-        'POST vpses/123/swap_with': () => ({ _meta: { action_state_id: 512 } }),
+        'POST vpses/123/swap_with': () => ({ vps: {}, _meta: { action_state_id: 512 } }),
       },
     });
 
@@ -830,7 +832,7 @@ test.describe('@pr-smoke VPS lifecycle tab', () => {
       let accept: (() => void) | undefined;
       await installLifecycleMock(page, {
         migrateVps: () => new Promise((resolve) => {
-          accept = () => resolve({ _meta: { action_state_id: 510 } });
+          accept = () => resolve({ vps: {}, _meta: { action_state_id: 510 } });
         }),
       });
       await page.goto('/admin/vps/123/lifecycle/migrate');
@@ -869,7 +871,7 @@ test.describe('@pr-smoke VPS lifecycle tab', () => {
     test(`@pr-smoke-mobile migration ${outcome} retains the draft without an accepted toast`, async ({ page }) => {
       await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
       await installLifecycleMock(page, {
-        migrateVps: () => outcome === 'rejected' ? failEnvelope('Migration rejected') : {},
+        migrateVps: () => outcome === 'rejected' ? failEnvelope('Migration rejected') : { vps: {} },
       });
       await page.goto('/admin/vps/123/lifecycle/migrate');
       await page.getByTestId('vps.lifecycle.migrate.node').click();
@@ -1162,7 +1164,7 @@ test.describe('@pr-smoke VPS lifecycle tab', () => {
         'GET vpses/123': () => ({ vps }),
         'GET ip_addresses': () => ({ ip_addresses: [] }),
         'GET transaction_chains': () => ({ transaction_chains: [] }),
-        'DELETE vpses/123': () => ({ _meta: {} }),
+        'DELETE vpses/123': () => ({ vps: {}, _meta: {} }),
       },
     });
 
@@ -1186,7 +1188,7 @@ test.describe('@pr-smoke VPS lifecycle tab', () => {
         'GET locations': () => ({ locations: [{ id: 2, label: 'Praha-2' }] }),
         'GET ip_addresses': () => ({ ip_addresses: [] }),
         'GET transaction_chains': () => ({ transaction_chains: [] }),
-        'DELETE vpses/123': () => ({ _meta: { action_state_id: 503 } }),
+        'DELETE vpses/123': () => ({ vps: {}, _meta: { action_state_id: 503 } }),
       },
     });
 
@@ -1313,7 +1315,7 @@ test.describe('@pr-smoke VPS lifecycle tab', () => {
           return { ip_addresses: [] };
         },
         'GET transaction_chains': () => ({ transaction_chains: [] }),
-        'POST vpses/123/swap_with': () => ({ _meta: { action_state_id: 505 } }),
+        'POST vpses/123/swap_with': () => ({ vps: {}, _meta: { action_state_id: 505 } }),
       },
     });
 

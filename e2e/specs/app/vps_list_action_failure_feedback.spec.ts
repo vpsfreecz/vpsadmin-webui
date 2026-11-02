@@ -49,7 +49,7 @@ test('@pr-smoke @pr-smoke-mobile rejected VPS stop stays in its confirmation and
         stopCalls += 1;
         return stopCalls === 1
           ? rejected('The VPS could not be stopped')
-          : { _meta: { action_state_id: 901 } };
+          : { vps: {}, _meta: { action_state_id: 901 } };
       },
     },
   });
@@ -84,7 +84,7 @@ test('@pr-smoke @pr-smoke-mobile rejected VPS deletion stays in its confirmation
         deleteCalls += 1;
         return deleteCalls === 1
           ? rejected('The VPS could not be deleted')
-          : { _meta: { action_state_id: 902 } };
+          : { vps: {}, _meta: { action_state_id: 902 } };
       },
     },
   });

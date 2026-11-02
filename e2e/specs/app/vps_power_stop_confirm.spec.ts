@@ -20,7 +20,7 @@ const vps = {
   node: { id: 1, domain_name: 'node1.example', location: { label: 'dc1' } },
   user: { id: 42, login: 'user' },
   os_template: { label: 'debian' },
-  dns_resolver: 'inherit',
+  dns_resolver: null,
 };
 
 function runningActionState(id: number, label: string) {
@@ -42,7 +42,7 @@ async function installPowerMock(
   page: Page,
   options: { action: 'start' | 'stop' | 'restart'; actionStateId: number; isRunning: boolean; admin?: boolean }
 ) {
-  const label = `${options.action[0].toUpperCase()}${options.action.slice(1)} VPS`;
+  const label = `${options.action.charAt(0).toUpperCase()}${options.action.slice(1)} VPS`;
 
   await installHaveApiMock(page, {
     user: { id: 42, login: 'user', level: options.admin ? 99 : 1 },
@@ -62,6 +62,7 @@ async function installPowerMock(
       'GET vpses/123/statuses': () => ({ statuses: [] }),
       'GET transaction_chains': () => ({ transaction_chains: [] }),
       [`POST vpses/123/${options.action}`]: () => ({
+        vps: {},
         _meta: { action_state_id: options.actionStateId },
       }),
       [`GET action_states/${options.actionStateId}`]: () =>
@@ -93,7 +94,7 @@ test.describe('@workflow-matrix @pr-smoke @smoke VPS detail power actions', () =
     await page.getByTestId('vps.action.start').click();
 
     const request = await reqPromise;
-    expect(request.postDataJSON()).toEqual({});
+    expect(request.postDataJSON()).toEqual({ vps: {} });
     await expectTrackedTask(page, 776, 'Start');
   });
 
@@ -135,7 +136,7 @@ test.describe('@workflow-matrix @pr-smoke @smoke VPS detail power actions', () =
           attempts += 1;
           return attempts === 1
             ? failEnvelope('Stop rejected by API')
-            : { _meta: { action_state_id: 781 } };
+            : { vps: {}, _meta: { action_state_id: 781 } };
         },
         'GET action_states/781': () => runningActionState(781, 'Stop VPS'),
       },

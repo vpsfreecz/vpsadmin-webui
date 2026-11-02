@@ -14,7 +14,7 @@ const vps = {
   diskspace: 20480,
   node: { id: 1, domain_name: 'node1.example' },
   os_template: { label: 'debian' },
-  dns_resolver: 'inherit',
+  dns_resolver: null,
 };
 
 test('@pr-smoke @pr-smoke-mobile VPS maintenance editors stay usable without horizontal scrolling', async ({
