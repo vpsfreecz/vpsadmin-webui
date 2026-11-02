@@ -3,7 +3,13 @@ import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { advisoryContractDescription } from '../../helpers/securityAdvisoryContract';
 import { expect, test } from '@playwright/test';
-import type { SecurityAdvisory__CreateOutput, SecurityAdvisoryCve__CreateOutput } from 'vpsadmin-typescript-client';
+import type {
+  OutageSecurityAdvisory__CreateOutput,
+  SecurityAdvisory__CreateOutput,
+  SecurityAdvisory__NodeStatus__IndexOutput,
+  SecurityAdvisoryCve__CreateOutput,
+  SecurityAdvisoryUpdate__CreateOutput,
+} from 'vpsadmin-typescript-client';
 
 import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock } from '../../fixtures';
 
@@ -134,16 +140,14 @@ test.describe('@smoke Security advisory admin management', () => {
     ]);
   });
 
-  test('gates publishing, manages node assessments, retracts through an update and links an outage', async ({
-    page,
-  }) => {
-    const mutations: Array<{ method: string; path: string; body: any }> = [];
-    let advisory = {
+  test('gates publishing, manages node assessments, retracts through an update and links an outage', async ({ page }) => {
+    const mutations: Array<{ method: string; path: string; body: unknown }> = [];
+    let advisory: SecurityAdvisory__CreateOutput & { id: number; content_revision: number } = {
       id: 77,
       state: 'draft',
       content_revision: 0,
       name: 'Linux kernel advisory',
-      published_at: null as string | null,
+      published_at: null,
       created_at: '2026-07-27T10:00:00.000Z',
       en_summary: 'Kernel vulnerability',
       en_description: 'Affects supported compute nodes.',
@@ -161,30 +165,68 @@ test.describe('@smoke Security advisory admin management', () => {
       { id: 20, active: true, type: 'storage', domain_name: 'storage20.prg' },
       { id: 30, active: false, type: 'node', domain_name: 'retired30.prg' },
     ];
-    let statuses = [
+    let statuses: SecurityAdvisory__NodeStatus__IndexOutput = [
       {
         id: 501,
-        security_advisory_id: 77,
-        node_id: 10,
+        security_advisory: { id: 77 },
         node: nodes[0],
         state: 'unknown',
         vulnerable_until: null,
         mitigated_since: null,
+        cs_note: null,
         en_note: null,
       },
       {
         id: 502,
-        security_advisory_id: 77,
-        node_id: 20,
+        security_advisory: { id: 77 },
         node: nodes[1],
         state: 'not_affected',
         vulnerable_until: null,
         mitigated_since: null,
+        cs_note: null,
         en_note: 'Storage is not affected',
       },
     ];
-    let updates: Array<Record<string, unknown>> = [];
-    let outageLinks: Array<Record<string, unknown>> = [];
+    let updates: SecurityAdvisoryUpdate__CreateOutput[] = [];
+    let outageLinks: OutageSecurityAdvisory__CreateOutput[] = [];
+
+    function updateNodeStatus(assessmentId: 501 | 502, reqJson: unknown) {
+      if (!reqJson || typeof reqJson !== 'object' || !('node_status' in reqJson))
+        throw new Error('Expected node status input namespace');
+      const attrs = reqJson.node_status;
+      if (
+        !attrs ||
+        typeof attrs !== 'object' ||
+        Array.isArray(attrs) ||
+        advisory.state !== 'draft' ||
+        !('expected_content_revision' in attrs) ||
+        attrs.expected_content_revision !== advisory.content_revision ||
+        !('state' in attrs) ||
+        typeof attrs.state !== 'string' ||
+        !('vulnerable_until' in attrs) ||
+        (attrs.vulnerable_until !== null && typeof attrs.vulnerable_until !== 'string') ||
+        !('mitigated_since' in attrs) ||
+        (attrs.mitigated_since !== null && typeof attrs.mitigated_since !== 'string') ||
+        ('cs_note' in attrs && attrs.cs_note !== null && typeof attrs.cs_note !== 'string') ||
+        ('en_note' in attrs && attrs.en_note !== null && typeof attrs.en_note !== 'string')
+      )
+        throw new Error('Expected node status update at the stored draft revision');
+      const current = statuses.find((status) => status.id === assessmentId);
+      if (!current) throw new Error(`Expected node assessment ${assessmentId}`);
+      const status: SecurityAdvisory__NodeStatus__IndexOutput[number] = {
+        ...current,
+        state: attrs.state,
+        vulnerable_until: attrs.vulnerable_until,
+        mitigated_since: attrs.mitigated_since,
+      };
+      if ('cs_note' in attrs && (attrs.cs_note === null || typeof attrs.cs_note === 'string'))
+        status.cs_note = attrs.cs_note;
+      if ('en_note' in attrs && (attrs.en_note === null || typeof attrs.en_note === 'string'))
+        status.en_note = attrs.en_note;
+      statuses = statuses.map((row) => (row.id === assessmentId ? status : row));
+      advisory.content_revision += 1;
+      return { node_status: status };
+    }
 
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
     await installHaveApiMock(page, {
@@ -199,51 +241,94 @@ test.describe('@smoke Security advisory admin management', () => {
         'GET security_advisory_updates': () => ({ security_advisory_updates: updates }),
         'GET outage_security_advisories': () => ({ outage_security_advisories: outageLinks }),
 
-        'PUT security_advisories/77/node_statuses/501': ({ reqJson }) => {
-          advisory = { ...advisory, content_revision: advisory.content_revision + 1 };
-          const attrs = (reqJson as any)?.node_status ?? {};
-          statuses = statuses.map((status) =>
-            status.id === 501 ? { ...status, ...attrs, node_id: 10, node: nodes[0] } : status
-          );
-          return { node_status: statuses.find((status) => status.id === 501) };
-        },
-        'PUT security_advisories/77/node_statuses/502': ({ reqJson }) => {
-          advisory = { ...advisory, content_revision: advisory.content_revision + 1 };
-          const attrs = (reqJson as any)?.node_status ?? {};
-          statuses = statuses.map((status) =>
-            status.id === 502 ? { ...status, ...attrs, node_id: 20, node: nodes[1] } : status
-          );
-          return { node_status: statuses.find((status) => status.id === 502) };
-        },
+        'PUT security_advisories/77/node_statuses/501': ({ reqJson }) => updateNodeStatus(501, reqJson),
+        'PUT security_advisories/77/node_statuses/502': ({ reqJson }) => updateNodeStatus(502, reqJson),
         'POST security_advisories/77/publish': ({ reqJson }) => {
-          const attrs = (reqJson as any)?.security_advisory ?? {};
-          advisory = { ...advisory, ...attrs, state: 'published' };
+          if (!reqJson || typeof reqJson !== 'object' || !('security_advisory' in reqJson))
+            throw new Error('Expected advisory publish input namespace');
+          const attrs = reqJson.security_advisory;
+          if (
+            !attrs ||
+            typeof attrs !== 'object' ||
+            Array.isArray(attrs) ||
+            advisory.state !== 'draft' ||
+            !('expected_content_revision' in attrs) ||
+            attrs.expected_content_revision !== advisory.content_revision ||
+            !('published_at' in attrs) ||
+            typeof attrs.published_at !== 'string' ||
+            !('send_mail' in attrs) ||
+            attrs.send_mail !== true
+          )
+            throw new Error('Expected publish of the reviewed draft revision');
+          advisory = { ...advisory, published_at: attrs.published_at, state: 'published' };
           return { security_advisory: advisory };
         },
         'POST security_advisory_updates': ({ reqJson }) => {
-          const attrs = (reqJson as any)?.security_advisory_update ?? {};
-          const update = {
+          if (!reqJson || typeof reqJson !== 'object' || !('security_advisory_update' in reqJson))
+            throw new Error('Expected advisory update input namespace');
+          const attrs = reqJson.security_advisory_update;
+          if (
+            !attrs ||
+            typeof attrs !== 'object' ||
+            Array.isArray(attrs) ||
+            advisory.state !== 'published' ||
+            !('security_advisory' in attrs) ||
+            attrs.security_advisory !== advisory.id ||
+            !('state' in attrs) ||
+            attrs.state !== 'retracted' ||
+            !('en_summary' in attrs) ||
+            typeof attrs.en_summary !== 'string' ||
+            !('cs_summary' in attrs) ||
+            typeof attrs.cs_summary !== 'string' ||
+            !('en_message' in attrs) ||
+            typeof attrs.en_message !== 'string' ||
+            !('cs_message' in attrs) ||
+            typeof attrs.cs_message !== 'string'
+          )
+            throw new Error('Expected localized retraction of the published advisory');
+          const update: SecurityAdvisoryUpdate__CreateOutput = {
             id: 701,
+            security_advisory: { id: advisory.id },
+            state: attrs.state,
+            en_summary: attrs.en_summary,
+            cs_summary: attrs.cs_summary,
+            en_message: attrs.en_message,
+            cs_message: attrs.cs_message,
             created_at: '2026-07-27T13:00:00.000Z',
             reporter_name: 'security-admin',
-            ...attrs,
           };
           updates = [update, ...updates];
-          if (attrs.state === 'retracted') advisory = { ...advisory, state: 'retracted' };
+          advisory = { ...advisory, state: 'retracted' };
           return { security_advisory_update: update };
         },
         'POST outage_security_advisories': ({ reqJson }) => {
-          const attrs = (reqJson as any)?.outage_security_advisory ?? {};
-          const link = {
+          if (!reqJson || typeof reqJson !== 'object' || !('outage_security_advisory' in reqJson))
+            throw new Error('Expected outage advisory input namespace');
+          const attrs = reqJson.outage_security_advisory;
+          if (
+            !attrs ||
+            typeof attrs !== 'object' ||
+            Array.isArray(attrs) ||
+            !('security_advisory' in attrs) ||
+            attrs.security_advisory !== advisory.id ||
+            !('outage' in attrs) ||
+            typeof attrs.outage !== 'number' ||
+            !Number.isSafeInteger(attrs.outage) ||
+            attrs.outage <= 0
+          )
+            throw new Error('Expected an outage link for the current advisory');
+          const outage = {
+            id: attrs.outage,
+            begins_at: '2026-07-27T14:00:00.000Z',
+            en_summary: 'Emergency kernel maintenance',
+            cs_summary: 'Nouzová údržba kernelu',
+          };
+          const link: OutageSecurityAdvisory__CreateOutput = {
             id: 801,
-            security_advisory_id: 77,
+            security_advisory_id: advisory.id,
+            security_advisory: { id: advisory.id },
             outage_id: attrs.outage,
-            outage: {
-              id: attrs.outage,
-              begins_at: '2026-07-27T14:00:00.000Z',
-              en_summary: 'Emergency kernel maintenance',
-              cs_summary: 'Nouzová údržba kernelu',
-            },
+            outage,
           };
           outageLinks = [link];
           return { outage_security_advisory: link };
@@ -274,21 +359,36 @@ test.describe('@smoke Security advisory admin management', () => {
     await expect(page.getByTestId('admin.security_advisories.nodes.row.10')).toBeVisible();
     await page.getByTestId('admin.security_advisories.nodes.row.10.edit').click();
     await page.getByTestId('admin.security_advisories.nodes.editor.state').selectOption('mitigated');
-    await page.getByTestId('admin.security_advisories.nodes.editor.vulnerable_until').fill('2026-07-27T11:00');
-    await page.getByTestId('admin.security_advisories.nodes.editor.mitigated_since').fill('2026-07-27T12:00');
+    await page
+      .getByTestId('admin.security_advisories.nodes.editor.vulnerable_until')
+      .fill('2026-07-27T11:00');
+    await page
+      .getByTestId('admin.security_advisories.nodes.editor.mitigated_since')
+      .fill('2026-07-27T12:00');
     await page.getByTestId('admin.security_advisories.nodes.editor.en_note').fill('Fixed kernel installed');
     await page.getByTestId('admin.security_advisories.nodes.editor.save').click();
     await expect(page.getByTestId('admin.security_advisories.nodes.editor')).toHaveCount(0);
     await expect
       .poll(() =>
-        mutations.some(
-          (mutation) =>
-            mutation.method === 'PUT' &&
-            mutation.path === '/api/v7.0/security_advisories/77/node_statuses/501' &&
-            mutation.body?.node_status?.state === 'mitigated'
-        )
+        mutations
+          .filter(
+            (mutation) =>
+              mutation.method === 'PUT' && mutation.path === '/api/v7.0/security_advisories/77/node_statuses/501'
+          )
+          .map((mutation) => mutation.body)
       )
-      .toBeTruthy();
+      .toEqual([
+        {
+          node_status: {
+            state: 'mitigated',
+            vulnerable_until: expect.any(String),
+            mitigated_since: expect.any(String),
+            en_note: 'Fixed kernel installed',
+            expected_state: 'draft',
+            expected_content_revision: 0,
+          },
+        },
+      ]);
 
     // Bulk assessment applies the same explicit result to every active compute
     // and storage node, but skips the inactive node.
@@ -301,6 +401,36 @@ test.describe('@smoke Security advisory admin management', () => {
     await expect.poll(() => statuses.map((status) => status.state)).toEqual(['not_affected', 'not_affected']);
     expect(mutations.some((mutation) => mutation.path.endsWith('/node_statuses/502'))).toBeTruthy();
     expect(mutations.some((mutation) => mutation.path.endsWith('/node_statuses/503'))).toBeFalsy();
+    expect(mutations.filter((mutation) => mutation.method === 'PUT').map((mutation) => mutation.body)).toEqual([
+      {
+        node_status: {
+          state: 'mitigated',
+          vulnerable_until: expect.any(String),
+          mitigated_since: expect.any(String),
+          en_note: 'Fixed kernel installed',
+          expected_content_revision: 0,
+        },
+      },
+      {
+        node_status: {
+          state: 'not_affected',
+          vulnerable_until: null,
+          mitigated_since: null,
+          expected_content_revision: 1,
+        },
+      },
+      {
+        node_status: {
+          state: 'not_affected',
+          vulnerable_until: null,
+          mitigated_since: null,
+          expected_content_revision: 2,
+        },
+      },
+    ]);
+    expect(statuses.map((status) => status.en_note)).toEqual(['Fixed kernel installed', 'Storage is not affected']);
+    expect(statuses.map((status) => status.cs_note)).toEqual([null, null]);
+    expect(advisory.content_revision).toBe(3);
 
     // Readiness now has a CVE and a resolved status for every relevant node.
     await page.getByTestId('admin.security_advisory.tab.overview').click();
@@ -318,7 +448,7 @@ test.describe('@smoke Security advisory admin management', () => {
         (mutation) => mutation.method === 'POST' && mutation.path === '/api/v7.0/security_advisories/77/publish'
       )?.body
     ).toEqual({
-      security_advisory: expect.objectContaining({ send_mail: true, published_at: expect.any(String) }),
+      security_advisory: expect.objectContaining({ send_mail: true, published_at: expect.any(String), expected_content_revision: 3 }),
     });
 
     // Retraction is represented by a localized advisory update and requires a
