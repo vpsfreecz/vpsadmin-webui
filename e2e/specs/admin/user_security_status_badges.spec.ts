@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import type { User__ShowOutput } from 'vpsadmin-typescript-client';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
 
@@ -19,15 +20,15 @@ const scenarios = [
   },
   {
     id: 43,
-    lockout: 0,
-    passwordReset: 1,
+    lockout: false,
+    passwordReset: true,
     lockoutState: 'unlocked',
     passwordResetState: 'required',
   },
   {
     id: 44,
-    lockout: 1,
-    passwordReset: 1,
+    lockout: true,
+    passwordReset: true,
     lockoutState: 'locked',
     passwordResetState: 'required',
   },
@@ -50,7 +51,7 @@ test('@pr-smoke @pr-smoke-mobile admin user header shows lockout and password re
             level: 1,
             lockout: scenario.lockout,
             password_reset: scenario.passwordReset,
-          },
+          } satisfies User__ShowOutput,
         }),
       ])
     ),

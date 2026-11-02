@@ -56,7 +56,9 @@ test.describe('@smoke Admin user payments', () => {
         'GET users/42/get_payment_instructions': () => {
           paymentInstructionRequests += 1;
           return {
-            instructions: '<h3>Payment in EUR</h3><table><tr><td>Account:</td><td>123456/0100</td></tr><tr><td>VS:</td><td>42</td></tr></table>',
+            user: {
+              instructions: '<h3>Payment in EUR</h3><table><tr><td>Account:</td><td>123456/0100</td></tr><tr><td>VS:</td><td>42</td></tr></table>',
+            },
           };
         },
         'GET user_payments': () => ({
@@ -120,9 +122,11 @@ test.describe('@smoke Admin user payments', () => {
 
     await page.getByTestId('admin.user.payments.settings.paid_until').fill('');
     await page.getByTestId('admin.user.payments.settings.paid_until.save').click();
-    await expect(page.getByTestId('admin.user.payments.settings.review.clear')).toBeVisible();
+    await expect(page.getByTestId('toast.viewport')).toContainText(
+      'The paid-until date cannot be cleared. Enter a date or keep the current value.'
+    );
+    await expect(page.getByTestId('admin.user.payments.settings.review')).toHaveCount(0);
     expect(settingsUpdates).toHaveLength(0);
-    await page.getByTestId('admin.user.payments.settings.review.cancel').click();
 
     await page.getByTestId('admin.user.payments.settings.paid_until').fill('2026-04-01');
     await page.getByTestId('admin.user.payments.settings.paid_until.save').click();

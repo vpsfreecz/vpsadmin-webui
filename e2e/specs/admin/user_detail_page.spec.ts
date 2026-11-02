@@ -410,6 +410,9 @@ test('@pr-smoke @pr-smoke-mobile admin user detail: reminder timing can be set a
         const payload = (reqJson as { user?: Record<string, unknown> }).user ?? {};
         updates.push(payload);
         user = { ...user, ...payload };
+        if (Object.hasOwn(payload, 'expiration_date') && !Object.hasOwn(payload, 'remind_after_date')) {
+          user.remind_after_date = null;
+        }
         return { user, _meta: {} };
       },
     },
@@ -435,7 +438,13 @@ test('@pr-smoke @pr-smoke-mobile admin user detail: reminder timing can be set a
   await page.getByTestId('admin.user.lifecycle.save').click();
 
   await expect.poll(() => updates.length).toBe(2);
-  expect(updates[1]).toEqual({ remind_after_date: null });
+  expect(updates[1]).toEqual({ expiration_date: '2026-10-01T12:00:00.000Z' });
+  await expect(reminder).toHaveValue('');
+  expect(user).toMatchObject({
+    object_state: 'active',
+    expiration_date: '2026-10-01T12:00:00.000Z',
+    remind_after_date: null,
+  });
 });
 
 for (const scenario of [

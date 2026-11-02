@@ -34,7 +34,7 @@ test('@pr-smoke @pr-smoke-mobile admin user security removals keep failures in c
       }),
       'DELETE users/1/public_keys/2': () => {
         keyDeleteCalls += 1;
-        return keyDeleteCalls === 1 ? rejected('SSH key is still attached') : {};
+        return keyDeleteCalls === 1 ? rejected('SSH key is still attached') : { public_key: {} };
       },
       'GET metrics_access_tokens': () => ({
         metrics_access_tokens: [{
@@ -47,7 +47,7 @@ test('@pr-smoke @pr-smoke-mobile admin user security removals keep failures in c
       }),
       'DELETE metrics_access_tokens/3': () => {
         tokenDeleteCalls += 1;
-        return tokenDeleteCalls === 1 ? rejected('Metrics token revoke was denied') : {};
+        return tokenDeleteCalls === 1 ? rejected('Metrics token revoke was denied') : { metrics_access_token: {} };
       },
       'GET user_sessions': () => ({
         user_sessions: [{
@@ -61,12 +61,11 @@ test('@pr-smoke @pr-smoke-mobile admin user security removals keep failures in c
           client_ip_addr: '192.0.2.44',
           user_agent: 'Browser',
           request_count: 4,
-          current: false,
         }],
       }),
       'POST user_sessions/4': () => {
         sessionCloseCalls += 1;
-        return sessionCloseCalls === 1 ? rejected('Session close was denied') : {};
+        return sessionCloseCalls === 1 ? rejected('Session close was denied') : { user_session: {} };
       },
     },
   });

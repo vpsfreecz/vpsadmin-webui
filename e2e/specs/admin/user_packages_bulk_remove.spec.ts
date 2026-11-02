@@ -62,7 +62,7 @@ async function setup(page: Page, options: { language?: 'cs' | 'en'; level?: numb
             const custom = options.remove ? await options.remove(ctx) : undefined;
             if (custom) return custom;
             rows = rows.filter((row) => row.id !== id);
-            return {};
+            return { user_cluster_resource_package: {} };
           },
         ])
       ),
