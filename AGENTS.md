@@ -14,6 +14,32 @@ locked flake input and requires recording the revision used. For other product
 behavior, read [the design handbook](docs/design/README.md), relevant rows in
 [the requirements register](docs/design/REQUIREMENTS.md), and [the work log](WORK_LOG.md).
 
+## Current experimental integration branch (2026-11-02)
+
+- The maintainer's current UI experiments belong on `kerrycek-021126`.
+  This exact integration-branch name is an explicit exception to the normal
+  `dev/...` feature-branch convention below. Keep individual changes on focused
+  `dev/...` branches based on it and explicitly target `kerrycek-021126` in PRs.
+- Do not target or merge these experiments into `main`, update production pins,
+  or deploy them to `newadmin.vpsfree.cz` without a separate explicit production
+  approval. Passing preview CI or merging into the experiment is not production
+  approval. Keep the repository default branch and colleagues' PRs unchanged.
+- Start from the already verified public/sidebar preview, not current main:
+  it contains our PR123/124/125 feature deltas while preserving the approved
+  production API transport/dependency basis. Do not add held DNS work or other
+  contributors' changes implicitly. Historical PR123/124/125 remain drafts;
+  their selected feature deltas are already in the integration branch.
+- `dev.crucio.cz` and `clankerdev.vpsfree.cz` are the permitted UI preview
+  targets. Inspect the actual revision/configuration before every deployment
+  and use the existing paired release/rollback procedure. There is no automatic
+  deployment on branch push or PR merge.
+- Dev has a separate test API. Clankerdev currently uses the production API;
+  a preview frontend does not isolate its data. Run account/VPS creation and
+  mutation tests only against dev or isolated intercepted fixtures. Do not
+  silently change clankerdev's API/OAuth settings to create isolation.
+- See [the branch handover](docs/work-log/2026-11-02-kerrycek-preview-branch.md)
+  for exact branch ancestry, existing PR treatment and inspected host state.
+
 ## Development and checks
 
 ### Shared development and continuous documentation

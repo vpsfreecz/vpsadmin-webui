@@ -32,6 +32,21 @@ Inspect the effective unit and source file permissions privately. Do not print
 process environments, credential contents or session files into shared logs.
 The private credential sources and session store must survive release cleanup.
 
+## Experimental UI branch (2026-11-02)
+
+Use `kerrycek-021126` for the maintainer's current preview work. New feature PRs
+explicitly target this branch; neither a preview merge nor successful CI approves
+production promotion. Branch pushes run the standard CI workflow, and feature PRs
+retain the existing PR smoke jobs. Neither event deploys an application.
+Keep main, production pins and other contributors' work unchanged.
+
+Both hosts may receive explicitly selected UI previews through the paired release
+procedure below. Their API separation differs: dev uses its isolated test API,
+whereas clankerdev currently uses `https://api.vpsfree.cz`. Account/VPS creation
+and destructive or other mutation tests belong on dev or isolated fixtures, not
+on clankerdev's production API. Changing its OAuth/API configuration is separate
+work. [Inspected revisions and branch handover](../work-log/2026-11-02-kerrycek-preview-branch.md).
+
 ## Preparing a subsequent approved release
 
 1. Inspect exact running frontend SHA, BFF process/release path, active deploy

@@ -1675,3 +1675,13 @@ basis. Feature PRs remain open and production is unchanged. Combined CI, paired
 Nix checks, 1937 unit/230 script/58 BFF tests and 99 candidate browser checks pass.
 Real anonymous deployed checks (all five public reads HTTP 200), auth smoke and
 95/95 deployed fixture browser checks pass with zero retries. [Scope, evidence and rollback](docs/work-log/2026-11-01-public-sidebar-dev-preview.md).
+
+## 2026-11-02 — Separate Kerrycek UI experiment branch
+
+Create `kerrycek-021126` from the already verified public/sidebar preview. Future
+feature PRs target it explicitly; production/main remain outside the experiment.
+Keep PR123/124/125 as historical drafts because their UI deltas are included;
+preserve all branch histories and colleague PRs. Add standard push CI for the
+integration branch, without deployment automation. Dev has isolated test data;
+clankerdev still uses the production API. No host update in this setup.
+[Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
