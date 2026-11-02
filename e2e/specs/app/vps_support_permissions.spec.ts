@@ -26,7 +26,7 @@ const supportVps = {
   },
   os_template: { id: 6, label: 'Debian latest' },
   dataset: { id: 901, name: 'tank/vps/123/root' },
-  dns_resolver: 'inherit',
+  dns_resolver: null,
 };
 
 test('@pr-smoke support account stays read-only inside the admin VPS shell', async ({ page }) => {

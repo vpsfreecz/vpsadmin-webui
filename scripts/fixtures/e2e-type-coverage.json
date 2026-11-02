@@ -138,6 +138,7 @@
     "e2e/specs/app/vps_private_ip_availability.spec.ts",
     "e2e/specs/app/vps_resource_workspace.spec.ts",
     "e2e/specs/app/vps_storage_tab_mounts.spec.ts",
+    "e2e/specs/app/vps_support_permissions.spec.ts",
     "e2e/specs/public/about.spec.ts",
     "e2e/specs/public/news_compact.spec.ts",
     "e2e/specs/public/overview.spec.ts",
@@ -1113,13 +1114,6 @@
     {
       "path": "e2e/specs/app/vps_support_console_permissions.spec.ts",
       "sha256": "6f96be3970875b649564c4bb983951d8dae48de2291472c7481c3d517aa70b7d",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/app/vps_support_permissions.spec.ts",
-      "sha256": "1d54f0d7d24590f6bdbe168fd2df8b23288156370ba43afa4c22e9eab41f32cb",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."

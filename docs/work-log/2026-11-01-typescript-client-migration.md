@@ -651,3 +651,36 @@ source. Earlier API, local-client and Nix results retain their actual input
 scope. The user keeps the released-client transition pending; a compatible
 published dependency remains required before merge. No registry release,
 default-branch integration or deployment is claimed.
+
+## Residual support-shell fixture
+
+On published `24ae8a8f`, core CI
+[41538869664](https://github.com/vpsfreecz/vpsadmin-webui/actions/runs/41538869664)
+passed all three jobs. Browser run
+[41538869566](https://github.com/vpsfreecz/vpsadmin-webui/actions/runs/41538869566)
+completed with 574 mobile Chrome passes, 274 WebKit passes and 2 skips, and
+631 Chromium passes with one unique failed support-shell scenario. That case
+failed on retries 0, 1 and 2; no job was cancelled.
+
+The original Chromium retry-0 trace returned HTTP 200 with the correct `vps`
+namespace, but its `dns_resolver: 'inherit'` fixture field violated the selected
+client's nullable resource relation. The VPS reader rejected it before the
+admin overview rendered. The trace contains only GET requests, so it provides
+no later tab or mutation outcome. The fixture now uses explicit `null` for the
+inherited resolver; production guards and role behavior are unchanged.
+
+The scenario preserves support identity 21/level 21, foreign owner 77, every tab
+and viewport branch, all rendered-data and hidden/disabled-control assertions,
+the direct migration denial with zero node queries, and the final empty
+mutation-request list with its existing settings-only exception. The whole
+spec is now in strict coverage: 141 checked and 141 deferred. The original
+baseline, sourceRevision, all surviving deferral records and compiler options
+are unchanged. The existing combined strict gate passed once without TypeScript
+diagnostics, and scoped leaf ESLint passed; no local typing correction was needed.
+
+Independent affected review and the failing Chromium leaf's native validation
+remain pending at this commit. Earlier browser and Nix evidence retains its
+actual revision and scope. This correction changes no production source,
+shared fixture, dependency, client archive or runtime. The compatible released
+client transition remains pending with the user; no registry publication,
+default integration or deployment is claimed.
