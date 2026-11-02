@@ -211,8 +211,6 @@ test('@workflow-matrix @pr-smoke Tasks drawer can inspect action state transacti
             total: 2,
             created_at: '2026-05-31T01:35:27Z',
             updated_at: '2026-05-31T01:35:27Z',
-            transaction_chain: { id: 79, label: 'Create chain' },
-            result: { vps_id: 12 },
           },
         ],
       }),
@@ -226,8 +224,6 @@ test('@workflow-matrix @pr-smoke Tasks drawer can inspect action state transacti
           total: 2,
           created_at: '2026-05-31T01:35:27Z',
           updated_at: '2026-05-31T01:35:27Z',
-          transaction_chain: { id: 79, label: 'Create chain' },
-          result: { vps_id: 12 },
         },
       }),
       'GET transaction_chains/79': () => ({
@@ -248,16 +244,11 @@ test('@workflow-matrix @pr-smoke Tasks drawer can inspect action state transacti
               name: 'Create dataset with a deliberately long transaction item name for drawer wrapping',
               done: 'done',
               success: 1,
-              type: 3001,
-              priority: 0,
               started_at: '2026-05-31T01:35:27Z',
               finished_at: '2026-05-31T01:35:29Z',
-              node: { id: 2, label: 'node2' },
-              vps: { id: 12, label: 'vps12' },
+              node: { id: 2, name: 'node2' },
+              vps: { id: 12, hostname: 'vps12' },
               transaction_chain: { id: 79 },
-              input: { dataset: 'tank/ct/vps12' },
-              output: { ok: true },
-              result: { dataset_created: true },
             },
           ],
         };
@@ -273,7 +264,11 @@ test('@workflow-matrix @pr-smoke Tasks drawer can inspect action state transacti
   await expect(page.getByTestId('tasks.inspect.open_full')).toHaveAttribute('href', '/app/action-states/79');
   await expect(page.getByTestId('tasks.inspect.open_chain')).toHaveAttribute('href', '/app/transactions/79');
   await expect(page.getByTestId('tasks.inspect.view_all')).toHaveAttribute('href', '/app/transactions/items?transaction_chain=79');
-  await expect(page.getByTestId('tasks.inspect.backend_details')).toContainText('vps_id');
+  const backendDetails = page.getByTestId('tasks.inspect.backend_details');
+  await expect(backendDetails).toContainText('"id": 79');
+  await expect(backendDetails).toContainText('"label": "Create VPS"');
+  await expect(backendDetails).toContainText('"status": true');
+  await expect(backendDetails).not.toContainText('vps_id');
 
   await page.getByTestId('tasks.inspect.tx.toggle.9001').click();
   const drawer = page.getByTestId('tasks.drawer');
@@ -283,8 +278,10 @@ test('@workflow-matrix @pr-smoke Tasks drawer can inspect action state transacti
 
   await expect(card).toBeVisible();
   await expect(expanded).toBeVisible();
-  await expect(expanded).toContainText('tank/ct/vps12');
-  await expect(expanded).toContainText('dataset_created');
+  await expect(card).toContainText('Create dataset with a deliberately long transaction item name for drawer wrapping');
+  await expect(expanded.getByText('No input/output payload recorded for this transaction.', { exact: true })).toHaveCount(2);
+  await expect(expanded).not.toContainText('tank/ct/vps12');
+  await expect(expanded).not.toContainText('dataset_created');
 
   const drawerBox = await drawer.boundingBox();
   const cardBox = await card.boundingBox();
@@ -319,22 +316,20 @@ test('@pr-smoke Tasks drawer lets admins expand transaction chains and continue 
             progress: 1,
             size: 2,
             created_at: '2026-06-01T08:00:00Z',
-            updated_at: '2026-06-01T08:02:00Z',
             concerns: [{ class_name: 'Vps', row_id: 44, label: 'vps44' }],
-            error: 'migration failed on node3',
           },
         ],
       }),
       'GET transaction_chains/880': () => ({
-        id: 880,
-        label: 'Migrate VPS chain',
-        state: 'failed',
-        progress: 1,
-        size: 2,
-        created_at: '2026-06-01T08:00:00Z',
-        updated_at: '2026-06-01T08:02:00Z',
-        concerns: [{ class_name: 'Vps', row_id: 44, label: 'vps44' }],
-        error: 'migration failed on node3',
+        transaction_chain: {
+          id: 880,
+          label: 'Migrate VPS chain',
+          state: 'failed',
+          progress: 1,
+          size: 2,
+          created_at: '2026-06-01T08:00:00Z',
+          concerns: [{ class_name: 'Vps', row_id: 44, label: 'vps44' }],
+        },
       }),
       'GET transactions': ({ searchParams }: { searchParams: URLSearchParams }) => {
         if (searchParams.get('transaction[transaction_chain]') !== '880') return { transactions: [] };
@@ -350,11 +345,11 @@ test('@pr-smoke Tasks drawer lets admins expand transaction chains and continue 
               created_at: '2026-06-01T08:00:10Z',
               started_at: '2026-06-01T08:00:15Z',
               finished_at: '2026-06-01T08:01:00Z',
-              node: { id: 2, label: 'node2' },
-              vps: { id: 44, label: 'vps44' },
+              node: { id: 2, name: 'node2' },
+              vps: { id: 44, hostname: 'vps44' },
               transaction_chain: { id: 880 },
-              input: { stage: 'prepare' },
-              output: { ok: true },
+              input: JSON.stringify({ stage: 'prepare' }),
+              output: JSON.stringify({ ok: true }),
             },
             {
               id: 882,
@@ -366,12 +361,17 @@ test('@pr-smoke Tasks drawer lets admins expand transaction chains and continue 
               created_at: '2026-06-01T08:01:00Z',
               started_at: '2026-06-01T08:01:05Z',
               finished_at: '2026-06-01T08:02:00Z',
-              node: { id: 3, label: 'node3' },
-              vps: { id: 44, label: 'vps44' },
+              node: { id: 3, name: 'node3' },
+              vps: { id: 44, hostname: 'vps44' },
               transaction_chain: { id: 880 },
-              input: { dataset: 'tank/ct/vps44' },
-              output: { ok: false, error: 'zfs send failed' },
-              stderr: 'cannot receive incremental stream',
+              input: JSON.stringify({ dataset: 'tank/ct/vps44' }),
+              output: JSON.stringify({
+                ok: false,
+                error: 'zfs send failed',
+                stderr: 'cannot receive incremental stream',
+                message: 'migration failed on node3',
+                result: { dataset_created: true },
+              }),
             },
           ],
         };
@@ -388,7 +388,7 @@ test('@pr-smoke Tasks drawer lets admins expand transaction chains and continue 
   await expect(page.getByTestId('tasks.chain.row.880')).toBeVisible();
   await expect(page.getByTestId('tasks.chain.row.880')).toContainText('Migrate VPS chain');
   await expect(page.getByTestId('tasks.chain.row.880')).toContainText('Vps#44');
-  await expect(page.getByTestId('tasks.chain.failure.880')).toContainText('migration failed on node3');
+  await expect(page.getByTestId('tasks.chain.row.880')).toContainText('Failed');
 
   await page.getByTestId('tasks.chain.toggle.880').click();
   await expect(page.getByTestId('tasks.chain.expanded.880')).toBeVisible();
@@ -397,6 +397,9 @@ test('@pr-smoke Tasks drawer lets admins expand transaction chains and continue 
   await page.getByTestId('tasks.chain.tx.toggle.882').click();
   await expect(page.getByTestId('tasks.chain.tx.card.882')).toContainText('tank/ct/vps44');
   await expect(page.getByTestId('tasks.chain.tx.card.882')).toContainText('zfs send failed');
+  await expect(page.getByTestId('tasks.chain.tx.card.882')).toContainText('cannot receive incremental stream');
+  await expect(page.getByTestId('tasks.chain.tx.card.882')).toContainText('migration failed on node3');
+  await expect(page.getByTestId('tasks.chain.tx.card.882')).toContainText('dataset_created');
 
   await page.getByTestId('tasks.chain.open.880').click();
   await expect(page).toHaveURL(/\/admin\/transactions\/880$/);

@@ -1,68 +1,99 @@
 import { expect, test } from '@playwright/test';
+import type { Transaction__IndexOutput } from 'vpsadmin-typescript-client';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
 import {
   expectNoDocumentHorizontalOverflow,
 } from '../../helpers/horizontalOverflow';
 
+// Member responses omit the admin-only transaction fields.
+const memberTransactions = [
+  {
+    id: 701,
+    name: 'Step 1',
+    done: 'waiting',
+    success: 0,
+    created_at: '2026-02-02T08:00:10Z',
+    started_at: null,
+    finished_at: null,
+    node: { id: 2, name: 'node2' },
+    vps: { id: 100, hostname: 'vps100' },
+    transaction_chain: { id: 123 },
+    depends_on: null,
+  },
+  {
+    id: 702,
+    name: 'Step 2',
+    done: 'done',
+    success: 0,
+    created_at: '2026-02-02T08:01:00Z',
+    started_at: '2026-02-02T08:01:10Z',
+    finished_at: '2026-02-02T08:02:40Z',
+    node: { id: 2, name: 'node2' },
+    vps: { id: 100, hostname: 'vps100' },
+    transaction_chain: { id: 123 },
+    depends_on: { id: 701 },
+  },
+] satisfies [Transaction__IndexOutput[number], Transaction__IndexOutput[number]];
+
 const handlers = {
   'GET transaction_chains/123': () => ({
-    id: 123,
-    state: 'queued',
-    label: 'Demo chain',
-    progress: 1,
-    size: 2,
-    created_at: '2026-02-02T08:00:00Z',
-    updated_at: '2026-02-02T08:02:00Z',
-    action_state: { id: 555, label: 'Action #555' },
-    concerns: {
-      type: 'affect',
-      objects: [
-        ['Vps', 100],
-        ['Dataset', 200],
-        ['DnsZone', 300],
-        ['Node', 2],
-        ['UnknownConcern', 404],
-        ['Vps', '999'],
-        ['Vps', -1],
-        ['Vps', 998, 'unexpected-third-item'],
-        { class_name: 'Vps', row_id: 997 },
-      ],
-      labels: {
-        Vps: 'VPS',
-        Dataset: 'Dataset',
-        DnsZone: 'DNS zone',
-        Node: 'Node',
-        UnknownConcern: 'Unknown object',
+    transaction_chain: {
+      id: 123,
+      state: 'queued',
+      label: 'Demo chain',
+      progress: 1,
+      size: 2,
+      created_at: '2026-02-02T08:00:00Z',
+      concerns: {
+        type: 'affect',
+        objects: [
+          ['Vps', 100],
+          ['Dataset', 200],
+          ['DnsZone', 300],
+          ['Node', 2],
+          ['UnknownConcern', 404],
+          ['Vps', '999'],
+          ['Vps', -1],
+          ['Vps', 998, 'unexpected-third-item'],
+          { class_name: 'Vps', row_id: 997 },
+        ],
+        labels: {
+          Vps: 'VPS',
+          Dataset: 'Dataset',
+          DnsZone: 'DNS zone',
+          Node: 'Node',
+          UnknownConcern: 'Unknown object',
+        },
       },
     },
   }),
   'GET transaction_chains/124': () => ({
-    id: 124,
-    state: 'done',
-    label: 'Done chain',
-    progress: 2,
-    size: 2,
-    created_at: '2026-02-02T09:00:00Z',
-    updated_at: '2026-02-02T09:02:00Z',
-    action_state: { id: 556, label: 'Done action' },
-    concerns: { type: 'affect', objects: [['Vps', 101]], labels: { Vps: 'VPS' } },
+    transaction_chain: {
+      id: 124,
+      state: 'done',
+      label: 'Done chain',
+      progress: 2,
+      size: 2,
+      created_at: '2026-02-02T09:00:00Z',
+      concerns: { type: 'affect', objects: [['Vps', 101]], labels: { Vps: 'VPS' } },
+    },
   }),
   'GET transaction_chains/125': () => ({
-    id: 125,
-    state: 'running',
-    label: 'Running chain',
-    progress: 1,
-    size: 3,
-    created_at: '2026-02-02T10:00:00Z',
-    updated_at: '2026-02-02T10:02:00Z',
-    action_state: { id: 557, label: 'Running action' },
-    concerns: { type: 'affect', objects: [['Vps', 102]], labels: { Vps: 'VPS' } },
+    transaction_chain: {
+      id: 125,
+      state: 'queued',
+      label: 'Running chain',
+      progress: 1,
+      size: 3,
+      created_at: '2026-02-02T10:00:00Z',
+      concerns: { type: 'affect', objects: [['Vps', 102]], labels: { Vps: 'VPS' } },
+    },
   }),
   'GET transactions': ({ searchParams }: { searchParams: URLSearchParams }) => {
     const chainId = searchParams.get('transaction[transaction_chain]');
     if (chainId === '124') {
-      return [
+      return { transactions: [
         {
           id: 801,
           name: 'Prepare VPS',
@@ -73,11 +104,11 @@ const handlers = {
           created_at: '2026-02-02T09:00:10Z',
           started_at: '2026-02-02T09:00:15Z',
           finished_at: '2026-02-02T09:01:00Z',
-          node: { id: 2, label: 'node2' },
-          vps: { id: 101, label: 'vps101' },
+          node: { id: 2, name: 'node2' },
+          vps: { id: 101, hostname: 'vps101' },
           transaction_chain: { id: 124 },
-          input: { action: 'prepare' },
-          output: { ok: true },
+          input: JSON.stringify({ action: 'prepare' }),
+          output: JSON.stringify({ ok: true }),
         },
         {
           id: 802,
@@ -89,16 +120,16 @@ const handlers = {
           created_at: '2026-02-02T09:01:00Z',
           started_at: '2026-02-02T09:01:05Z',
           finished_at: '2026-02-02T09:02:00Z',
-          node: { id: 2, label: 'node2' },
-          vps: { id: 101, label: 'vps101' },
+          node: { id: 2, name: 'node2' },
+          vps: { id: 101, hostname: 'vps101' },
           transaction_chain: { id: 124 },
-          input: { action: 'start' },
-          output: { ok: true, stdout: 'booted' },
+          input: JSON.stringify({ action: 'start' }),
+          output: JSON.stringify({ ok: true, stdout: 'booted' }),
         },
-      ];
+      ] };
     }
     if (chainId === '125') {
-      return [
+      return { transactions: [
         {
           id: 901,
           name: 'Create dataset',
@@ -107,23 +138,22 @@ const handlers = {
           created_at: '2026-02-02T10:00:10Z',
           started_at: '2026-02-02T10:00:15Z',
           finished_at: '2026-02-02T10:01:00Z',
-          node: { id: 3, label: 'node3' },
-          vps: { id: 102, label: 'vps102' },
+          node: { id: 3, name: 'node3' },
+          vps: { id: 102, hostname: 'vps102' },
           transaction_chain: { id: 125 },
         },
         {
           id: 902,
           name: 'Configure network',
-          done: 'running',
+          done: 'waiting',
           success: 1,
-          progress: 35,
           created_at: '2026-02-02T10:01:00Z',
           started_at: '2026-02-02T10:01:10Z',
           finished_at: null,
-          node: { id: 3, label: 'node3' },
-          vps: { id: 102, label: 'vps102' },
+          node: { id: 3, name: 'node3' },
+          vps: { id: 102, hostname: 'vps102' },
           transaction_chain: { id: 125 },
-          stdout: 'creating veth',
+          output: JSON.stringify({ stdout: 'creating veth' }),
         },
         {
           id: 903,
@@ -133,53 +163,16 @@ const handlers = {
           created_at: '2026-02-02T10:02:00Z',
           started_at: null,
           finished_at: null,
-          node: { id: 3, label: 'node3' },
-          vps: { id: 102, label: 'vps102' },
+          node: { id: 3, name: 'node3' },
+          vps: { id: 102, hostname: 'vps102' },
           transaction_chain: { id: 125 },
-          depends_on: [902],
+          depends_on: { id: 902 },
         },
-      ];
+      ] };
     }
-    if (chainId !== '123') return [];
+    if (chainId !== '123') return { transactions: [] };
 
-    return [
-      {
-        id: 701,
-        name: 'Step 1',
-        done: 'waiting',
-        success: 0,
-        priority: 10,
-        urgent: false,
-        type: 1,
-        created_at: '2026-02-02T08:00:10Z',
-        started_at: null,
-        finished_at: null,
-        node: { id: 2, label: 'node2' },
-        vps: { id: 100, label: 'vps100' },
-        transaction_chain: { id: 123 },
-        depends_on: [],
-      },
-      {
-        id: 702,
-        name: 'Step 2',
-        done: 'done',
-        success: 0,
-        priority: 20,
-        urgent: true,
-        type: 2,
-        created_at: '2026-02-02T08:01:00Z',
-        started_at: '2026-02-02T08:01:10Z',
-        finished_at: '2026-02-02T08:02:40Z',
-        node: { id: 2, label: 'node2' },
-        vps: { id: 100, label: 'vps100' },
-        transaction_chain: { id: 123 },
-        depends_on: [701],
-        input: { a: 1 },
-        output: { ok: false, error: 'step failed on node2' },
-        result: { rollback_needed: true },
-        stderr: 'mount: permission denied',
-      },
-    ];
+    return { transactions: memberTransactions };
   },
 };
 
@@ -225,11 +218,12 @@ test.describe('@pr-smoke TransactionChainDetailPage', () => {
 
     await page.getByTestId('transactions.chain.detail.tx.toggle.702').click();
     await expect(page.getByTestId('transactions.chain.detail.tx.expanded.702')).toBeVisible();
-    await expect(page.getByTestId('transactions.chain.detail.tx.expanded.702')).toContainText('step failed on node2');
-    await expect(page.getByTestId('transactions.chain.detail.tx.expanded.702')).toContainText('mount: permission denied');
-    await expect(page.getByTestId('transactions.chain.detail.tx.expanded.702')).toContainText('"a": 1');
-    await expect(page.getByTestId('transactions.chain.detail.tx.expanded.702')).toContainText('"ok": false');
-    await expect(page.getByTestId('transactions.chain.detail.tx.expanded.702')).toContainText('rollback_needed');
+    const expanded = page.getByTestId('transactions.chain.detail.tx.expanded.702');
+    await expect(expanded).toContainText('node2');
+    await expect(expanded.getByText('No input/output payload recorded for this transaction.', { exact: true })).toHaveCount(2);
+    await expect(expanded).not.toContainText('step failed on node2');
+    await expect(expanded).not.toContainText('mount: permission denied');
+    await expect(expanded).not.toContainText('rollback_needed');
     await expectNoDocumentHorizontalOverflow(page);
     await page.setViewportSize({ width: 1280, height: 844 });
 
@@ -251,10 +245,11 @@ test.describe('@pr-smoke TransactionChainDetailPage', () => {
     await expect(pin).toHaveAttribute('aria-label', /Unpin transaction chain/i);
   });
 
-  test('renders done chain with multiple expandable transactions at narrow desktop width', async ({ page }) => {
+  test('renders admin My-view done chain with multiple expandable transactions at narrow desktop width', async ({ page }) => {
     await page.setViewportSize({ width: 1100, height: 720 });
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST_TOKEN' });
-    await installHaveApiMock(page, { handlers });
+    // Admin identity is required for the payload while retaining the /app My-view layout.
+    await installHaveApiMock(page, { user: { id: 1, login: 'admin', level: 99 }, handlers });
 
     await page.goto('/app/transactions/124');
 
@@ -264,13 +259,16 @@ test.describe('@pr-smoke TransactionChainDetailPage', () => {
     await expect(page.getByTestId('transactions.chain.detail.tx.802')).toBeVisible();
 
     await page.getByRole('button', { name: /expand all|rozbalit vše/i }).click();
-    await expect(page.getByTestId('transactions.chain.detail.tx.expanded.801')).toContainText('"action": "prepare"');
+    const input801 = page.getByTestId('transactions.chain.detail.tx.expanded.801').getByRole('region', { name: 'Input', exact: true });
+    await expect(input801.locator('dt')).toHaveText('action');
+    await expect(input801.locator('dd')).toHaveText('prepare');
     await expect(page.getByTestId('transactions.chain.detail.tx.expanded.802')).toContainText('booted');
   });
 
-  test('renders running chain progress and current step', async ({ page }) => {
+  test('renders admin My-view running chain progress and current step', async ({ page }) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST_TOKEN' });
-    await installHaveApiMock(page, { handlers });
+    // Admin identity is required for the payload while retaining the /app My-view layout.
+    await installHaveApiMock(page, { user: { id: 1, login: 'admin', level: 99 }, handlers });
 
     await page.goto('/app/transactions/125');
 
@@ -297,18 +295,17 @@ test.describe('@pr-smoke TransactionChainDetailPage', () => {
         ...handlers,
         'GET transaction_chains/126': () => {
           chainRequests += 1;
-          return {
+          return { transaction_chain: {
             id: 126,
             state: 'failed',
             label: 'Failed scheduled backup',
             created_at: '2026-02-02T11:00:00Z',
-            updated_at: '2026-02-02T11:02:00Z',
-          };
+          } };
         },
         'GET transactions': (args: { searchParams: URLSearchParams }) => {
           if (args.searchParams.get('transaction[transaction_chain]') === '126') {
             transactionRequests += 1;
-            return [];
+            return { transactions: [] };
           }
           return handlers['GET transactions'](args);
         },
@@ -331,7 +328,25 @@ test.describe('@pr-smoke TransactionChainDetailPage', () => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST_TOKEN' });
     await installHaveApiMock(page, {
       user: { id: 1, login: 'admin', level: 99 },
-      handlers,
+      handlers: {
+        ...handlers,
+        'GET transactions': () => ({ transactions: [
+          memberTransactions[0],
+          {
+            ...memberTransactions[1],
+            priority: 20,
+            urgent: true,
+            type: 2,
+            input: JSON.stringify({ a: 1 }),
+            output: JSON.stringify({
+              ok: false,
+              error: 'step failed on node2',
+              result: { rollback_needed: true },
+              stderr: 'mount: permission denied',
+            }),
+          },
+        ] }),
+      },
     });
 
     await page.goto('/admin/transactions/123');
@@ -354,6 +369,20 @@ test.describe('@pr-smoke TransactionChainDetailPage', () => {
     await expectNoDocumentHorizontalOverflow(page);
     await expect(page.getByTestId('transactions.chain.detail.transactions.table')).toBeVisible();
     expect(await page.getByTestId('transactions.chain.detail.transactions.table').evaluate((table) => table.scrollWidth <= table.clientWidth + 1)).toBe(true);
+    await page.getByTestId('transactions.chain.detail.tx.toggle.702').click();
+    const expanded = page.getByTestId('transactions.chain.detail.tx.expanded.702');
+    await expect(expanded).toBeVisible();
+    await expect(expanded).toContainText('step failed on node2');
+    await expect(expanded).toContainText('mount: permission denied');
+    const input = expanded.getByRole('region', { name: 'Input', exact: true });
+    await expect(input.locator('dt')).toHaveText('a');
+    await expect(input.locator('dd')).toHaveText('1');
+    const output = expanded.getByRole('region', { name: 'Output', exact: true });
+    const ok = output.locator('dl > div').filter({ has: page.locator('dt', { hasText: /^ok$/ }) });
+    await expect(ok.locator('dt')).toHaveText('ok');
+    await expect(ok.locator('dd')).toHaveText('false');
+    await expect(expanded).toContainText('rollback_needed');
+    await expectNoDocumentHorizontalOverflow(page);
   });
 
   test('deep reload keeps chain detail route and transaction table visible', async ({ page }) => {

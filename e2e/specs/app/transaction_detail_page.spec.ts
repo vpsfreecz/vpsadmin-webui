@@ -1,34 +1,44 @@
 import { expect, test } from '@playwright/test';
+import type { Transaction__ShowOutput } from 'vpsadmin-typescript-client';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
 import { expectNoDocumentHorizontalOverflow } from '../../helpers/horizontalOverflow';
 
 const longPayloadToken = `payload-${'0123456789abcdef'.repeat(16)}`;
 
-const handlers = {
-  'GET transactions/702': () => ({
-    id: 702,
-    name: 'Step 2',
-    done: 'done',
-    success: 0,
-    progress: 40,
-    priority: 20,
-    urgent: true,
-    type: 2,
-    created_at: '2026-02-02T08:01:00Z',
-    started_at: '2026-02-02T08:01:10Z',
-    finished_at: '2026-02-02T08:02:40Z',
-    node: { id: 2, label: 'node2' },
-    vps: { id: 100, label: 'vps100' },
-    transaction_chain: { id: 123 },
-    depends_on: [701],
-    input: { a: 1 },
-    user: { id: 9, login: 'worker' },
-    output: { ok: false, error: `dataset mount failed:${longPayloadToken}` },
+// Member responses omit privileged transaction fields.
+const memberTransaction = {
+  id: 702,
+  name: 'Step 2',
+  done: 'done',
+  success: 0,
+  created_at: '2026-02-02T08:01:00Z',
+  started_at: '2026-02-02T08:01:10Z',
+  finished_at: '2026-02-02T08:02:40Z',
+  node: { id: 2, name: 'node2' },
+  vps: { id: 100, hostname: 'vps100' },
+  transaction_chain: { id: 123 },
+  depends_on: { id: 701 },
+} satisfies Transaction__ShowOutput;
+
+const adminTransaction = {
+  ...memberTransaction,
+  priority: 20,
+  urgent: true,
+  type: 2,
+  input: JSON.stringify({ a: 1 }),
+  user: { id: 9, login: 'worker' },
+  output: JSON.stringify({
+    ok: false,
+    error: `dataset mount failed:${longPayloadToken}`,
     details: { command: `zfs mount tank/ct/vps100:${longPayloadToken}` },
     stdout: `created mountpoint:${longPayloadToken}`,
     stderr: `cannot mount dataset:${longPayloadToken}`,
   }),
+} satisfies Transaction__ShowOutput;
+
+const handlers = {
+  'GET transactions/702': () => ({ transaction: memberTransaction }),
 };
 
 test.describe('@workflow-matrix @pr-smoke TransactionDetailPage', () => {
@@ -42,31 +52,38 @@ test.describe('@workflow-matrix @pr-smoke TransactionDetailPage', () => {
     await expect(page.getByTestId('transactions.items.detail.header')).toBeVisible();
     await expect(page.getByTestId('transactions.items.detail.info')).toBeVisible();
     await expect(page.getByTestId('transactions.items.detail.payload')).toBeVisible();
-    await expect(page.getByTestId('transactions.items.detail.error')).toContainText('dataset mount failed');
-    await expect(page.getByTestId('transactions.items.detail.info')).toContainText('worker');
-    await expect(page.getByTestId('transactions.items.detail.info')).toContainText('40');
-    await expect(page.getByTestId('transactions.items.detail.payload')).toContainText('zfs mount tank/ct/vps100');
-    await expect(page.getByTestId('transactions.items.detail.payload')).toContainText('created mountpoint');
-    await expect(page.getByTestId('transactions.items.detail.payload')).toContainText('cannot mount dataset');
+    const payload = page.getByTestId('transactions.items.detail.payload');
+    await expect(payload.getByText('No input/output payload recorded for this transaction.', { exact: true })).toHaveCount(2);
+    await expect(payload).not.toContainText('dataset mount failed');
+    await expect(payload).not.toContainText('zfs mount');
+    await expect(payload).not.toContainText(longPayloadToken);
+    await expect(page.getByTestId('transactions.items.detail.info')).toContainText('90');
+    await expect(page.getByTestId('transactions.items.detail.info')).not.toContainText('worker');
     await expect(page.getByTestId('transactions.items.detail.raw')).toBeVisible();
     await page.setViewportSize({ width: 390, height: 844 });
     await expectNoDocumentHorizontalOverflow(page);
     await page.getByTestId('transactions.items.detail.raw').getByText(/raw|surov/i).click();
-    await expect(page.getByTestId('transactions.items.detail.raw.json')).toBeVisible();
-    await expect(page.getByTestId('transactions.items.detail.raw.json')).toContainText(longPayloadToken);
+    const raw = page.getByTestId('transactions.items.detail.raw.json');
+    await expect(raw).toBeVisible();
+    await expect(raw).not.toContainText('"input"');
+    await expect(raw).not.toContainText('"output"');
+    await expect(raw).not.toContainText('"user"');
+    await expect(raw).not.toContainText('"priority"');
+    await expect(raw).not.toContainText('"urgent"');
+    await expect(raw).not.toContainText('"type"');
     await expectNoDocumentHorizontalOverflow(page);
     await page.setViewportSize({ width: 1280, height: 844 });
 
     await expect(page.getByTestId('transactions.items.detail.open_chain')).toHaveAttribute('href', '/app/transactions/123');
     await expect(page.getByTestId('transactions.items.detail.node_value')).toContainText('node2');
-    await expect(page.locator('a[href="/app/admin/nodes/2"]')).toHaveCount(0);
+    await expect(page.locator('a[href="/admin/nodes/2"], a[href="/app/admin/nodes/2"]')).toHaveCount(0);
   });
 
   test('@pr-smoke-mobile renders admin transaction details with admin node link', async ({ page }) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST_TOKEN' });
     await installHaveApiMock(page, {
       user: { id: 1, login: 'admin', level: 99 },
-      handlers,
+      handlers: { 'GET transactions/702': () => ({ transaction: adminTransaction }) },
     });
 
     await page.goto('/admin/transactions/items/702');
@@ -74,8 +91,21 @@ test.describe('@workflow-matrix @pr-smoke TransactionDetailPage', () => {
     await expect(page.getByTestId('transactions.items.detail')).toBeVisible();
     await expect(page.getByTestId('transactions.items.detail.open_chain')).toHaveAttribute('href', '/admin/transactions/123');
     await expect(page.getByTestId('transactions.items.detail.node_link')).toHaveAttribute('href', '/admin/nodes/2');
+    const info = page.getByTestId('transactions.items.detail.info');
+    await expect(info).toContainText('worker');
+    await expect(info).toContainText('20');
+    const output = page.getByTestId('transactions.items.detail.payload').getByRole('region', { name: 'Output', exact: true });
+    await expect(output).toContainText('dataset mount failed');
+    await expect(output).toContainText('zfs mount tank/ct/vps100');
+    await expect(output).toContainText('created mountpoint');
+    await expect(output).toContainText('cannot mount dataset');
     await page.setViewportSize({ width: 390, height: 844 });
     await expectNoDocumentHorizontalOverflow(page);
+    await page.getByTestId('transactions.items.detail.raw').getByText(/raw|surov/i).click();
+    await expect(page.getByTestId('transactions.items.detail.raw.json')).toBeVisible();
+    await expect(page.getByTestId('transactions.items.detail.raw.json')).toContainText(longPayloadToken);
+    await expectNoDocumentHorizontalOverflow(page);
+    await page.setViewportSize({ width: 1280, height: 844 });
   });
 
   test('deep reload keeps transaction detail route usable', async ({ page }) => {
@@ -89,7 +119,9 @@ test.describe('@workflow-matrix @pr-smoke TransactionDetailPage', () => {
 
     await expect(page).toHaveURL(/\/app\/transactions\/items\/702$/);
     await expect(page.getByTestId('transactions.items.detail')).toBeVisible();
-    await expect(page.getByTestId('transactions.items.detail.error')).toContainText('dataset mount failed');
+    await expect(page.getByTestId('transactions.items.detail.node_value')).toContainText('node2');
+    await expect(page.getByTestId('transactions.items.detail.payload')).not.toContainText(longPayloadToken);
+    await expect(page.getByTestId('transactions.items.detail.raw').locator('pre')).not.toContainText('"output"');
   });
 });
 
@@ -105,12 +137,14 @@ for (const language of ['cs', 'en'] as const) {
       const lang = route.request().headers()['accept-language'];
       seen.push(lang ?? 'missing');
       const tx = { id: 702, name: 'CreateVps', label: lang === 'cs' ? 'Vytvoření VPS' : 'Create VPS', done: 'done', success: 1, transaction_chain: { id: 123 } };
-      await route.fulfill({ json: { status: true, response: { transaction: route.request().url().includes('/702') ? tx : [tx] } } });
+      const response = route.request().url().includes('/702') ? { transaction: tx } : { transactions: [tx] };
+      await route.fulfill({ json: { status: true, response } });
     });
     await page.route(/\/api\/v?7\.0\/transaction_chains(?:\/123)?(?:\?|$)/, async route => {
       const lang = route.request().headers()['accept-language'];
       const chain = { id: 123, label: lang === 'cs' ? 'Vytvoření' : 'Create', state: 'done', progress: 1, size: 1 };
-      await route.fulfill({ json: { status: true, response: { transaction_chain: route.request().url().includes('/123') ? chain : [chain] } } });
+      const response = route.request().url().includes('/123') ? { transaction_chain: chain } : { transaction_chains: [chain] };
+      await route.fulfill({ json: { status: true, response } });
     });
     const label = language === 'cs' ? 'Vytvoření VPS' : 'Create VPS';
     await page.goto('/app/transactions/items');
@@ -157,7 +191,7 @@ for (const language of ['cs', 'en'] as const) {
     }, language);
     await installHaveApiMock(page, {
       user: { id: 1, login: 'admin', level: 99 },
-      handlers: { 'GET transactions/702': () => ({ id: 702, name: 'Send', label: 'E-mail', done: 'done', success: 1, type: 9001, input, output }) },
+      handlers: { 'GET transactions/702': () => ({ transaction: { id: 702, name: 'Send', label: 'E-mail', done: 'done', success: 1, type: 9001, input, output } }) },
     });
     await page.goto('/admin/transactions/items/702');
     const card = page.getByTestId('transactions.items.detail.payload');
