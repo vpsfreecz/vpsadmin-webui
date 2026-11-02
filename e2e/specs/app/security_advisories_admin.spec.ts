@@ -3,6 +3,7 @@ import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { advisoryContractDescription } from '../../helpers/securityAdvisoryContract';
 import { expect, test } from '@playwright/test';
+import type { SecurityAdvisory__CreateOutput, SecurityAdvisoryCve__CreateOutput } from 'vpsadmin-typescript-client';
 
 import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock } from '../../fixtures';
 
@@ -13,10 +14,10 @@ const languages = [
 
 test.describe('@smoke Security advisory admin management', () => {
   test('creates a localized draft together with normalized CVE references', async ({ page }) => {
-    let advisoryPayload: any;
-    const cvePayloads: any[] = [];
-    let createdAdvisory: Record<string, unknown> | null = null;
-    const createdCves: Array<Record<string, unknown>> = [];
+    let advisoryPayload: unknown;
+    const cvePayloads: unknown[] = [];
+    let createdAdvisory: (SecurityAdvisory__CreateOutput & { id: number; content_revision: number }) | null = null;
+    const createdCves: SecurityAdvisoryCve__CreateOutput[] = [];
 
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
     await installHaveApiMock(page, {
@@ -27,24 +28,41 @@ test.describe('@smoke Security advisory admin management', () => {
         'GET security_advisories': () => ({ security_advisories: [] }),
         'POST security_advisories': ({ reqJson }) => {
           advisoryPayload = reqJson;
+          if (!reqJson || typeof reqJson !== 'object' || !('security_advisory' in reqJson))
+            throw new Error('Expected advisory input namespace');
+          const input = reqJson.security_advisory;
+          if (!input || typeof input !== 'object' || Array.isArray(input))
+            throw new Error('Expected advisory input object');
           createdAdvisory = {
+            ...input,
             id: 77,
             state: 'draft',
             content_revision: 0,
             created_at: '2026-07-27T10:00:00.000Z',
-            ...(advisoryPayload?.security_advisory ?? {}),
           };
           return { security_advisory: createdAdvisory };
         },
         'POST security_advisory_cves': ({ reqJson }) => {
           cvePayloads.push(reqJson);
-          if (createdAdvisory) createdAdvisory['content_revision'] = Number(createdAdvisory['content_revision']) + 1;
-          const cve = {
+          if (!createdAdvisory || !reqJson || typeof reqJson !== 'object' || !('security_advisory_cve' in reqJson))
+            throw new Error('Expected existing advisory and CVE input namespace');
+          const input = reqJson.security_advisory_cve;
+          if (
+            !input || typeof input !== 'object' || Array.isArray(input) ||
+            !('security_advisory' in input) || input.security_advisory !== createdAdvisory.id ||
+            !('cve_id' in input) || typeof input.cve_id !== 'string' ||
+            !('expected_state' in input) || input.expected_state !== 'draft' ||
+            !('expected_content_revision' in input) || input.expected_content_revision !== createdAdvisory.content_revision
+          )
+            throw new Error('Expected CVE input for the stored advisory revision');
+          const cve: SecurityAdvisoryCve__CreateOutput = {
             id: 900 + cvePayloads.length,
-            security_advisory_id: 77,
-            ...(reqJson as any)?.security_advisory_cve,
+            security_advisory_id: createdAdvisory.id,
+            security_advisory: { id: createdAdvisory.id },
+            cve_id: input.cve_id,
           };
           createdCves.push(cve);
+          createdAdvisory.content_revision += 1;
           return { security_advisory_cve: cve };
         },
 
