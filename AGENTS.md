@@ -84,6 +84,17 @@ behavior, read [the design handbook](docs/design/README.md), relevant rows in
 
 ## Deployment and review boundaries
 
+### Generated TypeScript SDK release prerequisite
+
+When a WebUI change needs new API support through `vpsadmin-typescript-client`,
+merge it only after a published SDK release contains that support. Feature-branch,
+Git and local dependencies are allowed during development. Before merge, the final
+manifest, lock and package provenance must resolve the published registry artifact
+without temporary overrides. Record the required generated members, SDK release
+version and resolved integrity. Follow the [SDK dependency contract](docs/design/HAVEAPI_CLIENT.md#generated-vpsadmin-typescript-sdk)
+and vpsAdmin's [synchronization procedure](https://github.com/vpsfreecz/vpsadmin/blob/master/docs/api-schema-export.md#generated-client-synchronization).
+Compatible backend deployment or capability checks remain a separate requirement.
+
 ### Maintainer workflow (agreed 2026-09-30)
 
 1. Implement assigned tasks as focused commits and separate reviewable PRs per

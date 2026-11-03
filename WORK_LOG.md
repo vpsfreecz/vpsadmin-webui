@@ -19,6 +19,12 @@ bulk advisory updates. [Scope and verification](docs/work-log/2026-11-01-typescr
 Broad smoke runs on pull requests and pushes to every branch, and still supports
 manual dispatch. [Scope and verification](docs/work-log/2026-11-01-typescript-client-migration.md#broad-browser-smoke-before-merge-2026-11-03).
 
+## 2026-11-03: Generated TypeScript SDK release prerequisite
+
+Prepare a contributor rule requiring a published matching SDK before merging a
+WebUI change that needs new generated API support. See the [scope and verification](docs/work-log/2026-11-03-generated-sdk-release-rule.md).
+Documentation only; no adoption, dependency, merge or deployment change.
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path

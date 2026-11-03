@@ -193,3 +193,22 @@ not verify this override. The isolated API runner is outside this override
 workflow; use it only with its separately verified archive and receipt under the
 existing runner procedure. Local npm/Vite results are development evidence, not a
 reproducible release artifact.
+
+## Generated vpsAdmin TypeScript SDK
+
+`haveapi-client` provides transport and authentication. The separate
+`vpsadmin-typescript-client` SDK provides generated vpsAdmin operations and types;
+its version does not select a backend deployment or grant permissions.
+
+Feature-branch, Git and local SDK dependencies are allowed during development.
+A WebUI change that needs new SDK support must wait to merge until a published
+SDK release contains the required generated members. Record those members and
+the selected release. Before merge, the final manifest, lock and package
+provenance must resolve that registry artifact and its integrity, without
+temporary overrides. Check compatible API deployment or gate new calls on
+backend capabilities separately; publication alone does not prove API readiness.
+
+Follow vpsAdmin's [generated-client synchronization procedure](https://github.com/vpsfreecz/vpsadmin/blob/master/docs/api-schema-export.md#generated-client-synchronization)
+for the API/client update sequence. Ordinary source synchronization does not
+require a release. When a TypeScript-client release is needed, default to the
+next minor version unless the user explicitly specifies a version or bump.
