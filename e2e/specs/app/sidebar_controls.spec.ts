@@ -69,8 +69,12 @@ for (const actor of [
     await expect(page.getByTestId('nav.drawer')).toBeHidden();
     await page.getByTestId('tasks.close-button').click();
     await clickShellControl(page, 'shell.user-menu-button', isMobile);
-    await expect(page.getByTestId('shell.user-menu')).toBeVisible();
+    const accountMenu = page.getByTestId('shell.user-menu');
+    await expect(accountMenu).toBeVisible();
     await expect(page.getByTestId('shell.user-menu.scope.all')).toHaveCount(actor.level === 99 ? 1 : 0);
+    await expect(accountMenu.getByTestId('shell.user-menu.logout')).toBeInViewport({ ratio: 1 });
+    await expect.poll(() => accountMenu.evaluate(menu => menu.scrollHeight - menu.clientHeight)).toBeLessThanOrEqual(1);
+    await page.screenshot({ path: testInfo.outputPath(`account-menu-${actor.mode}-${actor.level}.png`), scale: 'css' });
     await page.keyboard.press('Escape');
     await expect(page.getByTestId('shell.user-menu')).toBeHidden();
     await expect(page.getByTestId('shell.user-menu-button')).toBeFocused();

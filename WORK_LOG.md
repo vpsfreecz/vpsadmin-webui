@@ -1690,3 +1690,6 @@ clankerdev still uses the production API. No host update in this setup.
 
 Group signed-in sidebar controls and place Tasks and session duration side by
 side. See [layout and verification](docs/work-log/2026-11-03-compact-sidebar-controls.md).
+
+- Account menu follow-up: show all options when there is room and keep the
+  existing bounded scroll behavior for short viewports (REQ-004).

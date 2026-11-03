@@ -504,6 +504,8 @@ focuses it. This navigation never saves settings or renews a session beyond the
 existing activity policy; changing the limit still requires the normal Save.
 The member/admin scope switch, preferences, public status and logout remain
 available from the navigation account menu (REQ-004/006/010/012).
+Opening the account menu shows all available choices when there is room. On short
+screens, scroll the menu to reach the final choice.
 
 Administrator member editing uses a named Role select instead of a numeric
 privilege input. Choices match the legacy UI: User, Power User, Admin,
