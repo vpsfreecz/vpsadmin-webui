@@ -32,17 +32,17 @@ Not every test file in this matrix necessarily ran in that PR-selected browser r
 | REQ-010 | [Responsive accessibility](../../e2e/specs/app/modal_focus_trap.spec.ts) | Focus trap/restore; [centered form/filter geometry and touch verification](../work-log/2026-10-17-centered-form-dialogs.md); mobile overflow | Partial coverage; toast overlap gate open; [bounded TODO follow-up](../work-log/2026-11-03-todo-vps-filter-rhythm.md); [bounded TODO follow-up](../work-log/2026-11-03-todo-dashboard-contrast.md) |
 | REQ-011 | [Rejected vs uncertain writes](../../e2e/specs/admin/requests_operations_smoke.spec.ts) | Known rejection retains form; ambiguous mutation locks retry | Exact scenario titles in critical-case table below |
 | REQ-012 | [Async receipts](../../e2e/specs/app/action_state_detail_page.spec.ts) | Identity/progress and accepted vs completed | Fixture/source; completed real task evidence separate |
-| REQ-013 | [Route identity](../../e2e/specs/app/detail_route_param_isolation.spec.ts) | Change ID/back/reload without stale draft | Fixture coverage |
+| REQ-013 | [Route identity](../../e2e/specs/app/detail_route_param_isolation.spec.ts) | Change ID/back/reload without stale draft | Fixture coverage; [bounded TODO follow-up](../work-log/2026-11-03-todo-member-vps-journey.md) |
 | REQ-014 | [Distribution](../../e2e/specs/app/vps_header_system_summary.spec.ts) | Header OS identity and missing values | Delivered per PR513 |
 | REQ-015 | [Runtime summary](../../e2e/specs/app/vps_header_system_summary.spec.ts) | Uptime/load/processes/CPU formatting | Delivered per PR513; metrics freshness remains API fact |
 | REQ-016 | [Equal cards](../../src/pages/app/vps/VpsOverviewMetricsCard.test.tsx) | Card composition; visual desktop/mobile check | Delivered per PR515; DOM test alone not geometry proof |
-| REQ-017 | [Compute and disk workspace](../../e2e/specs/app/vps_resource_workspace.spec.ts) | Independent drafts/saves, failed fresh disk read, used-space change | Source/test coverage; live resize requires synthetic target |
+| REQ-017 | [Compute and disk workspace](../../e2e/specs/app/vps_resource_workspace.spec.ts) | Independent drafts/saves, failed fresh disk read, used-space change | Source/test coverage; live resize requires synthetic target; [bounded TODO follow-up](../work-log/2026-11-03-todo-member-vps-journey.md) |
 | REQ-018 | [Allocation override](../../e2e/specs/app/dataset_management_actions.spec.ts) | Explicit admin controls, no unrelated ZFS changes/member leak | Fixture payload proof; backend permission authoritative |
 | REQ-019 | [Late create defaults](../../src/pages/app/vps/VpsCreatePage.test.ts) | Preserve edited resource values | Delivered per PR498 |
 | REQ-020 | [Console entry](../../e2e/specs/app/vps_console_page.spec.ts) | Entry token request/reuse, retry/revoke and viewport/fit boundaries | Delivered per PR517; fixture is not connected live console |
 | REQ-021 | [Delete modes](../../src/pages/app/vps/VpsDeleteModel.test.ts) | Default lazy, no member flags, future expiry, hard ignores expiry | Historical focused run in original PR530; current port checks recorded separately |
 | REQ-022 | [Dev retention policy](../../docs/design/API_CONTRACTS.md) | Inspect prior receipt before repeat; choose actual policy | Open operator decision; not a passing test |
-| REQ-023 | [Power/access/maintenance](../../e2e/specs/app/vps_lifecycle_tab_actions.spec.ts) | Capabilities, target review, busy/preflight and errors | Fixture/source; per-action live coverage pending reconciliation |
+| REQ-023 | [Power/access/maintenance](../../e2e/specs/app/vps_lifecycle_tab_actions.spec.ts) | Capabilities, target review, busy/preflight and errors | Fixture/source; per-action live coverage pending reconciliation; [bounded TODO follow-up](../work-log/2026-11-03-todo-member-vps-journey.md) |
 | REQ-024 | [Storage navigation](../../e2e/specs/app/storage_sections_contract.spec.ts) | VPS disks versus member NAS/backups | Delivered per PR491 |
 | REQ-025 | [Heatmap eligibility](../../e2e/specs/admin/node_heatmaps.spec.ts) | Configured secure URL and node eligibility; no pre-open requests | Fixture/source |
 | REQ-026 | [Icon-only heatmap](../../e2e/specs/admin/node_heatmaps.spec.ts) | Icon with localized accessible name | Delivered per PR521 receipt |
@@ -112,7 +112,7 @@ meaningless tests.
 | REQ-011 / REQ-038 | "stale detail is rechecked immediately before resolve"; no stale mutation | [request browser](../../e2e/specs/admin/requests_operations_smoke.spec.ts) |
 | REQ-011 / REQ-038 | "ambiguous bulk mutation stops before untouched targets"; no automatic replay | [request browser](../../e2e/specs/admin/requests_operations_smoke.spec.ts) |
 | REQ-017 / REQ-018 | "preserves the other draft when saving"; independent compute/disk saves | [workspace](../../e2e/specs/app/vps_resource_workspace.spec.ts) |
-| REQ-017 | "fails closed when a fresh disk read fails or used space has increased" | [workspace](../../e2e/specs/app/vps_resource_workspace.spec.ts) |
+| REQ-017 | "fails closed when a fresh disk read fails or used space has increased" | [workspace](../../e2e/specs/app/vps_resource_workspace.spec.ts); [bounded TODO follow-up](../work-log/2026-11-03-todo-member-vps-journey.md) |
 | REQ-021 | "never sends administrative options in member view"; custom deadline only for future soft delete | [delete model](../../src/pages/app/vps/VpsDeleteModel.test.ts) |
 | REQ-028 | "builds cross-environment migration payload with IP and custom schedule options"; "resets IP flags and scheduling for same-location migrations" | [migration model](../../src/pages/app/vps/VpsAdminLifecycleModel.test.ts) |
 | REQ-048 | "an applied rollback outside recent history with a lost response cannot be posted twice" | [snapshots](../../e2e/specs/app/dataset_snapshot_confirm_workflows.spec.ts) |
