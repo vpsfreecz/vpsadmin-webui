@@ -27,7 +27,7 @@ function widgetDescriptionKey(id: DashboardWidgetId): string {
 }
 
 const PREFERENCES_PANEL_ID = 'app-dashboard-preferences-panel';
-const touchControlClassName = 'dashboard-preferences-touch-control';
+const touchControlClassName = 'dashboard-preferences-touch-control border-border-strong';
 
 export function DashboardPreferencesCard() {
   const { t } = useI18n();
@@ -54,21 +54,21 @@ export function DashboardPreferencesCard() {
       aria-labelledby="app-dashboard-preferences-title"
       className={
         open
-          ? 'min-w-0 rounded-lg border border-border bg-surface shadow-card'
-          : 'rounded-lg border border-border bg-surface/70 text-sm'
+          ? 'min-w-0 rounded-lg border border-border-strong bg-surface shadow-card'
+          : 'rounded-lg border border-border-strong bg-surface/70 text-sm'
       }
     >
       <div
         className={
           open
-            ? 'flex flex-col items-start gap-3 border-b border-border p-4 sm:flex-row'
+            ? 'flex flex-col items-start gap-3 border-b border-border-strong p-4 sm:flex-row'
             : 'flex flex-wrap items-center justify-between gap-3 px-3 py-2'
         }
       >
         <div className={open ? 'w-full min-w-0 sm:w-auto sm:flex-1' : 'min-w-0 text-muted'}>
-          <span id="app-dashboard-preferences-title" className={open ? 'font-semibold' : 'font-semibold text-fg'}>
+          <h2 id="app-dashboard-preferences-title" className={open ? 'text-lg font-semibold text-fg' : 'inline font-semibold text-fg'}>
             {t('dashboard.preferences.title')}
-          </span>
+          </h2>
           <span className={open ? 'mt-0.5 block text-sm text-muted' : 'ml-2'}>{summary}</span>
         </div>
         <div
@@ -102,7 +102,7 @@ export function DashboardPreferencesCard() {
                 onChange={(event) => updateDensity(event.target.value === 'compact' ? 'compact' : 'comfortable')}
                 testId="app.dashboard.preferences.density"
                 ariaLabel={t('dashboard.preferences.density.label')}
-                className="dashboard-preferences-touch-select"
+                className="dashboard-preferences-touch-select border-border-strong"
                 options={[
                   { value: 'comfortable', label: t('dashboard.preferences.density.comfortable') },
                   { value: 'compact', label: t('dashboard.preferences.density.compact') },
@@ -136,12 +136,12 @@ export function DashboardPreferencesCard() {
                 return (
                   <div
                     key={id}
-                    className="grid gap-2 rounded-md border border-border bg-surface-2 p-3 md:grid-cols-[1fr_auto]"
+                    className="grid gap-2 rounded-md border border-border-strong bg-surface-2 p-3 md:grid-cols-[1fr_auto]"
                     data-testid={`app.dashboard.preferences.widget.${id}`}
                   >
                     <div className="space-y-2">
                       <div className="flex flex-wrap items-center gap-2">
-                        <div className="font-medium">{t(widgetLabelKey(id))}</div>
+                        <h3 className="text-base font-semibold">{t(widgetLabelKey(id))}</h3>
                         {essential ? <Badge variant="info">{t('dashboard.preferences.widget.always_visible')}</Badge> : null}
                         {hidden ? <Badge variant="neutral">{t('dashboard.preferences.widget.hidden')}</Badge> : null}
                         {collapsed ? <Badge variant="neutral">{t('dashboard.preferences.widget.collapsed')}</Badge> : null}

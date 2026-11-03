@@ -1,3 +1,9 @@
+## 2026-11-03 — UX-04: distinguish dashboard editor groups
+
+Prepare the approved bounded TODO follow-up against kerrycek-021126.
+See [scope and evidence](docs/work-log/2026-11-03-todo-dashboard-contrast.md).
+Prepared for review; not approved, merged or deployed.
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path
@@ -1685,3 +1691,8 @@ preserve all branch histories and colleague PRs. Add standard push CI for the
 integration branch, without deployment automation. Dev has isolated test data;
 clankerdev still uses the production API. No host update in this setup.
 [Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
+
+- 2026-11-03: TODO UX-04 CI follow-up narrows the existing dashboard-home
+  assertion to the exact page h1 after the new h2 exposed an ambiguous selector.
+  Six focused browser cases passed, including newly selected WebKit coverage.
+  See docs/work-log/2026-11-03-todo-dashboard-contrast.md.
