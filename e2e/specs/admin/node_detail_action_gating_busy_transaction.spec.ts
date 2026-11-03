@@ -13,27 +13,32 @@ test('@smoke admin node detail: busy transaction gates maintenance lock', async 
           domain_name: 'node5.example',
           fqdn: 'node5.example',
           status: true,
-          maintenance_lock: false,
+          maintenance_lock: 'no',
           maintenance_lock_reason: null,
           role: 'hypervisor',
           hypervisor_type: 'vpsadminos',
           ip_address: '192.0.2.5',
         },
       }),
-      'GET nodes': () => [
-        { id: 5, domain_name: 'node5.example' },
-        { id: 6, domain_name: 'node6.example' },
-      ],
-      'GET nodes/public_status': () => [
-        {
-          id: 5,
-          status: true,
-          location: { label: 'dc1' },
-          last_report_at: '2026-02-02T00:00:00.000Z',
-        },
-      ],
-      'GET nodes/5/statuses': () => [],
-      'GET transactions': () => [],
+      'GET nodes': () => ({
+        nodes: [
+          { id: 5, domain_name: 'node5.example' },
+          { id: 6, domain_name: 'node6.example' },
+        ],
+      }),
+      'GET nodes/public_status': () => ({
+        nodes: [
+          {
+            id: 5,
+            name: 'node5.example',
+            status: true,
+            location: { label: 'dc1' },
+            last_report: '2026-02-02T00:00:00.000Z',
+          },
+        ],
+      }),
+      'GET nodes/5/statuses': () => ({ statuses: [] }),
+      'GET transactions': () => ({ transactions: [] }),
       'GET transaction_chains': (ctx) => {
         const cls = ctx.searchParams.get('transaction_chain[class_name]');
         const row = ctx.searchParams.get('transaction_chain[row_id]');

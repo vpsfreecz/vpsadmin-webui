@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import type { Transaction__IndexOutput } from 'vpsadmin-typescript-client';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
 
@@ -62,6 +63,32 @@ test.describe('@workflow-matrix @smoke Action state detail page', () => {
         sessionToken: 'TEST_TOKEN',
       });
 
+      const memberTransaction = {
+        id: 7001,
+        name: 'Create dataset',
+        done: 'done',
+        success: 1,
+        created_at: '2026-01-26T00:01:00.000Z',
+        started_at: '2026-01-26T00:01:01.000Z',
+        finished_at: '2026-01-26T00:01:05.000Z',
+        node: { id: 2, name: 'node2' },
+        vps: { id: 12, hostname: 'vps12' },
+        transaction_chain: { id: 456 },
+      } satisfies Transaction__IndexOutput[number];
+      const transactions: Transaction__IndexOutput =
+        roleCase.user.level === 99
+          ? [
+              {
+                ...memberTransaction,
+                type: 3001,
+                priority: 0,
+                user: { id: 9, login: 'worker' },
+                input: JSON.stringify({ dataset: 'tank/ct/vps12' }),
+                output: JSON.stringify({ ok: true, mounted: true }),
+              },
+            ]
+          : [memberTransaction];
+
       const handlers = {
         'GET action_states/123': () => ({
           action_state: {
@@ -88,28 +115,7 @@ test.describe('@workflow-matrix @smoke Action state detail page', () => {
         }),
         'GET transactions': ({ searchParams }: { searchParams: URLSearchParams }) => {
           if (searchParams.get('transaction[transaction_chain]') !== '456') return { transactions: [] };
-          return {
-            transactions: [
-              {
-                id: 7001,
-                name: 'Create dataset',
-                done: 'done',
-                success: 1,
-                type: 3001,
-                priority: 0,
-                created_at: '2026-01-26T00:01:00.000Z',
-                started_at: '2026-01-26T00:01:01.000Z',
-                finished_at: '2026-01-26T00:01:05.000Z',
-                node: { id: 2, label: 'node2' },
-                vps: { id: 12, label: 'vps12' },
-                user: { id: 9, login: 'worker' },
-                transaction_chain: { id: 456 },
-                input: { dataset: 'tank/ct/vps12' },
-                output: { ok: true },
-                result: { mounted: true },
-              },
-            ],
-          };
+          return { transactions };
         },
       };
 
@@ -127,10 +133,40 @@ test.describe('@workflow-matrix @smoke Action state detail page', () => {
       );
 
       await page.getByTestId('action_state.detail.tx.toggle.7001').click();
-      await expect(page.getByTestId('action_state.detail.tx.expanded.7001')).toBeVisible();
-      await expect(page.getByTestId('action_state.detail.tx.expanded.7001')).toContainText('tank/ct/vps12');
-      await expect(page.getByTestId('action_state.detail.tx.expanded.7001')).toContainText('worker');
-      await expect(page.getByTestId('action_state.detail.tx.expanded.7001')).toContainText('mounted');
+      const expanded = page.getByTestId('action_state.detail.tx.expanded.7001');
+      await expect(expanded).toBeVisible();
+      await expect(expanded).toContainText('#7001');
+      await expect(expanded).toContainText('node2');
+      await expect(expanded.getByRole('link', { name: '#456', exact: true })).toHaveAttribute(
+        'href',
+        `${roleCase.basePath}/transactions/456`
+      );
+      await expect(expanded.getByRole('link', { name: 'vps12', exact: true })).toHaveAttribute(
+        'href',
+        `${roleCase.basePath}/vps/12`
+      );
+
+      await expanded.locator('details summary').click();
+      const raw = expanded.locator('details pre');
+      await expect(raw).not.toContainText(/"result"\s*:/);
+      if (roleCase.user.level === 99) {
+        const input = expanded.getByText('Input', { exact: true }).locator('../..').locator('pre');
+        const output = expanded.getByText('Output', { exact: true }).locator('../..').locator('pre');
+        await expect(input).toHaveText(JSON.stringify({ dataset: 'tank/ct/vps12' }));
+        await expect(output).toHaveText(JSON.stringify({ ok: true, mounted: true }));
+        await expect(expanded).toContainText('worker');
+        await expect(raw).toContainText('"input":');
+        await expect(raw).toContainText('"output":');
+        await expect(raw).toContainText('mounted');
+      } else {
+        await expect(
+          expanded.getByText('No input/output payload recorded for this transaction.', { exact: true })
+        ).toHaveCount(2);
+        for (const privilegedValue of ['tank/ct/vps12', 'worker', 'mounted']) {
+          await expect(expanded).not.toContainText(privilegedValue);
+        }
+        await expect(raw).not.toContainText(/"(user|type|urgent|priority|input|output)"\s*:/);
+      }
     });
   }
 
@@ -167,7 +203,6 @@ test.describe('@workflow-matrix @smoke Action state detail page', () => {
                 done: 'done',
                 success: 1,
                 transaction_chain: { id: 456 },
-                input: { dataset: 'tank/ct/vps12' },
               },
             ],
           };
