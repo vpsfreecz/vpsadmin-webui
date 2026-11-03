@@ -1,3 +1,8 @@
+## Broad browser smoke before merge (2026-11-03)
+
+Broad smoke runs on pull requests and pushes to every branch, and still supports
+manual dispatch. [Scope and verification](docs/work-log/2026-11-01-typescript-client-migration.md#broad-browser-smoke-before-merge-2026-11-03).
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path

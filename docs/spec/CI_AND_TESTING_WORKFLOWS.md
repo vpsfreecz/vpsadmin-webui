@@ -92,7 +92,7 @@ The workflow uses per-ref concurrency with `cancel-in-progress: true`, so only t
 The broader app/admin smoke workflow is:
 - `.github/workflows/e2e-broad-smoke.yml`
 
-It runs on pushes to `main` and manually:
+It runs on pull requests, pushes to every branch, and manual dispatch:
 - `npm run e2e:smoke` (`@smoke` on chromium)
 - `npm run e2e:smoke:mobile` (`@smoke-mobile` on mobile-chrome)
 

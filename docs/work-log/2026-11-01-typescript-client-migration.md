@@ -784,3 +784,18 @@ certification of the new guarded operations. Independent final review, full CI,
 exact-final-head Nix packaging and conditional integration remain pending.
 No database or persisted-format migration, default-branch integration,
 production deployment or preview update is claimed.
+
+## Broad browser smoke before merge (2026-11-03)
+
+Broad smoke runs on pull requests and pushes to every branch, and still supports
+manual dispatch. This makes its results available before changes reach main.
+The Chromium and mobile Chrome commands, 45-minute timeout, per-ref concurrency,
+read-only permission and 14-day artifact retention are unchanged.
+
+A separate dependency commit updates setup-node to 7.1.0 and upload-artifact to
+7.0.2. Official release inspection confirmed that both retain the existing
+Node 24 action runtime and configured input contract.
+
+YAML parsing, configuration comparisons, scoped formatting and whitespace
+checks passed. Independent review, browser verification and repairs for the
+observed broad-smoke failures remain pending.

@@ -196,8 +196,8 @@ operator check. The browser script regression has its own required Chromium job.
 
 The PR browser workflow runs desktop `e2e:pr:desktop` and mobile
 `e2e:pr:mobile` in independent matrix jobs with separate artifacts and no matrix
-fail-fast. Main/manual broad smoke and nightly desktop/mobile jobs are separate
-signals. The config and both PR commands explicitly default to two workers;
+fail-fast. Broad smoke runs on pull requests and pushes to every branch, and
+supports manual dispatch. Nightly desktop/mobile jobs remain separate. The config and both PR commands explicitly default to two workers;
 `npm run e2e:pr:desktop -- --workers=1 --retries=0` (or the mobile equivalent)
 selects a deliberate serial diagnostic without changing the normal retry count.
 Each job uploads its HTML report and any retained failed-attempt traces/results
@@ -214,8 +214,8 @@ matches `e2e/PLAYWRIGHT_VERSION` and `package-lock.json`. Browser-launching CI
 jobs install the locked Chromium with `e2e:install -- --with-deps chromium`;
 the script regression sets its executable to that Playwright browser. The
 `--container` system-browser and policy-relaxation shortcut is only for explicit
-local use. Node setup uses [setup-node v7.0.0](https://github.com/actions/setup-node/releases/tag/v7.0.0)
-on GitHub-hosted Ubuntu runners; its [minimum runner version is 2.327.1](https://github.com/actions/setup-node/blob/v7.0.0/README.md).
+local use. Node setup uses [setup-node v7](https://github.com/actions/setup-node/releases/tag/v7.1.0)
+on GitHub-hosted Ubuntu runners. It requires [runner 2.327.1 or newer](https://github.com/actions/setup-node/blob/v7.1.0/README.md).
 
 The i18n audit checks all literal locale modules and root aggregators before
 spread composition for duplicate definitions, en/cs keys, placeholders and
