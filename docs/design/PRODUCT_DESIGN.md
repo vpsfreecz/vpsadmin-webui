@@ -65,6 +65,10 @@ Browser titles start with vpsAdmin. Favicon reuse was delivered by PR524. Heatma
 are icon-only following PR521; that action still has a tooltip and accessible
 name, and does not imply removing labels from primary navigation.
 
+On the VPS list, filter actions beside the 44px smart search field use the
+same height and compact label size. Filter chips stay on their own row; other
+list layouts and the embedded help action are unchanged.
+
 ## VPS detail and resource editing
 
 Header order: object identity and distribution; state and owner (when relevant);
