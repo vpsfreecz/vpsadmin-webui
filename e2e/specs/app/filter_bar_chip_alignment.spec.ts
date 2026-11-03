@@ -1,6 +1,6 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
+import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 import { expectNoDocumentHorizontalOverflow } from '../../helpers/horizontalOverflow';
 
 async function box(locator: Locator) {
@@ -82,3 +82,22 @@ test('@smoke @smoke-mobile a long VPS list filter chip stays within the filter b
   expect(remove.x + remove.width).toBeLessThanOrEqual(filters.x + filters.width + 1);
   await expectNoDocumentHorizontalOverflow(page);
 });
+
+for (const language of ['cs', 'en'] as const) {
+  for (const theme of ['light', 'dark'] as const) {
+    test(`@pr-smoke @pr-smoke-mobile VPS filter controls share the input height in ${language} ${theme}`, async ({ page }, testInfo) => {
+      await setUiSettingsLocalStorage(page, { language, theme });
+      await page.goto('/app/vps?q=alpha');
+      const filters = page.getByTestId('vps.list.filters');
+      await expect(page.getByTestId('vps.list.active_filters')).toBeVisible();
+      const input = await box(filters.getByRole('combobox'));
+      const controls = await Promise.all((await filters.locator(':scope > button').all()).map(box));
+      expect(controls.length).toBeGreaterThanOrEqual(3);
+      await page.screenshot({ path: testInfo.outputPath('filter-controls.png'), fullPage: true });
+      for (const control of controls) {
+        expect(control.height).toBe(input.height);
+      }
+      await expectNoDocumentHorizontalOverflow(page);
+    });
+  }
+}
