@@ -410,24 +410,33 @@ local query/fragment state is retained. See the [review and regression proof](..
 ## Guarded advisory corrections (REQ-055)
 
 The owning API's security-advisory documentation defines the mutation contract.
-The handwritten adapters send content revision and state preconditions on parent,
+Generated operations carry content revision and state preconditions on parent,
 CVE and node corrections, direct retraction and namespaced DELETE bodies.
 Publication sends the required captured revision and retains its unchanged-revision
 contract; it does not accept an expected-state input. Draft creation has no
 existing revision, and its returned draft revision starts CVE reconciliation.
 
-The advisory-specific preflight reads the authenticated versioned root OPTIONS
-graph once per attempted workflow, plus existing-record lifecycle OPTIONS for
-record preparation/permission. It accepts conventional labeled choice maps using
+The advisory-specific preflight uses authenticated generated root descriptions
+and concrete generated lifecycle action descriptions for record preparation and
+permission checks. Draft synchronization requires all six CVE and nested
+node-status Create/Update/Delete actions with revision and selected-state
+parameters before its first write. It accepts conventional labeled choice maps using
 machine keys, and supported string arrays. Missing, malformed or denied metadata and invalid revisions stop writes; public reading and the separate announcement
 flow remain available. Root metadata never replaces server authorization or locks.
+
+The advisory CVE API orders rows by `cve_id`, while `from_id` filters by
+primary-key ID. The collector can omit CVEs across pages when these orders
+differ; its fixture with increasing IDs does not establish multi-page completeness.
+Aligning producer ordering and cursor semantics remains a separate follow-up,
+with a regression using nonmonotonic IDs.
 
 Upgrade the complete API before enabling these UI writes, and upgrade every
 security-advisories sync consumer before resuming sync. Mixed API pools are not
 supported. The old unguarded UI is not a safe write rollback target. Software
 rollback does not undo corrections, retraction or deleted data; deletion recovery
-requires an existing backup. No backend migration, dependency or transport change
-is part of this UI package.
+requires an existing backup. The client dependency supplies these operations; the backend upgrade remains a
+separate operation. No backend migration or transport change is introduced by
+the WebUI migration.
 
 ## Generated user/settings contract limits
 

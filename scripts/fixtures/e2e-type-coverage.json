@@ -11,6 +11,7 @@
     "e2e/fixtures/url.ts",
     "e2e/fixtures/vpsadmin-window.ts",
     "e2e/helpers/horizontalOverflow.ts",
+    "e2e/helpers/securityAdvisoryContract.ts",
     "e2e/specs/admin/admin_dashboard.spec.ts",
     "e2e/specs/admin/cluster_dns_resolvers_smoke.spec.ts",
     "e2e/specs/admin/cluster_dns_tools_smoke.spec.ts",
@@ -35,6 +36,7 @@
     "e2e/specs/admin/registration_reason_presets.spec.ts",
     "e2e/specs/admin/requests_operations_smoke.spec.ts",
     "e2e/specs/admin/security_advisory_nodes_mobile_actions.spec.ts",
+    "e2e/specs/admin/security_advisory_outages_mobile_actions.spec.ts",
     "e2e/specs/admin/user_contact_summary.spec.ts",
     "e2e/specs/admin/user_detail_page.spec.ts",
     "e2e/specs/admin/user_packages_assigned_date.spec.ts",
@@ -435,13 +437,6 @@
     {
       "path": "e2e/specs/admin/resource_package_detail_mobile_actions.spec.ts",
       "sha256": "8a8b09bde60a8e0199e0ff037849591a0afab358090fdca3f1e82aa8364d9298",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/admin/security_advisory_outages_mobile_actions.spec.ts",
-      "sha256": "77156ad3409e64ad5c9028be13b2cfd4b974855bb0537c0defed6863d056d45f",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."

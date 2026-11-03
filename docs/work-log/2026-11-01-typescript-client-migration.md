@@ -202,7 +202,7 @@ worker completion remain outside its evidence.
 The approved input is the unchanged 337,414-byte
 `vendor/vpsadmin-typescript-client-0.3.0-99ee06654ef9.tgz`; its archive size,
 SHA-256/SHA-512 and source/generator/schema graph are recorded in
-[the compact provenance](../../packages/vpsadmin-typescript-client-provenance.json).
+[the compact provenance](https://github.com/vpsfreecz/vpsadmin-webui/blob/b5c12bcd8afa67103ae05bd3fc993ad4fe14f256/packages/vpsadmin-typescript-client-provenance.json).
 The generated client's prior exact-archive checker evidence remains applicable. Pinned npm
 generated the file dependency and lock from refreshed WebUI main
 `63d484fc070dbee633d32624de545e834d483701`; all unrelated package records and
@@ -684,3 +684,103 @@ actual revision and scope. This correction changes no production source,
 shared fixture, dependency, client archive or runtime. The compatible released
 client transition remains pending with the user; no registry publication,
 default integration or deployment is claimed.
+
+## Released generated client adoption (2026-11-03)
+
+The root now selects published `vpsadmin-typescript-client@0.3.0` from the npm
+registry with its exact URL and SHA-512 integrity. The release archive has
+SHA-256 `57236647f4065a0ffeaabb0f5f6c64370a5ca4e7e530876b0d562c69651ce610`.
+All 1360 files installed by ordinary `npm ci` match the verified release archive,
+including all 1352 distributed JavaScript and declaration files that are
+byte-identical to the tested `99ee0665` candidate. Public exports, the API schema
+and 675 generated ownership hashes are unchanged. The public `createClient`
+entrypoint loads and resolves its exact `haveapi-client@0.32.0` peer.
+
+The released source is `d354491537f8b654b4d2c33a705cad84474f95d6`, generated with
+HaveAPI `1ef9b204ba45bb261d3334be5c555cc1856b713b` and API capture
+`5586ea8ab7dbf7e116083b0ea1819ea4d17f66a5`. Generator/Ruby version `0.32.2`
+is distinct from the npm runtime peer. Inspected npm-reported provenance binds
+the source/tag and archive digest to release run 41538988296; independent
+Sigstore signature verification was not performed. Program-byte equality does
+not equate these newer source/provenance identities to the earlier candidate or
+relabel earlier browser and isolated-API executions.
+
+The committed candidate archive, compact provenance and archive-only source
+checks/Nix cache adapter are removed. The frontend uses ordinary
+`buildNpmPackage` dependency fetching with the prefetched hash
+`sha256-e/oJZ1x+TRpjIw1DhoTLCJiQ2ifm4VednmrI201+ayQ=`. The lock changes only the
+root client selector and client package record; all 484 unrelated records,
+HaveAPI/XHR provenance, BFF dependencies/hash and flake/API/localization pins are
+unchanged. The original strict baseline, sourceRevision, compiler options and
+141 checked / 141 deferred membership are unchanged. The standard optional
+local build/pack/no-save override and `npm ci` restoration remain documented.
+
+The dependency install/prefetch batch passed in 93.806 seconds. Affected checks
+passed against the installed registry release: 6 source-checker tests, 100
+policy/wire tests in 6 files, application/tooling strict checks and the combined
+E2E strict gate with 141 checked and 141 deferred. Scoped ESLint/format and Nix
+syntax checks passed; this quick batch took 83.942 seconds. npm reported 12
+moderate advisories, and prefetch retained the six known bundled WASI dependency
+warnings; no unrelated dependency repair was attempted. No production code,
+persisted format or database migration changes are introduced.
+
+Independent affected review, exact-final-head Nix packaging and the requested
+session preview remain pending at this commit. No repeated full browser matrix
+or isolated-API run is claimed for this distribution-only transition. Subsequent
+review/build/preview results belong in session and PR evidence. This adopts an
+existing registry release; it does not publish a client, integrate a default
+branch or deploy production services.
+
+## Released client and current-main advisory integration (2026-11-03)
+
+The migration now selects published `vpsadmin-typescript-client@0.4.0` with its
+canonical registry URL and SHA-512 integrity. The verified 338234-byte archive
+has SHA-256 `3a6f2a2a6f4eaeb31f490035b312e9b5403cf21589d649dc1fd31d60b64e1906`;
+all 1364 installed files match it. The public source is `c53cb4dabb0b3aac8d05834478872d2cfa698fa7`,
+generated with `1ef9b204` / Ruby `0.32.2` from API capture `942c6eae`.
+The npm runtime peer remains exactly `haveapi-client@0.32.0`. Inspected npm-reported
+provenance binds the release source/tag and archive; independent Sigstore
+signature verification was not performed.
+
+This release adds advisory Retract and Delete actions and optional, non-null
+`expected_state` inputs on seven existing guarded actions. Earlier `0.3.0` program-byte equality does not
+extend to these additions. The generated Delete response contains an empty
+`security_advisory` output frame. State choices, captured revisions and live
+capability checks remain application policy. Before synchronizing a draft, WebUI
+checks all six CVE and node-status mutation actions. Missing actions,
+guard parameters or allowed state choices deny writes without omitting guards
+or replaying accepted work. Guarded operations require backend `8225229a` or
+independently equivalent live capabilities. The running preview's older API
+remains unchanged and cannot certify this contract.
+
+The feature was semantically rebased onto main `1c8478bc`, preserving upstream
+correction, announcement, lifecycle and localization behavior. The migration
+also covers new, nonconflicting main callers. Authenticated generated root and
+object descriptions replace manual advisory endpoint descriptors; receipt
+metadata uses the existing shared helper. Parent/child snapshots, exact child
+identity, revision advancement, partial accepted progress and refusal after
+uncertain read-back remain enforced. A missing or replaced child visibly
+refuses deletion before confirmation. The superseded draft-only hook is removed;
+its recovery tests exercise the active correction flow. The exact old `4ed519b6`
+source and its original history remain available for recovery. The rebased series
+has different ancestry from that deployed source.
+
+The dependency/lock/hash stream uses one released selection with ordinary npm
+fetching and frontend hash
+`sha256-3H/bRfGSY5Mra3MkhjcgBSiP/NciqX0Q58K+zem/i9k=`. Unrelated root lock
+records, BFF dependencies/hash and flake/API/localization pins are unchanged.
+Strict coverage is 143 checked and 140 deferred, including the main contract
+helper and complete advisory-outage spec. The original baseline, sourceRevision,
+compiler options and all 140 surviving deferral records are preserved.
+
+Application strict passed on the final source without diagnostics in 59.822
+seconds. Tooling strict, the combined E2E strict gate and six source-checker tests
+retain their successful unchanged-input executions. Failed advisory fixture and
+snapshot checks were investigated, corrected and passed in affected Vitest
+continuations. Scoped lint/format, documentation inventory/links, both catalogs,
+structural budgets, API-barrel imports, Nix syntax and whitespace checks passed.
+These are local source and synthetic-fixture checks, not a real backend or browser
+certification of the new guarded operations. Independent final review, full CI,
+exact-final-head Nix packaging and conditional integration remain pending.
+No database or persisted-format migration, default-branch integration,
+production deployment or preview update is claimed.

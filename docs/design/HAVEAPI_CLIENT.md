@@ -58,28 +58,39 @@ does not itself verify registry signatures or perform network requests.
 
 ## Published generated client
 
-The root selects the exact registry dependency
-`vpsadmin-typescript-client: "0.3.0"`. The npm-generated lock pins its canonical
-registry URL and SHA-512 integrity. `npm ci` installs the published JavaScript
-and declarations without a sibling checkout or client source build. Nix uses
-ordinary registry dependency fetching; see [packaging](PACKAGING.md#temporary-unpublished-sdk-input).
+The root selects exact registry dependency `vpsadmin-typescript-client: "0.4.0"`.
+The npm-generated lock pins its canonical registry URL and SHA-512 integrity.
+`npm ci` installs the published JavaScript and declarations without a sibling
+checkout or source build. Nix uses ordinary registry dependency fetching; see
+[packaging](PACKAGING.md#temporary-unpublished-sdk-input).
 
-The release tag [`v0.3.0`](https://github.com/vpsfreecz/vpsadmin-typescript-client/tree/v0.3.0)
-selects client source `d354491537f8b654b4d2c33a705cad84474f95d6`.
-Its 337128-byte npm archive has SHA-256
-`57236647f4065a0ffeaabb0f5f6c64370a5ca4e7e530876b0d562c69651ce610`.
-The inspected npm-reported provenance binds that source/tag and archive digest to
-[release run 41538988296](https://github.com/vpsfreecz/vpsadmin-typescript-client/actions/runs/41538988296),
+The public tag [`v0.4.0`](https://github.com/vpsfreecz/vpsadmin-typescript-client/tree/v0.4.0)
+selects source `c53cb4dabb0b3aac8d05834478872d2cfa698fa7`. Its 338234-byte npm
+archive has SHA-256
+`3a6f2a2a6f4eaeb31f490035b312e9b5403cf21589d649dc1fd31d60b64e1906`.
+Inspected npm-reported provenance binds the source/tag and archive digest to
+[release run 41670211965](https://github.com/vpsfreecz/vpsadmin-typescript-client/actions/runs/41670211965),
 without independent Sigstore signature verification.
 
-All 1352 distributed JavaScript and declaration files are byte-identical to the
-previously tested client candidate `99ee06654ef956a09b52749f4cd02d1435362087`.
-The archive paths, 675 generated ownership hashes, public exports and API 7 /
-protocol 2 schema are unchanged. This establishes generated-program equivalence;
-the release has different source and provenance identities. Its recorded HaveAPI
-generator is `1ef9b204ba45bb261d3334be5c555cc1856b713b`, with generator/Ruby
-version `0.32.2` and API capture `5586ea8ab7dbf7e116083b0ea1819ea4d17f66a5`.
+The release adds advisory Retract/Delete and optional non-null `expected_state`
+on parent Update, CVE Create/Update/Delete and nested node-status
+Create/Update/Delete. Existing inputs, outputs and the shared runtime remain
+unchanged. These are actual contract changes; the preceding release's complete
+program-byte equivalence does not apply. The generator remains
+`1ef9b204ba45bb261d3334be5c555cc1856b713b`, with generator/Ruby version `0.32.2`.
+The captured API is `942c6eaed41331f823d8e0f670ed239e2b308440`, with API 7 /
+protocol 2 schema SHA-256
+`d6ec617653913c56e92398a6032aa350118597a0e3f45c599bc92b6071ea0a26`.
 The exact consumer runtime peer remains `haveapi-client@0.32.0`.
+
+Guarded advisory writes require backend
+`8225229aa0e3306f8b1723c5583969a33c64571c` or independently equivalent live
+capabilities. An API version label does not prove support. WebUI's application
+policy checks fresh authenticated generated root/action descriptions and the
+actual selected state choices before writing. Draft synchronization checks all
+six child mutation actions and sends frozen state/revision preconditions.
+Missing actions or guard parameters deny writes; the client never drops guards
+as a compatibility fallback. See [the advisory contract](API_CONTRACTS.md#guarded-advisory-corrections-req-055).
 
 Typechecking uses the installed declarations. API fixtures feed serialized HTTP
 responses through controlled XHR to the actual library, covering authentication,

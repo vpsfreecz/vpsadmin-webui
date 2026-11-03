@@ -33,10 +33,10 @@ to work around a fetch failure.
 
 ### Generated client registry input
 
-The root selects exact `vpsadmin-typescript-client@0.3.0`, with its canonical
-registry URL and integrity in `package-lock.json`. The published JavaScript and
-declarations are byte-identical to the tested candidate; its release source and
-generator provenance differ as described in [the client contract](HAVEAPI_CLIENT.md#unpublished-generated-sdk).
+The root selects exact `vpsadmin-typescript-client@0.4.0`, with its canonical
+registry URL and integrity in `package-lock.json`. The release adds guarded advisory operations and inputs described in
+[the client contract](HAVEAPI_CLIENT.md#unpublished-generated-sdk); its shared
+HaveAPI runtime peer remains unchanged.
 The installed public root contains only the reviewed compiled frontend output.
 
 For an intentional dependency update:

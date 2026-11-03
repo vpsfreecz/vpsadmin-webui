@@ -54,11 +54,17 @@ test.describe('@smoke Security advisory admin management', () => {
             throw new Error('Expected existing advisory and CVE input namespace');
           const input = reqJson.security_advisory_cve;
           if (
-            !input || typeof input !== 'object' || Array.isArray(input) ||
-            !('security_advisory' in input) || input.security_advisory !== createdAdvisory.id ||
-            !('cve_id' in input) || typeof input.cve_id !== 'string' ||
-            !('expected_state' in input) || input.expected_state !== 'draft' ||
-            !('expected_content_revision' in input) || input.expected_content_revision !== createdAdvisory.content_revision
+            !input ||
+            typeof input !== 'object' ||
+            Array.isArray(input) ||
+            !('security_advisory' in input) ||
+            input.security_advisory !== createdAdvisory.id ||
+            !('cve_id' in input) ||
+            typeof input.cve_id !== 'string' ||
+            !('expected_state' in input) ||
+            input.expected_state !== 'draft' ||
+            !('expected_content_revision' in input) ||
+            input.expected_content_revision !== createdAdvisory.content_revision
           )
             throw new Error('Expected CVE input for the stored advisory revision');
           const cve: SecurityAdvisoryCve__CreateOutput = {
@@ -140,7 +146,9 @@ test.describe('@smoke Security advisory admin management', () => {
     ]);
   });
 
-  test('gates publishing, manages node assessments, retracts through an update and links an outage', async ({ page }) => {
+  test('gates publishing, manages node assessments, retracts through an update and links an outage', async ({
+    page,
+  }) => {
     const mutations: Array<{ method: string; path: string; body: unknown }> = [];
     let advisory: SecurityAdvisory__CreateOutput & { id: number; content_revision: number } = {
       id: 77,
@@ -359,12 +367,8 @@ test.describe('@smoke Security advisory admin management', () => {
     await expect(page.getByTestId('admin.security_advisories.nodes.row.10')).toBeVisible();
     await page.getByTestId('admin.security_advisories.nodes.row.10.edit').click();
     await page.getByTestId('admin.security_advisories.nodes.editor.state').selectOption('mitigated');
-    await page
-      .getByTestId('admin.security_advisories.nodes.editor.vulnerable_until')
-      .fill('2026-07-27T11:00');
-    await page
-      .getByTestId('admin.security_advisories.nodes.editor.mitigated_since')
-      .fill('2026-07-27T12:00');
+    await page.getByTestId('admin.security_advisories.nodes.editor.vulnerable_until').fill('2026-07-27T11:00');
+    await page.getByTestId('admin.security_advisories.nodes.editor.mitigated_since').fill('2026-07-27T12:00');
     await page.getByTestId('admin.security_advisories.nodes.editor.en_note').fill('Fixed kernel installed');
     await page.getByTestId('admin.security_advisories.nodes.editor.save').click();
     await expect(page.getByTestId('admin.security_advisories.nodes.editor')).toHaveCount(0);
@@ -448,7 +452,11 @@ test.describe('@smoke Security advisory admin management', () => {
         (mutation) => mutation.method === 'POST' && mutation.path === '/api/v7.0/security_advisories/77/publish'
       )?.body
     ).toEqual({
-      security_advisory: expect.objectContaining({ send_mail: true, published_at: expect.any(String), expected_content_revision: 3 }),
+      security_advisory: expect.objectContaining({
+        send_mail: true,
+        published_at: expect.any(String),
+        expected_content_revision: 3,
+      }),
     });
 
     // Retraction is represented by a localized advisory update and requires a
