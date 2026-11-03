@@ -55,7 +55,7 @@ export type AdminSidebarGroupId =
   | 'content';
 
 export interface SidebarNavSection {
-  id: AdminSidebarGroupId | 'ungrouped';
+  id: AdminSidebarGroupId | 'ungrouped' | 'status';
   labelKey?: string;
   items: NavItem[];
 }
@@ -69,20 +69,20 @@ const adminSidebarGroups: Array<{ id: AdminSidebarGroupId; labelKey: string }> =
 ];
 
 export function sidebarNavSections(items: NavItem[]): SidebarNavSection[] {
-  const mainItems = items.filter((item) => !item.footer && !item.status);
+  const mainItems = items.filter((item) => !item.footer);
   if (!mainItems.some((item) => item.group)) {
     return [{ id: 'ungrouped', items: mainItems }];
   }
 
-  const sections = adminSidebarGroups.flatMap((group) => {
+  const sections: SidebarNavSection[] = adminSidebarGroups.flatMap((group) => {
     const groupItems = mainItems.filter((item) => item.group === group.id);
     return groupItems.length > 0 ? [{ ...group, items: groupItems }] : [];
   });
-  const ungrouped = mainItems.filter((item) => !item.group);
-
-  return ungrouped.length > 0
-    ? [{ id: 'ungrouped' as const, items: ungrouped }, ...sections]
-    : sections;
+  const ungrouped = mainItems.filter((item) => !item.group && !item.status);
+  const status = mainItems.filter((item) => item.status);
+  if (ungrouped.length > 0) sections.unshift({ id: 'ungrouped', items: ungrouped });
+  if (status.length > 0) sections.push({ id: 'status', items: status });
+  return sections;
 }
 
 export function sidebarFooterNavItems(items: NavItem[]): NavItem[] {
@@ -331,7 +331,6 @@ export function AppSidebar(props: {
   const primaryNavItems = primarySidebarNavItems(navItems);
   const navSections = sidebarNavSections(primaryNavItems);
   const footerNavItems = sidebarFooterNavItems(primaryNavItems);
-  const statusNavItems = primaryNavItems.filter((item) => item.status);
   const compactDesktopNav = primaryNavItems.filter((item) => !item.status).length > 18;
 
   return (
@@ -366,11 +365,6 @@ export function AppSidebar(props: {
                 ))}
               </div>
             ) : null}
-          </nav>
-          <nav aria-label={t('nav.service_status')} className="border-t border-border pt-2" data-testid="nav.drawer.status">
-            {statusNavItems.map((item) => (
-              <NavigationLink key={item.id} item={item} surface="drawer" onClick={onCloseMobileNav} />
-            ))}
           </nav>
           <div className="border-t border-border pt-3" data-testid="shell.brand.drawer">
             <AppLogo subtitle={t('app.logo.subtitle')} />
@@ -415,11 +409,6 @@ export function AppSidebar(props: {
               ))}
             </div>
           ) : null}
-          <nav aria-label={t('nav.service_status')} className="shrink-0 border-t border-border px-2 py-2" data-testid="nav.sidebar.status">
-            {statusNavItems.map((item) => (
-              <NavigationLink key={item.id} item={item} surface="sidebar" compact />
-            ))}
-          </nav>
           <div className="shrink-0 border-t border-border px-4 py-3" data-testid="shell.brand.sidebar">
             <AppLogo subtitle={t('app.logo.subtitle')} />
           </div>

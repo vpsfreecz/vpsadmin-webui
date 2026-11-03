@@ -25,9 +25,9 @@ Only one controls instance mounts at a time, so search and outside-click refs
 never point at a hidden duplicate. Tasks/search close mobile navigation before
 opening their own panel. Account submenus retain Escape and focus restoration. Administrators
 see service, operations, users/finance, infrastructure and content groups.
-Outages and security advisories form a separate quiet block above About in the
-sidebar footer and mobile drawer, with role/mode-appropriate read or management
-destinations. They are not duplicated among primary operations links.
+Outages and security advisories are the final destinations in the scrolling
+sidebar and mobile drawer navigation. Their read or management destinations
+follow the current view and role.
 The complete routing surface, including aliases and child pages not present in
 menus, is in the [inventory](IMPLEMENTATION_INVENTORY.md).
 
