@@ -35,6 +35,7 @@
     "e2e/specs/app/admin_default_review_queue.spec.ts",
     "e2e/specs/app/admin_newslog.spec.ts",
     "e2e/specs/app/admin_scope_view_switcher.spec.ts",
+    "e2e/specs/app/approved_vps_journey.spec.ts",
     "e2e/specs/app/authenticated_home_smoke.spec.ts",
     "e2e/specs/app/backup_center.spec.ts",
     "e2e/specs/app/centered_dialogs.spec.ts",
