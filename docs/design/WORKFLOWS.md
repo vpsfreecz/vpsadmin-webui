@@ -215,6 +215,11 @@ resources. [Access](../../src/lib/api/vpsAccess.ts),
 [maintenance](../../src/lib/api/vpsMaintenance.ts),
 [resource fixture](../../e2e/specs/app/vps_resource_workspace.spec.ts).
 
+The [bounded member journey regression](../../e2e/specs/app/approved_vps_journey.spec.ts)
+connects list discovery, resource review/rejection/retry, tracked completion,
+access-key review and the result on the same VPS. It uses synthetic API data
+in cs/en; it does not certify real provisioning or SSH delivery.
+
 ### Admin-team VPS configuration preference (REQ-023)
 
 Maintenance exposes the legacy `allow_admin_modifications` preference alongside

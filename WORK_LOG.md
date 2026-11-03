@@ -1,3 +1,9 @@
+## 2026-11-03 — UX-02: verify one complete member VPS journey
+
+Prepare the approved bounded TODO follow-up against kerrycek-021126.
+See [scope and evidence](docs/work-log/2026-11-03-todo-member-vps-journey.md).
+Prepared for review; not approved, merged or deployed.
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path
