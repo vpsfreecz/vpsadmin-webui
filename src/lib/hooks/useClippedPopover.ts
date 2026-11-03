@@ -4,7 +4,8 @@ import { useLayoutEffect, useState, type CSSProperties, type RefObject } from 'r
 export function useClippedPopover(
   open: boolean,
   anchorRef: RefObject<HTMLElement | null>,
-  popupRef: RefObject<HTMLElement | null>
+  popupRef: RefObject<HTMLElement | null>,
+  heightLimit = 256
 ): CSSProperties | undefined {
   const [position, setPosition] = useState<CSSProperties>();
   useLayoutEffect(() => {
@@ -28,13 +29,13 @@ export function useClippedPopover(
       const bounds = anchor.getBoundingClientRect();
       const below = Math.max(0, bottom - bounds.bottom - 4);
       const above = Math.max(0, bounds.top - top - 4);
-      const desired = Math.min(256, popup.scrollHeight + 2);
+      const desired = Math.min(heightLimit, popup.scrollHeight + 2);
       const upwards = below < desired && above > below;
       const next: CSSProperties = {
         top: upwards ? 'auto' : '100%',
         bottom: upwards ? 'calc(100% + 4px)' : 'auto',
         marginTop: upwards ? 0 : 4,
-        maxHeight: Math.min(256, upwards ? above : below),
+        maxHeight: Math.min(heightLimit, upwards ? above : below),
         visibility: bounds.bottom <= top || bounds.top >= bottom ? 'hidden' : undefined,
       };
       setPosition((previous) =>
@@ -65,6 +66,6 @@ export function useClippedPopover(
       viewport?.removeEventListener('resize', update);
       viewport?.removeEventListener('scroll', update);
     };
-  }, [open, anchorRef, popupRef]);
+  }, [open, anchorRef, popupRef, heightLimit]);
   return position;
 }

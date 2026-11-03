@@ -98,7 +98,7 @@ export function AppUserMenu(props: Pick<AppHeaderProps,
   } = props;
   const triggerRef = useRef<HTMLButtonElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
-  const popupStyle = useClippedPopover(userMenuOpen, userMenuRef, popupRef);
+  const popupStyle = useClippedPopover(userMenuOpen, userMenuRef, popupRef, Infinity);
   useEffect(() => {
     if (!userMenuOpen) return;
     const onKeyDown = (event: KeyboardEvent) => {
