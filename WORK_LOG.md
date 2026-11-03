@@ -1708,3 +1708,8 @@ clankerdev still uses the production API. No host update in this setup.
   assertion to the exact page h1 after the new h2 exposed an ambiguous selector.
   Six focused browser cases passed, including newly selected WebKit coverage.
   See docs/work-log/2026-11-03-todo-dashboard-contrast.md.
+
+## 2026-11-03 — Scroll outage and advisory navigation
+
+Move both links into the primary scrolling menu and preserve role-specific
+destinations. See [scope and checks](docs/work-log/2026-11-03-scrolling-status-navigation.md).
