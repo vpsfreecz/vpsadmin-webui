@@ -9,7 +9,8 @@ for (const actor of [
   { mode: 'admin', level: 99, language: 'cs', theme: 'dark', seconds: 0 },
 ] as const) {
   test(`@pr-smoke @pr-smoke-mobile navigation controls and session setting (${actor.mode}/${actor.level}/${actor.language})`, async ({ page, isMobile }, testInfo) => {
-    if (!isMobile) await page.setViewportSize({ width: 1440, height: 1000 });
+    if (isMobile) await page.setViewportSize({ width: 320, height: 700 });
+    else await page.setViewportSize({ width: 1440, height: 1000 });
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
     await setUiSettingsLocalStorage(page, { language: actor.language, theme: actor.theme });
     const writes: string[] = [];
@@ -42,6 +43,11 @@ for (const actor of [
     expect(brandBox!.y).toBeLessThan(aboutBox!.y);
     await page.screenshot({ path: testInfo.outputPath(`navigation-${actor.mode}-${actor.level}.png`), fullPage: false, scale: 'css' });
     const session = page.getByTestId('shell.session-remaining');
+    const tasksBox = (await controls.getByTestId('tasks.open-button').boundingBox())!;
+    const sessionBox = (await session.boundingBox())!;
+    expect(Math.abs(tasksBox.y - sessionBox.y)).toBeLessThanOrEqual(1);
+    expect(tasksBox.x + tasksBox.width).toBeLessThan(sessionBox.x);
+    if (isMobile) expect(Math.min(tasksBox.height, sessionBox.height)).toBeGreaterThanOrEqual(44);
     await expect(session).toHaveAttribute('href', `/${actor.mode}/profile/security#session-length`);
     await expect(session).toContainText(actor.seconds ? '40 min' : 'Bez vypršení');
     if (isMobile) await session.tap(); else await session.click();

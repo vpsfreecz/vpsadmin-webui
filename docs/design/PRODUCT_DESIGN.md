@@ -18,8 +18,8 @@ privileges in the administrator surface; this is not a third product experience.
 Sidebar destinations reflect tasks, not the API table list. VPS storage belongs
 with the VPS; NAS and backups are separate member destinations. Tasks is a global
 navigation action, not a duplicate primary action-states destination. Search, Tasks,
-session duration and account preferences occupy the top of the sidebar; there
-is no additional desktop header toolbar. Branding sits directly above About.
+session duration and account preferences sit in a bordered panel above the
+sidebar navigation. Tasks and session duration share a row when space permits. Branding sits directly above About.
 Mobile has one navigation trigger, with the same controls inside its drawer.
 Only one controls instance mounts at a time, so search and outside-click refs
 never point at a hidden duplicate. Tasks/search close mobile navigation before

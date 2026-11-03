@@ -1713,3 +1713,8 @@ clankerdev still uses the production API. No host update in this setup.
 
 Move both links into the primary scrolling menu and preserve role-specific
 destinations. See [scope and checks](docs/work-log/2026-11-03-scrolling-status-navigation.md).
+
+## 2026-11-03 — Compact sidebar controls
+
+Group signed-in sidebar controls and place Tasks and session duration side by
+side. See [layout and verification](docs/work-log/2026-11-03-compact-sidebar-controls.md).
