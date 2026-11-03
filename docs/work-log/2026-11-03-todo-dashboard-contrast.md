@@ -49,3 +49,14 @@ private run artifacts and the known dependency/TLS/mailer limitations.
 ![Desktop](images/2026-11-03-dashboard-contrast/chromium.png)
 
 ![Mobile WebKit](images/2026-11-03-dashboard-contrast/mobile-webkit.png)
+
+## CI follow-up: exact page heading
+
+The first remote mobile-Chrome PR smoke completed 593 cases and failed the
+existing authenticated-home smoke: its substring `Dashboard` heading matched
+both the page h1 and the newly semantic `Dashboard preferences` h2. Use the
+exact level-1 page title and retain every navigation, identity and KPI assertion.
+Add this existing smoke to the WebKit selection. All six focused cases passed
+against the same compiled runtime in Chromium, mobile Chrome and mobile WebKit
+with zero retries. The failed CI job and original logs remain available. This
+follow-up changes test targeting only; it does not remove the semantic h2.
