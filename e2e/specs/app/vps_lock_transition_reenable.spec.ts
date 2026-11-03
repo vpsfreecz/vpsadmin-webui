@@ -20,7 +20,7 @@ const baseVps = {
   node: { id: 1, domain_name: 'node1.example', location: { label: 'dc1' } },
   user: { id: 42, login: 'user' },
   os_template: { label: 'debian' },
-  dns_resolver: 'inherit',
+  dns_resolver: null,
 };
 
 test('@smoke VPS busy lock disables actions; completion releases lock and re-enables start', async ({ page }) => {
@@ -89,7 +89,7 @@ test('@smoke VPS busy lock disables actions; completion releases lock and re-ena
       // Stop action: immediately creates a busy chain and returns an action_state_id.
       'POST vpses/123/stop': () => {
         chainPhase = 'active';
-        return { _meta: { action_state_id: 900 }, vps: null };
+        return { _meta: { action_state_id: 900 }, vps: {} };
       },
 
       // Action state: remains running until the test flips `shouldFinish`.
@@ -127,7 +127,7 @@ test('@smoke VPS busy lock disables actions; completion releases lock and re-ena
       },
 
       // We click start after stop completion to prove the busy lock was released.
-      'POST vpses/123/start': () => ({ _meta: { action_state_id: 901 }, vps: null }),
+      'POST vpses/123/start': () => ({ _meta: { action_state_id: 901 }, vps: {} }),
       'GET action_states/901': () => ({
         action_state: {
           id: 901,

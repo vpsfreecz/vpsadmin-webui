@@ -20,7 +20,7 @@ const vps = {
   node: { id: 1, domain_name: 'node1.example', location: { label: 'dc1' } },
   user: { id: 42, login: 'user' },
   os_template: { label: 'debian' },
-  dns_resolver: 'inherit',
+  dns_resolver: null,
 };
 
 test('@smoke Modal traps focus and restores focus on close', async ({ page }) => {

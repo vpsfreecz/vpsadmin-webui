@@ -28,7 +28,7 @@ test.describe('@smoke exports', () => {
       user: { id: 1, login: 'demo', level: 1 },
       handlers: {
         'GET exports': () => ({ exports: [exportRow], _meta: { total_count: 1 } }),
-        'GET exports/10': () => exportRow,
+        'GET exports/10': () => ({ export: exportRow }),
         'GET exports/10/hosts': () => ({
           hosts: [
             {
@@ -55,7 +55,9 @@ test.describe('@smoke exports', () => {
     await exportSurface.click();
     await expect(page).toHaveURL(/\/app\/exports\/10$/);
     await expect(page.getByTestId('exports.detail.page')).toBeVisible();
-    await expect(page.getByTestId('exports.detail.instructions.command')).toContainText('198.51.100.10:/tank/user/data');
+    await expect(page.getByTestId('exports.detail.instructions.command')).toContainText(
+      '198.51.100.10:/tank/user/data'
+    );
     await expect(page.getByTestId('exports.detail.hosts.row.11')).toBeVisible();
   });
 

@@ -3,17 +3,21 @@ import { expect, test, type Page } from '@playwright/test';
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
 
 function visibleSnapshot(page: Page, id: number) {
-  return page.locator([
-    `[data-testid="dataset.snapshots.row.${id}"]:visible`,
-    `[data-testid="dataset.snapshots.card.${id}"]:visible`,
-  ].join(', '));
+  return page.locator(
+    [
+      `[data-testid="dataset.snapshots.row.${id}"]:visible`,
+      `[data-testid="dataset.snapshots.card.${id}"]:visible`,
+    ].join(', ')
+  );
 }
 
 function visibleSnapshotAction(page: Page, id: number, action: string) {
-  return page.locator([
-    `[data-testid="dataset.snapshots.row.${id}.${action}"]:visible`,
-    `[data-testid="dataset.snapshots.card.${id}.${action}"]:visible`,
-  ].join(', '));
+  return page.locator(
+    [
+      `[data-testid="dataset.snapshots.row.${id}.${action}"]:visible`,
+      `[data-testid="dataset.snapshots.card.${id}.${action}"]:visible`,
+    ].join(', ')
+  );
 }
 
 test.describe('@smoke @smoke-mobile Dataset snapshots', () => {
@@ -23,17 +27,20 @@ test.describe('@smoke @smoke-mobile Dataset snapshots', () => {
     await installHaveApiMock(page, {
       user: { id: 1, login: 'admin', level: 99 },
       handlers: {
+        'GET transaction_chains': () => ({ transaction_chains: [] }),
         'GET datasets/10': () => ({
-          id: 10,
-          full_name: 'tank/vps/ds10',
-          name: 'ds10',
-          used: 2048,
-          refquota: 10240,
-          snapshots_count: 0,
-          mount_count: 0,
-          export_count: 0,
-          object_state: 'active',
-          vps: { id: 300, hostname: 'alpha.example' },
+          dataset: {
+            id: 10,
+            full_name: 'tank/vps/ds10',
+            name: 'ds10',
+            used: 2048,
+            refquota: 10240,
+            snapshots_count: 0,
+            mount_count: 0,
+            export_count: 0,
+            object_state: 'active',
+            vps: { id: 300, hostname: 'alpha.example' },
+          },
         }),
 
         'GET datasets/10/snapshots': () => ({ snapshots: [] }),
@@ -56,16 +63,18 @@ test.describe('@smoke @smoke-mobile Dataset snapshots', () => {
       user: { id: 1, login: 'admin', level: 99 },
       handlers: {
         'GET datasets/10': () => ({
-          id: 10,
-          full_name: 'tank/vps/ds10',
-          name: 'ds10',
-          used: 2048,
-          refquota: 10240,
-          snapshots_count: created ? 1 : 0,
-          mount_count: 0,
-          export_count: 0,
-          object_state: 'active',
-          vps: { id: 300, hostname: 'alpha.example' },
+          dataset: {
+            id: 10,
+            full_name: 'tank/vps/ds10',
+            name: 'ds10',
+            used: 2048,
+            refquota: 10240,
+            snapshots_count: created ? 1 : 0,
+            mount_count: 0,
+            export_count: 0,
+            object_state: 'active',
+            vps: { id: 300, hostname: 'alpha.example' },
+          },
         }),
         'GET transaction_chains': () => ({ transaction_chains: [] }),
         'GET datasets/10/snapshots': () => ({
@@ -73,7 +82,7 @@ test.describe('@smoke @smoke-mobile Dataset snapshots', () => {
             ? [
                 {
                   id: 201,
-                  dataset: 10,
+                  dataset: { id: 10 },
                   name: 'snap-201',
                   label: 'before-upgrade',
                   created_at: '2026-01-26T00:00:00.000Z',
@@ -84,7 +93,7 @@ test.describe('@smoke @smoke-mobile Dataset snapshots', () => {
         'POST datasets/10/snapshots': () => {
           created = true;
           return {
-            snapshot: { id: 201, dataset: 10, name: 'snap-201', label: 'before-upgrade' },
+            snapshot: { id: 201, dataset: { id: 10 }, name: 'snap-201', label: 'before-upgrade' },
             _meta: { action_state_id: 701 },
           };
         },
@@ -127,22 +136,24 @@ test.describe('@smoke @smoke-mobile Dataset snapshots', () => {
       user: { id: 2, login: 'member', level: 1 },
       handlers: {
         'GET datasets/10': () => ({
-          id: 10,
-          full_name: 'tank/vps/ds10',
-          name: 'ds10',
-          used: 2048,
-          refquota: 10240,
-          snapshots_count: 1,
-          mount_count: 0,
-          export_count: 0,
-          vps: { id: 300, hostname: 'alpha.example' },
+          dataset: {
+            id: 10,
+            full_name: 'tank/vps/ds10',
+            name: 'ds10',
+            used: 2048,
+            refquota: 10240,
+            snapshots_count: 1,
+            mount_count: 0,
+            export_count: 0,
+            vps: { id: 300, hostname: 'alpha.example' },
+          },
         }),
         'GET transaction_chains': () => ({ transaction_chains: [], _meta: { total_count: 0 } }),
         'GET datasets/10/snapshots': () => ({
           snapshots: [
             {
               id: 200,
-              dataset: 10,
+              dataset: { id: 10 },
               name: 'snap-200',
               label: 'snap-200',
               created_at: '2026-01-26T00:00:00.000Z',
@@ -202,22 +213,24 @@ test.describe('@smoke @smoke-mobile Dataset snapshots', () => {
       user: { id: 2, login: 'member', level: 1 },
       handlers: {
         'GET datasets/10': () => ({
-          id: 10,
-          full_name: 'tank/vps/ds10',
-          name: 'ds10',
-          used: 2048,
-          refquota: 10240,
-          snapshots_count: 1,
-          mount_count: 0,
-          export_count: 0,
-          vps: { id: 300, hostname: 'alpha.example' },
+          dataset: {
+            id: 10,
+            full_name: 'tank/vps/ds10',
+            name: 'ds10',
+            used: 2048,
+            refquota: 10240,
+            snapshots_count: 1,
+            mount_count: 0,
+            export_count: 0,
+            vps: { id: 300, hostname: 'alpha.example' },
+          },
         }),
         'GET transaction_chains': () => ({ transaction_chains: [], _meta: { total_count: 0 } }),
         'GET datasets/10/snapshots': () => ({
           snapshots: [
             {
               id: 200,
-              dataset: 10,
+              dataset: { id: 10 },
               name: 'snap-200',
               label: 'snap-200',
               created_at: '2026-01-26T00:00:00.000Z',
@@ -256,24 +269,27 @@ test.describe('@smoke @smoke-mobile Dataset snapshots', () => {
     await installHaveApiMock(page, {
       user: { id: 1, login: 'admin', level: 99 },
       handlers: {
+        'GET transaction_chains': () => ({ transaction_chains: [] }),
         'GET datasets/10': () => ({
-          id: 10,
-          full_name: 'tank/vps/ds10',
-          name: 'ds10',
-          used: 2048,
-          refquota: 10240,
-          snapshots_count: 1,
-          mount_count: 0,
-          export_count: 0,
-          object_state: 'active',
-          vps: { id: 300, hostname: 'alpha.example' },
+          dataset: {
+            id: 10,
+            full_name: 'tank/vps/ds10',
+            name: 'ds10',
+            used: 2048,
+            refquota: 10240,
+            snapshots_count: 1,
+            mount_count: 0,
+            export_count: 0,
+            object_state: 'active',
+            vps: { id: 300, hostname: 'alpha.example' },
+          },
         }),
 
         'GET datasets/10/snapshots': () => ({
           snapshots: [
             {
               id: 200,
-              dataset: 10,
+              dataset: { id: 10 },
               name: 'snap-200',
               label: 'snap-200',
               created_at: '2026-01-26T00:00:00.000Z',
@@ -283,7 +299,7 @@ test.describe('@smoke @smoke-mobile Dataset snapshots', () => {
 
         'POST datasets/10/snapshots/200/rollback': () => {
           rollbackCalls += 1;
-          return { _meta: { action_state_id: 720 } };
+          return { snapshot: {}, _meta: { action_state_id: 720 } };
         },
         'GET action_states/720': () => ({
           action_state: { id: 720, finished: true, status: true, current: 1, total: 1 },
@@ -309,6 +325,7 @@ test.describe('@smoke @smoke-mobile Dataset snapshots', () => {
 
   test('an applied rollback outside recent history with a lost response cannot be posted twice', async ({ page }) => {
     let rollbackApplied = false;
+    let rollbackBusy = false;
     let rollbackCalls = 0;
     let datasetReadbacks = 0;
     let snapshotReadbacks = 0;
@@ -322,23 +339,27 @@ test.describe('@smoke @smoke-mobile Dataset snapshots', () => {
         'GET datasets/10': () => {
           if (rollbackApplied) datasetReadbacks += 1;
           return {
-            id: 10,
-            full_name: 'tank/vps/ds10',
-            name: 'ds10',
-            object_state: 'active',
-            vps: { id: 300, hostname: 'alpha.example' },
+            dataset: {
+              id: 10,
+              full_name: 'tank/vps/ds10',
+              name: 'ds10',
+              object_state: 'active',
+              vps: { id: 300, hostname: 'alpha.example' },
+            },
           };
         },
         'GET datasets/10/snapshots': () => {
           if (rollbackApplied) snapshotReadbacks += 1;
           return {
-            snapshots: [{
-              id: 200,
-              dataset: 10,
-              name: 'snap-200',
-              label: 'snap-200',
-              created_at: '2026-01-26T00:00:00.000Z',
-            }],
+            snapshots: [
+              {
+                id: 200,
+                dataset: { id: 10 },
+                name: 'snap-200',
+                label: 'snap-200',
+                created_at: '2026-01-26T00:00:00.000Z',
+              },
+            ],
           };
         },
         'GET transaction_chains': ({ searchParams }) => {
@@ -346,17 +367,17 @@ test.describe('@smoke @smoke-mobile Dataset snapshots', () => {
           const state = searchParams.get('transaction_chain[state]');
           if (name === 'rollback' || name === 'restore') {
             return {
-              transaction_chains: name === 'rollback'
-                ? [{ id: 700, name: 'rollback', state: 'done' }]
-                : [{ id: 650, name: 'restore', state: 'done' }],
+              transaction_chains:
+                name === 'rollback'
+                  ? [{ id: 700, name: 'rollback', state: 'done' }]
+                  : [{ id: 650, name: 'restore', state: 'done' }],
             };
           }
           if (state) {
             if (rollbackApplied) chainReadbacks += 1;
             return {
-              transaction_chains: rollbackApplied && state === 'rollbacking'
-                ? [{ id: 901, state: 'rollbacking' }]
-                : [],
+              transaction_chains:
+                rollbackApplied && rollbackBusy && state === 'rollbacking' ? [{ id: 901, state: 'rollbacking' }] : [],
             };
           }
           const limit = Number(searchParams.get('transaction_chain[limit]') ?? 10);
@@ -409,9 +430,15 @@ test.describe('@smoke @smoke-mobile Dataset snapshots', () => {
     await expect(page.getByTestId('tasks.drawer')).toBeVisible();
     await page.getByTestId('tasks.close-button').click();
     await page.getByTestId('dataset.snapshots.rollback_uncertain.acknowledge').click();
-    await expect(page.getByTestId('dataset.snapshots.rollback_uncertain.error')).toContainText(
-      'still active',
-    );
+    await expect(page.getByTestId('dataset.snapshots.rollback_guard.confirm')).toBeVisible();
+    const unlock = page.getByTestId('dataset.snapshots.rollback_guard.unlock');
+    await expect(unlock).toBeDisabled();
+    await page.getByTestId('dataset.snapshots.rollback_guard.input').fill('200');
+    await expect(unlock).toBeEnabled();
+    rollbackBusy = true;
+    await unlock.click();
+    await expect(page.getByTestId('dataset.snapshots.rollback_guard.error')).toContainText('still active');
+    await expect(page.getByTestId('dataset.snapshots.rollback_guard.confirm')).toBeVisible();
     await expect(visibleSnapshotAction(page, 200, 'rollback')).toHaveAttribute('aria-disabled', 'true');
     expect(rollbackCalls).toBe(1);
   });
@@ -425,18 +452,23 @@ test.describe('@smoke @smoke-mobile Dataset snapshots', () => {
     await installHaveApiMock(page, {
       user: { id: 1, login: 'admin', level: 99 },
       handlers: {
-        'GET datasets': ({ searchParams }) => ({ datasets: searchParams.get('dataset[role]') === 'primary' ? [{ id: 10, name: 'ds10' }] : [] }),
+        'GET transaction_chains': () => ({ transaction_chains: [] }),
+        'GET datasets': ({ searchParams }) => ({
+          datasets: searchParams.get('dataset[role]') === 'primary' ? [{ id: 10, name: 'ds10' }] : [],
+        }),
         'GET datasets/10': () => ({
-          id: 10,
-          full_name: 'tank/nas/ds10',
-          name: 'ds10',
-          used: 2048,
-          refquota: 10240,
-          snapshots_count: 1,
-          mount_count: 0,
-          export_count: 0,
-          object_state: 'active',
-          vps: null,
+          dataset: {
+            id: 10,
+            full_name: 'tank/nas/ds10',
+            name: 'ds10',
+            used: 2048,
+            refquota: 10240,
+            snapshots_count: 1,
+            mount_count: 0,
+            export_count: 0,
+            object_state: 'active',
+            vps: null,
+          },
         }),
 
         'GET datasets/10/snapshots': () => {
@@ -447,7 +479,7 @@ test.describe('@smoke @smoke-mobile Dataset snapshots', () => {
             snapshots: [
               {
                 id: 200,
-                dataset: 10,
+                dataset: { id: 10 },
                 name: 'snap-200',
                 label: 'snap-200',
                 created_at: '2026-01-26T00:00:00.000Z',
@@ -459,7 +491,7 @@ test.describe('@smoke @smoke-mobile Dataset snapshots', () => {
         'DELETE datasets/10/snapshots/200': () => {
           deleteCalls += 1;
           deleted = true;
-          return { ok: true };
+          return { snapshot: {} };
         },
       },
     });
@@ -488,31 +520,37 @@ test.describe('@smoke @smoke-mobile Dataset snapshots', () => {
     await installHaveApiMock(page, {
       user: { id: 2, login: 'member', level: 1 },
       handlers: {
-        'GET datasets': ({ searchParams }) => ({ datasets: searchParams.get('dataset[role]') === 'primary' ? [{ id: 10, name: 'ds10' }] : [] }),
+        'GET datasets': ({ searchParams }) => ({
+          datasets: searchParams.get('dataset[role]') === 'primary' ? [{ id: 10, name: 'ds10' }] : [],
+        }),
         'GET datasets/10': () => ({
-          id: 10,
-          full_name: 'tank/nas/ds10',
-          name: 'ds10',
-          used: 2048,
-          refquota: 10240,
-          snapshots_count: 1,
-          mount_count: 0,
-          export_count: 0,
-          object_state: 'active',
-          vps: null,
-          user: { id: 2, login: 'member' },
+          dataset: {
+            id: 10,
+            full_name: 'tank/nas/ds10',
+            name: 'ds10',
+            used: 2048,
+            refquota: 10240,
+            snapshots_count: 1,
+            mount_count: 0,
+            export_count: 0,
+            object_state: 'active',
+            vps: null,
+            user: { id: 2, login: 'member' },
+          },
         }),
 
         'GET datasets/10/snapshots': () => ({
-          snapshots: deleted ? [] : [
-            {
-              id: 200,
-              dataset: 10,
-              name: 'snap-200',
-              label: 'snap-200',
-              created_at: '2026-01-26T00:00:00.000Z',
-            },
-          ],
+          snapshots: deleted
+            ? []
+            : [
+                {
+                  id: 200,
+                  dataset: { id: 10 },
+                  name: 'snap-200',
+                  label: 'snap-200',
+                  created_at: '2026-01-26T00:00:00.000Z',
+                },
+              ],
         }),
         'GET transaction_chains': () => ({ transaction_chains: [] }),
         'POST snapshot_downloads': () => ({
@@ -525,7 +563,7 @@ test.describe('@smoke @smoke-mobile Dataset snapshots', () => {
         }),
         'POST datasets/10/snapshots/200/rollback': () => {
           rollbackCalls += 1;
-          return { _meta: { action_state_id: 721 } };
+          return { snapshot: {}, _meta: { action_state_id: 721 } };
         },
         'GET action_states/721': () => ({
           action_state: { id: 721, finished: true, status: true, current: 1, total: 1 },
@@ -533,7 +571,7 @@ test.describe('@smoke @smoke-mobile Dataset snapshots', () => {
         'DELETE datasets/10/snapshots/200': () => {
           deleteCalls += 1;
           deleted = true;
-          return { ok: true };
+          return { snapshot: {} };
         },
       },
     });
@@ -553,7 +591,10 @@ test.describe('@smoke @smoke-mobile Dataset snapshots', () => {
       },
     });
     await expect(page.getByTestId('dataset.snapshots.download.created')).toBeVisible();
-    await expect(page.getByTestId('dataset.snapshots.download.created.open')).toHaveAttribute('href', /\/generated\/snap-200\.tar\.gz$/);
+    await expect(page.getByTestId('dataset.snapshots.download.created.open')).toHaveAttribute(
+      'href',
+      /\/generated\/snap-200\.tar\.gz$/
+    );
     await page.getByTestId('dataset.snapshots.download.created.close').click();
     await expect(visibleSnapshotAction(page, 200, 'rollback')).toBeEnabled();
     await visibleSnapshotAction(page, 200, 'rollback').click();

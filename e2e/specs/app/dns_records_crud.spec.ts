@@ -10,7 +10,7 @@ test.describe('@smoke DNS records CRUD', () => {
     let records = [
       {
         id: 100,
-        dns_zone: 10,
+        dns_zone: { id: 10 },
         name: 'www',
         type: 'A',
         content: '1.2.3.4',
@@ -27,12 +27,14 @@ test.describe('@smoke DNS records CRUD', () => {
       user: { id: 1, login: 'test', level: 1 },
       handlers: {
         'GET dns_zones/10': () => ({
-          id: 10,
-          name: 'example.com',
-          enabled: true,
-          dnssec_enabled: false,
-          default_ttl: 600,
-          object_state: 'active',
+          dns_zone: {
+            id: 10,
+            name: 'example.com',
+            enabled: true,
+            dnssec_enabled: false,
+            default_ttl: 600,
+            object_state: 'active',
+          },
         }),
         'GET dns_records': () => ({ dns_records: records }),
         // Zone layout calls this for "recent tx" best-effort.
@@ -42,7 +44,7 @@ test.describe('@smoke DNS records CRUD', () => {
           createPayload = await request.postDataJSON();
           const created = {
             id: 101,
-            dns_zone: 10,
+            dns_zone: { id: 10 },
             name: 'api',
             type: 'A',
             content: '5.6.7.8',
@@ -65,7 +67,7 @@ test.describe('@smoke DNS records CRUD', () => {
 
         'DELETE dns_records/101': () => {
           records = records.filter((r) => r.id !== 101);
-          return {};
+          return { dns_record: {} };
         },
       },
     });
