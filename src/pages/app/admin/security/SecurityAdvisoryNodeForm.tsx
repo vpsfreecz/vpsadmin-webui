@@ -1,5 +1,6 @@
 import { useI18n } from '../../../../app/i18n';
 import { Alert } from '../../../../components/ui/Alert';
+import { Checkbox } from '../../../../components/ui/Checkbox';
 import { Input } from '../../../../components/ui/Input';
 import { Select } from '../../../../components/ui/Select';
 import { Textarea } from '../../../../components/ui/Textarea';
@@ -20,6 +21,7 @@ export interface SecurityAdvisoryNodeFormValues {
   vulnerableUntil: string;
   mitigatedSince: string;
   notes: Record<string, string>;
+  bulkNoteSelection?: Record<string, boolean>;
   original?: SecurityAdvisoryNodeStatus | null;
 }
 
@@ -54,10 +56,11 @@ export function buildSecurityAdvisoryNodeStatusPayload(
 ): SecurityAdvisoryNodePayloadResult {
   const notes: Pick<SecurityAdvisoryNodeStatusCreatePayload, 'cs_note' | 'en_note'> = {};
   for (const [code, note] of Object.entries(values.notes)) {
+    if (code !== 'cs' && code !== 'en') return { valid: false, reason: 'unsupported_language' };
+    if (values.bulkNoteSelection !== undefined && values.bulkNoteSelection[code] !== true) continue;
     if (values.original && note === String(values.original[`${code}_note`] ?? '')) continue;
     if (code === 'cs') notes.cs_note = note.trim() || null;
-    else if (code === 'en') notes.en_note = note.trim() || null;
-    else return { valid: false, reason: 'unsupported_language' };
+    else notes.en_note = note.trim() || null;
   }
   if (values.state === 'not_affected' || values.state === 'unknown') {
     return {
@@ -188,16 +191,32 @@ export function SecurityAdvisoryNodeFormFields(props: {
       ) : null}
 
       {Object.entries(props.values.notes).map(([code, note]) => (
-        <Textarea
-          key={code}
-          label={`${code.toUpperCase()} ${t('admin.security_advisories.nodes.field.note')}`}
-          value={note}
-          onChange={(event) =>
-            props.onChange({ ...props.values, notes: { ...props.values.notes, [code]: event.target.value } })
-          }
-          rows={3}
-          testId={`${props.testId}.${code}_note`}
-        />
+        <div key={code} className="space-y-2">
+          {props.values.bulkNoteSelection !== undefined ? (
+            <Checkbox
+              checked={props.values.bulkNoteSelection[code] === true}
+              onChange={(checked) =>
+                props.onChange({
+                  ...props.values,
+                  bulkNoteSelection: { ...props.values.bulkNoteSelection, [code]: checked },
+                })
+              }
+              label={t('admin.security_advisories.nodes.bulk.note_update', { language: code.toUpperCase() })}
+              description={t('admin.security_advisories.nodes.bulk.note_update_help')}
+              testId={`${props.testId}.${code}_note.update`}
+            />
+          ) : null}
+          <Textarea
+            label={`${code.toUpperCase()} ${t('admin.security_advisories.nodes.field.note')}`}
+            value={note}
+            disabled={props.values.bulkNoteSelection !== undefined && props.values.bulkNoteSelection[code] !== true}
+            onChange={(event) =>
+              props.onChange({ ...props.values, notes: { ...props.values.notes, [code]: event.target.value } })
+            }
+            rows={3}
+            testId={`${props.testId}.${code}_note`}
+          />
+        </div>
       ))}
 
       {!payload.valid ? (

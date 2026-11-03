@@ -799,3 +799,45 @@ Node 24 action runtime and configured input contract.
 YAML parsing, configuration comparisons, scoped formatting and whitespace
 checks passed. Independent review, browser verification and repairs for the
 observed broad-smoke failures remain pending.
+
+## Broad-smoke fixture repairs and explicit bulk notes (2026-11-03)
+
+The broad workflow on merged WebUI `670cf286` failed 24 Chromium and nine mobile
+Chrome cases across 12 specs. Diagnosis inspected all 99 retained attempts,
+including retries, before correcting source. Before merge, the six required CI jobs and Nix packaging passed. Broad smoke
+had not been run on this final source.
+
+The affected fixtures now use namespaced API responses, nullable resource
+references, serialized transaction payloads and complete lookup identities.
+Request approval fixtures provide authenticated eligible resources, and the
+list-return case explicitly opts out of the existing review queue. The OS-template case selects
+the supported OS-family filter, and the snapshot case follows the existing
+manual rollback reconciliation.
+Busy gates, payload omissions, focus restoration, receipts and no-replay
+assertions remain. Whole-leaf strict adoption now selects 152 files and retains
+131 deferrals, with the original baseline, sourceRevision, compiler options and
+surviving deferral records unchanged.
+
+The advisory trace also exposed a product defect: a state-only bulk update sent
+null notes and cleared existing text. Each bulk language now has an explicit
+update checkbox. Unchecked fields are omitted. Selected text is trimmed, and a selected blank
+field clears only that language. Existing single-node editing,
+public-note privacy help, captured guards, sequential revisions and partial-save
+recovery remain. The browser case retains its stored-note assertions and now
+expects the required captured state in every exact mutation body.
+
+Focused helper, rendered-panel and snapshot tests passed: 3 files, 31 tests in
+10.39 seconds. They cover note preservation and explicit clearing, independent
+languages, cancellation, missing-row creation, an in-flight payload and blocked
+replay after failed read-back. These are working-source and synthetic-fixture
+results. Independent final review, implemented EN/CS desktop/mobile captures,
+final broad smoke and integration acceptance remain pending.
+
+The approved bilingual copy follows the repository's own locked terminology at
+API `a65a4dfe`; the site's effective API `942c6eae` is a distinct revision with
+identical inspected guide bytes. The canonical KB contract at `f97785c2` maps
+PHP/API942c and has no registered React advisory control, managed page or
+screenshot concept for this change. No mapped KB update was identified;
+unregistered live wiki prose and existing image currency remain unverified.
+No backend, SDK, dependency, persisted-format, configuration or running-preview
+change is part of this repair.

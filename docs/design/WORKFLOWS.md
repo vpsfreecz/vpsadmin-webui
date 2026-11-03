@@ -857,9 +857,15 @@ instead of offering to create another parent.
 Publication and mitigation inputs retain seconds and preserve null. Editing can
 leave zero CVEs or missing node assessments; only explicit add/bulk operations
 create rows. Existing retired-node assessments remain removable. Node notes use
-localized fields, preserving languages the form does not edit. Published and
-retracted node writes offer resolved states and require both mitigation times
-when mitigated. A correction refreshes affected-user/VPS and public caches.
+localized fields. A bulk note field stays disabled until its language's update
+checkbox is selected. Unchecked languages retain their existing notes. Selected text is trimmed
+and replaces the note; a selected blank field clears it.
+Unchecking retains the draft but omits that language from the write. Cancelling
+and reopening bulk resets its note choices; cancelling only the confirmation
+retains them. The single-node editor preserves languages it does not edit.
+Published and retracted node writes offer resolved states and require both
+mitigation times when mitigated. A correction refreshes affected-user/VPS and
+public caches.
 
 Direct retraction is silent, preserves history and affected projections, and is
 available only while published. Deletion is available in every state and its

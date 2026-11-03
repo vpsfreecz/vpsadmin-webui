@@ -154,6 +154,9 @@ export const enAdmin_security_advisories = {
   'admin.security_advisories.nodes.delete.title': 'Remove node status?',
   'admin.security_advisories.nodes.delete.description':
     'Remove the recorded security status for node {node}? The advisory may then become unpublishable.',
+  'admin.security_advisories.nodes.bulk.note_update': 'Update {language} note',
+  'admin.security_advisories.nodes.bulk.note_update_help':
+    'Keep this unchecked to leave the existing note unchanged. Check it and leave the field empty to clear the note.',
   'admin.security_advisories.nodes.bulk.title': 'Set status for all nodes',
   'admin.security_advisories.nodes.bulk.progress': '{completed} of {total} nodes updated',
   'admin.security_advisories.nodes.bulk.warning_title': 'This overwrites existing statuses',
@@ -212,10 +215,10 @@ export const enAdmin_security_advisories = {
   'admin.security_advisories.outages.unlink_body': 'Remove the connection between this advisory and the outage.',
 
   'admin.security_advisories.toast.created': 'Security advisory draft created',
-  "admin.security_advisories.toast.created_without_cves": "Draft created; review the CVE changes.",
+  'admin.security_advisories.toast.created_without_cves': 'Draft created; review the CVE changes.',
   'admin.security_advisories.toast.create_failed': 'Security advisory could not be created',
   'admin.security_advisories.toast.saved': 'Security advisory saved',
-  "admin.security_advisories.toast.saved_without_cves": "Draft saved; review the CVE changes.",
+  'admin.security_advisories.toast.saved_without_cves': 'Draft saved; review the CVE changes.',
   'admin.security_advisories.toast.save_failed': 'Security advisory could not be saved',
   'admin.security_advisories.toast.published': 'Security advisory published',
   'admin.security_advisories.toast.publish_failed': 'Security advisory could not be published',
@@ -248,14 +251,18 @@ export const enAdmin_security_advisories = {
   'admin.security_advisories.field.published_at_edit_help':
     'Change the original publication time, or leave empty to clear it.',
 
-  "admin.security_advisories.validation.revision_changed": "The advisory changed since it was reviewed. Unsaved edits remain in the form. Reload and review the current version before continuing.",
-  "admin.security_advisories.validation.revision_unavailable": "The advisory revision is unavailable. Changes cannot be submitted until the current advisory is loaded.",
-  "admin.security_advisories.validation.language_profile_unsupported": "The API requires a language this client does not support. Update the generated client before submitting changes.",
-  "admin.security_advisories.cve_changes.title": "CVE changes need review",
-  "admin.security_advisories.cve_changes.body": "Some changes may already have been applied. Review the current advisory before submitting more changes.",
-  "admin.security_advisories.cve_changes.requested": "Requested CVEs",
-  "admin.security_advisories.cve_changes.accepted": "Accepted changes",
-  "admin.security_advisories.cve_changes.remaining": "Changes to review",
-  "admin.security_advisories.cve_changes.review": "Review advisory",
-  "admin.security_advisories.nodes.action.review_required": "Review required",
+  'admin.security_advisories.validation.revision_changed':
+    'The advisory changed since it was reviewed. Unsaved edits remain in the form. Reload and review the current version before continuing.',
+  'admin.security_advisories.validation.revision_unavailable':
+    'The advisory revision is unavailable. Changes cannot be submitted until the current advisory is loaded.',
+  'admin.security_advisories.validation.language_profile_unsupported':
+    'The API requires a language this client does not support. Update the generated client before submitting changes.',
+  'admin.security_advisories.cve_changes.title': 'CVE changes need review',
+  'admin.security_advisories.cve_changes.body':
+    'Some changes may already have been applied. Review the current advisory before submitting more changes.',
+  'admin.security_advisories.cve_changes.requested': 'Requested CVEs',
+  'admin.security_advisories.cve_changes.accepted': 'Accepted changes',
+  'admin.security_advisories.cve_changes.remaining': 'Changes to review',
+  'admin.security_advisories.cve_changes.review': 'Review advisory',
+  'admin.security_advisories.nodes.action.review_required': 'Review required',
 } as const;

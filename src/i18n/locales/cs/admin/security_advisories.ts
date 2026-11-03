@@ -153,6 +153,9 @@ export const csAdmin_security_advisories = {
   'admin.security_advisories.nodes.delete.title': 'Odebrat stav nodu?',
   'admin.security_advisories.nodes.delete.description':
     'Odebrat uložený bezpečnostní stav nodu {node}? Upozornění pak nemusí být možné zveřejnit.',
+  'admin.security_advisories.nodes.bulk.note_update': 'Změnit poznámku ({language})',
+  'admin.security_advisories.nodes.bulk.note_update_help':
+    'Pokud volbu nezaškrtneš, stávající poznámka se nezmění. Zaškrtnutá volba s prázdným polem poznámku smaže.',
   'admin.security_advisories.nodes.bulk.title': 'Nastavit stav všech nodů',
   'admin.security_advisories.nodes.bulk.progress': 'Aktualizováno {completed} z {total} nodů',
   'admin.security_advisories.nodes.bulk.warning_title': 'Přepíšou se existující stavy',
@@ -211,10 +214,10 @@ export const csAdmin_security_advisories = {
   'admin.security_advisories.outages.unlink_body': 'Zruší propojení mezi tímto upozorněním a výpadkem.',
 
   'admin.security_advisories.toast.created': 'Návrh bezpečnostního upozornění byl vytvořen',
-  "admin.security_advisories.toast.created_without_cves": "Koncept byl vytvořen. Zkontroluj změny CVE.",
+  'admin.security_advisories.toast.created_without_cves': 'Koncept byl vytvořen. Zkontroluj změny CVE.',
   'admin.security_advisories.toast.create_failed': 'Bezpečnostní upozornění se nepodařilo vytvořit',
   'admin.security_advisories.toast.saved': 'Bezpečnostní upozornění bylo uloženo',
-  "admin.security_advisories.toast.saved_without_cves": "Koncept byl uložen. Zkontroluj změny CVE.",
+  'admin.security_advisories.toast.saved_without_cves': 'Koncept byl uložen. Zkontroluj změny CVE.',
   'admin.security_advisories.toast.save_failed': 'Bezpečnostní upozornění se nepodařilo uložit',
   'admin.security_advisories.toast.published': 'Bezpečnostní upozornění bylo zveřejněno',
   'admin.security_advisories.toast.publish_failed': 'Bezpečnostní upozornění se nepodařilo zveřejnit',
@@ -248,14 +251,18 @@ export const csAdmin_security_advisories = {
   'admin.security_advisories.field.published_at_edit_help':
     'Původní čas zveřejnění můžeš změnit. Prázdné pole ho odstraní.',
 
-  "admin.security_advisories.validation.revision_changed": "Bezpečnostní upozornění se od kontroly změnilo. Neuložené úpravy zůstaly ve formuláři. Před pokračováním načti a zkontroluj aktuální verzi.",
-  "admin.security_advisories.validation.revision_unavailable": "Revize bezpečnostního upozornění není dostupná. Změny nelze odeslat, dokud se nenačte aktuální upozornění.",
-  "admin.security_advisories.validation.language_profile_unsupported": "API vyžaduje jazyk, který tento klient nepodporuje. Před odesláním změn je potřeba aktualizovat generovaného klienta.",
-  "admin.security_advisories.cve_changes.title": "Změny CVE je potřeba zkontrolovat",
-  "admin.security_advisories.cve_changes.body": "Některé změny už mohly být provedeny. Před odesláním dalších změn zkontroluj aktuální bezpečnostní upozornění.",
-  "admin.security_advisories.cve_changes.requested": "Požadovaný seznam CVE",
-  "admin.security_advisories.cve_changes.accepted": "Přijaté změny",
-  "admin.security_advisories.cve_changes.remaining": "Změny ke kontrole",
-  "admin.security_advisories.cve_changes.review": "Zkontrolovat upozornění",
-  "admin.security_advisories.nodes.action.review_required": "Je nutná kontrola",
+  'admin.security_advisories.validation.revision_changed':
+    'Bezpečnostní upozornění se od kontroly změnilo. Neuložené úpravy zůstaly ve formuláři. Před pokračováním načti a zkontroluj aktuální verzi.',
+  'admin.security_advisories.validation.revision_unavailable':
+    'Revize bezpečnostního upozornění není dostupná. Změny nelze odeslat, dokud se nenačte aktuální upozornění.',
+  'admin.security_advisories.validation.language_profile_unsupported':
+    'API vyžaduje jazyk, který tento klient nepodporuje. Před odesláním změn je potřeba aktualizovat generovaného klienta.',
+  'admin.security_advisories.cve_changes.title': 'Změny CVE je potřeba zkontrolovat',
+  'admin.security_advisories.cve_changes.body':
+    'Některé změny už mohly být provedeny. Před odesláním dalších změn zkontroluj aktuální bezpečnostní upozornění.',
+  'admin.security_advisories.cve_changes.requested': 'Požadovaný seznam CVE',
+  'admin.security_advisories.cve_changes.accepted': 'Přijaté změny',
+  'admin.security_advisories.cve_changes.remaining': 'Změny ke kontrole',
+  'admin.security_advisories.cve_changes.review': 'Zkontrolovat upozornění',
+  'admin.security_advisories.nodes.action.review_required': 'Je nutná kontrola',
 } as const;

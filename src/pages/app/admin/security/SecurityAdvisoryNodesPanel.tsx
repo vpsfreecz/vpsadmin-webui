@@ -184,7 +184,7 @@ export function SecurityAdvisoryNodesPanel(props: {
     }
     setBulkOpen(true);
     setBulkConfirm(false);
-    setBulkValues(securityAdvisoryNodeFormValues(null, props.languages, resolved));
+    setBulkValues({ ...securityAdvisoryNodeFormValues(null, props.languages, resolved), bulkNoteSelection: {} });
     setBulkTargetIds(activeNodes.map((node) => node.id));
     setBulkCompleted(new Set());
     setBulkError(null);

@@ -76,4 +76,45 @@ describe('security advisory node status panel helpers', () => {
     expect(securityAdvisoryNodeStatusNodeId({ id: 1, node: { id: 11, name: 'node11' } })).toBe(11);
     expect(securityAdvisoryNodeStatusNodeId({ id: 1 })).toBeNull();
   });
+
+  it.each<{
+    selection: Record<string, boolean>;
+    notes: Record<string, string>;
+    expected: Record<string, string | null>;
+  }>([
+    { selection: {}, notes: { en: '', cs: '' }, expected: {} },
+    { selection: { en: false }, notes: { en: 'Retained draft', cs: '' }, expected: {} },
+    { selection: { en: true }, notes: { en: '  Changed note  ', cs: '' }, expected: { en_note: 'Changed note' } },
+    { selection: { en: true }, notes: { en: '', cs: 'Leave alone' }, expected: { en_note: null } },
+    { selection: { cs: true }, notes: { en: 'Leave alone', cs: '  ' }, expected: { cs_note: null } },
+    { selection: { en: true, cs: true }, notes: { en: 'New', cs: '' }, expected: { en_note: 'New', cs_note: null } },
+  ])('serializes only explicitly selected bulk languages: $selection / $notes', ({ selection, notes, expected }) => {
+    expect(buildSecurityAdvisoryNodeStatusPayload(7, values({ notes, bulkNoteSelection: selection }))).toEqual({
+      valid: true,
+      payload: { node: 7, state: 'unknown', vulnerable_until: null, mitigated_since: null, ...expected },
+    });
+  });
+
+  it('rejects an unsupported bulk language even when it is not selected', () => {
+    expect(buildSecurityAdvisoryNodeStatusPayload(7, values({ notes: { de: '' }, bulkNoteSelection: {} }))).toEqual({
+      valid: false,
+      reason: 'unsupported_language',
+    });
+  });
+
+  it.each([
+    { note: 'Existing note', expected: {} },
+    { note: '  New note  ', expected: { en_note: 'New note' } },
+    { note: '', expected: { en_note: null } },
+  ])('preserves ordinary editor note comparison: $note', ({ note, expected }) => {
+    expect(
+      buildSecurityAdvisoryNodeStatusPayload(
+        7,
+        values({ notes: { en: note }, original: { id: 11, en_note: 'Existing note', state: 'unknown' } })
+      )
+    ).toEqual({
+      valid: true,
+      payload: { node: 7, state: 'unknown', vulnerable_until: null, mitigated_since: null, ...expected },
+    });
+  });
 });

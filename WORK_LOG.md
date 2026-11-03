@@ -1,3 +1,8 @@
+## Broad-smoke fixture repairs and explicit bulk notes (2026-11-03)
+
+Correct the observed generated-wire fixtures and preserve untouched notes during
+bulk advisory updates. [Scope and verification](docs/work-log/2026-11-01-typescript-client-migration.md#broad-smoke-fixture-repairs-and-explicit-bulk-notes-2026-11-03).
+
 ## Broad browser smoke before merge (2026-11-03)
 
 Broad smoke runs on pull requests and pushes to every branch, and still supports
