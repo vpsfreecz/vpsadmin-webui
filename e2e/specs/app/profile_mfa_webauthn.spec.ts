@@ -34,13 +34,13 @@ test('@smoke profile: WebAuthn credentials edit and delete flows', async ({ page
         const body = reqJson as { webauthn_credential?: { label?: string; enabled?: boolean } };
         const update = body.webauthn_credential ?? {};
         webauthnCredentials = webauthnCredentials.map((credential) =>
-          credential.id === 20 ? { ...credential, ...update } : credential,
+          credential.id === 20 ? { ...credential, ...update } : credential
         );
         return { webauthn_credential: webauthnCredentials.find((credential) => credential.id === 20) };
       },
       'DELETE users/1/webauthn_credentials/20': () => {
         webauthnCredentials = [];
-        return { ok: true };
+        return { webauthn_credential: {} };
       },
     },
   });
@@ -54,8 +54,8 @@ test('@smoke profile: WebAuthn credentials edit and delete flows', async ({ page
   await expect(page.getByTestId('profile.mfa.webauthn.edit')).toBeVisible();
   await page.getByTestId('profile.mfa.webauthn.edit.label').fill('Security key renamed');
 
-  const updateReqP = page.waitForRequest((request) =>
-    request.method() === 'PUT' && request.url().includes('/users/1/webauthn_credentials/20'),
+  const updateReqP = page.waitForRequest(
+    (request) => request.method() === 'PUT' && request.url().includes('/users/1/webauthn_credentials/20')
   );
   await page.getByTestId('profile.mfa.webauthn.edit.save').click();
   const updateReq = await updateReqP;
@@ -68,8 +68,8 @@ test('@smoke profile: WebAuthn credentials edit and delete flows', async ({ page
   await table.getByTestId('profile.mfa.webauthn.row.20.delete').click();
   await expect(page.getByTestId('profile.mfa.webauthn.delete.confirm')).toBeVisible();
 
-  const deleteReqP = page.waitForRequest((request) =>
-    request.method() === 'DELETE' && request.url().includes('/users/1/webauthn_credentials/20'),
+  const deleteReqP = page.waitForRequest(
+    (request) => request.method() === 'DELETE' && request.url().includes('/users/1/webauthn_credentials/20')
   );
   await page.getByTestId('profile.mfa.webauthn.delete.confirm.confirm').click();
   await deleteReqP;

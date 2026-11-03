@@ -85,7 +85,9 @@ async function installOsmMapMock(page: Page, options: { empty?: boolean; failFir
   return { requestCount: () => requests };
 }
 
-test('@workflow-matrix @smoke admin requests: one list row opens the canonical detail with return context', async ({ page }) => {
+test('@workflow-matrix @smoke admin requests: one list row opens the canonical detail with return context', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
   const osm = await installOsmMapMock(page);
 
@@ -102,6 +104,10 @@ test('@workflow-matrix @smoke admin requests: one list row opens the canonical d
       },
       'GET user_request/changes': () => ({ changes: [] }),
       'GET user_request/registrations/123': () => ({ registration: current }),
+      'GET locations': () => ({ locations: [{ id: 7, label: 'Prague' }] }),
+      'GET os_templates': () => ({
+        os_templates: [{ id: 5, label: 'Debian 13', cgroup_version: 'cgroup_v2', enabled: true, supported: true }],
+      }),
       'GET nodes': () => ({ nodes: [] }),
       'POST user_request/registrations/123/resolve': ({ reqJson }) => {
         resolveBodies.push(reqJson);
@@ -159,9 +165,15 @@ test('@workflow-matrix @smoke admin requests: one list row opens the canonical d
   });
   await page.goto('/admin/requests/registration/123');
   await expect(page).toHaveURL('/admin/requests/registration/123');
-  await expect(page.getByTestId('admin.requests.detail.ops.action_state')).toHaveAttribute('href', '/admin/action-states/177');
+  await expect(page.getByTestId('admin.requests.detail.ops.action_state')).toHaveAttribute(
+    'href',
+    '/admin/action-states/177'
+  );
   await expect(page.getByTestId('admin.requests.detail.ops.chain')).toHaveAttribute('href', '/admin/transactions/88');
-  await expect(page.getByTestId('admin.requests.detail.ops.transaction')).toHaveAttribute('href', '/admin/transactions/items/99');
+  await expect(page.getByTestId('admin.requests.detail.ops.transaction')).toHaveAttribute(
+    'href',
+    '/admin/transactions/items/99'
+  );
   const mapCard = page.getByTestId('admin.requests.detail.registration.address.map');
   await expect(mapCard).toBeVisible();
   const mapPreview = mapCard.getByTestId('admin.requests.detail.registration.address.map.preview');
@@ -187,9 +199,11 @@ test('@workflow-matrix @smoke admin requests: one list row opens the canonical d
     });
   });
   await copyAddress.click();
-  await expect.poll(() => page.evaluate(
-    () => (window as typeof window & { __copiedRequestAddress?: string }).__copiedRequestAddress,
-  )).toBe('Stodolní 138/44, 14400 Ostrava, Česko');
+  await expect
+    .poll(() =>
+      page.evaluate(() => (window as typeof window & { __copiedRequestAddress?: string }).__copiedRequestAddress)
+    )
+    .toBe('Stodolní 138/44, 14400 Ostrava, Česko');
   await expect(copyAddress).toContainText(/copied|zkopírováno/i);
   await expect(mapLink).toHaveAttribute('target', '_blank');
   await expect(mapLink).toHaveAttribute('rel', 'noopener noreferrer');
@@ -207,7 +221,9 @@ test('@workflow-matrix @smoke admin requests: one list row opens the canonical d
 });
 
 for (const language of ['en', 'cs'] as const) {
-  test(`@workflow-matrix @pr-smoke @pr-smoke-mobile admin requests: address copy and risk emphasis work across breakpoints in ${language}`, async ({ page }, testInfo) => {
+  test(`@workflow-matrix @pr-smoke @pr-smoke-mobile admin requests: address copy and risk emphasis work across breakpoints in ${language}`, async ({
+    page,
+  }, testInfo) => {
     await setUiSettingsLocalStorage(page, { language });
     if (language === 'cs' && page.viewportSize()!.width >= 1024) {
       await page.setViewportSize({ width: 1024, height: 900 });
@@ -280,21 +296,27 @@ for (const language of ['en', 'cs'] as const) {
     for (const kind of ['ip', 'mail']) {
       await page.getByTestId(`admin.requests.detail.risk.${kind}.details`).locator('summary').click();
     }
-    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize()!.width);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+      page.viewportSize()!.width
+    );
 
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.screenshot({ path: testInfo.outputPath('request-risk-below-details.png'), fullPage: true });
     const copyAddress = page.getByTestId('admin.requests.detail.registration.address.map.copy');
     await expect(copyAddress).toBeVisible();
-    const addressBox = await page.getByTestId('admin.requests.detail.registration.address.map')
-      .getByText(current.address, { exact: true }).boundingBox();
+    const addressBox = await page
+      .getByTestId('admin.requests.detail.registration.address.map')
+      .getByText(current.address, { exact: true })
+      .boundingBox();
     const copyBox = await copyAddress.boundingBox();
     expect(addressBox!.y + addressBox!.height).toBeLessThanOrEqual(copyBox!.y);
     await expect(copyAddress).toHaveAccessibleName(/copy applicant address|kopírovat adresu žadatele/i);
     await copyAddress.click();
-    await expect.poll(() => page.evaluate(
-      () => (window as typeof window & { __copiedRequestAddress?: string }).__copiedRequestAddress,
-    )).toBe('Stodolní 138/44, 14400 Ostrava, Česko');
+    await expect
+      .poll(() =>
+        page.evaluate(() => (window as typeof window & { __copiedRequestAddress?: string }).__copiedRequestAddress)
+      )
+      .toBe('Stodolní 138/44, 14400 Ostrava, Česko');
     await expect(copyAddress).toContainText(/copied|zkopírováno/i);
 
     const riskSummary = page.getByTestId('admin.requests.detail.risk.summary');
@@ -306,7 +328,9 @@ for (const language of ['en', 'cs'] as const) {
   });
 }
 
-test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke admin requests: successful detail review returns to the overview', async ({ page }) => {
+test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke admin requests: successful detail review returns to the overview', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
   const osm = await installOsmMapMock(page);
 
@@ -338,8 +362,15 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke admin requests: success
           ],
         };
       },
-      'GET locations': () => ({ locations: [{ id: 7, label: 'Prague' }, { id: 8, label: 'Brno' }] }),
-      'GET os_templates': () => ({ os_templates: [{ id: 5, label: 'Debian 13', cgroup_version: 'cgroup_v2', enabled: true, supported: true }] }),
+      'GET locations': () => ({
+        locations: [
+          { id: 7, label: 'Prague' },
+          { id: 8, label: 'Brno' },
+        ],
+      }),
+      'GET os_templates': () => ({
+        os_templates: [{ id: 5, label: 'Debian 13', cgroup_version: 'cgroup_v2', enabled: true, supported: true }],
+      }),
       'GET languages': () => ({ languages: [{ id: 2, label: 'Čeština' }] }),
       'POST user_request/registrations/125/resolve': async ({ reqJson }) => {
         resolveCalls += 1;
@@ -389,7 +420,9 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke admin requests: success
   await expect(locationOverride).toHaveAttribute('aria-describedby', 'admin.requests.resolve.override.numeric.error');
   const numericError = page.getByTestId('admin.requests.resolve.override.numeric.error');
   await expect(numericError).toContainText(/cannot be cleared|nelze je vymazat/i);
-  await expect(page.getByTestId('admin.requests.resolve.review')).not.toContainText(/location:.*clear|lokalita:.*vymazat/i);
+  await expect(page.getByTestId('admin.requests.resolve.review')).not.toContainText(
+    /location:.*clear|lokalita:.*vymazat/i
+  );
   await page.getByTestId('admin.requests.resolve.overrides').locator('summary').click();
   await expect(numericError).toBeVisible();
   await page.getByTestId('admin.requests.resolve.overrides').locator('summary').click();
@@ -412,7 +445,9 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke admin requests: success
   await expect(page.getByTestId('admin.requests.chip.state')).toBeVisible();
 });
 
-test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke admin requests: closing without a response is a single-step action', async ({ page }) => {
+test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke admin requests: closing without a response is a single-step action', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
   await installOsmMapMock(page);
 
@@ -440,7 +475,9 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke admin requests: closing
   await expect.poll(() => resolveBody).toEqual({ registration: { action: 'ignore' } });
 });
 
-test('@workflow-matrix @smoke admin requests: detail correction exposes and submits all legacy overrides', async ({ page }) => {
+test('@workflow-matrix @smoke admin requests: detail correction exposes and submits all legacy overrides', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
   await installOsmMapMock(page);
   let resolveBody: unknown;
@@ -450,9 +487,18 @@ test('@workflow-matrix @smoke admin requests: detail correction exposes and subm
     user: { id: 1, login: 'admin', level: 100 },
     handlers: {
       'GET user_request/registrations/128': () => ({ registration: registration(128) }),
-      'GET locations': () => { lookupCalls += 1; return { locations: [{ id: 7, label: 'Prague' }] }; },
-      'GET os_templates': () => { lookupCalls += 1; return { os_templates: [{ id: 5, label: 'Debian 13' }] }; },
-      'GET languages': () => { lookupCalls += 1; return { languages: [{ id: 2, label: 'Čeština' }] }; },
+      'GET locations': () => {
+        lookupCalls += 1;
+        return { locations: [{ id: 7, label: 'Prague' }] };
+      },
+      'GET os_templates': () => {
+        lookupCalls += 1;
+        return { os_templates: [{ id: 5, label: 'Debian 13' }] };
+      },
+      'GET languages': () => {
+        lookupCalls += 1;
+        return { languages: [{ id: 2, label: 'Čeština' }] };
+      },
       'POST user_request/registrations/128/resolve': ({ reqJson }) => {
         resolveBody = reqJson;
         return { registration: { ...registration(128), state: 'pending_correction' } };
@@ -501,7 +547,9 @@ test('@workflow-matrix @smoke admin requests: detail correction exposes and subm
   });
 });
 
-test('@workflow-matrix @smoke admin requests: change detail compares current and requested values with a safe fallback', async ({ page }) => {
+test('@workflow-matrix @smoke admin requests: change detail compares current and requested values with a safe fallback', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
   const requested = {
     id: 701,
@@ -517,7 +565,16 @@ test('@workflow-matrix @smoke admin requests: change detail compares current and
     user: { id: 1, login: 'admin', level: 100 },
     handlers: {
       'GET user_request/changes/701': () => ({ change: requested }),
-      'GET users/42': () => ({ user: { id: 42, login: 'alice', level: 1, full_name: 'Alice Old', email: 'old@example.test', address: 'Old address' } }),
+      'GET users/42': () => ({
+        user: {
+          id: 42,
+          login: 'alice',
+          level: 1,
+          full_name: 'Alice Old',
+          email: 'old@example.test',
+          address: 'Old address',
+        },
+      }),
     },
   });
 
@@ -530,14 +587,20 @@ test('@workflow-matrix @smoke admin requests: change detail compares current and
   await expect(page.getByTestId('admin.requests.resolve.action.request_correction')).toHaveCount(0);
 
   await page.route(/\/api\/v7\.0\/users\/42(?:\?|$)/, async (route) => {
-    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(failEnvelope('profile unavailable')) });
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(failEnvelope('profile unavailable')),
+    });
   });
   await page.reload();
   await expect(page.getByTestId('admin.requests.detail.change.current_fallback')).toBeVisible();
   await expect(page.getByTestId('admin.requests.detail.change.full_name')).toContainText('Alice New');
 });
 
-test('@workflow-matrix @smoke admin requests: change detail distinguishes no change, clearing, and an empty current value', async ({ page }) => {
+test('@workflow-matrix @smoke admin requests: change detail distinguishes no change, clearing, and an empty current value', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
   const requested = {
     id: 702,
@@ -559,12 +622,20 @@ test('@workflow-matrix @smoke admin requests: change detail distinguishes no cha
   });
 
   await page.goto('/admin/requests/change/702');
-  await expect(page.getByTestId('admin.requests.detail.change.full_name.requested')).toContainText(/clear this value|vymazat tuto hodnotu/i);
-  await expect(page.getByTestId('admin.requests.detail.change.address.requested')).toContainText(/no change|beze změny/i);
-  await expect(page.getByTestId('admin.requests.detail.change.address.current')).toContainText(/empty value|prázdná hodnota/i);
+  await expect(page.getByTestId('admin.requests.detail.change.full_name.requested')).toContainText(
+    /clear this value|vymazat tuto hodnotu/i
+  );
+  await expect(page.getByTestId('admin.requests.detail.change.address.requested')).toContainText(
+    /no change|beze změny/i
+  );
+  await expect(page.getByTestId('admin.requests.detail.change.address.current')).toContainText(
+    /empty value|prázdná hodnota/i
+  );
 });
 
-test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke admin requests: automatic address map can retry a failed lookup', async ({ page }) => {
+test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke admin requests: automatic address map can retry a failed lookup', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
   const osm = await installOsmMapMock(page, { failFirst: true });
 
@@ -586,7 +657,9 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke admin requests: automat
   await expect.poll(osm.requestCount).toBe(2);
 });
 
-test('@workflow-matrix @pr-smoke @smoke admin requests: automatic address map distinguishes an unknown address', async ({ page }, testInfo) => {
+test('@workflow-matrix @pr-smoke @smoke admin requests: automatic address map distinguishes an unknown address', async ({
+  page,
+}, testInfo) => {
   await bootstrapVpsAdminWindow(page);
   const osm = await installOsmMapMock(page, { empty: true });
 
@@ -608,7 +681,9 @@ test('@workflow-matrix @pr-smoke @smoke admin requests: automatic address map di
   await page.screenshot({ path: testInfo.outputPath('request-unknown-address.png'), fullPage: true });
 });
 
-test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke @smoke-mobile admin requests: rejected action error is visible', async ({ page }) => {
+test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke @smoke-mobile admin requests: rejected action error is visible', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
   await installOsmMapMock(page);
 
@@ -620,7 +695,9 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke @smoke-mobile admin req
       'GET user_request/registrations/124': () => ({ registration: registration(124) }),
       'GET nodes': () => ({ nodes: [] }),
       'GET locations': () => ({ locations: [{ id: 7, label: 'Prague' }] }),
-      'GET os_templates': () => ({ os_templates: [{ id: 5, label: 'Debian 13', cgroup_version: 'cgroup_v2', enabled: true, supported: true }] }),
+      'GET os_templates': () => ({
+        os_templates: [{ id: 5, label: 'Debian 13', cgroup_version: 'cgroup_v2', enabled: true, supported: true }],
+      }),
       'POST user_request/registrations/124/resolve': () => failEnvelope('Cannot approve this request'),
     },
   });
@@ -637,7 +714,9 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke @smoke-mobile admin req
   await expect(page).toHaveURL('/admin/requests/registration/124');
 });
 
-test('@workflow-matrix @smoke admin requests: correction uses the canonical detail and registration bulk approval is blocked', async ({ page }) => {
+test('@workflow-matrix @smoke admin requests: correction uses the canonical detail and registration bulk approval is blocked', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
 
   const resolveBodies: unknown[] = [];
@@ -664,6 +743,7 @@ test('@workflow-matrix @smoke admin requests: correction uses the canonical deta
 
   await page.getByTestId('admin.requests.row.registration.401').getByRole('link', { name: '#401' }).press('Enter');
   await expect(page).toHaveURL(/\/admin\/requests\/registration\/401\?returnTo=/);
+  await page.getByTestId('admin.requests.review.continue').uncheck();
   await page.getByTestId('admin.requests.resolve.action.request_correction').click();
   await expect(page.getByTestId('admin.requests.resolve.override.login')).toHaveValue('alice');
   await expect(page.getByTestId('admin.requests.resolve.override.full_name')).toHaveValue('Alice Example');
@@ -701,7 +781,9 @@ test('@workflow-matrix @smoke admin requests: correction uses the canonical deta
   await expect.poll(() => resolveBodies.length).toBe(1);
 });
 
-test('@workflow-matrix @smoke admin requests: bulk writes require confirmation and failed rows stay selected', async ({ page }) => {
+test('@workflow-matrix @smoke admin requests: bulk writes require confirmation and failed rows stay selected', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
 
   const resolveBodies: unknown[] = [];
@@ -759,7 +841,9 @@ test('@workflow-matrix @smoke admin requests: bulk writes require confirmation a
   await expect(page.getByTestId('admin.requests.bulk.select.change.402')).not.toBeChecked();
 });
 
-test('@workflow-matrix @smoke admin requests: visible state and type segments keep the list simple', async ({ page }) => {
+test('@workflow-matrix @smoke admin requests: visible state and type segments keep the list simple', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
 
   await installHaveApiMock(page, {
@@ -808,7 +892,9 @@ test('@workflow-matrix @smoke admin requests: visible state and type segments ke
   await expect(page).toHaveURL(/type=registration/);
 });
 
-test('@workflow-matrix @smoke @smoke-mobile admin requests: sequential review opens the next request after each decision', async ({ page }, testInfo) => {
+test('@workflow-matrix @smoke @smoke-mobile admin requests: sequential review opens the next request after each decision', async ({
+  page,
+}, testInfo) => {
   await bootstrapVpsAdminWindow(page);
   let first = { ...registration(302), user: undefined, login: 'first-user', full_name: 'First Applicant' };
   let second = { ...registration(301), user: undefined, login: 'second-user', full_name: 'Second Applicant' };
@@ -841,9 +927,11 @@ test('@workflow-matrix @smoke @smoke-mobile admin requests: sequential review op
   });
 
   await page.goto('/admin/requests');
-  await expect(page.locator(
-    '[data-testid="admin.requests.row.registration.302.full_name"]:visible, [data-testid="admin.requests.mobile.row.registration.302.full_name"]:visible',
-  )).toHaveText('First Applicant');
+  await expect(
+    page.locator(
+      '[data-testid="admin.requests.row.registration.302.full_name"]:visible, [data-testid="admin.requests.mobile.row.registration.302.full_name"]:visible'
+    )
+  ).toHaveText('First Applicant');
   await expect(page.getByTestId('admin.requests.review.start')).toContainText('3');
   await page.getByTestId('admin.requests.review.start').click();
 
@@ -853,8 +941,9 @@ test('@workflow-matrix @smoke @smoke-mobile admin requests: sequential review op
   const queueBox = await page.getByTestId('admin.requests.review.queue').boundingBox();
   const actionsBox = await page.getByTestId('admin.requests.resolve.actions').boundingBox();
   expect(actionsBox!.y).toBeGreaterThanOrEqual(queueBox!.y + queueBox!.height);
-  await page.getByTestId('admin.requests.detail.decision').screenshot({ path: testInfo.outputPath('decision-compact-queue.png') });
-
+  await page
+    .getByTestId('admin.requests.detail.decision')
+    .screenshot({ path: testInfo.outputPath('decision-compact-queue.png') });
 
   await page.getByTestId('admin.requests.resolve.action.deny').click();
   await page.getByTestId('admin.requests.resolve.reason').fill('Does not meet the requirements');
@@ -867,16 +956,20 @@ test('@workflow-matrix @smoke @smoke-mobile admin requests: sequential review op
   await page.getByTestId('admin.requests.review.continue').uncheck();
   await page.getByTestId('admin.requests.resolve.action.ignore').click();
   await expect(page).toHaveURL(/\/admin\/requests(?:\?|$)/);
-  await expect(page.locator(
-    '[data-testid="admin.requests.row.registration.300"]:visible, [data-testid="admin.requests.mobile.row.registration.300"]:visible',
-  )).toBeVisible();
+  await expect(
+    page.locator(
+      '[data-testid="admin.requests.row.registration.300"]:visible, [data-testid="admin.requests.mobile.row.registration.300"]:visible'
+    )
+  ).toBeVisible();
   expect(resolveBodies).toEqual([
     { registration: { action: 'deny', reason: 'Does not meet the requirements' } },
     { registration: { action: 'ignore' } },
   ]);
 });
 
-test('@workflow-matrix @smoke admin requests: main input opens a typed ID or selects an applicant without request q', async ({ page }) => {
+test('@workflow-matrix @smoke admin requests: main input opens a typed ID or selects an applicant without request q', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
   await installOsmMapMock(page);
 
@@ -891,12 +984,14 @@ test('@workflow-matrix @smoke admin requests: main input opens a typed ID or sel
         registrationQ.push(searchParams.get('registration[q]'));
         registrationUsers.push(searchParams.get('registration[user]'));
         return {
-          registrations: [{
-            ...registration(779),
-            user: undefined,
-            login: 'newperson',
-            email: 'newperson@example.test',
-          }],
+          registrations: [
+            {
+              ...registration(779),
+              user: undefined,
+              login: 'newperson',
+              email: 'newperson@example.test',
+            },
+          ],
         };
       },
       'GET user_request/changes': ({ searchParams }) => {
@@ -956,7 +1051,9 @@ test('@workflow-matrix @smoke admin requests: main input opens a typed ID or sel
   await expect.poll(() => registrationUsers.includes('42')).toBe(true);
 });
 
-test('@workflow-matrix @smoke admin requests: direct id lookup reports an API outage instead of not found', async ({ page }) => {
+test('@workflow-matrix @smoke admin requests: direct id lookup reports an API outage instead of not found', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
   await installHaveApiMock(page, {
     user: { id: 1, login: 'admin', level: 100 },
@@ -986,7 +1083,9 @@ test('@workflow-matrix @smoke admin requests: direct id lookup reports an API ou
   expect(new URL(page.url()).pathname).toBe('/admin/requests');
 });
 
-test('@workflow-matrix @smoke admin requests: advanced filters are keyboard-safe and the default queue only includes awaiting requests', async ({ page }) => {
+test('@workflow-matrix @smoke admin requests: advanced filters are keyboard-safe and the default queue only includes awaiting requests', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
 
   const registrationStates: Array<string | null> = [];
@@ -1027,15 +1126,18 @@ test('@workflow-matrix @smoke admin requests: advanced filters are keyboard-safe
   await expect(page.getByTestId('admin.requests.row.registration.302')).toBeVisible();
 });
 
-test('@workflow-matrix @smoke @smoke-mobile admin requests: correction queue stays outside the default admin work queue', async ({ page }) => {
+test('@workflow-matrix @smoke @smoke-mobile admin requests: correction queue stays outside the default admin work queue', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
 
   const registrationStates: Array<string | null> = [];
   const changeStates: Array<string | null> = [];
   let correctionState = 'pending_correction';
-  const visibleRegistration = (id: number) => page.locator(
-    `[data-testid="admin.requests.row.registration.${id}"]:visible, [data-testid="admin.requests.mobile.row.registration.${id}"]:visible`,
-  );
+  const visibleRegistration = (id: number) =>
+    page.locator(
+      `[data-testid="admin.requests.row.registration.${id}"]:visible, [data-testid="admin.requests.mobile.row.registration.${id}"]:visible`
+    );
 
   await installHaveApiMock(page, {
     user: { id: 1, login: 'admin', level: 100 },
@@ -1085,15 +1187,22 @@ test('@workflow-matrix @smoke @smoke-mobile admin requests: correction queue sta
   await expect(page).not.toHaveURL(/[?&]state=/);
 });
 
-test('@workflow-matrix @smoke @smoke-mobile admin requests: all states is explicit, shareable, and clears back to the work queue', async ({ page }) => {
+test('@workflow-matrix @smoke @smoke-mobile admin requests: all states is explicit, shareable, and clears back to the work queue', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
 
   const registrationStates: Array<string | null> = [];
   const changeStates: Array<string | null> = [];
-  const registrations = [registration(603, 'awaiting'), registration(602, 'pending_correction'), registration(601, 'denied')];
-  const visibleRegistration = (id: number) => page.locator(
-    `[data-testid="admin.requests.row.registration.${id}"]:visible, [data-testid="admin.requests.mobile.row.registration.${id}"]:visible`,
-  );
+  const registrations = [
+    registration(603, 'awaiting'),
+    registration(602, 'pending_correction'),
+    registration(601, 'denied'),
+  ];
+  const visibleRegistration = (id: number) =>
+    page.locator(
+      `[data-testid="admin.requests.row.registration.${id}"]:visible, [data-testid="admin.requests.mobile.row.registration.${id}"]:visible`
+    );
 
   await installHaveApiMock(page, {
     user: { id: 1, login: 'admin', level: 100 },
@@ -1126,13 +1235,13 @@ test('@workflow-matrix @smoke @smoke-mobile admin requests: all states is explic
 
   await page.getByTestId('admin.requests.bulk.selection_mode').click();
   const awaitingCheckbox = page.locator(
-    '[data-testid="admin.requests.bulk.select.registration.603"]:visible, [data-testid="admin.requests.bulk.select.mobile.registration.603"]:visible',
+    '[data-testid="admin.requests.bulk.select.registration.603"]:visible, [data-testid="admin.requests.bulk.select.mobile.registration.603"]:visible'
   );
   const correctionCheckbox = page.locator(
-    '[data-testid="admin.requests.bulk.select.registration.602"]:visible, [data-testid="admin.requests.bulk.select.mobile.registration.602"]:visible',
+    '[data-testid="admin.requests.bulk.select.registration.602"]:visible, [data-testid="admin.requests.bulk.select.mobile.registration.602"]:visible'
   );
   const deniedCheckbox = page.locator(
-    '[data-testid="admin.requests.bulk.select.registration.601"]:visible, [data-testid="admin.requests.bulk.select.mobile.registration.601"]:visible',
+    '[data-testid="admin.requests.bulk.select.registration.601"]:visible, [data-testid="admin.requests.bulk.select.mobile.registration.601"]:visible'
   );
   await expect(awaitingCheckbox).toBeEnabled();
   await expect(correctionCheckbox).toBeDisabled();
@@ -1168,8 +1277,14 @@ test('@workflow-matrix @smoke admin requests: support role cannot enter the admi
   await installHaveApiMock(page, {
     user: { id: 2, login: 'support', level: 50 },
     handlers: {
-      'GET user_request/registrations': () => { requestCalls += 1; return { registrations: [] }; },
-      'GET user_request/changes': () => { requestCalls += 1; return { changes: [] }; },
+      'GET user_request/registrations': () => {
+        requestCalls += 1;
+        return { registrations: [] };
+      },
+      'GET user_request/changes': () => {
+        requestCalls += 1;
+        return { changes: [] };
+      },
     },
   });
 
@@ -1179,7 +1294,9 @@ test('@workflow-matrix @smoke admin requests: support role cannot enter the admi
   await expect(page.getByTestId('admin.requests.list')).toHaveCount(0);
 });
 
-test('@workflow-matrix @smoke admin requests: typed detail fails closed when the backend returns another request type', async ({ page }) => {
+test('@workflow-matrix @smoke admin requests: typed detail fails closed when the backend returns another request type', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
   let resolveCalls = 0;
   await installHaveApiMock(page, {
@@ -1198,7 +1315,10 @@ test('@workflow-matrix @smoke admin requests: typed detail fails closed when the
           mail_fraud_score: null,
         },
       }),
-      'POST user_request/registrations/909/resolve': () => { resolveCalls += 1; return {}; },
+      'POST user_request/registrations/909/resolve': () => {
+        resolveCalls += 1;
+        return {};
+      },
     },
   });
 
@@ -1208,14 +1328,19 @@ test('@workflow-matrix @smoke admin requests: typed detail fails closed when the
   expect(resolveCalls).toBe(0);
 });
 
-test('@workflow-matrix @smoke admin requests: typed detail also fails closed when the backend returns another id', async ({ page }) => {
+test('@workflow-matrix @smoke admin requests: typed detail also fails closed when the backend returns another id', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
   let resolveCalls = 0;
   await installHaveApiMock(page, {
     user: { id: 1, login: 'admin', level: 100 },
     handlers: {
       'GET user_request/registrations/908': () => ({ registration: registration(907) }),
-      'POST user_request/registrations/908/resolve': () => { resolveCalls += 1; return {}; },
+      'POST user_request/registrations/908/resolve': () => {
+        resolveCalls += 1;
+        return {};
+      },
     },
   });
 
@@ -1225,7 +1350,9 @@ test('@workflow-matrix @smoke admin requests: typed detail also fails closed whe
   expect(resolveCalls).toBe(0);
 });
 
-test('@workflow-matrix @smoke admin requests: typed detail rejects non-integer ids before an API read', async ({ page }) => {
+test('@workflow-matrix @smoke admin requests: typed detail rejects non-integer ids before an API read', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
   let showCalls = 0;
   await installHaveApiMock(page, {
@@ -1243,7 +1370,9 @@ test('@workflow-matrix @smoke admin requests: typed detail rejects non-integer i
   expect(showCalls).toBe(0);
 });
 
-test('@workflow-matrix @smoke admin requests: stale detail is rechecked immediately before resolve', async ({ page }) => {
+test('@workflow-matrix @smoke admin requests: stale detail is rechecked immediately before resolve', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
   await installOsmMapMock(page);
   const awaiting = registration(911);
@@ -1258,8 +1387,13 @@ test('@workflow-matrix @smoke admin requests: stale detail is rechecked immediat
       },
       'GET nodes': () => ({ nodes: [] }),
       'GET locations': () => ({ locations: [{ id: 7, label: 'Prague' }] }),
-      'GET os_templates': () => ({ os_templates: [{ id: 5, label: 'Debian 13', cgroup_version: 'cgroup_v2', enabled: true, supported: true }] }),
-      'POST user_request/registrations/911/resolve': () => { resolveCalls += 1; return {}; },
+      'GET os_templates': () => ({
+        os_templates: [{ id: 5, label: 'Debian 13', cgroup_version: 'cgroup_v2', enabled: true, supported: true }],
+      }),
+      'POST user_request/registrations/911/resolve': () => {
+        resolveCalls += 1;
+        return {};
+      },
     },
   });
 
@@ -1271,7 +1405,9 @@ test('@workflow-matrix @smoke admin requests: stale detail is rechecked immediat
   expect(resolveCalls).toBe(0);
 });
 
-test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke @smoke-mobile admin requests: a failed detail preflight never creates an uncertain mutation lock', async ({ page }) => {
+test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke @smoke-mobile admin requests: a failed detail preflight never creates an uncertain mutation lock', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
   await installOsmMapMock(page);
   const request = registration(912);
@@ -1293,8 +1429,13 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke @smoke-mobile admin req
       },
       'GET nodes': () => ({ nodes: [] }),
       'GET locations': () => ({ locations: [{ id: 7, label: 'Prague' }] }),
-      'GET os_templates': () => ({ os_templates: [{ id: 5, label: 'Debian 13', cgroup_version: 'cgroup_v2', enabled: true, supported: true }] }),
-      'POST user_request/registrations/912/resolve': () => { resolveCalls += 1; return {}; },
+      'GET os_templates': () => ({
+        os_templates: [{ id: 5, label: 'Debian 13', cgroup_version: 'cgroup_v2', enabled: true, supported: true }],
+      }),
+      'POST user_request/registrations/912/resolve': () => {
+        resolveCalls += 1;
+        return {};
+      },
     },
   });
 
@@ -1316,7 +1457,9 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke @smoke-mobile admin req
   expect(resolveCalls).toBe(0);
 });
 
-test('@workflow-matrix @smoke admin requests: pending fraud checks are never presented as successful', async ({ page }) => {
+test('@workflow-matrix @smoke admin requests: pending fraud checks are never presented as successful', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
   const pending = {
     ...registration(910),
@@ -1338,13 +1481,19 @@ test('@workflow-matrix @smoke admin requests: pending fraud checks are never pre
   await expect(page.getByTestId('admin.requests.detail.risk.ip')).toContainText(/no result|výsledek zatím/i);
 });
 
-test('@workflow-matrix @smoke admin requests: ambiguous detail mutation is durably locked against blind retry', async ({ page }) => {
+test('@workflow-matrix @smoke admin requests: ambiguous detail mutation is durably locked against blind retry', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
   let resolveCalls = 0;
   await installHaveApiMock(page, {
     user: { id: 1, login: 'admin', level: 100 },
     handlers: {
       'GET user_request/registrations/812': () => ({ registration: registration(812) }),
+      'GET locations': () => ({ locations: [{ id: 7, label: 'Prague' }] }),
+      'GET os_templates': () => ({
+        os_templates: [{ id: 5, label: 'Debian 13', cgroup_version: 'cgroup_v2', enabled: true, supported: true }],
+      }),
       'GET nodes': () => ({ nodes: [] }),
       'POST user_request/registrations/812/resolve': () => {
         resolveCalls += 1;
@@ -1378,7 +1527,9 @@ test('@workflow-matrix @smoke admin requests: ambiguous detail mutation is durab
   expect(await retryButton.evaluate((button) => button.scrollHeight <= button.clientHeight)).toBe(true);
 });
 
-test('@workflow-matrix @smoke admin requests: ambiguous bulk mutation stops before untouched targets', async ({ page }) => {
+test('@workflow-matrix @smoke admin requests: ambiguous bulk mutation stops before untouched targets', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
   const changes = [820, 819].map((id) => ({
     id,
@@ -1441,7 +1592,10 @@ test('@workflow-matrix @smoke admin requests: stale bulk row is not posted and r
       'GET user_request/registrations': () => ({ registrations: [] }),
       'GET user_request/changes': () => ({ changes: [change] }),
       'GET user_request/changes/821': () => ({ change: { ...change, state: 'approved' } }),
-      'POST user_request/changes/821/resolve': () => { resolveCalls += 1; return {}; },
+      'POST user_request/changes/821/resolve': () => {
+        resolveCalls += 1;
+        return {};
+      },
     },
   });
 
@@ -1457,7 +1611,9 @@ test('@workflow-matrix @smoke admin requests: stale bulk row is not posted and r
   expect(resolveCalls).toBe(0);
 });
 
-test('@workflow-matrix @smoke admin requests: a failed bulk preflight stays retryable and does not stop untouched targets', async ({ page }) => {
+test('@workflow-matrix @smoke admin requests: a failed bulk preflight stays retryable and does not stop untouched targets', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
   const changes = [824, 823].map((id) => ({
     id,
@@ -1504,7 +1660,9 @@ test('@workflow-matrix @smoke admin requests: a failed bulk preflight stays retr
   await expect(page.getByTestId('admin.requests.bulk.select.change.823')).not.toBeChecked();
 });
 
-test('@workflow-matrix @smoke admin requests: switching a bulk action cannot leak its previous reason', async ({ page }) => {
+test('@workflow-matrix @smoke admin requests: switching a bulk action cannot leak its previous reason', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
   const request = registration(822);
   let resolveBody: unknown;
@@ -1537,7 +1695,9 @@ test('@workflow-matrix @smoke admin requests: switching a bulk action cannot lea
   await expect.poll(() => resolveBody).toEqual({ registration: { action: 'ignore' } });
 });
 
-test('@workflow-matrix @smoke-mobile admin requests: responsive row opens the applicant-first detail', async ({ page }) => {
+test('@workflow-matrix @smoke-mobile admin requests: responsive row opens the applicant-first detail', async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 390, height: 800 });
   await bootstrapVpsAdminWindow(page);
   await installOsmMapMock(page);
@@ -1551,9 +1711,11 @@ test('@workflow-matrix @smoke-mobile admin requests: responsive row opens the ap
   });
 
   await page.goto('/admin/requests');
-  await page.locator(
-    '[data-testid="admin.requests.mobile.row.registration.920"]:visible, [data-testid="admin.requests.row.registration.920"]:visible',
-  ).click();
+  await page
+    .locator(
+      '[data-testid="admin.requests.mobile.row.registration.920"]:visible, [data-testid="admin.requests.row.registration.920"]:visible'
+    )
+    .click();
   await expect(page).toHaveURL(/\/admin\/requests\/registration\/920\?returnTo=/);
   await expect(page.getByTestId('admin.requests.detail.decision')).toBeVisible();
   await expect(page.getByTestId('admin.requests.resolve.action.approve')).toBeVisible();
@@ -1618,7 +1780,12 @@ for (const [state, action, target] of [
       },
     });
     await page.goto('/admin/requests/registration/950');
-    const sameAction = { approved: 'approve', denied: 'deny', ignored: 'ignore', pending_correction: 'request_correction' }[state];
+    const sameAction = {
+      approved: 'approve',
+      denied: 'deny',
+      ignored: 'ignore',
+      pending_correction: 'request_correction',
+    }[state];
     await expect(page.getByTestId(`admin.requests.resolve.action.${sameAction}`)).toHaveCount(0);
     await page.getByTestId(`admin.requests.resolve.action.${action}`).click();
     if (action === 'approve') {
@@ -1629,15 +1796,21 @@ for (const [state, action, target] of [
       await page.getByTestId('admin.requests.resolve.reason').fill('Reviewed again');
       await page.getByTestId('admin.requests.resolve.submit').click();
     }
-    await expect.poll(() => posted).toEqual({ registration: {
-      action,
-      ...(action === 'approve' ? { create_vps: false, activate: true } : {}),
-      ...(action === 'deny' ? { reason: 'Reviewed again' } : {}),
-    } });
+    await expect
+      .poll(() => posted)
+      .toEqual({
+        registration: {
+          action,
+          ...(action === 'approve' ? { create_vps: false, activate: true } : {}),
+          ...(action === 'deny' ? { reason: 'Reviewed again' } : {}),
+        },
+      });
     await page.goto('/admin/requests/registration/950');
     await expect(page.getByTestId(`admin.requests.resolve.action.${action}`)).toHaveCount(0);
     await expect(page.getByTestId('admin.requests.detail.metadata').locator('details')).toHaveAttribute('open', '');
-    await expect(page.getByTestId('admin.requests.detail.review').getByTestId('admin.requests.detail.risk.ip')).toHaveCount(0);
+    await expect(
+      page.getByTestId('admin.requests.detail.review').getByTestId('admin.requests.detail.risk.ip')
+    ).toHaveCount(0);
     const details = await page.getByTestId('admin.requests.detail.registration.fields').boundingBox();
     const ip = await page.getByTestId('admin.requests.detail.risk.ip').boundingBox();
     const mail = await page.getByTestId('admin.requests.detail.risk.mail').boundingBox();
@@ -1646,7 +1819,9 @@ for (const [state, action, target] of [
   });
 }
 
-test('@pr-smoke @pr-smoke-mobile admin requests: reconsideration stops when a resolved state changes', async ({ page }) => {
+test('@pr-smoke @pr-smoke-mobile admin requests: reconsideration stops when a resolved state changes', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
   await installOsmMapMock(page);
   let reads = 0;
@@ -1654,8 +1829,13 @@ test('@pr-smoke @pr-smoke-mobile admin requests: reconsideration stops when a re
   await installHaveApiMock(page, {
     user: { id: 1, login: 'admin', level: 100 },
     handlers: {
-      'GET user_request/registrations/951': () => ({ registration: registration(951, ++reads === 1 ? 'denied' : 'approved') }),
-      'POST user_request/registrations/951/resolve': () => { posts += 1; return {}; },
+      'GET user_request/registrations/951': () => ({
+        registration: registration(951, ++reads === 1 ? 'denied' : 'approved'),
+      }),
+      'POST user_request/registrations/951/resolve': () => {
+        posts += 1;
+        return {};
+      },
     },
   });
   await page.goto('/admin/requests/registration/951');
@@ -1665,7 +1845,9 @@ test('@pr-smoke @pr-smoke-mobile admin requests: reconsideration stops when a re
 });
 
 for (const language of ['cs', 'en'] as const) {
-  test(`@workflow-matrix @smoke @smoke-mobile admin requests: history return refreshes an approved request without reviving its queue (${language})`, async ({ page }, testInfo) => {
+  test(`@workflow-matrix @smoke @smoke-mobile admin requests: history return refreshes an approved request without reviving its queue (${language})`, async ({
+    page,
+  }, testInfo) => {
     await bootstrapVpsAdminWindow(page);
     await setUiSettingsLocalStorage(page, { language });
     await installOsmMapMock(page);
@@ -1678,7 +1860,9 @@ for (const language of ['cs', 'en'] as const) {
     await installHaveApiMock(page, {
       user: { id: 1, login: 'admin', level: 100 },
       handlers: {
-        'GET user_request/registrations': () => ({ registrations: [current, next].filter((request) => request.state === 'awaiting') }),
+        'GET user_request/registrations': () => ({
+          registrations: [current, next].filter((request) => request.state === 'awaiting'),
+        }),
         'GET user_request/changes': () => ({ changes: [] }),
         'GET user_request/registrations/501': () => {
           detailReads += 1;
@@ -1700,7 +1884,9 @@ for (const language of ['cs', 'en'] as const) {
     await page.getByTestId('admin.requests.review.start').click();
     await expect(page).toHaveURL(/\/admin\/requests\/registration\/501/);
     await expect(page.getByTestId('admin.requests.review.continue')).toBeChecked();
-    await expect(page.getByTestId('admin.requests.review.queue')).not.toContainText(/Remaining in queue|Zbývá ve frontě/);
+    await expect(page.getByTestId('admin.requests.review.queue')).not.toContainText(
+      /Remaining in queue|Zbývá ve frontě/
+    );
     await page.getByTestId('admin.requests.detail.back').click();
     await expect(page).toHaveURL(/\/admin\/requests(?:\?|$)/);
 
