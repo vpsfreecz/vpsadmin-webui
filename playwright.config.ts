@@ -56,6 +56,7 @@ export default defineConfig({
       name: 'mobile-webkit',
       testMatch: [
         '**/approved_vps_journey.spec.ts',
+        '**/authenticated_home_smoke.spec.ts',
         '**/dashboard_preferences_accessibility.spec.ts',
         '**/filter_bar_chip_alignment.spec.ts',
         '**/about.spec.ts',
