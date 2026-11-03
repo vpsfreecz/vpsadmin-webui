@@ -65,6 +65,11 @@ Browser titles start with vpsAdmin. Favicon reuse was delivered by PR524. Heatma
 are icon-only following PR521; that action still has a tooltip and accessible
 name, and does not imply removing labels from primary navigation.
 
+The dashboard widget editor uses the existing strong-border token on its
+boundary, group cards and controls, with a larger h2 editor title, semibold h3
+widget titles and smaller descriptions. This is a bounded response to weak
+dark-mode grouping, not a global palette or density change.
+
 ## VPS detail and resource editing
 
 Header order: object identity and distribution; state and owner (when relevant);
