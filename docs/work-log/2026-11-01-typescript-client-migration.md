@@ -841,3 +841,24 @@ screenshot concept for this change. No mapped KB update was identified;
 unregistered live wiki prose and existing image currency remain unverified.
 No backend, SDK, dependency, persisted-format, configuration or running-preview
 change is part of this repair.
+
+## Node issues filter fixture (2026-11-03)
+
+The PR broad-smoke run for published `91ca5ab4` reported one flaky case that
+passed on retry. Its retained first-attempt trace showed a public-status
+response without the `nodes` namespace and a row assertion that sampled the
+page before filtering finished.
+
+The fixture now supplies the canonical namespace, node names and string
+maintenance-lock fields, with an explicit empty overview response. The test
+waits for the filtered URL and the healthy node's disappearance before checking
+that the down and maintenance-locked nodes remain. All original row and
+clear-filter assertions are retained. The complete spec now receives strict
+E2E checks: 153 checked and 130 deferred. The baseline, `sourceRevision`,
+compiler options and all surviving deferral records are unchanged.
+
+Leaf lint and formatting, E2E coverage and strict compilation, and whitespace
+checks passed on working source. Independent affected review, focused browser
+verification, Nix packaging for the final commit and CI remain pending. This
+correction changes fixtures, assertion order and type-check selection; it
+changes no production code, API, dependency or persisted format.

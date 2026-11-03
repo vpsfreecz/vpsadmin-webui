@@ -1,3 +1,8 @@
+## Node issues filter fixture (2026-11-03)
+
+Correct the issues-only node fixture and wait for filtering before checking the
+retained rows. [Scope and verification](docs/work-log/2026-11-01-typescript-client-migration.md#node-issues-filter-fixture-2026-11-03).
+
 ## Broad-smoke fixture repairs and explicit bulk notes (2026-11-03)
 
 Correct the observed generated-wire fixtures and preserve untouched notes during
@@ -65,6 +70,7 @@ A production maintenance-page report exposed an incorrect mandatory-task assumpt
 for the DB-only admin-team preference. Recognize only that isolated boolean write
 as synchronous, verify exact VPS read-back, and retain all async/ambiguity guards.
 Protect independent Sunday edits. See [contract and evidence](docs/work-log/2026-10-28-vps-admin-preference-sync.md).
+
 ## 2026-10-28 — Prepare approved three-site release
 
 The maintainer approves PR97/98/99 after testing dev, then explicitly adds
@@ -313,7 +319,6 @@ Prepared for review; not merged or deployed.
 Member overview gains a password dialog before Edit user, with secure generation,
 copy and a default next-login password reset. Prepared for review; not deployed.
 See [implementation and checks](docs/work-log/2026-10-22-admin-user-password.md).
-
 
 ## 2026-10-22 — Member communication contacts
 

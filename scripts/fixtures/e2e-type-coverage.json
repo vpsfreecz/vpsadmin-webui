@@ -33,6 +33,7 @@
     "e2e/specs/admin/node_detail_control_center.spec.ts",
     "e2e/specs/admin/node_heatmaps.spec.ts",
     "e2e/specs/admin/node_pool_maintenance.spec.ts",
+    "e2e/specs/admin/nodes_issues_only_filter.spec.ts",
     "e2e/specs/admin/nodes_overview_maintenance.spec.ts",
     "e2e/specs/admin/os_templates_responsive_actions.spec.ts",
     "e2e/specs/admin/outages_admin_smoke.spec.ts",
@@ -383,13 +384,6 @@
     {
       "path": "e2e/specs/admin/nodes_filter_contract.spec.ts",
       "sha256": "670ff588e1832b15c11844dda4b8fd9c7c1e233e44513a5c81f5f2bda22df50c",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/admin/nodes_issues_only_filter.spec.ts",
-      "sha256": "68a23e9dc6831d7e9b554353b926c62a243afe64d4558c5146ff2af77ea0f60b",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
