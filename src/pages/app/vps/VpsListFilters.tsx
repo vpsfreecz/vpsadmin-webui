@@ -88,7 +88,8 @@ export function VpsListFilters(props: VpsListFiltersProps) {
 
         <Button
           variant="secondary"
-          size="sm"
+          size="md"
+          className="h-11"
           onClick={() => props.setAdvancedOpen(true)}
           aria-label={props.t('filters.advanced.open')}
           title={props.t('filters.advanced.open')}
@@ -98,7 +99,8 @@ export function VpsListFilters(props: VpsListFiltersProps) {
         </Button>
 
         <CopyButton
-          size="sm"
+          size="md"
+          className="h-11"
           variant="secondary"
           label={props.t('common.copy_link')}
           text={typeof window !== 'undefined' ? window.location.href : ''}
@@ -106,7 +108,7 @@ export function VpsListFilters(props: VpsListFiltersProps) {
         />
 
         {props.filtersActive ? (
-          <Button variant="secondary" size="sm" onClick={props.clearFilters}>
+          <Button variant="secondary" size="md" className="h-11" onClick={props.clearFilters}>
             {props.t('common.clear_filters')}
           </Button>
         ) : null}
