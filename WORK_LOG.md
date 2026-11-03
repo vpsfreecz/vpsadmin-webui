@@ -1708,3 +1708,11 @@ clankerdev still uses the production API. No host update in this setup.
   assertion to the exact page h1 after the new h2 exposed an ambiguous selector.
   Six focused browser cases passed, including newly selected WebKit coverage.
   See docs/work-log/2026-11-03-todo-dashboard-contrast.md.
+
+- 2026-11-03: Deploy the selected approved TODO preview858039df to dev and
+  clankerdev through the paired procedure; retain rollback and production70bd.
+  PR128/129/130 remain unapproved/unmerged. Exact compiled81+15 cases and six
+  actual anonymous host/browser cases passed. TODO evidence14 records updated
+  without changing user decisions. See
+  docs/work-log/2026-11-03-approved-todo-preview.md for scope, failures and receipts.
+  This later documentation commit is not the deployed runtime revision.
