@@ -8,7 +8,7 @@ for (const language of ['cs', 'en'] as const) {
     { name: 'admin', level: 99, base: '/admin' },
     { name: 'support', level: 21, base: '/admin' },
   ]) {
-    test(`@pr-smoke @pr-smoke-mobile status footer: ${scenario.name} ${language}`, async ({ page }, testInfo) => {
+    test(`@pr-smoke @pr-smoke-mobile scrolling status links: ${scenario.name} ${language}`, async ({ page }, testInfo) => {
       await setUiSettingsLocalStorage(page, { language, theme: language === 'cs' ? 'dark' : 'light' });
       await bootstrapVpsAdminWindow(page, { sessionToken: 'STATUS_FIXTURE' });
       await installHaveApiMock(page, {
@@ -28,18 +28,29 @@ for (const language of ['cs', 'en'] as const) {
       const surface = mobile ? 'drawer' : 'sidebar';
       if (mobile) await page.getByTestId('shell.mobile-nav-button').click();
       const container = page.getByTestId(mobile ? 'nav.drawer' : 'shell.sidebar');
-      const status = page.getByTestId(`nav.${surface}.status`);
-      await status.scrollIntoViewIfNeeded();
-      await expect(status).toBeVisible();
-      const outages = status.getByTestId(`nav.${surface}.outages`);
-      const advisories = status.getByTestId(`nav.${surface}.security-advisories`);
+      const navigation = container.locator('nav[data-document-title-nav="section"]');
+      const outages = navigation.getByTestId(`nav.${surface}.outages`);
+      const advisories = navigation.getByTestId(`nav.${surface}.security-advisories`);
+      const links = navigation.locator('section a');
+      await expect(links.nth(-2)).toHaveAttribute('data-testid', `nav.${surface}.outages`);
+      await expect(links.last()).toHaveAttribute('data-testid', `nav.${surface}.security-advisories`);
+      if (!mobile) {
+        await page.setViewportSize({ width: page.viewportSize()!.width, height: 700 });
+        const before = await advisories.boundingBox();
+        await navigation.evaluate((nav) => { nav.scrollTop = nav.scrollHeight; });
+        const after = await advisories.boundingBox();
+        expect(after!.y).toBeLessThan(before!.y);
+        expect(await navigation.evaluate((nav) => nav.scrollTop)).toBeGreaterThan(0);
+      }
+      await advisories.scrollIntoViewIfNeeded();
+      await expect(advisories).toBeInViewport();
       await expect(outages).toHaveText(language === 'cs' ? 'Odstávky a výpadky' : 'Outages');
       await expect(advisories).toHaveText(language === 'cs' ? 'Bezpečnostní upozornění' : 'Security advisories');
       await expect(container.getByTestId(`nav.${surface}.security-advisories`)).toHaveCount(1);
       await expect(outages).toHaveAttribute('href', scenario.base === '/admin' ? '/admin/outages' : '/outages');
       const advisoryPath = scenario.name === 'admin' ? '/admin/security-advisories' : '/security-advisories';
       await expect(advisories).toHaveAttribute('href', advisoryPath);
-      const statusBox = (await status.boundingBox())!;
+      const statusBox = (await advisories.boundingBox())!;
       const aboutBox = (await container.getByTestId('build.footer').boundingBox())!;
       expect(statusBox.y + statusBox.height).toBeLessThanOrEqual(aboutBox.y);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
