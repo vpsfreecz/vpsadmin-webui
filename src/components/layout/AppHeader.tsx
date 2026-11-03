@@ -23,7 +23,7 @@ import { Badge } from '../ui/Badge';
 import { clsx } from '../ui/clsx';
 import { useClippedPopover } from '../../lib/hooks/useClippedPopover';
 import { useDebouncedValue } from '../../lib/hooks/useDebouncedValue';
-import { AppSyncPopover, AppUserMenu } from './AppHeaderMenus';
+import { AppSessionLink, AppSyncPopover, AppUserMenu } from './AppHeaderMenus';
 import { SearchScopeReminder } from './SearchScopeReminder';
 import type { AppHeaderProps } from './AppHeaderTypes';
 
@@ -251,8 +251,10 @@ export function AppHeader(props: AppHeaderProps) {
     onNavigate?.();
   };
 
+  const shortcutClassName = 'flex min-h-11 flex-auto items-center gap-1.5 whitespace-nowrap rounded-md border border-border bg-surface px-2 text-left text-sm text-muted hover:bg-surface-2 hover:text-fg md:min-h-9 [@media(any-pointer:coarse)]:min-h-11';
+
   return (
-    <div className="space-y-2" data-testid="shell.controls">
+    <div className="space-y-2 rounded-lg border border-border bg-overlay-surface p-2" data-testid="shell.controls">
       <div className="flex min-w-0 items-center gap-2">
         <form
           ref={searchFormRef}
@@ -321,7 +323,6 @@ export function AppHeader(props: AppHeaderProps) {
             role="combobox"
             data-testid="shell.inline-search.input"
           />
-
 
           {inlineSearchPopupOpen ? (
             <div
@@ -437,41 +438,50 @@ export function AppHeader(props: AppHeaderProps) {
         ) : null}
 
       </div> : null}
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-wrap gap-1.5">
         <button
-          className="flex min-h-11 w-full items-center gap-2 rounded-md bg-surface md:min-h-9 [@media(any-pointer:coarse)]:min-h-11 px-3 text-left text-sm text-muted hover:bg-surface-2 hover:text-fg"
+          className={shortcutClassName}
           onClick={onOpenTasks}
           aria-label={t('common.open_tasks')}
           data-testid="tasks.open-button"
         >
-          <Activity size={18} className="shrink-0" />
+          <Activity size={18} className="shrink-0" aria-hidden="true" />
           <span className="flex-1">{t('tasks.title')}</span>
           {tasksFailedCount > 0 ? <Badge variant="danger">{tasksFailedCount}</Badge> : null}
           {tasksActiveCount > 0 ? <Badge variant="warn">{tasksActiveCount}</Badge> : null}
         </button>
 
-        <AppUserMenu
+        <AppSessionLink
           t={t}
           mode={mode}
-          canSwitchMode={canSwitchMode}
-          userMenuRef={userMenuRef}
-          userMenuOpen={userMenuOpen}
-          setUserMenuOpen={setUserMenuOpen}
-          authLogin={authLogin}
-          authRole={authRole}
-          onNavigate={onNavigate}
           sessionExpiresAt={sessionExpiresAt}
           sessionIdleLimitSeconds={sessionIdleLimitSeconds}
-          theme={theme}
-          language={language}
-          onSetTheme={onSetTheme}
-          onSetLanguage={onSetLanguage}
-          onGoToOtherMode={onGoToOtherMode}
-          onGoToProfile={onGoToProfile}
-          onGoToPublicStatus={onGoToPublicStatus}
-          loginLogoutHref={loginLogoutHref}
+          onNavigate={() => {
+            setUserMenuOpen(false);
+            onNavigate?.();
+          }}
+          className={shortcutClassName}
         />
       </div>
+      <AppUserMenu
+        t={t}
+        mode={mode}
+        canSwitchMode={canSwitchMode}
+        userMenuRef={userMenuRef}
+        userMenuOpen={userMenuOpen}
+        setUserMenuOpen={setUserMenuOpen}
+        authLogin={authLogin}
+        authRole={authRole}
+        onNavigate={onNavigate}
+        theme={theme}
+        language={language}
+        onSetTheme={onSetTheme}
+        onSetLanguage={onSetLanguage}
+        onGoToOtherMode={onGoToOtherMode}
+        onGoToProfile={onGoToProfile}
+        onGoToPublicStatus={onGoToPublicStatus}
+        loginLogoutHref={loginLogoutHref}
+      />
     </div>
   );
 }

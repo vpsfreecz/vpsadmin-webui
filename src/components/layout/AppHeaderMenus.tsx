@@ -60,13 +60,40 @@ export function AppSyncPopover(props: Pick<AppHeaderProps,
   );
 }
 
+export function AppSessionLink(props: Pick<AppHeaderProps, 't' | 'mode' | 'sessionExpiresAt' | 'onNavigate'> & {
+  sessionIdleLimitSeconds: number | null;
+  className: string;
+}) {
+  const { t, mode, sessionExpiresAt, sessionIdleLimitSeconds, onNavigate, className } = props;
+  const sessionRemaining = useSessionRemainingLabel(t, sessionExpiresAt);
+  const sessionDisplay = sessionRemaining
+    ? { menuLabel: t('auth.session_remaining.menu_label'), value: sessionRemaining }
+    : sessionIdleLimitSeconds === 0
+      ? { menuLabel: t('auth.session_idle.menu_label'), value: t('security.settings.session_length.preset.never') }
+      : null;
+
+  return sessionDisplay ? (
+    <Link
+      to={`${mode === 'admin' ? '/admin' : '/app'}/profile/security#session-length`}
+      onClick={onNavigate}
+      className={className}
+      aria-label={`${sessionDisplay.menuLabel}: ${sessionDisplay.value}`}
+      title={`${sessionDisplay.menuLabel}: ${sessionDisplay.value}`}
+      data-testid="shell.session-remaining"
+    >
+      <Clock3 size={18} className="shrink-0" aria-hidden="true" />
+      <span>{sessionDisplay.value}</span>
+    </Link>
+  ) : null;
+}
+
 export function AppUserMenu(props: Pick<AppHeaderProps,
   't' | 'mode' | 'canSwitchMode' | 'userMenuRef' | 'userMenuOpen' | 'setUserMenuOpen' | 'authLogin' | 'authRole' |
-  'onNavigate' | 'sessionExpiresAt' | 'theme' | 'language' | 'onSetTheme' | 'onSetLanguage' | 'onGoToOtherMode' | 'onGoToProfile' | 'onGoToPublicStatus' | 'loginLogoutHref'
-> & { sessionIdleLimitSeconds: number | null }) {
+  'onNavigate' | 'theme' | 'language' | 'onSetTheme' | 'onSetLanguage' | 'onGoToOtherMode' | 'onGoToProfile' | 'onGoToPublicStatus' | 'loginLogoutHref'
+>) {
   const {
     t, mode, canSwitchMode, userMenuRef, userMenuOpen, setUserMenuOpen, authLogin, authRole,
-    onNavigate, sessionExpiresAt, sessionIdleLimitSeconds, theme, language, onSetTheme, onSetLanguage,
+    onNavigate, theme, language, onSetTheme, onSetLanguage,
     onGoToOtherMode, onGoToProfile, onGoToPublicStatus, loginLogoutHref,
   } = props;
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -83,31 +110,9 @@ export function AppUserMenu(props: Pick<AppHeaderProps,
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [userMenuOpen, setUserMenuOpen]);
-  const sessionRemaining = useSessionRemainingLabel(t, sessionExpiresAt);
-  const sessionDisplay = sessionRemaining
-    ? { menuLabel: t('auth.session_remaining.menu_label'), value: sessionRemaining }
-    : sessionIdleLimitSeconds === 0
-      ? { menuLabel: t('auth.session_idle.menu_label'), value: t('security.settings.session_length.preset.never') }
-      : null;
 
   return (
-    <div className="relative flex min-w-0 flex-col gap-2" ref={userMenuRef}>
-      {sessionDisplay ? (
-        <Link
-          to={`${mode === 'admin' ? '/admin' : '/app'}/profile/security#session-length`}
-          onClick={() => {
-            setUserMenuOpen(false);
-            onNavigate?.();
-          }}
-          className="flex min-h-11 items-center gap-2 rounded-md px-3 md:min-h-9 [@media(any-pointer:coarse)]:min-h-11 text-sm text-muted hover:bg-surface-2 hover:text-fg"
-          aria-label={`${sessionDisplay.menuLabel}: ${sessionDisplay.value}`}
-          title={`${sessionDisplay.menuLabel}: ${sessionDisplay.value}`}
-          data-testid="shell.session-remaining"
-        >
-          <Clock3 size={18} className="shrink-0" />
-          <span>{sessionDisplay.value}</span>
-        </Link>
-      ) : null}
+    <div className="relative min-w-0" ref={userMenuRef}>
       <button
         className="flex min-h-11 w-full min-w-0 items-center gap-2 rounded-md bg-surface px-3 text-left text-sm text-muted hover:bg-surface-2 hover:text-fg md:min-h-9 [@media(any-pointer:coarse)]:min-h-11"
         onClick={() => setUserMenuOpen((v) => !v)}
