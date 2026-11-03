@@ -51,6 +51,7 @@ import {
   resetAdminRequestPaginationOnFilterChange,
   requestId,
   requestKey,
+  requestListReturnTo,
   requestType,
   requestTypeFilterFromUrl,
   safeNumber,
@@ -64,9 +65,9 @@ function commonBulkActions(rows: UnifiedRequestRow[], canResolve: boolean): Reso
   const [first, ...rest] = rows;
   if (!first) return [];
   const firstActions = requestBulkReviewActions(requestType(first), first, canResolve);
-  return firstActions.filter((action) => rest.every((row) => (
-    requestBulkReviewActions(requestType(row), row, canResolve).includes(action)
-  )));
+  return firstActions.filter((action) =>
+    rest.every((row) => requestBulkReviewActions(requestType(row), row, canResolve).includes(action))
+  );
 }
 
 function isRequestNotFoundError(error: unknown): boolean {
@@ -119,8 +120,8 @@ export function RequestsPage() {
   useEffect(() => {
     setType(requestTypeFilterFromUrl(sp.get('type')));
     setState(adminRequestStateFilterFromUrl(sp.get('state')));
-    setUserId(isAdmin ? sp.get('user') ?? '' : '');
-    setAdminId(isAdmin ? sp.get('admin') ?? '' : '');
+    setUserId(isAdmin ? (sp.get('user') ?? '') : '');
+    setAdminId(isAdmin ? (sp.get('admin') ?? '') : '');
     setApiIp(sp.get('api_ip') ?? '');
     setClientIp(sp.get('client_ip') ?? '');
     setClientPtr(sp.get('client_ptr') ?? '');
@@ -166,12 +167,12 @@ export function RequestsPage() {
   const adminIdNum = safeNumber(adminId);
   const filtersActive = Boolean(
     type !== 'all' ||
-      stateFilter !== DEFAULT_ADMIN_REQUEST_STATE ||
-      userIdNum !== undefined ||
-      adminIdNum !== undefined ||
-      apiIp.trim() ||
-      clientIp.trim() ||
-      clientPtr.trim(),
+    stateFilter !== DEFAULT_ADMIN_REQUEST_STATE ||
+    userIdNum !== undefined ||
+    adminIdNum !== undefined ||
+    apiIp.trim() ||
+    clientIp.trim() ||
+    clientPtr.trim()
   );
 
   function clearFilters() {
@@ -285,24 +286,33 @@ export function RequestsPage() {
   const ch = changeQ.data?.data ?? [];
   const requestPage = useMemo(
     () => buildRequestPage(reg, ch, type, pagination.limit, stateFilter),
-    [ch, pagination.limit, reg, stateFilter, type],
+    [ch, pagination.limit, reg, stateFilter, type]
   );
   const rows = requestPage.rows;
 
   const lockedRequestIds = useMemo(
     () => new Set(chrome.localLocks.filter((lock) => lock.kind === 'UserRequest').map((lock) => lock.id)),
-    [chrome.localLocks],
+    [chrome.localLocks]
   );
-  const bulkSelectableKeys = useMemo(() => new Set(rows.filter((row) => requestCanEnterBulkReview(
-    requestType(row),
-    row,
-    canResolve,
-    lockedRequestIds.has(requestId(row)),
-  )).map(requestKey)), [canResolve, lockedRequestIds, rows]);
-  const reviewableRows = useMemo(() => rows.filter((row) => (
-    !lockedRequestIds.has(requestId(row))
-      && requestReviewActions(requestType(row), row, canResolve).length > 0
-  )), [canResolve, lockedRequestIds, rows]);
+  const bulkSelectableKeys = useMemo(
+    () =>
+      new Set(
+        rows
+          .filter((row) =>
+            requestCanEnterBulkReview(requestType(row), row, canResolve, lockedRequestIds.has(requestId(row)))
+          )
+          .map(requestKey)
+      ),
+    [canResolve, lockedRequestIds, rows]
+  );
+  const reviewableRows = useMemo(
+    () =>
+      rows.filter(
+        (row) =>
+          !lockedRequestIds.has(requestId(row)) && requestReviewActions(requestType(row), row, canResolve).length > 0
+      ),
+    [canResolve, lockedRequestIds, rows]
+  );
 
   useEffect(() => {
     const visibleKeys = new Set(rows.map(requestKey));
@@ -359,12 +369,9 @@ export function RequestsPage() {
 
   const selectedRows = useMemo(
     () => rows.filter((row) => selectedKeys.has(requestKey(row)) && bulkSelectableKeys.has(requestKey(row))),
-    [bulkSelectableKeys, rows, selectedKeys],
+    [bulkSelectableKeys, rows, selectedKeys]
   );
-  const allowedBulkActions = useMemo(
-    () => commonBulkActions(selectedRows, canResolve),
-    [canResolve, selectedRows],
-  );
+  const allowedBulkActions = useMemo(() => commonBulkActions(selectedRows, canResolve), [canResolve, selectedRows]);
   const containsSelectedRegistration = selectedRows.some((row) => requestType(row) === 'registration');
   const bulkNeedsReason = bulkAction === 'deny' || bulkAction === 'request_correction';
 
@@ -375,7 +382,7 @@ export function RequestsPage() {
 
   useEffect(() => {
     if (allowedBulkActions.length === 0 || allowedBulkActions.includes(bulkAction)) return;
-    const next = allowedBulkActions.includes('ignore') ? 'ignore' : allowedBulkActions[0] ?? 'ignore';
+    const next = allowedBulkActions.includes('ignore') ? 'ignore' : (allowedBulkActions[0] ?? 'ignore');
     if (next !== bulkAction) setBulkReason('');
     setBulkAction(next);
   }, [allowedBulkActions, bulkAction]);
@@ -417,15 +424,17 @@ export function RequestsPage() {
         mutationGeneration = await chrome.acquireLocalLock(requestRef, { durable: true });
         const payload = { action: bulkAction, reason: bulkNeedsReason ? reason : undefined };
         mutationStarted = true;
-        const response = requestType(row) === 'registration'
-          ? await resolveRegistrationRequest(id, payload)
-          : await resolveChangeRequest(id, payload);
+        const response =
+          requestType(row) === 'registration'
+            ? await resolveRegistrationRequest(id, payload)
+            : await resolveChangeRequest(id, payload);
         const actionStateId = getMetaActionStateId(response.meta);
-        if (actionStateId) chrome.trackActionState(actionStateId, {
-          object: requestRef,
-          mutationGeneration,
-          objectLabel: `#${id}`,
-        });
+        if (actionStateId)
+          chrome.trackActionState(actionStateId, {
+            object: requestRef,
+            mutationGeneration,
+            objectLabel: `#${id}`,
+          });
         succeeded += 1;
       } catch (error: unknown) {
         settleError = error;
@@ -441,7 +450,9 @@ export function RequestsPage() {
           failedKeys.add(key);
           const message = isLocalLockPersistenceError(error)
             ? t('requests.resolve.toast.blocked.title')
-            : error instanceof Error ? error.message : String(error);
+            : error instanceof Error
+              ? error.message
+              : String(error);
           failures.push(`#${id}: ${message}`);
         }
       } finally {
@@ -489,37 +500,42 @@ export function RequestsPage() {
   const canNext = pagination.hasForward || (requestPage.hasMore && pageCursor !== undefined);
 
   const isLoading = (needRegs && regQ.isLoading) || (needChanges && changeQ.isLoading);
-  const error = (needRegs && regQ.isError ? regQ.error : null) || (needChanges && changeQ.isError ? changeQ.error : null);
-  const listReturnTo = useMemo(() => {
-    const query = sp.toString();
-    return `${basePath}/requests${query ? `?${query}` : ''}`;
-  }, [basePath, sp]);
+  const error =
+    (needRegs && regQ.isError ? regQ.error : null) || (needChanges && changeQ.isError ? changeQ.error : null);
+  const listReturnTo = useMemo(() => requestListReturnTo(basePath, sp), [basePath, sp]);
 
   const requestDetailHref = useCallback(
     (requestTypeValue: RequestRowType, id: number) => {
       const detailParams = new URLSearchParams({ returnTo: listReturnTo });
       return `${basePath}/requests/${requestTypeValue}/${id}?${detailParams.toString()}`;
     },
-    [basePath, listReturnTo],
+    [basePath, listReturnTo]
   );
 
-  const reviewQueueTargets = useMemo(() => reviewableRows.map((request) => ({
-    type: requestType(request),
-    id: requestId(request),
-  })), [reviewableRows]);
+  const reviewQueueTargets = useMemo(
+    () =>
+      reviewableRows.map((request) => ({
+        type: requestType(request),
+        id: requestId(request),
+      })),
+    [reviewableRows]
+  );
 
-  const requestReviewState = useCallback((request: UnifiedRequestRow) => {
-    const remaining = requestReviewQueueAfter(reviewQueueTargets, {
-      type: requestType(request),
-      id: requestId(request),
-    });
-    if (remaining === null) return undefined;
-    return {
-      returnTo: listReturnTo,
-      reviewQueueActive: true,
-      reviewQueue: remaining,
-    };
-  }, [listReturnTo, reviewQueueTargets]);
+  const requestReviewState = useCallback(
+    (request: UnifiedRequestRow) => {
+      const remaining = requestReviewQueueAfter(reviewQueueTargets, {
+        type: requestType(request),
+        id: requestId(request),
+      });
+      if (remaining === null) return undefined;
+      return {
+        returnTo: listReturnTo,
+        reviewQueueActive: true,
+        reviewQueue: remaining,
+      };
+    },
+    [listReturnTo, reviewQueueTargets]
+  );
 
   const startSequentialReview = useCallback(() => {
     const [first, ...remaining] = reviewableRows;
@@ -536,62 +552,61 @@ export function RequestsPage() {
     });
   }, [listReturnTo, navigate, requestDetailHref, reviewableRows]);
 
-  const openRequestById = useCallback(async (id: number) => {
-    if (openingRequestId !== null) return;
-    const onPage = rows.find((request) => requestId(request) === id);
-    if (onPage) {
-      navigate(requestDetailHref(requestType(onPage), id), { state: requestReviewState(onPage) });
-      return;
-    }
-
-    setOpeningRequestId(id);
-    try {
-      const results = await Promise.allSettled([
-        fetchRegistrationRequest(id),
-        fetchChangeRequest(id),
-      ]);
-      const fulfilled: Array<{ endpoint: RequestRowType; data: unknown }> = [];
-      const [registrationResult, changeResult] = results;
-      if (registrationResult?.status === 'fulfilled') {
-        fulfilled.push({ endpoint: 'registration', data: registrationResult.value.data });
-      }
-      if (changeResult?.status === 'fulfilled') {
-        fulfilled.push({ endpoint: 'change', data: changeResult.value.data });
-      }
-
-      const matches = [...new Set(
-        fulfilled
-          .filter((candidate) => requestMatchesReviewTarget(candidate.data, candidate.endpoint, id))
-          .map((candidate) => candidate.endpoint),
-      )];
-      if (matches.length === 1 && matches[0]) {
-        navigate(requestDetailHref(matches[0], id));
+  const openRequestById = useCallback(
+    async (id: number) => {
+      if (openingRequestId !== null) return;
+      const onPage = rows.find((request) => requestId(request) === id);
+      if (onPage) {
+        navigate(requestDetailHref(requestType(onPage), id), { state: requestReviewState(onPage) });
         return;
       }
 
-      const rejected = results
-        .filter((result): result is PromiseRejectedResult => result.status === 'rejected')
-        .map((result) => result.reason);
-      const definitelyMissing = fulfilled.length === 0
-        && rejected.length === results.length
-        && rejected.every(isRequestNotFoundError);
-      toasts.pushToast({
-        variant: 'danger',
-        title: definitelyMissing
-          ? t('requests.smart.error.not_found', { id: String(id) })
-          : t('requests.smart.error.lookup_failed', { id: String(id) }),
-      });
-    } finally {
-      setOpeningRequestId(null);
-    }
-  }, [navigate, openingRequestId, requestDetailHref, requestReviewState, rows, t, toasts]);
+      setOpeningRequestId(id);
+      try {
+        const results = await Promise.allSettled([fetchRegistrationRequest(id), fetchChangeRequest(id)]);
+        const fulfilled: Array<{ endpoint: RequestRowType; data: unknown }> = [];
+        const [registrationResult, changeResult] = results;
+        if (registrationResult?.status === 'fulfilled') {
+          fulfilled.push({ endpoint: 'registration', data: registrationResult.value.data });
+        }
+        if (changeResult?.status === 'fulfilled') {
+          fulfilled.push({ endpoint: 'change', data: changeResult.value.data });
+        }
+
+        const matches = [
+          ...new Set(
+            fulfilled
+              .filter((candidate) => requestMatchesReviewTarget(candidate.data, candidate.endpoint, id))
+              .map((candidate) => candidate.endpoint)
+          ),
+        ];
+        if (matches.length === 1 && matches[0]) {
+          navigate(requestDetailHref(matches[0], id));
+          return;
+        }
+
+        const rejected = results
+          .filter((result): result is PromiseRejectedResult => result.status === 'rejected')
+          .map((result) => result.reason);
+        const definitelyMissing =
+          fulfilled.length === 0 && rejected.length === results.length && rejected.every(isRequestNotFoundError);
+        toasts.pushToast({
+          variant: 'danger',
+          title: definitelyMissing
+            ? t('requests.smart.error.not_found', { id: String(id) })
+            : t('requests.smart.error.lookup_failed', { id: String(id) }),
+        });
+      } finally {
+        setOpeningRequestId(null);
+      }
+    },
+    [navigate, openingRequestId, requestDetailHref, requestReviewState, rows, t, toasts]
+  );
 
   const smartNeedle = smart.trim();
   const debouncedNeedle = useDebouncedValue(smartNeedle, 200);
   const userSuggestEnabled =
-    smartNeedle.length >= 2 &&
-    debouncedNeedle === smartNeedle &&
-    parseNumericToken(smartNeedle) === null;
+    smartNeedle.length >= 2 && debouncedNeedle === smartNeedle && parseNumericToken(smartNeedle) === null;
   const userSuggestQuery = useQuery({
     queryKey: ['users', 'search', { q: debouncedNeedle, limit: 8 }],
     enabled: userSuggestEnabled,
@@ -632,16 +647,18 @@ export function RequestsPage() {
     if (!smartNeedle) return [];
     const numeric = parseNumericToken(smartNeedle);
     if (numeric !== null) {
-      return [{
-        id: 'open',
-        primary: t('requests.smart.suggest.open', { id: String(numeric) }),
-        secondary: t('requests.smart.suggest.open.secondary'),
-        onPick: () => {
-          setSmart('');
-          void openRequestById(numeric);
+      return [
+        {
+          id: 'open',
+          primary: t('requests.smart.suggest.open', { id: String(numeric) }),
+          secondary: t('requests.smart.suggest.open.secondary'),
+          onPick: () => {
+            setSmart('');
+            void openRequestById(numeric);
+          },
+          testId: 'admin.requests.smart.suggest.open',
         },
-        testId: 'admin.requests.smart.suggest.open',
-      }];
+      ];
     }
 
     const needle = smartNeedle.toLowerCase();

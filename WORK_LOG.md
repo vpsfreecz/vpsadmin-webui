@@ -1,3 +1,9 @@
+## Request return paths (2026-11-04)
+
+Remove legacy `q` from request list return paths while preserving other
+parameters and the existing typed ID and applicant flows.
+[Scope and verification](docs/work-log/2026-11-01-typescript-client-migration.md#request-return-paths-2026-11-04).
+
 ## Node issues filter fixture (2026-11-03)
 
 Correct the issues-only node fixture and wait for filtering before checking the

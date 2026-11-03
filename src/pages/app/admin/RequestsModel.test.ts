@@ -11,6 +11,7 @@ import {
   mergeByIdDesc,
   parseTypeValue,
   requestKey,
+  requestListReturnTo,
   requestUserLabel,
   requestTypeFilterFromUrl,
   resetAdminRequestPaginationOnFilterChange,
@@ -21,6 +22,30 @@ import {
 } from './RequestsModel';
 
 describe('RequestsModel', () => {
+  it('builds return paths from captured parameters without legacy q', () => {
+    const captured = new URLSearchParams('q=legacy&state=all&q=second');
+
+    expect(requestListReturnTo('/admin', captured)).toBe('/admin/requests?state=all');
+    expect(captured.toString()).toBe('q=legacy&state=all&q=second');
+  });
+
+  it('preserves every other filter and pagination parameter in its original order', () => {
+    const retained =
+      'state=pending_correction&type=change&user=42&admin=7&api_ip=192.0.2.1&client_ip=2001%3Adb8%3A%3A1&client_ptr=applicant.example.test&limit=50&page=3&from_id=700&user=43';
+    const captured = new URLSearchParams(`q=legacy&${retained}&q=another`);
+
+    expect(requestListReturnTo('/admin', captured)).toBe(`/admin/requests?${retained}`);
+    expect(captured.toString()).toBe(`q=legacy&${retained}&q=another`);
+  });
+
+  it('retains canonical and empty return paths', () => {
+    expect(requestListReturnTo('/admin', new URLSearchParams('state=all&limit=25'))).toBe(
+      '/admin/requests?state=all&limit=25'
+    );
+    expect(requestListReturnTo('/admin', new URLSearchParams())).toBe('/admin/requests');
+    expect(requestListReturnTo('/admin', new URLSearchParams('q=legacy'))).toBe('/admin/requests');
+  });
+
   it('normalizes numeric and enum-like filter inputs', () => {
     expect(safeNumber('42')).toBe(42);
     expect(safeNumber('0')).toBeUndefined();
@@ -46,7 +71,9 @@ describe('RequestsModel', () => {
     expect(userLabel({ id: 5 })).toBe('#5');
     expect(userLabel(null)).toBe('—');
     expect(requestUserLabel({ id: 8, _type: 'change', user: null, raw_user_id: 42 })).toBe('#42');
-    expect(requestUserLabel({ id: 9, _type: 'change', user: { id: 7, login: 'linked' }, raw_user_id: 42 })).toBe('linked');
+    expect(requestUserLabel({ id: 9, _type: 'change', user: { id: 7, login: 'linked' }, raw_user_id: 42 })).toBe(
+      'linked'
+    );
     expect(requestUserLabel({ id: 10, _type: 'change', user: null, raw_user_id: 0 })).toBe('—');
   });
 
@@ -62,7 +89,10 @@ describe('RequestsModel', () => {
     expect(unchanged.get('page')).toBe('2');
 
     const canonicalDefault = new URLSearchParams('from_id=700&page=2&limit=50');
-    resetAdminRequestPaginationOnFilterChange(canonicalDefault, new URLSearchParams('state=awaiting&from_id=700&page=2&limit=50'));
+    resetAdminRequestPaginationOnFilterChange(
+      canonicalDefault,
+      new URLSearchParams('state=awaiting&from_id=700&page=2&limit=50')
+    );
     expect(canonicalDefault.get('from_id')).toBe('700');
   });
 
@@ -77,7 +107,12 @@ describe('RequestsModel', () => {
     ];
 
     const merged = mergeByIdDesc(registrations, changes, 10);
-    expect(merged.map((row) => requestKey(row))).toEqual(['registration-300', 'change-299', 'registration-298', 'change-297']);
+    expect(merged.map((row) => requestKey(row))).toEqual([
+      'registration-300',
+      'change-299',
+      'registration-298',
+      'change-297',
+    ]);
     expect(visibleRequestRows(merged, undefined).map((row) => requestKey(row))).toEqual(['registration-300']);
     expect(visibleRequestRows(merged, 'awaiting').map((row) => requestKey(row))).toEqual(['registration-300']);
     expect(visibleRequestRows(merged, 'pending_correction').map((row) => requestKey(row))).toEqual(['change-299']);
@@ -89,8 +124,11 @@ describe('RequestsModel', () => {
       'change-297',
     ]);
 
-    const corrected = merged.map((row) => requestKey(row) === 'change-299' ? { ...row, state: 'awaiting' } : row);
-    expect(visibleRequestRows(corrected, undefined).map((row) => requestKey(row))).toEqual(['registration-300', 'change-299']);
+    const corrected = merged.map((row) => (requestKey(row) === 'change-299' ? { ...row, state: 'awaiting' } : row));
+    expect(visibleRequestRows(corrected, undefined).map((row) => requestKey(row))).toEqual([
+      'registration-300',
+      'change-299',
+    ]);
   });
 
   it('uses a merged lookahead row without rendering or skipping it', () => {
@@ -104,19 +142,11 @@ describe('RequestsModel', () => {
     ];
 
     const page = buildRequestPage(registrations, changes, 'all', 3, 'awaiting');
-    expect(page.rows.map((row) => requestKey(row))).toEqual([
-      'registration-10',
-      'change-9',
-      'registration-8',
-    ]);
+    expect(page.rows.map((row) => requestKey(row))).toEqual(['registration-10', 'change-9', 'registration-8']);
     expect(page.hasMore).toBe(true);
 
     const terminal = buildRequestPage(registrations, changes.slice(0, 1), 'all', 3, 'awaiting');
-    expect(terminal.rows.map((row) => requestKey(row))).toEqual([
-      'registration-10',
-      'change-9',
-      'registration-8',
-    ]);
+    expect(terminal.rows.map((row) => requestKey(row))).toEqual(['registration-10', 'change-9', 'registration-8']);
     expect(terminal.hasMore).toBe(false);
   });
 
@@ -129,11 +159,7 @@ describe('RequestsModel', () => {
     ];
 
     const terminal = buildRequestPage(registrations.slice(0, 3), [], 'registration', 3, 'awaiting');
-    expect(terminal.rows.map((row) => requestKey(row))).toEqual([
-      'registration-5',
-      'registration-4',
-      'registration-3',
-    ]);
+    expect(terminal.rows.map((row) => requestKey(row))).toEqual(['registration-5', 'registration-4', 'registration-3']);
     expect(terminal.hasMore).toBe(false);
 
     expect(buildRequestPage(registrations.slice(0, 3), [], 'all', 3, 'awaiting').hasMore).toBe(false);
@@ -148,11 +174,7 @@ describe('RequestsModel', () => {
       state: request.state,
     }));
     const terminalChanges = buildRequestPage([], changes.slice(0, 3), 'change', 3, 'awaiting');
-    expect(terminalChanges.rows.map((row) => requestKey(row))).toEqual([
-      'change-5',
-      'change-4',
-      'change-3',
-    ]);
+    expect(terminalChanges.rows.map((row) => requestKey(row))).toEqual(['change-5', 'change-4', 'change-3']);
     expect(terminalChanges.hasMore).toBe(false);
     expect(buildRequestPage([], changes, 'change', 3, 'awaiting').hasMore).toBe(true);
   });

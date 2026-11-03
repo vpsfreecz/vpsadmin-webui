@@ -4,26 +4,24 @@ export type RequestTypeFilter = 'all' | 'registration' | 'change';
 export type RequestRowType = 'registration' | 'change';
 
 export type UnifiedRequestRow =
-  | (RegistrationRequest & { _type: 'registration' })
-  | (ChangeRequest & { _type: 'change' });
+  (RegistrationRequest & { _type: 'registration' }) | (ChangeRequest & { _type: 'change' });
 
-export type RequestFilterKey =
-  | 'q'
-  | 'type'
-  | 'state'
-  | 'user'
-  | 'admin'
-  | 'api_ip'
-  | 'client_ip'
-  | 'client_ptr'
-  | 'id';
+export type RequestFilterKey = 'q' | 'type' | 'state' | 'user' | 'admin' | 'api_ip' | 'client_ip' | 'client_ptr' | 'id';
 
 export const DEFAULT_ADMIN_REQUEST_STATE = 'awaiting';
 export const ALL_ADMIN_REQUEST_STATES = 'all';
 const ADMIN_REQUEST_FILTER_PARAMS = ['type', 'q', 'user', 'admin', 'api_ip', 'client_ip', 'client_ptr'];
 
+export function requestListReturnTo(basePath: string, searchParams: URLSearchParams): string {
+  const params = new URLSearchParams(searchParams);
+  params.delete('q');
+  const query = params.toString();
+  return `${basePath}/requests${query ? `?${query}` : ''}`;
+}
+
 export function resetAdminRequestPaginationOnFilterChange(next: URLSearchParams, current: URLSearchParams): void {
-  const stateChanged = adminRequestStateFilterFromUrl(next.get('state')) !== adminRequestStateFilterFromUrl(current.get('state'));
+  const stateChanged =
+    adminRequestStateFilterFromUrl(next.get('state')) !== adminRequestStateFilterFromUrl(current.get('state'));
   if (!stateChanged && !ADMIN_REQUEST_FILTER_PARAMS.some((key) => next.get(key) !== current.get(key))) return;
   next.delete('from_id');
   next.delete('page');
@@ -97,7 +95,11 @@ export function requestDateValue(request: UnifiedRequestRow, key: 'created_at' |
   return typeof value === 'string' && value.trim() ? value : undefined;
 }
 
-export function mergeByIdDesc(registrations: RegistrationRequest[], changes: ChangeRequest[], limit: number): UnifiedRequestRow[] {
+export function mergeByIdDesc(
+  registrations: RegistrationRequest[],
+  changes: ChangeRequest[],
+  limit: number
+): UnifiedRequestRow[] {
   const out: UnifiedRequestRow[] = [];
   let i = 0;
   let j = 0;
@@ -136,7 +138,7 @@ export function buildRequestPage(
   changes: ChangeRequest[],
   type: RequestTypeFilter,
   limit: number,
-  state: string | undefined,
+  state: string | undefined
 ): { rows: UnifiedRequestRow[]; hasMore: boolean } {
   const lookaheadLimit = limit + 1;
   const candidates = visibleRequestRows(
@@ -145,7 +147,7 @@ export function buildRequestPage(
       : type === 'change'
         ? changeRows(changes)
         : mergeByIdDesc(registrations, changes, lookaheadLimit),
-    state,
+    state
   );
 
   return {

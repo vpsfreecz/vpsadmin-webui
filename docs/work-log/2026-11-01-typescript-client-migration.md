@@ -862,3 +862,22 @@ checks passed on working source. Independent affected review, focused browser
 verification, Nix packaging for the final commit and CI remain pending. This
 correction changes fixtures, assertion order and type-check selection; it
 changes no production code, API, dependency or persisted format.
+
+## Request return paths (2026-11-04)
+
+One case in the push broad smoke run for published `79980b6a` failed its first
+attempt and passed on retry. Its trace showed a request list URL without `q`
+before input, followed by a typed request navigation whose `returnTo` restored
+`q=legacy` after two successful Show responses.
+
+Request list return paths remove `q` when they are constructed, including when
+an asynchronous lookup uses parameters captured before URL normalization.
+They preserve all other search parameters and leave the input parameters
+unchanged. The existing browser case keeps its waits, typed ID and applicant
+flows, and assertions. Model regressions cover legacy and duplicate `q`,
+filters, pagination and input immutability. Strict E2E selection remains 153
+checked and 130 deferred.
+
+Independent affected review, final browser and Nix verification, and CI for
+this correction remain pending. This local navigation fix changes no API,
+backend, dependency, persisted format or shared router behavior.
