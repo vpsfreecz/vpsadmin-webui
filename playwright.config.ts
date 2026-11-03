@@ -55,6 +55,7 @@ export default defineConfig({
     {
       name: 'mobile-webkit',
       testMatch: [
+        '**/dashboard_preferences_accessibility.spec.ts',
         '**/filter_bar_chip_alignment.spec.ts',
         '**/about.spec.ts',
         '**/theme_switcher.spec.ts',
