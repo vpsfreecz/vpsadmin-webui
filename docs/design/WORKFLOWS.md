@@ -693,6 +693,9 @@ without an amount. The account history requests these changes only when the
 API advertises support. The finance ledger and the member's payment list
 continue to request actual payments.
 
+The administrator incoming payment detail shows the payer account when the bank
+provided it. Previously imported payments can have an empty account number.
+
 Payment instructions offer individual copy icons for recognized bank-account,
 IBAN, BIC, variable-symbol, message and amount rows, alongside the existing
 whole-instructions copy. Account/IBAN whitespace is removed; variable-symbol
