@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useId, useState } from 'react';
 
 import {
   DEFAULT_DASHBOARD_SETTINGS,
@@ -33,6 +33,7 @@ export function DashboardPreferencesCard() {
   const { t } = useI18n();
   const { dashboardSettings, setDashboardSettings } = useDashboardSettingsState();
   const [open, setOpen] = useState(false);
+  const widgetHeadingPrefix = useId();
 
   const hiddenCount = dashboardSettings.hiddenWidgets.length;
   const collapsedCount = dashboardSettings.collapsedWidgets.length;
@@ -132,36 +133,39 @@ export function DashboardPreferencesCard() {
                 const hidden = dashboardSettings.hiddenWidgets.includes(id);
                 const collapsed = dashboardSettings.collapsedWidgets.includes(id);
                 const essential = isDashboardEssentialWidget(id);
+                const headingId = `${widgetHeadingPrefix}-${id}`;
 
                 return (
                   <div
                     key={id}
-                    className="grid gap-2 rounded-md border border-border bg-surface-2 p-3 md:grid-cols-[1fr_auto]"
+                    className="min-w-0 space-y-2 rounded-md border border-border bg-surface-2 p-3"
                     data-testid={`app.dashboard.preferences.widget.${id}`}
                   >
                     <div className="space-y-2">
                       <div className="flex flex-wrap items-center gap-2">
-                        <div className="font-medium">{t(widgetLabelKey(id))}</div>
+                        <div id={headingId} className="min-w-0 break-words font-medium">{t(widgetLabelKey(id))}</div>
                         {essential ? <Badge variant="info">{t('dashboard.preferences.widget.always_visible')}</Badge> : null}
                         {hidden ? <Badge variant="neutral">{t('dashboard.preferences.widget.hidden')}</Badge> : null}
                         {collapsed ? <Badge variant="neutral">{t('dashboard.preferences.widget.collapsed')}</Badge> : null}
                       </div>
                       <div className="text-xs text-muted">{t(widgetDescriptionKey(id))}</div>
-                      <SwitchRow
-                        label={t('dashboard.preferences.widget.visible')}
-                        description={
-                          essential
-                            ? t('dashboard.preferences.widget.essential_visibility_help')
-                            : t('dashboard.preferences.widget.visibility_help')
-                        }
-                        checked={!hidden}
-                        disabled={essential}
-                        onChange={(checked) => setDashboardSettings(toggleDashboardWidgetHidden(dashboardSettings, id, !checked))}
-                        testId={`app.dashboard.preferences.widget.${id}.visible`}
-                      />
                     </div>
 
-                    <div className="flex flex-wrap items-start gap-2 md:justify-end">
+                    <div role="group" aria-labelledby={headingId} className="flex flex-wrap items-center gap-2 border-t border-border pt-2">
+                      <div className="min-w-0 sm:max-w-sm">
+                        <SwitchRow
+                          label={t('dashboard.preferences.widget.visible')}
+                          description={
+                            essential
+                              ? t('dashboard.preferences.widget.essential_visibility_help')
+                              : t('dashboard.preferences.widget.visibility_help')
+                          }
+                          checked={!hidden}
+                          disabled={essential}
+                          onChange={(checked) => setDashboardSettings(toggleDashboardWidgetHidden(dashboardSettings, id, !checked))}
+                          testId={`app.dashboard.preferences.widget.${id}.visible`}
+                        />
+                      </div>
                       <Button
                         variant="secondary"
                         size="sm"
