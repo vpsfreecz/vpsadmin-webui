@@ -58,6 +58,7 @@ state=published and order=newest, defensively excludes all other states and
 caps/sorts the result. Names and localized plain-text summaries link to the
 public detail/archive. It makes no CVE or private affected-object requests.
 The separate complete advisory archive and authenticated dashboard are unchanged.
+Separate account impact and missing personal impact from node mitigation. (REQ-009).
 Overview, outage and advisory list pages retain an accessible screen-reader-only
 h1 and omit the duplicated visible page heading/intro. Detail headings remain.
 Equal-width member/VPS metric cards fill the available space. Their value font size and baseline match;

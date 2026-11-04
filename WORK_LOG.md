@@ -1763,3 +1763,7 @@ Align each widget title and its status badges on their text baseline. The same l
 ## 2026-11-04 — Dashboard count scope
 
 Label the resource count group once with the actual object scope. Put each resource label and count on a compact wrapping line. [DASH-08 / REQ-009](docs/work-log/2026-11-04-dash08.md).
+
+## 2026-11-04 — Explain personal security advisory impact
+
+Separate account impact and missing personal impact from node mitigation. [SEC-01 / REQ-009](docs/work-log/2026-11-04-sec01.md).

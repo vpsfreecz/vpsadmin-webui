@@ -217,11 +217,13 @@ export function SecurityAdvisoryDetailPage() {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            {loadPersonalImpact && typeof publicAdvisory.affected === 'boolean' ? (
-              <Badge variant={publicAdvisory.affected ? 'danger' : 'neutral'}>
-                {i18n.t(publicAdvisory.affected
+            {loadPersonalImpact ? (
+              <Badge variant={publicAdvisory.affected === true ? 'danger' : 'neutral'}>
+                {i18n.t(publicAdvisory.affected === true
                   ? 'dashboard.section.security.affects_me'
-                  : 'dashboard.section.security.not_affected')}
+                  : publicAdvisory.affected === false
+                    ? 'dashboard.section.security.not_affected'
+                    : 'dashboard.section.security.impact_unknown')}
               </Badge>
             ) : null}
             <Badge variant={stateVariant(publicAdvisory.state)}>
@@ -284,21 +286,26 @@ export function SecurityAdvisoryDetailPage() {
         <Card testId="public.security_advisory_detail.own_affected_vps">
           <CardHeader
             title={i18n.t('public.security_advisories.affected_vps')}
-            actions={typeof publicAdvisory.affected === 'boolean' ? (
-              <Badge variant={publicAdvisory.affected ? 'danger' : 'neutral'}>
-                {i18n.t(publicAdvisory.affected
+            actions={(
+              <Badge variant={publicAdvisory.affected === true ? 'danger' : 'neutral'}>
+                {i18n.t(publicAdvisory.affected === true
                   ? 'dashboard.section.security.affects_me'
-                  : 'dashboard.section.security.not_affected')}
+                  : publicAdvisory.affected === false
+                    ? 'dashboard.section.security.not_affected'
+                    : 'dashboard.section.security.impact_unknown')}
               </Badge>
-            ) : null}
+            )}
           />
-          <CardBody>
+          <CardBody className="space-y-3">
+            <p className="text-sm text-muted">{i18n.t('dashboard.section.security.impact_help')}</p>
             {ownVpsQ.isLoading ? (
               <Spinner label={i18n.t('common.loading')} />
             ) : ownVpsQ.isError ? (
               <Alert title={i18n.t('common.error')} variant="warn" />
             ) : (ownVpsQ.data?.length ?? 0) === 0 ? (
-              <div className="text-sm text-muted">{i18n.t('dashboard.section.security.not_affected')}</div>
+              <div className="text-sm text-muted">{i18n.t(publicAdvisory.affected === false
+                ? 'dashboard.section.security.not_affected'
+                : 'dashboard.section.security.impact_unknown')}</div>
             ) : (
               <div className="divide-y divide-border">
                 {ownVpsQ.data?.map((row: SecurityAdvisoryAffectedVps) => {
