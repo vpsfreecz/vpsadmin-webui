@@ -348,15 +348,19 @@ export function VpsListPage() {
           testId="vps.list.header"
           title={t('nav.vps')}
           description={t('vps.list.description')}
-          actions={
-            <Button to={createPath} testId="vps.list.create">
-              <Plus className="h-4 w-4" />
+        />
+      }
+      filters={
+        <VpsListFilters
+          {...listFilters.filterProps}
+          createAction={
+            <Button to={createPath} className="h-11" testId="vps.list.create">
+              <Plus className="h-4 w-4 shrink-0" aria-hidden="true" />
               {t('vps.create.open')}
             </Button>
           }
         />
       }
-      filters={<VpsListFilters {...listFilters.filterProps} />}
     >
       {actionError && !confirmError ? (
         <Alert

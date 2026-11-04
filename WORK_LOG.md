@@ -1685,3 +1685,7 @@ preserve all branch histories and colleague PRs. Add standard push CI for the
 integration branch, without deployment automation. Dev has isolated test data;
 clankerdev still uses the production API. No host update in this setup.
 [Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
+
+## 2026-11-04 — VPS creation in the list controls
+
+Place Create VPS beside the filter actions with the shared control height, keeping the existing role-aware destination. [VPS-01 / REQ-010](docs/work-log/2026-11-04-vps01.md).
