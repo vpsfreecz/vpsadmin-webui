@@ -1721,3 +1721,7 @@ side. See [layout and verification](docs/work-log/2026-11-03-compact-sidebar-con
 
 - Account menu follow-up: show all options when there is room and keep the
   existing bounded scroll behavior for short viewports (REQ-004).
+
+## 2026-11-04 — Align public mobile preferences
+
+See [scope and verification](docs/work-log/2026-11-04-pub01-public-followup.md).
