@@ -1,8 +1,6 @@
 // Common dashboard copy
 export const enCommon_dashboard = {
   'dashboard.description': 'A focused daily overview of your resources, outages, security advisories, and service health.',
-  'dashboard.signed_in_as': 'Signed in as {login} (role: {role})',
-  'dashboard.signed_in': 'Signed in.',
   'dashboard.kpi.scope_hint': 'In your current scope',
   'dashboard.kpi.active_operations': 'Active operations',
   'dashboard.kpi.vps.running_ratio': 'Running VPS ratio',
