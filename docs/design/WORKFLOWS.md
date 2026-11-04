@@ -83,7 +83,7 @@ remains available through sign-in and the login-required/expired-session screen
 using the configured provider flow. Token-scoped registration
 correction exposes only the request allowed by that token.
 
-**Anonymous theme (REQ-005/009):** the public header offers compact system/light/dark controls, with named selected states and keyboard focus. Small screens expose labeled choices in the navigation menu. The same local preference survives reload and follows system changes in system mode; no private settings request is made. Tablet navigation uses the menu until the full navigation and preference controls fit.
+**Anonymous theme (REQ-005/009):** the public header offers compact system/light/dark controls, with named selected states and keyboard focus. The mobile navigation menu places the same named theme icons next to the language group. The same local preference survives reload and follows system changes in system mode; no private settings request is made. Tablet navigation uses the menu until the full navigation and preference controls fit.
 
 **Failure contract:** public API failure is not “all healthy”; unavailable heatmaps
 must not break node lists. Auth callback errors offer a way back. Expiry redirects

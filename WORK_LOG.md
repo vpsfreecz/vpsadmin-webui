@@ -1685,3 +1685,14 @@ preserve all branch histories and colleague PRs. Add standard push CI for the
 integration branch, without deployment automation. Dev has isolated test data;
 clankerdev still uses the production API. No host update in this setup.
 [Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
+
+## 2026-11-04 — Align public mobile preferences
+
+See [scope and verification](docs/work-log/2026-11-04-pub01-public-followup.md).
+
+### 2026-11-04 — Center public mobile preferences
+
+- PUB-01 / REQ-009: center the language and theme groups together in the
+  open public mobile menu and center each row if the groups wrap.
+- Extend the 320 px public theme browser scenario to check the group's
+  position alongside the existing touch target and layout checks.
