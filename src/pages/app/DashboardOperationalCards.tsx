@@ -268,6 +268,8 @@ export function ClusterHealthCard(props: { isLoading: boolean; isError: boolean;
   return (
     <Card testId="app.dashboard.cluster.card" className="xl:col-span-2">
       <CardHeader
+        compact={compact}
+        className="items-center"
         title={t("dashboard.section.cluster.title")}
         subtitle={t("dashboard.section.cluster.subtitle_compact", {
           total: props.nodeData.summary.total,
@@ -293,7 +295,7 @@ export function ClusterHealthCard(props: { isLoading: boolean; isError: boolean;
           </>
         }
       />
-      <CardBody className={compact ? "p-3" : undefined}>
+      <CardBody compact={compact}>
         {props.isLoading ? (
           <Spinner label={t("dashboard.section.cluster.loading")} />
         ) : props.isError ? (

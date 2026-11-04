@@ -1743,3 +1743,7 @@ for member, support and admin on desktop and mobile.
 ## 2026-11-04 — Dashboard identity
 
 Keep signed-in identity in the shell account control. [DASH-01 / REQ-004](docs/work-log/2026-11-04-dashboard-identity.md).
+
+## 2026-11-04 — Dashboard widget insets
+
+Align widget headings, actions and content frames. [DASH-03 / REQ-009](docs/work-log/2026-11-04-dashboard-widget-insets.md).

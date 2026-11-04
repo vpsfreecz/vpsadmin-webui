@@ -62,7 +62,7 @@ export function DashboardPreferencesCard() {
         className={
           open
             ? 'flex flex-col items-start gap-3 border-b border-border-strong p-4 sm:flex-row'
-            : 'flex flex-wrap items-center justify-between gap-3 px-3 py-2'
+            : `flex flex-wrap items-center justify-between gap-3 py-2 ${dashboardSettings.density === 'compact' ? 'px-3' : 'px-4'}`
         }
       >
         <div className={open ? 'w-full min-w-0 sm:w-auto sm:flex-1' : 'min-w-0 text-muted'}>
