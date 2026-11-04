@@ -160,7 +160,6 @@ export function DashboardPage() {
 
   const unknownLocationLabel = t("dashboard.section.cluster.location_unknown");
   const nodeData = useMemo(() => summarizeNodes(nodesQ.data ?? [], unknownLocationLabel), [nodesQ.data, unknownLocationLabel]);
-  const nodeIssueCount = nodeData.summary.down + nodeData.summary.maintenance + nodeData.summary.unknown;
 
   const signedInMeta = auth.user
     ? t("dashboard.signed_in_as", { login: auth.user.login, role: auth.role })
@@ -187,16 +186,18 @@ export function DashboardPage() {
       <div className="space-y-4">
         <PageHeader testId="app.dashboard.header" title={t("nav.dashboard")} description={t("dashboard.description")} meta={signedInMeta} />
 
-        <Alert title={statusAlert.title} variant={statusAlert.variant} className="p-2.5" testId="app.dashboard.status-alert">
-          <span>{statusAlert.body}</span>
-          {outagesByCategory.current.length > 0 ? (
-            <span className="ml-2">
-              <Link to={outagesListPath} className="underline">
-                {t("dashboard.alert.outage.link")}
-              </Link>
-            </span>
-          ) : null}
-        </Alert>
+        {statusAlert ? (
+          <Alert title={statusAlert.title} variant={statusAlert.variant} className="p-2.5" testId="app.dashboard.status-alert">
+            <span>{statusAlert.body}</span>
+            {outagesByCategory.current.length > 0 ? (
+              <span className="ml-2">
+                <Link to={outagesListPath} className="underline">
+                  {t("dashboard.alert.outage.link")}
+                </Link>
+              </span>
+            ) : null}
+          </Alert>
+        ) : null}
 
         <DashboardPreferencesCard />
 
@@ -254,7 +255,6 @@ export function DashboardPage() {
             isLoading: nodesQ.isLoading,
             isError: nodesQ.isError,
             nodeData,
-            nodeIssueCount,
           }}
         />
       </div>
