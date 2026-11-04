@@ -60,7 +60,7 @@ export function VpsListMobile({
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <div className="flex items-center gap-2">
-                      <StatusDot variant={row.dotVariant} testId={`vps.card.${vps.id}.dot`} ariaLabel={row.runtimeBadge.label} />
+                      <StatusDot variant={row.dotVariant} testId={`vps.card.${vps.id}.dot`} />
                       <Link to={`${basePath}/vps/${vps.id}${detailSearch}`} className="text-base font-semibold text-fg underline">
                         {vps.hostname}
                       </Link>
