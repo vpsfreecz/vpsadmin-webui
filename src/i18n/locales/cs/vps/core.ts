@@ -1,6 +1,5 @@
 // VPS core list, layout, tabs, actions, and power copy
 export const csVps_core = {
-  'vps.list.description': 'Tvoje virtuální privátní servery. Otevři VPS pro přístup ke konzoli a plnému ovládacímu centru.',
   'vps.list.search.placeholder': 'Filtrovat… (hostname, ID, klíč:hodnota, ?)',
   'vps.list.filter.node.placeholder': 'ID nodu',
   'vps.list.filter.user.placeholder': 'ID uživatele',

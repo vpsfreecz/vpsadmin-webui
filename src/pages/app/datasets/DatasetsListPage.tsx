@@ -77,7 +77,7 @@ function canonicalKey(raw: string): 'q' | 'user' | 'vps' | 'id' | null {
 export interface DatasetsListPageProps {
   rolePreset?: "primary" | "hypervisor";
   titleKey?: string;
-  descriptionKey?: string;
+  descriptionKey?: string | null;
   searchPlaceholderKey?: string;
   loadErrorTitleKey?: string;
   emptyTitleKey?: string;
@@ -90,7 +90,7 @@ export interface DatasetsListPageProps {
 export function DatasetsListPage(props: DatasetsListPageProps = {}) {
   const rolePreset = props.rolePreset;
   const titleKey = props.titleKey ?? 'datasets.list.title';
-  const descriptionKey = props.descriptionKey ?? 'datasets.list.description';
+  const { descriptionKey = 'datasets.list.description' } = props;
   const searchPlaceholderKey = props.searchPlaceholderKey ?? 'datasets.list.search.placeholder';
   const loadErrorTitleKey = props.loadErrorTitleKey ?? 'datasets.list.load_error.title';
   const emptyTitleKey = props.emptyTitleKey ?? 'datasets.list.empty';
@@ -541,7 +541,7 @@ export function DatasetsListPage(props: DatasetsListPageProps = {}) {
         <PageHeader
           testId="datasets.list.header"
           title={t(titleKey)}
-          description={t(descriptionKey)}
+          description={descriptionKey ? t(descriptionKey) : undefined}
           meta={qText ? t('list.meta.filters_progressive') : filtersActive ? t('list.meta.filters_active') : undefined}
           actions={
             <>

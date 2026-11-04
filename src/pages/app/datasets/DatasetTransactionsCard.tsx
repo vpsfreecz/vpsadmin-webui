@@ -75,7 +75,6 @@ export function DatasetTransactionsCard(props: {
     <Card testId="dataset.overview.transactions">
       <CardHeader
         title={t('dataset.overview.transactions.title')}
-        subtitle={t('dataset.overview.transactions.subtitle')}
         actions={
           <ChipLink to={`${basePath}/transactions`} title={t('dataset.overview.transactions.open_chains_title')}>
             {t('dataset.overview.transactions.open_chains')}
