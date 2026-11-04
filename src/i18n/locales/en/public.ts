@@ -33,8 +33,6 @@ export const enPublic = {
   'public.outage.affected': 'Affects me',
   'public.overview.title': 'Status',
 
-  'public.overview.ipv4_critical.title': 'IPv4 addresses running low',
-  'public.overview.ipv4_critical.body': 'Public IPv4 pool is running low ({count} free). New VPS may not get an IPv4 address.',
   'public.overview.ipv4_warn.hint': 'IPv4 is getting low — prefer IPv6.',
   'public.overview.announcements.loading': 'Loading announcements…',
   'public.overview.announcements.error.title': 'Announcements unavailable',

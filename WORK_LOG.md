@@ -4,6 +4,11 @@ Prepared a focused BFF credential-forwarding defense and consistent local-path
 validation after dummy loopback reproductions. See the [finding and checks](docs/work-log/2026-10-28-oauth-redirect-boundaries.md).
 Not merged or deployed; no API or provider changes.
 
+## 2026-11-04 — Public overview IPv4 availability
+
+Remove the standalone IPv4 pool alert from the guest overview. See the
+[scope and regression coverage](docs/work-log/2026-11-04-public-ipv4-banner.md).
+
 ## 2026-10-28 — Development tool security patches
 
 Prepared compatible Vite/Vitest and transitive security updates, with a narrow

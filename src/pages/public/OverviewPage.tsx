@@ -125,11 +125,6 @@ export function OverviewPage() {
           <OverviewNodesSection groups={nodesByLocation} summary={nodeSummary} loading={nodesLoading} error={nodesQ.isError} />
         </NodeHeatmapProvider>
 
-        {ipv4State === 'critical' ? (
-          <Alert title={i18n.t('public.overview.ipv4_critical.title')} variant="danger" testId="public.ipv4.alert">
-            {i18n.t('public.overview.ipv4_critical.body', { count: ipv4Left ?? 0 })}
-          </Alert>
-        ) : null}
         <OverviewSummaryCards
           stats={statsQ.data}
           statsLoading={statsQ.isLoading}
