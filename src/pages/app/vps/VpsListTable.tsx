@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 import type { KeysetPaginationState } from '../../../lib/hooks/useKeysetPagination';
-import { formatMiB, formatUptimeSeconds } from '../../../lib/format';
+import { formatMiB } from '../../../lib/format';
 
 import { Badge } from '../../../components/ui/Badge';
 import { KeysetPagination } from '../../../components/ui/KeysetPagination';
@@ -90,7 +90,7 @@ export function VpsListTable({
             {showOwnerContext ? t('vps.list.col.owner_location') : t('vps.list.col.location_node')}
           </th>
           <th className="px-3 py-2">{t('vps.overview.resources.title')}</th>
-          <th className="px-3 py-2">{t('vps.list.col.activity')}</th>
+          <th className="px-3 py-2">{t('vps.overview.usage.uptime')}</th>
           <th className="px-3 py-2 text-right">{t('common.actions')}</th>
         </tr>
       </thead>
@@ -166,10 +166,7 @@ export function VpsListTable({
                 </div>
               </td>
               <td className="px-3 py-2 align-top text-xs text-muted">
-                <div className="flex flex-col gap-1">
-                  <span>{formatUptimeSeconds(vps.uptime)}</span>
-                  {row.busyTx ? <span>{t('vps.list.activity.busy')}</span> : null}
-                </div>
+                {row.uptimeLabel}
               </td>
               <td className="px-3 py-2 align-top">
                 <VpsListRowActions
