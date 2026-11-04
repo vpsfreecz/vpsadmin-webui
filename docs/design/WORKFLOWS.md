@@ -497,11 +497,11 @@ explicit false state. Existing rows, service links and actions remain visible.
 
 ## Account profile and user administration
 
-The session countdown or Never expires link in navigation opens the current
-view's `/profile/security#session-length`, scrolls to the inactivity setting and
-focuses its input after the panel loads. Repeating the link on that route also
-focuses it. This navigation never saves settings or renews a session beyond the
-existing activity policy; changing the limit still requires the normal Save.
+The navigation countdown and Never expires control open the session length
+dialog in place. The dialog starts with the current preference. It offers 20 and
+40 minutes, no expiry and a custom number of minutes. Save updates only the
+current account's preferred session length. Cancel discards the draft. The
+profile security page remains a separate entry to the same preference.
 The member/admin scope switch, preferences, public status and logout remain
 available from the navigation account menu (REQ-004/006/010/012).
 

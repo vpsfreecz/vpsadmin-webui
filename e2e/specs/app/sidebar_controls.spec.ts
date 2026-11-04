@@ -12,13 +12,13 @@ for (const actor of [
     if (!isMobile) await page.setViewportSize({ width: 1440, height: 1000 });
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
     await setUiSettingsLocalStorage(page, { language: actor.language, theme: actor.theme });
-    const writes: string[] = [];
+    const writes: unknown[] = [];
     await installHaveApiMock(page, {
       user: { id: 53, login: 'sample-member', level: actor.level, preferred_session_length: actor.seconds },
       handlers: {
         'GET vpses': () => ({ vpses: [], _meta: { total_count: 0 } }),
         'GET help_boxes': () => ({ help_boxes: [] }),
-        'PUT users/53': () => { writes.push('unexpected user update'); return {}; },
+        'PUT users/53': ({ request }) => { writes.push(request.postDataJSON()); return {}; },
       },
     });
     await page.goto(`/${actor.mode}/vps`);
@@ -42,22 +42,33 @@ for (const actor of [
     expect(brandBox!.y).toBeLessThan(aboutBox!.y);
     await page.screenshot({ path: testInfo.outputPath(`navigation-${actor.mode}-${actor.level}.png`), fullPage: false, scale: 'css' });
     const session = page.getByTestId('shell.session-remaining');
-    await expect(session).toHaveAttribute('href', `/${actor.mode}/profile/security#session-length`);
+    await expect(session).toHaveAttribute('aria-haspopup', 'dialog');
     await expect(session).toContainText(actor.seconds ? '40 min' : 'Bez vypršení');
+    const originalUrl = page.url();
     if (isMobile) await session.tap(); else await session.click();
-    await expect(page).toHaveURL(new RegExp(`/${actor.mode}/profile/security#session-length$`));
-    const input = page.getByTestId('profile.security.settings.session_length.input');
-    await expect(input).toBeFocused();
-    await expect(input).toBeInViewport();
+    const dialog = page.getByTestId('shell.session-length.dialog');
+    const input = dialog.getByTestId('shell.session-length.input');
+    await expect(dialog).toBeVisible();
+    await expect(page).toHaveURL(originalUrl);
     await expect(input).toHaveValue(String(actor.seconds / 60));
-    await expect(page.getByTestId('nav.drawer')).toBeHidden();
+    await expect(dialog.getByTestId('shell.session-length.save')).toBeDisabled();
+    for (const value of [20, 40, 0]) {
+      await dialog.getByTestId(`shell.session-length.preset.${value}`).click();
+      await expect(input).toHaveValue(String(value));
+    }
+    await input.fill('35');
+    await expect(dialog.getByTestId('shell.session-length.save')).toBeEnabled();
     expect(writes).toEqual([]);
     await page.screenshot({ path: testInfo.outputPath(`session-setting-${actor.mode}-${actor.level}.png`), fullPage: false, scale: 'css' });
-
-    // Revisit the same hash and ensure the setting is focused again.
+    await page.keyboard.press('Escape');
+    await expect(dialog).toBeHidden();
     await clickShellControl(page, 'shell.session-remaining', isMobile);
-    await expect(input).toBeFocused();
-    expect(writes).toEqual([]);
+    await expect(input).toHaveValue(String(actor.seconds / 60));
+    await input.fill('35');
+    await dialog.getByTestId('shell.session-length.save').click();
+    await expect(dialog).toBeHidden();
+    expect(writes).toEqual([{ user: { preferred_session_length: 2100 } }]);
+    await expect(page).toHaveURL(originalUrl);
     await clickShellControl(page, 'tasks.open-button', isMobile);
     await expect(page.getByTestId('tasks.drawer')).toBeVisible();
     await expect(page.getByTestId('nav.drawer')).toBeHidden();

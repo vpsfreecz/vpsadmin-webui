@@ -462,6 +462,7 @@ export function AppHeader(props: AppHeaderProps) {
           onNavigate={onNavigate}
           sessionExpiresAt={sessionExpiresAt}
           sessionIdleLimitSeconds={sessionIdleLimitSeconds}
+          sessionUserId={auth.user?.id}
           theme={theme}
           language={language}
           onSetTheme={onSetTheme}
