@@ -791,6 +791,7 @@ Copy retains the original payload and the raw transaction JSON remains available
 Plain text, malformed JSON and unsafe numeric JSON fall back to verbatim text.
 Inline transaction previews retain their existing compact layout.
 
+Give filter help a labeled 44-pixel control beside the input, with a plain search placeholder. Retain the question-mark shortcut. (REQ-010).
 The VPS list marks a VPS with a failed or fatal transaction chain only when the
 chain was created within the last 7 days (REQ-074). Failed chains stay failed
 until an administrator resolves them, so an older failure would otherwise flag

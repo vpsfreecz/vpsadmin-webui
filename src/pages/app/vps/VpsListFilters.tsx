@@ -58,9 +58,10 @@ export function VpsListFilters(props: VpsListFiltersProps) {
           ) : null
         }
       >
-        <div className="w-full sm:max-w-xl">
+        <div className="flex w-full min-w-0 items-center gap-2 sm:min-w-64 sm:max-w-xl sm:flex-1">
           <SmartFilterInput
             ref={props.smartInputRef}
+            className="min-w-0 flex-1"
             value={props.smart}
             onChange={(v) => {
               props.setSmart(v);
@@ -71,19 +72,17 @@ export function VpsListFilters(props: VpsListFiltersProps) {
             testId="vps.smart_filter.input"
             suggestions={props.smartSuggestions}
             onSubmit={() => void props.applySmartText(props.smart)}
-            suffix={
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 px-0"
-                onClick={() => props.setHelpOpen(true)}
-                aria-label={props.t('filters.help.open')}
-                title={props.t('filters.help.open')}
-              >
-                <CircleHelp className="h-4 w-4" aria-hidden />
-              </Button>
-            }
           />
+          <Button
+            variant="secondary"
+            size="md"
+            className="h-11 shrink-0"
+            testId="vps.smart_filter.open_help"
+            onClick={() => props.setHelpOpen(true)}
+          >
+            <CircleHelp className="h-4 w-4 shrink-0" aria-hidden="true" />
+            {props.t('filters.help.open')}
+          </Button>
         </div>
 
         <Button
