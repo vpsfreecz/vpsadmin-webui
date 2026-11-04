@@ -1685,3 +1685,7 @@ preserve all branch histories and colleague PRs. Add standard push CI for the
 integration branch, without deployment automation. Dev has isolated test data;
 clankerdev still uses the production API. No host update in this setup.
 [Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
+
+## 2026-11-04 — Link valid CVEs in security advisory summaries
+
+Link valid CVE identifiers to vulnerability records and leave malformed identifiers as plain labels. [SEC-03 / REQ-009](docs/work-log/2026-11-04-sec03.md).
