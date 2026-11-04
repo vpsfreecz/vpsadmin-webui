@@ -103,7 +103,6 @@ export const enCommon_dashboard = {
   'dashboard.section.cluster.table.kernel': 'Kernel',
   'dashboard.section.cluster.table.cgroups': 'cgroups',
   'dashboard.preferences.title': 'Dashboard preferences',
-  'dashboard.preferences.summary': '{density} · {hidden} hidden · {collapsed} collapsed',
   'dashboard.preferences.open': 'Customize',
   'dashboard.preferences.close': 'Close',
   'dashboard.preferences.reset': 'Reset dashboard',

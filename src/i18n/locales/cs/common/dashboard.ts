@@ -103,7 +103,6 @@ export const csCommon_dashboard = {
   'dashboard.section.cluster.table.kernel': 'Kernel',
   'dashboard.section.cluster.table.cgroups': 'cgroups',
   'dashboard.preferences.title': 'Nastavení dashboardu',
-  'dashboard.preferences.summary': '{density} · {hidden} skryto · {collapsed} sbaleno',
   'dashboard.preferences.open': 'Upravit',
   'dashboard.preferences.close': 'Zavřít',
   'dashboard.preferences.reset': 'Resetovat dashboard',

@@ -1,3 +1,7 @@
+## 2026-11-04 — Dashboard settings header
+
+[Simplify the dashboard settings header](docs/work-log/2026-11-04-dashboard-settings-counts.md).
+
 ## 2026-11-03 — UX-02: verify one complete member VPS journey
 
 Prepare the approved bounded TODO follow-up against kerrycek-021126.
