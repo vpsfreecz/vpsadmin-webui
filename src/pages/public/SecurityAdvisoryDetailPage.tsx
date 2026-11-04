@@ -1,3 +1,4 @@
+import { SecurityCveBadge } from './SecurityCveBadge';
 import React, { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
@@ -56,11 +57,6 @@ function recordLabel(value: unknown, fallback: string): string {
   }
 
   return fallback;
-}
-
-function cveHref(cve: SecurityAdvisoryCve, label: string): string {
-  if (typeof cve.url === 'string' && /^https:\/\//i.test(cve.url.trim())) return cve.url.trim();
-  return `https://nvd.nist.gov/vuln/detail/${encodeURIComponent(label)}`;
 }
 
 function nodeLabel(status: SecurityAdvisoryNodeStatus, fallback: string): string {
@@ -240,17 +236,7 @@ export function SecurityAdvisoryDetailPage() {
           <div className="flex flex-wrap gap-2" aria-label={i18n.t('public.security_advisory_detail.cves.title')}>
             {cveLabels.map((label) => {
               const cve = cvesByLabel.get(label) ?? { id: 0, cve_id: label };
-              return (
-                <a
-                  key={label}
-                  href={cveHref(cve, label)}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus/35"
-                >
-                  <Badge variant="info">{label} ↗</Badge>
-                </a>
-              );
+              return <SecurityCveBadge key={label} label={label} sourceUrl={cve.url} />;
             })}
           </div>
         ) : null}

@@ -1771,3 +1771,7 @@ Separate account impact and missing personal impact from node mitigation. [SEC-0
 ## 2026-11-04 — Use the interface locale for advisory dates
 
 Format advisory dates with the interface language, using a 24-hour clock in Czech and retaining the existing time zone. [SEC-02 / REQ-009](docs/work-log/2026-11-04-sec02.md).
+
+## 2026-11-04 — Link valid CVEs in security advisory summaries
+
+Link valid CVE identifiers to vulnerability records and leave malformed identifiers as plain labels. [SEC-03 / REQ-009](docs/work-log/2026-11-04-sec03.md).
