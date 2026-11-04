@@ -62,6 +62,7 @@
     "e2e/specs/app/backup_center.spec.ts",
     "e2e/specs/app/blocking_action_progress_modal.spec.ts",
     "e2e/specs/app/centered_dialogs.spec.ts",
+    "e2e/specs/app/content_visibility.spec.ts",
     "e2e/specs/app/contextual_help_boxes_smoke.spec.ts",
     "e2e/specs/app/dashboard.spec.ts",
     "e2e/specs/app/dataset_download_delete_confirm.spec.ts",
