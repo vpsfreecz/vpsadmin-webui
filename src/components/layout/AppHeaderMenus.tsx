@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import React, { useEffect, useId, useRef, useState } from 'react';
 import { AlertTriangle, Clock3, Globe, Headset, LogOut, ShieldCheck, User, WifiOff } from 'lucide-react';
 
@@ -6,6 +5,7 @@ import { formatErrorMessage } from '../../lib/errors';
 import { useClippedPopover } from '../../lib/hooks/useClippedPopover';
 import { Button } from '../ui/Button';
 import { clsx } from '../ui/clsx';
+import { AppSessionLengthDialog } from './AppSessionLengthDialog';
 import type { AppHeaderProps } from './AppHeaderTypes';
 
 export function AppSyncPopover(props: Pick<AppHeaderProps,
@@ -60,11 +60,14 @@ export function AppSyncPopover(props: Pick<AppHeaderProps,
   );
 }
 
-export function AppSessionLink(props: Pick<AppHeaderProps, 't' | 'mode' | 'sessionExpiresAt' | 'onNavigate'> & {
+export function AppSessionControl(props: Pick<AppHeaderProps, 't' | 'sessionExpiresAt'> & {
+  userId?: number;
   sessionIdleLimitSeconds: number | null;
+  onOpen: () => void;
   className: string;
 }) {
-  const { t, mode, sessionExpiresAt, sessionIdleLimitSeconds, onNavigate, className } = props;
+  const { t, userId, sessionExpiresAt, sessionIdleLimitSeconds, onOpen, className } = props;
+  const [open, setOpen] = useState(false);
   const sessionRemaining = useSessionRemainingLabel(t, sessionExpiresAt);
   const sessionDisplay = sessionRemaining
     ? { menuLabel: t('auth.session_remaining.menu_label'), value: sessionRemaining }
@@ -72,19 +75,31 @@ export function AppSessionLink(props: Pick<AppHeaderProps, 't' | 'mode' | 'sessi
       ? { menuLabel: t('auth.session_idle.menu_label'), value: t('security.settings.session_length.preset.never') }
       : null;
 
-  return sessionDisplay ? (
-    <Link
-      to={`${mode === 'admin' ? '/admin' : '/app'}/profile/security#session-length`}
-      onClick={onNavigate}
-      className={className}
-      aria-label={`${sessionDisplay.menuLabel}: ${sessionDisplay.value}`}
-      title={`${sessionDisplay.menuLabel}: ${sessionDisplay.value}`}
-      data-testid="shell.session-remaining"
-    >
-      <Clock3 size={18} className="shrink-0" aria-hidden="true" />
-      <span>{sessionDisplay.value}</span>
-    </Link>
-  ) : null;
+  if (!sessionDisplay || userId == null) return null;
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => {
+          onOpen();
+          setOpen(true);
+        }}
+        className={className}
+        aria-haspopup="dialog"
+        aria-label={`${sessionDisplay.menuLabel}: ${sessionDisplay.value}`}
+        title={`${sessionDisplay.menuLabel}: ${sessionDisplay.value}`}
+        data-testid="shell.session-remaining"
+      >
+        <Clock3 size={18} className="shrink-0" aria-hidden="true" />
+        <span>{sessionDisplay.value}</span>
+      </button>
+      {open ? (
+        <AppSessionLengthDialog t={t} userId={userId} storedSeconds={sessionIdleLimitSeconds}
+          onClose={() => setOpen(false)} />
+      ) : null}
+    </>
+  );
 }
 
 export function AppUserMenu(props: Pick<AppHeaderProps,

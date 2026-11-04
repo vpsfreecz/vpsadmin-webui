@@ -23,7 +23,7 @@ import { Badge } from '../ui/Badge';
 import { clsx } from '../ui/clsx';
 import { useClippedPopover } from '../../lib/hooks/useClippedPopover';
 import { useDebouncedValue } from '../../lib/hooks/useDebouncedValue';
-import { AppSessionLink, AppSyncPopover, AppUserMenu } from './AppHeaderMenus';
+import { AppSessionControl, AppSyncPopover, AppUserMenu } from './AppHeaderMenus';
 import { SearchScopeReminder } from './SearchScopeReminder';
 import type { AppHeaderProps } from './AppHeaderTypes';
 
@@ -451,15 +451,13 @@ export function AppHeader(props: AppHeaderProps) {
           {tasksActiveCount > 0 ? <Badge variant="warn">{tasksActiveCount}</Badge> : null}
         </button>
 
-        <AppSessionLink
+        <AppSessionControl
+          key={auth.user?.id}
           t={t}
-          mode={mode}
+          userId={auth.user?.id}
           sessionExpiresAt={sessionExpiresAt}
           sessionIdleLimitSeconds={sessionIdleLimitSeconds}
-          onNavigate={() => {
-            setUserMenuOpen(false);
-            onNavigate?.();
-          }}
+          onOpen={() => setUserMenuOpen(false)}
           className={shortcutClassName}
         />
       </div>
