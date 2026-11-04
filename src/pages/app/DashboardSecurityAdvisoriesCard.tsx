@@ -50,7 +50,9 @@ function SecurityAdvisoryItem(props: { advisory: SecurityAdvisory; detailBasePat
             <Badge variant="danger">{i18n.t('dashboard.section.security.affects_me')}</Badge>
           ) : advisory.affected === false ? (
             <Badge variant="neutral">{i18n.t('dashboard.section.security.not_affected')}</Badge>
-          ) : null}
+          ) : (
+            <Badge variant="neutral">{i18n.t('dashboard.section.security.impact_unknown')}</Badge>
+          )}
         </div>
         {summary ? (
           <div className="break-words text-sm text-muted" data-testid="app.dashboard.security.item.summary">

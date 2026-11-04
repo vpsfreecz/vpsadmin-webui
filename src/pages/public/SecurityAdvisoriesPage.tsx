@@ -47,11 +47,13 @@ function SecurityAdvisoryRow(props: { advisory: SecurityAdvisory; showPersonalIm
         subtitle={`${i18n.t('public.security_advisories.published')}: ${formatDateTime(advisory.published_at)}`}
         actions={
           <div className="flex flex-wrap items-center gap-2">
-            {props.showPersonalImpact && typeof advisory.affected === 'boolean' ? (
-              <Badge variant={advisory.affected ? 'danger' : 'neutral'}>
-                {i18n.t(advisory.affected
+            {props.showPersonalImpact ? (
+              <Badge variant={advisory.affected === true ? 'danger' : 'neutral'}>
+                {i18n.t(advisory.affected === true
                   ? 'dashboard.section.security.affects_me'
-                  : 'dashboard.section.security.not_affected')}
+                  : advisory.affected === false
+                    ? 'dashboard.section.security.not_affected'
+                    : 'dashboard.section.security.impact_unknown')}
               </Badge>
             ) : null}
             <Badge variant={state === 'published' ? 'ok' : state === 'retracted' ? 'warn' : 'neutral'}>
