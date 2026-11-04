@@ -4,6 +4,11 @@ Prepare the approved bounded TODO follow-up against kerrycek-021126.
 See [scope and evidence](docs/work-log/2026-11-03-todo-member-vps-journey.md).
 Prepared for review; not approved, merged or deployed.
 
+## 2026-11-04 — Finance overview panel alignment
+
+Align the top edges of the payment queue and assessment distribution. See
+[scope and verification](docs/work-log/2026-11-04-finance-overview-alignment.md).
+
 ## 2026-11-04 — NAV-02 short sidebar search placeholder
 
 Use a compact search label in the sidebar. See
