@@ -1725,3 +1725,7 @@ side. See [layout and verification](docs/work-log/2026-11-03-compact-sidebar-con
 ## 2026-11-04 — Align public mobile preferences
 
 See [scope and verification](docs/work-log/2026-11-04-pub01-public-followup.md).
+
+## 2026-11-04 — Remove decorative public statistics icons
+
+See [scope and verification](docs/work-log/2026-11-04-pub09-public-followup.md).

@@ -55,16 +55,13 @@ for (const language of ['cs', 'en'] as const) {
       await expect(page.getByTestId('public.news.card')).toContainText(language === 'cs' ? 'Česká novinka' : 'English announcement');
       await expect(page.getByRole('heading', { level: 1 })).toHaveClass('sr-only');
       const stats = page.getByTestId('public.summary-grid');
-      await expect(stats.locator('circle')).toHaveCount(0);
+      await expect(page.getByTestId('public.summary-row').locator('svg')).toHaveCount(0);
       const values = await stats.locator('.tabular-nums').evaluateAll(elements => elements.map(el => ({
         y: el.getBoundingClientRect().y, size: getComputedStyle(el).fontSize,
       })));
       expect(values.map(value => value.size)).toEqual(['24px', '24px']);
       if (page.viewportSize()!.width >= 768) {
         expect(Math.max(...values.map(value => value.y)) - Math.min(...values.map(value => value.y))).toBeLessThanOrEqual(1);
-        const members = await page.getByTestId('public.stats.members').boundingBox();
-        const brand = await page.getByTestId('public.summary.brand').boundingBox();
-        expect(brand!.x + brand!.width).toBeLessThan(members!.x);
         const cards = await stats.locator(':scope > div').evaluateAll(elements => elements.map(el => el.getBoundingClientRect().width));
         expect(Math.max(...cards) - Math.min(...cards)).toBeLessThanOrEqual(1);
       }
