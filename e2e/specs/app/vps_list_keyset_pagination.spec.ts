@@ -100,8 +100,8 @@ test.describe('@smoke VPS list keyset pagination', () => {
     expect(api.requests[0]?.url.searchParams.get('vps[user]')).toBeNull();
 
     if (testInfo.project.name !== 'mobile-chrome') {
-      await expect(vpsSurface(page, testInfo, 49)).toHaveAttribute('data-row-variant', '');
-      await expect(page.getByTestId('vps.row.49.dot')).toBeVisible();
+      await expect(vpsSurface(page, testInfo, 49)).not.toHaveAttribute('data-row-variant');
+      await expect(page.getByTestId('vps.row.49.dot')).toHaveClass(/\bbg-neutral\b/);
       await expect(vpsSurface(page, testInfo, 48)).toHaveAttribute('data-row-variant', 'warn');
     }
 

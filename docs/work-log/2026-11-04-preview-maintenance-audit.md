@@ -12,3 +12,7 @@ in the search reminder to avoid wrapping in the narrow sidebar.
 
 REQ-004, REQ-052 and REQ-074. Test evidence distinguishes browser fixtures from
 the live development API and OAuth checks.
+
+The VPS list search group can shrink when its desktop actions need more
+room. On narrow viewports the group still fills the first row and leaves
+the remaining controls room to wrap.

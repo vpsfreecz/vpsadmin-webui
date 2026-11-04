@@ -59,7 +59,7 @@ export function VpsListFilters(props: VpsListFiltersProps) {
           ) : null
         }
       >
-        <div className="flex w-full min-w-0 items-center gap-2 sm:max-w-xl">
+        <div className="flex w-full min-w-0 items-center gap-2 sm:min-w-64 sm:max-w-xl sm:flex-1">
           <SmartFilterInput
             ref={props.smartInputRef}
             className="min-w-0 flex-1"
