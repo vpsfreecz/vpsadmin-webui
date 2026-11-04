@@ -1783,3 +1783,7 @@ Show one availability ratio, remove the nominal banner, and retain outage, maint
 ## 2026-11-04 — Dashboard cluster location summaries
 
 Use the same ratio and exception counts on desktop and mobile, with a text summary in place of the redundant location bar. [CLU-02 / REQ-009](docs/work-log/2026-11-04-clu02.md).
+
+## 2026-11-04 — VPS creation in the list controls
+
+Place Create VPS beside the filter actions with the shared control height, keeping the existing role-aware destination. [VPS-01 / REQ-010](docs/work-log/2026-11-04-vps01.md).

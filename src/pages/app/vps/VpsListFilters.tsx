@@ -16,6 +16,7 @@ import type { VpsListStateFilter, VpsListTranslator } from './vpsListSemantics';
 
 export interface VpsListFiltersProps {
   mode: 'app' | 'admin';
+  createAction?: React.ReactNode;
   t: VpsListTranslator;
   smart: string;
   smartNeedle: string;
@@ -85,6 +86,8 @@ export function VpsListFilters(props: VpsListFiltersProps) {
             }
           />
         </div>
+
+        {props.createAction}
 
         <Button
           variant="secondary"
