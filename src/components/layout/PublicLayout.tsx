@@ -71,9 +71,10 @@ function NavItem(props: { to: string; children: React.ReactNode }) {
   );
 }
 
-function languageButtonClass(active: boolean): string {
+function languageButtonClass(active: boolean, mobile = false): string {
   return clsx(
-    'rounded-md px-2 py-1 text-xs font-semibold transition-colors',
+    'rounded-md py-1 text-xs font-semibold transition-colors',
+    mobile ? 'min-h-11 min-w-11 px-1' : 'px-2',
     active ? 'bg-primary text-primary-contrast' : 'text-muted hover:bg-surface-2 hover:text-fg'
   );
 }
@@ -88,13 +89,16 @@ function PublicLanguageSwitcher(props: {
   return (
     <div
       role="group"
-      className="flex items-center gap-1 rounded-lg border border-border bg-overlay-surface p-1 shadow-card"
+      className={clsx(
+        'flex items-center rounded-lg border border-border bg-overlay-surface shadow-card',
+        props.mobile ? 'p-0.5' : 'gap-1 p-1'
+      )}
       aria-label={props.t('settings.language.label')}
       data-testid={`${testId}.switcher`}
     >
       <button
         type="button"
-        className={clsx(props.mobile && 'min-h-11', languageButtonClass(props.language === 'system'))}
+        className={languageButtonClass(props.language === 'system', props.mobile)}
         onClick={() => props.onSetLanguage('system')}
         title={props.t('settings.language.system')}
         data-testid={`${testId}.system`}
@@ -103,7 +107,7 @@ function PublicLanguageSwitcher(props: {
       </button>
       <button
         type="button"
-        className={clsx(props.mobile && 'min-h-11', languageButtonClass(props.language === 'en'))}
+        className={languageButtonClass(props.language === 'en', props.mobile)}
         onClick={() => props.onSetLanguage('en')}
         title={props.t('settings.language.en')}
         data-testid={`${testId}.en`}
@@ -112,7 +116,7 @@ function PublicLanguageSwitcher(props: {
       </button>
       <button
         type="button"
-        className={clsx(props.mobile && 'min-h-11', languageButtonClass(props.language === 'cs'))}
+        className={languageButtonClass(props.language === 'cs', props.mobile)}
         onClick={() => props.onSetLanguage('cs')}
         title={props.t('settings.language.cs')}
         data-testid={`${testId}.cs`}
@@ -201,9 +205,9 @@ function PublicLayoutInner() {
                 <NavItem to="/">{i18n.t('public.nav.overview')}</NavItem>
                 <NavItem to="/outages">{i18n.t('public.nav.outages')}</NavItem>
                 <NavItem to="/security-advisories">{i18n.t('public.nav.security_advisories')}</NavItem>
-                <div className="mt-2 flex flex-wrap items-center gap-2 sm:hidden">
+                <div className="mt-2 flex flex-wrap items-center gap-1.5 sm:hidden">
                   <PublicLanguageSwitcher language={ui.settings.language} onSetLanguage={ui.setLanguage} t={i18n.t} mobile />
-                  <PublicThemeSwitcher preference={ui.settings.theme} onSetTheme={ui.setTheme} t={i18n.t} testId="public.theme.mobile" />
+                  <PublicThemeSwitcher preference={ui.settings.theme} onSetTheme={ui.setTheme} t={i18n.t} mobile testId="public.theme.mobile" />
                 </div>
 
                 <a
