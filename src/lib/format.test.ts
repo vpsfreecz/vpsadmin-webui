@@ -1,6 +1,16 @@
 import { describe, expect, it } from 'vitest';
 
-import { compactText, formatDateInTimeZone, formatDateTimeInTimeZone } from './format';
+import { compactText, formatDateInTimeZone, formatDateTimeInTimeZone, formatMiBPair } from './format';
+
+describe('formatMiBPair', () => {
+  it('uses a single unit for each pair', () => {
+    expect(formatMiBPair(43 * 1024, 50 * 1024)).toBe('43 / 50 GiB');
+    expect(formatMiBPair(512, 2048)).toBe('512 / 2048 MiB');
+    expect(formatMiBPair(1536, 2048)).toBe('1.5 / 2 GiB');
+    expect(formatMiBPair(0, 2048)).toBe('0 / 2 GiB');
+    expect(formatMiBPair(1024 * 1024, 2 * 1024 * 1024)).toBe('1 / 2 TiB');
+  });
+});
 
 describe('compactText', () => {
   it('keeps short values intact', () => {

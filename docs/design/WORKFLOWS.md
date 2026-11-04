@@ -791,6 +791,7 @@ Copy retains the original payload and the raw transaction JSON remains available
 Plain text, malformed JSON and unsafe numeric JSON fall back to verbatim text.
 Inline transaction previews retain their existing compact layout.
 
+VPS list usage pairs express used and allocated memory or disk in the same unit.
 The VPS list marks a VPS with a failed or fatal transaction chain only when the
 chain was created within the last 7 days (REQ-074). Failed chains stay failed
 until an administrator resolves them, so an older failure would otherwise flag
