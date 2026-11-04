@@ -1779,3 +1779,7 @@ Link valid CVE identifiers to vulnerability records and leave malformed identifi
 ## 2026-11-04 — Dashboard cluster availability
 
 Show one availability ratio, remove the nominal banner, and retain outage, maintenance and load or error indicators. [CLU-01 / REQ-009](docs/work-log/2026-11-04-clu01.md).
+
+## 2026-11-04 — Dashboard cluster location summaries
+
+Use the same ratio and exception counts on desktop and mobile, with a text summary in place of the redundant location bar. [CLU-02 / REQ-009](docs/work-log/2026-11-04-clu02.md).

@@ -261,7 +261,7 @@ test.describe("Dashboard", () => {
 
     await page.getByTestId("app.dashboard.widget.cluster.collapse").click();
     await expect(page.getByTestId("app.dashboard.cluster.card")).toContainText(
-      "2 nodes total",
+      "1/2 online",
     );
     await expect(page.getByTestId("app.dashboard.cluster.groups")).toHaveCount(0);
 

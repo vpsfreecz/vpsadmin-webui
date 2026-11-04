@@ -9,10 +9,9 @@ import { StackedBar, type StackedBarSegment } from '../ui/StackedBar';
 export function ClusterLocationPanel(props: {
   location: string;
   summary: string;
-  compactSummary?: string;
   summaryVariant: BadgeVariant;
-  segments: StackedBarSegment[];
-  barAriaLabel: string;
+  segments?: StackedBarSegment[];
+  barAriaLabel?: string;
   children: React.ReactNode;
   testId: string;
   defaultOpen?: boolean;
@@ -38,34 +37,24 @@ export function ClusterLocationPanel(props: {
             />
             <span className="truncate text-base font-semibold text-fg">{props.location}</span>
           </div>
-          <div
-            className={clsx(
-              'w-full items-center gap-3 sm:flex sm:w-auto sm:min-w-48 sm:justify-end',
-              props.compactSummary ? 'flex' : 'grid min-w-0',
-            )}
-          >
-            <StackedBar
-              ariaLabel={props.barAriaLabel}
-              segments={props.segments}
-              className="min-w-20 flex-1 sm:max-w-32"
-              testId={`${props.testId}.bar`}
-            />
+          <div className={clsx(
+            'grid min-w-0 w-full items-center gap-3 sm:flex sm:w-auto sm:justify-end',
+            props.segments && 'sm:min-w-48',
+          )}>
+            {props.segments && props.barAriaLabel ? (
+              <StackedBar
+                ariaLabel={props.barAriaLabel}
+                segments={props.segments}
+                className="min-w-20 flex-1 sm:max-w-32"
+                testId={`${props.testId}.bar`}
+              />
+            ) : null}
             <Badge
               variant={props.summaryVariant}
-              className={clsx(
-                'max-w-full',
-                props.compactSummary ? 'whitespace-nowrap' : 'whitespace-normal sm:whitespace-nowrap',
-              )}
+              className={clsx('max-w-full whitespace-normal', props.segments && 'sm:whitespace-nowrap')}
               testId={`${props.testId}.summary`}
             >
-              {props.compactSummary ? (
-                <>
-                  <span className="sm:hidden">{props.compactSummary}</span>
-                  <span className="hidden sm:inline">{props.summary}</span>
-                </>
-              ) : (
-                props.summary
-              )}
+              {props.summary}
             </Badge>
           </div>
         </div>

@@ -313,16 +313,12 @@ export function ClusterHealthCard(props: { isLoading: boolean; isError: boolean;
                     <ClusterLocationPanel
                       key={location}
                       location={location}
-                      summary={t("dashboard.section.cluster.location_summary", {
-                        up: group.ok,
-                        maintenance: group.maintenance,
-                        down: group.down,
-                        total: group.total,
-                      })}
-                      compactSummary={t("dashboard.section.cluster.location_summary_compact", {
-                        up: group.ok,
-                        total: group.total,
-                      })}
+                      summary={[
+                        t("dashboard.section.cluster.location_summary_compact", { up: group.ok, total: group.total }),
+                        group.maintenance > 0 && t("dashboard.section.cluster.status_summary.maintenance", { count: group.maintenance }),
+                        group.down > 0 && t("dashboard.section.cluster.status_summary.down", { count: group.down }),
+                        group.unknown > 0 && t("dashboard.section.cluster.status_summary.unknown", { count: group.unknown }),
+                      ].filter(Boolean).join(" · ")}
                       summaryVariant={
                         group.down > 0
                           ? "danger"
@@ -332,13 +328,6 @@ export function ClusterHealthCard(props: { isLoading: boolean; isError: boolean;
                               ? "neutral"
                               : "ok"
                       }
-                      segments={[
-                        { value: group.ok, variant: "ok", title: t("dashboard.section.cluster.status.up") },
-                        { value: group.maintenance, variant: "warn", title: t("dashboard.section.cluster.status.maintenance") },
-                        { value: group.down, variant: "danger", title: t("dashboard.section.cluster.status.down") },
-                        { value: group.unknown, variant: "neutral", title: t("dashboard.section.cluster.status.unknown") },
-                      ]}
-                      barAriaLabel={t("dashboard.section.cluster.location_bar_aria", { location })}
                       testId={`app.dashboard.cluster.location.${location}`}
                     >
                       <div
