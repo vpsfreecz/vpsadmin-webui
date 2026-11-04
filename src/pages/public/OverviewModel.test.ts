@@ -3,9 +3,6 @@ import { describe, expect, test } from 'vitest';
 import {
   categorizePublicOutages,
   groupPublicNodesByLocation,
-  publicIpv4BadgeVariant,
-  publicIpv4Level,
-  resolvePublicIpv4Left,
   summarizePublicNodes,
 } from './OverviewModel';
 
@@ -57,14 +54,5 @@ describe('OverviewModel', () => {
     expect(groups.current.map((outage) => outage.id)).toEqual([2]);
     expect(groups.planned.map((outage) => outage.id)).toEqual([3]);
     expect(groups.resolved.map((outage) => outage.id)).toEqual([1]);
-  });
-
-  test('resolves IPv4 pool severity', () => {
-    const left = resolvePublicIpv4Left({ user_count: 1, vps_count: 2, ipv4_left: 10 });
-    const level = publicIpv4Level(left, 64, 16);
-
-    expect(left).toBe(10);
-    expect(level).toBe('critical');
-    expect(publicIpv4BadgeVariant(level, left)).toBe('danger');
   });
 });

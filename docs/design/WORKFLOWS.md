@@ -50,7 +50,8 @@ registration without exposing private information. Public overview combines
 cluster/node status with outages/news/advisories; external heatmaps are optional.
 Public overview order is active/planned (and unclassified) outages, news,
 published security advisories, detailed node status, member/VPS statistics,
-then resolved outages. Empty outage sections and the nominal-status banner are
+then resolved outages. The statistics show member and VPS totals without IPv4
+pool availability (REQ-054). Empty outage sections and the nominal-status banner are
 omitted; pending/error states remain explicit. Current and planned outages may
 coexist at the top, up to three per category; the resolved preview shows three.
 The advisory preview makes one credential-free public GET with limit 5,
