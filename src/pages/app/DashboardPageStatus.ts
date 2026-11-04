@@ -13,7 +13,7 @@ export function DashboardOperationalSummary(opts: {
   currentOutageCount: number;
   nodeDownCount: number;
   nodeMaintenanceCount: number;
-}): { variant: AlertVariant; title: string; body: string } {
+}): { variant: AlertVariant; title: string; body: string } | null {
   if (opts.outagesLoading || opts.nodesLoading) {
     return {
       variant: 'neutral',
@@ -54,9 +54,5 @@ export function DashboardOperationalSummary(opts: {
     };
   }
 
-  return {
-    variant: 'ok',
-    title: opts.t('dashboard.alert.nominal.title'),
-    body: opts.t('dashboard.alert.nominal.body'),
-  };
+  return null;
 }

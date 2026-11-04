@@ -78,6 +78,7 @@ views (REQ-025/026). It reuses the public heatmap configuration, node eligibilit
 and dialog; external frames load only after an explicit click/tap. Missing or
 failed configuration hides the optional action/column without blocking status
 information. Compact dashboard density still limits the visible node list.
+Show one availability ratio, remove the nominal banner, and retain outage, maintenance and load or error indicators. (REQ-009).
 Label the resource count group once with the actual object scope. Put each resource label and count on a compact wrapping line. (REQ-009).
 Align each widget title and its status badges on their text baseline. The same layout applies to essential, hidden and collapsed labels. (REQ-009).
 Each widget in dashboard settings groups visibility, movement and collapse under its title (REQ-009).

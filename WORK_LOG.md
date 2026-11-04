@@ -1775,3 +1775,7 @@ Format advisory dates with the interface language, using a 24-hour clock in Czec
 ## 2026-11-04 — Link valid CVEs in security advisory summaries
 
 Link valid CVE identifiers to vulnerability records and leave malformed identifiers as plain labels. [SEC-03 / REQ-009](docs/work-log/2026-11-04-sec03.md).
+
+## 2026-11-04 — Dashboard cluster availability
+
+Show one availability ratio, remove the nominal banner, and retain outage, maintenance and load or error indicators. [CLU-01 / REQ-009](docs/work-log/2026-11-04-clu01.md).
