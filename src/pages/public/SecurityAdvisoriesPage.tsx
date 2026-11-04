@@ -1,3 +1,4 @@
+import { SecurityCveBadge } from './SecurityCveBadge';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -65,9 +66,7 @@ function SecurityAdvisoryRow(props: { advisory: SecurityAdvisory; showPersonalIm
           {cves.length > 0 ? (
             <div className="flex flex-wrap gap-1">
               {cves.map((cve) => (
-                <Badge key={cve} variant="info">
-                  {cve}
-                </Badge>
+                <SecurityCveBadge key={cve} label={cve} />
               ))}
             </div>
           ) : null}

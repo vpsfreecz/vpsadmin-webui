@@ -1,3 +1,4 @@
+import { SecurityCveBadge } from '../public/SecurityCveBadge';
 import { useI18n } from '../../app/i18n';
 import { Link } from 'react-router-dom';
 import type { DashboardDensity } from '../../app/dashboardSettingsModel';
@@ -83,7 +84,7 @@ function SecurityAdvisoryItem(props: { advisory: SecurityAdvisory; detailBasePat
           data-testid="app.dashboard.security.item.cves"
         >
           {cves.length > 0 ? (
-            cves.slice(0, 6).map((cve) => <Badge key={cve} variant="info">{cve}</Badge>)
+            cves.slice(0, 6).map((cve) => <SecurityCveBadge key={cve} label={cve} />)
           ) : (
             <Badge variant="neutral">{i18n.t('dashboard.section.security.no_cves')}</Badge>
           )}
