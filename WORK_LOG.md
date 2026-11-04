@@ -1800,3 +1800,9 @@ Give filter help a labeled 44-pixel control beside the input, with a plain searc
   position alongside the existing touch target and layout checks.
 
 - [2026-11-04 manual paid-until history](docs/work-log/2026-11-04-payment-expiration-history.md) (REQ-052)
+
+### 2026-11-04 — Hide empty public advisory previews
+
+- PUB-11 / REQ-054: omit the public overview card once a successful query
+  returns no published advisories. Keep loading and fetch errors visible.
+- Check the empty response in public overview browser smoke coverage.

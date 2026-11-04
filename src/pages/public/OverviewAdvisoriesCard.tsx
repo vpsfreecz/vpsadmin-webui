@@ -10,6 +10,9 @@ import { pickTranslation } from '../../lib/translations';
 
 export function OverviewAdvisoriesCard(props: { advisories?: SecurityAdvisory[]; loading: boolean; error: boolean }) {
   const i18n = useI18n();
+  const { advisories = [], loading, error } = props;
+  if (!loading && !error && advisories.length === 0) return null;
+
   return (
     <Card testId="public.advisories.card">
       <CardHeader
@@ -18,13 +21,11 @@ export function OverviewAdvisoriesCard(props: { advisories?: SecurityAdvisory[];
         actions={<Link to="/security-advisories" className="text-sm underline">{i18n.t('public.overview.security.all')}</Link>}
       />
       <CardBody className="px-3 py-3">
-        {props.loading ? <Spinner label={i18n.t('public.security_advisories.loading')} /> : props.error ? (
+        {loading ? <Spinner label={i18n.t('public.security_advisories.loading')} /> : error ? (
           <Alert title={i18n.t('public.security_advisories.error')} variant="danger" />
-        ) : !props.advisories?.length ? (
-          <div className="text-sm text-muted">{i18n.t('public.security_advisories.empty.title')}</div>
         ) : (
           <div className="divide-y divide-border">
-            {props.advisories.map(advisory => {
+            {advisories.map(advisory => {
               const summary = pickTranslation(advisory, 'summary', i18n.preferredLanguageCodes);
               return (
               <div key={advisory.id} className="space-y-1 py-2 first:pt-0 last:pb-0">
