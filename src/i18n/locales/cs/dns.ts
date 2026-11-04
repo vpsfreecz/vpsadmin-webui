@@ -3,7 +3,6 @@ export const csDns = {
   'dns.zones.badge.dnssec': 'DNSSEC',
   'dns.zones.badge.no_dnssec': 'Bez DNSSEC',
   'dns.zones.page.title': 'DNS zóny',
-  'dns.zones.page.description': 'Spravuj DNS zóny a jejich záznamy.',
   'dns.zones.action.create': 'Vytvořit zónu',
   'dns.zones.action.tsig_keys': 'TSIG klíče',
   'dns.tsig.page.title': 'TSIG klíče',

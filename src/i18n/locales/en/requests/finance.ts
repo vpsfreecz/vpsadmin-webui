@@ -5,7 +5,6 @@ export const enFinance = {
   'finance.tabs.incoming': 'Incoming payments',
   'finance.tabs.forecast': 'Income forecast',
   'finance.overview.title': 'Finance',
-  'finance.overview.description': 'Global member payment status, monthly outlook, and a practical review queue.',
   'finance.overview.refresh': 'Refresh overview',
   'finance.overview.loading': 'Loading the complete Finance snapshot…',
   'finance.overview.load_error': 'Unable to load the finance overview',

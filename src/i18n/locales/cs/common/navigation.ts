@@ -22,7 +22,6 @@ export const csCommon_navigation = {
   'nav.group.users_finance': 'Uživatelé a finance',
   'nav.group.infrastructure': 'Infrastruktura',
   'nav.group.content': 'Obsah',
-  'app.logo.subtitle': 'next UI',
   'nav.status': 'Stav',
   'nav.dashboard': 'Přehled',
   'nav.vps': 'VPS',

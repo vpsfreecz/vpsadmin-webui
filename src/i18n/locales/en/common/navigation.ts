@@ -22,7 +22,6 @@ export const enCommon_navigation = {
   'nav.group.users_finance': 'Users and finance',
   'nav.group.infrastructure': 'Infrastructure',
   'nav.group.content': 'Content',
-  'app.logo.subtitle': 'next UI',
   'nav.status': 'Status',
   'nav.dashboard': 'Dashboard',
   'nav.vps': 'VPS',

@@ -1,3 +1,7 @@
+## 2026-11-04 — Approved interface copy
+
+[Remove ten approved interface texts](docs/work-log/2026-11-04-approved-interface-copy.md).
+
 ## 2026-11-04 — Sidebar language and appearance
 
 [Separate language and appearance from the account menu](docs/work-log/2026-11-04-sidebar-interface-preferences.md).

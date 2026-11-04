@@ -27,7 +27,6 @@ export const enOps_transactions = {
   "transactions.chains.advanced.session": "Session",
   "transactions.chains.advanced.state": "State",
   "transactions.chains.advanced.user": "User",
-  "transactions.chains.description": "Operation history, progress and individual steps.",
   "transactions.chains.empty.body": "Nothing matches the current filters.",
   "transactions.chains.empty.title": "No transaction chains",
   "transactions.chains.filter.concern_class.placeholder": "Concern class (e.g. Vps)",

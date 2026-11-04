@@ -3,7 +3,6 @@ export const enDns = {
   'dns.zones.badge.dnssec': 'DNSSEC',
   'dns.zones.badge.no_dnssec': 'No DNSSEC',
   'dns.zones.page.title': 'DNS zones',
-  'dns.zones.page.description': 'Manage DNS zones and their records.',
   'dns.zones.action.create': 'Create zone',
   'dns.zones.action.tsig_keys': 'TSIG keys',
   'dns.tsig.page.title': 'TSIG keys',

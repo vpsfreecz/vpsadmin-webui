@@ -98,7 +98,7 @@ export function ProfilePreferencesCard() {
 
   return (
     <Card testId="profile.prefs.card">
-      <CardHeader title={t('profile.prefs.title')} subtitle={t('profile.prefs.subtitle')} />
+      <CardHeader title={t('profile.prefs.title')} />
       <CardBody>
         <div className="space-y-3">
           {canSwitchScope ? (
@@ -133,10 +133,7 @@ export function ProfilePreferencesCard() {
             </ProfilePreferenceRow>
           ) : null}
 
-          <ProfilePreferenceRow
-            label={t('settings.theme.label')}
-            description={t('profile.prefs.theme.desc')}
-          >
+          <ProfilePreferenceRow label={t('settings.theme.label')}>
             <Select
               value={ui.settings.theme}
               onChange={(e) => {

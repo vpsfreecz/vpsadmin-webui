@@ -192,7 +192,6 @@ export const csVps_overview = {
   'vps.control.storage.backups': 'Zálohy',
   'vps.control.storage.open_backups': 'Otevřít zálohy',
   'vps.control.activity.title': 'Aktivita',
-  'vps.control.activity.subtitle': 'Poslední operace a transakce této VPS.',
   'vps.control.activity.open': 'Otevřít aktivitu',
   'vps.control.activity.empty': 'Pro tuto VPS zatím nejsou žádné nedávné operace.',
   'vps.control.activity.error': 'Aktivitu se nepodařilo načíst.',

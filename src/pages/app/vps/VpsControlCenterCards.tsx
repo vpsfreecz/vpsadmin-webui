@@ -369,7 +369,6 @@ export function VpsActivityCard(props: {
     <Card className={props.className ?? 'lg:col-span-12'} testId="vps.overview.tx.card">
       <CardHeader
         title={<SectionTitle icon={<Activity className={iconClass} />}>{t('vps.control.activity.title')}</SectionTitle>}
-        subtitle={t('vps.control.activity.subtitle')}
         actions={(
           <ChipLink to={`${props.basePath}/transactions?class_name=Vps&row_id=${props.vps.id}`}>
             {t('vps.control.activity.open')}
