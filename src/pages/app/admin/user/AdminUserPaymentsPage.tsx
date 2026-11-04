@@ -21,7 +21,7 @@ import { Input } from '../../../../components/ui/Input';
 import { KeysetPagination } from '../../../../components/ui/KeysetPagination';
 import { LoadingState } from '../../../../components/ui/LoadingState';
 
-import { createUserPayment, fetchPaymentInstructions, fetchUserPayments } from '../../../../lib/api/payments';
+import { createUserPayment, fetchPaymentInstructions, fetchUserPayments, supportsPaymentExpirationHistory } from '../../../../lib/api/payments';
 import { fetchUserAccount, updateUserAccount } from '../../../../lib/api/userAccounts';
 import { getMetaActionStateId } from '../../../../lib/api/haveapi';
 import { objectRef } from '../../../../lib/objectRef';
@@ -122,15 +122,21 @@ export function AdminUserPaymentsPage() {
   });
 
   const historyQ = useQuery({
-    queryKey: ['user_payments', 'list', { userId, limit: pagination.limit + 1, fromId: pagination.fromId }],
-    queryFn: async () =>
-      (
-        await fetchUserPayments({
-          userId,
-          limit: pagination.limit + 1,
-          fromId: pagination.fromId ?? undefined,
-        })
-      ).data,
+    queryKey: ['user_payments', 'account_history', { userId, limit: pagination.limit + 1, fromId: pagination.fromId }],
+    queryFn: async () => {
+      const includeExpirationChanges = await qc.fetchQuery({
+        queryKey: ['user_payments', 'history_capability'],
+        queryFn: supportsPaymentExpirationHistory,
+        staleTime: 5 * 60_000,
+        retry: false,
+      }).catch(() => false);
+      return (await fetchUserPayments({
+        userId,
+        limit: pagination.limit + 1,
+        fromId: pagination.fromId ?? undefined,
+        includeExpirationChanges,
+      })).data;
+    },
     staleTime: 15_000,
   });
 
@@ -200,6 +206,7 @@ export function AdminUserPaymentsPage() {
     onSuccess: () => {
       toasts.pushToast({ variant: 'ok', title: t('admin.user.payments.settings.toast.paid_until_saved') });
       setSettingsReview(null);
+      void qc.invalidateQueries({ queryKey: ['user_payments', 'account_history', { userId }] });
       void qc.invalidateQueries({ queryKey: ['user_accounts', userId] });
       void qc.invalidateQueries({ queryKey: ['finance'] });
       void qc.invalidateQueries({ queryKey: ['payment_stats', 'estimate_income'] });
@@ -755,7 +762,9 @@ export function AdminUserPaymentsPage() {
                               </Link>
                             ) : (
                               <span className="text-faint" data-testid={`admin.user.payments.history.row.${p.id}.source`}>
-                                {t('admin.user.payments.history.source.manual')}
+                                {t(p.expiration_change
+                                  ? 'admin.user.payments.history.source.expiration_change'
+                                  : 'admin.user.payments.history.source.manual')}
                               </span>
                             )}
                           </td>

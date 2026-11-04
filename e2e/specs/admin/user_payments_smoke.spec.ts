@@ -8,6 +8,7 @@ test.describe('@smoke Admin user payments', () => {
     await bootstrapVpsAdminWindow(page);
     let paymentInstructionRequests = 0;
     const settingsUpdates: unknown[] = [];
+    let expirationChanged = false;
     let releaseSettingsUpdate: (() => void) | undefined;
     const settingsUpdateGate = new Promise<void>((resolve) => {
       releaseSettingsUpdate = resolve;
@@ -45,6 +46,7 @@ test.describe('@smoke Admin user payments', () => {
         'PUT user_accounts/42': async ({ reqJson }) => {
           settingsUpdates.push(reqJson);
           await settingsUpdateGate;
+          expirationChanged = true;
           return {
             user_account: {
               id: 42,
@@ -59,8 +61,21 @@ test.describe('@smoke Admin user payments', () => {
             instructions: '<h3>Payment in EUR</h3><table><tr><td>Account:</td><td>123456/0100</td></tr><tr><td>VS:</td><td>42</td></tr></table>',
           };
         },
-        'GET user_payments': () => ({
+        'OPTIONS user_payments': () => ({
+          method: 'GET',
+          input: { parameters: { include_expiration_changes: { type: 'Boolean' } } },
+        }),
+        'GET user_payments': ({ searchParams }) => ({
           user_payments: [
+            ...(expirationChanged && searchParams.get('user_payment[include_expiration_changes]') === 'true' ? [{
+              id: 9003,
+              amount: null,
+              expiration_change: true,
+              created_at: '2026-02-12T12:00:00.000Z',
+              from_date: '2026-03-01T12:00:00.000Z',
+              to_date: '2026-04-01T12:00:00.000Z',
+              accounted_by: { id: 1, login: 'admin' },
+            }] : []),
             {
               id: 9001,
               amount: 100,
@@ -136,6 +151,13 @@ test.describe('@smoke Admin user payments', () => {
     expect(settingsUpdates).toHaveLength(1);
     releaseSettingsUpdate?.();
     await expect(page.getByTestId('admin.user.payments.settings.review')).toBeHidden();
+    const expirationRow = page.getByTestId('admin.user.payments.history.row.9003');
+    await expect(expirationRow.getByRole('cell', { name: '—', exact: true })).toBeVisible();
+    await expect(expirationRow).toContainText('3/1/2026');
+    await expect(expirationRow).toContainText('4/1/2026');
+    await expect(expirationRow).toContainText('Manual date change');
+    await expect(expirationRow).toContainText('admin (#1)');
+    await expect(page.getByTestId('admin.user.payments.history.row.9001')).toBeVisible();
     await expect(page.getByTestId('admin.user.payments.settings.monthly_payment')).toBeEnabled();
 
     await page.getByTestId('admin.user.payments.settings.monthly_payment').fill('120');
