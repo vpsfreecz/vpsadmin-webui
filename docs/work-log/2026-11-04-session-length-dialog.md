@@ -9,3 +9,8 @@ The profile security route remains available.
 REQ-006. Czech terminology input is
 `a65a4dfeb92a59df4a80a737a20bcbf8558793ff`. Browser fixtures cover opening,
 presets, custom input, cancellation and the request on explicit Save.
+
+## Anchored panel follow-up
+
+The countdown opens a panel anchored to the navigation controls, matching
+the account menu surface. Escape and Cancel close it and return focus.

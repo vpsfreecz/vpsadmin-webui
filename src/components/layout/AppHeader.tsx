@@ -251,6 +251,7 @@ export function AppHeader(props: AppHeaderProps) {
     onNavigate?.();
   };
 
+  const sessionAnchorRef = useRef<HTMLDivElement>(null);
   const shortcutClassName = 'flex min-h-11 flex-auto items-center gap-1.5 whitespace-nowrap rounded-md border border-border bg-surface px-2 text-left text-sm text-muted hover:bg-surface-2 hover:text-fg md:min-h-9 [@media(any-pointer:coarse)]:min-h-11';
 
   return (
@@ -438,7 +439,7 @@ export function AppHeader(props: AppHeaderProps) {
         ) : null}
 
       </div> : null}
-      <div className="flex flex-wrap gap-1.5">
+      <div className="relative flex flex-wrap gap-1.5" ref={sessionAnchorRef}>
         <button
           className={shortcutClassName}
           onClick={onOpenTasks}
@@ -451,15 +452,18 @@ export function AppHeader(props: AppHeaderProps) {
           {tasksActiveCount > 0 ? <Badge variant="warn">{tasksActiveCount}</Badge> : null}
         </button>
 
-        <AppSessionControl
-          key={auth.user?.id}
-          t={t}
-          userId={auth.user?.id}
-          sessionExpiresAt={sessionExpiresAt}
-          sessionIdleLimitSeconds={sessionIdleLimitSeconds}
-          onOpen={() => setUserMenuOpen(false)}
-          className={shortcutClassName}
-        />
+        {auth.user?.id == null ? null : (
+          <AppSessionControl
+            key={auth.user?.id}
+            t={t}
+            userId={auth.user.id}
+            anchorRef={sessionAnchorRef}
+            sessionExpiresAt={sessionExpiresAt}
+            sessionIdleLimitSeconds={sessionIdleLimitSeconds}
+            onOpen={() => setUserMenuOpen(false)}
+            className={shortcutClassName}
+          />
+        )}
       </div>
       <AppUserMenu
         t={t}
