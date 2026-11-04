@@ -52,12 +52,12 @@ export function UsageBar(props: {
   // If the label is a string, it is usually descriptive enough for screen readers.
   const aria = props.ariaLabel ?? (typeof props.label === 'string' ? String(props.label) : 'usage');
   const label = props.label ?? null;
-  const values = showValues && valid
-    ? usedRaw !== undefined && props.formatPair
-      ? props.formatPair(usedRaw, max)
-      : `${usedRaw !== undefined ? format(usedRaw) : '—'} / ${format(max)}`
-    : '—';
-
+  const values =
+    showValues && valid
+      ? usedRaw !== undefined && props.formatPair
+        ? props.formatPair(usedRaw, max)
+        : `${usedRaw !== undefined ? format(usedRaw) : '—'} / ${format(max)}`
+      : '—';
 
   if (layout === 'row') {
     return (
@@ -80,9 +80,7 @@ export function UsageBar(props: {
         </div>
 
         {showValues ? (
-          <span className={clsx('w-28 text-right text-faint', props.rowValueClassName)}>
-            {values}
-          </span>
+          <span className={clsx('w-28 text-right text-faint', props.rowValueClassName)}>{values}</span>
         ) : null}
       </div>
     );
@@ -93,11 +91,7 @@ export function UsageBar(props: {
     <div data-testid={props.testId} className={clsx('space-y-1', props.className)}>
       <div className="flex items-center justify-between gap-2">
         <span className="min-w-0 truncate">{label}</span>
-        {showValues ? (
-          <span className="shrink-0 text-faint">
-            {values}
-          </span>
-        ) : null}
+        {showValues ? <span className="shrink-0 text-faint">{values}</span> : null}
       </div>
       {valid ? (
         <StackedBar
