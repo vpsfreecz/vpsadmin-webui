@@ -122,10 +122,10 @@
       "path": "src/pages/app/admin/IncomingPaymentDetailPage.tsx",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "dd80374ba7edc6a7b49d46a3438927914db8bc4602197fa6d22e019b1c82f40e",
+      "contentHash": "e39bef3f6a52f7ab83322d635f32330e541d183e931feeb3016c89f8c45c4a82",
       "old": 0,
-      "allowance": 587,
-      "rationale": "At the recorded source revision, this file already contained incoming payment detail and matching flows; extract the coherent section with focused behavior coverage before removing this exception.",
+      "allowance": 591,
+      "rationale": "At the recorded source revision, this file already contained incoming payment detail and matching flows; extract the coherent section with focused behavior coverage before removing this exception. The payer account appears in the existing payment details grid.",
       "owner": "WebUI implementation lead",
       "removeWhen": {
         "metric": "lines",

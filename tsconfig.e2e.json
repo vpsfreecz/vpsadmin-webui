@@ -37,6 +37,7 @@
     "e2e/specs/app/action_state_transactions_responsive.spec.ts",
     "e2e/specs/app/approved_vps_journey.spec.ts",
     "e2e/specs/app/admin_default_review_queue.spec.ts",
+    "e2e/specs/app/admin_incoming_payment_timezone.spec.ts",
     "e2e/specs/app/admin_newslog.spec.ts",
     "e2e/specs/app/admin_scope_view_switcher.spec.ts",
     "e2e/specs/app/authenticated_home_smoke.spec.ts",

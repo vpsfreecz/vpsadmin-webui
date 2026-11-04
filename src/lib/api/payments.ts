@@ -25,6 +25,7 @@ export interface IncomingPayment {
   src_amount?: number;
   src_currency?: string;
   account_name?: string;
+  payer_account?: string | null;
   user_ident?: string;
   user_message?: string;
   vs?: string;

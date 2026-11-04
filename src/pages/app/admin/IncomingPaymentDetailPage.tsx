@@ -416,6 +416,10 @@ export function IncomingPaymentDetailPage() {
                 <div className="text-xs text-muted">{t('payments.incoming.detail.account')}</div>
                 <div className="text-sm">{String(payment.account_name ?? '—')}</div>
               </div>
+              <div data-testid="admin.payments.incoming.detail.payer_account">
+                <div className="text-xs text-muted">{t('payments.incoming.detail.payer_account')}</div>
+                <div className="break-all text-sm tabular-nums">{payment.payer_account || '—'}</div>
+              </div>
               <div>
                 <div className="text-xs text-muted">VS</div>
                 <div className="text-sm tabular-nums">{String(payment.vs ?? '—')}</div>
