@@ -1787,3 +1787,7 @@ Use the same ratio and exception counts on desktop and mobile, with a text summa
 ## 2026-11-04 — VPS creation in the list controls
 
 Place Create VPS beside the filter actions with the shared control height, keeping the existing role-aware destination. [VPS-01 / REQ-010](docs/work-log/2026-11-04-vps01.md).
+
+## 2026-11-04 — Visible VPS filter help
+
+Give filter help a labeled 44-pixel control beside the input, with a plain search placeholder. Retain the question-mark shortcut. [VPS-02 / REQ-010](docs/work-log/2026-11-04-vps02.md).

@@ -1,7 +1,7 @@
 // VPS core list, layout, tabs, actions, and power copy
 export const enVps_core = {
   'vps.list.description': 'Your virtual private servers. Open a VPS to access its console and full control center.',
-  'vps.list.search.placeholder': 'Filter… (hostname, ID, key:value, ?)',
+  'vps.list.search.placeholder': 'Search VPS',
   'vps.list.filter.node.placeholder': 'Node ID',
   'vps.list.filter.user.placeholder': 'User ID',
   'vps.list.filter.user_namespace_map.placeholder': 'Namespace map #ID',
@@ -94,7 +94,7 @@ export const enVps_core = {
   'action.vps.config.save.label': 'Save VPS configuration',
   'action.vps.access.passwd.label': 'Generate root password',
   'action.vps.access.deploy_public_key.label': 'Deploy SSH public key',
-  'vps.list.smart_help.intro': 'Use a single field to search and filter. Press Enter to apply.',
+  'vps.list.smart_help.intro': 'Press Enter to search. Open the help with the Help button or by typing a question mark.',
   'vps.list.smart_help.examples.help': 'Open filter help',
   'vps.list.smart_help.examples.open_id': 'Open VPS by ID',
   'vps.list.smart_help.examples.hostname': 'Search by hostname',
