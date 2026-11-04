@@ -66,7 +66,7 @@ function SecurityAdvisoryItem(props: { advisory: SecurityAdvisory; detailBasePat
           data-testid="app.dashboard.security.item.meta"
         >
           <span>
-            {i18n.t('dashboard.section.security.published')}: {formatDateTime(advisory.published_at)}
+            {i18n.t('dashboard.section.security.published')}: {formatDateTime(advisory.published_at, i18n.lang)}
           </span>
           {affectedNodeCount !== null ? (
             <span>· {i18n.t('dashboard.section.security.affected_nodes', { count: affectedNodeCount })}</span>

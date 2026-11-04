@@ -1767,3 +1767,7 @@ Label the resource count group once with the actual object scope. Put each resou
 ## 2026-11-04 — Explain personal security advisory impact
 
 Separate account impact and missing personal impact from node mitigation. [SEC-01 / REQ-009](docs/work-log/2026-11-04-sec01.md).
+
+## 2026-11-04 — Use the interface locale for advisory dates
+
+Format advisory dates with the interface language, using a 24-hour clock in Czech and retaining the existing time zone. [SEC-02 / REQ-009](docs/work-log/2026-11-04-sec02.md).
