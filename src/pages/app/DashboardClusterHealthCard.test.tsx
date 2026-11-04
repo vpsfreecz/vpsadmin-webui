@@ -42,11 +42,12 @@ describe('ClusterHealthCard', () => {
     render(
       <MemoryRouter>
         <AppModeProvider mode="user">
-          <ClusterHealthCard isLoading={false} isError={false} nodeData={nodeData} nodeIssueCount={1} />
+          <ClusterHealthCard isLoading={false} isError={false} nodeData={nodeData} />
         </AppModeProvider>
       </MemoryRouter>,
     );
 
+    expect(screen.getByTestId('app.dashboard.cluster.availability')).toHaveTextContent('1/2 online');
     const praguePanel = screen.getByTestId('app.dashboard.cluster.location.Praha');
     const brnoPanel = screen.getByTestId('app.dashboard.cluster.location.Brno');
 
