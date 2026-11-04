@@ -58,7 +58,11 @@ test('@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile public overview shows key 
     },
   });
 
+  const advisoriesResponse = page.waitForResponse(response =>
+    response.request().method() === 'GET' && new URL(response.url()).pathname.endsWith('/security_advisories'),
+  );
   await page.goto('/');
+  await advisoriesResponse;
 
   // Page shell
   await expect(page.getByTestId('public.overview.page')).toBeVisible();
@@ -69,8 +73,9 @@ test('@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile public overview shows key 
   await expect(page.getByTestId('public.stats.nodes')).toHaveCount(0);
   await expect(page.getByTestId('public.stats.vps')).toBeVisible();
 
-  // Supporting sections. Empty outages are intentionally hidden.
+  // Supporting sections. Empty outages and advisories are hidden.
   await expect(page.locator('[data-testid="public.outages.card"]')).toHaveCount(0);
+  await expect(page.getByTestId('public.advisories.card')).toHaveCount(0);
   await expect(page.getByTestId('public.nodes.section')).toBeVisible();
 
   const nodesSection = page.getByTestId('public.nodes.section');
