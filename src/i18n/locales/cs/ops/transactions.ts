@@ -27,7 +27,6 @@ export const csOps_transactions = {
   "transactions.chains.advanced.session": "Relace",
   "transactions.chains.advanced.state": "Stav",
   "transactions.chains.advanced.user": "Uživatel",
-  "transactions.chains.description": "Přehled operací, jejich stavu a provedených kroků.",
   "transactions.chains.empty.body": "Nic neodpovídá aktuálním filtrům.",
   "transactions.chains.empty.title": "Žádné řetězce transakcí",
   "transactions.chains.filter.concern_class.placeholder": "Třída objektu (např. Vps)",

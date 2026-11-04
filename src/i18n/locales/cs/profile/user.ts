@@ -5,6 +5,5 @@ export const csProfile_user = {
   "profile.user.loading": "Načítání uživatele…",
   "profile.user.login": "Login",
   "profile.user.role": "Role",
-  "profile.user.subtitle": "Kdo je právě přihlášen.",
   "profile.user.title": "Uživatel",
 } as const;

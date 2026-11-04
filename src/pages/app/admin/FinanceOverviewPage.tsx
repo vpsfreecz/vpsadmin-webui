@@ -161,7 +161,6 @@ export function FinanceOverviewPage() {
         <div className="space-y-4">
           <PageHeader
             title={t('finance.overview.title')}
-            description={t('finance.overview.description')}
             actions={(
               <Button
                 variant="secondary"

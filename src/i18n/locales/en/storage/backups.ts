@@ -30,7 +30,6 @@ export const enBackups = {
   'backups.stats.unavailable': 'Unavailable downloads',
   'backups.stats.unavailable.help': 'Expired, cancelled or failed',
   'backups.quick.title': 'What do you need to do?',
-  'backups.quick.subtitle': 'Jump directly to the relevant storage and existing management tools.',
   'backups.quick.restore': 'Restore or roll back',
   'backups.quick.downloads': 'View downloads',
   'backups.quick.plans': 'Manage backup plans',
