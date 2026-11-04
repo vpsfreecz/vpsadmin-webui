@@ -239,7 +239,6 @@ export function ClusterHealthCard(props: { isLoading: boolean; isError: boolean;
   const { basePath, mode } = useAppMode();
   const compact = props.density === "compact";
   const collapsed = props.collapsed === true;
-  const nodeRows = props.nodeData.byLocation.flatMap(([, group]) => group.nodes);
   const visibleNodeLimit = compact ? 12 : Number.POSITIVE_INFINITY;
   let remainingNodeCount = visibleNodeLimit;
   const visibleLocationGroups = props.nodeData.byLocation.flatMap(([location, group]) => {
@@ -248,7 +247,6 @@ export function ClusterHealthCard(props: { isLoading: boolean; isError: boolean;
     return nodes.length > 0 ? [{ location, group, nodes }] : [];
   });
   const hasHeatmaps = useNodeHeatmapsAvailable(visibleLocationGroups.flatMap(({ nodes }) => nodes));
-  const renderedNodeCount = visibleLocationGroups.reduce((count, group) => count + group.nodes.length, 0);
   const statusBadges = (
     <div className="flex flex-wrap gap-2 text-sm">
       <Badge variant="neutral" testId="app.dashboard.cluster.availability">
@@ -426,11 +424,6 @@ export function ClusterHealthCard(props: { isLoading: boolean; isError: boolean;
                     </ClusterLocationPanel>
                   ))}
                 </div>
-                {nodeRows.length > renderedNodeCount ? (
-                  <div className="text-xs text-muted">
-                    {t("dashboard.section.cluster.more_nodes_compact", { count: nodeRows.length - renderedNodeCount })}
-                  </div>
-                ) : null}
               </>
             ) : null}
           </div>

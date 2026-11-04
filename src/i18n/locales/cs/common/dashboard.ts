@@ -1,6 +1,5 @@
 // Common dashboard copy
 export const csCommon_dashboard = {
-  'dashboard.description': 'Stručný denní přehled tvých zdrojů, odstávek, bezpečnostních upozornění a stavu služeb.',
   'dashboard.summary.scope.mine': 'Moje objekty',
   'dashboard.summary.scope.all': 'Všechny dostupné objekty',
   'dashboard.kpi.active_operations': 'Aktivní operace',
@@ -42,7 +41,6 @@ export const csCommon_dashboard = {
   'dashboard.section.outages.segment.resolved': 'Vyřešené',
   'dashboard.section.outages.segment.other': 'Ostatní',
   'dashboard.section.security.title': 'Bezpečnostní upozornění',
-  'dashboard.section.security.subtitle': 'Nedávno zveřejněná upozornění a CVE.',
   'dashboard.section.security.open': 'Zobrazit upozornění',
   'dashboard.section.security.loading': 'Načítám bezpečnostní upozornění…',
   'dashboard.section.security.error': 'Nepodařilo se načíst bezpečnostní upozornění',
@@ -62,7 +60,6 @@ export const csCommon_dashboard = {
   'dashboard.section.news.manage': 'Spravovat novinky',
   'dashboard.section.news.title': 'Event log a novinky',
   'dashboard.section.news.subtitle': 'Nejnovější provozní oznámení',
-  'dashboard.section.news.subtitle_compact': 'Nejnovější oznámení, zkrácené na podstatné věci',
   'dashboard.section.news.all': 'Všechny novinky',
   'dashboard.section.news.loading': 'Načítám novinky…',
   'dashboard.section.news.error': 'Nepodařilo se načíst novinky',
@@ -137,5 +134,4 @@ export const csCommon_dashboard = {
   'dashboard.widget.outages.collapsed_summary': '{current} aktivní · {planned} odstávky · {resolved} vyřešené.',
   'dashboard.widget.security.collapsed_summary': '{count} nedávných bezpečnostních upozornění je k dispozici.',
   'dashboard.widget.news.collapsed_summary': '{count} publikovaných novinek je k dispozici.',
-  'dashboard.section.cluster.more_nodes_compact': '+{count} dalších nodů skryto kompaktním režimem',
 } as const;

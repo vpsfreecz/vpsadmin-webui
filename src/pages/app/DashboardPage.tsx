@@ -180,7 +180,7 @@ export function DashboardPage() {
   return (
     <PageContainer variant="wide" testId="app.dashboard.page">
       <div className="space-y-4">
-        <PageHeader testId="app.dashboard.header" title={t("nav.dashboard")} description={t("dashboard.description")} />
+        <PageHeader testId="app.dashboard.header" title={t("nav.dashboard")} />
 
         {statusAlert ? (
           <Alert title={statusAlert.title} variant={statusAlert.variant} className="p-2.5" testId="app.dashboard.status-alert">

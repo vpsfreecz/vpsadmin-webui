@@ -1,6 +1,5 @@
 // Common dashboard copy
 export const enCommon_dashboard = {
-  'dashboard.description': 'A focused daily overview of your resources, outages, security advisories, and service health.',
   'dashboard.summary.scope.mine': 'My objects',
   'dashboard.summary.scope.all': 'All accessible objects',
   'dashboard.kpi.active_operations': 'Active operations',
@@ -42,7 +41,6 @@ export const enCommon_dashboard = {
   'dashboard.section.outages.segment.resolved': 'Resolved',
   'dashboard.section.outages.segment.other': 'Other',
   'dashboard.section.security.title': 'Security advisories',
-  'dashboard.section.security.subtitle': 'Recent published advisories and CVEs.',
   'dashboard.section.security.open': 'View advisories',
   'dashboard.section.security.loading': 'Loading security advisories…',
   'dashboard.section.security.error': 'Failed to load security advisories',
@@ -62,7 +60,6 @@ export const enCommon_dashboard = {
   'dashboard.section.news.manage': 'Manage news',
   'dashboard.section.news.title': 'Event log and news',
   'dashboard.section.news.subtitle': 'Latest operational announcements',
-  'dashboard.section.news.subtitle_compact': 'Latest announcements, trimmed to the essentials',
   'dashboard.section.news.all': 'All news',
   'dashboard.section.news.loading': 'Loading news…',
   'dashboard.section.news.error': 'Failed to load news',
@@ -137,5 +134,4 @@ export const enCommon_dashboard = {
   'dashboard.widget.outages.collapsed_summary': '{current} active · {planned} planned · {resolved} resolved.',
   'dashboard.widget.security.collapsed_summary': '{count} recent security advisories available.',
   'dashboard.widget.news.collapsed_summary': '{count} published news items available.',
-  'dashboard.section.cluster.more_nodes_compact': '+{count} more nodes hidden by compact mode',
 } as const;

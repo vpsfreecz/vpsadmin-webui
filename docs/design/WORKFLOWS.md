@@ -86,7 +86,8 @@ Each widget in dashboard settings groups visibility, movement and collapse under
 Dashboard widget headers and content frames use the same inset for the selected
 density (REQ-009). Reordering or hiding a widget retains this alignment.
 The dashboard density help describes spacing and shorter lists in Czech and English (REQ-009).
-The dashboard header shows its title and description. The shell account control
+The dashboard header shows its title. News and advisory cards omit the generic
+subtitles, and compact cluster cards omit the hidden-node footer. The shell account control
 shows the login and the shell indicates the active view (REQ-004).
 OAuth login/callback/logout preserve a safe return destination and display errors.
 The public desktop header and mobile menu offer sign-in without a separate
@@ -911,7 +912,7 @@ sampling intervals need their real API semantics.
 updates, relations and associated outages/rebuilds. Audit history supports
 operational investigation. Mail administration covers templates/translations,
 mailboxes/handlers, recipients and delivery logs. Content includes news and
-contextual help boxes. Whole-template and standalone-recipient deletion are
+contextual help boxes. The contextual panel uses a title and controls. Whole-template and standalone-recipient deletion are
 intentionally blocked pending safe backend relation handling; translations and
 template-recipient membership have separate supported delete operations. See
 [the deletion boundary](ACTION_CONTRACTS.md#deliberately-blocked-mail-deletion).

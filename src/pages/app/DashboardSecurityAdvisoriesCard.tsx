@@ -120,7 +120,6 @@ export function SecurityAdvisoriesCard(props: {
         compact={compact}
         className="items-center"
         title={t('dashboard.section.security.title')}
-        subtitle={t('dashboard.section.security.subtitle')}
         actions={
           <>
             {props.onToggleCollapsed ? (

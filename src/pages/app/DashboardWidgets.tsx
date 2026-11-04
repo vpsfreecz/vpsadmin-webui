@@ -168,7 +168,6 @@ export function DashboardWidgetGrid(props: {
             compact={compact}
             className="items-center"
             title={t('dashboard.section.news.title')}
-            subtitle={t('dashboard.section.news.subtitle_compact')}
             actions={
               <>
                 {widgetCollapseButton({ id, collapsed, onClick: () => toggleCollapsed(id), label: collapseLabel(collapsed) })}
