@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 import type { KeysetPaginationState } from '../../../lib/hooks/useKeysetPagination';
-import { formatMiB, formatUptimeSeconds } from '../../../lib/format';
+import { formatMiB, formatMiBPair, formatUptimeSeconds } from '../../../lib/format';
 
 import { Badge } from '../../../components/ui/Badge';
 import { Card } from '../../../components/ui/Card';
@@ -131,10 +131,10 @@ export function VpsListMobile({
                 (row.diskUsed !== undefined && row.diskMax !== undefined && row.diskMax > 0) ? (
                   <div className="mt-3 space-y-2 text-xs text-muted">
                     {row.memUsed !== undefined && row.memMax !== undefined && row.memMax > 0 ? (
-                      <UsageBar label={t('vps.list.usage.ram')} used={row.memUsed} max={row.memMax} formatValue={formatMiB} />
+                      <UsageBar label={t('vps.list.usage.ram')} used={row.memUsed} max={row.memMax} formatPair={formatMiBPair} />
                     ) : null}
                     {row.diskUsed !== undefined && row.diskMax !== undefined && row.diskMax > 0 ? (
-                      <UsageBar label={t('vps.list.usage.disk')} used={row.diskUsed} max={row.diskMax} formatValue={formatMiB} />
+                      <UsageBar label={t('vps.list.usage.disk')} used={row.diskUsed} max={row.diskMax} formatPair={formatMiBPair} />
                     ) : null}
                   </div>
                 ) : null}

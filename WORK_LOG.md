@@ -4,6 +4,11 @@ Prepared a focused BFF credential-forwarding defense and consistent local-path
 validation after dummy loopback reproductions. See the [finding and checks](docs/work-log/2026-10-28-oauth-redirect-boundaries.md).
 Not merged or deployed; no API or provider changes.
 
+## 2026-11-04 — VPS-08 shared units for usage
+
+Display one unit for each RAM and disk usage pair in the VPS list. See
+[scope and verification](docs/work-log/2026-11-04-vps-list-usage-units.md).
+
 ## 2026-10-28 — Development tool security patches
 
 Prepared compatible Vite/Vitest and transitive security updates, with a narrow
