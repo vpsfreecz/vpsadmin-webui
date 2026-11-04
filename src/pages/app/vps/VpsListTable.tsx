@@ -111,7 +111,7 @@ export function VpsListTable({
               </td>
               <td className="px-3 py-2 align-top">
                 <div className="flex flex-col gap-1">
-                  <Link to={`${basePath}/vps/${vps.id}${detailSearch}`} className="font-medium text-fg underline">
+                  <Link to={`${basePath}/vps/${vps.id}${detailSearch}`} className="font-medium text-fg underline [overflow-wrap:anywhere]">
                     {vps.hostname}
                   </Link>
                   <div className="text-xs text-muted">{t('common.id')} {vps.id}</div>

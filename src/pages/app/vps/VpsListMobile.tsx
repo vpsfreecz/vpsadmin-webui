@@ -58,13 +58,11 @@ export function VpsListMobile({
             <Card key={vps.id} testId={`vps.card.${vps.id}`} className={toneSurfaceClass(row.rowVariant)}>
               <div className="p-4">
                 <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <StatusDot variant={row.dotVariant} testId={`vps.card.${vps.id}.dot`} ariaLabel={row.runtimeBadge.label} />
-                      <Link to={`${basePath}/vps/${vps.id}${detailSearch}`} className="text-base font-semibold text-fg underline">
-                        {vps.hostname}
-                      </Link>
-                    </div>
+                  <div className="relative min-w-0 flex-1 pl-4">
+                    <StatusDot variant={row.dotVariant} ariaLabel={row.runtimeBadge.label} className="absolute left-0 top-2" testId={`vps.card.${vps.id}.dot`} />
+                    <Link to={`${basePath}/vps/${vps.id}${detailSearch}`} className="block text-base font-semibold text-fg underline [overflow-wrap:anywhere]">
+                      {vps.hostname}
+                    </Link>
                     <div className="mt-1 text-xs text-muted">
                       {t('common.id')} {vps.id}
                     </div>
@@ -92,6 +90,21 @@ export function VpsListMobile({
                       <LockBadge kind="local" t={t} />
                     ) : null}
                   </div>
+                </div>
+
+                <div className="mt-4">
+                  <VpsListRowActions
+                    row={row}
+                    basePath={basePath}
+                    detailSearch={detailSearch}
+                    t={t}
+                    testIdPrefix={`vps.card.${vps.id}`}
+                    showLabels
+                    onStart={onStart}
+                    onRequestStop={onRequestStop}
+                    onRequestRestart={onRequestRestart}
+                    onRequestDelete={onRequestDelete}
+                  />
                 </div>
 
                 <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
@@ -139,20 +152,6 @@ export function VpsListMobile({
                   </div>
                 ) : null}
 
-                <div className="mt-4">
-                  <VpsListRowActions
-                    row={row}
-                    basePath={basePath}
-                    detailSearch={detailSearch}
-                    t={t}
-                    testIdPrefix={`vps.card.${vps.id}`}
-                    showLabels
-                    onStart={onStart}
-                    onRequestStop={onRequestStop}
-                    onRequestRestart={onRequestRestart}
-                    onRequestDelete={onRequestDelete}
-                  />
-                </div>
               </div>
             </Card>
           );
