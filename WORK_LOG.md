@@ -4,6 +4,11 @@ Prepare the approved bounded TODO follow-up against kerrycek-021126.
 See [scope and evidence](docs/work-log/2026-11-03-todo-member-vps-journey.md).
 Prepared for review; not approved, merged or deployed.
 
+## 2026-11-04 — VPS-08 shared units for usage
+
+Display one unit for each RAM and disk usage pair in the VPS list. See
+[scope and verification](docs/work-log/2026-11-04-vps-list-usage-units.md).
+
 ## 2026-11-04 — VPS-07 list row layout
 
 Keep the VPS name and ID aligned and move mobile actions ahead of secondary

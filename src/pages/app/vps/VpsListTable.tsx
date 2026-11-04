@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 import type { KeysetPaginationState } from '../../../lib/hooks/useKeysetPagination';
-import { formatMiB } from '../../../lib/format';
+import { formatMiBPair } from '../../../lib/format';
 
 import { Badge } from '../../../components/ui/Badge';
 import { KeysetPagination } from '../../../components/ui/KeysetPagination';
@@ -158,10 +158,10 @@ export function VpsListTable({
                     {t('vps.list.resources.load', { value: row.loadLabel })}
                   </div>
                   {row.memUsed !== undefined && row.memMax !== undefined && row.memMax > 0 ? (
-                    <UsageBar layout="row" label={t('vps.list.usage.ram')} used={row.memUsed} max={row.memMax} formatValue={formatMiB} />
+                    <UsageBar layout="row" label={t('vps.list.usage.ram')} used={row.memUsed} max={row.memMax} formatPair={formatMiBPair} />
                   ) : null}
                   {row.diskUsed !== undefined && row.diskMax !== undefined && row.diskMax > 0 ? (
-                    <UsageBar layout="row" label={t('vps.list.usage.disk')} used={row.diskUsed} max={row.diskMax} formatValue={formatMiB} />
+                    <UsageBar layout="row" label={t('vps.list.usage.disk')} used={row.diskUsed} max={row.diskMax} formatPair={formatMiBPair} />
                   ) : null}
                 </div>
               </td>

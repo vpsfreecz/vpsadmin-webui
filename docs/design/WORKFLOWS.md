@@ -827,6 +827,7 @@ The VPS list separates uptime from transaction activity. A running VPS displays
 elapsed runtime; a stopped VPS displays a dash. Locks remain in the status badges.
 VPS list identities keep long hostnames inside their column. On mobile the ID
 aligns with the hostname, then actions appear before resource and location details.
+VPS list usage pairs express used and allocated memory or disk in the same unit.
 The VPS list marks a VPS with a failed or fatal transaction chain only when the
 chain was created within the last 7 days (REQ-074). Failed chains stay failed
 until an administrator resolves them, so an older failure would otherwise flag
