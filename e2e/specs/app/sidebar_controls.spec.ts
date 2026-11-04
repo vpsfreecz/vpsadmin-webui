@@ -5,11 +5,13 @@ import { expectNoDocumentHorizontalOverflow } from '../../helpers/horizontalOver
 
 for (const actor of [
   { mode: 'app', level: 1, language: 'cs', theme: 'light', seconds: 0 },
+  { mode: 'app', level: 21, language: 'cs', theme: 'light', seconds: 2400 },
   { mode: 'app', level: 99, language: 'en', theme: 'dark', seconds: 2400 },
   { mode: 'admin', level: 99, language: 'cs', theme: 'dark', seconds: 0 },
 ] as const) {
   test(`@pr-smoke @pr-smoke-mobile navigation controls and session setting (${actor.mode}/${actor.level}/${actor.language})`, async ({ page, isMobile }, testInfo) => {
-    if (!isMobile) await page.setViewportSize({ width: 1440, height: 1000 });
+    if (isMobile) await page.setViewportSize({ width: 320, height: 700 });
+    else await page.setViewportSize({ width: 1440, height: 1000 });
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
     await setUiSettingsLocalStorage(page, { language: actor.language, theme: actor.theme });
     const writes: string[] = [];
@@ -30,8 +32,28 @@ for (const actor of [
     await expect(controls).toHaveCount(1);
     await expect(navigation.getByTestId('shell.controls')).toBeVisible();
     await expect(navigation.getByTestId('shell.inline-search.input')).toBeVisible();
-    await expect(navigation.getByTestId('tasks.open-button')).toBeVisible();
-    await expect(navigation.getByTestId('shell.user-menu-button')).toContainText('sample-member');
+    const tasksLabel = navigation.getByTestId('tasks.open-button').getByText(actor.language === 'cs' ? 'Úlohy' : 'Tasks', { exact: true });
+    const account = navigation.getByTestId('shell.user-menu-button');
+    const login = account.getByText('sample-member', { exact: true });
+    await expect(tasksLabel).toBeVisible();
+    await expect(login).toBeVisible();
+    const loginBox = (await login.boundingBox())!;
+    const tasksLabelBox = (await tasksLabel.boundingBox())!;
+    expect(Math.abs(loginBox.x - tasksLabelBox.x)).toBeLessThanOrEqual(1);
+    const role = account.getByTestId('shell.user-role');
+    const roleLabel = actor.level === 1 ? 'Uživatel'
+      : actor.level === 21 ? 'Podpora'
+      : actor.language === 'cs' ? 'Administrátor' : 'Admin';
+    await expect(account).toHaveAccessibleDescription(roleLabel);
+    if (actor.level === 1) {
+      await expect(role).toHaveCount(0);
+    } else {
+      await expect(role).toHaveAttribute('title', roleLabel);
+      const roleBox = (await role.boundingBox())!;
+      const gap = roleBox.x - (loginBox.x + loginBox.width);
+      expect(gap).toBeGreaterThan(0);
+      expect(gap).toBeLessThanOrEqual(8);
+    }
     if (!mobile) await expect(page.getByTestId('shell.header')).toBeHidden();
     const brand = page.getByTestId(`shell.brand.${mobile ? 'drawer' : 'sidebar'}`);
     const about = navigation.getByRole('link', { name: actor.language === 'cs' ? 'O aplikaci' : 'About', exact: true });
@@ -42,6 +64,11 @@ for (const actor of [
     expect(brandBox!.y).toBeLessThan(aboutBox!.y);
     await page.screenshot({ path: testInfo.outputPath(`navigation-${actor.mode}-${actor.level}.png`), fullPage: false, scale: 'css' });
     const session = page.getByTestId('shell.session-remaining');
+    const tasksBox = (await controls.getByTestId('tasks.open-button').boundingBox())!;
+    const sessionBox = (await session.boundingBox())!;
+    expect(Math.abs(tasksBox.y - sessionBox.y)).toBeLessThanOrEqual(1);
+    expect(tasksBox.x + tasksBox.width).toBeLessThan(sessionBox.x);
+    if (isMobile) expect(Math.min(tasksBox.height, sessionBox.height)).toBeGreaterThanOrEqual(44);
     await expect(session).toHaveAttribute('href', `/${actor.mode}/profile/security#session-length`);
     await expect(session).toContainText(actor.seconds ? '40 min' : 'Bez vypršení');
     if (isMobile) await session.tap(); else await session.click();
@@ -63,8 +90,12 @@ for (const actor of [
     await expect(page.getByTestId('nav.drawer')).toBeHidden();
     await page.getByTestId('tasks.close-button').click();
     await clickShellControl(page, 'shell.user-menu-button', isMobile);
-    await expect(page.getByTestId('shell.user-menu')).toBeVisible();
-    await expect(page.getByTestId('shell.user-menu.scope.all')).toHaveCount(actor.level === 99 ? 1 : 0);
+    const accountMenu = page.getByTestId('shell.user-menu');
+    await expect(accountMenu).toBeVisible();
+    await expect(page.getByTestId('shell.user-menu.scope.all')).toHaveCount(actor.level >= 21 ? 1 : 0);
+    await expect(accountMenu.getByTestId('shell.user-menu.logout')).toBeInViewport({ ratio: 1 });
+    await expect.poll(() => accountMenu.evaluate(menu => menu.scrollHeight - menu.clientHeight)).toBeLessThanOrEqual(1);
+    await page.screenshot({ path: testInfo.outputPath(`account-menu-${actor.mode}-${actor.level}.png`), scale: 'css' });
     await page.keyboard.press('Escape');
     await expect(page.getByTestId('shell.user-menu')).toBeHidden();
     await expect(page.getByTestId('shell.user-menu-button')).toBeFocused();

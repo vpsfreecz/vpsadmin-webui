@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import React, { useEffect, useRef, useState } from 'react';
-import { AlertTriangle, Clock3, Globe, LogOut, User, WifiOff } from 'lucide-react';
+import React, { useEffect, useId, useRef, useState } from 'react';
+import { AlertTriangle, Clock3, Globe, Headset, LogOut, ShieldCheck, User, WifiOff } from 'lucide-react';
 
 import { formatErrorMessage } from '../../lib/errors';
 import { useClippedPopover } from '../../lib/hooks/useClippedPopover';
@@ -60,18 +60,50 @@ export function AppSyncPopover(props: Pick<AppHeaderProps,
   );
 }
 
+export function AppSessionLink(props: Pick<AppHeaderProps, 't' | 'mode' | 'sessionExpiresAt' | 'onNavigate'> & {
+  sessionIdleLimitSeconds: number | null;
+  className: string;
+}) {
+  const { t, mode, sessionExpiresAt, sessionIdleLimitSeconds, onNavigate, className } = props;
+  const sessionRemaining = useSessionRemainingLabel(t, sessionExpiresAt);
+  const sessionDisplay = sessionRemaining
+    ? { menuLabel: t('auth.session_remaining.menu_label'), value: sessionRemaining }
+    : sessionIdleLimitSeconds === 0
+      ? { menuLabel: t('auth.session_idle.menu_label'), value: t('security.settings.session_length.preset.never') }
+      : null;
+
+  return sessionDisplay ? (
+    <Link
+      to={`${mode === 'admin' ? '/admin' : '/app'}/profile/security#session-length`}
+      onClick={onNavigate}
+      className={className}
+      aria-label={`${sessionDisplay.menuLabel}: ${sessionDisplay.value}`}
+      title={`${sessionDisplay.menuLabel}: ${sessionDisplay.value}`}
+      data-testid="shell.session-remaining"
+    >
+      <Clock3 size={18} className="shrink-0" aria-hidden="true" />
+      <span>{sessionDisplay.value}</span>
+    </Link>
+  ) : null;
+}
+
 export function AppUserMenu(props: Pick<AppHeaderProps,
   't' | 'mode' | 'canSwitchMode' | 'userMenuRef' | 'userMenuOpen' | 'setUserMenuOpen' | 'authLogin' | 'authRole' |
-  'onNavigate' | 'sessionExpiresAt' | 'theme' | 'language' | 'onSetTheme' | 'onSetLanguage' | 'onGoToOtherMode' | 'onGoToProfile' | 'onGoToPublicStatus' | 'loginLogoutHref'
-> & { sessionIdleLimitSeconds: number | null }) {
+  'onNavigate' | 'theme' | 'language' | 'onSetTheme' | 'onSetLanguage' | 'onGoToOtherMode' | 'onGoToProfile' | 'onGoToPublicStatus' | 'loginLogoutHref'
+>) {
   const {
     t, mode, canSwitchMode, userMenuRef, userMenuOpen, setUserMenuOpen, authLogin, authRole,
-    onNavigate, sessionExpiresAt, sessionIdleLimitSeconds, theme, language, onSetTheme, onSetLanguage,
+    onNavigate, theme, language, onSetTheme, onSetLanguage,
     onGoToOtherMode, onGoToProfile, onGoToPublicStatus, loginLogoutHref,
   } = props;
+  const roleDescriptionId = useId();
+  const RoleIcon = authRole === 'admin' ? ShieldCheck : authRole === 'support' ? Headset : null;
+  const roleLabel = authRole === 'admin' || authRole === 'support' || authRole === 'user'
+    ? t(`admin.users.role.${authRole}`)
+    : undefined;
   const triggerRef = useRef<HTMLButtonElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
-  const popupStyle = useClippedPopover(userMenuOpen, userMenuRef, popupRef);
+  const popupStyle = useClippedPopover(userMenuOpen, userMenuRef, popupRef, Infinity);
   useEffect(() => {
     if (!userMenuOpen) return;
     const onKeyDown = (event: KeyboardEvent) => {
@@ -83,42 +115,26 @@ export function AppUserMenu(props: Pick<AppHeaderProps,
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [userMenuOpen, setUserMenuOpen]);
-  const sessionRemaining = useSessionRemainingLabel(t, sessionExpiresAt);
-  const sessionDisplay = sessionRemaining
-    ? { menuLabel: t('auth.session_remaining.menu_label'), value: sessionRemaining }
-    : sessionIdleLimitSeconds === 0
-      ? { menuLabel: t('auth.session_idle.menu_label'), value: t('security.settings.session_length.preset.never') }
-      : null;
 
   return (
-    <div className="relative flex min-w-0 flex-col gap-2" ref={userMenuRef}>
-      {sessionDisplay ? (
-        <Link
-          to={`${mode === 'admin' ? '/admin' : '/app'}/profile/security#session-length`}
-          onClick={() => {
-            setUserMenuOpen(false);
-            onNavigate?.();
-          }}
-          className="flex min-h-11 items-center gap-2 rounded-md px-3 md:min-h-9 [@media(any-pointer:coarse)]:min-h-11 text-sm text-muted hover:bg-surface-2 hover:text-fg"
-          aria-label={`${sessionDisplay.menuLabel}: ${sessionDisplay.value}`}
-          title={`${sessionDisplay.menuLabel}: ${sessionDisplay.value}`}
-          data-testid="shell.session-remaining"
-        >
-          <Clock3 size={18} className="shrink-0" />
-          <span>{sessionDisplay.value}</span>
-        </Link>
-      ) : null}
+    <div className="relative min-w-0" ref={userMenuRef}>
       <button
-        className="flex min-h-11 w-full min-w-0 items-center gap-2 rounded-md bg-surface px-3 text-left text-sm text-muted hover:bg-surface-2 hover:text-fg md:min-h-9 [@media(any-pointer:coarse)]:min-h-11"
+        className="flex min-h-11 w-full min-w-0 items-center gap-1.5 rounded-md border border-transparent bg-surface px-2 text-left text-sm text-muted hover:bg-surface-2 hover:text-fg md:min-h-9 [@media(any-pointer:coarse)]:min-h-11"
         onClick={() => setUserMenuOpen((v) => !v)}
         ref={triggerRef}
         aria-expanded={userMenuOpen}
         aria-label={t('user_menu.open')}
+        aria-describedby={roleLabel ? roleDescriptionId : undefined}
         data-testid="shell.user-menu-button"
       >
-        <User size={18} className="shrink-0" />
-        <span className="min-w-0 flex-1 truncate font-medium">{authLogin ?? '—'}</span>
-        <span className="shrink-0 text-xs text-muted">{String(authRole ?? '—')}</span>
+        <User size={18} className="shrink-0" aria-hidden="true" />
+        <span className="min-w-0 truncate font-medium">{authLogin ?? '—'}</span>
+        {RoleIcon ? (
+          <span className="shrink-0" title={roleLabel} data-testid="shell.user-role">
+            <RoleIcon size={14} aria-hidden="true" />
+          </span>
+        ) : null}
+        {roleLabel ? <span id={roleDescriptionId} className="sr-only">{roleLabel}</span> : null}
       </button>
 
       {userMenuOpen ? (
