@@ -20,6 +20,8 @@ with the VPS; NAS and backups are separate member destinations. Tasks is a globa
 navigation action, not a duplicate primary action-states destination. Search, Tasks,
 session duration and account preferences sit in a bordered panel above the
 sidebar navigation. Tasks and session duration share a row when space permits.
+The account login aligns with the Tasks label. Admin and support roles have a
+small icon beside the login with a localized description.
 The account popover shows every choice when space permits, with scrolling on short screens. Branding sits directly above About.
 Mobile has one navigation trigger, with the same controls inside its drawer.
 Only one controls instance mounts at a time, so search and outside-click refs

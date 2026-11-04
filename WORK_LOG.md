@@ -1729,3 +1729,13 @@ See [scope and verification](docs/work-log/2026-11-04-pub01-public-followup.md).
 ## 2026-11-04 — Remove decorative public statistics icons
 
 See [scope and verification](docs/work-log/2026-11-04-pub09-public-followup.md).
+
+
+## 2026-11-04 — Account role in sidebar controls
+
+Align the account login with Tasks and show the admin/support role beside the
+login as an icon with a localized accessible description (REQ-004). Reuse the
+existing Czech and English role strings, reviewed against the vpsAdmin
+localization guide at a65a4dfeb92a59df4a80a737a20bcbf8558793ff.
+The sidebar browser spec checks alignment, badge placement and role descriptions
+for member, support and admin on desktop and mobile.
