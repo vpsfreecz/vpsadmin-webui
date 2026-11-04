@@ -12,7 +12,10 @@ localization behavior, read [Localization](docs/agent-instructions/localization.
 in full. It resolves the vpsAdmin terminology guide from this repository's
 locked flake input and requires recording the revision used. For other product
 behavior, read [the design handbook](docs/design/README.md), relevant rows in
-[the requirements register](docs/design/REQUIREMENTS.md), and [the work log](WORK_LOG.md).
+[the requirements register](docs/design/REQUIREMENTS.md), and
+[the per-change work log](docs/work-log/README.md).
+[Content selection](docs/design/PRODUCT_DESIGN.md#content-selection-and-hierarchy)
+governs notices, descriptions and task hierarchy.
 
 ## Development and checks
 
@@ -35,11 +38,13 @@ behavior, read [the design handbook](docs/design/README.md), relevant rows in
   deployment, recheck the running revision and any active deployment as well;
   another contributor may have changed them since the last check. Never replace
   a newer or unrelated release using stale local deployment assumptions.
-- Maintain English documentation throughout the task, in the same PR as the
-  change. Update affected requirements, design rationale, API/workflow contracts
-  and operations guidance as applicable. Record what changed, why, relevant
-  decisions, verification and limitations in a dated `docs/work-log/` entry,
-  with PR/commit references when available. Keep prepared, merged and deployed states distinct;
+- Maintain English documentation in the same PR as the change. Update requirements,
+  design rationale, contracts, evidence and operations guidance when their meaning
+  changes. A wording or layout correction does not automatically need a new
+  requirement ID. Keep rationale and verification in one dated `docs/work-log/`
+  entry and link to it rather than repeating it. The root `WORK_LOG.md` retains
+  history; do not add new per-change summaries there. Include PR/commit references
+  when available. Keep prepared, merged and deployed states distinct;
   append actual review/deployment outcomes instead of anticipating success.
   Preserve other contributors' log entries when resolving documentation conflicts.
 - For visual changes, show screenshots during the work as well as in the final
@@ -56,14 +61,17 @@ behavior, read [the design handbook](docs/design/README.md), relevant rows in
 - Enter `nix develop` for the pinned Node 24 development toolchain. Use `npm ci`
   for the root project and, when changing the BFF, in `bff/`. Do not install
   dependencies on a deployed host.
-- Use `npm run typecheck`, `npm test`, `npm run build`, and the relevant audit and
-  script/BFF commands for the change. Browser fixtures do not certify a real API.
+- Use focused checks for affected behavior during development. `npm run ci:pr`
+  runs the aggregate nonbrowser candidate checks, tests and production build;
+  do not repeat its constituent commands without changed inputs or an unresolved
+  failure. Required remote CI, including broad pre-merge browser coverage, still
+  applies. Browser fixtures do not certify a real API.
 - Regenerate `npm run docs:inventory` when routes or API adapters change. Run
   `npm run audit:design-docs` for design-documentation edits and review the prose
   for accuracy; the audit checks links and inventory, not meaning.
 - Do not commit `dist/`, `assets/`, `.vite/`, `node_modules/`, credentials,
   generated auth files, or private server backups. Keep changes scoped and
-  record meaningful work, decisions, checks and limits in `WORK_LOG.md`.
+  record meaningful work, decisions, checks and limits in `docs/work-log/`.
 - Use the contributor's own configured Git identity; this shared repository
   does not prescribe a particular person's name or email. Do not replace a
   valid identity with the repository maintainer's identity. Personal identity
@@ -98,8 +106,9 @@ Compatible backend deployment or capability checks remain a separate requirement
 ### Maintainer workflow (agreed 2026-09-30)
 
 1. Implement assigned tasks as focused commits and separate reviewable PRs per
-   logical change in `vpsfreecz/vpsadmin-webui`. Include relevant test evidence
-   and screenshots for visual changes. Update an existing relevant PR rather
+   logical change in `vpsfreecz/vpsadmin-webui`. Include a bilingual English/Czech
+   PR description, relevant test evidence and screenshots for visual changes.
+   Update an existing relevant PR rather
    than duplicating it. Unrelated fixes do not belong in one application commit.
 2. Present the PRs to the maintainer, who may approve, reject, or request changes.
    Wait for an explicit merge instruction before merging. Review approval and
@@ -173,6 +182,8 @@ AI issue runner. Continue only the work authorized by the maintainer.
 - Prepare reviewable feature changes; do not merge, publish a new default branch,
   or deploy without the relevant explicit direction. A review or passing test
   does not authorize any of those actions.
-- Keep `docs/design/` and `WORK_LOG.md` current in the same change. Reference
-  affected requirement IDs in a review description. Record whether evidence is
-  source inspection, a fixture, a real isolated API test, or deployment proof.
+- Keep affected design/contracts and evidence current, with one per-change
+  `docs/work-log/` entry. Reference applicable requirement IDs in the review
+  description; add an ID for a new product requirement, not merely to log a fix.
+  Record whether evidence is source inspection, a fixture, a real isolated API
+  test, or deployment proof.

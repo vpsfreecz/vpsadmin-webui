@@ -54,17 +54,23 @@ hidden by marking this document complete.
    requirement. Read its assertions: a test filename or passing unrelated CI is
    insufficient. Include missing proof and the reason it is missing.
 5. Review cs/en, responsive layout, keyboard/focus, secret handling and synthetic
-   visual provenance. Do not publish production screenshots to fill evidence gaps.
+   visual provenance. Does each notice need attention? Does each description add
+   information? Is the main task obvious? Apply the
+   [content criteria](PRODUCT_DESIGN.md#content-selection-and-hierarchy) to normal,
+   empty, failed/unknown and post-action views where affected. Do not publish
+   production screenshots to fill evidence gaps.
 6. Check source revision versus tested/merged/deployed revision, dependencies and
    exclusions. Capture later release outcomes in the appropriate change record.
 7. Run the automated audit and relevant changed-script tests. Review the rendered
    tables/images. Assign unresolved acceptance items rather than silently claiming
    closure; approval to document is not approval to deploy.
 
-No mandatory edit to a global requirements file is needed for every unrelated PR:
-update the relevant contract/evidence only when affected, plus its own work-log
-file. New requirement IDs still need coordination. Do not merge unrelated feature
-histories merely to avoid that coordination.
+Apply this review to the change's actual impact; a copy correction need not
+revalidate an unchanged API contract. Update contract/evidence rows when their
+meaning changes and keep one [per-change log](../work-log/README.md), linking to
+its rationale and results instead of repeating them. New product requirements
+need coordinated IDs; fixes do not automatically need new IDs or edits to
+unaffected rows. Do not merge unrelated feature histories to avoid coordination.
 
 ## Second completeness pass — 2026-09-29
 

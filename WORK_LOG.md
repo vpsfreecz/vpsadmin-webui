@@ -1,3 +1,6 @@
+> Current changes belong in [docs/work-log/](docs/work-log/README.md), one file per
+> change. This root log retains historical entries; do not add new summaries here.
+
 ## Request return paths (2026-11-04)
 
 Remove legacy `q` from request list return paths while preserving other
