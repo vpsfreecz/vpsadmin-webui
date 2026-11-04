@@ -9,3 +9,10 @@ REQ-054. Czech terminology input is
 `a65a4dfeb92a59df4a80a737a20bcbf8558793ff`. The existing public Playwright
 scenario checks the counter and absence of the banner with ten addresses.
 The preview comparison uses synthetic data and the exact packaged builds.
+
+## VPS statistic follow-up
+
+The maintainer also requested removing the available IPv4 count from the VPS
+card. The card shows the VPS total. The public API response still supplies its
+existing fields. The browser scenario uses ten free addresses and verifies
+that only the VPS total appears in the card.
