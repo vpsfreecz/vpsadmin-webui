@@ -31,6 +31,7 @@
     "e2e/specs/admin/user_packages_assigned_date.spec.ts",
     "e2e/specs/admin/user_packages_bulk_remove.spec.ts",
     "e2e/specs/admin/user_password_dialog.spec.ts",
+    "e2e/specs/admin/user_payments_smoke.spec.ts",
     "e2e/specs/app/action_state_transactions_responsive.spec.ts",
     "e2e/specs/app/admin_default_review_queue.spec.ts",
     "e2e/specs/app/admin_incoming_payment_timezone.spec.ts",
@@ -102,6 +103,7 @@
     "e2e/specs/app/vps_header_system_summary.spec.ts",
     "e2e/specs/app/vps_initialization_templates.spec.ts",
     "e2e/specs/app/vps_lifecycle_tab_actions.spec.ts",
+    "e2e/specs/app/vps_list_keyset_pagination.spec.ts",
     "e2e/specs/app/vps_list_row_click.spec.ts",
     "e2e/specs/app/vps_maintenance_sunday.spec.ts",
     "e2e/specs/app/vps_network_editor_feedback.spec.ts",
@@ -529,13 +531,6 @@
     {
       "path": "e2e/specs/admin/user_payments_failure_feedback.spec.ts",
       "sha256": "a552665b50e7b0ee083f60de873068b74206838de5cffe688f0d2c4e39b64aec",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/admin/user_payments_smoke.spec.ts",
-      "sha256": "c7f5590214635f916709cd543ffb3d5a30d1649ae6d7802f51dc55da3f58332c",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
@@ -1208,13 +1203,6 @@
     {
       "path": "e2e/specs/app/vps_list_action_failure_feedback.spec.ts",
       "sha256": "c5182374303cd738a82f9db08072f3334cfae32b15eb571313cc3d574a7e2451",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/app/vps_list_keyset_pagination.spec.ts",
-      "sha256": "f731eb079abcf7318de4f7f44e5f9e33ff42071436eae1592b487d18866034f0",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."

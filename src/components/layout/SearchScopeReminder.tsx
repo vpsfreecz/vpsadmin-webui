@@ -16,7 +16,7 @@ export function SearchScopeReminder({
         onClick={onSwitchMode}
         testId="search.scope-reminder.switch"
       >
-        <span className="text-accent">{t('scope.mismatch.open_admin')}</span>
+        <span className="text-accent">{t('user_menu.switch_to_admin_view')}</span>
       </Button>
     </div>
   );

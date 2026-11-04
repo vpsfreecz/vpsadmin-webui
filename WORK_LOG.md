@@ -4,6 +4,12 @@ Prepare the approved bounded TODO follow-up against kerrycek-021126.
 See [scope and evidence](docs/work-log/2026-11-03-todo-member-vps-journey.md).
 Prepared for review; not approved, merged or deployed.
 
+## 2026-11-04 — Preview maintenance and regression checks
+
+Separate admin payment history and instructions from mutations and their
+review content. Fix current regression checks for search, VPS and CVE links.
+See [scope and verification](docs/work-log/2026-11-04-preview-maintenance-audit.md).
+
 ## 2026-11-04 — Remove redundant VPS and NAS copy
 
 Remove generic descriptions from the VPS and NAS lists and the shared dataset
