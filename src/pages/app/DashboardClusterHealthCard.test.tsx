@@ -53,15 +53,15 @@ describe('ClusterHealthCard', () => {
     for (const panel of [praguePanel, brnoPanel]) {
       expect(panel).toHaveAttribute('data-cluster-location-layout', 'panel');
       expect(panel).toHaveClass('rounded-lg', 'border-border', 'bg-surface', 'shadow-card');
-      expect(within(panel).getByRole('img')).toBeInTheDocument();
+      expect(within(panel).queryByRole('img')).not.toBeInTheDocument();
     }
 
     expect(within(praguePanel).getAllByText('prg-node')).toHaveLength(2);
     expect(within(praguePanel).queryAllByText('brq-node')).toHaveLength(0);
     expect(within(brnoPanel).getAllByText('brq-node')).toHaveLength(2);
     expect(within(brnoPanel).queryAllByText('prg-node')).toHaveLength(0);
-    expect(within(praguePanel).getAllByText('Up: 1 · Maintenance: 0 · Down: 0 · Total: 1')).toHaveLength(1);
-    expect(within(brnoPanel).getAllByText('Up: 0 · Maintenance: 0 · Down: 1 · Total: 1')).toHaveLength(1);
+    expect(within(praguePanel).getAllByText('1/1 online')).toHaveLength(1);
+    expect(within(brnoPanel).getAllByText('0/1 online · 1 down')).toHaveLength(1);
     expect(within(praguePanel).getByTestId('app.dashboard.cluster.mobile.Praha')).toContainElement(
       within(praguePanel).getByTestId('app.dashboard.cluster.mobile-node.Praha.prg-node'),
     );

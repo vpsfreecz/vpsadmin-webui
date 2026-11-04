@@ -1685,3 +1685,7 @@ preserve all branch histories and colleague PRs. Add standard push CI for the
 integration branch, without deployment automation. Dev has isolated test data;
 clankerdev still uses the production API. No host update in this setup.
 [Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
+
+## 2026-11-04 — Dashboard cluster location summaries
+
+Use the same ratio and exception counts on desktop and mobile, with a text summary in place of the redundant location bar. [CLU-02 / REQ-009](docs/work-log/2026-11-04-clu02.md).
