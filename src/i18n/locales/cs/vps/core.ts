@@ -1,7 +1,7 @@
 // VPS core list, layout, tabs, actions, and power copy
 export const csVps_core = {
   'vps.list.description': 'Tvoje virtuální privátní servery. Otevři VPS pro přístup ke konzoli a plnému ovládacímu centru.',
-  'vps.list.search.placeholder': 'Filtrovat… (hostname, ID, klíč:hodnota, ?)',
+  'vps.list.search.placeholder': 'Hledat VPS',
   'vps.list.filter.node.placeholder': 'ID nodu',
   'vps.list.filter.user.placeholder': 'ID uživatele',
   'vps.list.filter.user_namespace_map.placeholder': 'Mapa jmenného prostoru #ID',
@@ -94,7 +94,7 @@ export const csVps_core = {
   'action.vps.config.save.label': 'Uložit konfiguraci VPS',
   'action.vps.access.passwd.label': 'Vygenerovat root heslo',
   'action.vps.access.deploy_public_key.label': 'Nasadit SSH veřejný klíč',
-  'vps.list.smart_help.intro': 'Jedno pole pro hledání i filtrování. Pro použití stiskni Enter.',
+  'vps.list.smart_help.intro': 'Stiskni Enter pro vyhledání. Nápovědu otevřeš tlačítkem Nápověda nebo zadáním otazníku.',
   'vps.list.smart_help.examples.help': 'Otevřít nápovědu',
   'vps.list.smart_help.examples.open_id': 'Otevřít VPS podle ID',
   'vps.list.smart_help.examples.hostname': 'Hledat podle hostname',
