@@ -114,7 +114,8 @@ export function SecurityAdvisoriesCard(props: {
   return (
     <Card testId="app.dashboard.security.card">
       <CardHeader
-        className="items-center p-3"
+        compact={compact}
+        className="items-center"
         title={t('dashboard.section.security.title')}
         subtitle={t('dashboard.section.security.subtitle')}
         actions={
@@ -130,7 +131,7 @@ export function SecurityAdvisoriesCard(props: {
           </>
         }
       />
-      <CardBody className={compact ? 'p-2.5' : 'p-3'}>
+      <CardBody compact={compact}>
         {props.isLoading ? (
           <Spinner label={t('dashboard.section.security.loading')} />
         ) : props.isError ? (
