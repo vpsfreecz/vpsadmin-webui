@@ -4,6 +4,11 @@ Prepare the approved bounded TODO follow-up against kerrycek-021126.
 See [scope and evidence](docs/work-log/2026-11-03-todo-member-vps-journey.md).
 Prepared for review; not approved, merged or deployed.
 
+## 2026-11-04 — Public overview IPv4 availability
+
+Remove the standalone IPv4 pool alert from the guest overview. See the
+[scope and regression coverage](docs/work-log/2026-11-04-public-ipv4-banner.md).
+
 ## 2026-11-03 — UX-04: distinguish dashboard editor groups
 
 Prepare the approved bounded TODO follow-up against kerrycek-021126.

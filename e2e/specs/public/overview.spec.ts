@@ -171,12 +171,9 @@ test('@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile public overview shows key 
   if (clusterProofScreenshot) {
     await page.screenshot({ path: clusterProofScreenshot, fullPage: true });
   }
-
-  // Not shown when IPv4 is healthy.
-  await expect(page.locator('[data-testid="public.ipv4.alert"]')).toHaveCount(0);
 });
 
-test('public overview shows IPv4 critical alert when low', async ({ page }) => {
+test('public overview keeps low IPv4 availability in the VPS statistic', async ({ page }) => {
   await bootstrapVpsAdminWindow(page, {
     apiUrl: '/api',
     apiVersion: '7.0',
@@ -202,6 +199,6 @@ test('public overview shows IPv4 critical alert when low', async ({ page }) => {
   await page.goto('/');
 
   await expect(page.getByTestId('public.overview.page')).toBeVisible();
-  await expect(page.getByTestId('public.ipv4.alert')).toBeVisible();
-  await expect(page.getByTestId('public.ipv4.alert')).toContainText('10');
+  await expect(page.getByTestId('public.stats.vps')).toContainText('10');
+  await expect(page.getByTestId('public.ipv4.alert')).toHaveCount(0);
 });
