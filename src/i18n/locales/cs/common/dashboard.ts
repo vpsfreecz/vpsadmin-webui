@@ -4,6 +4,8 @@ export const csCommon_dashboard = {
   'dashboard.signed_in_as': 'Přihlášen jako {login} (role: {role})',
   'dashboard.signed_in': 'Přihlášen.',
   'dashboard.kpi.scope_hint': 'V aktuálním rozsahu',
+  'dashboard.summary.scope.mine': 'Moje objekty',
+  'dashboard.summary.scope.all': 'Všechny dostupné objekty',
   'dashboard.kpi.active_operations': 'Aktivní operace',
   'dashboard.kpi.vps.running_ratio': 'Poměr běžících VPS',
   'dashboard.kpi.vps.partial_counts': 'počty z prvních {n}',
