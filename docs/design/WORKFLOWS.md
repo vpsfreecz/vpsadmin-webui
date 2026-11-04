@@ -54,7 +54,6 @@ views (REQ-025/026). It reuses the public heatmap configuration, node eligibilit
 and dialog; external frames load only after an explicit click/tap. Missing or
 failed configuration hides the optional action/column without blocking status
 information. Compact dashboard density still limits the visible node list.
-Show one availability ratio, remove the nominal banner, and retain outage, maintenance and load or error indicators. (REQ-009).
 OAuth login/callback/logout preserve a safe return destination and display errors.
 The public desktop header and mobile menu offer sign-in without a separate
 password-reset shortcut (maintainer decision, 2026-09-30). Password recovery
@@ -72,6 +71,15 @@ standalone token is restored. An anonymous BFF result clears old standalone
 and impersonation credentials. Retry repeats only the two bootstrap GETs, not
 an API mutation. [Routes](../../src/routes/router.tsx),
 [public adapter](../../src/lib/api/public.ts), [BFF docs](../../bff/README.md).
+
+**Authenticated dashboard status (REQ-054):** the summary is silent after both
+status feeds succeed with at least one reported node, no unknown node/outage
+states, and no current outage, down node or maintenance. An empty outage list is
+valid; an empty node list is incomplete. Loading, failed reads and unknown data
+retain a notice. Existing loading/error/current-outage/down/maintenance precedence
+and the active-outage link are preserved. Cluster status shows one neutral
+online/total ratio; maintenance, down and unknown counts remain visible even when
+details are collapsed. The detailed location and node states remain available.
 
 **News management shortcut (REQ-053):** the authenticated dashboard keeps
 “All news” as a reading link to `/news`. Administrators in admin view also get
@@ -485,6 +493,12 @@ usage/packages, environment configuration, finances and account states as allowe
 Effective timezone is explicit. User login/timezone/filesystem-related legacy
 controls must not disappear during layout simplification.
 
+Security posture shows individual control values and useful descriptions in
+both profile and member administration. Ready accounts omit the aggregate ready
+badge/healthy summary and generic read-only subtitle. Recommendation, limited
+access and locked-account summaries and badges remain visible (REQ-040). This
+presentation does not change model defaults or certify account security.
+
 **Administrator password shortcut (2026-10-22):** Member overview offers
 Change password immediately before Edit user in the Details header. Only a
 signed-in global administrator in administrator mode sees it, matching the API
@@ -642,6 +656,11 @@ manage account-related finance, history and forecasts. The Finance menu opens
 incoming payments as the common working destination. Global finance and sensitive
 user payment views have explicit administrator gates even if a support-level user
 can access other admin pages.
+
+Member Payments keeps the Payment ID usage hint, accepted-payment history
+qualification and paid-until value/status, without a generic page description or
+monthly-payment subtitle. Server instructions, copy/QR controls and distinct
+loading/error/empty states remain intact (REQ-052).
 
 In the administrator's member overview, the source number in each recent payment
 is a direct link to its incoming-payment detail, matching the member Payments

@@ -10,7 +10,7 @@ export const enCommon_dashboard = {
   'dashboard.alert.loading.title': 'Checking service status…',
   'dashboard.alert.loading.body': 'Cluster status and outage data are still loading.',
   'dashboard.alert.partial.title': 'Status data is incomplete',
-  'dashboard.alert.partial.body': 'Some operational sources could not be loaded. The cards below show what is available.',
+  'dashboard.alert.partial.body': 'Some status data is unavailable.',
   'dashboard.alert.outage.title': 'Active outage detected',
   'dashboard.alert.outage.body': '{count} outage or maintenance window is currently active.',
   'dashboard.alert.outage.link': 'View outages',

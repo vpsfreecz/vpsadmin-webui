@@ -36,7 +36,7 @@ describe('ClusterHealthCard', () => {
         { name: 'brq-node', status: false, location: { label: 'Brno' } },
         { name: 'prg-node', status: true, location: { label: 'Praha' } },
       ],
-      'Unknown',
+      'Unknown'
     );
 
     render(
@@ -44,7 +44,7 @@ describe('ClusterHealthCard', () => {
         <AppModeProvider mode="user">
           <ClusterHealthCard isLoading={false} isError={false} nodeData={nodeData} />
         </AppModeProvider>
-      </MemoryRouter>,
+      </MemoryRouter>
     );
 
     expect(screen.getByTestId('app.dashboard.cluster.availability')).toHaveTextContent('1/2 online');
@@ -64,10 +64,31 @@ describe('ClusterHealthCard', () => {
     expect(within(praguePanel).getAllByText('Up: 1 · Maintenance: 0 · Down: 0 · Total: 1')).toHaveLength(1);
     expect(within(brnoPanel).getAllByText('Up: 0 · Maintenance: 0 · Down: 1 · Total: 1')).toHaveLength(1);
     expect(within(praguePanel).getByTestId('app.dashboard.cluster.mobile.Praha')).toContainElement(
-      within(praguePanel).getByTestId('app.dashboard.cluster.mobile-node.Praha.prg-node'),
+      within(praguePanel).getByTestId('app.dashboard.cluster.mobile-node.Praha.prg-node')
     );
     expect(within(brnoPanel).getByTestId('app.dashboard.cluster.mobile.Brno')).toContainElement(
-      within(brnoPanel).getByTestId('app.dashboard.cluster.mobile-node.Brno.brq-node'),
+      within(brnoPanel).getByTestId('app.dashboard.cluster.mobile-node.Brno.brq-node')
     );
+  });
+
+  it('keeps issue and unknown counts visible when the cluster details are collapsed', () => {
+    const nodeData: ReturnType<typeof summarizeNodes> = {
+      byLocation: [],
+      summary: { ok: 1, down: 1, maintenance: 1, unknown: 1, total: 4, vps: 0 },
+    };
+
+    render(
+      <MemoryRouter>
+        <AppModeProvider mode="user">
+          <ClusterHealthCard isLoading={false} isError={false} nodeData={nodeData} collapsed />
+        </AppModeProvider>
+      </MemoryRouter>
+    );
+
+    expect(screen.getByTestId('app.dashboard.cluster.availability')).toHaveTextContent('1/4 online');
+    expect(screen.getByText('1 maintenance')).toBeInTheDocument();
+    expect(screen.getByText('1 down')).toBeInTheDocument();
+    expect(screen.getByText('1 unknown')).toBeInTheDocument();
+    expect(screen.queryByTestId('app.dashboard.cluster.groups')).not.toBeInTheDocument();
   });
 });

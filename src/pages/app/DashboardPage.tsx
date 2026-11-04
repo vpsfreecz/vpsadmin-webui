@@ -177,8 +177,11 @@ export function DashboardPage() {
     nodesLoading: nodesQ.isLoading,
     nodesError: nodesQ.isError,
     currentOutageCount: outagesByCategory.current.length,
+    unknownOutageCount: outagesByCategory.unknown.length,
+    nodeTotalCount: nodeData.summary.total,
     nodeDownCount: nodeData.summary.down,
     nodeMaintenanceCount: nodeData.summary.maintenance,
+    nodeUnknownCount: nodeData.summary.unknown,
   });
 
   return (

@@ -10,7 +10,7 @@ export const csCommon_dashboard = {
   'dashboard.alert.loading.title': 'Kontroluji stav služeb…',
   'dashboard.alert.loading.body': 'Stav clusteru a odstávky se stále načítají.',
   'dashboard.alert.partial.title': 'Data o stavu nejsou kompletní',
-  'dashboard.alert.partial.body': 'Některé operační zdroje se nepodařilo načíst. Níže jsou dostupná data.',
+  'dashboard.alert.partial.body': 'Některé údaje o stavu nejsou dostupné.',
   'dashboard.alert.outage.title': 'Aktivní odstávka',
   'dashboard.alert.outage.body': 'Právě probíhá {count} odstávka nebo údržba.',
   'dashboard.alert.outage.link': 'Zobrazit odstávky',
