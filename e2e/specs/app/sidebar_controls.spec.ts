@@ -12,13 +12,13 @@ for (const actor of [
     if (!isMobile) await page.setViewportSize({ width: 1440, height: 1000 });
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
     await setUiSettingsLocalStorage(page, { language: actor.language, theme: actor.theme });
-    const writes: string[] = [];
+    const writes: unknown[] = [];
     await installHaveApiMock(page, {
       user: { id: 53, login: 'sample-member', level: actor.level, preferred_session_length: actor.seconds },
       handlers: {
         'GET vpses': () => ({ vpses: [], _meta: { total_count: 0 } }),
         'GET help_boxes': () => ({ help_boxes: [] }),
-        'PUT users/53': () => { writes.push('unexpected user update'); return {}; },
+        'PUT users/53': ({ request }) => { writes.push(request.postDataJSON()); return {}; },
       },
     });
     await page.goto(`/${actor.mode}/vps`);
@@ -42,22 +42,43 @@ for (const actor of [
     expect(brandBox!.y).toBeLessThan(aboutBox!.y);
     await page.screenshot({ path: testInfo.outputPath(`navigation-${actor.mode}-${actor.level}.png`), fullPage: false, scale: 'css' });
     const session = page.getByTestId('shell.session-remaining');
-    await expect(session).toHaveAttribute('href', `/${actor.mode}/profile/security#session-length`);
+    await expect(session).toHaveAttribute('aria-expanded', 'false');
     await expect(session).toContainText(actor.seconds ? '40 min' : 'Bez vypršení');
+    const originalUrl = page.url();
     if (isMobile) await session.tap(); else await session.click();
-    await expect(page).toHaveURL(new RegExp(`/${actor.mode}/profile/security#session-length$`));
-    const input = page.getByTestId('profile.security.settings.session_length.input');
-    await expect(input).toBeFocused();
-    await expect(input).toBeInViewport();
+    const popover = page.getByTestId('shell.session-length.popover');
+    const input = popover.getByTestId('shell.session-length.input');
+    await expect(popover).toBeVisible();
+    await expect(session).toHaveAttribute('aria-expanded', 'true');
+    await expect(popover).toHaveAttribute('data-overlay', 'popover');
+    await expect(popover).toBeInViewport({ ratio: 1 });
+    const triggerBox = (await session.boundingBox())!;
+    const popupBox = (await popover.boundingBox())!;
+    expect(popupBox.y - (triggerBox.y + triggerBox.height)).toBeLessThanOrEqual(8);
+    expect(popupBox.y).toBeGreaterThanOrEqual(triggerBox.y + triggerBox.height);
+
+    await expect(page).toHaveURL(originalUrl);
     await expect(input).toHaveValue(String(actor.seconds / 60));
-    await expect(page.getByTestId('nav.drawer')).toBeHidden();
+    await expect(popover.getByTestId('shell.session-length.save')).toBeDisabled();
+    for (const value of [20, 40, 0]) {
+      await popover.getByTestId(`shell.session-length.preset.${value}`).click();
+      await expect(input).toHaveValue(String(value));
+    }
+    await input.fill('35');
+    await expect(popover.getByTestId('shell.session-length.save')).toBeEnabled();
     expect(writes).toEqual([]);
     await page.screenshot({ path: testInfo.outputPath(`session-setting-${actor.mode}-${actor.level}.png`), fullPage: false, scale: 'css' });
-
-    // Revisit the same hash and ensure the setting is focused again.
+    await page.keyboard.press('Escape');
+    await expect(popover).toBeHidden();
+    await expect(session).toBeFocused();
+    if (isMobile) await expect(page.getByTestId('nav.drawer')).toBeVisible();
     await clickShellControl(page, 'shell.session-remaining', isMobile);
-    await expect(input).toBeFocused();
-    expect(writes).toEqual([]);
+    await expect(input).toHaveValue(String(actor.seconds / 60));
+    await input.fill('35');
+    await popover.getByTestId('shell.session-length.save').click();
+    await expect(popover).toBeHidden();
+    expect(writes).toEqual([{ user: { preferred_session_length: 2100 } }]);
+    await expect(page).toHaveURL(originalUrl);
     await clickShellControl(page, 'tasks.open-button', isMobile);
     await expect(page.getByTestId('tasks.drawer')).toBeVisible();
     await expect(page.getByTestId('nav.drawer')).toBeHidden();

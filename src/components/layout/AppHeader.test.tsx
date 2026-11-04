@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -9,7 +10,7 @@ import { AppHeader } from './AppHeader';
 vi.mock('../../app/auth', () => ({
   useAuth: () => ({
     canUseAdminUi: false,
-    user: { preferred_session_length: 40 * 60 },
+    user: { id: 53, preferred_session_length: 40 * 60 },
   }),
 }));
 
@@ -66,43 +67,46 @@ function HeaderHarness(props: { onOpenPalette?: () => void } = {}) {
   const [syncOpen, setSyncOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
+  const [queryClient] = useState(() => new QueryClient());
   return (
-    <MemoryRouter>
-      <AppHeader
-        t={t}
-        mode="user"
-        canSwitchMode={false}
-        shortcutHint="⌘K"
-        onOpenPalette={props.onOpenPalette ?? (() => undefined)}
-        showSyncIndicator={false}
-        syncRef={syncRef}
-        syncOpen={syncOpen}
-        setSyncOpen={setSyncOpen}
-        syncStatus="offline"
-        syncTitle="Offline"
-        syncBody="Offline"
-        syncError={null}
-        onRetrySync={() => undefined}
-        tasksFailedCount={0}
-        tasksActiveCount={0}
-        onOpenTasks={() => undefined}
-        userMenuRef={userMenuRef}
-        userMenuOpen={userMenuOpen}
-        setUserMenuOpen={setUserMenuOpen}
-        authLogin="KerryCZE"
-        authRole="admin"
-        sessionExpiresAt={Date.now() + 40 * 60_000}
-        theme="light"
-        language="cs"
-        onSetTheme={() => undefined}
-        onSetLanguage={() => undefined}
-        onGoToOtherMode={() => undefined}
-        onGoToProfile={() => undefined}
-        onGoToPublicStatus={() => undefined}
-        loginLogoutHref="/logout"
-      />
-      <LocationProbe />
-    </MemoryRouter>
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter>
+        <AppHeader
+          t={t}
+          mode="user"
+          canSwitchMode={false}
+          shortcutHint="⌘K"
+          onOpenPalette={props.onOpenPalette ?? (() => undefined)}
+          showSyncIndicator={false}
+          syncRef={syncRef}
+          syncOpen={syncOpen}
+          setSyncOpen={setSyncOpen}
+          syncStatus="offline"
+          syncTitle="Offline"
+          syncBody="Offline"
+          syncError={null}
+          onRetrySync={() => undefined}
+          tasksFailedCount={0}
+          tasksActiveCount={0}
+          onOpenTasks={() => undefined}
+          userMenuRef={userMenuRef}
+          userMenuOpen={userMenuOpen}
+          setUserMenuOpen={setUserMenuOpen}
+          authLogin="KerryCZE"
+          authRole="admin"
+          sessionExpiresAt={Date.now() + 40 * 60_000}
+          theme="light"
+          language="cs"
+          onSetTheme={() => undefined}
+          onSetLanguage={() => undefined}
+          onGoToOtherMode={() => undefined}
+          onGoToProfile={() => undefined}
+          onGoToPublicStatus={() => undefined}
+          loginLogoutHref="/logout"
+        />
+        <LocationProbe />
+      </MemoryRouter>
+    </QueryClientProvider>
   );
 }
 
@@ -180,12 +184,15 @@ describe('AppHeader', () => {
     }
   });
 
-  it('links session time directly to its profile setting without opening the account menu', () => {
+  it('opens session length on the current page without opening the account menu', () => {
     render(<HeaderHarness />);
 
-    expect(screen.getByTestId('shell.session-remaining')).toHaveAttribute('href', '/app/profile/security#session-length');
+    expect(screen.getByTestId('shell.session-remaining')).toHaveAttribute('aria-expanded', 'false');
     fireEvent.click(screen.getByTestId('shell.session-remaining'));
-    expect(screen.getByTestId('shell.location-path')).toHaveTextContent('/app/profile/security#session-length');
+    expect(screen.getByTestId('shell.location-path')).toHaveTextContent(/^\/$/);
+    expect(screen.getByTestId('shell.session-length.popover')).toBeInTheDocument();
+    expect(screen.getByTestId('shell.session-length.input')).toHaveValue(40);
+    fireEvent.click(screen.getByText('common.cancel'));
     expect(screen.queryByTestId('shell.user-menu')).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId('shell.user-menu-button'));

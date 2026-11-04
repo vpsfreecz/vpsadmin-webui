@@ -1,11 +1,15 @@
-import { Link } from 'react-router-dom';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AlertTriangle, Clock3, Globe, LogOut, User, WifiOff } from 'lucide-react';
 
+import { updateUser } from '../../lib/api/users';
 import { formatErrorMessage } from '../../lib/errors';
 import { useClippedPopover } from '../../lib/hooks/useClippedPopover';
+import { Alert } from '../ui/Alert';
+import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { clsx } from '../ui/clsx';
+import { parseSessionMinutes } from '../user/UserSecurityModel';
 import type { AppHeaderProps } from './AppHeaderTypes';
 
 export function AppSyncPopover(props: Pick<AppHeaderProps,
@@ -60,15 +64,171 @@ export function AppSyncPopover(props: Pick<AppHeaderProps,
   );
 }
 
+const headerPopoverClassName = 'absolute left-0 top-[calc(100%+0.5rem)] z-50 w-full overflow-y-auto overscroll-contain rounded-md border border-border bg-overlay-surface p-2 shadow-panel';
+
+export function AppSessionControl(props: Pick<AppHeaderProps, 't' | 'sessionExpiresAt'> & {
+  userId: number;
+  anchorRef: React.RefObject<HTMLDivElement | null>;
+  sessionIdleLimitSeconds: number | null;
+  onOpen: () => void;
+  className: string;
+}) {
+  const { t, userId, sessionExpiresAt, sessionIdleLimitSeconds, onOpen, className, anchorRef } = props;
+  const [open, setOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
+  const popupId = useId();
+  const popupStyle = useClippedPopover(open, anchorRef, popupRef);
+  const storedSeconds = sessionIdleLimitSeconds;
+  const queryClient = useQueryClient();
+  const [minutes, setMinutes] = useState('');
+  const inputId = useId();
+  const parsed = parseSessionMinutes(minutes);
+  const save = useMutation({
+    mutationFn: (seconds: number) => updateUser(userId, { preferred_session_length: seconds }),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['user', 'current'] }),
+        queryClient.invalidateQueries({ queryKey: ['users', userId] }),
+      ]);
+      if (popupRef.current?.contains(document.activeElement)) triggerRef.current?.focus();
+      setOpen(false);
+    },
+  });
+
+  const change = (value: string) => {
+    save.reset();
+    setMinutes(value);
+  };
+  const canSave = parsed.valid && Number.isSafeInteger(parsed.seconds) &&
+    parsed.seconds !== (storedSeconds ?? 1200) && !save.isPending;
+  const close = () => {
+    if (save.isPending) return;
+    triggerRef.current?.focus();
+    setOpen(false);
+  };
+  const title = t('security.settings.session_length.label');
+
+  const pending = save.isPending;
+  useEffect(() => {
+    if (!open) return;
+    const onOutside = (event: PointerEvent) => {
+      if (pending || !(event.target instanceof Node) ||
+          triggerRef.current?.contains(event.target) || popupRef.current?.contains(event.target)) return;
+      setOpen(false);
+    };
+    const onEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape' || event.defaultPrevented) return;
+      event.preventDefault();
+      if (pending) return;
+      setOpen(false);
+      triggerRef.current?.focus();
+    };
+    document.addEventListener('pointerdown', onOutside);
+    document.addEventListener('keydown', onEscape);
+    return () => {
+      document.removeEventListener('pointerdown', onOutside);
+      document.removeEventListener('keydown', onEscape);
+    };
+  }, [open, pending]);
+
+  const sessionRemaining = useSessionRemainingLabel(t, sessionExpiresAt);
+  const sessionDisplay = sessionRemaining
+    ? { menuLabel: t('auth.session_remaining.menu_label'), value: sessionRemaining }
+    : sessionIdleLimitSeconds === 0
+      ? { menuLabel: t('auth.session_idle.menu_label'), value: t('security.settings.session_length.preset.never') }
+      : null;
+
+  if (!sessionDisplay) return null;
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => {
+          if (open) {
+            close();
+            return;
+          }
+          onOpen();
+          change(String(Math.round((storedSeconds ?? 1200) / 60)));
+          setOpen(true);
+        }}
+        className={className}
+        ref={triggerRef}
+        aria-expanded={open}
+        aria-controls={open ? popupId : undefined}
+        aria-label={`${sessionDisplay.menuLabel}: ${sessionDisplay.value}`}
+        title={`${sessionDisplay.menuLabel}: ${sessionDisplay.value}`}
+        data-testid="shell.session-remaining"
+      >
+        <Clock3 size={18} className="shrink-0" aria-hidden="true" />
+        <span>{sessionDisplay.value}</span>
+      </button>
+      {open ? (
+        <div
+          id={popupId}
+          ref={popupRef}
+          style={popupStyle}
+          className={headerPopoverClassName}
+          data-testid="shell.session-length.popover"
+          data-overlay="popover"
+          data-overlay-surface="overlay"
+        >
+          <form aria-label={title} className="space-y-3" onSubmit={(event) => {
+            event.preventDefault();
+            if (canSave) save.mutate(parsed.seconds);
+          }}>
+            <div className="flex flex-wrap gap-2" role="group" aria-label={title}>
+              {[20, 40, 0].map(value => (
+                <Button key={value} variant="secondary" size="sm" disabled={save.isPending}
+                  className="min-h-11 px-2" aria-pressed={minutes === String(value)}
+                  onClick={() => change(String(value))} testId={`shell.session-length.preset.${value}`}
+                >
+                  {value === 0 ? t('security.settings.session_length.preset.never')
+                    : t('security.settings.session_length.preset.minutes', { m: value })}
+                </Button>
+              ))}
+            </div>
+            <div>
+              <label className="text-sm font-medium" htmlFor={inputId}>
+                {title} ({t('security.settings.session_length.unit')})
+              </label>
+              <Input inputId={inputId} type="number" min={0} step={1} value={minutes}
+                disabled={save.isPending} onChange={event => change(event.target.value)}
+                testId="shell.session-length.input" />
+            </div>
+            {parsed.valid && parsed.seconds === 0 ? (
+              <Alert variant="warn">{t('security.posture.item.session_length.warning')}</Alert>
+            ) : null}
+            {save.isError ? (
+              <Alert variant="danger" title={t('security.settings.toast.failed.title')} testId="shell.session-length.error">
+                {formatErrorMessage(save.error)}
+              </Alert>
+            ) : null}
+            <div className="flex justify-end gap-2">
+              <Button variant="secondary" disabled={save.isPending} onClick={close}>{t('common.cancel')}</Button>
+              <Button type="submit" disabled={!canSave} loading={save.isPending} testId="shell.session-length.save">
+                {t('common.save')}
+              </Button>
+            </div>
+          </form>
+        </div>
+      ) : null}
+    </>
+  );
+}
+
 export function AppUserMenu(props: Pick<AppHeaderProps,
   't' | 'mode' | 'canSwitchMode' | 'userMenuRef' | 'userMenuOpen' | 'setUserMenuOpen' | 'authLogin' | 'authRole' |
   'onNavigate' | 'sessionExpiresAt' | 'theme' | 'language' | 'onSetTheme' | 'onSetLanguage' | 'onGoToOtherMode' | 'onGoToProfile' | 'onGoToPublicStatus' | 'loginLogoutHref'
-> & { sessionIdleLimitSeconds: number | null }) {
+> & { sessionIdleLimitSeconds: number | null; sessionUserId?: number }) {
   const {
     t, mode, canSwitchMode, userMenuRef, userMenuOpen, setUserMenuOpen, authLogin, authRole,
-    onNavigate, sessionExpiresAt, sessionIdleLimitSeconds, theme, language, onSetTheme, onSetLanguage,
+    onNavigate, sessionExpiresAt, sessionIdleLimitSeconds, sessionUserId, theme, language, onSetTheme, onSetLanguage,
     onGoToOtherMode, onGoToProfile, onGoToPublicStatus, loginLogoutHref,
   } = props;
+  const sessionAnchorRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
   const popupStyle = useClippedPopover(userMenuOpen, userMenuRef, popupRef);
@@ -83,31 +243,22 @@ export function AppUserMenu(props: Pick<AppHeaderProps,
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [userMenuOpen, setUserMenuOpen]);
-  const sessionRemaining = useSessionRemainingLabel(t, sessionExpiresAt);
-  const sessionDisplay = sessionRemaining
-    ? { menuLabel: t('auth.session_remaining.menu_label'), value: sessionRemaining }
-    : sessionIdleLimitSeconds === 0
-      ? { menuLabel: t('auth.session_idle.menu_label'), value: t('security.settings.session_length.preset.never') }
-      : null;
-
   return (
     <div className="relative flex min-w-0 flex-col gap-2" ref={userMenuRef}>
-      {sessionDisplay ? (
-        <Link
-          to={`${mode === 'admin' ? '/admin' : '/app'}/profile/security#session-length`}
-          onClick={() => {
-            setUserMenuOpen(false);
-            onNavigate?.();
-          }}
-          className="flex min-h-11 items-center gap-2 rounded-md px-3 md:min-h-9 [@media(any-pointer:coarse)]:min-h-11 text-sm text-muted hover:bg-surface-2 hover:text-fg"
-          aria-label={`${sessionDisplay.menuLabel}: ${sessionDisplay.value}`}
-          title={`${sessionDisplay.menuLabel}: ${sessionDisplay.value}`}
-          data-testid="shell.session-remaining"
-        >
-          <Clock3 size={18} className="shrink-0" />
-          <span>{sessionDisplay.value}</span>
-        </Link>
-      ) : null}
+      {sessionUserId == null ? null : (
+        <div className="relative" ref={sessionAnchorRef}>
+          <AppSessionControl
+            key={sessionUserId}
+            t={t}
+            userId={sessionUserId}
+            anchorRef={sessionAnchorRef}
+            sessionExpiresAt={sessionExpiresAt}
+            sessionIdleLimitSeconds={sessionIdleLimitSeconds}
+            onOpen={() => setUserMenuOpen(false)}
+            className="flex min-h-11 w-full items-center gap-2 rounded-md px-3 text-left md:min-h-9 [@media(any-pointer:coarse)]:min-h-11 text-sm text-muted hover:bg-surface-2 hover:text-fg"
+          />
+        </div>
+      )}
       <button
         className="flex min-h-11 w-full min-w-0 items-center gap-2 rounded-md bg-surface px-3 text-left text-sm text-muted hover:bg-surface-2 hover:text-fg md:min-h-9 [@media(any-pointer:coarse)]:min-h-11"
         onClick={() => setUserMenuOpen((v) => !v)}
@@ -125,7 +276,7 @@ export function AppUserMenu(props: Pick<AppHeaderProps,
         <div
           ref={popupRef}
           style={popupStyle}
-          className="absolute left-0 top-[calc(100%+0.5rem)] z-50 w-full overflow-y-auto overscroll-contain rounded-md border border-border bg-overlay-surface p-2 shadow-panel"
+          className={headerPopoverClassName}
           data-testid="shell.user-menu"
           data-overlay="popover"
           data-overlay-surface="overlay"
