@@ -205,7 +205,7 @@ function PublicLayoutInner() {
                 <NavItem to="/">{i18n.t('public.nav.overview')}</NavItem>
                 <NavItem to="/outages">{i18n.t('public.nav.outages')}</NavItem>
                 <NavItem to="/security-advisories">{i18n.t('public.nav.security_advisories')}</NavItem>
-                <div className="mt-2 flex flex-wrap items-center gap-1.5 sm:hidden">
+                <div className="mt-2 flex flex-wrap items-center justify-center gap-1.5 sm:hidden">
                   <PublicLanguageSwitcher language={ui.settings.language} onSetLanguage={ui.setLanguage} t={i18n.t} mobile />
                   <PublicThemeSwitcher preference={ui.settings.theme} onSetTheme={ui.setTheme} t={i18n.t} mobile testId="public.theme.mobile" />
                 </div>

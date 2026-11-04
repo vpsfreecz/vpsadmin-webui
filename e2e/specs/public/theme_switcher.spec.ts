@@ -31,6 +31,8 @@ for (const width of [320, 768, 1280]) {
       const theme = page.getByTestId(prefix);
       const languageBox = (await language.boundingBox())!;
       const themeBox = (await theme.boundingBox())!;
+      const controlsCenter = (languageBox.x + themeBox.x + themeBox.width) / 2;
+      expect(Math.abs(controlsCenter - width / 2)).toBeLessThanOrEqual(1);
       expect(languageBox.x + languageBox.width).toBeLessThan(themeBox.x);
       expect(Math.abs(languageBox.y + languageBox.height / 2 - themeBox.y - themeBox.height / 2)).toBeLessThanOrEqual(1);
       for (const button of await language.getByRole('button').or(theme.getByRole('button')).all()) {

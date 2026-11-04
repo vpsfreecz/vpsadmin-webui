@@ -1791,3 +1791,10 @@ Place Create VPS beside the filter actions with the shared control height, keepi
 ## 2026-11-04 — Visible VPS filter help
 
 Give filter help a labeled 44-pixel control beside the input, with a plain search placeholder. Retain the question-mark shortcut. [VPS-02 / REQ-010](docs/work-log/2026-11-04-vps02.md).
+
+### 2026-11-04 — Center public mobile preferences
+
+- PUB-01 / REQ-009: center the language and theme groups together in the
+  open public mobile menu and center each row if the groups wrap.
+- Extend the 320 px public theme browser scenario to check the group's
+  position alongside the existing touch target and layout checks.
