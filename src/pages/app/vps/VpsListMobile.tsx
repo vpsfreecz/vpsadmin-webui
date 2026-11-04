@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 import type { KeysetPaginationState } from '../../../lib/hooks/useKeysetPagination';
-import { formatMiB, formatUptimeSeconds } from '../../../lib/format';
+import { formatMiB } from '../../../lib/format';
 
 import { Badge } from '../../../components/ui/Badge';
 import { Card } from '../../../components/ui/Card';
@@ -119,7 +119,7 @@ export function VpsListMobile({
                   </div>
                   <div>
                     <div className="text-xs text-muted">{t('vps.overview.usage.uptime')}</div>
-                    <div>{formatUptimeSeconds(vps.uptime)}</div>
+                    <div>{row.uptimeLabel}</div>
                   </div>
                   <div>
                     <div className="text-xs text-muted">{t('vps.list.resources.load', { value: row.loadLabel })}</div>

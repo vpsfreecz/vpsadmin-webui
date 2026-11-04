@@ -4,6 +4,11 @@ Prepare the approved bounded TODO follow-up against kerrycek-021126.
 See [scope and evidence](docs/work-log/2026-11-03-todo-member-vps-journey.md).
 Prepared for review; not approved, merged or deployed.
 
+## 2026-11-04 — VPS-06 list uptime
+
+Name the duration column and omit uptime for stopped VPS entries. See
+[scope and verification](docs/work-log/2026-11-04-vps-list-uptime.md).
+
 ## 2026-11-04 — VPS-03 list severity
 
 Show ordinary stopped VPS entries with a neutral status while retaining

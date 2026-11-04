@@ -823,6 +823,8 @@ Inline transaction previews retain their existing compact layout.
 
 Place Create VPS beside the filter actions with the shared control height, keeping the existing role-aware destination. (REQ-010).
 Give filter help a labeled 44-pixel control beside the input, with a plain search placeholder. Retain the question-mark shortcut. (REQ-010).
+The VPS list separates uptime from transaction activity. A running VPS displays
+elapsed runtime; a stopped VPS displays a dash. Locks remain in the status badges.
 The VPS list marks a VPS with a failed or fatal transaction chain only when the
 chain was created within the last 7 days (REQ-074). Failed chains stay failed
 until an administrator resolves them, so an older failure would otherwise flag

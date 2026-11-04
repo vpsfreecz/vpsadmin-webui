@@ -1,5 +1,6 @@
 import type { TransactionChain } from '../../../lib/api/transactions';
 import type { Vps } from '../../../lib/api/vps';
+import { formatUptimeSeconds } from '../../../lib/format';
 import type { TransactionLockIndex } from '../../../lib/lockIndex';
 import { transactionLockChainIds } from '../../../lib/lockIndex';
 import { gateVpsAction, gateVpsMutation } from '../../../lib/gates/vps';
@@ -64,6 +65,7 @@ export interface VpsListRecord {
   ownerLabel: string;
   primaryIpLabel: string;
   loadLabel: string;
+  uptimeLabel: string;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -303,6 +305,7 @@ export function buildVpsListRecord(args: {
     ownerLabel: ownerDisplayName(vps, t),
     primaryIpLabel: primaryIpDisplayName(vps, t),
     loadLabel: loadValue(vps, t),
+    uptimeLabel: formatUptimeSeconds(vps.is_running === true ? vps.uptime : undefined),
   };
 }
 
