@@ -14,7 +14,6 @@ export function PublicThemeSwitcher(props: {
   preference: UiThemePreference;
   onSetTheme: (theme: UiThemePreference) => void;
   t: (key: string) => string;
-  compact?: boolean;
   testId: string;
 }) {
   return (
@@ -32,7 +31,6 @@ export function PublicThemeSwitcher(props: {
             props.preference === value ? 'bg-accent text-accent-fg hover:bg-accent-hover' : 'text-muted hover:bg-surface-2 hover:text-fg'
           )}>
           <Icon size={16} aria-hidden="true" />
-          {!props.compact && <span>{props.t(`settings.theme.${value}`)}</span>}
         </button>
       ))}
     </div>

@@ -82,37 +82,40 @@ function PublicLanguageSwitcher(props: {
   language: UiLanguagePreference;
   onSetLanguage: (language: UiLanguagePreference) => void;
   t: (key: string) => string;
+  mobile?: boolean;
 }) {
+  const testId = props.mobile ? 'public.language.mobile' : 'public.language';
   return (
     <div
-      className="hidden items-center gap-1 rounded-lg border border-border bg-overlay-surface p-1 shadow-card sm:flex"
+      role="group"
+      className="flex items-center gap-1 rounded-lg border border-border bg-overlay-surface p-1 shadow-card"
       aria-label={props.t('settings.language.label')}
-      data-testid="public.language.switcher"
+      data-testid={`${testId}.switcher`}
     >
       <button
         type="button"
-        className={languageButtonClass(props.language === 'system')}
+        className={clsx(props.mobile && 'min-h-11', languageButtonClass(props.language === 'system'))}
         onClick={() => props.onSetLanguage('system')}
         title={props.t('settings.language.system')}
-        data-testid="public.language.system"
+        data-testid={`${testId}.system`}
       >
         Auto
       </button>
       <button
         type="button"
-        className={languageButtonClass(props.language === 'en')}
+        className={clsx(props.mobile && 'min-h-11', languageButtonClass(props.language === 'en'))}
         onClick={() => props.onSetLanguage('en')}
         title={props.t('settings.language.en')}
-        data-testid="public.language.en"
+        data-testid={`${testId}.en`}
       >
         EN
       </button>
       <button
         type="button"
-        className={languageButtonClass(props.language === 'cs')}
+        className={clsx(props.mobile && 'min-h-11', languageButtonClass(props.language === 'cs'))}
         onClick={() => props.onSetLanguage('cs')}
         title={props.t('settings.language.cs')}
-        data-testid="public.language.cs"
+        data-testid={`${testId}.cs`}
       >
         CS
       </button>
@@ -170,9 +173,9 @@ function PublicLayoutInner() {
 
             <div className="flex-1" />
 
-            <PublicLanguageSwitcher language={ui.settings.language} onSetLanguage={ui.setLanguage} t={i18n.t} />
-            <div className="hidden sm:block">
-              <PublicThemeSwitcher preference={ui.settings.theme} onSetTheme={ui.setTheme} t={i18n.t} compact testId="public.theme.desktop" />
+            <div className="hidden items-center gap-3 sm:flex">
+              <PublicLanguageSwitcher language={ui.settings.language} onSetLanguage={ui.setLanguage} t={i18n.t} />
+              <PublicThemeSwitcher preference={ui.settings.theme} onSetTheme={ui.setTheme} t={i18n.t} testId="public.theme.desktop" />
             </div>
 
             <a
@@ -198,34 +201,8 @@ function PublicLayoutInner() {
                 <NavItem to="/">{i18n.t('public.nav.overview')}</NavItem>
                 <NavItem to="/outages">{i18n.t('public.nav.outages')}</NavItem>
                 <NavItem to="/security-advisories">{i18n.t('public.nav.security_advisories')}</NavItem>
-                <div className="mt-2 flex items-center gap-1 rounded-lg border border-border bg-overlay-surface p-1 shadow-card sm:hidden">
-                  <button
-                    type="button"
-                    className={languageButtonClass(ui.settings.language === 'system')}
-                    onClick={() => ui.setLanguage('system')}
-                    title={i18n.t('settings.language.system')}
-                  >
-                    Auto
-                  </button>
-                  <button
-                    type="button"
-                    className={languageButtonClass(ui.settings.language === 'en')}
-                    onClick={() => ui.setLanguage('en')}
-                    title={i18n.t('settings.language.en')}
-                  >
-                    EN
-                  </button>
-                  <button
-                    type="button"
-                    className={languageButtonClass(ui.settings.language === 'cs')}
-                    onClick={() => ui.setLanguage('cs')}
-                    title={i18n.t('settings.language.cs')}
-                  >
-                    CS
-                  </button>
-                </div>
-
-                <div className="mt-2 sm:hidden">
+                <div className="mt-2 flex flex-wrap items-center gap-2 sm:hidden">
+                  <PublicLanguageSwitcher language={ui.settings.language} onSetLanguage={ui.setLanguage} t={i18n.t} mobile />
                   <PublicThemeSwitcher preference={ui.settings.theme} onSetTheme={ui.setTheme} t={i18n.t} testId="public.theme.mobile" />
                 </div>
 
