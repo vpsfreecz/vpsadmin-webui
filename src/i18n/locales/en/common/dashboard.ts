@@ -118,7 +118,7 @@ export const enCommon_dashboard = {
   'dashboard.preferences.density.label': 'Density',
   'dashboard.preferences.density.comfortable': 'Comfortable',
   'dashboard.preferences.density.compact': 'Compact',
-  'dashboard.preferences.density.help': 'Compact mode keeps the same information available but shows fewer rows and smaller KPI visuals.',
+  'dashboard.preferences.density.help': 'In compact mode, cards use less space and some lists show fewer items.',
   'dashboard.preferences.widgets.title': 'Widgets',
   'dashboard.preferences.widgets.description': 'Hide or reorder optional dashboard blocks. Security advisories and cluster status stay available.',
   'dashboard.preferences.widget.outages.label': 'Outages and maintenance',
