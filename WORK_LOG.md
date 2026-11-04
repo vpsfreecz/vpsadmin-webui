@@ -1685,3 +1685,7 @@ preserve all branch histories and colleague PRs. Add standard push CI for the
 integration branch, without deployment automation. Dev has isolated test data;
 clankerdev still uses the production API. No host update in this setup.
 [Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
+
+## 2026-11-04 — Dashboard widget status alignment
+
+Align each widget title and its status badges on their text baseline. The same layout applies to essential, hidden and collapsed labels. [DASH-07 / REQ-009](docs/work-log/2026-11-04-dash07.md).
