@@ -28,7 +28,9 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke @smoke-mobile authentic
   await page.goto('/app');
 
   await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
-  await expect(page.getByText('Signed in as alice')).toBeVisible();
+  await expect(page.getByTestId('app.dashboard.header')).not.toContainText('Signed in as alice');
+  await expect(page.getByTestId('shell.user-menu-button')).toBeVisible();
+  await expect(page.getByTestId('shell.user-menu-button')).toContainText('alice');
   await expect(page.getByTestId('app.dashboard.kpi.vps')).toContainText('VPS');
   await expect(page.getByTestId('app.dashboard.kpi.vps')).toContainText('2');
   await expect(page.getByText('Running:')).toHaveCount(0);
