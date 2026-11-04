@@ -312,7 +312,7 @@ export function AppHeader(props: AppHeaderProps) {
               }
             }}
             className="min-w-0 flex-1 bg-transparent text-sm text-fg outline-none placeholder:text-muted"
-            placeholder={mode === 'admin' ? t('palette.placeholder.admin') : t('palette.placeholder.user')}
+            placeholder={t('search.inline.placeholder')}
             aria-label={t('search.inline.aria')}
             aria-controls={INLINE_SEARCH_LISTBOX_ID}
             aria-expanded={inlineSearchExpanded}
