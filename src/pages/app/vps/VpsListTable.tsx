@@ -107,7 +107,7 @@ export function VpsListTable({
               className="border-b border-border/60 last:border-b-0"
             >
               <td className="px-3 py-2 align-top">
-                <StatusDot variant={row.dotVariant} testId={`vps.row.${vps.id}.dot`} ariaLabel={row.runtimeBadge.label} />
+                <StatusDot variant={row.dotVariant} testId={`vps.row.${vps.id}.dot`} />
               </td>
               <td className="px-3 py-2 align-top">
                 <div className="flex flex-col gap-1">

@@ -116,7 +116,6 @@ export function vpsUsageRisks(vps: Vps): { memoryRisk: RiskVariant; diskRisk: Ri
 }
 
 export function vpsRowVariant(args: {
-  runtimeVariant: BadgeSpec['variant'];
   objectVariant: BadgeSpec['variant'];
   busyTx: boolean;
   busyLocal: boolean;
@@ -126,7 +125,6 @@ export function vpsRowVariant(args: {
 }): TableRowVariant | undefined {
   if (
     args.objectVariant === 'danger' ||
-    args.runtimeVariant === 'danger' ||
     args.recentFailure ||
     args.memoryRisk === 'danger' ||
     args.diskRisk === 'danger'
@@ -243,7 +241,8 @@ export function buildVpsListRecord(args: {
 }): VpsListRecord {
   const { vps, lockIndex, isLocallyLocked, inFlightKind, t } = args;
 
-  const runtimeBadge = runtimeStateBadge(vps.is_running, t as (key: any) => string);
+  const runtime = runtimeStateBadge(vps.is_running, t as (key: any) => string);
+  const runtimeBadge: BadgeSpec = vps.is_running === false ? { ...runtime, variant: 'neutral' } : runtime;
   const objectBadge = objectStateBadge(vps.object_state, t as (key: any) => string);
   const busyChains = transactionLockChainIds(lockIndex, 'Vps', vps.id);
   const busyTx = busyChains.length > 0;
@@ -261,7 +260,6 @@ export function buildVpsListRecord(args: {
   const { memoryRisk, diskRisk } = vpsUsageRisks(vps);
 
   const rowVariant = vpsRowVariant({
-    runtimeVariant: runtimeBadge.variant,
     objectVariant: objectBadge.variant,
     busyTx,
     busyLocal,

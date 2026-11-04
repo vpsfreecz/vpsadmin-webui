@@ -83,12 +83,19 @@ describe('vpsListSemantics', () => {
     const failedChains: TransactionChain[] = [
       { id: 9001, state: 'failed', created_at: '2026-10-15T08:00:00Z', concerns: [['Vps', 101]] },
     ];
+    const stopped = recordFor({ ...baseVps, is_running: false });
+    expect(stopped.runtimeBadge.variant).toBe('neutral');
+    expect(stopped.dotVariant).toBe('neutral');
+    expect(stopped.rowVariant).toBeUndefined();
+    expect(recordMatchesStateFilter(stopped, 'failed')).toBe(false);
+
     const row = recordFor({ ...baseVps, is_running: false }, failedChains);
 
     expect(row.primaryAction).toBe('start');
     expect(row.recentFailureChainIds).toEqual([9001]);
     expect(row.latestRecentFailure?.id).toBe(9001);
     expect(row.rowVariant).toBe('danger');
+    expect(row.dotVariant).toBe('danger');
     expect(recordMatchesStateFilter(row, 'stopped')).toBe(true);
     expect(recordMatchesStateFilter(row, 'failed')).toBe(true);
   });
@@ -104,6 +111,7 @@ describe('vpsListSemantics', () => {
     const row = recordFor({ ...baseVps, memory: 1000, used_memory: 950 });
     expect(row.memoryRisk).toBe('warn');
     expect(row.rowVariant).toBe('warn');
+    expect(row.dotVariant).toBe('warn');
   });
 
   it('ignores failures older than the recent window', () => {

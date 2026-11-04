@@ -4,6 +4,11 @@ Prepared a focused BFF credential-forwarding defense and consistent local-path
 validation after dummy loopback reproductions. See the [finding and checks](docs/work-log/2026-10-28-oauth-redirect-boundaries.md).
 Not merged or deployed; no API or provider changes.
 
+## 2026-11-04 — VPS-03 list severity
+
+Show ordinary stopped VPS entries with a neutral status while retaining
+usage and transaction warnings. See [scope and verification](docs/work-log/2026-11-04-vps-list-severity.md).
+
 ## 2026-10-28 — Development tool security patches
 
 Prepared compatible Vite/Vitest and transitive security updates, with a narrow
