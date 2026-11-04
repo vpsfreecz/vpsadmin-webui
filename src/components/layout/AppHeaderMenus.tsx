@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import { AlertTriangle, Clock3, Globe, LogOut, Settings, User, WifiOff } from 'lucide-react';
 
 import { formatErrorMessage } from '../../lib/errors';
