@@ -122,10 +122,10 @@
       "path": "src/pages/app/admin/IncomingPaymentDetailPage.tsx",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "dd80374ba7edc6a7b49d46a3438927914db8bc4602197fa6d22e019b1c82f40e",
+      "contentHash": "e39bef3f6a52f7ab83322d635f32330e541d183e931feeb3016c89f8c45c4a82",
       "old": 0,
-      "allowance": 587,
-      "rationale": "At the recorded source revision, this file already contained incoming payment detail and matching flows; extract the coherent section with focused behavior coverage before removing this exception.",
+      "allowance": 591,
+      "rationale": "At the recorded source revision, this file already contained incoming payment detail and matching flows; extract the coherent section with focused behavior coverage before removing this exception. The payer account appears in the existing payment details grid.",
       "owner": "WebUI implementation lead",
       "removeWhen": {
         "metric": "lines",
@@ -280,20 +280,6 @@
       "old": 0,
       "allowance": 776,
       "rationale": "At the recorded source revision, this file already contained admin user overview sections and actions; extract the coherent section with focused behavior coverage before removing this exception. Reviewed 2026-10-08: replace the existing source-payment number with a native detail link and mobile touch target; no new data fetching, mutations or finance permissions. Focused browser checks cover the source ID, manual credits, keyboard and touch navigation. Centered-dialog follow-up (2026-10-17) changes only overlay presentation; existing extraction debt remains and the allowance does not increase. Reviewed 2026-10-20: the existing soft-delete selection handler refreshes expiry on transition even when a prior expiry exists; one condition changes, with no line-budget increase. Desktop/mobile fixture tests cover the suggestion, manual override and confirmation before mutation. Combined release review 2026-10-23: retain the soft-delete expiry handler and extract the numeric privilege field to UserLevelSelect; exact role levels and unknown existing levels remain intact. The recorded allowance is the actual combined line count. Preserve the extracted AdminUserDetailsActions password shortcut and the existing lifecycle mutation guard; the page shrinks further. Preserve the extracted address and mail-role contact summary, including administrator-only fetching and the selected owner boundary; the combined page remains smaller than the inherited allowance.",
-      "owner": "WebUI implementation lead",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 500
-      }
-    },
-    {
-      "path": "src/pages/app/admin/user/AdminUserPaymentsPage.tsx",
-      "rule": "crossed-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "b1e00301fa600fba6164d5725e8721a46be6816826ed42c481922d74332e0b52",
-      "old": 0,
-      "allowance": 797,
-      "rationale": "At the recorded source revision, this file already contained admin user payments and incoming-payment views; extract the coherent section with focused behavior coverage before removing this exception.",
       "owner": "WebUI implementation lead",
       "removeWhen": {
         "metric": "lines",

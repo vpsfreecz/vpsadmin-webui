@@ -687,6 +687,15 @@ history. Manual credits without an incoming source do not get a fabricated link.
 The overview retains its administrator-only finance gate. Browser Back returns
 to the member overview; the detail's own Back link retains its finance destination.
 
+After an administrator changes the paid-until date, refresh the account payment
+history and show the previous and new dates and the administrator on a row
+without an amount. The account history requests these changes only when the
+API advertises support. The finance ledger and the member's payment list
+continue to request actual payments.
+
+The administrator incoming payment detail shows the payer account when the bank
+provided it. Previously imported payments can have an empty account number.
+
 Payment instructions offer individual copy icons for recognized bank-account,
 IBAN, BIC, variable-symbol, message and amount rows, alongside the existing
 whole-instructions copy. Account/IBAN whitespace is removed; variable-symbol

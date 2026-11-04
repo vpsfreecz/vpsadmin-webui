@@ -25,6 +25,7 @@ export interface IncomingPayment {
   src_amount?: number;
   src_currency?: string;
   account_name?: string;
+  payer_account?: string | null;
   user_ident?: string;
   user_message?: string;
   vs?: string;
@@ -78,10 +79,11 @@ export interface UserPayment {
   id: number;
   incoming_payment?: ResourceRef;
   user?: ResourceRef;
-  amount?: number;
+  amount?: number | null;
   accounted_by?: ResourceRef;
-  from_date?: string;
-  to_date?: string;
+  expiration_change?: boolean;
+  from_date?: string | null;
+  to_date?: string | null;
   created_at?: string;
   [k: string]: unknown;
 }
@@ -123,18 +125,28 @@ export async function createUserPayment(opts: CreateUserPaymentInput) {
   });
 }
 
+export async function supportsPaymentExpirationHistory() {
+  const { data } = await haveApiCall<{ input?: { parameters?: Record<string, unknown> } }>({
+    method: 'OPTIONS',
+    path: '/user_payments?method=GET',
+  });
+  return Object.hasOwn(data?.input?.parameters ?? {}, 'include_expiration_changes');
+}
+
 export async function fetchUserPayments(opts?: {
   limit?: number;
   fromId?: number;
   userId?: number;
   accountedById?: number;
   includes?: string;
+  includeExpirationChanges?: boolean;
 }) {
   const params: Record<string, unknown> = {};
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
   if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
   if (opts?.userId !== undefined) params['user'] = opts.userId;
   if (opts?.accountedById !== undefined) params['accounted_by'] = opts.accountedById;
+  if (opts?.includeExpirationChanges) params['include_expiration_changes'] = true;
 
   const res = await haveApiCall<UserPayment[]>({
     method: 'GET',

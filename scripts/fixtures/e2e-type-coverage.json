@@ -31,8 +31,10 @@
     "e2e/specs/admin/user_packages_assigned_date.spec.ts",
     "e2e/specs/admin/user_packages_bulk_remove.spec.ts",
     "e2e/specs/admin/user_password_dialog.spec.ts",
+    "e2e/specs/admin/user_payments_smoke.spec.ts",
     "e2e/specs/app/action_state_transactions_responsive.spec.ts",
     "e2e/specs/app/admin_default_review_queue.spec.ts",
+    "e2e/specs/app/admin_incoming_payment_timezone.spec.ts",
     "e2e/specs/app/admin_newslog.spec.ts",
     "e2e/specs/app/admin_scope_view_switcher.spec.ts",
     "e2e/specs/app/authenticated_home_smoke.spec.ts",
@@ -530,13 +532,6 @@
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
     },
     {
-      "path": "e2e/specs/admin/user_payments_smoke.spec.ts",
-      "sha256": "c7f5590214635f916709cd543ffb3d5a30d1649ae6d7802f51dc55da3f58332c",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
       "path": "e2e/specs/admin/user_resource_usage_error_recovery.spec.ts",
       "sha256": "7b0e96a3d332a6c2dc025eba7b7aeb07d6b1e375f39958acd81297a815e5291e",
       "owner": "WebUI maintainers",
@@ -616,13 +611,6 @@
     {
       "path": "e2e/specs/app/admin_incoming_payment_assign.spec.ts",
       "sha256": "140885604b957080a76ed76682c0dd174da8f83e945914ddaeba1c7663dc0937",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/app/admin_incoming_payment_timezone.spec.ts",
-      "sha256": "3df5619fbe08610538a16ff3e329702a8726a9ca968ddbd215bd9f6e497db578",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
