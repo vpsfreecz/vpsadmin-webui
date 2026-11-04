@@ -498,7 +498,7 @@ explicit false state. Existing rows, service links and actions remain visible.
 ## Account profile and user administration
 
 The navigation countdown and Never expires control open the session length
-dialog in place. The dialog starts with the current preference. It offers 20 and
+popover below the navigation control, using the account menu surface. It starts with the current preference. It offers 20 and
 40 minutes, no expiry and a custom number of minutes. Save updates only the
 current account's preferred session length. Cancel discards the draft. The
 profile security page remains a separate entry to the same preference.

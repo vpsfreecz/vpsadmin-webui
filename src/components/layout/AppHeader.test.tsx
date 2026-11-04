@@ -187,10 +187,10 @@ describe('AppHeader', () => {
   it('opens session length on the current page without opening the account menu', () => {
     render(<HeaderHarness />);
 
-    expect(screen.getByTestId('shell.session-remaining')).toHaveAttribute('aria-haspopup', 'dialog');
+    expect(screen.getByTestId('shell.session-remaining')).toHaveAttribute('aria-expanded', 'false');
     fireEvent.click(screen.getByTestId('shell.session-remaining'));
     expect(screen.getByTestId('shell.location-path')).toHaveTextContent(/^\/$/);
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByTestId('shell.session-length.popover')).toBeInTheDocument();
     expect(screen.getByTestId('shell.session-length.input')).toHaveValue(40);
     fireEvent.click(screen.getByText('common.cancel'));
     expect(screen.queryByTestId('shell.user-menu')).not.toBeInTheDocument();
