@@ -126,8 +126,6 @@ export function ContextualHelpPanel(props: {
                   </div>
                 ) : null}
               </div>
-
-              <div className="mt-1 text-sm text-muted">{t('help_boxes.panel.subtitle')}</div>
             </div>
           </div>
 
