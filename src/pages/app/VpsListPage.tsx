@@ -347,7 +347,6 @@ export function VpsListPage() {
         <PageHeader
           testId="vps.list.header"
           title={t('nav.vps')}
-          description={t('vps.list.description')}
         />
       }
       filters={

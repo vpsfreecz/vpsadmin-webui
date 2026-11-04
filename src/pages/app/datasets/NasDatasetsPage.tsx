@@ -13,7 +13,7 @@ export function NasDatasetsPage() {
     <DatasetsListPage
       rolePreset="primary"
       titleKey="nas.list.title"
-      descriptionKey="nas.list.description"
+      descriptionKey={null}
       searchPlaceholderKey="nas.list.search.placeholder"
       loadErrorTitleKey="nas.list.load_error.title"
       emptyTitleKey="nas.list.empty.title"

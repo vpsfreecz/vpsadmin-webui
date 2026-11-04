@@ -1,6 +1,5 @@
 // VPS core list, layout, tabs, actions, and power copy
 export const enVps_core = {
-  'vps.list.description': 'Your virtual private servers. Open a VPS to access its console and full control center.',
   'vps.list.search.placeholder': 'Search VPS',
   'vps.list.filter.node.placeholder': 'Node ID',
   'vps.list.filter.user.placeholder': 'User ID',

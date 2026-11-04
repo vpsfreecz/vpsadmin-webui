@@ -4,6 +4,11 @@ Prepare the approved bounded TODO follow-up against kerrycek-021126.
 See [scope and evidence](docs/work-log/2026-11-03-todo-member-vps-journey.md).
 Prepared for review; not approved, merged or deployed.
 
+## 2026-11-04 — Remove redundant VPS and NAS copy
+
+Remove generic descriptions from the VPS and NAS lists and the shared dataset
+cards. See [scope and verification](docs/work-log/2026-11-04-vps-nas-redundant-copy.md).
+
 ## 2026-11-04 — Remove redundant dashboard copy
 
 Remove generic text from the contextual help panel and signed-in dashboard.

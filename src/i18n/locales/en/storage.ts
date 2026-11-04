@@ -17,8 +17,6 @@ export const enStorage = {
   "vps_datasets.list.empty.body":
     "Disks from the hypervisor pool appear here once they are assigned to a VPS.",
   "nas.list.title": "NAS",
-  "nas.list.description":
-    "Browse primary-pool user datasets without VPS-specific filters.",
   "nas.list.search.placeholder": "Filter this NAS page (name, user, #id)…",
   "nas.list.load_error.title": "Failed to load NAS datasets",
   "nas.list.empty.title": "No NAS datasets found",
@@ -111,8 +109,6 @@ export const enStorage = {
   "dataset.overview.tips.item3":
     "If an action is blocked, open Tasks to see what is running.",
   "dataset.overview.transactions.title": "Transactions",
-  "dataset.overview.transactions.subtitle":
-    "Recent transaction chains involving this dataset.",
   "dataset.overview.transactions.loading": "Loading transaction chains…",
   "dataset.overview.transactions.load_error.title":
     "Failed to load transaction chains",
@@ -133,8 +129,6 @@ export const enStorage = {
   "dataset.overview.transactions.chain_failed_row_title":
     "This transaction chain has failures",
   "dataset.manage.title": "Dataset management",
-  "dataset.manage.subtitle":
-    "Update dataset size and storage properties directly here.",
   "dataset.manage.current": "Current dataset: {dataset} (#{id})",
   "dataset.manage.user_limited.title": "Admin-managed dataset actions",
   "dataset.manage.user_limited.body":
