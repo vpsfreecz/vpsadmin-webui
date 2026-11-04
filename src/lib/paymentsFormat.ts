@@ -7,7 +7,7 @@ export function safeInt(value: unknown): number | undefined {
   return undefined;
 }
 
-export function formatMoneyLike(amount: number | undefined): string {
-  if (amount === undefined) return '—';
+export function formatMoneyLike(amount: number | null | undefined): string {
+  if (amount == null) return '—';
   return new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(amount);
 }

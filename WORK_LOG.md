@@ -1798,3 +1798,5 @@ Give filter help a labeled 44-pixel control beside the input, with a plain searc
   open public mobile menu and center each row if the groups wrap.
 - Extend the 320 px public theme browser scenario to check the group's
   position alongside the existing touch target and layout checks.
+
+- [2026-11-04 manual paid-until history](docs/work-log/2026-11-04-payment-expiration-history.md) (REQ-052)
