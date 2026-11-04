@@ -33,6 +33,10 @@ for (const width of [320, 768, 1280]) {
       const themeBox = (await theme.boundingBox())!;
       expect(languageBox.x + languageBox.width).toBeLessThan(themeBox.x);
       expect(Math.abs(languageBox.y + languageBox.height / 2 - themeBox.y - themeBox.height / 2)).toBeLessThanOrEqual(1);
+      for (const button of await language.getByRole('button').or(theme.getByRole('button')).all()) {
+        const box = (await button.boundingBox())!;
+        expect(Math.min(box.width, box.height)).toBeGreaterThanOrEqual(44);
+      }
       await expect(theme.locator('button svg')).toHaveCount(3);
       for (const button of await theme.getByRole('button').all()) await expect(button).toHaveText('');
     }
