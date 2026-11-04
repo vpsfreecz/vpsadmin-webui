@@ -86,6 +86,7 @@ export const enCommon_navigation = {
   'settings.scope.all': 'All objects',
   'settings.scope.toast_all.title': 'All objects view',
   'settings.scope.toast_all.body': 'You are viewing all accessible objects. Actions may affect other members.',
+  'settings.interface.label': 'Language and appearance',
   'settings.theme.label': 'Theme',
   'settings.theme.system': 'System',
   'settings.theme.light': 'Light',

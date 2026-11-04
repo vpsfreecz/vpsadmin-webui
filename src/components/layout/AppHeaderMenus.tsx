@@ -1,6 +1,6 @@
 import React, { useEffect, useId, useRef, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { AlertTriangle, Clock3, Globe, Headset, LogOut, ShieldCheck, User, WifiOff } from 'lucide-react';
+import { AlertTriangle, Clock3, Globe, Headset, LogOut, Settings, ShieldCheck, User, WifiOff } from 'lucide-react';
 
 import { updateUser } from '../../lib/api/users';
 import { formatErrorMessage } from '../../lib/errors';
@@ -233,132 +233,175 @@ export function AppUserMenu(props: Pick<AppHeaderProps,
   const roleLabel = authRole === 'admin' || authRole === 'support' || authRole === 'user'
     ? t(`admin.users.role.${authRole}`)
     : undefined;
+  const [selectedMenu, setSelectedMenu] = useState<'account' | 'preferences'>('account');
+  const accountOpen = userMenuOpen && selectedMenu === 'account';
+  const preferencesOpen = userMenuOpen && selectedMenu === 'preferences';
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const preferencesTriggerRef = useRef<HTMLButtonElement>(null);
+  const popupId = useId();
+  const preferencesLabel = t('settings.interface.label');
+
+  const toggleMenu = (menu: typeof selectedMenu) => {
+    setUserMenuOpen(!userMenuOpen || selectedMenu !== menu);
+    setSelectedMenu(menu);
+  };
   const popupRef = useRef<HTMLDivElement>(null);
-  const popupStyle = useClippedPopover(userMenuOpen, userMenuRef, popupRef, Infinity);
+  const preferencesRef = useRef<HTMLDivElement>(null);
+  const popupStyle = useClippedPopover(accountOpen, userMenuRef, popupRef, Infinity);
+  const preferencesStyle = useClippedPopover(preferencesOpen, userMenuRef, preferencesRef, Infinity);
   useEffect(() => {
     if (!userMenuOpen) return;
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return;
+      if (event.key !== 'Escape' || event.defaultPrevented) return;
       event.preventDefault();
       setUserMenuOpen(false);
-      triggerRef.current?.focus();
+      (preferencesOpen ? preferencesTriggerRef : triggerRef).current?.focus();
     };
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
-  }, [userMenuOpen, setUserMenuOpen]);
+  }, [userMenuOpen, preferencesOpen, setUserMenuOpen]);
 
   return (
     <div className="relative min-w-0" ref={userMenuRef}>
-      <button
-        className="flex min-h-11 w-full min-w-0 items-center gap-1.5 rounded-md border border-transparent bg-surface px-2 text-left text-sm text-muted hover:bg-surface-2 hover:text-fg md:min-h-9 [@media(any-pointer:coarse)]:min-h-11"
-        onClick={() => setUserMenuOpen((v) => !v)}
-        ref={triggerRef}
-        aria-expanded={userMenuOpen}
-        aria-label={t('user_menu.open')}
-        aria-describedby={roleLabel ? roleDescriptionId : undefined}
-        data-testid="shell.user-menu-button"
-      >
-        <User size={18} className="shrink-0" aria-hidden="true" />
-        <span className="min-w-0 truncate font-medium">{authLogin ?? '—'}</span>
-        {RoleIcon ? (
-          <span className="shrink-0" title={roleLabel} data-testid="shell.user-role">
-            <RoleIcon size={14} aria-hidden="true" />
-          </span>
-        ) : null}
-        {roleLabel ? <span id={roleDescriptionId} className="sr-only">{roleLabel}</span> : null}
-      </button>
-
-      {userMenuOpen ? (
-        <div
-          ref={popupRef}
-          style={popupStyle}
-          className={headerPopoverClassName}
-          data-testid="shell.user-menu"
-          data-overlay="popover"
-          data-overlay-surface="overlay"
+      <div className="flex min-w-0 gap-1.5">
+        <button
+          type="button"
+          className="flex min-h-11 min-w-0 flex-1 items-center gap-1.5 rounded-md border border-transparent bg-surface px-2 text-left text-sm text-muted hover:bg-surface-2 hover:text-fg md:min-h-9 [@media(any-pointer:coarse)]:min-h-11"
+          onClick={() => toggleMenu('account')}
+          ref={triggerRef}
+          aria-expanded={accountOpen}
+          aria-controls={accountOpen ? popupId : undefined}
+          aria-label={t('user_menu.open')}
+          aria-describedby={roleLabel ? roleDescriptionId : undefined}
+          data-testid="shell.user-menu-button"
         >
-          {canSwitchMode ? (
-            <div className="px-2 py-1">
-              <div className="text-xs text-muted">{t('settings.scope.label')}</div>
-              <div className="mt-1 grid grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] gap-2">
-                <button
-                  type="button"
-                  data-testid="shell.user-menu.scope.mine"
-                  className={segmentedButtonClass(mode === 'user')}
-                  onClick={() => {
-                    if (mode === 'user') return;
-                    setUserMenuOpen(false);
-                    onGoToOtherMode();
-                  }}
-                >
-                  {t('settings.scope.mine')}
-                </button>
-                <button
-                  type="button"
-                  data-testid="shell.user-menu.scope.all"
-                  className={segmentedButtonClass(mode === 'admin')}
-                  onClick={() => {
-                    if (mode === 'admin') return;
-                    setUserMenuOpen(false);
-                    onGoToOtherMode();
-                  }}
-                >
-                  {t('settings.scope.all')}
-                </button>
-              </div>
-              <p className={clsx('mt-2 text-xs', mode === 'admin' ? 'text-warn' : 'text-muted')}>
-                {mode === 'admin' ? t('scope.indicator.admin_hint') : t('scope.indicator.my_hint')}
-              </p>
-            </div>
+          <User size={18} className="shrink-0" aria-hidden="true" />
+          <span className="min-w-0 truncate font-medium">{authLogin ?? '—'}</span>
+          {RoleIcon ? (
+            <span className="shrink-0" title={roleLabel} data-testid="shell.user-role">
+              <RoleIcon size={14} aria-hidden="true" />
+            </span>
           ) : null}
+          {roleLabel ? <span id={roleDescriptionId} className="sr-only">{roleLabel}</span> : null}
+        </button>
+        {accountOpen ? (
+          <div
+            id={popupId}
+            ref={popupRef}
+            style={popupStyle}
+            className={headerPopoverClassName}
+            data-testid="shell.user-menu"
+            data-overlay="popover"
+            data-overlay-surface="overlay"
+          >
+            {canSwitchMode ? (
+              <div className="px-2 py-1">
+                <div className="text-xs text-muted">{t('settings.scope.label')}</div>
+                <div className="mt-1 grid grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] gap-2">
+                  <button
+                    type="button"
+                    data-testid="shell.user-menu.scope.mine"
+                    className={segmentedButtonClass(mode === 'user')}
+                    onClick={() => {
+                      if (mode === 'user') return;
+                      setUserMenuOpen(false);
+                      onGoToOtherMode();
+                    }}
+                  >
+                    {t('settings.scope.mine')}
+                  </button>
+                  <button
+                    type="button"
+                    data-testid="shell.user-menu.scope.all"
+                    className={segmentedButtonClass(mode === 'admin')}
+                    onClick={() => {
+                      if (mode === 'admin') return;
+                      setUserMenuOpen(false);
+                      onGoToOtherMode();
+                    }}
+                  >
+                    {t('settings.scope.all')}
+                  </button>
+                </div>
+                <p className={clsx('mt-2 text-xs', mode === 'admin' ? 'text-warn' : 'text-muted')}>
+                  {mode === 'admin' ? t('scope.indicator.admin_hint') : t('scope.indicator.my_hint')}
+                </p>
+              </div>
+            ) : null}
 
-          <PreferenceSelector
-            label={t('settings.theme.label')}
-            options={[
-              { id: 'system', label: t('settings.theme.system') },
-              { id: 'light', label: t('settings.theme.light') },
-              { id: 'dark', label: t('settings.theme.dark') },
-            ]}
-            selected={theme}
-            testIdPrefix="shell.user-menu.theme"
-            onSelect={(value) => onSetTheme(value as AppHeaderProps['theme'])}
-          />
-          <PreferenceSelector
-            label={t('settings.language.label')}
-            options={[
-              { id: 'system', label: t('settings.language.system') },
-              { id: 'en', label: 'EN', title: t('settings.language.en') },
-              { id: 'cs', label: 'CS', title: t('settings.language.cs') },
-            ]}
-            selected={language}
-            testIdPrefix="shell.user-menu.language"
-            onSelect={(value) => onSetLanguage(value as AppHeaderProps['language'])}
-          />
+            <div className={canSwitchMode ? 'mt-2 border-t border-border pt-2' : undefined}>
+              <UserMenuButton icon={<User size={16} />} testId="shell.user-menu.account" onClick={() => {
+                setUserMenuOpen(false);
+                onGoToProfile();
+              }}>{t('user_menu.account')}</UserMenuButton>
+              <UserMenuButton className="mt-1" icon={<Globe size={16} />} testId="shell.user-menu.public-status" onClick={() => {
+                setUserMenuOpen(false);
+                onGoToPublicStatus();
+              }}>{t('user_menu.public_status')}</UserMenuButton>
+            </div>
 
-          <div className="mt-2 border-t border-border pt-2">
-            <UserMenuButton icon={<User size={16} />} testId="shell.user-menu.account" onClick={() => {
-              setUserMenuOpen(false);
-              onGoToProfile();
-            }}>{t('user_menu.account')}</UserMenuButton>
-            <UserMenuButton className="mt-1" icon={<Globe size={16} />} testId="shell.user-menu.public-status" onClick={() => {
-              setUserMenuOpen(false);
-              onGoToPublicStatus();
-            }}>{t('user_menu.public_status')}</UserMenuButton>
+            <div className="mt-2 border-t border-border pt-2">
+              <a
+                data-testid="shell.user-menu.logout"
+                className="flex items-center gap-2 rounded-md px-2 py-2 text-sm hover:bg-surface-2"
+                href={loginLogoutHref}
+              >
+                <LogOut size={16} />
+                <span>{t('user_menu.logout')}</span>
+              </a>
+            </div>
           </div>
-
-          <div className="mt-2 border-t border-border pt-2">
-            <a
-              data-testid="shell.user-menu.logout"
-              className="flex items-center gap-2 rounded-md px-2 py-2 text-sm hover:bg-surface-2"
-              href={loginLogoutHref}
-            >
-              <LogOut size={16} />
-              <span>{t('user_menu.logout')}</span>
-            </a>
+        ) : null}
+        <button
+          type="button"
+          ref={preferencesTriggerRef}
+          className="flex min-h-11 w-11 shrink-0 items-center justify-center rounded-md border border-border bg-surface text-muted hover:bg-surface-2 hover:text-fg md:min-h-9 md:w-9 [@media(any-pointer:coarse)]:min-h-11 [@media(any-pointer:coarse)]:w-11"
+          onClick={() => toggleMenu('preferences')}
+          aria-expanded={preferencesOpen}
+          aria-controls={preferencesOpen ? popupId : undefined}
+          aria-label={preferencesLabel}
+          title={preferencesLabel}
+          data-testid="shell.interface-preferences-button"
+        >
+          <Settings size={18} aria-hidden="true" />
+        </button>
+        {preferencesOpen ? (
+          <div
+            id={popupId}
+            ref={preferencesRef}
+            style={preferencesStyle}
+            className={clsx(headerPopoverClassName, 'divide-y divide-border')}
+            role="region"
+            aria-label={preferencesLabel}
+            data-testid="shell.interface-preferences"
+            data-overlay="popover"
+            data-overlay-surface="overlay"
+          >
+            <PreferenceSelector
+              label={t('settings.theme.label')}
+              options={[
+                { id: 'system', label: t('settings.theme.system') },
+                { id: 'light', label: t('settings.theme.light') },
+                { id: 'dark', label: t('settings.theme.dark') },
+              ]}
+              selected={theme}
+              testIdPrefix="shell.interface-preferences.theme"
+              onSelect={(value) => onSetTheme(value as AppHeaderProps['theme'])}
+            />
+            <PreferenceSelector
+              label={t('settings.language.label')}
+              options={[
+                { id: 'system', label: t('settings.language.system') },
+                { id: 'en', label: 'EN', title: t('settings.language.en') },
+                { id: 'cs', label: 'CS', title: t('settings.language.cs') },
+              ]}
+              selected={language}
+              testIdPrefix="shell.interface-preferences.language"
+              onSelect={(value) => onSetLanguage(value as AppHeaderProps['language'])}
+            />
           </div>
-        </div>
-      ) : null}
+        ) : null}
+      </div>
     </div>
   );
 }
@@ -371,7 +414,7 @@ function PreferenceSelector(props: {
   onSelect: (value: string) => void;
 }) {
   return (
-    <div className="mt-2 border-t border-border px-2 pt-2">
+    <div className="px-2 py-2" role="group" aria-label={props.label}>
       <div className="text-xs text-muted">{props.label}</div>
       <div className="mt-1 grid grid-cols-3 gap-2">
         {props.options.map((option) => (
@@ -380,6 +423,8 @@ function PreferenceSelector(props: {
             type="button"
             data-testid={`${props.testIdPrefix}.${option.id}`}
             title={option.title}
+            aria-label={option.title}
+            aria-pressed={option.id === props.selected}
             className={segmentedButtonClass(option.id === props.selected)}
             onClick={() => props.onSelect(option.id)}
           >

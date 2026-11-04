@@ -129,8 +129,8 @@ for (const language of ['cs', 'en'] as const) {
       await page.screenshot({ path: `docs/work-log/assets/transaction-api-labels-20261006/${testInfo.project.name}-${language}.png`, fullPage: true });
     }
     const other = language === 'cs' ? 'en' : 'cs';
-    await clickShellControl(page, 'shell.user-menu-button');
-    await page.getByTestId(`shell.user-menu.language.${other}`).click();
+    await clickShellControl(page, 'shell.interface-preferences-button');
+    await page.getByTestId(`shell.interface-preferences.language.${other}`).click();
     await expect(header.getByRole('heading', { name: other === 'cs' ? 'Vytvoření VPS' : 'Create VPS', exact: true })).toBeVisible();
     expect(seen).toContain(other);
   });

@@ -1,3 +1,7 @@
+## 2026-11-04 — Sidebar language and appearance
+
+[Separate language and appearance from the account menu](docs/work-log/2026-11-04-sidebar-interface-preferences.md).
+
 ## 2026-11-04 — Dashboard settings header
 
 [Simplify the dashboard settings header](docs/work-log/2026-11-04-dashboard-settings-counts.md).

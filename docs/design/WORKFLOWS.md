@@ -521,8 +521,9 @@ popover below the navigation control, using the account menu surface. It starts 
 40 minutes, no expiry and a custom number of minutes. Save updates only the
 current account's preferred session length. Cancel discards the draft. The
 profile security page remains a separate entry to the same preference.
-The member/admin scope switch, preferences, public status and logout remain
-available from the navigation account menu (REQ-004/006/010/012).
+The navigation account menu contains the member/admin scope switch, account,
+public status and logout. The adjacent Language and appearance button opens
+theme and language choices (REQ-004/009/010/012).
 The login aligns with the Tasks label. Admin and support role icons sit beside
 the login and expose the role as a tooltip and accessible description.
 Opening the account menu shows all available choices when there is room. On short
