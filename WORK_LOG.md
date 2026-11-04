@@ -1755,3 +1755,7 @@ Explain compact mode in plain language. [DASH-05 / REQ-009](docs/work-log/2026-1
 ## 2026-11-04 — Dashboard widget controls
 
 Group actions by widget. [DASH-06 / REQ-009](docs/work-log/2026-11-04-dashboard-widget-controls.md).
+
+## 2026-11-04 — Dashboard widget status alignment
+
+Align each widget title and its status badges on their text baseline. The same layout applies to essential, hidden and collapsed labels. [DASH-07 / REQ-009](docs/work-log/2026-11-04-dash07.md).

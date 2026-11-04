@@ -142,7 +142,7 @@ export function DashboardPreferencesCard() {
                     data-testid={`app.dashboard.preferences.widget.${id}`}
                   >
                     <div className="space-y-2">
-                      <div className="flex flex-wrap items-center gap-2">
+                      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
                         <h3 id={headingId} className="min-w-0 break-words text-base font-semibold">{t(widgetLabelKey(id))}</h3>
                         {essential ? <Badge variant="info">{t('dashboard.preferences.widget.always_visible')}</Badge> : null}
                         {hidden ? <Badge variant="neutral">{t('dashboard.preferences.widget.hidden')}</Badge> : null}
