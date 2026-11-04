@@ -341,7 +341,6 @@ export function ExportDetailPage() {
             <span className="flex flex-wrap items-center gap-2">
               <Badge variant={badgeVariant} testId="exports.detail.badge.enabled">{boolBadgeLabel(Boolean(ex.enabled), t)}</Badge>
               <Badge variant={sourceIsSnapshot ? 'info' : 'neutral'}>{sourceIsSnapshot ? t('common.snapshot') : t('common.dataset')}</Badge>
-              <span>#{id}</span>
             </span>
           }
           actions={
@@ -355,13 +354,9 @@ export function ExportDetailPage() {
     >
       <div className="min-w-0 space-y-4">
         <Card testId="exports.detail.summary">
-          <CardHeader title={t('exports.detail.summary.title')} subtitle={t('exports.detail.summary.subtitle')} />
+          <CardHeader title={t('exports.detail.summary.title')} />
           <CardBody>
             <div className="grid min-w-0 grid-cols-1 gap-3 md:grid-cols-2">
-              <div>
-                <div className="text-xs font-semibold text-muted">{t('exports.field.source')}</div>
-                <div className="mt-1 text-sm text-fg">{sourceLabel(ex)}</div>
-              </div>
               <div>
                 <div className="text-xs font-semibold text-muted">{t('exports.field.address')}</div>
                 <div className="mt-1 font-mono text-xs text-fg">{address}</div>

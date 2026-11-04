@@ -171,31 +171,28 @@ export function NetworkLiveDashboard(props: {
       ) : (
         <>
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="text-xs font-medium text-muted sm:col-span-2 xl:col-span-4">{t('admin.network_live.kpi.current')}</div>
         <StatCard
           title={t('admin.network_live.kpi.in')}
           value={byteRate(totals.bytesIn)}
-          subtitle={t('admin.network_live.kpi.current')}
           variant="compact"
           testId="admin.network_live.kpi.in"
         />
         <StatCard
           title={t('admin.network_live.kpi.out')}
           value={byteRate(totals.bytesOut)}
-          subtitle={t('admin.network_live.kpi.current')}
           variant="compact"
           testId="admin.network_live.kpi.out"
         />
         <StatCard
           title={t('admin.network_live.kpi.packets_in')}
           value={packetRate(totals.packetsIn)}
-          subtitle={t('admin.network_live.kpi.current')}
           variant="compact"
           testId="admin.network_live.kpi.packets_in"
         />
         <StatCard
           title={t('admin.network_live.kpi.packets_out')}
           value={packetRate(totals.packetsOut)}
-          subtitle={t('admin.network_live.kpi.current')}
           variant="compact"
           testId="admin.network_live.kpi.packets_out"
         />

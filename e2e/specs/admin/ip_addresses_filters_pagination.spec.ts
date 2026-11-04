@@ -2,6 +2,40 @@ import { expect, test } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 
+for (const language of ['en', 'cs'] as const) {
+  test(`@pr-smoke @pr-smoke-mobile network lookup failure retains query and selection (${language})`, async ({ page }, testInfo) => {
+    await bootstrapVpsAdminWindow(page);
+    await setUiSettingsLocalStorage(page, { language, theme: 'dark' });
+    let failed = true;
+    await installHaveApiMock(page, { user: { id: 1, login: 'admin', level: 100 }, handlers: {
+      'GET locations': () => ({ locations: [] }),
+      'GET ip_addresses': () => ({ ip_addresses: [] }),
+      'GET networks/3': () => ({ network: { id: 3, label: 'Selected network', address: '192.0.2.0', prefix: 24 } }),
+      'GET networks': () => failed
+        ? { status: 503, contentType: 'application/json', body: JSON.stringify({ status: false, message: 'Network inventory unavailable' }) }
+        : { networks: [] },
+    } });
+    await page.goto('/admin/ip-addresses?network=3&occupancy=any');
+    const input = page.getByTestId('admin.ip_addresses.quick.subnet');
+    await expect(input).toHaveValue('#3');
+    await input.fill('missing network');
+    const menu = page.getByTestId('admin.ip_addresses.quick.subnet.menu');
+    await expect(menu).toBeVisible();
+    await expect(menu).not.toContainText(language === 'cs' ? 'Načítání' : 'Loading');
+    await page.screenshot({ path: testInfo.outputPath(`network-lookup-failure-${language}.png`), fullPage: true, scale: 'css' });
+    await expect.soft(menu.getByRole('alert')).toBeVisible({ timeout: 1_000 });
+    await expect(input).toHaveValue('missing network');
+    await expect(page).toHaveURL(/[?&]network=3(?:&|$)/);
+    failed = false;
+    await page.getByTestId('admin.ip_addresses.quick.subnet.retry').click();
+    await expect(menu).toHaveText(language === 'cs' ? 'Žádné výsledky.' : 'No results.');
+    await expect(menu.getByRole('alert')).toHaveCount(0);
+    await expect(input).toHaveValue('missing network');
+    await expect(page).toHaveURL(/[?&]network=3(?:&|$)/);
+    await page.screenshot({ path: testInfo.outputPath(`network-lookup-empty-${language}.png`), fullPage: true, scale: 'css' });
+  });
+}
+
 test('admin IP addresses traverse ascending API pages and paginate loaded rows locally', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name.startsWith('mobile-'), 'Desktop table pagination is covered separately from mobile cards.');
 

@@ -1,10 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
+import { useI18n } from '../../app/i18n';
 import { fetchNetwork, fetchNetworks, type Network, type NetworkPurpose } from '../../lib/api/networks';
+import { formatErrorMessage } from '../../lib/errors';
 import { useDebouncedValue } from '../../lib/hooks/useDebouncedValue';
 import { formatLookupId, parseLookupIdLike } from '../../lib/lookupInput';
 import { clsx } from './clsx';
+import { buttonClassName } from './buttonStyles';
 import { Input } from './Input';
 
 function networkLabel(network: Network): string {
@@ -62,9 +65,11 @@ export function NetworkLookupInput(props: {
   loadingLabel?: string;
   noResultsLabel?: string;
 }) {
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [needleRaw, setNeedleRaw] = useState('');
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const retryRef = useRef<HTMLButtonElement | null>(null);
 
   const needle = useDebouncedValue(needleRaw, 150);
   const idLike = useMemo(() => parseLookupIdLike(needle), [needle]);
@@ -120,7 +125,8 @@ export function NetworkLookupInput(props: {
     setOpen(false);
   };
 
-  const onBlur = () => {
+  const onBlur = (event: React.FocusEvent<HTMLInputElement>) => {
+    if (retryRef.current && event.relatedTarget === retryRef.current) return;
     window.setTimeout(() => setOpen(false), 100);
 
     const id = parseLookupIdLike(needleRaw);
@@ -195,6 +201,26 @@ export function NetworkLookupInput(props: {
         >
           {showLoading ? (
             <div className="px-3 py-2 text-xs text-muted">{props.loadingLabel ?? ''}</div>
+          ) : q.isError ? (
+            <div className="space-y-2 px-3 py-2 text-xs">
+              <div role="alert" className="break-words text-danger">{formatErrorMessage(q.error, t)}</div>
+              <button
+                ref={retryRef}
+                type="button"
+                className={buttonClassName({ variant: 'ghost', size: 'sm' })}
+                onMouseDown={(event) => event.preventDefault()}
+                onBlur={(event) => {
+                  if (event.relatedTarget !== inputRef.current) setOpen(false);
+                }}
+                onClick={() => {
+                  inputRef.current?.focus();
+                  void q.refetch();
+                }}
+                data-testid={props.testId ? `${props.testId}.retry` : undefined}
+              >
+                {t('common.retry')}
+              </button>
+            </div>
           ) : suggestions.length === 0 ? (
             <div className="px-3 py-2 text-xs text-muted">{props.noResultsLabel ?? ''}</div>
           ) : (

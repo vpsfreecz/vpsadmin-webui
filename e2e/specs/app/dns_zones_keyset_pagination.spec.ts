@@ -10,10 +10,6 @@ function zoneSurface(page: Page, testInfo: TestInfo, id: number) {
   return page.getByTestId(`dns.zones.${isMobileProject(testInfo) ? 'card' : 'row'}.${id}`);
 }
 
-function zoneDot(page: Page, testInfo: TestInfo, id: number) {
-  return page.getByTestId(`dns.zones.${isMobileProject(testInfo) ? 'card' : 'row'}.${id}.dot`);
-}
-
 function paginationPrefix(testInfo: TestInfo) {
   return `dns.zones.pagination.${isMobileProject(testInfo) ? 'mobile' : 'desktop'}`;
 }
@@ -66,20 +62,27 @@ test.describe('DNS zones keyset pagination', () => {
   );
 
   test(
-    '@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile navigates to next and previous pages via from_id',
+    '@content-storage-dns @pr-smoke @pr-smoke-mobile @smoke @smoke-mobile navigates to next and previous pages via from_id',
     async ({ page }, testInfo) => {
       const pagination = paginationPrefix(testInfo);
       await page.goto('/app/dns');
 
       await expect(page.getByTestId('dns.zones.list')).toBeVisible();
       await expect(zoneSurface(page, testInfo, 300)).toBeVisible();
-      await expect(zoneDot(page, testInfo, 300)).toHaveClass(/\bbg-ok\b/);
+      await expect(zoneSurface(page, testInfo, 300).getByText('Enabled', { exact: true })).toBeVisible();
+      await expect(zoneSurface(page, testInfo, 300).getByText('DNSSEC', { exact: true })).toBeVisible();
       if (isMobileProject(testInfo)) {
         await expect(zoneSurface(page, testInfo, 299)).toHaveClass(/\bbg-warn-row\b/);
       } else {
         await expect(zoneSurface(page, testInfo, 299)).toHaveAttribute('data-row-variant', 'warn');
       }
-      await expect(zoneDot(page, testInfo, 299)).toHaveClass(/\bbg-warn\b/);
+      await expect(zoneSurface(page, testInfo, 299).getByText('Disabled', { exact: true })).toBeVisible();
+      await expect(zoneSurface(page, testInfo, 299).getByText('No DNSSEC', { exact: true })).toBeVisible();
+      await expect(page.getByTestId('dns.zones.list').locator('[data-testid$=".dot"]')).toHaveCount(0);
+
+      await page.screenshot({ path: testInfo.outputPath('zones-list-header.png'), scale: 'css' });
+      await zoneSurface(page, testInfo, 299).scrollIntoViewIfNeeded();
+      await page.screenshot({ path: testInfo.outputPath('zones-list-enabled-disabled.png'), scale: 'css' });
 
       await page.getByTestId(`${pagination}.next`).click();
       await expect(page).toHaveURL(/from_id=251/);
@@ -92,13 +95,13 @@ test.describe('DNS zones keyset pagination', () => {
       await expect(page).not.toHaveURL(/from_id=/, { timeout: 30_000 });
       await expect(page).toHaveURL(/page=1/);
       await expect(zoneSurface(page, testInfo, 300)).toBeVisible({ timeout: 30_000 });
-      await expect(zoneDot(page, testInfo, 300)).toHaveClass(/\bbg-ok\b/);
+      await expect(zoneSurface(page, testInfo, 300).getByText('Enabled', { exact: true })).toBeVisible();
       if (isMobileProject(testInfo)) {
         await expect(zoneSurface(page, testInfo, 299)).toHaveClass(/\bbg-warn-row\b/);
       } else {
         await expect(zoneSurface(page, testInfo, 299)).toHaveAttribute('data-row-variant', 'warn');
       }
-      await expect(zoneDot(page, testInfo, 299)).toHaveClass(/\bbg-warn\b/);
+      await expect(zoneSurface(page, testInfo, 299).getByText('Disabled', { exact: true })).toBeVisible();
     }
   );
 

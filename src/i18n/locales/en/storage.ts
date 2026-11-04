@@ -110,7 +110,7 @@ export const enStorage = {
     "Use incremental downloads to export changes efficiently.",
   "dataset.overview.tips.item3":
     "If an action is blocked, open Tasks to see what is running.",
-  "dataset.overview.transactions.title": "Transactions",
+  "dataset.overview.transactions.title": "Recent transactions",
   "dataset.overview.transactions.subtitle":
     "Recent transaction chains involving this dataset.",
   "dataset.overview.transactions.loading": "Loading transaction chains…",
@@ -295,7 +295,7 @@ export const enStorage = {
   "dataset.downloads.table.state": "State",
   "dataset.downloads.table.expires": "Expires",
   "dataset.downloads.create.help":
-    "Select a snapshot and choose a format. The API creates a temporary link as a trackable backend action when supported.",
+    "Select a snapshot and format for a temporary download link. You can follow progress in Tasks when tracking is available.",
   "dataset.downloads.create.scope":
     "Target dataset: {dataset}. Ready links show their URL, checksum, size and expiration when the API exposes them.",
   "dataset.downloads.confirm.delete.title": "Delete download?",

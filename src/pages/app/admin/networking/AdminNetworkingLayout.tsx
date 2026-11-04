@@ -10,7 +10,7 @@ export function AdminNetworkingLayout() {
   const { t } = useI18n();
   return (
     <DetailShell variant="wide" testId="admin.networking.shell">
-      <PageHeader title={t('admin.networking.title')} description={t('admin.networking.subtitle')} />
+      <PageHeader title={t('admin.networking.title')} />
       <TabsNav
         testId="admin.networking.tabs"
         items={[

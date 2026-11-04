@@ -105,7 +105,7 @@ export const enDns = {
   'dns.zone.tabs.settings': 'Settings',
   'dns.zone.tabs.logs': 'Logs',
   'dns.zone.recent.title': 'Recent transactions',
-  'dns.zone.recent.description': 'Derived from DNS record changes and transaction chain concerns (best effort).',
+  'dns.zone.recent.description': 'This list may not include every transaction related to this zone.',
   'dns.zone.recent.load_failed': 'Failed to load transaction chains.',
   'dns.zone.recent.empty': 'No recent transaction chains found for this zone.',
   'dns.zone.recent.action.chains': 'Chains',

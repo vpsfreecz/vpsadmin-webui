@@ -224,6 +224,7 @@ export function DatasetPlansPage() {
   }
 
   const canAssignAny = !availableQ.isError && assignable.length > 0;
+  const availableCountKnown = environmentId !== null && assignedQ.isSuccess && availableQ.isSuccess;
   const planListItems = assignedRows.map((row) => {
     const environmentPlan = assignedEnvironmentPlan(row);
     const basePlan = basePlanFromEnvironmentPlan(environmentPlan);
@@ -296,7 +297,7 @@ export function DatasetPlansPage() {
             </div>
             <div>
               <div className="text-xs text-faint">{t('dataset.plans.available_count')}</div>
-              <div className="text-lg font-semibold text-fg">{assignable.length}</div>
+              <div className="text-lg font-semibold text-fg">{availableCountKnown ? assignable.length : t('common.na')}</div>
             </div>
             <div>
               <div className="text-xs text-faint">{t('dataset.plans.environment')}</div>
@@ -310,7 +311,7 @@ export function DatasetPlansPage() {
         <EmptyState
           testId="dataset.plans.empty"
           title={t('dataset.plans.empty.title')}
-          body={canAssignAny ? t('dataset.plans.empty.body') : t('dataset.plans.empty.no_available')}
+          body={canAssignAny ? t('dataset.plans.empty.body') : availableCountKnown ? t('dataset.plans.empty.no_available') : undefined}
           action={
             canAssignAny ? (
               <Button

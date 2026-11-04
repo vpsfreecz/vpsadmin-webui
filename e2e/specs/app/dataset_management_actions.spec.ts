@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock } from '../../fixtures';
+import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 
 function ownedDataset(overrides: Record<string, unknown> = {}) {
   return {
@@ -26,6 +26,58 @@ function ownedDataset(overrides: Record<string, unknown> = {}) {
   };
 }
 
+test('@content-storage-recent-history preserves scoped history states and one fallback ID', async ({ page }, testInfo) => {
+  const language = testInfo.project.name === 'mobile-chrome' ? 'cs' : 'en';
+  await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+  await setUiSettingsLocalStorage(page, { language, theme: 'dark' });
+  let state: 'error' | 'empty' | 'populated' = 'error';
+  let releaseHistory!: () => void;
+  const pending = new Promise<void>((resolve) => { releaseHistory = resolve; });
+  const requestedStates: Array<string | null> = [];
+  await installHaveApiMock(page, { user: { id: 1, login: 'admin', level: 99 }, handlers: {
+    'GET datasets/10': () => ({ dataset: ownedDataset() }),
+    'GET transaction_chains': async ({ searchParams }) => {
+      if (searchParams.get('transaction_chain[class_name]') !== 'Dataset' || searchParams.get('transaction_chain[row_id]') !== '10') {
+        return { transaction_chains: [] };
+      }
+      requestedStates.push(searchParams.get('transaction_chain[state]'));
+      await pending;
+      if (state === 'error') return { status: 503, contentType: 'application/json', body: JSON.stringify({ status: false, message: 'Dataset history unavailable' }) };
+      return { transaction_chains: state === 'empty' ? [] : [
+        { id: 914, label: 'Completed snapshot task', state: 'done', created_at: '2026-11-04T09:00:00Z', progress: 1 },
+        { id: 913, state: null, created_at: '2026-11-04T08:00:00Z', progress: 0.42 },
+        { id: 912, label: 'Failed snapshot task', state: 'failed', created_at: '2026-11-04T07:00:00Z' },
+      ] };
+    },
+  } });
+  await page.goto('/admin/datasets/10');
+  const history = page.getByTestId('dataset.overview.transactions');
+  await expect(history.getByText(language === 'cs' ? 'Načítání…' : 'Loading…', { exact: true })).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath(`dataset-history-loading-${language}.png`), fullPage: true, scale: 'css' });
+  releaseHistory();
+  await expect(history).toContainText(language === 'cs' ? 'Nepodařilo se načíst transakční řetězce' : 'Failed to load transaction chains');
+  await page.screenshot({ path: testInfo.outputPath(`dataset-history-error-${language}.png`), fullPage: true, scale: 'css' });
+
+  state = 'empty';
+  await page.reload();
+  await expect(history).toContainText(language === 'cs' ? 'Pro tento dataset nebyly nalezeny žádné nedávné transakční řetězce.' : 'No recent transaction chains found for this dataset.');
+  await page.screenshot({ path: testInfo.outputPath(`dataset-history-empty-${language}.png`), fullPage: true, scale: 'css' });
+
+  state = 'populated';
+  await page.reload();
+  await expect(history).toContainText('Completed snapshot task');
+  await expect(history).toContainText('Failed snapshot task');
+  const fallback = history.locator('li').filter({ hasText: '#913' });
+  await expect(fallback).toContainText(language === 'cs' ? 'Neznámý stav' : 'Unknown');
+  await expect(fallback).toContainText('2026');
+  await expect(fallback.getByRole('link', { name: '#913', exact: true })).toHaveAttribute('href', '/admin/transactions/913');
+  await expect(fallback.getByRole('link', { name: language === 'cs' ? 'Otevřít transakce' : 'Open transactions', exact: true })).toHaveAttribute('href', '/admin/transactions/items?transaction_chain=913');
+  expect(requestedStates).toContain(null);
+  await page.screenshot({ path: testInfo.outputPath(`dataset-history-populated-${language}.png`), fullPage: true, scale: 'css' });
+  await expect.soft(fallback).toContainText(/42\s*%/, { timeout: 500 });
+  expect.soft((await fallback.innerText()).match(/#913/g)).toHaveLength(1);
+});
+
 test.describe('Dataset management actions', () => {
   test('keeps completed and failed recent transaction chains on the overview', async ({ page }) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
@@ -34,7 +86,7 @@ test.describe('Dataset management actions', () => {
     await installHaveApiMock(page, {
       user: { id: 1, login: 'admin', level: 99 },
       handlers: {
-        'GET datasets/10': () => ownedDataset(),
+        'GET datasets/10': () => ({ dataset: ownedDataset() }),
         'GET transaction_chains': ({ searchParams }) => {
           const className = searchParams.get('transaction_chain[class_name]');
           const rowId = searchParams.get('transaction_chain[row_id]');
@@ -65,7 +117,7 @@ test.describe('Dataset management actions', () => {
     await installHaveApiMock(page, {
       user: { id: 1, login: 'admin', level: 99 },
       handlers: {
-        'GET datasets/10': () => ownedDataset(),
+        'GET datasets/10': () => ({ dataset: ownedDataset() }),
         'GET transaction_chains': () => ({ transaction_chains: [] }),
         'PUT datasets/10': () => ++updateCalls === 1
           ? failEnvelope('Resource allocation error: no diskspace left')
@@ -125,8 +177,8 @@ test.describe('Dataset management actions', () => {
       user: { id: 1, login: 'admin', level: 99 },
       handlers: {
         'GET datasets': () => ({ datasets: Object.values(datasets), _meta: { total_count: Object.keys(datasets).length } }),
-        'GET datasets/10': () => datasets[10],
-        'GET datasets/11': () => datasets[11],
+        'GET datasets/10': () => ({ dataset: datasets[10] }),
+        'GET datasets/11': () => ({ dataset: datasets[11] }),
         'GET transaction_chains': () => ({ transaction_chains: [], _meta: { total_count: 0 } }),
         'POST datasets': () => {
           datasets[11] = {
@@ -142,11 +194,11 @@ test.describe('Dataset management actions', () => {
         },
         'PUT datasets/11': () => {
           datasets[11] = { ...datasets[11], quota: 20480, sync: 'disabled' };
-          return { status: true, response: null };
+          return { dataset: {} };
         },
         'DELETE datasets/11': () => {
           delete datasets[11];
-          return { status: true, response: null };
+          return { dataset: {} };
         },
       },
     });
@@ -233,8 +285,8 @@ test.describe('Dataset management actions', () => {
           datasets: Object.values(datasets),
           _meta: { total_count: Object.keys(datasets).length },
         }),
-        'GET datasets/10': () => datasets[10],
-        'GET datasets/11': () => datasets[11],
+        'GET datasets/10': () => ({ dataset: datasets[10] }),
+        'GET datasets/11': () => ({ dataset: datasets[11] }),
         'GET transaction_chains': () => ({ transaction_chains: [], _meta: { total_count: 0 } }),
         'POST datasets': () => {
           datasets[11] = {
@@ -249,7 +301,7 @@ test.describe('Dataset management actions', () => {
         'DELETE datasets/11': () => {
           deleteCalls += 1;
           delete datasets[11];
-          return { status: true, response: null };
+          return { dataset: {} };
         },
       },
     });
@@ -324,11 +376,11 @@ test.describe('Dataset management actions', () => {
     await installHaveApiMock(page, {
       user: { id: 2, login: 'member', level: 1 },
       handlers: {
-        'GET datasets/10': () => ownedDataset({ sync: 'always' }),
+        'GET datasets/10': () => ({ dataset: ownedDataset({ sync: 'always' }) }),
         'GET transaction_chains': () => ({ transaction_chains: [], _meta: { total_count: 0 } }),
         'PUT datasets/10': () => {
           updateCalls += 1;
-          return { status: true, response: null };
+          return { dataset: {} };
         },
       },
     });
@@ -364,9 +416,9 @@ test.describe('Dataset management actions', () => {
     await installHaveApiMock(page, {
       user: { id: 1, login: 'admin', level: 99 },
       handlers: {
-        'GET datasets/10': () => ownedDataset({ sync: 'always' }),
+        'GET datasets/10': () => ({ dataset: ownedDataset({ sync: 'always' }) }),
         'GET transaction_chains': () => ({ transaction_chains: [], _meta: { total_count: 0 } }),
-        'PUT datasets/10': () => ({ status: true, response: null }),
+        'PUT datasets/10': () => ({ dataset: {} }),
       },
     });
 
@@ -405,8 +457,8 @@ test.describe('Dataset management actions', () => {
     await installHaveApiMock(page, {
       user: { id: 2, login: 'member', level: 1 },
       handlers: {
-        'GET datasets/10': () => ownedDataset(),
-        'GET datasets/12': () => child,
+        'GET datasets/10': () => ({ dataset: ownedDataset() }),
+        'GET datasets/12': () => ({ dataset: child }),
         'GET transaction_chains': () => ({ transaction_chains: [], _meta: { total_count: 0 } }),
         'POST datasets': () => {
           createCalls += 1;
@@ -471,8 +523,8 @@ test.describe('Dataset management actions', () => {
     await installHaveApiMock(page, {
       user: { id: 2, login: 'member', level: 1 },
       handlers: {
-        'GET datasets/10': () => ownedDataset(),
-        'GET datasets/11': () => child,
+        'GET datasets/10': () => ({ dataset: ownedDataset() }),
+        'GET datasets/11': () => ({ dataset: child }),
         'GET transaction_chains': () => ({ transaction_chains: [], _meta: { total_count: 0 } }),
         'POST datasets': () => {
           createCalls += 1;
@@ -519,8 +571,8 @@ test.describe('Dataset management actions', () => {
     await installHaveApiMock(page, {
       user: { id: 2, login: 'member', level: 1 },
       handlers: {
-        'GET datasets/10': () => ownedDataset(),
-        'GET datasets/11': () => child,
+        'GET datasets/10': () => ({ dataset: ownedDataset() }),
+        'GET datasets/11': () => ({ dataset: child }),
         'GET transaction_chains': () => ({ transaction_chains: [], _meta: { total_count: 0 } }),
         'POST datasets': async () => {
           createCalls += 1;
@@ -554,12 +606,12 @@ test.describe('Dataset management actions', () => {
     await installHaveApiMock(page, {
       user: { id: 2, login: 'member', level: 1 },
       handlers: {
-        'GET datasets/11': () => ownedDataset({
+        'GET datasets/11': () => ({ dataset: ownedDataset({
           id: 11,
           full_name: 'tank/vps/ds10/appdata',
           name: 'appdata',
           parent: { id: 10 },
-        }),
+        }) }),
         'GET transaction_chains': ({ searchParams }) => {
           const className = searchParams.get('transaction_chain[class_name]');
           const rowId = searchParams.get('transaction_chain[row_id]');
@@ -583,7 +635,7 @@ test.describe('Dataset management actions', () => {
         },
         'DELETE datasets/11': () => {
           deleteCalls += 1;
-          return { status: true, response: null };
+          return { dataset: {} };
         },
       },
     });
@@ -619,7 +671,7 @@ test.describe('Dataset management actions', () => {
     await installHaveApiMock(page, {
       user: { id: 2, login: 'member', level: 1 },
       handlers: {
-        'GET datasets/21': () => foreignDataset,
+        'GET datasets/21': () => ({ dataset: foreignDataset }),
         'GET transaction_chains': () => ({ transaction_chains: [], _meta: { total_count: 0 } }),
         'POST datasets': () => {
           createCalls += 1;
@@ -647,7 +699,7 @@ test.describe('Dataset management actions', () => {
     await installHaveApiMock(page, {
       user: { id: 1, login: 'admin', level: 99 },
       handlers: {
-        'GET datasets/10': () => ({
+        'GET datasets/10': () => ({ dataset: {
           id: 10,
           full_name: 'tank/vps/ds10',
           name: 'ds10',
@@ -666,7 +718,7 @@ test.describe('Dataset management actions', () => {
           export_count: 0,
           object_state: 'active',
           vps: { id: 300, hostname: 'alpha.example' },
-        }),
+        } }),
         'GET transaction_chains': () => ({ transaction_chains: [], _meta: { total_count: 0 } }),
       },
     });

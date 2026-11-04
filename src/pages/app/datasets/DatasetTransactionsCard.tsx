@@ -54,7 +54,7 @@ function chainProgressLabel(
 
   // Some backends report percent as 0..1, some as 0..100.
   const percent = progress <= 1 ? Math.round(progress * 100) : Math.round(progress);
-  return t('common.progress_percent', { percent: Math.max(0, Math.min(100, percent)) });
+  return t('common.progress_percent', { value: Math.max(0, Math.min(100, percent)) });
 }
 
 export function DatasetTransactionsCard(props: {
@@ -75,7 +75,6 @@ export function DatasetTransactionsCard(props: {
     <Card testId="dataset.overview.transactions">
       <CardHeader
         title={t('dataset.overview.transactions.title')}
-        subtitle={t('dataset.overview.transactions.subtitle')}
         actions={
           <ChipLink to={`${basePath}/transactions`} title={t('dataset.overview.transactions.open_chains_title')}>
             {t('dataset.overview.transactions.open_chains')}
@@ -116,7 +115,7 @@ export function DatasetTransactionsCard(props: {
                       </Link>
                     </div>
                     <div className="mt-1 text-xs text-faint">
-                      #{chain.id} · {formatDateTime(chain.created_at)}
+                      {chain.label ? <>#{chain.id} · </> : null}{formatDateTime(chain.created_at)}
                       {progress ? <> · {progress}</> : null}
                     </div>
                   </div>

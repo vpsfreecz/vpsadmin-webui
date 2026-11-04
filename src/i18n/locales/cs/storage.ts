@@ -115,7 +115,7 @@ export const csStorage = {
     "Použij inkrementální downloady pro efektivní export změn.",
   "dataset.overview.tips.item3":
     "Pokud je akce zablokována, otevři Úlohy a podívej se, co právě běží.",
-  "dataset.overview.transactions.title": "Transakce",
+  "dataset.overview.transactions.title": "Nedávné transakce",
   "dataset.overview.transactions.subtitle":
     "Nedávné transakční řetězce týkající se tohoto datasetu.",
   "dataset.overview.transactions.loading": "Načítám transakční řetězce…",
@@ -303,7 +303,7 @@ export const csStorage = {
   "dataset.downloads.table.state": "Stav",
   "dataset.downloads.table.expires": "Platnost",
   "dataset.downloads.create.help":
-    "Vyber snapshot a formát. API vytvoří dočasný odkaz jako sledovatelnou backendovou akci, pokud ji podporuje.",
+    "Vyber snapshot a formát pro dočasný odkaz ke stažení. Pokud je dostupné sledování průběhu, najdeš ho v panelu Úlohy.",
   "dataset.downloads.create.scope":
     "Cílový dataset: {dataset}. Připravené odkazy ukazují URL, checksum, velikost a platnost, když je API poskytne.",
   "dataset.downloads.confirm.delete.title": "Smazat download?",

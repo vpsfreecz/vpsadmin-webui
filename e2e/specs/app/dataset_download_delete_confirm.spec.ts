@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 
-import { bootstrapVpsAdminWindow, installHaveApiMock } from "../../fixtures";
+import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from "../../fixtures";
 
 function downloadItemPrefix(page: Page, id: number) {
   const mobile = (page.viewportSize()?.width ?? 1024) < 768;
@@ -8,6 +8,51 @@ function downloadItemPrefix(page: Page, id: number) {
 }
 
 test.describe("@smoke Dataset downloads", () => {
+  test("@content-storage-download-cs Czech ready downloads retain actions and one fallback ID", async ({ page }, testInfo) => {
+    await bootstrapVpsAdminWindow(page, { sessionToken: "TEST" });
+    await setUiSettingsLocalStorage(page, { language: "cs", theme: "dark" });
+    await installHaveApiMock(page, {
+      user: { id: 1, login: "member", level: 1 },
+      handlers: {
+        "GET datasets/10": () => ({ dataset: {
+          id: 10, name: "ds10", full_name: "tank/vps/ds10",
+          user: { id: 1, login: "member" }, object_state: "active",
+          vps: { id: 300, hostname: "alpha.example" },
+        } }),
+        "GET transaction_chains": () => ({ transaction_chains: [] }),
+        "GET snapshot_downloads": () => ({ snapshot_downloads: [
+          {
+            id: 601, snapshot: { id: 201, label: "ready-named" },
+            format: "archive", file_name: "ready-601.tar.gz", ready: true,
+            url: "https://example.test/ready-601.tar.gz", size: 128,
+            expires_at: "2099-02-10T00:00:00.000Z",
+          },
+          {
+            id: 602, snapshot: { id: 202, label: "ready-unnamed" },
+            format: "stream", ready: true,
+            url: "https://example.test/ready-602.zfs",
+            expires_at: "2099-02-10T00:00:00.000Z",
+          },
+        ] }),
+      },
+    });
+
+    await page.goto("/app/datasets/10/downloads");
+    await expect(page.getByTestId("dataset.header")).toContainText("tank/vps/ds10");
+    for (const id of [601, 602]) {
+      const prefix = downloadItemPrefix(page, id);
+      await expect(page.getByTestId(prefix)).toContainText("Připraveno");
+      await expect(page.getByTestId(`${prefix}.download`)).toHaveAttribute("href", new RegExp(`ready-${id}`));
+      await expect(page.getByTestId(`${prefix}.copy_link`)).toBeVisible();
+      await expect(page.getByTestId(`${prefix}.delete`)).toBeEnabled();
+    }
+    await expect(page.getByTestId(downloadItemPrefix(page, 601))).toContainText("ready-601.tar.gz");
+    const unnamed = page.getByTestId(downloadItemPrefix(page, 602));
+    await expect(unnamed).toContainText("Stažení #602");
+    await page.screenshot({ path: testInfo.outputPath("downloads-ready-cs.png"), fullPage: true, scale: "css" });
+    expect.soft((await unnamed.innerText()).match(/#602\b/g)).toHaveLength(1);
+  });
+
   test("create backup deep link opens the create workflow and loads snapshots", async ({
     page,
   }) => {
@@ -181,80 +226,84 @@ test.describe("@smoke Dataset downloads", () => {
     expect(requestedSnapshotParams[1]?.get("snapshot[from_id]")).toBe("100");
   });
 
-  test("creates download, tracks action state, and shows details from the API", async ({
+  test('@content-storage-download-review creates download, tracks action state, and shows details from the API', async ({
     page,
-  }) => {
+  }, testInfo) => {
+    const language = testInfo.project.name === 'mobile-chrome' ? 'cs' : 'en';
     const itemPrefix = downloadItemPrefix(page, 501);
     let created = false;
 
     await bootstrapVpsAdminWindow(page, {
-      sessionToken: "TEST",
+      sessionToken: 'TEST',
     });
+    await setUiSettingsLocalStorage(page, { language, theme: 'dark' });
 
     await installHaveApiMock(page, {
-      user: { id: 1, login: "admin", level: 99 },
+      user: { id: 1, login: 'admin', level: 99 },
       handlers: {
-        "GET datasets/10": () => ({ dataset: {
-          id: 10,
-          full_name: "tank/vps/ds10",
-          name: "ds10",
-          used: 2048,
-          refquota: 10240,
-          snapshots_count: 2,
-          mount_count: 0,
-          export_count: 0,
-          object_state: "active",
-          vps: { id: 300, hostname: "alpha.example" },
-        } }),
-        "GET transaction_chains": () => ({ transaction_chains: [] }),
-        "GET datasets/10/snapshots": () => ({
+        'GET datasets/10': () => ({
+          dataset: {
+            id: 10,
+            full_name: 'tank/vps/ds10',
+            name: 'ds10',
+            used: 2048,
+            refquota: 10240,
+            snapshots_count: 2,
+            mount_count: 0,
+            export_count: 0,
+            object_state: 'active',
+            vps: { id: 300, hostname: 'alpha.example' },
+          },
+        }),
+        'GET transaction_chains': () => ({ transaction_chains: [] }),
+        'GET datasets/10/snapshots': () => ({
           snapshots: [
             {
               id: 200,
               dataset: { id: 10 },
-              name: "snap-200",
-              label: "base",
-              created_at: "2026-01-25T00:00:00.000Z",
+              name: 'snap-200',
+              label: 'base',
+              created_at: '2026-01-25T00:00:00.000Z',
             },
             {
               id: 201,
               dataset: { id: 10 },
-              name: "snap-201",
-              label: "target",
-              created_at: "2026-01-26T00:00:00.000Z",
+              name: 'snap-201',
+              label: 'target',
+              created_at: '2026-01-26T00:00:00.000Z',
             },
           ],
         }),
-        "GET snapshot_downloads": () => ({
+        'GET snapshot_downloads': () => ({
           snapshot_downloads: created
             ? [
                 {
                   id: 501,
                   dataset: 10,
-                  snapshot: { id: 201, label: "target" },
-                  from_snapshot: { id: 200, label: "base" },
-                  format: "incremental_stream",
+                  snapshot: { id: 201, label: 'target' },
+                  from_snapshot: { id: 200, label: 'base' },
+                  format: 'incremental_stream',
                   ready: true,
-                  url: "https://example.test/incremental.zfs",
-                  file_name: "incremental.zfs",
+                  url: 'https://example.test/incremental.zfs',
+                  file_name: 'incremental.zfs',
                   size: 128,
-                  sha256sum: "b".repeat(64),
-                  expires_at: "2099-12-10T00:00:00.000Z",
+                  sha256sum: 'b'.repeat(64),
+                  expires_at: '2099-12-10T00:00:00.000Z',
                 },
               ]
             : [],
         }),
-        "POST snapshot_downloads": () => {
+        'POST snapshot_downloads': () => {
           created = true;
           return {
             snapshot_download: { id: 501 },
             _meta: { action_state_id: 702 },
           };
         },
-        "GET action_states/702": () => ({
+        'GET action_states/702': () => ({
           action_state: {
             id: 702,
-            label: "Create snapshot download",
+            label: 'Create snapshot download',
             status: true,
             finished: false,
             current: 1,
@@ -264,45 +313,61 @@ test.describe("@smoke Dataset downloads", () => {
       },
     });
 
-    await page.goto("/app/datasets/10/downloads?action=create");
+    await page.goto('/app/datasets/10/downloads?action=create');
 
-    await page
-      .getByTestId("dataset.downloads.create.snapshot")
-      .selectOption("201");
-    await page
-      .getByTestId("dataset.downloads.create.format")
-      .selectOption("incremental_stream");
-    await page
-      .getByTestId("dataset.downloads.create.from_snapshot")
-      .selectOption("200");
-    await page.getByTestId("dataset.downloads.create.send_mail").uncheck();
+    await page.getByTestId('dataset.downloads.create.snapshot').selectOption('201');
+    const createModal = page.getByTestId('dataset.downloads.create.modal');
+    const scrollBody = createModal.locator('..');
+    const review = page.getByTestId('dataset.downloads.create.review');
+    await expect(createModal).toContainText(
+      language === 'cs'
+        ? 'Vyber snapshot a formát pro dočasný odkaz ke stažení. Pokud je dostupné sledování průběhu, najdeš ho v panelu Úlohy.'
+        : 'Select a snapshot and format for a temporary download link. You can follow progress in Tasks when tracking is available.'
+    );
+    await expect(review).not.toContainText(
+      language === 'cs'
+        ? 'Před vytvořením vygenerovaného odkazu zkontroluj zdrojový snapshot a životní cyklus.'
+        : 'Check the source snapshot and lifecycle before creating the generated link.'
+    );
+    await expect(review.locator('li')).toHaveCount(3);
+    await scrollBody.evaluate((element) => {
+      element.scrollTop = element.scrollHeight;
+    });
+    await expect(review.locator('li').last()).toBeInViewport();
+    expect(await scrollBody.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
+    await page.screenshot({ path: testInfo.outputPath(`download-full-review-${language}.png`), scale: 'css' });
+    await scrollBody.evaluate((element) => {
+      element.scrollTop = 0;
+    });
+    await page.getByTestId('dataset.downloads.create.format').selectOption('incremental_stream');
+    await page.getByTestId('dataset.downloads.create.from_snapshot').selectOption('200');
+    await page.getByTestId('dataset.downloads.create.send_mail').uncheck();
+    await page.screenshot({ path: testInfo.outputPath(`download-incremental-source-${language}.png`), scale: 'css' });
+    await scrollBody.evaluate((element) => {
+      element.scrollTop = element.scrollHeight;
+    });
+    await expect(review.locator('li').last()).toBeInViewport();
+    expect(await scrollBody.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
+    await page.screenshot({ path: testInfo.outputPath(`download-incremental-review-${language}.png`), scale: 'css' });
 
     const reqPromise = page.waitForRequest(
-      (r) =>
-        r.method() === "POST" &&
-        r.url().includes("/api/v7.0/snapshot_downloads"),
+      (r) => r.method() === 'POST' && r.url().includes('/api/v7.0/snapshot_downloads')
     );
-    await page.getByTestId("dataset.downloads.create.submit").click();
+    await page.getByTestId('dataset.downloads.create.submit').click();
 
     expect((await reqPromise).postDataJSON()).toEqual({
       snapshot_download: {
         snapshot: 201,
         from_snapshot: 200,
-        format: "incremental_stream",
+        format: 'incremental_stream',
         send_mail: false,
       },
     });
-    await expect(page.getByTestId("modal.action_progress")).toBeVisible();
-    await expect(page.getByTestId("modal.action_progress")).toContainText(
-      "#702",
-    );
-    await page.getByTestId("modal.action_progress.continue").click();
-    await expect(page.getByTestId(itemPrefix)).toContainText(
-      "From base",
-    );
-    await expect(page.getByTestId(itemPrefix)).toContainText(
-      "2099",
-    );
+    await expect(page.getByTestId('modal.action_progress')).toBeVisible();
+    await expect(page.getByTestId('modal.action_progress')).toContainText('#702');
+    await page.getByTestId('modal.action_progress.continue').click();
+    await expect(page.getByTestId(itemPrefix)).toContainText(language === 'cs' ? 'Od base' : 'From base');
+    await expect(page.getByTestId(itemPrefix)).toContainText('2099');
   });
 
   test("shows reliable ready, pending, expired and failed download states", async ({

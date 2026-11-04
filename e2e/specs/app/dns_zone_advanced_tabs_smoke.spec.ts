@@ -50,12 +50,13 @@ test('@smoke dns zone advanced tabs render', async ({ page }, testInfo) => {
   await expect(page.getByTestId('dns.transfers.create.host_ip.opt.12')).toBeVisible();
   await expect(hostIpInput).toHaveAttribute('role', 'combobox');
   await expect(hostIpInput).toHaveAttribute('aria-expanded', 'true');
-  expect(hostIpLookupParams?.get('host_ip_address[usable_for]')).toBe('vps');
-  expect(hostIpLookupParams?.has('host_ip_address[purpose]')).toBe(false);
-  expect(hostIpLookupParams?.get('host_ip_address[routed]')).toBe('true');
-  expect(hostIpLookupParams?.has('host_ip_address[q]')).toBe(false);
-  expect(hostIpLookupParams?.has('host_ip_address[assigned]')).toBe(false);
-  expect(hostIpLookupParams?.has('host_ip_address[user]')).toBe(false);
+  const observedHostIpLookupParams = hostIpLookupParams as URLSearchParams | null;
+  expect(observedHostIpLookupParams?.get('host_ip_address[usable_for]')).toBe('vps');
+  expect(observedHostIpLookupParams?.has('host_ip_address[purpose]')).toBe(false);
+  expect(observedHostIpLookupParams?.get('host_ip_address[routed]')).toBe('true');
+  expect(observedHostIpLookupParams?.has('host_ip_address[q]')).toBe(false);
+  expect(observedHostIpLookupParams?.has('host_ip_address[assigned]')).toBe(false);
+  expect(observedHostIpLookupParams?.has('host_ip_address[user]')).toBe(false);
   await hostIpInput.fill('#11');
   await hostIpInput.press('Enter');
   await expect(page.getByTestId('dns.transfers.create.host_ip.error')).toBeVisible();
@@ -151,12 +152,13 @@ test('@smoke admin transfer host lookup is scoped to the DNS zone owner', async 
   await page.getByTestId('dns.transfers.create.host_ip').focus();
   await expect(page.getByTestId('dns.transfers.create.host_ip.opt.12')).toBeVisible();
 
-  expect(hostIpLookupParams?.get('host_ip_address[user]')).toBe('55');
-  expect(hostIpLookupParams?.get('host_ip_address[usable_for]')).toBe('vps');
-  expect(hostIpLookupParams?.has('host_ip_address[purpose]')).toBe(false);
-  expect(hostIpLookupParams?.get('host_ip_address[routed]')).toBe('true');
-  expect(hostIpLookupParams?.has('host_ip_address[q]')).toBe(false);
-  expect(hostIpLookupParams?.has('host_ip_address[assigned]')).toBe(false);
+  const observedHostIpLookupParams = hostIpLookupParams as URLSearchParams | null;
+  expect(observedHostIpLookupParams?.get('host_ip_address[user]')).toBe('55');
+  expect(observedHostIpLookupParams?.get('host_ip_address[usable_for]')).toBe('vps');
+  expect(observedHostIpLookupParams?.has('host_ip_address[purpose]')).toBe(false);
+  expect(observedHostIpLookupParams?.get('host_ip_address[routed]')).toBe('true');
+  expect(observedHostIpLookupParams?.has('host_ip_address[q]')).toBe(false);
+  expect(observedHostIpLookupParams?.has('host_ip_address[assigned]')).toBe(false);
 });
 
 test('@smoke secondary DNS zone defaults to transfers and renders real transfer log facts', async ({ page }) => {

@@ -1,6 +1,6 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
+import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 
 function visibleAddressItem(page: Page, id: number) {
   return page.locator(
@@ -47,8 +47,9 @@ async function expectTouchTargets(tabs: Locator) {
   }
 }
 
-test('@pr-smoke @pr-smoke-mobile user network page lists only own addresses and assigns all supported address types', async ({ page }) => {
+test('@content-network-member @pr-smoke @pr-smoke-mobile user network page lists only own addresses and assigns all supported address types', async ({ page }, testInfo) => {
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+  await setUiSettingsLocalStorage(page, { language: testInfo.project.name === 'mobile-chrome' ? 'cs' : 'en', theme: 'dark' });
 
   const vps = {
     id: 123,
@@ -211,6 +212,7 @@ test('@pr-smoke @pr-smoke-mobile user network page lists only own addresses and 
   await expect(page.getByTestId('network.user.tab.addresses')).toHaveAttribute('aria-selected', 'true');
   await expect(visibleAddressItem(page, 101)).toBeVisible();
   await expect(visibleAddressItem(page, 102)).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath('member-addresses.png'), fullPage: true, scale: 'css' });
   const screenshot = process.env['E2E_NETWORK_USER_SCREENSHOT']?.trim();
   if (screenshot) await page.screenshot({ path: screenshot, fullPage: true });
   await expect(page.getByTestId('network.user.traffic')).toHaveCount(0);
@@ -226,10 +228,15 @@ test('@pr-smoke @pr-smoke-mobile user network page lists only own addresses and 
   await expect(page.getByTestId('network.user.traffic.stat.total')).toContainText('3.00 GiB');
   await expect(page.getByTestId('network.user.traffic.panel.overview')).toBeVisible();
   await expect(page.getByTestId('network.user.traffic.chart')).toBeVisible();
+  await expect(page.getByTestId('network.user.traffic').getByText(
+    testInfo.project.name === 'mobile-chrome' ? 'Aktuální měsíc' : 'Current month', { exact: true }
+  )).toHaveCount(1);
+  await page.screenshot({ path: testInfo.outputPath('member-traffic-chart.png'), fullPage: true, scale: 'css' });
   await page.getByTestId('network.user.traffic.tab.breakdown').click();
   await expect(page.getByTestId('network.user.traffic.panel.breakdown')).toBeVisible();
   await expect(page.getByTestId('network.user.traffic.table')).toContainText('my-vps.example');
   await expect(page.getByTestId('network.user.traffic.table')).toContainText('eth0');
+  await page.screenshot({ path: testInfo.outputPath('member-traffic-breakdown.png'), fullPage: true, scale: 'css' });
   expect(accountingRequests).toHaveLength(6);
   expect(monitorRequests).toHaveLength(0);
 
@@ -240,6 +247,10 @@ test('@pr-smoke @pr-smoke-mobile user network page lists only own addresses and 
   await expect(page.getByTestId('network.user.live.stat.out')).toContainText('4.00 KiB/s');
   await expect(page.getByTestId('network.user.live.table')).toContainText('my-vps.example');
   expect(monitorRequests).toHaveLength(1);
+  await expect(page.getByTestId('network.user.live').getByText(
+    testInfo.project.name === 'mobile-chrome' ? 'Aktuální rychlost' : 'Current rate', { exact: true }
+  )).toHaveCount(1);
+  await page.screenshot({ path: testInfo.outputPath('member-live.png'), fullPage: true, scale: 'css' });
 
   await page.getByTestId('network.user.tab.addresses').click();
   await expect(page).not.toHaveURL(/tab=/);

@@ -3,9 +3,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, test, vi } from 'vitest';
 
-import { fetchNetworks } from '../../lib/api/networks';
+import { fetchNetwork, fetchNetworks } from '../../lib/api/networks';
 import { filterNetworkLookupOptions, NetworkLookupInput } from './NetworkLookupInput';
 
+vi.mock('../../app/i18n', () => ({ useI18n: () => ({ t: (key: string) => key }) }));
 vi.mock('../../lib/api/networks', () => ({
   fetchNetwork: vi.fn(),
   fetchNetworks: vi.fn(),
@@ -73,5 +74,41 @@ describe('NetworkLookupInput', () => {
     fireEvent.click(screen.getByTestId('network.opt.101'));
     expect(onChange).toHaveBeenCalledWith(101);
     expect(fetchNetworks).toHaveBeenCalledTimes(1);
+  });
+
+  test('retries a failed read without clearing the query or selected network', async () => {
+    vi.mocked(fetchNetwork).mockResolvedValue({ httpStatus: 200, meta: {},
+      data: { id: 3 }, envelope: { status: true, response: {} },
+    });
+    vi.mocked(fetchNetworks)
+      .mockRejectedValueOnce(new Error('Network inventory unavailable'))
+      .mockResolvedValueOnce({ httpStatus: 200, meta: {}, data: [], envelope: { status: true, response: {} } });
+    const onChange = vi.fn();
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <NetworkLookupInput value={3} onChange={onChange} ariaLabel="Network" testId="network" noResultsLabel="No results" />
+      </QueryClientProvider>
+    );
+
+    const input = screen.getByRole('textbox', { name: 'Network' });
+    fireEvent.focus(input);
+    fireEvent.change(input, { target: { value: 'missing network' } });
+    expect(await screen.findByRole('alert')).toHaveTextContent('Network inventory unavailable');
+    expect(screen.queryByText('No results')).not.toBeInTheDocument();
+    const retry = screen.getByTestId('network.retry');
+    fireEvent.blur(input, { relatedTarget: retry });
+    retry.focus();
+    expect(retry).toHaveFocus();
+    fireEvent.click(retry);
+
+    await waitFor(() => expect(screen.getByTestId('network.menu')).toHaveTextContent('No results'));
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(input).toHaveValue('missing network');
+    expect(onChange).not.toHaveBeenCalled();
+    expect(fetchNetworks).toHaveBeenCalledTimes(2);
+    fireEvent.blur(input);
+    await waitFor(() => expect(screen.queryByTestId('network.menu')).not.toBeInTheDocument());
   });
 });

@@ -17,7 +17,7 @@ function assignmentRow(id: number) {
   };
 }
 
-test('@pr-smoke @pr-smoke-mobile IP address assignment action opens an exact filtered audit', async ({
+test('@content-network-inventory @pr-smoke @pr-smoke-mobile IP address assignment action opens an exact filtered audit', async ({
   page,
 }, testInfo) => {
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
@@ -64,6 +64,7 @@ test('@pr-smoke @pr-smoke-mobile IP address assignment action opens an exact fil
     'href',
     '/admin/networking/ip-address-assignments?ip_addr=2001%3Adb8%3A%3A125'
   );
+  await page.screenshot({ path: testInfo.outputPath('ip-inventory.png'), fullPage: true, scale: 'css' });
 
   await assignmentsAction.click();
 
@@ -75,6 +76,7 @@ test('@pr-smoke @pr-smoke-mobile IP address assignment action opens an exact fil
   await expect(page.getByTestId('admin.ip_assignments.filter.ip_addr')).toHaveValue(exactAddress);
   await expect(page.getByTestId('admin.ip_assignments.row.801')).toBeVisible();
   await expect.poll(() => assignmentRequests).toEqual([{ ipAddr: exactAddress, q: null }]);
+  await page.screenshot({ path: testInfo.outputPath('ip-assignment-audit.png'), fullPage: true, scale: 'css' });
 });
 
 test('@pr-smoke legacy assignment q links are canonical before the first list request', async ({ page }) => {

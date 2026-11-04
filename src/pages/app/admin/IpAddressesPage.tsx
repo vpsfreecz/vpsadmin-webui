@@ -327,7 +327,6 @@ export function IpAddressesPage() {
       header={
         <PageHeader
           title={t('admin.ip_addresses.title')}
-          description={t('admin.ip_addresses.subtitle')}
           meta={
             showingSuggestedFreeIps
               ? <span className="text-xs text-faint">{t('admin.ip_addresses.suggested_free')}</span>

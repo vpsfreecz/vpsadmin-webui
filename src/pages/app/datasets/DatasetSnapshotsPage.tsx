@@ -361,7 +361,6 @@ export function DatasetSnapshotsPage({ queryParamPrefix = '' }: DatasetSnapshots
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 className="text-xl font-semibold text-fg">{t('dataset.snapshots.title')}</h2>
-          <p className="mt-1 text-sm text-muted">{t('dataset.snapshots.subtitle')}</p>
           <p className="mt-1 text-xs text-faint">
             {t('common.showing_n_of_m', { shown: rows.length, total: totalCount })}
           </p>

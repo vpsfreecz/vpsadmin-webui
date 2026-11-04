@@ -105,7 +105,7 @@ export const csDns = {
   'dns.zone.tabs.settings': 'Nastavení',
   'dns.zone.tabs.logs': 'Logy',
   'dns.zone.recent.title': 'Nedávné transakce',
-  'dns.zone.recent.description': 'Odvozeno ze změn DNS záznamů a concernů transakčních řetězců (best effort).',
+  'dns.zone.recent.description': 'Seznam nemusí obsahovat všechny transakce týkající se této zóny.',
   'dns.zone.recent.load_failed': 'Načtení transakčních řetězců selhalo.',
   'dns.zone.recent.empty': 'Pro tuto zónu nebyly nalezeny žádné nedávné transakční řetězce.',
   'dns.zone.recent.action.chains': 'Řetězce',

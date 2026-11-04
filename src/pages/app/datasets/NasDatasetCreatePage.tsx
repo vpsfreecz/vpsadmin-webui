@@ -11,7 +11,7 @@ import { PageHeader } from '../../../components/layout/PageHeader';
 import { ListShell } from '../../../components/layout/ListShell';
 import { Alert } from '../../../components/ui/Alert';
 import { Button } from '../../../components/ui/Button';
-import { Card, CardBody, CardHeader } from '../../../components/ui/Card';
+import { Card, CardBody } from '../../../components/ui/Card';
 import { Checkbox } from '../../../components/ui/Checkbox';
 import { ErrorState } from '../../../components/ui/ErrorState';
 import { Input } from '../../../components/ui/Input';
@@ -157,13 +157,11 @@ export function NasDatasetCreatePage() {
       header={
         <PageHeader
           title={t('nas.create.title')}
-          description={t('nas.create.subtitle')}
           actions={<Button variant="secondary" to={`${basePath}/nas`}>{t('common.cancel')}</Button>}
         />
       }
     >
       <Card testId="nas.create.form">
-        <CardHeader title={t('nas.create.form.title')} subtitle={t('nas.create.form.subtitle')} />
         <CardBody>
           {error ? <Alert variant="danger" title={t('nas.create.error')}>{error}</Alert> : null}
           {parents.length === 0 ? (
@@ -171,13 +169,19 @@ export function NasDatasetCreatePage() {
           ) : (
             <div className="space-y-5">
               <div className="grid gap-4 sm:grid-cols-2">
-                <Select
-                  testId="nas.create.parent"
-                  label={t('nas.create.parent')}
-                  value={parentId}
-                  onChange={(event) => setParentId(event.target.value)}
-                  options={parentOptions}
-                />
+                <div>
+                  <Select
+                    testId="nas.create.parent"
+                    label={t('nas.create.parent')}
+                    ariaDescribedBy="nas-create-parent-help"
+                    value={parentId}
+                    onChange={(event) => setParentId(event.target.value)}
+                    options={parentOptions}
+                  />
+                  <p id="nas-create-parent-help" className="mt-1 text-xs text-muted">
+                    {t('nas.create.form.subtitle')}
+                  </p>
+                </div>
                 <Input
                   testId="nas.create.name"
                   label={t('nas.create.name')}

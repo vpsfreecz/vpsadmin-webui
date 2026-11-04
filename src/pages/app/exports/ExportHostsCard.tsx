@@ -34,7 +34,7 @@ export function ExportHostsCard(props: {
       <Card testId="exports.detail.hosts">
         <CardHeader
           title={t('exports.detail.hosts.title')}
-          subtitle={props.allVps ? t('exports.detail.hosts.all_vps_subtitle') : t('exports.detail.hosts.subtitle')}
+          subtitle={props.allVps ? t('exports.detail.hosts.all_vps_body') : t('exports.detail.hosts.subtitle')}
           actions={
             <Button size="sm" variant="primary" onClick={props.onCreateHost} disabled={props.allVps} testId="exports.detail.hosts.add">
               {t('exports.host.add')}
@@ -42,12 +42,6 @@ export function ExportHostsCard(props: {
           }
         />
         <CardBody className="@container space-y-3">
-          {props.allVps ? (
-            <Alert title={t('exports.detail.hosts.all_vps_title')} variant="info">
-              {t('exports.detail.hosts.all_vps_body')}
-            </Alert>
-          ) : null}
-
           {props.loading ? <LoadingState testId="exports.detail.hosts.loading" /> : null}
           {props.error ? <ErrorState testId="exports.detail.hosts.error" title={t('exports.host.load_error')} error={props.error} onRetry={props.onRetry} /> : null}
           {!props.loading && !props.error && !hasHosts ? (
@@ -124,7 +118,7 @@ export function ExportHostsCard(props: {
         </CardBody>
       </Card>
 
-      {!props.allVps && !hasHosts ? (
+      {!props.allVps && !props.loading && !props.error && !hasHosts ? (
         <Alert title={t('exports.detail.hosts.warning_title')} variant="warn">
           {t('exports.detail.hosts.warning_body')}
         </Alert>

@@ -42,12 +42,6 @@ function datasetLabel(ds: any): string {
   return String(ds?.full_name ?? ds?.name ?? ds?.label ?? `#${ds?.id ?? '?'}`);
 }
 
-function datasetShortName(ds: any): string {
-  const full = datasetLabel(ds);
-  const parts = full.split('/');
-  return parts[parts.length - 1] || full;
-}
-
 function mibToGiBInput(value: unknown): string {
   const n = asNumber(value);
   if (n === undefined || n <= 0) return '';
@@ -648,7 +642,6 @@ function DatasetManagementCard() {
     <Card testId="dataset.manage">
       <CardHeader
         title={t('dataset.manage.title')}
-        subtitle={t('dataset.manage.subtitle')}
         actions={
           capabilities.canCreateSubdataset || capabilities.canDelete ? (
             <div className="flex flex-wrap gap-2">
@@ -686,10 +679,6 @@ function DatasetManagementCard() {
         }
       />
       <CardBody>
-        <div className="mb-4 text-xs text-muted">
-          {t('dataset.manage.current', { dataset: datasetShortName(dataset), id: dataset.id })}
-        </div>
-
         {fields}
 
         {updateM.isError ? (

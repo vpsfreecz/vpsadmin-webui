@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
 
-test('@pr-smoke @pr-smoke-mobile admin live network center uses bounded API filters and stops polling', async ({ page }, testInfo) => {
+test('@content-network-live @pr-smoke @pr-smoke-mobile admin live network center uses bounded API filters and stops polling', async ({ page }, testInfo) => {
   const monitorRequests: URL[] = [];
   const vpsRequests: URL[] = [];
   let monitorCall = 0;
@@ -94,6 +94,10 @@ test('@pr-smoke @pr-smoke-mobile admin live network center uses bounded API filt
   await expect(page.getByTestId('admin.network_live.top.vps.5')).toContainText('noc-vps');
   await expect(page.getByTestId('admin.network_live.top.users.7')).toContainText('alice');
   await expect(page.getByTestId('admin.network_live.row.901')).toContainText('node4.example');
+  await expect(page.getByTestId('admin.network_live.dashboard').getByText(
+    'Sum within the loaded bounded sample', { exact: true }
+  )).toHaveCount(1);
+  await page.screenshot({ path: testInfo.outputPath('admin-live-loaded.png'), fullPage: true, scale: 'css' });
 
   const isFullyFilteredRequest = (request: URL) => (
     request.searchParams.get('network_interface_monitor[environment]') === '2' &&
@@ -119,6 +123,7 @@ test('@pr-smoke @pr-smoke-mobile admin live network center uses bounded API filt
 
   await page.getByTestId('admin.network_live.toggle').click();
   await expect(page).toHaveURL(/paused=1/);
+  await page.screenshot({ path: testInfo.outputPath('admin-live-paused.png'), fullPage: true, scale: 'css' });
   const pausedRequestCount = monitorRequests.length;
   await page.waitForTimeout(10_500);
   expect(monitorRequests).toHaveLength(pausedRequestCount);
@@ -135,6 +140,7 @@ test('@pr-smoke @pr-smoke-mobile admin live network center uses bounded API filt
     document.dispatchEvent(new Event('visibilitychange'));
   });
   await expect(page.getByTestId('admin.network_live.status')).toContainText(/hidden|skryt/i);
+  await page.screenshot({ path: testInfo.outputPath('admin-live-hidden.png'), fullPage: true, scale: 'css' });
   const hiddenRequestCount = monitorRequests.length;
   await page.waitForTimeout(10_500);
   expect(monitorRequests).toHaveLength(hiddenRequestCount);

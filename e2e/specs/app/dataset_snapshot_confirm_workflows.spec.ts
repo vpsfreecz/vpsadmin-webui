@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
+import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 
 function visibleSnapshot(page: Page, id: number) {
   return page.locator(
@@ -54,10 +54,12 @@ test.describe('@smoke @smoke-mobile Dataset snapshots', () => {
     await expect(page).toHaveURL(/\/app\/datasets\/10\/snapshots$/);
   });
 
-  test('creates snapshot and opens the returned action state progress', async ({ page }) => {
+  test('@content-storage-snapshot-create creates snapshot and opens the returned action state progress', async ({ page }, testInfo) => {
     let created = false;
+    const language = testInfo.project.name === 'mobile-chrome' ? 'cs' : 'en';
 
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+    await setUiSettingsLocalStorage(page, { language, theme: 'dark' });
 
     await installHaveApiMock(page, {
       user: { id: 1, login: 'admin', level: 99 },
@@ -112,8 +114,12 @@ test.describe('@smoke @smoke-mobile Dataset snapshots', () => {
 
     await page.goto('/app/datasets/10/snapshots');
 
+    await expect(page.getByTestId('dataset.snapshots.list')).toBeVisible();
+    await expect(page.getByTestId('dataset.snapshots.loading')).toHaveCount(0);
+    await page.screenshot({ path: testInfo.outputPath(`snapshot-list-${language}.png`), fullPage: true, scale: 'css' });
     await page.getByTestId('dataset.snapshots.create.open').click();
     await page.getByTestId('dataset.snapshots.create.label').fill('before-upgrade');
+    await page.screenshot({ path: testInfo.outputPath(`snapshot-create-${language}.png`), fullPage: true, scale: 'css' });
 
     const reqPromise = page.waitForRequest(
       (r) => r.method() === 'POST' && r.url().includes('/api/v7.0/datasets/10/snapshots')
@@ -123,8 +129,10 @@ test.describe('@smoke @smoke-mobile Dataset snapshots', () => {
     expect((await reqPromise).postDataJSON()).toEqual({ snapshot: { label: 'before-upgrade' } });
     await expect(page.getByTestId('modal.action_progress')).toBeVisible();
     await expect(page.getByTestId('modal.action_progress')).toContainText('#701');
+    await page.screenshot({ path: testInfo.outputPath(`snapshot-accepted-${language}.png`), fullPage: true, scale: 'css' });
     await page.getByTestId('modal.action_progress.continue').click();
     await expect(visibleSnapshot(page, 201)).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath(`snapshot-created-${language}.png`), fullPage: true, scale: 'css' });
   });
 
   test('allows creating snapshot download when dataset state is omitted', async ({ page }) => {

@@ -10,7 +10,7 @@ function rejected(message: string) {
   };
 }
 
-test('@pr-smoke @pr-smoke-mobile DNS transfer deletion failure stays in context and allows retry', async ({ page }) => {
+test('@pr-smoke @pr-smoke-mobile DNS transfer deletion failure stays in context and allows retry', async ({ page }, testInfo) => {
   let deleteCalls = 0;
   await bootstrapVpsAdminWindow(page);
   await installHaveApiMock(page, {
@@ -48,6 +48,15 @@ test('@pr-smoke @pr-smoke-mobile DNS transfer deletion failure stays in context 
 
   await page.goto('/app/dns/zones/42/transfers');
 
+  const transfer = page.locator(
+    '[data-testid="dns.transfers.row.501"]:visible, [data-testid="dns.transfers.card.501"]:visible',
+  );
+  await transfer.locator('summary').click();
+  await expect(transfer.locator('pre')).toHaveText(
+    ['server 203.0.113.10 {', '  # no TSIG key configured', '};'].join('\n'),
+  );
+  await transfer.screenshot({ path: testInfo.outputPath('dns-transfer-config.png') });
+
   const deleteAction = page.locator(
     '[data-testid="dns.transfers.row.501.delete"]:visible, [data-testid="dns.transfers.card.501.delete"]:visible',
   );
@@ -58,6 +67,7 @@ test('@pr-smoke @pr-smoke-mobile DNS transfer deletion failure stays in context 
   await expect(dialog.getByTestId('dns.transfers.delete.error')).toContainText('Transfer peer is still in use');
   await expect(dialog).toContainText('203.0.113.10');
   await expect(dialog).toBeVisible();
+  await dialog.screenshot({ path: testInfo.outputPath('dns-transfer-delete-rejected.png') });
 
   await dialog.getByTestId('dns.transfers.delete.confirm').click();
 
@@ -65,7 +75,7 @@ test('@pr-smoke @pr-smoke-mobile DNS transfer deletion failure stays in context 
   expect(deleteCalls).toBe(2);
 });
 
-test('@pr-smoke @pr-smoke-mobile DNS server relation deletion failure stays in context and allows retry', async ({ page }) => {
+test('@pr-smoke @pr-smoke-mobile DNS server relation deletion failure stays in context and allows retry', async ({ page }, testInfo) => {
   let deleteCalls = 0;
   await bootstrapVpsAdminWindow(page);
   await installHaveApiMock(page, {
@@ -114,6 +124,7 @@ test('@pr-smoke @pr-smoke-mobile DNS server relation deletion failure stays in c
   );
   await expect(dialog).toContainText('ns1.example.test');
   await expect(dialog).toBeVisible();
+  await dialog.screenshot({ path: testInfo.outputPath('dns-server-relation-delete-rejected.png') });
 
   await dialog.getByTestId('dns.servers.delete.confirm').click();
 

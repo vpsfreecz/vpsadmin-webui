@@ -303,25 +303,23 @@ export function UserNetworkTrafficCard(props: { userId: number | null; isAdmin: 
         ) : (
           <div className="space-y-4">
             <div className="grid gap-3 md:grid-cols-3">
+              <div className="text-xs font-medium text-muted md:col-span-3">{t('network.user.traffic.current_month')}</div>
               <StatCard
                 testId="network.user.traffic.stat.total"
                 title={t('network.user.traffic.total')}
                 value={formatBytesIec(currentTraffic?.total)}
-                subtitle={t('network.user.traffic.current_month')}
                 variant="compact"
               />
               <StatCard
                 testId="network.user.traffic.stat.in"
                 title={t('network.user.traffic.in')}
                 value={formatBytesIec(currentTraffic?.bytesIn)}
-                subtitle={t('network.user.traffic.current_month')}
                 variant="compact"
               />
               <StatCard
                 testId="network.user.traffic.stat.out"
                 title={t('network.user.traffic.out')}
                 value={formatBytesIec(currentTraffic?.bytesOut)}
-                subtitle={t('network.user.traffic.current_month')}
                 variant="compact"
               />
             </div>
@@ -365,7 +363,6 @@ export function UserNetworkTrafficCard(props: { userId: number | null; isAdmin: 
                 <div className="mb-3 flex items-center justify-between gap-3">
                   <div>
                     <div className="font-medium">{t('network.user.traffic.chart.title')}</div>
-                    <div className="text-xs text-muted">{t('network.user.traffic.chart.subtitle')}</div>
                   </div>
                 </div>
                 <TimeSeriesChart

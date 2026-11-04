@@ -73,7 +73,7 @@ export function DnsZoneRecentTransactionsCard() {
                   </Link>
                 </div>
                 <div className="mt-1 text-xs text-muted">
-                  #{c.id} · {formatDateTime(c.created_at)}
+                  {c.label ? <>#{c.id} · </> : null}{formatDateTime(c.created_at)}
                   {progText ? <> · {progText}</> : null}
                 </div>
               </div>

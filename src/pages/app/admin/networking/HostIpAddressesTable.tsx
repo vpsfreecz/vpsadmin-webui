@@ -4,7 +4,6 @@ import { useI18n } from '../../../../app/i18n';
 import type { HostIpAddress } from '../../../../lib/api/networking';
 import { Badge } from '../../../../components/ui/Badge';
 import { KeysetPagination } from '../../../../components/ui/KeysetPagination';
-import { StatusDot } from '../../../../components/ui/StatusDot';
 import { TableCard } from '../../../../components/ui/TableCard';
 import { clsx } from '../../../../components/ui/clsx';
 import { toneSurfaceClass } from '../../../../components/ui/tone';
@@ -113,7 +112,6 @@ export function HostIpAddressesTable(props: {
     >
       <thead className="hidden md:table-header-group">
         <tr>
-          <th aria-label={t('common.state')} />
           <th>{t('admin.host_ip_addresses.field.address')}</th>
           <th>{t('admin.host_ip_addresses.field.route')}</th>
           <th>{t('admin.host_ip_addresses.field.interface')}</th>
@@ -138,9 +136,6 @@ export function HostIpAddressesTable(props: {
                 variant ? toneSurfaceClass(variant) : undefined,
               )}
             >
-              <td className="hidden md:table-cell">
-                <StatusDot variant={row.assigned === true ? 'ok' : variant ?? 'neutral'} testId={`admin.host_ip_addresses.row.${id}.dot`} />
-              </td>
               <td className="block px-3 pb-1 pt-3 font-medium tabular-nums md:table-cell md:p-0">
                 <MobileCellLabel>{t('admin.host_ip_addresses.field.address')}</MobileCellLabel>
                 <span className="break-words">{hostAddr(row)}</span>

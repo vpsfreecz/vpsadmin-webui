@@ -5,7 +5,6 @@ import { useI18n } from '../../../app/i18n';
 import { Badge } from '../../../components/ui/Badge';
 import { Card } from '../../../components/ui/Card';
 import { KeysetPagination } from '../../../components/ui/KeysetPagination';
-import { StatusDot } from '../../../components/ui/StatusDot';
 import { TableCard } from '../../../components/ui/TableCard';
 import { TableRowLink } from '../../../components/ui/TableRowLink';
 import { clsx } from '../../../components/ui/clsx';
@@ -58,7 +57,6 @@ export function ExportsListResults(props: {
         >
           <thead>
             <tr className="border-b border-border text-left text-xs text-muted">
-              <th className="w-8 px-3 py-2" />
               <th className="w-24 px-3 py-2">{t('common.id')}</th>
               {props.showUser ? <th className="w-40 px-3 py-2">{t('common.user')}</th> : null}
               <th className="px-3 py-2">{t('common.dataset')}</th>
@@ -81,7 +79,6 @@ export function ExportsListResults(props: {
                   testId={`exports.row.${ex.id}`}
                   className="border-b border-border/80 hover:bg-surface-2"
                 >
-                  <td className="px-3 py-2 align-top"><StatusDot variant={variant === 'warn' ? 'warn' : 'ok'} /></td>
                   <td className="px-3 py-2 align-top font-medium text-fg">#{ex.id}</td>
                   {props.showUser ? (
                     <td className="px-3 py-2 align-top text-muted">
@@ -111,7 +108,6 @@ export function ExportsListResults(props: {
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <StatusDot variant={variant === 'warn' ? 'warn' : 'ok'} />
                       <div className="font-medium text-fg">#{ex.id}</div>
                       <Badge variant={badge.variant}>{badge.label}</Badge>
                     </div>

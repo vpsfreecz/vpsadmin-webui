@@ -1,6 +1,47 @@
 import { expect, test } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
+import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
+
+for (const language of ['en', 'cs'] as const) {
+  for (const mode of ['member', 'admin'] as const) {
+    test(`@pr-smoke @pr-smoke-mobile optional DNS flags remain unknown (${language}, ${mode})`, async ({ page }, testInfo) => {
+      await bootstrapVpsAdminWindow(page);
+      await setUiSettingsLocalStorage(page, { language, theme: 'dark' });
+      let nullZoneFlag = false;
+      await installHaveApiMock(page, { user: { id: 1, login: 'demo', level: mode === 'admin' ? 100 : 1 }, handlers: {
+        'GET dns_zones/10': () => ({ dns_zone: {
+          id: 10, name: 'flags.example.test', source: 'internal_source', dnssec_enabled: false,
+          ...(nullZoneFlag ? { enabled: null } : {}), user: { id: 1, login: 'demo' }, default_ttl: 3600,
+        } }),
+        'GET transaction_chains': () => ({ transaction_chains: [] }),
+        'GET dns_record_logs': () => ({ dns_record_logs: [] }),
+        'GET dns_records': () => ({ dns_records: [
+          { id: 601, name: 'missing', type: 'A', content: '192.0.2.1', ttl: 3600 },
+          { id: 602, name: 'null', type: 'A', content: '192.0.2.2', ttl: 3600, enabled: null, dynamic: null },
+          { id: 603, name: 'disabled', type: 'A', content: '192.0.2.3', ttl: 3600, enabled: false, dynamic: false },
+          { id: 604, name: 'enabled', type: 'A', content: '192.0.2.4', ttl: 3600, enabled: true, dynamic: true },
+        ] }),
+      } });
+      for (const state of ['missing', 'null'] as const) {
+        nullZoneFlag = state === 'null';
+        if (state === 'missing') await page.goto(`${mode === 'admin' ? '/admin' : '/app'}/dns/zones/10`);
+        else await page.reload();
+        const mobile = testInfo.project.name.includes('mobile');
+        const item = (id: number) => page.getByTestId(`dns.record.${mobile ? 'card' : 'row'}.${id}`);
+        await expect(item(604)).toBeVisible();
+        await page.screenshot({ path: testInfo.outputPath(`dns-flags-${state}-${language}-${mode}.png`), fullPage: true, scale: 'css' });
+        const unknown = language === 'cs' ? 'Neznámý stav' : 'Unknown';
+        await expect.soft(page.getByTestId('dns.zone.header')).toContainText(unknown, { timeout: 1_000 });
+        for (const id of [601, 602]) {
+          await expect.soft(item(id)).toContainText(unknown, { timeout: 1_000 });
+          if (mobile) await expect.soft(item(id)).toContainText('DDNS', { timeout: 1_000 });
+        }
+        await expect(item(603)).toContainText(language === 'cs' ? 'Zakázáno' : 'Disabled');
+        await expect(item(604)).toContainText(language === 'cs' ? 'Povoleno' : 'Enabled');
+      }
+    });
+  }
+}
 
 test.describe('DNS zone records live API contract', () => {
   let recordRequestQueries: string[];

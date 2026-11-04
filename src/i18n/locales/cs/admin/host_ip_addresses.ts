@@ -12,7 +12,7 @@ export const csAdmin_host_ip_addresses = {
   "admin.host_ip_addresses.assign.title": "Přiřadit host IP adresu",
   "admin.host_ip_addresses.assign.vps": "VPS",
   "admin.host_ip_addresses.assign.vps.placeholder": "Hostname nebo ID…",
-  "admin.host_ip_addresses.delete.desc": "Smazat host adresu {{host}} z vpsAdminu.",
+  "admin.host_ip_addresses.delete.desc": "Smazat host adresu {host} z vpsAdminu.",
   "admin.host_ip_addresses.delete.title": "Smazat host IP adresu?",
   "admin.host_ip_addresses.empty": "Nebyly nalezeny žádné host IP adresy.",
   "admin.host_ip_addresses.field.address": "IP hosta",

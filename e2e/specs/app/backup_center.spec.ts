@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock } from '../../fixtures';
+import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 import { expectNoDocumentHorizontalOverflow } from '../../helpers/horizontalOverflow';
 
 test.describe('Backup center', () => {
@@ -186,8 +186,10 @@ test.describe('Backup center', () => {
     await expectResponsiveDownload('backups.downloads', 'card');
   });
 
-  test('@smoke shows the bounded overview and opens dataset backup tools', async ({ page }, testInfo) => {
+  for (const language of ['en', 'cs'] as const) {
+  test(`@smoke shows the bounded overview and opens dataset backup tools (${language})`, async ({ page }, testInfo) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+    await setUiSettingsLocalStorage(page, { language, theme: 'light' });
     const requests: string[] = [];
 
     await installHaveApiMock(page, {
@@ -312,6 +314,7 @@ test.describe('Backup center', () => {
     const downloadLayout = testInfo.project.name === 'mobile-chrome' ? 'card' : 'row';
     await expect(page.getByTestId(`backups.downloads.${downloadLayout}.41`)).toContainText('root');
     expect(requests).toHaveLength(2);
+    await page.screenshot({ path: testInfo.outputPath(`backup-overview-${language}.png`), fullPage: true, scale: 'css' });
 
     await page.getByTestId('backups.tab.snapshots').click();
     await expect(page.getByTestId('backups.snapshots')).toBeVisible();
@@ -352,6 +355,7 @@ test.describe('Backup center', () => {
     });
     await expect(page.getByTestId('dataset.plans.assign.modal')).toBeHidden();
   });
+  }
 
   test('@pr-smoke @pr-smoke-mobile explains dataset backup plans on direct entry and preserves exact API contracts', async ({ page }) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
@@ -759,8 +763,10 @@ test.describe('Backup center', () => {
     expect(requestedDatasetIds).not.toContain(null);
   });
 
-  test('keeps backend-authorized user downloads available without dataset metadata', async ({ page }, testInfo) => {
+  for (const language of ['en', 'cs'] as const) {
+  test(`keeps backend-authorized user downloads available without dataset metadata (${language})`, async ({ page }, testInfo) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+    await setUiSettingsLocalStorage(page, { language, theme: 'light' });
 
     await installHaveApiMock(page, {
       user: { id: 1, login: 'backup-user', level: 1 },
@@ -790,5 +796,7 @@ test.describe('Backup center', () => {
     await expect(page.getByTestId(`backups.downloads.${layout}.61`)).toBeVisible();
     await expect(page.getByTestId('backups.error')).toHaveCount(0);
     await expect(page.getByTestId('backups.datasets.metadata_partial')).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath(`backup-metadata-missing-${language}.png`), fullPage: true, scale: 'css' });
   });
+  }
 });

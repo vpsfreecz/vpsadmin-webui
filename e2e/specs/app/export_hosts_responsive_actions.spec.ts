@@ -30,6 +30,48 @@ const host = {
   root_squash: false,
 };
 
+for (const language of ['en', 'cs'] as const) {
+  test(`@pr-smoke @pr-smoke-mobile export host warning requires a successful empty read (${language})`, async ({ page }, testInfo) => {
+    await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+    await setUiSettingsLocalStorage(page, { language, theme: 'dark' });
+    let state: 'error' | 'empty' = 'error';
+    let releaseHosts!: () => void;
+    const hostsPending = new Promise<void>((resolve) => { releaseHosts = resolve; });
+    await installHaveApiMock(page, { user: { id: 1, login: 'demo', level: 1 }, handlers: {
+      'GET exports/10': () => ({ export: exportItem }),
+      'GET exports/10/hosts': async () => {
+        await hostsPending;
+        return state === 'error'
+          ? { status: 503, contentType: 'application/json', body: JSON.stringify({ status: false, message: 'Host inventory unavailable' }) }
+          : { hosts: [], _meta: { total_count: 0 } };
+      },
+    } });
+
+    await page.goto('/app/exports/10');
+    const warning = page.getByText(language === 'cs' ? 'Nejsou nastaveni žádní hosté' : 'No hosts configured', { exact: true });
+    await expect(page.getByTestId('exports.detail.hosts.loading')).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath(`hosts-loading-${language}.png`), fullPage: true, scale: 'css' });
+    await expect.soft(warning).toHaveCount(0, { timeout: 1_000 });
+
+    releaseHosts();
+    await expect(page.getByTestId('exports.detail.hosts.error')).toBeVisible();
+    await expect(page.getByTestId('exports.detail.hosts.error.retry')).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath(`hosts-error-${language}.png`), fullPage: true, scale: 'css' });
+    await expect.soft(warning).toHaveCount(0, { timeout: 1_000 });
+
+    state = 'empty';
+    await page.getByTestId('exports.detail.hosts.error.retry').click();
+    await expect(page.getByTestId('exports.detail.hosts.empty')).toBeVisible();
+    await expect(warning).toBeVisible();
+    await expect(page.getByText(language === 'cs'
+      ? 'Před mountem exportu přidej alespoň jednoho povoleného hosta.'
+      : 'Add at least one allowed host before trying to mount this export.', { exact: true })).toBeVisible();
+    await expect(page.getByTestId('exports.detail.hosts.add')).toBeEnabled();
+    await expect(page.getByTestId('exports.detail.hosts.error')).toHaveCount(0);
+    await page.screenshot({ path: testInfo.outputPath(`hosts-empty-${language}.png`), fullPage: true, scale: 'css' });
+  });
+}
+
 async function hostTableLayout(tableCard: Locator) {
   return tableCard.evaluate((card) => {
     const scroller = card.firstElementChild as HTMLElement;
