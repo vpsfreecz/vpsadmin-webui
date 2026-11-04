@@ -73,7 +73,6 @@ do not prove site credential provisioning or authorize activation.
 
 ```sh
 npm ci
-npm run ci:quick
 npm run ci:pr
 npm run e2e:pr
 ```
@@ -209,6 +208,11 @@ for broad/nightly. These are runner and workflow contracts, not a browser run.
 Browser fixtures do not establish live API behavior. Release readiness also
 requires later built-assets/nginx/BFF and pinned-API evidence.
 
+Push/PR events and browser selectors can overlap. Before proposing CI changes,
+compare branch/head, event, tested merge/base, selected cases and job timings;
+the same head SHA alone does not prove equivalent coverage. Preserve broad
+pre-merge coverage and existing required checks while evaluating repetition.
+
 The wrapper runs the installed `@playwright/test` CLI only when its version
 matches `e2e/PLAYWRIGHT_VERSION` and `package-lock.json`. Browser-launching CI
 jobs install the locked Chromium with `e2e:install -- --with-deps chromium`;
@@ -230,8 +234,12 @@ PR Playwright uses deterministic fixtures. Inspect [workflows](../../.github/wor
 and [Playwright config](../../playwright.config.ts) for exact current selection,
 projects, timeouts and artifacts. Broad/nightly checks and optional audits are
 separate from the PR selection; do not assume every npm audit script runs in CI.
-Use focused tests during a small change, and an integrated candidate before a
-multi-PR release. Repeat the full suite only for relevant changes or new failures.
+Choose focused development checks by impact: documentation audits for prose,
+relevant rendered cs/en and layout cases for UI copy/layout, and contract/state
+tests for behavioral, API or security changes. Use an integrated candidate before
+a multi-PR release. Required remote CI, including broad pre-merge checks, remains
+separate from that local selection. Repeat the full suite only for relevant
+changes or new failures; `ci:pr` already includes quick checks, tests and build.
 
 `npm run docs:inventory` regenerates route/API inventory; `audit:design-docs`
 checks it, local handbook links/requirement IDs and external redesign references

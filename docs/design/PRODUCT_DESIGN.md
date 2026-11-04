@@ -57,6 +57,34 @@ Browser titles start with vpsAdmin. Favicon reuse was delivered by PR524. Heatma
 are icon-only following PR521; that action still has a tooltip and accessible
 name, and does not imply removing labels from primary navigation.
 
+## Content selection and hierarchy
+
+Keep verified healthy operation quiet unless status is the user's task.
+A status page or compact object-state badge can still show health. Loading,
+missing, stale, failed or unknown data never establishes health. Reserve prominent
+notices for relevant risk, a blocked task, an important context change or recovery;
+identify the affected scope, consequence and useful next action.
+
+Keep meaningful feedback after an action, including asynchronous progress,
+receipts and failure recovery. Distinguish accepted from completed and prefer
+one contextual feedback surface over repeating the outcome in a toast, banner
+and card. Explicit persistent migration feedback and impersonation context remain
+required by their [workflow](WORKFLOWS.md) and [action contracts](ACTION_CONTRACTS.md).
+
+A heading or label does not automatically need a description. Keep a description
+when it adds a constraint, consequence or instruction that helps the user decide
+or act. Remove sentences that only repeat adjacent content. Preserve useful
+section headings and accessible names.
+
+Put object identity, essential facts and the main task first. Offer optional
+explanation, diagnostics and advanced detail on demand. Keep destructive
+consequences, required inputs, permission/scope constraints and unknown state
+visible where the user needs them. This does not override explicit operational
+requirements such as visible applicant risk signals/metadata or all loaded VPS
+addresses. Match emphasis to importance: ordinary values belong with their
+labels, contextual help with its control, and alerts with a concrete reason for
+attention. Preserve cs/en meaning, readable layouts and accessible status cues.
+
 ## VPS detail and resource editing
 
 Header order: object identity and distribution; state and owner (when relevant);

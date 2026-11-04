@@ -18,12 +18,12 @@ node --version
 npm --version
 npm ci
 npm ci --prefix bff
-npm run env:locked
-npm run audit:design-docs
-npm run test:bff
 npm run ci:pr
-npm run build
 ```
+
+`ci:pr` runs the locked-toolchain and documentation checks, source audits and
+typechecks, script/BFF/unit tests, and the production build. Use the focused
+examples below during development.
 
 `npm ci` at the root alone does **not** install BFF dependencies. CI also runs
 `npm audit --omit=dev --audit-level=critical` for the frontend and
@@ -44,9 +44,12 @@ npm run e2e -- e2e/specs/public/theme_language_bootstrap.spec.ts --project=chrom
 For the named fixture above, the npm wrapper starts Vite and the test installs
 synthetic responses. The wrapper itself does **not** turn arbitrary tests or
 external requests into mocks. Read a selected scenario's setup before execution.
-For the normal PR selection use `npm run e2e:pr`; it includes desktop and mobile. Current checked-in
-projects are `chromium` and `mobile-chrome` (Pixel 5). Historical WebKit evidence
-was a separate configured run, not a project available in this default config.
+For the normal Chromium PR selection, use `npm run e2e:pr`: desktop `chromium`
+and `mobile-chrome` (Pixel 5). The PR workflow also runs
+`npm run e2e:touch:webkit`, using the configured `mobile-webkit` project
+(iPhone 13) and its explicit test-file selection. See the
+[Playwright config](../../playwright.config.ts) and
+[PR workflow](../../.github/workflows/e2e-smoke.yml) for the current matrix.
 The runner reads `e2e/PLAYWRIGHT_VERSION`; inspect wrapper/config changes together.
 On Linux browser installation may need OS dependencies; follow the pinned
 Playwright install output rather than disabling browser sandbox/security checks.
@@ -106,7 +109,8 @@ require the BFF JSON bootstrap; standalone fixture/dev mode is explicit.
 | Authentication | bff plus src/app/auth.tsx/runtimeBootstrap and src/lib/auth; origin, session identity, rotation/logout races and store boundaries |
 | Deployment | [Operations](OPERATIONS.md), NixOS site configuration or current older-host guide, provenance, rollback and explicit target approval |
 
-Update the affected contract/evidence row and its own work-log file. Source/tests
+Update contract/evidence rows when their meaning changes and record rationale
+and checks once in the [per-change log](../work-log/README.md). Source/tests
 are the implementation reference; the [decision history](DECISIONS.md) prevents
 reintroducing layouts the maintainer already rejected. [Documentation review](DOCUMENTATION_REVIEW.md)
 explains how to review semantic completeness instead of relying on link checks.

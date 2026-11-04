@@ -39,7 +39,8 @@ it does not contain a recovered original or a competing specification.
 1. [Requirements register](REQUIREMENTS.md): stable IDs, source, acceptance,
    implementation status and links.
 2. [Product and interaction design](PRODUCT_DESIGN.md): audiences, navigation,
-   screen composition, forms, errors, responsiveness and accessibility.
+   screen composition, [content selection](PRODUCT_DESIGN.md#content-selection-and-hierarchy),
+   forms, errors, responsiveness and accessibility.
 3. [Workflow catalog](WORKFLOWS.md): what each product area supports and its
    success/failure obligations.
 4. [Architecture](ARCHITECTURE.md): runtime, data flow, security and source map.
@@ -67,7 +68,8 @@ adapted to canonical main and the 2026-09-30 release. The
 [port record](../work-log/2026-10-03-documentation-port.md) distinguishes current
 contracts from imported historical verification.
 
-The [work log](../../WORK_LOG.md) records chronology. Requirements record current
+The [per-change work log](../work-log/README.md) records current changes;
+the [root log](../../WORK_LOG.md) retains history. Requirements record current
 intent; decisions explain transitions; test results prove only their stated scope.
 
 ## Contributor and operator entry points
@@ -99,11 +101,15 @@ documentation changes. Maintain this handbook and the work log during each
 task, not only at release time. Existing Clankerdev hosts have not been retired
 or reassigned by this agreement.
 
-Every behavior change must update the affected requirement and workflow in the
-same PR, plus a dated entry under [docs/work-log](../work-log/README.md).
-Record the requirement ID in the PR. If no requirement applies, add one with its actual source; mark proposals as proposed. Preserve IDs
-and supersession history. New instructions override older conflicting decisions,
-but must be written down with their consequences and migration needs.
+Update requirements, workflows, contracts and evidence in the same PR when their
+meaning changes. Reference applicable requirement IDs in the bilingual English/Czech
+PR description. A copy or layout correction does not automatically require a new
+ID or edits to unaffected rows. Add an ID for a new product requirement with its
+actual source; mark proposals as proposed. Preserve IDs and supersession history.
+Record rationale, checks and limitations once in a dated
+[per-change log](../work-log/README.md), linking from affected guidance as needed.
+New instructions override older conflicting decisions; record their consequences
+and migration needs. Keep root log history without adding a central change index.
 
 For each row distinguish code status, verification scope and deployment status.
 Do not upgrade an open PR to delivered based on a screenshot or local pass. Update
@@ -111,9 +117,11 @@ release outcomes separately with exact UI/API revisions. Regenerate the inventor
 when routes or adapters change. `npm run audit:design-docs` checks local links/heading anchors,
 requirement IDs, one evidence coverage row per ID, module-to-domain coverage and generated inventory drift; it cannot validate prose accuracy.
 
-Reviewers check: source of the requirement; old/new behavior; all roles and scopes;
-API reality; error/uncertain outcomes; cs/en; mobile/desktop; test evidence; migration
-and rollback; documentation/work-log updates. Do not restore superseded layouts or
+Reviewers check the affected requirements, roles/scopes, API contracts,
+error/uncertain outcomes, cs/en, mobile/desktop, evidence and applicable
+migration/rollback needs. Use the existing
+[semantic and visual review](DOCUMENTATION_REVIEW.md#semantic-review-required-for-every-behavior-change)
+to assess content and documentation impact. Do not restore superseded layouts or
 weaken tests to satisfy an outdated document.
 
 ## Coverage limit

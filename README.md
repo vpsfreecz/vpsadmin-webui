@@ -17,7 +17,8 @@ records the deployed revision and verification limits.
 Start with the [design handbook](docs/design/README.md) for requirements, UX,
 architecture, API contracts, decision history, verification and handover.
 The [requirements register](docs/design/REQUIREMENTS.md) tracks current intent,
-status and acceptance. The [work log](WORK_LOG.md) records what changed and why.
+status and acceptance. The [per-change work log](docs/work-log/README.md) records
+what changed and why; the [root log](WORK_LOG.md) retains history.
 
 ## Development
 
@@ -66,7 +67,8 @@ compatibility.
 
 ## Docs map
 
-- [WORK_LOG.md](WORK_LOG.md): ongoing work, decisions, verification and release record
+- [Per-change work log](docs/work-log/README.md): current changes and evidence
+- [Root work log](WORK_LOG.md): historical decisions, verification and releases
 
 - [SPEC.md](SPEC.md): specification entry point
 - [docs/CANONICAL_DOCS.md](docs/CANONICAL_DOCS.md): current and historical documentation map
