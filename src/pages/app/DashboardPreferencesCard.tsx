@@ -34,19 +34,12 @@ export function DashboardPreferencesCard() {
   const { dashboardSettings, setDashboardSettings } = useDashboardSettingsState();
   const [open, setOpen] = useState(false);
 
-  const hiddenCount = dashboardSettings.hiddenWidgets.length;
-  const collapsedCount = dashboardSettings.collapsedWidgets.length;
-
   const updateDensity = (density: DashboardDensity) => {
     setDashboardSettings(setDashboardDensity(dashboardSettings, density));
   };
 
   const reset = () => setDashboardSettings(DEFAULT_DASHBOARD_SETTINGS);
-  const summary = t('dashboard.preferences.summary', {
-    density: t(`dashboard.preferences.density.${dashboardSettings.density}`),
-    hidden: hiddenCount,
-    collapsed: collapsedCount,
-  });
+  const densityLabel = t(`dashboard.preferences.density.${dashboardSettings.density}`);
 
   return (
     <section
@@ -69,7 +62,7 @@ export function DashboardPreferencesCard() {
           <span id="app-dashboard-preferences-title" className={open ? 'font-semibold' : 'font-semibold text-fg'}>
             {t('dashboard.preferences.title')}
           </span>
-          <span className={open ? 'mt-0.5 block text-sm text-muted' : 'ml-2'}>{summary}</span>
+          <span className={open ? 'mt-0.5 block text-sm text-muted' : 'ml-2'}>{densityLabel}</span>
         </div>
         <div
           className={
