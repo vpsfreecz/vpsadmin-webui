@@ -290,10 +290,10 @@
       "path": "src/pages/app/admin/user/AdminUserPaymentsPage.tsx",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "b1e00301fa600fba6164d5725e8721a46be6816826ed42c481922d74332e0b52",
+      "contentHash": "e288e1dacd4918bda896225589846574148bae7ec1d80d97be5893ffc01443a6",
       "old": 0,
-      "allowance": 797,
-      "rationale": "At the recorded source revision, this file already contained admin user payments and incoming-payment views; extract the coherent section with focused behavior coverage before removing this exception.",
+      "allowance": 806,
+      "rationale": "At the recorded source revision, this file already contained admin user payments and incoming-payment views; extract the coherent section with focused behavior coverage before removing this exception. The paid-until history refresh adds an API capability check and a distinct row label. Focused browser coverage checks both newer and older API responses.",
       "owner": "WebUI implementation lead",
       "removeWhen": {
         "metric": "lines",
