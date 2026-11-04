@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { NodeHeatmapProvider } from '../../components/cluster/NodeHeatmaps';
-import { getRuntimeConfig } from '../../app/config';
 import { useI18n } from '../../app/i18n';
 import { Alert } from '../../components/ui/Alert';
 import { fetchNews, fetchOutages, fetchPublicNodeStatus, fetchPublicStats, fetchPublicSecurityAdvisories } from '../../lib/api/public';
@@ -11,9 +10,6 @@ import { consumeSessionExpiredNotice } from '../../lib/auth/sessionExpiredNotice
 import {
   categorizePublicOutages,
   groupPublicNodesByLocation,
-  publicIpv4BadgeVariant,
-  publicIpv4Level,
-  resolvePublicIpv4Left,
   summarizePublicNodes,
 } from './OverviewModel';
 import { OverviewNodesSection } from './OverviewNodesSection';
@@ -25,7 +21,6 @@ import { useDeferredOverviewQueries } from './useDeferredOverviewQueries';
 
 export function OverviewPage() {
   const i18n = useI18n();
-  const cfg = useMemo(() => getRuntimeConfig(), []);
   const deferredEnabled = useDeferredOverviewQueries();
   const location = useLocation();
   const navigate = useNavigate();
@@ -96,9 +91,6 @@ export function OverviewPage() {
   );
   const nodeSummary = useMemo(() => summarizePublicNodes(nodesByLocation), [nodesByLocation]);
 
-  const ipv4Left = resolvePublicIpv4Left(statsQ.data);
-  const ipv4State = publicIpv4Level(ipv4Left, cfg.publicStatus.ipv4Warn, cfg.publicStatus.ipv4Critical);
-  const ipv4Badge = publicIpv4BadgeVariant(ipv4State, ipv4Left);
   const nodesLoading = !deferredEnabled || nodesQ.isLoading;
   const outagesLoading = !deferredEnabled || outagesQ.isLoading;
   const newsLoading = !deferredEnabled || newsQ.isLoading;
@@ -125,18 +117,10 @@ export function OverviewPage() {
           <OverviewNodesSection groups={nodesByLocation} summary={nodeSummary} loading={nodesLoading} error={nodesQ.isError} />
         </NodeHeatmapProvider>
 
-        {ipv4State === 'critical' ? (
-          <Alert title={i18n.t('public.overview.ipv4_critical.title')} variant="danger" testId="public.ipv4.alert">
-            {i18n.t('public.overview.ipv4_critical.body', { count: ipv4Left ?? 0 })}
-          </Alert>
-        ) : null}
         <OverviewSummaryCards
           stats={statsQ.data}
           statsLoading={statsQ.isLoading}
           statsError={statsQ.isError}
-          ipv4Left={ipv4Left}
-          ipv4Level={ipv4State}
-          ipv4BadgeVariant={ipv4Badge}
         />
         {!outagesLoading && !outagesQ.isError ? (
           <OverviewOutagesCard groups={outagesByCategory} loading={false} error={false} resolved />

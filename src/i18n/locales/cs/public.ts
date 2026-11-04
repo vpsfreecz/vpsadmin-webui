@@ -33,16 +33,11 @@ export const csPublic = {
   'public.outage.affected': 'Týká se mě',
   'public.overview.title': 'Stav služby',
 
-  'public.overview.ipv4_critical.title': 'Dochází IPv4 adresy',
-  'public.overview.ipv4_critical.body':
-    'Dochází veřejné IPv4 adresy (volných: {count}). Nové VPS nemusí dostat IPv4 adresu.',
-  'public.overview.ipv4_warn.hint': 'IPv4 dochází — preferuj IPv6.',
   'public.overview.announcements.loading': 'Načítám oznámení…',
   'public.overview.announcements.error.title': 'Oznámení nejsou dostupná',
   'public.overview.announcements.error.body': 'Oznámení se teď nepodařilo načíst.',
   'public.overview.stats.members.title': 'Členové',
   'public.overview.stats.vps.title': 'VPS',
-  'public.overview.stats.vps.ipv4_free': 'Volné IPv4',
   'public.overview.security.all': 'Všechna upozornění',
   'public.overview.outages.resolved_title': 'Vyřešené výpadky',
   'public.overview.outages.title': 'Výpadky',
