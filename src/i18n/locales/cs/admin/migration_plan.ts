@@ -46,7 +46,7 @@ export const csAdmin_migration_plan = {
   "admin.migration_plan.not_found.body": "Tento migrační plán neexistuje nebo k němu nemáš přístup.",
   "admin.migration_plan.not_found.title": "Nenalezeno",
   "admin.migration_plan.notice.batch_finished": "Dávka dokončena: naplánováno {ok}/{total}.",
-  "admin.migration_plan.notice.cancelled": "Migrační plán zrušen.",
+  "admin.migration_plan.notice.cancelled": "Požadavek na zrušení migračního plánu byl přijat.",
   "admin.migration_plan.notice.deleted": "Migrační plán smazán.",
   "admin.migration_plan.notice.started": "Migrační plán spuštěn.",
   "admin.migration_plan.notice.vps_migration_scheduled": "Migrace VPS naplánována.",

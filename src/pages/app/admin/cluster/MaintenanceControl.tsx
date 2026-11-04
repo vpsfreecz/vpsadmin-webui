@@ -24,11 +24,8 @@ export function canManageClusterMaintenance(role: string): boolean {
   return role === 'admin';
 }
 
-export function parseMaintenanceState(value: unknown): MaintenanceState {
-  const normalized = String(value ?? '').trim().toLowerCase();
-  if (normalized === 'lock') return 'lock';
-  if (normalized === 'master_lock') return 'master_lock';
-  return 'no';
+export function parseMaintenanceState(value: unknown): MaintenanceState | null {
+  return knownMaintenanceState(value);
 }
 
 function knownMaintenanceState(value: unknown): MaintenanceState | null {
@@ -161,6 +158,7 @@ export function MaintenanceControl(props: {
   const confirmMaintenance = async () => {
     if (
       dialog === null
+      || state === null
       || submitRef.current
       || settling
       || verificationBlocked
@@ -213,8 +211,8 @@ export function MaintenanceControl(props: {
 
   return (
     <div className="flex flex-wrap items-center justify-end gap-2" data-testid={props.testId}>
-      <Badge variant={state === 'no' ? 'ok' : 'warn'}>
-        {t(`admin.cluster.maintenance.state.${state}`)}
+      <Badge variant={state === null ? 'neutral' : state === 'no' ? 'ok' : 'warn'}>
+        {state === null ? t('common.unknown') : t(`admin.cluster.maintenance.state.${state}`)}
       </Badge>
       {verificationBlocked ? (
         <span className="text-xs text-danger" data-testid={`${props.testId}.verification_required`}>
@@ -239,7 +237,7 @@ export function MaintenanceControl(props: {
         description={t('admin.cluster.maintenance.dialog.lock.body')}
         confirmLabel={t('admin.cluster.maintenance.action.lock')}
         confirmLoading={settling || mutation.isPending}
-        confirmDisabled={verificationBlocked || props.settlingBlocked}
+        confirmDisabled={state === null || verificationBlocked || props.settlingBlocked}
         testId={`${props.testId}.lock_dialog`}
       >
         <Input
@@ -257,7 +255,7 @@ export function MaintenanceControl(props: {
         description={props.reason || t('admin.cluster.maintenance.dialog.unlock.body')}
         confirmLabel={t('admin.cluster.maintenance.action.unlock')}
         confirmLoading={settling || mutation.isPending}
-        confirmDisabled={verificationBlocked || props.settlingBlocked}
+        confirmDisabled={state === null || verificationBlocked || props.settlingBlocked}
         testId={`${props.testId}.unlock_dialog`}
       />
     </div>

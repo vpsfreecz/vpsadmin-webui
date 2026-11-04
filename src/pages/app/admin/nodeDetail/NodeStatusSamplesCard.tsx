@@ -30,7 +30,6 @@ export function NodeStatusSamplesCard(props: {
 }) {
   const {
     t,
-    nodeId,
     statusRows,
     loading,
     error,
@@ -55,7 +54,7 @@ export function NodeStatusSamplesCard(props: {
           <div>
             <div className="text-sm font-semibold">{t('admin.node.status_samples.title')}</div>
             <div className="mt-1 text-sm text-muted">
-              {t('admin.node.status_samples.subtitle_prefix', { limit })} <code>{`nodes/${nodeId}/statuses`}</code>.
+              {t('admin.node.status_samples.subtitle_prefix', { limit })}
             </div>
           </div>
           <Button testId="admin.node.statuses.refresh" variant="secondary" size="sm" onClick={onRefresh} disabled={fetching}>

@@ -16,6 +16,8 @@ export const enVps_console = {
   'vps.console.revoke_session.confirm_title': 'Revoke console session?',
   'vps.console.revoke_session.confirm_body': 'This invalidates the current console token and closes the embedded console in this page.',
   'vps.console.revoke_session.confirm': 'Revoke',
+  'vps.console.uncertain.title': 'Console session status is unknown',
+  'vps.console.uncertain.body': 'The session could not be confirmed. The embedded console is hidden.',
   'vps.console.revoked.title': 'Console session revoked',
   'vps.console.revoked.body': 'The current console token has been revoked. Create a new session to reconnect.',
   'vps.console.revoke_error.title': 'Unable to revoke console session',

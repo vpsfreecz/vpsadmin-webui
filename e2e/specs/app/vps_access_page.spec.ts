@@ -1,10 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
-import {
-  expectNoDocumentHorizontalOverflow,
-  expectTableHorizontalScrollUsable,
-} from '../../helpers/horizontalOverflow';
+import { expectNoDocumentHorizontalOverflow } from '../../helpers/horizontalOverflow';
 
 const vps = {
   id: 123,
@@ -75,15 +72,11 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile VPS access page generates root
   await page.goto('/app/vps/123/access');
 
   await expect(page.getByTestId('vps.access.page')).toBeVisible();
-  await expect(page.getByTestId('vps.access.checklist')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Access', exact: true })).toBeVisible();
   await expect(page.getByTestId('vps.access.ssh_command')).toHaveCount(0);
   await expect(page.getByTestId('vps.access.host_keys.fingerprints')).toBeVisible();
-  await expect(page.getByTestId('vps.access.host_keys.table')).toBeVisible();
-  await expect(page.getByTestId('vps.access.host_keys.row.1')).toContainText('SHA256:host-ed25519');
-  await expect(page.getByTestId('vps.access.host_keys.row.1')).toContainText('ssh-ed25519');
-  await expect(page.getByTestId('vps.access.checklist.public-key.action')).toHaveText('Deploy saved key');
-  await expect(page.getByTestId('vps.access.checklist.host-key.action')).toHaveText('View host fingerprints');
-  await expect(page.getByTestId('vps.access.checklist.root-password.action')).toHaveText('Open password fallback');
+  await expect(page.getByTestId('vps.access.host_keys.fingerprint.1')).toContainText('SHA256:host-ed25519');
+  await expect(page.getByTestId('vps.access.host_keys.fingerprint.1')).toContainText('ssh-ed25519');
 
   const savedKeySelect = page.getByRole('combobox', { name: 'Saved public key', exact: true });
   await expect(savedKeySelect).toBeVisible();
@@ -106,15 +99,11 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile VPS access page generates root
 
   await page.setViewportSize({ width: 390, height: 844 });
   await expectNoDocumentHorizontalOverflow(page);
-  await expectTableHorizontalScrollUsable(page, 'vps.access.host_keys.table');
-  await page.getByTestId('vps.access.checklist.public-key.action').click();
-  await expect(page).toHaveURL(/#vps-access-ssh-key$/);
+  await page.getByTestId('vps.access.ssh.deploy').scrollIntoViewIfNeeded();
   await expect(page.getByTestId('vps.access.ssh.deploy')).toBeInViewport();
-  await page.getByTestId('vps.access.checklist.host-key.action').click();
-  await expect(page).toHaveURL(/#vps-access-host-keys$/);
-  await expect(page.getByTestId('vps.access.host_keys')).toBeInViewport();
-  await page.getByTestId('vps.access.checklist.root-password.action').click();
-  await expect(page).toHaveURL(/#vps-access-root-password$/);
+  await page.getByTestId('vps.access.host_keys.fingerprint.1.copy').scrollIntoViewIfNeeded();
+  await expect(page.getByTestId('vps.access.host_keys.fingerprint.1.copy')).toBeInViewport();
+  await page.getByTestId('vps.access.password.generate').scrollIntoViewIfNeeded();
   await expect(page.getByTestId('vps.access.password.generate')).toBeInViewport();
   await page.setViewportSize({ width: 1280, height: 844 });
   await page.getByTestId('vps.access.password_type').selectOption('simple');
@@ -202,7 +191,8 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile admin VPS access contains long
   await expect(selectedKeyCard).toContainText(longPublicKeyFingerprint);
   await expect(selectedKeyCard).toContainText(longPublicKeyComment);
   await expectNoDocumentHorizontalOverflow(page);
-  await expectTableHorizontalScrollUsable(page, 'vps.access.host_keys.table');
+  await expect(page.getByTestId('vps.access.host_keys.fingerprint.1')).toContainText('SHA256:host-ed25519');
+  await expect(page.getByTestId('vps.access.host_keys.fingerprint.1.copy')).toBeVisible();
 });
 
 test('@workflow-matrix @pr-smoke VPS access reports failed SSH key deployment and opens tasks', async ({ page }) => {

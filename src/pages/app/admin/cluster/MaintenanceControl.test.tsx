@@ -19,7 +19,88 @@ describe('maintenance state', () => {
     expect(parseMaintenanceState('no')).toBe('no');
     expect(parseMaintenanceState('lock')).toBe('lock');
     expect(parseMaintenanceState('master_lock')).toBe('master_lock');
+    expect(parseMaintenanceState(' NO ')).toBe('no');
+    expect(parseMaintenanceState(' LOCK ')).toBe('lock');
+    expect(parseMaintenanceState(' MASTER_LOCK ')).toBe('master_lock');
   });
+
+  it('keeps missing and unrecognized maintenance state unknown', () => {
+    for (const value of [undefined, null, '', ' ', 'unexpected', 0, 1, true, false]) {
+      expect(parseMaintenanceState(value)).toBeNull();
+    }
+  });
+
+  it('shows unknown without a lock or unlock action', () => {
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <MaintenanceControl
+          value={null}
+          label="Prague"
+          testId="maintenance"
+          setMaintenance={vi.fn()}
+          onChanged={vi.fn()}
+        />
+      </QueryClientProvider>
+    );
+    expect(screen.getByText('common.unknown')).toBeVisible();
+    expect(screen.queryByTestId('maintenance.lock')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('maintenance.unlock')).not.toBeInTheDocument();
+  });
+
+  it.each(['lock', 'unlock'] as const)(
+    'blocks an open %s confirmation when current state becomes unknown',
+    (action) => {
+      const setMaintenance = vi.fn();
+      const onChanged = vi.fn();
+      const onSettlingChange = vi.fn();
+      const onVerificationRequired = vi.fn();
+      const readMaintenance = vi.fn();
+      const client = new QueryClient();
+      const view = (value: unknown) => (
+        <QueryClientProvider client={client}>
+          <MaintenanceControl
+            value={value}
+            reason="Existing reason"
+            label="Prague"
+            testId="maintenance"
+            setMaintenance={setMaintenance}
+            onChanged={onChanged}
+            onSettlingChange={onSettlingChange}
+            onVerificationRequired={onVerificationRequired}
+            readMaintenance={readMaintenance}
+          />
+        </QueryClientProvider>
+      );
+      const { rerender } = render(view(action === 'lock' ? 'no' : 'lock'));
+      fireEvent.click(screen.getByTestId(`maintenance.${action}`));
+      if (action === 'lock') {
+        fireEvent.change(screen.getByTestId('maintenance.reason'), { target: { value: 'Preserved reason draft' } });
+      }
+      expect(screen.getByTestId(`maintenance.${action}_dialog.confirm`)).toBeEnabled();
+
+      rerender(view(null));
+
+      expect(screen.getByText('common.unknown')).toBeVisible();
+      expect(screen.getByText(`admin.cluster.maintenance.dialog.${action}.title`)).toBeVisible();
+      const confirm = screen.getByTestId(`maintenance.${action}_dialog.confirm`);
+      expect(confirm).toBeDisabled();
+      if (action === 'lock') {
+        expect(screen.getByTestId('maintenance.reason')).toHaveValue('Preserved reason draft');
+      } else {
+        expect(screen.getByText('Existing reason')).toBeVisible();
+      }
+      fireEvent.click(confirm);
+      expect(setMaintenance).not.toHaveBeenCalled();
+      expect(onChanged).not.toHaveBeenCalled();
+      expect(onSettlingChange).not.toHaveBeenCalled();
+      expect(onVerificationRequired).not.toHaveBeenCalled();
+      expect(readMaintenance).not.toHaveBeenCalled();
+      const cancel = screen.getByTestId(`maintenance.${action}_dialog.cancel`);
+      expect(cancel).toBeEnabled();
+      fireEvent.click(cancel);
+      expect(screen.queryByTestId(`maintenance.${action}_dialog`)).not.toBeInTheDocument();
+    }
+  );
 
   it('settles ambiguous lock read-backs only from exact state and reason evidence', () => {
     const attempt = {
@@ -32,10 +113,9 @@ describe('maintenance state', () => {
     expect(reconcileMaintenanceAttempt(attempt, { value: 'no', reason: '' })).toBe('not_applied');
     expect(reconcileMaintenanceAttempt(attempt, { value: 'lock', reason: 'Different work' })).toBe('unknown');
     expect(reconcileMaintenanceAttempt(attempt, { value: 'unexpected', reason: 'Disk replacement' })).toBe('unknown');
-    expect(reconcileMaintenanceAttempt(
-      { lock: true, previousState: 'no' },
-      { value: 'no', reason: null },
-    )).toBe('not_applied');
+    expect(reconcileMaintenanceAttempt({ lock: true, previousState: 'no' }, { value: 'no', reason: null })).toBe(
+      'not_applied'
+    );
   });
 
   it('recognizes a removed direct lock even when inherited maintenance becomes visible', () => {
@@ -67,7 +147,7 @@ describe('maintenance state', () => {
           setMaintenance={vi.fn()}
           onChanged={vi.fn()}
         />
-      </QueryClientProvider>,
+      </QueryClientProvider>
     );
     expect(screen.getByText('admin.cluster.maintenance.state.master_lock')).toBeVisible();
     expect(screen.queryByTestId('maintenance.unlock')).not.toBeInTheDocument();
@@ -87,7 +167,7 @@ describe('maintenance state', () => {
           setMaintenance={setMaintenance}
           onChanged={vi.fn()}
         />
-      </QueryClientProvider>,
+      </QueryClientProvider>
     );
 
     fireEvent.click(screen.getByTestId('maintenance.lock'));

@@ -342,7 +342,6 @@ export function useVpsListSmartFilters(args: UseVpsListSmartFiltersArgs) {
 
     if (errors.length > 0) {
       setSmartErrors(errors);
-      toasts.pushToast({ variant: 'danger', title: errors[0] ?? t('common.unknown_error') });
       return;
     }
 

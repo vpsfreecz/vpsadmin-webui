@@ -45,13 +45,10 @@ import {
 import { acceptVpsCreation, type CreateMutationVariables, type CreateMutationContext } from './acceptVpsCreation';
 import {
   CreateAccessHintCard,
-  CreateAdvancedHintCard,
   CreateIdentityCard,
   CreateNetworkCard,
-  CreatePageIntroCard,
   CreateResourcesCard,
   CreateReviewCard,
-  CreateStepRail,
   CreateSystemCard,
   CreateTargetCard,
 } from './VpsCreateWizardPrimitives';
@@ -355,7 +352,6 @@ export function VpsCreatePage() {
         <PageHeader
           testId="vps.create.header"
           title={t('vps.create.title')}
-          description={t('vps.create.description')}
           actions={
             <Button variant="secondary" to={vpsListPath} testId="vps.create.back">
               <ArrowLeft className="h-4 w-4" />
@@ -383,7 +379,6 @@ export function VpsCreatePage() {
       ) : (
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_22rem]">
           <div className="space-y-4">
-            <CreatePageIntroCard />
             <CreateTargetCard
               form={form}
               isAdminMode={isAdminMode}
@@ -413,18 +408,9 @@ export function VpsCreatePage() {
             <CreateResourcesCard form={form} onApplyPreset={applyResourcePreset} onUpdate={update} />
             <CreateNetworkCard form={form} onUpdate={update} />
             <CreateAccessHintCard />
-            <CreateAdvancedHintCard />
           </div>
 
           <div className="space-y-4">
-            <CreateStepRail
-              form={form}
-              isAdminMode={isAdminMode}
-              hiddenAdminTarget={hiddenAdminTarget}
-              ownerVerified={!isAdminMode || Boolean(selectedOwner)}
-              selectedTemplate={selectedTemplate}
-              validationKeys={validationKeys}
-            />
             <CreateReviewCard
               form={{ ...form, hostname: resolveCreateHostname(form.hostname) }}
               isAdminMode={isAdminMode}

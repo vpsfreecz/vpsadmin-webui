@@ -50,7 +50,7 @@ export function ClusterSummaryPage() {
     typeof cluster?.maintenance_lock_reason === 'string' ? cluster.maintenance_lock_reason.trim() : '';
 
   const nodesVariant = useMemo(() => {
-    if (!stats || typeof stats.nodes_online !== 'number' || typeof stats.node_count !== 'number')
+    if (!stats || typeof stats.nodes_online !== 'number' || typeof stats.node_count !== 'number' || stats.node_count <= 0)
       return 'neutral' as const;
     if (stats.nodes_online >= stats.node_count) return 'ok' as const;
     if (stats.nodes_online === 0) return 'danger' as const;
@@ -104,25 +104,11 @@ export function ClusterSummaryPage() {
       <Card testId="admin.cluster.summary.maintenance" className={toneSurfaceClass(clusterLocked ? 'warn' : 'muted')}>
         <CardHeader
           title={t('admin.cluster.summary.maintenance.title')}
-          subtitle={
-            clusterLocked
-              ? t('admin.cluster.summary.maintenance.subtitle.locked')
-              : t('admin.cluster.summary.maintenance.subtitle.unlocked')
-          }
         />
         <CardBody>
           <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
             <div className="space-y-2">
               <div className="flex flex-wrap items-center gap-2">
-                <StatusDot
-                  variant={clusterLocked ? 'warn' : 'ok'}
-                  size="md"
-                  ariaLabel={
-                    clusterLocked
-                      ? t('admin.cluster.summary.maintenance.aria.locked')
-                      : t('admin.cluster.summary.maintenance.aria.unlocked')
-                  }
-                />
                 <Badge variant={clusterLocked ? 'warn' : 'ok'} testId="admin.cluster.summary.maintenance.badge">
                   {clusterLocked
                     ? t('admin.cluster.summary.maintenance.status.locked')
@@ -239,7 +225,6 @@ export function ClusterSummaryPage() {
       <Card testId="admin.cluster.summary.shortcuts.ops">
         <CardHeader
           title={t('admin.cluster.summary.shortcuts.ops.title')}
-          subtitle={t('admin.cluster.summary.shortcuts.ops.subtitle')}
         />
         <CardBody>
           <div className="flex flex-wrap gap-2">

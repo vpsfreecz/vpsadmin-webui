@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertCircle, CheckCircle2, Circle, HardDrive, KeyRound, ListChecks, Network, Plus, Server, SlidersHorizontal } from 'lucide-react';
+import { ListChecks, Plus } from 'lucide-react';
 import { useI18n } from '../../../app/i18n';
 import { Alert } from '../../../components/ui/Alert';
 import { Badge } from '../../../components/ui/Badge';
@@ -66,60 +66,6 @@ function NumberField(props: {
   );
 }
 
-function stepIsDone(done: boolean, active: boolean) {
-  if (done) return <CheckCircle2 className="h-4 w-4 text-ok" />;
-  if (active) return <AlertCircle className="h-4 w-4 text-info" />;
-  return <Circle className="h-4 w-4 text-muted" />;
-}
-
-export function CreateStepRail(props: {
-  form: FormState;
-  isAdminMode: boolean;
-  hiddenAdminTarget?: HiddenAdminTarget;
-  ownerVerified?: boolean;
-  selectedTemplate?: OsTemplate;
-  validationKeys: string[];
-}) {
-  const { t } = useI18n();
-  const targetDone = Boolean(
-    props.form.locationId &&
-      (!props.isAdminMode || (props.form.userId && props.form.nodeId && props.ownerVerified)) &&
-      (!props.hiddenAdminTarget || (props.hiddenAdminTarget.userId && props.hiddenAdminTarget.nodeId))
-  );
-  const steps = [
-    { key: 'target', complete: targetDone },
-    { key: 'system', complete: Boolean(props.selectedTemplate) },
-    { key: 'resources', complete: props.validationKeys.every((key) => !key.includes('cpu') && !key.includes('memory') && !key.includes('diskspace') && !key.includes('swap')) },
-    { key: 'network', complete: props.validationKeys.every((key) => !key.includes('ipv4') && !key.includes('ipv6')) },
-    { key: 'review', complete: props.validationKeys.length === 0 },
-  ];
-  const activeIndex = Math.max(0, steps.findIndex((step) => !step.complete));
-
-  return (
-    <Card testId="vps.create.steps">
-      <CardHeader title={t('vps.create.steps.title')} subtitle={t('vps.create.steps.subtitle')} />
-      <CardBody className="space-y-2">
-        {steps.map((step, index) => {
-          const active = index === activeIndex;
-          return (
-            <div
-              key={step.key}
-              className="flex items-start gap-3 rounded-md border border-border bg-surface-2 px-3 py-2"
-              data-testid={`vps.create.step.${step.key}`}
-            >
-              <div className="mt-0.5">{stepIsDone(step.complete, active)}</div>
-              <div className="min-w-0 flex-1">
-                <div className="text-sm font-medium text-fg">{t(`vps.create.steps.${step.key}`)}</div>
-                <div className="text-xs text-muted">{t(`vps.create.steps.${step.key}_help`)}</div>
-              </div>
-            </div>
-          );
-        })}
-      </CardBody>
-    </Card>
-  );
-}
-
 export function CreateTargetCard(props: {
   form: FormState;
   isAdminMode: boolean;
@@ -139,7 +85,7 @@ export function CreateTargetCard(props: {
 
   return (
     <Card testId="vps.create.target">
-      <CardHeader title={t('vps.create.section.target')} subtitle={t('vps.create.section.target_help')} />
+      <CardHeader title={t('vps.create.section.target')} />
       <CardBody className="space-y-4">
         {props.isAdminMode ? (
           <div>
@@ -225,7 +171,7 @@ export function CreateSystemCard(props: {
 
   return (
     <Card testId="vps.create.system">
-      <CardHeader title={t('vps.create.section.system')} subtitle={t('vps.create.section.system_help')} />
+      <CardHeader title={t('vps.create.section.system')} />
       <CardBody className="space-y-3">
         <div>
           {fieldLabel(t('vps.create.field.os_template'))}
@@ -258,7 +204,7 @@ export function CreateIdentityCard(props: { form: FormState; isAdminMode: boolea
 
   return (
     <Card testId="vps.create.identity">
-      <CardHeader title={t('vps.create.section.identity')} subtitle={t('vps.create.section.identity_help')} />
+      <CardHeader title={t('vps.create.section.identity')} />
       <CardBody className="space-y-4">
         <div>
           {fieldLabel(t('vps.create.field.hostname'))}
@@ -288,7 +234,7 @@ export function CreateResourcesCard(props: { form: FormState; onApplyPreset: (pr
 
   return (
     <Card testId="vps.create.resources">
-      <CardHeader title={t('vps.create.section.resources')} subtitle={t('vps.create.section.resources_help')} />
+      <CardHeader title={t('vps.create.section.resources')} />
       <CardBody className="space-y-4">
         <div className="grid gap-3 md:grid-cols-3" data-testid="vps.create.resource_presets">
           {RESOURCE_PRESETS.map((preset) => (
@@ -330,7 +276,7 @@ export function CreateNetworkCard(props: { form: FormState; onUpdate: UpdateForm
 
   return (
     <Card testId="vps.create.network">
-      <CardHeader title={t('vps.create.section.network')} subtitle={t('vps.create.section.network_help')} />
+      <CardHeader title={t('vps.create.section.network')} />
       <CardBody className="grid gap-4 sm:grid-cols-3">
         <NumberField label={t('vps.create.field.ipv4')} value={props.form.ipv4} min="0" max="64" testId="vps.create.ipv4" onChange={(v) => props.onUpdate('ipv4', v)} />
         <NumberField label={t('vps.create.field.ipv6')} value={props.form.ipv6} min="0" max="64" testId="vps.create.ipv6" onChange={(v) => props.onUpdate('ipv6', v)} />
@@ -344,32 +290,22 @@ export function CreateAccessHintCard() {
   const { t } = useI18n();
 
   return (
-    <Card testId="vps.create.access_hint">
-      <CardHeader title={t('vps.create.section.access')} subtitle={t('vps.create.section.access_help')} />
-      <CardBody className="grid gap-3 md:grid-cols-3">
-        <div className="flex gap-3 rounded-md border border-border bg-surface-2 p-3">
-          <KeyRound className="mt-0.5 h-4 w-4 text-muted" />
-          <div>
-            <div className="text-sm font-medium text-fg">{t('vps.create.access.ssh_keys')}</div>
-            <div className="text-xs text-muted">{t('vps.create.access.ssh_keys_help')}</div>
-          </div>
-        </div>
-        <div className="flex gap-3 rounded-md border border-border bg-surface-2 p-3">
-          <Server className="mt-0.5 h-4 w-4 text-muted" />
-          <div>
-            <div className="text-sm font-medium text-fg">{t('vps.create.access.root_password')}</div>
-            <div className="text-xs text-muted">{t('vps.create.access.root_password_help')}</div>
-          </div>
-        </div>
-        <div className="flex gap-3 rounded-md border border-border bg-surface-2 p-3">
-          <KeyRound className="mt-0.5 h-4 w-4 text-muted" />
-          <div>
-            <div className="text-sm font-medium text-fg">{t('vps.create.access.host_keys')}</div>
-            <div className="text-xs text-muted">{t('vps.create.access.host_keys_help')}</div>
-          </div>
-        </div>
-      </CardBody>
-    </Card>
+    <details className="rounded-xl border border-border bg-surface" data-testid="vps.create.access_hint">
+      <summary className="cursor-pointer px-4 py-3 text-sm font-medium text-fg">
+        {t('vps.create.section.access')}
+      </summary>
+      <div className="space-y-3 border-t border-border px-4 py-4 text-sm">
+        <p className="text-muted">{t('vps.create.section.access_help')}</p>
+        <dl className="space-y-3">
+          {(['ssh_keys', 'root_password', 'host_keys'] as const).map((topic) => (
+            <div key={topic}>
+              <dt className="font-medium text-fg">{t(`vps.create.access.${topic}`)}</dt>
+              <dd className="text-muted">{t(`vps.create.access.${topic}_help`)}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    </details>
   );
 }
 
@@ -416,8 +352,7 @@ export function CreateReviewCard(props: {
     <Card testId="vps.create.confirm">
       <CardHeader
         title={t('vps.create.section.confirm')}
-        subtitle={t('vps.create.section.confirm_help')}
-        actions={props.validationKeys.length === 0 ? <Badge variant="ok">{t('vps.create.review.ready_badge')}</Badge> : <Badge variant="warn">{t('vps.create.review.needs_input_badge')}</Badge>}
+        actions={props.validationKeys.length > 0 ? <Badge variant="warn">{t('vps.create.review.needs_input_badge')}</Badge> : null}
       />
       <CardBody className="space-y-4">
         <dl className="rounded-md border border-border bg-surface-2 px-3" data-testid="vps.create.review">
@@ -442,12 +377,6 @@ export function CreateReviewCard(props: {
           <SummaryRow label={t('vps.create.review.network')} value={networkLine} />
           <SummaryRow label={t('vps.create.review.start')} value={props.form.start ? t('common.yes') : t('common.no')} />
         </dl>
-
-        {props.validationKeys.length === 0 ? (
-          <Alert variant="info" title={t('vps.create.review.ready_title')} testId="vps.create.ready">
-            {t('vps.create.review.ready_description')}
-          </Alert>
-        ) : null}
 
         {(props.submitted || props.createError) && props.validationKeys.length > 0 ? (
           <Alert variant="warn" title={t('common.validation_error')} testId="vps.create.validation">
@@ -495,51 +424,6 @@ export function CreateReviewCard(props: {
               ? t('vps.create.review_missing')
               : t('vps.create.submit')}
         </Button>
-      </CardBody>
-    </Card>
-  );
-}
-
-export function CreatePageIntroCard() {
-  const { t } = useI18n();
-
-  return (
-    <Card testId="vps.create.intro">
-      <CardBody className="grid gap-3 md:grid-cols-3">
-        <div className="flex gap-3">
-          <Server className="mt-0.5 h-4 w-4 text-muted" />
-          <div>
-            <div className="text-sm font-medium text-fg">{t('vps.create.intro.target')}</div>
-            <div className="text-xs text-muted">{t('vps.create.intro.target_help')}</div>
-          </div>
-        </div>
-        <div className="flex gap-3">
-          <HardDrive className="mt-0.5 h-4 w-4 text-muted" />
-          <div>
-            <div className="text-sm font-medium text-fg">{t('vps.create.intro.resources')}</div>
-            <div className="text-xs text-muted">{t('vps.create.intro.resources_help')}</div>
-          </div>
-        </div>
-        <div className="flex gap-3">
-          <Network className="mt-0.5 h-4 w-4 text-muted" />
-          <div>
-            <div className="text-sm font-medium text-fg">{t('vps.create.intro.review')}</div>
-            <div className="text-xs text-muted">{t('vps.create.intro.review_help')}</div>
-          </div>
-        </div>
-      </CardBody>
-    </Card>
-  );
-}
-
-export function CreateAdvancedHintCard() {
-  const { t } = useI18n();
-
-  return (
-    <Card testId="vps.create.advanced_hint">
-      <CardBody className="flex gap-3 text-sm text-muted">
-        <SlidersHorizontal className="mt-0.5 h-4 w-4 shrink-0" />
-        <div>{t('vps.create.advanced_hint')}</div>
       </CardBody>
     </Card>
   );

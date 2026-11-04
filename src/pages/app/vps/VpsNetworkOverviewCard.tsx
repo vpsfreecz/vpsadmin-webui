@@ -7,7 +7,7 @@ import { Badge } from '../../../components/ui/Badge';
 import { Button } from '../../../components/ui/Button';
 import { Card, CardBody, CardHeader } from '../../../components/ui/Card';
 import type { GateDecision } from '../../../lib/gates/types';
-import { formatBytes, type NetworkRouteSummary } from './VpsNetworkModel';
+import { formatBytes } from './VpsNetworkModel';
 
 function OverviewStatusItem(props: { label: string; value: string; description: string; tone?: 'neutral' | 'ok' | 'warn' | 'danger' | 'info'; testId: string }) {
   const tone = props.tone ?? 'neutral';
@@ -32,9 +32,8 @@ function OverviewStatusItem(props: { label: string; value: string; description: 
 }
 
 export function VpsNetworkOverviewCard(props: {
-  netEnabled: boolean;
+  networkStatus: boolean | null;
   gate: GateDecision;
-  summary: NetworkRouteSummary;
   accountingLoading: boolean;
   accountingError: boolean;
   bytesIn: number;
@@ -51,20 +50,25 @@ export function VpsNetworkOverviewCard(props: {
     <Card testId="vps.network.summary">
       <CardHeader
         title={t('vps.network.overview.title')}
-        subtitle={t('vps.network.overview.subtitle')}
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <Button variant="secondary" size="sm" testId="vps.network.accounting.refresh" onClick={props.onRefresh}>
               {t('common.refresh')}
             </Button>
-            <Badge variant={props.netEnabled ? 'ok' : 'warn'}>
-              {props.netEnabled ? t('vps.network.status.enabled') : t('vps.network.status.disabled')}
+            <Badge variant={props.networkStatus === null ? 'neutral' : props.networkStatus ? 'ok' : 'warn'}>
+              {props.networkStatus === null ? t('state.unknown') : props.networkStatus ? t('vps.network.status.enabled') : t('vps.network.status.disabled')}
             </Badge>
           </div>
         }
       />
 
       <CardBody className="space-y-4">
+        {props.networkStatus === false ? (
+          <Alert variant="warn" title={t('vps.network.state.disabled')} testId="vps.network.disabled_notice">
+            {t('vps.network.overview.state.disabled_help')}
+          </Alert>
+        ) : null}
+
         {!gate.allowed ? (
           <Alert title={t(gate.reason.titleKey)} variant="warn">
             <div className="space-y-2">
@@ -78,24 +82,7 @@ export function VpsNetworkOverviewCard(props: {
           </Alert>
         ) : null}
 
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          <OverviewStatusItem
-            testId="vps.network.overview.state"
-            tone={props.netEnabled ? 'ok' : 'warn'}
-            label={t('vps.network.overview.state.label')}
-            value={props.netEnabled ? t('vps.network.state.enabled') : t('vps.network.state.disabled')}
-            description={props.netEnabled ? t('vps.network.overview.state.enabled_help') : t('vps.network.overview.state.disabled_help')}
-          />
-          <OverviewStatusItem
-            testId="vps.network.overview.interfaces"
-            tone={props.summary.disabledInterfaceCount > 0 ? 'warn' : 'ok'}
-            label={t('vps.network.interfaces.title')}
-            value={t('vps.network.overview.interfaces.value', {
-              enabled: props.summary.enabledInterfaceCount,
-              total: props.summary.interfaceCount,
-            })}
-            description={t('vps.network.overview.interfaces.description', { disabled: props.summary.disabledInterfaceCount })}
-          />
+        <div className="grid gap-3 md:grid-cols-2">
           <OverviewStatusItem
             testId="vps.network.accounting.in"
             tone={props.accountingError ? 'warn' : 'neutral'}
@@ -167,11 +154,7 @@ export function VpsNetworkAdminActionsCard(props: {
         }
       />
       <CardBody className="space-y-3">
-        <div className="grid gap-3 md:grid-cols-3">
-          <div className="rounded-lg border border-border bg-surface p-3">
-            <div className="text-xs text-muted">{t('vps.network.admin_actions.vps_network')}</div>
-            <div className="mt-1 text-sm font-medium">{props.netEnabled ? t('vps.network.state.enabled') : t('vps.network.state.disabled')}</div>
-          </div>
+        <div className="grid gap-3 md:grid-cols-2">
           <div className="rounded-lg border border-border bg-surface p-3">
             <div className="text-xs text-muted">{t('vps.network.admin_actions.route_owner')}</div>
             <div className="mt-1 text-sm font-medium">{t('vps.network.admin_actions.owner_help')}</div>

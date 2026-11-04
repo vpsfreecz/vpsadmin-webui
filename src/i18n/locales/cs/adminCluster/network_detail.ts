@@ -5,7 +5,7 @@ export const csAdminCluster_network_detail = {
   "admin.cluster.network_detail.add_addresses.confirm": "Přidat adresy",
   "admin.cluster.network_detail.add_addresses.count": "Počet",
   "admin.cluster.network_detail.add_addresses.environment": "ID prostředí",
-  "admin.cluster.network_detail.add_addresses.notice.body": "Volá backendovou akci network#add_addresses pro existující spravovanou síť. Použij malý počet, pokud cíleně nepotřebuješ větší pool.",
+  "admin.cluster.network_detail.add_addresses.notice.body": "Přidej routované IP adresy do této spravované sítě. Použij malý počet, pokud záměrně nepotřebuješ větší pool.",
   "admin.cluster.network_detail.add_addresses.notice.title": "Přidá routovatelné IP záznamy",
   "admin.cluster.network_detail.add_addresses.title": "Přidat IP adresy",
   "admin.cluster.network_detail.add_addresses.toast": "IP adresy přidány",

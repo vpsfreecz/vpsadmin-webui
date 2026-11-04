@@ -465,8 +465,6 @@ export function MigrationPlanDetailPage() {
             <Link className="underline" to={`${basePath}/migration-plans`}>
               {t('nav.migration_plans')}
             </Link>
-            <span className="text-faint"> · </span>
-            <span>#{Number.isFinite(planId) ? planId : '—'}</span>
           </>
         }
         badges={
@@ -479,7 +477,6 @@ export function MigrationPlanDetailPage() {
             </>
           ) : null
         }
-        meta={t('admin.migration_plan.subtitle')}
         actions={
           <>
             <Button
@@ -584,19 +581,6 @@ export function MigrationPlanDetailPage() {
                 <div className="text-sm font-semibold">{t('admin.migration_plan.section.plan')}</div>
                 <dl className="mt-3 grid grid-cols-1 gap-3 text-sm">
                   <div>
-                    <dt className="text-xs text-faint">{t('common.id')}</dt>
-                    <dd>#{plan.id}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs text-faint">{t('common.state')}</dt>
-                    <dd>
-                      {(() => {
-                        const b = planBadge(t, plan.state);
-                        return <Badge variant={b.variant}>{b.label}</Badge>;
-                      })()}
-                    </dd>
-                  </div>
-                  <div>
                     <dt className="text-xs text-faint">{t('common.user')}</dt>
                     <dd>{refLabel(plan.user)}</dd>
                   </div>
@@ -636,26 +620,26 @@ export function MigrationPlanDetailPage() {
               </div>
             </Card>
 
-            <Card>
-              <div className="p-4">
-                <div className="text-sm font-semibold">{t('admin.migration_plan.section.scheduled_migrations')}</div>
-                <div className="mt-2 text-sm text-muted">
-                  {t('admin.migration_plan.scheduled_migrations.on_this_page', { count: pageMigrations.length })}
-                </div>
-                {migrationCounts.length > 0 ? (
-                  <div className="mt-3 space-y-1 text-xs text-muted">
-                    {migrationCounts.slice(0, 8).map(([st, count]) => (
-                      <div key={st} className="flex items-center justify-between">
-                        <span>{st}</span>
-                        <span className="font-medium">{count}</span>
-                      </div>
-                    ))}
+            {migQ.isSuccess ? (
+              <Card>
+                <div className="p-4">
+                  <div className="text-sm font-semibold">{t('admin.migration_plan.section.scheduled_migrations')}</div>
+                  <div className="mt-2 text-sm text-muted">
+                    {t('admin.migration_plan.scheduled_migrations.on_this_page', { count: pageMigrations.length })}
                   </div>
-                ) : (
-                  <div className="mt-3 text-sm text-muted">{t('admin.migration_plan.scheduled_migrations.empty')}</div>
-                )}
-              </div>
-            </Card>
+                  {migrationCounts.length > 0 ? (
+                    <div className="mt-3 space-y-1 text-xs text-muted">
+                      {migrationCounts.slice(0, 8).map(([st, count]) => (
+                        <div key={st} className="flex items-center justify-between">
+                          <span>{st}</span>
+                          <span className="font-medium">{count}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+              </Card>
+            ) : null}
           </div>
 
           <Card>
@@ -663,7 +647,6 @@ export function MigrationPlanDetailPage() {
               <div className="flex flex-wrap items-end justify-between gap-3">
                 <div>
                   <h2 className="text-sm font-semibold">{t('admin.migration_plan.migrations.title')}</h2>
-                  <p className="mt-1 text-sm text-muted">{t('admin.migration_plan.migrations.description')}</p>
                 </div>
               </div>
 

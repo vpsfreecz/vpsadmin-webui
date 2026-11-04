@@ -158,22 +158,26 @@ function PoolPanel(props: {
               />
             ) : (
               <Badge
-                variant={maintenanceState === 'no' ? 'ok' : 'warn'}
+                variant={maintenanceState === null ? 'neutral' : maintenanceState === 'no' ? 'ok' : 'warn'}
                 testId={`${maintenanceTestId}.state`}
               >
-                {t(`admin.cluster.maintenance.state.${maintenanceState}`)}
+                {maintenanceState === null ? t('common.unknown') : t(`admin.cluster.maintenance.state.${maintenanceState}`)}
               </Badge>
             )}
           </div>
-          {maintenanceState !== 'no' ? (
+          {maintenanceState === 'lock' ||
+          maintenanceState === 'master_lock' ||
+          (maintenanceState === null && maintenanceReason !== '') ? (
             <div className="mt-2 space-y-1 text-xs text-muted" data-testid={`${maintenanceTestId}.details`}>
-              <p>
-                {t(
-                  maintenanceState === 'master_lock'
-                    ? 'admin.node.storage.maintenance.inherited'
-                    : 'admin.node.storage.maintenance.direct'
-                )}
-              </p>
+              {maintenanceState === 'lock' || maintenanceState === 'master_lock' ? (
+                <p>
+                  {t(
+                    maintenanceState === 'master_lock'
+                      ? 'admin.node.storage.maintenance.inherited'
+                      : 'admin.node.storage.maintenance.direct'
+                  )}
+                </p>
+              ) : null}
               {maintenanceReason ? (
                 <p data-testid={`${maintenanceTestId}.reason`}>
                   {t('admin.node.storage.maintenance.reason', { reason: maintenanceReason })}

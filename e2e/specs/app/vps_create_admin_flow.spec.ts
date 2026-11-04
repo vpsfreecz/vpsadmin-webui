@@ -464,6 +464,21 @@ for (const mode of ['member', 'admin'] as const) {
       await expect(page.getByTestId('vps.create.review.hostname')).toContainText(scenario.expected);
       await expect(page.getByTestId('vps.create.submit')).toHaveText('Create VPS');
       if (mode === 'admin' && scenario.name === 'default') {
+        const accessHelp = page.getByTestId('vps.create.access_hint');
+        await accessHelp.locator('summary').click();
+        await expect(
+          accessHelp.getByText('Use the Access page to deploy a public key once the VPS is created.', { exact: true })
+        ).toBeVisible();
+        await expect(
+          accessHelp.getByText('Generate or reset it only when SSH key access is not enough.', { exact: true })
+        ).toBeVisible();
+        await expect(
+          accessHelp.getByText('Host fingerprints are shown after the VPS has booted and reported them.', {
+            exact: true,
+          })
+        ).toBeVisible();
+        await page.screenshot({ path: testInfo.outputPath('creation-access-help.png'), fullPage: true, scale: 'css' });
+        await accessHelp.locator('summary').click();
         await page.screenshot({ path: testInfo.outputPath('hostname-default.png'), fullPage: true, scale: 'css' });
       }
       await page.getByTestId('vps.create.submit').click();

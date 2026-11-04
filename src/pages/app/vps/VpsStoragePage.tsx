@@ -27,7 +27,6 @@ import {
   isMountDraftDirty,
   mountDraftFromMount,
   rootDatasetSummary,
-  storageOverviewSummary,
   validateMountDraft,
   type MountDraft,
   type MountValidationIssue,
@@ -320,6 +319,7 @@ export function VpsStoragePage() {
     refetchOnWindowFocus: false,
   });
   const root = rootDatasetSummary(rootDatasetQ.data ?? null, vps.dataset ?? null);
+  const rootSource = rootDatasetQ.data ?? vps.dataset;
   const rootCapabilities = rootDatasetQ.data
     ? datasetCapabilities(rootDatasetQ.data, {
         role: auth.role,
@@ -386,7 +386,6 @@ export function VpsStoragePage() {
     next.delete('resize');
     setSearchParams(next, { replace: true });
   }, [canAdmin, rootDatasetQ.data, searchParams, setSearchParams]);
-  const overview = storageOverviewSummary(mounts);
 
   return (
     <div data-testid="vps.storage.page" className="space-y-4">
@@ -399,8 +398,6 @@ export function VpsStoragePage() {
       <VpsStorageOverviewCard
         canMutate={canMutateVps}
         gate={gate}
-        root={root}
-        summary={overview}
         onAddMount={() => {
           resetCreate();
           setCreateOpen(true);
@@ -413,6 +410,7 @@ export function VpsStoragePage() {
         canAdmin={canAdmin}
         canCreateSubdataset={canMutateVps && rootCapabilities?.canCreateSubdataset === true}
         root={root}
+        rawReferenceQuota={rootSource?.['refquota']}
         loading={rootDatasetQ.isLoading}
         error={rootDatasetQ.isError ? errorMessage(rootDatasetQ.error) : null}
         canResize={Boolean(resizeGate?.allowed)}

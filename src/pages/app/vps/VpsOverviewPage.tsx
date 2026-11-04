@@ -48,16 +48,18 @@ export function VpsOverviewPage() {
 
   return (
     <div className="grid gap-4 lg:grid-cols-12" data-testid="vps.overview.control_center">
-      <VpsHealthBanner
-        className="lg:col-span-12"
-        hideNonActionable
-        vps={vps}
-        busy={busyTransaction || busyLocalLock}
-        stale={chainsStale}
-        sshCommand={sshCommand}
-        ipAddressesLoading={ipAddressesLoading}
-        ipAddressesError={ipAddressesError}
-      />
+      {!chainsStale ? (
+        <VpsHealthBanner
+          className="lg:col-span-12"
+          hideNonActionable
+          vps={vps}
+          busy={busyTransaction || busyLocalLock}
+          stale={chainsStale}
+          sshCommand={sshCommand}
+          ipAddressesLoading={ipAddressesLoading}
+          ipAddressesError={ipAddressesError}
+        />
+      ) : null}
 
       <VpsResourcesCard
         vps={vps}
@@ -88,7 +90,6 @@ export function VpsOverviewPage() {
         vps={vps}
         basePath={basePath}
         contextSearch={detailContextSearch}
-        showUsage={!isAdminView}
         showPool={isAdminView}
       />
 

@@ -48,7 +48,7 @@ async function setup(
         nodes: nodes.map(({ id, domain_name, fqdn, location }) => ({ id, domain_name, fqdn, location })),
       }),
       'GET nodes/overview_list': () => ({ nodes }),
-      'GET nodes/public_status': () => [],
+      'GET nodes/public_status': () => ({ nodes: [] }),
       'GET nodes/5': () => ({ node: nodes[0] }),
       'GET transaction_chains': () => ({ transaction_chains: [] }),
       'OPTIONS nodes/5/set_maintenance': () => ({ input: { parameters: { lock: {}, reason: {} } } }),
@@ -80,7 +80,7 @@ test('@pr-smoke @pr-smoke-mobile overview supplies private metrics; one tap enab
       await new Promise((resolve) => setTimeout(resolve, 180));
       nodes[0]!.maintenance_lock = input.lock ? 'lock' : 'no';
       nodes[0]!.maintenance_lock_reason = input.reason ?? '';
-      return {};
+      return { node: {} };
     },
   });
   const current = row(page, isMobile);
@@ -126,7 +126,7 @@ test('denied capability cannot submit; no mutation is sent', async ({ page, isMo
     'OPTIONS nodes/5/set_maintenance': () => ({ status: false, message: 'Access denied' }),
     'POST nodes/5/set_maintenance': () => {
       writes++;
-      return {};
+      return { node: {} };
     },
   });
   await open(page, isMobile);
@@ -141,7 +141,7 @@ test('a concurrently changed lock is not removed', async ({ page, isMobile }) =>
   await setup(page, [target], {
     'POST nodes/5/set_maintenance': () => {
       writes++;
-      return {};
+      return { node: {} };
     },
   });
   await open(page, isMobile);
@@ -206,7 +206,7 @@ test('an unverified write stays blocked across closing and reopening until read-
       writes++;
       if (writes > 1) {
         target.maintenance_lock = 'no';
-        return {};
+        return { node: {} };
       }
       readsFail = true;
       target.maintenance_lock = 'lock';

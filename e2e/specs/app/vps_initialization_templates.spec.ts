@@ -184,8 +184,9 @@ test.describe('@pr-smoke @pr-smoke-mobile VPS initialization templates', () => {
     await expect(page.getByTestId('vps.create.submit')).toHaveText('Create VPS');
   });
 
-  test('reinstall uses the VPS owner templates and preserves selection after rejection', async ({ page }) => {
+  test('reinstall uses the VPS owner templates and preserves selection after rejection', async ({ page }, testInfo) => {
     const bodies: unknown[] = [];
+    await setUiSettingsLocalStorage(page, { language: 'cs', theme: 'dark' });
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
     await installHaveApiMock(page, {
       user: { id: 1, login: 'admin', level: 99 },
@@ -197,21 +198,50 @@ test.describe('@pr-smoke @pr-smoke-mobile VPS initialization templates', () => {
         },
         'POST vpses/123/reinstall': ({ reqJson }) => {
           bodies.push(reqJson);
-          return bodies.length === 1 ? failEnvelope('Reinstall rejected by API') : { vps: {}, _meta: { action_state_id: 502 } };
+          return bodies.length === 1
+            ? failEnvelope('Reinstall rejected by API')
+            : { vps: {}, _meta: { action_state_id: 502 } };
         },
       },
     });
     await page.goto('/admin/vps/123/lifecycle/reinstall');
     await page.getByTestId('vps.lifecycle.reinstall.os_template').selectOption('6');
+    await expect(page.getByTestId('vps.lifecycle.reinstall.payload')).toContainText(
+      'Součást požadavku na přeinstalaci: Ne.'
+    );
+    await page.getByTestId('vps.lifecycle.reinstall').screenshot({
+      path: testInfo.outputPath('reinstall-saved-disabled.png'),
+      scale: 'css',
+    });
     await page.getByTestId('vps.lifecycle.reinstall.user_data.summary').click();
     await savedSource(page, 'vps.lifecycle.reinstall.user_data');
     await page.getByTestId('vps.lifecycle.reinstall.user_data.template').selectOption('70');
+    await expect(page.getByTestId('vps.lifecycle.reinstall.user_data.template')).toHaveValue('70');
+    await expect(page.getByTestId('vps.lifecycle.reinstall.payload')).toContainText(
+      'Součást požadavku na přeinstalaci: Ano.'
+    );
+    await page.getByTestId('vps.lifecycle.reinstall.initialization').screenshot({
+      path: testInfo.outputPath('reinstall-saved-enabled-open.png'),
+      scale: 'css',
+    });
+    await page.getByTestId('vps.lifecycle.reinstall.user_data.summary').click();
+    await expect(page.getByTestId('vps.lifecycle.reinstall.user_data.template')).toBeHidden();
+    await expect(page.getByTestId('vps.lifecycle.reinstall.payload')).toBeVisible();
+    await page.getByTestId('vps.lifecycle.reinstall').screenshot({
+      path: testInfo.outputPath('reinstall-saved-enabled-closed.png'),
+      scale: 'css',
+    });
+    await page.getByTestId('vps.lifecycle.reinstall.user_data.summary').click();
     await page.getByTestId('vps.lifecycle.reinstall.submit').click();
     await page.getByTestId('vps.lifecycle.reinstall.submit.confirm_dialog.confirm').click();
     await expect(page.getByTestId('vps.lifecycle.reinstall.submit.confirm_dialog.error')).toContainText(
       'Reinstall rejected'
     );
     await expect(page.getByTestId('vps.lifecycle.reinstall.user_data.template')).toHaveValue('70');
+    await page.getByTestId('vps.lifecycle.reinstall.submit.confirm_dialog').screenshot({
+      path: testInfo.outputPath('reinstall-saved-rejected.png'),
+      scale: 'css',
+    });
     await page.getByTestId('vps.lifecycle.reinstall.submit.confirm_dialog.confirm').click();
     await expect(page.getByTestId('vps.lifecycle.reinstall.submit.confirm_dialog')).toBeHidden();
     expect(bodies).toEqual([

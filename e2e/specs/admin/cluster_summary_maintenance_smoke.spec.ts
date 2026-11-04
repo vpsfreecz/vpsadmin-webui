@@ -142,3 +142,39 @@ test.describe('@smoke Admin cluster summary maintenance', () => {
     expect({ lockAttempts, unlockAttempts }).toEqual({ lockAttempts: 2, unlockAttempts: 2 });
   });
 });
+
+
+test('captures zero missing and positive node inventory without inventing counts', async ({ page }, testInfo) => {
+  let stats: Record<string, number> = { nodes_online: 0, node_count: 0 };
+  await bootstrapVpsAdminWindow(page, { sessionToken: 'CLUSTER_INVENTORY_STATES' });
+  await installHaveApiMock(page, {
+    user: { id: 1, login: 'admin', level: 90 },
+    handlers: {
+      'GET cluster/full_stats': () => ({ cluster: stats }),
+      'GET cluster': () => ({ cluster: { maintenance_lock: false, maintenance_lock_reason: '' } }),
+    },
+  });
+  await page.goto('/admin/cluster/summary');
+  await expect(page.getByTestId('admin.cluster.summary.page')).toContainText('0 / 0');
+  await expect(page.getByRole('img', { name: 'Node availability' })).toHaveClass(/bg-neutral/);
+  await page.getByTestId('admin.cluster.summary.page').screenshot({
+    path: testInfo.outputPath('cluster-zero-inventory.png'),
+    scale: 'css',
+  });
+  stats = { nodes_online: 0 };
+  await page.reload();
+  await expect(page.getByTestId('admin.cluster.summary.page')).toContainText('0 / —');
+  await expect(page.getByRole('img', { name: 'Node availability' })).toHaveClass(/bg-neutral/);
+  await page.getByTestId('admin.cluster.summary.page').screenshot({
+    path: testInfo.outputPath('cluster-missing-inventory.png'),
+    scale: 'css',
+  });
+  stats = { nodes_online: 10, node_count: 10 };
+  await page.reload();
+  await expect(page.getByTestId('admin.cluster.summary.page')).toContainText('10 / 10');
+  await expect(page.getByRole('img', { name: 'Node availability' })).toHaveClass(/bg-ok/);
+  await page.getByTestId('admin.cluster.summary.page').screenshot({
+    path: testInfo.outputPath('cluster-positive-inventory.png'),
+    scale: 'css',
+  });
+});

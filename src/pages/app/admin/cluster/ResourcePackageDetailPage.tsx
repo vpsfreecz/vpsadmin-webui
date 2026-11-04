@@ -163,6 +163,9 @@ export function ResourcePackageDetailPage() {
   const assignmentsRes = assignmentsQ.data;
   const assignments = assignmentsRes?.data ?? [];
   const assignmentTotal = getMetaTotalCount(assignmentsRes?.meta);
+  const itemCountDisplay = itemsQ.isSuccess ? String(items.length) : t('common.na');
+  const assignmentCountDisplay =
+    assignmentsQ.isSuccess && typeof assignmentTotal === 'number' ? String(assignmentTotal) : t('common.na');
 
   const lastAssignment = assignments[assignments.length - 1];
   const assignmentCursor = lastAssignment ? lastAssignment.id : null;
@@ -437,12 +440,12 @@ export function ResourcePackageDetailPage() {
             <StatCard
               size="sm"
               label={t('admin.cluster.resource_package_detail.stat.items')}
-              value={String(items.length)}
+              value={itemCountDisplay}
             />
             <StatCard
               size="sm"
               label={t('admin.cluster.resource_package_detail.stat.assigned')}
-              value={personal ? '—' : String(assignmentTotal)}
+              value={personal ? '—' : assignmentCountDisplay}
             />
           </div>
         }
@@ -471,7 +474,7 @@ export function ResourcePackageDetailPage() {
         <Alert variant="warn" testId="admin.cluster.resource_package_detail.alert">
           <div className="font-medium">{t('admin.cluster.resource_package_detail.warning.title')}</div>
           <div className="mt-1 text-sm">
-            {t('admin.cluster.resource_package_detail.warning.body', { count: String(assignmentTotal) })}
+            {t('admin.cluster.resource_package_detail.warning.body', { count: assignmentCountDisplay })}
           </div>
         </Alert>
       ) : (
@@ -491,7 +494,9 @@ export function ResourcePackageDetailPage() {
           }
         />
         <CardBody>
-          {itemsQ.isError ? (
+          {itemsQ.isPending ? (
+            <LoadingState testId="admin.cluster.resource_package_detail.items.loading" />
+          ) : itemsQ.isError ? (
             <ErrorState error={itemsQ.error} testId="admin.cluster.resource_package_detail.items.error" />
           ) : items.length === 0 ? (
             <EmptyState
@@ -575,7 +580,9 @@ export function ResourcePackageDetailPage() {
             }
           />
           <CardBody>
-            {assignmentsQ.isError ? (
+            {assignmentsQ.isPending ? (
+              <LoadingState testId="admin.cluster.resource_package_detail.assign.loading" />
+            ) : assignmentsQ.isError ? (
               <ErrorState error={assignmentsQ.error} testId="admin.cluster.resource_package_detail.assign.error" />
             ) : assignments.length === 0 ? (
               <EmptyState
@@ -745,7 +752,7 @@ export function ResourcePackageDetailPage() {
             </div>
           </div>
           <div className="text-sm text-muted">
-            {t('admin.cluster.resource_packages.delete_confirm.impact', { count: String(assignmentTotal) })}
+            {t('admin.cluster.resource_packages.delete_confirm.impact', { count: assignmentCountDisplay })}
           </div>
           {deletePkgM.isError ? (
             <Alert variant="danger" title={t('common.error')} testId="admin.cluster.resource_package_detail.delete_confirm.error">
@@ -840,7 +847,7 @@ export function ResourcePackageDetailPage() {
             </div>
           ) : null}
           <div className="text-sm text-muted">
-            {t('admin.cluster.resource_packages.items.delete_confirm.impact', { count: personal ? '1' : String(assignmentTotal) })}
+            {t('admin.cluster.resource_packages.items.delete_confirm.impact', { count: personal ? '1' : assignmentCountDisplay })}
           </div>
           {deleteItemM.isError ? (
             <Alert variant="danger" title={t('common.error')} testId="admin.cluster.resource_package_detail.item_delete_confirm.error">

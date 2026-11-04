@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 
 import type { IpReference } from '../../../src/lib/api/networkingViews';
-import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock } from '../../fixtures';
+import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 
 type IpAddressFixture = IpReference & { id: number };
 
@@ -780,4 +780,105 @@ test.describe('@pr-smoke VPS network tab', () => {
     await expect(page.getByTestId('vps.network.edit.max_rx')).toHaveCount(0);
     await expect(page.getByTestId('vps.network.edit.enabled')).toHaveCount(0);
   });
+  test('captures missing and known VPS network state', async ({ page }, testInfo) => {
+    await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+    const mobile = testInfo.project.name === 'mobile-chrome';
+    await setUiSettingsLocalStorage(page, { language: mobile ? 'cs' : 'en', theme: mobile ? 'dark' : 'light' });
+    const enabledLabel = mobile ? 'Síť povolena' : 'Network enabled';
+    const disabledLabel = mobile ? 'Síť zakázána' : 'Network disabled';
+    const unknownLabel = mobile ? 'Neznámý stav' : 'Unknown';
+    let enabled: boolean | null | undefined;
+    let writes = 0;
+    await installHaveApiMock(page, {
+      user: { id: 1, login: 'admin', level: 90 },
+      handlers: {
+        'GET vpses/123': () => ({ vps: { ...vps, enable_network: enabled } }),
+        'GET ip_addresses': () => ({ ip_addresses: ips }),
+        'GET host_ip_addresses': () => ({ host_ip_addresses: [] }),
+        'GET environments': () => ({ environments: [] }),
+        'GET transaction_chains': () => ({ transaction_chains: [] }),
+        'GET network_interfaces': () => ({ network_interfaces: netifs }),
+        'GET network_interface_accountings': () => ({ network_interface_accountings: acct }),
+        'PUT vpses/123': () => {
+          writes += 1;
+          return { vps: { ...vps, enable_network: enabled } };
+        },
+      },
+    });
+    for (const state of [
+      { name: 'missing', value: undefined },
+      { name: 'null', value: null },
+      { name: 'disabled', value: false },
+      { name: 'enabled', value: true },
+    ]) {
+      enabled = state.value;
+      await page.goto('/admin/vps/123/network');
+      const summary = page.getByTestId('vps.network.summary');
+      await expect(summary).toContainText(enabled == null ? unknownLabel : enabled ? enabledLabel : disabledLabel);
+      if (enabled == null) await expect(summary).not.toContainText(enabledLabel);
+      if (enabled === false) {
+        await expect(page.getByTestId('vps.network.disabled_notice')).toContainText(
+          mobile
+            ? 'Síťový přístup je vypnutý, dokud ho administrátor znovu nepovolí.'
+            : 'Network access is disabled until an admin enables it again.'
+        );
+      }
+      await expect(page.getByTestId('vps.network.accounting.in')).toContainText('1.0 KiB');
+      await summary.scrollIntoViewIfNeeded();
+      await page.screenshot({ path: testInfo.outputPath(`network-${state.name}-overview.png`) });
+      await openAdminNetworkSettings(page);
+      // Preserve the existing action selector for missing/null, independently of status.
+      await expect(page.getByTestId(enabled === false ? 'vps.network.enable' : 'vps.network.disable')).toBeVisible();
+      await expect(page.getByTestId(enabled === false ? 'vps.network.enable' : 'vps.network.disable')).toBeEnabled();
+      await expect(page.getByTestId('vps.network.ip_addresses.item.1')).toContainText('198.51.100.10');
+      await expect(page.getByTestId('vps.network.ip_addresses.item.1')).toContainText('old-owner');
+      await page.getByTestId('vps.network.admin_actions').scrollIntoViewIfNeeded();
+      await page.screenshot({ path: testInfo.outputPath(`network-${state.name}-admin.png`) });
+      expect(writes).toBe(0);
+    }
+  });
+
+  test('captures pending failed empty and known interface feeds', async ({ page }, testInfo) => {
+    await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+    let phase: 'pending' | 'failed' | 'empty' | 'known' = 'pending';
+    let finishPending!: () => void;
+    const pending = new Promise<void>((resolve) => {
+      finishPending = resolve;
+    });
+    await installHaveApiMock(page, {
+      user: { id: 1, login: 'user', level: 1 },
+      handlers: {
+        'GET vpses/123': () => ({ vps }),
+        'GET ip_addresses': () => ({ ip_addresses: ips }),
+        'GET host_ip_addresses': () => ({ host_ip_addresses: [] }),
+        'GET transaction_chains': () => ({ transaction_chains: [] }),
+        'GET network_interface_accountings': () => ({ network_interface_accountings: acct }),
+        'GET network_interfaces': async () => {
+          if (phase === 'pending') await pending;
+          return phase === 'failed'
+            ? failEnvelope('interfaces unavailable')
+            : { network_interfaces: phase === 'empty' ? [] : netifs };
+        },
+      },
+    });
+    await page.goto('/app/vps/123/network');
+    await expect(page.getByTestId('vps.network.interfaces')).toContainText('Loading');
+    await expect(page.getByTestId('vps.network.overview.interfaces')).toHaveCount(0);
+    await page.screenshot({ path: testInfo.outputPath('network-interfaces-pending.png') });
+    phase = 'failed';
+    finishPending();
+    await expect(page.getByTestId('vps.network.interfaces')).toContainText('interfaces unavailable');
+    await page.screenshot({ path: testInfo.outputPath('network-interfaces-failed.png') });
+    phase = 'empty';
+    await page.reload();
+    await expect(page.getByTestId('vps.network.interfaces')).toContainText('No network interfaces');
+    await page.screenshot({ path: testInfo.outputPath('network-interfaces-empty.png') });
+    phase = 'known';
+    await page.reload();
+    const layout = (page.viewportSize()?.width ?? 0) < 768 ? 'card' : 'row';
+    await expect(page.getByTestId(`vps.network.interfaces.${layout}.1`)).toBeVisible();
+    await page.getByTestId('vps.network.interfaces').scrollIntoViewIfNeeded();
+    await page.screenshot({ path: testInfo.outputPath('network-interfaces-known-disabled.png') });
+  });
+
 });

@@ -476,8 +476,7 @@ export function SystemConfigPage() {
                         className="font-mono text-xs tabular-nums"
                       />
 
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="text-xs text-faint">{t('admin.cluster.system_config.edit.secret.hint')}</div>
+                      <div className="flex items-center justify-end gap-2">
                         <div className="flex items-center gap-2">
                           <Button
                             variant="secondary"
@@ -504,7 +503,7 @@ export function SystemConfigPage() {
               </Card>
             ) : (
               <Card>
-                <CardHeader title={t('admin.cluster.system_config.edit.value.title')} subtitle={t('admin.cluster.system_config.edit.value.subtitle')} />
+                <CardHeader title={t('admin.cluster.system_config.edit.value.title')} />
                 <CardBody>
                   {norm(editor.cfg.type) === 'Text' || norm(editor.cfg.type) === 'Array' || norm(editor.cfg.type) === 'Hash' ? (
                     <Textarea

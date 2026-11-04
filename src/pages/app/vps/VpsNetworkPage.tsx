@@ -57,7 +57,6 @@ import { AssignIpAddressModal } from '../networking/AssignIpAddressModal';
 import { VpsConfirmTarget } from './VpsPowerConfirmation';
 import {
   type NetworkMutationContext, type VpsMutationSnapshot, type NetifMutation, type ToggleMutation, type PtrMutation, type HostMutation, type AssignHostMutation, type CreateHostsMutation, type IpMutation, type OwnerMutation,
-  buildNetworkRouteSummary,
   canonicalBool,
   errorMessage,
   groupIpByInterface,
@@ -85,6 +84,7 @@ export function VpsNetworkPage() {
   const canAdmin = mode === 'admin' && auth.role === 'admin';
   const adminBasePath = mode === 'admin' ? basePath : '/admin';
   const netEnabled = canonicalBool(vps.enable_network, true);
+  const networkStatus = typeof vps.enable_network === 'boolean' ? vps.enable_network : null;
   const objectLabel = String(vps.hostname ?? '') || `#${vpsId}`;
   const netifsQ = useQuery({
     queryKey: ['network_interface', 'list', { vpsId, limit: 100 }],
@@ -536,7 +536,6 @@ export function VpsNetworkPage() {
       return 'error';
     }
   };
-  const networkSummary = useMemo(() => buildNetworkRouteSummary({ netifs, ips, hostAddresses: hostRows }), [hostRows, ips, netifs]);
   const ptrValidation = useMemo(() => validatePtrValue(ptrValue), [ptrValue]);
   const networkActionError =
     updatePtrM.error ??
@@ -583,9 +582,8 @@ export function VpsNetworkPage() {
       })}
 
       <VpsNetworkOverviewCard
-        netEnabled={netEnabled}
+        networkStatus={networkStatus}
         gate={gate}
-        summary={networkSummary}
         accountingLoading={acctQ.isLoading}
         accountingError={acctQ.isError}
         bytesIn={acctTotals.bytesIn}

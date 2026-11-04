@@ -346,7 +346,7 @@ export function VpsMaintenancePage() {
           <div className={!gate.allowed ? 'mt-4' : ''}>
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="text-xs text-muted">
-                {dirty ? t('vps.maintenance.unsaved', { n: dirtyWeekdays.length }) : t('vps.maintenance.saved')}
+                {dirty ? t('vps.maintenance.unsaved', { n: dirtyWeekdays.length }) : null}
               </div>
               {canMutateVps ? <div className="flex flex-wrap items-center gap-2">
                 <Button

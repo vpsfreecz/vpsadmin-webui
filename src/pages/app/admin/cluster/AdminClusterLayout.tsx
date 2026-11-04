@@ -11,7 +11,7 @@ export function AdminClusterLayout() {
 
   return (
     <DetailShell variant="wide" testId="admin.cluster.shell">
-      <PageHeader title={t('admin.cluster.title')} description={t('admin.cluster.subtitle')} />
+      <PageHeader title={t('admin.cluster.title')} />
 
       <TabsNav
         testId="admin.cluster.tabs"

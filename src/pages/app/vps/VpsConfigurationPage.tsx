@@ -254,7 +254,7 @@ export function VpsConfigurationPage() {
       <Card>
         <CardHeader
           title={t(focusedResources ? 'vps.resources.title' : 'vps.config.title')}
-          subtitle={t(canEditAdminConfig ? 'vps.resources.subtitle_admin' : 'vps.resources.subtitle_user')}
+          subtitle={canEditAdminConfig ? t('vps.resources.subtitle_admin') : undefined}
         />
       </Card>
 
@@ -378,7 +378,7 @@ export function VpsConfigurationPage() {
         changeCount={result.changedKeys.length}
       />
 
-      {dirty ? <Alert variant="info">{t('vps.config.unsaved', { n: result.changedKeys.length })}</Alert> : null}
+      {dirty ? <Alert variant="info" className="hidden lg:block">{t('vps.config.unsaved', { n: result.changedKeys.length })}</Alert> : null}
 
       <ConfirmDialog
         open={confirmOpen}

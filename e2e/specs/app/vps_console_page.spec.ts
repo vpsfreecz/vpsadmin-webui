@@ -205,42 +205,101 @@ test.describe('@smoke VPS console page', () => {
     await expect.poll(() => createCalls).toBe(2);
   });
 
-  test('fails closed when replacing a session cannot prove the old token stayed valid', async ({ page }) => {
-    await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
-    await routeConsoleStub(page);
+  for (const language of ['cs', 'en'] as const) {
+    test(`${language} keeps uncertain replacement suspended through failed explicit recovery`, async ({
+      page,
+    }, testInfo) => {
+      await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+      await setUiSettingsLocalStorage(page, { language, theme: 'dark' });
+      await routeConsoleStub(page);
 
-    let createCalls = 0;
-    let deleteCalls = 0;
-    await installHaveApiMock(page, {
-      user: { id: 1, login: 'test', level: 1 },
-      handlers: {
-        'GET vpses/123': () => ({ vps }),
-        'GET ip_addresses': () => ({ ip_addresses: [] }),
-        'GET transaction_chains': () => ({ transaction_chains: [] }),
-        'POST vpses/123/console_token': () => {
-          createCalls += 1;
-          return { console_token: { token: `T${createCalls}`, expiration: '2027-01-31T00:00:00Z' } };
+      let createCalls = 0;
+      let deleteCalls = 0;
+      let finishRecovery!: () => void;
+      const recoveryResponse = new Promise<void>((resolve) => {
+        finishRecovery = resolve;
+      });
+      await installHaveApiMock(page, {
+        user: { id: 1, login: 'test', level: 1 },
+        handlers: {
+          'GET vpses/123': () => ({ vps }),
+          'GET ip_addresses': () => ({ ip_addresses: [] }),
+          'GET transaction_chains': () => ({ transaction_chains: [] }),
+          'POST vpses/123/console_token': async () => {
+            createCalls += 1;
+            if (createCalls === 2) return { status: false, message: 'explicit console recovery failed', response: null };
+            if (createCalls === 3) await recoveryResponse;
+            return { console_token: { token: `T${createCalls}`, expiration: '2027-01-31T00:00:00Z' } };
+          },
+          'DELETE vpses/123/console_token': () => {
+            deleteCalls += 1;
+            return { status: false, message: 'console revoke outcome unknown', response: null };
+          },
         },
-        'DELETE vpses/123/console_token': () => {
-          deleteCalls += 1;
-          return { status: false, message: 'console revoke outcome unknown', response: null };
-        },
-      },
+      });
+
+      await page.goto('/app/vps/123/console');
+      await expect(page.getByTestId('vps.console.iframe')).toBeVisible();
+
+      await page.getByTestId('vps.console.new_session').click();
+      await page.getByTestId('vps.console.new_session_dialog.confirm').click();
+
+      await expect(page.getByTestId('vps.console.new_session_dialog')).toBeVisible();
+      await expect(page.getByTestId('vps.console.new_session_dialog.error')).toContainText(
+        'console revoke outcome unknown'
+      );
+      await expect(page.getByTestId('vps.console.uncertain')).toBeVisible();
+      await expect(page.getByTestId('vps.console.revoked')).toHaveCount(0);
+      await expect(page.getByTestId('vps.console.frame_status')).toHaveText(
+        language === 'cs' ? 'Neznámý stav' : 'Unknown'
+      );
+      await expect(page.getByTestId('vps.console.iframe')).toHaveCount(0);
+      expect(deleteCalls).toBe(1);
+      expect(createCalls).toBe(1);
+
+      await page.getByTestId('vps.console.new_session_dialog.confirm').click();
+      await expect(page.getByTestId('vps.console.new_session_dialog.error')).toContainText(
+        'explicit console recovery failed'
+      );
+      await expect(page.getByTestId('vps.console.uncertain')).toBeVisible();
+      await expect(page.getByTestId('vps.console.revoked')).toHaveCount(0);
+      await expect(page.getByTestId('vps.console.frame_status')).toHaveText(
+        language === 'cs' ? 'Neznámý stav' : 'Unknown'
+      );
+      await expect(page.getByTestId('vps.console.iframe')).toHaveCount(0);
+      await page.screenshot({ path: testInfo.outputPath('console-uncertain-recovery-failed.png') });
+      await page.getByTestId('vps.console.new_session_dialog.cancel').click();
+      await expect(page.getByTestId('vps.console.uncertain')).toContainText(
+        language === 'cs' ? 'Vložená konzole je skrytá.' : 'The embedded console is hidden.'
+      );
+      await expect(page.getByTestId('vps.console.new_session_error')).toContainText('explicit console recovery failed');
+      await page.screenshot({ path: testInfo.outputPath('console-uncertain-recovery-failed-closed.png') });
+      await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+      await page.waitForTimeout(100);
+      expect(createCalls).toBe(2);
+      expect(deleteCalls).toBe(1);
+
+      await page.getByTestId('vps.console.new_session').click();
+      await expect.poll(() => createCalls).toBe(3);
+      await expect(page.getByTestId('vps.console.new_session')).toBeDisabled();
+      await expect(page.getByTestId('vps.console.uncertain.new_session')).toBeDisabled();
+      await expect(page.getByTestId('vps.console.frame_status')).toHaveText(
+        language === 'cs' ? 'Znovu připojuji' : 'Reconnecting'
+      );
+      await page.screenshot({ path: testInfo.outputPath('console-explicit-recovery-pending.png') });
+      finishRecovery();
+      await expect(page.getByTestId('vps.console.new_session_dialog')).toBeHidden();
+      await expect(page.getByTestId('vps.console.iframe')).toHaveAttribute('src', /session=T3/);
+      await expect(page.getByTestId('vps.console.frame_status')).toHaveText(
+        language === 'cs' ? 'Připojeno' : 'Connected'
+      );
+      await expect(page.getByTestId('vps.console.revoked')).toHaveCount(0);
+      await expect(page.getByTestId('vps.console.uncertain')).toHaveCount(0);
+      await page.screenshot({ path: testInfo.outputPath('console-explicit-recovery-restored.png') });
+      expect(createCalls).toBe(3);
+      expect(deleteCalls).toBe(1);
     });
-
-    await page.goto('/app/vps/123/console');
-    await expect(page.getByTestId('vps.console.iframe')).toBeVisible();
-
-    await page.getByTestId('vps.console.new_session').click();
-    await page.getByTestId('vps.console.new_session_dialog.confirm').click();
-
-    await expect(page.getByTestId('vps.console.new_session_dialog')).toBeVisible();
-    await expect(page.getByTestId('vps.console.new_session_dialog.error')).toContainText('console revoke outcome unknown');
-    await expect(page.getByTestId('vps.console.revoked')).toBeVisible();
-    await expect(page.getByTestId('vps.console.iframe')).toHaveCount(0);
-    expect(deleteCalls).toBe(1);
-    expect(createCalls).toBe(1);
-  });
+  }
 
   test('clears a stale revoke error after an explicit replacement succeeds', async ({ page }) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
@@ -277,6 +336,7 @@ test.describe('@smoke VPS console page', () => {
     await expect(page.getByTestId('vps.console.revoke_session_dialog.error')).toContainText('temporary revoke failure');
     await page.getByTestId('vps.console.revoke_session_dialog.cancel').click();
     await expect(page.getByTestId('vps.console.revoke_error')).toBeVisible();
+    await expect(page.getByTestId('vps.console.iframe')).toBeVisible();
 
     await page.getByTestId('vps.console.new_session').click();
     await page.getByTestId('vps.console.new_session_dialog.confirm').click();

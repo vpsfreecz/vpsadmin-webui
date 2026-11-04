@@ -10,7 +10,7 @@ import { Spinner } from '../../../components/ui/Spinner';
 import { Table } from '../../../components/ui/Table';
 import type { VpsMount } from '../../../lib/api/vpsMounts';
 import { formatDateTime } from '../../../lib/format';
-import { canonicalBool, datasetId, datasetLabel, mountStateTone } from './VpsStorageModel';
+import { datasetId, datasetLabel, mountStateTone } from './VpsStorageModel';
 
 function MountBadges(props: { mount: VpsMount; canAdmin: boolean }) {
   const { t } = useI18n();
@@ -37,8 +37,8 @@ function MountDatasetLink(props: { basePath: string; mount: VpsMount; testId: st
   if (!dsId) return <>{ds}</>;
 
   return (
-    <ChipLink to={`${props.basePath}/datasets/${dsId}`} data-testid={props.testId}>
-      {ds}
+    <ChipLink to={`${props.basePath}/datasets/${dsId}`} className="max-w-full" data-testid={props.testId}>
+      <span className="min-w-0 break-all">{ds}</span>
     </ChipLink>
   );
 }
@@ -85,9 +85,9 @@ export function VpsStorageMountsCard(props: {
               {props.mounts.map((mount) => (
                 <Card key={mount.id} testId={`vps.storage.mounts.card.${mount.id}`}>
                   <CardBody>
-                    <div className="flex items-start justify-between gap-3">
+                    <div className="space-y-2">
                       <div className="min-w-0">
-                        <div className="truncate text-base font-semibold">{String(mount.mountpoint ?? '—')}</div>
+                        <div className="break-all text-base font-semibold">{String(mount.mountpoint ?? '—')}</div>
                         <div className="mt-1 text-xs text-muted">
                           <MountDatasetLink basePath={props.basePath} mount={mount} testId={`vps.storage.mounts.card.${mount.id}.dataset`} />
                         </div>
@@ -98,10 +98,6 @@ export function VpsStorageMountsCard(props: {
                     <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
                       <span>{t('vps.storage.mounts.field.mode', { mode: String(mount.mode ?? '—') })}</span>
                       <span>{t('vps.storage.mounts.field.on_start_fail', { value: String(mount.on_start_fail ?? '—') })}</span>
-                      <span>
-                        {t('vps.storage.mounts.field.default_map', {
-                        })}
-                      </span>
                       {mount.expiration_date ? <span>{t('vps.storage.mounts.field.expiration', { value: formatDateTime(mount.expiration_date) })}</span> : null}
                     </div>
 
@@ -132,8 +128,6 @@ export function VpsStorageMountsCard(props: {
                 </thead>
                 <tbody>
                   {props.mounts.map((mount) => {
-                    const enabledLabel = canonicalBool(mount.enabled, true) ? t('common.enabled') : t('common.disabled');
-                    const masterLabel = canonicalBool(mount.master_enabled, true) ? t('common.yes') : t('common.no');
                     return (
                       <tr key={mount.id} data-testid={`vps.storage.mounts.row.${mount.id}`} className="border-b border-border/60 last:border-b-0">
                         <td className="px-4 py-3 font-medium">{String(mount.mountpoint ?? '—')}</td>
@@ -144,15 +138,7 @@ export function VpsStorageMountsCard(props: {
                           <div className="font-medium text-fg">{String(mount.mode ?? '—')}</div>
                         </td>
                         <td className="px-4 py-3">
-                          <div className="flex flex-wrap gap-1.5">
-                            <Badge variant={canonicalBool(mount.enabled, true) ? 'ok' : 'warn'}>{enabledLabel}</Badge>
-                            <Badge variant={mountStateTone(mount)}>{String(mount.current_state ?? t('common.na'))}</Badge>
-                            {props.canAdmin ? (
-                              <Badge variant={canonicalBool(mount.master_enabled, true) ? 'neutral' : 'warn'}>
-                                {t('vps.storage.mounts.master_short')}: {masterLabel}
-                              </Badge>
-                            ) : null}
-                          </div>
+                          <MountBadges mount={mount} canAdmin={props.canAdmin} />
                         </td>
                         <td className="px-4 py-3 text-xs text-muted">
                           <details data-testid={`vps.storage.mounts.row.${mount.id}.details`}>

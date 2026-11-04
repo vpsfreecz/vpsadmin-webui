@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
+import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 import { expectNoDocumentHorizontalOverflow } from '../../helpers/horizontalOverflow';
 
 const vps = {
@@ -48,6 +48,76 @@ async function captureOptInScreenshot(page: Page, envName: string): Promise<void
   const screenshotPath = process.env[envName]?.trim();
   if (!screenshotPath) return;
   await page.screenshot({ path: screenshotPath, fullPage: true });
+}
+
+for (const language of ['cs', 'en'] as const) {
+  test(`VPS overview preserves missing usage and stale-chain recovery, ${language}`, async ({ page }, testInfo) => {
+    await page.clock.install({ time: new Date('2026-11-04T12:00:00Z') });
+    await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST_OVERVIEW_STATES' });
+    await setUiSettingsLocalStorage(page, { language, theme: 'light' });
+    const currentVps = { ...vps, uptime: null, loadavg1: null, used_memory: null, used_diskspace: null };
+    let chains: 'clear' | 'busy' | 'failed' = 'clear';
+    await installHaveApiMock(page, {
+      user: { id: 10, login: 'alice', level: 1 },
+      handlers: {
+        'GET vpses/123': () => ({ vps: currentVps }),
+        'GET datasets/10': () => ({ dataset }),
+        'GET ip_addresses': () => ({ ip_addresses: [] }),
+        'GET transaction_chains': (ctx) => {
+          if (ctx.searchParams.get('transaction_chain[row_id]') !== '123') return { transaction_chains: [] };
+          if (chains === 'failed') return failEnvelope('Synthetic chain inventory unavailable');
+          return { transaction_chains: chains === 'busy' ? [{ id: 888, state: 'queued' }] : [] };
+        },
+      },
+    });
+
+    await page.goto('/app/vps/123');
+    const header = page.getByTestId('vps.header');
+    await expect(page.getByTestId('vps.overview.control_center')).toBeVisible();
+    for (const key of ['uptime', 'load']) {
+      await expect(header.getByTestId(`vps.header.runtime.${key}`).locator('dd')).toHaveText('—');
+    }
+    for (const metric of ['memory', 'disk']) {
+      const usage = page.getByTestId(`vps.overview.usage.${metric}`);
+      await expect(usage).toContainText('—');
+      await expect(usage.getByRole('img')).toHaveCount(0);
+    }
+    await expect(
+      page.getByTestId('vps.overview.resources_usage.card').getByText('2 CPU', { exact: true })
+    ).toBeVisible();
+    await expect(header.getByTestId('vps.header.distribution')).toHaveText('Debian 12');
+    await expect(
+      page.getByTestId('vps.overview.storage.card').getByRole('link', { name: 'tank/data', exact: true })
+    ).toHaveAttribute('href', '/app/datasets/10');
+    await page.screenshot({ path: testInfo.outputPath(`overview-missing-usage-${language}.png`), fullPage: true });
+
+    currentVps.is_running = false;
+    await page.reload();
+    await expect(page.getByTestId('vps.overview.control_center')).toBeVisible();
+    await expect(header.getByTestId('vps.header.runtime.uptime').locator('dd')).toHaveText('—');
+    await page.screenshot({ path: testInfo.outputPath(`overview-stopped-${language}.png`), fullPage: true });
+
+    currentVps.is_running = true;
+    chains = 'busy';
+    await page.reload();
+    const restart = page.getByTestId('vps.action.restart.header');
+    await expect(restart).toHaveAttribute('aria-disabled', 'true');
+    chains = 'failed';
+    await page.clock.fastForward(61_000);
+    const stale = page.getByTestId('stale.lock.alert');
+    await expect(stale).toBeVisible();
+    await expect(page.getByTestId('vps.overview.health')).toHaveCount(0);
+    await expect(stale.getByTestId('stale.lock.alert.last-known')).toContainText('#888');
+    await expect(stale.getByTestId('stale.lock.alert.last-error')).toContainText(
+      'Synthetic chain inventory unavailable'
+    );
+    await page.screenshot({ path: testInfo.outputPath(`overview-stale-chain-${language}.png`), fullPage: true });
+
+    chains = 'clear';
+    await stale.getByTestId('stale.lock.alert.retry').click();
+    await expect(stale).toHaveCount(0);
+    await expect(restart).not.toHaveAttribute('aria-disabled', 'true');
+  });
 }
 
 test('@workflow-matrix @smoke VPS detail tabs expose storage, access, lifecycle, and console routes', async ({ page }) => {
@@ -338,7 +408,6 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile VPS admin overview keeps each 
     '/admin/vps/123/storage?user=10',
   );
   await expect(storage).toContainText('Pool: tank');
-  await expect(storage).toContainText('Root dataset, pool, capacity and VPS mounts.');
   await expect(page.getByTestId('vps.overview.admin_ops.card')).toHaveCount(0);
   await expect(overview).not.toContainText('alice');
   await expect(page.getByTestId('vps.overview.admin_ops.user_id')).toHaveCount(0);

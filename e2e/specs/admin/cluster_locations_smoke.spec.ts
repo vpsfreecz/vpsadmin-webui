@@ -37,14 +37,16 @@ test.describe('@smoke Admin cluster locations', () => {
       handlers: {
         'GET environments': () => ({ environments: envs, _meta: { total_count: envs.length } }),
         'GET locations': () => ({ locations: locs, _meta: { total_count: locs.length } }),
-        'POST locations': ({ body }) => {
+        'POST locations': ({ reqJson }) => {
+          const body = reqJson as { location?: { environment?: number } };
           const created = { id: 99, ...(body?.location ?? {}) };
           // Attach env object for UI
           const env = envs.find((e) => e.id === created.environment);
           locs.push({ ...created, environment: env });
           return { location: locs[locs.length - 1] };
         },
-        'PUT locations/1': ({ body }) => {
+        'PUT locations/1': ({ reqJson }) => {
+          const body = reqJson as { location?: { environment?: number } };
           const idx = locs.findIndex((l) => l.id === 1);
           if (idx >= 0) {
             const next = { ...locs[idx], ...(body?.location ?? {}) };

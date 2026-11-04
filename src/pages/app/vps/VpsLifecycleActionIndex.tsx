@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 
 import { useI18n } from '../../../app/i18n';
-import { Alert } from '../../../components/ui/Alert';
 import { Card, CardBody, CardHeader } from '../../../components/ui/Card';
 
 export type LifecycleActionChoice<Kind extends string> = {
@@ -40,16 +39,12 @@ export function VpsLifecycleActionIndex<Kind extends string>(props: {
   return (
     <div className="space-y-4" data-testid="vps.lifecycle.page">
       <Card testId="vps.lifecycle.summary">
-        <CardHeader title={t('vps.lifecycle.title')} subtitle={props.canAdministerVps ? t('vps.lifecycle.subtitle_admin') : t('vps.lifecycle.subtitle_user')} />
+        <CardHeader title={t('vps.lifecycle.title')} />
         <CardBody className="space-y-4">
-          <Alert variant="neutral">
-            {props.canAdministerVps ? t('vps.lifecycle.action_index.summary_admin') : t('vps.lifecycle.action_index.summary_user')}
-          </Alert>
           <div className="space-y-4" data-testid="vps.lifecycle.action_index">
             <section className="space-y-2" data-testid="vps.lifecycle.daily_actions">
               <div>
                 <h2 className="text-sm font-semibold text-fg">{t('vps.lifecycle.action_index.daily_title')}</h2>
-                <p className="text-xs text-muted">{t('vps.lifecycle.action_index.daily_subtitle')}</p>
               </div>
               <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                 {dailyChoices.map(renderLink)}
@@ -59,7 +54,6 @@ export function VpsLifecycleActionIndex<Kind extends string>(props: {
               <section className="space-y-2 rounded-lg border border-border bg-surface p-3" data-testid="vps.lifecycle.admin_actions">
                 <div>
                   <h2 className="text-sm font-semibold text-fg">{t('vps.lifecycle.action_index.admin_title')}</h2>
-                  <p className="text-xs text-muted">{t('vps.lifecycle.action_index.admin_subtitle')}</p>
                 </div>
                 <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                   {adminChoices.map(renderLink)}

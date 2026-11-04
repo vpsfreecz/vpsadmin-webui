@@ -49,6 +49,17 @@ test('@pr-smoke @pr-smoke-mobile @smoke-mobile admin OS-template actions stay re
             order: 20,
             uses_count: 3,
           },
+          {
+            id: 13,
+            os_family: { id: 1, label: 'A very long Debian family label' },
+            label: 'debian 12',
+            distribution: 'debian',
+            version: '12',
+            enabled: true,
+            supported: true,
+            order: 30,
+            uses_count: 0,
+          },
         ],
       }),
       'DELETE os_templates/11': () => {
@@ -74,16 +85,18 @@ test('@pr-smoke @pr-smoke-mobile @smoke-mobile admin OS-template actions stay re
   const table = page.getByTestId('admin.cluster.os_templates.table');
   const card = page.getByTestId('admin.cluster.os_templates.card.11');
 
-  const desktopEntry = table.locator('tbody tr').filter({ has: page.getByTestId('admin.cluster.os_templates.row.11.edit') });
+  const desktopEntry = table
+    .locator('tbody tr')
+    .filter({ has: page.getByTestId('admin.cluster.os_templates.row.11.edit') });
   const entry = mobile ? card : desktopEntry;
   const edit = page.getByTestId(
-    mobile ? 'admin.cluster.os_templates.card.11.edit' : 'admin.cluster.os_templates.row.11.edit',
+    mobile ? 'admin.cluster.os_templates.card.11.edit' : 'admin.cluster.os_templates.row.11.edit'
   );
   const remove = page.getByTestId(
-    mobile ? 'admin.cluster.os_templates.card.11.delete' : 'admin.cluster.os_templates.row.11.delete',
+    mobile ? 'admin.cluster.os_templates.card.11.delete' : 'admin.cluster.os_templates.row.11.delete'
   );
   const blockedRemove = page.getByTestId(
-    mobile ? 'admin.cluster.os_templates.card.12.delete' : 'admin.cluster.os_templates.row.12.delete',
+    mobile ? 'admin.cluster.os_templates.card.12.delete' : 'admin.cluster.os_templates.row.12.delete'
   );
 
   await expect(entry).toBeVisible();
@@ -106,7 +119,10 @@ test('@pr-smoke @pr-smoke-mobile @smoke-mobile admin OS-template actions stay re
     }));
     expect(cardMetrics.scrollWidth).toBeLessThanOrEqual(cardMetrics.clientWidth);
 
-    for (const [name, action] of [['edit', edit], ['delete', remove]] as const) {
+    for (const [name, action] of [
+      ['edit', edit],
+      ['delete', remove],
+    ] as const) {
       await expect(action).toBeInViewport();
       const box = await action.boundingBox();
       expect(box, `${name} action has a bounding box`).not.toBeNull();
@@ -122,13 +138,23 @@ test('@pr-smoke @pr-smoke-mobile @smoke-mobile admin OS-template actions stay re
     await expect(table).toBeVisible();
   }
 
+  const equalEntry = mobile
+    ? page.getByTestId('admin.cluster.os_templates.card.13')
+    : table.locator('tbody tr').filter({ has: page.getByTestId('admin.cluster.os_templates.row.13.edit') });
+  await expect(equalEntry).toContainText('debian 12');
+  await expect(equalEntry.getByText('debian 12', { exact: true })).toHaveCount(1);
+  await expect(
+    entry.getByText('debian-with-a-long-distribution-name 12.7-long-version', { exact: true })
+  ).toBeVisible();
+  await entry.screenshot({ path: testInfo.outputPath('os-template-distinct-label.png'), scale: 'css' });
+  await equalEntry.screenshot({ path: testInfo.outputPath('os-template-equal-label.png'), scale: 'css' });
   await expect(blockedRemove).toBeDisabled();
   await expect(blockedRemove).toHaveAttribute('title', 'Cannot delete: template is in use.');
 
   await edit.click();
   await expect(page.getByTestId('admin.cluster.os_templates.editor')).toBeVisible();
   await expect(page.getByTestId('admin.cluster.os_templates.editor.label')).toHaveValue(
-    'A very long Debian 12 operator-facing template label',
+    'A very long Debian 12 operator-facing template label'
   );
   await page.getByRole('button', { name: 'Cancel' }).click();
 
@@ -138,7 +164,7 @@ test('@pr-smoke @pr-smoke-mobile @smoke-mobile admin OS-template actions stay re
   await deleteDialog.getByTestId('admin.cluster.os_templates.delete.confirm').click();
   await expect.poll(() => deleteCalls).toBe(1);
   await expect(page.getByTestId('admin.cluster.os_templates.delete.error')).toContainText(
-    'Template is still in use by a hidden dependency.',
+    'Template is still in use by a hidden dependency.'
   );
   await expect(deleteDialog).toBeVisible();
 

@@ -62,7 +62,7 @@ export function NodeTransactionsCard(props: {
           <div>
             <div className="text-sm font-semibold">{t('admin.node.transactions.title')}</div>
             <div className="mt-1 text-sm text-muted">
-              {t('admin.node.transactions.subtitle_prefix', { limit })} <code>{`node=${nodeId}`}</code>.
+              {t('admin.node.transactions.subtitle_prefix', { limit })}
             </div>
           </div>
           <div className="flex items-center gap-2">

@@ -743,9 +743,6 @@ export function VpsLifecyclePage() {
               </Button>
             }
           />
-          <CardBody>
-            <Alert variant="neutral">{t('vps.lifecycle.user_lifecycle.summary')}</Alert>
-          </CardBody>
         </Card>
 
         {requestedAction === 'start' ? renderPowerCard('start') : null}

@@ -35,12 +35,14 @@ test.describe('@smoke Admin cluster environments', () => {
       user: { id: 1, login: 'admin', level: 90 },
       handlers: {
         'GET environments': () => ({ environments: envs, _meta: { total_count: envs.length } }),
-        'POST environments': ({ body }) => {
+        'POST environments': ({ reqJson }) => {
+          const body = reqJson as { environment?: Record<string, unknown> };
           const created = { id: 99, ...(body?.environment ?? {}) };
           envs.push(created);
           return { environment: created };
         },
-        'PUT environments/1': ({ body }) => {
+        'PUT environments/1': ({ reqJson }) => {
+          const body = reqJson as { environment?: Record<string, unknown> };
           const idx = envs.findIndex((e) => e.id === 1);
           if (idx >= 0) envs[idx] = { ...envs[idx], ...(body?.environment ?? {}) };
           return { environment: envs[idx] };

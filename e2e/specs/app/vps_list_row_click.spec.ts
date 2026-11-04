@@ -42,6 +42,82 @@ async function navigateWithinApp(page: Page, path: string) {
 }
 
 test.describe('@workflow-matrix @smoke VPS list row navigation', () => {
+  test('captures missing null zero and known allocation with local filter recovery', async ({ page }, testInfo) => {
+    const rows = [
+      { ...makeVps(300), used_memory: undefined, used_diskspace: undefined },
+      { ...makeVps(301), used_memory: null, used_diskspace: null },
+      { ...makeVps(302), used_memory: 0, used_diskspace: 0 },
+      { ...makeVps(303), used_memory: 768, used_diskspace: null },
+      { ...makeVps(304), memory: 0, diskspace: 0, used_memory: 0, used_diskspace: 0 },
+      { ...makeVps(305), memory: null, diskspace: undefined, used_memory: null, used_diskspace: undefined },
+    ];
+    await installHaveApiMock(page, {
+      user: { id: 42, login: 'owner', level: 1 },
+      handlers: {
+        'GET vpses': () => ({ vpses: rows }),
+        'GET transaction_chains': () => ({ transaction_chains: [] }),
+      },
+    });
+    await bootstrapVpsAdminWindow(page);
+    const mobile = testInfo.project.name === 'mobile-chrome';
+    await setUiSettingsLocalStorage(page, { language: mobile ? 'cs' : 'en', theme: mobile ? 'dark' : 'light' });
+    await page.goto('/app/vps');
+    for (const [index, row] of rows.entries()) {
+      const { item } = await visibleVpsItem(page, row.id);
+      const memoryBarVisible = index === 2 || index === 3;
+      const diskBarVisible = index === 2;
+      await expect(item.getByText('RAM', { exact: true })).toHaveCount(memoryBarVisible ? 1 : 0);
+      await expect(item.getByText('Disk', { exact: true })).toHaveCount(mobile ? 1 : diskBarVisible ? 1 : 0);
+      if (index < 4) {
+        await expect(item).toContainText('4.0 GiB');
+        await expect(item).toContainText('195 GiB');
+        expect((await item.innerText()).match(/4\.0 GiB/g)).toHaveLength(1);
+        expect((await item.innerText()).match(/195 GiB/g)).toHaveLength(1);
+      } else if (index === 4) {
+        await expect(item).toContainText('0 MiB');
+        expect((await item.innerText()).match(/0 MiB/g)).toHaveLength(2);
+      } else {
+        await expect(item).not.toContainText('0 MiB');
+        if (mobile) {
+          await expect(item.getByText(mobile ? 'Paměť' : 'Memory', { exact: true }).locator('..')).toContainText('—');
+          await expect(item.getByText(mobile ? 'Disk' : 'Diskspace', { exact: true }).locator('..')).toContainText('—');
+        } else {
+          await expect(item).toContainText('Memory: —');
+          await expect(item).toContainText('Diskspace: —');
+        }
+      }
+      if (mobile) await expect(item.getByText('Paměť', { exact: true })).toHaveCount(memoryBarVisible ? 0 : 1);
+      if (index === 2) await expect(item).toContainText('0 MiB / 4.0 GiB');
+      await item.screenshot({ path: testInfo.outputPath(`list-allocation-${index}.png`) });
+    }
+    const before = page.url();
+    const input = page.getByTestId('vps.smart_filter.input');
+    await input.fill('unknownkey:value');
+    await input.press('Escape');
+    await input.press('Enter');
+    await expect(page.getByTestId('vps.chip.error.0')).toContainText('unknownkey');
+    await expect(input).toHaveValue('unknownkey:value');
+    await expect(input).toHaveAttribute('aria-invalid', 'true');
+    const errorId = await input.getAttribute('aria-describedby');
+    expect(errorId).not.toBeNull();
+    const announcement = page.getByRole('alert').filter({ hasText: 'unknownkey' });
+    await expect(announcement).toHaveCount(1);
+    await expect(announcement).toHaveAttribute('id', errorId ?? '');
+    const errorText = await page.getByTestId('vps.chip.error.0').innerText();
+    await expect(page.getByText(errorText, { exact: true })).toHaveCount(2);
+    expect(page.url()).toBe(before);
+    await input.scrollIntoViewIfNeeded();
+    await page.screenshot({ path: testInfo.outputPath('list-filter-error.png') });
+    await page
+      .getByTestId('vps.chip.error.0')
+      .getByRole('button', { name: mobile ? 'Odebrat' : 'Remove' })
+      .click();
+    await expect(page.getByTestId('vps.chip.error.0')).toHaveCount(0);
+    await expect(input).toHaveValue('unknownkey:value');
+    await expect(input).not.toHaveAttribute('aria-invalid', 'true');
+    await expect(announcement).toHaveCount(0);
+  });
+
   test('clicking a row navigates to VPS detail', async ({ page }) => {
     const vps = makeVps(300);
 

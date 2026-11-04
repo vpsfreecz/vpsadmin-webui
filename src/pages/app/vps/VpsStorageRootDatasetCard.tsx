@@ -9,9 +9,9 @@ import { Spinner } from '../../../components/ui/Spinner';
 import { formatMiB } from '../../../lib/format';
 import type { RootDatasetSummary } from './VpsStorageModel';
 
-function MetadataItem(props: { label: React.ReactNode; value: React.ReactNode }) {
+function MetadataItem(props: { label: React.ReactNode; value: React.ReactNode; testId?: string }) {
   return (
-    <div>
+    <div data-testid={props.testId}>
       <div className="text-xs text-faint">{props.label}</div>
       <div className="font-medium text-fg">{props.value}</div>
     </div>
@@ -26,6 +26,7 @@ export function VpsStorageRootDatasetCard(props: {
   canAdmin: boolean;
   canCreateSubdataset: boolean;
   root: RootDatasetSummary;
+  rawReferenceQuota: unknown;
   loading: boolean;
   error: string | null;
   canResize: boolean;
@@ -35,6 +36,11 @@ export function VpsStorageRootDatasetCard(props: {
 }) {
   const { t } = useI18n();
   const root = props.root;
+  const referenceQuotaLabel = props.rawReferenceQuota === 0
+    ? '∞'
+    : typeof props.rawReferenceQuota === 'number' && Number.isFinite(props.rawReferenceQuota) && props.rawReferenceQuota > 0
+      ? formatMiB(root.referenceQuota)
+      : t('common.na');
 
   if (!root.id) {
     return (
@@ -49,7 +55,7 @@ export function VpsStorageRootDatasetCard(props: {
 
   return (
     <Card testId="vps.storage.root_dataset">
-      <CardHeader title={t('vps.storage.root_dataset.title')} subtitle={t('vps.storage.root_dataset.subtitle', { dataset: root.label })} />
+      <CardHeader title={t('vps.storage.root_dataset.title')} subtitle={root.label} />
       <CardBody>
         {props.loading ? (
           <div className="mb-3 flex items-center gap-2 text-sm text-muted" data-testid="vps.storage.root_dataset.loading">
@@ -115,7 +121,11 @@ export function VpsStorageRootDatasetCard(props: {
           </summary>
           <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <MetadataItem label={t('dataset.field.referenced')} value={formatMiB(root.referenced)} />
-            <MetadataItem label={t('dataset.field.reference_quota')} value={root.referenceQuota !== null ? formatMiB(root.referenceQuota) : '∞'} />
+            <MetadataItem
+              label={t('dataset.field.reference_quota')}
+              value={referenceQuotaLabel}
+              testId="vps.storage.root_dataset.reference_quota"
+            />
             <MetadataItem label={t('dataset.field.quota')} value={formatMiB(root.quota)} />
             <MetadataItem label={t('common.state')} value={root.state ?? t('common.na')} />
           </div>

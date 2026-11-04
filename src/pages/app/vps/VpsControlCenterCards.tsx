@@ -19,7 +19,7 @@ import { ChipLink } from '../../../components/ui/ChipLink';
 import { CopyButton } from '../../../components/ui/CopyButton';
 import { Spinner } from '../../../components/ui/Spinner';
 import { UsageBar } from '../../../components/ui/UsageBar';
-import { formatDateTime, formatDurationSeconds, formatMiB } from '../../../lib/format';
+import { formatDateTime, formatMiB } from '../../../lib/format';
 import {
   chainBadgeFromState,
   chainProgressLabel,
@@ -28,7 +28,6 @@ import {
 } from '../../../lib/taskStatus';
 import {
   classifyIpAddress,
-  formatLoadavg,
   ipAddressDisplayLabel,
   isRemoteConsoleAvailable,
   overviewHealthKey,
@@ -210,7 +209,6 @@ export function VpsAccessCard(props: { vps: Vps; basePath: string; contextSearch
     <Card className="lg:col-span-6" testId="vps.overview.status_access.card">
       <CardHeader
         title={<SectionTitle icon={<KeyRound className={iconClass} />}>{t('vps.control.access.title')}</SectionTitle>}
-        subtitle={t('vps.control.access.subtitle')}
         actions={<ChipLink to={`${props.basePath}/vps/${props.vps.id}/access${props.contextSearch ?? ''}`}>{t('vps.control.access.open')}</ChipLink>}
       />
       <CardBody className="space-y-3">
@@ -226,10 +224,6 @@ export function VpsAccessCard(props: { vps: Vps; basePath: string; contextSearch
               {t('vps.control.access.no_ssh')}
             </div>
           )}
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-          <MiniStat label={t('vps.control.access.uptime')} value={formatDurationSeconds(props.vps.uptime)} />
-          <MiniStat label={t('vps.control.access.load')} value={formatLoadavg(props.vps)} />
         </div>
         {consoleAvailable ? (
           <Link
@@ -305,22 +299,17 @@ export function VpsStorageBackupsCard(props: {
   vps: Vps;
   basePath: string;
   contextSearch?: string;
-  showUsage?: boolean;
   showPool?: boolean;
 }) {
   const { t } = useI18n();
   const datasetId = resourceId(props.vps.dataset);
   const dataset = resourceLabel(props.vps.dataset);
   const pool = resourceLabel(props.vps.pool);
-  const usage = overviewUsageMetric(props.vps.used_diskspace, props.vps.diskspace);
 
   return (
     <Card className="lg:col-span-6" testId="vps.overview.storage.card">
       <CardHeader
         title={<SectionTitle icon={<HardDrive className={iconClass} />}>{t('vps.control.storage.title')}</SectionTitle>}
-        subtitle={props.showUsage === false
-          ? t('vps.control.storage.subtitle_admin')
-          : t('vps.control.storage.subtitle')}
         actions={<ChipLink to={`${props.basePath}/vps/${props.vps.id}/storage${props.contextSearch ?? ''}`}>{t('vps.control.storage.open')}</ChipLink>}
       />
       <CardBody className="space-y-4">
@@ -331,15 +320,6 @@ export function VpsStorageBackupsCard(props: {
           ) : t('vps.control.storage.no_dataset')}
           hint={props.showPool && pool ? t('vps.control.storage.pool_hint', { pool }) : undefined}
         />
-        {props.showUsage !== false ? (
-          <UsageBar
-            label={t('vps.control.storage.usage')}
-            used={usage.used}
-            max={usage.max}
-            formatValue={formatMiB}
-            ariaLabel={t('vps.control.storage.usage')}
-          />
-        ) : null}
         {datasetId ? (
           <Link
             className="inline-flex items-center gap-2 text-sm font-medium text-link hover:underline"

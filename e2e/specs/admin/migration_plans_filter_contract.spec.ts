@@ -2,7 +2,9 @@ import { expect, test } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 
-test('@pr-smoke @pr-smoke-mobile admin migration plans keep filters within the API contract', async ({ page }) => {
+test('@pr-smoke @pr-smoke-mobile admin migration plans keep filters within the API contract', async ({
+  page,
+}, testInfo) => {
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
   await setUiSettingsLocalStorage(page, { language: 'en' });
 
@@ -46,9 +48,7 @@ test('@pr-smoke @pr-smoke-mobile admin migration plans keep filters within the A
   await expect.poll(() => migrationPlanRequests.length).toBeGreaterThan(0);
   migrationPlanRequests.length = 0;
 
-  await page.goto(
-    '/admin/migration-plans?q=maintenance&q=drain&state=running&user=42&limit=25&from_id=400&page=3'
-  );
+  await page.goto('/admin/migration-plans?q=maintenance&q=drain&state=running&user=42&limit=25&from_id=400&page=3');
 
   await expect(page.getByTestId('admin.migration_plans.page')).toBeVisible();
   await expect.poll(() => migrationPlanRequests.length).toBeGreaterThan(0);
@@ -96,9 +96,7 @@ test('@pr-smoke @pr-smoke-mobile admin migration plans keep filters within the A
   await expect(page.getByTestId('admin.migration_plans.page')).toBeVisible();
   expect(
     migrationPlanRequests.every(
-      (request) =>
-        !request.searchParams.has('migration_plan[q]') &&
-        !new URL(request.pageUrl).searchParams.has('q')
+      (request) => !request.searchParams.has('migration_plan[q]') && !new URL(request.pageUrl).searchParams.has('q')
     )
   ).toBe(true);
 
@@ -117,6 +115,21 @@ test('@pr-smoke @pr-smoke-mobile admin migration plans keep filters within the A
   await expect(page.getByTestId('admin.migration_plans.chip.error.0')).toContainText(
     'Use state:, user: or a numeric ID for “maintenance”.'
   );
+  const localErrors = page.getByTestId('admin.migration_plans.filter_errors');
+  await expect(localErrors).toHaveAttribute('role', 'status');
+  await expect(localErrors).toHaveAttribute('aria-live', 'polite');
+  await expect(localErrors).toHaveAttribute('aria-atomic', 'true');
+  await expect(localErrors).toContainText('Use state:, user: or a numeric ID for “maintenance”.');
+  await expect(
+    page
+      .getByTestId('toast.viewport')
+      .getByText('Use state:, user: or a numeric ID for “maintenance”.', { exact: true })
+  ).toHaveCount(0);
+  await page.screenshot({
+    path: testInfo.outputPath('migration-filter-error-context.png'),
+    fullPage: false,
+    scale: 'css',
+  });
   expect(new URL(page.url()).searchParams.has('q')).toBe(false);
 
   // Invalid free text must not push a duplicate copy of the same URL. A

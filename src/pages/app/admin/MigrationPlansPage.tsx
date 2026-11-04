@@ -7,7 +7,6 @@ import { createMigrationPlan, fetchMigrationPlans } from '../../../lib/api/migra
 import { searchUsers } from '../../../lib/api/users';
 import { useAppMode } from '../../../app/appMode';
 import { useI18n } from '../../../app/i18n';
-import { useToasts } from '../../../app/toasts';
 import { FilterBar } from '../../../components/layout/FilterBar';
 import { ListShell } from '../../../components/layout/ListShell';
 import { PageHeader } from '../../../components/layout/PageHeader';
@@ -109,7 +108,6 @@ function MigrationPlansContent() {
   const { basePath } = useAppMode();
   const chrome = useChrome();
   const { t } = useI18n();
-  const toasts = useToasts();
   const qc = useQueryClient();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -432,10 +430,6 @@ function MigrationPlansContent() {
 
     setSmart('');
     setSmartErrors(errors);
-
-    if (errors.length > 0) {
-      toasts.pushToast({ variant: 'danger', title: errors[0] ?? t('common.unknown_error') });
-    }
   }
 
   const smartSuggestions: SmartFilterSuggestion[] = useMemo(() => {
@@ -549,7 +543,6 @@ function MigrationPlansContent() {
       header={
         <PageHeader
           title={t('admin.migration_plans.title')}
-          description={t('admin.migration_plans.subtitle')}
           meta={filtersActive ? <span className="text-xs text-faint">{t('list.meta.filters_active')}</span> : null}
           testId="admin.migration_plans.list.header"
           actions={
@@ -563,7 +556,20 @@ function MigrationPlansContent() {
         <>
           <FilterBar
             testId="admin.migration_plans.list.filters"
-            below={activeFilterChips.length > 0 ? <div className="flex flex-wrap gap-1" data-testid="admin.migration_plans.active_filters">{activeFilterChips}</div> : null}
+            below={
+              <>
+                <div
+                  role="status"
+                  aria-live="polite"
+                  aria-atomic="true"
+                  className="sr-only"
+                  data-testid="admin.migration_plans.filter_errors"
+                >
+                  {smartErrors.join(' ')}
+                </div>
+                {activeFilterChips.length > 0 ? <div className="flex flex-wrap gap-1" data-testid="admin.migration_plans.active_filters">{activeFilterChips}</div> : null}
+              </>
+            }
           >
             <div className="w-full sm:max-w-xl">
               <SmartFilterInput

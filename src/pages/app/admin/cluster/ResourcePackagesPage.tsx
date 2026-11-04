@@ -22,6 +22,7 @@ import { ErrorState } from '../../../../components/ui/ErrorState';
 import { FilterChip } from '../../../../components/ui/FilterChip';
 import { Input } from '../../../../components/ui/Input';
 import { KeysetPagination } from '../../../../components/ui/KeysetPagination';
+import { LoadingState } from '../../../../components/ui/LoadingState';
 import { Select, type SelectOption } from '../../../../components/ui/Select';
 import { SmartFilterInput, type SmartFilterSuggestion } from '../../../../components/ui/SmartFilterInput';
 import { SmartInputHelp } from '../../../../components/ui/SmartInputHelp';
@@ -488,6 +489,8 @@ export function ResourcePackagesPage() {
           message={t('admin.cluster.resource_packages.personal_user_required.body')}
           testId="admin.cluster.resource_packages.personal_user_required"
         />
+      ) : listQ.isPending ? (
+        <LoadingState testId="admin.cluster.resource_packages.loading" />
       ) : listQ.isError ? (
         <ErrorState error={listQ.error} testId="admin.cluster.resource_packages.error" />
       ) : packages.length === 0 ? (
@@ -675,7 +678,10 @@ export function ResourcePackagesPage() {
             </div>
             <div className="text-sm text-muted">
               {t('admin.cluster.resource_packages.delete_confirm.impact', {
-                count: deleteImpactQ.isLoading || deleteImpactQ.isError ? '—' : String(deleteImpactQ.data ?? 0),
+                count:
+                  deleteImpactQ.isSuccess && typeof deleteImpactQ.data === 'number'
+                    ? String(deleteImpactQ.data)
+                    : t('common.na'),
               })}
             </div>
             {deleteM.isError ? (

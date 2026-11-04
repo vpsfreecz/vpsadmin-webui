@@ -70,6 +70,7 @@ export function VpsListFilters(props: VpsListFiltersProps) {
             ariaLabel={props.t('vps.list.search.placeholder')}
             testId="vps.smart_filter.input"
             suggestions={props.smartSuggestions}
+            errors={props.smartErrors}
             onSubmit={() => void props.applySmartText(props.smart)}
             suffix={
               <Button
