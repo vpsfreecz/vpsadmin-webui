@@ -347,7 +347,6 @@ export function VpsListPage() {
         <PageHeader
           testId="vps.list.header"
           title={t('nav.vps')}
-          description={t('vps.list.description')}
           actions={
             <Button to={createPath} testId="vps.list.create">
               <Plus className="h-4 w-4" />
