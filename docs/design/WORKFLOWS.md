@@ -60,8 +60,7 @@ public detail/archive. It makes no CVE or private affected-object requests.
 The separate complete advisory archive and authenticated dashboard are unchanged.
 Overview, outage and advisory list pages retain an accessible screen-reader-only
 h1 and omit the duplicated visible page heading/intro. Detail headings remain.
-The overview brand mark sits left of equal-width member/VPS metric cards
-on desktop and above them on mobile. Their value font size and baseline match;
+Equal-width member/VPS metric cards fill the available space. Their value font size and baseline match;
 node availability retains the percentage/counts without a circular gauge.
 Overview card headers/bodies and statistic cards use equal 12px padding. Repeated
 subtitles are omitted; real status/error content, counts and loading states stay.
