@@ -210,9 +210,9 @@ export function SecurityAdvisoryDetailPage() {
           <div className="min-w-0 space-y-1">
             <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
             <div className="text-sm text-muted">
-              {i18n.t('public.security_advisories.published')}: {formatDateTime(publicAdvisory.published_at)}
+              {i18n.t('public.security_advisories.published')}: {formatDateTime(publicAdvisory.published_at, i18n.lang)}
               {publicAdvisory.retracted_at
-                ? ` · ${i18n.t('public.security_advisory_detail.retracted')}: ${formatDateTime(publicAdvisory.retracted_at)}`
+                ? ` · ${i18n.t('public.security_advisory_detail.retracted')}: ${formatDateTime(publicAdvisory.retracted_at, i18n.lang)}`
                 : ''}
             </div>
           </div>
@@ -329,11 +329,11 @@ export function SecurityAdvisoryDetailPage() {
                         </div>
                         <div className="mt-1 text-xs text-muted">
                           {row.vulnerable_until
-                            ? `${i18n.t('public.security_advisory_detail.nodes.vulnerable_until')}: ${formatDateTime(row.vulnerable_until)}`
+                            ? `${i18n.t('public.security_advisory_detail.nodes.vulnerable_until')}: ${formatDateTime(row.vulnerable_until, i18n.lang)}`
                             : null}
                           {row.vulnerable_until && row.mitigated_since ? ' · ' : null}
                           {row.mitigated_since
-                            ? `${i18n.t('public.security_advisory_detail.nodes.mitigated_since')}: ${formatDateTime(row.mitigated_since)}`
+                            ? `${i18n.t('public.security_advisory_detail.nodes.mitigated_since')}: ${formatDateTime(row.mitigated_since, i18n.lang)}`
                             : null}
                         </div>
                       </div>
@@ -373,11 +373,11 @@ export function SecurityAdvisoryDetailPage() {
                       </div>
                       <div className="mt-1 text-xs text-muted">
                         {status.vulnerable_until
-                          ? `${i18n.t('public.security_advisory_detail.nodes.vulnerable_until')}: ${formatDateTime(status.vulnerable_until)}`
+                          ? `${i18n.t('public.security_advisory_detail.nodes.vulnerable_until')}: ${formatDateTime(status.vulnerable_until, i18n.lang)}`
                           : null}
                         {status.vulnerable_until && status.mitigated_since ? ' · ' : null}
                         {status.mitigated_since
-                          ? `${i18n.t('public.security_advisory_detail.nodes.mitigated_since')}: ${formatDateTime(status.mitigated_since)}`
+                          ? `${i18n.t('public.security_advisory_detail.nodes.mitigated_since')}: ${formatDateTime(status.mitigated_since, i18n.lang)}`
                           : null}
                       </div>
                     </div>
@@ -420,7 +420,7 @@ export function SecurityAdvisoryDetailPage() {
                           {updateSummary || i18n.t('public.security_advisory_detail.updates.fallback', { id: update.id })}
                         </h2>
                         <div className="mt-1 text-xs text-muted">
-                          {formatDateTime(publishedAt)}
+                          {formatDateTime(publishedAt, i18n.lang)}
                         </div>
                       </div>
                       {update.state ? (

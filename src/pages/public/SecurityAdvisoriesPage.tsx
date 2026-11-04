@@ -44,7 +44,7 @@ function SecurityAdvisoryRow(props: { advisory: SecurityAdvisory; showPersonalIm
             {title}
           </Link>
         }
-        subtitle={`${i18n.t('public.security_advisories.published')}: ${formatDateTime(advisory.published_at)}`}
+        subtitle={`${i18n.t('public.security_advisories.published')}: ${formatDateTime(advisory.published_at, i18n.lang)}`}
         actions={
           <div className="flex flex-wrap items-center gap-2">
             {props.showPersonalImpact && typeof advisory.affected === 'boolean' ? (
