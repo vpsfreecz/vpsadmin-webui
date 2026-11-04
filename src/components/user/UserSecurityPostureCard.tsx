@@ -34,14 +34,15 @@ export function UserSecurityPostureCard(props: {
     <Card testId={`${prefix}.posture.card`}>
       <CardHeader
         title={t('security.posture.title')}
-        subtitle={t('security.posture.subtitle')}
-        actions={<Badge variant={posture.badgeTone}>{t(posture.badgeKey)}</Badge>}
+        actions={posture.status !== 'ready' ? <Badge variant={posture.badgeTone}>{t(posture.badgeKey)}</Badge> : null}
       />
       <CardBody>
         <div className="space-y-4">
-          <div className="text-sm text-muted" data-testid={`${prefix}.posture.summary`}>
-            {t(posture.summaryKey, posture.summaryVars)}
-          </div>
+          {posture.status !== 'ready' ? (
+            <div className="text-sm text-muted" data-testid={`${prefix}.posture.summary`}>
+              {t(posture.summaryKey, posture.summaryVars)}
+            </div>
+          ) : null}
 
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             {posture.items.map((item) => (
