@@ -1,3 +1,7 @@
+## 2026-11-04 — Approved interface copy
+
+[Remove ten approved interface texts](docs/work-log/2026-11-04-approved-interface-copy.md).
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path

@@ -43,6 +43,13 @@ Desktop links stay below the scrolling primary navigation; mobile taps close the
 drawer after navigation. Public pages retain the existing return-to-app link.
 No route, backend permission, publication behavior or API endpoint changes.
 
+## Concise interface copy
+
+The account overview, VPS activity, dataset space, DNS zones, backup shortcuts,
+transaction chains and Finance overview use their headings and controls without
+the repeated descriptions approved for removal. Navigation and the OAuth shell
+show the vpsAdmin name without a version tagline (REQ-004/009).
+
 ## Public entry and authentication
 
 **Intent:** inspect service availability, sign in, recover access or correct a

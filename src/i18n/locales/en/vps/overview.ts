@@ -192,7 +192,6 @@ export const enVps_overview = {
   'vps.control.storage.backups': 'Backups',
   'vps.control.storage.open_backups': 'Open backups',
   'vps.control.activity.title': 'Activity',
-  'vps.control.activity.subtitle': 'Latest operations and transactions for this VPS.',
   'vps.control.activity.open': 'Open activity',
   'vps.control.activity.empty': 'There are no recent operations for this VPS yet.',
   'vps.control.activity.error': 'Failed to load activity.',

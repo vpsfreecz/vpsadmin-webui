@@ -646,7 +646,6 @@ export function DnsZonesPage() {
         <PageHeader
           testId="dns.zones.list.header"
           title={t('dns.zones.page.title')}
-          description={t('dns.zones.page.description')}
           meta={filtersActive ? t('list.meta.filters_active') : undefined}
           actions={
             <div className="flex items-center gap-2">

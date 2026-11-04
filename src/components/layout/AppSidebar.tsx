@@ -283,13 +283,12 @@ function NavigationSections(props: {
   );
 }
 
-export function AppLogo(props: { subtitle: string }) {
+export function AppLogo() {
   return (
     <div className="flex items-center gap-2">
       <div className="grid h-8 w-8 place-items-center rounded-md bg-accent text-sm font-semibold text-accent-fg">VA</div>
       <div className="leading-tight">
         <div className="text-sm font-semibold">vpsAdmin</div>
-        <div className="text-xs text-muted">{props.subtitle}</div>
       </div>
     </div>
   );
@@ -373,7 +372,7 @@ export function AppSidebar(props: {
             ))}
           </nav>
           <div className="border-t border-border pt-3" data-testid="shell.brand.drawer">
-            <AppLogo subtitle={t('app.logo.subtitle')} />
+            <AppLogo />
           </div>
           <BuildFooter onNavigate={onCloseMobileNav} />
         </div>
@@ -421,7 +420,7 @@ export function AppSidebar(props: {
             ))}
           </nav>
           <div className="shrink-0 border-t border-border px-4 py-3" data-testid="shell.brand.sidebar">
-            <AppLogo subtitle={t('app.logo.subtitle')} />
+            <AppLogo />
           </div>
           <div className="shrink-0 border-t border-border px-4 py-1">
             <BuildFooter />

@@ -642,7 +642,6 @@ function TransactionChainsContent() {
       header={
         <PageHeader
           title={t('transactions.chains.title')}
-          description={t('transactions.chains.description')}
           testId="transactions.list.header"
           actions={uiMode !== 'app' || auth.role !== 'admin' || scope.mineUserId === undefined ? (
             <LinkButton to={`${basePath}/transactions/items`} variant="secondary" size="sm">
