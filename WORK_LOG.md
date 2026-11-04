@@ -1,3 +1,7 @@
+## 2026-11-04 — Sidebar language and appearance
+
+[Separate language and appearance from the account menu](docs/work-log/2026-11-04-sidebar-interface-preferences.md).
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path

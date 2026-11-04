@@ -86,6 +86,7 @@ export const csCommon_navigation = {
   'settings.scope.all': 'Všechny objekty',
   'settings.scope.toast_all.title': 'Pohled: všechny objekty',
   'settings.scope.toast_all.body': 'Zobrazuješ všechny dostupné objekty. Akce mohou ovlivnit ostatní členy.',
+  'settings.interface.label': 'Jazyk a vzhled',
   'settings.theme.label': 'Téma',
   'settings.theme.system': 'Systém',
   'settings.theme.light': 'Světlé',
