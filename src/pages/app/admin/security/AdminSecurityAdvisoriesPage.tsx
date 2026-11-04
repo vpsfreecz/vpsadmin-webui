@@ -22,7 +22,7 @@ import {
 } from '../../../../lib/api/securityAdvisories';
 import { fetchLanguages } from '../../../../lib/api/languages';
 import { formatErrorMessage } from '../../../../lib/errors';
-import { formatDateTime } from '../../../../lib/format';
+import { formatDateTime } from '../../../../lib/time';
 import { pickLocalizedField } from '../../../../lib/translations';
 import { SecurityAdvisoryEditorModal, securityAdvisoryEditorPayload, type SecurityAdvisoryEditorValues } from './SecurityAdvisoryEditorModal';
 import {
@@ -290,7 +290,7 @@ export function AdminSecurityAdvisoriesPage() {
                     {summary ? <div className="mt-1 max-w-2xl text-xs text-muted">{summary}</div> : null}
                   </td>
                   <td className="px-4 py-3"><Badge variant={stateBadgeVariant(advisoryState)}>{securityAdvisoryStateLabel(t, advisoryState)}</Badge></td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm text-muted">{advisory.published_at ? formatDateTime(advisory.published_at) : '—'}</td>
+                  <td className="px-4 py-3 whitespace-nowrap text-sm text-muted">{advisory.published_at ? formatDateTime(advisory.published_at, i18n.lang) : '—'}</td>
                   <td className="px-4 py-3 text-right tabular-nums">{count(advisory.affected_node_count)}</td>
                   <td className="px-4 py-3 text-right tabular-nums">{count(advisory.affected_user_count)}</td>
                   <td className="px-4 py-3 text-right tabular-nums">{count(advisory.affected_vps_count)}</td>

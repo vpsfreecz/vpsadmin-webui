@@ -1,14 +1,15 @@
-export function formatDateTime(iso?: string | null): string {
+export function formatDateTime(iso?: string | null, language?: 'cs' | 'en'): string {
   if (!iso) return '—';
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return String(iso);
 
-  return new Intl.DateTimeFormat(undefined, {
+  return new Intl.DateTimeFormat(language === 'cs' ? 'cs-CZ' : language, {
     year: 'numeric',
     month: 'short',
     day: '2-digit',
     hour: '2-digit',
     minute: '2-digit',
+    ...(language === 'cs' ? { hourCycle: 'h23' } : {}),
   }).format(d);
 }
 
