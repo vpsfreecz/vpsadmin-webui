@@ -912,6 +912,7 @@ remain separate approval/ownership decisions. [KB repository](https://github.com
 
 ## Global search
 
+The sidebar uses a short Search placeholder. The full palette lists examples of searchable objects.
 The header and command palette search independently of visited list pages
 (REQ-070). Administrator mode calls `cluster/search`; My view uses scoped VPS
 and DNS queries and exact IPv4/IPv6 address queries. A normal member relies on

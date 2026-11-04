@@ -31,7 +31,7 @@ function t(key: any, vars?: Record<string, unknown>): string {
     'auth.session_remaining.minutes': `${vars?.['minutes'] ?? ''} min`,
     'common.open_tasks': 'Open tasks',
     'nav.open': 'Open navigation',
-    'palette.placeholder.user': 'Search VPS',
+    'search.inline.placeholder': 'Search',
     'palette.group.vps': 'VPS',
     'palette.loading': 'Loading…',
     'palette.error_prefix': 'Search failed',

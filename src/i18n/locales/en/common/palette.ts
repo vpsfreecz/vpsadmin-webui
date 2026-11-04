@@ -5,7 +5,7 @@ export const enCommon_palette = {
   'palette.open': 'Search',
   'palette.shortcut_title': 'Open quick search',
   'search.inline.aria': 'Quickly search objects',
-  'search.inline.placeholder': 'Quick search…',
+  'search.inline.placeholder': 'Search',
   'palette.placeholder.admin': 'Search VPS, users, IP addresses…',
   'palette.placeholder.user': 'Search your VPS, IP addresses, DNS…',
   'palette.loading': 'Searching…',
