@@ -100,7 +100,8 @@ export function DashboardWidgetGrid(props: {
       return (
         <Card key={id} testId="app.dashboard.outages.card">
           <CardHeader
-            className="items-center p-3"
+            compact={compact}
+            className="items-center"
             title={t('dashboard.section.outages.title')}
             subtitle={t('dashboard.section.outages.subtitle_compact', {
               current: props.outages.currentCount,
@@ -115,7 +116,7 @@ export function DashboardWidgetGrid(props: {
               </>
             }
           />
-          <CardBody className={compact ? 'p-2.5' : 'p-3'}>
+          <CardBody compact={compact}>
             {props.outages.isLoading ? (
               <Spinner label={t('dashboard.section.outages.loading')} />
             ) : props.outages.isError ? (
@@ -165,7 +166,8 @@ export function DashboardWidgetGrid(props: {
       return (
         <Card key={id} testId="app.dashboard.news.card">
           <CardHeader
-            className="items-center p-3"
+            compact={compact}
+            className="items-center"
             title={t('dashboard.section.news.title')}
             subtitle={t('dashboard.section.news.subtitle_compact')}
             actions={
@@ -183,7 +185,7 @@ export function DashboardWidgetGrid(props: {
               </>
             }
           />
-          <CardBody className={compact ? 'p-2.5' : 'p-3'}>
+          <CardBody compact={compact}>
             {props.news.isLoading ? (
               <Spinner label={t('dashboard.section.news.loading')} />
             ) : props.news.isError ? (

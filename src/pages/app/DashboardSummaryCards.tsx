@@ -58,7 +58,7 @@ export function DashboardSummaryCards(props: {
 
   return (
     <Card testId="app.dashboard.summary-grid" className="shadow-none">
-      <CardBody className={compact ? 'p-2' : 'p-3'}>
+      <CardBody compact={compact}>
         <div className={`grid gap-2 ${props.appMode === 'admin' ? 'md:grid-cols-3' : 'md:grid-cols-2'}`}>
           {items.map((item) => (
             <div

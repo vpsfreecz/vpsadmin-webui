@@ -15,6 +15,7 @@ export function Card(props: { id?: string; testId?: string; className?: string; 
 
 export function CardHeader(props: {
   className?: string;
+  compact?: boolean;
   title: React.ReactNode;
   subtitle?: React.ReactNode;
   actions?: React.ReactNode;
@@ -24,7 +25,13 @@ export function CardHeader(props: {
   const actions = props.actions ?? props.right;
 
   return (
-    <div className={clsx('flex flex-col items-start gap-3 border-b border-border p-4 sm:flex-row', props.className)}>
+    <div
+      className={clsx(
+        'flex flex-col items-start gap-3 border-b border-border sm:flex-row',
+        props.compact ? 'p-3' : 'p-4',
+        props.className
+      )}
+    >
       <div className="w-full min-w-0 sm:w-auto sm:flex-1">
         <div className="font-semibold">{props.title}</div>
         {props.subtitle ? <div className="mt-0.5 text-sm text-muted">{props.subtitle}</div> : null}
@@ -37,6 +44,6 @@ export function CardHeader(props: {
   );
 }
 
-export function CardBody(props: { className?: string; children: React.ReactNode }) {
-  return <div className={clsx('p-4', props.className)}>{props.children}</div>;
+export function CardBody(props: { compact?: boolean; className?: string; children: React.ReactNode }) {
+  return <div className={clsx(props.compact ? 'p-3' : 'p-4', props.className)}>{props.children}</div>;
 }

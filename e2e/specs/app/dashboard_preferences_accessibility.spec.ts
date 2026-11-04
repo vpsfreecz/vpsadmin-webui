@@ -84,3 +84,42 @@ test('@pr-smoke @pr-smoke-mobile dashboard preferences: preserves disclosure foc
   await expect(trigger).toHaveAttribute('aria-expanded', 'false');
   await expect(panel).toBeHidden();
 });
+
+test('@pr-smoke @pr-smoke-mobile dashboard widgets share insets after reordering and hiding', async ({ page }) => {
+  await bootstrapVpsAdminWindow(page, { sessionToken: 'DASHBOARD_WIDGET_INSETS' });
+  const now = new Date().toISOString();
+  await installHaveApiMock(page, {
+    user: { id: 1, login: 'test', level: 1 },
+    handlers: {
+      'GET outages': () => ({ outages: [{ id: 55, state: 'announced', begins_at: now, duration: 60 }] }),
+      'GET security_advisories': () => ({ security_advisories: [{ id: 77, name: 'Example', state: 'published', published_at: now }] }),
+      'GET news_logs': () => ({ news_logs: [] }),
+      'GET nodes/public_status': () => ({ nodes: [] }),
+    },
+  });
+  await page.goto('/app');
+
+  const widget = (id: string) => page.getByTestId(`app.dashboard.${id}.card`);
+  const expectInsets = async (ids: string[], inset: string) => {
+    for (const id of ids) {
+      const card = widget(id);
+      await expect(card).toBeVisible();
+      for (const edge of ['padding-left', 'padding-right']) {
+        await expect(card.locator(':scope > div').nth(0)).toHaveCSS(edge, inset);
+        await expect(card.locator(':scope > div').nth(1)).toHaveCSS(edge, inset);
+      }
+    }
+  };
+  await expectInsets(['news', 'outages', 'security', 'cluster'], '12px');
+
+  await page.getByTestId('app.dashboard.preferences.toggle').click();
+  await page.getByTestId('app.dashboard.preferences.widget.outages.up').click();
+  await page.getByTestId('app.dashboard.preferences.widget.news.visible').click();
+  await expect(widget('news')).toHaveCount(0);
+  await page.getByTestId('app.dashboard.preferences.density').selectOption('comfortable');
+  await expectInsets(['outages', 'security', 'cluster'], '16px');
+  await page.getByTestId('app.dashboard.preferences.widget.news.visible').click();
+  await expectInsets(['outages', 'news', 'security', 'cluster'], '16px');
+  const [outages, news] = await Promise.all([widget('outages').boundingBox(), widget('news').boundingBox()]);
+  expect(outages!.y).toBeLessThan(news!.y);
+});
