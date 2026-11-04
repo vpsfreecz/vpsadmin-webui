@@ -56,7 +56,6 @@ export const enCommon_feedback = {
   'modal.root_password_reveal.title': 'New root password',
   'modal.root_password_reveal.body': 'This password will not be shown again. Copy it now.',
   'help_boxes.panel.title': 'Page help',
-  'help_boxes.panel.subtitle': 'Contextual guidance for the current page.',
   'help_boxes.panel.manage': 'Manage help boxes',
   'help_boxes.panel.loading': 'Loading page help…',
   'help_boxes.panel.iframe_title': 'Help box {id}',

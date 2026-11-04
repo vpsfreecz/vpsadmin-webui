@@ -116,7 +116,6 @@ export function SecurityAdvisoriesCard(props: {
       <CardHeader
         className="items-center p-3"
         title={t('dashboard.section.security.title')}
-        subtitle={t('dashboard.section.security.subtitle')}
         actions={
           <>
             {props.onToggleCollapsed ? (

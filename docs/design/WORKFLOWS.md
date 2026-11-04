@@ -870,7 +870,7 @@ sampling intervals need their real API semantics.
 updates, relations and associated outages/rebuilds. Audit history supports
 operational investigation. Mail administration covers templates/translations,
 mailboxes/handlers, recipients and delivery logs. Content includes news and
-contextual help boxes. Whole-template and standalone-recipient deletion are
+contextual help boxes. The contextual panel uses a title and controls. Whole-template and standalone-recipient deletion are
 intentionally blocked pending safe backend relation handling; translations and
 template-recipient membership have separate supported delete operations. See
 [the deletion boundary](ACTION_CONTRACTS.md#deliberately-blocked-mail-deletion).

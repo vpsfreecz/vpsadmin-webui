@@ -4,6 +4,11 @@ Prepared a focused BFF credential-forwarding defense and consistent local-path
 validation after dummy loopback reproductions. See the [finding and checks](docs/work-log/2026-10-28-oauth-redirect-boundaries.md).
 Not merged or deployed; no API or provider changes.
 
+## 2026-11-04 — Remove redundant dashboard copy
+
+Remove generic text from the contextual help panel and signed-in dashboard.
+See [scope and verification](docs/work-log/2026-11-04-dashboard-redundant-copy.md).
+
 ## 2026-10-28 — Development tool security patches
 
 Prepared compatible Vite/Vitest and transitive security updates, with a narrow

@@ -56,7 +56,6 @@ export const csCommon_feedback = {
   'modal.root_password_reveal.title': 'Nové heslo roota',
   'modal.root_password_reveal.body': 'Toto heslo už nebude možné znovu zobrazit. Zkopíruj si ho.',
   'help_boxes.panel.title': 'Nápověda k této stránce',
-  'help_boxes.panel.subtitle': 'Kontextová nápověda pro aktuální stránku.',
   'help_boxes.panel.manage': 'Spravovat help boxy',
   'help_boxes.panel.loading': 'Načítám nápovědu stránky…',
   'help_boxes.panel.iframe_title': 'Nápověda {id}',
