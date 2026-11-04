@@ -234,7 +234,7 @@ export function summarizeNodes(nodes: PublicNodeStatus[], unknownLocationLabel: 
   return { byLocation, summary: { ok, maintenance, down, unknown, total, vps } };
 }
 export { SecurityAdvisoriesCard } from "./DashboardSecurityAdvisoriesCard";
-export function ClusterHealthCard(props: { isLoading: boolean; isError: boolean; nodeData: ReturnType<typeof summarizeNodes>; nodeIssueCount: number; collapsed?: boolean; density?: DashboardDensity; onToggleCollapsed?: () => void; }) {
+export function ClusterHealthCard(props: { isLoading: boolean; isError: boolean; nodeData: ReturnType<typeof summarizeNodes>; collapsed?: boolean; density?: DashboardDensity; onToggleCollapsed?: () => void; }) {
   const { t } = useI18n();
   const { basePath, mode } = useAppMode();
   const compact = props.density === "compact";
@@ -251,7 +251,12 @@ export function ClusterHealthCard(props: { isLoading: boolean; isError: boolean;
   const renderedNodeCount = visibleLocationGroups.reduce((count, group) => count + group.nodes.length, 0);
   const statusBadges = (
     <div className="flex flex-wrap gap-2 text-sm">
-      <Badge variant="ok">{t("dashboard.section.cluster.status_summary.up", { count: props.nodeData.summary.ok })}</Badge>
+      <Badge variant="neutral" testId="app.dashboard.cluster.availability">
+        {t("dashboard.section.cluster.location_summary_compact", {
+          up: props.nodeData.summary.ok,
+          total: props.nodeData.summary.total,
+        })}
+      </Badge>
       {props.nodeData.summary.maintenance > 0 ? (
         <Badge variant="warn">
           {t("dashboard.section.cluster.status_summary.maintenance", { count: props.nodeData.summary.maintenance })}
@@ -269,10 +274,6 @@ export function ClusterHealthCard(props: { isLoading: boolean; isError: boolean;
     <Card testId="app.dashboard.cluster.card" className="xl:col-span-2">
       <CardHeader
         title={t("dashboard.section.cluster.title")}
-        subtitle={t("dashboard.section.cluster.subtitle_compact", {
-          total: props.nodeData.summary.total,
-          issues: props.nodeIssueCount,
-        })}
         actions={
           <>
             {props.onToggleCollapsed ? (
@@ -303,14 +304,7 @@ export function ClusterHealthCard(props: { isLoading: boolean; isError: boolean;
         ) : (
           <div className={compact ? "space-y-3" : "space-y-4"}>
             {statusBadges}
-            {collapsed ? (
-              <div className="text-sm text-muted">
-                {t("dashboard.widget.cluster.collapsed_summary", {
-                  total: props.nodeData.summary.total,
-                  issues: props.nodeIssueCount,
-                })}
-              </div>
-            ) : (
+            {!collapsed ? (
               <>
                 <div className={compact ? "space-y-3" : "space-y-4"} data-testid="app.dashboard.cluster.groups">
                   {visibleLocationGroups.map(({ location, group, nodes }) => (
@@ -447,7 +441,7 @@ export function ClusterHealthCard(props: { isLoading: boolean; isError: boolean;
                   </div>
                 ) : null}
               </>
-            )}
+            ) : null}
           </div>
         )}
       </CardBody>
