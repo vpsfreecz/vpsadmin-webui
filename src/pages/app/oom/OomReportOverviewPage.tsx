@@ -73,41 +73,49 @@ export function OomReportOverviewPage() {
         <CardHeader title={t('oom.detail.overview.summary_title')} />
         <CardBody>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-            <div className="min-w-0">
-              <div className="text-xs text-muted">{t('oom.field.cgroup')}</div>
-              <div
-                className="mt-0.5 min-w-0 max-w-full break-all font-mono text-xs"
-                data-testid="oom.detail.overview.cgroup"
-              >
-                {report.cgroup ? String(report.cgroup) : '—'}
+            {!report.cgroup ? (
+              <div className="min-w-0">
+                <div className="text-xs text-muted">{t('oom.field.cgroup')}</div>
+                <div
+                  className="mt-0.5 min-w-0 max-w-full break-all font-mono text-xs"
+                  data-testid="oom.detail.overview.cgroup"
+                >
+                  {report.cgroup ? String(report.cgroup) : '—'}
+                </div>
               </div>
-            </div>
+            ) : null}
 
             <div>
               <div className="text-xs text-muted">{t('oom.field.rule_action')}</div>
               <div className="mt-0.5">{ruleMeta}</div>
             </div>
 
-            <div>
-              <div className="text-xs text-muted">{t('oom.field.killed')}</div>
-              <div className="mt-0.5 text-sm">
-                {report.killed_name ? String(report.killed_name) : '—'}
-                {report.killed_pid ? <span className="ml-1 font-mono text-xs">({report.killed_pid})</span> : null}
+            {!report.killed_name ? (
+              <div>
+                <div className="text-xs text-muted">{t('oom.field.killed')}</div>
+                <div className="mt-0.5 text-sm">
+                  {report.killed_name ? String(report.killed_name) : '—'}
+                  {report.killed_pid ? <span className="ml-1 font-mono text-xs">({report.killed_pid})</span> : null}
+                </div>
               </div>
-            </div>
+            ) : null}
 
-            <div>
-              <div className="text-xs text-muted">{t('oom.field.invoked_by')}</div>
-              <div className="mt-0.5 text-sm">
-                {report.invoked_by_name ? String(report.invoked_by_name) : '—'}
-                {report.invoked_by_pid ? <span className="ml-1 font-mono text-xs">({report.invoked_by_pid})</span> : null}
+            {!report.invoked_by_name ? (
+              <div>
+                <div className="text-xs text-muted">{t('oom.field.invoked_by')}</div>
+                <div className="mt-0.5 text-sm">
+                  {report.invoked_by_name ? String(report.invoked_by_name) : '—'}
+                  {report.invoked_by_pid ? <span className="ml-1 font-mono text-xs">({report.invoked_by_pid})</span> : null}
+                </div>
               </div>
-            </div>
+            ) : null}
 
-            <div>
-              <div className="text-xs text-muted">{t('oom.field.count')}</div>
-              <div className="mt-0.5 font-mono text-xs">{typeof report.count === 'number' ? report.count : '—'}</div>
-            </div>
+            {typeof report.count !== 'number' ? (
+              <div>
+                <div className="text-xs text-muted">{t('oom.field.count')}</div>
+                <div className="mt-0.5 font-mono text-xs">{typeof report.count === 'number' ? report.count : '—'}</div>
+              </div>
+            ) : null}
 
             <div>
               <div className="text-xs text-muted">{t('oom.field.reported_at')}</div>

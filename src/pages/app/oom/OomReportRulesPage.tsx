@@ -15,6 +15,7 @@ import {
   type OomReportRule,
 } from '../../../lib/api/oom';
 
+import { Alert } from '../../../components/ui/Alert';
 import { Badge } from '../../../components/ui/Badge';
 import { Button } from '../../../components/ui/Button';
 import { Card, CardBody, CardHeader } from '../../../components/ui/Card';
@@ -81,6 +82,7 @@ export function OomReportRulesPage() {
   });
 
   const createM = useMutation({
+    onMutate: () => ({ vpsId }),
     mutationFn: async () => {
       if (!vpsId) throw new Error(t('oom.rules.invalid_id'));
       const pat = createPattern.trim();
@@ -92,16 +94,10 @@ export function OomReportRulesPage() {
       await qc.invalidateQueries({ queryKey: ['oom_report_rules', 'index'] });
       pushToast({ variant: 'ok', title: t('oom.rules.create.success.title'), body: t('oom.rules.create.success.body') });
     },
-    onError: (err) => {
-      pushToast({
-        variant: 'danger',
-        title: t('oom.rules.create.error.title'),
-        body: err instanceof Error ? err.message : t('oom.rules.create.error.generic'),
-      });
-    },
   });
 
   const updateM = useMutation({
+    onMutate: () => ({ vpsId, ruleId: editingId }),
     mutationFn: async () => {
       if (!editingId) throw new Error(t('oom.rules.invalid_id'));
       const pat = editPattern.trim();
@@ -112,13 +108,6 @@ export function OomReportRulesPage() {
       setEditingId(null);
       await qc.invalidateQueries({ queryKey: ['oom_report_rules', 'index'] });
       pushToast({ variant: 'ok', title: t('oom.rules.update.success.title'), body: t('oom.rules.update.success.body') });
-    },
-    onError: (err) => {
-      pushToast({
-        variant: 'danger',
-        title: t('oom.rules.update.error.title'),
-        body: err instanceof Error ? err.message : t('oom.rules.update.error.generic'),
-      });
     },
   });
 
@@ -196,8 +185,15 @@ export function OomReportRulesPage() {
 
       <div className="mt-4 grid grid-cols-1 gap-4">
         <Card testId="oom.rules.create">
-          <CardHeader title={t('oom.rules.create.title')} subtitle={t('oom.rules.create.subtitle')} />
+          <CardHeader title={t('oom.rules.create.title')} />
           <CardBody>
+            {createM.isError && createM.context?.vpsId === vpsId ? (
+              <div role="alert" className="mb-4">
+                <Alert variant="danger" title={t('oom.rules.create.error.title')}>
+                  {createM.error instanceof Error ? createM.error.message : t('oom.rules.create.error.generic')}
+                </Alert>
+              </div>
+            ) : null}
             <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
               <div>
                 <label className="block text-xs text-muted">{t('oom.rules.field.action')}</label>
@@ -287,7 +283,20 @@ export function OomReportRulesPage() {
                             <MobileCellLabel>{t('oom.rules.field.cgroup_pattern')}</MobileCellLabel>
                             <div className="min-w-0">
                               {isEditing ? (
-                                <Input value={editPattern} onChange={(e) => setEditPattern(e.target.value)} />
+                                <>
+                                  <Input value={editPattern} onChange={(e) => setEditPattern(e.target.value)} />
+                                  {updateM.isError &&
+                                  updateM.context?.vpsId === vpsId &&
+                                  updateM.context?.ruleId === rule.id ? (
+                                    <div role="alert" className="mt-2">
+                                      <Alert variant="danger" title={t('oom.rules.update.error.title')}>
+                                        {updateM.error instanceof Error
+                                          ? updateM.error.message
+                                          : t('oom.rules.update.error.generic')}
+                                      </Alert>
+                                    </div>
+                                  ) : null}
+                                </>
                               ) : (
                                 <span className="min-w-0 break-all font-mono text-xs">
                                   {rule.cgroup_pattern ? String(rule.cgroup_pattern) : '—'}
@@ -319,7 +328,10 @@ export function OomReportRulesPage() {
                                   size="sm"
                                   className="min-h-11 w-full @4xl:min-h-8 @4xl:w-auto"
                                   disabled={updateM.isPending}
-                                  onClick={() => setEditingId(null)}
+                                  onClick={() => {
+                                    updateM.reset();
+                                    setEditingId(null);
+                                  }}
                                   testId={`oom.rules.row.${rule.id}.cancel`}
                                 >
                                   {t('common.cancel')}
@@ -332,6 +344,7 @@ export function OomReportRulesPage() {
                                   size="sm"
                                   className="min-h-11 w-full @4xl:min-h-8 @4xl:w-auto"
                                   onClick={() => {
+                                    if (updateM.isError) updateM.reset();
                                     setEditingId(rule.id);
                                     setEditAction((rule.action as any) || 'notify');
                                     setEditPattern(rule.cgroup_pattern ? String(rule.cgroup_pattern) : '');

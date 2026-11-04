@@ -23,7 +23,7 @@ for (const language of ['en', 'cs']) {
       handlers: {
         'POST cluster/search': () => {
           searches++;
-          return { cluster_search: [
+          return { clusters: [
             ...Array.from({ length: 9 }, (_, index) => ({ resource: 'Vps', id: index + 1, value: `letsball-${index}.example`, attribute: 'hostname' })),
             { resource: 'DnsZone', id: 80, value: 'letsball.example.', attribute: 'name' },
           ] };

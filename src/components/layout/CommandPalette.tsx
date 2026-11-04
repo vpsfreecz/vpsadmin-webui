@@ -677,6 +677,12 @@ export function CommandPalette(props: { open: boolean; onClose: () => void; onSw
           {helpOpen ? (
             <div data-testid="palette.help">
               <div className="text-sm font-semibold">{t('palette.help.title')}</div>
+              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
+                <span>{t('palette.hint.navigate')}</span>
+                <span>{t('palette.hint.open')}</span>
+                <span>{t('palette.hint.copy')}</span>
+                <span>{t('palette.hint.copy_id')}</span>
+              </div>
               <div className="mt-3">
                 <SmartInputHelpContent
                   intro={t('palette.help.intro')}
@@ -795,15 +801,6 @@ export function CommandPalette(props: { open: boolean; onClose: () => void; onSw
               ))}
             </div>
           )}
-        </div>
-
-        <div className="mt-4 border-t border-border pt-3 text-xs text-muted">
-          <div className="flex flex-wrap gap-x-4 gap-y-1">
-            <span>{t('palette.hint.navigate')}</span>
-            <span>{t('palette.hint.open')}</span>
-            <span>{t('palette.hint.copy')}</span>
-            <span>{t('palette.hint.copy_id')}</span>
-          </div>
         </div>
       </div>
     </Modal>

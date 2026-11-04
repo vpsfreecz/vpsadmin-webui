@@ -252,7 +252,6 @@ export function MonitoringEventDetailPage() {
     <PageContainer testId="monitoring.event.detail">
       <PageHeader
         title={t('monitoring.detail.title', { id })}
-        description={t('monitoring.detail.description')}
         testId="monitoring.event.detail.header"
         actions={
           <div className="flex flex-wrap items-center gap-2">

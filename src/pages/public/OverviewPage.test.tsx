@@ -124,3 +124,39 @@ describe('OverviewPage session expiry notice', () => {
     });
   });
 });
+
+describe('OverviewPage operational evidence', () => {
+  it('keeps missing-node evidence without claiming a healthy cluster after an empty outage read', async () => {
+    installOverviewMocks();
+    renderPage('/');
+    expect(await screen.findByText('public.overview.nodes.empty')).toBeVisible();
+    await waitFor(() => expect(screen.queryByTestId('public.outages.card')).not.toBeInTheDocument());
+    expect(screen.queryByText('public.overview.nominal.title')).not.toBeInTheDocument();
+  });
+
+  it('keeps independent node and outage read errors visible', async () => {
+    installOverviewMocks();
+    vi.mocked(fetchPublicNodeStatus).mockRejectedValue(new Error('Nodes unavailable'));
+    vi.mocked(fetchOutages).mockRejectedValue(new Error('Outages unavailable'));
+    renderPage('/');
+    expect(await screen.findByText('public.overview.nodes.error')).toBeVisible();
+    expect(await screen.findByText('public.overview.outages.error')).toBeVisible();
+    expect(screen.queryByText('public.overview.nominal.title')).not.toBeInTheDocument();
+  });
+
+  it('retains the current-outage destination and IPv4 scarcity warning', async () => {
+    installOverviewMocks();
+    vi.mocked(fetchOutages).mockResolvedValue({
+      data: [{ id: 71, state: 'announced', begins_at: '2026-01-01T10:00:00Z', en_summary: 'Storage maintenance' }],
+      envelope: { status: true, response: {} }, meta: {}, httpStatus: 200,
+    });
+    vi.mocked(fetchPublicStats).mockResolvedValue({
+      data: { user_count: 42, vps_count: 13, ipv4_left: 10 },
+      envelope: { status: true, response: {} }, meta: {}, httpStatus: 200,
+    });
+    renderPage('/');
+    expect(await screen.findByText('public.overview.outage_alert.title:1')).toBeVisible();
+    expect(screen.getByRole('link', { name: 'public.overview.outage_alert.link' })).toHaveAttribute('href', '/outages');
+    expect(await screen.findByTestId('public.ipv4.alert')).toHaveTextContent('public.overview.ipv4_critical.body:10');
+  });
+});

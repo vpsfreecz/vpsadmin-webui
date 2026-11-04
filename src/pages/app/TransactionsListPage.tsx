@@ -361,7 +361,6 @@ function TransactionsListContent() {
       header={
         <PageHeader
           title={t('transactions.items.title')}
-          description={t('transactions.items.description')}
           testId="transactions.items.list.header"
           actions={
             <LinkButton to={`${basePath}/transactions`} variant="secondary" size="sm">

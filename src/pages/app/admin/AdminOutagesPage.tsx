@@ -83,7 +83,9 @@ type OutageFormState = {
   sendMail: boolean;
 };
 
-type OutageFormErrors = Partial<Record<'beginsAt' | 'duration' | 'type' | 'impact' | 'enSummary' | 'csSummary', string>>;
+type OutageFormErrors = Partial<
+  Record<'beginsAt' | 'duration' | 'type' | 'impact' | 'enSummary' | 'csSummary', string>
+>;
 
 const OUTAGE_TYPES: OutageAdminType[] = ['planned_outage', 'unplanned_outage'];
 const IMPACTS = ['tbd', 'performance', 'network', 'system_restart', 'system_reset', 'unavailability', 'export'];
@@ -99,9 +101,10 @@ function initOutageForm(outage?: Outage): OutageFormState {
     beginsAt: toOutageDateTimeInput(x.begins_at) || toOutageDateTimeInput(new Date().toISOString()),
     finishedAt: toOutageDateTimeInput(x.finished_at),
     duration: x.duration != null ? String(x.duration) : '',
-    type: typeof x.type === 'string' && OUTAGE_TYPES.includes(x.type as OutageAdminType)
-      ? x.type as OutageAdminType
-      : 'planned_outage',
+    type:
+      typeof x.type === 'string' && OUTAGE_TYPES.includes(x.type as OutageAdminType)
+        ? (x.type as OutageAdminType)
+        : 'planned_outage',
     impact: typeof x.impact === 'string' ? x.impact : 'tbd',
     state: typeof x.state === 'string' ? x.state : 'staged',
     autoResolve: outage ? Boolean(x.auto_resolve) : true,
@@ -131,11 +134,7 @@ function formPayload(form: OutageFormState): OutagePayload {
   };
   return payload;
 }
-function updatePayload(
-  form: OutageFormState,
-  outageId: number,
-  currentState?: string | null
-): OutageUpdatePayload {
+function updatePayload(form: OutageFormState, outageId: number, currentState?: string | null): OutageUpdatePayload {
   const duration = form.duration.trim() ? Number(form.duration) : null;
   return {
     outage: outageId,
@@ -152,29 +151,34 @@ function updatePayload(
   };
 }
 
-function outageScopeErrorMessage(
-  error: unknown,
-  t: (key: any, vars?: any) => string
-): string {
+function outageScopeErrorMessage(error: unknown, t: (key: any, vars?: any) => string): string {
   if (error instanceof OutageCreateWithSystemsError) {
-    return t(error.rollbackSucceeded
-      ? 'admin.outages.create.scope_failed_restored'
-      : 'admin.outages.create.scope_failed_partial', { id: error.outageId });
+    return t(
+      error.rollbackSucceeded
+        ? 'admin.outages.create.scope_failed_restored'
+        : 'admin.outages.create.scope_failed_partial',
+      { id: error.outageId }
+    );
   }
   if (error instanceof OutageSystemsApplyError) {
-    return t(error.rollbackSucceeded
-      ? 'admin.outages.systems.error_restored'
-      : 'admin.outages.systems.error_partial');
+    return t(error.rollbackSucceeded ? 'admin.outages.systems.error_restored' : 'admin.outages.systems.error_partial');
   }
   return formatErrorMessage(error);
 }
 
-function validateOutageForm(form: OutageFormState, t: (key: any, vars?: any) => string, opts?: { requireType?: boolean }) {
+function validateOutageForm(
+  form: OutageFormState,
+  t: (key: any, vars?: any) => string,
+  opts?: { requireType?: boolean }
+) {
   const errors: OutageFormErrors = {};
-  if (!form.beginsAt.trim() || !Number.isFinite(new Date(form.beginsAt).getTime())) errors.beginsAt = t('admin.outages.validation.begins_at');
+  if (!form.beginsAt.trim() || !Number.isFinite(new Date(form.beginsAt).getTime()))
+    errors.beginsAt = t('admin.outages.validation.begins_at');
   const duration = Number(form.duration);
-  if (!form.duration.trim() || !Number.isFinite(duration) || duration <= 0) errors.duration = t('admin.outages.validation.duration');
-  if (opts?.requireType !== false && !OUTAGE_TYPES.includes(form.type)) errors.type = t('admin.outages.validation.type');
+  if (!form.duration.trim() || !Number.isFinite(duration) || duration <= 0)
+    errors.duration = t('admin.outages.validation.duration');
+  if (opts?.requireType !== false && !OUTAGE_TYPES.includes(form.type))
+    errors.type = t('admin.outages.validation.type');
   if (!IMPACTS.includes(form.impact)) errors.impact = t('admin.outages.validation.impact');
   if (!form.enSummary.trim()) errors.enSummary = t('admin.outages.validation.en_summary');
   if (!form.csSummary.trim()) errors.csSummary = t('admin.outages.validation.cs_summary');
@@ -213,91 +217,179 @@ function OutageForm(props: {
       <div className="grid gap-3 md:grid-cols-2">
         <div>
           <FieldLabel label={t('admin.outages.field.begins_at')}>
-            <Input testId="admin.outages.form.begins_at" type="datetime-local" value={form.beginsAt} onChange={(e) => setForm((p) => ({ ...p, beginsAt: e.target.value }))} />
+            <Input
+              testId="admin.outages.form.begins_at"
+              type="datetime-local"
+              value={form.beginsAt}
+              onChange={(e) => setForm((p) => ({ ...p, beginsAt: e.target.value }))}
+            />
           </FieldLabel>
           <ErrorText message={errors.beginsAt} />
         </div>
         <FieldLabel label={t('admin.outages.field.finished_at')}>
-          <Input testId="admin.outages.form.finished_at" type="datetime-local" value={form.finishedAt} onChange={(e) => setForm((p) => ({ ...p, finishedAt: e.target.value }))} />
+          <Input
+            testId="admin.outages.form.finished_at"
+            type="datetime-local"
+            value={form.finishedAt}
+            onChange={(e) => setForm((p) => ({ ...p, finishedAt: e.target.value }))}
+          />
         </FieldLabel>
         <div>
           <FieldLabel label={t('admin.outages.field.duration')}>
-            <Input testId="admin.outages.form.duration" inputMode="numeric" value={form.duration} onChange={(e) => setForm((p) => ({ ...p, duration: e.target.value }))} />
+            <Input
+              testId="admin.outages.form.duration"
+              inputMode="numeric"
+              value={form.duration}
+              onChange={(e) => setForm((p) => ({ ...p, duration: e.target.value }))}
+            />
           </FieldLabel>
           <ErrorText message={errors.duration} />
         </div>
         <div>
           <FieldLabel label={t('admin.outages.field.impact')}>
-            <Select testId="admin.outages.form.impact" value={form.impact} onChange={(e) => setForm((p) => ({ ...p, impact: e.target.value }))} options={IMPACTS.map((v) => ({ value: v, label: outageImpactLabel(t, v) }))} />
+            <Select
+              testId="admin.outages.form.impact"
+              value={form.impact}
+              onChange={(e) => setForm((p) => ({ ...p, impact: e.target.value }))}
+              options={IMPACTS.map((v) => ({ value: v, label: outageImpactLabel(t, v) }))}
+            />
           </FieldLabel>
           <ErrorText message={errors.impact} />
         </div>
         {!props.updateMode ? (
           <div>
             <FieldLabel label={t('admin.outages.field.type')}>
-              <Select testId="admin.outages.form.type" value={form.type} onChange={(e) => setForm((p) => ({ ...p, type: e.target.value as OutageAdminType }))} options={OUTAGE_TYPES.map((v) => ({ value: v, label: outageTypeLabel(t, v) }))} />
+              <Select
+                testId="admin.outages.form.type"
+                value={form.type}
+                onChange={(e) => setForm((p) => ({ ...p, type: e.target.value as OutageAdminType }))}
+                options={OUTAGE_TYPES.map((v) => ({ value: v, label: outageTypeLabel(t, v) }))}
+              />
             </FieldLabel>
             <ErrorText message={errors.type} />
           </div>
         ) : null}
         {props.includeState ? (
           <FieldLabel label={t('admin.outages.field.state')}>
-            <Select testId="admin.outages.form.state" value={form.state} onChange={(e) => setForm((p) => ({ ...p, state: e.target.value }))} options={STATES.map((v) => ({ value: v, label: t(`admin.outages.state.${v}`) }))} />
+            <Select
+              testId="admin.outages.form.state"
+              value={form.state}
+              onChange={(e) => setForm((p) => ({ ...p, state: e.target.value }))}
+              options={STATES.map((v) => ({ value: v, label: t(`admin.outages.state.${v}`) }))}
+            />
           </FieldLabel>
         ) : null}
       </div>
       {!props.updateMode ? (
         <label className="flex items-center gap-2 text-sm text-fg">
-          <input type="checkbox" checked={form.autoResolve} onChange={(e) => setForm((p) => ({ ...p, autoResolve: e.target.checked }))} />
+          <input
+            type="checkbox"
+            checked={form.autoResolve}
+            onChange={(e) => setForm((p) => ({ ...p, autoResolve: e.target.checked }))}
+          />
           {t('admin.outages.field.auto_resolve')}
         </label>
       ) : (
         <label className="flex items-center gap-2 text-sm text-fg">
-          <input type="checkbox" checked={form.sendMail} onChange={(e) => setForm((p) => ({ ...p, sendMail: e.target.checked }))} />
+          <input
+            type="checkbox"
+            checked={form.sendMail}
+            onChange={(e) => setForm((p) => ({ ...p, sendMail: e.target.checked }))}
+          />
           {t('admin.outages.field.send_mail')}
         </label>
       )}
       <div className="grid gap-3 md:grid-cols-2">
         <div>
           <FieldLabel label={t('admin.outages.field.en_summary')}>
-            <Input testId="admin.outages.form.en_summary" value={form.enSummary} onChange={(e) => setForm((p) => ({ ...p, enSummary: e.target.value }))} />
+            <Input
+              testId="admin.outages.form.en_summary"
+              value={form.enSummary}
+              onChange={(e) => setForm((p) => ({ ...p, enSummary: e.target.value }))}
+            />
           </FieldLabel>
           <ErrorText message={errors.enSummary} />
         </div>
         <div>
           <FieldLabel label={t('admin.outages.field.cs_summary')}>
-            <Input testId="admin.outages.form.cs_summary" value={form.csSummary} onChange={(e) => setForm((p) => ({ ...p, csSummary: e.target.value }))} />
+            <Input
+              testId="admin.outages.form.cs_summary"
+              value={form.csSummary}
+              onChange={(e) => setForm((p) => ({ ...p, csSummary: e.target.value }))}
+            />
           </FieldLabel>
           <ErrorText message={errors.csSummary} />
         </div>
-        <Textarea testId="admin.outages.form.en_description" value={form.enDescription} onChange={(e) => setForm((p) => ({ ...p, enDescription: e.target.value }))} label={t('admin.outages.field.en_description')} rows={4} />
-        <Textarea testId="admin.outages.form.cs_description" value={form.csDescription} onChange={(e) => setForm((p) => ({ ...p, csDescription: e.target.value }))} label={t('admin.outages.field.cs_description')} rows={4} />
+        <Textarea
+          testId="admin.outages.form.en_description"
+          value={form.enDescription}
+          onChange={(e) => setForm((p) => ({ ...p, enDescription: e.target.value }))}
+          label={t('admin.outages.field.en_description')}
+          rows={4}
+        />
+        <Textarea
+          testId="admin.outages.form.cs_description"
+          value={form.csDescription}
+          onChange={(e) => setForm((p) => ({ ...p, csDescription: e.target.value }))}
+          label={t('admin.outages.field.cs_description')}
+          rows={4}
+        />
       </div>
     </div>
   );
 }
 
-function OutageReviewSummary(props: {
-  form: OutageFormState;
-  systems?: OutageSystemsFormState;
-  showState?: boolean;
-}) {
+function OutageReviewSummary(props: { form: OutageFormState; systems?: OutageSystemsFormState; showState?: boolean }) {
   const { t } = useI18n();
   const { form, systems } = props;
   return (
     <dl className="grid gap-x-4 gap-y-2 text-sm sm:grid-cols-2">
-      <div><dt className="text-xs text-muted">{t('admin.outages.field.type')}</dt><dd>{outageTypeLabel(t, form.type)}</dd></div>
-      <div><dt className="text-xs text-muted">{t('admin.outages.field.impact')}</dt><dd>{outageImpactLabel(t, form.impact)}</dd></div>
-      <div><dt className="text-xs text-muted">{t('admin.outages.field.begins_at')}</dt><dd>{formatDateTime(fromOutageDateTimeInput(form.beginsAt))}</dd></div>
-      <div><dt className="text-xs text-muted">{t('admin.outages.field.duration')}</dt><dd>{form.duration} min</dd></div>
-      {form.finishedAt ? <div><dt className="text-xs text-muted">{t('admin.outages.field.finished_at')}</dt><dd>{formatDateTime(fromOutageDateTimeInput(form.finishedAt))}</dd></div> : null}
-      {props.showState ? <div><dt className="text-xs text-muted">{t('admin.outages.field.state')}</dt><dd>{t(`admin.outages.state.${form.state}`)}</dd></div> : null}
-      <div className="sm:col-span-2"><dt className="text-xs text-muted">{t('admin.outages.field.en_summary')}</dt><dd>{form.enSummary || '—'}</dd></div>
-      <div className="sm:col-span-2"><dt className="text-xs text-muted">{t('admin.outages.field.cs_summary')}</dt><dd>{form.csSummary || '—'}</dd></div>
+      <div>
+        <dt className="text-xs text-muted">{t('admin.outages.field.type')}</dt>
+        <dd>{outageTypeLabel(t, form.type)}</dd>
+      </div>
+      <div>
+        <dt className="text-xs text-muted">{t('admin.outages.field.impact')}</dt>
+        <dd>{outageImpactLabel(t, form.impact)}</dd>
+      </div>
+      <div>
+        <dt className="text-xs text-muted">{t('admin.outages.field.begins_at')}</dt>
+        <dd>{formatDateTime(fromOutageDateTimeInput(form.beginsAt))}</dd>
+      </div>
+      <div>
+        <dt className="text-xs text-muted">{t('admin.outages.field.duration')}</dt>
+        <dd>{form.duration} min</dd>
+      </div>
+      {form.finishedAt ? (
+        <div>
+          <dt className="text-xs text-muted">{t('admin.outages.field.finished_at')}</dt>
+          <dd>{formatDateTime(fromOutageDateTimeInput(form.finishedAt))}</dd>
+        </div>
+      ) : null}
+      {props.showState ? (
+        <div>
+          <dt className="text-xs text-muted">{t('admin.outages.field.state')}</dt>
+          <dd>{t(`admin.outages.state.${form.state}`)}</dd>
+        </div>
+      ) : null}
+      <div className="sm:col-span-2">
+        <dt className="text-xs text-muted">{t('admin.outages.field.en_summary')}</dt>
+        <dd>{form.enSummary || '—'}</dd>
+      </div>
+      <div className="sm:col-span-2">
+        <dt className="text-xs text-muted">{t('admin.outages.field.cs_summary')}</dt>
+        <dd>{form.csSummary || '—'}</dd>
+      </div>
       {systems ? (
         <>
-          <div className="sm:col-span-2"><dt className="text-xs text-muted">{t('admin.outages.systems.preview.scope')}</dt><dd>{systems.scope.map((item) => item.label).join(', ') || t('admin.outages.systems.none_selected')}</dd></div>
-          <div className="sm:col-span-2"><dt className="text-xs text-muted">{t('admin.outages.systems.handlers')}</dt><dd>{systems.handlers.map((item) => item.label).join(', ') || t('admin.outages.empty.handlers')}</dd></div>
+          <div className="sm:col-span-2">
+            <dt className="text-xs text-muted">{t('admin.outages.systems.preview.scope')}</dt>
+            <dd>{systems.scope.map((item) => item.label).join(', ') || t('admin.outages.systems.none_selected')}</dd>
+          </div>
+          <div className="sm:col-span-2">
+            <dt className="text-xs text-muted">{t('admin.outages.systems.handlers')}</dt>
+            <dd>{systems.handlers.map((item) => item.label).join(', ') || t('admin.outages.empty.handlers')}</dd>
+          </div>
         </>
       ) : null}
     </dl>
@@ -339,8 +431,21 @@ function AdminOutageListPage() {
   });
 
   const outagesQ = useQuery({
-    queryKey: ['admin_outages', 'index', { state, type, vps: vpsFilter, limit: pagination.limit, fromId: pagination.fromId }],
-    queryFn: async () => (await fetchAdminOutages({ state: state || undefined, type: type || undefined, vps: vpsFilter, limit: pagination.limit, fromId: pagination.fromId })).data,
+    queryKey: [
+      'admin_outages',
+      'index',
+      { state, type, vps: vpsFilter, limit: pagination.limit, fromId: pagination.fromId },
+    ],
+    queryFn: async () =>
+      (
+        await fetchAdminOutages({
+          state: state || undefined,
+          type: type || undefined,
+          vps: vpsFilter,
+          limit: pagination.limit,
+          fromId: pagination.fromId,
+        })
+      ).data,
   });
 
   const createM = useMutation({
@@ -409,22 +514,54 @@ function AdminOutageListPage() {
     <div className="space-y-6" data-testid="admin.outages.page">
       <PageHeader
         title={t('admin.outages.title')}
-        description={t('admin.outages.subtitle')}
-        actions={canMutate ? <Button disabled={createOutcomeUnknown} onClick={() => { setForm(initOutageForm()); setSystemsForm(initOutageSystemsForm([], [])); setFormErrors({}); setNewOpen(true); }} testId="admin.outages.new">{t('admin.outages.action.new')}</Button> : null}
+        actions={
+          canMutate ? (
+            <Button
+              disabled={createOutcomeUnknown}
+              onClick={() => {
+                setForm(initOutageForm());
+                setSystemsForm(initOutageSystemsForm([], []));
+                setFormErrors({});
+                setNewOpen(true);
+              }}
+              testId="admin.outages.new"
+            >
+              {t('admin.outages.action.new')}
+            </Button>
+          ) : null
+        }
       />
-      {createOutcomeUnknown ? <OutageCreateIndeterminateAlert loading={verifyingCreate} onVerify={verifyIndeterminateCreate} /> : null}
+      {createOutcomeUnknown ? (
+        <OutageCreateIndeterminateAlert loading={verifyingCreate} onVerify={verifyIndeterminateCreate} />
+      ) : null}
       <Card>
         <CardBody>
           {vpsFilter ? <Alert title={t('admin.outages.filter.vps', { id: vpsFilter })} variant="info" /> : null}
           <div className="grid gap-3 md:grid-cols-3">
             <FieldLabel label={t('admin.outages.field.state')}>
-              <Select value={state} onChange={(e) => setState(e.target.value)} options={[{ value: '', label: t('common.all') }, ...STATES.map((v) => ({ value: v, label: t(`admin.outages.state.${v}`) }))]} />
+              <Select
+                value={state}
+                onChange={(e) => setState(e.target.value)}
+                options={[
+                  { value: '', label: t('common.all') },
+                  ...STATES.map((v) => ({ value: v, label: t(`admin.outages.state.${v}`) })),
+                ]}
+              />
             </FieldLabel>
             <FieldLabel label={t('admin.outages.field.type')}>
-              <Select value={type} onChange={(e) => setType(e.target.value)} options={[{ value: '', label: t('common.all') }, ...OUTAGE_TYPES.map((v) => ({ value: v, label: outageTypeLabel(t, v) }))]} />
+              <Select
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+                options={[
+                  { value: '', label: t('common.all') },
+                  ...OUTAGE_TYPES.map((v) => ({ value: v, label: outageTypeLabel(t, v) })),
+                ]}
+              />
             </FieldLabel>
             <div className="flex items-end">
-              <Button variant="secondary" onClick={() => outagesQ.refetch()}>{t('common.refresh')}</Button>
+              <Button variant="secondary" onClick={() => outagesQ.refetch()}>
+                {t('common.refresh')}
+              </Button>
             </div>
           </div>
         </CardBody>
@@ -432,12 +569,18 @@ function AdminOutageListPage() {
       {outagesQ.isLoading ? (
         <LoadingState />
       ) : outagesQ.isError ? (
-        <ErrorState title={t('admin.outages.error.title')} message={formatErrorMessage(outagesQ.error)} onRetry={() => outagesQ.refetch()} />
-      ) : <div className="space-y-5">
-        <OutageListSection group="active" rows={groupedRows.active} />
-        <OutageListSection group="planned" rows={groupedRows.planned} />
-        <OutageListSection group="finished" rows={groupedRows.finished} />
-      </div>}
+        <ErrorState
+          title={t('admin.outages.error.title')}
+          message={formatErrorMessage(outagesQ.error)}
+          onRetry={() => outagesQ.refetch()}
+        />
+      ) : (
+        <div className="space-y-5">
+          <OutageListSection group="active" rows={groupedRows.active} />
+          <OutageListSection group="planned" rows={groupedRows.planned} />
+          <OutageListSection group="finished" rows={groupedRows.finished} />
+        </div>
+      )}
       <KeysetPagination
         testId="admin.outages.pagination"
         page={pagination.page}
@@ -452,13 +595,28 @@ function AdminOutageListPage() {
         onLimitChange={pagination.setLimit}
       />
 
-      <Modal open={newOpen} title={t('admin.outages.create.title')} onClose={() => setNewOpen(false)} size="lg" testId="admin.outages.create.modal" footer={
-        <div className="flex justify-end gap-2">
-          <Button variant="secondary" onClick={() => setNewOpen(false)} disabled={createM.isPending}>{t('common.cancel')}</Button>
-          <Button onClick={submitCreate} loading={createM.isPending} testId="admin.outages.create.save">{t('admin.outages.action.review')}</Button>
-        </div>
-      }>
-        {hasErrors(formErrors) ? <Alert variant="warn" title={t('common.validation_error')} testId="admin.outages.create.validation">{t('admin.outages.validation.body')}</Alert> : null}
+      <Modal
+        open={newOpen}
+        title={t('admin.outages.create.title')}
+        onClose={() => setNewOpen(false)}
+        size="lg"
+        testId="admin.outages.create.modal"
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button variant="secondary" onClick={() => setNewOpen(false)} disabled={createM.isPending}>
+              {t('common.cancel')}
+            </Button>
+            <Button onClick={submitCreate} loading={createM.isPending} testId="admin.outages.create.save">
+              {t('admin.outages.action.review')}
+            </Button>
+          </div>
+        }
+      >
+        {hasErrors(formErrors) ? (
+          <Alert variant="warn" title={t('common.validation_error')} testId="admin.outages.create.validation">
+            {t('admin.outages.validation.body')}
+          </Alert>
+        ) : null}
         <div className="mt-4 space-y-6">
           <OutageForm form={form} setForm={setForm} errors={formErrors} />
           <div>
@@ -502,16 +660,45 @@ function AdminOutageDetailPage({ outageId }: { outageId: number | undefined }) {
   const [systemsReviewOpen, setSystemsReviewOpen] = useState(false);
 
   const enabled = Boolean(outageId);
-  const outageQ = useQuery({ queryKey: ['outages', 'show', outageId], queryFn: async () => (await fetchOutage(outageId!)).data, enabled });
-  const entitiesQ = useQuery({ queryKey: ['outages', outageId, 'entities'], queryFn: async () => fetchAllOutageEntities(outageId!), enabled });
-  const handlersQ = useQuery({ queryKey: ['outages', outageId, 'handlers'], queryFn: async () => fetchAllOutageHandlers(outageId!), enabled });
-  const updatesQ = useQuery({ queryKey: ['outages', outageId, 'updates'], queryFn: async () => (await fetchOutageUpdates(outageId!)).data, enabled });
-  const usersQ = useQuery({ queryKey: ['outages', outageId, 'affected_users'], queryFn: async () => (await fetchUserOutages(outageId!)).data, enabled });
-  const vpsQ = useQuery({ queryKey: ['outages', outageId, 'affected_vps'], queryFn: async () => (await fetchVpsOutages(outageId!)).data, enabled });
-  const exportsQ = useQuery({ queryKey: ['outages', outageId, 'affected_exports'], queryFn: async () => (await fetchExportOutages(outageId!)).data, enabled });
+  const outageQ = useQuery({
+    queryKey: ['outages', 'show', outageId],
+    queryFn: async () => (await fetchOutage(outageId!)).data,
+    enabled,
+  });
+  const entitiesQ = useQuery({
+    queryKey: ['outages', outageId, 'entities'],
+    queryFn: async () => fetchAllOutageEntities(outageId!),
+    enabled,
+  });
+  const handlersQ = useQuery({
+    queryKey: ['outages', outageId, 'handlers'],
+    queryFn: async () => fetchAllOutageHandlers(outageId!),
+    enabled,
+  });
+  const updatesQ = useQuery({
+    queryKey: ['outages', outageId, 'updates'],
+    queryFn: async () => (await fetchOutageUpdates(outageId!)).data,
+    enabled,
+  });
+  const usersQ = useQuery({
+    queryKey: ['outages', outageId, 'affected_users'],
+    queryFn: async () => (await fetchUserOutages(outageId!)).data,
+    enabled,
+  });
+  const vpsQ = useQuery({
+    queryKey: ['outages', outageId, 'affected_vps'],
+    queryFn: async () => (await fetchVpsOutages(outageId!)).data,
+    enabled,
+  });
+  const exportsQ = useQuery({
+    queryKey: ['outages', outageId, 'affected_exports'],
+    queryFn: async () => (await fetchExportOutages(outageId!)).data,
+    enabled,
+  });
   const advisoriesQ = useQuery({
     queryKey: ['outages', outageId, 'security_advisories'],
-    queryFn: async () => (await fetchSecurityAdvisoryOutageLinks({ outageId: outageId!, limit: 100, includes: 'security_advisory' })).data,
+    queryFn: async () =>
+      (await fetchSecurityAdvisoryOutageLinks({ outageId: outageId!, limit: 100, includes: 'security_advisory' })).data,
     enabled,
   });
 
@@ -579,29 +766,32 @@ function AdminOutageDetailPage({ outageId }: { outageId: number | undefined }) {
     },
     onError: async (error) => {
       await invalidate();
-      const [entitiesResult, handlersResult] = await Promise.all([
-        entitiesQ.refetch(),
-        handlersQ.refetch(),
-      ]);
+      const [entitiesResult, handlersResult] = await Promise.all([entitiesQ.refetch(), handlersQ.refetch()]);
       if (entitiesResult.data && handlersResult.data) {
-        setSystemsForm(initOutageSystemsForm(
-          entitiesResult.data,
-          handlersResult.data
-        ));
+        setSystemsForm(initOutageSystemsForm(entitiesResult.data, handlersResult.data));
       }
     },
   });
 
-  if (!outageId) return <ErrorState title={t('admin.outages.invalid.title')} message={t('admin.outages.invalid.body')} />;
+  if (!outageId)
+    return <ErrorState title={t('admin.outages.invalid.title')} message={t('admin.outages.invalid.body')} />;
   if (outageQ.isLoading) return <LoadingState />;
-  if (outageQ.isError || !outageQ.data) return <ErrorState title={t('admin.outages.error.detail_title')} message={formatErrorMessage(outageQ.error)} onRetry={() => outageQ.refetch()} />;
+  if (outageQ.isError || !outageQ.data)
+    return (
+      <ErrorState
+        title={t('admin.outages.error.detail_title')}
+        message={formatErrorMessage(outageQ.error)}
+        onRetry={() => outageQ.refetch()}
+      />
+    );
 
   const outage = outageQ.data;
   const badges = outageBadges(outage, t);
   const entities = entitiesQ.data ?? [];
   const handlers = handlersQ.data ?? [];
-  const summary = pickLocalizedField(outage, 'summary', preferredLanguageCodes)
-    ?? t('public.outage.fallback_title', { id: outage.id });
+  const summary =
+    pickLocalizedField(outage, 'summary', preferredLanguageCodes) ??
+    t('public.outage.fallback_title', { id: outage.id });
   const description = pickLocalizedField(outage, 'description', preferredLanguageCodes);
 
   const openEdit = () => {
@@ -614,7 +804,14 @@ function AdminOutageDetailPage({ outageId }: { outageId: number | undefined }) {
   const openUpdate = () => {
     if (!canMutate) return;
     postUpdateM.reset();
-    setForm({ ...initOutageForm(outage), enSummary: '', enDescription: '', csSummary: '', csDescription: '', sendMail: true });
+    setForm({
+      ...initOutageForm(outage),
+      enSummary: '',
+      enDescription: '',
+      csSummary: '',
+      csDescription: '',
+      sendMail: true,
+    });
     setFormErrors({});
     setUpdateOpen(true);
   };
@@ -642,12 +839,22 @@ function AdminOutageDetailPage({ outageId }: { outageId: number | undefined }) {
         description={`#${outage.id}`}
         actions={
           <>
-            <LinkButton to="/admin/outages" variant="secondary">{t('admin.outages.back')}</LinkButton>
-            {canMutate ? <>
-              <Button variant="secondary" onClick={openEdit} testId="admin.outages.detail.edit_attrs">{t('admin.outages.action.edit_attrs')}</Button>
-              <Button variant="secondary" onClick={openSystems} testId="admin.outages.detail.edit_systems">{t('admin.outages.action.edit_systems')}</Button>
-              <Button onClick={openUpdate} testId="admin.outages.detail.post_update">{t('admin.outages.action.post_update')}</Button>
-            </> : null}
+            <LinkButton to="/admin/outages" variant="secondary">
+              {t('admin.outages.back')}
+            </LinkButton>
+            {canMutate ? (
+              <>
+                <Button variant="secondary" onClick={openEdit} testId="admin.outages.detail.edit_attrs">
+                  {t('admin.outages.action.edit_attrs')}
+                </Button>
+                <Button variant="secondary" onClick={openSystems} testId="admin.outages.detail.edit_systems">
+                  {t('admin.outages.action.edit_systems')}
+                </Button>
+                <Button onClick={openUpdate} testId="admin.outages.detail.post_update">
+                  {t('admin.outages.action.post_update')}
+                </Button>
+              </>
+            ) : null}
           </>
         }
       />
@@ -657,7 +864,12 @@ function AdminOutageDetailPage({ outageId }: { outageId: number | undefined }) {
         {badges.impact ? <Badge variant={badges.impact.variant}>{badges.impact.label}</Badge> : null}
       </div>
 
-      {description ? <Alert variant="info" title={t('admin.outages.section.reason')}>{description}</Alert> : null}
+      {description ? (
+        <section className="space-y-2" aria-label={t('admin.outages.section.reason')}>
+          <h2 className="text-sm font-semibold">{t('admin.outages.section.reason')}</h2>
+          <p className="whitespace-pre-wrap text-sm text-fg">{description}</p>
+        </section>
+      ) : null}
 
       {canMutate && outage.state === 'staged' ? (
         <Card>
@@ -665,12 +877,23 @@ function AdminOutageDetailPage({ outageId }: { outageId: number | undefined }) {
           <CardBody>
             <div className="flex flex-wrap gap-2">
               {(['announced', 'cancelled', 'resolved'] satisfies OutageAdminState[]).map((st) => (
-                <Button key={st} variant={st === 'cancelled' ? 'danger' : 'secondary'} onClick={() => requestStateChange(st)} testId={`admin.outages.change_state.${st}`}>
+                <Button
+                  key={st}
+                  variant={st === 'cancelled' ? 'danger' : 'secondary'}
+                  onClick={() => requestStateChange(st)}
+                  testId={`admin.outages.change_state.${st}`}
+                >
                   {t(`admin.outages.change_state.${st}`)}
                 </Button>
               ))}
             </div>
-            {stateWarning ? <div className="mt-3"><Alert variant="warn" title={t('common.validation_error')}>{stateWarning}</Alert></div> : null}
+            {stateWarning ? (
+              <div className="mt-3">
+                <Alert variant="warn" title={t('common.validation_error')}>
+                  {stateWarning}
+                </Alert>
+              </div>
+            ) : null}
           </CardBody>
         </Card>
       ) : null}
@@ -680,10 +903,22 @@ function AdminOutageDetailPage({ outageId }: { outageId: number | undefined }) {
           <CardHeader title={t('admin.outages.section.info')} />
           <CardBody>
             <dl className="grid gap-3 md:grid-cols-2">
-              <div><dt className="text-xs font-semibold text-muted">{t('admin.outages.field.begins_at')}</dt><dd>{formatDateTime(outage.begins_at)}</dd></div>
-              <div><dt className="text-xs font-semibold text-muted">{t('admin.outages.field.finished_at')}</dt><dd>{outage.finished_at ? formatDateTime(outage.finished_at) : '—'}</dd></div>
-              <div><dt className="text-xs font-semibold text-muted">{t('admin.outages.field.duration')}</dt><dd>{outage.duration != null ? formatDurationMinutes(outage.duration as any) : '—'}</dd></div>
-              <div><dt className="text-xs font-semibold text-muted">{t('admin.outages.field.auto_resolve')}</dt><dd>{outage.auto_resolve ? t('common.yes') : t('common.no')}</dd></div>
+              <div>
+                <dt className="text-xs font-semibold text-muted">{t('admin.outages.field.begins_at')}</dt>
+                <dd>{formatDateTime(outage.begins_at)}</dd>
+              </div>
+              <div>
+                <dt className="text-xs font-semibold text-muted">{t('admin.outages.field.finished_at')}</dt>
+                <dd>{outage.finished_at ? formatDateTime(outage.finished_at) : '—'}</dd>
+              </div>
+              <div>
+                <dt className="text-xs font-semibold text-muted">{t('admin.outages.field.duration')}</dt>
+                <dd>{outage.duration != null ? formatDurationMinutes(outage.duration as any) : '—'}</dd>
+              </div>
+              <div>
+                <dt className="text-xs font-semibold text-muted">{t('admin.outages.field.auto_resolve')}</dt>
+                <dd>{outage.auto_resolve ? t('common.yes') : t('common.no')}</dd>
+              </div>
             </dl>
           </CardBody>
         </Card>
@@ -691,10 +926,21 @@ function AdminOutageDetailPage({ outageId }: { outageId: number | undefined }) {
           <CardHeader title={t('admin.outages.section.affected_counts')} />
           <CardBody>
             <div className="grid grid-cols-2 gap-3 text-sm">
-              <div>{t('admin.outages.field.users')}: <span className="font-mono">{outage.affected_user_count ?? '—'}</span></div>
-              <div>{t('admin.outages.field.direct_vps')}: <span className="font-mono">{outage.affected_direct_vps_count ?? '—'}</span></div>
-              <div>{t('admin.outages.field.indirect_vps')}: <span className="font-mono">{outage.affected_indirect_vps_count ?? '—'}</span></div>
-              <div>{t('admin.outages.field.exports')}: <span className="font-mono">{outage.affected_export_count ?? '—'}</span></div>
+              <div>
+                {t('admin.outages.field.users')}: <span className="font-mono">{outage.affected_user_count ?? '—'}</span>
+              </div>
+              <div>
+                {t('admin.outages.field.direct_vps')}:{' '}
+                <span className="font-mono">{outage.affected_direct_vps_count ?? '—'}</span>
+              </div>
+              <div>
+                {t('admin.outages.field.indirect_vps')}:{' '}
+                <span className="font-mono">{outage.affected_indirect_vps_count ?? '—'}</span>
+              </div>
+              <div>
+                {t('admin.outages.field.exports')}:{' '}
+                <span className="font-mono">{outage.affected_export_count ?? '—'}</span>
+              </div>
             </div>
             <div className="mt-3 text-xs text-muted">{t('admin.outages.affected_counts.help')}</div>
           </CardBody>
@@ -704,52 +950,190 @@ function AdminOutageDetailPage({ outageId }: { outageId: number | undefined }) {
       <Card>
         <CardHeader title={t('admin.outages.section.systems')} />
         <CardBody>
-          {entitiesQ.isLoading ? <Spinner label={t('common.loading')} /> : entities.length ? (
-            <div className="flex flex-wrap gap-2">{entities.map((entity) => {
-              const label = entityLabel(entity);
-              return entity.name === 'Node' && entity.entity_id ? (
-                <Link key={entity.id} className="inline-flex" to={`/admin/nodes/${entity.entity_id}`}><Badge variant="neutral">{label}</Badge></Link>
-              ) : <Badge key={entity.id} variant="neutral">{label}</Badge>;
-            })}</div>
-          ) : <div className="text-sm text-muted">{t('admin.outages.empty.systems')}</div>}
-          <div className="mt-4 text-sm text-muted">{handlers.length ? handlers.map((h) => h.full_name || `#${outageHandlerUserId(h) ?? h.id}`).join(', ') : t('admin.outages.empty.handlers')}</div>
+          <section aria-label={t('public.outage_detail.section.affected_systems')}>
+            {entitiesQ.error ? (
+              <div role="alert" className="mb-3 space-y-2">
+                <Alert variant="danger" title={t('public.outage_detail.entities.error')}>
+                  {formatErrorMessage(entitiesQ.error)}
+                </Alert>
+                <Button variant="secondary" onClick={() => void entitiesQ.refetch()}>
+                  {t('common.retry')}
+                </Button>
+              </div>
+            ) : entitiesQ.isPending ? (
+              <Spinner label={t('common.loading')} />
+            ) : null}
+            {entities.length ? (
+              <div className="flex flex-wrap gap-2">
+                {entities.map((entity) => {
+                  const label = entityLabel(entity);
+                  return entity.name === 'Node' && entity.entity_id ? (
+                    <Link key={entity.id} className="inline-flex" to={`/admin/nodes/${entity.entity_id}`}>
+                      <Badge variant="neutral">{label}</Badge>
+                    </Link>
+                  ) : (
+                    <Badge key={entity.id} variant="neutral">
+                      {label}
+                    </Badge>
+                  );
+                })}
+              </div>
+            ) : entitiesQ.isSuccess ? (
+              <div className="text-sm text-muted">{t('admin.outages.empty.systems')}</div>
+            ) : null}
+          </section>
+          <section className="mt-4 text-sm text-muted" aria-label={t('admin.outages.systems.handlers')}>
+            {handlersQ.error ? (
+              <div role="alert" className="mb-3 space-y-2">
+                <Alert variant="danger" title={t('public.outage_detail.handlers.error')}>
+                  {formatErrorMessage(handlersQ.error)}
+                </Alert>
+                <Button variant="secondary" onClick={() => void handlersQ.refetch()}>
+                  {t('common.retry')}
+                </Button>
+              </div>
+            ) : handlersQ.isPending ? (
+              <Spinner label={t('common.loading')} />
+            ) : null}
+            {handlers.length
+              ? handlers.map((h) => h.full_name || `#${outageHandlerUserId(h) ?? h.id}`).join(', ')
+              : handlersQ.isSuccess
+                ? t('admin.outages.empty.handlers')
+                : null}
+          </section>
         </CardBody>
       </Card>
 
-      <OutageAdvisoriesCard links={advisoriesQ.data ?? []} />
+      <OutageAdvisoriesCard
+        links={advisoriesQ.data ?? []}
+        loading={advisoriesQ.isPending}
+        error={advisoriesQ.error}
+        onRetry={() => void advisoriesQ.refetch()}
+      />
 
       <OutageAffectedTables
         usersQ={usersQ}
         vpsQ={vpsQ}
         exportsQ={exportsQ}
         userTotal={outage.affected_user_count ?? undefined}
-        vpsTotal={(outage.affected_direct_vps_count != null || outage.affected_indirect_vps_count != null)
-          ? (outage.affected_direct_vps_count ?? 0) + (outage.affected_indirect_vps_count ?? 0)
-          : undefined}
+        vpsTotal={
+          outage.affected_direct_vps_count != null || outage.affected_indirect_vps_count != null
+            ? (outage.affected_direct_vps_count ?? 0) + (outage.affected_indirect_vps_count ?? 0)
+            : undefined
+        }
         exportTotal={outage.affected_export_count ?? undefined}
       />
 
       <OutageUpdatesCard
         updates={updatesQ.data}
-        loading={updatesQ.isLoading}
+        loading={updatesQ.isPending}
+        error={updatesQ.error}
+        onRetry={() => void updatesQ.refetch()}
         preferredLanguageCodes={preferredLanguageCodes}
       />
 
-      <Modal open={editOpen} title={t('admin.outages.edit.title')} onClose={() => setEditOpen(false)} size="lg" testId="admin.outages.edit.modal" footer={<div className="flex justify-end gap-2"><Button variant="secondary" onClick={() => setEditOpen(false)} disabled={saveAttrsM.isPending}>{t('common.cancel')}</Button><Button onClick={submitAttrs} loading={saveAttrsM.isPending} testId="admin.outages.edit.save">{t('common.save')}</Button></div>}>
-        <Alert title={t('admin.outages.edit.notice.title')} variant="info">{t('admin.outages.edit.notice.body')}</Alert>
-        {hasErrors(formErrors) ? <div className="mt-4"><Alert variant="warn" title={t('common.validation_error')}>{t('admin.outages.validation.body')}</Alert></div> : null}
-        {saveAttrsM.isError ? <div className="mt-4"><Alert variant="danger" title={t('common.error')} testId="admin.outages.edit.error">{formatErrorMessage(saveAttrsM.error)}</Alert></div> : null}
-        <div className="mt-4"><OutageForm form={form} setForm={setForm} errors={formErrors} /></div>
+      <Modal
+        open={editOpen}
+        title={t('admin.outages.edit.title')}
+        onClose={() => setEditOpen(false)}
+        size="lg"
+        testId="admin.outages.edit.modal"
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button variant="secondary" onClick={() => setEditOpen(false)} disabled={saveAttrsM.isPending}>
+              {t('common.cancel')}
+            </Button>
+            <Button onClick={submitAttrs} loading={saveAttrsM.isPending} testId="admin.outages.edit.save">
+              {t('common.save')}
+            </Button>
+          </div>
+        }
+      >
+        <Alert title={t('admin.outages.edit.notice.title')} variant="info">
+          {t('admin.outages.edit.notice.body')}
+        </Alert>
+        {hasErrors(formErrors) ? (
+          <div className="mt-4">
+            <Alert variant="warn" title={t('common.validation_error')}>
+              {t('admin.outages.validation.body')}
+            </Alert>
+          </div>
+        ) : null}
+        {saveAttrsM.isError ? (
+          <div className="mt-4">
+            <Alert variant="danger" title={t('common.error')} testId="admin.outages.edit.error">
+              {formatErrorMessage(saveAttrsM.error)}
+            </Alert>
+          </div>
+        ) : null}
+        <div className="mt-4">
+          <OutageForm form={form} setForm={setForm} errors={formErrors} />
+        </div>
       </Modal>
 
-      <Modal open={updateOpen} title={t('admin.outages.update.title')} onClose={() => setUpdateOpen(false)} size="lg" testId="admin.outages.update.modal" footer={<div className="flex justify-end gap-2"><Button variant="secondary" onClick={() => setUpdateOpen(false)} disabled={postUpdateM.isPending}>{t('common.cancel')}</Button><Button onClick={submitUpdate} loading={postUpdateM.isPending} testId="admin.outages.update.save">{t('admin.outages.action.post_update')}</Button></div>}>
-        {hasErrors(formErrors) ? <Alert variant="warn" title={t('common.validation_error')}>{t('admin.outages.validation.body')}</Alert> : null}
-        {postUpdateM.isError ? <div className="mt-4"><Alert variant="danger" title={t('common.error')} testId="admin.outages.update.error">{formatErrorMessage(postUpdateM.error)}</Alert></div> : null}
-        <div className="mt-4"><OutageForm form={form} setForm={setForm} errors={formErrors} includeState updateMode /></div>
+      <Modal
+        open={updateOpen}
+        title={t('admin.outages.update.title')}
+        onClose={() => setUpdateOpen(false)}
+        size="lg"
+        testId="admin.outages.update.modal"
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button variant="secondary" onClick={() => setUpdateOpen(false)} disabled={postUpdateM.isPending}>
+              {t('common.cancel')}
+            </Button>
+            <Button onClick={submitUpdate} loading={postUpdateM.isPending} testId="admin.outages.update.save">
+              {t('admin.outages.action.post_update')}
+            </Button>
+          </div>
+        }
+      >
+        {hasErrors(formErrors) ? (
+          <Alert variant="warn" title={t('common.validation_error')}>
+            {t('admin.outages.validation.body')}
+          </Alert>
+        ) : null}
+        {postUpdateM.isError ? (
+          <div className="mt-4">
+            <Alert variant="danger" title={t('common.error')} testId="admin.outages.update.error">
+              {formatErrorMessage(postUpdateM.error)}
+            </Alert>
+          </div>
+        ) : null}
+        <div className="mt-4">
+          <OutageForm form={form} setForm={setForm} errors={formErrors} includeState updateMode />
+        </div>
       </Modal>
 
-      <Modal open={systemsOpen} title={t('admin.outages.systems.title')} onClose={() => setSystemsOpen(false)} size="lg" testId="admin.outages.systems.modal" footer={<div className="flex justify-end gap-2"><Button variant="secondary" onClick={() => setSystemsOpen(false)} disabled={saveSystemsM.isPending}>{t('common.cancel')}</Button><Button onClick={() => { saveSystemsM.reset(); setSystemsReviewOpen(true); }} loading={saveSystemsM.isPending} testId="admin.outages.systems.save">{t('admin.outages.action.review')}</Button></div>}>
-        {saveSystemsM.isError ? <Alert variant="danger" title={t('common.error')} testId="admin.outages.systems.error">{outageScopeErrorMessage(saveSystemsM.error, t)}</Alert> : null}
+      <Modal
+        open={systemsOpen}
+        title={t('admin.outages.systems.title')}
+        onClose={() => setSystemsOpen(false)}
+        size="lg"
+        testId="admin.outages.systems.modal"
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button variant="secondary" onClick={() => setSystemsOpen(false)} disabled={saveSystemsM.isPending}>
+              {t('common.cancel')}
+            </Button>
+            <Button
+              onClick={() => {
+                saveSystemsM.reset();
+                setSystemsReviewOpen(true);
+              }}
+              loading={saveSystemsM.isPending}
+              testId="admin.outages.systems.save"
+            >
+              {t('admin.outages.action.review')}
+            </Button>
+          </div>
+        }
+      >
+        {saveSystemsM.isError ? (
+          <Alert variant="danger" title={t('common.error')} testId="admin.outages.systems.error">
+            {outageScopeErrorMessage(saveSystemsM.error, t)}
+          </Alert>
+        ) : null}
         <OutageScopeEditor form={systemsForm} setForm={setSystemsForm} />
       </Modal>
 
@@ -825,7 +1209,9 @@ function AdminOutageDetailPage({ outageId }: { outageId: number | undefined }) {
         open={Boolean(confirmState)}
         testId="admin.outages.change_state.confirm"
         title={t('admin.outages.change_state.confirm_title')}
-        description={t('admin.outages.change_state.confirm_body', { state: confirmState ? t(`admin.outages.state.${confirmState}`) : '' })}
+        description={t('admin.outages.change_state.confirm_body', {
+          state: confirmState ? t(`admin.outages.state.${confirmState}`) : '',
+        })}
         danger={confirmState === 'cancelled'}
         confirmLoading={postUpdateM.isPending}
         onCancel={() => {
@@ -834,10 +1220,7 @@ function AdminOutageDetailPage({ outageId }: { outageId: number | undefined }) {
         }}
         onConfirm={() => {
           if (!confirmState) return;
-          postUpdateM.mutate(outageStateTransitionPayload(
-            outageId,
-            confirmState
-          ));
+          postUpdateM.mutate(outageStateTransitionPayload(outageId, confirmState));
         }}
       >
         {postUpdateM.isError ? (

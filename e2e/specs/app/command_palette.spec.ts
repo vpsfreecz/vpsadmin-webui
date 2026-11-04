@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
+import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 
 type ClipboardProbe = { writes: string[] };
 
@@ -128,7 +128,9 @@ test.describe('Command palette', () => {
     await expect(page.getByTestId('vps.header')).toBeVisible();
   });
 
-  test('exposes combobox selection state, retains input focus, and sizes help for the viewport', async ({ page }, testInfo) => {
+  test('exposes combobox selection state, retains input focus, and sizes help for the viewport', async ({
+    page,
+  }, testInfo) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
 
     await installHaveApiMock(page, {
@@ -168,9 +170,10 @@ test.describe('Command palette', () => {
     await page.goto('/app/vps');
     await expect(page.getByTestId('vps.list')).toBeVisible();
 
-    const returnTarget = testInfo.project.name === 'mobile-chrome'
-      ? page.getByTestId('palette.open')
-      : page.getByTestId('shell.inline-search.input');
+    const returnTarget =
+      testInfo.project.name === 'mobile-chrome'
+        ? page.getByTestId('palette.open')
+        : page.getByTestId('shell.inline-search.input');
     await returnTarget.focus();
     await openCommandPalette(page);
 
@@ -223,48 +226,65 @@ test.describe('Command palette', () => {
     await expect(returnTarget).toBeFocused();
   });
 
-  test('keeps palette action buttons keyboard-operable while results are present', async ({ page }) => {
-    await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+  for (const language of ['cs', 'en'] as const) {
+    test(`keeps palette action buttons keyboard-operable while results are present ${language}`, async ({
+      page,
+    }, testInfo) => {
+      await setUiSettingsLocalStorage(page, { language, theme: language === 'cs' ? 'dark' : 'light' });
+      await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
 
-    await installHaveApiMock(page, {
-      user: { id: 99, login: 'admin', level: 100 },
-      handlers: {
-        'GET vpses': () => ({ vpses: [] }),
-        'POST cluster/search': () => ({
-          cluster_search: [{ resource: 'User', id: 5, value: 'alice', attribute: 'login' }],
-        }),
-        'GET users/5': () => ({
-          user: { id: 5, login: 'alice', full_name: 'Alice A.', email: 'alice@example', level: 1 },
-        }),
-      },
+      await installHaveApiMock(page, {
+        user: { id: 99, login: 'admin', level: 100 },
+        handlers: {
+          'GET vpses': () => ({ vpses: [] }),
+          'POST cluster/search': ({ reqJson }) => {
+            expect(reqJson).toMatchObject({ cluster: { value: 'alice' } });
+            // The installed generated Cluster.Search action reads response.clusters.
+            return { clusters: [{ resource: 'User', id: 5, value: 'alice', attribute: 'login' }] };
+          },
+          'GET users/5': () => ({
+            user: { id: 5, login: 'alice', full_name: 'Alice A.', email: 'alice@example', level: 1 },
+          }),
+        },
+      });
+
+      await page.goto('/admin/vps');
+      await expect(page.getByTestId('vps.list')).toBeVisible();
+      const startUrl = page.url();
+      await openCommandPalette(page);
+
+      const input = page.getByTestId('palette.input');
+      await input.fill('alice');
+      await expect(page.getByTestId('palette.result.0')).toBeVisible();
+
+      await page.screenshot({ path: testInfo.outputPath('palette-results.png'), scale: 'css' });
+      const helpButton = page.getByTestId('palette.help.open');
+      await helpButton.focus();
+      await helpButton.press('Enter');
+      await expect(page.getByTestId('palette.help')).toBeVisible();
+      await expect(page).toHaveURL(startUrl);
+      const modal = page.getByTestId('palette.modal');
+      for (const hint of ['↑/↓', 'Ctrl/Cmd+Enter', 'Ctrl/Cmd+Shift+C', 'Ctrl/Cmd+Shift+I']) {
+        await expect(modal.getByText(hint, { exact: false })).toBeVisible();
+      }
+      await page.screenshot({ path: testInfo.outputPath('palette-help.png'), scale: 'css' });
+
+      const backButton = page.getByRole('button', {
+        name: language === 'cs' ? 'Zpět do vyhledávání' : 'Back to search',
+      });
+      await backButton.focus();
+      await backButton.press('Enter');
+      await expect(page.getByTestId('palette.help')).toHaveCount(0);
+
+      const closeButton = page
+        .getByTestId('palette.modal')
+        .getByRole('button', { name: language === 'cs' ? 'Zavřít' : 'Close', exact: true });
+      await closeButton.focus();
+      await closeButton.press('Enter');
+      await expect(page.getByTestId('palette.modal')).toHaveCount(0);
+      await expect(page).toHaveURL(startUrl);
     });
-
-    await page.goto('/admin/vps');
-    await expect(page.getByTestId('vps.list')).toBeVisible();
-    const startUrl = page.url();
-    await openCommandPalette(page);
-
-    const input = page.getByTestId('palette.input');
-    await input.fill('alice');
-    await expect(page.getByTestId('palette.result.0')).toBeVisible();
-
-    const helpButton = page.getByTestId('palette.help.open');
-    await helpButton.focus();
-    await helpButton.press('Enter');
-    await expect(page.getByTestId('palette.help')).toBeVisible();
-    await expect(page).toHaveURL(startUrl);
-
-    const backButton = page.getByRole('button', { name: 'Back to search' });
-    await backButton.focus();
-    await backButton.press('Enter');
-    await expect(page.getByTestId('palette.help')).toHaveCount(0);
-
-    const closeButton = page.getByTestId('palette.modal').getByRole('button', { name: 'Close', exact: true });
-    await closeButton.focus();
-    await closeButton.press('Enter');
-    await expect(page.getByTestId('palette.modal')).toHaveCount(0);
-    await expect(page).toHaveURL(startUrl);
-  });
+  }
 
   test('keeps the help target touch-sized for wide coarse and hybrid pointers', async ({ page }, testInfo) => {
     await page.setViewportSize({ width: 1024, height: 600 });
@@ -390,7 +410,9 @@ test.describe('Command palette', () => {
             { resource: 'User', id: 5, value: 'alice', attribute: 'login' },
           ],
         }),
-        'GET users/5': () => ({ user: { id: 5, login: 'alice', full_name: 'Alice A.', email: 'alice@example', level: 1 } }),
+        'GET users/5': () => ({
+          user: { id: 5, login: 'alice', full_name: 'Alice A.', email: 'alice@example', level: 1 },
+        }),
       },
     });
 
@@ -507,9 +529,11 @@ test.describe('Command palette', () => {
 
     await input.press('Control+Shift+C');
     await input.press('Control+Shift+I');
-    await expect.poll(() => readClipboardProbe(page)).toEqual({
-      writes: [`${origin}/admin/transactions/5`, '#5'],
-    });
+    await expect
+      .poll(() => readClipboardProbe(page))
+      .toEqual({
+        writes: [`${origin}/admin/transactions/5`, '#5'],
+      });
 
     await input.press('Enter');
     await expect(page).toHaveURL(/\/admin\/transactions\/5$/);
@@ -540,12 +564,13 @@ test.describe('Command palette', () => {
             };
           }
           return {
-            cluster_search: query === '5'
-              ? [
-                  { resource: 'Vps', id: 5, value: 'vps5.example', attribute: 'id' },
-                  { resource: 'User', id: 5, value: 'user-five', attribute: 'id' },
-                ]
-              : [],
+            cluster_search:
+              query === '5'
+                ? [
+                    { resource: 'Vps', id: 5, value: 'vps5.example', attribute: 'id' },
+                    { resource: 'User', id: 5, value: 'user-five', attribute: 'id' },
+                  ]
+                : [],
           };
         },
         'GET users/5': () => ({
@@ -702,7 +727,7 @@ test.describe('Command palette', () => {
       const transitions: string[] = [];
       const record = () => {
         const status = container.querySelector<HTMLElement>('[role="status"]');
-        const next = status?.dataset.testid;
+        const next = status?.dataset['testid'];
         if (next && transitions.at(-1) !== next) transitions.push(next);
       };
       record();
@@ -738,11 +763,7 @@ test.describe('Command palette', () => {
       };
       return stateWindow.__paletteStatusTransitions ?? [];
     });
-    expect(statusTransitions).toEqual([
-      'palette.empty',
-      'palette.loading',
-      'palette.no_results',
-    ]);
+    expect(statusTransitions).toEqual(['palette.empty', 'palette.loading', 'palette.no_results']);
 
     await input.fill('failure');
     const error = page.getByTestId('palette.error');
@@ -802,12 +823,14 @@ test.describe('Command palette', () => {
     await expect(input).toBeFocused();
     await expect(input).toHaveAttribute('aria-activedescendant', 'command-palette-listbox-option-29');
     await expect(lastOption).toHaveAttribute('aria-selected', 'true');
-    await expect.poll(async () => {
-      const modalBox = await modal.boundingBox();
-      const optionBox = await lastOption.boundingBox();
-      if (!modalBox || !optionBox) return false;
-      return optionBox.y >= modalBox.y && optionBox.y + optionBox.height <= modalBox.y + modalBox.height + 1;
-    }).toBe(true);
+    await expect
+      .poll(async () => {
+        const modalBox = await modal.boundingBox();
+        const optionBox = await lastOption.boundingBox();
+        if (!modalBox || !optionBox) return false;
+        return optionBox.y >= modalBox.y && optionBox.y + optionBox.height <= modalBox.y + modalBox.height + 1;
+      })
+      .toBe(true);
   });
 
   test('searches cluster objects from the header inline field in admin view', async ({ page }) => {
@@ -823,7 +846,9 @@ test.describe('Command palette', () => {
             cluster_search: [{ resource: 'User', id: 53, value: '53', attribute: 'id' }],
           };
         },
-        'GET users/53': () => ({ user: { id: 53, login: 'KerryCZE', full_name: 'Kerry', email: 'kerry@example', level: 99 } }),
+        'GET users/53': () => ({
+          user: { id: 53, login: 'KerryCZE', full_name: 'Kerry', email: 'kerry@example', level: 99 },
+        }),
       },
     });
 

@@ -37,19 +37,18 @@ export function SecurityAdvisoryOutagesPanel(props: {
   return (
     <div className="space-y-4">
       <Card className="@container">
-        <CardHeader
-          title={t('admin.security_advisories.outages.link_title')}
-          subtitle={t('admin.security_advisories.outages.link_subtitle')}
-        />
+        <CardHeader title={t('admin.security_advisories.outages.link_title')} />
         <CardBody>
           {props.linkError ? (
-            <Alert
-              variant="danger"
-              title={t('admin.security_advisories.toast.outage_link_failed')}
-              testId="admin.security_advisory.outages.link_error"
-            >
-              {props.linkError}
-            </Alert>
+            <div role="alert">
+              <Alert
+                variant="danger"
+                title={t('admin.security_advisories.toast.outage_link_failed')}
+                testId="admin.security_advisory.outages.link_error"
+              >
+                {props.linkError}
+              </Alert>
+            </div>
           ) : null}
           <div className="flex max-w-lg flex-col gap-2 sm:flex-row">
             <Input
@@ -73,8 +72,12 @@ export function SecurityAdvisoryOutagesPanel(props: {
         </CardBody>
       </Card>
 
-      {props.loading ? <LoadingState /> : props.error ? (
-        <Alert variant="danger" title={t('common.error')}>{formatErrorMessage(props.error)}</Alert>
+      {props.loading ? (
+        <LoadingState />
+      ) : props.error ? (
+        <Alert variant="danger" title={t('common.error')}>
+          {formatErrorMessage(props.error)}
+        </Alert>
       ) : props.links.length === 0 ? (
         <Alert variant="neutral" title={t('admin.security_advisories.outages.empty')} />
       ) : (
@@ -95,9 +98,7 @@ export function SecurityAdvisoryOutagesPanel(props: {
             {props.links.map((link) => {
               const outage = securityAdvisoryOutageObject(link);
               const id = resourceId(link.outage, link.outage_id);
-              const summary = outage
-                ? pickLocalizedField(outage, 'summary', i18n.preferredLanguageCodes)
-                : undefined;
+              const summary = outage ? pickLocalizedField(outage, 'summary', i18n.preferredLanguageCodes) : undefined;
               return (
                 <tr
                   key={link.id}

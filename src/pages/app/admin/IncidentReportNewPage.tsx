@@ -17,7 +17,7 @@ import { objectRef } from '../../../lib/objectRef';
 
 import { Alert } from '../../../components/ui/Alert';
 import { Button } from '../../../components/ui/Button';
-import { Card, CardBody, CardHeader } from '../../../components/ui/Card';
+import { Card, CardBody } from '../../../components/ui/Card';
 import { ErrorState } from '../../../components/ui/ErrorState';
 import { Input } from '../../../components/ui/Input';
 import { LoadingState } from '../../../components/ui/LoadingState';
@@ -200,8 +200,8 @@ export function IncidentReportNewPage() {
 
       <div className="mt-4 grid grid-cols-1 gap-4">
         <Card>
-          <CardHeader title={t('incidents.new.form.title')} subtitle={t('incidents.new.form.subtitle')} />
           <CardBody>
+            <p className="mb-4 text-sm text-muted">{t('incidents.new.form.subtitle')}</p>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
                 <label className="block text-xs text-muted">{t('incidents.new.vps')}</label>

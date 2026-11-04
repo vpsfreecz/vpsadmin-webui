@@ -1,7 +1,7 @@
 // Public-facing pages
 export const enPublic = {
   "about.title": "About",
-  "about.description": "The new vpsAdmin web interface for managing VPSs and vpsFree.cz services. It builds on the original administration interface with a responsive layout and light and dark themes.",
+  "about.description": "The vpsAdmin web interface for managing VPSs and vpsFree.cz services.",
   "about.version.title": "Interface version",
   "about.version.unknown": "Version unavailable",
   "about.version.modified": "This build includes local changes.",

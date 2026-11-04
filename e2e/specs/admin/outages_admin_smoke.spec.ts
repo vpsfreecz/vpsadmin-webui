@@ -1,6 +1,12 @@
 import { expect, test } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock, jsonFulfill } from '../../fixtures';
+import {
+  bootstrapVpsAdminWindow,
+  failEnvelope,
+  installHaveApiMock,
+  jsonFulfill,
+  setUiSettingsLocalStorage,
+} from '../../fixtures';
 
 test.describe('@smoke Admin outage workflow', () => {
   test.beforeEach(async ({ page }) => {
@@ -486,3 +492,181 @@ test.describe('@smoke Admin outage workflow', () => {
     await expect(page.getByTestId('admin.outages.new')).toBeEnabled();
   });
 });
+
+for (const language of ['en', 'cs'] as const) {
+  test(`@o4-child-reads outage independent child failures ${language}`, async ({ page }, testInfo) => {
+    await bootstrapVpsAdminWindow(page, { sessionToken: 'O4_OUTAGE_CHILD_READS' });
+    await setUiSettingsLocalStorage(page, { language, theme: language === 'cs' ? 'dark' : 'light' });
+    let rejected = true;
+    const failedReads = { entities: 0, handlers: 0, updates: 0, advisories: 0 };
+    const writes: string[] = [];
+    const reads: Array<{ path: string; query: string; rejected: boolean }> = [];
+    const messages = {
+      entities: 'Synthetic affected-system read rejected',
+      handlers: 'Synthetic handler read rejected',
+      updates: 'Synthetic update read rejected',
+      advisories: 'Synthetic advisory-link read rejected',
+    };
+    const fails = (child: keyof typeof failedReads) =>
+      rejected &&
+      (language === 'en'
+        ? child === 'entities' || child === 'handlers'
+        : child === 'updates' || child === 'advisories');
+    const result = (child: keyof typeof failedReads, path: string, query: string, success: unknown) => {
+      const failed = fails(child);
+      reads.push({ path, query, rejected: failed });
+      if (!failed) return success;
+      failedReads[child] += 1;
+      return jsonFulfill(failEnvelope(messages[child]), 503);
+    };
+    await installHaveApiMock(page, {
+      user: { id: 1, login: 'synthetic-admin', level: 90 },
+      handlers: {
+        'GET outages/7': () => ({
+          outage: {
+            id: 7,
+            state: 'announced',
+            type: 'planned_outage',
+            impact: 'network',
+            begins_at: '2026-11-04T10:00:00Z',
+            finished_at: null,
+            duration: 30,
+            en_summary: 'Synthetic network maintenance',
+            cs_summary: 'Testovací údržba sítě',
+            en_description: 'Investigating the network path.',
+            cs_description: 'Prověřujeme síťovou cestu.',
+            affected_user_count: 1,
+            affected_direct_vps_count: 1,
+            affected_indirect_vps_count: 0,
+            affected_export_count: 0,
+          },
+        }),
+        'GET outages/7/entities': ({ relPath, searchParams }) =>
+          result('entities', String(relPath), searchParams.toString(), {
+            entities: [{ id: 100, name: 'Node', entity_id: 12, label: 'Node node12' }],
+            _meta: { total_count: 1 },
+          }),
+        'GET outages/7/handlers': ({ relPath, searchParams }) =>
+          result('handlers', String(relPath), searchParams.toString(), {
+            handlers: [{ id: 200, user: { id: 42, login: 'operator' }, full_name: 'Synthetic Operator' }],
+            _meta: { total_count: 1 },
+          }),
+        'GET outage_updates': ({ relPath, searchParams }) =>
+          result('updates', String(relPath), searchParams.toString(), {
+            outage_updates: [
+              {
+                id: 400,
+                outage: { id: 7 },
+                state: 'announced',
+                created_at: '2026-11-04T10:10:00Z',
+                reporter_name: 'Synthetic Operator',
+                en_summary: 'Observed update',
+                cs_summary: 'Zaznamenaná aktualizace',
+              },
+            ],
+          }),
+        'GET outage_security_advisories': ({ relPath, searchParams }) =>
+          result('advisories', String(relPath), searchParams.toString(), {
+            outage_security_advisories: [
+              { id: 77, outage: { id: 7 }, security_advisory: { id: 88, label: 'CVE-2026-0088' } },
+            ],
+          }),
+        'GET user_outages': () => ({
+          user_outages: [{ id: 300, user: { id: 5, login: 'synthetic-member' }, vps_count: 1, export_count: 0 }],
+        }),
+        'GET vps_outages': () => ({
+          vps_outages: [{ id: 301, vps: { id: 55, hostname: 'synthetic-vps' }, direct: true }],
+        }),
+        'GET export_outages': () => ({ export_outages: [] }),
+      },
+    });
+    page.on('request', (request) => {
+      const url = new URL(request.url());
+      if (
+        ['POST', 'PUT', 'DELETE'].includes(request.method()) &&
+        /\/api\/v7\.0\/(outages|outage_updates|outage_security_advisories)(\/|$)/.test(url.pathname)
+      )
+        writes.push(`${request.method()} ${url.pathname}`);
+    });
+    await page.goto('/admin/outages/7');
+    const root = page.getByTestId('admin.outages.detail.page');
+    await expect(root).toBeVisible();
+    const failedChildren =
+      language === 'en' ? (['entities', 'handlers'] as const) : (['updates', 'advisories'] as const);
+    for (const child of failedChildren) await expect.poll(() => failedReads[child]).toBe(2);
+    await expect(root.getByText('synthetic-member · VPS 1 · exports 0')).toBeVisible();
+    await expect(root.getByText('#55 synthetic-vps')).toBeVisible();
+    if (language === 'en') {
+      await expect(root.getByText('Observed update', { exact: true })).toBeVisible();
+      await expect(root.getByRole('link', { name: 'CVE-2026-0088' })).toHaveAttribute(
+        'href',
+        '/admin/security-advisories/88'
+      );
+    } else {
+      await expect(root.getByRole('link', { name: 'Node node12' })).toHaveAttribute('href', '/admin/nodes/12');
+      await expect(root.getByText('Synthetic Operator', { exact: true })).toBeVisible();
+    }
+    const systemsTitle = language === 'en' ? 'Affected systems and handlers' : 'Dotčené systémy a řešitelé';
+    const updatesTitle = language === 'en' ? 'Updates' : 'Aktualizace';
+    const advisoryTitle = language === 'en' ? 'Related security advisories' : 'Související bezpečnostní upozornění';
+    const systemsText = await root.getByText(systemsTitle, { exact: true }).locator('xpath=../../..').innerText();
+    const updatesText = await root.getByText(updatesTitle, { exact: true }).locator('xpath=../../..').innerText();
+    const advisoryHeading = root.getByText(advisoryTitle, { exact: true });
+    const advisoryText = (await advisoryHeading.count())
+      ? await advisoryHeading.locator('xpath=../../..').innerText()
+      : '';
+    await page.screenshot({
+      path: testInfo.outputPath(`outage-child-failures-${language}.png`),
+      fullPage: true,
+      scale: 'css',
+    });
+    expect(writes).toEqual([]);
+
+    const independentPaths = new Set(reads.filter((read) => !read.rejected).map((read) => read.path));
+    const independentReadCount = reads.filter((read) => independentPaths.has(read.path)).length;
+    rejected = false;
+    for (const child of failedChildren) {
+      const section =
+        child === 'entities'
+          ? root.getByRole('region', { name: 'Affected systems', exact: true })
+          : child === 'handlers'
+            ? root.getByRole('region', { name: 'Handlers', exact: true })
+            : root.getByTestId(child === 'updates' ? 'admin.outages.updates' : 'admin.outages.advisories');
+      const retry = section.getByRole('button', { name: language === 'en' ? 'Retry' : 'Zkusit znovu', exact: true });
+      await expect(retry).toBeVisible();
+      await retry.click();
+      await expect(retry).toHaveCount(0);
+      await expect(section.getByText(language === 'en' ? 'Loading…' : 'Načítání…', { exact: true })).toHaveCount(0);
+    }
+    expect(reads.filter((read) => independentPaths.has(read.path))).toHaveLength(independentReadCount);
+    await expect(root.getByRole('link', { name: 'Node node12' })).toHaveAttribute('href', '/admin/nodes/12');
+    await expect(root.getByRole('link', { name: 'CVE-2026-0088' })).toHaveAttribute(
+      'href',
+      '/admin/security-advisories/88'
+    );
+    await expect(
+      root.getByText(language === 'en' ? 'Observed update' : 'Zaznamenaná aktualizace', { exact: true })
+    ).toBeVisible();
+    await expect(root.getByText('Synthetic Operator', { exact: true }).first()).toBeVisible();
+    await page.screenshot({
+      path: testInfo.outputPath(`outage-child-recovered-${language}.png`),
+      fullPage: true,
+      scale: 'css',
+    });
+    expect(writes).toEqual([]);
+    await testInfo.attach('outage-child-read-wire-and-observed-sections', {
+      body: JSON.stringify({ language, reads, failedReads, writes, systemsText, updatesText, advisoryText }, null, 2),
+      contentType: 'application/json',
+    });
+    // Keep the exact captured error contract as well as local Retry recovery.
+    for (const child of failedChildren) {
+      const observed =
+        child === 'entities' || child === 'handlers' ? systemsText : child === 'updates' ? updatesText : advisoryText;
+      const expected =
+        child === 'entities' || child === 'handlers'
+          ? `OutageScopeReadError: Unable to read the complete ${child} scope for outage #7: a page request failed`
+          : messages[child];
+      expect(observed, `${child} failure is visible in its mounted section`).toContain(expected);
+    }
+  });
+}

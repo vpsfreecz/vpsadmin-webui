@@ -30,7 +30,9 @@ import { fetchLanguages, type Language } from '../../../../lib/api/languages';
 import { formatErrorMessage } from '../../../../lib/errors';
 
 function snippet(s: string | undefined | null, limit = 120): string {
-  const t = String(s ?? '').replace(/\s+/g, ' ').trim();
+  const t = String(s ?? '')
+    .replace(/\s+/g, ' ')
+    .trim();
   if (!t) return '';
   if (t.length <= limit) return t;
   return `${t.slice(0, limit - 1)}…`;
@@ -85,7 +87,11 @@ export function AdminHelpBoxesPage() {
   const languageKey = languageParam === undefined ? '__all__' : languageParam;
 
   const q = useQuery({
-    queryKey: ['help_boxes', 'admin', { page: pageFilter || null, action: actionFilter || null, language: languageKey }],
+    queryKey: [
+      'help_boxes',
+      'admin',
+      { page: pageFilter || null, action: actionFilter || null, language: languageKey },
+    ],
     queryFn: async () =>
       (
         await fetchHelpBoxesAdmin({
@@ -102,7 +108,11 @@ export function AdminHelpBoxesPage() {
     const base = q.data ?? [];
     const term = contentSearch.trim().toLowerCase();
     if (!term) return base;
-    return base.filter((b) => String(b.content ?? '').toLowerCase().includes(term));
+    return base.filter((b) =>
+      String(b.content ?? '')
+        .toLowerCase()
+        .includes(term)
+    );
   }, [contentSearch, q.data]);
 
   const languages = (langsQ.data ?? []) as Language[];
@@ -157,7 +167,12 @@ export function AdminHelpBoxesPage() {
   const localizedEdit = editorMode === 'edit' && editorTarget?.language?.id != null;
   const languageClearUnsupported = localizedEdit && editorLangId === null;
 
-  const editorValid = Boolean(editorPage.trim()) && Boolean(editorAction.trim()) && Boolean(editorContent.trim()) && editorOrderParsed !== null && !languageClearUnsupported;
+  const editorValid =
+    Boolean(editorPage.trim()) &&
+    Boolean(editorAction.trim()) &&
+    Boolean(editorContent.trim()) &&
+    editorOrderParsed !== null &&
+    !languageClearUnsupported;
 
   const saveM = useMutation({
     mutationFn: async () => {
@@ -217,10 +232,6 @@ export function AdminHelpBoxesPage() {
       setDeleteTarget(null);
       qc.invalidateQueries({ queryKey: ['help_boxes'] });
     },
-    onError: (e) => {
-      const msg = formatErrorMessage(e);
-      pushToast({ variant: 'danger', title: t('common.error'), body: msg });
-    },
   });
 
   return (
@@ -250,7 +261,11 @@ export function AdminHelpBoxesPage() {
 
           <div>
             <div className="text-xs text-faint">{t('admin.help_boxes.filter.language')}</div>
-            <Select value={languageFilter} onChange={(e) => setLanguageFilter(e.target.value)} testId="admin.help_boxes.filter.language">
+            <Select
+              value={languageFilter}
+              onChange={(e) => setLanguageFilter(e.target.value)}
+              testId="admin.help_boxes.filter.language"
+            >
               <option value="__all__">{t('common.all')}</option>
               {languages.map((l) => (
                 <option key={l.id} value={String(l.id)}>
@@ -296,14 +311,18 @@ export function AdminHelpBoxesPage() {
             {rows.map((b) => {
               const page = String(b.page ?? '');
               const action = String(b.action ?? '');
-              const lang = b.language ? String(b.language.label ?? b.language.code ?? b.language.id) : t('common.default');
+              const lang = b.language
+                ? String(b.language.label ?? b.language.code ?? b.language.id)
+                : t('common.default');
 
               return (
                 <Card key={b.id} testId={`admin.help_boxes.card.${b.id}`}>
                   <div className="min-w-0 p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div className="text-sm font-semibold text-fg">#{b.id}</div>
-                      <Badge variant="neutral">{t('admin.help_boxes.table.order')}: {typeof b.order === 'number' ? b.order : '—'}</Badge>
+                      <Badge variant="neutral">
+                        {t('admin.help_boxes.table.order')}: {typeof b.order === 'number' ? b.order : '—'}
+                      </Badge>
                     </div>
                     <dl className="mt-4 space-y-3 text-sm">
                       <div className="flex items-start justify-between gap-3">
@@ -377,11 +396,21 @@ export function AdminHelpBoxesPage() {
           <TableCard className="hidden md:block" testId="admin.help_boxes.table" minWidth="lg">
             <thead>
               <tr>
-                <th className="px-4 py-2 text-left text-xs font-semibold text-faint">{t('admin.help_boxes.table.order')}</th>
-                <th className="px-4 py-2 text-left text-xs font-semibold text-faint">{t('admin.help_boxes.table.page')}</th>
-                <th className="px-4 py-2 text-left text-xs font-semibold text-faint">{t('admin.help_boxes.table.action')}</th>
-                <th className="px-4 py-2 text-left text-xs font-semibold text-faint">{t('admin.help_boxes.table.language')}</th>
-                <th className="px-4 py-2 text-left text-xs font-semibold text-faint">{t('admin.help_boxes.table.content')}</th>
+                <th className="px-4 py-2 text-left text-xs font-semibold text-faint">
+                  {t('admin.help_boxes.table.order')}
+                </th>
+                <th className="px-4 py-2 text-left text-xs font-semibold text-faint">
+                  {t('admin.help_boxes.table.page')}
+                </th>
+                <th className="px-4 py-2 text-left text-xs font-semibold text-faint">
+                  {t('admin.help_boxes.table.action')}
+                </th>
+                <th className="px-4 py-2 text-left text-xs font-semibold text-faint">
+                  {t('admin.help_boxes.table.language')}
+                </th>
+                <th className="px-4 py-2 text-left text-xs font-semibold text-faint">
+                  {t('admin.help_boxes.table.content')}
+                </th>
                 <th className="px-4 py-2 text-right text-xs font-semibold text-faint">{t('common.actions')}</th>
               </tr>
             </thead>
@@ -389,7 +418,9 @@ export function AdminHelpBoxesPage() {
               {rows.map((b) => {
                 const page = String(b.page ?? '');
                 const action = String(b.action ?? '');
-                const lang = b.language ? String(b.language.label ?? b.language.code ?? b.language.id) : t('common.default');
+                const lang = b.language
+                  ? String(b.language.label ?? b.language.code ?? b.language.id)
+                  : t('common.default');
                 const pageBadge = page === '*' ? <Badge variant="info">*</Badge> : null;
                 const actionBadge = action === '*' ? <Badge variant="info">*</Badge> : null;
 
@@ -426,7 +457,12 @@ export function AdminHelpBoxesPage() {
                         >
                           {t('admin.help_boxes.action.preview')}
                         </Button>
-                        <Button size="sm" variant="secondary" onClick={() => openEdit(b)} testId={`admin.help_boxes.edit.${b.id}`}>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => openEdit(b)}
+                          testId={`admin.help_boxes.edit.${b.id}`}
+                        >
                           {t('admin.help_boxes.action.edit')}
                         </Button>
                         <Button
@@ -500,7 +536,9 @@ export function AdminHelpBoxesPage() {
       <Modal
         open={editorOpen}
         onClose={() => setEditorOpen(false)}
-        title={editorMode === 'create' ? t('admin.help_boxes.modal.create.title') : t('admin.help_boxes.modal.edit.title')}
+        title={
+          editorMode === 'create' ? t('admin.help_boxes.modal.create.title') : t('admin.help_boxes.modal.edit.title')
+        }
         size="lg"
         testId="admin.help_boxes.editor"
         footer={
@@ -527,49 +565,85 @@ export function AdminHelpBoxesPage() {
             </Alert>
           ) : null}
 
-          <Alert variant="info" title={t('admin.help_boxes.editor.help_title')}>
-            {t('admin.help_boxes.editor.help_body')}
-          </Alert>
+          <div className="text-sm">
+            <div className="font-medium">{t('admin.help_boxes.editor.help_title')}</div>
+            <p className="mt-1 text-muted">{t('admin.help_boxes.editor.help_body')}</p>
+          </div>
 
           <div className="grid gap-4 md:grid-cols-2">
             <div>
               <div className="text-xs text-faint">{t('admin.help_boxes.field.page')}</div>
-              <Input value={editorPage} onChange={(e) => setEditorPage(e.target.value)} testId="admin.help_boxes.editor.page" />
-              {!editorPage.trim() ? <div className="mt-1 text-xs text-danger">{t('admin.help_boxes.validation.page')}</div> : null}
+              <Input
+                value={editorPage}
+                onChange={(e) => setEditorPage(e.target.value)}
+                testId="admin.help_boxes.editor.page"
+              />
+              {!editorPage.trim() ? (
+                <div className="mt-1 text-xs text-danger">{t('admin.help_boxes.validation.page')}</div>
+              ) : null}
             </div>
 
             <div>
               <div className="text-xs text-faint">{t('admin.help_boxes.field.action')}</div>
-              <Input value={editorAction} onChange={(e) => setEditorAction(e.target.value)} testId="admin.help_boxes.editor.action" />
-              {!editorAction.trim() ? <div className="mt-1 text-xs text-danger">{t('admin.help_boxes.validation.action')}</div> : null}
+              <Input
+                value={editorAction}
+                onChange={(e) => setEditorAction(e.target.value)}
+                testId="admin.help_boxes.editor.action"
+              />
+              {!editorAction.trim() ? (
+                <div className="mt-1 text-xs text-danger">{t('admin.help_boxes.validation.action')}</div>
+              ) : null}
             </div>
 
             <div>
               <div className="text-xs text-faint">{t('admin.help_boxes.field.language')}</div>
-              <Select value={editorLanguage} onChange={(e) => setEditorLanguage(e.target.value)} testId="admin.help_boxes.editor.language">
-                <option value="" disabled={localizedEdit}>{t('common.default')}</option>
+              <Select
+                value={editorLanguage}
+                onChange={(e) => setEditorLanguage(e.target.value)}
+                testId="admin.help_boxes.editor.language"
+              >
+                <option value="" disabled={localizedEdit}>
+                  {t('common.default')}
+                </option>
                 {languages.map((l) => (
                   <option key={l.id} value={String(l.id)}>
                     {String(l.label ?? l.code ?? l.id)}
                   </option>
                 ))}
               </Select>
-              {localizedEdit ? <div className="mt-1 text-xs text-muted">{t('admin.help_boxes.validation.language_clear_unsupported')}</div> : null}
+              {localizedEdit ? (
+                <div className="mt-1 text-xs text-muted">
+                  {t('admin.help_boxes.validation.language_clear_unsupported')}
+                </div>
+              ) : null}
             </div>
 
             <div>
               <div className="text-xs text-faint">{t('admin.help_boxes.field.order')}</div>
-              <Input value={editorOrder} onChange={(e) => setEditorOrder(e.target.value)} testId="admin.help_boxes.editor.order" />
-              {editorOrderParsed === null ? <div className="mt-1 text-xs text-danger">{t('admin.help_boxes.validation.order')}</div> : null}
+              <Input
+                value={editorOrder}
+                onChange={(e) => setEditorOrder(e.target.value)}
+                testId="admin.help_boxes.editor.order"
+              />
+              {editorOrderParsed === null ? (
+                <div className="mt-1 text-xs text-danger">{t('admin.help_boxes.validation.order')}</div>
+              ) : null}
             </div>
           </div>
 
           <div>
             <div className="text-xs text-faint">{t('admin.help_boxes.field.content')}</div>
             <div className="mt-1">
-              <Textarea value={editorContent} onChange={(e) => setEditorContent(e.target.value)} rows={10} testId="admin.help_boxes.editor.content" />
+              <Textarea
+                value={editorContent}
+                onChange={(e) => setEditorContent(e.target.value)}
+                rows={10}
+                testId="admin.help_boxes.editor.content"
+              />
             </div>
-            {!editorContent.trim() ? <div className="mt-1 text-xs text-danger">{t('admin.help_boxes.validation.content')}</div> : null}
+            {!editorContent.trim() ? (
+              <div className="mt-1 text-xs text-danger">{t('admin.help_boxes.validation.content')}</div>
+            ) : null}
           </div>
         </div>
       </Modal>
@@ -596,9 +670,11 @@ export function AdminHelpBoxesPage() {
               <div className="mt-1 text-muted">{snippet(deleteTarget.content, 220) || t('common.na')}</div>
             </div>
             {delM.isError ? (
-              <Alert variant="danger" title={t('common.error')} testId="admin.help_boxes.delete_confirm.error">
-                {formatErrorMessage(delM.error)}
-              </Alert>
+              <div role="alert">
+                <Alert variant="danger" title={t('common.error')} testId="admin.help_boxes.delete_confirm.error">
+                  {formatErrorMessage(delM.error)}
+                </Alert>
+              </div>
             ) : null}
           </div>
         ) : null}

@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock, jsonFulfill } from '../../fixtures';
+import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock, jsonFulfill, setUiSettingsLocalStorage } from '../../fixtures';
 
 async function ensureContextualHelpExpanded(page: Page) {
   const toggle = page.getByTestId('contextual.help.toggle');
@@ -11,7 +11,7 @@ async function ensureContextualHelpExpanded(page: Page) {
   }
 }
 
-test('@smoke contextual help renders on the public surface', async ({ page }) => {
+async function setupPublicHelp(page: Page) {
   await bootstrapVpsAdminWindow(page);
 
   await installHaveApiMock(page, {
@@ -32,12 +32,35 @@ test('@smoke contextual help renders on the public surface', async ({ page }) =>
       },
     },
   });
+}
 
+test('@smoke contextual help renders on the public surface', async ({ page }) => {
+  await setupPublicHelp(page);
   await page.goto('/');
   await expect(page.getByTestId('contextual.help.panel')).toBeVisible();
   await ensureContextualHelpExpanded(page);
   await expect(page.frameLocator('[data-testid="contextual.help.box.1"] iframe').getByText('Public page help')).toBeVisible();
   await expect(page.getByTestId('contextual.help.manage')).toHaveCount(0);
+});
+
+test('contextual help preserves Czech public disclosure and content', async ({ page }, testInfo) => {
+  await setUiSettingsLocalStorage(page, { language: 'cs', theme: 'dark' });
+  await setupPublicHelp(page);
+  await page.goto('/');
+  const panel = page.getByTestId('contextual.help.panel');
+  const toggle = page.getByTestId('contextual.help.toggle');
+  await expect(panel).toContainText('Nápověda k této stránce');
+  await expect(toggle).toBeVisible();
+  if ((await toggle.getAttribute('aria-expanded')) === 'true') await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  await expect(page.getByTestId('contextual.help.box.1')).toHaveCount(0);
+  await page.screenshot({ path: testInfo.outputPath('help-cs-collapsed.png'), fullPage: true, scale: 'css' });
+  await ensureContextualHelpExpanded(page);
+  await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  await expect(page.frameLocator('[data-testid="contextual.help.box.1"] iframe').getByText('Public page help')).toBeVisible();
+  await expect(page.getByTestId('contextual.help.manage')).toHaveCount(0);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
+  await page.screenshot({ path: testInfo.outputPath('help-cs-expanded.png'), fullPage: true, scale: 'css' });
 });
 
 test('@smoke contextual help renders on user and admin surfaces', async ({ page }) => {

@@ -2,7 +2,6 @@ import React from 'react';
 
 import { Alert } from '../../../components/ui/Alert';
 import { Button } from '../../../components/ui/Button';
-import { Badge } from '../../../components/ui/Badge';
 import { Card } from '../../../components/ui/Card';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { ErrorState } from '../../../components/ui/ErrorState';
@@ -10,7 +9,6 @@ import { KeysetPagination } from '../../../components/ui/KeysetPagination';
 import { LoadingState } from '../../../components/ui/LoadingState';
 import { formatErrorMessage } from '../../../lib/errors';
 import type { KeysetPaginationState } from '../../../lib/hooks/useKeysetPagination';
-import { isFailedChainState, isFinishedChainState } from '../../../lib/taskStatus';
 import { TransactionChainsTable } from './TransactionChainsTable';
 import type { ChainState, TransactionChainRow, TransactionChainsTranslator } from './transactionChainSemantics';
 import { TransactionChainsSystemActivity } from './TransactionChainsSystemActivity';
@@ -76,13 +74,6 @@ export function TransactionChainsListContent({
 }: TransactionChainsListContentProps) {
   const canNext = pagination.hasForward || (hasMore && pageCursor !== null);
   const tableProps = { basePath, t, queryId, queryTrim, errorsOnly, state, userId, userSessionId, pagination, onTogglePinned };
-  const pageSummary = visibleRows.reduce((summary, row) => {
-    if (isFailedChainState(row.c.state)) summary.failed += 1;
-    else if (isFinishedChainState(row.c.state)) summary.finished += 1;
-    else summary.active += 1;
-    if (row.pinned) summary.pinned += 1;
-    return summary;
-  }, { active: 0, failed: 0, finished: 0, pinned: 0 });
 
   return (
     <>
@@ -157,29 +148,6 @@ export function TransactionChainsListContent({
 
       {visibleRows.length > 0 ? (
         <div className="space-y-3">
-          <Card className="px-3 py-2" testId="transactions.page_summary">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="min-w-0">
-                <div className="text-xs font-medium text-muted" title={t('transactions.chains.page_summary.description')}>{t('transactions.chains.page_summary.title')}</div>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <Badge variant={pageSummary.failed > 0 ? 'danger' : 'neutral'} testId="transactions.page_summary.failed">
-                  {t('transactions.chains.page_summary.failed', { count: pageSummary.failed })}
-                </Badge>
-                <Badge variant={pageSummary.active > 0 ? 'warn' : 'neutral'} testId="transactions.page_summary.active">
-                  {t('transactions.chains.page_summary.active', { count: pageSummary.active })}
-                </Badge>
-                <Badge variant="ok" testId="transactions.page_summary.finished">
-                  {t('transactions.chains.page_summary.finished', { count: pageSummary.finished })}
-                </Badge>
-                {pageSummary.pinned > 0 ? (
-                  <Badge variant="warn" testId="transactions.page_summary.pinned">
-                    {t('transactions.chains.page_summary.pinned', { count: pageSummary.pinned })}
-                  </Badge>
-                ) : null}
-              </div>
-            </div>
-          </Card>
           <TransactionChainsTable {...tableProps} rows={visibleRows} canNext={canNext} pageCursor={pageCursor} />
         </div>
       ) : null}

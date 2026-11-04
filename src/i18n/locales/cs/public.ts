@@ -1,7 +1,7 @@
 // Public-facing pages
 export const csPublic = {
   "about.title": "O aplikaci",
-  "about.description": "Nové webové rozhraní vpsAdmin pro správu VPS a služeb vpsFree.cz. Navazuje na původní administraci a přináší responzivní prostředí se světlým i tmavým vzhledem.",
+  "about.description": "Webové rozhraní vpsAdmin pro správu VPS a služeb vpsFree.cz.",
   "about.version.title": "Verze rozhraní",
   "about.version.unknown": "Verze není dostupná",
   "about.version.modified": "Sestavení obsahuje místní změny.",

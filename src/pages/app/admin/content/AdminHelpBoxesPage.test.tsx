@@ -1,16 +1,17 @@
 // i18n-ignore-file
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createHelpBox, fetchHelpBoxesAdmin, updateHelpBox } from '../../../../lib/api/helpBoxes';
+import { createHelpBox, deleteHelpBox, fetchHelpBoxesAdmin, updateHelpBox } from '../../../../lib/api/helpBoxes';
 import { fetchLanguages } from '../../../../lib/api/languages';
 import { AdminHelpBoxesPage } from './AdminHelpBoxesPage';
 
 vi.mock('../../../../app/i18n', () => ({ useI18n: () => ({ t: (key: string) => key }) }));
 vi.mock('../../../../app/theme', () => ({ useTheme: () => ({ effective: 'light' }) }));
-vi.mock('../../../../app/toasts', () => ({ useToasts: () => ({ pushToast: vi.fn() }) }));
+const notifications = vi.hoisted(() => ({ pushToast: vi.fn() }));
+vi.mock('../../../../app/toasts', () => ({ useToasts: () => notifications }));
 vi.mock('../../../../lib/api/helpBoxes', () => ({
   createHelpBox: vi.fn(),
   fetchHelpBoxesAdmin: vi.fn(),
@@ -49,6 +50,29 @@ beforeEach(() => {
 });
 
 describe('HelpBox supported language controls', () => {
+  it('announces a rejected deletion locally with its target and retry, then keeps accepted feedback', async () => {
+    vi.mocked(deleteHelpBox)
+      .mockRejectedValueOnce(new Error('Help delete rejected'))
+      .mockResolvedValueOnce({
+        data: {},
+        meta: {},
+        httpStatus: 200,
+        envelope: { status: true, response: {} },
+      });
+    renderPage();
+    fireEvent.click(await screen.findByTestId('admin.help_boxes.delete.7'));
+    const dialog = screen.getByTestId('admin.help_boxes.delete_confirm');
+    fireEvent.click(within(dialog).getByRole('button', { name: 'common.delete' }));
+    expect(await within(dialog).findByRole('alert')).toHaveTextContent('Help delete rejected');
+    expect(dialog).toHaveTextContent('#7');
+    expect(dialog).toHaveTextContent('Help');
+    expect(within(dialog).getByRole('button', { name: 'common.cancel' })).toBeEnabled();
+    expect(notifications.pushToast).not.toHaveBeenCalled();
+    fireEvent.click(within(dialog).getByRole('button', { name: 'common.delete' }));
+    await waitFor(() => expect(screen.queryByTestId('admin.help_boxes.delete_confirm')).not.toBeInTheDocument());
+    expect(deleteHelpBox).toHaveBeenCalledTimes(2);
+    expect(notifications.pushToast).toHaveBeenCalledWith({ variant: 'ok', title: 'admin.help_boxes.toast.deleted' });
+  });
   it('visibly removes stale unlocalized-only URL filter without sending null', async () => {
     const router = renderPage('/admin/content/help?language=&page=log');
     expect(screen.getByText('admin.help_boxes.filter.unlocalized_removed')).toBeVisible();

@@ -228,7 +228,6 @@ export function AdminSecurityAdvisoryDetailPage() {
     onError: (error) => {
       const message = formatErrorMessage(error);
       setLinkOutageError(message);
-      pushToast({ variant: 'danger', title: t('admin.security_advisories.toast.outage_link_failed'), body: message });
     },
   });
   const [unlinkTarget, setUnlinkTarget] = useState<SecurityAdvisoryOutageLink | null>(null);
@@ -311,6 +310,8 @@ export function AdminSecurityAdvisoryDetailPage() {
           advisory={advisory}
           languages={languagesQ.data ?? []}
           readinessIssues={readinessIssues}
+          readinessDataReady={readinessDataReady}
+          readinessError={cvesQ.error ?? nodesQ.error ?? statusesQ.error}
         />
       ) : null}
 

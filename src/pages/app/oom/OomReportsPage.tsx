@@ -7,7 +7,6 @@ import { useAppMode } from '../../../app/appMode';
 import { useAuth } from '../../../app/auth';
 import { useI18n } from '../../../app/i18n';
 import { useObjectScope } from '../../../app/objectScope';
-import { useToasts } from '../../../app/toasts';
 import { FilterBar } from '../../../components/layout/FilterBar';
 import { ListShell } from '../../../components/layout/ListShell';
 import { PageHeader } from '../../../components/layout/PageHeader';
@@ -65,7 +64,6 @@ export function OomReportsPage() {
   const scope = useObjectScope();
   const { t } = useI18n();
   const navigate = useNavigate();
-  const toasts = useToasts();
 
   const [sp, setSp] = useSearchParams();
   const searchParamsKey = sp.toString();
@@ -538,7 +536,6 @@ export function OomReportsPage() {
 
     if (errs.length > 0) {
       setSmartErrors(errs);
-      toasts.pushToast({ variant: 'danger', title: errs[0] ?? t('common.unknown_error') });
       return;
     }
 
@@ -693,7 +690,6 @@ export function OomReportsPage() {
   const header = (
     <PageHeader
       title={t('oom.list.title')}
-      description={t('oom.list.description')}
       meta={filtersActive ? <span className="text-xs text-faint">{t('list.meta.filters_active')}</span> : null}
       actions={
         <Button variant="secondary" size="sm" to={`${basePath}/oom-reports`} testId="oom.list.refresh">
@@ -717,6 +713,7 @@ export function OomReportsPage() {
               placeholder={t('oom.search.placeholder')}
               ariaLabel={t('oom.search.aria')}
               testId="oom.smart_filter.input"
+              errors={smartErrors}
               suggestions={smartSuggestions}
               onSubmit={() => void applySmartText(smart)}
               suffix={
