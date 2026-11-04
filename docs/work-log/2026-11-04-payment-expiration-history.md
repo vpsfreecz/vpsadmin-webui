@@ -17,3 +17,11 @@ fixture responses to check the history refresh and row contents.
 The administrator incoming payment detail also shows the payer account returned
 by the API. It displays a dash when the bank supplied no value or the payment
 was imported before the field was stored. The payment list does not request it.
+
+## Maintenance follow-up
+
+Payment history and its capability check, payment instructions, and the
+content shown for review now have separate components. The page still owns
+mutations, duplicate-submission guards and refreshes. This removes the
+structural exception for the former monolithic page. The existing browser
+tests cover old and new API history and the reviewed payment workflows.
