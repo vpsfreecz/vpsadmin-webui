@@ -93,6 +93,12 @@ describe('vpsListSemantics', () => {
     expect(recordMatchesStateFilter(row, 'failed')).toBe(true);
   });
 
+  it('reports uptime only for a running VPS', () => {
+    expect(recordFor({ ...baseVps, uptime: 3600, is_running: true }).uptimeLabel).toBe('1h 0m');
+    expect(recordFor({ ...baseVps, uptime: 3600, is_running: false }).uptimeLabel).toBe('—');
+    expect(recordFor({ ...baseVps, uptime: 3600, is_running: undefined }).uptimeLabel).toBe('—');
+  });
+
   it('flags memory and disk from 90 % and as danger from 98 %, ignoring non-numeric values', () => {
     expect(vpsUsageRisks({ ...baseVps, memory: 1000, used_memory: 899, diskspace: 1000, used_diskspace: 900 }))
       .toEqual({ memoryRisk: undefined, diskRisk: 'warn' });
