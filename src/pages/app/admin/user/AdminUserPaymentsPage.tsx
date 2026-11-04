@@ -329,7 +329,7 @@ export function AdminUserPaymentsPage() {
   return (
     <div className="space-y-4">
       <Card testId="admin.user.payments.quick.card">
-        <CardHeader title={t('admin.user.payments.quick.title')} subtitle={t('admin.user.payments.quick.subtitle')} />
+        <CardHeader title={t('admin.user.payments.quick.title')} />
         <CardBody>
           {accountInitialError ? (
             <ErrorState
@@ -355,7 +355,6 @@ export function AdminUserPaymentsPage() {
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <div className="text-sm font-semibold">{t('admin.user.payments.settings.title')}</div>
-                  <div className="mt-1 text-xs text-muted">{t('admin.user.payments.settings.description')}</div>
                 </div>
                 <div className="text-right">
                   <div className="text-xs text-muted">{t('payments.my.stat.payment_id')}</div>
@@ -638,7 +637,6 @@ export function AdminUserPaymentsPage() {
         <CardHeader
           className={instructionsOpen ? undefined : 'border-b-0'}
           title={t('payments.my.instructions.title')}
-          subtitle={t('admin.user.payments.instructions.description')}
           actions={(
             <>
               {instructionsOpen && instructions ? (

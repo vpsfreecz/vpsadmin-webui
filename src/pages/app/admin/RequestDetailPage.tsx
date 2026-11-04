@@ -391,7 +391,7 @@ export function RequestDetailPage() {
 
         <aside className="min-w-0" data-testid="admin.requests.detail.review">
           <Card testId="admin.requests.detail.decision">
-            <CardHeader title={t('requests.detail.decision.title')} subtitle={t('requests.detail.decision.subtitle')} />
+            <CardHeader title={t('requests.detail.decision.title')} />
             <CardBody className="space-y-3">
               <div className="space-y-3">
                 <div className="flex items-center gap-2">

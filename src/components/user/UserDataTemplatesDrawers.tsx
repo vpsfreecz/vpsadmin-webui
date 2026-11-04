@@ -41,6 +41,7 @@ export function UserDataTemplateEditorDrawer(props: {
 }) {
   const { t } = useI18n();
   const contentLen = props.form.content.length;
+  const validationWarnings = props.validationHints.filter((hint) => !hint.ok);
   const fieldIdPrefix = React.useId();
   const labelInputId = `${fieldIdPrefix}-label`;
   const labelHelpId = `${fieldIdPrefix}-label-help`;
@@ -99,8 +100,6 @@ export function UserDataTemplateEditorDrawer(props: {
       )}
     >
       <div className="space-y-4">
-        {props.hintKey ? <Alert variant="info" title={t('user_data.hint.title')}>{t(props.hintKey)}</Alert> : null}
-
         <div className="grid gap-3 md:grid-cols-2">
           <div>
             <label htmlFor={labelInputId} className="text-xs font-semibold text-muted">
@@ -141,6 +140,7 @@ export function UserDataTemplateEditorDrawer(props: {
             <div id={formatHelpId} className="mt-1 text-xs text-faint">
               {t('user_data.help.format')}
             </div>
+            {props.hintKey ? <div className="mt-1 text-xs text-faint">{t(props.hintKey)}</div> : null}
           </div>
         </div>
 
@@ -170,32 +170,34 @@ export function UserDataTemplateEditorDrawer(props: {
           </div>
         </div>
 
-        <div>
-          <div className="text-xs font-semibold text-muted">{t('user_data.validation.title')}</div>
-          <div className="mt-2 space-y-1">
-            {props.validationHints.map((hint, idx) => {
-              const isContentLimitHint = hint.labelKey === 'user_data.validation.content_max';
+        {validationWarnings.length > 0 ? (
+          <div>
+            <div className="text-xs font-semibold text-muted">{t('user_data.validation.title')}</div>
+            <div className="mt-2 space-y-1">
+              {validationWarnings.map((hint, idx) => {
+                const isContentLimitHint = hint.labelKey === 'user_data.validation.content_max';
 
-              return (
-                <div
-                  key={`${hint.labelKey}-${idx}`}
-                  id={isContentLimitHint ? contentLimitStatusId : undefined}
-                  role={isContentLimitHint ? 'status' : undefined}
-                  aria-atomic={isContentLimitHint ? 'true' : undefined}
-                  className="flex items-center gap-2 text-sm"
-                >
-                  <StatusDot variant={hint.ok ? 'ok' : 'warn'} />
-                  <span className={hint.ok ? 'text-fg' : 'text-muted'}>
-                    {isContentLimitHint && props.contentOverLimit ? (
-                      <span className="sr-only">{t('common.error')}: </span>
-                    ) : null}
-                    {t(hint.labelKey, hint.vars)}
-                  </span>
-                </div>
-              );
-            })}
+                return (
+                  <div
+                    key={`${hint.labelKey}-${idx}`}
+                    id={isContentLimitHint ? contentLimitStatusId : undefined}
+                    role={isContentLimitHint ? 'status' : undefined}
+                    aria-atomic={isContentLimitHint ? 'true' : undefined}
+                    className="flex items-center gap-2 text-sm"
+                  >
+                    <StatusDot variant="warn" />
+                    <span className="text-muted">
+                      {isContentLimitHint && props.contentOverLimit ? (
+                        <span className="sr-only">{t('common.error')}: </span>
+                      ) : null}
+                      {t(hint.labelKey, hint.vars)}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        ) : null}
       </div>
     </Modal>
   );

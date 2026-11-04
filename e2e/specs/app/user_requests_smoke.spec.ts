@@ -414,3 +414,59 @@ test('user requests: independent ID spaces paginate the complete merged history 
   expect(changeUrls[1]?.searchParams.get('change[from_id]')).toBe('2');
   expect(indexUrls.every((url) => url.searchParams.get('_meta[count]') === 'true')).toBe(true);
 });
+
+
+test('@content-account-a4-cs member request details retain submitted values, state and response cs', async ({
+  page,
+}, info) => {
+  const user = { id: 10, login: 'alice', level: 1 };
+  await setUiSettingsLocalStorage(page, { language: 'cs', theme: 'dark' });
+  await bootstrapVpsAdminWindow(page);
+  await installHaveApiMock(page, {
+    user,
+    handlers: {
+      'GET user_request/registrations/54': () => ({
+        registration: {
+          id: 54,
+          user,
+          state: 'approved',
+          login: 'alice',
+          full_name: 'Alice Example',
+          email: 'alice@example.test',
+          address: 'Example street 1',
+          year_of_birth: 1990,
+          os_template: { id: 4, label: 'Debian 12' },
+          location: { id: 3, label: 'Prague' },
+          currency: 'eur',
+          language: { id: 1, label: 'English' },
+          time_zone: 'Europe/Prague',
+          created_at: '2026-08-20T10:00:00Z',
+          updated_at: '2026-08-20T10:01:00Z',
+        },
+      }),
+      'GET user_request/changes/55': () => ({
+        change: {
+          id: 55,
+          user,
+          state: 'awaiting',
+          change_reason: 'Moving home',
+          address: 'New street 2',
+          created_at: '2026-08-21T10:00:00Z',
+          updated_at: '2026-08-21T10:01:00Z',
+          admin_response: 'We are checking the address.',
+        },
+      }),
+    },
+  });
+  await page.goto('/app/requests/registration/54');
+  await expect(page.getByTestId('app.requests.detail.fields')).toContainText('Example street 1');
+  await expect(page.getByTestId('app.requests.detail.fields')).toContainText('Debian 12');
+  await expect(page.getByTestId('app.requests.detail.state')).toBeVisible();
+  await page.screenshot({ path: info.outputPath('member-registration-cs.png'), fullPage: true });
+  await page.goto('/app/requests/change/55');
+  await expect(page.getByTestId('app.requests.detail.fields')).toContainText('Moving home');
+  await expect(page.getByTestId('app.requests.detail.fields')).toContainText('New street 2');
+  await expect(page.getByTestId('app.requests.detail.state')).toBeVisible();
+  await expect(page.getByTestId('app.requests.detail.response')).toContainText('We are checking the address.');
+  await page.screenshot({ path: info.outputPath('member-change-cs.png'), fullPage: true });
+});

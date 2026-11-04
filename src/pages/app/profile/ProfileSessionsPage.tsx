@@ -22,7 +22,7 @@ export function ProfileSessionsPage() {
     <DetailShell
       testId="profile.sessions.page"
       variant="narrow"
-      header={<PageHeader title={t('profile.page.title')} description={t('profile.sessions.subtitle')} />}
+      header={<PageHeader title={t('profile.page.title')} />}
       tabs={<ProfileTabs />}
     >
       {!userId ? (

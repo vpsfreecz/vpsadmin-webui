@@ -18,6 +18,7 @@ import { TableCard } from '../ui/TableCard';
 
 import { HaveApiError, getMetaTotalCount } from '../../lib/api/apiErrors';
 import { fetchVpsList } from '../../lib/api/vps';
+import { formatErrorMessage } from '../../lib/errors';
 import {
   createUserNamespaceMapEntry,
   deleteUserNamespaceMap,
@@ -403,7 +404,8 @@ export function UserNamespaceMapDetail(props: {
 
   const entriesLink = `${basePath}/vps?user_namespace_map=${props.mapId}`;
 
-  const canInteract = !mapQ.isLoading && !entriesQ.isLoading && Boolean(map);
+  const canInteractWithMap = !mapQ.isLoading && Boolean(map);
+  const canEditEntries = canInteractWithMap && entriesQ.isSuccess;
 
   return (
     <div className="space-y-4" data-testid={`${props.testIdPrefix}.panel`}>
@@ -419,7 +421,7 @@ export function UserNamespaceMapDetail(props: {
             {t('common.back')}
           </ChipLink>
 
-          <Badge variant="neutral">{t('userns.map.entries', { n: entryCount })}</Badge>
+          <Badge variant="neutral">{t('userns.map.entries', { n: entriesQ.isSuccess ? entryCount : t('common.na') })}</Badge>
 
           <ChipLink to={entriesLink} title={t('userns.map.used_by_vps_link')}>
             {t('userns.map.used_by_vps', { n: usedByCount ?? '—' })}
@@ -429,7 +431,7 @@ export function UserNamespaceMapDetail(props: {
             testId={`${props.testIdPrefix}.delete`}
             variant="danger"
             size="sm"
-            disabled={!canInteract || deleteMapM.isPending}
+            disabled={!canInteractWithMap || deleteMapM.isPending}
             onClick={() => {
               setDeleteMapError(null);
               setDeleteMapConfirm(true);
@@ -440,7 +442,7 @@ export function UserNamespaceMapDetail(props: {
         </div>
       </div>
 
-      {mapQ.isLoading || entriesQ.isLoading ? (
+      {mapQ.isLoading ? (
         <Card>
           <CardBody>
             <Spinner label={t('common.loading')} />
@@ -472,7 +474,7 @@ export function UserNamespaceMapDetail(props: {
               testId={`${props.testIdPrefix}.rename.save`}
               variant={labelDirty ? 'primary' : 'secondary'}
               size="sm"
-              disabled={!labelDirty || renameM.isPending || !canInteract}
+              disabled={!labelDirty || renameM.isPending || !canInteractWithMap}
               onClick={() => renameM.mutate()}
             >
               {renameM.isPending ? t('common.saving') : t('common.save')}
@@ -506,7 +508,7 @@ export function UserNamespaceMapDetail(props: {
               testId={`${props.testIdPrefix}.entries.save`}
               variant={anyDirty ? 'primary' : 'secondary'}
               size="sm"
-              disabled={!anyDirty || saveEntriesM.isPending || !canInteract}
+              disabled={!anyDirty || saveEntriesM.isPending || !canEditEntries}
               onClick={() => saveEntriesM.mutate()}
             >
               {saveEntriesM.isPending ? t('common.saving') : t('common.save')}
@@ -514,6 +516,25 @@ export function UserNamespaceMapDetail(props: {
           }
         />
         <CardBody>
+          {entriesQ.isLoading ? (
+            <Spinner label={t('common.loading')} />
+          ) : entriesQ.isError ? (
+            <Alert title={t('userns.entry.load_error')} variant="danger" className="mb-3" testId={`${props.testIdPrefix}.entries.load_error`}>
+              <div className="space-y-2">
+                <div>{formatErrorMessage(entriesQ.error)}</div>
+                <Button
+                  testId={`${props.testIdPrefix}.entries.retry`}
+                  size="sm"
+                  variant="secondary"
+                  loading={entriesQ.isFetching}
+                  onClick={() => void entriesQ.refetch()}
+                >
+                  {t('common.retry')}
+                </Button>
+              </div>
+            </Alert>
+          ) : null}
+
           <ul className="text-xs text-faint list-disc pl-4">
             <li>{t('userns.entry.help_line1')}</li>
             <li>{t('userns.entry.help_line2')}</li>
@@ -528,7 +549,7 @@ export function UserNamespaceMapDetail(props: {
                 className="mt-1 h-9 w-full rounded-md border border-border bg-surface px-2 text-sm text-fg"
                 value={addKind}
                 onChange={(e) => setAddKind(e.target.value as any)}
-                disabled={addM.isPending || !canInteract}
+                disabled={addM.isPending || !canEditEntries}
               >
                 <option value="both">{t('userns.entry.kind.both')}</option>
                 <option value="uid">{t('userns.entry.kind.uid')}</option>
@@ -541,6 +562,7 @@ export function UserNamespaceMapDetail(props: {
               <Input
                 testId={`${props.testIdPrefix}.add.vps_id`}
                 className="mt-1"
+                disabled={!canEditEntries}
                 value={addVpsId}
                 onChange={(e) => setAddVpsId(e.target.value)}
                 placeholder="0"
@@ -553,6 +575,7 @@ export function UserNamespaceMapDetail(props: {
               <Input
                 testId={`${props.testIdPrefix}.add.ns_id`}
                 className="mt-1"
+                disabled={!canEditEntries}
                 value={addNsId}
                 onChange={(e) => setAddNsId(e.target.value)}
                 placeholder="0"
@@ -565,6 +588,7 @@ export function UserNamespaceMapDetail(props: {
               <Input
                 testId={`${props.testIdPrefix}.add.count`}
                 className="mt-1"
+                disabled={!canEditEntries}
                 value={addCount}
                 onChange={(e) => setAddCount(e.target.value)}
                 placeholder="1"
@@ -577,7 +601,7 @@ export function UserNamespaceMapDetail(props: {
                 testId={`${props.testIdPrefix}.add.submit`}
                 variant="secondary"
                 className="mt-1"
-                disabled={addM.isPending || !canInteract}
+                disabled={addM.isPending || !canEditEntries}
                 onClick={() => addM.mutate()}
               >
                 {addM.isPending ? t('common.creating') : t('userns.entry.add')}
@@ -606,7 +630,7 @@ export function UserNamespaceMapDetail(props: {
                 {(rows ?? []).length === 0 ? (
                   <tr>
                     <td colSpan={5} className="px-4 py-6 text-sm text-muted">
-                      {t('userns.entry.empty')}
+                      {entriesQ.isSuccess ? t('userns.entry.empty') : t('common.na')}
                     </td>
                   </tr>
                 ) : (
@@ -633,6 +657,7 @@ export function UserNamespaceMapDetail(props: {
                         <td className="px-4 py-2">
                           <Input
                             testId={`${props.testIdPrefix}.entry.${r.id}.vps_id`}
+                            disabled={!canEditEntries}
                             value={String(r.vps_id)}
                             onChange={(e) => {
                               const n = asInt(e.target.value);
@@ -657,6 +682,7 @@ export function UserNamespaceMapDetail(props: {
                         <td className="px-4 py-2">
                           <Input
                             testId={`${props.testIdPrefix}.entry.${r.id}.ns_id`}
+                            disabled={!canEditEntries}
                             value={String(r.ns_id)}
                             onChange={(e) => {
                               const n = asInt(e.target.value);
@@ -681,6 +707,7 @@ export function UserNamespaceMapDetail(props: {
                         <td className="px-4 py-2">
                           <Input
                             testId={`${props.testIdPrefix}.entry.${r.id}.count`}
+                            disabled={!canEditEntries}
                             value={String(r.count)}
                             onChange={(e) => {
                               const n = asInt(e.target.value);
@@ -708,7 +735,7 @@ export function UserNamespaceMapDetail(props: {
                               testId={`${props.testIdPrefix}.entry.${r.id}.delete`}
                               variant="secondary"
                               size="sm"
-                              disabled={deleteEntryM.isPending}
+                              disabled={deleteEntryM.isPending || !canEditEntries}
                               onClick={() => {
                                 setDeleteEntryError(null);
                                 setDeleteEntryConfirm({ entryId: r.id });
@@ -768,12 +795,13 @@ export function UserNamespaceMapDetail(props: {
         description={t('userns.entry.delete.desc')}
         confirmLabel={t('common.delete')}
         confirmLoading={deleteEntryM.isPending}
+        confirmDisabled={!canEditEntries}
         onCancel={() => {
           setDeleteEntryError(null);
           setDeleteEntryConfirm(null);
         }}
         onConfirm={() => {
-          if (deleteEntryConfirm) {
+          if (deleteEntryConfirm && canEditEntries) {
             deleteEntryM.mutate(deleteEntryConfirm.entryId);
           }
         }}

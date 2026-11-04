@@ -90,12 +90,12 @@ function AssignmentUserPreview(props: {
 
   return (
     <div
-      className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-ok-border bg-ok-bg px-3 py-2"
+      className="rounded-md border border-border bg-surface-2 px-3 py-2"
       data-testid="admin.payments.incoming.assign.user_lookup"
     >
       <div>
         <div className="text-xs font-medium uppercase tracking-wide text-muted">
-          {t('payments.incoming.assign.lookup.title')}
+          {t('payments.incoming.review.target_user')}
         </div>
         <div className="mt-1 text-sm font-semibold text-fg">
           <Link className="text-accent hover:underline" to={`${props.basePath}/users/${props.user.id}`}>
@@ -111,7 +111,6 @@ function AssignmentUserPreview(props: {
           ) : null}
         </div>
       </div>
-      <Badge variant="ok">{t('payments.incoming.assign.lookup.found')}</Badge>
     </div>
   );
 }
@@ -374,20 +373,6 @@ export function IncomingPaymentDetailPage() {
           <Card>
             <CardHeader
               title={t('payments.incoming.detail.card.payment')}
-              subtitle={
-                <span className="inline-flex flex-wrap items-center gap-2">
-                  <Badge variant={incomingPaymentBadgeVariant(st)}>{t(incomingPaymentStateLabelKey(st))}</Badge>
-                  <span className="text-faint">#{paymentId}</span>
-                </span>
-              }
-              actions={
-                <div className="text-right">
-                  <div className="text-lg font-semibold tabular-nums text-fg">{recvAmount}</div>
-                  {acctAmount ? (
-                    <div className="text-xs text-muted">{t('payments.incoming.detail.accounted_amount')}: {acctAmount}</div>
-                  ) : null}
-                </div>
-              }
             />
             <CardBody>
               <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
@@ -453,13 +438,6 @@ export function IncomingPaymentDetailPage() {
               <CardHeader
                 title={t('payments.incoming.assign.card.title')}
                 subtitle={t('payments.incoming.assign.card.unassigned_subtitle')}
-                actions={
-                  <Badge variant={assignReview.canSubmit ? 'warn' : 'neutral'}>
-                    {assignReview.canSubmit
-                      ? t('payments.incoming.review.badge.ready')
-                      : t('payments.incoming.review.badge.incomplete')}
-                  </Badge>
-                }
               />
               <CardBody>
                 <div className="space-y-3">

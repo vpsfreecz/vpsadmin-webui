@@ -127,7 +127,6 @@ export function ProfilePage() {
       <PageHeader
         testId="profile.header"
         title={t('profile.page.title')}
-        description={t('profile.page.description')}
       />
 
       <ProfileTabs />

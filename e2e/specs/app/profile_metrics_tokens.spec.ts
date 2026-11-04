@@ -126,7 +126,6 @@ test('@pr-smoke @smoke profile: metrics token review and revoke guards', async (
   await expect(page.getByTestId('profile.metrics.cards')).toBeHidden();
   await expect(page.getByTestId('profile.metrics.row.2')).toBeVisible();
   await expect(page.getByTestId('profile.metrics.security_notice')).toBeVisible();
-  await expect(page.getByTestId('profile.metrics.summary')).toContainText('Total tokens');
   await expect(page.getByTestId('profile.metrics.row.3.state')).toHaveText('Active');
   await expect(page.getByTestId('profile.metrics.row.2.state')).toHaveText('Stale');
   await expect(page.getByTestId('profile.metrics.row.1.state')).toHaveText('Unused');

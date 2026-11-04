@@ -26,7 +26,7 @@ export function ProfileSidebarCards(props: {
   return (
     <div className="space-y-4">
       <Card testId="profile.user.card">
-        <CardHeader title={t('profile.user.title')} subtitle={t('profile.user.subtitle')} />
+        <CardHeader title={t('profile.user.title')} />
         <CardBody>
           {authUser ? (
             <div className="space-y-2 text-sm">
@@ -100,15 +100,6 @@ export function ProfileSidebarCards(props: {
         </CardBody>
       </Card>
 
-      <Card testId="profile.tips.card">
-        <CardHeader title={t('profile.tips.title')} subtitle={t('profile.tips.subtitle')} />
-        <CardBody>
-          <ul className="list-disc space-y-1 pl-4 text-sm text-muted">
-            <li>{t('profile.tips.item.0')}</li>
-            <li>{t('profile.tips.item.2')}</li>
-          </ul>
-        </CardBody>
-      </Card>
     </div>
   );
 }

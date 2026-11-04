@@ -22,7 +22,7 @@ export function ProfileMetricsPage() {
     <DetailShell
       testId="profile.metrics.page"
       variant="narrow"
-      header={<PageHeader title={t('profile.page.title')} description={t('profile.metrics.subtitle')} />}
+      header={<PageHeader title={t('profile.page.title')} />}
       tabs={<ProfileTabs />}
     >
       {!userId ? (

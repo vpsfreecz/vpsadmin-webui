@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, installHaveApiMock, type HaveApiRequestCtx } from '../../fixtures';
+import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage, type HaveApiRequestCtx } from '../../fixtures';
 
 function userPayload(ctx: HaveApiRequestCtx): Record<string, unknown> {
   const body = ctx.reqJson;
@@ -87,3 +87,29 @@ test('@smoke profile: security review guards password and auth setting changes',
     preferred_session_length: 3600,
   });
 });
+
+for (const language of ['en', 'cs'] as const) {
+  for (const interactiveLogin of [true, false]) {
+    test(`@content-a1-baseline untouched authentication settings preserve the existing warning (${language}, interactive=${interactiveLogin})`, async ({ page }, info) => {
+      const user = {
+        id: 1, login: 'e2e', level: 1,
+        enable_basic_auth: interactiveLogin, enable_token_auth: true,
+        enable_oauth2_auth: false, enable_single_sign_on: false,
+        enable_new_login_notification: true, preferred_session_length: 1200,
+      };
+      await setUiSettingsLocalStorage(page, { language, theme: language === 'cs' ? 'dark' : 'light' });
+      await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+      await installHaveApiMock(page, { user, handlers: { 'GET users/current': () => ({ user }) } });
+      await page.goto('/app/profile/security');
+      const settings = page.getByTestId('profile.security.settings.card');
+      await settings.scrollIntoViewIfNeeded();
+      await expect(page.getByTestId('profile.security.settings.save')).toBeDisabled();
+      const warning = page.getByTestId('profile.security.settings.review.warning.security.settings.review.warning.no_interactive_login');
+      if (interactiveLogin) {
+        await expect(warning).toHaveCount(0);
+        await expect(page.getByTestId('profile.security.settings.review')).toHaveCount(0);
+      } else await expect(warning).toBeVisible();
+      await page.screenshot({ path: info.outputPath(`untouched-auth-${language}-${interactiveLogin}.png`), fullPage: true });
+    });
+  }
+}

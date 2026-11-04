@@ -18,7 +18,6 @@ import { useTierCIntervalMs } from '../../lib/refreshTiers';
 import { formatErrorMessage } from '../../lib/errors';
 
 import {
-  buildUserSessionSummary,
   filterUserSessions,
   isUserSessionStateFilter,
   looksLikeSessionIpSearch,
@@ -32,7 +31,6 @@ import {
   type UserSessionAuthFilter,
 } from './UserSessionsFilters';
 import { UserSessionsList } from './UserSessionsList';
-import { UserSecurityMetricGrid } from './UserSecurityMetricGrid';
 
 import { Alert } from '../ui/Alert';
 import { Button } from '../ui/Button';
@@ -112,7 +110,7 @@ export function UserSessionsPanel(props: {
   const [userAgent, setUserAgent] = useState(() => searchParams.get('user_agent') ?? '');
   const [clientVersion, setClientVersion] = useState(() => searchParams.get('client_version') ?? '');
   const [tokenFragment, setTokenFragment] = useState(() => searchParams.get('token') ?? '');
-  const [detailedOutput, setDetailedOutput] = useState(() => searchParams.get('details') !== '0');
+  const [detailedOutput, setDetailedOutput] = useState(() => searchParams.get('details') === '1');
 
   useEffect(() => {
     const next = new URLSearchParams(searchParams);
@@ -138,8 +136,8 @@ export function UserSessionsPanel(props: {
     if (tokenFragment.trim()) next.set('token', tokenFragment.trim());
     else next.delete('token');
 
-    if (detailedOutput) next.delete('details');
-    else next.set('details', '0');
+    if (detailedOutput) next.set('details', '1');
+    else next.delete('details');
 
     if (next.toString() !== searchParams.toString()) {
       setSearchParams(next, { replace: true });
@@ -238,7 +236,6 @@ export function UserSessionsPanel(props: {
     () => filterUserSessions(sessionsQ.data, sessionsState, searchTrim),
     [searchTrim, sessionsQ.data, sessionsState]
   );
-  const sessionSummary = useMemo(() => buildUserSessionSummary(sessionsQ.data), [sessionsQ.data]);
   const hasFilters =
     Boolean(searchTrim) ||
     sessionsState !== 'all' ||
@@ -338,15 +335,6 @@ export function UserSessionsPanel(props: {
             onClientVersionChange={setClientVersion}
             onTokenFragmentChange={setTokenFragment}
             onDetailedOutputChange={setDetailedOutput}
-          />
-
-          <UserSecurityMetricGrid
-            testId={`${prefix}.summary`}
-            items={[
-              { key: 'open', label: t('profile.sessions.summary.open'), value: sessionSummary.open },
-              { key: 'token', label: t('profile.sessions.summary.tokens'), value: sessionSummary.token },
-              { key: 'closed', label: t('profile.sessions.summary.closed'), value: sessionSummary.closed },
-            ]}
           />
 
           {sessionsQ.isLoading ? (

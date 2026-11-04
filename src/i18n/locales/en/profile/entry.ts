@@ -7,6 +7,7 @@ export const enProfile_entry = {
   "userns.entry.delete.error": "Failed to delete entry.",
   "userns.entry.delete.success": "Entry deleted.",
   "userns.entry.delete.title": "Delete entry?",
+  "userns.entry.load_error": "Unable to load entries",
   "userns.entry.empty": "No entries.",
   "userns.entry.grid.actions": "Actions",
   "userns.entry.grid.count": "Count",

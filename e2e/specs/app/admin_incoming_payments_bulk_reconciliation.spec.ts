@@ -3,6 +3,7 @@ import { expect, test } from '@playwright/test';
 import { bootstrapVpsAdminWindow } from '../../fixtures/bootstrap';
 import { installHaveApiMock } from '../../fixtures/haveapi';
 import { withAppUrl } from '../../fixtures/url';
+import { setUiSettingsLocalStorage } from '../../fixtures/uiSettings';
 
 test('@pr-smoke @pr-smoke-mobile admin incoming payments: bulk reconciliation refreshes list and totals once', async ({ page }) => {
   await bootstrapVpsAdminWindow(page);
@@ -326,42 +327,45 @@ test('@pr-smoke @pr-smoke-mobile admin incoming payments: refresh failure keeps 
   await expect(page.getByTestId('admin.payments.incoming.error')).toHaveCount(0);
 });
 
-test('@pr-smoke @pr-smoke-mobile admin incoming payments: incomplete global totals are never presented as authoritative', async ({ page }) => {
-  await bootstrapVpsAdminWindow(page);
-  const haveApiMock = await installHaveApiMock(page, { user: { id: 1, login: 'admin', level: 100 } });
+for (const paymentState of ['queued', 'processed'] as const) {
+  test(`@pr-smoke @pr-smoke-mobile admin incoming payments: incomplete global totals are never presented as authoritative${paymentState === 'processed' ? ' with zero review count' : ''}`, async ({ page }, info) => {
+    await bootstrapVpsAdminWindow(page);
+    const haveApiMock = await installHaveApiMock(page, { user: { id: 1, login: 'admin', level: 100 } });
 
-  const queuedPayment = {
-    id: 450,
-    state: 'queued',
-    date: '2026-02-14T09:00:00Z',
-    transaction_id: 'TX-450',
-    amount: 1000,
-    currency: 'CZK',
-    account_name: 'Test account',
-    vs: '450',
-    user: null,
-    user_paid_until: null,
-    created_at: '2026-02-14T09:00:00Z',
-  };
-
-  haveApiMock.addHandler('GET incoming_payments', ({ searchParams }) => {
-    const state = String(searchParams.get('incoming_payment[state]') ?? '');
-    const rows = !state || state === 'queued' ? [queuedPayment] : [];
-    return {
-      status: true,
-      response: {
-        incoming_payments: rows,
-        _meta: state === 'queued' ? {} : { total_count: rows.length },
-      },
+    const payment = {
+      id: 450,
+      state: paymentState,
+      date: '2026-02-14T09:00:00Z',
+      transaction_id: 'TX-450',
+      amount: 1000,
+      currency: 'CZK',
+      account_name: 'Test account',
+      vs: '450',
+      user: null,
+      user_paid_until: null,
+      created_at: '2026-02-14T09:00:00Z',
     };
+
+    haveApiMock.addHandler('GET incoming_payments', ({ searchParams }) => {
+      const state = String(searchParams.get('incoming_payment[state]') ?? '');
+      const rows = !state || state === paymentState ? [payment] : [];
+      return {
+        status: true,
+        response: {
+          incoming_payments: rows,
+          _meta: state === 'queued' ? {} : { total_count: rows.length },
+        },
+      };
+    });
+
+    await page.goto(withAppUrl('/admin/payments/incoming'));
+
+    await expect(page.getByTestId('admin.payments.incoming.reconciliation.totals.incomplete')).toBeVisible();
+    await expect(page.getByTestId('admin.payments.incoming.reconciliation.totals.incomplete')).toContainText(/must not be treated as a global total/);
+    await expect(page.getByTestId('admin.payments.incoming.reconciliation.metric.queued')).toContainText(paymentState === 'queued' ? '1' : '0');
+    await page.screenshot({ path: info.outputPath('incoming-incomplete-totals.png'), fullPage: true });
   });
-
-  await page.goto(withAppUrl('/admin/payments/incoming'));
-
-  await expect(page.getByTestId('admin.payments.incoming.reconciliation.totals.incomplete')).toBeVisible();
-  await expect(page.getByTestId('admin.payments.incoming.reconciliation.totals.incomplete')).toContainText(/must not be treated as a global total/);
-  await expect(page.getByTestId('admin.payments.incoming.reconciliation.metric.queued')).toContainText(/1/);
-});
+}
 
 test('admin incoming payments: only sends supported state filters and opens an exact payment ID', async ({ page }) => {
   await bootstrapVpsAdminWindow(page);
@@ -435,4 +439,45 @@ test('admin incoming payments: descending keyset jump reaches page five without 
   await expect(page.locator('[data-testid="admin.payments.incoming.row.25.dot"]:visible')).toBeVisible();
   await expect(page.getByTestId('admin.payments.incoming.row.26.dot')).toHaveCount(0);
   expect(cursors).toEqual(expect.arrayContaining([null, 101, 76, 51, 26]));
+});
+
+
+test('@content-account-cs Czech incoming bulk scope and selected-payment warning', async ({ page }, info) => {
+  await setUiSettingsLocalStorage(page, { language: 'cs', theme: 'dark' });
+  await bootstrapVpsAdminWindow(page);
+  const mock = await installHaveApiMock(page, { user: { id: 1, login: 'admin', level: 100 } });
+  const rows = [
+    { id: 300, state: 'queued' },
+    { id: 299, state: 'unmatched' },
+    { id: 298, state: 'processed' },
+  ].map((row) => ({
+    ...row,
+    date: '2026-02-14T09:00:00Z',
+    created_at: '2026-02-14T09:00:00Z',
+    transaction_id: `TX-${row.id}`,
+    amount: 1000,
+    currency: 'CZK',
+    account_name: 'Test account',
+    vs: String(row.id),
+  }));
+  mock.addHandler('GET incoming_payments', ({ searchParams }) => {
+    const state = searchParams.get('incoming_payment[state]');
+    const payments = rows.filter((row) => !state || row.state === state);
+    return { incoming_payments: payments, _meta: { total_count: payments.length } };
+  });
+
+  await page.goto(withAppUrl('/admin/payments/incoming'));
+  await expect(page.getByTestId('admin.payments.incoming.reconciliation.metric.queued')).toContainText('1');
+  await expect(page.getByTestId('admin.payments.incoming.reconciliation.metric.processed')).toContainText('1');
+  await expect(page.getByTestId('admin.payments.incoming.reconciliation.totals.loading')).toHaveCount(0);
+  await page.screenshot({ path: info.outputPath('incoming-bulk-cs-untouched.png'), fullPage: true });
+
+  await page.getByTestId('admin.payments.incoming.bulk.select_needs_review').click();
+  await expect(page.getByTestId('admin.payments.incoming.bulk.summary')).toContainText('Použitelné: 1');
+  await page.getByTestId('admin.payments.incoming.bulk.action').selectOption('mark_ignored');
+  await expect(page.getByTestId('admin.payments.incoming.bulk.summary')).toContainText('Použitelné: 2');
+  await page.getByTestId('admin.payments.incoming.bulk.review.open').click();
+  await expect(page.getByTestId('admin.payments.incoming.bulk.review.warning')).toContainText('Ignorované platby zůstávají mimo připsání uživateli.');
+  await expect(page.getByTestId('admin.payments.incoming.bulk.review.confirm')).toBeEnabled();
+  await page.screenshot({ path: info.outputPath('incoming-bulk-cs-review.png'), fullPage: true });
 });

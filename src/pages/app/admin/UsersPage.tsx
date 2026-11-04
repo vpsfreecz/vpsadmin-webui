@@ -381,8 +381,7 @@ export function UsersPage() {
       header={
         <PageHeader
           title={t('admin.users.title')}
-          description={t('admin.users.subtitle')}
-          meta={<span className="text-xs text-faint">{t(compatScanActive ? 'list.meta.filters_progressive' : 'admin.users.filter_hint')}</span>}
+          meta={compatScanActive ? <span className="text-xs text-faint">{t('list.meta.filters_progressive')}</span> : undefined}
           testId="admin.users.list.header"
         />
       }

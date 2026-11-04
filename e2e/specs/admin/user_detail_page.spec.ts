@@ -222,6 +222,8 @@ test('admin user detail: lifecycle state update sends object state', async ({ pa
     full_name: 'Alice Example',
     email: 'alice@example.test',
     object_state: 'active',
+    expiration_date: null,
+    remind_after_date: null,
   };
 
   await installHaveApiMock(page, {
@@ -267,7 +269,7 @@ test('admin user detail: lifecycle state update sends object state', async ({ pa
   await page.getByTestId('admin.user.lifecycle.confirm.confirm').click();
 
   await expect.poll(() => updates.length).toBe(1);
-  expect(updates).toEqual([{ user: { object_state: 'suspended' } }]);
+  expect(updates).toEqual([{ user: { object_state: 'suspended', expiration_date: null } }]);
 });
 
 test('@pr-smoke @pr-smoke-mobile admin user detail: soft delete keeps a durable queued receipt with task links', async ({ page }) => {
@@ -467,6 +469,8 @@ for (const scenario of [
       full_name: 'Alice Example',
       email: 'alice@example.test',
       object_state: 'active',
+      expiration_date: null,
+      remind_after_date: null,
     };
     let updateRequests = 0;
     let releaseResponse: (() => void) | undefined;
@@ -544,7 +548,7 @@ test.describe('admin user soft-delete expiration', () => {
           'PUT users/42': ({ reqJson }) => {
             const payload = (reqJson as { user: Record<string, unknown> }).user;
             updates.push(payload);
-            return { user: { ...user, ...payload } };
+            return { user: { ...user, ...payload }, _meta: { action_state_id: 743 } };
           },
         },
       });

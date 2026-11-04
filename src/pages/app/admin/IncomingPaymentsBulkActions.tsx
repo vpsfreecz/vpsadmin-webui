@@ -90,58 +90,58 @@ export function IncomingPaymentsBulkActions(props: {
           </div>
         }
       />
-      <CardBody>
-        <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <div>
-              <div className="text-xs font-medium uppercase tracking-wide text-muted">{t('payments.incoming.bulk.selected')}</div>
-              <div className="mt-1 flex items-center gap-2 text-2xl font-semibold tabular-nums">
-                {review.selectedCount}
-                <Badge variant={review.eligibleCount > 0 ? 'info' : 'neutral'}>{t('payments.incoming.bulk.eligible', { count: review.eligibleCount })}</Badge>
+      {review.selectedCount > 0 ? (
+        <CardBody>
+          <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <div>
+                <div className="text-xs font-medium uppercase tracking-wide text-muted">{t('payments.incoming.bulk.selected')}</div>
+                <div className="mt-1 flex items-center gap-2 text-2xl font-semibold tabular-nums">
+                  {review.selectedCount}
+                  <Badge variant={review.eligibleCount > 0 ? 'info' : 'neutral'}>{t('payments.incoming.bulk.eligible', { count: review.eligibleCount })}</Badge>
+                </div>
+              </div>
+
+              <div>
+                <div className="text-xs font-medium uppercase tracking-wide text-muted">{t('payments.incoming.bulk.action')}</div>
+                <Select
+                  value={props.action}
+                  onChange={(event) => {
+                    props.onActionChange(normalizeIncomingPaymentBulkAction(event.target.value));
+                  }}
+                  testId="admin.payments.incoming.bulk.action"
+                >
+                  {incomingPaymentBulkActionOptions().map((action) => (
+                    <option key={action} value={action}>
+                      {t(`payments.incoming.bulk.action.${action}`)}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+
+              <div>
+                <div className="text-xs font-medium uppercase tracking-wide text-muted">{t('payments.incoming.bulk.target_state')}</div>
+                <div className="mt-2">
+                  <Badge variant={review.targetState === 'processed' ? 'ok' : review.targetState === 'ignored' ? 'warn' : 'info'}>
+                    {t(incomingPaymentStateLabelKey(review.targetState))}
+                  </Badge>
+                </div>
               </div>
             </div>
 
-            <div>
-              <div className="text-xs font-medium uppercase tracking-wide text-muted">{t('payments.incoming.bulk.action')}</div>
-              <Select
-                value={props.action}
-                onChange={(event) => {
-                  props.onActionChange(normalizeIncomingPaymentBulkAction(event.target.value));
-                }}
-                testId="admin.payments.incoming.bulk.action"
-              >
-                {incomingPaymentBulkActionOptions().map((action) => (
-                  <option key={action} value={action}>
-                    {t(`payments.incoming.bulk.action.${action}`)}
-                  </option>
-                ))}
-              </Select>
-            </div>
-
-            <div>
-              <div className="text-xs font-medium uppercase tracking-wide text-muted">{t('payments.incoming.bulk.target_state')}</div>
-              <div className="mt-2">
-                <Badge variant={review.targetState === 'processed' ? 'ok' : review.targetState === 'ignored' ? 'warn' : 'info'}>
-                  {t(incomingPaymentStateLabelKey(review.targetState))}
-                </Badge>
-              </div>
-            </div>
+            <Button
+              type="button"
+              variant={review.requiresConfirmation ? 'danger' : 'primary'}
+              onClick={() => {
+                setReviewOpen(true);
+              }}
+              disabled={review.eligibleCount === 0 || props.applying}
+              testId="admin.payments.incoming.bulk.review.open"
+            >
+              {t('payments.incoming.bulk.review_open')}
+            </Button>
           </div>
 
-          <Button
-            type="button"
-            variant={review.requiresConfirmation ? 'danger' : 'primary'}
-            onClick={() => {
-              setReviewOpen(true);
-            }}
-            disabled={review.eligibleCount === 0 || props.applying}
-            testId="admin.payments.incoming.bulk.review.open"
-          >
-            {t('payments.incoming.bulk.review_open')}
-          </Button>
-        </div>
-
-        {review.selectedCount > 0 ? (
           <div className="mt-3 text-xs text-muted" data-testid="admin.payments.incoming.bulk.summary">
             {t('payments.incoming.bulk.summary', {
               eligible: review.eligibleCount,
@@ -150,10 +150,8 @@ export function IncomingPaymentsBulkActions(props: {
               unknown: review.skippedUnknownState,
             })}
           </div>
-        ) : (
-          <div className="mt-3 text-xs text-muted">{t('payments.incoming.bulk.empty_selection')}</div>
-        )}
-      </CardBody>
+        </CardBody>
+      ) : null}
 
       <ConfirmDialog
         open={reviewOpen}
@@ -188,12 +186,12 @@ export function IncomingPaymentsBulkActions(props: {
           <div className="rounded-lg border border-border bg-surface-2 p-3 text-sm">
             <div className="font-medium">{t('payments.incoming.bulk.review.counts')}</div>
             <div className="mt-1 text-xs text-muted">
-              {t('payments.incoming.bulk.summary', {
-                eligible: review.eligibleCount,
-                skipped,
-                already: review.skippedAlreadyTarget,
-                unknown: review.skippedUnknownState,
-              })}
+            {t('payments.incoming.bulk.summary', {
+              eligible: review.eligibleCount,
+              skipped,
+              already: review.skippedAlreadyTarget,
+              unknown: review.skippedUnknownState,
+            })}
             </div>
           </div>
         </div>

@@ -12,12 +12,10 @@ import { formatErrorMessage } from '../../lib/errors';
 
 import {
   buildKnownDevicePageWindow,
-  buildKnownDeviceSummary,
   filterKnownDevices,
 } from './UserKnownDevicesModel';
 import { UserKnownDeviceForgetDialog } from './UserKnownDevicesDialogs';
 import { UserKnownDevicesList } from './UserKnownDevicesList';
-import { UserSecurityMetricGrid } from './UserSecurityMetricGrid';
 
 import { Alert } from '../ui/Alert';
 import { Button } from '../ui/Button';
@@ -101,7 +99,6 @@ export function UserKnownDevicesPanel(props: {
     [devicesQ.data, pagination.limit]
   );
   const devices = useMemo(() => filterKnownDevices(pageWindow.rows, searchTrim), [pageWindow.rows, searchTrim]);
-  const deviceSummary = useMemo(() => buildKnownDeviceSummary(pageWindow.rows), [pageWindow.rows]);
   const hasNextFromData =
     devicesQ.isSuccess && pageWindow.hasMore && pageWindow.cursor !== null;
   const canNext = hasNextFromData && !devicesQ.isFetching;
@@ -193,24 +190,6 @@ export function UserKnownDevicesPanel(props: {
 
         <CardBody>
           <KnownDevicesSearch value={q} testIdPrefix={prefix} onChange={setQ} />
-
-          <UserSecurityMetricGrid
-            testId={`${prefix}.known_devices.summary`}
-            items={[
-              { key: 'total', label: t('profile.security.known_devices.summary.total'), value: deviceSummary.total },
-              { key: 'trusted', label: t('profile.security.known_devices.summary.trusted'), value: deviceSummary.trusted },
-              {
-                key: 'client_ips',
-                label: t('profile.security.known_devices.summary.client_ips'),
-                value: deviceSummary.uniqueClientIps,
-              },
-              {
-                key: 'api_ips',
-                label: t('profile.security.known_devices.summary.api_ips'),
-                value: deviceSummary.uniqueApiIps,
-              },
-            ]}
-          />
 
           {devicesQ.isLoading ? (
             <div className="flex items-center justify-center py-8">

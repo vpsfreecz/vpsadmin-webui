@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock, jsonFulfill } from '../../fixtures';
+import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock, jsonFulfill, setUiSettingsLocalStorage } from '../../fixtures';
 
 interface MockSetting {
   id: number;
@@ -235,3 +235,66 @@ test('@pr-smoke @pr-smoke-mobile dark theme survives session expiry and a fresh 
   await expect(page.getByTestId('shell.user-menu-button')).toBeVisible();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
 });
+
+for (const language of ['en', 'cs'] as const) {
+  test(`@content-a1-baseline profile preferences retain loading, save errors and recovery (${language})`, async ({ page }, info) => {
+    let releaseLoad = () => {};
+    let releaseSave = () => {};
+    const loadGate = new Promise<void>((resolve) => { releaseLoad = resolve; });
+    const saveGate = new Promise<void>((resolve) => { releaseSave = resolve; });
+    let loads = 0;
+    const user = { id: 10, login: 'alice', level: 1 };
+    const theme = language === 'cs' ? 'dark' : 'light';
+    const storedSetting: MockSetting = {
+      id: 1, namespace: SETTINGS_NAMESPACE, key: SETTINGS_KEY,
+      value: encodeSettings({ theme, language }),
+    };
+    await setUiSettingsLocalStorage(page, { language, theme });
+    await bootstrapVpsAdminWindow(page, {
+      sessionToken: 'TEST_USER_SESSION', webuiNext: serverUiSettingsConfig(),
+    });
+    await installHaveApiMock(page, { user, handlers: {
+      'GET users/current': () => ({ user }),
+      'GET users/10': () => ({ user }),
+      'GET webui_user_settings': async () => {
+        loads += 1;
+        if (loads === 1) {
+          await loadGate;
+          return jsonFulfill(failEnvelope('Synthetic preference load failed'), 503);
+        }
+        return { webui_user_settings: [storedSetting] };
+      },
+      'PUT webui_user_settings/ui/settings': async () => {
+        await saveGate;
+        return jsonFulfill(failEnvelope('Synthetic preference save failed'), 503);
+      },
+    } });
+    try {
+      await page.goto('/app/profile');
+      const prefs = page.getByTestId('profile.prefs.card');
+      const diagnostics = page.getByTestId('profile.prefs.diagnostics');
+      await prefs.scrollIntoViewIfNeeded();
+      await expect(page.getByTestId('profile.prefs.sync')).toContainText(language === 'cs' ? 'Načítání' : 'Loading');
+      await page.screenshot({ path: info.outputPath(`preferences-loading-${language}.png`), fullPage: true });
+      releaseLoad();
+      await expect(page.getByTestId('profile.prefs.sync')).toContainText('Synthetic preference load failed');
+      await page.screenshot({ path: info.outputPath(`preferences-load-error-${language}.png`), fullPage: true });
+      await diagnostics.locator('summary').click();
+      await expect(diagnostics).toContainText('Synthetic preference load failed');
+      await page.getByTestId('profile.prefs.retry_load').click();
+      await expect(diagnostics).toContainText(language === 'cs' ? 'V pořádku' : 'Idle');
+      await diagnostics.locator('summary').click();
+      await expect(page.getByTestId('profile.prefs.sync')).toHaveCount(0);
+      await page.screenshot({ path: info.outputPath(`preferences-idle-${language}.png`), fullPage: true });
+      await page.getByTestId('prefs.theme').selectOption(theme === 'dark' ? 'light' : 'dark');
+      await expect(page.getByTestId('profile.prefs.sync')).toContainText(language === 'cs' ? 'Ukládání' : 'Saving');
+      await page.screenshot({ path: info.outputPath(`preferences-saving-${language}.png`), fullPage: true });
+      releaseSave();
+      await expect(page.getByTestId('profile.prefs.sync')).toContainText('Synthetic preference save failed');
+      await page.screenshot({ path: info.outputPath(`preferences-save-error-${language}.png`), fullPage: true });
+    } finally {
+      releaseLoad();
+      releaseSave();
+    }
+  });
+}

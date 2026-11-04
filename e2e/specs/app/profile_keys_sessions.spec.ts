@@ -160,6 +160,7 @@ test('@smoke profile: ssh keys + sessions flows', async ({ page }) => {
   await page.goto('/app/profile/sessions');
   const sessionsPanel = page.getByTestId('profile.sessions.card');
   const sessionRow = (id: number) => sessionsPanel.getByTestId(`profile.sessions.row.${id}`).filter({ visible: true });
+  await page.getByTestId('profile.sessions.details').check();
 
   // Session rename
   await expect(sessionRow(1)).toBeVisible();

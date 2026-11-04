@@ -68,34 +68,6 @@ export function IncomingPaymentsReconciliationSummary(props: {
       <CardHeader
         title={t('payments.incoming.reconcile.summary.title')}
         subtitle={t('payments.incoming.reconcile.summary.subtitle', { count: summary.total, state: activeStateLabel })}
-        actions={
-          <div className="hidden flex-wrap items-center gap-2 md:flex">
-            <Button
-              variant={props.activeState === 'unmatched' ? 'primary' : 'secondary'}
-              size="sm"
-              onClick={() => props.onSetState(props.activeState === 'unmatched' ? '' : 'unmatched')}
-              testId="admin.payments.incoming.reconciliation.filter.unmatched"
-            >
-              {t(incomingPaymentStateLabelKey('unmatched'))}
-            </Button>
-            <Button
-              variant={props.activeState === 'queued' ? 'primary' : 'secondary'}
-              size="sm"
-              onClick={() => props.onSetState(props.activeState === 'queued' ? '' : 'queued')}
-              testId="admin.payments.incoming.reconciliation.filter.queued"
-            >
-              {t(incomingPaymentStateLabelKey('queued'))}
-            </Button>
-            <Button
-              variant={props.activeState === 'ignored' ? 'primary' : 'secondary'}
-              size="sm"
-              onClick={() => props.onSetState(props.activeState === 'ignored' ? '' : 'ignored')}
-              testId="admin.payments.incoming.reconciliation.filter.ignored"
-            >
-              {t(incomingPaymentStateLabelKey('ignored'))}
-            </Button>
-          </div>
-        }
       />
       <CardBody>
         {props.stateTotalsStatus !== 'complete' ? (
@@ -146,7 +118,7 @@ export function IncomingPaymentsReconciliationSummary(props: {
                 </Button>
               ) : null
             }
-            badge={<Badge variant={needsReviewCount > 0 ? 'danger' : 'ok'}>{needsReviewCount > 0 ? t('payments.incoming.reconcile.summary.badge.review') : t('payments.incoming.reconcile.summary.badge.ok')}</Badge>}
+            badge={needsReviewCount > 0 ? <Badge variant="danger">{t('payments.incoming.reconcile.summary.badge.review')}</Badge> : undefined}
             testId="admin.payments.incoming.reconciliation.metric.needs_review"
           />
           <MetricTile
@@ -179,18 +151,6 @@ export function IncomingPaymentsReconciliationSummary(props: {
             }
             testId="admin.payments.incoming.reconciliation.metric.ignored"
           />
-        </div>
-
-        <div className="mt-3 flex flex-wrap items-center gap-2 md:hidden">
-          <Button variant={props.activeState === 'unmatched' ? 'primary' : 'secondary'} size="sm" onClick={() => props.onSetState(props.activeState === 'unmatched' ? '' : 'unmatched')}>
-            {t(incomingPaymentStateLabelKey('unmatched'))}
-          </Button>
-          <Button variant={props.activeState === 'queued' ? 'primary' : 'secondary'} size="sm" onClick={() => props.onSetState(props.activeState === 'queued' ? '' : 'queued')}>
-            {t(incomingPaymentStateLabelKey('queued'))}
-          </Button>
-          <Button variant={props.activeState === 'ignored' ? 'primary' : 'secondary'} size="sm" onClick={() => props.onSetState(props.activeState === 'ignored' ? '' : 'ignored')}>
-            {t(incomingPaymentStateLabelKey('ignored'))}
-          </Button>
         </div>
 
       </CardBody>

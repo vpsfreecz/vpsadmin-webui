@@ -49,6 +49,18 @@ for (const language of ['cs', 'en'] as const) {
       await expect(page.getByTestId(`${prefix}.review`)).toContainText(text);
       await expect(page.getByTestId(`${prefix}.submit`)).toBeEnabled();
       await page.getByTestId(`${prefix}.modal`).screenshot({ path: testInfo.outputPath(`${action}-${language}.png`) });
+      if (action === 'request_correction') {
+        const review = page.getByTestId(`${prefix}.review`);
+        await review.getByText(/Review before resolving|Kontrola před vyřešením/, { exact: true }).scrollIntoViewIfNeeded();
+        await page.screenshot({ path: testInfo.outputPath(`correction-review-top-${language}.png`) });
+        await review
+          .getByText(/\(clear value\)|\(vymazat hodnotu\)/)
+          .first()
+          .scrollIntoViewIfNeeded();
+        await page.screenshot({ path: testInfo.outputPath(`correction-review-cleared-${language}.png`) });
+        await review.getByText(text, { exact: true }).scrollIntoViewIfNeeded();
+        await page.screenshot({ path: testInfo.outputPath(`correction-review-outbound-${language}.png`) });
+      }
       const sent = page.waitForRequest(r => r.method() === 'POST' && r.url().includes('/registrations/123/resolve'));
       await page.getByTestId(`${prefix}.submit`).click();
       const payload = (await sent).postDataJSON().registration;

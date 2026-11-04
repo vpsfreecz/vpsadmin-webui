@@ -185,7 +185,6 @@ export function IncomeForecastPage() {
         <div className="space-y-4">
           <PageHeader
             title={t('finance.forecast.title')}
-            description={t('finance.forecast.description')}
             actions={(
               <>
                 <Button
@@ -333,13 +332,11 @@ export function IncomeForecastPage() {
             />
             <StatCard
               title={t('finance.forecast.summary.users')}
-              subtitle={modeLabel}
               value={new Intl.NumberFormat(locale).format(current.user_count)}
               testId="admin.finance.forecast.summary.users"
             />
             <StatCard
               title={t('finance.forecast.summary.duration')}
-              subtitle={modeLabel}
               value={t('finance.forecast.summary.duration.value', { count: filters.duration })}
               testId="admin.finance.forecast.summary.duration"
             />
@@ -368,7 +365,6 @@ export function IncomeForecastPage() {
           <Card testId="admin.finance.forecast.chart_card">
             <CardHeader
               title={t('finance.forecast.chart.title')}
-              subtitle={t('finance.forecast.chart.description')}
               actions={forecastQ.dataUpdatedAt ? (
                 <span className="text-xs text-muted">
                   {t('finance.forecast.updated_at', {
@@ -394,7 +390,6 @@ export function IncomeForecastPage() {
           <div>
             <div className="mb-3">
               <h2 className="font-semibold text-fg">{t('finance.forecast.history.title')}</h2>
-              <p className="mt-1 text-sm text-muted">{t('finance.forecast.history.description')}</p>
             </div>
 
             <div className="hidden md:block">
@@ -434,7 +429,6 @@ export function IncomeForecastPage() {
                   <TableCard
                     key={row.key}
                     title={formatIncomeForecastPeriod(row, locale)}
-                    subtitle={modeLabel}
                     testId={`admin.finance.forecast.mobile.${row.key}`}
                     rows={[
                       { label: t('finance.forecast.history.col.users'), value: new Intl.NumberFormat(locale).format(row.user_count) },

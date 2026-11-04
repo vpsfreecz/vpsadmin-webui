@@ -7,15 +7,6 @@ import { Badge } from '../ui/Badge';
 
 import type { SecuritySettingValue, SecuritySettingsChange, SecuritySettingsReview } from './UserSecurityModel';
 
-function ReviewRow(props: { label: React.ReactNode; children: React.ReactNode; testId?: string }) {
-  return (
-    <div data-testid={props.testId}>
-      <div className="text-xs font-medium uppercase tracking-wide text-muted">{props.label}</div>
-      <div className="mt-1 text-sm text-fg">{props.children}</div>
-    </div>
-  );
-}
-
 function enabledLabel(t: (key: string, vars?: Record<string, unknown>) => string, enabled: boolean): string {
   return enabled ? t('common.enabled') : t('common.disabled');
 }
@@ -52,20 +43,18 @@ function ChangeRow(props: { change: SecuritySettingsChange; testId: string }) {
 
 export function UserSecuritySettingsReviewCard(props: { prefix: string; review: SecuritySettingsReview }) {
   const { t } = useI18n();
+  if (!props.review.hasChanges && props.review.warningKeys.length === 0) return null;
 
   return (
     <div className="space-y-3 rounded-lg border border-border bg-surface-2 p-3" data-testid={`${props.prefix}.settings.review`}>
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div>
+      {props.review.hasChanges ? (
+        <div className="flex flex-wrap items-start justify-between gap-2">
           <div className="text-sm font-semibold">{t('security.settings.review.title')}</div>
-          <div className="mt-1 text-xs text-muted">{t('security.settings.review.subtitle')}</div>
+          <Badge variant={props.review.canSubmit ? 'warn' : 'neutral'}>
+            {t('security.settings.review.badge.pending_change')}
+          </Badge>
         </div>
-        <Badge variant={props.review.canSubmit ? 'warn' : 'neutral'}>
-          {props.review.hasChanges
-            ? t('security.settings.review.badge.pending_change')
-            : t('security.settings.review.badge.no_change')}
-        </Badge>
-      </div>
+      ) : null}
 
       {props.review.warningKeys.map((key) => (
         <Alert key={key} variant="warn" title={t('security.settings.review.warning.title')} testId={`${props.prefix}.settings.review.warning.${key}`}>
@@ -79,13 +68,11 @@ export function UserSecuritySettingsReviewCard(props: { prefix: string; review: 
             <ChangeRow key={change.key} change={change} testId={`${props.prefix}.settings.review.change.${change.key}`} />
           ))}
         </div>
-      ) : (
-        <ReviewRow label={t('security.settings.review.field.changes')} testId={`${props.prefix}.settings.review.no_changes`}>
-          {t('security.settings.review.no_changes')}
-        </ReviewRow>
-      )}
+      ) : null}
 
-      <div className="border-t border-border pt-2 text-xs text-muted">{t('security.settings.review.queue_note')}</div>
+      {props.review.hasChanges ? (
+        <div className="border-t border-border pt-2 text-xs text-muted">{t('security.settings.review.queue_note')}</div>
+      ) : null}
     </div>
   );
 }

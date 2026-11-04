@@ -38,17 +38,7 @@ export function IncomingPaymentAssignReviewCard(props: {
 
   return (
     <div className="space-y-3 rounded-lg border border-border bg-surface-2 p-3" data-testid="admin.payments.incoming.assign.review">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <div className="text-sm font-semibold">{t('payments.incoming.review.assign.title')}</div>
-          <div className="mt-1 text-xs text-muted">{t('payments.incoming.review.assign.subtitle')}</div>
-        </div>
-        <Badge variant={props.review.canSubmit ? 'warn' : 'neutral'}>
-          {props.review.canSubmit
-            ? t('payments.incoming.review.badge.ready')
-            : t('payments.incoming.review.badge.incomplete')}
-        </Badge>
-      </div>
+      <div className="text-sm font-semibold">{t('payments.incoming.review.assign.title')}</div>
 
       {props.review.validationKey ? (
         <Alert variant="warn" title={t('payments.incoming.review.assign.validation.title')} testId="admin.payments.incoming.assign.review.validation">

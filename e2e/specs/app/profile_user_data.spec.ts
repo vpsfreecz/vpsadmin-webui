@@ -332,3 +332,65 @@ for (const language of ['cs', 'en'] as const) {
     await expect(page.getByTestId('profile.user_data.filters.format')).toBeVisible();
   });
 }
+
+
+for (const language of ['en', 'cs'] as const) {
+  test(`@content-account-userdata-wrapper selected-user User data and personal templates keep separate owners ${language}`, async ({
+    page,
+  }, info) => {
+    const operator = { id: 1, login: 'operator', level: 100 };
+    const target = { id: 42, login: 'alice', level: 1 };
+    const templateOwners: string[] = [];
+    const template = {
+      id: 101,
+      label: 'Alice provisioning',
+      format: 'script',
+      content: '#!/bin/sh\necho alice',
+      user: target,
+      created_at: nowIso(),
+      updated_at: nowIso(),
+    };
+
+    await setUiSettingsLocalStorage(page, { language, theme: 'dark' });
+    await bootstrapVpsAdminWindow(page, { sessionToken: 'SYNTHETIC_ADMIN' });
+    await installHaveApiMock(page, {
+      user: operator,
+      handlers: {
+        'GET users/42': () => ({ user: target }),
+        'GET users/1': () => ({ user: operator }),
+        'GET vpses': () => ({ vpses: [], _meta: { total_count: 0 } }),
+        'GET vps_user_data': ({ searchParams }) => {
+          const owner = searchParams.get('vps_user_data[user]');
+          expect(owner === '42' || owner === '1').toBe(true);
+          templateOwners.push(owner ?? 'missing');
+          return {
+            vps_user_data:
+              owner === '42' ? [template] : [{ ...template, id: 201, label: 'Operator provisioning', user: operator }],
+          };
+        },
+      },
+    });
+
+    await page.goto('/admin/users/42/user-data');
+    await expect(page.getByTestId('admin.user.header')).toContainText('alice');
+    await expect(page.getByTestId('admin.user.user_data.row.101').filter({ visible: true })).toBeVisible();
+    expect(templateOwners.every((owner) => owner === '42')).toBe(true);
+    await page.screenshot({ path: info.outputPath(`selected-user-user-data-${language}.png`), fullPage: true });
+
+    await page.getByTestId('admin.user.user_data.create').click();
+    await expect(page.getByTestId('admin.user.user_data.editor.drawer')).toBeVisible();
+    await expect(page.getByTestId('admin.user.user_data.editor.create')).toBeDisabled();
+    await page.getByTestId('admin.user.user_data.editor.label').fill('Selected target draft');
+    await page.getByTestId('admin.user.user_data.editor.format').selectOption('script');
+    await page.getByTestId('admin.user.user_data.editor.content').fill('#!/bin/sh\necho ready');
+    await expect(page.getByTestId('admin.user.user_data.editor.create')).toBeEnabled();
+    await page.screenshot({ path: info.outputPath(`selected-user-user-data-editor-${language}.png`), fullPage: true });
+    await page.getByTestId('drawer.close').click();
+
+    await page.goto('/admin/profile/user-data?user=42');
+    await expect(page.getByTestId('profile.user_data.row.201').filter({ visible: true })).toBeVisible();
+    await expect(page.getByTestId('profile.user_data.row.101')).toHaveCount(0);
+    expect(templateOwners.at(-1)).toBe('1');
+    await page.screenshot({ path: info.outputPath(`personal-admin-user-data-${language}.png`), fullPage: true });
+  });
+}

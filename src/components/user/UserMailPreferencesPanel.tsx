@@ -8,7 +8,6 @@ import { fetchUser, updateUser, type User } from '../../lib/api/users';
 import { fetchUserMailRoleRecipients, fetchUserMailTemplateRecipients } from '../../lib/api/userMail';
 import { formatErrorMessage } from '../../lib/errors';
 
-import { Alert } from '../ui/Alert';
 import { ErrorState } from '../ui/ErrorState';
 import { LoadingState } from '../ui/LoadingState';
 
@@ -113,10 +112,6 @@ export function UserMailPreferencesPanel(props: { userId: number; user?: User })
 
   return (
     <div className="space-y-4">
-      <Alert title={t('mail.prefs.precedence.title')} variant="info">
-        {t('mail.prefs.precedence.body')}
-      </Alert>
-
       <UserMailSettingsCard
         mailerEnabled={mailerEnabled}
         onMailerEnabledChange={(value) => {

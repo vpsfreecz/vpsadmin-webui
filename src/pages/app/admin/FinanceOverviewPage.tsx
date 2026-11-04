@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { AlertTriangle, CalendarClock, CheckCircle2, RefreshCw, TrendingUp, UsersRound } from 'lucide-react';
+import { CalendarClock, RefreshCw, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { useAppMode } from '../../../app/appMode';
@@ -161,7 +161,6 @@ export function FinanceOverviewPage() {
         <div className="space-y-4">
           <PageHeader
             title={t('finance.overview.title')}
-            description={t('finance.overview.description')}
             actions={(
               <Button
                 variant="secondary"
@@ -213,9 +212,7 @@ export function FinanceOverviewPage() {
           <Card className="px-4 py-3" testId="admin.finance.overview.scope">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex min-w-0 items-center gap-2">
-                <CheckCircle2 className="shrink-0 text-ok" size={18} aria-hidden="true" />
                 <p className="min-w-0 text-sm">
-                  <span className="font-semibold">{t('finance.overview.scope.title')}</span>{' '}
                   <span className="text-muted">{t('finance.overview.scope.summary', {
                     count: summary.accountCount,
                     time: formatDateTime(snapshotQ.data?.loadedAt),
@@ -270,35 +267,11 @@ export function FinanceOverviewPage() {
             />
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <StatCard
-              title={t('finance.overview.summary.paid')}
-              subtitle={t('finance.overview.summary.paid.subtitle')}
-              value={new Intl.NumberFormat(locale).format(summary.paidCount)}
-              icon={<UsersRound size={18} aria-hidden="true" />}
-              testId="admin.finance.overview.summary.paid"
-            />
-            <StatCard
-              title={t('finance.overview.summary.due_soon')}
-              subtitle={t('finance.overview.summary.due_soon.subtitle')}
-              value={new Intl.NumberFormat(locale).format(summary.dueSoonCount)}
-              icon={<CalendarClock size={18} aria-hidden="true" />}
-              testId="admin.finance.overview.summary.due_soon"
-            />
-            <StatCard
-              title={t('finance.overview.summary.overdue')}
-              subtitle={t('finance.overview.summary.overdue.subtitle')}
-              value={new Intl.NumberFormat(locale).format(summary.overdueCount)}
-              icon={<AlertTriangle size={18} aria-hidden="true" />}
-              testId="admin.finance.overview.summary.overdue"
-            />
-            <StatCard
-              title={t('finance.overview.summary.invalid')}
-              subtitle={t('finance.overview.summary.invalid.subtitle')}
-              value={new Intl.NumberFormat(locale).format(summary.invalidCount)}
-              icon={<AlertTriangle size={18} aria-hidden="true" />}
-              testId="admin.finance.overview.summary.invalid"
-            />
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-sm" data-testid="admin.finance.overview.summary.paid">
+            <span className="font-semibold">
+              {t('finance.overview.summary.paid')}: {new Intl.NumberFormat(locale).format(summary.paidCount)}
+            </span>
+            <span className="text-muted">{t('finance.overview.summary.paid.subtitle')}</span>
           </div>
 
           <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)]">
@@ -329,6 +302,9 @@ export function FinanceOverviewPage() {
                   </Button>
                 ))}
               </div>
+              <p className="text-sm text-muted" data-testid="admin.finance.overview.risk.scope">
+                {t(`finance.overview.summary.${reviewStatus}.subtitle`)}
+              </p>
 
               {visibleReviewUsers.length > 0 ? (
                 <>

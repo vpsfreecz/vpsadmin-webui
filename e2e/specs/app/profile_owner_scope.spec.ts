@@ -38,10 +38,11 @@ for (const language of ['en', 'cs'] as const) {
           return { metrics_access_token: { ...ownToken, id: 5, access_token: 'synthetic-new-token' } };
         },
       } });
-      await page.goto(`${base}/profile/sessions?user=2`);
+      await page.goto(`${base}/profile/sessions?user=2&details=1`);
+      await expect(page.getByTestId('profile.sessions.details')).toBeChecked();
       await expect(page.getByTestId('profile.sessions.row.50').filter({ visible: true })).toBeVisible();
       await expect(page.getByText('Other account session')).toHaveCount(0);
-      await expect(page.getByTestId('profile.sessions.summary')).toContainText('25');
+      await expect(page.getByTestId(/^profile\.sessions\.row\.\d+$/).filter({ visible: true })).toHaveCount(25);
       await page.getByTestId('profile.sessions.pagination.next').click();
       await expect(page.getByTestId('profile.sessions.row.50')).toHaveCount(0);
       await expect(page.getByTestId('profile.sessions.pagination.next')).toBeDisabled();
@@ -68,6 +69,8 @@ for (const language of ['en', 'cs'] as const) {
       await page.locator(`a[href="${base}/profile/sessions"]`).click();
       await expect(page.getByTestId('profile.sessions.row.50').filter({ visible: true })).toBeVisible();
       await expect(page.getByText('Other account session')).toHaveCount(0);
+
+      await page.screenshot({ path: info.outputPath(`personal-sessions-default-${language}.png`), fullPage: true });
 
       await page.goto(`${base}/profile/metrics?user=2`);
       await expect(page.getByText('my_monitoring_', { exact: true }).filter({ visible: true })).toBeVisible();

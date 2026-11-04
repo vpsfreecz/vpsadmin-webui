@@ -1,8 +1,8 @@
 import { test, expect } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
+import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock, jsonFulfill, setUiSettingsLocalStorage } from '../../fixtures';
 
-test('@smoke profile: MFA recovery readiness summary', async ({ page }) => {
+test('@smoke profile: ready MFA keeps its controls without aggregate reassurance', async ({ page }) => {
   const user = {
     id: 1,
     login: 'e2e',
@@ -66,9 +66,9 @@ test('@smoke profile: MFA recovery readiness summary', async ({ page }) => {
 
   await page.goto('/app/profile/mfa');
 
-  await expect(page.getByTestId('profile.mfa.recovery.ready')).toBeVisible();
-  await expect(page.getByTestId('profile.mfa.recovery.status')).toHaveText('Ready');
-  await expect(page.getByTestId('profile.mfa.recovery.ready')).toContainText('Recovery posture looks ready');
+  await expect(page.getByTestId('profile.mfa.recovery.ready')).toHaveCount(0);
+  await expect(page.getByTestId('profile.mfa.recovery.card')).toHaveCount(0);
+  await expect(page.getByTestId('profile.mfa.totp.row.10').filter({ visible: true })).toBeVisible();
   await expect(page.getByTestId('profile.mfa.recovery.metrics')).toHaveCount(0);
   await expect(page.getByTestId('profile.mfa.recovery.checklist')).toHaveCount(0);
   await expect(page.getByTestId('profile.mfa.known_devices.summary')).toContainText('Trusted for two-step verification');
@@ -153,3 +153,79 @@ test('@pr-smoke @pr-smoke-mobile profile: unexpected TOTP provisioning URI is ne
   await expect(page.getByTestId('profile.mfa.totp.wizard.uri_link')).toHaveCount(0);
   await expect(page.getByTestId('profile.mfa.totp.wizard.uri')).toBeVisible();
 });
+
+const recoveryStates = [
+  { status: 'disabled', required: false, active: 0, pending: false, en: 'Not enabled', cs: 'Vypnuto' },
+  { status: 'staged', required: false, active: 1, pending: false, en: 'Staged', cs: 'Připraveno mimo vyžadování' },
+  { status: 'needs_factor', required: true, active: 0, pending: false, en: 'No factor', cs: 'Bez faktoru' },
+  { status: 'single_path', required: true, active: 1, pending: false, en: 'One path', cs: 'Jedna cesta' },
+  { status: 'setup_pending', required: true, active: 0, pending: true, en: 'Setup pending', cs: 'Čeká na dokončení' },
+  { status: 'ready', required: true, active: 2, pending: false, en: 'Ready', cs: 'Připraveno' },
+] as const;
+
+for (const language of ['en', 'cs'] as const) {
+  for (const state of recoveryStates) {
+    test(`@content-a1-baseline MFA recovery preserves ${state.status} context (${language})`, async ({ page }, info) => {
+      const user = { id: 1, login: 'e2e', level: 1, enable_multi_factor_auth: state.required };
+      const devices = Array.from({ length: state.active + Number(state.pending) }, (_, index) => ({
+        id: index + 10, label: `Phone ${index + 1}`, confirmed: !state.pending, enabled: true,
+      }));
+      await setUiSettingsLocalStorage(page, { language, theme: language === 'cs' ? 'dark' : 'light' });
+      await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+      await installHaveApiMock(page, { user, handlers: {
+        'GET users/current': () => ({ user }),
+        'GET users/1/totp_devices': () => ({ totp_devices: devices }),
+        'GET users/1/webauthn_credentials': () => ({ webauthn_credentials: [] }),
+        'GET users/1/known_devices': () => ({ known_devices: [] }),
+      } });
+      await page.goto('/app/profile/mfa');
+      await expect(page.getByTestId('profile.mfa.mfa_master.status')).toBeVisible();
+      if (state.status !== 'ready') {
+        await expect(page.getByTestId('profile.mfa.recovery.status')).toHaveText(state[language]);
+        await expect(page.getByTestId('profile.mfa.recovery.checklist')).toBeVisible();
+      } else {
+        await expect(page.getByTestId('profile.mfa.recovery.ready')).toHaveCount(0);
+        await expect(page.getByTestId('profile.mfa.totp.row.10').filter({ visible: true })).toBeVisible();
+        await expect(page.getByTestId('profile.mfa.totp.row.11').filter({ visible: true })).toBeVisible();
+      }
+      await page.getByTestId('profile.mfa.mfa_master.status').scrollIntoViewIfNeeded();
+      await page.screenshot({ path: info.outputPath(`mfa-${state.status}-${language}.png`), fullPage: true });
+    });
+  }
+
+  test(`@content-a1-baseline MFA recovery does not infer readiness from loading or failed data (${language})`, async ({ page }, info) => {
+    let releaseRead = () => {};
+    const readGate = new Promise<void>((resolve) => { releaseRead = resolve; });
+    const user = { id: 1, login: 'e2e', level: 1, enable_multi_factor_auth: true };
+    await setUiSettingsLocalStorage(page, { language, theme: language === 'cs' ? 'dark' : 'light' });
+    await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+    await installHaveApiMock(page, { user, handlers: {
+      'GET users/current': () => ({ user }),
+      'GET users/1/totp_devices': () => ({ totp_devices: [
+        { id: 10, label: 'Phone', confirmed: true, enabled: true },
+        { id: 11, label: 'Backup', confirmed: true, enabled: true },
+      ] }),
+      'GET users/1/webauthn_credentials': async () => {
+        await readGate;
+        return jsonFulfill(failEnvelope('Synthetic recovery read failed'), 503);
+      },
+      'GET users/1/known_devices': () => ({ known_devices: [] }),
+    } });
+    try {
+      await page.goto('/app/profile/mfa');
+      const recovery = page.getByTestId('profile.mfa.recovery.card');
+      await recovery.scrollIntoViewIfNeeded();
+      await expect(recovery.locator('.animate-spin')).toBeVisible();
+      await expect(page.getByTestId('profile.mfa.recovery.ready')).toHaveCount(0);
+      await expect(page.getByTestId('profile.mfa.recovery.status')).toHaveCount(0);
+      await page.screenshot({ path: info.outputPath(`mfa-loading-${language}.png`), fullPage: true });
+      releaseRead();
+      await expect(recovery.getByText('Synthetic recovery read failed')).toBeVisible();
+      await expect(page.getByTestId('profile.mfa.recovery.ready')).toHaveCount(0);
+      await expect(page.getByTestId('profile.mfa.recovery.status')).toHaveCount(0);
+      await page.screenshot({ path: info.outputPath(`mfa-error-${language}.png`), fullPage: true });
+    } finally {
+      releaseRead();
+    }
+  });
+}
