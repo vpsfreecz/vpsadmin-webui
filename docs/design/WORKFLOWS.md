@@ -75,6 +75,8 @@ views (REQ-025/026). It reuses the public heatmap configuration, node eligibilit
 and dialog; external frames load only after an explicit click/tap. Missing or
 failed configuration hides the optional action/column without blocking status
 information. Compact dashboard density still limits the visible node list.
+The dashboard header shows its title and description. The shell account control
+shows the login and the shell indicates the active view (REQ-004).
 OAuth login/callback/logout preserve a safe return destination and display errors.
 The public desktop header and mobile menu offer sign-in without a separate
 password-reset shortcut (maintainer decision, 2026-09-30). Password recovery

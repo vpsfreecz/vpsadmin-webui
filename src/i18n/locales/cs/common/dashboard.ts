@@ -1,8 +1,6 @@
 // Common dashboard copy
 export const csCommon_dashboard = {
   'dashboard.description': 'Stručný denní přehled tvých zdrojů, odstávek, bezpečnostních upozornění a stavu služeb.',
-  'dashboard.signed_in_as': 'Přihlášen jako {login} (role: {role})',
-  'dashboard.signed_in': 'Přihlášen.',
   'dashboard.kpi.scope_hint': 'V aktuálním rozsahu',
   'dashboard.kpi.active_operations': 'Aktivní operace',
   'dashboard.kpi.vps.running_ratio': 'Poměr běžících VPS',

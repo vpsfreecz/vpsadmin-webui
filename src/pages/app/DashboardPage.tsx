@@ -162,10 +162,6 @@ export function DashboardPage() {
   const nodeData = useMemo(() => summarizeNodes(nodesQ.data ?? [], unknownLocationLabel), [nodesQ.data, unknownLocationLabel]);
   const nodeIssueCount = nodeData.summary.down + nodeData.summary.maintenance + nodeData.summary.unknown;
 
-  const signedInMeta = auth.user
-    ? t("dashboard.signed_in_as", { login: auth.user.login, role: auth.role })
-    : t("dashboard.signed_in");
-
   const outagesListPath = mode === "admin" ? `${basePath}/outages` : "/outages";
   const outageDetailPath = (id: number) => (mode === "admin" ? `${basePath}/outages/${id}` : `/outages/${id}`);
   const newsManagementPath = mode === "admin" && auth.role === "admin" ? `${basePath}/content/news` : undefined;
@@ -185,7 +181,7 @@ export function DashboardPage() {
   return (
     <PageContainer variant="wide" testId="app.dashboard.page">
       <div className="space-y-4">
-        <PageHeader testId="app.dashboard.header" title={t("nav.dashboard")} description={t("dashboard.description")} meta={signedInMeta} />
+        <PageHeader testId="app.dashboard.header" title={t("nav.dashboard")} description={t("dashboard.description")} />
 
         <Alert title={statusAlert.title} variant={statusAlert.variant} className="p-2.5" testId="app.dashboard.status-alert">
           <span>{statusAlert.body}</span>

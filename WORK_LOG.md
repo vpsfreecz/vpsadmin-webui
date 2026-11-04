@@ -1739,3 +1739,7 @@ existing Czech and English role strings, reviewed against the vpsAdmin
 localization guide at a65a4dfeb92a59df4a80a737a20bcbf8558793ff.
 The sidebar browser spec checks alignment, badge placement and role descriptions
 for member, support and admin on desktop and mobile.
+
+## 2026-11-04 — Dashboard identity
+
+Keep signed-in identity in the shell account control. [DASH-01 / REQ-004](docs/work-log/2026-11-04-dashboard-identity.md).
