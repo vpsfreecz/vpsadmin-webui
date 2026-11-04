@@ -681,6 +681,9 @@ incoming payments as the common working destination. Global finance and sensitiv
 user payment views have explicit administrator gates even if a support-level user
 can access other admin pages.
 
+On wide Finance overviews the queue table and monthly assessment distribution
+share a top edge below the queue filters. On narrower screens the sections stack.
+
 In the administrator's member overview, the source number in each recent payment
 is a direct link to its incoming-payment detail, matching the member Payments
 history. Manual credits without an incoming source do not get a fabricated link.
