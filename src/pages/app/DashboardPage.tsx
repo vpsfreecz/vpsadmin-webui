@@ -202,6 +202,7 @@ export function DashboardPage() {
 
         <DashboardSummaryCards
           appMode={mode}
+          scope={scope.scope}
           basePath={basePath}
           density={dashboardSettings.density}
           vps={{
