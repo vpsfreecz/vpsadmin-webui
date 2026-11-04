@@ -1747,3 +1747,7 @@ Keep signed-in identity in the shell account control. [DASH-01 / REQ-004](docs/w
 ## 2026-11-04 — Dashboard widget insets
 
 Align widget headings, actions and content frames. [DASH-03 / REQ-009](docs/work-log/2026-11-04-dashboard-widget-insets.md).
+
+## 2026-11-04 — Dashboard density help
+
+Explain compact mode in plain language. [DASH-05 / REQ-009](docs/work-log/2026-11-04-dashboard-density-help.md).

@@ -116,7 +116,7 @@ export const csCommon_dashboard = {
   'dashboard.preferences.density.label': 'Hustota',
   'dashboard.preferences.density.comfortable': 'Pohodlná',
   'dashboard.preferences.density.compact': 'Kompaktní',
-  'dashboard.preferences.density.help': 'Kompaktní režim nechává stejné informace dostupné, ale ukazuje méně řádků a menší KPI vizuály.',
+  'dashboard.preferences.density.help': 'V kompaktním režimu jsou karty těsněji uspořádané a některé seznamy ukazují méně položek.',
   'dashboard.preferences.widgets.title': 'Widgety',
   'dashboard.preferences.widgets.description': 'Skryj nebo přeuspořádej volitelné bloky. Bezpečnostní upozornění a stav clusteru zůstávají dostupné.',
   'dashboard.preferences.widget.outages.label': 'Odstávky a údržby',
