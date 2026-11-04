@@ -1759,3 +1759,7 @@ Group actions by widget. [DASH-06 / REQ-009](docs/work-log/2026-11-04-dashboard-
 ## 2026-11-04 — Dashboard widget status alignment
 
 Align each widget title and its status badges on their text baseline. The same layout applies to essential, hidden and collapsed labels. [DASH-07 / REQ-009](docs/work-log/2026-11-04-dash07.md).
+
+## 2026-11-04 — Dashboard count scope
+
+Label the resource count group once with the actual object scope. Put each resource label and count on a compact wrapping line. [DASH-08 / REQ-009](docs/work-log/2026-11-04-dash08.md).
