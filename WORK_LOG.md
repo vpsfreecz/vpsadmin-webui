@@ -1751,3 +1751,7 @@ Align widget headings, actions and content frames. [DASH-03 / REQ-009](docs/work
 ## 2026-11-04 — Dashboard density help
 
 Explain compact mode in plain language. [DASH-05 / REQ-009](docs/work-log/2026-11-04-dashboard-density-help.md).
+
+## 2026-11-04 — Dashboard widget controls
+
+Group actions by widget. [DASH-06 / REQ-009](docs/work-log/2026-11-04-dashboard-widget-controls.md).

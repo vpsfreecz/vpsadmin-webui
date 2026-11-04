@@ -39,6 +39,15 @@ test('@pr-smoke @pr-smoke-mobile dashboard preferences: preserves disclosure foc
   await expect(trigger).toHaveAttribute('aria-expanded', 'true');
   await expect(panel).toBeVisible();
 
+  for (const id of ['news', 'outages', 'security', 'cluster']) {
+    const widget = page.getByTestId(`app.dashboard.preferences.widget.${id}`);
+    const controls = widget.getByRole('group');
+    await expect(controls).toHaveAccessibleName(/\S/);
+    for (const action of ['visible', 'up', 'down', 'collapse']) {
+      await expect(controls.getByTestId(`app.dashboard.preferences.widget.${id}.${action}`)).toBeVisible();
+    }
+  }
+
   const assertControlGeometry = async (width: number, expectedButtonHeight: number, expectedSelectHeight: number) => {
     const buttons = card.getByRole('button');
     const buttonCount = await buttons.count();
