@@ -108,12 +108,12 @@ test.describe('residual timezone', () => {
     });
   });
 
-  test('residual timezone decision', async ({ page }, testInfo) => {
+  test('residual timezone decision', async ({ page, isMobile }, testInfo) => {
     const mobile = testInfo.project.name === 'mobile-chrome';
     const language = mobile ? 'cs' : 'en';
     testInfo.annotations.push({
       type: 'evidence',
-      description: mobile
+      description: isMobile
         ? 'Actual mobile sidebar absence; desktop-only hidden SidebarTips DOM may remain. No mobile decision UI is fabricated.'
         : 'Actual desktop SidebarTips with canonical synthetic tips/time_zone setting and real failure/dismissal.',
     });
@@ -166,12 +166,14 @@ test.describe('residual timezone', () => {
     await page.goto('/app/vps');
     await expect.poll(() => reads).toBeGreaterThan(0);
     const tip = page.getByTestId('tips.time-zone');
-    if (mobile) {
+    if (isMobile) {
       await expect(tip).toBeHidden();
       await page.getByTestId('shell.mobile-nav-button').click();
       const drawer = page.getByTestId('nav.drawer');
       await expect(drawer).toBeVisible();
-      await expect(page.getByRole('dialog', { name: 'Navigace', exact: true })).toBeVisible();
+      await expect(
+        page.getByRole('dialog', { name: language === 'cs' ? 'Navigace' : 'Navigation', exact: true })
+      ).toBeVisible();
       await expect(drawer.getByTestId('tips.time-zone')).toBeHidden();
       await expect(tip).toBeHidden();
       await page.screenshot({ path: testInfo.outputPath('timezone-mobile-not-offered.png'), scale: 'css' });

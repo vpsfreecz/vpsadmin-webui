@@ -238,6 +238,28 @@ test.describe('@pr-smoke-mobile Mobile workflow hardening', () => {
     const filter = page.getByTestId('vps.smart_filter.input');
     await filter.fill('location:not-a-number');
     await filter.press('Enter');
+    await expect(filter).toHaveAttribute('aria-invalid', 'true');
+    await expect(page.getByRole('alert')).toContainText('Location filter expects a numeric id');
+    await expect(page.getByRole('alert')).toHaveAttribute('aria-live', 'assertive');
+    await expect(page.getByTestId('toast.viewport')).toHaveCount(0);
+    await page.evaluate(() => {
+      Object.defineProperty(navigator, 'clipboard', {
+        configurable: true,
+        value: {
+          writeText: async () => {
+            throw new Error('Synthetic clipboard rejection');
+          },
+        },
+      });
+    });
+    await page.getByRole('button', { name: 'Help', exact: true }).tap();
+    const help = page.getByTestId('vps.smart_filter.help');
+    await help.getByRole('button', { name: 'Copy link', exact: true }).tap();
+    await expect(help.getByTestId('toast.modal_viewport')).toContainText('Copy failed');
+    await help
+      .getByRole('button', { name: 'Close', exact: true })
+      .filter({ hasText: /^Close$/ })
+      .tap();
     await expect(page.getByTestId('toast.viewport')).toBeVisible();
     await keyboardViewport(page, 370, 80);
     await page.getByRole('button', { name: 'Advanced filters', exact: true }).tap();

@@ -77,9 +77,12 @@ test('@smoke profile: ready MFA keeps its controls without aggregate reassurance
   await expect(page.getByTestId('profile.mfa.totp.row.10').filter({ visible: true })).toBeVisible();
   await expect(page.getByTestId('profile.mfa.recovery.metrics')).toHaveCount(0);
   await expect(page.getByTestId('profile.mfa.recovery.checklist')).toHaveCount(0);
-  await expect(page.getByTestId('profile.mfa.known_devices.summary')).toContainText(
-    'Trusted for two-step verification'
-  );
+  await expect(page.getByTestId('profile.mfa.known_devices.summary')).toHaveCount(0);
+  const knownDevice = page.getByTestId('profile.mfa.known_devices.row.30').filter({ visible: true });
+  await expect(knownDevice).toBeVisible();
+  await expect(knownDevice).toContainText('203.0.113.10');
+  await expect(knownDevice).toContainText('Jan 01, 2099');
+  await expect(knownDevice.getByTestId('profile.mfa.known_devices.forget.30')).toBeVisible();
   await expect(page.getByTestId('profile.mfa.mfa_master.status')).toContainText('Active');
 });
 

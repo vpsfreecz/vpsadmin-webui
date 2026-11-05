@@ -282,3 +282,63 @@ This final log append is the sole change after the checked successor. Runtime
 source, specifications, the accepted ledger, dependencies and compiled outputs
 remain unchanged. Final commits, independent whole-series review and longer
 checks remain separate gates; no publication, integration or deployment follows.
+
+## Broad browser fixture expectations (2026-11-05)
+
+The published feature head is `5ae09eba7cabe39cb539510e5a9e74bc77001641`.
+Broad Chromium runs 42042445549 and 42042456721 each ended with two failed
+cases and 242 passed cases; both failed cases also failed their two retries.
+The failures require content deliberately removed by the accepted changes:
+the Known devices summary tiles and the member boot-settings introduction.
+Offline inspection covered all 12 failure screenshots and trace contexts,
+plus four selected native frames. The screenshots show the top viewport;
+the retained DOM snapshots and synthetic responses establish the device row,
+trust expiry and lower configuration controls. These lower controls are not
+claimed as inspected pixels. Assertions after each failing line were unreached.
+
+The MFA fixture now checks that the summary is absent and that device 30 retains
+its IP address, displayed trust expiry and Forget control. The VPS tab fixture
+checks that the introduction is absent and the Cgroup version control remains
+visible. Existing mocks, roles, routes, payloads and all other assertions stay
+unchanged. This repairs stale fixture expectations without restoring the
+removed prose or changing application behavior.
+
+The push run checked out the literal feature head. The PR run checked out
+`81ddf1e38776d5206926083d5741c2d2413c0841`, the merge of that head into
+`47b6992e28c16585aa6247bd75413637a7ca6388`. Its tree equals the feature tree,
+but its checkout and visible build badge retain the merge identity. Both runs
+used the hosted Vite source server, separately from the preserved local BFF and
+legacy builds and the 381-file legacy preview. The original failed attempts
+remain failed evidence. The repaired specifications still need the affected
+E2E type gate and hosted browser verification; no rerun result is claimed here.
+
+The completed original CI run passed its nonbrowser, production-build and
+Chromium script-regression jobs. Both broad mobile jobs passed, while all three
+PR smoke jobs failed. The earlier three-path repair packet was held before its
+type gate or commit while the remaining failures were diagnosed. The combined
+repair covers five existing specifications and this log; all five specifications
+already have complete E2E type roots, so coverage configuration stays unchanged.
+
+The timezone fixture used the mobile-Chrome project name to select the mobile
+sidebar contract, sending mobile WebKit into the desktop decision branch.
+It now uses the actual mobile capability for that branch and its evidence note,
+while keeping each project's existing language and theme. The navigation-dialog
+name follows that retained language. Desktop persistence, failed writes,
+dismissal and failed-read assertions stay intact.
+
+The chain fixture replaces removed page-summary expectations with checks for
+all four rows, including resolved neutrality. Existing active/failed styling, completed
+progress, counts, percentages, pin/target links and overflow assertions remain.
+The mobile drawer fixture retains the invalid filter draft and checks its local
+assertive error. A rejected clipboard call through the existing filter-help
+Copy link action supplies a real warning toast for its original modal-position
+and viewport-resize assertions. The mock affects only that test's clipboard;
+it adds no backend request or provider change. It does not certify a real
+clipboard operation.
+
+Offline inspection of the completed PR report covered all 11 failed attempt
+contexts, their five distinct failure images and three selected native frames.
+The report retains the actual `81ddf1e3` PR checkout identity. Lower mobile rows
+and later interaction phases remain subject to the recorded viewport and
+unreached-assertion limits. Original skips and retry policies stay unchanged;
+the combined successor still awaits its parent type gate and hosted results.

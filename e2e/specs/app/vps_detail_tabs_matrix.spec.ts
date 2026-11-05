@@ -228,7 +228,8 @@ test('@workflow-matrix @smoke VPS detail tabs expose storage, access, lifecycle,
   await moreActions.selectOption('/app/vps/123/config');
   await expect(page).toHaveURL(/\/app\/vps\/123\/config$/);
   await expect(page.getByText('Boot preferences')).toBeVisible();
-  await expect(page.getByText('Basic runtime preferences available to a member.')).toBeVisible();
+  await expect(page.getByText('Basic runtime preferences available to a member.')).toHaveCount(0);
+  await expect(page.getByRole('combobox', { name: 'Cgroup version', exact: true })).toBeVisible();
   await expect(page.getByText('Start menu timeout', { exact: true })).toHaveCount(0);
   await expect(page.getByText('Owner', { exact: true })).toHaveCount(0);
   await expect(page.getByText('CPU limit', { exact: true })).toHaveCount(0);
