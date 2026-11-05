@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useQueries } from '@tanstack/react-query';
 
 import { ListShell } from '../../components/layout/ListShell';
-import { PageHeader } from '../../components/layout/PageHeader';
+import { TransactionChainsHeader } from './transactions/TransactionChainsHeader';
 
 import { fetchTransactionChain, fetchTransactionChains, type TransactionChain } from '../../lib/api/transactions';
 import { searchUsers } from '../../lib/api/users';
@@ -11,7 +11,6 @@ import { useAppMode } from '../../app/appMode';
 import { useAuth } from '../../app/auth';
 import { useI18n } from '../../app/i18n';
 import { useObjectScope } from '../../app/objectScope';
-import { LinkButton } from '../../components/ui/LinkButton';
 import {
   chainMatchesConcern,
   chainMatchesUser,
@@ -654,22 +653,13 @@ function TransactionChainsContent() {
 
   const anyLoading = q.isLoading || pinnedQs.some((x) => x.isLoading) || idQ.isLoading;
   const anyError = q.isError || idQ.isError;
+  const showItems = uiMode !== 'app' || auth.role !== 'admin' || scope.mineUserId === undefined;
 
   return (
     <ListShell
       testId="transactions.list"
       header={
-        <PageHeader
-          title={t('transactions.chains.title')}
-          testId="transactions.list.header"
-          actions={
-            uiMode !== 'app' || auth.role !== 'admin' || scope.mineUserId === undefined ? (
-              <LinkButton to={`${basePath}/transactions/items`} variant="secondary" size="sm">
-                {t('transactions.items.title')}
-              </LinkButton>
-            ) : undefined
-          }
-        />
+        <TransactionChainsHeader t={t} basePath={basePath} showItems={showItems} />
       }
       filters={
         <TransactionChainsFilters

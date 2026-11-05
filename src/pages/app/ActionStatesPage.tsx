@@ -18,7 +18,7 @@ import { CopyButton } from '../../components/ui/CopyButton';
 import { Modal } from '../../components/ui/Modal';
 import { FilterChip } from '../../components/ui/FilterChip';
 import { SmartFilterInput, type SmartFilterSuggestion } from '../../components/ui/SmartFilterInput';
-import { SmartInputHelp } from '../../components/ui/SmartInputHelp';
+import { ActionStatesSmartHelp } from './ActionStatesSmartHelp';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { ErrorState } from '../../components/ui/ErrorState';
@@ -764,61 +764,26 @@ export function ActionStatesPage() {
             ) : null}
           </FilterBar>
 
-          <SmartInputHelp
+          <ActionStatesSmartHelp
+            t={t}
             open={helpOpen}
             onClose={() => {
               setHelpOpen(false);
               if (smartNeedle === '?') setSmart('');
             }}
-            title={t('filters.help.title')}
-            intro={t('action_states.smart_help.intro')}
-            examples={[
-              { example: '?', description: t('action_states.smart_help.examples.help') },
-              { example: '123', description: t('action_states.smart_help.examples.open_id') },
-              { example: 'errors', description: t('action_states.smart_help.examples.errors') },
-              { example: 'backup', description: t('action_states.smart_help.examples.search') },
-              { example: 'order:oldest', description: t('action_states.smart_help.examples.order') },
-              { example: 'visibility:system', description: t('action_states.smart_help.examples.visibility') },
-            ]}
-            topKeys={[
-              { key: 'q', description: t('action_states.smart_help.keys.q'), example: 'q:backup' },
-              { key: 'errors', description: t('action_states.smart_help.keys.errors'), example: 'errors' },
-              { key: 'id', description: t('action_states.smart_help.keys.id'), example: 'id:123' },
-              { key: 'order', description: t('action_states.smart_help.keys.order'), example: 'order:oldest' },
-              {
-                key: 'visibility',
-                description: t('action_states.smart_help.keys.visibility'),
-                example: 'visibility:user',
-              },
-            ]}
-            inference={[
-              t('action_states.smart_help.inference.enter_applies'),
-              t('action_states.smart_help.inference.number_opens'),
-              t('action_states.smart_help.inference.key_value'),
-            ]}
             onInsertKey={(key) => {
               setHelpOpen(false);
               setSmart(`${key}:`);
               window.requestAnimationFrame(() => smartInputRef.current?.focus());
             }}
-            actions={[
-              {
-                label: t('filters.help.open_advanced'),
-                onClick: () => {
-                  setHelpOpen(false);
-                  setAdvancedOpen(true);
-                },
-              },
-              {
-                label: t('common.open_tasks'),
-                onClick: () => {
-                  setHelpOpen(false);
-                  chrome.openTasks();
-                },
-              },
-            ]}
-            testId="action_states.smart_help"
-            keyRowTestIdPrefix="action_states.smart_help.key"
+            onOpenAdvanced={() => {
+              setHelpOpen(false);
+              setAdvancedOpen(true);
+            }}
+            onOpenTasks={() => {
+              setHelpOpen(false);
+              chrome.openTasks();
+            }}
           />
 
           <Modal

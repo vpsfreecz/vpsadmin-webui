@@ -4,12 +4,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useAppMode } from '../../app/appMode';
 import { useI18n } from '../../app/i18n';
+import { UserNamespaceMapHeader, UserNamespaceMapRename } from './UserNamespaceMapSummary';
 
 import { Alert } from '../ui/Alert';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { Card, CardBody, CardHeader } from '../ui/Card';
-import { ChipLink } from '../ui/ChipLink';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { CopyButton } from '../ui/CopyButton';
 import { Input } from '../ui/Input';
@@ -409,38 +409,22 @@ export function UserNamespaceMapDetail(props: {
 
   return (
     <div className="space-y-4" data-testid={`${props.testIdPrefix}.panel`}>
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div data-document-title-root data-document-title-kind="object">
-          <div className="text-lg font-semibold text-fg" data-testid={`${props.testIdPrefix}.title`} data-document-title-heading>{headerTitle}</div>
-          <div className="text-sm text-muted" data-testid={`${props.testIdPrefix}.subtitle`}>{headerSubtitle}</div>
-          {props.headerNote ? <div className="mt-1 text-xs text-faint">{props.headerNote}</div> : null}
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <ChipLink to={props.backTo} title={t('common.back')}>
-            {t('common.back')}
-          </ChipLink>
-
-          <Badge variant="neutral">{t('userns.map.entries', { n: entriesQ.isSuccess ? entryCount : t('common.na') })}</Badge>
-
-          <ChipLink to={entriesLink} title={t('userns.map.used_by_vps_link')}>
-            {t('userns.map.used_by_vps', { n: usedByCount ?? '—' })}
-          </ChipLink>
-
-          <Button
-            testId={`${props.testIdPrefix}.delete`}
-            variant="danger"
-            size="sm"
-            disabled={!canInteractWithMap || deleteMapM.isPending}
-            onClick={() => {
-              setDeleteMapError(null);
-              setDeleteMapConfirm(true);
-            }}
-          >
-            {t('common.delete')}
-          </Button>
-        </div>
-      </div>
+      <UserNamespaceMapHeader
+        t={t}
+        testIdPrefix={props.testIdPrefix}
+        headerTitle={headerTitle}
+        headerSubtitle={headerSubtitle}
+        headerNote={props.headerNote}
+        backTo={props.backTo}
+        entryCountDisplay={entriesQ.isSuccess ? entryCount : t('common.na')}
+        usedByCount={usedByCount}
+        entriesLink={entriesLink}
+        deleteDisabled={!canInteractWithMap || deleteMapM.isPending}
+        onDelete={() => {
+          setDeleteMapError(null);
+          setDeleteMapConfirm(true);
+        }}
+      />
 
       {mapQ.isLoading ? (
         <Card>
@@ -465,38 +449,17 @@ export function UserNamespaceMapDetail(props: {
       ) : null}
 
       {/* Rename */}
-      <Card testId={`${props.testIdPrefix}.rename.card`}>
-        <CardHeader
-          title={t('userns.map.rename.title')}
-          subtitle={t('userns.map.rename.body')}
-          actions={
-            <Button
-              testId={`${props.testIdPrefix}.rename.save`}
-              variant={labelDirty ? 'primary' : 'secondary'}
-              size="sm"
-              disabled={!labelDirty || renameM.isPending || !canInteractWithMap}
-              onClick={() => renameM.mutate()}
-            >
-              {renameM.isPending ? t('common.saving') : t('common.save')}
-            </Button>
-          }
-        />
-        <CardBody>
-          <div className="max-w-xl">
-            <Input
-              testId={`${props.testIdPrefix}.rename.input`}
-              value={labelDraft}
-              onChange={(e) => setLabelDraft(e.target.value)}
-              placeholder={t('userns.map.rename.placeholder')}
-            />
-          </div>
-          {renameM.error ? (
-            <Alert title={t('userns.map.rename.error')} variant="danger" className="mt-3">
-              {String((renameM.error as any)?.message ?? renameM.error)}
-            </Alert>
-          ) : null}
-        </CardBody>
-      </Card>
+      <UserNamespaceMapRename
+        t={t}
+        testIdPrefix={props.testIdPrefix}
+        labelDraft={labelDraft}
+        setLabelDraft={setLabelDraft}
+        labelDirty={labelDirty}
+        renamePending={renameM.isPending}
+        canInteractWithMap={canInteractWithMap}
+        renameError={renameM.error ? String((renameM.error as any)?.message ?? renameM.error) : null}
+        onSave={() => renameM.mutate()}
+      />
 
       {/* Entries */}
       <Card testId={`${props.testIdPrefix}.entries.card`}>

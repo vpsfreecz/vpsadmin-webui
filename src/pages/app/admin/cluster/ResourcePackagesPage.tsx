@@ -14,7 +14,7 @@ import { FilterBar } from '../../../../components/layout/FilterBar';
 import { Alert } from '../../../../components/ui/Alert';
 import { Badge } from '../../../../components/ui/Badge';
 import { Button } from '../../../../components/ui/Button';
-import { ConfirmDialog } from '../../../../components/ui/ConfirmDialog';
+import { ResourcePackageDeleteDialog } from './ResourcePackageDeleteDialog';
 import { CopyButton } from '../../../../components/ui/CopyButton';
 import { Modal } from '../../../../components/ui/Modal';
 import { EmptyState } from '../../../../components/ui/EmptyState';
@@ -648,50 +648,25 @@ export function ResourcePackagesPage() {
         </div>
       </Modal>
 
-      <ConfirmDialog
+      <ResourcePackageDeleteDialog
+        t={t}
         open={deleteState.open}
         onCancel={() => {
           deleteM.reset();
           setDeleteState({ open: false, pkg: null });
         }}
         onConfirm={() => deleteM.mutate()}
-        danger
-        title={t('admin.cluster.resource_packages.delete_confirm.title')}
-        description={t('admin.cluster.resource_packages.delete_confirm.description')}
-        confirmLabel={t('common.delete')}
-        confirmLoading={deleteM.isPending}
-        confirmDisabled={!deletePkg}
-        testId="admin.cluster.resource_packages.delete_confirm"
-      >
-        {deletePkg ? (
-          <div className="space-y-3">
-            <div className="rounded-md border border-border bg-surface-subtle px-3 py-2">
-              <div className="text-xs font-semibold uppercase tracking-wide text-muted">
-                {t('admin.cluster.resource_packages.delete_confirm.target')}
-              </div>
-              <div className="mt-1 font-medium text-fg">
-                {typeof deletePkg.label === 'string' && deletePkg.label.trim() ? deletePkg.label.trim() : `#${deletePkg.id}`}
-                {typeof deletePkg.label === 'string' && deletePkg.label.trim() ? (
-                  <span className="ml-2 text-sm font-normal text-muted">#{deletePkg.id}</span>
-                ) : null}
-              </div>
-            </div>
-            <div className="text-sm text-muted">
-              {t('admin.cluster.resource_packages.delete_confirm.impact', {
-                count:
-                  deleteImpactQ.isSuccess && typeof deleteImpactQ.data === 'number'
-                    ? String(deleteImpactQ.data)
-                    : t('common.na'),
-              })}
-            </div>
-            {deleteM.isError ? (
-              <Alert variant="danger" title={t('common.error')} testId="admin.cluster.resource_packages.delete_confirm.error">
-                {formatErrorMessage(deleteM.error)}
-              </Alert>
-            ) : null}
-          </div>
-        ) : null}
-      </ConfirmDialog>
+        pending={deleteM.isPending}
+        deletePkg={deletePkg}
+        impactCount={
+          deletePkg
+            ? deleteImpactQ.isSuccess && typeof deleteImpactQ.data === 'number'
+              ? String(deleteImpactQ.data)
+              : t('common.na')
+            : ''
+        }
+        error={deletePkg && deleteM.isError ? formatErrorMessage(deleteM.error) : null}
+      />
     </div>
   );
 }

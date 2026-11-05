@@ -41,6 +41,7 @@ import { resourceId } from '../../../lib/resources';
 
 import { useDatasetContext } from './DatasetContext';
 import { datasetExpansionCapabilities } from './DatasetExpansionCapabilities';
+import { DatasetExpansionAdminMetadata } from './DatasetExpansionAdminMetadata';
 import {
   datasetExpansionEditForm,
   defaultDatasetExpansionForm,
@@ -336,29 +337,7 @@ export function DatasetExpansionPage() {
                   <div className="font-medium text-fg">{formatDateTime(currentExpansion.created_at)}</div>
                 </div>
                 {expansionCapabilities.showAdminMetadata ? (
-                  <>
-                    <div>
-                      <div className="text-xs text-faint">{t('dataset.expansion.field.notify')}</div>
-                      <div className="font-medium text-fg">
-                        {t(currentExpansion.enable_notifications === true ? 'common.enabled'
-                          : currentExpansion.enable_notifications === false ? 'common.disabled' : 'state.unknown')}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-xs text-faint">{t('dataset.expansion.field.auto_shrink')}</div>
-                      <div className="font-medium text-fg">
-                        {t(currentExpansion.enable_shrink === true ? 'common.enabled'
-                          : currentExpansion.enable_shrink === false ? 'common.disabled' : 'state.unknown')}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-xs text-faint">{t('dataset.expansion.field.stop_vps')}</div>
-                      <div className="font-medium text-fg">
-                        {t(currentExpansion.stop_vps === true ? 'common.enabled'
-                          : currentExpansion.stop_vps === false ? 'common.disabled' : 'state.unknown')}
-                      </div>
-                    </div>
-                  </>
+                  <DatasetExpansionAdminMetadata t={t} currentExpansion={currentExpansion} />
                 ) : null}
                 <div>
                   <div className="text-xs text-faint">{t('dataset.expansion.field.max_over')}</div>

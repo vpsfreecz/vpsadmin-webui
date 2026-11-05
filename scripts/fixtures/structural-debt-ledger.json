@@ -2,9 +2,9 @@
   "version": 1,
   "review": {
     "status": "accepted",
-    "acceptedBy": "2026-09-27-newadmin-integration lead, adoption source hash review"
+    "acceptedBy": "2026-11-04-webui-content-guidelines lead, bounded non-increasing source and ledger revalidation"
   },
-  "note": "Inherited exceptions retain their original debt source revisions. Source bytes match those revisions. An exact source edit or measured improvement requires review/removal; the historical baseline remains unchanged.",
+  "note": "Inherited exceptions retain their original debt source revisions and rationale. The original adoption-source review is preserved separately. This session lead separately accepted the current hashes and exact non-increasing allowances; resolved entries are removed and the historical baseline is unchanged.",
   "exceptions": [
     {
       "path": "src/components/user/UserEnvironmentConfigsPanel.tsx",
@@ -24,9 +24,9 @@
       "path": "src/components/user/UserMailRecipientsTables.tsx",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "71920013bf1bd9d2b23eabb300a2a5c85cbb5b99f001c483675ce8a620e1fe84",
+      "contentHash": "0b220b7bc8e9ad7d7485f5e568821903800b193c24c3dbde836666e10e951db1",
       "old": 0,
-      "allowance": 527,
+      "allowance": 519,
       "rationale": "At the recorded source revision, this file already contained mail recipient tables and edit controls; extract the coherent section with focused behavior coverage before removing this exception. Reviewed generated-client migration: explicit recipients and disabled state remain; absent template role data now displays the existing unavailable state without inventing a primary/role destination or a copy target. Focused owner checks cover the model and its direct consumers. This source remains smaller than the prior allowance; tighten the allowance to the exact measured line count.",
       "owner": "WebUI implementation lead",
       "removeWhen": {
@@ -52,9 +52,9 @@
       "path": "src/components/userNamespaces/UserNamespaceMapDetail.tsx",
       "rule": "grown-over-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "1874ec7a7cbbb8c0da82e5d89ce98c341e087ccd9bae9d8086851b642064917c",
+      "contentHash": "0a8829e17e27f7c1db0c0a1836899f7da9d76a49b294e47c0536fb31d670ad24",
       "old": 770,
-      "allowance": 798,
+      "allowance": 789,
       "rationale": "At the recorded source revision, this file already contained namespace map detail states; extract the coherent section with focused behavior coverage before removing this exception. Reviewed generated-client migration: only the count/error helper import moves to apiErrors; behavior, casts and line allowance are unchanged.",
       "owner": "WebUI implementation lead",
       "removeWhen": {
@@ -80,9 +80,9 @@
       "path": "src/pages/app/MonitoringEventDetailPage.tsx",
       "rule": "grown-over-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "1908b09d8b61560553bc23a45674a1d392726f2e6200ef3d313c9c38323ac0b2",
+      "contentHash": "ff9b1ddb4a9936e0360986b96f50fc322c840d1049805636153611d8b9e3cd57",
       "old": 647,
-      "allowance": 652,
+      "allowance": 651,
       "rationale": "At the recorded source revision, this file already contained monitoring event detail states; extract the coherent section with focused behavior coverage before removing this exception.",
       "owner": "WebUI implementation lead",
       "removeWhen": {
@@ -91,45 +91,17 @@
       }
     },
     {
-      "path": "src/pages/app/admin/AdminOutagesPage.tsx",
-      "rule": "grown-over-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "415f8183d49d2e2477dc6cfe0cd5d3dbbf4ae682f0342d97299ab1395925dfb4",
-      "old": 821,
-      "allowance": 854,
-      "rationale": "At the recorded source revision, this file already contained outage list and editor flows; extract the coherent section with focused behavior coverage before removing this exception. Reviewed generated-client migration: create validates actual required date/duration, update omits unsupported null duration, handler display uses declared full_name/user fields, and nullable affected counts remain unavailable at the boundary. The existing line allowance is unchanged.",
-      "owner": "WebUI implementation lead",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 821
-      }
-    },
-    {
       "path": "src/pages/app/admin/IncomingPaymentDetailPage.tsx",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "2e76f623d4bf018a9f16005f97f35f64e70b78a7232a769f98851ead63b02d8d",
+      "contentHash": "cf897a6ff49a191d173142f8b52ebd0579e20dd004f2f7db9d0ed61365f800ff",
       "old": 0,
-      "allowance": 587,
+      "allowance": 565,
       "rationale": "At the recorded source revision, this file already contained incoming payment detail and matching flows; extract the coherent section with focused behavior coverage before removing this exception. Reviewed generated-client migration: only the action-state receipt helper import moves to apiErrors; behavior, casts and line allowance are unchanged.",
       "owner": "WebUI implementation lead",
       "removeWhen": {
         "metric": "lines",
         "atMost": 500
-      }
-    },
-    {
-      "path": "src/pages/app/admin/MigrationPlanDetailPage.tsx",
-      "rule": "grown-over-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "4d0108e52f4643e677b0225a916fb9826a367da511594b67ab75783a3afa273f",
-      "old": 1201,
-      "allowance": 1212,
-      "rationale": "At the recorded source revision, this file already contained migration plan detail and actions; extract the coherent section with focused behavior coverage before removing this exception. Reviewed generated-client migration: only action-state/uncertainty helper imports move to apiErrors; behavior, casts and line allowance are unchanged.",
-      "owner": "WebUI implementation lead",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 1201
       }
     },
     {
@@ -164,7 +136,7 @@
       "path": "src/pages/app/admin/cluster/ResourcePackageDetailPage.tsx",
       "rule": "increased-as-any",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "e8f54890b68cd601a2015454c4b42a55d9e66244cea7cbe4a1dbc58b1a6185e1",
+      "contentHash": "7dd89c6d0f683a5dd4345168a48b694a5898875db376e25f080bc45cb2a73b10",
       "old": 19,
       "allowance": 20,
       "rationale": "At the recorded source revision, resource package detail had one additional cast. This file also exceeds its line baseline; type the form and extract its sections together during the page refactor. Reviewed generated-client migration: only the total-count helper import moves to apiErrors. The pre-existing 20 casts and line allowance are unchanged; this review grants no additional cast or line capacity.",
@@ -178,9 +150,9 @@
       "path": "src/pages/app/admin/cluster/ResourcePackageDetailPage.tsx",
       "rule": "grown-over-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "e8f54890b68cd601a2015454c4b42a55d9e66244cea7cbe4a1dbc58b1a6185e1",
+      "contentHash": "7dd89c6d0f683a5dd4345168a48b694a5898875db376e25f080bc45cb2a73b10",
       "old": 906,
-      "allowance": 979,
+      "allowance": 944,
       "rationale": "At the recorded source revision, this file already contained resource package details and form state; extract the coherent section with focused behavior coverage before removing this exception. Reviewed generated-client migration: only the total-count helper import moves to apiErrors. The pre-existing 20 casts and line allowance are unchanged; this review grants no additional cast or line capacity.",
       "owner": "WebUI collection and page refactor implementer",
       "removeWhen": {
@@ -192,9 +164,9 @@
       "path": "src/pages/app/admin/cluster/ResourcePackagesPage.tsx",
       "rule": "grown-over-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "cd2c1b15595e2be4507208c4c12ce5bcd9fbaad4239e497553612b17e59601d5",
+      "contentHash": "8195fdaf52e4cf2175a250aeda9c24ee322ecf5444671ea5fa7c6a03274d0c12",
       "old": 656,
-      "allowance": 692,
+      "allowance": 673,
       "rationale": "At the recorded source revision, this file already contained resource package list and actions; extract the coherent section with focused behavior coverage before removing this exception. Centered-dialog follow-up (2026-10-17) changes only overlay presentation; existing extraction debt remains and the allowance does not increase. Reviewed generated-client migration: only the total-count helper import moves to apiErrors; behavior, casts and line allowance are unchanged.",
       "owner": "WebUI collection and page refactor implementer",
       "removeWhen": {
@@ -206,9 +178,9 @@
       "path": "src/pages/app/admin/content/AdminHelpBoxesPage.tsx",
       "rule": "grown-over-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "4c6d4b3882c55c19f268818de8a866b614fdadb962a348c85dac0e56040dbc86",
+      "contentHash": "37d2fd4de460e0a6fef5a0203747f9f11ea4fbb766a18565b3d5427d14d400d9",
       "old": 516,
-      "allowance": 609,
+      "allowance": 594,
       "rationale": "At the recorded source revision, this file already contained help-box list and editing controls; extract the coherent section with focused behavior coverage before removing this exception. Reviewed generated-client migration: unsupported unlocalized filter links reset, create omits absent language, and localized edits cannot clear a nonnullable language. Approved diagnostics preserve the existing in-context editor. The line allowance is unchanged.",
       "owner": "WebUI implementation lead",
       "removeWhen": {
@@ -234,9 +206,9 @@
       "path": "src/pages/app/admin/user/AdminUserPaymentsPage.tsx",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "d6b8643e429d2c56e338024ace2d402e24b38b2b894e1b2b2bf36ba597e65f7d",
+      "contentHash": "6ff39888f76e12108cc827869a7daf01137866717f81ff25b355f7c3cdf217ba",
       "old": 0,
-      "allowance": 796,
+      "allowance": 794,
       "rationale": "At the recorded source revision, this file already contained admin user payments and incoming-payment views; extract the coherent section with focused behavior coverage before removing this exception. Reviewed generated-client migration: paid-until clearing rejects locally with the approved diagnostic, preserving the reviewed owner/value and existing single account mutation. Valid dates and zero monthly amounts retain their prior behavior. Compact formatting reduces this source below its prior allowance; tighten to the exact measured line count without expanding any budget.",
       "owner": "WebUI implementation lead",
       "removeWhen": {
@@ -248,9 +220,9 @@
       "path": "src/pages/app/datasets/DatasetExpansionPage.tsx",
       "rule": "grown-over-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "5f7cb96750ff0156361584bf2a0e11322060dd9d607dd7914cb8620ac443df19",
+      "contentHash": "1f359fd32c464a902e408342443ea5576e59ebc51cb56c2777dd9fda318decbb",
       "old": 635,
-      "allowance": 697,
+      "allowance": 684,
       "rationale": "At the recorded source revision, this file already contained dataset expansion state and actions; extract the coherent section with focused behavior coverage before removing this exception. Reviewed generated-client migration: the receipt helper import moves to apiErrors and the existing max-over-days guard also rejects absent values before constructing the generated input. The line allowance is unchanged.",
       "owner": "WebUI implementation lead",
       "removeWhen": {
@@ -276,9 +248,9 @@
       "path": "src/pages/app/vps/VpsAccessPage.tsx",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "e74fd40aea77a4e7d8a64ce29dc942a7c0da203f3be39498e1af9882d0c9e537",
+      "contentHash": "9a2e3cfe1225cdb6dfd090ec36c2c999d5a8af97981c4328402915bded2f609e",
       "old": 0,
-      "allowance": 564,
+      "allowance": 510,
       "rationale": "At the recorded source revision, this file already contained VPS access and credential controls; extract the coherent section with focused behavior coverage before removing this exception. Reviewed generated-client migration: only the action-state receipt helper import moves to apiErrors; behavior, casts and line allowance are unchanged.",
       "owner": "WebUI collection and page refactor implementer",
       "removeWhen": {
@@ -301,26 +273,12 @@
       }
     },
     {
-      "path": "src/pages/app/vps/VpsCreateWizardPrimitives.tsx",
-      "rule": "crossed-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "08e90203f833e4cd4e024d6b207caac3fcf9bce41e065ba57318245bbd7fc935",
-      "old": 0,
-      "allowance": 547,
-      "rationale": "At the recorded source revision, this file already contained shared creation wizard controls; extract the coherent section with focused behavior coverage before removing this exception. Reviewed generated-client migration: only the missing-action-state helper import moves to apiErrors; behavior, casts and line allowance are unchanged.",
-      "owner": "WebUI collection and page refactor implementer",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 500
-      }
-    },
-    {
       "path": "src/pages/app/vps/VpsStoragePage.tsx",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "e4d99b983dd5bc248300d6c79698bb9019702cfae2a2d4f9eb96bea1129c4d0f",
+      "contentHash": "ed05d0d9f35947dd0e97d23939211d24fc0dbc0d7746b1f2b1d85b429064d2e5",
       "old": 0,
-      "allowance": 505,
+      "allowance": 503,
       "rationale": "At the recorded source revision, this file already contained VPS storage sections and actions; extract the coherent section with focused behavior coverage before removing this exception. Reviewed generated-client migration: generated Mount Create input replaces an untyped payload, receipt helpers move to apiErrors, and one redundant blank line is removed. Existing preflight, mutation snapshots and uncertainty tracking remain; the exact 505-line allowance is unchanged.",
       "owner": "WebUI collection and page refactor implementer",
       "removeWhen": {

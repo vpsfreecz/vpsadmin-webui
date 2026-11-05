@@ -19,9 +19,8 @@ import { Input } from '../../../../components/ui/Input';
 import { KeysetPagination } from '../../../../components/ui/KeysetPagination';
 import { LoadingState } from '../../../../components/ui/LoadingState';
 import { Modal } from '../../../../components/ui/Modal';
-import { ObjectHeader } from '../../../../components/ui/ObjectHeader';
+import { ResourcePackageDetailHeader } from './ResourcePackageDetailHeader';
 import { Select, type SelectOption } from '../../../../components/ui/Select';
-import { StatCard } from '../../../../components/ui/StatCard';
 import { SwitchRow } from '../../../../components/ui/SwitchRow';
 import { TableCard } from '../../../../components/ui/TableCard';
 import { Textarea } from '../../../../components/ui/Textarea';
@@ -412,62 +411,21 @@ export function ResourcePackageDetailPage() {
 
   return (
     <div className="space-y-4">
-      <ObjectHeader
-        testId="admin.cluster.resource_package_detail.header"
-        kicker={
-          <span>
-            <Link className="hover:underline" to="/admin/cluster/resource-packages">
-              {t('admin.cluster.tab.resource_packages')}
-            </Link>{' '}
-            · <span className="font-mono text-xs">#{id}</span>
-          </span>
-        }
-        title={label}
-        badges={<Badge variant={badge.variant}>{badge.label}</Badge>}
-        meta={
-          personal ? (
-            <span>
-              {t('common.environment')}: <span className="font-medium text-fg">{envLabel(env)}</span>
-              <span className="mx-2 text-faint">·</span>
-              {t('common.user')}: <span className="font-medium text-fg">{userLabel(user)}</span>
-            </span>
-          ) : (
-            <span>{t('admin.cluster.resource_package_detail.meta.global')}</span>
-          )
-        }
-        right={
-          <div className="flex items-center gap-2">
-            <StatCard
-              size="sm"
-              label={t('admin.cluster.resource_package_detail.stat.items')}
-              value={itemCountDisplay}
-            />
-            <StatCard
-              size="sm"
-              label={t('admin.cluster.resource_package_detail.stat.assigned')}
-              value={personal ? '—' : assignmentCountDisplay}
-            />
-          </div>
-        }
-        actions={
-          <>
-            <Button variant="secondary" onClick={openPkgEditor} testId="admin.cluster.resource_package_detail.edit">
-              {t('common.edit')}
-            </Button>
-            <Button
-              variant="danger"
-              onClick={() => {
-                deletePkgM.reset();
-                setDeleteOpen(true);
-              }}
-              disabled={personal}
-              disabledReason={personal ? t('admin.cluster.resource_packages.delete_disabled.personal') : undefined}
-              testId="admin.cluster.resource_package_detail.delete"
-            >
-              {t('common.delete')}
-            </Button>
-          </>
-        }
+      <ResourcePackageDetailHeader
+        t={t}
+        id={id}
+        label={label}
+        badge={badge}
+        personal={personal}
+        environmentDisplay={personal ? envLabel(env) : ''}
+        userDisplay={personal ? userLabel(user) : ''}
+        itemCountDisplay={itemCountDisplay}
+        assignmentCountDisplay={assignmentCountDisplay}
+        openPkgEditor={openPkgEditor}
+        onDelete={() => {
+          deletePkgM.reset();
+          setDeleteOpen(true);
+        }}
       />
 
       {!personal ? (

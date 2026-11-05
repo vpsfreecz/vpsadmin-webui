@@ -17,7 +17,7 @@ import { SandboxedHtml } from '../../../../components/ui/SandboxedHtml';
 import { Select } from '../../../../components/ui/Select';
 import { Spinner } from '../../../../components/ui/Spinner';
 import { TableCard } from '../../../../components/ui/TableCard';
-import { Textarea } from '../../../../components/ui/Textarea';
+import { AdminHelpBoxEditor } from './AdminHelpBoxEditor';
 
 import {
   createHelpBox,
@@ -533,120 +533,29 @@ export function AdminHelpBoxesPage() {
         ) : null}
       </Modal>
 
-      <Modal
-        open={editorOpen}
+      <AdminHelpBoxEditor
+        t={t}
+        editorOpen={editorOpen}
+        editorMode={editorMode}
         onClose={() => setEditorOpen(false)}
-        title={
-          editorMode === 'create' ? t('admin.help_boxes.modal.create.title') : t('admin.help_boxes.modal.edit.title')
-        }
-        size="lg"
-        testId="admin.help_boxes.editor"
-        footer={
-          <div className="flex items-center justify-end gap-2">
-            <Button variant="secondary" onClick={() => setEditorOpen(false)} disabled={saveM.isPending}>
-              {t('common.cancel')}
-            </Button>
-            <Button
-              variant="primary"
-              onClick={() => saveM.mutate()}
-              loading={saveM.isPending}
-              disabled={!editorValid}
-              testId="admin.help_boxes.editor.save"
-            >
-              {t('common.save')}
-            </Button>
-          </div>
-        }
-      >
-        <div className="space-y-4">
-          {editorError ? (
-            <Alert variant="danger" title={t('common.error')}>
-              {editorError}
-            </Alert>
-          ) : null}
-
-          <div className="text-sm">
-            <div className="font-medium">{t('admin.help_boxes.editor.help_title')}</div>
-            <p className="mt-1 text-muted">{t('admin.help_boxes.editor.help_body')}</p>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <div className="text-xs text-faint">{t('admin.help_boxes.field.page')}</div>
-              <Input
-                value={editorPage}
-                onChange={(e) => setEditorPage(e.target.value)}
-                testId="admin.help_boxes.editor.page"
-              />
-              {!editorPage.trim() ? (
-                <div className="mt-1 text-xs text-danger">{t('admin.help_boxes.validation.page')}</div>
-              ) : null}
-            </div>
-
-            <div>
-              <div className="text-xs text-faint">{t('admin.help_boxes.field.action')}</div>
-              <Input
-                value={editorAction}
-                onChange={(e) => setEditorAction(e.target.value)}
-                testId="admin.help_boxes.editor.action"
-              />
-              {!editorAction.trim() ? (
-                <div className="mt-1 text-xs text-danger">{t('admin.help_boxes.validation.action')}</div>
-              ) : null}
-            </div>
-
-            <div>
-              <div className="text-xs text-faint">{t('admin.help_boxes.field.language')}</div>
-              <Select
-                value={editorLanguage}
-                onChange={(e) => setEditorLanguage(e.target.value)}
-                testId="admin.help_boxes.editor.language"
-              >
-                <option value="" disabled={localizedEdit}>
-                  {t('common.default')}
-                </option>
-                {languages.map((l) => (
-                  <option key={l.id} value={String(l.id)}>
-                    {String(l.label ?? l.code ?? l.id)}
-                  </option>
-                ))}
-              </Select>
-              {localizedEdit ? (
-                <div className="mt-1 text-xs text-muted">
-                  {t('admin.help_boxes.validation.language_clear_unsupported')}
-                </div>
-              ) : null}
-            </div>
-
-            <div>
-              <div className="text-xs text-faint">{t('admin.help_boxes.field.order')}</div>
-              <Input
-                value={editorOrder}
-                onChange={(e) => setEditorOrder(e.target.value)}
-                testId="admin.help_boxes.editor.order"
-              />
-              {editorOrderParsed === null ? (
-                <div className="mt-1 text-xs text-danger">{t('admin.help_boxes.validation.order')}</div>
-              ) : null}
-            </div>
-          </div>
-
-          <div>
-            <div className="text-xs text-faint">{t('admin.help_boxes.field.content')}</div>
-            <div className="mt-1">
-              <Textarea
-                value={editorContent}
-                onChange={(e) => setEditorContent(e.target.value)}
-                rows={10}
-                testId="admin.help_boxes.editor.content"
-              />
-            </div>
-            {!editorContent.trim() ? (
-              <div className="mt-1 text-xs text-danger">{t('admin.help_boxes.validation.content')}</div>
-            ) : null}
-          </div>
-        </div>
-      </Modal>
+        onSave={() => saveM.mutate()}
+        savePending={saveM.isPending}
+        editorValid={editorValid}
+        editorError={editorError}
+        editorPage={editorPage}
+        setEditorPage={setEditorPage}
+        editorAction={editorAction}
+        setEditorAction={setEditorAction}
+        editorLanguage={editorLanguage}
+        setEditorLanguage={setEditorLanguage}
+        localizedEdit={localizedEdit}
+        languages={languages}
+        editorOrder={editorOrder}
+        setEditorOrder={setEditorOrder}
+        editorOrderParsed={editorOrderParsed}
+        editorContent={editorContent}
+        setEditorContent={setEditorContent}
+      />
 
       <ConfirmDialog
         open={deleteOpen}
