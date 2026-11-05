@@ -381,3 +381,53 @@ Its checkout, build badge and screenshots keep that merge identity. The local
 BFF and legacy builds remain bound to clean `bbb4228f`; the registered preview
 continues serving the preserved `5ae09eba` legacy output. Existing fixture,
 source-only, locale, crop, clipboard and real API limits still apply.
+
+### Hosted WebKit prebuilt environment (2026-11-05)
+
+The `931bd73e` hosted run again passed nine required jobs, while WebKit exhausted
+its 40-minute budget during native package downloads. The actual Ubuntu 24.04.5
+runner was still fetching the announced 181 packages when installation was
+cancelled. No WebKit archive download, browser test, report or trace was reached.
+The earlier two Ubuntu 26 setup failures and separate 28-second successful setup
+remain evidence at their original revisions. The underlying transfer problem
+has not been isolated; changing the host label alone did not complete setup.
+
+The PR smoke workflow now selects the official Playwright 1.61.0 Noble job image
+only for `mobile-webkit`, with this fixed reference:
+
+```text
+mcr.microsoft.com/playwright:v1.61.0-noble@sha256:57b65fdc9ceabe0ef613124c7bbe2babcf9362c4d85e382fe3b03604e84b428a
+```
+
+The image supplies matching browsers and native libraries. WebKit skips the
+entire native-install step, with no apt or browser-download fallback. Locked
+`npm ci` still supplies the project's matching Playwright package. The official
+CI example's numeric user 1001 is retained without privileged mode, host IPC,
+socket mounts or new credentials. The existing Ubuntu 24.04 host selection stays
+in place for this container job.
+
+Chromium and mobile Chrome retain their host environments and unchanged native
+installer command. Their empty image expression creates no container according
+to the inspected runner 2.338.2 schema and converter. Matrix scripts, all cases,
+two workers, the 40-minute budget, retries, permissions, concurrency and artifact
+handling stay unchanged. Setup-node still selects Node 24.21.0 and npm 11.19.0;
+the image's Node major does not replace those checks. Official release queries
+again found checkout 7.0.1, setup-node 7.1.0 and upload-artifact 7.0.2. Main keeps
+the existing action refs 7.0.1, 7.0.0 and 7.0.1 within this bounded change.
+
+Official source and registry metadata establish the image contract and digest;
+no image layer was pulled or executed during preparation. Removing per-job
+native installation does not prove faster transfer, usable workspace and
+toolcache permissions, the selected toolchain, a successful browser launch or
+passing assertions. These remain hosted verification gates after committed
+review and publication. The Linux WebKit image is not a real iPhone or macOS
+Safari, and rendering need not match earlier host screenshots.
+
+Local checks cover the existing PR workflow contract, direct workflow and log
+formatting, documentation links and whitespace. Review also covers the exact
+three-row host, container and installer mapping and the full published history.
+The original PR checkout `9d60a02a45ac8f77cc4ba75f18ac584c4915fde4`, literal push
+head `931bd73e`, accepted Nix result, earlier `bbb4228f` local builds and `5ae09eba`
+preview keep their own identities. Existing fixture, source-only, locale, crop,
+clipboard and real API limits remain. Another environment failure returns to
+main for diagnosis without an automatic retry or extra budget.
