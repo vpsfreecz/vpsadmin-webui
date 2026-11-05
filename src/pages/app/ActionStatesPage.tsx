@@ -6,7 +6,6 @@ import { CircleHelp, SlidersHorizontal } from 'lucide-react';
 import { cancelActionState, fetchActionState, fetchActionStates, type ActionState } from '../../lib/api/actionStates';
 import { useAppMode } from '../../app/appMode';
 import { useI18n } from '../../app/i18n';
-import { useToasts } from '../../app/toasts';
 import { FilterBar } from '../../components/layout/FilterBar';
 import { ListShell } from '../../components/layout/ListShell';
 import { PageHeader } from '../../components/layout/PageHeader';
@@ -48,10 +47,7 @@ import {
 } from './ActionStatesFilterModel';
 import { useKeysetPagination } from '../../lib/hooks/useKeysetPagination';
 import { cursorFromAscendingPage, cursorFromDescendingPage } from '../../lib/lockIndex';
-import {
-  isFailingActionState,
-  isFinishedActionState,
-} from '../../lib/taskStatus';
+import { isFailingActionState, isFinishedActionState } from '../../lib/taskStatus';
 import { useActionStatePollIntervalMs, useTierAIntervalMs } from '../../lib/refreshTiers';
 import { ActionStateListRow, type ActionStateRowItem } from './ActionStateListRow';
 
@@ -60,7 +56,6 @@ export function ActionStatesPage() {
   const chrome = useChrome();
   const { t } = useI18n();
   const navigate = useNavigate();
-  const toasts = useToasts();
 
   const actionPollMs = useActionStatePollIntervalMs();
   const tierARefetchMs = useTierAIntervalMs();
@@ -111,7 +106,6 @@ export function ActionStatesPage() {
       return p;
     });
   };
-
 
   const setVisibilityFilterInUrl = (next: ActionStateVisibilityFilter) => {
     setSp((prev) => {
@@ -219,7 +213,6 @@ export function ActionStatesPage() {
           continue;
         }
 
-
         if (key === 'visibility') {
           const next = parseVisibilityToken(value);
           if (!next) errs.push(t('action_states.smart.error.invalid_visibility', { value }));
@@ -251,7 +244,6 @@ export function ActionStatesPage() {
 
     if (errs.length > 0) {
       setSmartErrors(errs);
-      toasts.pushToast({ variant: 'danger', title: errs[0] ?? t('common.unknown_error') });
       return;
     }
 
@@ -359,7 +351,19 @@ export function ActionStatesPage() {
     });
 
     return suggestions;
-  }, [applySmartText, basePath, errorsOnly, navigate, order, qText, setErrorsOnlyInUrl, setQueryInUrl, setVisibilityFilterInUrl, smartNeedle, t]);
+  }, [
+    applySmartText,
+    basePath,
+    errorsOnly,
+    navigate,
+    order,
+    qText,
+    setErrorsOnlyInUrl,
+    setQueryInUrl,
+    setVisibilityFilterInUrl,
+    smartNeedle,
+    t,
+  ]);
 
   const activeFilterChips = useMemo(() => {
     const chips: React.ReactNode[] = [];
@@ -367,12 +371,7 @@ export function ActionStatesPage() {
     const q = qText.trim();
     if (q) {
       chips.push(
-        <FilterChip
-          key="q"
-          label={`q:${q}`}
-          onRemove={() => setQueryInUrl('')}
-          testId="action_states.chip.q"
-        />
+        <FilterChip key="q" label={`q:${q}`} onRemove={() => setQueryInUrl('')} testId="action_states.chip.q" />
       );
     }
 
@@ -413,11 +412,26 @@ export function ActionStatesPage() {
     });
 
     return chips;
-  }, [errorsOnly, qText, setErrorsOnlyInUrl, setQueryInUrl, setVisibilityFilterInUrl, smartErrors, t, visibilityFilter]);
+  }, [
+    errorsOnly,
+    qText,
+    setErrorsOnlyInUrl,
+    setQueryInUrl,
+    setVisibilityFilterInUrl,
+    smartErrors,
+    t,
+    visibilityFilter,
+  ]);
 
   const pagination = useKeysetPagination({
     id: 'action_states.list',
-    filterKey: JSON.stringify({ order, q: qText.trim(), errors: errorsOnly, visibility: visibilityFilter, scope: basePath }),
+    filterKey: JSON.stringify({
+      order,
+      q: qText.trim(),
+      errors: errorsOnly,
+      visibility: visibilityFilter,
+      scope: basePath,
+    }),
     searchParams: sp,
     setSearchParams: setSp,
     defaultLimit: 50,
@@ -425,15 +439,16 @@ export function ActionStatesPage() {
   });
 
   const trackedIds = useMemo(
-    () => normalizeIds(chrome.trackedActionStates.map((x) => x.id), 50),
+    () =>
+      normalizeIds(
+        chrome.trackedActionStates.map((x) => x.id),
+        50
+      ),
     [chrome.trackedActionStates]
   );
   const trackedSet = useMemo(() => new Set<number>(trackedIds), [trackedIds]);
 
-  const pinnedIds = useMemo(
-    () => normalizeIds(chrome.pinnedActionStates, 50),
-    [chrome.pinnedActionStates]
-  );
+  const pinnedIds = useMemo(() => normalizeIds(chrome.pinnedActionStates, 50), [chrome.pinnedActionStates]);
   const pinnedSet = useMemo(() => new Set<number>(pinnedIds), [pinnedIds]);
 
   const pinnedQs = useQueries({
@@ -643,7 +658,6 @@ export function ActionStatesPage() {
       header={
         <PageHeader
           title={t('nav.action_states')}
-          description={t('action_states.page.description')}
           meta={t('action_states.page.meta')}
           testId="action_states.list.header"
           actions={
@@ -657,7 +671,13 @@ export function ActionStatesPage() {
         <>
           <FilterBar
             testId="action_states.list.filters"
-            below={activeFilterChips.length > 0 ? <div className="flex flex-wrap gap-1" data-testid="action_states.active_filters">{activeFilterChips}</div> : null}
+            below={
+              activeFilterChips.length > 0 ? (
+                <div className="flex flex-wrap gap-1" data-testid="action_states.active_filters">
+                  {activeFilterChips}
+                </div>
+              ) : null
+            }
           >
             <div className="w-full sm:max-w-xl">
               <SmartFilterInput
@@ -671,6 +691,7 @@ export function ActionStatesPage() {
                 ariaLabel={t('action_states.search.placeholder')}
                 testId="action_states.smart_filter.input"
                 suggestions={smartSuggestions}
+                errors={smartErrors}
                 onSubmit={() => applySmartText(smart)}
                 suffix={
                   <Button
@@ -764,7 +785,11 @@ export function ActionStatesPage() {
               { key: 'errors', description: t('action_states.smart_help.keys.errors'), example: 'errors' },
               { key: 'id', description: t('action_states.smart_help.keys.id'), example: 'id:123' },
               { key: 'order', description: t('action_states.smart_help.keys.order'), example: 'order:oldest' },
-              { key: 'visibility', description: t('action_states.smart_help.keys.visibility'), example: 'visibility:user' },
+              {
+                key: 'visibility',
+                description: t('action_states.smart_help.keys.visibility'),
+                example: 'visibility:user',
+              },
             ]}
             inference={[
               t('action_states.smart_help.inference.enter_applies'),
@@ -796,7 +821,9 @@ export function ActionStatesPage() {
             keyRowTestIdPrefix="action_states.smart_help.key"
           />
 
-          <Modal showCloseButton closeTestId="drawer.close"
+          <Modal
+            showCloseButton
+            closeTestId="drawer.close"
             open={advancedOpen}
             onClose={() => setAdvancedOpen(false)}
             title={t('filters.advanced.title')}
@@ -809,7 +836,12 @@ export function ActionStatesPage() {
                     {t('common.clear_filters')}
                   </Button>
                 ) : null}
-                <Button variant="primary" size="sm" onClick={() => setAdvancedOpen(false)} testId="action_states.advanced.done">
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={() => setAdvancedOpen(false)}
+                  testId="action_states.advanced.done"
+                >
                   {t('common.done')}
                 </Button>
               </div>

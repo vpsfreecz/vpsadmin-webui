@@ -201,6 +201,7 @@ export const csOps_transactions = {
   "transactions.tx.section.log": "Log",
   "transactions.tx.section.logs": "Logy",
   "transactions.tx.section.message": "Zpráva",
+  "transactions.tx.section.result": "Výsledek",
   "transactions.tx.section.stderr": "stderr",
   "transactions.tx.section.stdout": "stdout",
   "transactions.tx.success_label": "Úspěch",

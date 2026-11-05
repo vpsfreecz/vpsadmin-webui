@@ -27,6 +27,7 @@ import { Alert } from '../../components/ui/Alert';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card, CardBody, CardHeader } from '../../components/ui/Card';
+import { CopyButton } from '../../components/ui/CopyButton';
 import { ErrorState } from '../../components/ui/ErrorState';
 import { LinkButton } from '../../components/ui/LinkButton';
 import { LoadingState } from '../../components/ui/LoadingState';
@@ -116,14 +117,31 @@ export function TransactionDetailPage() {
         titleAfter={
           <span className="inline-flex max-w-full flex-wrap items-center gap-2">
             {badge}
-            {operation ? <Badge variant={operationBadgeVariant(operation)}>{operationCategoryLabel(operation, t)}</Badge> : null}
-            {operation && operation.severity !== 'normal' ? <Badge variant={operationBadgeVariant(operation)}>{operationSeverityLabel(operation, t)}</Badge> : null}
-            {operation && operation.visibility !== 'user' ? <Badge variant={operationBadgeVariant(operation)}>{operationVisibilityLabel(operation, t)}</Badge> : null}
+            {operation ? (
+              <Badge variant={operationBadgeVariant(operation)}>{operationCategoryLabel(operation, t)}</Badge>
+            ) : null}
+            {operation && operation.severity !== 'normal' ? (
+              <Badge variant={operationBadgeVariant(operation)}>{operationSeverityLabel(operation, t)}</Badge>
+            ) : null}
+            {operation && operation.visibility !== 'user' ? (
+              <Badge variant={operationBadgeVariant(operation)}>{operationVisibilityLabel(operation, t)}</Badge>
+            ) : null}
             {urgent ? <Badge variant="warn">{t('transactions.tx.urgent')}</Badge> : null}
-            {type !== undefined ? <Badge variant="neutral">{t('transactions.items.row.type_chip', { type })}</Badge> : null}
+            {type !== undefined ? (
+              <Badge variant="neutral">{t('transactions.items.row.type_chip', { type })}</Badge>
+            ) : null}
           </span>
         }
-        meta={txIdValid ? `#${txIdNum}` : undefined}
+        meta={
+          txIdValid ? (
+            <>
+              <span>#{txIdNum}</span>
+              {rawName && rawName !== title ? (
+                <span className="ml-2">{t('operation.raw_name', { name: rawName })}</span>
+              ) : null}
+            </>
+          ) : undefined
+        }
         actions={
           <div className="flex flex-wrap items-center gap-2">
             {chainId ? (
@@ -138,7 +156,12 @@ export function TransactionDetailPage() {
               </LinkButton>
             ) : null}
 
-            <Button size="sm" variant="secondary" onClick={chrome.openTasks} testId="transactions.items.detail.open_tasks">
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={chrome.openTasks}
+              testId="transactions.items.detail.open_tasks"
+            >
               {t('common.open_tasks')}
             </Button>
           </div>
@@ -170,170 +193,178 @@ export function TransactionDetailPage() {
       ) : tx ? (
         <>
           {errorText ? (
-            <Alert variant="danger" title={t('transactions.tx.error_title')} testId="transactions.items.detail.error">
+            <Alert
+              variant="danger"
+              testId="transactions.items.detail.error"
+              title={
+                <div className="flex items-center justify-between gap-2">
+                  <span>{t('transactions.tx.error_title')}</span>
+                  <CopyButton text={errorText} testId="transactions.items.detail.error.copy" />
+                </div>
+              }
+            >
               <pre className="max-w-full whitespace-pre-wrap break-all text-xs">{errorText}</pre>
             </Alert>
           ) : null}
 
           <Card testId="transactions.items.detail.info">
-            <CardHeader title={t('transactions.items.detail.section.info')} />
-            <CardBody>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                <div>
-                  <div className="text-xs text-muted">{t('common.id')}</div>
-                  <div className="mt-1 text-sm tabular-nums">#{txIdNum}</div>
-                </div>
-
-                <div>
-                  <div className="text-xs text-muted">{t('common.state')}</div>
-                  <div className="mt-1">{badge ?? <span className="text-sm text-muted">{t('common.na')}</span>}</div>
-                </div>
-
-                <div>
-                  <div className="text-xs text-muted">{t('common.name')}</div>
-                  <div className="mt-1 text-sm">
-                    {title}
-                    {rawName && rawName !== title ? <div className="mt-1 text-xs text-faint">{t('operation.raw_name', { name: rawName })}</div> : null}
+            <details data-testid="transactions.items.detail.info.disclosure">
+              <summary className="cursor-pointer select-none p-4 text-sm font-medium">
+                {t('transactions.items.detail.section.info')}
+              </summary>
+              <CardBody>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  <div>
+                    <div className="text-xs text-muted">{t('transactions.tx.queued_at_label')}</div>
+                    <div className="mt-1 text-sm">{formatDateTime(created)}</div>
                   </div>
-                </div>
 
-                <div>
-                  <div className="text-xs text-muted">{t('transactions.tx.queued_at_label')}</div>
-                  <div className="mt-1 text-sm">{formatDateTime(created)}</div>
-                </div>
-
-                <div>
-                  <div className="text-xs text-muted">{t('common.updated')}</div>
-                  <div className="mt-1 text-sm">{formatDateTime((tx as any)?.updated_at)}</div>
-                </div>
-
-                <div>
-                  <div className="text-xs text-muted">{t('common.started')}</div>
-                  <div className="mt-1 text-sm">{formatDateTime(started)}</div>
-                </div>
-
-                <div>
-                  <div className="text-xs text-muted">{t('common.finished')}</div>
-                  <div className="mt-1 text-sm">{formatDateTime(finished)}</div>
-                </div>
-
-                <div>
-                  <div className="text-xs text-muted">{t('transactions.tx.duration_label')}</div>
-                  <div className="mt-1 text-sm">{sec !== null ? t('transactions.tx.duration', { sec }) : t('common.na')}</div>
-                </div>
-
-                <div>
-                  <div className="text-xs text-muted">{t('transactions.tx.done_label')}</div>
-                  <div className="mt-1 text-sm">{done ?? t('common.na')}</div>
-                </div>
-
-                <div>
-                  <div className="text-xs text-muted">{t('transactions.tx.type_label')}</div>
-                  <div className="mt-1 text-sm">{type !== undefined ? String(type) : t('common.na')}</div>
-                </div>
-
-                <div>
-                  <div className="text-xs text-muted">{t('transactions.tx.prio_label')}</div>
-                  <div className="mt-1 text-sm">{prio !== undefined ? String(prio) : t('common.na')}</div>
-                </div>
-
-                <div>
-                  <div className="text-xs text-muted">{t('transactions.tx.success_label')}</div>
-                  <div className="mt-1 text-sm">{typeof (tx as any)?.success === 'number' ? String((tx as any).success) : t('common.na')}</div>
-                </div>
-
-                <div>
-                  <div className="text-xs text-muted">{t('common.progress')}</div>
-                  <div className="mt-1 text-sm font-medium">{progress ?? t('common.na')}</div>
-                </div>
-
-                <div>
-                  <div className="text-xs text-muted">{t('common.user')}</div>
-                  <div className="mt-1 text-sm">{userId ? refLabel((tx as any)?.user) || `#${userId}` : t('common.na')}</div>
-                </div>
-
-                <div>
-                  <div className="text-xs text-muted">{t('transactions.tx.object_label')}</div>
-                  <div className="mt-1 text-sm">{objectText || t('common.na')}</div>
-                </div>
-
-                <div>
-                  <div className="text-xs text-muted">{t('common.chain')}</div>
-                  <div className="mt-1 text-sm">
-                    {chainId ? (
-                      <Link className="text-accent hover:underline" to={`${basePath}/transactions/${chainId}`}>
-                        {t('transactions.items.detail.chain_link', { id: chainId })}
-                      </Link>
-                    ) : (
-                      <span className="text-muted">{t('common.na')}</span>
-                    )}
+                  <div>
+                    <div className="text-xs text-muted">{t('common.updated')}</div>
+                    <div className="mt-1 text-sm">{formatDateTime((tx as any)?.updated_at)}</div>
                   </div>
-                </div>
 
-                <div>
-                  <div className="text-xs text-muted">{t('common.node')}</div>
-                  <div className="mt-1 text-sm">
-                    {nodeId && basePath === '/admin' ? (
-                      <Link
-                        className="text-accent hover:underline"
-                        to={`${basePath}/nodes/${nodeId}`}
-                        title={t('common.open_node_detail')}
-                        data-testid="transactions.items.detail.node_link"
-                      >
-                        {refLabel((tx as any)?.node) || `#${nodeId}`}
-                      </Link>
-                    ) : nodeId ? (
-                      <span className="text-muted" data-testid="transactions.items.detail.node_value">
-                        {refLabel((tx as any)?.node) || `#${nodeId}`}
-                      </span>
-                    ) : (
-                      <span className="text-muted">{t('common.na')}</span>
-                    )}
+                  <div>
+                    <div className="text-xs text-muted">{t('common.started')}</div>
+                    <div className="mt-1 text-sm">{formatDateTime(started)}</div>
                   </div>
-                </div>
 
-                <div>
-                  <div className="text-xs text-muted">{t('common.vps')}</div>
-                  <div className="mt-1 text-sm">
-                    {vpsId ? (
-                      <Link className="text-accent hover:underline" to={`${basePath}/vps/${vpsId}`} title={t('common.open_vps_detail')}>
-                        {refLabel((tx as any)?.vps) || `#${vpsId}`}
-                      </Link>
-                    ) : (
-                      <span className="text-muted">{t('common.na')}</span>
-                    )}
+                  <div>
+                    <div className="text-xs text-muted">{t('common.finished')}</div>
+                    <div className="mt-1 text-sm">{formatDateTime(finished)}</div>
                   </div>
-                </div>
 
-                {deps.length ? (
-                  <div className="sm:col-span-2 lg:col-span-3">
-                    <div className="text-xs text-muted">{t('transactions.tx.depends_on')}</div>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {deps.map((d, idx) => {
-                        const id = resourceId(d);
-                        if (!id) return null;
-                        return (
-                          <Link
-                            key={idx}
-                            to={`${basePath}/transactions/items/${id}`}
-                            className="rounded-md border border-border bg-surface px-2 py-1 text-xs text-accent hover:underline"
-                          >
-                            #{id}
-                          </Link>
-                        );
-                      })}
+                  <div>
+                    <div className="text-xs text-muted">{t('transactions.tx.duration_label')}</div>
+                    <div className="mt-1 text-sm">
+                      {sec !== null ? t('transactions.tx.duration', { sec }) : t('common.na')}
                     </div>
                   </div>
-                ) : null}
 
-              </div>
-            </CardBody>
+                  <div>
+                    <div className="text-xs text-muted">{t('transactions.tx.done_label')}</div>
+                    <div className="mt-1 text-sm">{done ?? t('common.na')}</div>
+                  </div>
+
+                  <div>
+                    <div className="text-xs text-muted">{t('transactions.tx.type_label')}</div>
+                    <div className="mt-1 text-sm">{type !== undefined ? String(type) : t('common.na')}</div>
+                  </div>
+
+                  <div>
+                    <div className="text-xs text-muted">{t('transactions.tx.prio_label')}</div>
+                    <div className="mt-1 text-sm">{prio !== undefined ? String(prio) : t('common.na')}</div>
+                  </div>
+
+                  <div>
+                    <div className="text-xs text-muted">{t('transactions.tx.success_label')}</div>
+                    <div className="mt-1 text-sm">
+                      {typeof (tx as any)?.success === 'number' ? String((tx as any).success) : t('common.na')}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="text-xs text-muted">{t('common.progress')}</div>
+                    <div className="mt-1 text-sm font-medium">{progress ?? t('common.na')}</div>
+                  </div>
+
+                  <div>
+                    <div className="text-xs text-muted">{t('common.user')}</div>
+                    <div className="mt-1 text-sm">
+                      {userId ? refLabel((tx as any)?.user) || `#${userId}` : t('common.na')}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="text-xs text-muted">{t('transactions.tx.object_label')}</div>
+                    <div className="mt-1 text-sm">{objectText || t('common.na')}</div>
+                  </div>
+
+                  <div>
+                    <div className="text-xs text-muted">{t('common.chain')}</div>
+                    <div className="mt-1 text-sm">
+                      {chainId ? (
+                        <Link className="text-accent hover:underline" to={`${basePath}/transactions/${chainId}`}>
+                          {t('transactions.items.detail.chain_link', { id: chainId })}
+                        </Link>
+                      ) : (
+                        <span className="text-muted">{t('common.na')}</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="text-xs text-muted">{t('common.node')}</div>
+                    <div className="mt-1 text-sm">
+                      {nodeId && basePath === '/admin' ? (
+                        <Link
+                          className="text-accent hover:underline"
+                          to={`${basePath}/nodes/${nodeId}`}
+                          title={t('common.open_node_detail')}
+                          data-testid="transactions.items.detail.node_link"
+                        >
+                          {refLabel((tx as any)?.node) || `#${nodeId}`}
+                        </Link>
+                      ) : nodeId ? (
+                        <span className="text-muted" data-testid="transactions.items.detail.node_value">
+                          {refLabel((tx as any)?.node) || `#${nodeId}`}
+                        </span>
+                      ) : (
+                        <span className="text-muted">{t('common.na')}</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="text-xs text-muted">{t('common.vps')}</div>
+                    <div className="mt-1 text-sm">
+                      {vpsId ? (
+                        <Link
+                          className="text-accent hover:underline"
+                          to={`${basePath}/vps/${vpsId}`}
+                          title={t('common.open_vps_detail')}
+                        >
+                          {refLabel((tx as any)?.vps) || `#${vpsId}`}
+                        </Link>
+                      ) : (
+                        <span className="text-muted">{t('common.na')}</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {deps.length ? (
+                    <div className="sm:col-span-2 lg:col-span-3">
+                      <div className="text-xs text-muted">{t('transactions.tx.depends_on')}</div>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {deps.map((d, idx) => {
+                          const id = resourceId(d);
+                          if (!id) return null;
+                          return (
+                            <Link
+                              key={idx}
+                              to={`${basePath}/transactions/items/${id}`}
+                              className="rounded-md border border-border bg-surface px-2 py-1 text-xs text-accent hover:underline"
+                            >
+                              #{id}
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              </CardBody>
+            </details>
           </Card>
 
           <Card testId="transactions.items.detail.payload">
             <CardHeader
               title={t('transactions.items.detail.section.payload')}
-              subtitle={txDone ? t('transactions.items.detail.payload_subtitle_done') : t('transactions.items.detail.payload_subtitle_live')}
+              subtitle={
+                txDone
+                  ? t('transactions.items.detail.payload_subtitle_done')
+                  : t('transactions.items.detail.payload_subtitle_live')
+              }
             />
             <CardBody>
               <TransactionDebugSections
@@ -341,6 +372,7 @@ export function TransactionDetailPage() {
                 input={input}
                 output={output}
                 errorText={errorText}
+                showErrorText={false}
                 source={tx as any}
                 raw={txQ.data}
                 maxHeightClass="max-h-96"

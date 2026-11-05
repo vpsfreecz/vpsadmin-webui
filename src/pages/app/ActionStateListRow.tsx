@@ -48,7 +48,8 @@ export function ActionStateListRow(props: {
   const rawLabel = s.label ? String(s.label) : `#${id}`;
   const op = classifyActionState(s);
   const label = op.key.endsWith('.unknown') ? rawLabel : operationLabel(op, t);
-  const badge = actionStateBadge(s);
+  const badge = actionStateBadge(s, t);
+  const successfulFinished = s.finished === true && s.status === true;
   const toneVariant: ToneVariant | undefined = (() => {
     const v = badge.variant;
     if (v === 'ok' || v === 'warn' || v === 'danger' || v === 'info' || v === 'neutral') return v;
@@ -74,7 +75,11 @@ export function ActionStateListRow(props: {
 
   return (
     <div
-      className={clsx('rounded-md border p-3', toneSurfaceClass(toneVariant), props.highlighted ? 'ring-1 ring-warn-border' : null)}
+      className={clsx(
+        'rounded-md border p-3',
+        successfulFinished ? 'border-border bg-surface' : toneSurfaceClass(toneVariant),
+        props.highlighted ? 'ring-1 ring-warn-border' : null
+      )}
       data-testid={`action_states.row.${id}`}
     >
       <div className="flex items-start justify-between gap-3">
@@ -104,16 +109,20 @@ export function ActionStateListRow(props: {
             ) : null}
           </div>
 
-          {pLabel ? <div className="mt-1 text-xs text-faint">{t('tasks.meta.progress', { progress: pLabel })}</div> : null}
-          {rawDiffers ? <div className="mt-1 text-xs text-faint">{t('operation.raw_name', { name: op.rawLabel })}</div> : null}
+          {pLabel ? (
+            <div className="mt-1 text-xs text-faint">{t('tasks.meta.progress', { progress: pLabel })}</div>
+          ) : null}
+          {rawDiffers ? (
+            <div className="mt-1 text-xs text-faint">{t('operation.raw_name', { name: op.rawLabel })}</div>
+          ) : null}
         </div>
 
         <div className="flex flex-col items-end gap-2">
           <div className="flex flex-wrap justify-end gap-2">
             <Badge variant={badge.variant}>{badge.label}</Badge>
             <Badge variant="neutral">{operationCategoryLabel(op, t)}</Badge>
-            <Badge variant={opBadgeVariant}>{operationSeverityLabel(op, t)}</Badge>
-            <Badge variant="neutral">{operationVisibilityLabel(op, t)}</Badge>
+            {op.severity !== 'normal' ? <Badge variant={opBadgeVariant}>{operationSeverityLabel(op, t)}</Badge> : null}
+            {op.visibility !== 'user' ? <Badge variant="neutral">{operationVisibilityLabel(op, t)}</Badge> : null}
           </div>
 
           <div className="flex items-center gap-2">
@@ -129,12 +138,7 @@ export function ActionStateListRow(props: {
             </Button>
 
             {Boolean(s.can_cancel) && !isFinishedActionState(s) ? (
-              <Button
-                size="sm"
-                variant="danger"
-                onClick={() => props.onCancel(s)}
-                disabled={props.cancelPending}
-              >
+              <Button size="sm" variant="danger" onClick={() => props.onCancel(s)} disabled={props.cancelPending}>
                 {t('tasks.action.cancel')}
               </Button>
             ) : null}
@@ -154,7 +158,7 @@ export function ActionStateListRow(props: {
         </div>
       </div>
 
-      {pct !== null ? (
+      {!successfulFinished && pct !== null ? (
         <div className="mt-3 h-2 rounded-full bg-surface-2">
           <div className={clsx('h-2 rounded-full', toneProgressFillClass(toneVariant))} style={{ width: `${pct}%` }} />
         </div>
