@@ -342,3 +342,42 @@ The report retains the actual `81ddf1e3` PR checkout identity. Lower mobile rows
 and later interaction phases remain subject to the recorded viewport and
 unreached-assertion limits. Original skips and retry policies stay unchanged;
 the combined successor still awaits its parent type gate and hosted results.
+
+### Hosted WebKit runner selection (2026-11-05)
+
+The final `bbb4228f` hosted run completed nine required jobs successfully.
+Its WebKit job and the single targeted retry both exhausted the unchanged
+40-minute budget during Ubuntu 26.04 native dependency downloads. Neither
+attempt started browser tests or produced WebKit reports, traces or screenshots.
+The retry metadata carries the original Chromium and mobile Chrome execution
+times and artifacts; it does not establish new runs of those jobs. The original
+setup failures remain incomplete browser evidence.
+
+The PR smoke workflow now selects the supported `ubuntu-24.04` host only for
+`mobile-webkit`. Chromium and mobile Chrome retain `ubuntu-latest`. The same
+Ubuntu 26 image previously installed this repository's pinned WebKit in 28
+seconds and reached browser assertions, so the failures do not establish Ubuntu
+26 incompatibility. Ubuntu 24 also uses apt; faster installation or avoidance of
+the observed transfer delay remains unproved.
+
+Node 24.21.0, npm 11.19.0, Playwright 1.61.0 and WebKit revision 2311 stay pinned.
+The existing installer selects the official archive for the chosen host. Scripts,
+case selection, two workers, timeouts, retry policy, permissions, concurrency and
+artifact handling stay unchanged. Official action-release queries found checkout
+7.0.1, setup-node 7.1.0 and upload-artifact 7.0.2. Main limited this change to the
+runner selection and log, so the workflow retains its existing action refs
+7.0.1, 7.0.0 and 7.0.1 respectively.
+
+The affected local checks cover the existing PR workflow contract, direct
+workflow and log formatting, documentation links and whitespace. Review must also
+check the three runner selections explicitly. Committed general, security and
+history review precedes hosted publication. A successful installer alone will
+not close the required WebKit browser gate; another setup or test failure returns
+to main for diagnosis.
+
+The original PR checkout remains
+`87b05c2bf596242fe9b7c34807912cf3aad6911d`, whose tree equals `bbb4228f`.
+Its checkout, build badge and screenshots keep that merge identity. The local
+BFF and legacy builds remain bound to clean `bbb4228f`; the registered preview
+continues serving the preserved `5ae09eba` legacy output. Existing fixture,
+source-only, locale, crop, clipboard and real API limits still apply.

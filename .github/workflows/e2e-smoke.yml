@@ -17,7 +17,8 @@ concurrency:
 jobs:
   smoke:
     name: PR smoke E2E (${{ matrix.project }})
-    runs-on: ubuntu-latest
+    # Use a supported alternate host after two WebKit setup timeouts.
+    runs-on: ${{ matrix.project == 'mobile-webkit' && 'ubuntu-24.04' || 'ubuntu-latest' }}
     # A full PR desktop run now takes about 30 minutes before setup/reporting.
     # Keep the complete two-worker suite and allow bounded completion headroom.
     timeout-minutes: 40
