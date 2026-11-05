@@ -126,7 +126,6 @@ test('@pr-smoke @smoke profile: metrics token review and revoke guards', async (
   await expect(page.getByTestId('profile.metrics.cards')).toBeHidden();
   await expect(page.getByTestId('profile.metrics.row.2')).toBeVisible();
   await expect(page.getByTestId('profile.metrics.security_notice')).toBeVisible();
-  await expect(page.getByTestId('profile.metrics.summary')).toContainText('Total tokens');
   await expect(page.getByTestId('profile.metrics.row.3.state')).toHaveText('Active');
   await expect(page.getByTestId('profile.metrics.row.2.state')).toHaveText('Stale');
   await expect(page.getByTestId('profile.metrics.row.1.state')).toHaveText('Unused');
@@ -160,7 +159,9 @@ test('@pr-smoke @smoke profile: metrics token review and revoke guards', async (
   await deleteReqP;
 });
 
-test('@pr-smoke-mobile @smoke-mobile profile: metrics token cards keep secrets and revoke reachable at 320px', async ({ page }) => {
+test('@pr-smoke-mobile @smoke-mobile profile: metrics token cards keep secrets and revoke reachable at 320px', async ({
+  page,
+}) => {
   let tokens = metricsTokens();
 
   await page.setViewportSize({ width: 320, height: 740 });
@@ -217,7 +218,9 @@ test('@pr-smoke-mobile @smoke-mobile profile: metrics token cards keep secrets a
   await expect(page.getByTestId(cardId)).toHaveCount(0);
 });
 
-test('@pr-smoke-mobile @smoke-mobile admin: user metrics token cards preserve owner scope and revoke at 320px', async ({ page }) => {
+test('@pr-smoke-mobile @smoke-mobile admin: user metrics token cards preserve owner scope and revoke at 320px', async ({
+  page,
+}) => {
   let tokens = metricsTokens();
   const listScopes: Array<string | null> = [];
 

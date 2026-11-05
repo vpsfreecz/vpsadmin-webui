@@ -50,19 +50,6 @@ function IpList(props: { ips: IpAddress[] | undefined; loading: boolean; empty: 
   );
 }
 
-function CompactValueList(props: { values: string[]; empty: string; testId: string }) {
-  if (!props.values.length) return <span className="text-muted" data-testid={props.testId}>{props.empty}</span>;
-  return (
-    <span className="inline-flex flex-col gap-0.5" data-testid={props.testId}>
-      {props.values.map((value) => (
-        <span key={value} className="font-mono text-xs">
-          {value}
-        </span>
-      ))}
-    </span>
-  );
-}
-
 export function VpsSwapCard(props: {
   isAdminMode: boolean;
   vps: Vps;
@@ -97,8 +84,6 @@ export function VpsSwapCard(props: {
     : props.targetError
       ? `#${props.form.targetVps}`
       : vpsLabel(selectedTarget, props.form.targetVps);
-  const selectedSourceIps = props.sourceIps.map(ipAddressText);
-  const selectedTargetIps = props.targetIps.map(ipAddressText);
   const targetFit = swapTargetFit({
     source: props.vps,
     target: selectedTarget,
@@ -215,15 +200,6 @@ export function VpsSwapCard(props: {
             <div className="min-w-0">{targetValue}</div>
           </div>
         ))}
-        <div className="grid grid-cols-[minmax(7rem,0.8fr)_minmax(0,1fr)_minmax(0,1fr)] px-3 py-2 text-xs">
-          <div className="font-medium text-muted">{t('vps.lifecycle.swap.preview.ip_assignments')}</div>
-          <div className="min-w-0 pr-2">
-            <CompactValueList values={selectedTargetIps} empty={t('vps.lifecycle.swap.preview.no_target_ips')} testId="vps.lifecycle.swap.preview.after_table.source_ips" />
-          </div>
-          <div className="min-w-0">
-            <CompactValueList values={selectedSourceIps} empty={t('vps.lifecycle.swap.preview.no_source_ips')} testId="vps.lifecycle.swap.preview.after_table.target_ips" />
-          </div>
-        </div>
       </div>
 
       <div className="mt-3 grid gap-3 md:grid-cols-2">
@@ -254,16 +230,6 @@ export function VpsSwapCard(props: {
           </div>
         </div>
       </div>
-
-      <div className="mt-3 text-xs text-faint" data-testid="vps.lifecycle.swap.preview.options">
-        {props.isAdminMode
-          ? t('vps.lifecycle.swap.preview.admin_options', {
-              hostname: props.form.hostname ? t('common.yes') : t('common.no'),
-              resources: props.form.resources ? t('common.yes') : t('common.no'),
-              expirations: props.form.expirations ? t('common.yes') : t('common.no'),
-            })
-          : t('vps.lifecycle.swap.preview.user_options')}
-      </div>
     </div>
   ) : (
     <Alert variant="neutral">{t('vps.lifecycle.swap.preview.empty')}</Alert>
@@ -286,8 +252,6 @@ export function VpsSwapCard(props: {
       }
     >
       <Alert variant="neutral">
-        {props.isAdminMode ? t('vps.lifecycle.swap.subtitle') : t('vps.lifecycle.swap.subtitle_user')}
-        {' '}
         {t('vps.lifecycle.swap.entry_summary')}
       </Alert>
 

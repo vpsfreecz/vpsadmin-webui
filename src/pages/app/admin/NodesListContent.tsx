@@ -110,6 +110,7 @@ function NodesMobileList(props: { rows: NodeRow[]; basePath: string; t: NodesPag
         const rowVariant = nodeRowVariant(row);
         const reason = maintenanceReason(row);
         const showMaintenance = isMaintenanceLocked(row.maintenance_lock);
+        const secondaryLabel = nodeSecondaryLabel(row, t('common.na'));
 
         return (
           <Card
@@ -129,7 +130,10 @@ function NodesMobileList(props: { rows: NodeRow[]; basePath: string; t: NodesPag
                       {typeof row.id === 'number' ? <Link to={`${basePath}/nodes/${row.id}`} className="text-link hover:underline">{row.name}</Link> : row.name}
                     </div>
                   </div>
-                  <div className="mt-0.5 text-xs text-faint">{typeof row.id === 'number' ? `#${row.id} · ` : ''}{nodeSecondaryLabel(row, t('common.na'))}</div>
+                  <div className="mt-0.5 text-xs text-faint">
+                    {typeof row.id === 'number' ? `#${row.id}` : ''}
+                    {secondaryLabel !== row.name ? `${typeof row.id === 'number' ? ' · ' : ''}${secondaryLabel}` : ''}
+                  </div>
                 </div>
                 <NodeStatusBadge row={row} t={t} />
               </div>

@@ -83,6 +83,7 @@ test.describe('DNS record type capabilities', () => {
     await expect(page.getByTestId('dns.records.create.dynamic')).toHaveCount(0);
     await expect(page.getByTestId('dns.records.create.priority')).toBeVisible();
     await page.getByTestId('dns.records.create.priority').fill('10');
+    await modal.screenshot({ path: testInfo.outputPath('dns-editor-mx-priority.png') });
 
     await typeSelect.selectOption('DS');
     await expect(page.getByTestId('dns.records.create.priority')).toHaveCount(0);
@@ -91,6 +92,7 @@ test.describe('DNS record type capabilities', () => {
     await content.fill(`60485 13 2 ${'A'.repeat(63)}`);
     await expect(page.getByTestId('dns.records.create.content.validation')).toBeVisible();
     await expect(submit).toBeDisabled();
+    await modal.screenshot({ path: testInfo.outputPath('dns-editor-ds-invalid.png') });
     await content.fill(`60485 13 2 ${'A'.repeat(64)}`);
     await expect(page.getByTestId('dns.records.create.content.validation')).toHaveCount(0);
     await expect(submit).toBeEnabled();
@@ -99,6 +101,7 @@ test.describe('DNS record type capabilities', () => {
     await expect(page.getByTestId('dns.records.create.content.help')).toContainText('fingerprint');
     await content.fill(`4 2 ${'B'.repeat(63)}`);
     await expect(submit).toBeDisabled();
+    await modal.screenshot({ path: testInfo.outputPath('dns-editor-sshfp-invalid.png') });
     await content.fill(`4 2 ${'B'.repeat(64)}`);
     await expect(submit).toBeEnabled();
 
@@ -106,6 +109,7 @@ test.describe('DNS record type capabilities', () => {
     await expect(page.getByTestId('dns.records.create.content.help')).toContainText('association');
     await content.fill(`3 1 1 ${'C'.repeat(63)}`);
     await expect(submit).toBeDisabled();
+    await modal.screenshot({ path: testInfo.outputPath('dns-editor-tlsa-invalid.png') });
     await content.fill(`3 1 1 ${'C'.repeat(64)}`);
     await expect(submit).toBeEnabled();
 
@@ -127,9 +131,10 @@ test.describe('DNS record type capabilities', () => {
     await expect.poll(() => createPayload).toMatchObject({ dns_record: { type: 'DS' } });
     expect(createPayload).not.toHaveProperty('dns_record.priority');
     expect(createPayload).toMatchObject({ dns_record: { dynamic_update_enabled: false } });
-    const recordItem = page.viewportSize()!.width < 768
-      ? page.getByTestId('dns.record.card.101')
-      : page.getByTestId('dns.record.row.101');
+    const recordItem =
+      page.viewportSize()!.width < 768
+        ? page.getByTestId('dns.record.card.101')
+        : page.getByTestId('dns.record.row.101');
     await expect(recordItem).toContainText('DS');
   });
 });

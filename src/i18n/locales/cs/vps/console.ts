@@ -16,6 +16,8 @@ export const csVps_console = {
   'vps.console.revoke_session.confirm_title': 'Ukončit relaci konzole?',
   'vps.console.revoke_session.confirm_body': 'Tímhle se zneplatní aktuální token konzole a zavře se vložená konzole na této stránce.',
   'vps.console.revoke_session.confirm': 'Ukončit relaci',
+  'vps.console.uncertain.title': 'Stav relace konzole není známý',
+  'vps.console.uncertain.body': 'Stav relace se nepodařilo ověřit. Vložená konzole je skrytá.',
   'vps.console.revoked.title': 'Relace konzole ukončena',
   'vps.console.revoked.body': 'Aktuální token konzole byl zneplatněn. Pro opětovné připojení vytvoř novou relaci.',
   'vps.console.revoke_error.title': 'Nepodařilo se ukončit relaci konzole',

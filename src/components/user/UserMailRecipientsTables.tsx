@@ -425,7 +425,6 @@ export function MailTemplateRecipientsCard(props: {
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <div className="text-sm font-semibold text-fg">{t('mail.prefs.templates.title')}</div>
-            <div className="mt-1 text-sm text-muted">{t('mail.prefs.templates.subtitle')}</div>
           </div>
           <div className="flex w-full flex-wrap items-end gap-2 sm:w-auto">
             <div className="w-full sm:w-56">
@@ -458,7 +457,10 @@ export function MailTemplateRecipientsCard(props: {
           </div>
         </div>
 
-        <div className="mt-3 text-xs text-muted">{t('mail.prefs.templates.help')}</div>
+        <div className="mt-3 text-sm text-muted">
+          <div className="font-medium text-fg">{t('mail.prefs.precedence.title')}</div>
+          <p className="mt-1">{t('mail.prefs.precedence.body')}</p>
+        </div>
       </div>
 
       <div className="overflow-x-auto">
@@ -510,16 +512,6 @@ export function MailTemplateRecipientsCard(props: {
             )}
           </tbody>
         </table>
-      </div>
-
-      <div className="p-4">
-        <div className="flex items-start gap-2 text-xs text-muted">
-          <StatusDot variant="neutral" />
-          <div>
-            <div className="font-medium text-fg">{t('mail.prefs.templates.effective_legend.title')}</div>
-            <div className="mt-0.5">{t('mail.prefs.templates.effective_legend.body')}</div>
-          </div>
-        </div>
       </div>
     </Card>
   );

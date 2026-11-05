@@ -11,7 +11,7 @@ import type {
   SecurityAdvisoryUpdate__CreateOutput,
 } from 'vpsadmin-typescript-client';
 
-import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock } from '../../fixtures';
+import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock, jsonFulfill } from '../../fixtures';
 
 const languages = [
   { id: 1, code: 'en', label: 'English' },
@@ -628,6 +628,8 @@ test.describe('@smoke Security advisory admin management', () => {
     await expect(page.getByTestId('admin.security_advisory.outages.link_error')).toContainText(
       'Outage link was rejected'
     );
+    await expect(page.getByRole('alert').filter({ hasText: 'Outage link was rejected' })).toHaveCount(1);
+    await expect(page.getByText('Outage link was rejected', { exact: true })).toHaveCount(1);
     await expect(outageInput).toHaveValue('321');
 
     await page.getByTestId('admin.security_advisory.outages.link').click();
@@ -743,7 +745,7 @@ for (const language of ['en', 'cs'] as const) {
             security_advisory: { expected_content_revision: advisory.content_revision, expected_state: 'retracted' },
           });
           deleted = true;
-          return null;
+          return { security_advisory: {} };
         },
       },
     });
@@ -789,3 +791,267 @@ for (const language of ['en', 'cs'] as const) {
     await expect(page).toHaveURL(/security-advisories$/);
   });
 }
+
+test('@o4-readiness keeps unverified publication inputs distinct from confirmed blockers and Ready', async ({
+  page,
+}, testInfo) => {
+  await setUiSettingsLocalStorage(page, { language: 'en', theme: 'light' });
+  await bootstrapVpsAdminWindow(page, { sessionToken: 'O4_READINESS' });
+  let phase: 'held' | 'failed' | 'blocker' | 'ready' = 'held';
+  let releaseNodes: () => void = () => {
+    throw new Error('Node hold was not installed');
+  };
+  const nodeHold = new Promise<void>((resolve) => {
+    releaseNodes = resolve;
+  });
+  const reads = { cves: 0, nodes: 0, statuses: 0 };
+  const wire: Array<{ path: string; query: string; phase: string }> = [];
+  const writes: string[] = [];
+  const node = { id: 10, active: true, type: 'node', domain_name: 'synthetic-node10.test' };
+  const advisory = {
+    id: 77,
+    state: 'draft',
+    content_revision: 3,
+    name: 'Synthetic readiness advisory',
+    published_at: null,
+    created_at: '2026-11-04T10:00:00Z',
+    en_summary: 'Synthetic kernel assessment',
+    en_description: 'Synthetic advisory description.',
+    en_response: 'Review the node assessment.',
+    cs_summary: 'Testovací hodnocení jádra',
+    cs_description: 'Testovací popis upozornění.',
+    cs_response: 'Zkontroluj hodnocení nodu.',
+    affected_node_count: 1,
+    affected_user_count: 2,
+    affected_vps_count: 3,
+  };
+  await installHaveApiMock(page, {
+    description: advisoryContractDescription(),
+    user: { id: 1, login: 'synthetic-security-admin', level: 90 },
+    handlers: {
+      'GET languages': () => ({ languages }),
+      'GET security_advisories/77': () => ({ security_advisory: advisory }),
+      'GET security_advisory_cves': ({ relPath, searchParams }) => {
+        reads.cves += 1;
+        wire.push({ path: String(relPath), query: searchParams.toString(), phase });
+        return { security_advisory_cves: [{ id: 901, security_advisory: { id: 77 }, cve_id: 'CVE-2026-12345' }] };
+      },
+      'GET nodes': async ({ relPath, searchParams }) => {
+        reads.nodes += 1;
+        wire.push({ path: String(relPath), query: searchParams.toString(), phase });
+        if (phase === 'held') await nodeHold;
+        if (phase === 'failed') return jsonFulfill(failEnvelope('Synthetic node inventory unavailable'), 503);
+        return { nodes: [node] };
+      },
+      'GET security_advisories/77/node_statuses': ({ relPath, searchParams }) => {
+        reads.statuses += 1;
+        wire.push({ path: String(relPath), query: searchParams.toString(), phase });
+        return {
+          node_statuses: [
+            {
+              id: 501,
+              security_advisory: { id: 77 },
+              node,
+              state: phase === 'blocker' ? 'unknown' : 'not_affected',
+              vulnerable_until: null,
+              mitigated_since: null,
+            },
+          ],
+        };
+      },
+      'GET security_advisory_updates': () => ({ security_advisory_updates: [] }),
+      'GET outage_security_advisories': () => ({ outage_security_advisories: [] }),
+    },
+  });
+  page.on('request', (request) => {
+    const url = new URL(request.url());
+    if (
+      ['POST', 'PUT', 'DELETE'].includes(request.method()) &&
+      /\/api\/v7\.0\/(security_advisories|security_advisory_cves|security_advisory_updates)(\/|$)/.test(url.pathname)
+    )
+      writes.push(`${request.method()} ${url.pathname}`);
+  });
+  await page.goto('/admin/security-advisories/77');
+  const readiness = page.getByTestId('admin.security_advisory.readiness');
+  const publish = page.getByTestId('admin.security_advisory.publish');
+  await expect(readiness).toBeVisible();
+  await expect.poll(() => reads).toEqual({ cves: 1, nodes: 1, statuses: 1 });
+  await expect(publish).toBeDisabled();
+  const pendingText = await readiness.innerText();
+  await page.screenshot({ path: testInfo.outputPath('advisory-readiness-pending.png'), fullPage: true, scale: 'css' });
+
+  phase = 'failed';
+  releaseNodes();
+  await expect.poll(() => reads.nodes).toBe(2);
+  await expect(page.getByText('Synthetic node inventory unavailable', { exact: true })).toBeVisible();
+  await expect(publish).toBeDisabled();
+  const failedText = await readiness.innerText();
+  await page.screenshot({
+    path: testInfo.outputPath('advisory-readiness-unavailable.png'),
+    fullPage: true,
+    scale: 'css',
+  });
+
+  phase = 'blocker';
+  await page.reload();
+  await expect(readiness).toContainText('Resolve the status of node synthetic-node10.test');
+  await expect(publish).toBeDisabled();
+  await page.screenshot({
+    path: testInfo.outputPath('advisory-readiness-confirmed-blocker.png'),
+    fullPage: true,
+    scale: 'css',
+  });
+  phase = 'ready';
+  await page.reload();
+  await expect(readiness).toContainText('Ready to publish');
+  await expect(publish).toBeEnabled();
+  await page.screenshot({ path: testInfo.outputPath('advisory-readiness-verified.png'), fullPage: true, scale: 'css' });
+  expect(writes).toEqual([]);
+  await testInfo.attach('advisory-readiness-wire-and-observed-states', {
+    body: JSON.stringify({ reads, wire, writes, pendingText, failedText }, null, 2),
+    contentType: 'application/json',
+  });
+  expect(pendingText).toContain('Loading');
+  expect(pendingText).not.toContain('Ready to publish');
+  expect(failedText).toContain('Publication checks could not be loaded');
+  expect(failedText).not.toContain('Ready to publish');
+});
+
+test('@o4-child-reads keeps a failed list CVE read scoped and opens the real affected tab', async ({
+  page,
+}, testInfo) => {
+  await setUiSettingsLocalStorage(page, { language: 'en', theme: 'light' });
+  await bootstrapVpsAdminWindow(page, { sessionToken: 'O4_ADVISORY_CHILD_READS' });
+  let rejectCves = true;
+  let rejectedCveReads = 0;
+  const wire: Array<{ path: string; query: string; rejected: boolean }> = [];
+  const writes: string[] = [];
+  const advisory = {
+    id: 77,
+    state: 'published',
+    content_revision: 4,
+    name: 'Synthetic affected advisory',
+    published_at: '2026-11-04T10:00:00Z',
+    en_summary: 'Retained summary with a failed CVE read',
+    en_description: 'Synthetic description.',
+    en_response: 'Review affected VPSes.',
+    affected_node_count: 1,
+    affected_user_count: 1,
+    affected_vps_count: 1,
+    cves: [{ id: 901, cve_id: 'CVE-2026-12345' }],
+  };
+  await installHaveApiMock(page, {
+    description: advisoryContractDescription(),
+    user: { id: 1, login: 'synthetic-security-admin', level: 90 },
+    handlers: {
+      'GET languages': () => ({ languages }),
+      'GET security_advisories': () => ({
+        security_advisories: [advisory, { ...advisory, id: 88, name: 'Usable sibling advisory', cves: [] }],
+      }),
+      'GET security_advisories/77': () => ({ security_advisory: advisory }),
+      'GET security_advisory_cves': ({ relPath, searchParams }) => {
+        const id = Number(searchParams.get('security_advisory_cve[security_advisory]'));
+        expect([77, 88]).toContain(id);
+        const rejected = id === 77 && rejectCves;
+        wire.push({ path: String(relPath), query: searchParams.toString(), rejected });
+        if (rejected) {
+          rejectedCveReads += 1;
+          return jsonFulfill(failEnvelope('Synthetic advisory CVE read rejected'), 503);
+        }
+        return {
+          security_advisory_cves: [
+            {
+              id: id === 77 ? 901 : 902,
+              security_advisory: { id },
+              cve_id: id === 77 ? 'CVE-2026-12345' : 'CVE-2026-23456',
+            },
+          ],
+        };
+      },
+      'GET nodes': () => ({ nodes: [] }),
+      'GET security_advisories/77/node_statuses': () => ({ node_statuses: [] }),
+      'GET security_advisory_updates': () => ({ security_advisory_updates: [] }),
+      'GET outage_security_advisories': () => ({ outage_security_advisories: [] }),
+      'GET user_security_advisories': ({ relPath, searchParams }) => {
+        wire.push({ path: String(relPath), query: searchParams.toString(), rejected: false });
+        return {
+          user_security_advisories: [
+            { id: 301, security_advisory: { id: 77 }, user: { id: 5, login: 'synthetic-member' }, vps_count: 1 },
+          ],
+        };
+      },
+      'GET vps_security_advisories': ({ relPath, searchParams }) => {
+        wire.push({ path: String(relPath), query: searchParams.toString(), rejected: false });
+        return {
+          vps_security_advisories: [
+            {
+              id: 401,
+              security_advisory: { id: 77 },
+              user: { id: 5, login: 'synthetic-member' },
+              vps: { id: 55, hostname: 'synthetic-vps.test' },
+              node: { id: 10, domain_name: 'synthetic-node10.test' },
+              node_state: 'mitigated',
+              vulnerable_until: '2026-11-04T09:00:00Z',
+              mitigated_since: null,
+            },
+          ],
+        };
+      },
+    },
+  });
+  page.on('request', (request) => {
+    const url = new URL(request.url());
+    if (
+      ['POST', 'PUT', 'DELETE'].includes(request.method()) &&
+      /\/api\/v7\.0\/(security_advisories|security_advisory_cves|security_advisory_updates)(\/|$)/.test(url.pathname)
+    )
+      writes.push(`${request.method()} ${url.pathname}`);
+  });
+  await page.goto('/admin/security-advisories');
+  const failedRow = page.getByTestId('admin.security_advisories.row.77');
+  const sibling = page.getByTestId('admin.security_advisories.row.88');
+  await expect.poll(() => rejectedCveReads).toBe(2);
+  await expect(sibling).toContainText('CVE-2026-23456');
+  await expect(sibling.getByRole('link', { name: 'Open', exact: true })).toHaveAttribute(
+    'href',
+    '/admin/security-advisories/88'
+  );
+  await expect(failedRow).toContainText('Retained summary with a failed CVE read');
+  const failedRowText = await failedRow.innerText();
+  const rowRetryVisible = await failedRow.getByRole('button', { name: 'Retry', exact: true }).isVisible();
+  await page.screenshot({
+    path: testInfo.outputPath('advisory-list-cve-unavailable.png'),
+    fullPage: true,
+    scale: 'css',
+  });
+  const siblingReads = wire.filter(
+    (read) => new URLSearchParams(read.query).get('security_advisory_cve[security_advisory]') === '88'
+  ).length;
+  rejectCves = false;
+  const retry = failedRow.getByRole('button', { name: 'Retry', exact: true });
+  await expect(retry).toBeVisible();
+  await retry.click();
+  await expect(retry).toHaveCount(0);
+  await expect(failedRow.getByText('Loading…', { exact: true })).toHaveCount(0);
+  await expect(failedRow).toContainText('CVE-2026-12345');
+  expect(
+    wire.filter((read) => new URLSearchParams(read.query).get('security_advisory_cve[security_advisory]') === '88')
+  ).toHaveLength(siblingReads);
+  await failedRow.getByRole('link', { name: 'Synthetic affected advisory', exact: true }).click();
+  await page.getByTestId('admin.security_advisory.tab.affected').click();
+  await expect(page.getByRole('link', { name: 'synthetic-vps.test', exact: true })).toHaveAttribute(
+    'href',
+    '/admin/vps/55'
+  );
+  await expect(page.getByRole('link', { name: 'Open', exact: true })).toHaveAttribute('href', '/admin/users/5');
+  await expect(page.getByText('synthetic-node10.test', { exact: true })).toBeVisible();
+  await expect(page.getByText('Mitigated', { exact: true })).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath('advisory-affected-real-tab.png'), fullPage: true, scale: 'css' });
+  expect(writes).toEqual([]);
+  await testInfo.attach('advisory-child-read-wire-and-observed-row', {
+    body: JSON.stringify({ wire, rejectedCveReads, writes, failedRowText, rowRetryVisible }, null, 2),
+    contentType: 'application/json',
+  });
+  expect(failedRowText).toContain('Synthetic advisory CVE read rejected');
+  expect(rowRetryVisible, 'The failed row offers its existing query Retry').toBe(true);
+});

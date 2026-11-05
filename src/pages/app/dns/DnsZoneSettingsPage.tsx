@@ -157,7 +157,6 @@ export function DnsZoneSettingsPage() {
       <Card>
         <div className="p-4">
           <div className="text-sm font-medium">{t('dns.zone.settings.card.title')}</div>
-          <div className="mt-1 text-sm text-muted">{t('dns.zone.settings.card.description')}</div>
 
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>

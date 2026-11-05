@@ -19,9 +19,8 @@ import { Input } from '../../../../components/ui/Input';
 import { KeysetPagination } from '../../../../components/ui/KeysetPagination';
 import { LoadingState } from '../../../../components/ui/LoadingState';
 import { Modal } from '../../../../components/ui/Modal';
-import { ObjectHeader } from '../../../../components/ui/ObjectHeader';
+import { ResourcePackageDetailHeader } from './ResourcePackageDetailHeader';
 import { Select, type SelectOption } from '../../../../components/ui/Select';
-import { StatCard } from '../../../../components/ui/StatCard';
 import { SwitchRow } from '../../../../components/ui/SwitchRow';
 import { TableCard } from '../../../../components/ui/TableCard';
 import { Textarea } from '../../../../components/ui/Textarea';
@@ -163,6 +162,9 @@ export function ResourcePackageDetailPage() {
   const assignmentsRes = assignmentsQ.data;
   const assignments = assignmentsRes?.data ?? [];
   const assignmentTotal = getMetaTotalCount(assignmentsRes?.meta);
+  const itemCountDisplay = itemsQ.isSuccess ? String(items.length) : t('common.na');
+  const assignmentCountDisplay =
+    assignmentsQ.isSuccess && typeof assignmentTotal === 'number' ? String(assignmentTotal) : t('common.na');
 
   const lastAssignment = assignments[assignments.length - 1];
   const assignmentCursor = lastAssignment ? lastAssignment.id : null;
@@ -409,69 +411,28 @@ export function ResourcePackageDetailPage() {
 
   return (
     <div className="space-y-4">
-      <ObjectHeader
-        testId="admin.cluster.resource_package_detail.header"
-        kicker={
-          <span>
-            <Link className="hover:underline" to="/admin/cluster/resource-packages">
-              {t('admin.cluster.tab.resource_packages')}
-            </Link>{' '}
-            · <span className="font-mono text-xs">#{id}</span>
-          </span>
-        }
-        title={label}
-        badges={<Badge variant={badge.variant}>{badge.label}</Badge>}
-        meta={
-          personal ? (
-            <span>
-              {t('common.environment')}: <span className="font-medium text-fg">{envLabel(env)}</span>
-              <span className="mx-2 text-faint">·</span>
-              {t('common.user')}: <span className="font-medium text-fg">{userLabel(user)}</span>
-            </span>
-          ) : (
-            <span>{t('admin.cluster.resource_package_detail.meta.global')}</span>
-          )
-        }
-        right={
-          <div className="flex items-center gap-2">
-            <StatCard
-              size="sm"
-              label={t('admin.cluster.resource_package_detail.stat.items')}
-              value={String(items.length)}
-            />
-            <StatCard
-              size="sm"
-              label={t('admin.cluster.resource_package_detail.stat.assigned')}
-              value={personal ? '—' : String(assignmentTotal)}
-            />
-          </div>
-        }
-        actions={
-          <>
-            <Button variant="secondary" onClick={openPkgEditor} testId="admin.cluster.resource_package_detail.edit">
-              {t('common.edit')}
-            </Button>
-            <Button
-              variant="danger"
-              onClick={() => {
-                deletePkgM.reset();
-                setDeleteOpen(true);
-              }}
-              disabled={personal}
-              disabledReason={personal ? t('admin.cluster.resource_packages.delete_disabled.personal') : undefined}
-              testId="admin.cluster.resource_package_detail.delete"
-            >
-              {t('common.delete')}
-            </Button>
-          </>
-        }
+      <ResourcePackageDetailHeader
+        t={t}
+        id={id}
+        label={label}
+        badge={badge}
+        personal={personal}
+        environmentDisplay={personal ? envLabel(env) : ''}
+        userDisplay={personal ? userLabel(user) : ''}
+        itemCountDisplay={itemCountDisplay}
+        assignmentCountDisplay={assignmentCountDisplay}
+        openPkgEditor={openPkgEditor}
+        onDelete={() => {
+          deletePkgM.reset();
+          setDeleteOpen(true);
+        }}
       />
 
       {!personal ? (
         <Alert variant="warn" testId="admin.cluster.resource_package_detail.alert">
           <div className="font-medium">{t('admin.cluster.resource_package_detail.warning.title')}</div>
           <div className="mt-1 text-sm">
-            {t('admin.cluster.resource_package_detail.warning.body', { count: String(assignmentTotal) })}
+            {t('admin.cluster.resource_package_detail.warning.body', { count: assignmentCountDisplay })}
           </div>
         </Alert>
       ) : (
@@ -491,7 +452,9 @@ export function ResourcePackageDetailPage() {
           }
         />
         <CardBody>
-          {itemsQ.isError ? (
+          {itemsQ.isPending ? (
+            <LoadingState testId="admin.cluster.resource_package_detail.items.loading" />
+          ) : itemsQ.isError ? (
             <ErrorState error={itemsQ.error} testId="admin.cluster.resource_package_detail.items.error" />
           ) : items.length === 0 ? (
             <EmptyState
@@ -575,7 +538,9 @@ export function ResourcePackageDetailPage() {
             }
           />
           <CardBody>
-            {assignmentsQ.isError ? (
+            {assignmentsQ.isPending ? (
+              <LoadingState testId="admin.cluster.resource_package_detail.assign.loading" />
+            ) : assignmentsQ.isError ? (
               <ErrorState error={assignmentsQ.error} testId="admin.cluster.resource_package_detail.assign.error" />
             ) : assignments.length === 0 ? (
               <EmptyState
@@ -745,7 +710,7 @@ export function ResourcePackageDetailPage() {
             </div>
           </div>
           <div className="text-sm text-muted">
-            {t('admin.cluster.resource_packages.delete_confirm.impact', { count: String(assignmentTotal) })}
+            {t('admin.cluster.resource_packages.delete_confirm.impact', { count: assignmentCountDisplay })}
           </div>
           {deletePkgM.isError ? (
             <Alert variant="danger" title={t('common.error')} testId="admin.cluster.resource_package_detail.delete_confirm.error">
@@ -840,7 +805,7 @@ export function ResourcePackageDetailPage() {
             </div>
           ) : null}
           <div className="text-sm text-muted">
-            {t('admin.cluster.resource_packages.items.delete_confirm.impact', { count: personal ? '1' : String(assignmentTotal) })}
+            {t('admin.cluster.resource_packages.items.delete_confirm.impact', { count: personal ? '1' : assignmentCountDisplay })}
           </div>
           {deleteItemM.isError ? (
             <Alert variant="danger" title={t('common.error')} testId="admin.cluster.resource_package_detail.item_delete_confirm.error">

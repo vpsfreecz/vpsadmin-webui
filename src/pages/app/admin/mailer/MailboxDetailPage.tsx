@@ -92,7 +92,6 @@ export function MailboxDetailPage() {
   const label = String((mailbox as any)?.label ?? (id ? `#${id}` : ''));
   const server = String((mailbox as any)?.server ?? '');
   const port = Number((mailbox as any)?.port ?? 0);
-  const ssl = Boolean((mailbox as any)?.enable_ssl);
 
   const handlersRaw: MailboxHandler[] = (handlersQ.data as any) ?? [];
   const handlers = useMemo(() => sortedHandlers(handlersRaw), [handlersRaw]);
@@ -371,11 +370,6 @@ export function MailboxDetailPage() {
             {server}
             {port ? `:${port}` : ''}
           </span>
-        }
-        badges={
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge variant={ssl ? 'ok' : 'warn'}>{ssl ? t('mailer.mailboxes.ssl.on') : t('mailer.mailboxes.ssl.off')}</Badge>
-          </div>
         }
         actions={
           <>

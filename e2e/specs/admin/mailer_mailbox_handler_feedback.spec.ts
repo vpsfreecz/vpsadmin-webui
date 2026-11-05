@@ -1,6 +1,13 @@
 import { expect, test } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock } from '../../fixtures';
+import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
+
+test.beforeEach(async ({ page }, testInfo) => {
+  await setUiSettingsLocalStorage(page, {
+    language: testInfo.project.name === 'mobile-chrome' ? 'cs' : 'en',
+    theme: testInfo.project.name === 'mobile-chrome' ? 'dark' : 'light',
+  });
+});
 
 const mailbox = {
   id: 20,
@@ -16,7 +23,7 @@ const mailbox = {
 
 test('@pr-smoke @pr-smoke-mobile keeps rejected mailbox handler creation in context for retry', async ({
   page,
-}) => {
+}, testInfo) => {
   await bootstrapVpsAdminWindow(page, { sessionToken: 'MAILBOX_HANDLER_CREATE_RETRY' });
 
   const handlers: any[] = [];
@@ -42,13 +49,14 @@ test('@pr-smoke @pr-smoke-mobile keeps rejected mailbox handler creation in cont
   await page.getByTestId('admin.mailer.mailboxes.handler.modal.save').click();
 
   await expect(page.getByTestId('admin.mailer.mailboxes.handler.modal.error')).toContainText(
-    'Handler class is unavailable',
+    'Handler class is unavailable'
   );
   await expect(page.getByTestId('admin.mailer.mailboxes.handler.modal')).toBeVisible();
-  await expect(page.getByTestId('admin.mailer.mailboxes.handler.modal.class_name')).toHaveValue(
-    'Custom::RetryHandler',
-  );
+  await expect(page.getByTestId('admin.mailer.mailboxes.handler.modal.class_name')).toHaveValue('Custom::RetryHandler');
   await expect(page.getByTestId('admin.mailer.mailboxes.handler.modal.order')).toHaveValue('1');
+  await page.getByTestId('admin.mailer.mailboxes.handler.modal').screenshot({
+    path: testInfo.outputPath('mailer-handler-create-rejected.png'),
+  });
 
   await page.getByTestId('admin.mailer.mailboxes.handler.modal.save').click();
   await expect(page.getByTestId('admin.mailer.mailboxes.handler.modal')).toHaveCount(0);
@@ -56,7 +64,9 @@ test('@pr-smoke @pr-smoke-mobile keeps rejected mailbox handler creation in cont
   expect(createAttempts).toBe(2);
 });
 
-test('@pr-smoke @pr-smoke-mobile keeps rejected mailbox handler edits in context for retry', async ({ page }, testInfo) => {
+test('@pr-smoke @pr-smoke-mobile keeps rejected mailbox handler edits in context for retry', async ({
+  page,
+}, testInfo) => {
   await bootstrapVpsAdminWindow(page, { sessionToken: 'MAILBOX_HANDLER_EDIT_RETRY' });
 
   let handlers: any[] = [{ id: 201, class_name: 'Custom::Handler', order: 1, continue: false }];
@@ -90,16 +100,82 @@ test('@pr-smoke @pr-smoke-mobile keeps rejected mailbox handler edits in context
   await page.getByTestId('admin.mailer.mailboxes.handler.modal.save').click();
 
   await expect(page.getByTestId('admin.mailer.mailboxes.handler.modal.error')).toContainText(
-    'Handler order changed on the server',
+    'Handler order changed on the server'
   );
   await expect(page.getByTestId('admin.mailer.mailboxes.handler.modal.class_name')).toHaveValue(
-    'Custom::UpdatedHandler',
+    'Custom::UpdatedHandler'
   );
   await expect(page.getByTestId('admin.mailer.mailboxes.handler.modal.order')).toHaveValue('2');
   await expect(page.getByTestId('admin.mailer.mailboxes.handler.modal.continue')).toBeChecked();
+  await page.getByTestId('admin.mailer.mailboxes.handler.modal').screenshot({
+    path: testInfo.outputPath('mailer-handler-edit-rejected.png'),
+  });
 
   await page.getByTestId('admin.mailer.mailboxes.handler.modal.save').click();
   await expect(page.getByTestId('admin.mailer.mailboxes.handler.modal')).toHaveCount(0);
   await expect(page.getByTestId('admin.mailer.mailboxes.handler.201')).toContainText('Custom::UpdatedHandler');
   expect(updateAttempts).toBe(2);
+});
+
+test('@content-mailer-delete mailbox and handler delete rejections retain contextual recovery and Cancel', async ({
+  page,
+}, testInfo) => {
+  await bootstrapVpsAdminWindow(page, { sessionToken: 'MAILBOX_DELETE_CONTEXT' });
+  let handlerDeleteAttempts = 0;
+  let mailboxDeleteAttempts = 0;
+  const handlerMessage = 'Custom::Handler deletion was rejected';
+  const mailboxMessage = 'Incident inbox deletion was rejected';
+  await installHaveApiMock(page, {
+    user: { id: 1, login: 'admin', level: 90 },
+    handlers: {
+      'GET mailboxes/20': () => ({ mailbox }),
+      'GET mailboxes/20/handler': () => ({
+        handlers: [{ id: 201, class_name: 'Custom::Handler', order: 1, continue: false }],
+        _meta: { total_count: 1 },
+      }),
+      'DELETE mailboxes/20/handler/201': () => {
+        handlerDeleteAttempts += 1;
+        return failEnvelope(handlerMessage);
+      },
+      'DELETE mailboxes/20': () => {
+        mailboxDeleteAttempts += 1;
+        return failEnvelope(mailboxMessage);
+      },
+    },
+  });
+
+  await page.goto('/admin/mailer/mailboxes/20');
+  await expect(page.getByTestId('admin.mailer.mailboxes.detail.header')).toContainText('Incident inbox');
+  await page.getByTestId('admin.mailer.mailboxes.handler.201.delete').click();
+  const handlerDialog = page.getByTestId('admin.mailer.mailboxes.handlers.delete_confirm');
+  await handlerDialog.getByTestId('admin.mailer.mailboxes.handlers.delete_confirm.confirm').click();
+  await expect.poll(() => handlerDeleteAttempts).toBe(1);
+  await expect(handlerDialog.getByTestId('admin.mailer.mailboxes.handlers.delete_confirm.confirm')).toBeEnabled();
+  await expect(handlerDialog).toBeVisible();
+  await handlerDialog.screenshot({ path: testInfo.outputPath('mailer-handler-delete-rejected.png') });
+  await expect
+    .soft(handlerDialog.getByRole('alert').filter({ hasText: handlerMessage }))
+    .toContainText(handlerMessage, { timeout: 1000 });
+  await handlerDialog.getByTestId('admin.mailer.mailboxes.handlers.delete_confirm.cancel').click();
+  await expect(handlerDialog).toBeHidden();
+  await expect(page.getByTestId('admin.mailer.mailboxes.handler.201')).toContainText('Custom::Handler');
+  expect(mailboxDeleteAttempts).toBe(0);
+
+  await page.getByTestId('admin.mailer.mailboxes.detail.delete').click();
+  const mailboxDialog = page.getByTestId('admin.mailer.mailboxes.delete_confirm');
+  await mailboxDialog.getByTestId('admin.mailer.mailboxes.delete_confirm.confirm').click();
+  await expect.poll(() => mailboxDeleteAttempts).toBe(1);
+  await expect(mailboxDialog.getByTestId('admin.mailer.mailboxes.delete_confirm.confirm')).toBeEnabled();
+  await expect(mailboxDialog).toBeVisible();
+  await mailboxDialog.screenshot({ path: testInfo.outputPath('mailer-mailbox-delete-rejected.png') });
+  await expect
+    .soft(mailboxDialog.getByRole('alert').filter({ hasText: mailboxMessage }))
+    .toContainText(mailboxMessage, { timeout: 1000 });
+  await mailboxDialog.getByTestId('admin.mailer.mailboxes.delete_confirm.cancel').click();
+  await expect(mailboxDialog).toBeHidden();
+  await expect(page.getByTestId('admin.mailer.mailboxes.detail.header')).toContainText('Incident inbox');
+  expect({ handlerDeleteAttempts, mailboxDeleteAttempts }).toEqual({
+    handlerDeleteAttempts: 1,
+    mailboxDeleteAttempts: 1,
+  });
 });

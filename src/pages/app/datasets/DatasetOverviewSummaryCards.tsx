@@ -27,23 +27,28 @@ function objectId(value: unknown): number | null {
 export function DatasetSpaceCard(props: { dataset: Dataset }) {
   const { t } = useI18n();
 
-  const used = Math.max(0, asNumber(props.dataset.used) ?? 0);
-  const available = Math.max(0, asNumber(props.dataset.avail) ?? 0);
+  const reportedUsed = asNumber(props.dataset.used);
+  const reportedAvailable = asNumber(props.dataset.avail);
+  const used = reportedUsed !== undefined ? Math.max(0, reportedUsed) : undefined;
+  const available = reportedAvailable !== undefined ? Math.max(0, reportedAvailable) : undefined;
   const referenceQuota = positive(props.dataset.refquota);
+  const unlimitedReferenceQuota = asNumber(props.dataset.refquota) === 0;
   const quota = positive(props.dataset.quota);
   const referenced = asNumber(props.dataset.referenced);
 
-  const total = used + available;
-  const usageRatio = total > 0 ? used / total : 0;
+  const total = used !== undefined && available !== undefined ? used + available : 0;
+  const usageRatio = total > 0 && used !== undefined ? used / total : 0;
   const usageVariant = usageSeverityFromRatio(usageRatio);
 
-  const quotaPercent = referenceQuota ? Math.round((used / referenceQuota) * 100) : null;
+  const quotaPercent = used !== undefined && referenceQuota !== undefined
+    ? Math.round((used / referenceQuota) * 100)
+    : null;
   const clampedQuotaPercent = quotaPercent !== null ? Math.max(0, Math.min(999, quotaPercent)) : null;
   const quotaVariant =
     clampedQuotaPercent !== null ? usageSeverityFromRatio(clampedQuotaPercent / 100) : undefined;
 
   const segments = useMemo(() => {
-    if (total <= 0) {
+    if (used === undefined || available === undefined || total <= 0) {
       return [{ value: 1, variant: 'neutral' as const, title: t('datasets.usage.no_data') }];
     }
 
@@ -61,17 +66,16 @@ export function DatasetSpaceCard(props: { dataset: Dataset }) {
     <Card testId="dataset.overview.space">
       <CardHeader
         title={t('dataset.overview.space.title')}
-        subtitle={t('dataset.overview.space.subtitle')}
         actions={
           clampedQuotaPercent !== null ? (
             <Badge variant={quotaVariant} title={t('dataset.overview.space.badge.title')}>
               {clampedQuotaPercent}%
             </Badge>
-          ) : (
+          ) : unlimitedReferenceQuota ? (
             <Badge variant="neutral" title={t('dataset.overview.space.badge.infinity_title')}>
               ∞
             </Badge>
-          )
+          ) : null
         }
       />
 
@@ -90,7 +94,7 @@ export function DatasetSpaceCard(props: { dataset: Dataset }) {
           <div>
             <div className="text-xs text-faint">{t('dataset.field.reference_quota')}</div>
             <div className="font-medium text-fg">
-              {referenceQuota !== undefined ? formatMiB(referenceQuota) : '∞'}
+              {referenceQuota !== undefined ? formatMiB(referenceQuota) : unlimitedReferenceQuota ? '∞' : t('common.na')}
             </div>
           </div>
           <div>
@@ -117,11 +121,7 @@ export function DatasetTemporaryExpansionCard(props: { dataset: Dataset; destina
     <Card testId="dataset.overview.expansion">
       <CardHeader
         title={t('dataset.overview.expansion.title')}
-        subtitle={
-          expansionId
-            ? t('dataset.overview.expansion.subtitle_active')
-            : t('dataset.overview.expansion.subtitle')
-        }
+        subtitle={expansionId ? undefined : t('dataset.overview.expansion.subtitle')}
         actions={
           <Button to={props.destination} size="sm" testId="dataset.overview.expansion.open">
             {expansionId ? t('dataset.overview.expansion.open') : t('dataset.overview.expansion.create')}
@@ -132,10 +132,11 @@ export function DatasetTemporaryExpansionCard(props: { dataset: Dataset; destina
         <div className="space-y-3 text-sm text-muted">
           <p>{t('dataset.overview.expansion.body')}</p>
           <div className="flex flex-wrap items-center gap-2">
-            <Badge variant={expansionId ? 'warn' : 'neutral'}>
-              {expansionId ? t('dataset.overview.expansion.active') : t('dataset.overview.expansion.none')}
-            </Badge>
-            {expansionId ? <span className="text-xs text-faint">#{expansionId}</span> : null}
+            {expansionId ? (
+              <span className="text-xs text-faint">#{expansionId}</span>
+            ) : (
+              <Badge variant="neutral">{t('dataset.overview.expansion.none')}</Badge>
+            )}
           </div>
         </div>
       </CardBody>

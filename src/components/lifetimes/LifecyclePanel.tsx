@@ -323,9 +323,11 @@ export function LifecyclePanel(props: {
             </div>
           </div>
 
-          <div className="mt-3 text-sm text-muted">
-            {helpKey ? t(helpKey) : t('lifetimes.help.unknown', { state: st })}
-          </div>
+          {st !== 'active' ? (
+            <div className="mt-3 text-sm text-muted">
+              {helpKey ? t(helpKey) : t('lifetimes.help.unknown', { state: st })}
+            </div>
+          ) : null}
 
           {canUseSelfServiceLifetime && Boolean(expIso) && st !== 'active' ? (
             <div className="mt-2 text-xs text-faint">{t('lifetimes.user.snooze.disabled')}</div>
@@ -420,8 +422,6 @@ export function LifecyclePanel(props: {
         }
       >
         <div className="space-y-4">
-          <div className="text-sm text-muted">{t('lifetimes.admin_update.description')}</div>
-
           <div className="grid gap-4 md:grid-cols-2">
             <div>
               <div className="text-xs text-faint">{t('lifetimes.field.state')}</div>
@@ -434,9 +434,11 @@ export function LifecyclePanel(props: {
                   <option value="deleted">{t('state.deleted')}</option>
                 </Select>
               </div>
-              <div className="mt-2 text-xs text-faint">
-                {stateHelpKey(adminState) ? t(stateHelpKey(adminState) as any) : ''}
-              </div>
+              {adminState.trim() !== 'active' ? (
+                <div className="mt-2 text-xs text-faint">
+                  {stateHelpKey(adminState) ? t(stateHelpKey(adminState) as any) : ''}
+                </div>
+              ) : null}
             </div>
 
             <div>

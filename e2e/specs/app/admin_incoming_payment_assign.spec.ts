@@ -3,9 +3,13 @@ import { test, expect } from '@playwright/test';
 import { bootstrapVpsAdminWindow } from '../../fixtures/bootstrap';
 import { installHaveApiMock } from '../../fixtures/haveapi';
 import { withAppUrl } from '../../fixtures/url';
+import { setUiSettingsLocalStorage } from '../../fixtures/uiSettings';
 import { expectNoDocumentHorizontalOverflow } from '../../helpers/horizontalOverflow';
 
-test('@pr-smoke @pr-smoke-mobile admin incoming payment: assign to user', async ({ page }) => {
+type IncomingPaymentUpdateBody = { incoming_payment?: { state?: unknown } };
+type UserPaymentCreateBody = { user_payment?: { user?: unknown; incoming_payment?: unknown; amount?: unknown } };
+
+test('@pr-smoke @pr-smoke-mobile admin incoming payment: assign to user', async ({ page }, info) => {
   await bootstrapVpsAdminWindow(page);
   const haveApiMock = await installHaveApiMock(page, { user: { id: 1, login: 'admin', level: 100 } });
 
@@ -45,7 +49,9 @@ test('@pr-smoke @pr-smoke-mobile admin incoming payment: assign to user', async 
     const fromIdRaw = searchParams.get('incoming_payment[from_id]');
     const fromId = fromIdRaw ? Number(fromIdRaw) : null;
 
-    const ids = Array.from({ length: 60 }, (_, i) => 300 - i).filter((id) => (fromId ? id < fromId : true)).slice(0, limit);
+    const ids = Array.from({ length: 60 }, (_, i) => 300 - i)
+      .filter((id) => (fromId ? id < fromId : true))
+      .slice(0, limit);
 
     return {
       status: true,
@@ -65,12 +71,13 @@ test('@pr-smoke @pr-smoke-mobile admin incoming payment: assign to user', async 
   });
 
   haveApiMock.addHandler('GET users/123', () => ({
-    user: { id: 123, login: 'alice', full_name: 'Alice Example', email: 'alice@example.test' },
+    user: { id: 123, login: 'alice', level: 1, full_name: 'Alice Example', email: 'alice@example.test' },
   }));
 
   haveApiMock.addHandler('PUT incoming_payments/300', async ({ json }) => {
+    const body = json as IncomingPaymentUpdateBody | undefined;
     stateUpdateRequests += 1;
-    state = String(json?.incoming_payment?.state ?? state);
+    state = String(body?.incoming_payment?.state ?? state);
     return {
       status: true,
       response: {
@@ -80,9 +87,10 @@ test('@pr-smoke @pr-smoke-mobile admin incoming payment: assign to user', async 
   });
 
   haveApiMock.addHandler('POST user_payments', async ({ json }) => {
+    const body = json as UserPaymentCreateBody | undefined;
     assignmentRequests += 1;
     await assignmentGate;
-    const userId = Number(json?.user_payment?.user);
+    const userId = Number(body?.user_payment?.user);
     assignedUser = { id: userId, login: 'alice' };
     // user_payment#create atomically transitions its linked incoming payment.
     state = 'processed';
@@ -97,7 +105,7 @@ test('@pr-smoke @pr-smoke-mobile admin incoming payment: assign to user', async 
           id: 7001,
           user: assignedUser,
           incoming_payment: { id: paymentId },
-          amount: json?.user_payment?.amount ?? 1000,
+          amount: body?.user_payment?.amount ?? 1000,
           created_at: '2026-02-14T09:05:00Z',
         },
       },
@@ -120,9 +128,11 @@ test('@pr-smoke @pr-smoke-mobile admin incoming payment: assign to user', async 
   await expect(page.getByTestId('admin.payments.incoming.assign.submit')).toBeDisabled();
 
   await page.getByTestId('admin.payments.incoming.assign.user_id').fill('123');
+  await expect(page.getByTestId('admin.payments.incoming.assign.user_lookup')).toContainText('alice');
   await expect(page.getByTestId('admin.payments.incoming.assign.review.user')).toContainText('#123');
   await expect(page.getByTestId('admin.payments.incoming.assign.review.state')).toContainText(/Processed/);
   await expect(page.getByTestId('admin.payments.incoming.assign.submit')).toBeEnabled();
+  await page.screenshot({ path: info.outputPath('incoming-assignment-target.png'), fullPage: true });
 
   await page.getByTestId('admin.payments.incoming.assign.submit').click();
   await expect.poll(() => assignmentRequests).toBe(1);
@@ -138,7 +148,9 @@ test('@pr-smoke @pr-smoke-mobile admin incoming payment: assign to user', async 
   expect(stateUpdateRequests).toBe(0);
 });
 
-test('@pr-smoke @pr-smoke-mobile admin incoming payments: sequential review opens the next unmatched payment', async ({ page }) => {
+test('@pr-smoke @pr-smoke-mobile admin incoming payments: sequential review opens the next unmatched payment', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
 
   const states = new Map<number, string>([
@@ -164,9 +176,7 @@ test('@pr-smoke @pr-smoke-mobile admin incoming payments: sequential review open
     handlers: {
       'GET incoming_payments': ({ searchParams }) => {
         const requestedState = String(searchParams.get('incoming_payment[state]') ?? '');
-        const rows = [302, 301, 300]
-          .map(payment)
-          .filter((row) => !requestedState || row.state === requestedState);
+        const rows = [302, 301, 300].map(payment).filter((row) => !requestedState || row.state === requestedState);
         return { incoming_payments: rows, _meta: { total_count: rows.length } };
       },
       'GET incoming_payments/302': () => ({ incoming_payment: payment(302) }),
@@ -174,11 +184,13 @@ test('@pr-smoke @pr-smoke-mobile admin incoming payments: sequential review open
       'GET incoming_payments/300': () => ({ incoming_payment: payment(300) }),
       'GET users/123': () => ({ user: { id: 123, login: 'alice', full_name: 'Alice Example' } }),
       'PUT incoming_payments/301': ({ reqJson }) => {
-        states.set(301, String(reqJson?.incoming_payment?.state ?? states.get(301)));
+        const body = reqJson as IncomingPaymentUpdateBody | undefined;
+        states.set(301, String(body?.incoming_payment?.state ?? states.get(301)));
         return { incoming_payment: payment(301) };
       },
       'POST user_payments': ({ reqJson }) => {
-        const incomingPaymentId = Number(reqJson?.user_payment?.incoming_payment);
+        const body = reqJson as UserPaymentCreateBody | undefined;
+        const incomingPaymentId = Number(body?.user_payment?.incoming_payment);
         assignments.push(incomingPaymentId);
         states.set(incomingPaymentId, 'processed');
         return {
@@ -239,8 +251,8 @@ test('admin incoming payment: route change drops the previous payment edits with
   const mutations: string[] = [];
   page.on('request', (request) => {
     if (
-      ['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method())
-      && /\/api\/v7\.0\/(?:incoming_payments|user_payments)/.test(request.url())
+      ['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method()) &&
+      /\/api\/v7\.0\/(?:incoming_payments|user_payments)/.test(request.url())
     ) {
       mutations.push(request.url());
     }
@@ -265,7 +277,9 @@ test('admin incoming payment: route change drops the previous payment edits with
   expect(mutations).toEqual([]);
 });
 
-test('@pr-smoke @pr-smoke-mobile admin incoming payment: stale state review cannot overwrite a newer state', async ({ page }) => {
+test('@pr-smoke @pr-smoke-mobile admin incoming payment: stale state review cannot overwrite a newer state', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
   const haveApiMock = await installHaveApiMock(page, { user: { id: 1, login: 'admin', level: 100 } });
   let state = 'unmatched';
@@ -312,7 +326,9 @@ test('@pr-smoke @pr-smoke-mobile admin incoming payment: stale state review cann
   await expect(page.getByTestId('admin.payments.incoming.state.save')).toBeEnabled();
 });
 
-test('@pr-smoke @pr-smoke-mobile admin incoming payment: refresh failure keeps context and blocks review actions', async ({ page }) => {
+test('@pr-smoke @pr-smoke-mobile admin incoming payment: refresh failure keeps context and blocks review actions', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
   const haveApiMock = await installHaveApiMock(page, { user: { id: 1, login: 'admin', level: 100 } });
   let detailRequests = 0;
@@ -390,7 +406,9 @@ test('@pr-smoke @pr-smoke-mobile admin incoming payment: refresh failure keeps c
   await expect(page.getByTestId('admin.payments.incoming.assign.submit')).toBeEnabled();
 });
 
-test('@pr-smoke @pr-smoke-mobile admin incoming payment: state changes are single-flight and invalidate cached reconciliation totals', async ({ page }) => {
+test('@pr-smoke @pr-smoke-mobile admin incoming payment: state changes are single-flight and invalidate cached reconciliation totals', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
   const haveApiMock = await installHaveApiMock(page, { user: { id: 1, login: 'admin', level: 100 } });
 
@@ -427,9 +445,10 @@ test('@pr-smoke @pr-smoke-mobile admin incoming payment: state changes are singl
   });
   haveApiMock.addHandler('GET incoming_payments/500', () => ({ incoming_payment: paymentEnvelope() }));
   haveApiMock.addHandler('PUT incoming_payments/500', async ({ json }) => {
+    const body = json as IncomingPaymentUpdateBody | undefined;
     stateUpdateRequests += 1;
     await stateUpdateGate;
-    state = String(json?.incoming_payment?.state ?? state);
+    state = String(body?.incoming_payment?.state ?? state);
     return { incoming_payment: paymentEnvelope() };
   });
 
@@ -451,4 +470,40 @@ test('@pr-smoke @pr-smoke-mobile admin incoming payment: state changes are singl
 
   await expect.poll(() => ({ ...totalRequests })).toEqual({ queued: 2, unmatched: 2, processed: 2, ignored: 2 });
   expect(listRequests).toBe(2);
+});
+
+test('@content-account-cs Czech incoming assignment target and accounting review', async ({ page }, info) => {
+  await setUiSettingsLocalStorage(page, { language: 'cs', theme: 'dark' });
+  await bootstrapVpsAdminWindow(page);
+  const mock = await installHaveApiMock(page, { user: { id: 1, login: 'admin', level: 100 } });
+  mock.addHandler('GET incoming_payments/300', () => ({
+    incoming_payment: {
+      id: 300,
+      state: 'unmatched',
+      date: '2026-02-14T09:00:00Z',
+      created_at: '2026-02-14T09:00:00Z',
+      transaction_id: 'TX-300',
+      transaction_type: 'credit transfer',
+      amount: 1000,
+      currency: 'CZK',
+      src_amount: 40,
+      src_currency: 'EUR',
+      account_name: 'Test account',
+      vs: '123456',
+    },
+  }));
+  mock.addHandler('GET users/123', () => ({
+    user: { id: 123, login: 'alice', level: 1, full_name: 'Alice Example', email: 'alice@example.test' },
+  }));
+
+  await page.goto(withAppUrl('/admin/payments/incoming/300'));
+  await expect(page.getByTestId('admin.payments.incoming.assign.submit')).toBeDisabled();
+  await page.getByTestId('admin.payments.incoming.assign.user_id').fill('123');
+  await expect(page.getByTestId('admin.payments.incoming.assign.user_lookup')).toContainText('alice');
+  await expect(page.getByTestId('admin.payments.incoming.assign.review.user')).toContainText('#123');
+  await expect(page.getByTestId('admin.payments.incoming.assign.review.amount')).toContainText(/CZK|Kč/);
+  await expect(page.getByTestId('admin.payments.incoming.assign.review.state')).toContainText('Zpracováno');
+  await expect(page.getByTestId('admin.payments.incoming.assign.submit')).toBeEnabled();
+  await expectNoDocumentHorizontalOverflow(page);
+  await page.screenshot({ path: info.outputPath('incoming-assignment-cs.png'), fullPage: true });
 });

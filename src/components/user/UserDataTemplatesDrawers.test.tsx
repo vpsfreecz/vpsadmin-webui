@@ -26,7 +26,7 @@ const formatOptions = [
   { value: 'cloudinit_config', label: 'Cloud-init config' },
 ];
 
-function EditorHarness(props: { initialForm?: UserDataFormState; mode?: 'create' | 'edit' }) {
+function EditorHarness(props: { initialForm?: UserDataFormState; mode?: 'create' | 'edit'; hintKey?: string }) {
   const [form, setForm] = React.useState<UserDataFormState>(
     props.initialForm ?? { label: 'Provision app', format: 'script', content: '#!/bin/sh' }
   );
@@ -41,7 +41,7 @@ function EditorHarness(props: { initialForm?: UserDataFormState; mode?: 'create'
       setForm={setForm}
       formatOptions={formatOptions}
       validationHints={buildUserDataValidationHints(form)}
-      hintKey={null}
+      hintKey={props.hintKey ?? null}
       contentOverLimit={contentOverLimit}
       canSave={canSaveUserDataForm(form)}
       busy={false}
@@ -130,5 +130,23 @@ describe('UserDataTemplateEditorDrawer accessibility', () => {
     expect(screen.getByTestId('profile.user_data.editor.format')).toHaveClass('min-h-11', 'sm:min-h-9');
     expect(screen.getByRole('button', { name: 'common.cancel' })).toHaveClass('min-h-11', 'sm:min-h-9');
     expect(screen.getByTestId('profile.user_data.editor.save')).toHaveClass('min-h-11', 'sm:min-h-9');
+  });
+
+  it('keeps format guidance while omitting a successful-validation checklist', () => {
+    render(<EditorHarness hintKey="user_data.hint.script" />);
+
+    expect(screen.getByText('user_data.hint.script')).toBeVisible();
+    expect(screen.queryByText('user_data.validation.title')).not.toBeInTheDocument();
+    expect(screen.getByTestId('profile.user_data.editor.create')).toBeEnabled();
+  });
+
+  it('keeps actual validation warnings without successful checklist entries', () => {
+    render(<EditorHarness initialForm={{ label: '', format: 'script', content: '#!/bin/sh' }} />);
+
+    expect(screen.getByText('user_data.validation.label_required')).toBeVisible();
+    expect(screen.queryByText('user_data.validation.content_required')).not.toBeInTheDocument();
+    expect(screen.queryByText('user_data.validation.content_max')).not.toBeInTheDocument();
+    expect(screen.queryByText('user_data.validation.shebang')).not.toBeInTheDocument();
+    expect(screen.getByTestId('profile.user_data.editor.create')).toBeDisabled();
   });
 });

@@ -7,6 +7,7 @@ export const csProfile_entry = {
   "userns.entry.delete.error": "Nepodařilo se smazat položku.",
   "userns.entry.delete.success": "Položka smazána.",
   "userns.entry.delete.title": "Smazat položku?",
+  "userns.entry.load_error": "Nepodařilo se načíst položky",
   "userns.entry.empty": "Žádné položky.",
   "userns.entry.grid.actions": "Akce",
   "userns.entry.grid.count": "Počet",

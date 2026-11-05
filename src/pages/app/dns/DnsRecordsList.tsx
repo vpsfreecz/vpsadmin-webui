@@ -10,10 +10,9 @@ import { Alert } from '../../../components/ui/Alert';
 import { Badge } from '../../../components/ui/Badge';
 import { Card } from '../../../components/ui/Card';
 import { CopyButton } from '../../../components/ui/CopyButton';
-import { StatusDot } from '../../../components/ui/StatusDot';
 import { toneSurfaceClass } from '../../../components/ui/tone';
 
-import { recordDynamicEnabled, recordName, type DnsRecordValidationResult } from './DnsRecordModel';
+import { recordName, type DnsRecordValidationResult } from './DnsRecordModel';
 
 function RecordValidationNotice(props: { validation?: DnsRecordValidationResult; rowError?: string; testId: string }) {
   const { t } = useI18n();
@@ -47,12 +46,20 @@ function RecordValidationNotice(props: { validation?: DnsRecordValidationResult;
 
 function EnabledBadge(props: { value: unknown }) {
   const { t } = useI18n();
-  return props.value === true ? <Badge variant="ok">{t('common.enabled')}</Badge> : <Badge variant="warn">{t('common.disabled')}</Badge>;
+  if (props.value === true) return <Badge variant="ok">{t('common.enabled')}</Badge>;
+  if (props.value === false) return <Badge variant="warn">{t('common.disabled')}</Badge>;
+  return <Badge variant="neutral">{t('state.unknown')}</Badge>;
 }
 
 function YesNoBadge(props: { value: unknown }) {
   const { t } = useI18n();
-  return props.value === true ? <Badge variant="ok">{t('common.yes')}</Badge> : <Badge variant="neutral">{t('common.no')}</Badge>;
+  if (props.value === true) return <Badge variant="ok">{t('common.yes')}</Badge>;
+  if (props.value === false) return <Badge variant="neutral">{t('common.no')}</Badge>;
+  return <Badge variant="neutral">{t('state.unknown')}</Badge>;
+}
+
+function recordDynamicValue(record: DnsRecord): unknown {
+  return record.dynamic_update_enabled !== undefined ? record.dynamic_update_enabled : record['dynamic'];
 }
 
 export function DnsRecordsList(props: {
@@ -75,20 +82,18 @@ export function DnsRecordsList(props: {
           </Card>
         ) : (
           props.rows.map((record) => {
-            const rowVariant = record.enabled ? 'ok' : 'warn';
             const validation = props.validationById.get(record.id);
             const rowError = props.rowErrors.get(record.id);
             return (
               <Card
                 key={record.id}
                 testId={`dns.record.card.${record.id}`}
-                className={record.enabled ? undefined : toneSurfaceClass('warn')}
+                className={record.enabled === false ? toneSurfaceClass('warn') : undefined}
               >
                 <div className="p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <StatusDot variant={rowVariant} testId={`dns.record.card.${record.id}.dot`} />
                         <div className="truncate text-base font-semibold text-fg">{recordName(record)}</div>
                         <Badge variant="neutral">{String(record.type ?? t('common.na'))}</Badge>
                         {record.managed ? (
@@ -103,7 +108,10 @@ export function DnsRecordsList(props: {
 
                     <div className="flex flex-col items-end gap-2">
                       <EnabledBadge value={record.enabled} />
-                      <YesNoBadge value={recordDynamicEnabled(record)} />
+                      <div className="flex flex-wrap items-center justify-end gap-1 text-xs">
+                        <span className="text-faint">{t('dns.zone.records.table.dynamic')}</span>
+                        <YesNoBadge value={recordDynamicValue(record)} />
+                      </div>
                     </div>
                   </div>
 
@@ -185,8 +193,7 @@ export function DnsRecordsList(props: {
           <table className="w-full text-sm table-list">
             <thead>
               <tr className="text-left text-xs uppercase tracking-wide text-faint">
-                <th className="py-2 pl-4 pr-2"><span className="sr-only">{t('nav.status')}</span></th>
-                <th className="py-2 pr-3">{t('dns.zone.records.table.name')}</th>
+                <th className="py-2 pl-4 pr-3">{t('dns.zone.records.table.name')}</th>
                 <th className="py-2 pr-3">{t('dns.zone.records.table.type')}</th>
                 <th className="py-2 pr-3">{t('dns.zone.records.table.content')}</th>
                 <th className="py-2 pr-3">{t('dns.zone.records.table.ttl')}</th>
@@ -199,26 +206,22 @@ export function DnsRecordsList(props: {
             <tbody>
               {props.rows.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="py-10 text-center text-sm text-muted">
+                  <td colSpan={8} className="py-10 text-center text-sm text-muted">
                     {t('dns.zone.records.empty')}
                   </td>
                 </tr>
               ) : (
                 props.rows.map((record) => {
-                  const rowVariant = record.enabled ? 'ok' : 'warn';
                   const validation = props.validationById.get(record.id);
                   const rowError = props.rowErrors.get(record.id);
                   return (
                     <tr
                       key={record.id}
                       className="border-t border-border"
-                      data-row-variant={record.enabled ? undefined : 'warn'}
+                      data-row-variant={record.enabled === false ? 'warn' : undefined}
                       data-testid={`dns.record.row.${record.id}`}
                     >
-                      <td className="py-2 pl-4 pr-2">
-                        <StatusDot variant={rowVariant} testId={`dns.record.row.${record.id}.dot`} />
-                      </td>
-                      <td className="py-2 pr-3">
+                      <td className="py-2 pl-4 pr-3">
                         <div className="font-medium text-fg">{recordName(record)}</div>
                         {record.managed ? (
                           <div className="mt-1">
@@ -253,7 +256,7 @@ export function DnsRecordsList(props: {
                       <td className="py-2 pr-3">{record.ttl != null ? String(record.ttl) : t('common.na')}</td>
                       <td className="py-2 pr-3">{record.priority != null ? String(record.priority) : t('common.na')}</td>
                       <td className="py-2 pr-3"><EnabledBadge value={record.enabled} /></td>
-                      <td className="py-2 pr-3"><YesNoBadge value={recordDynamicEnabled(record)} /></td>
+                      <td className="py-2 pr-3"><YesNoBadge value={recordDynamicValue(record)} /></td>
                       <td className="py-2 pr-4 text-right">
                         {record.managed ? (
                           <span className="text-xs text-faint" data-testid={`dns.record.row.${record.id}.read_only`}>

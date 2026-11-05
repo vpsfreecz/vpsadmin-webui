@@ -1,11 +1,13 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   createSecurityAdvisory,
   createSecurityAdvisoryCve,
   fetchSecurityAdvisory,
+  fetchAllSecurityAdvisories,
+  fetchSecurityAdvisoryCves,
 } from '../../../../lib/api/securityAdvisories';
 import { AdminSecurityAdvisoriesPage } from './AdminSecurityAdvisoriesPage';
 import { AdvisoryPartialResult } from './AdvisoryPartialResult';
@@ -20,6 +22,7 @@ vi.mock('../../../../lib/api/securityAdvisories', async (importOriginal) => ({
   createSecurityAdvisoryCve: vi.fn(),
   fetchSecurityAdvisory: vi.fn(),
   fetchAllSecurityAdvisories: vi.fn(async () => ({ data: [] })),
+  fetchSecurityAdvisoryCves: vi.fn(),
 }));
 vi.mock('../../../../lib/api/securityAdvisoryMutations', async (original) => ({
   ...(await original<typeof import('../../../../lib/api/securityAdvisoryMutations')>()),
@@ -122,5 +125,75 @@ describe('retained partial advisory creation', () => {
     expect(create).toBeDisabled();
     expect(screen.getByTestId('admin.security_advisories.partial.desired')).toHaveTextContent('CVE-2026-1003');
     expect(createSecurityAdvisory).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('list CVE state through the existing row queries', () => {
+  it('keeps fallback/cached badges and the sibling usable, and retries only the failed row query', async () => {
+    vi.mocked(fetchAllSecurityAdvisories).mockResolvedValue(
+      receipt([
+        {
+          id: 77,
+          name: 'First advisory',
+          state: 'draft',
+          en_summary: 'Retained first summary',
+          cves: [{ id: 1, cve_id: 'CVE-2026-1001' }],
+        },
+        { id: 88, name: 'Sibling advisory', state: 'published', en_summary: 'Retained sibling summary' },
+      ])
+    );
+    let release!: (value: Awaited<ReturnType<typeof fetchSecurityAdvisoryCves>>) => void;
+    const held = new Promise<Awaited<ReturnType<typeof fetchSecurityAdvisoryCves>>>((resolve) => {
+      release = resolve;
+    });
+    let phase: 'held' | 'failed' | 'recovered' = 'held';
+    vi.mocked(fetchSecurityAdvisoryCves).mockImplementation(async (options) => {
+      if (options?.securityAdvisoryId === 88) return receipt([{ id: 2, cve_id: 'CVE-2026-8888' }]);
+      expect(options?.securityAdvisoryId).toBe(77);
+      if (phase === 'held') return held;
+      if (phase === 'failed') throw new Error('First CVE feed rejected');
+      return receipt([{ id: 3, cve_id: 'CVE-2026-2002' }]);
+    });
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
+    render(
+      <QueryClientProvider client={client}>
+        <MemoryRouter>
+          <AdminSecurityAdvisoriesPage />
+        </MemoryRouter>
+      </QueryClientProvider>
+    );
+    const first = await screen.findByTestId('admin.security_advisories.row.77');
+    const sibling = await screen.findByTestId('admin.security_advisories.row.88');
+    expect(within(first).getByText('CVE-2026-1001')).toBeVisible();
+    expect(within(first).getByText('common.loading')).toBeVisible();
+    await within(sibling).findByText('CVE-2026-8888');
+    await act(async () => {
+      release(receipt([{ id: 3, cve_id: 'CVE-2026-2001' }]));
+    });
+    await within(first).findByText('CVE-2026-2001');
+    phase = 'failed';
+    await act(async () => {
+      await client.invalidateQueries({ queryKey: ['security_advisory_cves', 77] });
+    });
+    const alert = await within(first).findByRole('alert');
+    expect(alert).toHaveTextContent('First CVE feed rejected');
+    expect(first).toHaveTextContent('CVE-2026-2001');
+    expect(first).toHaveTextContent('Retained first summary');
+    expect(within(first).getByRole('link', { name: 'common.open' })).toHaveAttribute(
+      'href',
+      '/admin/security-advisories/77'
+    );
+    expect(sibling).toHaveTextContent('CVE-2026-8888');
+    expect(within(sibling).queryByRole('alert')).not.toBeInTheDocument();
+    const siblingCalls = vi
+      .mocked(fetchSecurityAdvisoryCves)
+      .mock.calls.filter(([options]) => options?.securityAdvisoryId === 88).length;
+    phase = 'recovered';
+    fireEvent.click(within(first).getByRole('button', { name: 'common.retry' }));
+    await within(first).findByText('CVE-2026-2002');
+    expect(within(first).queryByRole('alert')).not.toBeInTheDocument();
+    expect(
+      vi.mocked(fetchSecurityAdvisoryCves).mock.calls.filter(([options]) => options?.securityAdvisoryId === 88)
+    ).toHaveLength(siblingCalls);
   });
 });

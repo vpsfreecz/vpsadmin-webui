@@ -121,15 +121,7 @@ export function OverviewPage() {
             <Link to="/outages" className="underline">{i18n.t('public.overview.outage_alert.link')}</Link>
           </span>
         </Alert>
-      ) : outagesQ.isSuccess ? (
-        <Alert title={i18n.t('public.overview.nominal.title')} variant="info">
-          {i18n.t('public.overview.nominal.body')}
-        </Alert>
-      ) : (
-        <Alert title={i18n.t('public.overview.checking.title')} variant="info">
-          {i18n.t('public.overview.checking.body')}
-        </Alert>
-      )}
+      ) : null}
 
       {ipv4State === 'critical' ? (
         <Alert title={i18n.t('public.overview.ipv4_critical.title')} variant="danger" testId="public.ipv4.alert">

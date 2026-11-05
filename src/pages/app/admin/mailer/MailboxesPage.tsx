@@ -298,7 +298,6 @@ export function MailboxesPage() {
         <div className="space-y-3">
           <PageHeader
             title={t('mailer.tabs.mailboxes')}
-            description={t('mailer.mailboxes.list.description')}
             meta={filtersActive ? <span className="text-xs text-faint">{t('list.meta.filters_progressive')}</span> : null}
             actions={
               <Button variant="primary" onClick={openCreate} testId="admin.mailer.mailboxes.create">

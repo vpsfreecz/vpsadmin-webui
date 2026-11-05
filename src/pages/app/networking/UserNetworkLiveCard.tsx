@@ -203,30 +203,28 @@ export function UserNetworkLiveCard(props: { userId: number | null; isAdmin: boo
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <div className="text-xs font-medium text-muted sm:col-span-2 xl:col-span-4">{t('network.user.live.current')}</div>
               <StatCard
                 title={t('network.user.live.in')}
                 value={byteRate(totals.bytesIn)}
-                subtitle={t('network.user.live.current')}
                 variant="compact"
                 testId="network.user.live.stat.in"
               />
               <StatCard
                 title={t('network.user.live.out')}
                 value={byteRate(totals.bytesOut)}
-                subtitle={t('network.user.live.current')}
                 variant="compact"
                 testId="network.user.live.stat.out"
               />
               <StatCard
                 title={t('network.user.live.packets_in')}
                 value={packetRate(totals.packetsIn)}
-                subtitle={t('network.user.live.current')}
                 variant="compact"
               />
               <StatCard
                 title={t('network.user.live.packets_out')}
                 value={packetRate(totals.packetsOut)}
-                subtitle={latestUpdate ? formatDateTime(latestUpdate) : t('network.user.live.current')}
+                subtitle={latestUpdate ? formatDateTime(latestUpdate) : undefined}
                 variant="compact"
               />
             </div>

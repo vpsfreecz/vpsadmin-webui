@@ -41,9 +41,6 @@ export function UserNamespaceDetail(props: {
           <div className="text-lg font-semibold text-fg" data-testid={`${props.testIdPrefix}.title`} data-document-title-heading>
             {t('userns.namespace.title')} #{props.id}
           </div>
-          <div className="text-sm text-muted" data-testid={`${props.testIdPrefix}.subtitle`}>
-            {t('userns.namespace.subtitle')}
-          </div>
         </div>
         <div className="flex items-center gap-2">
           <ChipLink to={props.mapsUrl} title={t('userns.namespace.view_maps_title')}>

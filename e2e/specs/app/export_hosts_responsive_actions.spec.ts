@@ -30,6 +30,66 @@ const host = {
   root_squash: false,
 };
 
+for (const language of ['en', 'cs'] as const) {
+  test(`@pr-smoke @pr-smoke-mobile export host warning requires a successful empty read (${language})`, async ({
+    page,
+  }, testInfo) => {
+    await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+    await setUiSettingsLocalStorage(page, { language, theme: 'dark' });
+    let state: 'error' | 'empty' = 'error';
+    let releaseHosts!: () => void;
+    const hostsPending = new Promise<void>((resolve) => {
+      releaseHosts = resolve;
+    });
+    await installHaveApiMock(page, {
+      user: { id: 1, login: 'demo', level: 1 },
+      handlers: {
+        'GET exports/10': () => ({ export: exportItem }),
+        'GET exports/10/hosts': async () => {
+          await hostsPending;
+          return state === 'error'
+            ? {
+                status: 503,
+                contentType: 'application/json',
+                body: JSON.stringify({ status: false, message: 'Host inventory unavailable' }),
+              }
+            : { hosts: [], _meta: { total_count: 0 } };
+        },
+      },
+    });
+
+    await page.goto('/app/exports/10');
+    const warning = page.getByText(language === 'cs' ? 'Nejsou nastaveni žádní hosté' : 'No hosts configured', {
+      exact: true,
+    });
+    await expect(page.getByTestId('exports.detail.hosts.loading')).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath(`hosts-loading-${language}.png`), fullPage: true, scale: 'css' });
+    await expect.soft(warning).toHaveCount(0, { timeout: 1_000 });
+
+    releaseHosts();
+    await expect(page.getByTestId('exports.detail.hosts.error')).toBeVisible();
+    await expect(page.getByTestId('exports.detail.hosts.error.retry')).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath(`hosts-error-${language}.png`), fullPage: true, scale: 'css' });
+    await expect.soft(warning).toHaveCount(0, { timeout: 1_000 });
+
+    state = 'empty';
+    await page.getByTestId('exports.detail.hosts.error.retry').click();
+    await expect(page.getByTestId('exports.detail.hosts.empty')).toBeVisible();
+    await expect(warning).toBeVisible();
+    await expect(
+      page.getByText(
+        language === 'cs'
+          ? 'Před mountem exportu přidej alespoň jednoho povoleného hosta.'
+          : 'Add at least one allowed host before trying to mount this export.',
+        { exact: true }
+      )
+    ).toBeVisible();
+    await expect(page.getByTestId('exports.detail.hosts.add')).toBeEnabled();
+    await expect(page.getByTestId('exports.detail.hosts.error')).toHaveCount(0);
+    await page.screenshot({ path: testInfo.outputPath(`hosts-empty-${language}.png`), fullPage: true, scale: 'css' });
+  });
+}
+
 async function hostTableLayout(tableCard: Locator) {
   return tableCard.evaluate((card) => {
     const scroller = card.firstElementChild as HTMLElement;
@@ -55,7 +115,9 @@ async function expectActionInside(page: Page, action: Locator, tableCard: Locato
 
   expect(actionRect.x).toBeGreaterThanOrEqual(cardRect.x - 1);
   expect(actionRect.x + actionRect.width).toBeLessThanOrEqual(cardRect.x + cardRect.width + 1);
-  expect(actionRect.x + actionRect.width).toBeLessThanOrEqual(await page.evaluate(() => document.documentElement.clientWidth + 1));
+  expect(actionRect.x + actionRect.width).toBeLessThanOrEqual(
+    await page.evaluate(() => document.documentElement.clientWidth + 1)
+  );
   expect(actionRect.height).toBeGreaterThanOrEqual(minHeight);
 }
 
@@ -72,7 +134,13 @@ test('@pr-smoke @pr-smoke-mobile export host actions follow the card width witho
     user: { id: 1, login: 'demo', level: 1 },
     handlers: {
       'GET exports/10': () => ({ export: exportItem }),
-      'GET exports/10/hosts': () => ({ hosts: [host, { ...host, id: 12, ip_address: { id: 10, addr: '2001:db8:1234:5678:1234:5678:1234:5678' }, rw: false }], _meta: { total_count: 2 } }),
+      'GET exports/10/hosts': () => ({
+        hosts: [
+          host,
+          { ...host, id: 12, ip_address: { id: 10, addr: '2001:db8:1234:5678:1234:5678:1234:5678' }, rw: false },
+        ],
+        _meta: { total_count: 2 },
+      }),
       'GET ip_addresses': () => ({ ip_addresses: [host.ip_address], _meta: { total_count: 1 } }),
     },
   });
@@ -154,22 +222,41 @@ test('@pr-smoke @pr-smoke-mobile export host actions follow the card width witho
 });
 
 for (const scenario of ['selected-hosts', 'all-vps', 'snapshot'] as const) {
-  test(`@pr-smoke @pr-smoke-mobile ${scenario} export has full-width hosts and stacked mount examples`, async ({ page }, testInfo) => {
+  test(`@pr-smoke @pr-smoke-mobile ${scenario} export has full-width hosts and stacked mount examples`, async ({
+    page,
+  }, testInfo) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
     await setUiSettingsLocalStorage(page, { language: 'cs', theme: 'dark' });
     await page.addInitScript(() => {
       Object.defineProperty(navigator, 'clipboard', {
         configurable: true,
-        value: { writeText: async (text: string) => { sessionStorage.setItem('fixture.copied', text); } },
+        value: {
+          writeText: async (text: string) => {
+            sessionStorage.setItem('fixture.copied', text);
+          },
+        },
       });
     });
-    await installHaveApiMock(page, { user: { id: 1, login: 'demo', level: 1 }, handlers: {
-      'GET exports/10': () => ({ export: { ...exportItem, all_vps: scenario === 'all-vps',
-        snapshot: scenario === 'snapshot' ? { id: 30, name: 'backup-example' } : null } }),
-      'GET exports/10/hosts': () => ({ hosts: [host,
-        { ...host, id: 12, ip_address: { id: 10, addr: '2001:db8:1234:5678:1234:5678:1234:5678' }, rw: false },
-        { ...host, id: 13, ip_address: { id: 11, addr: '203.0.113.13' } }], _meta: { total_count: 3 } }),
-    } });
+    await installHaveApiMock(page, {
+      user: { id: 1, login: 'demo', level: 1 },
+      handlers: {
+        'GET exports/10': () => ({
+          export: {
+            ...exportItem,
+            all_vps: scenario === 'all-vps',
+            snapshot: scenario === 'snapshot' ? { id: 30, name: 'backup-example' } : null,
+          },
+        }),
+        'GET exports/10/hosts': () => ({
+          hosts: [
+            host,
+            { ...host, id: 12, ip_address: { id: 10, addr: '2001:db8:1234:5678:1234:5678:1234:5678' }, rw: false },
+            { ...host, id: 13, ip_address: { id: 11, addr: '203.0.113.13' } },
+          ],
+          _meta: { total_count: 3 },
+        }),
+      },
+    });
     await page.goto('/app/exports/10');
     await expect(page.getByTestId('exports.detail.hosts.row.13')).toBeVisible();
     const summary = await page.getByTestId('exports.detail.summary').boundingBox();
@@ -203,15 +290,23 @@ for (const scenario of ['selected-hosts', 'all-vps', 'snapshot'] as const) {
     }
     for (const kind of snippets) {
       await page.getByTestId(`exports.detail.instructions.${kind}.copy`).click();
-      expect(await page.evaluate(() => sessionStorage.getItem('fixture.copied')))
-        .toBe(await page.getByTestId(`exports.detail.instructions.${kind}`).textContent());
+      expect(await page.evaluate(() => sessionStorage.getItem('fixture.copied'))).toBe(
+        await page.getByTestId(`exports.detail.instructions.${kind}`).textContent()
+      );
     }
     if (scenario === 'snapshot') await expect(page.getByTestId('exports.detail.instructions.fstab')).toHaveCount(0);
     await expectNoDocumentHorizontalOverflow(page);
     if (scenario === 'all-vps') {
       await expect(page.getByTestId('exports.detail.instructions.nixos.copy')).toHaveText('Kopírovat');
-      await page.evaluate(() => { (document.activeElement as HTMLElement | null)?.blur(); window.scrollTo({ top: 0, behavior: 'instant' }); });
-      const screenshot = await page.screenshot({ path: testInfo.outputPath('export-layout.png'), fullPage: true, scale: 'css' });
+      await page.evaluate(() => {
+        (document.activeElement as HTMLElement | null)?.blur();
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      });
+      const screenshot = await page.screenshot({
+        path: testInfo.outputPath('export-layout.png'),
+        fullPage: true,
+        scale: 'css',
+      });
       await testInfo.attach('Export detail — Czech synthetic fixture', { body: screenshot, contentType: 'image/png' });
     }
   });

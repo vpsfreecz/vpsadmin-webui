@@ -139,10 +139,12 @@ export function RequestResolveReview(props: {
           <div className="text-xs font-medium uppercase tracking-wide text-muted">{t('requests.resolve.review.target')}</div>
           <div className="mt-1">#{props.reqId}{applicant ? ` · ${applicant}` : ''}</div>
         </div>
-        <div>
-          <div className="text-xs font-medium uppercase tracking-wide text-muted">{t('requests.resolve.review.impact')}</div>
-          <div className="mt-1">{t(impactKey(props.reqType, props.action))}</div>
-        </div>
+        {props.action === 'ignore' || (props.reqType === 'change' && props.action === 'approve') ? (
+          <div>
+            <div className="text-xs font-medium uppercase tracking-wide text-muted">{t('requests.resolve.review.impact')}</div>
+            <div className="mt-1">{t(impactKey(props.reqType, props.action))}</div>
+          </div>
+        ) : null}
         {props.reqType === 'registration' && props.action === 'approve' ? (
           <div className="md:col-span-2">
             <div className="text-xs font-medium uppercase tracking-wide text-muted">{t('requests.resolve.approve.options')}</div>
@@ -155,12 +157,6 @@ export function RequestResolveReview(props: {
             </div>
           </div>
         ) : null}
-        <div>
-          <div className="text-xs font-medium uppercase tracking-wide text-muted">{t('requests.resolve.review.gates')}</div>
-          <ul className="mt-1 list-disc space-y-1 pl-4">
-            <li>{props.requiresReason ? t('requests.resolve.review.reason_required') : t('requests.resolve.review.reason_optional')}</li>
-          </ul>
-        </div>
         <div>
           <div className="text-xs font-medium uppercase tracking-wide text-muted">{t('requests.resolve.review.overrides')}</div>
           {rows.length > 0 ? (

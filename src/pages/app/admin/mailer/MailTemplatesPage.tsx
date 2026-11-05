@@ -200,7 +200,6 @@ export function MailTemplatesPage() {
       clearMailTemplateCreateGuard(guardScope);
       const message = formatErrorMessage(error);
       setEditorError(message);
-      pushToast({ variant: 'danger', title: t('mailer.templates.create.error'), body: message });
     },
   });
 
@@ -246,7 +245,6 @@ export function MailTemplatesPage() {
         <div className="space-y-3">
           <PageHeader
             title={t('mailer.templates.list.title')}
-            description={t('mailer.templates.list.description')}
             meta={filtersActive ? <span className="text-xs text-faint">{t('list.meta.filters_active')}</span> : null}
             actions={
               <Button

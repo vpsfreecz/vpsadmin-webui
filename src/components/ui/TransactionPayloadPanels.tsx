@@ -88,6 +88,8 @@ export function TransactionDebugSections(props: {
   input?: string;
   output?: string;
   errorText?: string;
+  /** Keep the original errorText for extras deduplication when its summary is rendered elsewhere. */
+  showErrorText?: boolean;
   source?: Record<string, unknown> | null | undefined;
   raw?: unknown;
   maxHeightClass?: string;
@@ -129,7 +131,7 @@ export function TransactionDebugSections(props: {
 
   return (
     <div className="min-w-0 space-y-4" data-testid={props.testId}>
-      {props.errorText ? (
+      {props.showErrorText !== false && props.errorText ? (
         <div>
           <div className="flex items-center justify-between gap-2">
             <div className="text-xs font-medium text-danger">{props.t('transactions.tx.error_label')}</div>

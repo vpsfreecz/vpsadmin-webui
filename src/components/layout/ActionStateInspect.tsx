@@ -128,7 +128,7 @@ export function ActionStateInspect(props: {
       : 'tasks.inspect.action_state_id.running';
 
   const renderTxCard = (tx: Transaction) => {
-    const b = transactionBadge(tx);
+    const b = transactionBadge(tx, i18n.t);
     const name = tx.name ? String(tx.name) : `#${tx.id}`;
     const txId = Number(tx.id);
     const hasTxId = Number.isFinite(txId) && txId > 0;
@@ -238,15 +238,16 @@ export function ActionStateInspect(props: {
             <h3 className="mt-1 text-base font-semibold">#{id}</h3>
             <div className="mt-1 break-words text-sm">{label}</div>
           </div>
-          <Badge variant={badge.variant}>{badge.label}</Badge>
+          <Badge variant={badge.variant === 'ok' ? 'neutral' : badge.variant}>{badge.label}</Badge>
         </div>
 
         <div className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
-          <div><div className="text-xs text-muted">{i18n.t('common.state')}</div><div>{badge.label}</div></div>
-          <div>
-            <div className="text-xs text-muted">{i18n.t('tasks.inspect.success')}</div>
-            <div>{isFailingActionState(s) ? i18n.t('common.no') : isFinishedActionState(s) ? i18n.t('common.yes') : i18n.t('state.running')}</div>
-          </div>
+          {!(isFinishedActionState(s) && s.status === true) ? (
+            <div>
+              <div className="text-xs text-muted">{i18n.t('tasks.inspect.success')}</div>
+              <div>{isFailingActionState(s) ? i18n.t('common.no') : isFinishedActionState(s) ? i18n.t('common.yes') : i18n.t('state.running')}</div>
+            </div>
+          ) : null}
           {pLabel ? <div><div className="text-xs text-muted">{i18n.t('common.progress')}</div><div>{pct !== null ? `${pLabel} · ${pct}%` : pLabel}</div></div> : null}
           {target ? (
             <div>
@@ -272,7 +273,7 @@ export function ActionStateInspect(props: {
           </div>
         ) : null}
 
-        {pct !== null ? (
+        {pct !== null && !isFinishedActionState(s) ? (
           <div className="mt-3 h-2 rounded-full bg-surface-2">
             <div className="h-2 rounded-full bg-fg/60" style={{ width: `${pct}%` }} />
           </div>
@@ -298,16 +299,6 @@ export function ActionStateInspect(props: {
             </Button>
           )}
         </div>
-      </div>
-
-      <div className="mt-4">
-        <div className="text-xs font-medium text-muted">{i18n.t('tasks.inspect.backend_details')}</div>
-        <pre
-          className="mt-2 max-h-64 overflow-auto rounded-md border border-border bg-surface p-3 text-xs text-muted"
-          data-testid="tasks.inspect.backend_details"
-        >
-          {backendDetailPayload(s)}
-        </pre>
       </div>
 
       <div className="mt-4">
@@ -352,6 +343,16 @@ export function ActionStateInspect(props: {
           <div className="mt-2 text-sm text-muted">{i18n.t('tasks.empty.no_items')}</div>
         )}
       </div>
+
+      <details className="mt-4 rounded-md border border-border bg-surface" data-testid="tasks.inspect.backend_disclosure">
+        <summary className="cursor-pointer select-none px-3 py-3 text-sm font-medium">{i18n.t('tasks.inspect.backend_details')}</summary>
+        <pre
+          className="mx-3 mb-3 max-h-64 overflow-auto rounded-md border border-border bg-surface p-3 text-xs text-muted"
+          data-testid="tasks.inspect.backend_details"
+        >
+          {backendDetailPayload(s)}
+        </pre>
+      </details>
     </div>
   );
 }

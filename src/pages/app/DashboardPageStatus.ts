@@ -11,9 +11,12 @@ export function DashboardOperationalSummary(opts: {
   nodesLoading: boolean;
   nodesError: boolean;
   currentOutageCount: number;
+  unknownOutageCount: number;
+  nodeTotalCount: number;
   nodeDownCount: number;
   nodeMaintenanceCount: number;
-}): { variant: AlertVariant; title: string; body: string } {
+  nodeUnknownCount: number;
+}): { variant: AlertVariant; title: string; body: string } | null {
   if (opts.outagesLoading || opts.nodesLoading) {
     return {
       variant: 'neutral',
@@ -54,9 +57,13 @@ export function DashboardOperationalSummary(opts: {
     };
   }
 
-  return {
-    variant: 'ok',
-    title: opts.t('dashboard.alert.nominal.title'),
-    body: opts.t('dashboard.alert.nominal.body'),
-  };
+  if (opts.nodeTotalCount === 0 || opts.nodeUnknownCount > 0 || opts.unknownOutageCount > 0) {
+    return {
+      variant: 'warn',
+      title: opts.t('dashboard.alert.partial.title'),
+      body: opts.t('dashboard.alert.partial.body'),
+    };
+  }
+
+  return null;
 }

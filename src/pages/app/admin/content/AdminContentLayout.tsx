@@ -11,7 +11,7 @@ export function AdminContentLayout() {
 
   return (
     <DetailShell variant="wide" testId="admin.content.shell">
-      <PageHeader title={t('admin.content.title')} description={t('admin.content.subtitle')} />
+      <PageHeader title={t('admin.content.title')} />
 
       <TabsNav
         testId="admin.content.tabs"

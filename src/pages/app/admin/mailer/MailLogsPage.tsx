@@ -177,7 +177,6 @@ function MailLogsPageContent() {
         <div className="space-y-3">
           <PageHeader
             title={t('mailer.log.list.title')}
-            description={t('mailer.log.list.description')}
             testId="admin.mailer.log.header"
           />
           <MailerTabs />

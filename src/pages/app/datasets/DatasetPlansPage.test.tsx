@@ -1,6 +1,6 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -156,7 +156,7 @@ const availablePlans: EnvironmentDatasetPlan[] = [
   },
 ];
 
-function renderPage() {
+function renderPage(datasetOverrides: Partial<Dataset> = {}) {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: { retry: false },
@@ -170,9 +170,10 @@ function renderPage() {
     object_state: 'active',
     environment: { id: 7, label: 'Production' },
     user: { id: 1, login: 'backup-user' },
+    ...datasetOverrides,
   } satisfies Dataset;
 
-  return render(
+  const rendered = render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter>
         <DatasetContextProvider
@@ -199,6 +200,13 @@ function renderPage() {
       </MemoryRouter>
     </QueryClientProvider>
   );
+  return { ...rendered, queryClient };
+}
+
+function availableCount() {
+  const label = within(screen.getByTestId('dataset.plans.summary'))
+    .getByText('dataset.plans.available_count');
+  return within(label.parentElement as HTMLElement);
 }
 
 beforeEach(() => {
@@ -215,6 +223,92 @@ beforeEach(() => {
 });
 
 describe('DatasetPlansPage', () => {
+  it('keeps successful empty reads as zero with the factual empty explanation', async () => {
+    api.fetchDatasetPlans.mockResolvedValue({ data: [], meta: {} });
+    api.fetchEnvironmentDatasetPlans.mockResolvedValue({ data: [], meta: {} });
+    renderPage();
+
+    const empty = await screen.findByTestId('dataset.plans.empty');
+    expect(availableCount().getByText('0', { exact: true })).toBeVisible();
+    expect(empty).toHaveTextContent('dataset.plans.empty.title');
+    expect(empty).toHaveTextContent('dataset.plans.empty.no_available');
+    expect(screen.queryByTestId('dataset.plans.assign.open')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('dataset.plans.empty.assign')).not.toBeInTheDocument();
+  });
+
+  it('keeps unavailable reads unknown without claiming there are no assignable plans', async () => {
+    api.fetchDatasetPlans.mockResolvedValue({ data: [], meta: {} });
+    api.fetchEnvironmentDatasetPlans.mockRejectedValue(new Error('Available plans unavailable'));
+    renderPage();
+
+    expect(await screen.findByTestId('dataset.plans.available_load_error')).toBeVisible();
+    expect(availableCount().getByText('N/A', { exact: true })).toBeVisible();
+    const empty = screen.getByTestId('dataset.plans.empty');
+    expect(empty).toHaveTextContent('dataset.plans.empty.title');
+    expect(empty).not.toHaveTextContent('dataset.plans.empty.no_available');
+    expect(screen.queryByTestId('dataset.plans.assign.open')).not.toBeInTheDocument();
+  });
+
+  it('keeps a disabled missing-environment read unknown and does not request it', async () => {
+    api.fetchDatasetPlans.mockResolvedValue({ data: [], meta: {} });
+    renderPage({ environment: null });
+
+    expect(await screen.findByTestId('dataset.plans.environment_missing')).toBeVisible();
+    expect(availableCount().getByText('N/A', { exact: true })).toBeVisible();
+    expect(screen.getByTestId('dataset.plans.empty')).not.toHaveTextContent('dataset.plans.empty.no_available');
+    expect(screen.queryByTestId('dataset.plans.assign.open')).not.toBeInTheDocument();
+    expect(api.fetchEnvironmentDatasetPlans).not.toHaveBeenCalled();
+  });
+
+  it('counts only eligible unassigned plans while retaining user and administrator permissions', async () => {
+    api.fetchEnvironmentDatasetPlans.mockResolvedValue({ data: [
+      assignedPlans[0]?.environment_dataset_plan,
+      availablePlans[1],
+      { label: 'No numeric ID', user_add: true },
+    ], meta: {} });
+    renderPage();
+
+    await screen.findByTestId('dataset.plans.row.21');
+    expect(availableCount().getByText('0', { exact: true })).toBeVisible();
+    expect(screen.queryByTestId('dataset.plans.assign.open')).not.toBeInTheDocument();
+    expect(screen.getByTestId('dataset.plans.row.22.remove')).toBeEnabled();
+  });
+
+  it('keeps a successful cached count during refresh and marks a settled failed refresh unavailable', async () => {
+    const { queryClient } = renderPage();
+    await screen.findByTestId('dataset.plans.row.21');
+    expect(availableCount().getByText('1', { exact: true })).toBeVisible();
+    let rejectRead!: (error: Error) => void;
+    api.fetchEnvironmentDatasetPlans.mockReturnValueOnce(new Promise((_resolve, reject) => {
+      rejectRead = reject;
+    }));
+    let refresh!: Promise<void>;
+    await act(async () => {
+      refresh = queryClient.refetchQueries({ queryKey: ['environments', 7, 'dataset_plans'] });
+    });
+    expect(queryClient.isFetching({ queryKey: ['environments', 7, 'dataset_plans'] })).toBe(1);
+    expect(availableCount().getByText('1', { exact: true })).toBeVisible();
+    expect(screen.getByTestId('dataset.plans.assign.open')).toBeEnabled();
+
+    await act(async () => {
+      rejectRead(new Error('Refresh failed'));
+      await refresh;
+    });
+    expect(await screen.findByTestId('dataset.plans.available_load_error')).toBeVisible();
+    expect(availableCount().getByText('N/A', { exact: true })).toBeVisible();
+    expect(queryClient.getQueryData(['environments', 7, 'dataset_plans'])).toEqual(availablePlans);
+    expect(screen.getByTestId('dataset.plans.row.21')).toBeVisible();
+    expect(screen.queryByTestId('dataset.plans.assign.open')).not.toBeInTheDocument();
+  });
+
+  it('keeps an assigned-plan read error on the existing whole-page error path', async () => {
+    api.fetchDatasetPlans.mockRejectedValue(new Error('Assigned plans unavailable'));
+    renderPage();
+
+    expect(await screen.findByTestId('dataset.plans.error')).toBeVisible();
+    expect(screen.queryByTestId('dataset.plans.summary')).not.toBeInTheDocument();
+  });
+
   it('requests nested plan details and renders descriptions with a safe fallback', async () => {
     renderPage();
 
@@ -242,6 +336,7 @@ describe('DatasetPlansPage', () => {
       limit: 200,
       includes: 'dataset_plan',
     });
+    expect(availableCount().getByText('1', { exact: true })).toBeVisible();
   });
 
   it('keeps regular-user add/remove permissions and previews the selected description', async () => {
@@ -327,6 +422,7 @@ describe('DatasetPlansPage', () => {
     renderPage();
 
     expect(await screen.findByTestId('dataset.plans.row.21.remove')).toBeEnabled();
+    expect(availableCount().getByText('2', { exact: true })).toBeVisible();
     await user.click(screen.getByTestId('dataset.plans.assign.open'));
     const select = screen.getByTestId('dataset.plans.assign.select');
     expect(within(select).getByRole('option', { name: 'Operator archive' })).toBeInTheDocument();

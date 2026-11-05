@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
 
-test('admin users: empty state clears filters', async ({ page }) => {
+test('admin users: empty state clears filters', async ({ page, isMobile }) => {
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
 
   await installHaveApiMock(page, {
@@ -37,5 +37,5 @@ test('admin users: empty state clears filters', async ({ page }) => {
   // Clear filters from the empty state.
   await page.getByTestId('admin.users.empty.action').click();
 
-  await expect(page.getByTestId('admin.users.row.11')).toBeVisible();
+  await expect(page.getByTestId(isMobile ? 'admin.users.card.11' : 'admin.users.row.11')).toBeVisible();
 });

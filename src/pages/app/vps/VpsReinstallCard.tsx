@@ -148,7 +148,7 @@ export function VpsReinstallCard(props: {
         </div>
 
         <div className="grid gap-3 md:grid-cols-2">
-          <Field label={t('vps.lifecycle.field.os_template')} help={t('vps.lifecycle.reinstall.os_template_help')}>
+          <Field label={t('vps.lifecycle.field.os_template')}>
             <Select
               value={props.form.osTemplate}
               onChange={(e) => setForm({ osTemplate: e.target.value })}
@@ -163,10 +163,6 @@ export function VpsReinstallCard(props: {
               ))}
             </Select>
           </Field>
-
-          <ImpactItem label={t('vps.lifecycle.reinstall.new_template')} testId="vps.lifecycle.reinstall.new_template">
-            {vpsReinstallTemplateLabel(tpl)}
-          </ImpactItem>
         </div>
 
         <Alert variant="neutral" title={t('vps.lifecycle.reinstall.payload.title')} testId="vps.lifecycle.reinstall.payload">

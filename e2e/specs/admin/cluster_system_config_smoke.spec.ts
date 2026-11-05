@@ -36,7 +36,7 @@ test.describe('@smoke Admin cluster system config', () => {
     });
   });
 
-  test('lists and edits a config value', async ({ page }) => {
+  test('lists and edits a config value', async ({ page }, testInfo) => {
     const puts: any[] = [];
     page.on('request', (req) => {
       if (req.method() !== 'PUT') return;
@@ -58,5 +58,20 @@ test.describe('@smoke Admin cluster system config', () => {
 
     expect(puts.length).toBeGreaterThan(0);
     expect(puts[puts.length - 1]).toEqual({ system_config: { value: 'https://api.changed.test' } });
+    await expect(page.getByTestId('admin.cluster.system_config.edit')).toBeHidden();
+    await page.getByTestId('admin.cluster.system_config.row.core.transaction_key.edit').click();
+    const secretEditor = page.getByTestId('admin.cluster.system_config.edit');
+    await expect(page.getByTestId('admin.cluster.system_config.edit.secret.field')).not.toHaveValue('super-secret');
+    await secretEditor.screenshot({ path: testInfo.outputPath('system-config-secret-hidden.png'), scale: 'css' });
+    await page.getByTestId('admin.cluster.system_config.edit.secret.reveal').click();
+    await expect(page.getByTestId('admin.cluster.system_config.edit.value')).toHaveValue('super-secret');
+    await page.getByTestId('admin.cluster.system_config.edit.value').fill('fixture-secret-draft');
+    await expect(page.getByTestId('admin.cluster.system_config.edit.reset')).toBeEnabled();
+    await secretEditor.screenshot({ path: testInfo.outputPath('system-config-secret-edit.png'), scale: 'css' });
+    await page.getByTestId('admin.cluster.system_config.edit.reset').click();
+    await expect(page.getByTestId('admin.cluster.system_config.edit.value')).toHaveValue('super-secret');
+    await page.getByTestId('admin.cluster.system_config.edit.secret.hide').click();
+    await expect(page.getByTestId('admin.cluster.system_config.edit.value')).toHaveCount(0);
+    await secretEditor.getByRole('button', { name: 'Cancel', exact: true }).click();
   });
 });

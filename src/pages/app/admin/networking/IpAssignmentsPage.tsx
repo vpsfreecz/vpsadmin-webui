@@ -18,7 +18,6 @@ import { Input } from '../../../../components/ui/Input';
 import { KeysetPagination } from '../../../../components/ui/KeysetPagination';
 import { LoadingState } from '../../../../components/ui/LoadingState';
 import { Select } from '../../../../components/ui/Select';
-import { StatusDot } from '../../../../components/ui/StatusDot';
 import { TableCard } from '../../../../components/ui/TableCard';
 import { Badge } from '../../../../components/ui/Badge';
 import { UserLookupInput } from '../../../../components/ui/UserLookupInput';
@@ -113,7 +112,6 @@ function IpAssignmentsPageContent() {
         <TableCard testId="admin.ip_assignments.table" footer={<KeysetPagination testId="admin.ip_assignments.pagination" page={paging.page} pageCount={paging.pageCount} canPrev={paging.canPrev} canNext={canNext} onPrev={paging.goPrev} onNext={() => paging.goNext(nextCursor ?? null)} onGoToPage={paging.goToPage} limit={paging.limit} onLimitChange={paging.setLimit} />}>
           <thead>
             <tr>
-              <th aria-label={t('common.state')} />
               <th>{t('admin.ip_assignments.field.period')}</th>
               <th>{t('admin.ip_assignments.field.ip')}</th>
               <th>{t('admin.ip_assignments.field.user')}</th>
@@ -129,7 +127,6 @@ function IpAssignmentsPageContent() {
               const activeRow = !row.to_date;
               return (
                 <tr key={id} data-testid={`admin.ip_assignments.row.${id}`}>
-                  <td><StatusDot variant={activeRow ? 'ok' : 'neutral'} testId={`admin.ip_assignments.row.${id}.dot`} /></td>
                   <td className="tabular-nums text-sm">
                     <div>{formatDateTime(row.from_date)}</div>
                     <div className="text-muted">{row.to_date ? `→ ${formatDateTime(row.to_date)}` : t('common.current')}</div>

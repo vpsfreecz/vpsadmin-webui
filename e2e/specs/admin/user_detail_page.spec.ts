@@ -37,13 +37,18 @@ test('admin user detail: shows header and shortcut links', async ({ page }) => {
   await expect(page.getByTestId('admin.user.action.datasets')).toHaveAttribute('href', '/admin/datasets?user=42');
   await expect(page.getByTestId('admin.user.action.dns')).toHaveAttribute('href', '/admin/dns?user=42');
   await expect(page.getByTestId('admin.user.action.requests')).toHaveAttribute('href', '/admin/requests?user=42');
-  await expect(page.getByTestId('admin.user.action.user_namespaces')).toHaveAttribute('href', '/admin/user-namespaces/maps?user=42');
+  await expect(page.getByTestId('admin.user.action.user_namespaces')).toHaveAttribute(
+    'href',
+    '/admin/user-namespaces/maps?user=42'
+  );
 
   await expect(page.getByTestId('admin.user.refresh')).toBeVisible();
   await expectNoDocumentHorizontalOverflow(page);
 });
 
-test('@workflow-matrix @pr-smoke @pr-smoke-mobile admin user detail: VPS create keeps the selected member context', async ({ page }) => {
+test('@workflow-matrix @pr-smoke @pr-smoke-mobile admin user detail: VPS create keeps the selected member context', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
 
   await installHaveApiMock(page, {
@@ -199,16 +204,18 @@ test('admin user detail: edit drawer can clear optional account fields', async (
   await page.getByTestId('admin.user.edit.save').click();
 
   await expect(page.getByTestId('admin.user.edit.drawer')).toHaveCount(0);
-  expect(updates).toEqual([{
-    login: 'alice',
-    full_name: '',
-    email: '',
-    address: '',
-    level: 1,
-    info: '',
-    mailer_enabled: true,
-    time_zone: 'Europe/Prague',
-  }]);
+  expect(updates).toEqual([
+    {
+      login: 'alice',
+      full_name: '',
+      email: '',
+      address: '',
+      level: 1,
+      info: '',
+      mailer_enabled: true,
+      time_zone: 'Europe/Prague',
+    },
+  ]);
 });
 
 test('admin user detail: lifecycle state update sends object state', async ({ page }) => {
@@ -222,6 +229,8 @@ test('admin user detail: lifecycle state update sends object state', async ({ pa
     full_name: 'Alice Example',
     email: 'alice@example.test',
     object_state: 'active',
+    expiration_date: null,
+    remind_after_date: null,
   };
 
   await installHaveApiMock(page, {
@@ -252,7 +261,10 @@ test('admin user detail: lifecycle state update sends object state', async ({ pa
   await expect(page.getByTestId('admin.user.lifecycle.remind_after.1w')).toBeDisabled();
   await expect(page.getByTestId('admin.user.lifecycle.state')).toContainText('Active account (active)');
   await expect(page.getByTestId('admin.user.lifecycle.state')).toContainText('Deactivated – recoverable (soft_delete)');
-  await expect(page.getByTestId('admin.user.lifecycle.state').locator('option[value="deleted"]')).toHaveAttribute('disabled', '');
+  await expect(page.getByTestId('admin.user.lifecycle.state').locator('option[value="deleted"]')).toHaveAttribute(
+    'disabled',
+    ''
+  );
   await expect(page.getByTestId('admin.user.lifecycle.state.description')).toContainText('fully available');
   await page.getByTestId('admin.user.lifecycle.state').selectOption('suspended');
   await expect(page.getByTestId('admin.user.lifecycle.state.description')).toContainText('Temporarily stops VPS');
@@ -267,10 +279,12 @@ test('admin user detail: lifecycle state update sends object state', async ({ pa
   await page.getByTestId('admin.user.lifecycle.confirm.confirm').click();
 
   await expect.poll(() => updates.length).toBe(1);
-  expect(updates).toEqual([{ user: { object_state: 'suspended' } }]);
+  expect(updates).toEqual([{ user: { object_state: 'suspended', expiration_date: null } }]);
 });
 
-test('@pr-smoke @pr-smoke-mobile admin user detail: soft delete keeps a durable queued receipt with task links', async ({ page }) => {
+test('@pr-smoke @pr-smoke-mobile admin user detail: soft delete keeps a durable queued receipt with task links', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
 
   const updates: Array<Record<string, unknown>> = [];
@@ -339,8 +353,14 @@ test('admin user detail: resets lifecycle draft when the user route changes', as
       'GET users/42': () => ({ user: { id: 42, login: 'alice', level: 1, object_state: 'active' } }),
       'GET users/43': () => ({ user: { id: 43, login: 'bob', level: 1, object_state: 'active' } }),
       'GET users': () => ({ users: [] }),
-      'PUT users/42': () => { updates.push('42'); return { user: { id: 42, object_state: 'suspended' } }; },
-      'PUT users/43': () => { updates.push('43'); return { user: { id: 43, object_state: 'active' } }; },
+      'PUT users/42': () => {
+        updates.push('42');
+        return { user: { id: 42, object_state: 'suspended' } };
+      },
+      'PUT users/43': () => {
+        updates.push('43');
+        return { user: { id: 43, object_state: 'active' } };
+      },
     },
   });
 
@@ -356,7 +376,9 @@ test('admin user detail: resets lifecycle draft when the user route changes', as
   expect(updates).toEqual([]);
 });
 
-test('admin user detail: expiration-only update accepts a synchronous response without action state', async ({ page }) => {
+test('admin user detail: expiration-only update accepts a synchronous response without action state', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
 
   let updateRequests = 0;
@@ -390,7 +412,9 @@ test('admin user detail: expiration-only update accepts a synchronous response w
   await expect(page.getByTestId('admin.user.lifecycle.save')).toBeDisabled();
 });
 
-test('@pr-smoke @pr-smoke-mobile admin user detail: reminder timing can be set and cleared without changing other lifecycle fields', async ({ page }) => {
+test('@pr-smoke @pr-smoke-mobile admin user detail: reminder timing can be set and cleared without changing other lifecycle fields', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
 
   const updates: Array<Record<string, unknown>> = [];
@@ -457,7 +481,9 @@ for (const scenario of [
     response: () => ({ status: 200, contentType: 'application/json', body: '{' }),
   },
 ] as const) {
-  test(`admin user detail: ${scenario.name} is reload-safe and requires review before acknowledgement`, async ({ page }) => {
+  test(`admin user detail: ${scenario.name} is reload-safe and requires review before acknowledgement`, async ({
+    page,
+  }) => {
     await bootstrapVpsAdminWindow(page);
 
     const user = {
@@ -467,6 +493,8 @@ for (const scenario of [
       full_name: 'Alice Example',
       email: 'alice@example.test',
       object_state: 'active',
+      expiration_date: null,
+      remind_after_date: null,
     };
     let updateRequests = 0;
     let releaseResponse: (() => void) | undefined;
@@ -523,18 +551,23 @@ for (const scenario of [
   });
 }
 
-
 test.describe('admin user soft-delete expiration', () => {
   test.use({ timezoneId: 'Europe/Prague' });
 
   for (const expiration of [null, '2026-10-27T07:15:00.000Z']) {
-    test(`@pr-smoke @pr-smoke-mobile defaults one month with ${expiration ? 'an existing' : 'no'} deadline and permits an override`, async ({ page }) => {
+    test(`@pr-smoke @pr-smoke-mobile defaults one month with ${expiration ? 'an existing' : 'no'} deadline and permits an override`, async ({
+      page,
+    }) => {
       await page.clock.setFixedTime(new Date('2026-10-20T10:15:42.000Z'));
       await bootstrapVpsAdminWindow(page);
       const updates: Array<Record<string, unknown>> = [];
       const user = {
-        id: 42, login: 'alice', level: 1, object_state: 'suspended',
-        expiration_date: expiration, remind_after_date: null,
+        id: 42,
+        login: 'alice',
+        level: 1,
+        object_state: 'suspended',
+        expiration_date: expiration,
+        remind_after_date: null,
       };
       await installHaveApiMock(page, {
         user: { id: 1, login: 'admin', level: 100 },
@@ -544,7 +577,7 @@ test.describe('admin user soft-delete expiration', () => {
           'PUT users/42': ({ reqJson }) => {
             const payload = (reqJson as { user: Record<string, unknown> }).user;
             updates.push(payload);
-            return { user: { ...user, ...payload } };
+            return { user: { ...user, ...payload }, _meta: { action_state_id: 743 } };
           },
         },
       });
@@ -566,7 +599,8 @@ test.describe('admin user soft-delete expiration', () => {
       await page.getByTestId('admin.user.lifecycle.confirm.confirm').click();
       await expect.poll(() => updates.length).toBe(1);
       expect(updates[0]).toMatchObject({
-        object_state: 'soft_delete', expiration_date: '2026-12-01T08:30:00.000Z',
+        object_state: 'soft_delete',
+        expiration_date: '2026-12-01T08:30:00.000Z',
       });
       await expect(deadline).toHaveValue('2026-12-01 09:30:00');
     });
@@ -604,7 +638,13 @@ for (const language of ['en', 'cs'] as const) {
     await expect(page.getByTestId('admin.user.edit.drawer')).toHaveCount(0);
     expect(updates.at(-1)).toMatchObject({ level: 100, full_name: 'Alice Updated' });
 
-    for (const [label, level] of [['User', 2], ['Power User', 3], ['Admin', 21], ['Super Admin', 90], ['Master Admin', 99]] as const) {
+    for (const [label, level] of [
+      ['User', 2],
+      ['Power User', 3],
+      ['Admin', 21],
+      ['Super Admin', 90],
+      ['Master Admin', 99],
+    ] as const) {
       await page.getByTestId('admin.user.edit.open').click();
       await role.selectOption({ label });
       await expect(role).toHaveValue(String(level));
@@ -620,7 +660,10 @@ for (const language of ['en', 'cs'] as const) {
       await page.getByTestId('admin.user.edit.open').click();
       await expect(role).toHaveValue(String(level));
       await expect(role.locator('option:checked')).toHaveText(label);
-      await page.getByTestId('admin.user.edit.drawer').getByRole('button', { name: language === 'cs' ? 'Zrušit' : 'Cancel', exact: true }).click();
+      await page
+        .getByTestId('admin.user.edit.drawer')
+        .getByRole('button', { name: language === 'cs' ? 'Zrušit' : 'Cancel', exact: true })
+        .click();
     }
   });
 }

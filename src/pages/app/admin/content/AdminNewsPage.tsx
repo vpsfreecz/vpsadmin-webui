@@ -29,7 +29,9 @@ function isFuture(iso?: string | null): boolean {
 }
 
 function snippet(s: string | undefined | null, limit = 140): string {
-  const t = String(s ?? '').replace(/\s+/g, ' ').trim();
+  const t = String(s ?? '')
+    .replace(/\s+/g, ' ')
+    .trim();
   if (!t) return '';
   if (t.length <= limit) return t;
   return `${t.slice(0, limit - 1)}…`;
@@ -44,7 +46,7 @@ export function AdminNewsPage() {
   const [sinceLocal, setSinceLocal] = useState('');
 
   const sinceParsed = useMemo(() => localInputToIso(sinceLocal), [sinceLocal]);
-  const sinceParam = sinceParsed.valid ? sinceParsed.iso ?? undefined : undefined;
+  const sinceParam = sinceParsed.valid ? (sinceParsed.iso ?? undefined) : undefined;
 
   const q = useQuery({
     queryKey: ['news_logs', { since: sinceParam ?? null }],
@@ -56,7 +58,13 @@ export function AdminNewsPage() {
     const base = q.data ?? [];
     const term = search.trim().toLowerCase();
     if (!term) return base;
-    return base.filter((n) => [n.cs_message, n.en_message, n.message].some((message) => String(message ?? '').toLowerCase().includes(term)));
+    return base.filter((n) =>
+      [n.cs_message, n.en_message, n.message].some((message) =>
+        String(message ?? '')
+          .toLowerCase()
+          .includes(term)
+      )
+    );
   }, [q.data, search]);
 
   // -----------------
@@ -92,7 +100,8 @@ export function AdminNewsPage() {
   };
 
   const editorPublishedParsed = useMemo(() => localInputToIso(editorPublishedLocal), [editorPublishedLocal]);
-  const editorValid = editorEnMessage.trim().length > 0 && editorPublishedParsed.valid && Boolean(editorPublishedParsed.iso);
+  const editorValid =
+    editorEnMessage.trim().length > 0 && editorPublishedParsed.valid && Boolean(editorPublishedParsed.iso);
 
   const saveM = useMutation({
     mutationFn: async () => {
@@ -101,10 +110,18 @@ export function AdminNewsPage() {
       if (!editorEnMessage.trim()) throw new Error(t('admin.newslog.validation.en_message'));
 
       if (editorMode === 'create') {
-        await createNewsLog({ cs_message: editorCsMessage.trim(), en_message: editorEnMessage.trim(), published_at: pub.iso });
+        await createNewsLog({
+          cs_message: editorCsMessage.trim(),
+          en_message: editorEnMessage.trim(),
+          published_at: pub.iso,
+        });
       } else {
         if (!editorTarget) throw new Error('Missing target');
-        await updateNewsLog(editorTarget.id, { cs_message: editorCsMessage.trim(), en_message: editorEnMessage.trim(), published_at: pub.iso });
+        await updateNewsLog(editorTarget.id, {
+          cs_message: editorCsMessage.trim(),
+          en_message: editorEnMessage.trim(),
+          published_at: pub.iso,
+        });
       }
     },
     onSuccess: () => {
@@ -116,7 +133,6 @@ export function AdminNewsPage() {
     onError: (e) => {
       const msg = formatErrorMessage(e);
       setEditorError(msg);
-      pushToast({ variant: 'danger', title: t('common.error'), body: msg });
     },
   });
 
@@ -137,10 +153,6 @@ export function AdminNewsPage() {
       setDeleteOpen(false);
       setDeleteTarget(null);
       qc.invalidateQueries({ queryKey: ['news_logs'] });
-    },
-    onError: (e) => {
-      const msg = formatErrorMessage(e);
-      pushToast({ variant: 'danger', title: t('common.error'), body: msg });
     },
   });
 
@@ -166,7 +178,9 @@ export function AdminNewsPage() {
               onChange={(e) => setSinceLocal(e.target.value)}
               testId="admin.newslog.filter.since"
             />
-            {!sinceParsed.valid ? <div className="mt-1 text-xs text-danger">{t('admin.newslog.validation.since')}</div> : null}
+            {!sinceParsed.valid ? (
+              <div className="mt-1 text-xs text-danger">{t('admin.newslog.validation.since')}</div>
+            ) : null}
           </div>
         </div>
 
@@ -206,11 +220,23 @@ export function AdminNewsPage() {
                       )}
                     </div>
 
-                    <div className="mt-3 break-words text-sm font-medium text-fg">{snippet(pickLocalizedField(n, 'message', preferredLanguageCodes) ?? n.message)}</div>
+                    <div className="mt-3 break-words text-sm font-medium text-fg">
+                      {snippet(pickLocalizedField(n, 'message', preferredLanguageCodes) ?? n.message)}
+                    </div>
                     <div className="mt-0.5 text-xs text-faint">#{n.id}</div>
 
-                    <div className="mt-4 grid grid-cols-2 gap-2 border-t border-border pt-3" role="group" aria-label={t('common.actions')}>
-                      <Button size="sm" variant="secondary" className="min-h-11 min-w-0 px-3" onClick={() => openEdit(n)} testId={`admin.newslog.card.${n.id}.edit`}>
+                    <div
+                      className="mt-4 grid grid-cols-2 gap-2 border-t border-border pt-3"
+                      role="group"
+                      aria-label={t('common.actions')}
+                    >
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className="min-h-11 min-w-0 px-3"
+                        onClick={() => openEdit(n)}
+                        testId={`admin.newslog.card.${n.id}.edit`}
+                      >
                         {t('admin.newslog.action.edit')}
                       </Button>
                       <Button
@@ -236,9 +262,15 @@ export function AdminNewsPage() {
           <TableCard className="hidden md:block" testId="admin.newslog.table">
             <thead>
               <tr>
-                <th className="px-4 py-2 text-left text-xs font-semibold text-faint">{t('admin.newslog.table.published_at')}</th>
-                <th className="px-4 py-2 text-left text-xs font-semibold text-faint">{t('admin.newslog.table.status')}</th>
-                <th className="px-4 py-2 text-left text-xs font-semibold text-faint">{t('admin.newslog.table.message')}</th>
+                <th className="px-4 py-2 text-left text-xs font-semibold text-faint">
+                  {t('admin.newslog.table.published_at')}
+                </th>
+                <th className="px-4 py-2 text-left text-xs font-semibold text-faint">
+                  {t('admin.newslog.table.status')}
+                </th>
+                <th className="px-4 py-2 text-left text-xs font-semibold text-faint">
+                  {t('admin.newslog.table.message')}
+                </th>
                 <th className="px-4 py-2 text-right text-xs font-semibold text-faint">{t('common.actions')}</th>
               </tr>
             </thead>
@@ -256,12 +288,19 @@ export function AdminNewsPage() {
                       )}
                     </td>
                     <td className="px-4 py-2">
-                      <div className="text-sm font-medium text-fg">{snippet(pickLocalizedField(n, 'message', preferredLanguageCodes) ?? n.message)}</div>
+                      <div className="text-sm font-medium text-fg">
+                        {snippet(pickLocalizedField(n, 'message', preferredLanguageCodes) ?? n.message)}
+                      </div>
                       <div className="mt-0.5 text-xs text-faint">#{n.id}</div>
                     </td>
                     <td className="px-4 py-2 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <Button size="sm" variant="secondary" onClick={() => openEdit(n)} testId={`admin.newslog.edit.${n.id}`}>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => openEdit(n)}
+                          testId={`admin.newslog.edit.${n.id}`}
+                        >
                           {t('admin.newslog.action.edit')}
                         </Button>
                         <Button
@@ -311,9 +350,11 @@ export function AdminNewsPage() {
       >
         <div className="space-y-4">
           {editorError ? (
-            <Alert variant="danger" title={t('common.error')} testId="admin.newslog.editor.error">
-              {editorError}
-            </Alert>
+            <div role="alert">
+              <Alert variant="danger" title={t('common.error')} testId="admin.newslog.editor.error">
+                {editorError}
+              </Alert>
+            </div>
           ) : null}
 
           <div className="grid gap-4 md:grid-cols-2">
@@ -362,7 +403,9 @@ export function AdminNewsPage() {
               ariaDescribedBy="newslog-cs-hint"
               testId="admin.newslog.editor.cs_message"
             />
-            <p id="newslog-cs-hint" className="mt-1 text-xs text-muted">{t('admin.newslog.field.cs_message_hint')}</p>
+            <p id="newslog-cs-hint" className="mt-1 text-xs text-muted">
+              {t('admin.newslog.field.cs_message_hint')}
+            </p>
           </div>
           <div>
             <Textarea
@@ -374,7 +417,11 @@ export function AdminNewsPage() {
               ariaDescribedBy={!editorEnMessage.trim() ? 'newslog-en-error' : undefined}
               testId="admin.newslog.editor.en_message"
             />
-            {!editorEnMessage.trim() ? <div id="newslog-en-error" className="mt-1 text-xs text-danger">{t('admin.newslog.validation.en_message')}</div> : null}
+            {!editorEnMessage.trim() ? (
+              <div id="newslog-en-error" className="mt-1 text-xs text-danger">
+                {t('admin.newslog.validation.en_message')}
+              </div>
+            ) : null}
           </div>
         </div>
       </Modal>
@@ -398,12 +445,19 @@ export function AdminNewsPage() {
           <div className="space-y-3">
             <div className="rounded-md border border-border bg-surface p-3 text-sm">
               <div className="font-semibold">#{deleteTarget.id}</div>
-              <div className="mt-1 text-muted">{snippet(pickLocalizedField(deleteTarget, 'message', preferredLanguageCodes) ?? deleteTarget.message, 220) || t('common.na')}</div>
+              <div className="mt-1 text-muted">
+                {snippet(
+                  pickLocalizedField(deleteTarget, 'message', preferredLanguageCodes) ?? deleteTarget.message,
+                  220
+                ) || t('common.na')}
+              </div>
             </div>
             {delM.isError ? (
-              <Alert variant="danger" title={t('common.error')} testId="admin.newslog.delete_confirm.error">
-                {formatErrorMessage(delM.error)}
-              </Alert>
+              <div role="alert">
+                <Alert variant="danger" title={t('common.error')} testId="admin.newslog.delete_confirm.error">
+                  {formatErrorMessage(delM.error)}
+                </Alert>
+              </div>
             ) : null}
           </div>
         ) : null}

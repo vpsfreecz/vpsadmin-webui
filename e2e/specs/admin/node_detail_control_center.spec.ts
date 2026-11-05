@@ -25,7 +25,7 @@ const node = {
 async function installNodeHandlers(
   page: Page,
   poolsHandler: () => unknown,
-  extraHandlers: Record<string, HaveApiHandler> = {},
+  extraHandlers: Record<string, HaveApiHandler> = {}
 ) {
   await setUiSettingsLocalStorage(page, { language: 'en' });
   await bootstrapVpsAdminWindow(page);
@@ -48,7 +48,7 @@ async function installNodeHandlers(
 }
 
 test.describe('Admin node detail control center', () => {
-  test('@smoke separates overview, storage and admin maintenance workflows', async ({ page }) => {
+  test('@smoke separates overview, storage and admin maintenance workflows', async ({ page }, testInfo) => {
     await installNodeHandlers(page, () => ({
       pools: [
         {
@@ -87,19 +87,31 @@ test.describe('Admin node detail control center', () => {
     await expect(page.getByTestId('admin.node.panel.overview')).toBeVisible();
     await expect(page.getByTestId('admin.node.panel.overview')).toHaveAttribute(
       'aria-labelledby',
-      'admin-node-tab-overview',
+      'admin-node-tab-overview'
     );
     await expect(page.getByTestId('admin.node.tab.overview')).toHaveAttribute('tabindex', '0');
     await expect(page.getByTestId('admin.node.tab.storage')).toHaveAttribute('tabindex', '-1');
     await expect(page.getByTestId('admin.node.storage.card')).toHaveCount(0);
     await expect(page.getByTestId('admin.node.maintenance.lock')).toHaveCount(0);
 
+    await expect(page.getByTestId('admin.node.statuses.list')).toContainText('Latest 50 samples for this node.');
+    await expect(page.getByTestId('admin.node.transactions.list')).toContainText(
+      'Latest 50 transactions for this node.'
+    );
+    await page.getByTestId('admin.node.statuses.list').screenshot({
+      path: testInfo.outputPath('node-status-sample-scope.png'),
+      scale: 'css',
+    });
+    await page.getByTestId('admin.node.transactions.list').screenshot({
+      path: testInfo.outputPath('node-transaction-scope.png'),
+      scale: 'css',
+    });
     await page.getByTestId('admin.node.tab.storage').click();
     await expect(page).toHaveURL(/section=storage/);
     await expect(page.getByTestId('admin.node.storage.card')).toBeVisible();
     await expect(page.getByTestId('admin.node.panel.storage')).toHaveAttribute(
       'aria-labelledby',
-      'admin-node-tab-storage',
+      'admin-node-tab-storage'
     );
     await expect(page.getByTestId('admin.node.storage.aggregate')).toBeVisible();
     await expect(page.getByTestId('admin.node.storage.pool.11')).toContainText('2.0 GiB');
@@ -124,7 +136,7 @@ test.describe('Admin node detail control center', () => {
     await expect(page.getByTestId('admin.node.panel.maintenance')).toBeVisible();
     await expect(page.getByTestId('admin.node.panel.maintenance')).toHaveAttribute(
       'aria-labelledby',
-      'admin-node-tab-maintenance',
+      'admin-node-tab-maintenance'
     );
     await expect(page.getByTestId('admin.node.tab.maintenance')).toBeFocused();
     await page.getByTestId('admin.node.tab.maintenance').press('ArrowRight');
@@ -153,7 +165,7 @@ test.describe('Admin node detail control center', () => {
     await page.goto('/admin/nodes/5?section=storage');
 
     await expect(page.getByTestId('admin.node.storage.pool.21.capacity-unavailable')).toContainText(
-      'The API did not provide capacity data',
+      'The API did not provide capacity data'
     );
     await expect(page.getByTestId('admin.node.storage.summary.capacity-unavailable')).toBeVisible();
   });
@@ -218,17 +230,13 @@ test.describe('Admin node detail control center', () => {
       releaseMaintenance = resolve;
     });
 
-    await installNodeHandlers(
-      page,
-      () => ({ pools: [] }),
-      {
-        'POST nodes/5/set_maintenance': async () => {
-          maintenanceCalls += 1;
-          await maintenanceGate;
-          return { node: {} };
-        },
+    await installNodeHandlers(page, () => ({ pools: [] }), {
+      'POST nodes/5/set_maintenance': async () => {
+        maintenanceCalls += 1;
+        await maintenanceGate;
+        return { node: {} };
       },
-    );
+    });
 
     await page.goto('/admin/nodes/5?section=maintenance');
     await page.getByTestId('admin.node.maintenance.lock').click();
@@ -259,17 +267,13 @@ test.describe('Admin node detail control center', () => {
   test('@pr-smoke @pr-smoke-mobile keeps a rejected node lock in its dialog for retry', async ({ page }) => {
     let maintenanceCalls = 0;
 
-    await installNodeHandlers(
-      page,
-      () => ({ pools: [] }),
-      {
-        'POST nodes/5/set_maintenance': () => {
-          maintenanceCalls += 1;
-          if (maintenanceCalls === 1) return failEnvelope('Node maintenance lock was rejected');
-          return { node: {} };
-        },
+    await installNodeHandlers(page, () => ({ pools: [] }), {
+      'POST nodes/5/set_maintenance': () => {
+        maintenanceCalls += 1;
+        if (maintenanceCalls === 1) return failEnvelope('Node maintenance lock was rejected');
+        return { node: {} };
       },
-    );
+    });
 
     await page.goto('/admin/nodes/5?section=maintenance');
     await page.getByTestId('admin.node.maintenance.lock').click();

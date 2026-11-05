@@ -14,6 +14,18 @@ For detailed actions, role/state restrictions and validation examples use
 [ACTION_CONTRACTS.md](ACTION_CONTRACTS.md). For test coverage and remaining proof
 use [EVIDENCE_MATRIX.md](EVIDENCE_MATRIX.md).
 
+## Content presentation and local recovery
+
+Routine introductions and successful-state reassurance are omitted when the
+surrounding controls already provide that context. Keep distinct target, scope,
+state, count, date and consequence facts where they inform a decision. Unknown,
+failed, pending and uncertain results cannot become empty, zero or completed
+through presentation. Local rejection/validation remains accessible beside its
+control or inside the active dialog, retaining the draft and safe retry. Only a
+matching duplicate toast is omitted. Long forms may retain a useful repeated
+lower decision status. The [content continuation](../work-log/2026-11-04-quiet-content.md#whole-interface-continuation)
+links the six domain records and separates their evidence from final review.
+
 ## Application identity and credits
 
 The sidebar footer and mobile drawer link to `/about` and to the loaded bundle's
@@ -71,6 +83,15 @@ standalone token is restored. An anonymous BFF result clears old standalone
 and impersonation credentials. Retry repeats only the two bootstrap GETs, not
 an API mutation. [Routes](../../src/routes/router.tsx),
 [public adapter](../../src/lib/api/public.ts), [BFF docs](../../bff/README.md).
+
+**Authenticated dashboard status (REQ-054):** the summary is silent after both
+status feeds succeed with at least one reported node, no unknown node/outage
+states, and no current outage, down node or maintenance. An empty outage list is
+valid; an empty node list is incomplete. Loading, failed reads and unknown data
+retain a notice. Existing loading/error/current-outage/down/maintenance precedence
+and the active-outage link are preserved. Cluster status shows one neutral
+online/total ratio; maintenance, down and unknown counts remain visible even when
+details are collapsed. The detailed location and node states remain available.
 
 **News management shortcut (REQ-053):** the authenticated dashboard keeps
 “All news” as a reading link to `/news`. Administrators in admin view also get
@@ -218,6 +239,14 @@ closing, time edits, per-day retry reconciliation and Allow anytime share this
 mapping. Closing a day omits times and leaves server validation authoritative,
 including the minimum weekly window. An API rejection preserves the draft;
 success requires a refreshed server baseline. No API changes are required.
+
+The shared lifecycle panel omits the generic editor introduction and active-state
+reassurance. It retains expiry/reminder dates, non-active and unknown-state
+explanations, snooze eligibility and warnings, reasons, confirmation, locks and
+log links. Rejected mutations stay local with their original target and retained
+draft and explicit retry; existing accepted feedback and tracking remain. The supported member
+Overview panel still requires an expiry, reminder or non-active signal, while
+the administrator Lifetime route keeps its existing permission gates.
 
 ## Console and VPS deletion
 
@@ -484,6 +513,12 @@ usage/packages, environment configuration, finances and account states as allowe
 Effective timezone is explicit. User login/timezone/filesystem-related legacy
 controls must not disappear during layout simplification.
 
+Security posture shows individual control values and useful descriptions in
+both profile and member administration. Ready accounts omit the aggregate ready
+badge/healthy summary and generic read-only subtitle. Recommendation, limited
+access and locked-account summaries and badges remain visible (REQ-040). This
+presentation does not change model defaults or certify account security.
+
 **Administrator password shortcut (2026-10-22):** Member overview offers
 Change password immediately before Edit user in the Details header. Only a
 signed-in global administrator in administrator mode sees it, matching the API
@@ -518,6 +553,28 @@ Email tab and links to that user's existing settings. Failed reads show a retry
 instead of claiming primary-email fallback; changing members cannot retain another
 member's contacts. Support retains the address but does not query these privileged
 contacts. Personal/My-view account pages have no administrator summary.
+
+### Namespace entry availability (REQ-040)
+
+Map metadata, rename and whole-map deletion use the existing map/owner/pending
+prerequisites independently of the entry feed. Entry fields, Add, Save and row
+deletion require a successful entry read, including an already-open row-delete
+confirmation. Initial loading or settled error makes retained rows and drafts
+read-only; the count is unavailable rather than zero. Loading stays local, and
+a settled error offers Retry. A successful cached background fetch does not disable these actions.
+Retry preserves cache, dirty rows, field errors, confirmation target and Cancel;
+it does not cancel or replay an in-flight mutation.
+
+### Mail preference scope
+
+A template override takes precedence over a role override, then the user's
+primary email. For enabled templates, the preference table exposes explicit
+overrides; recipients inherited from roles or the primary email remain unknown
+there. Some templates also copy system recipients configured by maintainers.
+This context has one home immediately before the template table. Address fields
+retain comma, semicolon, space and newline separators. Selected-user and personal
+wrappers retain their existing targets. Row and settings failures retain drafts,
+the existing save/delete gates and explicit retry.
 
 **Personal scope (maintainer decision, 2026-09-30):** Account from the header
 always means the authenticated account, in both member and administrator layouts.
@@ -606,6 +663,15 @@ Resolve and preflight errors stay inside the open review dialog and are announce
 as alerts to assistive technology. They do not depend on background toasts, which
 remain hidden while a modal is open. The draft and Cancel action remain available.
 
+Review keeps the required/optional reason label, inline validation, full outbound
+text, target, state, options and cleared markers. Consequences sit at the relevant
+decision/review rather than in a second generic reason-gate list. Explicit
+approve-change and ignore impact remain, as does useful Decision status after a
+long applicant block. Submitted-versus-current values, risk signals, metadata,
+ownership and provisioning restrictions remain. Tasks progress is described only
+when tracking is available; an accepted decision is not completed asynchronous
+work.
+
 **Registration response presets (prepared):** the individual review dialog offers
 four complete rejection reasons (nonexistent address, incorrectly filled application,
 duplicate application, existing membership) and three correction requests (incomplete
@@ -641,6 +707,11 @@ manage account-related finance, history and forecasts. The Finance menu opens
 incoming payments as the common working destination. Global finance and sensitive
 user payment views have explicit administrator gates even if a support-level user
 can access other admin pages.
+
+Member Payments keeps the Payment ID usage hint, accepted-payment history
+qualification and paid-until value/status, without a generic page description or
+monthly-payment subtitle. Server instructions, copy/QR controls and distinct
+loading/error/empty states remain intact (REQ-052).
 
 In the administrator's member overview, the source number in each recent payment
 is a direct link to its incoming-payment detail, matching the member Payments
@@ -693,6 +764,12 @@ transaction. Failed assignment remains in review; queue advances only on the kno
 appropriate outcome. Partial/bulk outcomes require reconciliation rather than
 blind retry. [Finance](../../src/lib/api/finance.ts),
 [payments](../../src/lib/api/payments.ts), [gated routes](../../src/routes/adminFinanceRoutes.tsx).
+
+Normal and bulk incoming-payment review name the actual target and selected scope.
+Counts, amounts, over-limit/unmatched warnings, blocked gates and financial
+consequences remain part of review. Forecast and payment views keep status and
+qualification facts while omitting repeated generic explanations. Read failures,
+rejection and uncertain outcomes retain their existing recovery contracts.
 
 ## Tasks, transactions, monitoring, incidents and OOM
 
@@ -751,6 +828,23 @@ Long tokens wrap inside the panel. HTML is always text, never rendered content.
 Copy retains the original payload and the raw transaction JSON remains available.
 Plain text, malformed JSON and unsafe numeric JSON fall back to verbatim text.
 Inline transaction previews retain their existing compact layout.
+
+Standalone action detail shows its distinct operation, identity, state, time and
+current or failed step facts once. Exact backend data follows related transactions
+in a native disclosure. Standalone item detail keeps one visible error with exact
+Copy; diagnostic metadata folds separately from full readable input, output, raw
+data and distinct extras. Its helper opt-out still receives the original `errorText`
+for extra-field deduplication. Default inline/step consumers retain error/Copy;
+a caller that supplies no raw value does not gain invented raw data.
+
+Only positively known successful terminal action rows use the quieter surface
+and omit a redundant bar; counts, percentages and nondefaults remain. Active, failure
+and unknown rows keep their existing status model and emphasis. A chain's own
+Queued state is distinct from a failed child. With no merged rows, a chain feed
+failure shows one initial error; with usable cached, pinned or system rows it
+retains those rows and shows the refresh warning. Item cached-error behavior is
+unchanged. Invalid filters retain their chips, parsing, scope and local live
+message before the matching duplicate toast is omitted.
 
 The VPS list marks a VPS with a failed or fatal transaction chain only when the
 chain was created within the last 7 days (REQ-074). Failed chains stay failed
@@ -887,6 +981,19 @@ advisory. Review closes the edit dialog and refreshes current detail while keepi
 the stopped intention. Stopped node batches also require review rather than
 claiming safe continuation.
 
+Managed-content views keep parent metadata and genuinely independent actions when
+a child feed fails. The failed area reports unavailable data and Retry rather
+than claiming empty, ready or healthy state. Parent readiness and actual write
+prerequisites remain distinct.
+
+Mail views retain operational names, identifiers, addresses, full message text,
+plain/HTML/raw access, handler order and continue semantics. Translation language
+and effects on future mail and templates stay explicit. Editors retain local validation,
+drafts and deliberate editing confirmation. Template create/edit rejection uses
+local live alerts; the matching duplicate toast is omitted. Partial accepted
+links, uncertain creation and safe retry keep their existing recovery rules.
+Sandbox and remote-resource defenses remain unchanged.
+
 News creation and editing show Czech and English text together, independently of
 UI language. English is required by the existing API; an empty Czech translation
 falls back to English for readers. Editing loads explicit translation fields,
@@ -1000,7 +1107,6 @@ Definitive rejection keeps the dialog; ambiguous success/failure is reconciled b
 exact read-back and remains blocked if unverifiable. Support has no maintenance
 control and ordinary member mode has no Nodes route.
 [Review evidence](../work-log/2026-10-19-nodes-overview-maintenance.md).
-
 
 ### Lookup popover touch bounds (2026-10-28)
 

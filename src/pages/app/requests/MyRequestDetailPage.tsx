@@ -118,12 +118,6 @@ export function MyRequestDetailPage() {
       header={
         <PageHeader
           title={`${t(requestTypeLabelKey(requestType))} #${requestId}`}
-          description={
-            <span className="inline-flex items-center gap-2">
-              <Badge variant={requestStateBadgeVariant(state)}>{t(requestStateLabelKey(state))}</Badge>
-              <span>{t('requests.my.detail.description')}</span>
-            </span>
-          }
           actions={<Link className="text-sm font-medium text-accent hover:underline" to="/app/requests">{t('common.back')}</Link>}
         />
       }

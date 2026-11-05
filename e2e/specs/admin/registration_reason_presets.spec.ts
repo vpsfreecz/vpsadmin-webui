@@ -4,12 +4,25 @@ import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock, setUiSetting
 const prefix = 'admin.requests.resolve';
 async function setup(page: Page, language: 'cs' | 'en', options: { fail?: boolean; languageIdOnly?: boolean } = {}) {
   await bootstrapVpsAdminWindow(page);
-  await setUiSettingsLocalStorage(page, { language: language === 'cs' ? 'en' : 'cs', theme: language === 'cs' ? 'light' : 'dark' });
-  await page.route(/^https:\/\/nominatim\.openstreetmap\.org\//, route => route.fulfill({ contentType: 'application/json', body: '[]' }));
+  await setUiSettingsLocalStorage(page, {
+    language: language === 'cs' ? 'en' : 'cs',
+    theme: language === 'cs' ? 'light' : 'dark',
+  });
+  await page.route(/^https:\/\/nominatim\.openstreetmap\.org\//, (route) =>
+    route.fulfill({ contentType: 'application/json', body: '[]' })
+  );
   const request = {
-    id: 123, type: 'registration', state: 'awaiting', login: 'example', full_name: 'Example Applicant',
-    email: 'applicant@example.test', address: 'Example 1, Example City', year_of_birth: 1990,
-    os_template: { id: 5 }, location: { id: 7 }, currency: 'EUR',
+    id: 123,
+    type: 'registration',
+    state: 'awaiting',
+    login: 'example',
+    full_name: 'Example Applicant',
+    email: 'applicant@example.test',
+    address: 'Example 1, Example City',
+    year_of_birth: 1990,
+    os_template: { id: 5 },
+    location: { id: 7 },
+    currency: 'EUR',
     language: options.languageIdOnly ? { id: 57 } : { id: 57, code: language },
   };
   await installHaveApiMock(page, {
@@ -17,9 +30,8 @@ async function setup(page: Page, language: 'cs' | 'en', options: { fail?: boolea
     handlers: {
       'GET user_request/registrations/123': () => ({ registration: request }),
       'GET languages': () => ({ languages: [{ id: 57, code: language }] }),
-      'POST user_request/registrations/123/resolve': () => options.fail
-        ? failEnvelope('Review failed')
-        : { registration: { ...request, state: 'denied' } },
+      'POST user_request/registrations/123/resolve': () =>
+        options.fail ? failEnvelope('Review failed') : { registration: { ...request, state: 'denied' } },
     },
   });
   await page.goto('/admin/requests/registration/123');
@@ -27,7 +39,9 @@ async function setup(page: Page, language: 'cs' | 'en', options: { fail?: boolea
 
 for (const language of ['cs', 'en'] as const) {
   for (const action of ['deny', 'request_correction'] as const) {
-    test(`@pr-smoke @pr-smoke-mobile ${action} preset uses applicant ${language}, independent of UI language`, async ({ page }, testInfo) => {
+    test(`@pr-smoke @pr-smoke-mobile ${action} preset uses applicant ${language}, independent of UI language`, async ({
+      page,
+    }, testInfo) => {
       await setup(page, language, { languageIdOnly: language === 'cs' });
       await page.getByTestId(`${prefix}.action.${action}`).click();
       const picker = page.getByTestId(`${prefix}.reason_preset`);
@@ -36,20 +50,36 @@ for (const language of ['cs', 'en'] as const) {
       const reason = page.getByTestId(`${prefix}.reason`);
       if (action === 'deny') {
         await picker.selectOption('application_incorrect');
-        await expect(reason).toHaveValue(language === 'cs'
-          ? 'Přihlášku zamítáme, protože není korektně vyplněná.'
-          : 'We are rejecting your application because it has not been filled in correctly.');
+        await expect(reason).toHaveValue(
+          language === 'cs'
+            ? 'Přihlášku zamítáme, protože není korektně vyplněná.'
+            : 'We are rejecting your application because it has not been filled in correctly.'
+        );
       } else {
         await picker.selectOption('address_unverified');
-        await expect(reason).toHaveValue(language === 'cs'
-          ? /odkaz na mapu, na které bude označen tvůj dům/
-          : /link to a map with your house marked/);
+        await expect(reason).toHaveValue(
+          language === 'cs' ? /odkaz na mapu, na které bude označen tvůj dům/ : /link to a map with your house marked/
+        );
       }
       const text = await reason.inputValue();
       await expect(page.getByTestId(`${prefix}.review`)).toContainText(text);
       await expect(page.getByTestId(`${prefix}.submit`)).toBeEnabled();
       await page.getByTestId(`${prefix}.modal`).screenshot({ path: testInfo.outputPath(`${action}-${language}.png`) });
-      const sent = page.waitForRequest(r => r.method() === 'POST' && r.url().includes('/registrations/123/resolve'));
+      if (action === 'request_correction') {
+        const review = page.getByTestId(`${prefix}.review`);
+        await review
+          .getByText(/Review before resolving|Kontrola před vyřešením/, { exact: true })
+          .scrollIntoViewIfNeeded();
+        await page.screenshot({ path: testInfo.outputPath(`correction-review-top-${language}.png`) });
+        await review
+          .getByText(/\(clear value\)|\(vymazat hodnotu\)/)
+          .first()
+          .scrollIntoViewIfNeeded();
+        await page.screenshot({ path: testInfo.outputPath(`correction-review-cleared-${language}.png`) });
+        await review.getByText(text, { exact: true }).scrollIntoViewIfNeeded();
+        await page.screenshot({ path: testInfo.outputPath(`correction-review-outbound-${language}.png`) });
+      }
+      const sent = page.waitForRequest((r) => r.method() === 'POST' && r.url().includes('/registrations/123/resolve'));
       await page.getByTestId(`${prefix}.submit`).click();
       const payload = (await sent).postDataJSON().registration;
       expect(payload).toMatchObject({ action, reason: text });
@@ -66,7 +96,7 @@ test('@pr-smoke @pr-smoke-mobile own reason is preserved on a rejected submissio
   const edited = `${await reason.inputValue()} Please use password recovery if needed.`;
   await reason.fill(edited);
   await expect(page.getByTestId(`${prefix}.reason_preset`)).toHaveValue('');
-  const sent = page.waitForRequest(r => r.method() === 'POST' && r.url().includes('/registrations/123/resolve'));
+  const sent = page.waitForRequest((r) => r.method() === 'POST' && r.url().includes('/registrations/123/resolve'));
   await page.getByTestId(`${prefix}.submit`).click();
   expect((await sent).postDataJSON().registration).toEqual({ action: 'deny', reason: edited });
   await expect(page.getByTestId(`${prefix}.modal`)).toBeVisible();

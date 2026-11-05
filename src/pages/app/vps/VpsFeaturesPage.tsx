@@ -193,6 +193,7 @@ export function VpsFeaturesPage() {
             <div className={"mt-3 grid gap-2 sm:grid-cols-2"}>
               {list.map((f) => {
                 const name = String(f.name ?? '');
+                const label = featureLabel(f);
                 const enabled = Boolean(effective[name]);
                 return canMutateVps && isEditableVpsFeatureName(name) && typeof f.enabled === 'boolean' ? (
                   <Checkbox
@@ -203,8 +204,8 @@ export function VpsFeaturesPage() {
                     onChange={(checked) => {
                       setDraft((prev) => ({ ...(prev ?? baseline), [name]: checked }));
                     }}
-                    label={featureLabel(f)}
-                    description={name}
+                    label={label}
+                    description={name !== label ? name : undefined}
                   />
                 ) : (
                   <div
@@ -213,8 +214,8 @@ export function VpsFeaturesPage() {
                     className="flex items-center justify-between gap-3 rounded-md border border-border bg-surface-2 px-3 py-2 text-sm"
                   >
                     <div>
-                      <div className="font-medium text-fg">{featureLabel(f)}</div>
-                      <div className="text-xs text-muted">{name}</div>
+                      <div className="font-medium text-fg">{label}</div>
+                      {name !== label ? <div className="text-xs text-muted">{name}</div> : null}
                     </div>
                     <span className="text-xs font-medium text-muted">
                       {f.enabled == null ? t('common.na') : enabled ? t('common.enabled') : t('common.disabled')}

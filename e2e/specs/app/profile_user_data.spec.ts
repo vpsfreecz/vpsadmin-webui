@@ -50,7 +50,8 @@ test.describe('Profile: user data templates', () => {
         },
 
         'POST vps_user_data': async ({ reqJson }) => {
-          const payload = (reqJson as { vps_user_data?: { label?: string; format?: string; content?: string } })?.vps_user_data ?? {};
+          const payload =
+            (reqJson as { vps_user_data?: { label?: string; format?: string; content?: string } })?.vps_user_data ?? {};
 
           const nextId = Math.max(...templates.map((x) => x.id)) + 1;
           const tpl = {
@@ -67,7 +68,8 @@ test.describe('Profile: user data templates', () => {
         },
 
         'PUT vps_user_data/102': async ({ reqJson }) => {
-          const payload = (reqJson as { vps_user_data?: { label?: string; format?: string; content?: string } })?.vps_user_data ?? {};
+          const payload =
+            (reqJson as { vps_user_data?: { label?: string; format?: string; content?: string } })?.vps_user_data ?? {};
           templates = templates.map((x) =>
             x.id === 102
               ? {
@@ -96,18 +98,20 @@ test.describe('Profile: user data templates', () => {
 
         'GET action_states/999': async () => {
           if (deploymentFinished) terminalReads += 1;
-          return { action_state: {
-            id: 999,
-            label: 'Deploy user data',
-            status: true,
-            finished: deploymentFinished,
-            can_cancel: false,
-            current: 1,
-            total: 1,
-            progress: 1,
-            created_at: t0,
-            updated_at: t0,
-          } };
+          return {
+            action_state: {
+              id: 999,
+              label: 'Deploy user data',
+              status: true,
+              finished: deploymentFinished,
+              can_cancel: false,
+              current: 1,
+              total: 1,
+              progress: 1,
+              created_at: t0,
+              updated_at: t0,
+            },
+          };
         },
       },
     });
@@ -222,7 +226,9 @@ test.describe('Profile: user data templates', () => {
   });
 
   for (const failure of ['missing action-state', 'transport loss'] as const) {
-    test(`@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile deploy fails closed after ${failure} and does not repeat through reload`, async ({ page }) => {
+    test(`@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile deploy fails closed after ${failure} and does not repeat through reload`, async ({
+      page,
+    }) => {
       test.setTimeout(90_000);
       await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST_SESSION' });
 
@@ -230,7 +236,7 @@ test.describe('Profile: user data templates', () => {
       await installHaveApiMock(page, {
         authorize: {
           user: { id: 1, login: 'e2e', level: 1 },
-          },
+        },
         handlers: {
           'GET vps_user_data': () => ({
             vps_user_data: [
@@ -281,7 +287,9 @@ test.describe('Profile: user data templates', () => {
       // Retrying from the still-open drawer must be stopped by the durable guard.
       await page.getByTestId('profile.user_data.deploy.submit').click();
       await expect(
-        page.getByTestId('profile.user_data.deploy.drawer').getByText(/previous operation still has an uncertain outcome/i)
+        page
+          .getByTestId('profile.user_data.deploy.drawer')
+          .getByText(/previous operation still has an uncertain outcome/i)
       ).toBeVisible();
       expect(deployRequests).toBe(1);
 
@@ -289,7 +297,9 @@ test.describe('Profile: user data templates', () => {
       await expect(page.locator('[data-testid="profile.user_data.row.101"]:visible')).toBeVisible();
       await openAndSubmit();
       await expect(
-        page.getByTestId('profile.user_data.deploy.drawer').getByText(/previous operation still has an uncertain outcome/i)
+        page
+          .getByTestId('profile.user_data.deploy.drawer')
+          .getByText(/previous operation still has an uncertain outcome/i)
       ).toBeVisible();
       expect(deployRequests).toBe(1);
     });
@@ -297,13 +307,17 @@ test.describe('Profile: user data templates', () => {
 });
 
 for (const language of ['cs', 'en'] as const) {
-  test(`@pr-smoke @pr-smoke-mobile centered template editor and supported filters remain usable (${language})`, async ({ page, hasTouch }, testInfo) => {
+  test(`@pr-smoke @pr-smoke-mobile centered template editor and supported filters remain usable (${language})`, async ({
+    page,
+    hasTouch,
+  }, testInfo) => {
     await bootstrapVpsAdminWindow(page);
     await setUiSettingsLocalStorage(page, { language, theme: 'dark' });
     await installHaveApiMock(page, { handlers: { 'GET vps_user_data': () => ({ vps_user_data: [] }) } });
     await page.goto('/app/profile/user-data');
     const open = page.getByTestId('profile.user_data.create');
-    if (hasTouch) await open.tap(); else await open.click();
+    if (hasTouch) await open.tap();
+    else await open.click();
     const dialog = page.getByTestId('profile.user_data.editor.drawer');
     await expectCenteredDialog(page, dialog);
     await page.getByTestId('profile.user_data.editor.label').fill('Cloud-init demo');
@@ -330,5 +344,66 @@ for (const language of ['cs', 'en'] as const) {
     await expect(page.getByTestId('profile.user_data.filters.advanced')).toHaveCount(0);
     await expect(page.getByTestId('profile.user_data.filters.search')).toHaveCount(0);
     await expect(page.getByTestId('profile.user_data.filters.format')).toBeVisible();
+  });
+}
+
+for (const language of ['en', 'cs'] as const) {
+  test(`@content-account-userdata-wrapper selected-user User data and personal templates keep separate owners ${language}`, async ({
+    page,
+  }, info) => {
+    const operator = { id: 1, login: 'operator', level: 100 };
+    const target = { id: 42, login: 'alice', level: 1 };
+    const templateOwners: string[] = [];
+    const template = {
+      id: 101,
+      label: 'Alice provisioning',
+      format: 'script',
+      content: '#!/bin/sh\necho alice',
+      user: target,
+      created_at: nowIso(),
+      updated_at: nowIso(),
+    };
+
+    await setUiSettingsLocalStorage(page, { language, theme: 'dark' });
+    await bootstrapVpsAdminWindow(page, { sessionToken: 'SYNTHETIC_ADMIN' });
+    await installHaveApiMock(page, {
+      user: operator,
+      handlers: {
+        'GET users/42': () => ({ user: target }),
+        'GET users/1': () => ({ user: operator }),
+        'GET vpses': () => ({ vpses: [], _meta: { total_count: 0 } }),
+        'GET vps_user_data': ({ searchParams }) => {
+          const owner = searchParams.get('vps_user_data[user]');
+          expect(owner === '42' || owner === '1').toBe(true);
+          templateOwners.push(owner ?? 'missing');
+          return {
+            vps_user_data:
+              owner === '42' ? [template] : [{ ...template, id: 201, label: 'Operator provisioning', user: operator }],
+          };
+        },
+      },
+    });
+
+    await page.goto('/admin/users/42/user-data');
+    await expect(page.getByTestId('admin.user.header')).toContainText('alice');
+    await expect(page.getByTestId('admin.user.user_data.row.101').filter({ visible: true })).toBeVisible();
+    expect(templateOwners.every((owner) => owner === '42')).toBe(true);
+    await page.screenshot({ path: info.outputPath(`selected-user-user-data-${language}.png`), fullPage: true });
+
+    await page.getByTestId('admin.user.user_data.create').click();
+    await expect(page.getByTestId('admin.user.user_data.editor.drawer')).toBeVisible();
+    await expect(page.getByTestId('admin.user.user_data.editor.create')).toBeDisabled();
+    await page.getByTestId('admin.user.user_data.editor.label').fill('Selected target draft');
+    await page.getByTestId('admin.user.user_data.editor.format').selectOption('script');
+    await page.getByTestId('admin.user.user_data.editor.content').fill('#!/bin/sh\necho ready');
+    await expect(page.getByTestId('admin.user.user_data.editor.create')).toBeEnabled();
+    await page.screenshot({ path: info.outputPath(`selected-user-user-data-editor-${language}.png`), fullPage: true });
+    await page.getByTestId('drawer.close').click();
+
+    await page.goto('/admin/profile/user-data?user=42');
+    await expect(page.getByTestId('profile.user_data.row.201').filter({ visible: true })).toBeVisible();
+    await expect(page.getByTestId('profile.user_data.row.101')).toHaveCount(0);
+    expect(templateOwners.at(-1)).toBe('1');
+    await page.screenshot({ path: info.outputPath(`personal-admin-user-data-${language}.png`), fullPage: true });
   });
 }

@@ -175,7 +175,6 @@ export function SecurityAdvisoriesPage() {
     <div className="space-y-6" data-testid="public.security_advisories.page">
       <div className="space-y-2">
         <h1 className="text-2xl font-semibold tracking-tight">{i18n.t('public.security_advisories.title')}</h1>
-        <p className="text-sm text-muted">{i18n.t('public.security_advisories.subtitle')}</p>
       </div>
 
       {advisoriesQ.isLoading ? (

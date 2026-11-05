@@ -169,8 +169,10 @@ export function DnsZoneLayout() {
 
               {zone.enabled === true ? (
                 <Badge variant="ok">{t('common.enabled')}</Badge>
-              ) : (
+              ) : zone.enabled === false ? (
                 <Badge variant="warn">{t('common.disabled')}</Badge>
+              ) : (
+                <Badge variant="neutral">{t('state.unknown')}</Badge>
               )}
               {zone.dnssec_enabled === true ? (
                 <Badge variant="ok">{t('dns.zones.badge.dnssec')}</Badge>

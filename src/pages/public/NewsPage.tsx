@@ -21,7 +21,6 @@ export function NewsPage() {
     <div className="space-y-6" data-testid="public.news.page">
       <div className="space-y-2">
         <h1 className="text-2xl font-semibold tracking-tight">{i18n.t('public.news.title')}</h1>
-        <p className="text-sm text-muted">{i18n.t('public.news.subtitle')}</p>
       </div>
 
       {newsQ.isLoading ? (

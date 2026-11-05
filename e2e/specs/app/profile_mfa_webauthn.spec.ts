@@ -47,10 +47,10 @@ test('@smoke profile: WebAuthn credentials edit and delete flows', async ({ page
 
   await page.goto('/app/profile/mfa');
 
-  const table = page.getByTestId('profile.mfa.webauthn.table');
-  await expect(table.getByTestId('profile.mfa.webauthn.row.20')).toBeVisible();
+  const credential = page.locator('[data-testid="profile.mfa.webauthn.row.20"]:visible');
+  await expect(credential).toBeVisible();
 
-  await table.getByTestId('profile.mfa.webauthn.row.20.edit').click();
+  await credential.getByTestId('profile.mfa.webauthn.row.20.edit').click();
   await expect(page.getByTestId('profile.mfa.webauthn.edit')).toBeVisible();
   await page.getByTestId('profile.mfa.webauthn.edit.label').fill('Security key renamed');
 
@@ -63,9 +63,9 @@ test('@smoke profile: WebAuthn credentials edit and delete flows', async ({ page
   expect(updateBody.webauthn_credential.label).toBe('Security key renamed');
   expect(updateBody.webauthn_credential.enabled).toBe(true);
 
-  await expect(table.getByTestId('profile.mfa.webauthn.row.20')).toContainText('Security key renamed');
+  await expect(credential).toContainText('Security key renamed');
 
-  await table.getByTestId('profile.mfa.webauthn.row.20.delete').click();
+  await credential.getByTestId('profile.mfa.webauthn.row.20.delete').click();
   await expect(page.getByTestId('profile.mfa.webauthn.delete.confirm')).toBeVisible();
 
   const deleteReqP = page.waitForRequest(

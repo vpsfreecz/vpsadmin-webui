@@ -41,7 +41,18 @@ import { useActionStatePollIntervalMs, useTierAIntervalMs } from '../../lib/refr
 import { ActionStateTransactionsTable } from './ActionStateTransactionsTable';
 
 function pickedActionStateDebugPayload(s: ActionState): string {
-  const keys = ['error', 'errors', 'exception', 'message', 'output', 'result', 'response', 'stderr', 'stdout', 'backtrace'];
+  const keys = [
+    'error',
+    'errors',
+    'exception',
+    'message',
+    'output',
+    'result',
+    'response',
+    'stderr',
+    'stdout',
+    'backtrace',
+  ];
   const picked: Record<string, unknown> = {};
   for (const key of keys) {
     if (Object.prototype.hasOwnProperty.call(s as any, key)) picked[key] = (s as any)[key];
@@ -102,10 +113,7 @@ export function ActionStateDetailPage() {
     refetchInterval: relatedChainId ? tierARefetchMs : false,
   });
 
-  const tracked = useMemo(
-    () => chrome.trackedActionStates.some((x) => x.id === id),
-    [chrome.trackedActionStates, id]
-  );
+  const tracked = useMemo(() => chrome.trackedActionStates.some((x) => x.id === id), [chrome.trackedActionStates, id]);
   const pinned = useMemo(() => chrome.pinnedActionStates.includes(id), [chrome.pinnedActionStates, id]);
 
   const [confirmCancel, setConfirmCancel] = useState(false);
@@ -181,7 +189,7 @@ export function ActionStateDetailPage() {
     );
   }
 
-  const badge = actionStateBadge(s);
+  const badge = actionStateBadge(s, t);
   const op = classifyActionState(s);
   const rawActionLabel = s.label ? String(s.label) : t('action_state.title_fallback', { id });
   const actionTitle = op.key.endsWith('.unknown') ? rawActionLabel : operationLabel(op, t);
@@ -258,7 +266,11 @@ export function ActionStateDetailPage() {
             </Button>
 
             {tracked ? (
-              <Button variant="secondary" onClick={() => chrome.dismissActionState(id)} testId="action_state.detail.dismiss">
+              <Button
+                variant="secondary"
+                onClick={() => chrome.dismissActionState(id)}
+                testId="action_state.detail.dismiss"
+              >
                 {t('tasks.action.dismiss')}
               </Button>
             ) : (
@@ -284,7 +296,7 @@ export function ActionStateDetailPage() {
           subtitle={
             relatedChainId ? (
               <>
-                {t('action_state.field.transaction_chain')}: {' '}
+                {t('action_state.field.transaction_chain')}:{' '}
                 <Link className="underline" to={`${basePath}/transactions/${relatedChainId}`}>
                   {chainQ.data?.label ? String(chainQ.data.label) : `#${relatedChainId}`}
                 </Link>
@@ -293,11 +305,11 @@ export function ActionStateDetailPage() {
           }
         />
         <CardBody>
-          <div className="mb-4 grid gap-3 md:grid-cols-4">
-            <DebugSummaryTile label={t('common.state')} value={<Badge variant={badge.variant}>{badge.label}</Badge>} />
-            <DebugSummaryTile label={t('action_state.field.operation')} value={actionTitle} />
-            <DebugSummaryTile label={t('common.type')} value={operationCategoryLabel(op, t)} />
-            <DebugSummaryTile label={t('common.progress')} value={pLabel ? `${pLabel}${pct !== null ? ` · ${pct}%` : ''}` : t('common.na')} />
+          <div className="mb-4 grid gap-3 md:grid-cols-2">
+            <DebugSummaryTile
+              label={t('common.progress')}
+              value={pLabel ? `${pLabel}${pct !== null ? ` · ${pct}%` : ''}` : t('common.na')}
+            />
             <DebugSummaryTile
               label={failedTxId ? t('transactions.tx.failed_here') : t('transactions.tx.current_step')}
               value={
@@ -318,21 +330,9 @@ export function ActionStateDetailPage() {
             />
           </div>
 
-          <div className="grid gap-2 text-sm sm:grid-cols-2">
-            <div>
-              <span className="text-muted">{t('common.id')}:</span> <span className="font-medium">#{id}</span>
-            </div>
-            <div>
-              <span className="text-muted">{t('action_state.field.operation')}:</span> {actionTitle}
-            </div>
-            <div>
-              <span className="text-muted">{t('common.type')}:</span> {operationCategoryLabel(op, t)}
-            </div>
-            <div>
-              <span className="text-muted">{t('action_states.visibility.label')}:</span> {operationVisibilityLabel(op, t)}
-            </div>
+          <div className="space-y-2 text-sm">
             {rawActionDiffers ? (
-              <div className="sm:col-span-2">
+              <div>
                 <span className="text-muted">{t('action_state.field.backend_label')}:</span> {op.rawLabel}
               </div>
             ) : null}
@@ -340,31 +340,7 @@ export function ActionStateDetailPage() {
               <span className="text-muted">{t('action_state.field.can_cancel')}:</span>{' '}
               {Boolean((s as any).can_cancel) ? t('common.yes') : t('common.no')}
             </div>
-            {createdAt ? (
-              <div>
-                <span className="text-muted">{t('common.created')}:</span> {createdAt}
-              </div>
-            ) : null}
-            {updatedAt ? (
-              <div>
-                <span className="text-muted">{t('common.updated')}:</span> {updatedAt}
-              </div>
-            ) : null}
-            {pLabel ? (
-              <div className="sm:col-span-2">
-                <span className="text-muted">{t('common.progress')}:</span> {pLabel}
-              </div>
-            ) : null}
           </div>
-
-          {pct !== null ? (
-            <div className="mt-4">
-              <div className="h-2 rounded-full bg-surface-2">
-                <div className="h-2 rounded-full bg-fg/60" style={{ width: `${pct}%` }} />
-              </div>
-              <div className="mt-1 text-xs text-faint">{pct}%</div>
-            </div>
-          ) : null}
 
           {Boolean((s as any).can_cancel) && !isFinishedActionState(s) ? (
             <div className="pt-4">
@@ -381,15 +357,6 @@ export function ActionStateDetailPage() {
               </Button>
             </div>
           ) : null}
-        </CardBody>
-      </Card>
-
-      <Card testId="action_state.detail.debug">
-        <CardHeader title={t('action_state.section.debug')} subtitle={t('action_state.section.debug_subtitle')} />
-        <CardBody>
-          <pre className="max-h-80 overflow-auto rounded-md border border-border bg-surface-2 p-3 text-xs text-muted">
-            {pickedActionStateDebugPayload(s)}
-          </pre>
         </CardBody>
       </Card>
 
@@ -457,6 +424,14 @@ export function ActionStateDetailPage() {
           )}
         </CardBody>
       </Card>
+
+      <details className="rounded-md border border-border bg-surface p-4" data-testid="action_state.detail.debug">
+        <summary className="cursor-pointer select-none text-sm font-medium">{t('action_state.section.debug')}</summary>
+        <div className="mt-2 text-sm text-muted">{t('action_state.section.debug_subtitle')}</div>
+        <pre className="mt-3 max-h-80 overflow-auto rounded-md border border-border bg-surface-2 p-3 text-xs text-muted">
+          {pickedActionStateDebugPayload(s)}
+        </pre>
+      </details>
 
       <ConfirmDialog
         testId="tasks.cancel_dialog"

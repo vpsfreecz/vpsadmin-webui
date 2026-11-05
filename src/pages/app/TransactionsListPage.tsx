@@ -5,7 +5,6 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchTransactions } from '../../lib/api/transactions';
 import { useAppMode } from '../../app/appMode';
 import { useI18n } from '../../app/i18n';
-import { useToasts } from '../../app/toasts';
 import { ListShell } from '../../components/layout/ListShell';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { Card } from '../../components/ui/Card';
@@ -31,7 +30,10 @@ import {
   parseSuccess,
   type DoneValue,
 } from './transactions/transactionItemSemantics';
-import { buildTransactionItemFilterChips, buildTransactionItemSmartSuggestions } from './transactions/transactionItemSmartFilter';
+import {
+  buildTransactionItemFilterChips,
+  buildTransactionItemSmartSuggestions,
+} from './transactions/transactionItemSmartFilter';
 import { TransactionItemsRouteGuard } from './transactions/TransactionItemsRouteGuard';
 
 export function TransactionsListPage() {
@@ -46,7 +48,6 @@ function TransactionsListContent() {
   const { basePath } = useAppMode();
   const mode = basePath === '/admin' ? 'admin' : 'app';
   const { t } = useI18n();
-  const { pushToast } = useToasts();
   const navigate = useNavigate();
   const tierARefetchMs = useTierAIntervalMs();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -203,7 +204,9 @@ function TransactionsListContent() {
       return;
     }
 
-    const tokens = tokenizeSmartInput(input).map((token) => token.trim()).filter(Boolean);
+    const tokens = tokenizeSmartInput(input)
+      .map((token) => token.trim())
+      .filter(Boolean);
     const firstToken = tokens[0];
     const numericOnly = tokens.length === 1 && firstToken ? parseNumericToken(firstToken) : null;
     if (numericOnly !== null) {
@@ -299,7 +302,6 @@ function TransactionsListContent() {
 
     if (errs.length > 0) {
       setSmartErrors(errs);
-      pushToast({ variant: 'danger', title: errs[0] ?? t('common.unknown_error') });
       return;
     }
 
@@ -361,7 +363,6 @@ function TransactionsListContent() {
       header={
         <PageHeader
           title={t('transactions.items.title')}
-          description={t('transactions.items.description')}
           testId="transactions.items.list.header"
           actions={
             <LinkButton to={`${basePath}/transactions`} variant="secondary" size="sm">
@@ -405,6 +406,9 @@ function TransactionsListContent() {
         />
       }
     >
+      <div role="alert" aria-atomic="true" className="sr-only">
+        {smartErrors.join(' ')}
+      </div>
       {primaryLoading ? (
         <LoadingState testId="transactions.items.loading" title={t('transactions.items.loading')} />
       ) : primaryError ? (

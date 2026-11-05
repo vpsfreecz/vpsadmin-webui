@@ -1669,3 +1669,7 @@ Preserve advanced shared main while pinning approved runtime 70bd11d9.
 Completed on all three sites: 90 pre-merge CI checks, Nix packages, 1,930 runtime
 unit tests and 252 served browser checks passed. One config pin was published;
 source/main boundaries, initial failures and remaining audit limits are recorded.
+
+## 2026-11-04 — Dashboard cluster availability
+
+Show one availability ratio, remove the nominal banner, and retain outage, maintenance and load or error indicators. [CLU-01 / REQ-009](docs/work-log/2026-11-04-clu01.md).

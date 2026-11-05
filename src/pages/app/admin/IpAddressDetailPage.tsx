@@ -294,7 +294,6 @@ export function IpAddressDetailPage() {
                   title={title}
                   titleAfter={
                     <>
-                      <Badge variant="neutral">#{(ip as any).id}</Badge>
                       {routed ? <Badge variant="black">{t('admin.ip.routed_badge')}</Badge> : null}
                     </>
                   }
@@ -353,18 +352,6 @@ export function IpAddressDetailPage() {
                       <div>
                         <div className="text-xs text-muted">{t('admin.ip.field.user_id')}</div>
                         <div className="text-sm">{userId ?? t('common.na')}</div>
-                      </div>
-                      <div>
-                        <div className="text-xs text-muted">{t('admin.ip.field.vps_id')}</div>
-                        <div className="text-sm">{vpsId ?? t('common.na')}</div>
-                      </div>
-                      <div>
-                        <div className="text-xs text-muted">{t('admin.ip.field.interface')}</div>
-                        <div className="text-sm">{labelFromResourceRef((ip as any).network_interface)}</div>
-                      </div>
-                      <div>
-                        <div className="text-xs text-muted">{t('admin.ip.field.route_via')}</div>
-                        <div className="text-sm">{labelFromResourceRef((ip as any).route_via, ['addr', 'ip_addr', 'label', 'name'])}</div>
                       </div>
                       {(ip as any).created_at ? (
                         <div>
@@ -460,7 +447,6 @@ export function IpAddressDetailPage() {
                           <tr>
                             <th>{t('admin.ip.hosts.field.address')}</th>
                             <th>{t('admin.ip.hosts.field.ptr')}</th>
-                            <th>{t('admin.ip.hosts.field.assigned')}</th>
                             <th>{t('admin.ip.hosts.field.flags')}</th>
                             <th><span className="sr-only">{t('common.actions')}</span></th>
                           </tr>
@@ -470,16 +456,15 @@ export function IpAddressDetailPage() {
                             <tr key={host.id} data-testid={`admin.ip.hosts.row.${host.id}`}>
                               <td className="font-mono text-sm">{hostAddr(host)}</td>
                               <td className="max-w-80 truncate">{String((host as any).reverse_record_value ?? t('common.na'))}</td>
-                              <td>{host.assigned === false ? t('common.no') : t('common.yes')}</td>
                               <td>
                                 <div className="flex flex-wrap gap-1">
                                   {(host as any).user_created ? <Badge tone="neutral">{t('common.custom')}</Badge> : null}
-                                  {host.assigned === false ? <Badge tone="warn">{t('common.unassigned')}</Badge> : <Badge tone="ok">{t('common.assigned')}</Badge>}
+                                  {host.assigned === false ? <Badge tone="warn">{t('common.unassigned')}</Badge> : host.assigned === true ? <Badge tone="ok">{t('common.assigned')}</Badge> : <Badge tone="neutral">{t('state.unknown')}</Badge>}
                                 </div>
                               </td>
                               <td className="text-right">
                                 <HostIpAddressRowActions
-                                  assigned={host.assigned !== false}
+                                  assigned={host.assigned ?? undefined}
                                   userCreated={Boolean((host as any).user_created)}
                                   testIdPrefix={`admin.ip.hosts.row.${host.id}`}
                                   assignLoading={hostAssignM.isPending}

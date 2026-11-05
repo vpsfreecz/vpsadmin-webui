@@ -72,7 +72,6 @@ export function DashboardWidgetGrid(props: {
     isLoading: boolean;
     isError: boolean;
     nodeData: NodeData;
-    nodeIssueCount: number;
   };
 }) {
   const { t } = useI18n();
@@ -167,7 +166,6 @@ export function DashboardWidgetGrid(props: {
           <CardHeader
             className="items-center p-3"
             title={t('dashboard.section.news.title')}
-            subtitle={t('dashboard.section.news.subtitle_compact')}
             actions={
               <>
                 {widgetCollapseButton({ id, collapsed, onClick: () => toggleCollapsed(id), label: collapseLabel(collapsed) })}
@@ -212,7 +210,6 @@ export function DashboardWidgetGrid(props: {
           isLoading={props.cluster.isLoading}
           isError={props.cluster.isError}
           nodeData={props.cluster.nodeData}
-          nodeIssueCount={props.cluster.nodeIssueCount}
           collapsed={collapsed}
           density={props.density}
           onToggleCollapsed={() => toggleCollapsed(id)}

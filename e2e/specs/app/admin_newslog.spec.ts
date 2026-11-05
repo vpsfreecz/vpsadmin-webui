@@ -1,6 +1,12 @@
 import { expect, test } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage, failEnvelope, jsonFulfill } from '../../fixtures';
+import {
+  bootstrapVpsAdminWindow,
+  installHaveApiMock,
+  setUiSettingsLocalStorage,
+  failEnvelope,
+  jsonFulfill,
+} from '../../fixtures';
 
 for (const language of ['cs', 'en'] as const) {
   test.describe(`Bilingual news (${language})`, () => {
@@ -16,7 +22,9 @@ for (const language of ['cs', 'en'] as const) {
       const mock = await installHaveApiMock(page, {
         user: { id: 1, login: 'admin', level: 100 },
         handlers: {
-          'GET news_logs': () => ({ news_logs: created ? [{ ...record, message: record.cs_message || record.en_message }] : [] }),
+          'GET news_logs': () => ({
+            news_logs: created ? [{ ...record, message: record.cs_message || record.en_message }] : [],
+          }),
           'POST news_logs': ({ request }) => {
             createPayload = request.postDataJSON();
             record = { ...record, ...(createPayload as { news_log: typeof record }).news_log };
@@ -50,14 +58,24 @@ for (const language of ['cs', 'en'] as const) {
       await en.fill(english);
       await expect(save).toBeEnabled();
       await save.scrollIntoViewIfNeeded();
-      expect(await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)).toBe(false);
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)
+      ).toBe(false);
       await page.screenshot({ path: testInfo.outputPath(`news-editor-${language}.png`), fullPage: true, scale: 'css' });
       await save.click();
       await expect(editor).toBeHidden();
-      expect(createPayload).toEqual({ news_log: { cs_message: czech, en_message: english, published_at: expect.any(String) } });
+      expect(createPayload).toEqual({
+        news_log: { cs_message: czech, en_message: english, published_at: expect.any(String) },
+      });
 
-      const edit = page.getByTestId('admin.newslog.edit.42').or(page.getByTestId('admin.newslog.card.42.edit')).filter({ visible: true });
-      const row = page.getByTestId('admin.newslog.table').or(page.getByTestId('admin.newslog.card.42')).filter({ visible: true });
+      const edit = page
+        .getByTestId('admin.newslog.edit.42')
+        .or(page.getByTestId('admin.newslog.card.42.edit'))
+        .filter({ visible: true });
+      const row = page
+        .getByTestId('admin.newslog.table')
+        .or(page.getByTestId('admin.newslog.card.42'))
+        .filter({ visible: true });
       await expect(row).toContainText(language === 'cs' ? 'Plánovaná údržba.' : 'Scheduled maintenance.');
       await edit.click();
       await expect(cs).toHaveValue(czech);
@@ -66,26 +84,34 @@ for (const language of ['cs', 'en'] as const) {
       rejectSave = true;
       await save.click();
       await expect(page.getByTestId('admin.newslog.editor.error').getByText('Synthetic save failure')).toBeVisible();
+      await expect(editor.getByRole('alert').filter({ hasText: 'Synthetic save failure' })).toHaveCount(1);
+      await expect(editor.getByText('Synthetic save failure', { exact: true })).toHaveCount(1);
       await expect(cs).toHaveValue('Upravená česká zpráva');
       await expect(en).toHaveValue(english);
       rejectSave = false;
       await save.click();
       await expect(editor).toBeHidden();
-      expect(updatePayload).toEqual({ news_log: { cs_message: 'Upravená česká zpráva', en_message: english, published_at: expect.any(String) } });
+      expect(updatePayload).toEqual({
+        news_log: { cs_message: 'Upravená česká zpráva', en_message: english, published_at: expect.any(String) },
+      });
       await edit.click();
       await expect(cs).toHaveValue('Upravená česká zpráva');
       await expect(en).toHaveValue(english);
       await cs.fill('');
       await save.click();
       await expect(editor).toBeHidden();
-      expect(updatePayload).toEqual({ news_log: { cs_message: '', en_message: english, published_at: expect.any(String) } });
+      expect(updatePayload).toEqual({
+        news_log: { cs_message: '', en_message: english, published_at: expect.any(String) },
+      });
       await expect(row).toContainText('Scheduled maintenance.');
       await edit.click();
       await expect(cs).toHaveValue('');
       await expect(en).toHaveValue(english);
       await page.keyboard.press('Escape');
       // A localized read-only message must never masquerade as English input.
-      mock.addHandler('GET news_logs', () => ({ news_logs: [{ id: 42, message: 'Pouze lokalizovaný text', published_at: record.published_at }] }));
+      mock.addHandler('GET news_logs', () => ({
+        news_logs: [{ id: 42, message: 'Pouze lokalizovaný text', published_at: record.published_at }],
+      }));
       await page.reload();
       await edit.click();
       await expect(cs).toHaveValue('');
@@ -103,11 +129,13 @@ test.describe('Admin news', () => {
       user: { id: 1, login: 'admin', level: 100 },
       handlers: {
         'GET news_logs': () => ({
-          news_logs: [{
-            id: 7,
-            message: 'Planned maintenance affecting several clusters and customer services',
-            published_at: '2030-07-12T18:00:00.000Z',
-          }],
+          news_logs: [
+            {
+              id: 7,
+              message: 'Planned maintenance affecting several clusters and customer services',
+              published_at: '2030-07-12T18:00:00.000Z',
+            },
+          ],
         }),
       },
     });
@@ -119,11 +147,15 @@ test.describe('Admin news', () => {
     const remove = page.getByTestId('admin.newslog.card.7.delete');
     await expect(card).toBeVisible();
     await expect(page.getByTestId('admin.newslog.table')).toBeHidden();
-    await expect(card.getByText('Planned maintenance affecting several clusters and customer services', { exact: true })).toBeVisible();
+    await expect(
+      card.getByText('Planned maintenance affecting several clusters and customer services', { exact: true })
+    ).toBeVisible();
     await expect(card.getByText('#7', { exact: true })).toBeVisible();
     await expect(card.getByText('Scheduled', { exact: true })).toBeVisible();
 
-    const documentOverflows = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
+    const documentOverflows = await page.evaluate(
+      () => document.documentElement.scrollWidth > document.documentElement.clientWidth
+    );
     expect(documentOverflows).toBe(false);
     await expect.poll(() => card.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
 

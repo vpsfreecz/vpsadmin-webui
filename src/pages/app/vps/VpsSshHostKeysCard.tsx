@@ -5,10 +5,9 @@ import { Alert } from '../../../components/ui/Alert';
 import { Button } from '../../../components/ui/Button';
 import { Card, CardBody, CardHeader } from '../../../components/ui/Card';
 import { CopyButton } from '../../../components/ui/CopyButton';
-import { Table } from '../../../components/ui/Table';
 import type { VpsSshHostKey } from '../../../lib/api/vpsAccess';
 import { errorMessage } from './VpsAccessPrimitives';
-import { hostKeyDisplayFingerprint, hostKeyDisplayType, hostKeyMaterial, hostKeyMeta } from './VpsAccessModel';
+import { hostKeyDisplayFingerprint, hostKeyDisplayType, hostKeyMeta } from './VpsAccessModel';
 
 function valueString(value: string | number | undefined): string | undefined {
   if (value === undefined) return undefined;
@@ -41,7 +40,7 @@ export function VpsSshHostKeysCard(props: {
         {props.error ? <Alert variant="danger">{errorMessage(props.error)}</Alert> : null}
         {!props.loading && !props.error && hostKeys.length === 0 ? (
           <Alert variant="warn" title={t('vps.access.host_keys.empty.title')}>
-            {t('vps.access.host_keys.empty.description')}
+            {t('vps.access.checklist.host_key.empty.description')}
           </Alert>
         ) : null}
 
@@ -61,47 +60,12 @@ export function VpsSshHostKeysCard(props: {
                         <CopyButton text={fingerprint} label={t('vps.access.host_keys.copy_fingerprint')} testId={`vps.access.host_keys.fingerprint.${rowId}.copy`} />
                       ) : null}
                     </div>
+                    <div className="mt-2 text-xs text-muted">{hostKeyMeta(key)}</div>
                   </div>
                 );
               })}
             </div>
 
-            <div className="w-0 min-w-full max-w-full overflow-x-auto">
-              <Table testId="vps.access.host_keys.table" minWidth="lg">
-                <thead>
-                  <tr>
-                    <th className="px-4 py-3">{t('vps.access.host_keys.type')}</th>
-                    <th className="px-4 py-3">{t('vps.access.host_keys.fingerprint')}</th>
-                    <th className="px-4 py-3">{t('vps.access.host_keys.meta')}</th>
-                    <th className="px-4 py-3">{t('vps.access.host_keys.public_key')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {hostKeys.map((key, index) => {
-                    const material = hostKeyMaterial(key);
-                    const rowId = valueString(key.id ?? undefined) ?? String(index + 1);
-
-                    return (
-                      <tr key={rowId} data-testid={`vps.access.host_keys.row.${rowId}`}>
-                        <td className="px-4 py-3 font-mono text-xs text-fg">{hostKeyDisplayType(key)}</td>
-                        <td className="px-4 py-3 font-mono text-xs text-fg">{hostKeyDisplayFingerprint(key)}</td>
-                        <td className="px-4 py-3 text-xs text-muted">{hostKeyMeta(key)}</td>
-                        <td className="px-4 py-3">
-                          {material ? (
-                            <div className="flex min-w-0 items-center gap-2">
-                              <code className="min-w-0 flex-1 truncate rounded-md bg-surface-2 px-2 py-1 text-xs text-muted">{material}</code>
-                              <CopyButton text={material} label={t('vps.access.host_keys.copy')} testId={`vps.access.host_keys.row.${rowId}.copy`} />
-                            </div>
-                          ) : (
-                            <span className="text-xs text-muted">{t('common.na')}</span>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </Table>
-            </div>
           </>
         ) : null}
       </CardBody>

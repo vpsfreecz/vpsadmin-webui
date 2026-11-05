@@ -7,8 +7,10 @@ test('@smoke profile: ssh keys + sessions flows', async ({ page }) => {
   const mutations: string[] = [];
   page.on('request', (request) => {
     const path = new URL(request.url()).pathname;
-    if (['POST', 'PUT', 'DELETE'].includes(request.method())
-      && (path.startsWith('/api/v7.0/users/1/public_keys') || path.startsWith('/api/v7.0/user_sessions/'))) {
+    if (
+      ['POST', 'PUT', 'DELETE'].includes(request.method()) &&
+      (path.startsWith('/api/v7.0/users/1/public_keys') || path.startsWith('/api/v7.0/user_sessions/'))
+    ) {
       mutations.push(`${request.method()} ${path}`);
     }
   });
@@ -160,19 +162,24 @@ test('@smoke profile: ssh keys + sessions flows', async ({ page }) => {
   await page.goto('/app/profile/sessions');
   const sessionsPanel = page.getByTestId('profile.sessions.card');
   const sessionRow = (id: number) => sessionsPanel.getByTestId(`profile.sessions.row.${id}`).filter({ visible: true });
+  await page.getByTestId('profile.sessions.details').check();
 
   // Session rename
   await expect(sessionRow(1)).toBeVisible();
-  await expect(sessionsPanel.getByText('Request count', { exact: true }).filter({ visible: true }).first()).toBeVisible();
+  await expect(
+    sessionsPanel.getByText('Request count', { exact: true }).filter({ visible: true }).first()
+  ).toBeVisible();
   await expect(sessionsPanel.getByText('111', { exact: true }).filter({ visible: true })).toBeVisible();
   await expect(sessionsPanel.getByText('vpsadmin-webui 9a5fccf4').filter({ visible: true })).toBeVisible();
   await expect(sessionRow(1).getByTestId('profile.sessions.row.1.transactions')).toBeVisible();
 
   const authFilterReqP = page.waitForRequest((r) => {
     const url = new URL(r.url());
-    return r.method() === 'GET'
-      && url.pathname === '/api/v7.0/user_sessions'
-      && url.searchParams.get('user_session[auth_type]') === 'token';
+    return (
+      r.method() === 'GET' &&
+      url.pathname === '/api/v7.0/user_sessions' &&
+      url.searchParams.get('user_session[auth_type]') === 'token'
+    );
   });
   await page.getByTestId('profile.sessions.auth_type').selectOption('token');
   await authFilterReqP;

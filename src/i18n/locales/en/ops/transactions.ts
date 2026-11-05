@@ -201,6 +201,7 @@ export const enOps_transactions = {
   "transactions.tx.section.log": "Log",
   "transactions.tx.section.logs": "Logs",
   "transactions.tx.section.message": "Message",
+  "transactions.tx.section.result": "Result",
   "transactions.tx.section.stderr": "stderr",
   "transactions.tx.section.stdout": "stdout",
   "transactions.tx.success_label": "Success",

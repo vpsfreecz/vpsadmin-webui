@@ -98,7 +98,7 @@ export function ProfilePreferencesCard() {
 
   return (
     <Card testId="profile.prefs.card">
-      <CardHeader title={t('profile.prefs.title')} subtitle={t('profile.prefs.subtitle')} />
+      <CardHeader title={t('profile.prefs.title')} />
       <CardBody>
         <div className="space-y-3">
           {canSwitchScope ? (
@@ -172,30 +172,21 @@ export function ProfilePreferencesCard() {
           </ProfilePreferenceRow>
         </div>
 
-        <div
-          className="mt-4 rounded-md border border-border bg-surface-2 px-3 py-2 text-xs"
-          data-testid="profile.prefs.sync"
-        >
-          <div className="flex flex-wrap gap-x-3 gap-y-1 text-muted">
-            <span>
-              {t('profile.prefs.persistence.label')}:{' '}
-              <span className="font-medium text-fg">{syncModeLabel}</span>
-            </span>
-            <span>
-              {t('profile.prefs.sync_status.label')}:{' '}
-              <span className="font-medium text-fg">{syncStatusLabel}</span>
-            </span>
-            <span>
-              {t('profile.prefs.last_loaded')}:{' '}
-              <span className="font-medium text-fg">{lastLoadedAtLabel}</span>
-            </span>
-            <span>
-              {t('profile.prefs.last_saved')}:{' '}
-              <span className="font-medium text-fg">{lastSavedAtLabel}</span>
-            </span>
-            {ui.sync.error ? <span className="text-danger">{ui.sync.error}</span> : null}
+        {ui.sync.status !== 'idle' || ui.sync.error ? (
+          <div
+            className="mt-4 rounded-md border border-border bg-surface-2 px-3 py-2 text-xs"
+            data-testid="profile.prefs.sync"
+            role="status"
+          >
+            <div className="flex flex-wrap gap-x-3 gap-y-1 text-muted">
+              <span>
+                {t('profile.prefs.sync_status.label')}:{' '}
+                <span className="font-medium text-fg">{syncStatusLabel}</span>
+              </span>
+              {ui.sync.error ? <span className="text-danger">{ui.sync.error}</span> : null}
+            </div>
           </div>
-        </div>
+        ) : null}
 
         {ui.sync.mode === 'server' && ui.sync.status === 'error' ? (
           <div className="mt-3 text-xs text-muted">{t('profile.prefs.server_sync_warning')}</div>
@@ -221,6 +212,14 @@ export function ProfilePreferencesCard() {
               <div>
                 {t('profile.prefs.sync_status.label')}:{' '}
                 <span className="font-medium text-fg">{syncStatusLabel}</span>
+              </div>
+              <div>
+                {t('profile.prefs.last_loaded')}:{' '}
+                <span className="font-medium text-fg">{lastLoadedAtLabel}</span>
+              </div>
+              <div>
+                {t('profile.prefs.last_saved')}:{' '}
+                <span className="font-medium text-fg">{lastSavedAtLabel}</span>
               </div>
               <div>
                 {t('profile.prefs.last_load_error')}:{' '}

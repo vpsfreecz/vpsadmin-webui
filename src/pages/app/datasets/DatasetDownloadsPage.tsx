@@ -292,9 +292,6 @@ export function DatasetDownloadsPage() {
           <h2 className="text-xl font-semibold text-fg">
             {t("dataset.downloads.title")}
           </h2>
-          <p className="mt-1 text-sm text-muted">
-            {t("dataset.downloads.subtitle")}
-          </p>
           <p className="mt-1 text-xs text-faint">
             {t("common.showing_n_of_m", {
               shown: rows.length,

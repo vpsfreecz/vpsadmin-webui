@@ -6,8 +6,8 @@ import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 
 async function captureProof(page: Page, testInfo: TestInfo, name: string): Promise<void> {
-  if (process.env.E2E_CAPTURE_SCREENSHOTS !== '1') return;
-  const dir = process.env.E2E_SCREENSHOT_DIR?.trim() || 'docs/e2e-screenshots';
+  if (process.env['E2E_CAPTURE_SCREENSHOTS'] !== '1') return;
+  const dir = process.env['E2E_SCREENSHOT_DIR']?.trim() || 'docs/e2e-screenshots';
   fs.mkdirSync(dir, { recursive: true });
   await page.screenshot({
     path: path.join(dir, `${name}-${testInfo.project.name}.png`),
@@ -21,7 +21,7 @@ async function prepare(page: Page, handlers: Record<string, (ctx: any) => unknow
   await installHaveApiMock(page, {
     user: { id: 1, login: level >= 90 ? 'admin' : 'support', level },
     handlers: {
-      'GET nodes/public_status': () => [],
+      'GET nodes/public_status': () => ({ nodes: [] }),
       'GET nodes': () => ({ nodes: [] }),
       ...handlers,
     },
@@ -121,7 +121,9 @@ test.describe('Admin node create and edit lifecycle', () => {
 
     await page.goto('/admin/nodes');
     await page.getByTestId('admin.nodes.create').click();
-    await expect(page.getByTestId('admin.node.editor.bootstrap.description')).toContainText(/does not require|nevyžaduje/i);
+    await expect(page.getByTestId('admin.node.editor.bootstrap.description')).toContainText(
+      /does not require|nevyžaduje/i
+    );
     await page.getByTestId('admin.node.editor.name').fill('storage43');
     await page.getByTestId('admin.node.editor.role').selectOption('storage');
     await page.getByTestId('admin.node.editor.location').selectOption('3');
@@ -152,7 +154,7 @@ test.describe('Admin node create and edit lifecycle', () => {
     };
     await prepare(page, {
       'GET nodes/5': () => ({ node }),
-      'GET nodes/public_status': () => [{ id: 5, status: true }],
+      'GET nodes/public_status': () => ({ nodes: [{ id: 5, status: true }] }),
       'GET nodes/5/statuses': () => ({ statuses: [] }),
       'GET transactions': () => ({ transactions: [] }),
       'GET transaction_chains': () => ({ transaction_chains: [] }),
@@ -204,7 +206,7 @@ test.describe('Admin node create and edit lifecycle', () => {
         nodeCalls += 1;
         return { node: { ...baseNode, name: nodeCalls > 1 ? 'node5-from-poll' : baseNode.name } };
       },
-      'GET nodes/public_status': () => [{ id: 5, status: true }],
+      'GET nodes/public_status': () => ({ nodes: [{ id: 5, status: true }] }),
       'GET nodes/5/statuses': () => ({ statuses: [] }),
       'GET transactions': () => ({ transactions: [] }),
       'GET transaction_chains': () => ({ transaction_chains: [] }),
@@ -236,7 +238,7 @@ test.describe('Admin node create and edit lifecycle', () => {
     };
     await prepare(page, {
       'GET nodes/5': () => ({ node }),
-      'GET nodes/public_status': () => [{ id: 5, status: true }],
+      'GET nodes/public_status': () => ({ nodes: [{ id: 5, status: true }] }),
       'GET nodes/5/statuses': () => ({ statuses: [] }),
       'GET transactions': () => ({ transactions: [] }),
       'GET transaction_chains': () => ({ transaction_chains: [] }),
@@ -270,7 +272,7 @@ test.describe('Admin node create and edit lifecycle', () => {
     };
     await prepare(page, {
       'GET nodes/5': () => ({ node }),
-      'GET nodes/public_status': () => [{ id: 5, status: true }],
+      'GET nodes/public_status': () => ({ nodes: [{ id: 5, status: true }] }),
       'GET nodes/5/statuses': () => ({ statuses: [] }),
       'GET transactions': () => ({ transactions: [] }),
       'GET transaction_chains': () => ({ transaction_chains: [] }),
@@ -290,7 +292,9 @@ test.describe('Admin node create and edit lifecycle', () => {
     expect(updateCalls).toBe(0);
   });
 
-  test('reconciles an indeterminate create beyond the visible page and prevents a duplicate POST', async ({ page }, testInfo) => {
+  test('reconciles an indeterminate create beyond the visible page and prevents a duplicate POST', async ({
+    page,
+  }, testInfo) => {
     let createCalls = 0;
     let reconcileCalls = 0;
     await prepare(page, {
@@ -408,7 +412,7 @@ test.describe('Admin node create and edit lifecycle', () => {
           return {};
         },
       },
-      21,
+      21
     );
     await page.goto('/admin/nodes');
     await expect(page.getByTestId('admin.nodes.create')).toHaveCount(0);

@@ -17,7 +17,12 @@ concurrency:
 jobs:
   smoke:
     name: PR smoke E2E (${{ matrix.project }})
-    runs-on: ubuntu-latest
+    # Use a supported alternate host after two WebKit setup timeouts.
+    runs-on: ${{ matrix.project == 'mobile-webkit' && 'ubuntu-24.04' || 'ubuntu-latest' }}
+    # The pinned official image supplies WebKit and its native dependencies.
+    container:
+      image: ${{ matrix.project == 'mobile-webkit' && 'mcr.microsoft.com/playwright:v1.61.0-noble@sha256:57b65fdc9ceabe0ef613124c7bbe2babcf9362c4d85e382fe3b03604e84b428a' || '' }}
+      options: --user 1001
     # A full PR desktop run now takes about 30 minutes before setup/reporting.
     # Keep the complete two-worker suite and allow bounded completion headroom.
     timeout-minutes: 40
@@ -52,6 +57,7 @@ jobs:
         run: npm run env:locked
 
       - name: Install Playwright browsers
+        if: matrix.project != 'mobile-webkit'
         run: npm run e2e:install -- --with-deps ${{ matrix.browser }}
 
       - name: Run PR smoke E2E

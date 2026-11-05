@@ -667,7 +667,6 @@ export function IncidentsPage() {
   const header = (
     <PageHeader
       title={t('incidents.list.title')}
-      description={t('incidents.list.description')}
       meta={filtersActive ? <span className="text-xs text-faint">{t('list.meta.filters_active')}</span> : null}
       actions={
         isAdmin ? (

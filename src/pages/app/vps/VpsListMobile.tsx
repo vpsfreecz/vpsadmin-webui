@@ -53,6 +53,8 @@ export function VpsListMobile({
       <div className="vps-list-cards grid gap-3">
         {rows.map((row) => {
           const { vps } = row;
+          const hasMemoryUsage = row.memUsed !== undefined && row.memMax !== undefined && row.memMax > 0;
+          const hasDiskUsage = row.diskUsed !== undefined && row.diskMax !== undefined && row.diskMax > 0;
 
           return (
             <Card key={vps.id} testId={`vps.card.${vps.id}`} className={toneSurfaceClass(row.rowVariant)}>
@@ -109,14 +111,18 @@ export function VpsListMobile({
                     <div className="text-xs text-muted">{t('common.node')}</div>
                     <div className="truncate">{row.nodeLabel}</div>
                   </div>
-                  <div>
-                    <div className="text-xs text-muted">{t('vps.overview.config.memory')}</div>
-                    <div>{formatMiB(vps.memory)}</div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-muted">{t('vps.overview.config.diskspace')}</div>
-                    <div>{formatMiB(vps.diskspace)}</div>
-                  </div>
+                  {!hasMemoryUsage ? (
+                    <div>
+                      <div className="text-xs text-muted">{t('vps.overview.config.memory')}</div>
+                      <div>{formatMiB(vps.memory)}</div>
+                    </div>
+                  ) : null}
+                  {!hasDiskUsage ? (
+                    <div>
+                      <div className="text-xs text-muted">{t('vps.overview.config.diskspace')}</div>
+                      <div>{formatMiB(vps.diskspace)}</div>
+                    </div>
+                  ) : null}
                   <div>
                     <div className="text-xs text-muted">{t('vps.overview.usage.uptime')}</div>
                     <div>{formatUptimeSeconds(vps.uptime)}</div>
@@ -127,13 +133,12 @@ export function VpsListMobile({
                   </div>
                 </div>
 
-                {(row.memUsed !== undefined && row.memMax !== undefined && row.memMax > 0) ||
-                (row.diskUsed !== undefined && row.diskMax !== undefined && row.diskMax > 0) ? (
+                {hasMemoryUsage || hasDiskUsage ? (
                   <div className="mt-3 space-y-2 text-xs text-muted">
-                    {row.memUsed !== undefined && row.memMax !== undefined && row.memMax > 0 ? (
+                    {hasMemoryUsage ? (
                       <UsageBar label={t('vps.list.usage.ram')} used={row.memUsed} max={row.memMax} formatValue={formatMiB} />
                     ) : null}
-                    {row.diskUsed !== undefined && row.diskMax !== undefined && row.diskMax > 0 ? (
+                    {hasDiskUsage ? (
                       <UsageBar label={t('vps.list.usage.disk')} used={row.diskUsed} max={row.diskMax} formatValue={formatMiB} />
                     ) : null}
                   </div>

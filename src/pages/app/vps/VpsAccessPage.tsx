@@ -32,23 +32,21 @@ import { freezeVpsMutationSnapshot, type VpsMutationSnapshot } from './VpsMutati
 import {
   actionStateFailed,
   actionStateFinished,
-  boolValue,
   errorMessage,
   extractPassword,
   isBusyError,
   PasswordBox,
   publicKeyLabel,
-  recordField,
   resourceId,
   resourceLabel,
   type GeneratedCredential,
   type PendingGeneratedCredential,
   type PendingPublicKeyDeployment,
 } from './VpsAccessPrimitives';
-import { buildVpsAccessChecklist, findDuplicatePublicKeyGroups } from './VpsAccessModel';
+import { findDuplicatePublicKeyGroups } from './VpsAccessModel';
 import { VpsAccessMutationGuardAlerts } from './VpsAccessMutationGuardAlerts';
 import { VpsConfirmTarget } from './VpsPowerConfirmation';
-import { VpsAccessChecklistCard, VpsAccessStatusCard } from './VpsAccessSummary';
+import { VpsAccessStatusCard } from './VpsAccessSummary';
 import { VpsSshHostKeysCard } from './VpsSshHostKeysCard';
 export function VpsAccessPage() {
   const { basePath, mode } = useAppMode();
@@ -60,7 +58,6 @@ export function VpsAccessPage() {
   const vpsId = Number(vps.id);
   const vpsData = vps as Record<string, unknown>;
   const objectLabel = String(vpsData['hostname'] ?? '') || `#${vpsId}`;
-  const isRunning = boolValue(vpsData['is_running']);
   const ownerUserId = resourceId(vpsData['user']);
   const ownerLabel = resourceLabel(vpsData['user']);
   const [passwordType, setPasswordType] = useState<VpsPasswordType>('secure');
@@ -263,68 +260,16 @@ export function VpsAccessPage() {
   });
   const canGenerate = canMutateVps && gate.allowed && !currentPasswdMutationPending && currentPendingGenerated === null;
   const canDeployKey = canMutateVps && gate.allowed && !deployKeyM.isPending && pendingKeyDeployment === null && selectedPublicKeyId !== null && publicKeys.length > 0;
-  const selectedTypeLabel = t(passwordType === 'secure' ? 'vps.access.password_type.secure' : 'vps.access.password_type.simple');
   const pendingTypeLabel = currentPendingPasswordType
     ? t(currentPendingPasswordType.type === 'secure' ? 'vps.access.password_type.secure' : 'vps.access.password_type.simple')
     : '';
   const selectedKeyLabel = publicKeyLabel(selectedPublicKey);
   const pendingKeyLabel = publicKeyLabel(pendingPublicKey);
-  const publicKeysLoaded = publicKeyUserId !== null && !publicKeysQ.isPending && !publicKeysQ.error;
-  const hostKeysLoaded = !hostKeysQ.isPending && !hostKeysQ.error;
   const publicKeysHref = mode === 'admin' && publicKeyUserId !== null ? `${basePath}/users/${publicKeyUserId}/keys` : `${basePath}/profile/keys`;
-
-  const checklistItems = useMemo(
-    () =>
-      buildVpsAccessChecklist({
-        publicKeysLoaded,
-        publicKeyCount: publicKeys.length,
-        duplicatePublicKeyGroupCount: duplicatePublicKeyGroups.length,
-        hostKeysLoaded,
-        hostKeyCount: hostKeys.length,
-        mutationAllowed: canMutateVps && gate.allowed,
-      }),
-    [canMutateVps, duplicatePublicKeyGroups.length, gate.allowed, hostKeys.length, hostKeysLoaded, publicKeys.length, publicKeysLoaded]
-  );
 
   return (
     <div className="space-y-4" data-testid="vps.access.page">
-      <VpsAccessStatusCard
-        objectLabel={objectLabel}
-        osTemplateLabel={resourceLabel(recordField(vpsData, 'os_template'))}
-        ownerLabel={ownerLabel}
-        runningLabel={isRunning ? t('vps.access.status.running_yes') : t('vps.access.status.running_no')}
-        passwordTypeLabel={selectedTypeLabel}
-      />
-      <VpsAccessChecklistCard
-        items={checklistItems}
-        actions={{
-          'public-key': publicKeysLoaded && (publicKeys.length === 0 || duplicatePublicKeyGroups.length > 0)
-            ? {
-                to: publicKeysHref,
-                label: t('vps.access.checklist.action.manage_keys'),
-                testId: 'vps.access.checklist.public-key.action',
-              }
-            : publicKeysLoaded && canMutateVps
-              ? {
-                  href: '#vps-access-ssh-key',
-                  label: t('vps.access.checklist.action.deploy_key'),
-                  testId: 'vps.access.checklist.public-key.action',
-                }
-              : undefined,
-          'host-key': {
-            href: '#vps-access-host-keys',
-            label: t('vps.access.checklist.action.view_host_keys'),
-            testId: 'vps.access.checklist.host-key.action',
-          },
-          'root-password': canMutateVps
-            ? {
-                href: '#vps-access-root-password',
-                label: t('vps.access.checklist.action.open_password'),
-                testId: 'vps.access.checklist.root-password.action',
-              }
-            : undefined,
-        }}
-      />
+      <VpsAccessStatusCard ownerLabel={ownerLabel} />
 
       <VpsAccessMutationGuardAlerts canMutateVps={canMutateVps} gate={gate} onOpenTasks={() => chrome.openTasks()} />
 
@@ -361,7 +306,7 @@ export function VpsAccessPage() {
       {keyDeployMessage ? <Alert variant="info">{t('vps.access.ssh.deployed', { key: keyDeployMessage })}</Alert> : null}
 
       {canMutateVps ? <Card id="vps-access-ssh-key" testId="vps.access.ssh.card" className="scroll-mt-24">
-        <CardHeader title={t('vps.access.ssh.title')} subtitle={t('vps.access.ssh.subtitle')} />
+        <CardHeader title={t('vps.access.ssh.title')} />
         <CardBody className="space-y-4">
           {publicKeyUserId === null && currentUserQ.isPending ? <Alert variant="info">{t('vps.access.ssh.loading_user')}</Alert> : null}
           {currentUserQ.error ? <Alert variant="danger">{errorMessage(currentUserQ.error)}</Alert> : null}
@@ -427,7 +372,12 @@ export function VpsAccessPage() {
 
           {duplicatePublicKeyGroups.length > 0 ? (
             <Alert variant="warn" title={t('vps.access.ssh.duplicates.title')}>
-              {t('vps.access.ssh.duplicates.description', { count: duplicatePublicKeyGroups.length })}
+              <div className="space-y-3">
+                <p>{t('vps.access.ssh.duplicates.description', { count: duplicatePublicKeyGroups.length })}</p>
+                <Button to={publicKeysHref} variant="secondary" size="sm" testId="vps.access.ssh.duplicates.profile">
+                  {t('vps.access.checklist.action.manage_keys')}
+                </Button>
+              </div>
             </Alert>
           ) : null}
 
@@ -447,18 +397,15 @@ export function VpsAccessPage() {
               ) : null}
             </div>
           ) : null}
-
-          <Alert variant="info" title={t('vps.access.ssh.safety.title')}>
-            {t('vps.access.ssh.safety.description')}
-          </Alert>
         </CardBody>
       </Card> : null}
 
       <VpsSshHostKeysCard hostKeys={hostKeys} loading={hostKeysQ.isPending} error={hostKeysQ.error} onRefresh={() => void hostKeysQ.refetch()} />
 
       {canMutateVps ? <Card id="vps-access-root-password" testId="vps.access.password.card" className="scroll-mt-24">
-        <CardHeader title={t('vps.access.reset.title')} subtitle={t('vps.access.reset.subtitle')} />
+        <CardHeader title={t('vps.access.reset.title')} />
         <CardBody className="space-y-4">
+          <p className="text-sm text-muted">{t('vps.access.checklist.root_password.ready.description')}</p>
           <div className="space-y-2">
             <label htmlFor="vps-access-password-type-select" className="block">
               <span className="text-sm font-medium text-fg">{t('vps.access.form.type.label')}</span>
@@ -492,10 +439,6 @@ export function VpsAccessPage() {
               {t('vps.access.form.type.description')}
             </span>
           </div>
-
-          <Alert variant="info" title={t('vps.access.safety.title')}>
-            {t('vps.access.safety.description')}
-          </Alert>
         </CardBody>
       </Card> : null}
 
@@ -507,8 +450,11 @@ export function VpsAccessPage() {
               type: t(currentGenerated.passwordType === 'secure' ? 'vps.access.password_type.secure' : 'vps.access.password_type.simple'),
             })}
           />
-          <CardBody>
+          <CardBody className="space-y-4">
             <PasswordBox password={currentGenerated.password} onClear={() => setGenerated(null)} testId="vps.access.generated_password" />
+            <Alert variant="info" title={t('vps.access.safety.title')}>
+              {t('vps.access.safety.description')}
+            </Alert>
           </CardBody>
         </Card>
       ) : null}

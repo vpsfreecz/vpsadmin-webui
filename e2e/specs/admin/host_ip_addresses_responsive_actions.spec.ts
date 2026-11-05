@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 
-test('@pr-smoke @pr-smoke-mobile host IP actions stay reachable without horizontal scrolling', async ({
+test('@content-network-hosts @pr-smoke @pr-smoke-mobile host IP actions stay reachable without horizontal scrolling', async ({
   page,
 }, testInfo) => {
   const mobile = testInfo.project.name === 'mobile-chrome';
@@ -41,8 +41,8 @@ test('@pr-smoke @pr-smoke-mobile host IP actions stay reachable without horizont
   let detailRequests = 0;
   page.on('request', (request) => {
     if (
-      ['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method())
-      && new URL(request.url()).pathname.includes('/host_ip_addresses')
+      ['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method()) &&
+      new URL(request.url()).pathname.includes('/host_ip_addresses')
     ) {
       mutationRequests.push(`${request.method()} ${new URL(request.url()).pathname}`);
     }
@@ -66,6 +66,7 @@ test('@pr-smoke @pr-smoke-mobile host IP actions stay reachable without horizont
   await expect(assignedRow).toBeVisible();
   await expect(unassignedRow).toBeVisible();
   await expect(assignedRow).toContainText(longValue);
+  await page.screenshot({ path: testInfo.outputPath('host-inventory.png'), fullPage: true, scale: 'css' });
 
   const scroller = tableCard.locator(':scope > div.overflow-x-auto');
   const metrics = await scroller.evaluate((element) => ({
@@ -111,17 +112,21 @@ test('@pr-smoke @pr-smoke-mobile host IP actions stay reachable without horizont
   await page.getByTestId('admin.host_ip_addresses.row.501.ptr').click();
   const ptrDialog = page.getByRole('dialog', { name: 'Set reverse record' });
   await expect(ptrDialog).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath('host-ptr.png'), fullPage: true, scale: 'css' });
   expect(detailRequests).toBe(1);
   await ptrDialog.getByRole('button', { name: 'Cancel' }).click();
 
   await page.getByTestId('admin.host_ip_addresses.row.502.assign').click();
   const assignDialog = page.getByRole('dialog', { name: 'Assign host IP address' });
   await expect(assignDialog).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath('host-assign.png'), fullPage: true, scale: 'css' });
   await assignDialog.getByRole('button', { name: 'Cancel' }).click();
 
   await page.getByTestId('admin.host_ip_addresses.row.502.delete').click();
   const deleteDialog = page.getByRole('dialog', { name: 'Delete host IP address?' });
   await expect(deleteDialog).toBeVisible();
+  await expect(deleteDialog).toContainText('Delete host address 198.51.100.20 from vpsAdmin.');
+  await page.screenshot({ path: testInfo.outputPath('host-delete.png'), fullPage: true, scale: 'css' });
   await deleteDialog.getByRole('button', { name: 'Cancel' }).click();
 
   expect(mutationRequests).toEqual([]);
@@ -137,13 +142,15 @@ test('@pr-smoke @pr-smoke-mobile rejected host IP deletion stays in context and 
     user: { id: 1, login: 'admin', level: 90 },
     handlers: {
       'GET host_ip_addresses': () => ({
-        host_ip_addresses: [{
-          id: 502,
-          addr: '198.51.100.20',
-          assigned: false,
-          user_created: true,
-          ip_address: { id: 302, ip_addr: '198.51.100.20' },
-        }],
+        host_ip_addresses: [
+          {
+            id: 502,
+            addr: '198.51.100.20',
+            assigned: false,
+            user_created: true,
+            ip_address: { id: 302, ip_addr: '198.51.100.20' },
+          },
+        ],
         _meta: { total_count: 1 },
       }),
       'DELETE host_ip_addresses/502': () => {
@@ -165,7 +172,9 @@ test('@pr-smoke @pr-smoke-mobile rejected host IP deletion stays in context and 
 
   const dialog = page.getByTestId('admin.host_ip_addresses.delete_confirm');
   await dialog.getByTestId('admin.host_ip_addresses.delete_confirm.confirm').click();
-  await expect(page.getByTestId('admin.host_ip_addresses.delete_confirm.error')).toContainText('Host address is still assigned');
+  await expect(page.getByTestId('admin.host_ip_addresses.delete_confirm.error')).toContainText(
+    'Host address is still assigned'
+  );
   await expect(dialog).toContainText('198.51.100.20');
 
   await dialog.getByTestId('admin.host_ip_addresses.delete_confirm.confirm').click();

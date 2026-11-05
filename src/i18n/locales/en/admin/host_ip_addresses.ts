@@ -12,7 +12,7 @@ export const enAdmin_host_ip_addresses = {
   "admin.host_ip_addresses.assign.title": "Assign host IP address",
   "admin.host_ip_addresses.assign.vps": "VPS",
   "admin.host_ip_addresses.assign.vps.placeholder": "Hostname or ID…",
-  "admin.host_ip_addresses.delete.desc": "Delete host address {{host}} from vpsAdmin.",
+  "admin.host_ip_addresses.delete.desc": "Delete host address {host} from vpsAdmin.",
   "admin.host_ip_addresses.delete.title": "Delete host IP address?",
   "admin.host_ip_addresses.empty": "No host IP addresses found.",
   "admin.host_ip_addresses.field.address": "Host IP",

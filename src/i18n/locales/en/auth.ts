@@ -151,7 +151,6 @@ export const enAuth = {
   'security.settings.logout_all.label': 'Log out all sessions on login',
   'security.settings.logout_all.desc': 'When you log in, invalidate other active sessions.',
   'security.posture.title': 'Security posture',
-  'security.posture.subtitle': 'Read-only summary of the current account security state.',
   'security.posture.badge.ready': 'Ready',
   'security.posture.badge.needs_attention': 'Needs attention',
   'security.posture.badge.limited': 'Limited access',

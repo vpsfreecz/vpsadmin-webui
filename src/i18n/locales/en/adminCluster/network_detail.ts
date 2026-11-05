@@ -5,7 +5,7 @@ export const enAdminCluster_network_detail = {
   "admin.cluster.network_detail.add_addresses.confirm": "Add addresses",
   "admin.cluster.network_detail.add_addresses.count": "Count",
   "admin.cluster.network_detail.add_addresses.environment": "Environment ID",
-  "admin.cluster.network_detail.add_addresses.notice.body": "This calls the backend network#add_addresses action for an existing managed network. Use a small count unless you intentionally need a larger pool.",
+  "admin.cluster.network_detail.add_addresses.notice.body": "Add routable IP addresses to this managed network. Use a small count unless you intentionally need a larger pool.",
   "admin.cluster.network_detail.add_addresses.notice.title": "Adds routable IP records",
   "admin.cluster.network_detail.add_addresses.title": "Add IP addresses",
   "admin.cluster.network_detail.add_addresses.toast": "IP addresses added",

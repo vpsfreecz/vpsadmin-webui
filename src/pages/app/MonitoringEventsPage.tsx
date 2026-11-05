@@ -686,7 +686,7 @@ export function MonitoringEventsPage() {
   return (
     <ListShell
       testId="monitoring.events.list"
-      header={<PageHeader title={t('monitoring.title')} description={t('monitoring.description')} testId="monitoring.events.header" />}
+      header={<PageHeader title={t('monitoring.title')} testId="monitoring.events.header" />}
       filters={
         <>
           <FilterBar

@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useQueries } from '@tanstack/react-query';
 
 import { ListShell } from '../../components/layout/ListShell';
-import { PageHeader } from '../../components/layout/PageHeader';
+import { TransactionChainsHeader } from './transactions/TransactionChainsHeader';
 
 import { fetchTransactionChain, fetchTransactionChains, type TransactionChain } from '../../lib/api/transactions';
 import { searchUsers } from '../../lib/api/users';
@@ -11,8 +11,6 @@ import { useAppMode } from '../../app/appMode';
 import { useAuth } from '../../app/auth';
 import { useI18n } from '../../app/i18n';
 import { useObjectScope } from '../../app/objectScope';
-import { useToasts } from '../../app/toasts';
-import { LinkButton } from '../../components/ui/LinkButton';
 import {
   chainMatchesConcern,
   chainMatchesUser,
@@ -37,7 +35,10 @@ import {
   parseTransactionChainSessionId,
   TransactionChainSessionFilterGuard,
 } from './transactions/TransactionChainSessionFilterGuard';
-import { buildTransactionChainActiveFilterChips, buildTransactionChainSmartSuggestions } from './transactions/transactionChainSmartFilter';
+import {
+  buildTransactionChainActiveFilterChips,
+  buildTransactionChainSmartSuggestions,
+} from './transactions/transactionChainSmartFilter';
 import { splitTransactionActivityRows } from './transactions/transactionActivityVisibility';
 import { useChrome } from '../../components/layout/ChromeContext';
 import { useKeysetPagination } from '../../lib/hooks/useKeysetPagination';
@@ -48,9 +49,12 @@ import { parseNumericToken, splitKeyValueToken, tokenizeSmartInput, unquoteSmart
 import { isFailedChainState, isFinishedChainState } from '../../lib/taskStatus';
 import { mergeTransactionChainStreams, transactionChainPage } from './transactions/transactionChainPagination';
 
-
 export function TransactionChainsPage() {
-  return <TransactionChainSessionFilterGuard><TransactionChainsContent /></TransactionChainSessionFilterGuard>;
+  return (
+    <TransactionChainSessionFilterGuard>
+      <TransactionChainsContent />
+    </TransactionChainSessionFilterGuard>
+  );
 }
 
 function TransactionChainsContent() {
@@ -60,7 +64,6 @@ function TransactionChainsContent() {
   const scope = useObjectScope();
   const chrome = useChrome();
   const navigate = useNavigate();
-  const toasts = useToasts();
 
   const i18n = useI18n();
   const t = i18n.t;
@@ -323,7 +326,9 @@ function TransactionChainsContent() {
       return;
     }
 
-    const tokens = tokenizeSmartInput(input).map((t) => t.trim()).filter(Boolean);
+    const tokens = tokenizeSmartInput(input)
+      .map((t) => t.trim())
+      .filter(Boolean);
 
     const firstToken = tokens[0];
     const numericOnly = tokens.length === 1 && firstToken ? parseNumericToken(firstToken) : null;
@@ -496,7 +501,6 @@ function TransactionChainsContent() {
 
     if (errs.length > 0) {
       setSmartErrors(errs);
-      toasts.pushToast({ variant: 'danger', title: errs[0] ?? t('common.unknown_error') });
       return;
     }
 
@@ -621,7 +625,22 @@ function TransactionChainsContent() {
     });
 
     return arr;
-  }, [classNameNorm, errorsOnly, idQ.data, page.rows, pinnedIds, pinnedQs, pinnedSet, queryId, queryLower, queryTrim, rowIdNum, state, userIdNum, userSessionNum]);
+  }, [
+    classNameNorm,
+    errorsOnly,
+    idQ.data,
+    page.rows,
+    pinnedIds,
+    pinnedQs,
+    pinnedSet,
+    queryId,
+    queryLower,
+    queryTrim,
+    rowIdNum,
+    state,
+    userIdNum,
+    userSessionNum,
+  ]);
 
   const collapseSystemActivity = uiMode !== 'admin' && !filtersActive;
   const { visibleRows, systemRows } = useMemo(
@@ -634,22 +653,13 @@ function TransactionChainsContent() {
 
   const anyLoading = q.isLoading || pinnedQs.some((x) => x.isLoading) || idQ.isLoading;
   const anyError = q.isError || idQ.isError;
-
+  const showItems = uiMode !== 'app' || auth.role !== 'admin' || scope.mineUserId === undefined;
 
   return (
     <ListShell
       testId="transactions.list"
       header={
-        <PageHeader
-          title={t('transactions.chains.title')}
-          description={t('transactions.chains.description')}
-          testId="transactions.list.header"
-          actions={uiMode !== 'app' || auth.role !== 'admin' || scope.mineUserId === undefined ? (
-            <LinkButton to={`${basePath}/transactions/items`} variant="secondary" size="sm">
-              {t('transactions.items.title')}
-            </LinkButton>
-          ) : undefined}
-        />
+        <TransactionChainsHeader t={t} basePath={basePath} showItems={showItems} />
       }
       filters={
         <TransactionChainsFilters
@@ -694,12 +704,15 @@ function TransactionChainsContent() {
         />
       }
     >
+      <div role="alert" aria-atomic="true" className="sr-only">
+        {smartErrors.join(' ')}
+      </div>
       <TransactionChainsListContent
         t={t}
         basePath={basePath}
         pinnedMissing={pinnedMissing}
         onUnpin={(id) => chrome.togglePinnedTransactionChain(id)}
-        refreshWarning={q.isError}
+        refreshWarning={q.isError && rows.length > 0}
         anyLoading={anyLoading}
         anyError={anyError}
         rows={rows}

@@ -70,7 +70,7 @@ export function OsTemplatesList({ templates, onEdit, onDelete }: Props) {
               <div className="min-w-0 p-4">
                 <div className="min-w-0">
                   <div className="break-words text-base font-semibold text-fg">{row.label}</div>
-                  <div className="mt-1 break-all text-xs text-muted">{row.detail}</div>
+                  {row.detail !== row.label ? <div className="mt-1 break-all text-xs text-muted">{row.detail}</div> : null}
                 </div>
                 <dl className="mt-4 space-y-3 text-sm">
                   <div className="flex items-start justify-between gap-3">
@@ -146,7 +146,7 @@ export function OsTemplatesList({ templates, onEdit, onDelete }: Props) {
                 <td className="min-w-0">
                   <div className="min-w-0">
                     <div className="truncate font-medium">{row.label}</div>
-                    <div className="mt-0.5 truncate text-xs text-muted">{row.detail}</div>
+                    {row.detail !== row.label ? <div className="mt-0.5 truncate text-xs text-muted">{row.detail}</div> : null}
                   </div>
                 </td>
                 <td>{row.family}</td>

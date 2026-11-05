@@ -43,7 +43,6 @@ function CreateDownloadReview(props: {
     <div className="space-y-3 rounded-md border border-border bg-surface-2 p-3 text-sm" data-testid="dataset.downloads.create.review">
       <div>
         <div className="text-xs font-semibold uppercase tracking-wide text-muted">{t('dataset.downloads.review.title')}</div>
-        <div className="mt-1 text-muted">{t('dataset.downloads.review.intro')}</div>
       </div>
 
       <div className="grid gap-2 sm:grid-cols-2">

@@ -70,8 +70,6 @@ export function VpsCloneCard(props: {
       }
     >
       <Alert variant="neutral">
-        {props.isAdminMode ? t('vps.lifecycle.clone.subtitle') : t('vps.lifecycle.clone.subtitle_user')}
-        {' '}
         {t('vps.lifecycle.clone.review.help')}
       </Alert>
 

@@ -491,7 +491,6 @@ export function MailRecipientsPage() {
         <div className="space-y-3">
           <PageHeader
             title={t('mailer.tabs.recipients')}
-            description={t('mailer.recipients.list.description')}
             meta={filtersActive ? <span className="text-xs text-faint">{t('list.meta.filters_active')}</span> : null}
             actions={
               <Button

@@ -172,7 +172,6 @@ export function VpsDeleteConfirmDialog(props: {
       open={props.open}
       testId="vps.list.delete_confirm"
       title={t('vps.list.delete_confirm.title')}
-      description={t('vps.list.delete_confirm.description')}
       danger
       confirmLabel={t('action.vps.delete.label')}
       confirmLoading={props.loading}

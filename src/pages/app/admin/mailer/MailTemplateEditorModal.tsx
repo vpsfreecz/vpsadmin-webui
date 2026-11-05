@@ -146,9 +146,11 @@ export function MailTemplateEditorModal(props: {
     >
       <div className="space-y-4">
         {displayedError ? (
-          <Alert variant="danger" title={t('mailer.templates.editor.error_title')} testId="admin.mailer.template.editor.error">
-            {displayedError}
-          </Alert>
+          <div role="alert">
+            <Alert variant="danger" title={t('mailer.templates.editor.error_title')} testId="admin.mailer.template.editor.error">
+              {displayedError}
+            </Alert>
+          </div>
         ) : null}
 
         {props.stale ? (

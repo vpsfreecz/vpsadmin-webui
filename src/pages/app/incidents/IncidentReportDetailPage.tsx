@@ -146,14 +146,11 @@ export function IncidentReportDetailPage() {
   const vpsIdRow = (r.vps as any)?.id ? Number((r.vps as any).id) : undefined;
   const vpsHost = (r.vps as any)?.hostname ? String((r.vps as any).hostname) : undefined;
 
-  const titleAfter = action !== 'none' ? <Badge variant={vpsActionVariant(action)}>{t(vpsActionLabelKey(action))}</Badge> : undefined;
-
   return (
     <PageContainer testId="incidents.detail">
       <ObjectHeader
         kicker={{ label: t('incidents.list.title'), href: `${basePath}/incidents` }}
-        title={t('incidents.detail.title', { id })}
-        titleAfter={titleAfter}
+        title={t('incidents.detail.title', { id: r.id })}
         meta={meta}
         actions={
           vpsIdRow ? (
@@ -166,15 +163,19 @@ export function IncidentReportDetailPage() {
       />
 
       <div className="mt-4 grid grid-cols-1 gap-4">
+        <Card testId="incidents.detail.text" className="break-words">
+          <CardHeader title={t('incidents.detail.report_text')} subtitle={r.subject ? String(r.subject) : undefined} />
+          <CardBody>
+            <pre className="max-h-scroll-lg overflow-auto whitespace-pre-wrap break-words rounded-md bg-surface-2 p-3 text-xs font-mono">
+              {r.text ? String(r.text) : ''}
+            </pre>
+          </CardBody>
+        </Card>
+
         <Card testId="incidents.detail.summary" className="break-words">
-          <CardHeader title={t('incidents.detail.summary_title')} subtitle={r.subject ? String(r.subject) : undefined} />
+          <CardHeader title={t('incidents.detail.summary_title')} />
           <CardBody>
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              <div>
-                <div className="text-xs text-muted">{t('incidents.field.id')}</div>
-                <div className="mt-0.5 font-mono text-sm">{r.id}</div>
-              </div>
-
               <div>
                 <div className="text-xs text-muted">{t('incidents.field.codename')}</div>
                 <div className="mt-0.5 font-mono text-sm">{r.codename ? String(r.codename) : '—'}</div>
@@ -256,15 +257,6 @@ export function IncidentReportDetailPage() {
                 </div>
               </div>
             </div>
-          </CardBody>
-        </Card>
-
-        <Card testId="incidents.detail.text">
-          <CardHeader title={t('incidents.detail.report_text')} />
-          <CardBody>
-            <pre className="max-h-scroll-lg overflow-auto whitespace-pre-wrap break-words rounded-md bg-surface-2 p-3 text-xs font-mono">
-              {r.text ? String(r.text) : ''}
-            </pre>
           </CardBody>
         </Card>
       </div>

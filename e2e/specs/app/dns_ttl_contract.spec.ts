@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
 import { expectNoDocumentHorizontalOverflow } from '../../helpers/horizontalOverflow';
 
-test('@pr-smoke @pr-smoke-mobile DNS TTL fields follow the live API contract', async ({
+test('@content-storage-dns @pr-smoke @pr-smoke-mobile DNS TTL fields follow the live API contract', async ({
   page,
 }, testInfo) => {
   const mobile = testInfo.project.name === 'mobile-chrome';
@@ -108,6 +108,7 @@ test('@pr-smoke @pr-smoke-mobile DNS TTL fields follow the live API contract', a
   // A blank value is the intentional create contract: omit the override and
   // let the new record inherit the zone default.
   await createTtl.fill('');
+  await page.screenshot({ path: testInfo.outputPath('record-create-inherited-ttl.png'), fullPage: true, scale: 'css' });
   await createSubmit.click();
   await expect.poll(() => createPayload?.dns_record).toBeTruthy();
   expect(createPayload.dns_record).not.toHaveProperty('ttl');
@@ -132,6 +133,7 @@ test('@pr-smoke @pr-smoke-mobile DNS TTL fields follow the live API contract', a
   await expect(zoneTtl).toHaveValue('3600');
   await expect(zoneTtl).toHaveAttribute('min', '60');
   await expect(zoneTtl).toHaveAttribute('max', '604800');
+  await page.screenshot({ path: testInfo.outputPath('zone-settings.png'), fullPage: true, scale: 'css' });
 
   await zoneTtl.fill('');
   await expect(zoneTtl).toHaveAttribute('aria-invalid', 'true');
@@ -150,7 +152,8 @@ test('@pr-smoke @pr-smoke-mobile DNS TTL fields follow the live API contract', a
   await expect(zoneTtlFeedback).toContainText('604800');
   await expect(save).toBeDisabled();
 
-  const proofScreenshot = process.env.E2E_DNS_TTL_PROOF_SCREENSHOT?.trim();
+  await page.screenshot({ path: testInfo.outputPath('zone-settings-invalid-ttl.png'), fullPage: true, scale: 'css' });
+  const proofScreenshot = process.env['E2E_DNS_TTL_PROOF_SCREENSHOT']?.trim();
   if (proofScreenshot) {
     await page.screenshot({
       path: proofScreenshot.replace(/\.png$/i, `-${testInfo.project.name}.png`),

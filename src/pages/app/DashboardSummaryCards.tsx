@@ -1,4 +1,5 @@
 import { useI18n } from '../../app/i18n';
+import type { ObjectScope } from '../../app/objectScope';
 import type { DashboardDensity } from '../../app/dashboardSettingsModel';
 import { Card, CardBody } from '../../components/ui/Card';
 import { LinkButton } from '../../components/ui/LinkButton';
@@ -10,6 +11,7 @@ export function formatDashboardNumber(value: unknown): string {
 
 export function DashboardSummaryCards(props: {
   appMode: 'user' | 'admin';
+  scope: ObjectScope;
   basePath: string;
   density: DashboardDensity;
   vps: {
@@ -59,6 +61,9 @@ export function DashboardSummaryCards(props: {
   return (
     <Card testId="app.dashboard.summary-grid" className="shadow-none">
       <CardBody className={compact ? 'p-2' : 'p-3'}>
+        <p className="mb-2 text-xs font-medium text-muted" data-testid="app.dashboard.summary-scope">
+          {t(props.scope === 'all' ? 'dashboard.summary.scope.all' : 'dashboard.summary.scope.mine')}
+        </p>
         <div className={`grid gap-2 ${props.appMode === 'admin' ? 'md:grid-cols-3' : 'md:grid-cols-2'}`}>
           {items.map((item) => (
             <div
@@ -66,10 +71,9 @@ export function DashboardSummaryCards(props: {
               data-testid={item.testId}
               className="flex items-center justify-between gap-3 rounded-md bg-surface-2 px-3 py-2"
             >
-              <div className="min-w-0">
+              <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
                 <div className="text-xs font-medium uppercase text-muted">{item.label}</div>
-                <div className="mt-0.5 text-2xl font-semibold leading-none">{item.value}</div>
-                <div className="mt-1 text-xs text-muted">{t('dashboard.kpi.scope_hint')}</div>
+                <div className="text-2xl font-semibold leading-none">{item.value}</div>
               </div>
               <LinkButton to={item.to} variant="secondary" size="sm" testId={item.openTestId}>
                 {t('common.open')}

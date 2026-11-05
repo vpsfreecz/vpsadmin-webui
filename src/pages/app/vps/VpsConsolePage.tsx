@@ -197,6 +197,8 @@ function MutableVpsConsolePage() {
   const hasActiveLiveToken = Boolean(activeToken?.token && !tokenExpired);
   const hasConsoleUrl = Boolean(consoleUrl && !tokenExpired);
   const sessionActionPending = newSessionM.isPending || revokeSessionM.isPending;
+  const confirmedRevoked = sessionSuspended && revokeSessionM.isSuccess;
+  const unconfirmedSuspension = sessionSuspended && !revokeSessionM.isSuccess;
   const disabledNewSession = !canCreateSession || tokenQ.isFetching || sessionActionPending;
   const disabledRevokeSession = !hasActiveLiveToken || sessionActionPending;
 
@@ -212,6 +214,7 @@ function MutableVpsConsolePage() {
     sessionSuspended, tokenExpired, tokenFetching: tokenQ.isFetching,
     hasActiveToken: Boolean(activeToken?.token), iframeProblem, iframeLoaded,
   });
+  const showUnknownSessionState = unconfirmedSuspension && connectionState === 'revoked';
   const expiresAt = formatConsoleExpiration(activeToken?.expiration);
 
   return (
@@ -225,8 +228,13 @@ function MutableVpsConsolePage() {
               className="inline-flex items-center gap-2 rounded-md border border-border bg-surface px-2.5 py-1 text-xs font-medium text-fg"
               data-testid="vps.console.connection_state"
             >
-              <span className={clsx('h-2.5 w-2.5 rounded-full', CONSOLE_CONNECTION_STATE_VARIANT[connectionState])} aria-hidden="true" />
-              <span data-testid="vps.console.frame_status">{t(`vps.console.state.${connectionState}` as any)}</span>
+              <span
+                className={clsx('h-2.5 w-2.5 rounded-full', showUnknownSessionState ? 'bg-warn' : CONSOLE_CONNECTION_STATE_VARIANT[connectionState])}
+                aria-hidden="true"
+              />
+              <span data-testid="vps.console.frame_status">
+                {showUnknownSessionState ? t('state.unknown') : t(`vps.console.state.${connectionState}` as any)}
+              </span>
             </div>
           </div>
 
@@ -318,16 +326,20 @@ function MutableVpsConsolePage() {
       ) : null}
 
       {sessionSuspended ? (
-        <Alert variant="ok" title={t('vps.console.revoked.title')} testId="vps.console.revoked">
+        <Alert
+          variant={confirmedRevoked ? 'ok' : 'warn'}
+          title={t(unconfirmedSuspension ? 'vps.console.uncertain.title' : 'vps.console.revoked.title')}
+          testId={unconfirmedSuspension ? 'vps.console.uncertain' : 'vps.console.revoked'}
+        >
           <div className="space-y-3">
-            <div>{t('vps.console.revoked.body')}</div>
+            <div>{t(unconfirmedSuspension ? 'vps.console.uncertain.body' : 'vps.console.revoked.body')}</div>
             <Button
               variant="secondary"
               size="sm"
               onClick={() => newSessionM.mutate()}
               disabled={disabledNewSession}
               loading={newSessionM.isPending}
-              testId="vps.console.revoked.new_session"
+              testId={unconfirmedSuspension ? 'vps.console.uncertain.new_session' : 'vps.console.revoked.new_session'}
             >
               {t('vps.console.new_session.label')}
             </Button>

@@ -2,7 +2,9 @@ import assert from 'node:assert/strict';
 
 import { test, expect } from '@playwright/test';
 
-import { failEnvelope, installHaveApiMock } from '../../fixtures/haveapi';
+import { failEnvelope, installHaveApiMock, jsonFulfill } from '../../fixtures/haveapi';
+import { setUiSettingsLocalStorage } from '../../fixtures/uiSettings';
+import { bootstrapVpsAdminWindow } from '../../fixtures/bootstrap';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -182,8 +184,8 @@ test('profile: changing the map route drops stale edits and delete confirmation'
   const mutations: string[] = [];
   page.on('request', (request) => {
     if (
-      ['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method())
-      && request.url().includes('/api/v7.0/user_namespace_maps')
+      ['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method()) &&
+      request.url().includes('/api/v7.0/user_namespace_maps')
     ) {
       mutations.push(request.url());
     }
@@ -247,9 +249,7 @@ test('@pr-smoke @pr-smoke-mobile profile: rejected namespace deletions stay in c
 
   await page.getByTestId('profile.userns.map.entry.1001.delete').click();
   await page.getByTestId('profile.userns.map.delete_entry.confirm.confirm').click();
-  await expect(page.getByTestId('profile.userns.map.delete_entry.error')).toContainText(
-    'Entry deletion was rejected',
-  );
+  await expect(page.getByTestId('profile.userns.map.delete_entry.error')).toContainText('Entry deletion was rejected');
   await expect(page.getByTestId('profile.userns.map.delete_entry.confirm')).toBeVisible();
   await expect(page.getByTestId('profile.userns.map.entry.row.1001')).toBeVisible();
 
@@ -259,9 +259,7 @@ test('@pr-smoke @pr-smoke-mobile profile: rejected namespace deletions stay in c
 
   await page.getByTestId('profile.userns.map.delete').click();
   await page.getByTestId('profile.userns.map.delete_map.confirm.confirm').click();
-  await expect(page.getByTestId('profile.userns.map.delete_map.error')).toContainText(
-    'Map deletion was rejected',
-  );
+  await expect(page.getByTestId('profile.userns.map.delete_map.error')).toContainText('Map deletion was rejected');
   await expect(page.getByTestId('profile.userns.map.delete_map.confirm')).toBeVisible();
   await expect(page).toHaveURL(/\/app\/profile\/user-namespaces\/maps\/501$/);
 
@@ -299,9 +297,7 @@ test('@pr-smoke @pr-smoke-mobile profile: rejected map-list deletion stays in it
   await page.getByTestId('profile.userns.maps.row.501.delete').click();
   await page.getByTestId('profile.userns.maps.delete.confirm.confirm').click();
 
-  await expect(page.getByTestId('profile.userns.maps.delete.error')).toContainText(
-    'List deletion was rejected',
-  );
+  await expect(page.getByTestId('profile.userns.maps.delete.error')).toContainText('List deletion was rejected');
   await expect(page.getByTestId('profile.userns.maps.delete.confirm')).toBeVisible();
   await expect(page.getByTestId('profile.userns.maps.row.501')).toBeVisible();
 
@@ -309,4 +305,154 @@ test('@pr-smoke @pr-smoke-mobile profile: rejected map-list deletion stays in it
   await expect(page.getByTestId('profile.userns.maps.delete.confirm')).toHaveCount(0);
   await expect(page.getByTestId('profile.userns.maps.row.501')).toHaveCount(0);
   expect(deleteAttempts).toBe(2);
+});
+
+test('@content-account-ns-personal member namespace and map preserve owner and UID/GID context cs', async ({
+  page,
+}, info) => {
+  const user = { id: 1, login: 'member', level: 1 };
+  const namespace = { id: 101, size: 65536, offset: 100000, block_count: 3, user };
+  const map = { id: 501, label: 'Personal mapping', user_namespace: namespace };
+  await setUiSettingsLocalStorage(page, { language: 'cs', theme: 'dark' });
+  await bootstrapVpsAdminWindow(page, { sessionToken: 'SYNTHETIC_NAMESPACE' });
+  await installHaveApiMock(page, {
+    user,
+    handlers: {
+      'GET user_namespaces/101': () => ({ user_namespace: namespace }),
+      'GET user_namespace_maps/501': () => ({ user_namespace_map: map }),
+      'GET user_namespace_maps/501/entries': () => ({
+        entries: [
+          { id: 1001, kind: 'uid', vps_id: 201, ns_id: 1000, count: 100 },
+          { id: 1002, kind: 'gid', vps_id: 201, ns_id: 1000, count: 100 },
+        ],
+      }),
+      'GET vpses': () => ({ vpses: [], _meta: { total_count: 1 } }),
+    },
+  });
+  await page.goto('/app/profile/user-namespaces/namespaces/101');
+  await expect(page.getByTestId('profile.userns.namespace.card')).toContainText('member');
+  await expect(page.getByTestId('profile.userns.namespace.card')).toContainText('100000');
+  await page.screenshot({ path: info.outputPath('member-namespace-cs.png'), fullPage: true });
+  await page.goto('/app/profile/user-namespaces/maps/501');
+  await expect(page.getByTestId('profile.userns.map.entry.row.1002')).toContainText('GID');
+  await page.screenshot({ path: info.outputPath('member-map-cs.png'), fullPage: true });
+});
+
+test('@content-account-ns-personal admin-self map retains dirty rows and open confirmation through failed entry refetch cs', async ({
+  page,
+}, info) => {
+  await page.clock.install({ time: new Date('2026-02-18T10:00:00Z') });
+  const user = { id: 1, login: 'operator', level: 100 };
+  const namespace = { id: 101, size: 65536, offset: 100000, block_count: 3, user };
+  const map = { id: 501, label: 'Own administrator mapping', user_namespace: namespace };
+  let entriesFail = false;
+  let failedReads = 0;
+  let holdSuccessfulRefetch = false;
+  let heldReads = 0;
+  const pendingRead: { release?: () => void } = {};
+  const writes: string[] = [];
+  await setUiSettingsLocalStorage(page, { language: 'cs', theme: 'dark' });
+  await bootstrapVpsAdminWindow(page, { sessionToken: 'SYNTHETIC_NAMESPACE' });
+  await installHaveApiMock(page, {
+    user,
+    handlers: {
+      'GET user_namespaces/101': () => ({ user_namespace: namespace }),
+      'GET user_namespace_maps/501': () => ({ user_namespace_map: map }),
+      'GET user_namespace_maps/501/entries': async () => {
+        if (holdSuccessfulRefetch) {
+          heldReads += 1;
+          await new Promise<void>((resolve) => {
+            pendingRead.release = resolve;
+          });
+        }
+        if (entriesFail) {
+          failedReads += 1;
+          return jsonFulfill(failEnvelope('Synthetic entries refetch unavailable'), 503);
+        }
+        return {
+          entries: [
+            { id: 1001, kind: 'uid', vps_id: 201, ns_id: 1000, count: 100 },
+            { id: 1002, kind: 'gid', vps_id: 201, ns_id: 1000, count: 100 },
+          ],
+        };
+      },
+      'GET vpses': () => ({ vpses: [], _meta: { total_count: 1 } }),
+    },
+  });
+  page.on('request', (request) => {
+    if (
+      ['POST', 'PUT', 'DELETE'].includes(request.method()) &&
+      new URL(request.url()).pathname.includes('user_namespace_maps')
+    )
+      writes.push(request.url());
+  });
+  await page.goto('/admin/profile/user-namespaces/maps/501');
+  await expect(page.getByTestId('profile.userns.map.entry.row.1002')).toBeVisible();
+  await page.screenshot({ path: info.outputPath('admin-self-map-cs.png'), fullPage: true });
+  await page.getByTestId('profile.userns.map.entry.1001.count').fill('256');
+  holdSuccessfulRefetch = true;
+  await page.clock.fastForward(16000);
+  await page.evaluate(() => {
+    window.dispatchEvent(new Event('offline'));
+    window.dispatchEvent(new Event('online'));
+  });
+  await expect.poll(() => heldReads).toBe(1);
+  await expect(page.getByTestId('profile.userns.map.entry.1001.count')).toBeEnabled();
+  await expect(page.getByTestId('profile.userns.map.entries.save')).toBeEnabled();
+  await expect(page.getByTestId('profile.userns.map.add.submit')).toBeEnabled();
+  await expect(page.getByTestId('profile.userns.map.entry.1002.delete')).toBeEnabled();
+  await page.screenshot({ path: info.outputPath('admin-self-successful-refetch-cs.png'), fullPage: true });
+  const successfulRefetch = page.waitForResponse(
+    (response) =>
+      new URL(response.url()).pathname.endsWith('/user_namespace_maps/501/entries') && response.status() === 200
+  );
+  holdSuccessfulRefetch = false;
+  if (!pendingRead.release) throw new Error('Missing held entry read');
+  pendingRead.release();
+  await (await successfulRefetch).finished();
+  await expect(page.getByTestId('profile.userns.map.entry.1001.count')).toHaveValue('256');
+  await page.getByTestId('profile.userns.map.entry.1002.delete').click();
+  await expect(page.getByTestId('profile.userns.map.delete_entry.confirm')).toBeVisible();
+  entriesFail = true;
+  await page.clock.fastForward(16000);
+  await page.evaluate(() => {
+    window.dispatchEvent(new Event('offline'));
+    window.dispatchEvent(new Event('online'));
+  });
+  await expect.poll(() => failedReads).toBe(2);
+  await expect(page.getByTestId('profile.userns.map.entry.1001.count')).toHaveValue('256');
+  await expect(page.getByTestId('profile.userns.map.delete_entry.confirm')).toBeVisible();
+  expect(writes).toEqual([]);
+  await expect(page.getByTestId('profile.userns.map.entries.load_error')).toContainText('Nepodařilo se načíst položky');
+  await expect(page.getByText('Položky: —', { exact: true })).toBeVisible();
+  await expect(page.getByTestId('profile.userns.map.delete_entry.confirm.confirm')).toBeDisabled();
+  await page
+    .getByTestId('profile.userns.map.delete_entry.confirm.confirm')
+    .evaluate((button) => (button as HTMLButtonElement).click());
+  expect(writes).toEqual([]);
+  await page.screenshot({ path: info.outputPath('admin-self-entry-refetch-failure-cs.png'), fullPage: true });
+  await page.getByTestId('profile.userns.map.delete_entry.confirm.cancel').click();
+  await expect(page.getByTestId('profile.userns.map.entry.1001.count')).toHaveValue('256');
+  expect(writes).toEqual([]);
+  for (const field of ['kind', 'vps_id', 'ns_id', 'count', 'submit']) {
+    await expect(page.getByTestId(`profile.userns.map.add.${field}`)).toBeDisabled();
+  }
+  await expect(page.getByTestId('profile.userns.map.entry.1001.count')).toBeDisabled();
+  await expect(page.getByTestId('profile.userns.map.entry.1002.delete')).toBeDisabled();
+  await expect(page.getByTestId('profile.userns.map.entries.save')).toBeDisabled();
+  await expect(page.getByTestId('profile.userns.map.delete')).toBeEnabled();
+  await page.getByTestId('profile.userns.map.rename.input').fill('Independent label draft');
+  await expect(page.getByTestId('profile.userns.map.rename.save')).toBeEnabled();
+  await page.screenshot({ path: info.outputPath('admin-self-entry-failure-draft-cs.png'), fullPage: true });
+  entriesFail = false;
+  await page.getByTestId('profile.userns.map.entries.retry').click();
+  await expect(page.getByTestId('profile.userns.map.entries.load_error')).toHaveCount(0);
+  await expect(page.getByTestId('profile.userns.map.entry.1001.count')).toHaveValue('256');
+  await expect(page.getByTestId('profile.userns.map.entry.1001.count')).toBeEnabled();
+  await expect(page.getByTestId('profile.userns.map.entries.save')).toBeEnabled();
+  await expect(page.getByTestId('profile.userns.map.entry.1002.delete')).toBeEnabled();
+  await expect(page.getByText('Položky: 2', { exact: true })).toBeVisible();
+  await expect(page.getByTestId('profile.userns.map.rename.input')).toHaveValue('Independent label draft');
+  expect(writes).toEqual([]);
+  await page.screenshot({ path: info.outputPath('admin-self-entry-recovered-cs.png'), fullPage: true });
 });

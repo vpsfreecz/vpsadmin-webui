@@ -16,6 +16,7 @@ import { Input } from '../../../../components/ui/Input';
 import { KeysetPagination } from '../../../../components/ui/KeysetPagination';
 import { LoadingState } from '../../../../components/ui/LoadingState';
 import { Select } from '../../../../components/ui/Select';
+import { Spinner } from '../../../../components/ui/Spinner';
 import { TableCard } from '../../../../components/ui/TableCard';
 import { securityAdvisoryStateLabel } from '../../../../lib/apiValues';
 import {
@@ -26,6 +27,7 @@ import {
 import { fetchLanguages } from '../../../../lib/api/languages';
 import { advisoryFailureMessage } from './advisoryFailureMessage';
 import { formatDateTime } from '../../../../lib/format';
+import { formatErrorMessage } from '../../../../lib/errors';
 import { pickLocalizedField } from '../../../../lib/translations';
 import {
   SecurityAdvisoryEditorModal,
@@ -190,7 +192,6 @@ export function AdminSecurityAdvisoriesPage() {
       {!editorOpen && partialResult ? <AdvisoryPartialResult result={partialResult} created /> : null}
       <PageHeader
         title={t('admin.security_advisories.title')}
-        description={t('admin.security_advisories.subtitle')}
         actions={
           <>
             <Button
@@ -284,7 +285,8 @@ export function AdminSecurityAdvisoriesPage() {
             </tr>
           </thead>
           <tbody>
-            {rows.map((advisory) => {
+            {rows.map((advisory, index) => {
+              const cveQuery = cveQueries[index];
               const cves = advisoryCveLabels(advisory);
               const summary = pickLocalizedField(advisory, 'summary', i18n.preferredLanguageCodes);
               const advisoryState = String(advisory.state ?? 'draft');
@@ -308,6 +310,18 @@ export function AdminSecurityAdvisoriesPage() {
                         </Badge>
                       ))}
                     </div>
+                    {cveQuery?.isError ? (
+                      <div role="alert" className="mt-2 space-y-2 text-sm">
+                        <Alert variant="danger" title={t('admin.security_advisories.field.cves')}>
+                          {formatErrorMessage(cveQuery.error)}
+                        </Alert>
+                        <Button size="sm" variant="secondary" onClick={() => void cveQuery.refetch()}>
+                          {t('common.retry')}
+                        </Button>
+                      </div>
+                    ) : cveQuery?.isPending ? (
+                      <Spinner label={t('common.loading')} />
+                    ) : null}
                     {summary ? <div className="mt-1 max-w-2xl text-xs text-muted">{summary}</div> : null}
                   </td>
                   <td className="px-4 py-3">

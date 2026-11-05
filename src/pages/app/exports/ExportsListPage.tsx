@@ -384,7 +384,6 @@ export function ExportsListPage() {
         header={
           <PageHeader
             title={t('exports.page.title')}
-            description={t('exports.page.description')}
             testId="exports.header"
             actions={
               <Button variant="primary" onClick={() => setCreateOpen(true)} testId="exports.create.open">

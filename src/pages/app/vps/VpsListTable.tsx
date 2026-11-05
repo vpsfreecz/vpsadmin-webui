@@ -159,10 +159,18 @@ export function VpsListTable({
                   </div>
                   {row.memUsed !== undefined && row.memMax !== undefined && row.memMax > 0 ? (
                     <UsageBar layout="row" label={t('vps.list.usage.ram')} used={row.memUsed} max={row.memMax} formatValue={formatMiB} />
-                  ) : null}
+                  ) : (
+                    <div>
+                      {t('vps.overview.config.memory')}: {formatMiB(vps.memory)}
+                    </div>
+                  )}
                   {row.diskUsed !== undefined && row.diskMax !== undefined && row.diskMax > 0 ? (
                     <UsageBar layout="row" label={t('vps.list.usage.disk')} used={row.diskUsed} max={row.diskMax} formatValue={formatMiB} />
-                  ) : null}
+                  ) : (
+                    <div>
+                      {t('vps.overview.config.diskspace')}: {formatMiB(vps.diskspace)}
+                    </div>
+                  )}
                 </div>
               </td>
               <td className="px-3 py-2 align-top text-xs text-muted">

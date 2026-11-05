@@ -310,7 +310,7 @@ export function VpsListPage() {
   const emptyBody = emptyNone
     ? scope.scope === 'mine'
       ? t('empty.vps.none.body_basic')
-      : t('empty.list.none.body')
+      : undefined
     : t('empty.list.no_matches.body');
   const showOwnerContext = scope.scope !== 'mine';
   const createPath = mode === 'admin' && listFilters.userIdNum !== undefined
@@ -347,7 +347,6 @@ export function VpsListPage() {
         <PageHeader
           testId="vps.list.header"
           title={t('nav.vps')}
-          description={t('vps.list.description')}
           actions={
             <Button to={createPath} testId="vps.list.create">
               <Plus className="h-4 w-4" />

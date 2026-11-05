@@ -42,6 +42,82 @@ async function navigateWithinApp(page: Page, path: string) {
 }
 
 test.describe('@workflow-matrix @smoke VPS list row navigation', () => {
+  test('captures missing null zero and known allocation with local filter recovery', async ({ page }, testInfo) => {
+    const rows = [
+      { ...makeVps(300), used_memory: undefined, used_diskspace: undefined },
+      { ...makeVps(301), used_memory: null, used_diskspace: null },
+      { ...makeVps(302), used_memory: 0, used_diskspace: 0 },
+      { ...makeVps(303), used_memory: 768, used_diskspace: null },
+      { ...makeVps(304), memory: 0, diskspace: 0, used_memory: 0, used_diskspace: 0 },
+      { ...makeVps(305), memory: null, diskspace: undefined, used_memory: null, used_diskspace: undefined },
+    ];
+    await installHaveApiMock(page, {
+      user: { id: 42, login: 'owner', level: 1 },
+      handlers: {
+        'GET vpses': () => ({ vpses: rows }),
+        'GET transaction_chains': () => ({ transaction_chains: [] }),
+      },
+    });
+    await bootstrapVpsAdminWindow(page);
+    const mobile = testInfo.project.name === 'mobile-chrome';
+    await setUiSettingsLocalStorage(page, { language: mobile ? 'cs' : 'en', theme: mobile ? 'dark' : 'light' });
+    await page.goto('/app/vps');
+    for (const [index, row] of rows.entries()) {
+      const { item } = await visibleVpsItem(page, row.id);
+      const memoryBarVisible = index === 2 || index === 3;
+      const diskBarVisible = index === 2;
+      await expect(item.getByText('RAM', { exact: true })).toHaveCount(memoryBarVisible ? 1 : 0);
+      await expect(item.getByText('Disk', { exact: true })).toHaveCount(mobile ? 1 : diskBarVisible ? 1 : 0);
+      if (index < 4) {
+        await expect(item).toContainText('4.0 GiB');
+        await expect(item).toContainText('195 GiB');
+        expect((await item.innerText()).match(/4\.0 GiB/g)).toHaveLength(1);
+        expect((await item.innerText()).match(/195 GiB/g)).toHaveLength(1);
+      } else if (index === 4) {
+        await expect(item).toContainText('0 MiB');
+        expect((await item.innerText()).match(/0 MiB/g)).toHaveLength(2);
+      } else {
+        await expect(item).not.toContainText('0 MiB');
+        if (mobile) {
+          await expect(item.getByText(mobile ? 'Paměť' : 'Memory', { exact: true }).locator('..')).toContainText('—');
+          await expect(item.getByText(mobile ? 'Disk' : 'Diskspace', { exact: true }).locator('..')).toContainText('—');
+        } else {
+          await expect(item).toContainText('Memory: —');
+          await expect(item).toContainText('Diskspace: —');
+        }
+      }
+      if (mobile) await expect(item.getByText('Paměť', { exact: true })).toHaveCount(memoryBarVisible ? 0 : 1);
+      if (index === 2) await expect(item).toContainText('0 MiB / 4.0 GiB');
+      await item.screenshot({ path: testInfo.outputPath(`list-allocation-${index}.png`) });
+    }
+    const before = page.url();
+    const input = page.getByTestId('vps.smart_filter.input');
+    await input.fill('unknownkey:value');
+    await input.press('Escape');
+    await input.press('Enter');
+    await expect(page.getByTestId('vps.chip.error.0')).toContainText('unknownkey');
+    await expect(input).toHaveValue('unknownkey:value');
+    await expect(input).toHaveAttribute('aria-invalid', 'true');
+    const errorId = await input.getAttribute('aria-describedby');
+    expect(errorId).not.toBeNull();
+    const announcement = page.getByRole('alert').filter({ hasText: 'unknownkey' });
+    await expect(announcement).toHaveCount(1);
+    await expect(announcement).toHaveAttribute('id', errorId ?? '');
+    const errorText = await page.getByTestId('vps.chip.error.0').innerText();
+    await expect(page.getByText(errorText, { exact: true })).toHaveCount(2);
+    expect(page.url()).toBe(before);
+    await input.scrollIntoViewIfNeeded();
+    await page.screenshot({ path: testInfo.outputPath('list-filter-error.png') });
+    await page
+      .getByTestId('vps.chip.error.0')
+      .getByRole('button', { name: mobile ? 'Odebrat' : 'Remove' })
+      .click();
+    await expect(page.getByTestId('vps.chip.error.0')).toHaveCount(0);
+    await expect(input).toHaveValue('unknownkey:value');
+    await expect(input).not.toHaveAttribute('aria-invalid', 'true');
+    await expect(announcement).toHaveCount(0);
+  });
+
   test('clicking a row navigates to VPS detail', async ({ page }) => {
     const vps = makeVps(300);
 
@@ -97,13 +173,14 @@ test.describe('@workflow-matrix @smoke VPS list row navigation', () => {
 
     await header.getByRole('link', { name: 'VPS', exact: true }).click();
     await visibleVpsItem(page, 300);
-    await expect(page).toHaveURL((url) => (
-      url.pathname === '/admin/vps'
-      && url.searchParams.get('user') === '42'
-      && url.searchParams.get('limit') === '50'
-      && url.searchParams.get('page') === '1'
-      && !url.searchParams.has('from_id')
-    ));
+    await expect(page).toHaveURL(
+      (url) =>
+        url.pathname === '/admin/vps' &&
+        url.searchParams.get('user') === '42' &&
+        url.searchParams.get('limit') === '50' &&
+        url.searchParams.get('page') === '1' &&
+        !url.searchParams.has('from_id')
+    );
   });
 
   test('recent failure badge opens the failed chain and old failures stay hidden', async ({ page }) => {
@@ -210,7 +287,9 @@ test.describe('@workflow-matrix @smoke VPS list row navigation', () => {
     await expect(page.getByTestId('vps.list.power_confirm.target')).toContainText('#300');
   });
 
-  test('clicking user delete action opens confirmation without row navigation and sends empty delete payload', async ({ page }) => {
+  test('clicking user delete action opens confirmation without row navigation and sends empty delete payload', async ({
+    page,
+  }) => {
     const vps = makeVps(300);
 
     await installHaveApiMock(page, {
@@ -233,9 +312,7 @@ test.describe('@workflow-matrix @smoke VPS list row navigation', () => {
     await expect(page.getByTestId('vps.list.delete_confirm')).toBeVisible();
     await expect(page.getByTestId('vps.list.delete_confirm.lazy')).toHaveCount(0);
 
-    const reqPromise = page.waitForRequest(
-      (r) => r.method() === 'DELETE' && r.url().includes('/api/v7.0/vpses/300')
-    );
+    const reqPromise = page.waitForRequest((r) => r.method() === 'DELETE' && r.url().includes('/api/v7.0/vpses/300'));
 
     await expect(page.getByTestId('vps.list.delete_confirm.confirm_text')).toHaveCount(0);
 
@@ -269,9 +346,7 @@ test.describe('@workflow-matrix @smoke VPS list row navigation', () => {
     await expect(page.getByTestId('vps.list.delete_confirm')).toBeVisible();
     await expect(page.getByTestId('vps.list.delete_confirm.lazy')).toHaveValue('soft_delete');
 
-    const reqPromise = page.waitForRequest(
-      (r) => r.method() === 'DELETE' && r.url().includes('/api/v7.0/vpses/300')
-    );
+    const reqPromise = page.waitForRequest((r) => r.method() === 'DELETE' && r.url().includes('/api/v7.0/vpses/300'));
 
     await expect(page.getByTestId('vps.list.delete_confirm.confirm_text')).toHaveCount(0);
 
@@ -286,8 +361,12 @@ test.describe('@workflow-matrix @smoke VPS list row navigation', () => {
     const vps = makeVps(300);
     let releaseGuard = () => {};
     let markGuardStarted = () => {};
-    const guardRelease = new Promise<void>((resolve) => { releaseGuard = resolve; });
-    const guardStarted = new Promise<void>((resolve) => { markGuardStarted = resolve; });
+    const guardRelease = new Promise<void>((resolve) => {
+      releaseGuard = resolve;
+    });
+    const guardStarted = new Promise<void>((resolve) => {
+      markGuardStarted = resolve;
+    });
 
     await installHaveApiMock(page, {
       user: { id: 1, login: 'admin', level: 99 },
@@ -295,8 +374,8 @@ test.describe('@workflow-matrix @smoke VPS list row navigation', () => {
         'GET vpses': () => ({ vpses: [vps] }),
         'GET transaction_chains': async ({ searchParams }) => {
           const isDeleteGuard =
-            searchParams.get('transaction_chain[class_name]') === 'Vps'
-            && searchParams.get('transaction_chain[row_id]') === '300';
+            searchParams.get('transaction_chain[class_name]') === 'Vps' &&
+            searchParams.get('transaction_chain[row_id]') === '300';
           if (isDeleteGuard) {
             markGuardStarted();
             await guardRelease;
@@ -348,11 +427,15 @@ test.describe('@workflow-matrix @smoke VPS list row navigation', () => {
     await page.getByTestId('vps.list.delete_confirm.lazy.expiration').fill('2099-01-02T12:30');
     await page.screenshot({ path: test.info().outputPath('delete-options-cs.png'), fullPage: true });
     const expectedExpiration = await page.evaluate(() => new Date(2099, 0, 2, 12, 30).toISOString());
-    const request = page.waitForRequest(r => r.method() === 'PUT' && r.url().includes('/api/v7.0/vpses/300'));
+    const request = page.waitForRequest((r) => r.method() === 'PUT' && r.url().includes('/api/v7.0/vpses/300'));
     await page.getByTestId('vps.list.delete_confirm.confirm').click();
-    expect((await request).postDataJSON()).toEqual({ vps: {
-      object_state: 'soft_delete', expiration_date: expectedExpiration, change_reason: 'Deletion requested',
-    } });
+    expect((await request).postDataJSON()).toEqual({
+      vps: {
+        object_state: 'soft_delete',
+        expiration_date: expectedExpiration,
+        change_reason: 'Deletion requested',
+      },
+    });
     await expect(page.getByTestId('vps.list.delete_confirm')).toBeHidden();
     await expect(page.getByTestId('toast.viewport')).toContainText('vps300.example');
     await expect(page.getByTestId('toast.viewport')).toContainText('Požadavek na smazání VPS byl přijat');

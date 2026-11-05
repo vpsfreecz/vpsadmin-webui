@@ -15,7 +15,7 @@ import type { PublicOutagesByCategory } from './OverviewModel';
 function visibleOutages(groups: PublicOutagesByCategory): Outage[] {
   if (groups.current.length > 0) return groups.current.slice(0, 3);
   if (groups.planned.length > 0) return groups.planned.slice(0, 3);
-  return [];
+  return groups.unknown.slice(0, 3);
 }
 
 export function OverviewOutagesNewsCards(props: {
@@ -28,7 +28,10 @@ export function OverviewOutagesNewsCards(props: {
   newsError: boolean;
 }) {
   const i18n = useI18n();
-  const hasRecentOutages = props.outagesByCategory.current.length > 0 || props.outagesByCategory.planned.length > 0;
+  const hasRecentOutages =
+    props.outagesByCategory.current.length > 0 ||
+    props.outagesByCategory.planned.length > 0 ||
+    props.outagesByCategory.unknown.length > 0;
   const showOutages = props.outagesLoading || props.outagesError || hasRecentOutages;
 
   return (

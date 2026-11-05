@@ -151,7 +151,6 @@ export const csAuth = {
   'security.settings.logout_all.label': 'Odhlásit všechny relace při přihlášení',
   'security.settings.logout_all.desc': 'Při přihlášení zneplatnit ostatní aktivní relace.',
   'security.posture.title': 'Bezpečnostní stav',
-  'security.posture.subtitle': 'Read-only souhrn aktuálního zabezpečení účtu.',
   'security.posture.badge.ready': 'V pořádku',
   'security.posture.badge.needs_attention': 'Vyžaduje pozornost',
   'security.posture.badge.limited': 'Omezený přístup',

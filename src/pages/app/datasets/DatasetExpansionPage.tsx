@@ -41,6 +41,7 @@ import { resourceId } from '../../../lib/resources';
 
 import { useDatasetContext } from './DatasetContext';
 import { datasetExpansionCapabilities } from './DatasetExpansionCapabilities';
+import { DatasetExpansionAdminMetadata } from './DatasetExpansionAdminMetadata';
 import {
   datasetExpansionEditForm,
   defaultDatasetExpansionForm,
@@ -55,7 +56,6 @@ function expansionStateBadge(exp: DatasetExpansion, t: (k: string) => string) {
   const st = String(exp.state ?? '').trim().toLowerCase();
   if (st === 'active') return { variant: 'warn' as const, label: t('dataset.expansion.state.active') };
   if (st === 'resolved') return { variant: 'ok' as const, label: t('dataset.expansion.state.resolved') };
-  if (st) return { variant: 'neutral' as const, label: st };
   return { variant: 'neutral' as const, label: t('state.unknown') };
 }
 
@@ -317,7 +317,7 @@ export function DatasetExpansionPage() {
                   <div className="text-xs text-faint">{t('common.state')}</div>
                   <div className="mt-1 flex flex-wrap items-center gap-2">
                     {stateBadge ? <Badge variant={stateBadge.variant}>{stateBadge.label}</Badge> : null}
-                    <Badge variant={objectBadge.variant}>{objectBadge.label}</Badge>
+                    <Badge variant={objectBadge.variant}>{t('common.dataset')}: {objectBadge.label}</Badge>
                   </div>
                 </div>
                 <div>
@@ -337,20 +337,7 @@ export function DatasetExpansionPage() {
                   <div className="font-medium text-fg">{formatDateTime(currentExpansion.created_at)}</div>
                 </div>
                 {expansionCapabilities.showAdminMetadata ? (
-                  <>
-                    <div>
-                      <div className="text-xs text-faint">{t('dataset.expansion.field.notify')}</div>
-                      <div className="font-medium text-fg">{t(currentExpansion.enable_notifications ? 'common.enabled' : 'common.disabled')}</div>
-                    </div>
-                    <div>
-                      <div className="text-xs text-faint">{t('dataset.expansion.field.auto_shrink')}</div>
-                      <div className="font-medium text-fg">{t(currentExpansion.enable_shrink ? 'common.enabled' : 'common.disabled')}</div>
-                    </div>
-                    <div>
-                      <div className="text-xs text-faint">{t('dataset.expansion.field.stop_vps')}</div>
-                      <div className="font-medium text-fg">{t(currentExpansion.stop_vps ? 'common.enabled' : 'common.disabled')}</div>
-                    </div>
-                  </>
+                  <DatasetExpansionAdminMetadata t={t} currentExpansion={currentExpansion} />
                 ) : null}
                 <div>
                   <div className="text-xs text-faint">{t('dataset.expansion.field.max_over')}</div>
@@ -368,7 +355,7 @@ export function DatasetExpansionPage() {
             </CardBody>
           </Card>
 
-          {String(currentExpansion.state ?? '') !== 'active' ? (
+          {String(currentExpansion.state ?? '').trim().toLowerCase() === 'resolved' ? (
             <Alert
               variant="info"
               title={t('dataset.expansion.resolved.title')}

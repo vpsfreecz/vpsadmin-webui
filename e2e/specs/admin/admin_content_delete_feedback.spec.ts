@@ -5,9 +5,7 @@ import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
 test.describe('Admin content deletion feedback', () => {
   test('keeps a rejected news deletion in context and supports retry', async ({ page }, testInfo) => {
     const deleteActionTestId =
-      testInfo.project.name === 'mobile-chrome'
-        ? 'admin.newslog.card.42.delete'
-        : 'admin.newslog.delete.42';
+      testInfo.project.name === 'mobile-chrome' ? 'admin.newslog.card.42.delete' : 'admin.newslog.delete.42';
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
 
     const newsLogs: any[] = [
@@ -38,7 +36,7 @@ test.describe('Admin content deletion feedback', () => {
           }
 
           newsLogs.splice(0, newsLogs.length);
-          return { status: true, response: null };
+          return { news_log: {} };
         },
       },
     });
@@ -53,6 +51,12 @@ test.describe('Admin content deletion feedback', () => {
     await expect(page.getByTestId('admin.newslog.delete_confirm.error')).toContainText(
       'News item is still referenced by an active notification.'
     );
+    await expect(
+      dialog.getByRole('alert').filter({ hasText: 'News item is still referenced by an active notification.' })
+    ).toHaveCount(1);
+    await expect(
+      dialog.getByText('News item is still referenced by an active notification.', { exact: true })
+    ).toHaveCount(1);
     await expect(dialog).toContainText('Planned maintenance for the storage cluster');
 
     await dialog.getByRole('button', { name: /delete|smazat/i }).click();
@@ -63,9 +67,7 @@ test.describe('Admin content deletion feedback', () => {
 
   test('keeps a rejected help box deletion in context and supports retry', async ({ page }, testInfo) => {
     const deleteActionTestId =
-      testInfo.project.name === 'mobile-chrome'
-        ? 'admin.help_boxes.card.73.delete'
-        : 'admin.help_boxes.delete.73';
+      testInfo.project.name === 'mobile-chrome' ? 'admin.help_boxes.card.73.delete' : 'admin.help_boxes.delete.73';
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
 
     const helpBoxes: any[] = [
@@ -100,7 +102,7 @@ test.describe('Admin content deletion feedback', () => {
           }
 
           helpBoxes.splice(0, helpBoxes.length);
-          return { status: true, response: null };
+          return { help_box: {} };
         },
       },
     });
@@ -115,6 +117,12 @@ test.describe('Admin content deletion feedback', () => {
     await expect(page.getByTestId('admin.help_boxes.delete_confirm.error')).toContainText(
       'Help box changed on the server. Review it before retrying.'
     );
+    await expect(
+      dialog.getByRole('alert').filter({ hasText: 'Help box changed on the server. Review it before retrying.' })
+    ).toHaveCount(1);
+    await expect(
+      dialog.getByText('Help box changed on the server. Review it before retrying.', { exact: true })
+    ).toHaveCount(1);
     await expect(dialog).toContainText('Storage usage guidance');
 
     await dialog.getByRole('button', { name: /delete|smazat/i }).click();

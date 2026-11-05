@@ -8,7 +8,6 @@ import { formatDateTime } from '../../../../lib/format';
 
 import { Badge } from '../../../../components/ui/Badge';
 import { KeysetPagination } from '../../../../components/ui/KeysetPagination';
-import { StatusDot } from '../../../../components/ui/StatusDot';
 import { TableCard } from '../../../../components/ui/TableCard';
 import { TableRowLink } from '../../../../components/ui/TableRowLink';
 
@@ -20,7 +19,6 @@ import {
   locationMark,
   ipAddressText,
   ipCreatedAt,
-  ipDotVariant,
   ipId,
   ipLabel,
   ipRowVariant,
@@ -86,7 +84,6 @@ export function IpAddressesListTable({ pageData, ipDetailBasePath, basePath, na,
       }
     >
       <colgroup>
-        <col style={{ width: '3%' }} />
         <col style={{ width: '17%' }} />
         <col style={{ width: '12%' }} />
         <col style={{ width: '11%' }} />
@@ -99,7 +96,6 @@ export function IpAddressesListTable({ pageData, ipDetailBasePath, basePath, na,
       </colgroup>
       <thead>
         <tr className="border-b border-border text-left text-xs text-muted">
-          <th className="w-8 px-3 py-2" aria-label={t('common.state')} />
           <th className="px-3 py-2">{t('admin.ip_addresses.field.ip')}</th>
           <th className="px-3 py-2">{t('admin.ip.field.network')}</th>
           <th className="px-3 py-2">{t('admin.ip_addresses.field.environment')}</th>
@@ -129,13 +125,6 @@ export function IpAddressesListTable({ pageData, ipDetailBasePath, basePath, na,
               variant={ipRowVariant(ip)}
               className="border-b border-border/60 last:border-b-0"
             >
-              <td className="px-3 py-2">
-                <StatusDot
-                  variant={ipDotVariant(ip)}
-                  ariaLabel={assigned ? t('admin.ip_addresses.chip.assigned_true') : t('admin.ip_addresses.chip.assigned_false')}
-                  testId={`admin.ip_addresses.row.${id}.dot`}
-                />
-              </td>
               <td className="px-3 py-2">
                 <Link className="font-medium text-accent hover:underline" to={detailPath}>
                   {ipLabel(ip)}

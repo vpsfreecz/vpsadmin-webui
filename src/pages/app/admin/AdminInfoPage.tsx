@@ -10,7 +10,6 @@ import { LinkButton } from '../../../components/ui/LinkButton';
 import { DetailShell } from '../../../components/layout/DetailShell';
 import { PageHeader } from '../../../components/layout/PageHeader';
 
-
 export function AdminInfoPage() {
   const auth = useAuth();
   const appMode = useAppMode();
@@ -38,18 +37,11 @@ export function AdminInfoPage() {
 
   return (
     <DetailShell testId="admin.info.page" variant="wide">
-      <PageHeader
-        title={t('admin.info.title')}
-        description={t('admin.info.subtitle')}
-        testId="admin.info.header"
-      />
+      <PageHeader title={t('admin.info.title')} testId="admin.info.header" />
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card testId="admin.info.session.card">
-          <CardHeader
-            title={t('admin.info.session.title')}
-            subtitle={t('admin.info.session.subtitle')}
-          />
+          <CardHeader title={t('admin.info.session.title')} />
           <CardBody>
             <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
               <dt className="text-muted">{t('admin.info.session.field.login')}</dt>
@@ -76,10 +68,7 @@ export function AdminInfoPage() {
         </Card>
 
         <Card testId="admin.info.runtime.card">
-          <CardHeader
-            title={t('admin.info.runtime.title')}
-            subtitle={t('admin.info.runtime.subtitle')}
-          />
+          <CardHeader title={t('admin.info.runtime.title')} />
           <CardBody>
             <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
               <dt className="text-muted">{t('admin.info.runtime.field.api_url')}</dt>
@@ -119,10 +108,12 @@ export function AdminInfoPage() {
             <div className="mt-4 rounded-md bg-surface-2 p-3 text-xs">
               <div className="font-semibold">{t('admin.info.runtime.server_sync.title')}</div>
               <div className="mt-1 text-muted">
-                {t('admin.info.runtime.server_sync.namespace')} <span className="font-mono">{cfg.uiSettings.server.namespace}</span>
+                {t('admin.info.runtime.server_sync.namespace')}{' '}
+                <span className="font-mono">{cfg.uiSettings.server.namespace}</span>
               </div>
               <div className="text-muted">
-                {t('admin.info.runtime.server_sync.field')} <span className="font-mono">{cfg.uiSettings.server.field}</span>
+                {t('admin.info.runtime.server_sync.field')}{' '}
+                <span className="font-mono">{cfg.uiSettings.server.field}</span>
               </div>
             </div>
           </CardBody>

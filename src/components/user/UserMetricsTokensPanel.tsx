@@ -24,10 +24,8 @@ import { SecretField } from '../ui/SecretField';
 import { Spinner } from '../ui/Spinner';
 
 import { UserMetricsTokensList } from './UserMetricsTokensList';
-import { UserSecurityMetricGrid } from './UserSecurityMetricGrid';
 import {
   buildMetricPrefixReview,
-  buildMetricsTokenSummary,
   metricsAccessTokenDisplayName,
   metricsAccessTokenStateDescriptor,
   metricsUrlForAccessToken,
@@ -57,7 +55,6 @@ export function UserMetricsTokensPanel(props: {
   });
 
   const tokensSorted = useMemo(() => sortMetricsAccessTokens(tokensQ.data ?? []), [tokensQ.data]);
-  const tokenSummary = useMemo(() => buildMetricsTokenSummary(tokensQ.data), [tokensQ.data]);
   const createReview = useMemo(() => buildMetricPrefixReview(metricPrefix), [metricPrefix]);
 
   const createM = useMutation({
@@ -111,16 +108,6 @@ export function UserMetricsTokensPanel(props: {
             <Alert variant="warn" title={t('profile.metrics.security.title')} testId={`${prefix}.security_notice`}>
               {t(props.userId && !props.personal ? 'profile.metrics.security.body_admin' : 'profile.metrics.security.body_profile')}
             </Alert>
-
-            <UserSecurityMetricGrid
-              testId={`${prefix}.summary`}
-              items={[
-                { key: 'total', label: t('profile.metrics.summary.total'), value: tokenSummary.total },
-                { key: 'active', label: t('profile.metrics.summary.active'), value: tokenSummary.active },
-                { key: 'stale', label: t('profile.metrics.summary.stale'), value: tokenSummary.stale },
-                { key: 'unused', label: t('profile.metrics.summary.unused'), value: tokenSummary.unused },
-              ]}
-            />
 
             {tokensQ.isLoading ? (
               <div className="flex items-center justify-center py-8">

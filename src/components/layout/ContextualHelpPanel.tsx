@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ChevronDown, ChevronUp, Info } from 'lucide-react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 import { useAuth } from '../../app/auth';
 import { useI18n } from '../../app/i18n';
@@ -105,30 +105,19 @@ export function ContextualHelpPanel(props: {
   return (
     <section
       data-testid="contextual.help.panel"
-      className="overflow-hidden rounded-lg border border-border bg-surface/70 shadow-card"
+      className="overflow-hidden rounded-md border border-border bg-surface"
     >
-      <div className="flex flex-col gap-3 p-3 sm:p-4">
-        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-          <div className="min-w-0 flex items-start gap-3">
-            <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-info-border bg-info-bg text-info">
-              <Info className="h-4 w-4" />
-            </div>
-
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                <div className="text-sm font-semibold text-fg">{t('help_boxes.panel.title')}</div>
-                <Badge variant="info">{boxes.length}</Badge>
-
-                {canManage ? (
-                  <div className="hidden sm:flex items-center gap-2">
-                    <Badge variant="neutral">{ctx.page}</Badge>
-                    <Badge variant="neutral">{ctx.action}</Badge>
-                  </div>
-                ) : null}
+      <div className="p-2 sm:p-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <div className="text-sm font-semibold text-fg">{t('help_boxes.panel.title')}</div>
+            <Badge variant="neutral">{boxes.length}</Badge>
+            {canManage ? (
+              <div className="hidden items-center gap-2 sm:flex">
+                <Badge variant="neutral">{ctx.page}</Badge>
+                <Badge variant="neutral">{ctx.action}</Badge>
               </div>
-
-              <div className="mt-1 text-sm text-muted">{t('help_boxes.panel.subtitle')}</div>
-            </div>
+            ) : null}
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
@@ -163,7 +152,7 @@ export function ContextualHelpPanel(props: {
         </div>
 
         {expanded ? (
-          <div id={contentId} className="border-t border-border pt-3">
+          <div id={contentId} className="mt-3 border-t border-border pt-3">
             <div className="space-y-3">
               {boxes.map((box) => (
                 <div

@@ -93,7 +93,7 @@ export function PaymentsPage() {
 
   return (
     <ListShell>
-      <PageHeader title={t('payments.my.title')} description={t('payments.my.description')} />
+      <PageHeader title={t('payments.my.title')} />
 
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
         <StatCard
@@ -109,7 +109,6 @@ export function PaymentsPage() {
         <StatCard
           title={t('payments.my.stat.monthly_payment')}
           value={formatMoneyLike(monthlyPayment)}
-          description={t('payments.my.stat.monthly_payment.subtitle')}
           testId="payments.my.stat.monthly_payment"
         />
 

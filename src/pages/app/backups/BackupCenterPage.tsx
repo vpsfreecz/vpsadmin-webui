@@ -252,7 +252,7 @@ export function BackupCenterPage() {
     <ListShell
       variant="wide"
       testId="backups.page"
-      header={<PageHeader title={t('backups.title')} description={t('backups.subtitle')} />}
+      header={<PageHeader title={t('backups.title')} />}
       filters={
         <div className="space-y-3">
           <BackupTabs active={tab} onChange={changeTab} />

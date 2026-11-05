@@ -153,10 +153,12 @@ export function AuditEventPage() {
             <CardHeader title={t('audit.event.section.summary')} />
             <CardBody>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                <div>
-                  <div className="text-xs text-muted">{t('common.created')}</div>
-                  <div className="mt-1 text-sm tabular-nums">{createdAt ? formatDateTime(createdAt) : t('common.na')}</div>
-                </div>
+                {!createdAt ? (
+                  <div>
+                    <div className="text-xs text-muted">{t('common.created')}</div>
+                    <div className="mt-1 text-sm tabular-nums">{t('common.na')}</div>
+                  </div>
+                ) : null}
 
                 <div>
                   <div className="text-xs text-muted">{t('common.user')}</div>
@@ -186,10 +188,12 @@ export function AuditEventPage() {
                   </div>
                 </div>
 
-                <div>
-                  <div className="text-xs text-muted">{t('audit.event.event_type')}</div>
-                  <div className="mt-1 text-sm">{String(ev.event_type ?? t('common.na'))}</div>
-                </div>
+                {!ev.event_type ? (
+                  <div>
+                    <div className="text-xs text-muted">{t('audit.event.event_type')}</div>
+                    <div className="mt-1 text-sm">{String(ev.event_type ?? t('common.na'))}</div>
+                  </div>
+                ) : null}
               </div>
             </CardBody>
           </Card>

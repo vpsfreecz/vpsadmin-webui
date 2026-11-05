@@ -1,20 +1,19 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
+import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 
 function visibleAddressItem(page: Page, id: number) {
   return page.locator(
-    `[data-testid="network.user.ip.row.${id}"]:visible, ` +
-    `[data-testid="network.user.ip.card.${id}"]:visible`
+    `[data-testid="network.user.ip.row.${id}"]:visible, ` + `[data-testid="network.user.ip.card.${id}"]:visible`
   );
 }
 
 async function expectAccessibleTabSet(page: Page, tablist: Locator, expectedCount: number) {
   const tabs = tablist.getByRole('tab');
   await expect(tabs).toHaveCount(expectedCount);
-  expect(await tabs.evaluateAll((nodes) => (
-    nodes.filter((node) => (node as HTMLElement).tabIndex === 0).length
-  ))).toBe(1);
+  expect(await tabs.evaluateAll((nodes) => nodes.filter((node) => (node as HTMLElement).tabIndex === 0).length)).toBe(
+    1
+  );
 
   for (let index = 0; index < expectedCount; index += 1) {
     const tab = tabs.nth(index);
@@ -27,7 +26,7 @@ async function expectAccessibleTabSet(page: Page, tablist: Locator, expectedCoun
     await expect(panel).toHaveCount(1);
     await expect(panel).toHaveAttribute('role', 'tabpanel');
     await expect(panel).toHaveAttribute('aria-labelledby', tabId!);
-    if (await tab.getAttribute('aria-selected') === 'true') {
+    if ((await tab.getAttribute('aria-selected')) === 'true') {
       await expect(panel).toBeVisible();
       await expect(panel).toHaveAttribute('tabindex', '0');
     } else {
@@ -47,8 +46,14 @@ async function expectTouchTargets(tabs: Locator) {
   }
 }
 
-test('@pr-smoke @pr-smoke-mobile user network page lists only own addresses and assigns all supported address types', async ({ page }) => {
+test('@content-network-member @pr-smoke @pr-smoke-mobile user network page lists only own addresses and assigns all supported address types', async ({
+  page,
+}, testInfo) => {
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+  await setUiSettingsLocalStorage(page, {
+    language: testInfo.project.name === 'mobile-chrome' ? 'cs' : 'en',
+    theme: 'dark',
+  });
 
   const vps = {
     id: 123,
@@ -211,6 +216,7 @@ test('@pr-smoke @pr-smoke-mobile user network page lists only own addresses and 
   await expect(page.getByTestId('network.user.tab.addresses')).toHaveAttribute('aria-selected', 'true');
   await expect(visibleAddressItem(page, 101)).toBeVisible();
   await expect(visibleAddressItem(page, 102)).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath('member-addresses.png'), fullPage: true, scale: 'css' });
   const screenshot = process.env['E2E_NETWORK_USER_SCREENSHOT']?.trim();
   if (screenshot) await page.screenshot({ path: screenshot, fullPage: true });
   await expect(page.getByTestId('network.user.traffic')).toHaveCount(0);
@@ -226,10 +232,17 @@ test('@pr-smoke @pr-smoke-mobile user network page lists only own addresses and 
   await expect(page.getByTestId('network.user.traffic.stat.total')).toContainText('3.00 GiB');
   await expect(page.getByTestId('network.user.traffic.panel.overview')).toBeVisible();
   await expect(page.getByTestId('network.user.traffic.chart')).toBeVisible();
+  await expect(
+    page
+      .getByTestId('network.user.traffic')
+      .getByText(testInfo.project.name === 'mobile-chrome' ? 'Aktuální měsíc' : 'Current month', { exact: true })
+  ).toHaveCount(1);
+  await page.screenshot({ path: testInfo.outputPath('member-traffic-chart.png'), fullPage: true, scale: 'css' });
   await page.getByTestId('network.user.traffic.tab.breakdown').click();
   await expect(page.getByTestId('network.user.traffic.panel.breakdown')).toBeVisible();
   await expect(page.getByTestId('network.user.traffic.table')).toContainText('my-vps.example');
   await expect(page.getByTestId('network.user.traffic.table')).toContainText('eth0');
+  await page.screenshot({ path: testInfo.outputPath('member-traffic-breakdown.png'), fullPage: true, scale: 'css' });
   expect(accountingRequests).toHaveLength(6);
   expect(monitorRequests).toHaveLength(0);
 
@@ -240,6 +253,12 @@ test('@pr-smoke @pr-smoke-mobile user network page lists only own addresses and 
   await expect(page.getByTestId('network.user.live.stat.out')).toContainText('4.00 KiB/s');
   await expect(page.getByTestId('network.user.live.table')).toContainText('my-vps.example');
   expect(monitorRequests).toHaveLength(1);
+  await expect(
+    page
+      .getByTestId('network.user.live')
+      .getByText(testInfo.project.name === 'mobile-chrome' ? 'Aktuální rychlost' : 'Current rate', { exact: true })
+  ).toHaveCount(1);
+  await page.screenshot({ path: testInfo.outputPath('member-live.png'), fullPage: true, scale: 'css' });
 
   await page.getByTestId('network.user.tab.addresses').click();
   await expect(page).not.toHaveURL(/tab=/);
@@ -297,7 +316,9 @@ test('@pr-smoke @pr-smoke-mobile user network page lists only own addresses and 
   await expect(page.getByTestId('network.user.assign')).toBeHidden();
 });
 
-test('@pr-smoke @pr-smoke-mobile user network tabs expose complete keyboard, history and touch contracts', async ({ page }) => {
+test('@pr-smoke @pr-smoke-mobile user network tabs expose complete keyboard, history and touch contracts', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
 
   const now = new Date();
@@ -321,14 +342,16 @@ test('@pr-smoke @pr-smoke-mobile user network tabs expose complete keyboard, his
           return { network_interface_accountings: [] };
         }
         return {
-          network_interface_accountings: [{
-            id: 1,
-            year,
-            month,
-            bytes_in: 1024,
-            bytes_out: 2048,
-            network_interface: { id: 501, name: 'eth0', vps },
-          }],
+          network_interface_accountings: [
+            {
+              id: 1,
+              year,
+              month,
+              bytes_in: 1024,
+              bytes_out: 2048,
+              network_interface: { id: 501, name: 'eth0', vps },
+            },
+          ],
         };
       },
     },
@@ -499,10 +522,12 @@ test('@pr-smoke @pr-smoke-mobile user network tabs expose complete keyboard, his
   await trafficTab.focus();
   const pointerBeforeHistoryWasCanceled = await shellMain.evaluate((element) => {
     element.addEventListener('pointerdown', (event) => event.preventDefault(), { once: true });
-    return !element.dispatchEvent(new PointerEvent('pointerdown', {
-      bubbles: true,
-      cancelable: true,
-    }));
+    return !element.dispatchEvent(
+      new PointerEvent('pointerdown', {
+        bubbles: true,
+        cancelable: true,
+      })
+    );
   });
   expect(pointerBeforeHistoryWasCanceled).toBe(true);
   await expect(trafficTab).toBeFocused();
@@ -521,23 +546,32 @@ test('@pr-smoke @pr-smoke-mobile user network tabs expose complete keyboard, his
     type NetworkPointerHarness = Window & {
       __networkPointerAfterSnapshotCanceled?: boolean;
     };
-    window.addEventListener('popstate', () => {
-      const shell = document.querySelector<HTMLElement>('[data-testid="shell.main"]');
-      if (!shell) return;
-      shell.addEventListener('pointerdown', (event) => event.preventDefault(), { once: true });
-      const pointerWasCanceled = !shell.dispatchEvent(new PointerEvent('pointerdown', {
-        bubbles: true,
-        cancelable: true,
-      }));
-      (window as unknown as NetworkPointerHarness).__networkPointerAfterSnapshotCanceled = pointerWasCanceled;
-    }, { capture: true, once: true });
+    window.addEventListener(
+      'popstate',
+      () => {
+        const shell = document.querySelector<HTMLElement>('[data-testid="shell.main"]');
+        if (!shell) return;
+        shell.addEventListener('pointerdown', (event) => event.preventDefault(), { once: true });
+        const pointerWasCanceled = !shell.dispatchEvent(
+          new PointerEvent('pointerdown', {
+            bubbles: true,
+            cancelable: true,
+          })
+        );
+        (window as unknown as NetworkPointerHarness).__networkPointerAfterSnapshotCanceled = pointerWasCanceled;
+      },
+      { capture: true, once: true }
+    );
   });
   await page.goBack();
   await expect(page).toHaveURL(/\/app\/networking$/);
   await expect(addressesTab).toHaveAttribute('aria-selected', 'true');
-  expect(await page.evaluate(() => (
-    window as unknown as { __networkPointerAfterSnapshotCanceled?: boolean }
-  ).__networkPointerAfterSnapshotCanceled)).toBe(true);
+  expect(
+    await page.evaluate(
+      () =>
+        (window as unknown as { __networkPointerAfterSnapshotCanceled?: boolean }).__networkPointerAfterSnapshotCanceled
+    )
+  ).toBe(true);
   await expect(trafficTab).toBeFocused();
   await expect(addressesTab).not.toBeFocused();
   await page.evaluate(() => {
@@ -653,7 +687,13 @@ test('user network assignment validates detached addresses using API location me
   await installHaveApiMock(page, {
     user: { id: 7, login: 'member', level: 1 },
     handlers: {
-      'GET vpses': () => ({ vpses: [pragueVps, brnoVps, { ...pragueVps, id: 125, hostname: 'staging.example', node: { id: 5, location: { id: 30 } } }] }),
+      'GET vpses': () => ({
+        vpses: [
+          pragueVps,
+          brnoVps,
+          { ...pragueVps, id: 125, hostname: 'staging.example', node: { id: 5, location: { id: 30 } } },
+        ],
+      }),
       'GET ip_address_assignments': () => ({ ip_address_assignments: [] }),
       'GET ip_addresses': (ctx) => {
         if (ctx.searchParams.get('ip_address[location]') === '10') return { ip_addresses: [] };
@@ -686,7 +726,9 @@ test('user network assignment validates detached addresses using API location me
   await expect(page.getByTestId('network.user.assign.submit')).toBeEnabled();
 });
 
-test('admin user view fetches assignments through own user scope instead of the global cluster list', async ({ page }) => {
+test('admin user view fetches assignments through own user scope instead of the global cluster list', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
 
   const vps = {
@@ -745,14 +787,16 @@ test('admin user view fetches assignments through own user scope instead of the 
       'GET ip_address_assignments': (ctx) => {
         assignmentRequests.push(new URL(ctx.url.href));
         return {
-          ip_address_assignments: [{
-            id: 901,
-            ip_address: assignedWithoutNestedInterface,
-            ip_addr: assignedWithoutNestedInterface.addr,
-            ip_prefix: assignedWithoutNestedInterface.prefix,
-            vps,
-            user: { id: 7, login: 'admin-member' },
-          }],
+          ip_address_assignments: [
+            {
+              id: 901,
+              ip_address: assignedWithoutNestedInterface,
+              ip_addr: assignedWithoutNestedInterface.addr,
+              ip_prefix: assignedWithoutNestedInterface.prefix,
+              vps,
+              user: { id: 7, login: 'admin-member' },
+            },
+          ],
         };
       },
       'GET ip_addresses': (ctx) => {
@@ -785,7 +829,7 @@ test('admin user view fetches assignments through own user scope instead of the 
 
   await page.getByTestId('network.user.tab.traffic').click();
   await expect(page.getByTestId('network.user.traffic')).toBeVisible();
-  await expect.poll(() => (
-    accountingRequests.map((url) => url.searchParams.get('network_interface_accounting[user]'))
-  )).toEqual(Array(6).fill('7'));
+  await expect
+    .poll(() => accountingRequests.map((url) => url.searchParams.get('network_interface_accounting[user]')))
+    .toEqual(Array(6).fill('7'));
 });

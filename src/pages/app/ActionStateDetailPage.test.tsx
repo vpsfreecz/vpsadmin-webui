@@ -6,11 +6,16 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { ActionStateDetailPage } from './ActionStateDetailPage';
+import { TransactionDetailPage } from './TransactionDetailPage';
+import { TransactionStepDetails } from './transactions/TransactionStepDetails';
+import { TransactionInlineDetails } from '../../components/ui/TransactionInlineDetails';
+import type { Transaction } from '../../lib/api/transactions';
 
 const mocks = vi.hoisted(() => ({
   fetchActionState: vi.fn(),
   fetchTransactionChain: vi.fn(),
   fetchTransactions: vi.fn(),
+  fetchTransaction: vi.fn(),
   cancelActionState: vi.fn(),
   chrome: {
     syncStatus: 'ok',
@@ -45,6 +50,7 @@ vi.mock('../../lib/api/actionStates', () => ({
 vi.mock('../../lib/api/transactions', () => ({
   fetchTransactionChain: mocks.fetchTransactionChain,
   fetchTransactions: mocks.fetchTransactions,
+  fetchTransaction: mocks.fetchTransaction,
 }));
 
 vi.mock('../../app/appMode', () => ({
@@ -83,6 +89,7 @@ function renderPage(path = '/admin/action-states/900') {
       <MemoryRouter initialEntries={[path]}>
         <Routes>
           <Route path="/admin/action-states/:actionStateId" element={<ActionStateDetailPage />} />
+          <Route path="/admin/transactions/items/:transactionId" element={<TransactionDetailPage />} />
         </Routes>
       </MemoryRouter>
     </QueryClientProvider>
@@ -148,6 +155,14 @@ describe('ActionStateDetailPage', () => {
     expect(mocks.fetchTransactions).toHaveBeenCalledWith({ transactionChainId: 42, limit: 500 });
     expect(await screen.findByText(/Vps::Start/)).toBeInTheDocument();
     expect(screen.getByTestId('action_state.detail.transactions.table')).toBeInTheDocument();
+    const debug = screen.getByTestId('action_state.detail.debug');
+    const transactions = screen.getByTestId('action_state.detail.transactions');
+    expect(debug).not.toHaveAttribute('open');
+    expect(transactions.compareDocumentPosition(debug) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    await userEvent.click(within(debug).getByText('action_state.section.debug', { selector: 'summary' }));
+    expect(debug).toHaveAttribute('open');
+    expect(debug.querySelector('pre')?.textContent).toBe(JSON.stringify({ output: { note: 'queued' } }, null, 2));
+    await userEvent.click(within(debug).getByText('action_state.section.debug', { selector: 'summary' }));
 
     await userEvent.click(screen.getByTestId('action_state.detail.tx.toggle.501'));
 
@@ -156,4 +171,97 @@ describe('ActionStateDetailPage', () => {
     expect(within(expandedRow).getAllByText(/boom/).length).toBeGreaterThanOrEqual(2);
     expect(within(expandedRow).getAllByText(/vps_id/)).toHaveLength(2);
   });
+});
+
+const diagnosticTransaction: Transaction = {
+  id: 702,
+  name: 'Synthetic step',
+  done: 'done',
+  success: 0,
+  node: { id: 2, name: 'node2' },
+  vps: { id: 100, hostname: 'vps100' },
+  transaction_chain: { id: 123 },
+  priority: 20,
+  type: 2,
+  input: JSON.stringify({ a: 1 }),
+  output: JSON.stringify({ error: 'exact failure', ok: false }),
+  error: 'exact failure',
+  message: 'exact failure',
+  stderr: 'distinct stderr',
+  result: { rollback_needed: true },
+};
+
+const diagnosticT = (key: string) => key;
+
+describe('real transaction diagnostic consumers', () => {
+  test('detail keeps exact top error Copy, suppresses only duplicate error and retains dedup/raw/payloads', async () => {
+    const user = userEvent.setup();
+    const writeText = vi.spyOn(navigator.clipboard, 'writeText');
+    mocks.fetchTransaction.mockResolvedValue({ data: diagnosticTransaction });
+    renderPage('/admin/transactions/items/702');
+    const top = await screen.findByTestId('transactions.items.detail.error');
+    const helper = screen.getByTestId('transactions.items.detail.debug_sections');
+    await user.click(within(top).getByTestId('transactions.items.detail.error.copy'));
+    expect(writeText).toHaveBeenLastCalledWith('exact failure');
+    expect(within(helper).queryByText('transactions.tx.error_label')).not.toBeInTheDocument();
+    expect(within(helper).queryByText('transactions.tx.section.message')).not.toBeInTheDocument();
+    expect(within(helper).getByText('distinct stderr')).toBeInTheDocument();
+    for (const [label, value] of [
+      ['transactions.tx.input', diagnosticTransaction.input],
+      ['transactions.tx.output', diagnosticTransaction.output],
+    ]) {
+      const block = within(helper).getByText(label!, { exact: true }).parentElement!.parentElement!;
+      await user.click(within(block).getByRole('button', { name: 'common.copy' }));
+      expect(writeText).toHaveBeenLastCalledWith(value);
+    }
+    const metadata = screen.getByTestId('transactions.items.detail.info.disclosure');
+    expect(metadata).not.toHaveAttribute('open');
+    await user.click(metadata.querySelector('summary')!);
+    expect(screen.getByTestId('transactions.items.detail.node_link')).toHaveAttribute('href', '/admin/nodes/2');
+    const raw = screen.getByTestId('transactions.items.detail.raw');
+    await user.click(raw.querySelector('summary')!);
+    expect(raw.querySelector('pre')?.textContent).toBe(JSON.stringify(diagnosticTransaction, null, 2));
+  });
+
+  test.each(['inline', 'step'] as const)(
+    '%s keeps default exact error/Copy, distinct extras, input/output and supplied raw',
+    async (consumer) => {
+      const user = userEvent.setup();
+      const writeText = vi.spyOn(navigator.clipboard, 'writeText');
+      const { container } = render(
+        <MemoryRouter>
+          {consumer === 'inline' ? (
+            <TransactionInlineDetails
+              tx={diagnosticTransaction}
+              t={diagnosticT}
+              basePath="/admin"
+              raw={diagnosticTransaction}
+            />
+          ) : (
+            <TransactionStepDetails tx={diagnosticTransaction} t={diagnosticT} />
+          )}
+        </MemoryRouter>
+      );
+      const errorBlock = screen.getByText('transactions.tx.error_label', { exact: true }).parentElement!.parentElement!;
+      const error = within(errorBlock).getByText('exact failure', { selector: 'pre', exact: true });
+      await user.click(within(error.parentElement!).getByRole('button', { name: 'common.copy' }));
+      expect(writeText).toHaveBeenLastCalledWith('exact failure');
+      expect(screen.queryByText('transactions.tx.section.message')).not.toBeInTheDocument();
+      expect(screen.getByText('distinct stderr', { selector: 'pre' })).toBeInTheDocument();
+      expect(container).toHaveTextContent('rollback_needed');
+      for (const [label, value] of [
+        ['transactions.tx.input', diagnosticTransaction.input],
+        ['transactions.tx.output', diagnosticTransaction.output],
+      ]) {
+        const block = screen.getByText(label!, { exact: true }).parentElement!.parentElement!;
+        await user.click(within(block).getByRole('button', { name: 'common.copy' }));
+        expect(writeText).toHaveBeenLastCalledWith(value);
+      }
+      const rawSummary = screen.getByText('transactions.items.detail.section.raw', { selector: 'summary' });
+      await user.click(rawSummary);
+      expect(rawSummary.parentElement!.querySelector('pre')?.textContent).toBe(
+        JSON.stringify(diagnosticTransaction, null, 2)
+      );
+    }
+  );
 });

@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
+import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 
 const vps = {
   id: 123,
@@ -51,7 +51,9 @@ function mountItemControl(page: Page, mountId: number, control: 'dataset' | 'del
 
 test.describe('@smoke VPS storage tab mounts', () => {
   for (const override of [false, true]) {
-    test(`lets an admin resize the VPS root SSD live from the storage entrypoint (override: ${override})`, async ({ page }) => {
+    test(`lets an admin resize the VPS root SSD live from the storage entrypoint (override: ${override})`, async ({
+      page,
+    }) => {
       await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
       let vpsUpdateCount = 0;
 
@@ -103,7 +105,9 @@ test.describe('@smoke VPS storage tab mounts', () => {
       );
       await modal.getByTestId('vps.storage.resize.submit').click();
 
-      expect((await requestPromise).postDataJSON()).toEqual({ dataset: { refquota: 32 * 1024, ...(override ? { admin_override: true } : {}) } });
+      expect((await requestPromise).postDataJSON()).toEqual({
+        dataset: { refquota: 32 * 1024, ...(override ? { admin_override: true } : {}) },
+      });
       expect(vpsUpdateCount).toBe(0);
       await expect(modal).toBeHidden();
       await expect(page.getByTestId('vps.storage.root_dataset.resize')).toBeVisible();
@@ -113,15 +117,20 @@ test.describe('@smoke VPS storage tab mounts', () => {
       await page.goto('/app/vps/123/storage');
       await expect(page.getByTestId('vps.storage.root_dataset.resize')).toHaveCount(0);
     });
-
   }
 
   test('resets a mount deletion confirm when the VPS route changes', async ({ page }) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
-    const mounts = [{
-      id: 1, mountpoint: '/mnt/old', mode: 'ro', enabled: true,
-      on_start_fail: 'ignore', dataset: { id: 9, name: 'tank/old' },
-    }];
+    const mounts = [
+      {
+        id: 1,
+        mountpoint: '/mnt/old',
+        mode: 'ro',
+        enabled: true,
+        on_start_fail: 'ignore',
+        dataset: { id: 9, name: 'tank/old' },
+      },
+    ];
     await installHaveApiMock(page, {
       user: { id: 1, login: 'user', level: 1 },
       handlers: {
@@ -240,10 +249,10 @@ test.describe('@smoke VPS storage tab mounts', () => {
           const created = {
             id: 2,
             mountpoint: '/mnt/data',
-                mode: 'rw',
+            mode: 'rw',
             enabled: true,
             on_start_fail: 'ignore',
-                current_state: 'mounted',
+            current_state: 'mounted',
             expiration_date: '2026-02-28T00:00:00Z',
             dataset: { ...dataset },
             created_at: '2026-01-31T01:00:00Z',
@@ -279,8 +288,14 @@ test.describe('@smoke VPS storage tab mounts', () => {
       'href',
       '/app/datasets/10?create=subdataset'
     );
-    await expect(page.getByTestId('vps.storage.root_dataset.snapshots')).toHaveAttribute('href', '/app/datasets/10/snapshots');
-    await expect(page.getByTestId('vps.storage.root_dataset.downloads')).toHaveAttribute('href', '/app/datasets/10/downloads');
+    await expect(page.getByTestId('vps.storage.root_dataset.snapshots')).toHaveAttribute(
+      'href',
+      '/app/datasets/10/snapshots'
+    );
+    await expect(page.getByTestId('vps.storage.root_dataset.downloads')).toHaveAttribute(
+      'href',
+      '/app/datasets/10/downloads'
+    );
     await expect(page.getByTestId('vps.storage.root_dataset.create_snapshot')).toHaveCount(0);
     await expect(page.getByTestId('vps.storage.root_dataset.restore')).toHaveCount(0);
     await expect(page.getByTestId('vps.storage.root_dataset.backup')).toHaveCount(0);
@@ -398,11 +413,11 @@ test.describe('@smoke VPS storage tab mounts', () => {
             {
               id: 1,
               mountpoint: '/mnt/old',
-                    mode: 'ro',
+              mode: 'ro',
               enabled: true,
               master_enabled: false,
               on_start_fail: 'ignore',
-                    current_state: 'mounted',
+              current_state: 'mounted',
               dataset: { id: 9, name: 'tank/old' },
               created_at: '2026-01-31T00:00:00Z',
             },
@@ -441,10 +456,10 @@ test.describe('@smoke VPS storage tab mounts', () => {
             {
               id: 1,
               mountpoint: '/mnt/old',
-                    mode: 'ro',
+              mode: 'ro',
               enabled: true,
               on_start_fail: 'ignore',
-                    current_state: 'mounted',
+              current_state: 'mounted',
               dataset: { id: 9, name: 'tank/old' },
               created_at: '2026-01-31T00:00:00Z',
             },
@@ -460,5 +475,102 @@ test.describe('@smoke VPS storage tab mounts', () => {
     await expect(page.getByTestId('vps.storage.root_dataset.open')).toHaveCount(0);
     await expect(mountItem(page, 1)).toBeVisible();
     await expect(mountItemControl(page, 1, 'dataset')).toHaveAttribute('href', '/app/datasets/9');
+  });
+  test('captures missing zero and known quota and mount flags', async ({ page }, testInfo) => {
+    await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+    const mobile = testInfo.project.name === 'mobile-chrome';
+    await setUiSettingsLocalStorage(page, { language: mobile ? 'cs' : 'en', theme: mobile ? 'dark' : 'light' });
+    let refquota: number | null | undefined;
+    let enabled: boolean | null | undefined;
+    let mode: 'ro' | 'rw' | null | undefined;
+    await installHaveApiMock(page, {
+      user: { id: 1, login: 'admin', level: 99 },
+      handlers: {
+        'GET vpses/123': () => ({ vps: { ...vps, dataset: { ...vps.dataset, refquota: 40960 } } }),
+        'GET datasets/10': () => ({ dataset: { ...dataset, refquota, mount_count: 2 } }),
+        'GET ip_addresses': () => ({ ip_addresses: [] }),
+        'GET transaction_chains': () => ({ transaction_chains: [] }),
+        'GET vpses/123/mounts': () => ({
+          mounts: [
+            {
+              id: 1,
+              mountpoint: '/mnt/data',
+              dataset: { id: 10, name: 'tank/data' },
+              mode,
+              enabled,
+              master_enabled: enabled,
+              current_state: 'unknown',
+              on_start_fail: 'ignore',
+            },
+            {
+              id: 2,
+              mountpoint: '/mnt/failing',
+              dataset: { id: 10, name: 'tank/data' },
+              mode: 'ro',
+              enabled: false,
+              master_enabled: true,
+              current_state: 'failed',
+              on_start_fail: 'fail',
+            },
+          ],
+        }),
+      },
+    });
+    for (const state of [
+      { name: 'missing', quota: undefined, flag: undefined, mode: undefined },
+      { name: 'null', quota: null, flag: null, mode: null },
+      { name: 'zero', quota: 0, flag: false, mode: 'ro' as const },
+      { name: 'known', quota: 20480, flag: true, mode: 'rw' as const },
+    ]) {
+      refquota = state.quota;
+      enabled = state.flag;
+      mode = state.mode;
+      await page.goto('/admin/vps/123/storage');
+      await expect(page.getByTestId('vps.storage.root_dataset.metadata')).toContainText('5.0 GiB');
+      await expect(page.getByTestId('vps.storage.root_dataset.loading')).toHaveCount(0);
+      const details = page.getByTestId('vps.storage.root_dataset.details');
+      await details.locator('summary').click();
+      await expect(
+        page
+          .getByTestId('vps.storage.root_dataset.reference_quota')
+          .getByText(refquota === 0 ? '∞' : refquota != null && refquota > 0 ? '20 GiB' : '—', { exact: true })
+      ).toBeVisible();
+      await expect(details.getByText('40 GiB', { exact: true })).toHaveCount(0);
+      await details.scrollIntoViewIfNeeded();
+      await page.screenshot({ path: testInfo.outputPath(`storage-${state.name}-quota.png`) });
+      const item = mountItem(page, 1);
+      await expect(item).toBeVisible();
+      const status = mobile ? item : item.locator('td').nth(3);
+      await expect(
+        status.getByText(
+          enabled == null ? '—' : enabled ? (mobile ? 'Povoleno' : 'Enabled') : mobile ? 'Zakázáno' : 'Disabled',
+          { exact: true }
+        )
+      ).toBeVisible();
+      await expect(mountItemControl(page, 1, 'dataset')).toHaveAttribute('href', '/admin/datasets/10');
+      await expect(item.getByText('/mnt/data', { exact: true })).toBeVisible();
+      if (mobile) {
+        expect(
+          await item.getByText('/mnt/data', { exact: true }).evaluate((el) => el.scrollWidth <= el.clientWidth)
+        ).toBe(true);
+        expect(await mountItemControl(page, 1, 'dataset').evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(
+          true
+        );
+        await expect(item).not.toContainText('{value}');
+      }
+      await item.scrollIntoViewIfNeeded();
+      await page.screenshot({ path: testInfo.outputPath(`storage-${state.name}-mount.png`) });
+      await expect(mountItem(page, 2)).toContainText('failed');
+      if (state.name === 'known') {
+        await mountItem(page, 2).scrollIntoViewIfNeeded();
+        if (mobile)
+          expect(
+            await mountItem(page, 2)
+              .getByText('/mnt/failing', { exact: true })
+              .evaluate((el) => el.scrollWidth <= el.clientWidth)
+          ).toBe(true);
+        await page.screenshot({ path: testInfo.outputPath('storage-known-failed-mount.png') });
+      }
+    }
   });
 });

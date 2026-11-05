@@ -1,10 +1,108 @@
 import { expect, test } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
+import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 import {
   expectNoDocumentHorizontalOverflow,
   expectTableHorizontalScrollUsable,
 } from '../../helpers/horizontalOverflow';
+
+for (const language of ['en', 'cs'] as const) {
+  test(`@pr-smoke @pr-smoke-mobile missing host assignment stays unknown (${language})`, async ({ page }, testInfo) => {
+    await bootstrapVpsAdminWindow(page);
+    await setUiSettingsLocalStorage(page, { language, theme: 'dark' });
+    await installHaveApiMock(page, {
+      user: { id: 1, login: 'admin', level: 100 },
+      handlers: {
+        'GET ip_addresses/100': () => ({
+          ip_address: {
+            id: 100,
+            addr: '203.0.113.10',
+            prefix: 32,
+            routed: true,
+            network: { id: 3, address: '203.0.113.0', prefix: 24 },
+          },
+        }),
+        'GET host_ip_addresses': () => ({
+          host_ip_addresses: [
+            { id: 601, addr: '203.0.113.11', assigned: true },
+            { id: 602, addr: '203.0.113.12', assigned: false, user_created: true },
+            { id: 603, addr: '203.0.113.13' },
+            { id: 604, addr: '203.0.113.14', assigned: null },
+          ],
+        }),
+      },
+    });
+    await page.goto('/admin/ip-addresses/100');
+    await expect(page.getByTestId('admin.ip.hosts.row.604')).toBeVisible();
+    await page.screenshot({
+      path: testInfo.outputPath(`host-assignment-states-${language}.png`),
+      fullPage: true,
+      scale: 'css',
+    });
+    if (testInfo.project.name.includes('mobile')) {
+      await page.getByTestId('admin.ip.hosts.table').evaluate((table) => {
+        const scroller = table.parentElement;
+        if (scroller) scroller.scrollLeft = scroller.scrollWidth;
+      });
+      await page.screenshot({
+        path: testInfo.outputPath(`host-assignment-actions-${language}.png`),
+        fullPage: true,
+        scale: 'css',
+      });
+    }
+    for (const id of [603, 604]) {
+      const row = page.getByTestId(`admin.ip.hosts.row.${id}`);
+      await expect.soft(row.getByTestId(`admin.ip.hosts.row.${id}.free`)).toHaveCount(0, { timeout: 1_000 });
+      await expect(row.getByTestId(`admin.ip.hosts.row.${id}.assign`)).toHaveCount(0);
+      await expect(row.getByTestId(`admin.ip.hosts.row.${id}.delete`)).toHaveCount(0);
+      await expect(row.getByTestId(`admin.ip.hosts.row.${id}.ptr`)).toBeVisible();
+    }
+    await expect(page.getByTestId('admin.ip.hosts.row.601.free')).toBeVisible();
+    await expect(page.getByTestId('admin.ip.hosts.row.602.assign')).toBeVisible();
+    await expect(page.getByTestId('admin.ip.hosts.row.602.delete')).toBeVisible();
+  });
+}
+
+test('@content-network-host-create host IP creation keeps its address input instruction', async ({
+  page,
+}, testInfo) => {
+  const language = testInfo.project.name === 'mobile-chrome' ? 'cs' : 'en';
+  await bootstrapVpsAdminWindow(page);
+  await setUiSettingsLocalStorage(page, { language, theme: 'dark' });
+  await installHaveApiMock(page, {
+    user: { id: 1, login: 'admin', level: 100 },
+    handlers: {
+      'GET ip_addresses/100': () => ({
+        ip_address: {
+          id: 100,
+          addr: '203.0.113.10',
+          prefix: 32,
+          routed: true,
+          network: { id: 3, address: '203.0.113.0', prefix: 24 },
+        },
+      }),
+      'GET host_ip_addresses': () => ({ host_ip_addresses: [] }),
+    },
+  });
+  const writes: string[] = [];
+  page.on('request', (request) => {
+    if (['POST', 'PUT', 'DELETE'].includes(request.method()) && request.url().includes('/host_ip_addresses'))
+      writes.push(request.url());
+  });
+  await page.goto('/admin/ip-addresses/100');
+  await page.getByTestId('admin.ip.hosts.create.open').click();
+  const dialog = page.getByRole('dialog', {
+    name: language === 'cs' ? 'Přidat host IP adresy' : 'Add host IP addresses',
+    exact: true,
+  });
+  await expect(dialog).toBeVisible();
+  await expect(dialog).toContainText(language === 'cs' ? 'Jedna adresa na řádek.' : 'One address per line.');
+  await expect(dialog).not.toContainText(language === 'cs' ? 'testovací' : 'sample data');
+  await expect(dialog.getByRole('textbox')).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath(`host-create-${language}.png`), fullPage: true, scale: 'css' });
+  await dialog.getByRole('button', { name: language === 'cs' ? 'Zrušit' : 'Cancel', exact: true }).click();
+  expect(writes).toEqual([]);
+});
 
 test('@pr-smoke @pr-smoke-mobile admin ip address detail: shows header and links to user/vps', async ({ page }) => {
   await bootstrapVpsAdminWindow(page);
@@ -56,8 +154,12 @@ test('@pr-smoke @pr-smoke-mobile admin ip address detail: shows header and links
   if (proofScreenshot) await page.screenshot({ path: proofScreenshot, fullPage: true });
 });
 
-test('@pr-smoke @pr-smoke-mobile admin ip address destructive confirmations keep rejected actions retryable', async ({ page }) => {
+test('@content-detail-host-delete @pr-smoke @pr-smoke-mobile admin ip address destructive confirmations keep rejected actions retryable', async ({
+  page,
+}, testInfo) => {
+  const language = testInfo.project.name === 'mobile-chrome' ? 'cs' : 'en';
   await bootstrapVpsAdminWindow(page);
+  await setUiSettingsLocalStorage(page, { language, theme: 'dark' });
 
   let freeRouteAttempts = 0;
   let deleteHostAttempts = 0;
@@ -76,9 +178,7 @@ test('@pr-smoke @pr-smoke-mobile admin ip address destructive confirmations keep
         },
       }),
       'GET host_ip_addresses': () => ({
-        host_ip_addresses: [
-          { id: 602, addr: '203.0.113.12', assigned: false, user_created: true },
-        ],
+        host_ip_addresses: [{ id: 602, addr: '203.0.113.12', assigned: false, user_created: true }],
       }),
       'POST ip_addresses/100/free': () => {
         freeRouteAttempts += 1;
@@ -118,6 +218,25 @@ test('@pr-smoke @pr-smoke-mobile admin ip address destructive confirmations keep
 
   await page.getByTestId('admin.ip.hosts.row.602.delete').click();
   const deleteHostDialog = page.getByTestId('admin.ip.hosts.delete_confirm');
+  await expect(deleteHostDialog).toBeVisible();
+  await expect(
+    deleteHostDialog.getByText(
+      language === 'cs'
+        ? 'Smazat host adresu 203.0.113.12 z vpsAdminu.'
+        : 'Delete host address 203.0.113.12 from vpsAdmin.',
+      { exact: true }
+    )
+  ).toBeVisible();
+  await expect(deleteHostDialog.getByTestId('admin.ip.hosts.delete_confirm.confirm')).toBeEnabled();
+  await page.screenshot({
+    path: testInfo.outputPath(`detail-host-delete-${language}.png`),
+    fullPage: true,
+    scale: 'css',
+  });
+  await deleteHostDialog.getByRole('button', { name: language === 'cs' ? 'Zrušit' : 'Cancel', exact: true }).click();
+  await expect(deleteHostDialog).toBeHidden();
+  expect(deleteHostAttempts).toBe(0);
+  await page.getByTestId('admin.ip.hosts.row.602.delete').click();
   await deleteHostDialog.getByTestId('admin.ip.hosts.delete_confirm.confirm').click();
   await expect(page.getByTestId('admin.ip.hosts.delete_confirm.error')).toContainText('Host address is still assigned');
   await expect(deleteHostDialog).toContainText('203.0.113.12');

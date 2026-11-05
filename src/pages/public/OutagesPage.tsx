@@ -117,7 +117,6 @@ export function OutagesPage() {
     <div className="space-y-6" data-testid="public.outages.page">
       <div className="space-y-2">
         <h1 className="text-2xl font-semibold tracking-tight">{i18n.t('public.outages.title')}</h1>
-        <p className="text-sm text-muted">{i18n.t('public.outages.subtitle')}</p>
       </div>
 
       {outagesQ.isLoading ? (

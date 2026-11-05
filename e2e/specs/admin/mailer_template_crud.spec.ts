@@ -30,7 +30,7 @@ function welcomeTemplate(): TestMailTemplate {
 async function installMailerMock(
   page: Page,
   state: { templates: TestMailTemplate[] },
-  handlers: Record<string, (ctx: any) => unknown | Promise<unknown>> = {},
+  handlers: Record<string, (ctx: any) => unknown | Promise<unknown>> = {}
 ) {
   await bootstrapVpsAdminWindow(page, { sessionToken: 'MAILER_TEMPLATE_CRUD' });
   await installHaveApiMock(page, {
@@ -50,19 +50,16 @@ async function installMailerMock(
       ...handlers,
     },
   });
-
 }
 
 async function fillEditor(
   page: Page,
-  values: { name: string; label: string; templateId: string; userVisibility: string },
+  values: { name: string; label: string; templateId: string; userVisibility: string }
 ) {
   await page.getByTestId('admin.mailer.template.editor.name').fill(values.name);
   await page.getByTestId('admin.mailer.template.editor.label').fill(values.label);
   await page.getByTestId('admin.mailer.template.editor.template_id').fill(values.templateId);
-  await page
-    .getByTestId('admin.mailer.template.editor.user_visibility')
-    .selectOption(values.userVisibility);
+  await page.getByTestId('admin.mailer.template.editor.user_visibility').selectOption(values.userVisibility);
 }
 
 test.describe('Admin mail template CRUD', () => {
@@ -73,14 +70,17 @@ test.describe('Admin mail template CRUD', () => {
     await installMailerMock(page, state, {
       'POST mail_templates': ({ reqJson }) => {
         postCalls += 1;
-        state.templates = [...state.templates, {
-          id: 3,
-          name: String((reqJson as any)?.mail_template?.name),
-          label: String((reqJson as any)?.mail_template?.label),
-          template_id: String((reqJson as any)?.mail_template?.template_id),
-          user_visibility: String((reqJson as any)?.mail_template?.user_visibility),
-          updated_at: '2026-09-03T12:00:00Z',
-        }];
+        state.templates = [
+          ...state.templates,
+          {
+            id: 3,
+            name: String((reqJson as any)?.mail_template?.name),
+            label: String((reqJson as any)?.mail_template?.label),
+            template_id: String((reqJson as any)?.mail_template?.template_id),
+            user_visibility: String((reqJson as any)?.mail_template?.user_visibility),
+            updated_at: '2026-09-03T12:00:00Z',
+          },
+        ];
         return {
           status: 503,
           contentType: 'application/json',
@@ -131,7 +131,7 @@ test.describe('Admin mail template CRUD', () => {
     });
 
     await page.goto(
-      '/admin/mailer/templates?limit=25&page=2&from_id=91&q=welcome&template_id=welcome&user_visibility=visible&role=admin&public=true&language=2',
+      '/admin/mailer/templates?limit=25&page=2&from_id=91&q=welcome&template_id=welcome&user_visibility=visible&role=admin&public=true&language=2'
     );
     await expect(page.getByTestId('admin.mailer.templates.page')).toBeVisible();
     await expect.poll(() => indexRequests.length).toBeGreaterThan(0);
@@ -139,10 +139,7 @@ test.describe('Admin mail template CRUD', () => {
     for (const requestUrl of indexRequests) {
       const queryKeys = [...requestUrl.searchParams.keys()];
       expect(queryKeys.length).toBeGreaterThan(0);
-      expect(queryKeys.every((key) => [
-        'mail_template[limit]',
-        'mail_template[from_id]',
-      ].includes(key))).toBe(true);
+      expect(queryKeys.every((key) => ['mail_template[limit]', 'mail_template[from_id]'].includes(key))).toBe(true);
 
       for (const unsupported of ['q', 'template_id', 'user_visibility', 'role', 'public', 'language']) {
         expect(requestUrl.searchParams.get(unsupported)).toBeNull();
@@ -151,7 +148,9 @@ test.describe('Admin mail template CRUD', () => {
     }
   });
 
-  test('@pr-smoke @pr-smoke-mobile validates, creates and safely edits a template with exact single mutations', async ({ page }) => {
+  test('@pr-smoke @pr-smoke-mobile validates, creates and safely edits a template with exact single mutations', async ({
+    page,
+  }, testInfo) => {
     const state = { templates: [welcomeTemplate()] };
     const postPayloads: unknown[] = [];
     const putPayloads: unknown[] = [];
@@ -177,11 +176,9 @@ test.describe('Admin mail template CRUD', () => {
         putPayloads.push(reqJson);
         await new Promise((resolve) => setTimeout(resolve, 100));
         const changes = (reqJson as any)?.mail_template ?? {};
-        state.templates = state.templates.map((tpl) => (
-          tpl.id === 3
-            ? { ...tpl, ...changes, updated_at: '2026-09-02T11:00:00Z' }
-            : tpl
-        ));
+        state.templates = state.templates.map((tpl) =>
+          tpl.id === 3 ? { ...tpl, ...changes, updated_at: '2026-09-02T11:00:00Z' } : tpl
+        );
         return { mail_template: state.templates.find((tpl) => tpl.id === 3) };
       },
       'DELETE mail_templates/3': () => {
@@ -207,14 +204,18 @@ test.describe('Admin mail template CRUD', () => {
     });
     await page.getByTestId('admin.mailer.template.editor.submit').dblclick();
 
-    await expect.poll(() => postPayloads).toEqual([{
-      mail_template: {
-        name: 'password_reset',
-        label: 'Password reset',
-        template_id: 'password-reset-v2',
-        user_visibility: 'visible',
-      },
-    }]);
+    await expect
+      .poll(() => postPayloads)
+      .toEqual([
+        {
+          mail_template: {
+            name: 'password_reset',
+            label: 'Password reset',
+            template_id: 'password-reset-v2',
+            user_visibility: 'visible',
+          },
+        },
+      ]);
     await expect(page).toHaveURL(/\/admin\/mailer\/templates\/3$/);
     await expect(editor).toHaveCount(0);
     const detail = page.getByTestId('admin.mailer.templates.detail');
@@ -228,25 +229,32 @@ test.describe('Admin mail template CRUD', () => {
     await expect(page.getByTestId('admin.mailer.template.editor.name')).toBeDisabled();
     await expect(page.getByTestId('admin.mailer.template.editor.template_id')).toBeDisabled();
     await expect(page.getByTestId('admin.mailer.template.editor.identifiers_locked')).toBeVisible();
+    await page
+      .getByTestId('admin.mailer.template.editor')
+      .screenshot({ path: testInfo.outputPath('mailer-template-edit-immutable.png') });
     await page.getByTestId('admin.mailer.template.editor.label').fill('Password reset v2');
     await page.getByTestId('admin.mailer.template.editor.user_visibility').selectOption('invisible');
     await page.getByTestId('admin.mailer.template.editor.submit').dblclick();
 
-    await expect.poll(() => putPayloads).toEqual([{
-      mail_template: {
-        label: 'Password reset v2',
-        user_visibility: 'invisible',
-      },
-    }]);
+    await expect
+      .poll(() => putPayloads)
+      .toEqual([
+        {
+          mail_template: {
+            label: 'Password reset v2',
+            user_visibility: 'invisible',
+          },
+        },
+      ]);
     await expect(editor).toHaveCount(0);
     await expect(detail).toContainText('password_reset');
     await expect(detail).toContainText('Password reset v2');
     await expect(detail).toContainText('password-reset-v2');
     await expect(page.getByTestId('admin.mailer.templates.detail.delete_blocked')).toBeVisible();
     await expect(page.getByTestId('admin.mailer.templates.detail.delete.blocked')).toBeDisabled();
-    await page.getByTestId('admin.mailer.templates.detail.delete.blocked').evaluate((button) => (
-      button as HTMLButtonElement
-    ).click());
+    await page
+      .getByTestId('admin.mailer.templates.detail.delete.blocked')
+      .evaluate((button) => (button as HTMLButtonElement).click());
     expect(deleteCalls).toBe(0);
   });
 
@@ -295,7 +303,7 @@ test.describe('Admin mail template CRUD', () => {
     });
   }
 
-  test('edit 403 preserves every editable field and the original readback', async ({ page }) => {
+  test('edit 403 preserves every editable field and the original readback', async ({ page }, testInfo) => {
     const state = { templates: [welcomeTemplate()] };
     const putPayloads: unknown[] = [];
 
@@ -322,12 +330,16 @@ test.describe('Admin mail template CRUD', () => {
     await page.getByTestId('admin.mailer.template.editor.user_visibility').selectOption('invisible');
     await page.getByTestId('admin.mailer.template.editor.submit').click();
 
-    await expect.poll(() => putPayloads).toEqual([{
-      mail_template: {
-        label: 'Unsaved welcome label',
-        user_visibility: 'invisible',
-      },
-    }]);
+    await expect
+      .poll(() => putPayloads)
+      .toEqual([
+        {
+          mail_template: {
+            label: 'Unsaved welcome label',
+            user_visibility: 'invisible',
+          },
+        },
+      ]);
     await expect(page.getByTestId('admin.mailer.template.editor')).toBeVisible();
     await expect(page.getByTestId('admin.mailer.template.editor.error')).toContainText('template update denied');
     await expect(page.getByTestId('admin.mailer.template.editor.name')).toHaveValue('welcome');
@@ -335,6 +347,9 @@ test.describe('Admin mail template CRUD', () => {
     await expect(page.getByTestId('admin.mailer.template.editor.template_id')).toHaveValue('welcome');
     await expect(page.getByTestId('admin.mailer.template.editor.user_visibility')).toHaveValue('invisible');
     await expect(page.getByTestId('admin.mailer.templates.detail')).toContainText('Welcome mail');
+    await page
+      .getByTestId('admin.mailer.template.editor')
+      .screenshot({ path: testInfo.outputPath('mailer-template-edit-rejected.png') });
   });
 
   test('template edit refuses to overwrite a newer server version and can load it explicitly', async ({ page }) => {
@@ -345,11 +360,13 @@ test.describe('Admin mail template CRUD', () => {
       'PUT mail_templates/1': ({ reqJson }) => {
         putPayloads.push(reqJson);
         const changes = (reqJson as any)?.mail_template ?? {};
-        state.templates = [{
-          ...state.templates[0]!,
-          ...changes,
-          updated_at: '2026-09-03T13:00:00Z',
-        }];
+        state.templates = [
+          {
+            ...state.templates[0]!,
+            ...changes,
+            updated_at: '2026-09-03T13:00:00Z',
+          },
+        ];
         return { mail_template: state.templates[0] };
       },
     });
@@ -358,12 +375,14 @@ test.describe('Admin mail template CRUD', () => {
     await page.getByTestId('admin.mailer.templates.detail.edit').click();
     await page.getByTestId('admin.mailer.template.editor.label').fill('My stale draft');
 
-    state.templates = [{
-      ...state.templates[0]!,
-      label: 'Changed by another admin',
-      user_visibility: 'invisible',
-      updated_at: '2026-09-03T12:30:00Z',
-    }];
+    state.templates = [
+      {
+        ...state.templates[0]!,
+        label: 'Changed by another admin',
+        user_visibility: 'invisible',
+        updated_at: '2026-09-03T12:30:00Z',
+      },
+    ];
 
     await page.getByTestId('admin.mailer.template.editor.submit').click();
     await expect(page.getByTestId('admin.mailer.template.editor.stale')).toBeVisible();
@@ -378,26 +397,32 @@ test.describe('Admin mail template CRUD', () => {
     await page.getByTestId('admin.mailer.template.editor.label').fill('Reviewed final label');
     await page.getByTestId('admin.mailer.template.editor.submit').click();
 
-    await expect.poll(() => putPayloads).toEqual([{
-      mail_template: {
-        label: 'Reviewed final label',
-        user_visibility: 'invisible',
-      },
-    }]);
+    await expect
+      .poll(() => putPayloads)
+      .toEqual([
+        {
+          mail_template: {
+            label: 'Reviewed final label',
+            user_visibility: 'invisible',
+          },
+        },
+      ]);
     await expect(page.getByTestId('admin.mailer.template.editor')).toHaveCount(0);
   });
 
   test('new translation requires language, from and subject and sends the exact payload', async ({ page }) => {
     const state = { templates: [welcomeTemplate()] };
     const postPayloads: unknown[] = [];
-    let translations: any[] = [{
-      id: 100,
-      language: languages[0],
-      from: 'existing@example.test',
-      subject: 'Existing English translation',
-      created_at: '2026-09-02T09:00:00Z',
-      updated_at: '2026-09-02T09:00:00Z',
-    }];
+    let translations: any[] = [
+      {
+        id: 100,
+        language: languages[0],
+        from: 'existing@example.test',
+        subject: 'Existing English translation',
+        created_at: '2026-09-02T09:00:00Z',
+        updated_at: '2026-09-02T09:00:00Z',
+      },
+    ];
 
     await installMailerMock(page, state, {
       'GET mail_templates/1/translations': () => ({
@@ -461,20 +486,28 @@ test.describe('Admin mail template CRUD', () => {
 
     await create.click();
 
-    await expect.poll(() => postPayloads).toEqual([{
-      translation: {
-        language: 2,
-        from: 'noreply@example.test',
-        reply_to: null,
-        return_path: null,
-        subject: 'Reset your password',
-      },
-    }]);
+    await expect
+      .poll(() => postPayloads)
+      .toEqual([
+        {
+          translation: {
+            language: 2,
+            from: 'noreply@example.test',
+            reply_to: null,
+            return_path: null,
+            subject: 'Reset your password',
+          },
+        },
+      ]);
     await expect(modal).toHaveCount(0);
-    await expect(page.getByTestId('admin.mailer.templates.detail.translation.101')).toContainText('Reset your password');
+    await expect(page.getByTestId('admin.mailer.templates.detail.translation.101')).toContainText(
+      'Reset your password'
+    );
   });
 
-  test('translation edit blocks empty required fields and clears optional addresses with null', async ({ page }) => {
+  test('translation edit blocks empty required fields and clears optional addresses with null', async ({
+    page,
+  }, testInfo) => {
     const state = { templates: [welcomeTemplate()] };
     const putPayloads: unknown[] = [];
     let translation = {
@@ -506,6 +539,9 @@ test.describe('Admin mail template CRUD', () => {
 
     await page.goto('/admin/mailer/templates/1/translations/101');
     await page.getByTestId('admin.mailer.templates.translation.detail.enable_editing').click();
+    await page
+      .getByTestId('admin.mailer.templates.translation.detail.enable_editing_confirm')
+      .screenshot({ path: testInfo.outputPath('mailer-translation-enable-confirm.png') });
     await page.getByTestId('admin.mailer.templates.translation.detail.enable_editing_confirm.confirm').click();
 
     const save = page.getByTestId('admin.mailer.templates.translation.detail.save');
@@ -526,20 +562,31 @@ test.describe('Admin mail template CRUD', () => {
     await page.getByTestId('admin.mailer.templates.translation.detail.text_plain').fill('');
     await page.getByTestId('admin.mailer.templates.translation.detail.text_html').fill('');
     await expect(save).toBeEnabled();
+    const savedResponse = page.waitForResponse(
+      (response) =>
+        response.request().method() === 'PUT' &&
+        new URL(response.url()).pathname.endsWith('/mail_templates/1/translations/101')
+    );
     await save.click();
+    await savedResponse;
 
-    await expect.poll(() => putPayloads).toEqual([{
-      translation: {
-        from: 'new-from@example.test',
-        reply_to: null,
-        return_path: null,
-        subject: 'Updated subject',
-        text_plain: null,
-        text_html: null,
-      },
-    }]);
+    await expect
+      .poll(() => putPayloads)
+      .toEqual([
+        {
+          translation: {
+            from: 'new-from@example.test',
+            reply_to: null,
+            return_path: null,
+            subject: 'Updated subject',
+            text_plain: null,
+            text_html: null,
+          },
+        },
+      ]);
     await expect(from).toHaveValue('new-from@example.test');
     await expect(subject).toHaveValue('Updated subject');
+    await page.screenshot({ path: testInfo.outputPath('mailer-translation-after-save.png'), fullPage: true });
   });
 
   test('an uncertain translation create is reconciled without a blind duplicate POST', async ({ page }) => {
@@ -555,13 +602,15 @@ test.describe('Admin mail template CRUD', () => {
       'POST mail_templates/1/translations': ({ reqJson }) => {
         postCalls += 1;
         const payload = (reqJson as any)?.translation ?? {};
-        translations = [{
-          id: 101,
-          ...payload,
-          language: languages.find((language) => language.id === Number(payload.language)),
-          created_at: '2026-09-03T12:00:00Z',
-          updated_at: '2026-09-03T12:00:00Z',
-        }];
+        translations = [
+          {
+            id: 101,
+            ...payload,
+            language: languages.find((language) => language.id === Number(payload.language)),
+            created_at: '2026-09-03T12:00:00Z',
+            updated_at: '2026-09-03T12:00:00Z',
+          },
+        ];
         return {
           status: 503,
           contentType: 'application/json',
@@ -598,7 +647,9 @@ test.describe('Admin mail template CRUD', () => {
     expect(postCalls).toBe(1);
   });
 
-  test('recipient create-and-add validates both inputs and retries only the failed link step', async ({ page }) => {
+  test('recipient create-and-add validates both inputs and retries only the failed link step', async ({
+    page,
+  }, testInfo) => {
     const state = { templates: [welcomeTemplate()] };
     const createPayloads: unknown[] = [];
     const linkPayloads: unknown[] = [];
@@ -661,43 +712,59 @@ test.describe('Admin mail template CRUD', () => {
     await expect(createAndAdd).toBeEnabled();
 
     await createAndAdd.dblclick();
-    await expect.poll(() => createPayloads).toEqual([{
-      mail_recipient: {
-        label: 'Night operations',
-        to: 'night-ops@example.test',
-      },
-    }]);
-    await expect.poll(() => linkPayloads).toEqual([{
-      recipient: { mail_recipient: 55 },
-    }]);
+    await expect
+      .poll(() => createPayloads)
+      .toEqual([
+        {
+          mail_recipient: {
+            label: 'Night operations',
+            to: 'night-ops@example.test',
+          },
+        },
+      ]);
+    await expect
+      .poll(() => linkPayloads)
+      .toEqual([
+        {
+          recipient: { mail_recipient: 55 },
+        },
+      ]);
     await expect(modal).toBeVisible();
     await expect(modal).toContainText('recipient link rejected');
-    await expect(page.getByTestId('admin.mailer.templates.detail.recipients.modal.create.link_retry')).toContainText('#55');
+    await expect(page.getByTestId('admin.mailer.templates.detail.recipients.modal.create.link_retry')).toContainText(
+      '#55'
+    );
     await expect(label).toBeDisabled();
     await expect(to).toBeDisabled();
     await expect(createAndAdd).toContainText(/retry/i);
     await expect(page.getByTestId('admin.mailer.templates.detail.recipients.modal.create.reset')).toBeVisible();
+    await page
+      .getByTestId('admin.mailer.templates.detail.recipients.modal')
+      .screenshot({ path: testInfo.outputPath('mailer-recipient-partial-link.png') });
 
     await page.reload();
     await page.getByTestId('admin.mailer.templates.detail.recipients.add').click();
-    await expect(page.getByTestId('admin.mailer.templates.detail.recipients.modal.create.link_retry')).toContainText('#55');
+    await expect(page.getByTestId('admin.mailer.templates.detail.recipients.modal.create.link_retry')).toContainText(
+      '#55'
+    );
     await expect(label).toBeDisabled();
     await expect(to).toBeDisabled();
     expect(createPayloads).toHaveLength(1);
     expect(linkPayloads).toHaveLength(1);
 
     await createAndAdd.dblclick();
-    await expect.poll(() => linkPayloads).toEqual([
-      { recipient: { mail_recipient: 55 } },
-      { recipient: { mail_recipient: 55 } },
-    ]);
+    await expect
+      .poll(() => linkPayloads)
+      .toEqual([{ recipient: { mail_recipient: 55 } }, { recipient: { mail_recipient: 55 } }]);
     expect(createPayloads).toHaveLength(1);
     await expect(modal).toHaveCount(0);
     await expect(page.getByTestId('admin.mailer.templates.detail.recipients.table')).toContainText('Night operations');
-    await expect(page.getByTestId('admin.mailer.templates.detail.recipients.table')).toContainText('night-ops@example.test');
+    await expect(page.getByTestId('admin.mailer.templates.detail.recipients.table')).toContainText(
+      'night-ops@example.test'
+    );
   });
 
-  test('an uncertain recipient link is locked and never retried blindly', async ({ page }) => {
+  test('an uncertain recipient link is locked and never retried blindly', async ({ page }, testInfo) => {
     const state = { templates: [welcomeTemplate()] };
     let createCalls = 0;
     let linkCalls = 0;
@@ -733,12 +800,21 @@ test.describe('Admin mail template CRUD', () => {
     await page.getByTestId('admin.mailer.templates.detail.recipients.add').click();
     await page.getByTestId('admin.mailer.templates.detail.recipients.modal.mode.create').click();
     const createAndAdd = page.getByTestId('admin.mailer.templates.detail.recipients.modal.create');
-    await page.getByTestId('admin.mailer.templates.detail.recipients.modal.create.label').fill('Ambiguous link recipient');
-    await page.getByTestId('admin.mailer.templates.detail.recipients.modal.create.to').fill('ambiguous-link@example.test');
+    await page
+      .getByTestId('admin.mailer.templates.detail.recipients.modal.create.label')
+      .fill('Ambiguous link recipient');
+    await page
+      .getByTestId('admin.mailer.templates.detail.recipients.modal.create.to')
+      .fill('ambiguous-link@example.test');
     await createAndAdd.dblclick();
 
     await expect.poll(() => ({ createCalls, linkCalls })).toEqual({ createCalls: 1, linkCalls: 1 });
-    await expect(page.getByTestId('admin.mailer.templates.detail.recipients.modal.create.link_uncertain')).toContainText('#56');
+    await expect(
+      page.getByTestId('admin.mailer.templates.detail.recipients.modal.create.link_uncertain')
+    ).toContainText('#56');
+    await page
+      .getByTestId('admin.mailer.templates.detail.recipients.modal')
+      .screenshot({ path: testInfo.outputPath('mailer-recipient-unknown-link.png') });
     await expect(createAndAdd).toBeDisabled();
     await createAndAdd.evaluate((button) => (button as HTMLButtonElement).click());
     await page.waitForTimeout(200);
@@ -754,8 +830,12 @@ test.describe('Admin mail template CRUD', () => {
     expect(linkCalls).toBe(1);
 
     await page.getByTestId('admin.mailer.templates.detail.recipients.modal.create.link_uncertain.reviewed').click();
-    await expect(page.getByTestId('admin.mailer.templates.detail.recipients.modal.create.link_uncertain.reviewed.confirmation')).toBeVisible();
-    const confirmUnlock = page.getByTestId('admin.mailer.templates.detail.recipients.modal.create.link_uncertain.reviewed.confirm');
+    await expect(
+      page.getByTestId('admin.mailer.templates.detail.recipients.modal.create.link_uncertain.reviewed.confirmation')
+    ).toBeVisible();
+    const confirmUnlock = page.getByTestId(
+      'admin.mailer.templates.detail.recipients.modal.create.link_uncertain.reviewed.confirm'
+    );
     await expect(confirmUnlock).toBeFocused();
     await confirmUnlock.click();
     const existingMode = page.getByTestId('admin.mailer.templates.detail.recipients.modal.mode.existing');
@@ -847,8 +927,12 @@ test.describe('Admin mail template CRUD', () => {
     await expect(uncertain).toBeVisible();
 
     await page.getByTestId('admin.mailer.templates.detail.recipients.modal.create.uncertain.reviewed').click();
-    await expect(page.getByTestId('admin.mailer.templates.detail.recipients.modal.create.uncertain.reviewed.confirmation')).toBeVisible();
-    const confirmUnlock = page.getByTestId('admin.mailer.templates.detail.recipients.modal.create.uncertain.reviewed.confirm');
+    await expect(
+      page.getByTestId('admin.mailer.templates.detail.recipients.modal.create.uncertain.reviewed.confirmation')
+    ).toBeVisible();
+    const confirmUnlock = page.getByTestId(
+      'admin.mailer.templates.detail.recipients.modal.create.uncertain.reviewed.confirm'
+    );
     await expect(confirmUnlock).toBeFocused();
     await confirmUnlock.click();
     await expect(label).toBeEnabled();
@@ -858,5 +942,4 @@ test.describe('Admin mail template CRUD', () => {
     expect(createCalls).toBe(1);
     expect(linkCalls).toBe(0);
   });
-
 });

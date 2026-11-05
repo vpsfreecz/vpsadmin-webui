@@ -72,7 +72,9 @@ export function BackupCenterDownloadsList(props: {
                     >
                       {datasetLabel}
                     </div>
-                    <div className="mt-0.5 text-xs text-faint">#{dataset?.id ?? '—'}</div>
+                    {datasetLabel !== `#${dataset?.id ?? '—'}` ? (
+                      <div className="mt-0.5 text-xs text-faint">#{dataset?.id ?? '—'}</div>
+                    ) : null}
                   </div>
                   <div
                     className="shrink-0"
@@ -162,7 +164,9 @@ export function BackupCenterDownloadsList(props: {
                 <div className="font-medium">
                   {datasetLabel}
                 </div>
-                <div className="text-xs text-faint">#{dataset?.id ?? '—'}</div>
+                {datasetLabel !== `#${dataset?.id ?? '—'}` ? (
+                  <div className="text-xs text-faint">#{dataset?.id ?? '—'}</div>
+                ) : null}
               </td>
               <td className="px-3 py-2 text-muted">
                 {snapshotLabel}

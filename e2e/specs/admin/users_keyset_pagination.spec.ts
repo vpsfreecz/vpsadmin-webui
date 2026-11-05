@@ -1,8 +1,8 @@
 import { expect, test } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
+import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 
-test('admin users: keyset pagination (from_id)', async ({ page }) => {
+test('admin users: keyset pagination (from_id)', async ({ page, isMobile }) => {
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
 
   await installHaveApiMock(page, {
@@ -40,17 +40,19 @@ test('admin users: keyset pagination (from_id)', async ({ page }) => {
 
   await page.goto('/admin/users');
 
-  await expect(page.getByTestId('admin.users.row.125')).toBeVisible();
+  const userPrefix = isMobile ? 'admin.users.card' : 'admin.users.row';
+  const paginationVariant = isMobile ? 'mobile' : 'desktop';
+  await expect(page.getByTestId(`${userPrefix}.125`)).toBeVisible();
   await expect(page.getByTestId('admin.users.row.125')).toHaveAttribute('data-row-variant', 'danger');
-  await expect(page.getByTestId('admin.users.row.125.dot')).toBeVisible();
+  await expect(page.getByTestId(`${userPrefix}.125.dot`)).toBeVisible();
   await expect(page.getByTestId('admin.users.row.124')).toHaveAttribute('data-row-variant', 'warn');
-  await expect(page.getByTestId('admin.users.row.123.dot')).toBeVisible();
+  await expect(page.getByTestId(`${userPrefix}.123.dot`)).toBeVisible();
 
-  await page.getByTestId('admin.users.pagination.desktop.next').click();
-  await expect(page.getByTestId('admin.users.row.75')).toBeVisible();
+  await page.getByTestId(`admin.users.pagination.${paginationVariant}.next`).click();
+  await expect(page.getByTestId(`${userPrefix}.75`)).toBeVisible();
 
-  await page.getByTestId('admin.users.pagination.desktop.prev').click();
-  await expect(page.getByTestId('admin.users.row.125')).toBeVisible();
+  await page.getByTestId(`admin.users.pagination.${paginationVariant}.prev`).click();
+  await expect(page.getByTestId(`${userPrefix}.125`)).toBeVisible();
 });
 
 test('admin users: creates member with legacy payload fields and opens detail', async ({ page }) => {
@@ -109,7 +111,7 @@ test('admin users: creates member with legacy payload fields and opens detail', 
 
   await expect(page).toHaveURL(/\/admin\/users\/77$/);
   expect(posts.at(-1)).toEqual({
-    user: expect.objectContaining({
+    user: {
       login: 'new-member',
       password: 'secret123',
       full_name: 'New Member',
@@ -117,9 +119,8 @@ test('admin users: creates member with legacy payload fields and opens detail', 
       address: 'Main street',
       level: 2,
       info: 'Admin note',
-      monthly_payment: 300,
       mailer_enabled: true,
-    }),
+    },
   });
 });
 
@@ -136,4 +137,35 @@ test('admin users: normal user cannot open member management', async ({ page }) 
 
   await expect(page.getByTestId('auth.admin-required')).toBeVisible();
   await expect(page.getByTestId('admin.users.create.open')).toHaveCount(0);
+});
+
+test('@content-account-users-cs Users retains security rows and search scope cs', async ({ page }, info) => {
+  await setUiSettingsLocalStorage(page, { language: 'cs', theme: 'dark' });
+  await bootstrapVpsAdminWindow(page, { sessionToken: 'SYNTHETIC_ADMIN' });
+  await installHaveApiMock(page, {
+    user: { id: 1, login: 'operator', level: 100 },
+    handlers: {
+      'GET users': () => ({
+        users: [
+          {
+            id: 42,
+            login: 'alice',
+            level: 1,
+            full_name: 'Alice Example',
+            email: 'alice@example.test',
+            lockout: true,
+            password_reset: true,
+            enable_multi_factor_auth: false,
+            mailer_enabled: true,
+            created_at: '2025-01-01T00:00:00Z',
+            last_activity_at: '2026-02-18T10:00:00Z',
+          },
+        ],
+      }),
+    },
+  });
+  await page.goto('/admin/users');
+  const userPrefix = info.project.name === 'mobile-chrome' ? 'admin.users.card' : 'admin.users.row';
+  await expect(page.getByTestId(`${userPrefix}.42`)).toBeVisible();
+  await page.screenshot({ path: info.outputPath('users-normal-cs.png'), fullPage: true });
 });

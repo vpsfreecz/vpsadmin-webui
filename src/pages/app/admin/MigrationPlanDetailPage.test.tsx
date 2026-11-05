@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { createMigrationPlanVpsMigration, startMigrationPlan } from '../../../lib/api/migrations';
+import { createMigrationPlanVpsMigration, fetchMigrationPlanVpsMigrations, startMigrationPlan } from '../../../lib/api/migrations';
 import type { LocalLock } from '../../../lib/localLocks';
 import { preflightMigrationPlanNotBusy } from './adminPreflight';
 import { MigrationPlanDetailPageRoute } from './MigrationPlanDetailPageRoute';
@@ -24,7 +24,13 @@ vi.mock('../../../app/appMode', () => ({
 }));
 
 vi.mock('../../../app/i18n', () => ({
-  useI18n: () => ({ t: (key: string) => key }),
+  useI18n: () => ({
+    t: (key: string, values?: Record<string, unknown>) => {
+      if (key === 'admin.migration_plan.title') return `Migration plan #${values?.['id']}`;
+      if (key === 'admin.migration_plan.scheduled_migrations.on_this_page') return `On this page: ${values?.['count']}`;
+      return key;
+    },
+  }),
 }));
 
 vi.mock('../../../components/layout/ChromeContext', () => ({
@@ -53,7 +59,7 @@ vi.mock('../../../lib/api/migrations', async (importOriginal) => {
       data: { id: planId, state: 'staged' },
       meta: {},
     })),
-    fetchMigrationPlanVpsMigrations: vi.fn().mockResolvedValue({ data: [], meta: {} }),
+    fetchMigrationPlanVpsMigrations: vi.fn(),
     createMigrationPlanVpsMigration: vi.fn(),
     startMigrationPlan: vi.fn(),
     cancelMigrationPlan: vi.fn(),
@@ -76,6 +82,13 @@ vi.mock('./adminPreflight', () => ({
 const startMock = vi.mocked(startMigrationPlan);
 const scheduleMock = vi.mocked(createMigrationPlanVpsMigration);
 const preflightMock = vi.mocked(preflightMigrationPlanNotBusy);
+const migrationsMock = vi.mocked(fetchMigrationPlanVpsMigrations);
+const emptyMigrationPage: Awaited<ReturnType<typeof fetchMigrationPlanVpsMigrations>> = {
+  data: [],
+  meta: {},
+  envelope: { status: true, response: { vps_migrations: [] } },
+  httpStatus: 200,
+};
 
 describe('MigrationPlanDetailPage durable mutation snapshots', () => {
   beforeEach(() => {
@@ -83,8 +96,62 @@ describe('MigrationPlanDetailPage durable mutation snapshots', () => {
     testState.localLocks = [];
     testState.acquireLocalLock.mockResolvedValue({} as never);
     scheduleMock.mockReset();
+    migrationsMock.mockReset().mockResolvedValue(emptyMigrationPage);
     startMock.mockResolvedValue({ data: { id: 101 }, meta: { action_state_id: 601 } } as never);
     preflightMock.mockResolvedValue(undefined);
+  });
+
+  it('shows a page count only after success, keeps it during a cached refresh and removes it on failed refresh', async () => {
+    let resolveRead!: (value: Awaited<ReturnType<typeof fetchMigrationPlanVpsMigrations>>) => void;
+    migrationsMock.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolveRead = resolve;
+        })
+    );
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const router = createMemoryRouter(
+      [{ path: '/admin/migration-plans/:planId', element: <MigrationPlanDetailPageRoute /> }],
+      { initialEntries: ['/admin/migration-plans/101'] }
+    );
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
+    );
+
+    await screen.findByPlaceholderText('admin.migration_plan.migrations.schedule.vps_id_placeholder');
+    expect(screen.queryByText('admin.migration_plan.section.scheduled_migrations')).not.toBeInTheDocument();
+    expect(screen.getByText('admin.migration_plan.section.settings')).toBeVisible();
+
+    await act(async () => {
+      resolveRead(emptyMigrationPage);
+    });
+    expect(await screen.findByText('On this page: 0')).toBeVisible();
+
+    let rejectRead!: (reason: Error) => void;
+    migrationsMock.mockImplementationOnce(
+      () =>
+        new Promise((_resolve, reject) => {
+          rejectRead = reject;
+        })
+    );
+    let refresh!: Promise<void>;
+    act(() => {
+      refresh = queryClient.refetchQueries({ queryKey: ['migration_plans', 'vps_migrations'] });
+    });
+    expect(screen.getByText('On this page: 0')).toBeVisible();
+    await act(async () => {
+      rejectRead(new Error('page unavailable'));
+      await refresh;
+    });
+    await waitFor(() =>
+      expect(screen.queryByText('admin.migration_plan.section.scheduled_migrations')).not.toBeInTheDocument()
+    );
+    expect(screen.getByText('page unavailable')).toBeVisible();
+    expect(startMock).not.toHaveBeenCalled();
+    expect(scheduleMock).not.toHaveBeenCalled();
   });
 
   it('keeps the submitted plan and exact lock while onMutate awaits across a route rerender', async () => {
@@ -121,7 +188,7 @@ describe('MigrationPlanDetailPage durable mutation snapshots', () => {
       await router.navigate('/admin/migration-plans/202');
     });
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    await waitFor(() => expect(screen.getByText('#202')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByRole('heading', { name: 'Migration plan #202' })).toBeInTheDocument());
 
     await act(async () => {
       resolveAcquire?.(generation);

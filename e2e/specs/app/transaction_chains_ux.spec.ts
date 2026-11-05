@@ -2,14 +2,7 @@ import { expect, test } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 
-function chain(
-  id: number,
-  state: string,
-  label: string,
-  progress: number,
-  size: number,
-  vpsId: number,
-) {
+function chain(id: number, state: string, label: string, progress: number, size: number, vpsId: number) {
   return {
     id,
     state,
@@ -22,7 +15,9 @@ function chain(
   };
 }
 
-test('@pr-smoke @pr-smoke-mobile transaction chains prioritize active and failed work without tinting completed rows', async ({ page }, testInfo) => {
+test('@pr-smoke @pr-smoke-mobile transaction chains prioritize active and failed work without tinting completed rows', async ({
+  page,
+}, testInfo) => {
   const chains = [
     chain(9_104, 'done', 'Update', 2, 2, 30_398),
     chain(9_103, 'queued', 'Snapshot', 1, 4, 30_399),
@@ -40,10 +35,11 @@ test('@pr-smoke @pr-smoke-mobile transaction chains prioritize active and failed
 
   await page.goto('/admin/transactions');
 
-  await expect(page.getByTestId('transactions.page_summary')).toBeVisible();
-  await expect(page.getByTestId('transactions.page_summary.failed')).toContainText('1');
-  await expect(page.getByTestId('transactions.page_summary.active')).toContainText('1');
-  await expect(page.getByTestId('transactions.page_summary.finished')).toContainText('2');
+  await expect(page.getByTestId('transactions.page_summary')).toHaveCount(0);
+  await expect(page.getByTestId(/^transactions\.row\.\d+$/)).toHaveCount(4);
+  const resolvedRow = page.getByTestId('transactions.row.9101');
+  await expect(resolvedRow).toBeVisible();
+  await expect(resolvedRow).not.toHaveAttribute('data-row-variant');
 
   const completedRow = page.getByTestId('transactions.row.9104');
   const activeRow = page.getByTestId('transactions.row.9103');
@@ -83,10 +79,13 @@ test('@pr-smoke @pr-smoke-mobile transaction chains prioritize active and failed
 });
 
 for (const language of ['cs', 'en'] as const) {
-  test(`@pr-smoke @pr-smoke-mobile ${language} uses API operation names in transaction rows, detail and Tasks`, async ({ page }) => {
-    const names = language === 'cs'
-      ? ['Heslo', 'Alert', 'OOM reporty', 'Připsání', 'Změna stavu', 'Zcela nová operace']
-      : ['Password', 'Alert', 'OOM reports', 'Credit', 'State change', 'A new backend operation'];
+  test(`@pr-smoke @pr-smoke-mobile ${language} uses API operation names in transaction rows, detail and Tasks`, async ({
+    page,
+  }) => {
+    const names =
+      language === 'cs'
+        ? ['Heslo', 'Alert', 'OOM reporty', 'Připsání', 'Změna stavu', 'Zcela nová operace']
+        : ['Password', 'Alert', 'OOM reports', 'Credit', 'State change', 'A new backend operation'];
     const classes = ['Vps', 'Dataset', 'System', 'UserPayment', 'User', 'Vps'];
     const chains = names.map((name, i) => ({
       ...chain(9206 - i, i === 0 ? 'queued' : 'done', name, i === 0 ? 1 : 2, 2, 30100 + i),
@@ -107,7 +106,9 @@ for (const language of ['cs', 'en'] as const) {
       const row = page.getByTestId(`transactions.row.${9206 - i}`);
       await expect(row.getByRole('link', { name, exact: true })).toBeVisible();
       await expect(row).not.toContainText(language === 'cs' ? 'Backend název:' : 'Backend name:');
-      await expect(row.getByRole('link', { name: language === 'cs' ? 'Operace' : 'Operation', exact: true })).toHaveCount(0);
+      await expect(
+        row.getByRole('link', { name: language === 'cs' ? 'Operace' : 'Operation', exact: true })
+      ).toHaveCount(0);
     }
     const dimensions = await page.evaluate(() => ({
       width: document.documentElement.clientWidth,
@@ -119,6 +120,8 @@ for (const language of ['cs', 'en'] as const) {
     await expect(page.getByRole('heading', { name: names[0], exact: true })).toBeVisible();
     await page.getByTestId('tasks.open-button').click();
     await expect(page.getByTestId('tasks.chain.open.9206')).toHaveText(names[0] ?? '');
-    await expect(page.getByTestId('tasks.chain.row.9206')).not.toContainText(language === 'cs' ? 'Backend název:' : 'Backend name:');
+    await expect(page.getByTestId('tasks.chain.row.9206')).not.toContainText(
+      language === 'cs' ? 'Backend název:' : 'Backend name:'
+    );
   });
 }

@@ -151,7 +151,6 @@ export function MailTemplateDetailPage() {
       }
       const message = formatErrorMessage(error);
       setTemplateEditorError(message);
-      pushToast({ variant: 'danger', title: t('mailer.templates.update.error'), body: message });
     },
   });
 
@@ -545,7 +544,6 @@ export function MailTemplateDetailPage() {
             <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
               <div>
                 <div className="text-sm font-semibold">{t('mailer.templates.detail.translations.title')}</div>
-                <div className="text-xs text-muted">{t('mailer.templates.detail.translations.subtitle')}</div>
               </div>
               <Button
                 variant="secondary"

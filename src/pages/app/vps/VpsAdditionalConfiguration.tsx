@@ -85,9 +85,6 @@ export function VpsAdditionalConfiguration({
       <div className="space-y-4 p-4 pt-0">
         <VpsConfigSectionCard
           title={t(canEditAdminConfig ? 'vps.config.section.identity_admin' : 'vps.config.section.identity')}
-          subtitle={t(
-            canEditAdminConfig ? 'vps.config.section.identity_help_admin' : 'vps.config.section.identity_help'
-          )}
           risks={['safe']}
           bodyClassName="grid gap-4 md:grid-cols-2"
         >
@@ -129,7 +126,6 @@ export function VpsAdditionalConfiguration({
         >
           <VpsConfigSectionCard
             title={t('vps.config.section.resolvers')}
-            subtitle={t('vps.config.section.resolvers_help')}
             risks={['network']}
             bodyClassName="grid gap-4 md:grid-cols-2"
           >
@@ -219,7 +215,6 @@ export function VpsAdditionalConfiguration({
 
         <VpsConfigSectionCard
           title={t('vps.config.section.boot')}
-          subtitle={t(canEditAdminConfig ? 'vps.config.section.boot_help' : 'vps.config.section.boot_help_user')}
           risks={['boot', 'requires_restart']}
           bodyClassName={canEditAdminConfig ? 'grid gap-4 md:grid-cols-2' : 'grid gap-4 md:grid-cols-1'}
         >

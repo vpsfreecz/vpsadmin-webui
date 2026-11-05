@@ -7,6 +7,6 @@ export const csAdminCluster_resource_package_detail = {
   "admin.cluster.resource_package_detail.personal.title": "Osobní balíček",
   "admin.cluster.resource_package_detail.stat.assigned": "Přiřazeno",
   "admin.cluster.resource_package_detail.stat.items": "Položky",
-  "admin.cluster.resource_package_detail.warning.body": "Balíček je aktuálně přiřazen {{count}} uživatelům. Úpravy se projeví u všech.",
+  "admin.cluster.resource_package_detail.warning.body": "Balíček je aktuálně přiřazen {count} uživatelům. Úpravy se projeví u všech.",
   "admin.cluster.resource_package_detail.warning.title": "Změny s velkým dopadem",
 } as const;

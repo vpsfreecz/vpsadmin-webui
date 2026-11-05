@@ -49,7 +49,13 @@ function isDismissed(value: unknown): boolean {
     return isDismissed((value as any).decision);
   }
 
-  return value === true || value === 'true' || value === 'dismissed' || value === 'server_default' || value === 'used_browser';
+  return (
+    value === true ||
+    value === 'true' ||
+    value === 'dismissed' ||
+    value === 'server_default' ||
+    value === 'used_browser'
+  );
 }
 
 export function SidebarTips() {
@@ -69,7 +75,10 @@ export function SidebarTips() {
 
   const dismissedQ = useQuery({
     queryKey: ['webui_user_settings', TIP_NAMESPACE, TIME_ZONE_TIP_KEY],
-    queryFn: () => fetchWebuiUserSetting(TIP_NAMESPACE, TIME_ZONE_TIP_KEY),
+    queryFn: async () => {
+      const value = await fetchWebuiUserSetting(TIP_NAMESPACE, TIME_ZONE_TIP_KEY);
+      return value === undefined ? null : value;
+    },
     enabled: canSuggestTimeZone,
     retry: false,
     staleTime: 60_000,

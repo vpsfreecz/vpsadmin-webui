@@ -97,9 +97,9 @@ test.describe('@workflow-matrix @pr-smoke VPS create admin flow', () => {
     await page.route(/\/api\/v7\.0\/vpses$/, async (route) => {
       if (route.request().method() === 'POST') {
         receiptAtRequest = await page.evaluate(() => {
-          const key = Object.keys(localStorage).find((item) => (
+          const key = Object.keys(localStorage).find((item) =>
             item.startsWith('webui-next.vps-create-outcome-uncertain')
-          ));
+          );
           return key ? JSON.parse(localStorage.getItem(key) ?? 'null') : null;
         });
       }
@@ -113,11 +113,14 @@ test.describe('@workflow-matrix @pr-smoke VPS create admin flow', () => {
       const locks = navigator.locks as any;
       const original = locks.request.bind(locks);
       let release!: () => void;
-      const gate = new Promise<void>((resolve) => { release = resolve; });
+      const gate = new Promise<void>((resolve) => {
+        release = resolve;
+      });
       (window as any).__releaseCreateGuard = release;
-      locks.request = (name: string, ...args: any[]) => (
-        name.includes('vps-create-outcome-uncertain') ? gate.then(() => original(name, ...args)) : original(name, ...args)
-      );
+      locks.request = (name: string, ...args: any[]) =>
+        name.includes('vps-create-outcome-uncertain')
+          ? gate.then(() => original(name, ...args))
+          : original(name, ...args);
     });
 
     await page.getByTestId('vps.create.submit').click();
@@ -127,13 +130,19 @@ test.describe('@workflow-matrix @pr-smoke VPS create admin flow', () => {
 
     expect(createBodies).toHaveLength(1);
     expect(createBodies[0].vps.hostname).toBe('snapshot-a.example');
-    expect(receiptAtRequest).toEqual(expect.objectContaining({
-      phase: 'pending',
-      identity: expect.objectContaining({ hostname: 'snapshot-a.example', ownerId: 2, locationId: 2 }),
-    }));
-    await expect.poll(() => page.evaluate(() => Object.keys(localStorage).filter((key) => (
-      key.startsWith('webui-next.vps-create-outcome-uncertain')
-    )))).toEqual([]);
+    expect(receiptAtRequest).toEqual(
+      expect.objectContaining({
+        phase: 'pending',
+        identity: expect.objectContaining({ hostname: 'snapshot-a.example', ownerId: 2, locationId: 2 }),
+      })
+    );
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          Object.keys(localStorage).filter((key) => key.startsWith('webui-next.vps-create-outcome-uncertain'))
+        )
+      )
+      .toEqual([]);
   });
 
   test('keeps an admin in user-scope create flow on app route', async ({ page }) => {
@@ -378,7 +387,7 @@ test.describe('@workflow-matrix @pr-smoke VPS create admin flow', () => {
       };
       localStorage.setItem(
         'webui-next.vps-create-outcome-uncertain.user-1.generation-recovered-admin-receipt',
-        JSON.stringify(marker),
+        JSON.stringify(marker)
       );
     });
     await page.reload();
@@ -429,7 +438,9 @@ for (const mode of ['member', 'admin'] as const) {
     { name: 'whitespace', value: '   ', expected: 'VPS' },
     { name: 'custom', value: '  My-VPS.example  ', expected: 'My-VPS.example' },
   ]) {
-    test(`@pr-smoke @pr-smoke-mobile ${mode} creation uses ${scenario.name} hostname consistently`, async ({ page }, testInfo) => {
+    test(`@pr-smoke @pr-smoke-mobile ${mode} creation uses ${scenario.name} hostname consistently`, async ({
+      page,
+    }, testInfo) => {
       await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST_HOSTNAME' });
       let sentHostname: unknown;
       let receiptHostname: unknown;
@@ -440,10 +451,15 @@ for (const mode of ['member', 'admin'] as const) {
           'POST vpses': async ({ reqJson }) => {
             sentHostname = (reqJson as { vps: { hostname: string } }).vps.hostname;
             receiptHostname = await page.evaluate(() => {
-              const key = Object.keys(localStorage).find((item) => item.startsWith('webui-next.vps-create-outcome-uncertain'));
+              const key = Object.keys(localStorage).find((item) =>
+                item.startsWith('webui-next.vps-create-outcome-uncertain')
+              );
               return key ? JSON.parse(localStorage.getItem(key)!).identity.hostname : null;
             });
-            return { status: true, response: { vps: { id: 150, hostname: scenario.expected }, _meta: { action_state_id: 42 } } };
+            return {
+              status: true,
+              response: { vps: { id: 150, hostname: scenario.expected }, _meta: { action_state_id: 42 } },
+            };
           },
         },
       });
@@ -464,6 +480,21 @@ for (const mode of ['member', 'admin'] as const) {
       await expect(page.getByTestId('vps.create.review.hostname')).toContainText(scenario.expected);
       await expect(page.getByTestId('vps.create.submit')).toHaveText('Create VPS');
       if (mode === 'admin' && scenario.name === 'default') {
+        const accessHelp = page.getByTestId('vps.create.access_hint');
+        await accessHelp.locator('summary').click();
+        await expect(
+          accessHelp.getByText('Use the Access page to deploy a public key once the VPS is created.', { exact: true })
+        ).toBeVisible();
+        await expect(
+          accessHelp.getByText('Generate or reset it only when SSH key access is not enough.', { exact: true })
+        ).toBeVisible();
+        await expect(
+          accessHelp.getByText('Host fingerprints are shown after the VPS has booted and reported them.', {
+            exact: true,
+          })
+        ).toBeVisible();
+        await page.screenshot({ path: testInfo.outputPath('creation-access-help.png'), fullPage: true, scale: 'css' });
+        await accessHelp.locator('summary').click();
         await page.screenshot({ path: testInfo.outputPath('hostname-default.png'), fullPage: true, scale: 'css' });
       }
       await page.getByTestId('vps.create.submit').click();

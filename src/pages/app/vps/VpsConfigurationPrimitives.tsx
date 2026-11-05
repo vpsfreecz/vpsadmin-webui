@@ -83,9 +83,12 @@ function riskVariant(risk: VpsConfigRisk): React.ComponentProps<typeof Badge>['v
 
 export function VpsConfigRiskBadges(props: { risks: readonly VpsConfigRisk[]; className?: string }) {
   const { t } = useI18n();
+  const risks = props.risks.filter((risk) => risk !== 'safe');
+  if (risks.length === 0) return null;
+
   return (
     <div className={clsx('flex flex-wrap gap-1', props.className)}>
-      {props.risks.map((risk) => (
+      {risks.map((risk) => (
         <Badge key={risk} variant={riskVariant(risk)}>
           {t(`vps.config.risk.${risk}`)}
         </Badge>

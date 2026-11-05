@@ -29,7 +29,7 @@ export function TransactionInlineDetails(props: {
 }) {
   const { tx, t, basePath } = props;
   const row = tx as any;
-  const badge = transactionBadge(tx);
+  const badge = transactionBadge(tx, t);
   const operation = classifyTransaction(tx);
   const operationName = operationLabel(operation, t);
   const rawName = tx.name ? String(tx.name) : '';
@@ -67,8 +67,12 @@ export function TransactionInlineDetails(props: {
               <span className="block">{operationName}</span>
               <span className="flex flex-wrap gap-1">
                 <Badge variant={operationBadgeVariant(operation)}>{operationCategoryLabel(operation, t)}</Badge>
-                {operation.severity !== 'normal' ? <Badge variant={operationBadgeVariant(operation)}>{operationSeverityLabel(operation, t)}</Badge> : null}
-                {operation.visibility !== 'user' ? <Badge variant={operationBadgeVariant(operation)}>{operationVisibilityLabel(operation, t)}</Badge> : null}
+                {operation.severity !== 'normal' ? (
+                  <Badge variant={operationBadgeVariant(operation)}>{operationSeverityLabel(operation, t)}</Badge>
+                ) : null}
+                {operation.visibility !== 'user' ? (
+                  <Badge variant={operationBadgeVariant(operation)}>{operationVisibilityLabel(operation, t)}</Badge>
+                ) : null}
               </span>
               {rawName && rawName !== operationName ? (
                 <span className="block text-xs text-faint">{t('operation.raw_name', { name: rawName })}</span>
@@ -87,7 +91,10 @@ export function TransactionInlineDetails(props: {
         <Meta label={t('transactions.tx.queued_at_label')} value={formatDateTime(created)} />
         <Meta label={t('common.started')} value={formatDateTime(started)} />
         <Meta label={t('common.finished')} value={formatDateTime(finished)} />
-        <Meta label={t('transactions.tx.duration_label')} value={sec !== null ? t('transactions.tx.duration', { sec }) : t('common.na')} />
+        <Meta
+          label={t('transactions.tx.duration_label')}
+          value={sec !== null ? t('transactions.tx.duration', { sec }) : t('common.na')}
+        />
         <Meta
           label={t('common.chain')}
           value={

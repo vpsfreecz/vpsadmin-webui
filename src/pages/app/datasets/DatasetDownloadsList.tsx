@@ -113,9 +113,11 @@ export function DatasetDownloadsList(props: {
                               id: download.id,
                             })}
                       </div>
-                      <div className="mt-0.5 text-xs text-faint">
-                        #{download.id}
-                      </div>
+                      {download.file_name ? (
+                        <div className="mt-0.5 text-xs text-faint">
+                          #{download.id}
+                        </div>
+                      ) : null}
                       <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-faint">
                         <DatasetDownloadStateBadge status={status} t={t} />
                         <span>{formatLabel(download.format, t)}</span>
@@ -134,12 +136,14 @@ export function DatasetDownloadsList(props: {
                           </span>
                         ) : null}
                       </div>
-                      <div
-                        className="mt-1 text-xs text-muted"
-                        data-testid={`dataset.downloads.card.${download.id}.status_detail`}
-                      >
-                        {statusText}
-                      </div>
+                      {status !== "ready" ? (
+                        <div
+                          className="mt-1 text-xs text-muted"
+                          data-testid={`dataset.downloads.card.${download.id}.status_detail`}
+                        >
+                          {statusText}
+                        </div>
+                      ) : null}
                       {expiration ? (
                         <div className="mt-1 text-xs text-faint">
                           {t("dataset.downloads.expires_at", {
@@ -288,9 +292,11 @@ export function DatasetDownloadsList(props: {
                                 id: download.id,
                               })}
                         </div>
-                        <div className="mt-1 text-xs text-faint">
-                          #{download.id}
-                        </div>
+                        {download.file_name ? (
+                          <div className="mt-1 text-xs text-faint">
+                            #{download.id}
+                          </div>
+                        ) : null}
                         {Number.isFinite(snapId) ? (
                           <div className="mt-1 text-xs text-faint">
                             {t("dataset.downloads.snapshot_ref", {
@@ -327,12 +333,14 @@ export function DatasetDownloadsList(props: {
                       <td className="py-2 pr-3">
                         <div className="space-y-1">
                           <DatasetDownloadStateBadge status={status} t={t} />
-                          <div
-                            className="max-w-xs text-xs text-muted"
-                            data-testid={`dataset.downloads.row.${download.id}.status_detail`}
-                          >
-                            {statusText}
-                          </div>
+                          {status !== "ready" ? (
+                            <div
+                              className="max-w-xs text-xs text-muted"
+                              data-testid={`dataset.downloads.row.${download.id}.status_detail`}
+                            >
+                              {statusText}
+                            </div>
+                          ) : null}
                         </div>
                       </td>
                       <td className="py-2 pr-3">

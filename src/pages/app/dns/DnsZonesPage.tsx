@@ -17,7 +17,6 @@ import {
   tokenizeSmartInput,
   unquoteSmartValue,
 } from '../../../lib/smartFilter';
-import { dotVariantFromBadgeVariant, dotVariantFromRowVariant } from '../../../lib/variantMap';
 
 import { FilterBar } from '../../../components/layout/FilterBar';
 import { ListShell } from '../../../components/layout/ListShell';
@@ -39,7 +38,6 @@ import { LoadingState } from '../../../components/ui/LoadingState';
 import { Select } from '../../../components/ui/Select';
 import { SmartFilterInput, type SmartFilterSuggestion } from '../../../components/ui/SmartFilterInput';
 import { SmartInputHelp } from '../../../components/ui/SmartInputHelp';
-import { StatusDot } from '../../../components/ui/StatusDot';
 import { TableCard } from '../../../components/ui/TableCard';
 import { TableRowLink } from '../../../components/ui/TableRowLink';
 import { UserLookupInput } from '../../../components/ui/UserLookupInput';
@@ -92,11 +90,6 @@ export function DnsZonesPage() {
   function zoneRowVariant(zone: DnsZone) {
     if (zone.enabled === false) return 'warn' as const;
     return undefined;
-  }
-
-  function zoneDotVariant(zone: DnsZone) {
-    const rowVariant = zoneRowVariant(zone);
-    return dotVariantFromRowVariant(rowVariant) ?? dotVariantFromBadgeVariant(zone.enabled === true ? 'ok' : zone.enabled === false ? 'warn' : 'neutral');
   }
 
   // Active filters from URL
@@ -646,7 +639,6 @@ export function DnsZonesPage() {
         <PageHeader
           testId="dns.zones.list.header"
           title={t('dns.zones.page.title')}
-          description={t('dns.zones.page.description')}
           meta={filtersActive ? t('list.meta.filters_active') : undefined}
           actions={
             <div className="flex items-center gap-2">
@@ -767,18 +759,14 @@ export function DnsZonesPage() {
               />
             ) : rows.map((z) => {
               const rowVariant = zoneRowVariant(z);
-              const dotVariant = zoneDotVariant(z);
               return (
                 <Card key={z.id} testId={`dns.zones.card.${z.id}`} className={toneSurfaceClass(rowVariant)}>
                   <Link className="block p-4" to={`${basePath}/dns/zones/${z.id}`}>
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <StatusDot variant={dotVariant} testId={`dns.zones.card.${z.id}.dot`} />
-                          <span className="block truncate text-base font-semibold text-accent">
-                            {zoneName(z)}
-                          </span>
-                        </div>
+                        <span className="block truncate text-base font-semibold text-accent">
+                          {zoneName(z)}
+                        </span>
                         <div className="mt-0.5 text-xs text-faint">#{z.id}</div>
                       </div>
                       <div className="flex flex-col items-end gap-1">
@@ -842,7 +830,6 @@ export function DnsZonesPage() {
           >
             <thead>
               <tr className="border-b border-border text-left text-xs text-muted">
-                <th className="w-8 px-3 py-2"><span className="sr-only">{t('common.state')}</span></th>
                 <th className="px-3 py-2">{t('dns.zones.table.name')}</th>
                 <th className="px-3 py-2">{t('dns.zones.table.role')}</th>
                 <th className="px-3 py-2">{t('dns.zones.table.status')}</th>
@@ -854,13 +841,12 @@ export function DnsZonesPage() {
             <tbody>
               {rows.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-3 py-10 text-center text-sm text-muted">
+                  <td colSpan={6} className="px-3 py-10 text-center text-sm text-muted">
                     {t('empty.list.no_matches.title')}
                   </td>
                 </tr>
               ) : rows.map((z) => {
                 const rowVariant = zoneRowVariant(z);
-                const dotVariant = zoneDotVariant(z);
                 return (
                   <TableRowLink
                     key={z.id}
@@ -869,9 +855,6 @@ export function DnsZonesPage() {
                     variant={rowVariant}
                     className="border-b border-border/60 last:border-b-0"
                   >
-                  <td className="px-3 py-2 align-top">
-                    <StatusDot variant={dotVariant} testId={`dns.zones.row.${z.id}.dot`} />
-                  </td>
                   <td className="px-3 py-2">
                     <Link to={`${basePath}/dns/zones/${z.id}`} className="font-medium text-accent hover:underline">
                       {zoneName(z)}

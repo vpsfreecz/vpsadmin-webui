@@ -19,7 +19,7 @@ const vps = {
   loadavg5: 0.18,
   node: { id: 1, domain_name: 'node1.example' },
   os_template: { label: 'debian' },
-  dns_resolver: 'inherit',
+  dns_resolver: null,
 };
 
 const statuses = [
@@ -104,6 +104,5 @@ test.describe('VPS overview metrics charts', () => {
 
     // The heavier history request is deferred until the user asks for charts.
     expect(statusesCalls).toBeGreaterThan(0);
-
   });
 });

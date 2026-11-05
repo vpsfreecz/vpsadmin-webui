@@ -10,7 +10,9 @@ function rejected(message: string) {
   };
 }
 
-test('@pr-smoke @pr-smoke-mobile DNS transfer deletion failure stays in context and allows retry', async ({ page }) => {
+test('@pr-smoke @pr-smoke-mobile DNS transfer deletion failure stays in context and allows retry', async ({
+  page,
+}, testInfo) => {
   let deleteCalls = 0;
   await bootstrapVpsAdminWindow(page);
   await installHaveApiMock(page, {
@@ -27,13 +29,15 @@ test('@pr-smoke @pr-smoke-mobile DNS transfer deletion failure stays in context 
       }),
       'GET transaction_chains': () => ({ transaction_chains: [] }),
       'GET dns_zone_transfers': () => ({
-        dns_zone_transfers: [{
-          id: 501,
-          dns_zone: { id: 42 },
-          host_ip_address: { id: 11, ip_address: { ip_addr: '203.0.113.10' } },
-          peer_type: 'primary_type',
-          dns_tsig_key: null,
-        }],
+        dns_zone_transfers: [
+          {
+            id: 501,
+            dns_zone: { id: 42 },
+            host_ip_address: { id: 11, ip_address: { ip_addr: '203.0.113.10' } },
+            peer_type: 'primary_type',
+            dns_tsig_key: null,
+          },
+        ],
       }),
       'GET dns_tsig_keys': () => ({ dns_tsig_keys: [] }),
       'GET dns_record_logs': () => ({ dns_record_logs: [] }),
@@ -48,8 +52,17 @@ test('@pr-smoke @pr-smoke-mobile DNS transfer deletion failure stays in context 
 
   await page.goto('/app/dns/zones/42/transfers');
 
+  const transfer = page.locator(
+    '[data-testid="dns.transfers.row.501"]:visible, [data-testid="dns.transfers.card.501"]:visible'
+  );
+  await transfer.locator('summary').click();
+  await expect(transfer.locator('pre')).toHaveText(
+    ['server 203.0.113.10 {', '  # no TSIG key configured', '};'].join('\n')
+  );
+  await transfer.screenshot({ path: testInfo.outputPath('dns-transfer-config.png') });
+
   const deleteAction = page.locator(
-    '[data-testid="dns.transfers.row.501.delete"]:visible, [data-testid="dns.transfers.card.501.delete"]:visible',
+    '[data-testid="dns.transfers.row.501.delete"]:visible, [data-testid="dns.transfers.card.501.delete"]:visible'
   );
   await deleteAction.click();
   const dialog = page.getByTestId('dns.transfers.delete');
@@ -58,6 +71,7 @@ test('@pr-smoke @pr-smoke-mobile DNS transfer deletion failure stays in context 
   await expect(dialog.getByTestId('dns.transfers.delete.error')).toContainText('Transfer peer is still in use');
   await expect(dialog).toContainText('203.0.113.10');
   await expect(dialog).toBeVisible();
+  await dialog.screenshot({ path: testInfo.outputPath('dns-transfer-delete-rejected.png') });
 
   await dialog.getByTestId('dns.transfers.delete.confirm').click();
 
@@ -65,7 +79,9 @@ test('@pr-smoke @pr-smoke-mobile DNS transfer deletion failure stays in context 
   expect(deleteCalls).toBe(2);
 });
 
-test('@pr-smoke @pr-smoke-mobile DNS server relation deletion failure stays in context and allows retry', async ({ page }) => {
+test('@pr-smoke @pr-smoke-mobile DNS server relation deletion failure stays in context and allows retry', async ({
+  page,
+}, testInfo) => {
   let deleteCalls = 0;
   await bootstrapVpsAdminWindow(page);
   await installHaveApiMock(page, {
@@ -83,12 +99,14 @@ test('@pr-smoke @pr-smoke-mobile DNS server relation deletion failure stays in c
       'GET transaction_chains': () => ({ transaction_chains: [] }),
       'GET dns_record_logs': () => ({ dns_record_logs: [] }),
       'GET dns_server_zones': () => ({
-        dns_server_zones: [{
-          id: 601,
-          dns_server: { id: 5, name: 'ns1.example.test' },
-          type: 'primary_type',
-          serial: 1234,
-        }],
+        dns_server_zones: [
+          {
+            id: 601,
+            dns_server: { id: 5, name: 'ns1.example.test' },
+            type: 'primary_type',
+            serial: 1234,
+          },
+        ],
       }),
       'GET dns_servers': () => ({ dns_servers: [{ id: 5, name: 'ns1.example.test' }] }),
       'DELETE dns_server_zones/601': () => {
@@ -103,17 +121,18 @@ test('@pr-smoke @pr-smoke-mobile DNS server relation deletion failure stays in c
   await page.goto('/admin/dns/zones/42/servers');
 
   const deleteAction = page.locator(
-    '[data-testid="dns.servers.row.601.delete"]:visible, [data-testid="dns.servers.card.601.delete"]:visible',
+    '[data-testid="dns.servers.row.601.delete"]:visible, [data-testid="dns.servers.card.601.delete"]:visible'
   );
   await deleteAction.click();
   const dialog = page.getByTestId('dns.servers.delete');
   await dialog.getByTestId('dns.servers.delete.confirm').click();
 
   await expect(dialog.getByTestId('dns.servers.delete.error')).toContainText(
-    'DNS server relation changed on the server',
+    'DNS server relation changed on the server'
   );
   await expect(dialog).toContainText('ns1.example.test');
   await expect(dialog).toBeVisible();
+  await dialog.screenshot({ path: testInfo.outputPath('dns-server-relation-delete-rejected.png') });
 
   await dialog.getByTestId('dns.servers.delete.confirm').click();
 

@@ -464,7 +464,7 @@ export function AuditPage() {
   return (
     <ListShell
       testId="admin.audit.page"
-      header={<PageHeader title={t('audit.title')} description={t('audit.subtitle')} />}
+      header={<PageHeader title={t('audit.title')} />}
       filters={
         <>
           <FilterBar testId="admin.audit.filters">

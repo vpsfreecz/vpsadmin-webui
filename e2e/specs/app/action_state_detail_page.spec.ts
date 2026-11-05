@@ -1,10 +1,10 @@
 import { expect, test } from '@playwright/test';
 import type { Transaction__IndexOutput } from 'vpsadmin-typescript-client';
 
-import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
+import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 
 test.describe('@workflow-matrix @smoke Action state detail page', () => {
-  test('Renders header + cancel dialog and calls cancel endpoint', async ({ page }) => {
+  test('Renders header + cancel dialog and calls cancel endpoint', async ({ page }, testInfo) => {
     await bootstrapVpsAdminWindow(page, {
       sessionToken: 'TEST_TOKEN',
     });
@@ -24,14 +24,17 @@ test.describe('@workflow-matrix @smoke Action state detail page', () => {
     });
 
     let cancelCalled = false;
+    let cancelAttempts = 0;
 
     await installHaveApiMock(page, {
       user: { id: 1, login: 'test', level: 1 },
       handlers: {
         'GET action_states/123': () => ({ action_state: makeAction(123) }),
         'POST action_states/123/cancel': () => {
+          cancelAttempts++;
+          if (cancelAttempts === 1) return { status: false, message: 'Synthetic cancel rejected for Action 123' };
           cancelCalled = true;
-          return {};
+          return { action_state: {} };
         },
       },
     });
@@ -44,6 +47,7 @@ test.describe('@workflow-matrix @smoke Action state detail page', () => {
     // Primary controls
     await expect(page.getByTestId('action_state.detail.refresh')).toBeVisible();
     await expect(page.getByTestId('action_state.detail.open_tasks')).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath('action-running-top-en.png') });
 
     // Cancel flow
     await page.getByTestId('action_state.detail.cancel').click();
@@ -51,7 +55,24 @@ test.describe('@workflow-matrix @smoke Action state detail page', () => {
 
     await page.getByTestId('tasks.cancel_dialog.confirm').click();
 
+    const dialog = page.getByTestId('tasks.cancel_dialog');
+    await expect(dialog).toContainText('Action 123');
+    await expect(dialog.getByText('Synthetic cancel rejected for Action 123', { exact: true })).toContainText(
+      'Synthetic cancel rejected for Action 123'
+    );
+    expect(cancelAttempts).toBe(1);
+    expect(cancelCalled).toBe(false);
+    await page.screenshot({ path: testInfo.outputPath('action-cancel-rejected-en.png') });
+    await page.getByTestId('tasks.cancel_dialog.confirm').click();
+
     await expect.poll(() => cancelCalled).toBe(true);
+    await expect(dialog).toHaveCount(0);
+    expect(cancelAttempts).toBe(2);
+    await page.screenshot({ path: testInfo.outputPath('action-cancel-retried-en.png') });
+    await testInfo.attach('cancel-attempts', {
+      body: JSON.stringify({ target: 123, cancelAttempts, cancelCalled }),
+      contentType: 'application/json',
+    });
   });
 
   for (const roleCase of [
@@ -219,4 +240,87 @@ test.describe('@workflow-matrix @smoke Action state detail page', () => {
     await expect(page.getByTestId('action_state.detail')).toBeVisible();
     await expect(page.getByTestId('action_state.detail.transactions.table')).toContainText('Create dataset');
   });
+});
+
+// One selected-UI locale checkpoint; API operation names remain authoritative.
+test('@o2-detail-cs completed action retains related payload and backend facts', async ({ page }, testInfo) => {
+  await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST_TOKEN' });
+  await setUiSettingsLocalStorage(page, { language: 'cs', theme: 'dark' });
+  const action = {
+    id: 123,
+    label: 'Create VPS',
+    status: true,
+    finished: true,
+    current: 2,
+    total: 2,
+    created_at: '2026-01-26T00:00:00.000Z',
+    updated_at: '2026-01-26T00:10:00.000Z',
+    transaction_chain: { id: 456, label: 'Create chain' },
+  };
+  const input = JSON.stringify({ dataset: 'tank/ct/vps12' });
+  const output = JSON.stringify({ ok: true, mounted: true });
+  const transaction = {
+    id: 7001,
+    name: 'Create dataset',
+    done: 'done',
+    success: 1,
+    node: { id: 2, name: 'node2' },
+    vps: { id: 12, hostname: 'vps12' },
+    transaction_chain: { id: 456 },
+    type: 3001,
+    priority: 0,
+    user: { id: 9, login: 'worker' },
+    input,
+    output,
+  } satisfies Transaction__IndexOutput[number];
+  await installHaveApiMock(page, {
+    user: { id: 1, login: 'admin', level: 99 },
+    handlers: {
+      'GET action_states/123': () => ({ action_state: action }),
+      'GET transaction_chains/456': () => ({
+        transaction_chain: { id: 456, label: 'Create chain', state: 'done', progress: 2, size: 2 },
+      }),
+      'GET transactions': ({ searchParams }) => {
+        expect(searchParams.get('transaction[transaction_chain]')).toBe('456');
+        return { transactions: [transaction] };
+      },
+    },
+  });
+  await page.goto('/admin/action-states/123');
+  const header = page.getByTestId('action_state.detail.header');
+  await expect(header).toBeVisible();
+  await expect(page.getByTestId('action_state.detail.transactions.table')).toContainText('Create dataset');
+  await page.screenshot({ path: testInfo.outputPath('action-completed-top-cs.png') });
+  await page.getByTestId('action_state.detail.tx.toggle.7001').click();
+  const expanded = page.getByTestId('action_state.detail.tx.expanded.7001');
+  await expect(expanded.getByRole('link', { name: 'vps12', exact: true })).toHaveAttribute('href', '/admin/vps/12');
+  await expect(expanded).toContainText('worker');
+  await expect(expanded.getByText('Vstup', { exact: true }).locator('../..').locator('pre')).toHaveText(input);
+  await expect(expanded.getByText('Výstup', { exact: true }).locator('../..').locator('pre')).toHaveText(output);
+  await expanded.scrollIntoViewIfNeeded();
+  await page.screenshot({ path: testInfo.outputPath('action-completed-loaded-cs.png') });
+  await expanded.locator('details summary').click();
+  await expect(expanded.locator('details pre')).toContainText('"input":');
+  await expect(expanded.locator('details pre')).toContainText('mounted');
+  const debug = page.getByTestId('action_state.detail.debug');
+  const debugSummary = debug.locator('summary');
+  await expect(debug).not.toHaveAttribute('open', '');
+  await expect(debugSummary).toHaveCount(1);
+  expect(
+    await debug.evaluate((el) =>
+      Boolean(
+        document.querySelector('[data-testid="action_state.detail.transactions"]')!.compareDocumentPosition(el) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+      )
+    )
+  ).toBe(true);
+  await debugSummary.focus();
+  await page.keyboard.press('Enter');
+  await expect(debug).toHaveAttribute('open', '');
+  await expect(debug.locator('pre')).toHaveText(JSON.stringify(action, null, 2));
+  await debug.scrollIntoViewIfNeeded();
+  await page.screenshot({ path: testInfo.outputPath('action-backend-cs.png') });
+  await testInfo.attach('action-state-visible-label', { body: await header.innerText(), contentType: 'text/plain' });
+  // The candidate must use the selected UI language for the action badge.
+  await expect(header.getByText('Hotovo', { exact: true })).toHaveCount(1);
 });

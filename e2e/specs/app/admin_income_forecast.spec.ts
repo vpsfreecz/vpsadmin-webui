@@ -1,8 +1,10 @@
 import { expect, test } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
+import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 
-test('@pr-smoke @pr-smoke-mobile admin income forecast uses six bounded real calculations', async ({ page }, testInfo) => {
+test('@pr-smoke @pr-smoke-mobile admin income forecast uses six bounded real calculations', async ({
+  page,
+}, testInfo) => {
   const estimateRequests: URL[] = [];
 
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
@@ -133,4 +135,39 @@ test('admin income forecast surfaces an API 403 through the shared error state',
   expect(deniedRequests).toBeGreaterThan(0);
   await expect(page.getByTestId('admin.finance.forecast.error')).toContainText(/access|permission|oprávnění|přístup/i);
   await expect(page.getByTestId('admin.finance.forecast.summary.estimate')).toHaveCount(0);
+});
+
+test('@content-finance-cs normal income forecast keeps Czech selector and uncertainty readable', async ({
+  page,
+}, info) => {
+  const estimateRequests: URL[] = [];
+  await setUiSettingsLocalStorage(page, { language: 'cs', theme: 'dark' });
+  await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+  await installHaveApiMock(page, {
+    user: { id: 1, login: 'admin', level: 100 },
+    handlers: {
+      'GET payment_stat/estimate_income': ({ url, searchParams }) => {
+        estimateRequests.push(new URL(url.href));
+        const month = Number(searchParams.get('payment_stat[month]'));
+        const duration = Number(searchParams.get('payment_stat[duration]'));
+        return { payment_stat: { user_count: month, estimated_income: month * 1_000 + duration * 100 } };
+      },
+    },
+  });
+  await page.goto('/admin/payments/forecast?year=2026&month=7&select=all_until&duration=3');
+  await expect(page.getByTestId('admin.finance.tabs.overview')).toHaveText('Přehled');
+  await expect(page.getByTestId('admin.finance.forecast.summary.estimate')).toContainText(/7[\s,.]?300/);
+  await expect(page.getByTestId('admin.finance.forecast.filter.mode')).toHaveValue('all_until');
+  await expect(page.getByTestId('admin.finance.forecast.filter.duration')).toHaveValue('3');
+  await expect(page.getByTestId('admin.finance.forecast.mode_description')).toContainText('2025');
+  await expect(page.getByTestId('admin.finance.forecast.mode_description')).toContainText('2026');
+  await expect(page.getByTestId('admin.finance.forecast.unit_note')).toContainText(/měn/i);
+  await expect(page.getByTestId('admin.finance.forecast.cohort_note')).toContainText(/historick/i);
+  await expect.poll(() => estimateRequests.length).toBe(6);
+  for (const request of estimateRequests) {
+    expect(request.searchParams.get('payment_stat[select]')).toBe('all_until');
+    expect(request.searchParams.get('payment_stat[duration]')).toBe('3');
+  }
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.screenshot({ path: info.outputPath('income-forecast-cs.png'), fullPage: true });
 });

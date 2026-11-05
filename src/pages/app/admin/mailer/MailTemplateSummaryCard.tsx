@@ -27,10 +27,12 @@ export function MailTemplateSummaryCard(props: { template: MailTemplate }) {
           <div className="text-xs font-medium text-muted">{t('mailer.templates.fields.template_id')}</div>
           <div className="mt-1 text-sm font-mono">{String(template.template_id ?? t('common.na'))}</div>
         </div>
-        <div>
-          <div className="text-xs font-medium text-muted">{t('mailer.templates.fields.label')}</div>
-          <div className="mt-1 text-sm">{String(template.label ?? t('common.na'))}</div>
-        </div>
+        {template.label == null ? (
+          <div>
+            <div className="text-xs font-medium text-muted">{t('mailer.templates.fields.label')}</div>
+            <div className="mt-1 text-sm">{String(template.label ?? t('common.na'))}</div>
+          </div>
+        ) : null}
         <div>
           <div className="text-xs font-medium text-muted">{t('mailer.templates.fields.updated')}</div>
           <div className="mt-1 text-sm">{formatDateTime(template.updated_at)}</div>

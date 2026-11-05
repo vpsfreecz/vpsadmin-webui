@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
+import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 import { expectNoDocumentHorizontalOverflow } from '../../helpers/horizontalOverflow';
 
 const vps = {
@@ -50,7 +50,79 @@ async function captureOptInScreenshot(page: Page, envName: string): Promise<void
   await page.screenshot({ path: screenshotPath, fullPage: true });
 }
 
-test('@workflow-matrix @smoke VPS detail tabs expose storage, access, lifecycle, and console routes', async ({ page }) => {
+for (const language of ['cs', 'en'] as const) {
+  test(`VPS overview preserves missing usage and stale-chain recovery, ${language}`, async ({ page }, testInfo) => {
+    await page.clock.install({ time: new Date('2026-11-04T12:00:00Z') });
+    await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST_OVERVIEW_STATES' });
+    await setUiSettingsLocalStorage(page, { language, theme: 'light' });
+    const currentVps = { ...vps, uptime: null, loadavg1: null, used_memory: null, used_diskspace: null };
+    let chains: 'clear' | 'busy' | 'failed' = 'clear';
+    await installHaveApiMock(page, {
+      user: { id: 10, login: 'alice', level: 1 },
+      handlers: {
+        'GET vpses/123': () => ({ vps: currentVps }),
+        'GET datasets/10': () => ({ dataset }),
+        'GET ip_addresses': () => ({ ip_addresses: [] }),
+        'GET transaction_chains': (ctx) => {
+          if (ctx.searchParams.get('transaction_chain[row_id]') !== '123') return { transaction_chains: [] };
+          if (chains === 'failed') return failEnvelope('Synthetic chain inventory unavailable');
+          return { transaction_chains: chains === 'busy' ? [{ id: 888, state: 'queued' }] : [] };
+        },
+      },
+    });
+
+    await page.goto('/app/vps/123');
+    const header = page.getByTestId('vps.header');
+    await expect(page.getByTestId('vps.overview.control_center')).toBeVisible();
+    for (const key of ['uptime', 'load']) {
+      await expect(header.getByTestId(`vps.header.runtime.${key}`).locator('dd')).toHaveText('—');
+    }
+    for (const metric of ['memory', 'disk']) {
+      const usage = page.getByTestId(`vps.overview.usage.${metric}`);
+      await expect(usage).toContainText('—');
+      await expect(usage.getByRole('img')).toHaveCount(0);
+    }
+    await expect(
+      page.getByTestId('vps.overview.resources_usage.card').getByText('2 CPU', { exact: true })
+    ).toBeVisible();
+    await expect(header.getByTestId('vps.header.distribution')).toHaveText('Debian 12');
+    await expect(
+      page.getByTestId('vps.overview.storage.card').getByRole('link', { name: 'tank/data', exact: true })
+    ).toHaveAttribute('href', '/app/datasets/10');
+    await page.screenshot({ path: testInfo.outputPath(`overview-missing-usage-${language}.png`), fullPage: true });
+
+    currentVps.is_running = false;
+    await page.reload();
+    await expect(page.getByTestId('vps.overview.control_center')).toBeVisible();
+    await expect(header.getByTestId('vps.header.runtime.uptime').locator('dd')).toHaveText('—');
+    await page.screenshot({ path: testInfo.outputPath(`overview-stopped-${language}.png`), fullPage: true });
+
+    currentVps.is_running = true;
+    chains = 'busy';
+    await page.reload();
+    const restart = page.getByTestId('vps.action.restart.header');
+    await expect(restart).toHaveAttribute('aria-disabled', 'true');
+    chains = 'failed';
+    await page.clock.fastForward(61_000);
+    const stale = page.getByTestId('stale.lock.alert');
+    await expect(stale).toBeVisible();
+    await expect(page.getByTestId('vps.overview.health')).toHaveCount(0);
+    await expect(stale.getByTestId('stale.lock.alert.last-known')).toContainText('#888');
+    await expect(stale.getByTestId('stale.lock.alert.last-error')).toContainText(
+      'Synthetic chain inventory unavailable'
+    );
+    await page.screenshot({ path: testInfo.outputPath(`overview-stale-chain-${language}.png`), fullPage: true });
+
+    chains = 'clear';
+    await stale.getByTestId('stale.lock.alert.retry').click();
+    await expect(stale).toHaveCount(0);
+    await expect(restart).not.toHaveAttribute('aria-disabled', 'true');
+  });
+}
+
+test('@workflow-matrix @smoke VPS detail tabs expose storage, access, lifecycle, and console routes', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST_USER_SESSION' });
 
   await page.route('**/_console/**', async (route) => {
@@ -109,7 +181,10 @@ test('@workflow-matrix @smoke VPS detail tabs expose storage, access, lifecycle,
   const vpsHeader = page.getByTestId('vps.header');
   await expect(vpsHeader.getByRole('link', { name: /^Storage$/ })).toHaveAttribute('href', '/app/vps/123/storage');
   await expect(vpsHeader.getByRole('link', { name: /^Access$/ })).toHaveAttribute('href', '/app/vps/123/access');
-  await expect(vpsHeader.getByRole('link', { name: /^Console$/ }).first()).toHaveAttribute('href', '/app/vps/123/console');
+  await expect(vpsHeader.getByRole('link', { name: /^Console$/ }).first()).toHaveAttribute(
+    'href',
+    '/app/vps/123/console'
+  );
 
   await expect(page.getByTestId('vps.overview.control_center')).toBeVisible();
   await expect(page.getByTestId('vps.overview.health')).toBeVisible();
@@ -153,7 +228,8 @@ test('@workflow-matrix @smoke VPS detail tabs expose storage, access, lifecycle,
   await moreActions.selectOption('/app/vps/123/config');
   await expect(page).toHaveURL(/\/app\/vps\/123\/config$/);
   await expect(page.getByText('Boot preferences')).toBeVisible();
-  await expect(page.getByText('Basic runtime preferences available to a member.')).toBeVisible();
+  await expect(page.getByText('Basic runtime preferences available to a member.')).toHaveCount(0);
+  await expect(page.getByRole('combobox', { name: 'Cgroup version', exact: true })).toBeVisible();
   await expect(page.getByText('Start menu timeout', { exact: true })).toHaveCount(0);
   await expect(page.getByText('Owner', { exact: true })).toHaveCount(0);
   await expect(page.getByText('CPU limit', { exact: true })).toHaveCount(0);
@@ -177,7 +253,10 @@ test('@workflow-matrix @smoke VPS detail tabs expose storage, access, lifecycle,
   await expect(page.getByTestId('vps.lifecycle.clone')).toBeVisible();
   await expect(page.getByTestId('vps.lifecycle.replace')).toHaveCount(0);
 
-  await page.getByRole('link', { name: /^Console$/ }).first().click();
+  await page
+    .getByRole('link', { name: /^Console$/ })
+    .first()
+    .click();
   await expect(page).toHaveURL(/\/app\/vps\/123\/console$/);
   await expect(page.getByTestId('vps.console.page')).toBeVisible();
   await expect(page.getByTestId('vps.console.iframe')).toBeVisible();
@@ -218,14 +297,12 @@ test('@workflow-matrix admin account in user VPS view keeps storage admin contro
   await expect(page.getByTestId('vps.storage.mounts.table').locator('th', { hasText: /^Master$/ })).toHaveCount(0);
   await expect(page.getByTestId('vps.storage.mounts.table')).not.toContainText('Master:');
 
-  const editMountTestId = (page.viewportSize()?.width ?? 0) < 768
-    ? 'vps.storage.mounts.card.1.edit'
-    : 'vps.storage.mounts.row.1.edit';
+  const editMountTestId =
+    (page.viewportSize()?.width ?? 0) < 768 ? 'vps.storage.mounts.card.1.edit' : 'vps.storage.mounts.row.1.edit';
   await page.getByTestId(editMountTestId).click();
   await expect(page.getByTestId('vps.storage.mounts.edit')).toBeVisible();
   await expect(page.getByTestId('vps.storage.mounts.edit.master_enabled')).toHaveCount(0);
 });
-
 
 test('@workflow-matrix @pr-smoke @pr-smoke-mobile VPS admin overview keeps each fact in one compact place', async ({
   page,
@@ -296,11 +373,11 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile VPS admin overview keeps each 
   await expect(page.getByTestId('vps.header')).toBeVisible();
   await expect(page.getByTestId('vps.header').getByRole('link', { name: /^Access$/ })).toHaveAttribute(
     'href',
-    '/admin/vps/123/access?user=10',
+    '/admin/vps/123/access?user=10'
   );
   await expect(page.getByTestId('vps.action.primary_console')).toHaveAttribute(
     'href',
-    '/admin/vps/123/console?user=10',
+    '/admin/vps/123/console?user=10'
   );
   const overview = page.getByTestId('vps.overview.control_center');
   const resources = page.getByTestId('vps.overview.resources_usage.card');
@@ -316,7 +393,7 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile VPS admin overview keeps each 
   await expect(resources).toBeVisible();
   await expect(resources.getByRole('link', { name: 'Edit resources' })).toHaveAttribute(
     'href',
-    '/admin/vps/123/config?user=10&section=resources',
+    '/admin/vps/123/config?user=10&section=resources'
   );
   // Runtime diagnostics belong to the header, not the resource allocation card.
   await expect(page.getByTestId('vps.header.runtime.uptime')).toContainText('3h 25m');
@@ -330,15 +407,14 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile VPS admin overview keeps each 
   await expect(network).toBeVisible();
   await expect(network.getByRole('link', { name: 'Manage network' })).toHaveAttribute(
     'href',
-    '/admin/vps/123/network?user=10',
+    '/admin/vps/123/network?user=10'
   );
   await expect(storage).toBeVisible();
   await expect(storage.getByRole('link', { name: 'Open storage' })).toHaveAttribute(
     'href',
-    '/admin/vps/123/storage?user=10',
+    '/admin/vps/123/storage?user=10'
   );
   await expect(storage).toContainText('Pool: tank');
-  await expect(storage).toContainText('Root dataset, pool, capacity and VPS mounts.');
   await expect(page.getByTestId('vps.overview.admin_ops.card')).toHaveCount(0);
   await expect(overview).not.toContainText('alice');
   await expect(page.getByTestId('vps.overview.admin_ops.user_id')).toHaveCount(0);
@@ -347,11 +423,7 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile VPS admin overview keeps each 
   await expect(page.getByTestId('vps.overview.admin_ops.ips')).toHaveCount(0);
   await expect(network).not.toContainText('alice');
 
-  for (const address of [
-    '198.51.100.10/32',
-    '10.0.0.15/32',
-    '2001:db8:1234:5678:90ab:cdef:1234:5678/64',
-  ]) {
+  for (const address of ['198.51.100.10/32', '10.0.0.15/32', '2001:db8:1234:5678:90ab:cdef:1234:5678/64']) {
     await expect(overview.getByText(address, { exact: true })).toHaveCount(1);
   }
 
@@ -421,9 +493,9 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile VPS admin overview keeps each 
   await expect(moreActions.locator('option[value="/admin/incidents/new?vps=123"]')).toHaveCount(1);
   await expect(moreActions.locator('option[value="/admin/vps/123/lifecycle/migrate?user=10"]')).toHaveCount(1);
   await expect(moreActions.locator('option[value="/admin/transactions?class_name=Vps&row_id=123"]')).toHaveCount(1);
-  const actionValues = (await moreActions.locator('option').evaluateAll((options) => (
-    options.map((option) => (option as HTMLOptionElement).value).filter(Boolean)
-  )));
+  const actionValues = await moreActions
+    .locator('option')
+    .evaluateAll((options) => options.map((option) => (option as HTMLOptionElement).value).filter(Boolean));
   expect(actionValues).toEqual([...new Set(actionValues)]);
 
   await captureOptInScreenshot(page, 'E2E_VPS_ADMIN_OVERVIEW_SCREENSHOT');

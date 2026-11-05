@@ -19,11 +19,11 @@ const vps = {
   loadavg1: 0.12,
   node: { id: 1, domain_name: 'node1.example' },
   os_template: { label: 'debian' },
-  dns_resolver: 'inherit',
+  dns_resolver: null,
 };
 
 test.describe('VPS maintenance tab', () => {
-  test('opens a weekday and saves it via PUT', async ({ page }) => {
+  test('opens a weekday and saves it via PUT', async ({ page }, testInfo) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
     const maintenanceWindows: Array<{ weekday: number; is_open: boolean; opens_at: number; closes_at: number }> = [];
 
@@ -45,9 +45,13 @@ test.describe('VPS maintenance tab', () => {
     await page.goto('/app/vps/123/maintenance');
 
     await expect(page.getByTestId('vps.maintenance.page')).toBeVisible();
+    await expect(page.getByText('No unsaved changes.', { exact: true })).toHaveCount(0);
+    await page.screenshot({ path: testInfo.outputPath('maintenance-clean.png') });
 
     // Monday is weekday 1.
     await page.getByTestId('vps.maintenance.day.1.open').check();
+    await expect(page.getByText('Unsaved days: 1', { exact: true })).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath('maintenance-dirty.png') });
 
     const reqPromise = page.waitForRequest(
       (r) => r.method() === 'PUT' && r.url().includes('/api/v7.0/vpses/123/maintenance_windows/1')
@@ -64,10 +68,12 @@ test.describe('VPS maintenance tab', () => {
       },
     });
     await expect(page.getByTestId('vps.maintenance.save_success')).toBeVisible();
+    await expect(page.getByText('No unsaved changes.', { exact: true })).toHaveCount(0);
     await expect(page.getByTestId('vps.maintenance.save')).toBeDisabled();
+    await page.screenshot({ path: testInfo.outputPath('maintenance-saved.png') });
   });
 
-  test('reconciles a partial save and retries only the remaining weekday', async ({ page }) => {
+  test('reconciles a partial save and retries only the remaining weekday', async ({ page }, testInfo) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
 
     const maintenanceWindows: Array<{ weekday: number; is_open: boolean; opens_at: number; closes_at: number }> = [];
@@ -111,6 +117,7 @@ test.describe('VPS maintenance tab', () => {
     await expect(page.getByTestId('vps.maintenance.save')).toContainText('(1)');
     expect(mondayCalls).toBe(1);
     expect(tuesdayCalls).toBe(1);
+    await page.screenshot({ path: testInfo.outputPath('maintenance-partial-error.png') });
 
     await page.getByTestId('vps.maintenance.save').click();
     await expect(page.getByTestId('vps.maintenance.save_success')).toBeVisible();

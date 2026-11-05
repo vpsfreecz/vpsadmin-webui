@@ -11,9 +11,9 @@ import { finiteSecurityAdvisoryCount, securityAdvisoryReadinessMessage } from '.
 
 function StatCard(props: { label: ReactNode; value: ReactNode }) {
   return (
-    <div className="rounded-lg border border-border bg-surface-2/55 p-3">
-      <div className="text-xs font-medium uppercase tracking-wide text-faint">{props.label}</div>
-      <div className="mt-1 text-2xl font-semibold text-fg">{props.value}</div>
+    <div className="min-w-0">
+      <dt className="text-xs font-medium text-muted">{props.label}</dt>
+      <dd className="mt-1 break-words text-sm font-medium text-fg">{props.value}</dd>
     </div>
   );
 }
@@ -22,12 +22,15 @@ export function SecurityAdvisoryOverviewPanel(props: {
   advisory: SecurityAdvisory;
   languages: Language[];
   readinessIssues: PublishReadinessIssue[];
+  readinessDataReady: boolean;
+  readinessError?: unknown;
 }) {
   const { t } = useI18n();
+  const readinessKnown = props.readinessDataReady && !props.readinessError;
 
   return (
     <div className="space-y-4">
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <dl className="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-4">
         <StatCard
           label={t('admin.security_advisories.table.nodes')}
           value={finiteSecurityAdvisoryCount(props.advisory.affected_node_count)}
@@ -42,25 +45,25 @@ export function SecurityAdvisoryOverviewPanel(props: {
         />
         <StatCard
           label={t('admin.security_advisories.table.published')}
-          value={
-            <span className="text-base">
-              {props.advisory.published_at ? formatDateTime(props.advisory.published_at) : '—'}
-            </span>
-          }
+          value={<span>{props.advisory.published_at ? formatDateTime(props.advisory.published_at) : '—'}</span>}
         />
-      </div>
+      </dl>
 
       {props.advisory.state === 'draft' ? (
         <Alert
-          variant={props.readinessIssues.length === 0 ? 'ok' : 'warn'}
+          variant={!readinessKnown ? 'neutral' : props.readinessIssues.length === 0 ? 'ok' : 'warn'}
           title={
-            props.readinessIssues.length === 0
-              ? t('admin.security_advisories.readiness.ready')
-              : t('admin.security_advisories.readiness.not_ready')
+            props.readinessError
+              ? t('admin.security_advisories.readiness.data_unavailable')
+              : !props.readinessDataReady
+                ? t('common.loading')
+                : props.readinessIssues.length === 0
+                  ? t('admin.security_advisories.readiness.ready')
+                  : t('admin.security_advisories.readiness.not_ready')
           }
           testId="admin.security_advisory.readiness"
         >
-          {props.readinessIssues.length === 0 ? (
+          {!readinessKnown ? null : props.readinessIssues.length === 0 ? (
             t('admin.security_advisories.readiness.ready_body')
           ) : (
             <ul className="list-disc space-y-1 pl-5">

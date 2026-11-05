@@ -252,7 +252,14 @@ recorded source revision `e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9`.
 The header and lifecycle power-control extractions reduced `VpsLayout.tsx` and
 `VpsLifecyclePage.tsx` below their historical line ceilings, so their two
 `grown-over-500` exceptions were removed. The HaveAPI transport extraction also
-resolves its `crossed-500` exception. Remaining entries retain their recorded hashes, metrics, allowances and baseline.
+resolves its `crossed-500` exception. The content-assembly revalidation keeps the
+historical baseline, debt source revisions, original metric and removal conditions.
+Surviving allowances must equal the current metric and cannot exceed their prior
+allowances; no new exception or cast capacity is added. Resolved entries are
+removed. The original review does not approve successor bytes: the ledger stays
+pending until the lead accepts the exact current source and ledger with separate
+review attribution.
+
 Raw violations, proposed/accepted exceptions, unaccepted violations and invalid
 entries are separate report fields. A changed or deleted file, resolved rule, expired
 removal condition, changed allowance or unlisted new violation fails the audit;
@@ -264,9 +271,9 @@ The UI-string audit excludes only `*.test.tsx` fixtures from its source walk.
 Production TSX still participates. Focused fixture tests cover that distinction and
 the structural failure cases. A passing quick gate is local source evidence;
 production build, browser scripts, PR matrix and remote CI remain separate gates.
-The structural audit passes for the accepted source bytes. Record the exact
-locked-toolchain quick gate and production build results for each candidate
-separately from this source audit.
+A candidate passes only when its exact source and accepted ledger satisfy the
+audit. Record the exact locked-toolchain quick gate and production build results
+for each candidate separately from this source audit.
 
 ## Production HaveAPI verification
 

@@ -2,8 +2,63 @@ import { expect, test } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 
+for (const language of ['en', 'cs'] as const) {
+  test(`@pr-smoke @pr-smoke-mobile network lookup failure retains query and selection (${language})`, async ({
+    page,
+  }, testInfo) => {
+    await bootstrapVpsAdminWindow(page);
+    await setUiSettingsLocalStorage(page, { language, theme: 'dark' });
+    let failed = true;
+    await installHaveApiMock(page, {
+      user: { id: 1, login: 'admin', level: 100 },
+      handlers: {
+        'GET locations': () => ({ locations: [] }),
+        'GET ip_addresses': () => ({ ip_addresses: [] }),
+        'GET networks/3': () => ({ network: { id: 3, label: 'Selected network', address: '192.0.2.0', prefix: 24 } }),
+        'GET networks': () =>
+          failed
+            ? {
+                status: 503,
+                contentType: 'application/json',
+                body: JSON.stringify({ status: false, message: 'Network inventory unavailable' }),
+              }
+            : { networks: [] },
+      },
+    });
+    await page.goto('/admin/ip-addresses?network=3&occupancy=any');
+    const input = page.getByTestId('admin.ip_addresses.quick.subnet');
+    await expect(input).toHaveValue('#3');
+    await input.fill('missing network');
+    const menu = page.getByTestId('admin.ip_addresses.quick.subnet.menu');
+    await expect(menu).toBeVisible();
+    await expect(menu).not.toContainText(language === 'cs' ? 'Načítání' : 'Loading');
+    await page.screenshot({
+      path: testInfo.outputPath(`network-lookup-failure-${language}.png`),
+      fullPage: true,
+      scale: 'css',
+    });
+    await expect.soft(menu.getByRole('alert')).toBeVisible({ timeout: 1_000 });
+    await expect(input).toHaveValue('missing network');
+    await expect(page).toHaveURL(/[?&]network=3(?:&|$)/);
+    failed = false;
+    await page.getByTestId('admin.ip_addresses.quick.subnet.retry').click();
+    await expect(menu).toHaveText(language === 'cs' ? 'Žádné výsledky.' : 'No results.');
+    await expect(menu.getByRole('alert')).toHaveCount(0);
+    await expect(input).toHaveValue('missing network');
+    await expect(page).toHaveURL(/[?&]network=3(?:&|$)/);
+    await page.screenshot({
+      path: testInfo.outputPath(`network-lookup-empty-${language}.png`),
+      fullPage: true,
+      scale: 'css',
+    });
+  });
+}
+
 test('admin IP addresses traverse ascending API pages and paginate loaded rows locally', async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name.startsWith('mobile-'), 'Desktop table pagination is covered separately from mobile cards.');
+  test.skip(
+    testInfo.project.name.startsWith('mobile-'),
+    'Desktop table pagination is covered separately from mobile cards.'
+  );
 
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
 
@@ -16,9 +71,10 @@ test('admin IP addresses traverse ascending API pages and paginate loaded rows l
       routed: id % 2 === 0,
       user: { id: 1000 + (id % 10), login: `u${id % 10}` },
       vps: { id: 2000 + (id % 10), hostname: `vps${id % 10}` },
-      network: offset === 0
-        ? { id: 3000, address: '10.0.0.0', prefix: 24 }
-        : { id: 3001 + Math.floor(offset / 250), address: `198.51.${100 + Math.floor(offset / 250)}.0`, prefix: 24 },
+      network:
+        offset === 0
+          ? { id: 3000, address: '10.0.0.0', prefix: 24 }
+          : { id: 3001 + Math.floor(offset / 250), address: `198.51.${100 + Math.floor(offset / 250)}.0`, prefix: 24 },
       network_interface: id % 2 === 0 ? { id: 4000, name: 'eth0' } : null,
       created_at: '2025-01-01T00:00:00Z',
     };
@@ -60,10 +116,12 @@ test('admin IP addresses traverse ascending API pages and paginate loaded rows l
   await page.goto('/admin/ip-addresses?order=asc&occupancy=any');
 
   await expect(page.getByTestId('admin.ip_addresses.row.125')).toBeVisible();
-  await expect.poll(() => apiRequests).toEqual([
-    { fromId: null, limit: '250', order: 'asc', purpose: 'vps', addr: null },
-    { fromId: '374', limit: '250', order: 'asc', purpose: 'vps', addr: null },
-  ]);
+  await expect
+    .poll(() => apiRequests)
+    .toEqual([
+      { fromId: null, limit: '250', order: 'asc', purpose: 'vps', addr: null },
+      { fromId: '374', limit: '250', order: 'asc', purpose: 'vps', addr: null },
+    ]);
   await expect(page).not.toHaveURL(/(?:\?|&)(?:from_id|page)=/);
   await expect(page.getByTestId('admin.ip_addresses.row.125')).toHaveAttribute('data-row-variant', 'warn');
   await expect(page.getByTestId('admin.ip_addresses.row.125.dot')).toBeVisible();
@@ -81,7 +139,10 @@ test('admin IP addresses traverse ascending API pages and paginate loaded rows l
   await expect(incidentsAction).toHaveText('');
   await expect(routeAction).toBeVisible();
   await expect(routeAction).toHaveText('');
-  await expect(page.getByTestId('admin.ip_addresses.row.126.action.route')).toHaveAttribute('aria-label', 'Remove from VPS');
+  await expect(page.getByTestId('admin.ip_addresses.row.126.action.route')).toHaveAttribute(
+    'aria-label',
+    'Remove from VPS'
+  );
 
   const proofScreenshot = process.env['E2E_IP_ACTIONS_PROOF_SCREENSHOT']?.trim();
   if (proofScreenshot) {
@@ -107,7 +168,11 @@ test('admin IP addresses traverse ascending API pages and paginate loaded rows l
   await expect(page.getByTestId('admin.ip_addresses.pagination.desktop.next')).toHaveCount(0);
   expect(apiRequests).toHaveLength(3);
   expect(apiRequests.at(-1)).toEqual({
-    fromId: null, limit: '250', order: 'asc', purpose: 'vps', addr: '10.0.0.1',
+    fromId: null,
+    limit: '250',
+    order: 'asc',
+    purpose: 'vps',
+    addr: '10.0.0.1',
   });
   await expect(page).not.toHaveURL(/(?:\?|&)(?:from_id|page)=/);
 });
@@ -120,17 +185,19 @@ test('admin IP address cards keep compact actions on mobile', async ({ page }) =
     handlers: {
       'GET locations': () => ({ locations: [] }),
       'GET ip_addresses': () => ({
-        ip_addresses: [{
-          id: 125,
-          addr: '192.0.2.125',
-          prefix: 32,
-          routed: true,
-          user: { id: 7, login: 'alice' },
-          vps: { id: 42, hostname: 'vps-42' },
-          network: { id: 3000, address: '192.0.2.0', prefix: 24 },
-          network_interface: { id: 4000, name: 'eth0' },
-          created_at: '2025-01-01T00:00:00Z',
-        }],
+        ip_addresses: [
+          {
+            id: 125,
+            addr: '192.0.2.125',
+            prefix: 32,
+            routed: true,
+            user: { id: 7, login: 'alice' },
+            vps: { id: 42, hostname: 'vps-42' },
+            network: { id: 3000, address: '192.0.2.0', prefix: 24 },
+            network_interface: { id: 4000, name: 'eth0' },
+            created_at: '2025-01-01T00:00:00Z',
+          },
+        ],
       }),
     },
   });
@@ -139,15 +206,23 @@ test('admin IP address cards keep compact actions on mobile', async ({ page }) =
 
   const card = page.getByTestId('admin.ip_addresses.card.125');
   await expect(card).toBeVisible();
-  await expect(card.getByTestId('admin.ip_addresses.card.125.action.incidents')).toHaveAttribute('aria-label', 'Incidents');
-  await expect(card.getByTestId('admin.ip_addresses.card.125.action.route')).toHaveAttribute('aria-label', 'Remove from VPS');
+  await expect(card.getByTestId('admin.ip_addresses.card.125.action.incidents')).toHaveAttribute(
+    'aria-label',
+    'Incidents'
+  );
+  await expect(card.getByTestId('admin.ip_addresses.card.125.action.route')).toHaveAttribute(
+    'aria-label',
+    'Remove from VPS'
+  );
   await expect(card.getByTestId('admin.ip_addresses.card.125.action.edit')).toHaveAttribute('aria-label', 'Edit');
 
   const proofScreenshot = process.env['E2E_IP_ACTIONS_MOBILE_PROOF_SCREENSHOT']?.trim();
   if (proofScreenshot) await page.screenshot({ path: proofScreenshot, fullPage: true });
 });
 
-test('@pr-smoke @pr-smoke-mobile admin IP address search resolves an exact user login and shows owned addresses', async ({ page }, testInfo) => {
+test('@pr-smoke @pr-smoke-mobile admin IP address search resolves an exact user login and shows owned addresses', async ({
+  page,
+}, testInfo) => {
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
 
   const ipRequests: Array<{
@@ -164,9 +239,7 @@ test('@pr-smoke @pr-smoke-mobile admin IP address search resolves an exact user 
     handlers: {
       'GET locations': () => ({ locations: [] }),
       'GET users': (ctx) => ({
-        users: ctx.searchParams.get('user[login]') === 'base48'
-          ? [{ id: 48, login: 'base48', level: 1 }]
-          : [],
+        users: ctx.searchParams.get('user[login]') === 'base48' ? [{ id: 48, login: 'base48', level: 1 }] : [],
       }),
       'POST cluster/search': () => ({ cluster_search: [] }),
       'GET ip_addresses': (ctx) => {
@@ -182,15 +255,17 @@ test('@pr-smoke @pr-smoke-mobile admin IP address search resolves an exact user 
 
         if (request.user !== '48') return { ip_addresses: [] };
         return {
-          ip_addresses: [{
-            id: 480,
-            addr: '83.167.228.48',
-            prefix: 32,
-            user: { id: 48, login: 'base48' },
-            vps: { id: 148, hostname: 'base48-vps' },
-            network: { id: 12, address: '83.167.228.0', prefix: 24 },
-            network_interface: { id: 1480, name: 'eth0' },
-          }],
+          ip_addresses: [
+            {
+              id: 480,
+              addr: '83.167.228.48',
+              prefix: 32,
+              user: { id: 48, login: 'base48' },
+              vps: { id: 148, hostname: 'base48-vps' },
+              network: { id: 12, address: '83.167.228.0', prefix: 24 },
+              network_interface: { id: 1480, name: 'eth0' },
+            },
+          ],
         };
       },
     },
@@ -214,14 +289,16 @@ test('@pr-smoke @pr-smoke-mobile admin IP address search resolves an exact user 
     await expect(address).toContainText('83.167.228.48');
     await expect(address).toContainText('base48');
 
-    await expect.poll(() => ipRequests.at(-1)).toEqual({
-      user: '48',
-      q: null,
-      assigned: null,
-      version: null,
-      fromId: null,
-      limit: '250',
-    });
+    await expect
+      .poll(() => ipRequests.at(-1))
+      .toEqual({
+        user: '48',
+        q: null,
+        assigned: null,
+        version: null,
+        fromId: null,
+        limit: '250',
+      });
   }
 
   await page.goto('/admin/ip-addresses?q=base48&limit=25&page=2&from_id=51');
@@ -230,14 +307,16 @@ test('@pr-smoke @pr-smoke-mobile admin IP address search resolves an exact user 
   await expect(page).not.toHaveURL(/(?:\?|&)from_id=/);
   await expect(page).not.toHaveURL(/(?:\?|&)page=/);
   await expect(page).toHaveURL(/(?:\?|&)limit=25(?:&|$)/);
-  await expect.poll(() => ipRequests.at(-1)).toEqual({
-    user: '48',
-    q: null,
-    assigned: null,
-    version: null,
-    fromId: null,
-    limit: '250',
-  });
+  await expect
+    .poll(() => ipRequests.at(-1))
+    .toEqual({
+      user: '48',
+      q: null,
+      assigned: null,
+      version: null,
+      fromId: null,
+      limit: '250',
+    });
 
   await page.goto('/admin/ip-addresses');
   const atomicInput = page.getByTestId('admin.ip_addresses.smart_filter.input');
@@ -246,31 +325,37 @@ test('@pr-smoke @pr-smoke-mobile admin IP address search resolves an exact user 
   await expect(page).toHaveURL(/(?:\?|&)user=48(?:&|$)/);
   await expect(page).toHaveURL(/(?:\?|&)version=4(?:&|$)/);
   await expect(page).toHaveURL(/(?:\?|&)assigned_to_interface=1(?:&|$)/);
-  await expect.poll(() => ipRequests.at(-1)).toEqual({
-    user: '48',
-    q: null,
-    assigned: 'true',
-    version: '4',
-    fromId: null,
-    limit: '250',
-  });
+  await expect
+    .poll(() => ipRequests.at(-1))
+    .toEqual({
+      user: '48',
+      q: null,
+      assigned: 'true',
+      version: '4',
+      fromId: null,
+      limit: '250',
+    });
 
   await atomicInput.fill('assigned:any user:base48');
   await atomicInput.press('Enter');
   await expect(page).toHaveURL(/(?:\?|&)occupancy=any(?:&|$)/);
   await expect(page).not.toHaveURL(/(?:\?|&)assigned_to_interface=/);
   await expect(page.getByTestId('admin.ip_addresses.quick.occupancy.any')).toHaveClass(/bg-surface/);
-  await expect.poll(() => ipRequests.at(-1)).toEqual({
-    user: '48',
-    q: null,
-    assigned: null,
-    version: '4',
-    fromId: null,
-    limit: '250',
-  });
+  await expect
+    .poll(() => ipRequests.at(-1))
+    .toEqual({
+      user: '48',
+      q: null,
+      assigned: null,
+      version: '4',
+      fromId: null,
+      limit: '250',
+    });
 });
 
-test('@pr-smoke @pr-smoke-mobile admin IP address search never falls back to an unfiltered list for an unknown login', async ({ page }, testInfo) => {
+test('@pr-smoke @pr-smoke-mobile admin IP address search never falls back to an unfiltered list for an unknown login', async ({
+  page,
+}, testInfo) => {
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
 
   let ipRequestCount = 0;
@@ -283,12 +368,14 @@ test('@pr-smoke @pr-smoke-mobile admin IP address search never falls back to an 
       'GET ip_addresses': () => {
         ipRequestCount += 1;
         return {
-          ip_addresses: [{
-            id: 125,
-            addr: '192.0.2.125',
-            prefix: 32,
-            network: { id: 12, address: '192.0.2.0', prefix: 24 },
-          }],
+          ip_addresses: [
+            {
+              id: 125,
+              addr: '192.0.2.125',
+              prefix: 32,
+              network: { id: 12, address: '192.0.2.0', prefix: 24 },
+            },
+          ],
         };
       },
     },
@@ -304,9 +391,7 @@ test('@pr-smoke @pr-smoke-mobile admin IP address search never falls back to an 
   await input.fill('missing-user');
   await input.press('Enter');
 
-  await expect(page.getByTestId('admin.ip_addresses.chip.error.0')).toContainText(
-    'Cannot resolve user: missing-user'
-  );
+  await expect(page.getByTestId('admin.ip_addresses.chip.error.0')).toContainText('Cannot resolve user: missing-user');
   await expect(unrelatedAddress).toHaveCount(0);
   await expect(page.getByTestId('admin.ip_addresses.empty')).toBeVisible();
   expect(ipRequestCount).toBe(requestsBeforeSearch);
@@ -316,9 +401,7 @@ test('@pr-smoke @pr-smoke-mobile admin IP address search never falls back to an 
   await expect(unrelatedAddress).toBeVisible();
 
   await page.goto('/admin/ip-addresses?q=missing-user&page=2&from_id=125');
-  await expect(page.getByTestId('admin.ip_addresses.chip.error.0')).toContainText(
-    'Cannot resolve user: missing-user'
-  );
+  await expect(page.getByTestId('admin.ip_addresses.chip.error.0')).toContainText('Cannot resolve user: missing-user');
   await expect(unrelatedAddress).toHaveCount(0);
   await page.getByTestId('admin.ip_addresses.chip.error.0').getByRole('button', { name: 'Remove' }).click();
   await expect(page).not.toHaveURL(/(?:\?|&)q=/);
@@ -339,7 +422,9 @@ test('@pr-smoke @pr-smoke-mobile admin IP address search never falls back to an 
   await expect.poll(() => ipRequestCount).toBeGreaterThan(requestsBeforeUrlChange);
 });
 
-test('@pr-smoke @pr-smoke-mobile admin IP address search keeps a newer URL filter when login lookup finishes late', async ({ page }) => {
+test('@pr-smoke @pr-smoke-mobile admin IP address search keeps a newer URL filter when login lookup finishes late', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
 
   let userLookupStarted = false;
@@ -390,7 +475,9 @@ test('@pr-smoke @pr-smoke-mobile admin IP address search keeps a newer URL filte
   await expect.poll(() => ipRequests.at(-1)).toEqual({ user: null, version: '6' });
 });
 
-test('@pr-smoke @pr-smoke-mobile admin IP address search restarts a legacy URL lookup after another filter changes', async ({ page }) => {
+test('@pr-smoke @pr-smoke-mobile admin IP address search restarts a legacy URL lookup after another filter changes', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
 
   let userLookupCount = 0;
@@ -424,7 +511,9 @@ test('@pr-smoke @pr-smoke-mobile admin IP address search restarts a legacy URL l
   await expect.poll(() => ipRequests.at(-1)).toEqual({ user: '48', version: '6' });
 });
 
-test('@pr-smoke @pr-smoke-mobile admin IP address search distinguishes lookup failure from a missing user', async ({ page }) => {
+test('@pr-smoke @pr-smoke-mobile admin IP address search distinguishes lookup failure from a missing user', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
 
   await installHaveApiMock(page, {
@@ -447,10 +536,19 @@ test('@pr-smoke @pr-smoke-mobile admin IP address search distinguishes lookup fa
   await expect(page).not.toHaveURL(/(?:\?|&)user=/);
 });
 
-test('@pr-smoke @pr-smoke-mobile IP inventory keeps legacy IPv6 searchable and offers compact icon actions on the first tap', async ({ page }, testInfo) => {
+test('@pr-smoke @pr-smoke-mobile IP inventory keeps legacy IPv6 searchable and offers compact icon actions on the first tap', async ({
+  page,
+}, testInfo) => {
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
   const location = { id: 7, label: 'Brno', environment: { id: 1, label: 'Production' } };
-  const network = { id: 10, ip_version: 6, address: '2001:db8::', prefix: 48, enabled: true, primary_location: location };
+  const network = {
+    id: 10,
+    ip_version: 6,
+    address: '2001:db8::',
+    prefix: 48,
+    enabled: true,
+    primary_location: location,
+  };
   const old = { id: 11, addr: '2001:db8::9', prefix: 128, network };
   const block = { id: 99, addr: '2001:db8:1::', prefix: 64, network };
   const requests: URL[] = [];
@@ -481,8 +579,11 @@ test('@pr-smoke @pr-smoke-mobile IP inventory keeps legacy IPv6 searchable and o
   await page.goto('/admin/networking/ip-addresses');
   await expect(page.getByTestId(`${prefix}.99`)).toBeVisible();
   await expect(page.getByTestId(`${prefix}.11`)).toHaveCount(0);
-  expect(requests.filter(url => url.searchParams.get('ip_address[version]') === '6')
-    .every(url => url.searchParams.get('ip_address[prefix]') === '64')).toBe(true);
+  expect(
+    requests
+      .filter((url) => url.searchParams.get('ip_address[version]') === '6')
+      .every((url) => url.searchParams.get('ip_address[prefix]') === '64')
+  ).toBe(true);
 
   const filtered = '/admin/networking/ip-addresses?version=6&prefix=128';
   await page.goto(filtered);
@@ -512,7 +613,10 @@ test('@pr-smoke @pr-smoke-mobile IP inventory keeps legacy IPv6 searchable and o
   const width = await page.evaluate(() => ({ full: document.documentElement.scrollWidth, viewport: innerWidth }));
   expect(width.full).toBeLessThanOrEqual(width.viewport + 1);
   const screenshot = process.env['E2E_IP_INVENTORY_SCREENSHOTS'];
-  if (screenshot) await page.getByTestId(mobile ? `${prefix}.11` : 'admin.ip_addresses.table').screenshot({ path: `${screenshot}/${testInfo.project.name}.png`, scale: 'css' });
+  if (screenshot)
+    await page
+      .getByTestId(mobile ? `${prefix}.11` : 'admin.ip_addresses.table')
+      .screenshot({ path: `${screenshot}/${testInfo.project.name}.png`, scale: 'css' });
   await tap(`${prefix}.11.action.edit`);
   await expect(page).toHaveURL(/\/ip-addresses\/11$/);
   for (const section of ['details', 'owner', 'hosts']) {
@@ -532,7 +636,9 @@ test('@pr-smoke @pr-smoke-mobile IP inventory keeps legacy IPv6 searchable and o
 });
 
 for (const language of ['cs', 'en'] as const) {
-  test(`@pr-smoke @pr-smoke-mobile ${language} numeric IP search filters user 5008 rather than IP 5008`, async ({ page }, testInfo) => {
+  test(`@pr-smoke @pr-smoke-mobile ${language} numeric IP search filters user 5008 rather than IP 5008`, async ({
+    page,
+  }, testInfo) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
     await setUiSettingsLocalStorage(page, { language, theme: 'dark' });
     const requests: Array<{ user: string | null; assigned: string | null; q: string | null }> = [];
@@ -552,7 +658,10 @@ for (const language of ['cs', 'en'] as const) {
             q: ctx.searchParams.get('ip_address[q]'),
           };
           requests.push(request);
-          return { ip_addresses: request.user === '5008' ? owned : [], _meta: { total_count: request.user === '5008' ? 3 : 0 } };
+          return {
+            ip_addresses: request.user === '5008' ? owned : [],
+            _meta: { total_count: request.user === '5008' ? 3 : 0 },
+          };
         },
       },
     });
@@ -560,13 +669,16 @@ for (const language of ['cs', 'en'] as const) {
     const input = page.getByTestId('admin.ip_addresses.smart_filter.input');
     await input.fill('5008');
     const suggestion = page.getByTestId('admin.ip_addresses.smart.suggest.user');
-    await expect(suggestion).toContainText(language === 'cs' ? 'IP adresy uživatele #5008' : 'IP addresses owned by user #5008');
+    await expect(suggestion).toContainText(
+      language === 'cs' ? 'IP adresy uživatele #5008' : 'IP addresses owned by user #5008'
+    );
     await expect(page.getByTestId('admin.ip_addresses.smart.suggest.open')).toBeVisible();
     await input.press('Enter');
     await expect(page).toHaveURL(/\/admin\/networking\/ip-addresses\?user=5008$/);
     await expect(page.getByTestId('admin.ip_addresses.chip.user')).toContainText('5008');
     const kind = testInfo.project.name.startsWith('mobile-') ? 'card' : 'row';
-    for (const ip of owned) await expect(page.getByTestId(`admin.ip_addresses.${kind}.${ip.id}`)).toContainText(ip.addr);
+    for (const ip of owned)
+      await expect(page.getByTestId(`admin.ip_addresses.${kind}.${ip.id}`)).toContainText(ip.addr);
     await expect.poll(() => requests.at(-1)).toEqual({ user: '5008', assigned: null, q: null });
     await expect(page.getByTestId('admin.ip_addresses.quick.occupancy.any')).toHaveClass(/bg-surface/);
     await page.screenshot({ path: testInfo.outputPath(`owner-5008-${language}.png`), fullPage: true });
@@ -594,7 +706,9 @@ for (const language of ['cs', 'en'] as const) {
       handlers: {
         'GET locations': () => ({ locations: [] }),
         'GET ip_addresses': () => ({ ip_addresses: [] }),
-        'GET ip_addresses/5008': () => ({ ip_address: { id: 5008, addr: '192.0.2.80', prefix: 32, user: { id: 99, login: 'another-owner' } } }),
+        'GET ip_addresses/5008': () => ({
+          ip_address: { id: 5008, addr: '192.0.2.80', prefix: 32, user: { id: 99, login: 'another-owner' } },
+        }),
       },
     });
     for (const query of ['#5008', 'id:5008']) {

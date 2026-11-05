@@ -332,7 +332,6 @@ export function UserNetworkPage() {
         header={
           <PageHeader
             title={t('network.user.title')}
-            description={t('network.user.subtitle')}
             testId="network.user.header"
             actions={activeTab === 'addresses' ? (
               <div className="flex flex-wrap gap-2">
