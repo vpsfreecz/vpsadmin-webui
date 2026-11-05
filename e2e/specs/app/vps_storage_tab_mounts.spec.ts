@@ -51,7 +51,9 @@ function mountItemControl(page: Page, mountId: number, control: 'dataset' | 'del
 
 test.describe('@smoke VPS storage tab mounts', () => {
   for (const override of [false, true]) {
-    test(`lets an admin resize the VPS root SSD live from the storage entrypoint (override: ${override})`, async ({ page }) => {
+    test(`lets an admin resize the VPS root SSD live from the storage entrypoint (override: ${override})`, async ({
+      page,
+    }) => {
       await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
       let vpsUpdateCount = 0;
 
@@ -103,7 +105,9 @@ test.describe('@smoke VPS storage tab mounts', () => {
       );
       await modal.getByTestId('vps.storage.resize.submit').click();
 
-      expect((await requestPromise).postDataJSON()).toEqual({ dataset: { refquota: 32 * 1024, ...(override ? { admin_override: true } : {}) } });
+      expect((await requestPromise).postDataJSON()).toEqual({
+        dataset: { refquota: 32 * 1024, ...(override ? { admin_override: true } : {}) },
+      });
       expect(vpsUpdateCount).toBe(0);
       await expect(modal).toBeHidden();
       await expect(page.getByTestId('vps.storage.root_dataset.resize')).toBeVisible();
@@ -113,15 +117,20 @@ test.describe('@smoke VPS storage tab mounts', () => {
       await page.goto('/app/vps/123/storage');
       await expect(page.getByTestId('vps.storage.root_dataset.resize')).toHaveCount(0);
     });
-
   }
 
   test('resets a mount deletion confirm when the VPS route changes', async ({ page }) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
-    const mounts = [{
-      id: 1, mountpoint: '/mnt/old', mode: 'ro', enabled: true,
-      on_start_fail: 'ignore', dataset: { id: 9, name: 'tank/old' },
-    }];
+    const mounts = [
+      {
+        id: 1,
+        mountpoint: '/mnt/old',
+        mode: 'ro',
+        enabled: true,
+        on_start_fail: 'ignore',
+        dataset: { id: 9, name: 'tank/old' },
+      },
+    ];
     await installHaveApiMock(page, {
       user: { id: 1, login: 'user', level: 1 },
       handlers: {
@@ -240,10 +249,10 @@ test.describe('@smoke VPS storage tab mounts', () => {
           const created = {
             id: 2,
             mountpoint: '/mnt/data',
-                mode: 'rw',
+            mode: 'rw',
             enabled: true,
             on_start_fail: 'ignore',
-                current_state: 'mounted',
+            current_state: 'mounted',
             expiration_date: '2026-02-28T00:00:00Z',
             dataset: { ...dataset },
             created_at: '2026-01-31T01:00:00Z',
@@ -279,8 +288,14 @@ test.describe('@smoke VPS storage tab mounts', () => {
       'href',
       '/app/datasets/10?create=subdataset'
     );
-    await expect(page.getByTestId('vps.storage.root_dataset.snapshots')).toHaveAttribute('href', '/app/datasets/10/snapshots');
-    await expect(page.getByTestId('vps.storage.root_dataset.downloads')).toHaveAttribute('href', '/app/datasets/10/downloads');
+    await expect(page.getByTestId('vps.storage.root_dataset.snapshots')).toHaveAttribute(
+      'href',
+      '/app/datasets/10/snapshots'
+    );
+    await expect(page.getByTestId('vps.storage.root_dataset.downloads')).toHaveAttribute(
+      'href',
+      '/app/datasets/10/downloads'
+    );
     await expect(page.getByTestId('vps.storage.root_dataset.create_snapshot')).toHaveCount(0);
     await expect(page.getByTestId('vps.storage.root_dataset.restore')).toHaveCount(0);
     await expect(page.getByTestId('vps.storage.root_dataset.backup')).toHaveCount(0);
@@ -398,11 +413,11 @@ test.describe('@smoke VPS storage tab mounts', () => {
             {
               id: 1,
               mountpoint: '/mnt/old',
-                    mode: 'ro',
+              mode: 'ro',
               enabled: true,
               master_enabled: false,
               on_start_fail: 'ignore',
-                    current_state: 'mounted',
+              current_state: 'mounted',
               dataset: { id: 9, name: 'tank/old' },
               created_at: '2026-01-31T00:00:00Z',
             },
@@ -441,10 +456,10 @@ test.describe('@smoke VPS storage tab mounts', () => {
             {
               id: 1,
               mountpoint: '/mnt/old',
-                    mode: 'ro',
+              mode: 'ro',
               enabled: true,
               on_start_fail: 'ignore',
-                    current_state: 'mounted',
+              current_state: 'mounted',
               dataset: { id: 9, name: 'tank/old' },
               created_at: '2026-01-31T00:00:00Z',
             },
@@ -538,7 +553,9 @@ test.describe('@smoke VPS storage tab mounts', () => {
         expect(
           await item.getByText('/mnt/data', { exact: true }).evaluate((el) => el.scrollWidth <= el.clientWidth)
         ).toBe(true);
-        expect(await mountItemControl(page, 1, 'dataset').evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
+        expect(await mountItemControl(page, 1, 'dataset').evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(
+          true
+        );
         await expect(item).not.toContainText('{value}');
       }
       await item.scrollIntoViewIfNeeded();
@@ -556,5 +573,4 @@ test.describe('@smoke VPS storage tab mounts', () => {
       }
     }
   });
-
 });

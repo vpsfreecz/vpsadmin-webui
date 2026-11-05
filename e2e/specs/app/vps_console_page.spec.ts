@@ -36,7 +36,9 @@ async function routeConsoleStub(page: Page) {
 }
 
 test.describe('@smoke VPS console page', () => {
-  test('@workflow-matrix @pr-smoke @pr-smoke-mobile opens immediately, reuses a session on navigation and confirms replacement', async ({ page }) => {
+  test('@workflow-matrix @pr-smoke @pr-smoke-mobile opens immediately, reuses a session on navigation and confirms replacement', async ({
+    page,
+  }) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
 
     await routeConsoleStub(page);
@@ -52,10 +54,12 @@ test.describe('@smoke VPS console page', () => {
         'GET transaction_chains': () => ({ transaction_chains: [] }),
         'POST vpses/123/console_token': () => {
           createCalls += 1;
-          return { console_token: {
-            token: createCalls === 1 ? 'T1' : 'T2',
-            expiration: '2027-01-31T00:00:00Z',
-          } };
+          return {
+            console_token: {
+              token: createCalls === 1 ? 'T1' : 'T2',
+              expiration: '2027-01-31T00:00:00Z',
+            },
+          };
         },
         'DELETE vpses/123/console_token': () => {
           deleteCalls += 1;
@@ -86,7 +90,10 @@ test.describe('@smoke VPS console page', () => {
     // Returning to the console reuses its valid cached session, without DELETE.
     await page.getByRole('link', { name: /^Overview$/ }).click();
     await expect(iframe).toHaveCount(0);
-    await page.getByRole('link', { name: /^Console$/ }).first().click();
+    await page
+      .getByRole('link', { name: /^Console$/ })
+      .first()
+      .click();
     await expect(iframe).toHaveAttribute('src', /session=T1/);
     await expect(page.getByTestId('vps.console.frame_status')).toContainText('Connected');
     expect(createCalls).toBe(1);
@@ -114,9 +121,7 @@ test.describe('@smoke VPS console page', () => {
     await expect(page.getByTestId('vps.console.new_session_dialog.target')).toContainText('#123');
     await page.getByTestId('vps.console.new_session_dialog.confirm').click();
 
-    await expect
-      .poll(async () => await iframe.getAttribute('src'))
-      .toContain('/_console/console/123?session=T2');
+    await expect.poll(async () => await iframe.getAttribute('src')).toContain('/_console/console/123?session=T2');
 
     expect(deleteCalls).toBe(1);
     expect(createCalls).toBe(2);
@@ -150,10 +155,12 @@ test.describe('@smoke VPS console page', () => {
         'GET transaction_chains': () => ({ transaction_chains: [] }),
         'POST vpses/123/console_token': () => {
           createCalls += 1;
-          return { console_token: {
-            token: 'ADMIN',
-            expiration: '2027-01-31T00:00:00Z',
-          } };
+          return {
+            console_token: {
+              token: 'ADMIN',
+              expiration: '2027-01-31T00:00:00Z',
+            },
+          };
         },
       },
     });
@@ -167,7 +174,10 @@ test.describe('@smoke VPS console page', () => {
     await expect(page.getByTestId('vps.console.frame_status')).toContainText('Connected');
     expect(createCalls).toBe(2);
     await expect(page.getByTestId('vps.console.open_new_tab')).toHaveCount(0);
-    await expect(page.getByTestId('vps.console.iframe')).toHaveAttribute('src', /\/_console\/console\/123\?session=ADMIN/);
+    await expect(page.getByTestId('vps.console.iframe')).toHaveAttribute(
+      'src',
+      /\/_console\/console\/123\?session=ADMIN/
+    );
     await expect(page.getByTestId('vps.console.frame_status')).toContainText('Connected');
   });
 
@@ -227,7 +237,8 @@ test.describe('@smoke VPS console page', () => {
           'GET transaction_chains': () => ({ transaction_chains: [] }),
           'POST vpses/123/console_token': async () => {
             createCalls += 1;
-            if (createCalls === 2) return { status: false, message: 'explicit console recovery failed', response: null };
+            if (createCalls === 2)
+              return { status: false, message: 'explicit console recovery failed', response: null };
             if (createCalls === 3) await recoveryResponse;
             return { console_token: { token: `T${createCalls}`, expiration: '2027-01-31T00:00:00Z' } };
           },
@@ -409,7 +420,9 @@ test.describe('@smoke VPS console page', () => {
 });
 
 for (const language of ['cs', 'en'] as const) {
-  test(`@pr-smoke @pr-smoke-mobile ${language} console revoke has distinct cancel and confirm actions`, async ({ page }, testInfo) => {
+  test(`@pr-smoke @pr-smoke-mobile ${language} console revoke has distinct cancel and confirm actions`, async ({
+    page,
+  }, testInfo) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
     await setUiSettingsLocalStorage(page, { language, theme: 'dark' });
     await routeConsoleStub(page);
@@ -425,7 +438,10 @@ for (const language of ['cs', 'en'] as const) {
           createCalls += 1;
           return { console_token: { token: 'SYNTHETIC_REVIEW', expiration: '2027-01-31T00:00:00Z' } };
         },
-        'DELETE vpses/123/console_token': () => { deleteCalls += 1; return { console_token: {} }; },
+        'DELETE vpses/123/console_token': () => {
+          deleteCalls += 1;
+          return { console_token: {} };
+        },
       },
     });
     await page.goto('/app/vps/123/console');

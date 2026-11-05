@@ -10,16 +10,55 @@ test('@smoke dns zone advanced tabs render', async ({ page }, testInfo) => {
   await installHaveApiMock(page, {
     user: { id: 10, login: 'alice', level: 1 },
     handlers: {
-      'GET dns_zones/42': () => ({ dns_zone: { id: 42, name: 'example.test', source: 'internal_source', enabled: true, dnssec_enabled: true, serial: 1234, user: { id: 10, login: 'alice' } } }),
+      'GET dns_zones/42': () => ({
+        dns_zone: {
+          id: 42,
+          name: 'example.test',
+          source: 'internal_source',
+          enabled: true,
+          dnssec_enabled: true,
+          serial: 1234,
+          user: { id: 10, login: 'alice' },
+        },
+      }),
       'GET transaction_chains': () => ({ transaction_chains: [] }),
-      'GET dns_zone_transfers': () => ({ dns_zone_transfers: [{ id: 1, dns_zone: { id: 42 }, host_ip_address: { id: 11, ip_address: { ip_addr: '203.0.113.10' } }, peer_type: 'primary_type', dns_tsig_key: { id: 21, name: 'tsig-a' } }] }),
+      'GET dns_zone_transfers': () => ({
+        dns_zone_transfers: [
+          {
+            id: 1,
+            dns_zone: { id: 42 },
+            host_ip_address: { id: 11, ip_address: { ip_addr: '203.0.113.10' } },
+            peer_type: 'primary_type',
+            dns_tsig_key: { id: 21, name: 'tsig-a' },
+          },
+        ],
+      }),
       'GET dns_tsig_keys': () => {
         tsigRequests += 1;
-        return { dns_tsig_keys: [{ id: 21, name: 'tsig-a', algorithm: 'hmac-sha256', secret: 'secret', user: { id: 10, login: 'alice' } }] };
+        return {
+          dns_tsig_keys: [
+            { id: 21, name: 'tsig-a', algorithm: 'hmac-sha256', secret: 'secret', user: { id: 10, login: 'alice' } },
+          ],
+        };
       },
       'GET dns_record_logs': () => ({ dns_record_logs: [] }),
-      'GET dnssec_records': () => ({ dnssec_records: [{ id: 1, dns_zone: { id: 42 }, keyid: 12345, dnskey_algorithm: 13, dnskey_pubkey: 'ABCDEF', ds_algorithm: 13, ds_digest_type: 2, ds_digest: '012345' }] }),
-      'GET dns_server_zones': () => ({ dns_server_zones: [{ id: 1, dns_server: { id: 5, name: 'ns1' }, type: 'primary_type', serial: 1234 }] }),
+      'GET dnssec_records': () => ({
+        dnssec_records: [
+          {
+            id: 1,
+            dns_zone: { id: 42 },
+            keyid: 12345,
+            dnskey_algorithm: 13,
+            dnskey_pubkey: 'ABCDEF',
+            ds_algorithm: 13,
+            ds_digest_type: 2,
+            ds_digest: '012345',
+          },
+        ],
+      }),
+      'GET dns_server_zones': () => ({
+        dns_server_zones: [{ id: 1, dns_server: { id: 5, name: 'ns1' }, type: 'primary_type', serial: 1234 }],
+      }),
       'GET dns_servers': () => ({ dns_servers: [{ id: 5, name: 'ns1' }] }),
       'GET host_ip_addresses': ({ searchParams }) => {
         hostIpLookupParams = new URLSearchParams(searchParams);
@@ -35,11 +74,7 @@ test('@smoke dns zone advanced tabs render', async ({ page }, testInfo) => {
   await page.goto('/app/dns/zones/42/transfers');
   await expect(page.getByTestId('dns.transfers.page')).toBeVisible();
   await expect(
-    page.getByTestId(
-      testInfo.project.name === 'mobile-chrome'
-        ? 'dns.transfers.card.1'
-        : 'dns.transfers.row.1',
-    ),
+    page.getByTestId(testInfo.project.name === 'mobile-chrome' ? 'dns.transfers.card.1' : 'dns.transfers.row.1')
   ).toBeVisible();
   expect(tsigRequests).toBe(0);
   await page.getByTestId('dns.transfers.create.open').click();
@@ -76,7 +111,9 @@ test('@smoke dns zone advanced tabs render', async ({ page }, testInfo) => {
 
   await page.goto('/app/dns/zones/42/servers');
   await expect(page.getByTestId('dns.servers.page')).toBeVisible();
-  await expect(page.getByTestId(test.info().project.name === 'mobile-chrome' ? 'dns.servers.card.1' : 'dns.servers.row.1')).toBeVisible();
+  await expect(
+    page.getByTestId(test.info().project.name === 'mobile-chrome' ? 'dns.servers.card.1' : 'dns.servers.row.1')
+  ).toBeVisible();
 });
 
 test('@smoke @smoke-mobile user DNS server addresses are visible and copyable', async ({ page }) => {
@@ -95,17 +132,19 @@ test('@smoke @smoke-mobile user DNS server addresses are visible and copyable', 
       }),
       'GET transaction_chains': () => ({ transaction_chains: [] }),
       'GET dns_server_zones': () => ({
-        dns_server_zones: [{
-          id: 1,
-          dns_server: {
-            id: 5,
-            name: 'ns1.example.test',
-            ipv4_addr: '192.0.2.53',
-            ipv6_addr: '2001:db8::53',
+        dns_server_zones: [
+          {
+            id: 1,
+            dns_server: {
+              id: 5,
+              name: 'ns1.example.test',
+              ipv4_addr: '192.0.2.53',
+              ipv6_addr: '2001:db8::53',
+            },
+            type: 'primary_type',
+            serial: 1234,
           },
-          type: 'primary_type',
-          serial: 1234,
-        }],
+        ],
       }),
     },
   });
@@ -185,16 +224,18 @@ test('@smoke secondary DNS zone defaults to transfers and renders real transfer 
         dns_server_zones: [{ id: 31, dns_server: { id: 5, name: 'ns1' }, serial: 2026082701 }],
       }),
       'GET dns_server_zone_transfer_logs': () => ({
-        dns_server_zone_transfer_logs: [{
-          id: 91,
-          dns_server_zone: { id: 31, dns_server: { id: 5, name: 'ns1' } },
-          event_at: '2026-08-27T12:34:56Z',
-          status: 'failed',
-          primary_addr: '192.0.2.53',
-          serial: 2026082701,
-          reason_code: 'connection_refused',
-          reason: 'Connection refused',
-        }],
+        dns_server_zone_transfer_logs: [
+          {
+            id: 91,
+            dns_server_zone: { id: 31, dns_server: { id: 5, name: 'ns1' } },
+            event_at: '2026-08-27T12:34:56Z',
+            status: 'failed',
+            primary_addr: '192.0.2.53',
+            serial: 2026082701,
+            reason_code: 'connection_refused',
+            reason: 'Connection refused',
+          },
+        ],
       }),
       'GET dns_records': () => {
         recordRequests += 1;
@@ -226,6 +267,6 @@ test('@smoke secondary DNS zone defaults to transfers and renders real transfer 
   await expect.poll(() => createdTransfer?.dns_zone_transfer?.peer_type).toBe('primary_type');
   expect(createdTransfer?.dns_zone_transfer?.host_ip_address).toBe(12);
 
-  const screenshot = process.env.E2E_DNS_SECONDARY_SCREENSHOT?.trim();
+  const screenshot = process.env['E2E_DNS_SECONDARY_SCREENSHOT']?.trim();
   if (screenshot) await page.screenshot({ path: screenshot, fullPage: true });
 });

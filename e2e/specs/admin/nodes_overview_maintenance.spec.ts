@@ -92,7 +92,11 @@ test('@pr-smoke @pr-smoke-mobile overview supplies private metrics; one tap enab
   await expect(page.getByTestId(`admin.nodes.${isMobile ? 'card' : 'row'}.6`)).toContainText('Dostupný');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   if (process.env['E2E_CAPTURE_SCREENSHOTS'] === '1')
-    await page.screenshot({ path: `docs/design/images/nodes-overview-${testInfo.project.name}.png`, fullPage: true, scale: 'css' });
+    await page.screenshot({
+      path: `docs/design/images/nodes-overview-${testInfo.project.name}.png`,
+      fullPage: true,
+      scale: 'css',
+    });
   await open(page, isMobile);
   await page.getByTestId('admin.nodes.maintenance.reason').fill('Výměna disku');
   const confirm = page.getByTestId('admin.nodes.maintenance.dialog.confirm');
@@ -100,7 +104,8 @@ test('@pr-smoke @pr-smoke-mobile overview supplies private metrics; one tap enab
   if (process.env['E2E_CAPTURE_SCREENSHOTS'] === '1')
     await page.screenshot({
       path: `docs/design/images/nodes-maintenance-${testInfo.project.name}.png`,
-      fullPage: false, scale: 'css',
+      fullPage: false,
+      scale: 'css',
     });
   await confirm.click();
   await expect(page.getByTestId('admin.nodes.maintenance.dialog')).toHaveCount(0);
@@ -242,10 +247,16 @@ test('overview failure retains inventory with explicit warning and useful action
   await expect(row(page, isMobile)).toContainText('Neznámý stav');
   if (browserName === 'chromium') {
     await context.grantPermissions(['clipboard-read', 'clipboard-write']);
-    await row(page, isMobile).getByTestId(`admin.nodes.${isMobile ? 'card' : 'row'}.5.copy`).click();
-    await expect(row(page, isMobile).getByTestId(`admin.nodes.${isMobile ? 'card' : 'row'}.5.copy`)).toContainText('Zkopírováno');
+    await row(page, isMobile)
+      .getByTestId(`admin.nodes.${isMobile ? 'card' : 'row'}.5.copy`)
+      .click();
+    await expect(row(page, isMobile).getByTestId(`admin.nodes.${isMobile ? 'card' : 'row'}.5.copy`)).toContainText(
+      'Zkopírováno'
+    );
     expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('node5.example.test');
   }
-  await row(page, isMobile).getByTestId(`admin.nodes.${isMobile ? 'card' : 'row'}.5.vps`).click();
+  await row(page, isMobile)
+    .getByTestId(`admin.nodes.${isMobile ? 'card' : 'row'}.5.vps`)
+    .click();
   await expect(page).toHaveURL(/\/admin\/vps\?node=5/);
 });

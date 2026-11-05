@@ -153,7 +153,7 @@ test('@content-storage-dns @pr-smoke @pr-smoke-mobile DNS TTL fields follow the 
   await expect(save).toBeDisabled();
 
   await page.screenshot({ path: testInfo.outputPath('zone-settings-invalid-ttl.png'), fullPage: true, scale: 'css' });
-  const proofScreenshot = process.env.E2E_DNS_TTL_PROOF_SCREENSHOT?.trim();
+  const proofScreenshot = process.env['E2E_DNS_TTL_PROOF_SCREENSHOT']?.trim();
   if (proofScreenshot) {
     await page.screenshot({
       path: proofScreenshot.replace(/\.png$/i, `-${testInfo.project.name}.png`),

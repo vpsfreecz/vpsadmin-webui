@@ -68,16 +68,13 @@ const ips = [
 
 const acct = [{ id: 1, bytes_in: 1024, bytes_out: 2048 }];
 
-
 async function openAdminNetworkSettings(page: Page) {
   await page.getByTestId('vps.network.admin_settings.toggle').click();
 }
 
 function interfaceEditButton(page: Page) {
   return page.getByTestId(
-    (page.viewportSize()?.width ?? 0) < 768
-      ? 'vps.network.interfaces.card.1.edit'
-      : 'vps.network.interfaces.row.1.edit'
+    (page.viewportSize()?.width ?? 0) < 768 ? 'vps.network.interfaces.card.1.edit' : 'vps.network.interfaces.row.1.edit'
   );
 }
 
@@ -99,7 +96,9 @@ test.describe('@pr-smoke VPS network tab', () => {
           network_interface: { ...netifs[0] },
           _meta: { action_state_id: 1201 },
         }),
-        'GET action_states/1201': () => ({ action_state: { id: 1201, finished: true, status: true, current: 1, total: 1 } }),
+        'GET action_states/1201': () => ({
+          action_state: { id: 1201, finished: true, status: true, current: 1, total: 1 },
+        }),
       },
     });
 
@@ -164,7 +163,9 @@ test.describe('@pr-smoke VPS network tab', () => {
           await updateGate;
           return { network_interface: { ...netifs[0] }, _meta: { action_state_id: 1250 } };
         },
-        'GET action_states/1250': () => ({ action_state: { id: 1250, finished: true, status: true, current: 1, total: 1 } }),
+        'GET action_states/1250': () => ({
+          action_state: { id: 1250, finished: true, status: true, current: 1, total: 1 },
+        }),
       },
     });
 
@@ -211,7 +212,9 @@ test.describe('@pr-smoke VPS network tab', () => {
           enabled = false;
           return { vps: { ...vps, enable_network: enabled }, _meta: { action_state_id: 1210 } };
         },
-        'GET action_states/1210': () => ({ action_state: { id: 1210, finished: true, status: true, current: 1, total: 1 } }),
+        'GET action_states/1210': () => ({
+          action_state: { id: 1210, finished: true, status: true, current: 1, total: 1 },
+        }),
       },
     });
 
@@ -227,9 +230,7 @@ test.describe('@pr-smoke VPS network tab', () => {
 
     await page.getByTestId('vps.network.disable.reason').fill('Testing');
 
-    const reqPromise = page.waitForRequest(
-      (r) => r.method() === 'PUT' && r.url().includes('/api/v7.0/vpses/123')
-    );
+    const reqPromise = page.waitForRequest((r) => r.method() === 'PUT' && r.url().includes('/api/v7.0/vpses/123'));
 
     await page.getByTestId('vps.network.disable_confirm.confirm').click();
 
@@ -282,7 +283,9 @@ test.describe('@pr-smoke VPS network tab', () => {
         },
         'GET environments': () => ({ environments: [{ id: 3, label: 'env-test' }] }),
         'POST ip_addresses/2/assign': () => {
-          currentIps = currentIps.map((ip) => (ip.id === 2 ? { ...ip, network_interface: { id: 1 }, routed: true } : ip));
+          currentIps = currentIps.map((ip) =>
+            ip.id === 2 ? { ...ip, network_interface: { id: 1 }, routed: true } : ip
+          );
           return { ip_address: currentIps.find((ip) => ip.id === 2), _meta: { action_state_id: 1202 } };
         },
         'POST ip_addresses/1/free': () => {
@@ -290,11 +293,15 @@ test.describe('@pr-smoke VPS network tab', () => {
           return { ip_address: currentIps.find((ip) => ip.id === 1), _meta: { action_state_id: 1203 } };
         },
         'PUT ip_addresses/1': () => {
-          currentIps = currentIps.map((ip) => (ip.id === 1 ? {
-            ...ip,
-            user: { id: 77, login: 'new-owner' },
-            charged_environment: { id: 3 },
-          } : ip));
+          currentIps = currentIps.map((ip) =>
+            ip.id === 1
+              ? {
+                  ...ip,
+                  user: { id: 77, login: 'new-owner' },
+                  charged_environment: { id: 3 },
+                }
+              : ip
+          );
           return { ip_address: currentIps.find((ip) => ip.id === 1), _meta: { action_state_id: 1204 } };
         },
         'POST host_ip_addresses/51/assign': () => {
@@ -312,12 +319,24 @@ test.describe('@pr-smoke VPS network tab', () => {
           );
           return { host_ip_address: hostAddresses[0], _meta: { action_state_id: 1207 } };
         },
-        'GET action_states/1202': () => ({ action_state: { id: 1202, finished: true, status: true, current: 1, total: 1 } }),
-        'GET action_states/1203': () => ({ action_state: { id: 1203, finished: true, status: true, current: 1, total: 1 } }),
-        'GET action_states/1204': () => ({ action_state: { id: 1204, finished: true, status: true, current: 1, total: 1 } }),
-        'GET action_states/1205': () => ({ action_state: { id: 1205, finished: true, status: true, current: 1, total: 1 } }),
-        'GET action_states/1206': () => ({ action_state: { id: 1206, finished: true, status: true, current: 1, total: 1 } }),
-        'GET action_states/1207': () => ({ action_state: { id: 1207, finished: true, status: true, current: 1, total: 1 } }),
+        'GET action_states/1202': () => ({
+          action_state: { id: 1202, finished: true, status: true, current: 1, total: 1 },
+        }),
+        'GET action_states/1203': () => ({
+          action_state: { id: 1203, finished: true, status: true, current: 1, total: 1 },
+        }),
+        'GET action_states/1204': () => ({
+          action_state: { id: 1204, finished: true, status: true, current: 1, total: 1 },
+        }),
+        'GET action_states/1205': () => ({
+          action_state: { id: 1205, finished: true, status: true, current: 1, total: 1 },
+        }),
+        'GET action_states/1206': () => ({
+          action_state: { id: 1206, finished: true, status: true, current: 1, total: 1 },
+        }),
+        'GET action_states/1207': () => ({
+          action_state: { id: 1207, finished: true, status: true, current: 1, total: 1 },
+        }),
       },
     });
 
@@ -345,7 +364,9 @@ test.describe('@pr-smoke VPS network tab', () => {
     await page.getByTestId('vps.network.host_addresses.row.51.assign').click();
     const hostAssignDialog = page.getByTestId('vps.network.host_addresses.assign');
     await expect(hostAssignDialog).toContainText('198.51.100.11');
-    await expect(hostAssignDialog.getByTestId('vps.network.host_addresses.assign.target')).toContainText('vps123.example');
+    await expect(hostAssignDialog.getByTestId('vps.network.host_addresses.assign.target')).toContainText(
+      'vps123.example'
+    );
     await expect(hostAssignDialog.getByTestId('vps.network.host_addresses.assign.target')).toContainText('#123');
     await expect(hostAssignDialog.getByTestId('vps.network.host_addresses.assign.interface')).toContainText('eth0');
     await expect(hostAssignDialog.getByRole('combobox')).toHaveCount(0);
@@ -384,9 +405,7 @@ test.describe('@pr-smoke VPS network tab', () => {
     await page.getByTestId('vps.network.ip_addresses.item.1.owner').click();
     await page.getByTestId('vps.network.ip_addresses.owner.user').fill('77');
     await page.getByTestId('vps.network.ip_addresses.owner.environment').selectOption('3');
-    const ownerReq = page.waitForRequest(
-      (r) => r.method() === 'PUT' && r.url().includes('/api/v7.0/ip_addresses/1')
-    );
+    const ownerReq = page.waitForRequest((r) => r.method() === 'PUT' && r.url().includes('/api/v7.0/ip_addresses/1'));
     await page.getByTestId('vps.network.ip_addresses.owner.submit').click();
     expect((await ownerReq).postDataJSON()).toEqual({
       ip_address: {
@@ -474,8 +493,14 @@ test.describe('@pr-smoke VPS network tab', () => {
     await expect(disable).toHaveAttribute('title', 'Operation in progress');
 
     await expect(page.getByTestId('vps.network.ip_addresses.item.1.owner')).toHaveAttribute('aria-disabled', 'true');
-    await expect(page.getByTestId('vps.network.ip_addresses.item.1.free_route')).toHaveAttribute('aria-disabled', 'true');
-    await expect(page.getByTestId('vps.network.ip_addresses.unassigned.2.assign')).toHaveAttribute('aria-disabled', 'true');
+    await expect(page.getByTestId('vps.network.ip_addresses.item.1.free_route')).toHaveAttribute(
+      'aria-disabled',
+      'true'
+    );
+    await expect(page.getByTestId('vps.network.ip_addresses.unassigned.2.assign')).toHaveAttribute(
+      'aria-disabled',
+      'true'
+    );
     await expect(page.getByTestId('vps.network.host_addresses.row.50.ptr')).toHaveAttribute('aria-disabled', 'true');
     await expect(page.getByTestId('vps.network.host_addresses.row.50.free')).toHaveAttribute('aria-disabled', 'true');
     await expect(page.getByTestId('vps.network.host_addresses.row.51.assign')).toHaveAttribute('aria-disabled', 'true');
@@ -550,7 +575,9 @@ test.describe('@pr-smoke VPS network tab', () => {
           ip_address: { ...freePrivate, network_interface: { id: 1 } },
           _meta: { action_state_id: 1277 },
         }),
-        'GET action_states/1277': () => ({ action_state: { id: 1277, finished: true, status: true, current: 1, total: 1 } }),
+        'GET action_states/1277': () => ({
+          action_state: { id: 1277, finished: true, status: true, current: 1, total: 1 },
+        }),
       },
     });
 
@@ -603,13 +630,15 @@ test.describe('@pr-smoke VPS network tab', () => {
         'POST ip_addresses/201/assign_with_host_address': (ctx) => {
           assignPayload = ctx.request.postDataJSON?.();
           currentIps = [{ ...freeIp, network_interface: { id: 1, name: 'eth0' }, routed: true }];
-          hostAddresses = [{
-            id: 301,
-            addr: '198.51.100.201',
-            assigned: true,
-            user_created: false,
-            ip_address: { id: 201, addr: '198.51.100.201', network_interface: { id: 1 } },
-          }];
+          hostAddresses = [
+            {
+              id: 301,
+              addr: '198.51.100.201',
+              assigned: true,
+              user_created: false,
+              ip_address: { id: 201, addr: '198.51.100.201', network_interface: { id: 1 } },
+            },
+          ];
           return { ip_address: currentIps[0], _meta: { action_state_id: 2201 } };
         },
         'GET action_states/2201': () => ({
@@ -625,9 +654,11 @@ test.describe('@pr-smoke VPS network tab', () => {
     await page.getByTestId('network.user.assign.submit').click();
 
     await expect(page.getByTestId('vps.network.ip_addresses.add_modal')).toBeHidden();
-    await expect.poll(() => assignPayload).toEqual({
-      ip_address: { network_interface: 1 },
-    });
+    await expect
+      .poll(() => assignPayload)
+      .toEqual({
+        ip_address: { network_interface: 1 },
+      });
     await expect(page.getByTestId('vps.network.ip_addresses.item.201')).toBeVisible();
     await expect(page.getByTestId('vps.network.host_addresses.row.301')).toContainText('198.51.100.201');
   });
@@ -670,12 +701,14 @@ test.describe('@pr-smoke VPS network tab', () => {
         'GET network_interface_accountings': () => ({ network_interface_accountings: acct }),
         'POST ip_addresses/202/assign': (ctx) => {
           assignPayload = ctx.request.postDataJSON?.();
-          currentIps = [{
-            ...freeIp,
-            network_interface: { id: 1, name: 'eth0' },
-            routed: true,
-            route_via: { id: 350, addr: '198.51.100.10' },
-          }];
+          currentIps = [
+            {
+              ...freeIp,
+              network_interface: { id: 1, name: 'eth0' },
+              routed: true,
+              route_via: { id: 350, addr: '198.51.100.10' },
+            },
+          ];
           return { ip_address: currentIps[0], _meta: { action_state_id: 2202 } };
         },
         'GET action_states/2202': () => ({
@@ -692,9 +725,11 @@ test.describe('@pr-smoke VPS network tab', () => {
     await page.getByTestId('network.user.assign.route_via').selectOption('350');
     await page.getByTestId('network.user.assign.submit').click();
 
-    await expect.poll(() => assignPayload).toEqual({
-      ip_address: { network_interface: 1, route_via: 350 },
-    });
+    await expect
+      .poll(() => assignPayload)
+      .toEqual({
+        ip_address: { network_interface: 1, route_via: 350 },
+      });
     await expect(page.getByTestId('vps.network.ip_addresses.item.202')).toContainText('198.51.100.10');
   });
 
@@ -880,5 +915,4 @@ test.describe('@pr-smoke VPS network tab', () => {
     await page.getByTestId('vps.network.interfaces').scrollIntoViewIfNeeded();
     await page.screenshot({ path: testInfo.outputPath('network-interfaces-known-disabled.png') });
   });
-
 });

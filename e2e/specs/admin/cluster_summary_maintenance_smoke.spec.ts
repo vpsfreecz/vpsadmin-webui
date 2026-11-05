@@ -65,7 +65,9 @@ test.describe('@smoke Admin cluster summary maintenance', () => {
     await expect(page.getByTestId('admin.cluster.summary.maintenance.badge')).toContainText(/off|vypnuta/i);
   });
 
-  test('@pr-smoke @pr-smoke-mobile keeps rejected lock and unlock operations in context for retry', async ({ page }) => {
+  test('@pr-smoke @pr-smoke-mobile keeps rejected lock and unlock operations in context for retry', async ({
+    page,
+  }) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'CLUSTER_MAINTENANCE_RETRY' });
 
     const cluster = {
@@ -120,10 +122,10 @@ test.describe('@smoke Admin cluster summary maintenance', () => {
     await page.getByTestId('admin.cluster.summary.maintenance.dialog.lock.confirm').click();
 
     await expect(page.getByTestId('admin.cluster.summary.maintenance.dialog.lock.error')).toContainText(
-      'Cluster lock was rejected',
+      'Cluster lock was rejected'
     );
     await expect(page.getByTestId('admin.cluster.summary.maintenance.dialog.lock.reason')).toHaveValue(
-      'Network maintenance',
+      'Network maintenance'
     );
     await page.getByTestId('admin.cluster.summary.maintenance.dialog.lock.confirm').click();
     await expect(page.getByTestId('admin.cluster.summary.maintenance.dialog.lock')).toHaveCount(0);
@@ -133,7 +135,7 @@ test.describe('@smoke Admin cluster summary maintenance', () => {
     await page.getByTestId('admin.cluster.summary.maintenance.dialog.unlock.confirm').click();
 
     await expect(page.getByTestId('admin.cluster.summary.maintenance.dialog.unlock.error')).toContainText(
-      'Cluster unlock was rejected',
+      'Cluster unlock was rejected'
     );
     await page.getByTestId('admin.cluster.summary.maintenance.dialog.unlock.confirm').click();
     await expect(page.getByTestId('admin.cluster.summary.maintenance.dialog.unlock')).toHaveCount(0);
@@ -142,7 +144,6 @@ test.describe('@smoke Admin cluster summary maintenance', () => {
     expect({ lockAttempts, unlockAttempts }).toEqual({ lockAttempts: 2, unlockAttempts: 2 });
   });
 });
-
 
 test('captures zero missing and positive node inventory without inventing counts', async ({ page }, testInfo) => {
   let stats: Record<string, number> = { nodes_online: 0, node_count: 0 };

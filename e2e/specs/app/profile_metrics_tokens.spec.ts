@@ -159,7 +159,9 @@ test('@pr-smoke @smoke profile: metrics token review and revoke guards', async (
   await deleteReqP;
 });
 
-test('@pr-smoke-mobile @smoke-mobile profile: metrics token cards keep secrets and revoke reachable at 320px', async ({ page }) => {
+test('@pr-smoke-mobile @smoke-mobile profile: metrics token cards keep secrets and revoke reachable at 320px', async ({
+  page,
+}) => {
   let tokens = metricsTokens();
 
   await page.setViewportSize({ width: 320, height: 740 });
@@ -216,7 +218,9 @@ test('@pr-smoke-mobile @smoke-mobile profile: metrics token cards keep secrets a
   await expect(page.getByTestId(cardId)).toHaveCount(0);
 });
 
-test('@pr-smoke-mobile @smoke-mobile admin: user metrics token cards preserve owner scope and revoke at 320px', async ({ page }) => {
+test('@pr-smoke-mobile @smoke-mobile admin: user metrics token cards preserve owner scope and revoke at 320px', async ({
+  page,
+}) => {
   let tokens = metricsTokens();
   const listScopes: Array<string | null> = [];
 

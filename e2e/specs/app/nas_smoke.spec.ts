@@ -1,44 +1,82 @@
 import { expect, test } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock, jsonFulfill, setUiSettingsLocalStorage } from '../../fixtures';
+import {
+  bootstrapVpsAdminWindow,
+  failEnvelope,
+  installHaveApiMock,
+  jsonFulfill,
+  setUiSettingsLocalStorage,
+} from '../../fixtures';
 
-test('@content-storage-nas-create administrator standalone form retains parent and failure states', async ({ page }, testInfo) => {
+test('@content-storage-nas-create administrator standalone form retains parent and failure states', async ({
+  page,
+}, testInfo) => {
   const language = testInfo.project.name === 'mobile-chrome' ? 'cs' : 'en';
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
   await setUiSettingsLocalStorage(page, { language, theme: 'dark' });
   let state: 'ready' | 'empty' | 'error' = 'ready';
   let payload: Record<string, unknown> | undefined;
-  const parent = { id: 901, name: 'alice', full_name: 'tank/nas/alice', user: { id: 2, login: 'alice' }, object_state: 'active' };
-  await installHaveApiMock(page, { user: { id: 1, login: 'admin', level: 99 }, handlers: {
-    'GET datasets': () => state === 'error'
-      ? { status: 503, contentType: 'application/json', body: JSON.stringify({ status: false, message: 'NAS parent inventory unavailable' }) }
-      : { datasets: state === 'empty' ? [] : [parent] },
-    'POST datasets': (ctx) => {
-      payload = ctx.params;
-      return failEnvelope('NAS creation rejected for fixture');
+  const parent = {
+    id: 901,
+    name: 'alice',
+    full_name: 'tank/nas/alice',
+    user: { id: 2, login: 'alice' },
+    object_state: 'active',
+  };
+  await installHaveApiMock(page, {
+    user: { id: 1, login: 'admin', level: 99 },
+    handlers: {
+      'GET datasets': () =>
+        state === 'error'
+          ? {
+              status: 503,
+              contentType: 'application/json',
+              body: JSON.stringify({ status: false, message: 'NAS parent inventory unavailable' }),
+            }
+          : { datasets: state === 'empty' ? [] : [parent] },
+      'POST datasets': (ctx) => {
+        payload = ctx.params;
+        return failEnvelope('NAS creation rejected for fixture');
+      },
     },
-  } });
+  });
 
   await page.goto('/admin/nas/new');
   const form = page.getByTestId('nas.create.form');
   await expect(page.getByTestId('nas.create.parent').locator('option[value="901"]')).toHaveText('tank/nas/alice');
   await expect(page.getByTestId('nas.create.submit')).toBeDisabled();
   await expect(page.getByTestId('nas.create.advanced_properties')).not.toHaveAttribute('open');
-  await page.screenshot({ path: testInfo.outputPath(`nas-create-ready-${language}.png`), fullPage: true, scale: 'css' });
-  await expect.soft(form.getByText(language === 'cs' ? 'Nový vnořený dataset' : 'New subdataset', { exact: true })).toHaveCount(0, { timeout: 500 });
+  await page.screenshot({
+    path: testInfo.outputPath(`nas-create-ready-${language}.png`),
+    fullPage: true,
+    scale: 'css',
+  });
+  await expect
+    .soft(form.getByText(language === 'cs' ? 'Nový vnořený dataset' : 'New subdataset', { exact: true }))
+    .toHaveCount(0, { timeout: 500 });
 
   state = 'empty';
   await page.reload();
-  await expect(form).toContainText(language === 'cs' ? 'Nemáš dostupný rodičovský dataset' : 'No parent dataset is available');
+  await expect(form).toContainText(
+    language === 'cs' ? 'Nemáš dostupný rodičovský dataset' : 'No parent dataset is available'
+  );
   await expect(page.getByTestId('nas.create.parent')).toHaveCount(0);
   await expect(page.getByTestId('nas.create.submit')).toHaveCount(0);
-  await page.screenshot({ path: testInfo.outputPath(`nas-create-no-parent-${language}.png`), fullPage: true, scale: 'css' });
+  await page.screenshot({
+    path: testInfo.outputPath(`nas-create-no-parent-${language}.png`),
+    fullPage: true,
+    scale: 'css',
+  });
 
   state = 'error';
   await page.reload();
   await expect(page.getByTestId('nas.create.load-error')).toBeVisible();
   await expect(page.getByTestId('nas.create.load-error.retry')).toBeVisible();
-  await page.screenshot({ path: testInfo.outputPath(`nas-create-load-error-${language}.png`), fullPage: true, scale: 'css' });
+  await page.screenshot({
+    path: testInfo.outputPath(`nas-create-load-error-${language}.png`),
+    fullPage: true,
+    scale: 'css',
+  });
 
   state = 'ready';
   await page.getByTestId('nas.create.load-error.retry').click();
@@ -52,12 +90,18 @@ test('@content-storage-nas-create administrator standalone form retains parent a
   await expect(page.getByTestId('nas.create.name')).toHaveValue('projects');
   await expect(page.getByTestId('nas.create.refquota')).toHaveValue('8');
   await expect(page.getByTestId('nas.create.submit')).toBeEnabled();
-  expect(payload?.dataset).toEqual({ dataset: 901, name: 'projects', automount: true, refquota: 8192 });
-  await page.screenshot({ path: testInfo.outputPath(`nas-create-rejected-${language}.png`), fullPage: true, scale: 'css' });
+  expect(payload?.['dataset']).toEqual({ dataset: 901, name: 'projects', automount: true, refquota: 8192 });
+  await page.screenshot({
+    path: testInfo.outputPath(`nas-create-rejected-${language}.png`),
+    fullPage: true,
+    scale: 'css',
+  });
 });
 
 test.describe('NAS datasets alias', () => {
-  test('renders NAS alias with primary-role datasets, owner rows, and unlimited capacity usage', async ({ page }, testInfo) => {
+  test('renders NAS alias with primary-role datasets, owner rows, and unlimited capacity usage', async ({
+    page,
+  }, testInfo) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
 
     let requestedRole: string | null = null;
@@ -113,7 +157,7 @@ test.describe('NAS datasets alias', () => {
     expect(requestedRole).toBe('primary');
     expect(requestedIncludes).toBe('user');
 
-    const proofScreenshot = process.env.E2E_NAS_USAGE_PROOF_SCREENSHOT?.trim();
+    const proofScreenshot = process.env['E2E_NAS_USAGE_PROOF_SCREENSHOT']?.trim();
     if (proofScreenshot) {
       await page.screenshot({ path: proofScreenshot, fullPage: true });
     }
@@ -232,12 +276,14 @@ test.describe('NAS datasets alias', () => {
     await page.getByTestId('nas.create.refquota').fill('8');
     await page.getByTestId('nas.create.submit').click();
 
-    await expect.poll(() => payload?.dataset as Record<string, unknown> | undefined).toEqual({
-      dataset: 901,
-      name: 'projects',
-      automount: true,
-      refquota: 8192,
-    });
+    await expect
+      .poll(() => payload?.['dataset'] as Record<string, unknown> | undefined)
+      .toEqual({
+        dataset: 901,
+        name: 'projects',
+        automount: true,
+        refquota: 8192,
+      });
     await expect(page).toHaveURL('/app/nas/902');
   });
 

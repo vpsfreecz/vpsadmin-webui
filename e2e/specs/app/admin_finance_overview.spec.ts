@@ -6,7 +6,9 @@ function isoDaysFromNow(days: number): string {
   return new Date(Date.now() + days * 86_400_000).toISOString();
 }
 
-test('@pr-smoke @pr-smoke-mobile admin Finance overview uses a complete account snapshot', async ({ page }, testInfo) => {
+test('@pr-smoke @pr-smoke-mobile admin Finance overview uses a complete account snapshot', async ({
+  page,
+}, testInfo) => {
   const systemConfigRequests: URL[] = [];
   await bootstrapVpsAdminWindow(page, {
     sessionToken: 'TEST',
@@ -19,11 +21,39 @@ test('@pr-smoke @pr-smoke-mobile admin Finance overview uses a complete account 
         const fromId = Number(searchParams.get('user[from_id]') ?? 0);
         const objectState = searchParams.get('user[object_state]') ?? 'active';
         const rows = [
-          { id: 10, login: 'paid', level: 1, object_state: 'active', monthly_payment: 300, paid_until: isoDaysFromNow(20) },
-          { id: 11, login: 'soon', level: 1, object_state: 'active', monthly_payment: 400, paid_until: isoDaysFromNow(2) },
-          { id: 12, login: 'late', level: 1, object_state: 'suspended', monthly_payment: 500, paid_until: '2026-09-19T22:30:00Z' },
+          {
+            id: 10,
+            login: 'paid',
+            level: 1,
+            object_state: 'active',
+            monthly_payment: 300,
+            paid_until: isoDaysFromNow(20),
+          },
+          {
+            id: 11,
+            login: 'soon',
+            level: 1,
+            object_state: 'active',
+            monthly_payment: 400,
+            paid_until: isoDaysFromNow(2),
+          },
+          {
+            id: 12,
+            login: 'late',
+            level: 1,
+            object_state: 'suspended',
+            monthly_payment: 500,
+            paid_until: '2026-09-19T22:30:00Z',
+          },
           { id: 13, login: 'missing', level: 1, object_state: 'active', monthly_payment: 600, paid_until: null },
-          { id: 14, login: 'broken', level: 1, object_state: 'active', monthly_payment: 700, paid_until: 'broken-date' },
+          {
+            id: 14,
+            login: 'broken',
+            level: 1,
+            object_state: 'active',
+            monthly_payment: 700,
+            paid_until: 'broken-date',
+          },
           { id: 15, login: 'deleted', level: 1, object_state: 'deleted', monthly_payment: 800, paid_until: null },
           { id: 16, login: 'free', level: 1, object_state: 'active', monthly_payment: 0, paid_until: null },
         ].filter((user) => user.id > fromId && user.object_state === objectState);
@@ -53,9 +83,11 @@ test('@pr-smoke @pr-smoke-mobile admin Finance overview uses a complete account 
   await expect(page.getByTestId('admin.finance.overview.risk.filter.invalid')).toContainText('1');
   await expect(page.getByTestId('admin.finance.overview.scope')).toContainText(/5/);
 
-  const expectedPaidUntil = await page.evaluate(() => new Date('2026-09-19T22:30:00Z').toLocaleDateString(undefined, {
-    timeZone: 'Europe/Prague',
-  }));
+  const expectedPaidUntil = await page.evaluate(() =>
+    new Date('2026-09-19T22:30:00Z').toLocaleDateString(undefined, {
+      timeZone: 'Europe/Prague',
+    })
+  );
   if (testInfo.project.name === 'mobile-chrome') {
     await expect(page.getByTestId('admin.finance.overview.risk.mobile')).toBeVisible();
     await expect(page.getByTestId('admin.finance.overview.risk.row.12.mobile')).toBeVisible();
@@ -83,14 +115,16 @@ test('@pr-smoke @pr-smoke-mobile admin Finance overview uses a complete account 
   }));
   expect(overflow.scrollWidth).toBeLessThanOrEqual(overflow.clientWidth);
 
-  const screenshot = process.env.E2E_ADMIN_FINANCE_OVERVIEW_SCREENSHOT?.trim();
+  const screenshot = process.env['E2E_ADMIN_FINANCE_OVERVIEW_SCREENSHOT']?.trim();
   if (screenshot) {
     const suffix = testInfo.project.name === 'mobile-chrome' ? '-mobile' : '-desktop';
     await page.screenshot({ path: screenshot.replace(/\.png$/i, `${suffix}.png`), fullPage: true });
   }
 });
 
-test('@pr-smoke @pr-smoke-mobile admin Finance overview keeps a complete snapshot after refresh failure', async ({ page }) => {
+test('@pr-smoke @pr-smoke-mobile admin Finance overview keeps a complete snapshot after refresh failure', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page, {
     sessionToken: 'TEST',
     webuiNext: { serverTimeZone: 'Europe/Prague' },
@@ -111,9 +145,19 @@ test('@pr-smoke @pr-smoke-mobile admin Finance overview keeps a complete snapsho
 
         const objectState = searchParams.get('user[object_state]') ?? 'active';
         return {
-          users: objectState === 'active'
-            ? [{ id: 20, login: 'member20', level: 1, object_state: 'active', monthly_payment: 300, paid_until: null }]
-            : [],
+          users:
+            objectState === 'active'
+              ? [
+                  {
+                    id: 20,
+                    login: 'member20',
+                    level: 1,
+                    object_state: 'active',
+                    monthly_payment: 300,
+                    paid_until: null,
+                  },
+                ]
+              : [],
         };
       },
       'GET system_configs': () => ({
@@ -205,7 +249,9 @@ test('@pr-smoke @pr-smoke-mobile admin Finance explains an empty assessment dist
   await expect(page.getByTestId('admin.finance.overview.distribution')).toHaveCount(0);
 });
 
-test('@pr-smoke @pr-smoke-mobile admin Finance reuses a complete large snapshot during member review', async ({ page }) => {
+test('@pr-smoke @pr-smoke-mobile admin Finance reuses a complete large snapshot during member review', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page, {
     sessionToken: 'TEST',
     webuiNext: { serverTimeZone: 'Europe/Prague' },
@@ -259,7 +305,7 @@ test('@pr-smoke @pr-smoke-mobile admin Finance reuses a complete large snapshot 
   await expect(page.getByTestId('nav.sidebar.finance')).toHaveAttribute('aria-current', 'page');
   await expect(page.getByTestId('admin.finance.tabs').getByRole('link').first()).toHaveAttribute(
     'href',
-    '/admin/payments/incoming',
+    '/admin/payments/incoming'
   );
   await page.getByTestId('admin.finance.tabs.overview').click();
   await expect(page).toHaveURL(/\/admin\/payments$/);
@@ -270,11 +316,11 @@ test('@pr-smoke @pr-smoke-mobile admin Finance reuses a complete large snapshot 
   expect(userRequests).toBe(3);
 });
 
-
 test('@content-finance-cs normal Finance overview keeps Czech financial scope readable', async ({ page }, info) => {
   await setUiSettingsLocalStorage(page, { language: 'cs', theme: 'dark' });
   await bootstrapVpsAdminWindow(page, {
-    sessionToken: 'TEST', webuiNext: { serverTimeZone: 'Europe/Prague' },
+    sessionToken: 'TEST',
+    webuiNext: { serverTimeZone: 'Europe/Prague' },
   });
   await installHaveApiMock(page, {
     user: { id: 1, login: 'admin', level: 100, time_zone: 'Europe/Prague' },
@@ -283,19 +329,47 @@ test('@content-finance-cs normal Finance overview keeps Czech financial scope re
         const fromId = Number(searchParams.get('user[from_id]') ?? 0);
         const objectState = searchParams.get('user[object_state]') ?? 'active';
         const rows = [
-          { id: 10, login: 'paid', level: 1, object_state: 'active', monthly_payment: 300, paid_until: isoDaysFromNow(20) },
-          { id: 11, login: 'soon', level: 1, object_state: 'active', monthly_payment: 400, paid_until: isoDaysFromNow(2) },
-          { id: 12, login: 'late', level: 1, object_state: 'suspended', monthly_payment: 500, paid_until: '2026-09-19T22:30:00Z' },
+          {
+            id: 10,
+            login: 'paid',
+            level: 1,
+            object_state: 'active',
+            monthly_payment: 300,
+            paid_until: isoDaysFromNow(20),
+          },
+          {
+            id: 11,
+            login: 'soon',
+            level: 1,
+            object_state: 'active',
+            monthly_payment: 400,
+            paid_until: isoDaysFromNow(2),
+          },
+          {
+            id: 12,
+            login: 'late',
+            level: 1,
+            object_state: 'suspended',
+            monthly_payment: 500,
+            paid_until: '2026-09-19T22:30:00Z',
+          },
           { id: 13, login: 'missing', level: 1, object_state: 'active', monthly_payment: 600, paid_until: null },
-          { id: 14, login: 'broken', level: 1, object_state: 'active', monthly_payment: 700, paid_until: 'broken-date' },
+          {
+            id: 14,
+            login: 'broken',
+            level: 1,
+            object_state: 'active',
+            monthly_payment: 700,
+            paid_until: 'broken-date',
+          },
           { id: 15, login: 'deleted', level: 1, object_state: 'deleted', monthly_payment: 800, paid_until: null },
           { id: 16, login: 'free', level: 1, object_state: 'active', monthly_payment: 0, paid_until: null },
         ].filter((user) => user.id > fromId && user.object_state === objectState);
         return { users: rows };
       },
-      'GET system_configs': () => ({ system_configs: [
-        { category: 'plugin_payments', name: 'default_currency', value: 'CZK' },
-      ] }),
+      'GET system_configs': () => ({
+        system_configs: [{ category: 'plugin_payments', name: 'default_currency', value: 'CZK' }],
+      }),
     },
   });
   await page.goto('/admin/payments');

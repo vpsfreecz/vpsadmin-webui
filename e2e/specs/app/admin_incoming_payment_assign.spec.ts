@@ -49,7 +49,9 @@ test('@pr-smoke @pr-smoke-mobile admin incoming payment: assign to user', async 
     const fromIdRaw = searchParams.get('incoming_payment[from_id]');
     const fromId = fromIdRaw ? Number(fromIdRaw) : null;
 
-    const ids = Array.from({ length: 60 }, (_, i) => 300 - i).filter((id) => (fromId ? id < fromId : true)).slice(0, limit);
+    const ids = Array.from({ length: 60 }, (_, i) => 300 - i)
+      .filter((id) => (fromId ? id < fromId : true))
+      .slice(0, limit);
 
     return {
       status: true,
@@ -146,7 +148,9 @@ test('@pr-smoke @pr-smoke-mobile admin incoming payment: assign to user', async 
   expect(stateUpdateRequests).toBe(0);
 });
 
-test('@pr-smoke @pr-smoke-mobile admin incoming payments: sequential review opens the next unmatched payment', async ({ page }) => {
+test('@pr-smoke @pr-smoke-mobile admin incoming payments: sequential review opens the next unmatched payment', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
 
   const states = new Map<number, string>([
@@ -172,9 +176,7 @@ test('@pr-smoke @pr-smoke-mobile admin incoming payments: sequential review open
     handlers: {
       'GET incoming_payments': ({ searchParams }) => {
         const requestedState = String(searchParams.get('incoming_payment[state]') ?? '');
-        const rows = [302, 301, 300]
-          .map(payment)
-          .filter((row) => !requestedState || row.state === requestedState);
+        const rows = [302, 301, 300].map(payment).filter((row) => !requestedState || row.state === requestedState);
         return { incoming_payments: rows, _meta: { total_count: rows.length } };
       },
       'GET incoming_payments/302': () => ({ incoming_payment: payment(302) }),
@@ -249,8 +251,8 @@ test('admin incoming payment: route change drops the previous payment edits with
   const mutations: string[] = [];
   page.on('request', (request) => {
     if (
-      ['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method())
-      && /\/api\/v7\.0\/(?:incoming_payments|user_payments)/.test(request.url())
+      ['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method()) &&
+      /\/api\/v7\.0\/(?:incoming_payments|user_payments)/.test(request.url())
     ) {
       mutations.push(request.url());
     }
@@ -275,7 +277,9 @@ test('admin incoming payment: route change drops the previous payment edits with
   expect(mutations).toEqual([]);
 });
 
-test('@pr-smoke @pr-smoke-mobile admin incoming payment: stale state review cannot overwrite a newer state', async ({ page }) => {
+test('@pr-smoke @pr-smoke-mobile admin incoming payment: stale state review cannot overwrite a newer state', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
   const haveApiMock = await installHaveApiMock(page, { user: { id: 1, login: 'admin', level: 100 } });
   let state = 'unmatched';
@@ -322,7 +326,9 @@ test('@pr-smoke @pr-smoke-mobile admin incoming payment: stale state review cann
   await expect(page.getByTestId('admin.payments.incoming.state.save')).toBeEnabled();
 });
 
-test('@pr-smoke @pr-smoke-mobile admin incoming payment: refresh failure keeps context and blocks review actions', async ({ page }) => {
+test('@pr-smoke @pr-smoke-mobile admin incoming payment: refresh failure keeps context and blocks review actions', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
   const haveApiMock = await installHaveApiMock(page, { user: { id: 1, login: 'admin', level: 100 } });
   let detailRequests = 0;
@@ -400,7 +406,9 @@ test('@pr-smoke @pr-smoke-mobile admin incoming payment: refresh failure keeps c
   await expect(page.getByTestId('admin.payments.incoming.assign.submit')).toBeEnabled();
 });
 
-test('@pr-smoke @pr-smoke-mobile admin incoming payment: state changes are single-flight and invalidate cached reconciliation totals', async ({ page }) => {
+test('@pr-smoke @pr-smoke-mobile admin incoming payment: state changes are single-flight and invalidate cached reconciliation totals', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page);
   const haveApiMock = await installHaveApiMock(page, { user: { id: 1, login: 'admin', level: 100 } });
 
@@ -463,7 +471,6 @@ test('@pr-smoke @pr-smoke-mobile admin incoming payment: state changes are singl
   await expect.poll(() => ({ ...totalRequests })).toEqual({ queued: 2, unmatched: 2, processed: 2, ignored: 2 });
   expect(listRequests).toBe(2);
 });
-
 
 test('@content-account-cs Czech incoming assignment target and accounting review', async ({ page }, info) => {
   await setUiSettingsLocalStorage(page, { language: 'cs', theme: 'dark' });

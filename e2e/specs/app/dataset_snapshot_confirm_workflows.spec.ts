@@ -54,7 +54,9 @@ test.describe('@smoke @smoke-mobile Dataset snapshots', () => {
     await expect(page).toHaveURL(/\/app\/datasets\/10\/snapshots$/);
   });
 
-  test('@content-storage-snapshot-create creates snapshot and opens the returned action state progress', async ({ page }, testInfo) => {
+  test('@content-storage-snapshot-create creates snapshot and opens the returned action state progress', async ({
+    page,
+  }, testInfo) => {
     let created = false;
     const language = testInfo.project.name === 'mobile-chrome' ? 'cs' : 'en';
 
@@ -119,7 +121,11 @@ test.describe('@smoke @smoke-mobile Dataset snapshots', () => {
     await page.screenshot({ path: testInfo.outputPath(`snapshot-list-${language}.png`), fullPage: true, scale: 'css' });
     await page.getByTestId('dataset.snapshots.create.open').click();
     await page.getByTestId('dataset.snapshots.create.label').fill('before-upgrade');
-    await page.screenshot({ path: testInfo.outputPath(`snapshot-create-${language}.png`), fullPage: true, scale: 'css' });
+    await page.screenshot({
+      path: testInfo.outputPath(`snapshot-create-${language}.png`),
+      fullPage: true,
+      scale: 'css',
+    });
 
     const reqPromise = page.waitForRequest(
       (r) => r.method() === 'POST' && r.url().includes('/api/v7.0/datasets/10/snapshots')
@@ -129,10 +135,18 @@ test.describe('@smoke @smoke-mobile Dataset snapshots', () => {
     expect((await reqPromise).postDataJSON()).toEqual({ snapshot: { label: 'before-upgrade' } });
     await expect(page.getByTestId('modal.action_progress')).toBeVisible();
     await expect(page.getByTestId('modal.action_progress')).toContainText('#701');
-    await page.screenshot({ path: testInfo.outputPath(`snapshot-accepted-${language}.png`), fullPage: true, scale: 'css' });
+    await page.screenshot({
+      path: testInfo.outputPath(`snapshot-accepted-${language}.png`),
+      fullPage: true,
+      scale: 'css',
+    });
     await page.getByTestId('modal.action_progress.continue').click();
     await expect(visibleSnapshot(page, 201)).toBeVisible();
-    await page.screenshot({ path: testInfo.outputPath(`snapshot-created-${language}.png`), fullPage: true, scale: 'css' });
+    await page.screenshot({
+      path: testInfo.outputPath(`snapshot-created-${language}.png`),
+      fullPage: true,
+      scale: 'css',
+    });
   });
 
   test('allows creating snapshot download when dataset state is omitted', async ({ page }) => {

@@ -131,9 +131,10 @@ test.describe('DNS record type capabilities', () => {
     await expect.poll(() => createPayload).toMatchObject({ dns_record: { type: 'DS' } });
     expect(createPayload).not.toHaveProperty('dns_record.priority');
     expect(createPayload).toMatchObject({ dns_record: { dynamic_update_enabled: false } });
-    const recordItem = page.viewportSize()!.width < 768
-      ? page.getByTestId('dns.record.card.101')
-      : page.getByTestId('dns.record.row.101');
+    const recordItem =
+      page.viewportSize()!.width < 768
+        ? page.getByTestId('dns.record.card.101')
+        : page.getByTestId('dns.record.row.101');
     await expect(recordItem).toContainText('DS');
   });
 });

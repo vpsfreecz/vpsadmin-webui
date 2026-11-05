@@ -86,7 +86,10 @@ test.describe('@smoke @smoke-mobile Admin mailer templates', () => {
         'GET mail_templates': () => ({ mail_templates: templates, _meta: { total_count: templates.length } }),
         'GET mail_templates/1': () => ({ mail_template: templates[0] }),
         'GET mail_templates/2': () => ({ mail_template: templates[1] }),
-        'GET mail_templates/1/recipients': () => ({ recipients: templateRecipients, _meta: { total_count: templateRecipients.length } }),
+        'GET mail_templates/1/recipients': () => ({
+          recipients: templateRecipients,
+          _meta: { total_count: templateRecipients.length },
+        }),
         'GET mail_templates/1/translations': () => ({ translations, _meta: { total_count: translations.length } }),
         'GET mail_templates/1/translations/101': () => ({ translation: translations[0] }),
       },
@@ -132,9 +135,10 @@ test.describe('@smoke @smoke-mobile Admin mailer templates', () => {
     await expect(page.getByTestId('admin.mailer.templates.pagination.mobile')).toHaveCount(1);
     await expect(page.getByTestId('admin.mailer.templates.pagination.desktop')).toHaveCount(1);
 
-    const paginationPrefix = (page.viewportSize()?.width ?? 1280) < 768
-      ? 'admin.mailer.templates.pagination.mobile'
-      : 'admin.mailer.templates.pagination.desktop';
+    const paginationPrefix =
+      (page.viewportSize()?.width ?? 1280) < 768
+        ? 'admin.mailer.templates.pagination.mobile'
+        : 'admin.mailer.templates.pagination.desktop';
     await expect(visibleTemplateEntry(page, 1)).toBeVisible();
     await expect(visibleTemplateEntry(page, 60)).toHaveCount(0);
 

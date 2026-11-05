@@ -2,7 +2,9 @@ import { expect, test } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 
-test('@pr-smoke @pr-smoke-mobile admin income forecast uses six bounded real calculations', async ({ page }, testInfo) => {
+test('@pr-smoke @pr-smoke-mobile admin income forecast uses six bounded real calculations', async ({
+  page,
+}, testInfo) => {
   const estimateRequests: URL[] = [];
 
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
@@ -135,8 +137,9 @@ test('admin income forecast surfaces an API 403 through the shared error state',
   await expect(page.getByTestId('admin.finance.forecast.summary.estimate')).toHaveCount(0);
 });
 
-
-test('@content-finance-cs normal income forecast keeps Czech selector and uncertainty readable', async ({ page }, info) => {
+test('@content-finance-cs normal income forecast keeps Czech selector and uncertainty readable', async ({
+  page,
+}, info) => {
   const estimateRequests: URL[] = [];
   await setUiSettingsLocalStorage(page, { language: 'cs', theme: 'dark' });
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });

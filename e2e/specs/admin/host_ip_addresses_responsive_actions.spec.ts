@@ -41,8 +41,8 @@ test('@content-network-hosts @pr-smoke @pr-smoke-mobile host IP actions stay rea
   let detailRequests = 0;
   page.on('request', (request) => {
     if (
-      ['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method())
-      && new URL(request.url()).pathname.includes('/host_ip_addresses')
+      ['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method()) &&
+      new URL(request.url()).pathname.includes('/host_ip_addresses')
     ) {
       mutationRequests.push(`${request.method()} ${new URL(request.url()).pathname}`);
     }
@@ -142,13 +142,15 @@ test('@pr-smoke @pr-smoke-mobile rejected host IP deletion stays in context and 
     user: { id: 1, login: 'admin', level: 90 },
     handlers: {
       'GET host_ip_addresses': () => ({
-        host_ip_addresses: [{
-          id: 502,
-          addr: '198.51.100.20',
-          assigned: false,
-          user_created: true,
-          ip_address: { id: 302, ip_addr: '198.51.100.20' },
-        }],
+        host_ip_addresses: [
+          {
+            id: 502,
+            addr: '198.51.100.20',
+            assigned: false,
+            user_created: true,
+            ip_address: { id: 302, ip_addr: '198.51.100.20' },
+          },
+        ],
         _meta: { total_count: 1 },
       }),
       'DELETE host_ip_addresses/502': () => {
@@ -170,7 +172,9 @@ test('@pr-smoke @pr-smoke-mobile rejected host IP deletion stays in context and 
 
   const dialog = page.getByTestId('admin.host_ip_addresses.delete_confirm');
   await dialog.getByTestId('admin.host_ip_addresses.delete_confirm.confirm').click();
-  await expect(page.getByTestId('admin.host_ip_addresses.delete_confirm.error')).toContainText('Host address is still assigned');
+  await expect(page.getByTestId('admin.host_ip_addresses.delete_confirm.error')).toContainText(
+    'Host address is still assigned'
+  );
   await expect(dialog).toContainText('198.51.100.20');
 
   await dialog.getByTestId('admin.host_ip_addresses.delete_confirm.confirm').click();

@@ -173,13 +173,14 @@ test.describe('@workflow-matrix @smoke VPS list row navigation', () => {
 
     await header.getByRole('link', { name: 'VPS', exact: true }).click();
     await visibleVpsItem(page, 300);
-    await expect(page).toHaveURL((url) => (
-      url.pathname === '/admin/vps'
-      && url.searchParams.get('user') === '42'
-      && url.searchParams.get('limit') === '50'
-      && url.searchParams.get('page') === '1'
-      && !url.searchParams.has('from_id')
-    ));
+    await expect(page).toHaveURL(
+      (url) =>
+        url.pathname === '/admin/vps' &&
+        url.searchParams.get('user') === '42' &&
+        url.searchParams.get('limit') === '50' &&
+        url.searchParams.get('page') === '1' &&
+        !url.searchParams.has('from_id')
+    );
   });
 
   test('recent failure badge opens the failed chain and old failures stay hidden', async ({ page }) => {
@@ -286,7 +287,9 @@ test.describe('@workflow-matrix @smoke VPS list row navigation', () => {
     await expect(page.getByTestId('vps.list.power_confirm.target')).toContainText('#300');
   });
 
-  test('clicking user delete action opens confirmation without row navigation and sends empty delete payload', async ({ page }) => {
+  test('clicking user delete action opens confirmation without row navigation and sends empty delete payload', async ({
+    page,
+  }) => {
     const vps = makeVps(300);
 
     await installHaveApiMock(page, {
@@ -309,9 +312,7 @@ test.describe('@workflow-matrix @smoke VPS list row navigation', () => {
     await expect(page.getByTestId('vps.list.delete_confirm')).toBeVisible();
     await expect(page.getByTestId('vps.list.delete_confirm.lazy')).toHaveCount(0);
 
-    const reqPromise = page.waitForRequest(
-      (r) => r.method() === 'DELETE' && r.url().includes('/api/v7.0/vpses/300')
-    );
+    const reqPromise = page.waitForRequest((r) => r.method() === 'DELETE' && r.url().includes('/api/v7.0/vpses/300'));
 
     await expect(page.getByTestId('vps.list.delete_confirm.confirm_text')).toHaveCount(0);
 
@@ -345,9 +346,7 @@ test.describe('@workflow-matrix @smoke VPS list row navigation', () => {
     await expect(page.getByTestId('vps.list.delete_confirm')).toBeVisible();
     await expect(page.getByTestId('vps.list.delete_confirm.lazy')).toHaveValue('soft_delete');
 
-    const reqPromise = page.waitForRequest(
-      (r) => r.method() === 'DELETE' && r.url().includes('/api/v7.0/vpses/300')
-    );
+    const reqPromise = page.waitForRequest((r) => r.method() === 'DELETE' && r.url().includes('/api/v7.0/vpses/300'));
 
     await expect(page.getByTestId('vps.list.delete_confirm.confirm_text')).toHaveCount(0);
 
@@ -362,8 +361,12 @@ test.describe('@workflow-matrix @smoke VPS list row navigation', () => {
     const vps = makeVps(300);
     let releaseGuard = () => {};
     let markGuardStarted = () => {};
-    const guardRelease = new Promise<void>((resolve) => { releaseGuard = resolve; });
-    const guardStarted = new Promise<void>((resolve) => { markGuardStarted = resolve; });
+    const guardRelease = new Promise<void>((resolve) => {
+      releaseGuard = resolve;
+    });
+    const guardStarted = new Promise<void>((resolve) => {
+      markGuardStarted = resolve;
+    });
 
     await installHaveApiMock(page, {
       user: { id: 1, login: 'admin', level: 99 },
@@ -371,8 +374,8 @@ test.describe('@workflow-matrix @smoke VPS list row navigation', () => {
         'GET vpses': () => ({ vpses: [vps] }),
         'GET transaction_chains': async ({ searchParams }) => {
           const isDeleteGuard =
-            searchParams.get('transaction_chain[class_name]') === 'Vps'
-            && searchParams.get('transaction_chain[row_id]') === '300';
+            searchParams.get('transaction_chain[class_name]') === 'Vps' &&
+            searchParams.get('transaction_chain[row_id]') === '300';
           if (isDeleteGuard) {
             markGuardStarted();
             await guardRelease;
@@ -424,11 +427,15 @@ test.describe('@workflow-matrix @smoke VPS list row navigation', () => {
     await page.getByTestId('vps.list.delete_confirm.lazy.expiration').fill('2099-01-02T12:30');
     await page.screenshot({ path: test.info().outputPath('delete-options-cs.png'), fullPage: true });
     const expectedExpiration = await page.evaluate(() => new Date(2099, 0, 2, 12, 30).toISOString());
-    const request = page.waitForRequest(r => r.method() === 'PUT' && r.url().includes('/api/v7.0/vpses/300'));
+    const request = page.waitForRequest((r) => r.method() === 'PUT' && r.url().includes('/api/v7.0/vpses/300'));
     await page.getByTestId('vps.list.delete_confirm.confirm').click();
-    expect((await request).postDataJSON()).toEqual({ vps: {
-      object_state: 'soft_delete', expiration_date: expectedExpiration, change_reason: 'Deletion requested',
-    } });
+    expect((await request).postDataJSON()).toEqual({
+      vps: {
+        object_state: 'soft_delete',
+        expiration_date: expectedExpiration,
+        change_reason: 'Deletion requested',
+      },
+    });
     await expect(page.getByTestId('vps.list.delete_confirm')).toBeHidden();
     await expect(page.getByTestId('toast.viewport')).toContainText('vps300.example');
     await expect(page.getByTestId('toast.viewport')).toContainText('Požadavek na smazání VPS byl přijat');

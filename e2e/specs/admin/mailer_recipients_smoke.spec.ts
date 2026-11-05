@@ -62,8 +62,11 @@ test.describe('@smoke @smoke-mobile Admin mailer recipients', () => {
           return { mail_recipient: created };
         },
         'PUT mail_recipients/10': ({ reqJson }) => {
-          const updated = { ...recipients.find((recipient) => recipient.id === 10), ...((reqJson as any)?.mail_recipient ?? {}) };
-          recipients = recipients.map((recipient) => recipient.id === 10 ? updated as typeof recipient : recipient);
+          const updated = {
+            ...recipients.find((recipient) => recipient.id === 10),
+            ...((reqJson as any)?.mail_recipient ?? {}),
+          };
+          recipients = recipients.map((recipient) => (recipient.id === 10 ? (updated as typeof recipient) : recipient));
           return { mail_recipient: updated };
         },
       },
@@ -86,9 +89,10 @@ test.describe('@smoke @smoke-mobile Admin mailer recipients', () => {
     await expect(visibleRecipientEntry(page, 69)).toHaveCount(0);
     await page.screenshot({ path: testInfo.outputPath('mailer-recipients-list.png') });
 
-    const paginationPrefix = (page.viewportSize()?.width ?? 1280) < 768
-      ? 'admin.mailer.recipients.pagination.mobile'
-      : 'admin.mailer.recipients.pagination.desktop';
+    const paginationPrefix =
+      (page.viewportSize()?.width ?? 1280) < 768
+        ? 'admin.mailer.recipients.pagination.mobile'
+        : 'admin.mailer.recipients.pagination.desktop';
     await page.getByTestId(`${paginationPrefix}.next`).click();
     await expect(visibleRecipientEntry(page, 69)).toBeVisible();
     await expect(page).toHaveURL(/(?:\?|&)page=2(?:&|$)/);
@@ -130,15 +134,21 @@ test.describe('@smoke @smoke-mobile Admin mailer recipients', () => {
     await expect(save).toBeDisabled();
     await page.getByTestId('admin.mailer.recipients.editor.label').fill('Operations');
     await expect(save).toBeEnabled();
-    await page.getByTestId('admin.mailer.recipients.editor').screenshot({ path: testInfo.outputPath('mailer-recipient-create.png') });
+    await page
+      .getByTestId('admin.mailer.recipients.editor')
+      .screenshot({ path: testInfo.outputPath('mailer-recipient-create.png') });
     await save.dblclick();
 
-    await expect.poll(() => postPayloads).toEqual([{
-      mail_recipient: {
-        label: 'Operations',
-        to: 'ops@example.test',
-      },
-    }]);
+    await expect
+      .poll(() => postPayloads)
+      .toEqual([
+        {
+          mail_recipient: {
+            label: 'Operations',
+            to: 'ops@example.test',
+          },
+        },
+      ]);
     await expect(page.getByTestId('admin.mailer.recipients.editor')).toHaveCount(0);
     const successToast = page.getByTestId('toast.viewport');
     await expect(successToast).toContainText('Recipient created');
@@ -171,10 +181,13 @@ test.describe('@smoke @smoke-mobile Admin mailer recipients', () => {
     await expect(page.getByTestId('admin.mailer.recipients.editor.cc')).toHaveValue('copy@example.test');
     await expect(page.getByTestId('admin.mailer.recipients.editor.bcc')).toHaveValue('audit@example.test');
     await expect(save).toBeEnabled();
-    await expect.poll(() => page.evaluate(() => (
-      Object.keys(window.sessionStorage)
-        .filter((key) => key.startsWith('webui-next.mailer.mail-recipient-create.'))
-    ))).toEqual([]);
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          Object.keys(window.sessionStorage).filter((key) => key.startsWith('webui-next.mailer.mail-recipient-create.'))
+        )
+      )
+      .toEqual([]);
 
     await editor.getByRole('button', { name: /cancel/i }).click();
     await page.reload();
@@ -208,14 +221,16 @@ test.describe('@smoke @smoke-mobile Admin mailer recipients', () => {
     await page.getByTestId('admin.mailer.recipients.editor.bcc').fill('');
     await page.getByTestId('admin.mailer.recipients.editor.save').click();
 
-    await expect.poll(() => updatePayload).toEqual({
-      mail_recipient: {
-        label: 'Support',
-        to: 'support@example.test',
-        cc: null,
-        bcc: null,
-      },
-    });
+    await expect
+      .poll(() => updatePayload)
+      .toEqual({
+        mail_recipient: {
+          label: 'Support',
+          to: 'support@example.test',
+          cc: null,
+          bcc: null,
+        },
+      });
   });
 
   for (const attempt of [
@@ -240,9 +255,9 @@ test.describe('@smoke @smoke-mobile Admin mailer recipients', () => {
       await expect(page.getByTestId('admin.mailer.recipients.editor')).toHaveCount(0);
       await expect(page.getByTestId('admin.mailer.recipients.create.indeterminate')).toBeVisible();
       await expect(page.getByTestId('admin.mailer.recipients.create')).toBeDisabled();
-      await page.getByTestId('admin.mailer.recipients.create').evaluate((button) => (
-        button as HTMLButtonElement
-      ).click());
+      await page
+        .getByTestId('admin.mailer.recipients.create')
+        .evaluate((button) => (button as HTMLButtonElement).click());
       await page.waitForTimeout(150);
       expect(postCalls).toBe(1);
 

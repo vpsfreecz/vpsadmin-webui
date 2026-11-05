@@ -119,7 +119,6 @@ test('@pr-smoke @pr-smoke-mobile profile mail recipient editors stay usable with
   });
 });
 
-
 for (const language of ['en', 'cs'] as const) {
   test(`@content-account-mail-wrapper selected-user Mail and personal Mail keep separate owners ${language}`, async ({
     page,

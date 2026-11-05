@@ -58,19 +58,29 @@ test.describe('DNS zone action gating (busy transaction)', () => {
   });
 });
 
-test('@content-storage-dns recent DNS history preserves labels, progress and read failure', async ({ page }, testInfo) => {
+test('@content-storage-dns recent DNS history preserves labels, progress and read failure', async ({
+  page,
+}, testInfo) => {
   const language = testInfo.project.name === 'mobile-chrome' ? 'cs' : 'en';
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
   await setUiSettingsLocalStorage(page, { language, theme: 'dark' });
   let logsFailed = false;
   const chains = [
     {
-      id: 701, label: null, state: 'done', progress: 10, size: 10,
+      id: 701,
+      label: null,
+      state: 'done',
+      progress: 10,
+      size: 10,
       created_at: '2026-11-04T12:00:00Z',
       concerns: [{ class_name: 'DnsZone', row_id: 10 }],
     },
     {
-      id: 702, label: 'Update DNS records', state: 'failed', progress: 4, size: 10,
+      id: 702,
+      label: 'Update DNS records',
+      state: 'failed',
+      progress: 4,
+      size: 10,
       created_at: '2026-11-04T11:00:00Z',
       concerns: [{ class_name: 'DnsZone', row_id: 10 }],
     },
@@ -78,27 +88,48 @@ test('@content-storage-dns recent DNS history preserves labels, progress and rea
   await installHaveApiMock(page, {
     user: { id: 1, login: 'test', level: 1 },
     handlers: {
-      'GET dns_zones/10': () => ({ dns_zone: {
-        id: 10, name: 'example.com', role: 'primary', source: 'internal_source',
-        user: { id: 1, login: 'test' }, object_state: 'active',
-        enabled: true, dnssec_enabled: false, default_ttl: 3600,
-      } }),
+      'GET dns_zones/10': () => ({
+        dns_zone: {
+          id: 10,
+          name: 'example.com',
+          role: 'primary',
+          source: 'internal_source',
+          user: { id: 1, login: 'test' },
+          object_state: 'active',
+          enabled: true,
+          dnssec_enabled: false,
+          default_ttl: 3600,
+        },
+      }),
       'GET dns_records': () => ({ dns_records: [] }),
-      'GET dns_record_logs': () => logsFailed
-        ? { status: 503, contentType: 'application/json', body: JSON.stringify({ status: false, message: 'DNS record history unavailable' }) }
-        : { dns_record_logs: [] },
-      'GET transaction_chains': ({ searchParams }) => ({ transaction_chains:
-        searchParams.get('transaction_chain[class_name]') === 'DnsZone' &&
-        searchParams.get('transaction_chain[row_id]') === '10' ? chains : [],
+      'GET dns_record_logs': () =>
+        logsFailed
+          ? {
+              status: 503,
+              contentType: 'application/json',
+              body: JSON.stringify({ status: false, message: 'DNS record history unavailable' }),
+            }
+          : { dns_record_logs: [] },
+      'GET transaction_chains': ({ searchParams }) => ({
+        transaction_chains:
+          searchParams.get('transaction_chain[class_name]') === 'DnsZone' &&
+          searchParams.get('transaction_chain[row_id]') === '10'
+            ? chains
+            : [],
       }),
     },
   });
 
   await page.goto('/app/dns/zones/10');
   await expect(page.getByTestId('dns.records.list')).toBeVisible();
-  await expect(page.getByText(language === 'cs'
-    ? 'Seznam nemusí obsahovat všechny transakce týkající se této zóny.'
-    : 'This list may not include every transaction related to this zone.', { exact: true })).toBeVisible();
+  await expect(
+    page.getByText(
+      language === 'cs'
+        ? 'Seznam nemusí obsahovat všechny transakce týkající se této zóny.'
+        : 'This list may not include every transaction related to this zone.',
+      { exact: true }
+    )
+  ).toBeVisible();
   const fallback = page.getByRole('link', { name: '#701', exact: true });
   const fallbackRow = fallback.locator('xpath=ancestor::li[1]');
   const named = page.getByRole('link', { name: 'Update DNS records', exact: true });
@@ -115,8 +146,15 @@ test('@content-storage-dns recent DNS history preserves labels, progress and rea
 
   logsFailed = true;
   await page.reload();
-  await expect(page.getByText(language === 'cs'
-    ? 'Načtení transakčních řetězců selhalo.' : 'Failed to load transaction chains.', { exact: true })).toBeVisible();
+  await expect(
+    page.getByText(language === 'cs' ? 'Načtení transakčních řetězců selhalo.' : 'Failed to load transaction chains.', {
+      exact: true,
+    })
+  ).toBeVisible();
   await expect(fallback).toHaveCount(0);
-  await page.screenshot({ path: testInfo.outputPath(`recent-history-error-${language}.png`), fullPage: true, scale: 'css' });
+  await page.screenshot({
+    path: testInfo.outputPath(`recent-history-error-${language}.png`),
+    fullPage: true,
+    scale: 'css',
+  });
 });

@@ -74,8 +74,14 @@ test.describe('@smoke Admin mailer mailboxes', () => {
         },
         'GET mailboxes/20': () => ({ mailbox: mailboxes.find((m) => m.id === 20) }),
         'GET mailboxes/10': () => ({ mailbox: mailboxes.find((m) => m.id === 10) }),
-        'GET mailboxes/20/handler': () => ({ handlers: handlersByMailbox[20], _meta: { total_count: handlersByMailbox[20]!.length } }),
-        'GET mailboxes/10/handler': () => ({ handlers: handlersByMailbox[10], _meta: { total_count: handlersByMailbox[10]!.length } }),
+        'GET mailboxes/20/handler': () => ({
+          handlers: handlersByMailbox[20],
+          _meta: { total_count: handlersByMailbox[20]!.length },
+        }),
+        'GET mailboxes/10/handler': () => ({
+          handlers: handlersByMailbox[10],
+          _meta: { total_count: handlersByMailbox[10]!.length },
+        }),
 
         'POST mailboxes': () => {
           const created = {
@@ -151,7 +157,9 @@ test.describe('@smoke Admin mailer mailboxes', () => {
     await page.getByTestId('admin.mailer.mailboxes.create.port').fill('993');
     await page.getByTestId('admin.mailer.mailboxes.create.user').fill('new@example.test');
     await page.getByTestId('admin.mailer.mailboxes.create.password').fill('secret');
-    await page.getByTestId('admin.mailer.mailboxes.create.modal').screenshot({ path: testInfo.outputPath('mailer-mailbox-create.png') });
+    await page
+      .getByTestId('admin.mailer.mailboxes.create.modal')
+      .screenshot({ path: testInfo.outputPath('mailer-mailbox-create.png') });
 
     await page.getByTestId('admin.mailer.mailboxes.create.modal.save').click();
     await expect(page.getByTestId('admin.mailer.mailboxes.create.modal')).toHaveCount(0);
@@ -190,14 +198,16 @@ test('@pr-smoke @pr-smoke-mobile keeps rejected mailbox creation in context for 
   await page.getByTestId('admin.mailer.mailboxes.create.modal.save').click();
 
   await expect(page.getByTestId('admin.mailer.mailboxes.create.error')).toContainText(
-    'Mailbox credentials were rejected',
+    'Mailbox credentials were rejected'
   );
   await expect(page.getByTestId('admin.mailer.mailboxes.create.modal')).toBeVisible();
   await expect(page.getByTestId('admin.mailer.mailboxes.create.label')).toHaveValue('Retry inbox');
   await expect(page.getByTestId('admin.mailer.mailboxes.create.server')).toHaveValue('imap.retry.example');
   await expect(page.getByTestId('admin.mailer.mailboxes.create.user')).toHaveValue('retry@example.test');
   await expect(page.getByTestId('admin.mailer.mailboxes.create.password')).toHaveValue('retry-secret');
-  await page.getByTestId('admin.mailer.mailboxes.create.modal').screenshot({ path: testInfo.outputPath('mailer-mailbox-create-rejected.png') });
+  await page
+    .getByTestId('admin.mailer.mailboxes.create.modal')
+    .screenshot({ path: testInfo.outputPath('mailer-mailbox-create-rejected.png') });
 
   await page.getByTestId('admin.mailer.mailboxes.create.modal.save').click();
   await expect(page.getByTestId('admin.mailer.mailboxes.create.modal')).toHaveCount(0);
@@ -244,13 +254,15 @@ test('@pr-smoke @pr-smoke-mobile keeps rejected mailbox edits in context for ret
   await page.getByTestId('admin.mailer.mailboxes.edit.modal.save').click();
 
   await expect(page.getByTestId('admin.mailer.mailboxes.edit.error')).toContainText(
-    'Mailbox configuration changed on the server',
+    'Mailbox configuration changed on the server'
   );
   await expect(page.getByTestId('admin.mailer.mailboxes.edit.label')).toHaveValue('Incident inbox updated');
   await expect(page.getByTestId('admin.mailer.mailboxes.edit.server')).toHaveValue('imap2.example.test');
   await expect(page.getByTestId('admin.mailer.mailboxes.edit.user')).toHaveValue('operator@example.test');
   await expect(page.getByTestId('admin.mailer.mailboxes.edit.password')).toHaveValue('new-test-password');
-  await page.getByTestId('admin.mailer.mailboxes.edit.modal').screenshot({ path: testInfo.outputPath('mailer-mailbox-edit-rejected.png') });
+  await page
+    .getByTestId('admin.mailer.mailboxes.edit.modal')
+    .screenshot({ path: testInfo.outputPath('mailer-mailbox-edit-rejected.png') });
 
   await page.getByTestId('admin.mailer.mailboxes.edit.modal.save').click();
   await expect(page.getByTestId('admin.mailer.mailboxes.edit.modal')).toHaveCount(0);
@@ -291,14 +303,14 @@ test('@pr-smoke @pr-smoke-mobile reconciles a partially rejected mailbox handler
       'PUT mailboxes/20/handler/102': ({ reqJson }) => {
         secondHandlerUpdates += 1;
         const changes = (reqJson as any)?.handler ?? {};
-        handlers = handlers.map((handler) => handler.id === 102 ? { ...handler, ...changes } : handler);
+        handlers = handlers.map((handler) => (handler.id === 102 ? { ...handler, ...changes } : handler));
         return { handler: handlers.find((handler) => handler.id === 102) };
       },
       'PUT mailboxes/20/handler/101': ({ reqJson }) => {
         firstHandlerUpdates += 1;
         if (firstHandlerUpdates === 1) return failEnvelope('Second reorder step was rejected');
         const changes = (reqJson as any)?.handler ?? {};
-        handlers = handlers.map((handler) => handler.id === 101 ? { ...handler, ...changes } : handler);
+        handlers = handlers.map((handler) => (handler.id === 101 ? { ...handler, ...changes } : handler));
         return { handler: handlers.find((handler) => handler.id === 101) };
       },
     },
@@ -308,7 +320,7 @@ test('@pr-smoke @pr-smoke-mobile reconciles a partially rejected mailbox handler
   await page.getByTestId('admin.mailer.mailboxes.handler.101.down').click();
 
   await expect(page.getByTestId('admin.mailer.mailboxes.handlers.reorder.error')).toContainText(
-    'Second reorder step was rejected',
+    'Second reorder step was rejected'
   );
   await expect.poll(() => handlerLoads).toBeGreaterThan(1);
   await expect(page.getByTestId('admin.mailer.mailboxes.handler.101.down')).toBeEnabled();
@@ -317,7 +329,7 @@ test('@pr-smoke @pr-smoke-mobile reconciles a partially rejected mailbox handler
   await page.getByTestId('admin.mailer.mailboxes.handler.101.down').click();
   await expect(page.getByTestId('admin.mailer.mailboxes.handlers.reorder.error')).toHaveCount(0);
   await expect(
-    page.getByTestId('admin.mailer.mailboxes.detail.handlers.table').locator('tbody tr').first(),
+    page.getByTestId('admin.mailer.mailboxes.detail.handlers.table').locator('tbody tr').first()
   ).toHaveAttribute('data-testid', 'admin.mailer.mailboxes.handler.102');
 
   expect({ firstHandlerUpdates, secondHandlerUpdates }).toEqual({

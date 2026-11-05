@@ -120,7 +120,9 @@ for (const language of ['cs', 'en'] as const) {
   });
 }
 
-test('@workflow-matrix @smoke VPS detail tabs expose storage, access, lifecycle, and console routes', async ({ page }) => {
+test('@workflow-matrix @smoke VPS detail tabs expose storage, access, lifecycle, and console routes', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST_USER_SESSION' });
 
   await page.route('**/_console/**', async (route) => {
@@ -179,7 +181,10 @@ test('@workflow-matrix @smoke VPS detail tabs expose storage, access, lifecycle,
   const vpsHeader = page.getByTestId('vps.header');
   await expect(vpsHeader.getByRole('link', { name: /^Storage$/ })).toHaveAttribute('href', '/app/vps/123/storage');
   await expect(vpsHeader.getByRole('link', { name: /^Access$/ })).toHaveAttribute('href', '/app/vps/123/access');
-  await expect(vpsHeader.getByRole('link', { name: /^Console$/ }).first()).toHaveAttribute('href', '/app/vps/123/console');
+  await expect(vpsHeader.getByRole('link', { name: /^Console$/ }).first()).toHaveAttribute(
+    'href',
+    '/app/vps/123/console'
+  );
 
   await expect(page.getByTestId('vps.overview.control_center')).toBeVisible();
   await expect(page.getByTestId('vps.overview.health')).toBeVisible();
@@ -247,7 +252,10 @@ test('@workflow-matrix @smoke VPS detail tabs expose storage, access, lifecycle,
   await expect(page.getByTestId('vps.lifecycle.clone')).toBeVisible();
   await expect(page.getByTestId('vps.lifecycle.replace')).toHaveCount(0);
 
-  await page.getByRole('link', { name: /^Console$/ }).first().click();
+  await page
+    .getByRole('link', { name: /^Console$/ })
+    .first()
+    .click();
   await expect(page).toHaveURL(/\/app\/vps\/123\/console$/);
   await expect(page.getByTestId('vps.console.page')).toBeVisible();
   await expect(page.getByTestId('vps.console.iframe')).toBeVisible();
@@ -288,14 +296,12 @@ test('@workflow-matrix admin account in user VPS view keeps storage admin contro
   await expect(page.getByTestId('vps.storage.mounts.table').locator('th', { hasText: /^Master$/ })).toHaveCount(0);
   await expect(page.getByTestId('vps.storage.mounts.table')).not.toContainText('Master:');
 
-  const editMountTestId = (page.viewportSize()?.width ?? 0) < 768
-    ? 'vps.storage.mounts.card.1.edit'
-    : 'vps.storage.mounts.row.1.edit';
+  const editMountTestId =
+    (page.viewportSize()?.width ?? 0) < 768 ? 'vps.storage.mounts.card.1.edit' : 'vps.storage.mounts.row.1.edit';
   await page.getByTestId(editMountTestId).click();
   await expect(page.getByTestId('vps.storage.mounts.edit')).toBeVisible();
   await expect(page.getByTestId('vps.storage.mounts.edit.master_enabled')).toHaveCount(0);
 });
-
 
 test('@workflow-matrix @pr-smoke @pr-smoke-mobile VPS admin overview keeps each fact in one compact place', async ({
   page,
@@ -366,11 +372,11 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile VPS admin overview keeps each 
   await expect(page.getByTestId('vps.header')).toBeVisible();
   await expect(page.getByTestId('vps.header').getByRole('link', { name: /^Access$/ })).toHaveAttribute(
     'href',
-    '/admin/vps/123/access?user=10',
+    '/admin/vps/123/access?user=10'
   );
   await expect(page.getByTestId('vps.action.primary_console')).toHaveAttribute(
     'href',
-    '/admin/vps/123/console?user=10',
+    '/admin/vps/123/console?user=10'
   );
   const overview = page.getByTestId('vps.overview.control_center');
   const resources = page.getByTestId('vps.overview.resources_usage.card');
@@ -386,7 +392,7 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile VPS admin overview keeps each 
   await expect(resources).toBeVisible();
   await expect(resources.getByRole('link', { name: 'Edit resources' })).toHaveAttribute(
     'href',
-    '/admin/vps/123/config?user=10&section=resources',
+    '/admin/vps/123/config?user=10&section=resources'
   );
   // Runtime diagnostics belong to the header, not the resource allocation card.
   await expect(page.getByTestId('vps.header.runtime.uptime')).toContainText('3h 25m');
@@ -400,12 +406,12 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile VPS admin overview keeps each 
   await expect(network).toBeVisible();
   await expect(network.getByRole('link', { name: 'Manage network' })).toHaveAttribute(
     'href',
-    '/admin/vps/123/network?user=10',
+    '/admin/vps/123/network?user=10'
   );
   await expect(storage).toBeVisible();
   await expect(storage.getByRole('link', { name: 'Open storage' })).toHaveAttribute(
     'href',
-    '/admin/vps/123/storage?user=10',
+    '/admin/vps/123/storage?user=10'
   );
   await expect(storage).toContainText('Pool: tank');
   await expect(page.getByTestId('vps.overview.admin_ops.card')).toHaveCount(0);
@@ -416,11 +422,7 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile VPS admin overview keeps each 
   await expect(page.getByTestId('vps.overview.admin_ops.ips')).toHaveCount(0);
   await expect(network).not.toContainText('alice');
 
-  for (const address of [
-    '198.51.100.10/32',
-    '10.0.0.15/32',
-    '2001:db8:1234:5678:90ab:cdef:1234:5678/64',
-  ]) {
+  for (const address of ['198.51.100.10/32', '10.0.0.15/32', '2001:db8:1234:5678:90ab:cdef:1234:5678/64']) {
     await expect(overview.getByText(address, { exact: true })).toHaveCount(1);
   }
 
@@ -490,9 +492,9 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile VPS admin overview keeps each 
   await expect(moreActions.locator('option[value="/admin/incidents/new?vps=123"]')).toHaveCount(1);
   await expect(moreActions.locator('option[value="/admin/vps/123/lifecycle/migrate?user=10"]')).toHaveCount(1);
   await expect(moreActions.locator('option[value="/admin/transactions?class_name=Vps&row_id=123"]')).toHaveCount(1);
-  const actionValues = (await moreActions.locator('option').evaluateAll((options) => (
-    options.map((option) => (option as HTMLOptionElement).value).filter(Boolean)
-  )));
+  const actionValues = await moreActions
+    .locator('option')
+    .evaluateAll((options) => options.map((option) => (option as HTMLOptionElement).value).filter(Boolean));
   expect(actionValues).toEqual([...new Set(actionValues)]);
 
   await captureOptInScreenshot(page, 'E2E_VPS_ADMIN_OVERVIEW_SCREENSHOT');

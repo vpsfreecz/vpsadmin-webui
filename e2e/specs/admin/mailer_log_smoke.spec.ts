@@ -42,9 +42,10 @@ test.describe('@smoke @pr-smoke @pr-smoke-mobile Admin mailer log contract', () 
       mail_template: { id: 10, label: 'Welcome mail' },
       mail_transaction: { id: 123 },
       text_plain: `Hello from mail ${id}`,
-      text_html: id === 101
-        ? `<!doctype html><html><head><style>strong{font-weight:700}</style></head><body><p>Hello <strong>from</strong> mail ${id}</p><img src="https://preview-tracker.invalid/pixel" alt="remote image"></body></html>`
-        : `<p>Hello <strong>from</strong> mail ${id}</p>`,
+      text_html:
+        id === 101
+          ? `<!doctype html><html><head><style>strong{font-weight:700}</style></head><body><p>Hello <strong>from</strong> mail ${id}</p><img src="https://preview-tracker.invalid/pixel" alt="remote image"></body></html>`
+          : `<p>Hello <strong>from</strong> mail ${id}</p>`,
       created_at: '2025-01-01T12:00:00Z',
     });
 
@@ -153,22 +154,21 @@ test.describe('@smoke @pr-smoke @pr-smoke-mobile Admin mailer log contract', () 
       '/admin/mailer/log?q=invoice&user=1&template=20&after=2025-01-01&before=2025-01-31&limit=25&from_id=100&page=2'
     );
 
-    await expect(page).toHaveURL((url) => (
-      url.pathname === '/admin/mailer/log'
-      && url.searchParams.get('limit') === '25'
-      && url.searchParams.get('page') === '1'
-      && !url.searchParams.has('q')
-      && !url.searchParams.has('user')
-      && !url.searchParams.has('template')
-      && !url.searchParams.has('after')
-      && !url.searchParams.has('before')
-      && !url.searchParams.has('from_id')
-    ));
+    await expect(page).toHaveURL(
+      (url) =>
+        url.pathname === '/admin/mailer/log' &&
+        url.searchParams.get('limit') === '25' &&
+        url.searchParams.get('page') === '1' &&
+        !url.searchParams.has('q') &&
+        !url.searchParams.has('user') &&
+        !url.searchParams.has('template') &&
+        !url.searchParams.has('after') &&
+        !url.searchParams.has('before') &&
+        !url.searchParams.has('from_id')
+    );
     await expect(visibleMailLogEntry(page, 101)).toBeVisible();
     await expect.poll(() => mailLogRequests.length).toBe(1);
-    expect(Array.from(mailLogRequests[0]?.searchParams.entries() ?? [])).toEqual([
-      ['mail_log[limit]', '26'],
-    ]);
+    expect(Array.from(mailLogRequests[0]?.searchParams.entries() ?? [])).toEqual([['mail_log[limit]', '26']]);
     expect(helperRequests).toEqual([]);
 
     await expect(page.getByTestId('admin.mailer.log.advanced.open')).toHaveCount(0);
@@ -200,7 +200,9 @@ test.describe('@smoke @pr-smoke @pr-smoke-mobile Admin mailer log contract', () 
     await expect(page.getByTestId('admin.mailer.log.detail')).toBeVisible();
   });
 
-  test('uses ascending keyset cursor, one-row lookahead and disables Next on the final page', async ({ page }, testInfo) => {
+  test('uses ascending keyset cursor, one-row lookahead and disables Next on the final page', async ({
+    page,
+  }, testInfo) => {
     const mailLogRequests: URL[] = [];
     page.on('request', (req) => {
       if (req.method() !== 'GET') return;
@@ -214,19 +216,21 @@ test.describe('@smoke @pr-smoke @pr-smoke-mobile Admin mailer log contract', () 
     await expect(visibleMailLogEntry(page, 124)).toBeVisible();
     await expect(visibleMailLogEntry(page, 125)).toHaveCount(0);
 
-    const pagination = testInfo.project.name === 'mobile-chrome'
-      ? 'admin.mailer.log.pagination.mobile'
-      : 'admin.mailer.log.pagination.desktop';
+    const pagination =
+      testInfo.project.name === 'mobile-chrome'
+        ? 'admin.mailer.log.pagination.mobile'
+        : 'admin.mailer.log.pagination.desktop';
     const next = page.getByTestId(`${pagination}.next`);
     await expect(next).toBeEnabled();
     await next.click();
 
-    await expect(page).toHaveURL((url) => (
-      url.pathname === '/admin/mailer/log'
-      && url.searchParams.get('limit') === '25'
-      && url.searchParams.get('page') === '2'
-      && url.searchParams.get('from_id') === '124'
-    ));
+    await expect(page).toHaveURL(
+      (url) =>
+        url.pathname === '/admin/mailer/log' &&
+        url.searchParams.get('limit') === '25' &&
+        url.searchParams.get('page') === '2' &&
+        url.searchParams.get('from_id') === '124'
+    );
     await expect(visibleMailLogEntry(page, 125)).toBeVisible();
     await expect(visibleMailLogEntry(page, 124)).toHaveCount(0);
     await expect(next).toBeDisabled();

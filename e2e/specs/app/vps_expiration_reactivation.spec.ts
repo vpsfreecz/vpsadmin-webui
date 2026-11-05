@@ -100,7 +100,6 @@ for (const language of ['cs', 'en'] as const) {
   });
 }
 
-
 function lifecyclePanelVps() {
   return {
     id: 123,

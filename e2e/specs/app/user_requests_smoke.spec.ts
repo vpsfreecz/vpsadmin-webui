@@ -1,13 +1,12 @@
 import { expect, test } from '@playwright/test';
 
-import {
-  bootstrapVpsAdminWindow,
-  installHaveApiMock,
-  setUiSettingsLocalStorage,
-} from '../../fixtures';
+import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 import { expectNoDocumentHorizontalOverflow } from '../../helpers/horizontalOverflow';
 
-test('@workflow-matrix @smoke user requests: lists and opens only the signed-in owner data', async ({ page, isMobile }) => {
+test('@workflow-matrix @smoke user requests: lists and opens only the signed-in owner data', async ({
+  page,
+  isMobile,
+}) => {
   const indexUrls: URL[] = [];
 
   await setUiSettingsLocalStorage(page, { language: 'en' });
@@ -18,32 +17,36 @@ test('@workflow-matrix @smoke user requests: lists and opens only the signed-in 
       'GET user_request/registrations': ({ url }) => {
         indexUrls.push(new URL(url));
         return {
-          registrations: [{
-            id: 54,
-            user: { id: '10', login: 'alice' },
-            state: 'approved',
-            login: 'alice',
-            full_name: 'Alice Example',
-            created_at: '2026-08-20T10:00:00Z',
-            admin: { id: 90, login: 'root' },
-            api_ip_addr: '192.0.2.200',
-          }],
+          registrations: [
+            {
+              id: 54,
+              user: { id: '10', login: 'alice' },
+              state: 'approved',
+              login: 'alice',
+              full_name: 'Alice Example',
+              created_at: '2026-08-20T10:00:00Z',
+              admin: { id: 90, login: 'root' },
+              api_ip_addr: '192.0.2.200',
+            },
+          ],
           _meta: { total_count: 1 },
         };
       },
       'GET user_request/changes': ({ url }) => {
         indexUrls.push(new URL(url));
         return {
-          changes: [{
-            id: 55,
-            user: { id: 10, login: 'alice' },
-            state: 'awaiting',
-            change_reason: 'Moving home',
-            address: 'New street 2',
-            created_at: '2026-08-21T10:00:00Z',
-            admin: { id: 90, login: 'root' },
-            client_ip_addr: '198.51.100.200',
-          }],
+          changes: [
+            {
+              id: 55,
+              user: { id: 10, login: 'alice' },
+              state: 'awaiting',
+              change_reason: 'Moving home',
+              address: 'New street 2',
+              created_at: '2026-08-21T10:00:00Z',
+              admin: { id: 90, login: 'root' },
+              client_ip_addr: '198.51.100.200',
+            },
+          ],
           _meta: { total_count: 1 },
         };
       },
@@ -140,7 +143,9 @@ test('@workflow-matrix @smoke user requests: lists and opens only the signed-in 
   await expect(page.getByRole('button', { name: /resolve|approve|deny/i })).toHaveCount(0);
 });
 
-test('@smoke user requests: admin self view explicitly scopes both indexes and renders an empty state', async ({ page }) => {
+test('@smoke user requests: admin self view explicitly scopes both indexes and renders an empty state', async ({
+  page,
+}) => {
   const indexUrls: URL[] = [];
 
   await setUiSettingsLocalStorage(page, { language: 'cs' });
@@ -187,13 +192,14 @@ test('@smoke user requests: admin self view explicitly scopes both indexes and r
   expect(changesUrl?.searchParams.get('change[user]')).toBe('1');
 });
 
-test('@pr-smoke @pr-smoke-mobile user requests: filtered empty state clears filters without losing URL context or owner scope', async ({ page, isMobile }) => {
+test('@pr-smoke @pr-smoke-mobile user requests: filtered empty state clears filters without losing URL context or owner scope', async ({
+  page,
+  isMobile,
+}) => {
   const indexUrls: URL[] = [];
   const writes: Array<{ method: string; origin: string; pathname: string }> = [];
 
-  await page.setViewportSize(isMobile
-    ? { width: 390, height: 844 }
-    : { width: 1440, height: 1000 });
+  await page.setViewportSize(isMobile ? { width: 390, height: 844 } : { width: 1440, height: 1000 });
   await setUiSettingsLocalStorage(page, { language: 'en' });
   await bootstrapVpsAdminWindow(page);
   page.on('request', (request) => {
@@ -209,13 +215,15 @@ test('@pr-smoke @pr-smoke-mobile user requests: filtered empty state clears filt
         indexUrls.push(requestUrl);
         return requestUrl.searchParams.get('registration[user]') === '1'
           ? {
-              registrations: [{
-                id: 54,
-                user: { id: 1, login: 'KerryCZE' },
-                state: 'approved',
-                login: 'KerryCZE',
-                created_at: '2026-08-20T10:00:00Z',
-              }],
+              registrations: [
+                {
+                  id: 54,
+                  user: { id: 1, login: 'KerryCZE' },
+                  state: 'approved',
+                  login: 'KerryCZE',
+                  created_at: '2026-08-20T10:00:00Z',
+                },
+              ],
               _meta: { total_count: 1 },
             }
           : { registrations: [], _meta: { total_count: 0 } };
@@ -229,9 +237,7 @@ test('@pr-smoke @pr-smoke-mobile user requests: filtered empty state clears filt
   });
 
   await page.goto('/app/requests?type=change&state=approved&returnTo=%2Fapp%2Fprofile');
-  expect(page.viewportSize()).toEqual(isMobile
-    ? { width: 390, height: 844 }
-    : { width: 1440, height: 1000 });
+  expect(page.viewportSize()).toEqual(isMobile ? { width: 390, height: 844 } : { width: 1440, height: 1000 });
   const empty = page.getByTestId('app.requests.empty');
   await expect(empty).toContainText('No requests match these filters');
   await expect(empty.getByRole('link', { name: 'Open account settings' })).toHaveCount(0);
@@ -257,24 +263,36 @@ test('@pr-smoke @pr-smoke-mobile user requests: filtered empty state clears filt
   const rowPrefix = isMobile ? 'app.requests.mobile.row' : 'app.requests.row';
   const row = page.getByTestId(`${rowPrefix}.registration.54`);
   await expect(row).toBeVisible();
-  expect(indexUrls.some((url) => (
-    url.pathname.endsWith('/changes')
-    && url.searchParams.get('change[user]') === '1'
-    && url.searchParams.get('change[state]') === 'approved'
-  ))).toBe(true);
+  expect(
+    indexUrls.some(
+      (url) =>
+        url.pathname.endsWith('/changes') &&
+        url.searchParams.get('change[user]') === '1' &&
+        url.searchParams.get('change[state]') === 'approved'
+    )
+  ).toBe(true);
   expect(indexUrls.some((url) => url.searchParams.get('registration[user]') === '1')).toBe(true);
   const appOrigin = new URL(page.url()).origin;
-  expect(writes.filter((write) => !(
-    write.method === 'PUT'
-    && write.origin === appOrigin
-    && write.pathname === '/api/v7.0/webui_user_settings/ui/settings'
-  ))).toEqual([]);
+  expect(
+    writes.filter(
+      (write) =>
+        !(
+          write.method === 'PUT' &&
+          write.origin === appOrigin &&
+          write.pathname === '/api/v7.0/webui_user_settings/ui/settings'
+        )
+    )
+  ).toEqual([]);
 
   if (!isMobile) {
     await expect(row).not.toHaveAttribute('tabindex');
     const openLink = row.getByRole('link', { name: 'Open' });
     await expect(openLink).toBeVisible();
-    await expect(row.locator('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')).toHaveCount(1);
+    await expect(
+      row.locator(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      )
+    ).toHaveCount(1);
     await openLink.press('Enter');
     await expect(page).toHaveURL('/app/requests/registration/54');
   } else {
@@ -282,7 +300,9 @@ test('@pr-smoke @pr-smoke-mobile user requests: filtered empty state clears filt
   }
 });
 
-test('@workflow-matrix user requests: foreign or ownerless API data fails closed without leaking fields', async ({ page }) => {
+test('@workflow-matrix user requests: foreign or ownerless API data fails closed without leaking fields', async ({
+  page,
+}) => {
   await setUiSettingsLocalStorage(page, { language: 'cs' });
   await bootstrapVpsAdminWindow(page);
   await installHaveApiMock(page, {
@@ -290,13 +310,15 @@ test('@workflow-matrix user requests: foreign or ownerless API data fails closed
     handlers: {
       'GET user_request/registrations': () => ({ registrations: [] }),
       'GET user_request/changes': () => ({
-        changes: [{
-          id: 66,
-          user: { id: 99, login: 'mallory' },
-          state: 'awaiting',
-          change_reason: 'FOREIGN SECRET REASON',
-          address: 'FOREIGN SECRET ADDRESS',
-        }],
+        changes: [
+          {
+            id: 66,
+            user: { id: 99, login: 'mallory' },
+            state: 'awaiting',
+            change_reason: 'FOREIGN SECRET REASON',
+            address: 'FOREIGN SECRET ADDRESS',
+          },
+        ],
       }),
       'GET user_request/changes/66': () => ({
         change: {
@@ -323,7 +345,10 @@ test('@workflow-matrix user requests: foreign or ownerless API data fails closed
   await expect(page.getByText('Tuto žádost nelze otevřít')).toBeVisible();
 });
 
-test('user requests: independent ID spaces paginate the complete merged history without skips', async ({ page, isMobile }) => {
+test('user requests: independent ID spaces paginate the complete merged history without skips', async ({
+  page,
+  isMobile,
+}) => {
   const indexUrls: URL[] = [];
   await setUiSettingsLocalStorage(page, { language: 'en' });
   await bootstrapVpsAdminWindow(page);
@@ -346,9 +371,7 @@ test('user requests: independent ID spaces paginate the complete merged history 
           };
         });
         return {
-          registrations: all
-            .filter((request) => fromId === null || request.id < fromId)
-            .slice(0, limit),
+          registrations: all.filter((request) => fromId === null || request.id < fromId).slice(0, limit),
           _meta: { total_count: all.length },
         };
       },
@@ -374,9 +397,7 @@ test('user requests: independent ID spaces paginate the complete merged history 
           },
         ];
         return {
-          changes: all
-            .filter((request) => fromId === null || request.id < fromId)
-            .slice(0, limit),
+          changes: all.filter((request) => fromId === null || request.id < fromId).slice(0, limit),
           _meta: { total_count: all.length },
         };
       },
@@ -414,7 +435,6 @@ test('user requests: independent ID spaces paginate the complete merged history 
   expect(changeUrls[1]?.searchParams.get('change[from_id]')).toBe('2');
   expect(indexUrls.every((url) => url.searchParams.get('_meta[count]') === 'true')).toBe(true);
 });
-
 
 test('@content-account-a4-cs member request details retain submitted values, state and response cs', async ({
   page,

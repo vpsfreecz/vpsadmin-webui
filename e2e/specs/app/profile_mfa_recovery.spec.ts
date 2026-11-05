@@ -1,6 +1,12 @@
 import { test, expect } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock, jsonFulfill, setUiSettingsLocalStorage } from '../../fixtures';
+import {
+  bootstrapVpsAdminWindow,
+  failEnvelope,
+  installHaveApiMock,
+  jsonFulfill,
+  setUiSettingsLocalStorage,
+} from '../../fixtures';
 
 test('@smoke profile: ready MFA keeps its controls without aggregate reassurance', async ({ page }) => {
   const user = {
@@ -71,7 +77,9 @@ test('@smoke profile: ready MFA keeps its controls without aggregate reassurance
   await expect(page.getByTestId('profile.mfa.totp.row.10').filter({ visible: true })).toBeVisible();
   await expect(page.getByTestId('profile.mfa.recovery.metrics')).toHaveCount(0);
   await expect(page.getByTestId('profile.mfa.recovery.checklist')).toHaveCount(0);
-  await expect(page.getByTestId('profile.mfa.known_devices.summary')).toContainText('Trusted for two-step verification');
+  await expect(page.getByTestId('profile.mfa.known_devices.summary')).toContainText(
+    'Trusted for two-step verification'
+  );
   await expect(page.getByTestId('profile.mfa.mfa_master.status')).toContainText('Active');
 });
 
@@ -165,19 +173,27 @@ const recoveryStates = [
 
 for (const language of ['en', 'cs'] as const) {
   for (const state of recoveryStates) {
-    test(`@content-a1-baseline MFA recovery preserves ${state.status} context (${language})`, async ({ page }, info) => {
+    test(`@content-a1-baseline MFA recovery preserves ${state.status} context (${language})`, async ({
+      page,
+    }, info) => {
       const user = { id: 1, login: 'e2e', level: 1, enable_multi_factor_auth: state.required };
       const devices = Array.from({ length: state.active + Number(state.pending) }, (_, index) => ({
-        id: index + 10, label: `Phone ${index + 1}`, confirmed: !state.pending, enabled: true,
+        id: index + 10,
+        label: `Phone ${index + 1}`,
+        confirmed: !state.pending,
+        enabled: true,
       }));
       await setUiSettingsLocalStorage(page, { language, theme: language === 'cs' ? 'dark' : 'light' });
       await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
-      await installHaveApiMock(page, { user, handlers: {
-        'GET users/current': () => ({ user }),
-        'GET users/1/totp_devices': () => ({ totp_devices: devices }),
-        'GET users/1/webauthn_credentials': () => ({ webauthn_credentials: [] }),
-        'GET users/1/known_devices': () => ({ known_devices: [] }),
-      } });
+      await installHaveApiMock(page, {
+        user,
+        handlers: {
+          'GET users/current': () => ({ user }),
+          'GET users/1/totp_devices': () => ({ totp_devices: devices }),
+          'GET users/1/webauthn_credentials': () => ({ webauthn_credentials: [] }),
+          'GET users/1/known_devices': () => ({ known_devices: [] }),
+        },
+      });
       await page.goto('/app/profile/mfa');
       await expect(page.getByTestId('profile.mfa.mfa_master.status')).toBeVisible();
       if (state.status !== 'ready') {
@@ -193,24 +209,33 @@ for (const language of ['en', 'cs'] as const) {
     });
   }
 
-  test(`@content-a1-baseline MFA recovery does not infer readiness from loading or failed data (${language})`, async ({ page }, info) => {
+  test(`@content-a1-baseline MFA recovery does not infer readiness from loading or failed data (${language})`, async ({
+    page,
+  }, info) => {
     let releaseRead = () => {};
-    const readGate = new Promise<void>((resolve) => { releaseRead = resolve; });
+    const readGate = new Promise<void>((resolve) => {
+      releaseRead = resolve;
+    });
     const user = { id: 1, login: 'e2e', level: 1, enable_multi_factor_auth: true };
     await setUiSettingsLocalStorage(page, { language, theme: language === 'cs' ? 'dark' : 'light' });
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
-    await installHaveApiMock(page, { user, handlers: {
-      'GET users/current': () => ({ user }),
-      'GET users/1/totp_devices': () => ({ totp_devices: [
-        { id: 10, label: 'Phone', confirmed: true, enabled: true },
-        { id: 11, label: 'Backup', confirmed: true, enabled: true },
-      ] }),
-      'GET users/1/webauthn_credentials': async () => {
-        await readGate;
-        return jsonFulfill(failEnvelope('Synthetic recovery read failed'), 503);
+    await installHaveApiMock(page, {
+      user,
+      handlers: {
+        'GET users/current': () => ({ user }),
+        'GET users/1/totp_devices': () => ({
+          totp_devices: [
+            { id: 10, label: 'Phone', confirmed: true, enabled: true },
+            { id: 11, label: 'Backup', confirmed: true, enabled: true },
+          ],
+        }),
+        'GET users/1/webauthn_credentials': async () => {
+          await readGate;
+          return jsonFulfill(failEnvelope('Synthetic recovery read failed'), 503);
+        },
+        'GET users/1/known_devices': () => ({ known_devices: [] }),
       },
-      'GET users/1/known_devices': () => ({ known_devices: [] }),
-    } });
+    });
     try {
       await page.goto('/app/profile/mfa');
       const recovery = page.getByTestId('profile.mfa.recovery.card');

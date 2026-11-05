@@ -121,7 +121,9 @@ test.describe('Admin node create and edit lifecycle', () => {
 
     await page.goto('/admin/nodes');
     await page.getByTestId('admin.nodes.create').click();
-    await expect(page.getByTestId('admin.node.editor.bootstrap.description')).toContainText(/does not require|nevyžaduje/i);
+    await expect(page.getByTestId('admin.node.editor.bootstrap.description')).toContainText(
+      /does not require|nevyžaduje/i
+    );
     await page.getByTestId('admin.node.editor.name').fill('storage43');
     await page.getByTestId('admin.node.editor.role').selectOption('storage');
     await page.getByTestId('admin.node.editor.location').selectOption('3');
@@ -290,7 +292,9 @@ test.describe('Admin node create and edit lifecycle', () => {
     expect(updateCalls).toBe(0);
   });
 
-  test('reconciles an indeterminate create beyond the visible page and prevents a duplicate POST', async ({ page }, testInfo) => {
+  test('reconciles an indeterminate create beyond the visible page and prevents a duplicate POST', async ({
+    page,
+  }, testInfo) => {
     let createCalls = 0;
     let reconcileCalls = 0;
     await prepare(page, {
@@ -408,7 +412,7 @@ test.describe('Admin node create and edit lifecycle', () => {
           return {};
         },
       },
-      21,
+      21
     );
     await page.goto('/admin/nodes');
     await expect(page.getByTestId('admin.nodes.create')).toHaveCount(0);

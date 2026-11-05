@@ -49,12 +49,10 @@ test('@pr-smoke @pr-smoke-mobile keeps rejected mailbox handler creation in cont
   await page.getByTestId('admin.mailer.mailboxes.handler.modal.save').click();
 
   await expect(page.getByTestId('admin.mailer.mailboxes.handler.modal.error')).toContainText(
-    'Handler class is unavailable',
+    'Handler class is unavailable'
   );
   await expect(page.getByTestId('admin.mailer.mailboxes.handler.modal')).toBeVisible();
-  await expect(page.getByTestId('admin.mailer.mailboxes.handler.modal.class_name')).toHaveValue(
-    'Custom::RetryHandler',
-  );
+  await expect(page.getByTestId('admin.mailer.mailboxes.handler.modal.class_name')).toHaveValue('Custom::RetryHandler');
   await expect(page.getByTestId('admin.mailer.mailboxes.handler.modal.order')).toHaveValue('1');
   await page.getByTestId('admin.mailer.mailboxes.handler.modal').screenshot({
     path: testInfo.outputPath('mailer-handler-create-rejected.png'),
@@ -66,7 +64,9 @@ test('@pr-smoke @pr-smoke-mobile keeps rejected mailbox handler creation in cont
   expect(createAttempts).toBe(2);
 });
 
-test('@pr-smoke @pr-smoke-mobile keeps rejected mailbox handler edits in context for retry', async ({ page }, testInfo) => {
+test('@pr-smoke @pr-smoke-mobile keeps rejected mailbox handler edits in context for retry', async ({
+  page,
+}, testInfo) => {
   await bootstrapVpsAdminWindow(page, { sessionToken: 'MAILBOX_HANDLER_EDIT_RETRY' });
 
   let handlers: any[] = [{ id: 201, class_name: 'Custom::Handler', order: 1, continue: false }];
@@ -100,10 +100,10 @@ test('@pr-smoke @pr-smoke-mobile keeps rejected mailbox handler edits in context
   await page.getByTestId('admin.mailer.mailboxes.handler.modal.save').click();
 
   await expect(page.getByTestId('admin.mailer.mailboxes.handler.modal.error')).toContainText(
-    'Handler order changed on the server',
+    'Handler order changed on the server'
   );
   await expect(page.getByTestId('admin.mailer.mailboxes.handler.modal.class_name')).toHaveValue(
-    'Custom::UpdatedHandler',
+    'Custom::UpdatedHandler'
   );
   await expect(page.getByTestId('admin.mailer.mailboxes.handler.modal.order')).toHaveValue('2');
   await expect(page.getByTestId('admin.mailer.mailboxes.handler.modal.continue')).toBeChecked();

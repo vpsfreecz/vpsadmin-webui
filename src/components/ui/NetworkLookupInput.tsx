@@ -33,11 +33,7 @@ function networkMeta(network: Network): string {
   return bits.join(' · ');
 }
 
-export function filterNetworkLookupOptions(
-  networks: readonly Network[],
-  needle: string,
-  limit = 25
-): Network[] {
+export function filterNetworkLookupOptions(networks: readonly Network[], needle: string, limit = 25): Network[] {
   const normalized = needle.trim().toLowerCase();
   const matches = normalized
     ? networks.filter((network) => {
@@ -203,7 +199,9 @@ export function NetworkLookupInput(props: {
             <div className="px-3 py-2 text-xs text-muted">{props.loadingLabel ?? ''}</div>
           ) : q.isError ? (
             <div className="space-y-2 px-3 py-2 text-xs">
-              <div role="alert" className="break-words text-danger">{formatErrorMessage(q.error, t)}</div>
+              <div role="alert" className="break-words text-danger">
+                {formatErrorMessage(q.error, t)}
+              </div>
               <button
                 ref={retryRef}
                 type="button"

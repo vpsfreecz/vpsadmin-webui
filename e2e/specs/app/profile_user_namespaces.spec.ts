@@ -184,8 +184,8 @@ test('profile: changing the map route drops stale edits and delete confirmation'
   const mutations: string[] = [];
   page.on('request', (request) => {
     if (
-      ['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method())
-      && request.url().includes('/api/v7.0/user_namespace_maps')
+      ['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method()) &&
+      request.url().includes('/api/v7.0/user_namespace_maps')
     ) {
       mutations.push(request.url());
     }
@@ -249,9 +249,7 @@ test('@pr-smoke @pr-smoke-mobile profile: rejected namespace deletions stay in c
 
   await page.getByTestId('profile.userns.map.entry.1001.delete').click();
   await page.getByTestId('profile.userns.map.delete_entry.confirm.confirm').click();
-  await expect(page.getByTestId('profile.userns.map.delete_entry.error')).toContainText(
-    'Entry deletion was rejected',
-  );
+  await expect(page.getByTestId('profile.userns.map.delete_entry.error')).toContainText('Entry deletion was rejected');
   await expect(page.getByTestId('profile.userns.map.delete_entry.confirm')).toBeVisible();
   await expect(page.getByTestId('profile.userns.map.entry.row.1001')).toBeVisible();
 
@@ -261,9 +259,7 @@ test('@pr-smoke @pr-smoke-mobile profile: rejected namespace deletions stay in c
 
   await page.getByTestId('profile.userns.map.delete').click();
   await page.getByTestId('profile.userns.map.delete_map.confirm.confirm').click();
-  await expect(page.getByTestId('profile.userns.map.delete_map.error')).toContainText(
-    'Map deletion was rejected',
-  );
+  await expect(page.getByTestId('profile.userns.map.delete_map.error')).toContainText('Map deletion was rejected');
   await expect(page.getByTestId('profile.userns.map.delete_map.confirm')).toBeVisible();
   await expect(page).toHaveURL(/\/app\/profile\/user-namespaces\/maps\/501$/);
 
@@ -301,9 +297,7 @@ test('@pr-smoke @pr-smoke-mobile profile: rejected map-list deletion stays in it
   await page.getByTestId('profile.userns.maps.row.501.delete').click();
   await page.getByTestId('profile.userns.maps.delete.confirm.confirm').click();
 
-  await expect(page.getByTestId('profile.userns.maps.delete.error')).toContainText(
-    'List deletion was rejected',
-  );
+  await expect(page.getByTestId('profile.userns.maps.delete.error')).toContainText('List deletion was rejected');
   await expect(page.getByTestId('profile.userns.maps.delete.confirm')).toBeVisible();
   await expect(page.getByTestId('profile.userns.maps.row.501')).toBeVisible();
 
@@ -312,7 +306,6 @@ test('@pr-smoke @pr-smoke-mobile profile: rejected map-list deletion stays in it
   await expect(page.getByTestId('profile.userns.maps.row.501')).toHaveCount(0);
   expect(deleteAttempts).toBe(2);
 });
-
 
 test('@content-account-ns-personal member namespace and map preserve owner and UID/GID context cs', async ({
   page,

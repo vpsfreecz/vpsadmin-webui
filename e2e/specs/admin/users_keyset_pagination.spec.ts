@@ -139,7 +139,6 @@ test('admin users: normal user cannot open member management', async ({ page }) 
   await expect(page.getByTestId('admin.users.create.open')).toHaveCount(0);
 });
 
-
 test('@content-account-users-cs Users retains security rows and search scope cs', async ({ page }, info) => {
   await setUiSettingsLocalStorage(page, { language: 'cs', theme: 'dark' });
   await bootstrapVpsAdminWindow(page, { sessionToken: 'SYNTHETIC_ADMIN' });

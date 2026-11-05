@@ -177,5 +177,4 @@ test.describe('VPS features tab', () => {
       expect(writes).toBe(0);
     });
   }
-
 });

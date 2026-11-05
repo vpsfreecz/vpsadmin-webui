@@ -1,6 +1,12 @@
 import { expect, test } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock, jsonFulfill, setUiSettingsLocalStorage } from '../../fixtures';
+import {
+  bootstrapVpsAdminWindow,
+  failEnvelope,
+  installHaveApiMock,
+  jsonFulfill,
+  setUiSettingsLocalStorage,
+} from '../../fixtures';
 
 interface MockSetting {
   id: number;
@@ -29,7 +35,9 @@ function encodeSettings(settings: Record<string, unknown>): string {
   return JSON.stringify(settings);
 }
 
-test('@pr-smoke @pr-smoke-mobile authenticated UI preferences load from and save to webui_user_settings', async ({ page }) => {
+test('@pr-smoke @pr-smoke-mobile authenticated UI preferences load from and save to webui_user_settings', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page, {
     sessionToken: 'TEST_USER_SESSION',
     webuiNext: serverUiSettingsConfig(),
@@ -75,7 +83,9 @@ test('@pr-smoke @pr-smoke-mobile authenticated UI preferences load from and save
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   const desktopSidebar = (page.viewportSize()?.width ?? 1280) >= 768;
   if (desktopSidebar) await expect(page.getByTestId('nav.sidebar.vps')).toHaveText('VPS');
-  await expect(page.getByRole('button', { name: /collapse sidebar|expand sidebar|sbalit panel|rozbalit panel/i })).toHaveCount(0);
+  await expect(
+    page.getByRole('button', { name: /collapse sidebar|expand sidebar|sbalit panel|rozbalit panel/i })
+  ).toHaveCount(0);
 
   await page.getByTestId('shell.user-menu-button').click();
   await page.getByTestId('shell.user-menu.theme.light').click();
@@ -186,7 +196,6 @@ test('@pr-smoke @pr-smoke-mobile profile preferences: reset uses a retryable in-
   expect(saved.tips.sidebarTimeZone).toBe('visible');
 });
 
-
 test('@pr-smoke @pr-smoke-mobile dark theme survives session expiry and a fresh login', async ({ page }) => {
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST', webuiNext: serverUiSettingsConfig() });
   await page.emulateMedia({ colorScheme: 'light' });
@@ -196,10 +205,17 @@ test('@pr-smoke @pr-smoke-mobile dark theme survives session expiry and a fresh 
   await installHaveApiMock(page, {
     user,
     handlers: {
-      'GET users/current': () => authenticated ? { user } : jsonFulfill(failEnvelope('Session expired'), 401),
-      'GET webui_user_settings': () => ({ webui_user_settings: [{
-        id: 1, namespace: 'ui', key: 'settings', value: encodeSettings({ theme: savedTheme }),
-      }] }),
+      'GET users/current': () => (authenticated ? { user } : jsonFulfill(failEnvelope('Session expired'), 401)),
+      'GET webui_user_settings': () => ({
+        webui_user_settings: [
+          {
+            id: 1,
+            namespace: 'ui',
+            key: 'settings',
+            value: encodeSettings({ theme: savedTheme }),
+          },
+        ],
+      }),
       'PUT webui_user_settings': () => jsonFulfill(failEnvelope('No such action'), 404),
       'POST webui_user_settings': () => jsonFulfill(failEnvelope('No such action'), 404),
       'PUT webui_user_settings/ui/settings': ({ reqJson }) => {
@@ -237,38 +253,50 @@ test('@pr-smoke @pr-smoke-mobile dark theme survives session expiry and a fresh 
 });
 
 for (const language of ['en', 'cs'] as const) {
-  test(`@content-a1-baseline profile preferences retain loading, save errors and recovery (${language})`, async ({ page }, info) => {
+  test(`@content-a1-baseline profile preferences retain loading, save errors and recovery (${language})`, async ({
+    page,
+  }, info) => {
     let releaseLoad = () => {};
     let releaseSave = () => {};
-    const loadGate = new Promise<void>((resolve) => { releaseLoad = resolve; });
-    const saveGate = new Promise<void>((resolve) => { releaseSave = resolve; });
+    const loadGate = new Promise<void>((resolve) => {
+      releaseLoad = resolve;
+    });
+    const saveGate = new Promise<void>((resolve) => {
+      releaseSave = resolve;
+    });
     let loads = 0;
     const user = { id: 10, login: 'alice', level: 1 };
     const theme = language === 'cs' ? 'dark' : 'light';
     const storedSetting: MockSetting = {
-      id: 1, namespace: SETTINGS_NAMESPACE, key: SETTINGS_KEY,
+      id: 1,
+      namespace: SETTINGS_NAMESPACE,
+      key: SETTINGS_KEY,
       value: encodeSettings({ theme, language }),
     };
     await setUiSettingsLocalStorage(page, { language, theme });
     await bootstrapVpsAdminWindow(page, {
-      sessionToken: 'TEST_USER_SESSION', webuiNext: serverUiSettingsConfig(),
+      sessionToken: 'TEST_USER_SESSION',
+      webuiNext: serverUiSettingsConfig(),
     });
-    await installHaveApiMock(page, { user, handlers: {
-      'GET users/current': () => ({ user }),
-      'GET users/10': () => ({ user }),
-      'GET webui_user_settings': async () => {
-        loads += 1;
-        if (loads === 1) {
-          await loadGate;
-          return jsonFulfill(failEnvelope('Synthetic preference load failed'), 503);
-        }
-        return { webui_user_settings: [storedSetting] };
+    await installHaveApiMock(page, {
+      user,
+      handlers: {
+        'GET users/current': () => ({ user }),
+        'GET users/10': () => ({ user }),
+        'GET webui_user_settings': async () => {
+          loads += 1;
+          if (loads === 1) {
+            await loadGate;
+            return jsonFulfill(failEnvelope('Synthetic preference load failed'), 503);
+          }
+          return { webui_user_settings: [storedSetting] };
+        },
+        'PUT webui_user_settings/ui/settings': async () => {
+          await saveGate;
+          return jsonFulfill(failEnvelope('Synthetic preference save failed'), 503);
+        },
       },
-      'PUT webui_user_settings/ui/settings': async () => {
-        await saveGate;
-        return jsonFulfill(failEnvelope('Synthetic preference save failed'), 503);
-      },
-    } });
+    });
     try {
       await page.goto('/app/profile');
       const prefs = page.getByTestId('profile.prefs.card');

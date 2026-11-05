@@ -30,7 +30,9 @@ test.describe('Backup center', () => {
     await expect(page.getByText('No storage in the account', { exact: true })).toBeVisible();
   });
 
-  test('@pr-smoke @pr-smoke-mobile filters the complete loaded backup set without unsupported q params', async ({ page }, testInfo) => {
+  test('@pr-smoke @pr-smoke-mobile filters the complete loaded backup set without unsupported q params', async ({
+    page,
+  }, testInfo) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
     let datasetRequests = 0;
     let downloadRequests = 0;
@@ -86,21 +88,22 @@ test.describe('Backup center', () => {
 
     await page.getByTestId('backups.tab.downloads').click();
     await page.getByTestId('backups.filter').fill('monthly');
-    const resultTestId = testInfo.project.name === 'mobile-chrome'
-      ? 'backups.downloads.card.42'
-      : 'backups.downloads.row.42';
+    const resultTestId =
+      testInfo.project.name === 'mobile-chrome' ? 'backups.downloads.card.42' : 'backups.downloads.row.42';
     await expect(page.getByTestId(resultTestId)).toBeVisible();
-    await expect(page.getByTestId(
-      testInfo.project.name === 'mobile-chrome'
-        ? 'backups.downloads.card.41'
-        : 'backups.downloads.row.41',
-    )).toHaveCount(0);
+    await expect(
+      page.getByTestId(
+        testInfo.project.name === 'mobile-chrome' ? 'backups.downloads.card.41' : 'backups.downloads.row.41'
+      )
+    ).toHaveCount(0);
     expect(datasetRequests).toBe(1);
     expect(downloadRequests).toBe(1);
     await expect(page.getByText(/A limited quick overview is loaded/)).toHaveCount(0);
   });
 
-  test('@pr-smoke @pr-smoke-mobile keeps backup download actions visible without horizontal scrolling', async ({ page }, testInfo) => {
+  test('@pr-smoke @pr-smoke-mobile keeps backup download actions visible without horizontal scrolling', async ({
+    page,
+  }, testInfo) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
 
     await installHaveApiMock(page, {
@@ -143,7 +146,7 @@ test.describe('Backup center', () => {
 
     async function expectResponsiveDownload(
       sectionTestId: 'backups.overview' | 'backups.downloads',
-      layout: 'card' | 'row',
+      layout: 'card' | 'row'
     ) {
       const entryTestId = `backups.downloads.${layout}.41`;
       const actionPrefix = entryTestId;
@@ -162,10 +165,10 @@ test.describe('Backup center', () => {
         await expect(entry.getByTestId(`${entryTestId}.status`)).toContainText('Ready');
         await expect(entry.getByTestId(`${entryTestId}.expiration`)).toContainText('2099');
         await expect(entry.getByTestId(`${entryTestId}.detail`)).toHaveAccessibleName(
-          'Open downloads for mail.example/root-volume-with-a-long-mobile-friendly-name',
+          'Open downloads for mail.example/root-volume-with-a-long-mobile-friendly-name'
         );
         await expect(entry.getByTestId(`${entryTestId}.download`)).toHaveAccessibleName(
-          'Download snapshot before-upgrade-with-a-long-name',
+          'Download snapshot before-upgrade-with-a-long-name'
         );
       } else {
         await expect(section.getByTestId('backups.downloads.cards')).toBeHidden();
@@ -187,177 +190,185 @@ test.describe('Backup center', () => {
   });
 
   for (const language of ['en', 'cs'] as const) {
-  test(`@smoke shows the bounded overview and opens dataset backup tools (${language})`, async ({ page }, testInfo) => {
-    await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
-    await setUiSettingsLocalStorage(page, { language, theme: 'light' });
-    const requests: string[] = [];
+    test(`@smoke shows the bounded overview and opens dataset backup tools (${language})`, async ({
+      page,
+    }, testInfo) => {
+      await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+      await setUiSettingsLocalStorage(page, { language, theme: 'light' });
+      const requests: string[] = [];
 
-    await installHaveApiMock(page, {
-      user: { id: 1, login: 'backup-user', level: 1 },
-      handlers: {
-        'GET datasets': (ctx) => {
-          requests.push(ctx.relPath ?? 'datasets');
-          return {
-            datasets: [
-              {
-                id: 10,
-                name: 'root',
-                full_name: 'mail.example/root',
-                vps: { id: 20, hostname: 'mail.example' },
-                environment: { id: 7, label: 'Production' },
-                user: { id: 1, login: 'backup-user' },
-              },
-              { id: 11, name: 'archive', full_name: 'nas/archive' },
-            ],
-            _meta: { total_count: 2 },
-          };
-        },
-        'GET snapshot_downloads': (ctx) => {
-          requests.push(ctx.relPath ?? 'snapshot_downloads');
-          return {
-            snapshot_downloads: [
-              {
-                id: 41,
-                state: 'ready',
-                format: 'archive',
-                url: '/download/41',
-                snapshot: {
+      await installHaveApiMock(page, {
+        user: { id: 1, login: 'backup-user', level: 1 },
+        handlers: {
+          'GET datasets': (ctx) => {
+            requests.push(ctx.relPath ?? 'datasets');
+            return {
+              datasets: [
+                {
+                  id: 10,
+                  name: 'root',
+                  full_name: 'mail.example/root',
+                  vps: { id: 20, hostname: 'mail.example' },
+                  environment: { id: 7, label: 'Production' },
+                  user: { id: 1, login: 'backup-user' },
+                },
+                { id: 11, name: 'archive', full_name: 'nas/archive' },
+              ],
+              _meta: { total_count: 2 },
+            };
+          },
+          'GET snapshot_downloads': (ctx) => {
+            requests.push(ctx.relPath ?? 'snapshot_downloads');
+            return {
+              snapshot_downloads: [
+                {
+                  id: 41,
+                  state: 'ready',
+                  format: 'archive',
+                  url: '/download/41',
+                  snapshot: {
+                    id: 31,
+                    name: 'before-upgrade',
+                    dataset: { id: 10, name: 'root', vps: { id: 20, hostname: 'mail.example' } },
+                  },
+                },
+              ],
+              _meta: { total_count: 1 },
+            };
+          },
+          'GET transaction_chains': (ctx) => {
+            const className = ctx.searchParams?.get('transaction_chain[class_name]');
+            const rowId = ctx.searchParams?.get('transaction_chain[row_id]');
+            if (className === 'Dataset' && rowId === '10') {
+              requests.push('transaction_chains?class_name=Dataset&row_id=10');
+            }
+            return { transaction_chains: [], _meta: { total_count: 0 } };
+          },
+          'GET datasets/10/snapshots': (ctx) => {
+            requests.push(ctx.relPath ?? 'datasets/10/snapshots');
+            return {
+              snapshots: [
+                {
                   id: 31,
                   name: 'before-upgrade',
-                  dataset: { id: 10, name: 'root', vps: { id: 20, hostname: 'mail.example' } },
+                  label: 'Before upgrade',
+                  created_at: '2026-08-10T09:00:00Z',
                 },
-              },
-            ],
-            _meta: { total_count: 1 },
-          };
-        },
-        'GET transaction_chains': (ctx) => {
-          const className = ctx.searchParams?.get('transaction_chain[class_name]');
-          const rowId = ctx.searchParams?.get('transaction_chain[row_id]');
-          if (className === 'Dataset' && rowId === '10') {
-            requests.push('transaction_chains?class_name=Dataset&row_id=10');
-          }
-          return { transaction_chains: [], _meta: { total_count: 0 } };
-        },
-        'GET datasets/10/snapshots': (ctx) => {
-          requests.push(ctx.relPath ?? 'datasets/10/snapshots');
-          return {
-            snapshots: [
-              {
-                id: 31,
-                name: 'before-upgrade',
-                label: 'Before upgrade',
-                created_at: '2026-08-10T09:00:00Z',
-              },
-            ],
-            _meta: { total_count: 1 },
-          };
-        },
-        'GET datasets/10/plans': (ctx) => {
-          requests.push(ctx.relPath ?? 'datasets/10/plans');
-          return {
-            plans: [
-              {
-                id: 2,
-                environment_dataset_plan: {
+              ],
+              _meta: { total_count: 1 },
+            };
+          },
+          'GET datasets/10/plans': (ctx) => {
+            requests.push(ctx.relPath ?? 'datasets/10/plans');
+            return {
+              plans: [
+                {
+                  id: 2,
+                  environment_dataset_plan: {
+                    id: 12,
+                    label: 'Daily backup',
+                    dataset_plan: { id: 3, label: 'daily_backup' },
+                    user_add: true,
+                    user_remove: true,
+                  },
+                },
+              ],
+            };
+          },
+          'GET environments/7/dataset_plans': (ctx) => {
+            requests.push(ctx.relPath ?? 'environments/7/dataset_plans');
+            return {
+              dataset_plans: [
+                {
                   id: 12,
                   label: 'Daily backup',
                   dataset_plan: { id: 3, label: 'daily_backup' },
                   user_add: true,
                   user_remove: true,
                 },
-              },
-            ],
-          };
-        },
-        'GET environments/7/dataset_plans': (ctx) => {
-          requests.push(ctx.relPath ?? 'environments/7/dataset_plans');
-          return {
-            dataset_plans: [
-              {
-                id: 12,
-                label: 'Daily backup',
-                dataset_plan: { id: 3, label: 'daily_backup' },
-                user_add: true,
-                user_remove: true,
-              },
-              {
+                {
+                  id: 13,
+                  label: 'Weekly backup',
+                  dataset_plan: { id: 4, label: 'weekly_backup' },
+                  user_add: true,
+                  user_remove: false,
+                },
+              ],
+            };
+          },
+          'POST datasets/10/plans': () => ({
+            plan: {
+              id: 3,
+              environment_dataset_plan: {
                 id: 13,
                 label: 'Weekly backup',
-                dataset_plan: { id: 4, label: 'weekly_backup' },
                 user_add: true,
                 user_remove: false,
               },
-            ],
-          };
-        },
-        'POST datasets/10/plans': () => ({
-          plan: {
-            id: 3,
-            environment_dataset_plan: {
-              id: 13,
-              label: 'Weekly backup',
-              user_add: true,
-              user_remove: false,
             },
-          },
-        }),
-      },
+          }),
+        },
+      });
+
+      await page.goto('/app/backups');
+
+      await expect(page.getByTestId('backups.page')).toBeVisible();
+      await expect(page.getByTestId('nav.sidebar.backups')).toHaveAttribute('aria-current', 'page');
+      await expect(page.getByTestId('backups.stats.datasets')).toContainText('2');
+      await expect(page.getByTestId('backups.stats.downloads')).toContainText('1');
+      const downloadLayout = testInfo.project.name === 'mobile-chrome' ? 'card' : 'row';
+      await expect(page.getByTestId(`backups.downloads.${downloadLayout}.41`)).toContainText('root');
+      expect(requests).toHaveLength(2);
+      await page.screenshot({
+        path: testInfo.outputPath(`backup-overview-${language}.png`),
+        fullPage: true,
+        scale: 'css',
+      });
+
+      await page.getByTestId('backups.tab.snapshots').click();
+      await expect(page.getByTestId('backups.snapshots')).toBeVisible();
+      await expect(page.getByTestId('backups.snapshots.row.10')).toContainText('mail.example/root');
+      await expect(page.getByTestId('backups.snapshots.row.11')).toContainText('nas/archive');
+      await expect(page.getByTestId('backups.workspace.empty')).toBeVisible();
+      expect(requests).toHaveLength(2);
+
+      await page.getByTestId('backups.snapshots.row.10').click();
+      await expect(page.getByTestId('backups.snapshots.row.10')).toHaveAttribute('aria-pressed', 'true');
+      await expect(page.getByTestId('dataset.snapshots.row.31')).toContainText('Before upgrade');
+      await expect(page.getByTestId('dataset.snapshots.row.31.rollback')).toBeEnabled();
+      await expect(page.getByTestId('dataset.snapshots.row.31.delete')).toHaveCount(0);
+      await expect(page).toHaveURL(/tab=snapshots.*dataset=10|dataset=10.*tab=snapshots/);
+      expect(requests.filter((request) => request === 'datasets/10/snapshots')).toHaveLength(1);
+      expect(
+        requests.filter((request) => request === 'transaction_chains?class_name=Dataset&row_id=10')
+      ).not.toHaveLength(0);
+
+      const proofPath = process.env['E2E_BACKUP_CENTER_PROOF_SCREENSHOT']?.trim();
+      if (proofPath) await page.screenshot({ path: proofPath, fullPage: true });
+
+      await page.getByTestId('backups.tab.plans').click();
+      await expect(page.getByTestId('dataset.plans.summary')).toBeVisible();
+      await expect(page.getByTestId('dataset.plans.row.2')).toContainText('Daily backup');
+      await expect(page).toHaveURL(/tab=plans.*dataset=10|dataset=10.*tab=plans/);
+      expect(requests.filter((request) => request === 'datasets/10/plans')).toHaveLength(1);
+      expect(requests.filter((request) => request === 'environments/7/dataset_plans')).toHaveLength(1);
+
+      await page.getByTestId('dataset.plans.assign.open').click();
+      await page.getByTestId('dataset.plans.assign.select').selectOption('13');
+      const assignRequest = page.waitForRequest(
+        (request) => request.method() === 'POST' && request.url().includes('/datasets/10/plans')
+      );
+      await page.getByTestId('dataset.plans.assign.submit').click();
+      expect((await assignRequest).postDataJSON()).toEqual({
+        plan: { environment_dataset_plan: 13 },
+      });
+      await expect(page.getByTestId('dataset.plans.assign.modal')).toBeHidden();
     });
-
-    await page.goto('/app/backups');
-
-    await expect(page.getByTestId('backups.page')).toBeVisible();
-    await expect(page.getByTestId('nav.sidebar.backups')).toHaveAttribute('aria-current', 'page');
-    await expect(page.getByTestId('backups.stats.datasets')).toContainText('2');
-    await expect(page.getByTestId('backups.stats.downloads')).toContainText('1');
-    const downloadLayout = testInfo.project.name === 'mobile-chrome' ? 'card' : 'row';
-    await expect(page.getByTestId(`backups.downloads.${downloadLayout}.41`)).toContainText('root');
-    expect(requests).toHaveLength(2);
-    await page.screenshot({ path: testInfo.outputPath(`backup-overview-${language}.png`), fullPage: true, scale: 'css' });
-
-    await page.getByTestId('backups.tab.snapshots').click();
-    await expect(page.getByTestId('backups.snapshots')).toBeVisible();
-    await expect(page.getByTestId('backups.snapshots.row.10')).toContainText('mail.example/root');
-    await expect(page.getByTestId('backups.snapshots.row.11')).toContainText('nas/archive');
-    await expect(page.getByTestId('backups.workspace.empty')).toBeVisible();
-    expect(requests).toHaveLength(2);
-
-    await page.getByTestId('backups.snapshots.row.10').click();
-    await expect(page.getByTestId('backups.snapshots.row.10')).toHaveAttribute('aria-pressed', 'true');
-    await expect(page.getByTestId('dataset.snapshots.row.31')).toContainText('Before upgrade');
-    await expect(page.getByTestId('dataset.snapshots.row.31.rollback')).toBeEnabled();
-    await expect(page.getByTestId('dataset.snapshots.row.31.delete')).toHaveCount(0);
-    await expect(page).toHaveURL(/tab=snapshots.*dataset=10|dataset=10.*tab=snapshots/);
-    expect(requests.filter((request) => request === 'datasets/10/snapshots')).toHaveLength(1);
-    expect(
-      requests.filter((request) => request === 'transaction_chains?class_name=Dataset&row_id=10')
-    ).not.toHaveLength(0);
-
-    const proofPath = process.env['E2E_BACKUP_CENTER_PROOF_SCREENSHOT']?.trim();
-    if (proofPath) await page.screenshot({ path: proofPath, fullPage: true });
-
-    await page.getByTestId('backups.tab.plans').click();
-    await expect(page.getByTestId('dataset.plans.summary')).toBeVisible();
-    await expect(page.getByTestId('dataset.plans.row.2')).toContainText('Daily backup');
-    await expect(page).toHaveURL(/tab=plans.*dataset=10|dataset=10.*tab=plans/);
-    expect(requests.filter((request) => request === 'datasets/10/plans')).toHaveLength(1);
-    expect(requests.filter((request) => request === 'environments/7/dataset_plans')).toHaveLength(1);
-
-    await page.getByTestId('dataset.plans.assign.open').click();
-    await page.getByTestId('dataset.plans.assign.select').selectOption('13');
-    const assignRequest = page.waitForRequest(
-      (request) => request.method() === 'POST' && request.url().includes('/datasets/10/plans')
-    );
-    await page.getByTestId('dataset.plans.assign.submit').click();
-    expect((await assignRequest).postDataJSON()).toEqual({
-      plan: { environment_dataset_plan: 13 },
-    });
-    await expect(page.getByTestId('dataset.plans.assign.modal')).toBeHidden();
-  });
   }
 
-  test('@pr-smoke @pr-smoke-mobile explains dataset backup plans on direct entry and preserves exact API contracts', async ({ page }) => {
+  test('@pr-smoke @pr-smoke-mobile explains dataset backup plans on direct entry and preserves exact API contracts', async ({
+    page,
+  }) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
     const assignedIncludes: Array<string | null> = [];
     const availableIncludes: Array<string | null> = [];
@@ -465,9 +476,7 @@ test.describe('Backup center', () => {
     await page.goto('/app/backups?tab=plans&dataset=10');
 
     await expect(page).toHaveURL(/(?=.*[?&]tab=plans)(?=.*[?&]dataset=10)/);
-    await expect(page.getByTestId('backups.plans')).toContainText(
-      'Plans are administrator-defined automatic rules'
-    );
+    await expect(page.getByTestId('backups.plans')).toContainText('Plans are administrator-defined automatic rules');
     await expect(page.getByTestId('dataset.plans.row.21.description')).toHaveText(
       'Takes a snapshot every night and keeps seven restore points.'
     );
@@ -475,9 +484,7 @@ test.describe('Backup center', () => {
     await expect(page.getByTestId('dataset.plans.row.22.description')).toHaveText(
       'No description is available for this plan.'
     );
-    await expect.poll(() => assignedIncludes).toEqual([
-      'environment_dataset_plan__dataset_plan',
-    ]);
+    await expect.poll(() => assignedIncludes).toEqual(['environment_dataset_plan__dataset_plan']);
     await expect.poll(() => availableIncludes).toEqual(['dataset_plan']);
     await expectNoDocumentHorizontalOverflow(page);
 
@@ -486,15 +493,11 @@ test.describe('Backup center', () => {
     await expect(page.getByTestId('dataset.plans.assign.preview.description')).toHaveText(
       'Copies the dataset to backup storage every six hours.'
     );
-    await expect(page.getByTestId('dataset.plans.assign.preview.source')).toContainText(
-      'remote_copy'
-    );
+    await expect(page.getByTestId('dataset.plans.assign.preview.source')).toContainText('remote_copy');
     await expectNoDocumentHorizontalOverflow(page);
 
     await page.getByTestId('dataset.plans.assign.submit').click();
-    await expect.poll(() => mutationPayloads).toEqual([
-      { plan: { environment_dataset_plan: 13 } },
-    ]);
+    await expect.poll(() => mutationPayloads).toEqual([{ plan: { environment_dataset_plan: 13 } }]);
     await expect(page.getByTestId('dataset.plans.assign.modal')).toBeHidden();
   });
 
@@ -574,7 +577,9 @@ test.describe('Backup center', () => {
     expect(rollbackCalls).toBe(1);
   });
 
-  test('@pr-smoke @pr-smoke-mobile requires exact manual unlock after an ambiguous rollback', async ({ page }, testInfo) => {
+  test('@pr-smoke @pr-smoke-mobile requires exact manual unlock after an ambiguous rollback', async ({
+    page,
+  }, testInfo) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
     let rollbackApplied = false;
     let rollbackCalls = 0;
@@ -588,15 +593,17 @@ test.describe('Backup center', () => {
         'GET datasets': () => {
           if (rollbackApplied) datasetReadbacks += 1;
           return {
-            datasets: [{
-              id: 10,
-              name: 'root',
-              full_name: 'mail.example/root',
-              object_state: 'active',
-              vps: { id: 20, hostname: 'mail.example' },
-              environment: { id: 7, label: 'Production' },
-              user: { id: 1, login: 'backup-user' },
-            }],
+            datasets: [
+              {
+                id: 10,
+                name: 'root',
+                full_name: 'mail.example/root',
+                object_state: 'active',
+                vps: { id: 20, hostname: 'mail.example' },
+                environment: { id: 7, label: 'Production' },
+                user: { id: 1, login: 'backup-user' },
+              },
+            ],
             _meta: { total_count: 1 },
           };
         },
@@ -622,12 +629,14 @@ test.describe('Backup center', () => {
         'GET datasets/10/snapshots': () => {
           if (rollbackApplied) snapshotReadbacks += 1;
           return {
-            snapshots: [{
-              id: 31,
-              name: 'before-upgrade',
-              label: 'Before upgrade',
-              created_at: '2026-08-10T09:00:00Z',
-            }],
+            snapshots: [
+              {
+                id: 31,
+                name: 'before-upgrade',
+                label: 'Before upgrade',
+                created_at: '2026-08-10T09:00:00Z',
+              },
+            ],
             _meta: { total_count: 1 },
           };
         },
@@ -757,46 +766,52 @@ test.describe('Backup center', () => {
     await expect(page.getByTestId(`backups.downloads.${layout}.999`)).toHaveCount(0);
     await expect(page.getByTestId(`backups.downloads.${layout}.51.detail`)).toHaveAttribute(
       'href',
-      '/app/datasets/10/downloads',
+      '/app/datasets/10/downloads'
     );
     expect(requestedDatasetIds.sort()).toEqual(['10', '11']);
     expect(requestedDatasetIds).not.toContain(null);
   });
 
   for (const language of ['en', 'cs'] as const) {
-  test(`keeps backend-authorized user downloads available without dataset metadata (${language})`, async ({ page }, testInfo) => {
-    await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
-    await setUiSettingsLocalStorage(page, { language, theme: 'light' });
+    test(`keeps backend-authorized user downloads available without dataset metadata (${language})`, async ({
+      page,
+    }, testInfo) => {
+      await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+      await setUiSettingsLocalStorage(page, { language, theme: 'light' });
 
-    await installHaveApiMock(page, {
-      user: { id: 1, login: 'backup-user', level: 1 },
-      handlers: {
-        'GET datasets': () => failEnvelope('Dataset metadata temporarily unavailable'),
-        'GET snapshot_downloads': ({ searchParams }) => {
-          expect(searchParams.get('snapshot_download[dataset]')).toBeNull();
-          return {
-            snapshot_downloads: [
-              {
-                id: 61,
-                state: 'ready',
-                format: 'archive',
-                url: '/download/61',
-                snapshot: { id: 32, name: 'authorized download', dataset: { id: 10 } },
-              },
-            ],
-            _meta: { total_count: 1 },
-          };
+      await installHaveApiMock(page, {
+        user: { id: 1, login: 'backup-user', level: 1 },
+        handlers: {
+          'GET datasets': () => failEnvelope('Dataset metadata temporarily unavailable'),
+          'GET snapshot_downloads': ({ searchParams }) => {
+            expect(searchParams.get('snapshot_download[dataset]')).toBeNull();
+            return {
+              snapshot_downloads: [
+                {
+                  id: 61,
+                  state: 'ready',
+                  format: 'archive',
+                  url: '/download/61',
+                  snapshot: { id: 32, name: 'authorized download', dataset: { id: 10 } },
+                },
+              ],
+              _meta: { total_count: 1 },
+            };
+          },
         },
-      },
+      });
+
+      await page.goto('/app/backups?tab=downloads');
+
+      const layout = testInfo.project.name === 'mobile-chrome' ? 'card' : 'row';
+      await expect(page.getByTestId(`backups.downloads.${layout}.61`)).toBeVisible();
+      await expect(page.getByTestId('backups.error')).toHaveCount(0);
+      await expect(page.getByTestId('backups.datasets.metadata_partial')).toBeVisible();
+      await page.screenshot({
+        path: testInfo.outputPath(`backup-metadata-missing-${language}.png`),
+        fullPage: true,
+        scale: 'css',
+      });
     });
-
-    await page.goto('/app/backups?tab=downloads');
-
-    const layout = testInfo.project.name === 'mobile-chrome' ? 'card' : 'row';
-    await expect(page.getByTestId(`backups.downloads.${layout}.61`)).toBeVisible();
-    await expect(page.getByTestId('backups.error')).toHaveCount(0);
-    await expect(page.getByTestId('backups.datasets.metadata_partial')).toBeVisible();
-    await page.screenshot({ path: testInfo.outputPath(`backup-metadata-missing-${language}.png`), fullPage: true, scale: 'css' });
-  });
   }
 });

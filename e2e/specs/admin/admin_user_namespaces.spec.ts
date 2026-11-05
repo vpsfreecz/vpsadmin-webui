@@ -44,7 +44,6 @@ test('admin: user namespaces tool loads namespaces and maps', async ({ page }) =
   await expect(page.getByText('#501')).toBeVisible();
 });
 
-
 test('@content-account-ns-global global index, namespace and map retain independent metadata on entry failure en', async ({
   page,
 }, info) => {

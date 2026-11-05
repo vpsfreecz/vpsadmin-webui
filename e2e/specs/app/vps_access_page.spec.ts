@@ -29,7 +29,13 @@ const longPublicKeyFingerprint = `SHA256:${'abcdefghijklmnopqrstuvwxyz0123456789
 const longPublicKeyComment = `main-laptop-${'comment'.repeat(24)}`;
 
 const publicKeys = [
-  { id: 8, label: longPublicKeyLabel, fingerprint: longPublicKeyFingerprint, comment: longPublicKeyComment, auto_add: true },
+  {
+    id: 8,
+    label: longPublicKeyLabel,
+    fingerprint: longPublicKeyFingerprint,
+    comment: longPublicKeyComment,
+    auto_add: true,
+  },
   { id: 9, label: 'backup', fingerprint: 'SHA256:def', comment: 'backup key', auto_add: false },
 ];
 
@@ -45,7 +51,9 @@ const hostKeys = [
   { id: 2, algorithm: 'ssh-rsa', fingerprint: 'SHA256:host-rsa', public_key: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQ' },
 ];
 
-test('@workflow-matrix @pr-smoke @pr-smoke-mobile VPS access page generates root password and deploys saved SSH key', async ({ page }) => {
+test('@workflow-matrix @pr-smoke @pr-smoke-mobile VPS access page generates root password and deploys saved SSH key', async ({
+  page,
+}) => {
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
 
   await installHaveApiMock(page, {
@@ -85,17 +93,15 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile VPS access page generates root
   const passwordTypeSelect = page.getByRole('combobox', { name: 'Generated password type', exact: true });
   await expect(passwordTypeSelect).toBeVisible();
   await expect(passwordTypeSelect).toHaveAccessibleDescription(
-    'Secure is the default. Simple is available only for cases where the platform explicitly allows it.',
+    'Secure is the default. Simple is available only for cases where the platform explicitly allows it.'
   );
 
   const sectionOrder = await page
-    .locator('[data-testid="vps.access.ssh.card"], [data-testid="vps.access.host_keys"], [data-testid="vps.access.password.card"]')
+    .locator(
+      '[data-testid="vps.access.ssh.card"], [data-testid="vps.access.host_keys"], [data-testid="vps.access.password.card"]'
+    )
     .evaluateAll((sections) => sections.map((section) => section.getAttribute('data-testid')));
-  expect(sectionOrder).toEqual([
-    'vps.access.ssh.card',
-    'vps.access.host_keys',
-    'vps.access.password.card',
-  ]);
+  expect(sectionOrder).toEqual(['vps.access.ssh.card', 'vps.access.host_keys', 'vps.access.password.card']);
 
   await page.setViewportSize({ width: 390, height: 844 });
   await expectNoDocumentHorizontalOverflow(page);
@@ -125,17 +131,20 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile VPS access page generates root
   await expect(generatedPassword).toHaveValue('Root-123!');
   await expect(generatedPassword).toHaveAttribute('type', 'password');
   await expect(generatedPassword).toHaveAccessibleDescription(
-    'The generated password is shown only in this browser state. It is not persisted by this page.',
+    'The generated password is shown only in this browser state. It is not persisted by this page.'
   );
   await page.getByTestId('vps.access.generated_password.toggle').click();
-  await expect(page.getByRole('textbox', { name: 'Generated root password', exact: true })).toHaveAttribute('type', 'text');
+  await expect(page.getByRole('textbox', { name: 'Generated root password', exact: true })).toHaveAttribute(
+    'type',
+    'text'
+  );
   await page.getByTestId('vps.access.generated_password.clear').click();
   await expect(page.getByTestId('vps.access.generated_password')).toHaveCount(0);
 
   await page.getByTestId('tasks.open-button').click();
   await expect(page.getByTestId('tasks.drawer')).toHaveAttribute('aria-modal', 'false');
   await expect(
-    page.getByTestId('tasks.row.700').getByRole('button', { name: 'Generate root password', exact: true }),
+    page.getByTestId('tasks.row.700').getByRole('button', { name: 'Generate root password', exact: true })
   ).toBeVisible();
   await expect(page.getByTestId('vps.access.page')).toBeVisible();
   await page.getByTestId('tasks.close-button').click();
@@ -161,12 +170,14 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile VPS access page generates root
 
   await page.getByTestId('tasks.open-button').click();
   await expect(
-    page.getByTestId('tasks.row.701').getByRole('button', { name: 'Deploy SSH public key', exact: true }),
+    page.getByTestId('tasks.row.701').getByRole('button', { name: 'Deploy SSH public key', exact: true })
   ).toBeVisible();
   await expect(page.getByTestId('vps.access.page')).toBeVisible();
 });
 
-test('@workflow-matrix @pr-smoke @pr-smoke-mobile admin VPS access contains long key data on mobile', async ({ page }) => {
+test('@workflow-matrix @pr-smoke @pr-smoke-mobile admin VPS access contains long key data on mobile', async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST_ADMIN' });
 
@@ -220,7 +231,7 @@ test('@workflow-matrix @pr-smoke VPS access reports failed SSH key deployment an
   await page.getByTestId('vps.access.ssh.failure.open_tasks').click();
   await expect(page.getByTestId('tasks.drawer')).toHaveAttribute('aria-modal', 'false');
   await expect(
-    page.getByTestId('tasks.row.702').getByRole('button', { name: 'Deploy SSH public key', exact: true }),
+    page.getByTestId('tasks.row.702').getByRole('button', { name: 'Deploy SSH public key', exact: true })
   ).toBeVisible();
   await expect(page.getByTestId('vps.access.page')).toBeVisible();
 });

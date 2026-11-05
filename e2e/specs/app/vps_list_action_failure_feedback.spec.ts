@@ -29,9 +29,8 @@ function rejected(message: string) {
 
 async function actionPrefix(page: Page): Promise<string> {
   const viewport = page.viewportSize();
-  const item: Locator = !viewport || viewport.width >= 768
-    ? page.getByTestId('vps.row.300')
-    : page.getByTestId('vps.card.300');
+  const item: Locator =
+    !viewport || viewport.width >= 768 ? page.getByTestId('vps.row.300') : page.getByTestId('vps.card.300');
   await expect(item).toBeVisible();
   return !viewport || viewport.width >= 768 ? 'vps.row.300' : 'vps.card.300';
 }

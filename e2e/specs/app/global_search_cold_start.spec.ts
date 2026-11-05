@@ -12,7 +12,10 @@ async function searchUi(page: Page, mobile: boolean) {
 }
 
 for (const language of ['en', 'cs']) {
-  test(`cold admin search keeps DNS hits after eight VPS matches (${language})`, async ({ page, isMobile }, testInfo) => {
+  test(`cold admin search keeps DNS hits after eight VPS matches (${language})`, async ({
+    page,
+    isMobile,
+  }, testInfo) => {
     await page.addInitScript((language) => {
       localStorage.setItem('vpsadmin.uiSettings.v1', JSON.stringify({ language, theme: 'dark' }));
     }, language);
@@ -23,10 +26,17 @@ for (const language of ['en', 'cs']) {
       handlers: {
         'POST cluster/search': () => {
           searches++;
-          return { clusters: [
-            ...Array.from({ length: 9 }, (_, index) => ({ resource: 'Vps', id: index + 1, value: `letsball-${index}.example`, attribute: 'hostname' })),
-            { resource: 'DnsZone', id: 80, value: 'letsball.example.', attribute: 'name' },
-          ] };
+          return {
+            clusters: [
+              ...Array.from({ length: 9 }, (_, index) => ({
+                resource: 'Vps',
+                id: index + 1,
+                value: `letsball-${index}.example`,
+                attribute: 'hostname',
+              })),
+              { resource: 'DnsZone', id: 80, value: 'letsball.example.', attribute: 'name' },
+            ],
+          };
         },
       },
     });
@@ -47,7 +57,10 @@ for (const language of ['en', 'cs']) {
 }
 
 for (const level of [1, 100]) {
-  test(`fresh My view finds assigned IP and second-page DNS for level ${level}`, async ({ page, isMobile }, testInfo) => {
+  test(`fresh My view finds assigned IP and second-page DNS for level ${level}`, async ({
+    page,
+    isMobile,
+  }, testInfo) => {
     await bootstrapVpsAdminWindow(page);
     const ipFilters: (string | null)[] = [];
     const zonePages: (string | null)[] = [];
@@ -61,17 +74,29 @@ for (const level of [1, 100]) {
           const user = ctx.searchParams.get('ip_address[user]');
           ipFilters.push(user);
           // Mirror the API: the assigned IP has no direct user_id.
-          return { ip_addresses: user ? [] : [
-            { id: 1, addr, prefix: 32, network_interface: { id: 3, vps: { id: 55, hostname: 'mail.example', user: { id: 42 } } } },
-            { id: 2, addr, prefix: 32, user: { id: 99 } },
-          ] };
+          return {
+            ip_addresses: user
+              ? []
+              : [
+                  {
+                    id: 1,
+                    addr,
+                    prefix: 32,
+                    network_interface: { id: 3, vps: { id: 55, hostname: 'mail.example', user: { id: 42 } } },
+                  },
+                  { id: 2, addr, prefix: 32, user: { id: 99 } },
+                ],
+          };
         },
         'GET dns_zones': (ctx) => {
           const cursor = ctx.searchParams.get('dns_zone[from_id]');
           zonePages.push(cursor);
           if (level === 100) expect(ctx.searchParams.get('dns_zone[user]')).toBe('42');
-          return { dns_zones: cursor ? [{ id: 90, name: 'snajpa.example.' }] :
-            Array.from({ length: 100 }, (_, i) => ({ id: 200 - i, name: `other-${i}.example.` })) };
+          return {
+            dns_zones: cursor
+              ? [{ id: 90, name: 'snajpa.example.' }]
+              : Array.from({ length: 100 }, (_, i) => ({ id: 200 - i, name: `other-${i}.example.` })),
+          };
         },
       },
     });
@@ -97,17 +122,25 @@ for (const level of [1, 100]) {
 test('failed DNS lookup is an error, not an empty search, and a new query retries', async ({ page, isMobile }) => {
   await bootstrapVpsAdminWindow(page);
   let fail = true;
-  await installHaveApiMock(page, { user: { id: 42, login: 'search-user', level: 1 }, handlers: {
-    'GET vpses': () => ({ vpses: [] }),
-    'GET dns_zones': () => ({ dns_zones: [{ id: 90, name: 'snajpa.example.' }] }),
-  } });
+  await installHaveApiMock(page, {
+    user: { id: 42, login: 'search-user', level: 1 },
+    handlers: {
+      'GET vpses': () => ({ vpses: [] }),
+      'GET dns_zones': () => ({ dns_zones: [{ id: 90, name: 'snajpa.example.' }] }),
+    },
+  });
   await page.route('**/dns_zones?**', async (route) => {
-    if (fail) await route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ status: false, message: 'DNS unavailable' }) });
+    if (fail)
+      await route.fulfill({
+        status: 503,
+        contentType: 'application/json',
+        body: JSON.stringify({ status: false, message: 'DNS unavailable' }),
+      });
     else await route.fallback();
   });
   await page.goto('/app/profile');
   const ui = await searchUi(page, isMobile);
-    const { input } = ui;
+  const { input } = ui;
   await input.fill('snajpa');
   await expect(ui.error).toContainText('Error');
   fail = false;
@@ -121,17 +154,22 @@ for (const language of ['en', 'cs']) {
       localStorage.setItem('vpsadmin.uiSettings.v1', JSON.stringify({ language }));
     }, language);
     await bootstrapVpsAdminWindow(page);
-    await installHaveApiMock(page, { user: { id: 42, login: 'search-user', level: 1 }, handlers: {
-      'GET vpses': () => ({ vpses: [] }),
-      'GET dns_zones': () => ({ dns_zones: [] }),
-      'GET ip_addresses': () => ({ ip_addresses: Array.from({ length: 100 }, (_, i) => ({ id: i + 1, addr: '192.0.2.1' })) }),
-    } });
+    await installHaveApiMock(page, {
+      user: { id: 42, login: 'search-user', level: 1 },
+      handlers: {
+        'GET vpses': () => ({ vpses: [] }),
+        'GET dns_zones': () => ({ dns_zones: [] }),
+        'GET ip_addresses': () => ({
+          ip_addresses: Array.from({ length: 100 }, (_, i) => ({ id: i + 1, addr: '192.0.2.1' })),
+        }),
+      },
+    });
     await page.goto('/app/profile');
     const ui = await searchUi(page, isMobile);
     await ui.input.fill('192.0.2.1');
-    await expect(ui.error).toContainText(language === 'cs'
-      ? 'Vyhledávání IP adres se nepodařilo dokončit.'
-      : 'IP search could not be completed.');
+    await expect(ui.error).toContainText(
+      language === 'cs' ? 'Vyhledávání IP adres se nepodařilo dokončit.' : 'IP search could not be completed.'
+    );
     await expect(ui.result(0)).toHaveCount(0);
   });
 }

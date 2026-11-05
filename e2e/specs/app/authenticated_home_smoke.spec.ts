@@ -2,9 +2,11 @@ import { expect, test, type Request } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
 
-test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke @smoke-mobile authenticated user lands on dashboard and can open VPS list', async ({ page }) => {
+test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke @smoke-mobile authenticated user lands on dashboard and can open VPS list', async ({
+  page,
+}) => {
   const vpsRequests: Request[] = [];
-  page.on('request', request => {
+  page.on('request', (request) => {
     if (new URL(request.url()).pathname.endsWith('/vpses')) vpsRequests.push(request);
   });
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST_USER_SESSION' });
@@ -73,10 +75,12 @@ test('@smoke authenticated dashboard skips HaveAPI description bootstrap in stan
       },
     },
   });
-  await page.route('**/config.js', route => route.fulfill({
-    contentType: 'application/javascript',
-    body: 'delete window.vpsAdmin.description;',
-  }));
+  await page.route('**/config.js', (route) =>
+    route.fulfill({
+      contentType: 'application/javascript',
+      body: 'delete window.vpsAdmin.description;',
+    })
+  );
 
   await installHaveApiMock(page, {
     user: { id: 10, login: 'alice', level: 1 },
