@@ -222,7 +222,6 @@ export function MailTemplateTranslationPage() {
           <span>
             {t('mailer.translations.detail.meta', {
               templateId: tplId,
-              language: langLabel,
             })}
           </span>
         }

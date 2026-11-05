@@ -70,7 +70,7 @@ test.describe('@smoke @smoke-mobile Admin mailer recipients', () => {
     });
   });
 
-  test('filters and paginates locally while sending only supported API parameters', async ({ page }) => {
+  test('filters and paginates locally while sending only supported API parameters', async ({ page }, testInfo) => {
     const reqs: URL[] = [];
     page.on('request', (req) => {
       if (req.method() !== 'GET') return;
@@ -84,6 +84,7 @@ test.describe('@smoke @smoke-mobile Admin mailer recipients', () => {
     await expect(page.getByTestId('admin.mailer.recipients.page')).toBeVisible();
     await expect(visibleRecipientEntry(page, 10)).toBeVisible();
     await expect(visibleRecipientEntry(page, 69)).toHaveCount(0);
+    await page.screenshot({ path: testInfo.outputPath('mailer-recipients-list.png') });
 
     const paginationPrefix = (page.viewportSize()?.width ?? 1280) < 768
       ? 'admin.mailer.recipients.pagination.mobile'
@@ -111,7 +112,7 @@ test.describe('@smoke @smoke-mobile Admin mailer recipients', () => {
     }
   });
 
-  test('validates and creates a recipient with one exact mutation', async ({ page }) => {
+  test('validates and creates a recipient with one exact mutation', async ({ page }, testInfo) => {
     const postPayloads: unknown[] = [];
     page.on('request', (request) => {
       const url = new URL(request.url());
@@ -129,6 +130,7 @@ test.describe('@smoke @smoke-mobile Admin mailer recipients', () => {
     await expect(save).toBeDisabled();
     await page.getByTestId('admin.mailer.recipients.editor.label').fill('Operations');
     await expect(save).toBeEnabled();
+    await page.getByTestId('admin.mailer.recipients.editor').screenshot({ path: testInfo.outputPath('mailer-recipient-create.png') });
     await save.dblclick();
 
     await expect.poll(() => postPayloads).toEqual([{

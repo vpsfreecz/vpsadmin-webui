@@ -74,8 +74,8 @@ test.describe('@smoke Admin mailer mailboxes', () => {
         },
         'GET mailboxes/20': () => ({ mailbox: mailboxes.find((m) => m.id === 20) }),
         'GET mailboxes/10': () => ({ mailbox: mailboxes.find((m) => m.id === 10) }),
-        'GET mailboxes/20/handler': () => ({ handlers: handlersByMailbox[20], _meta: { total_count: handlersByMailbox[20].length } }),
-        'GET mailboxes/10/handler': () => ({ handlers: handlersByMailbox[10], _meta: { total_count: handlersByMailbox[10].length } }),
+        'GET mailboxes/20/handler': () => ({ handlers: handlersByMailbox[20], _meta: { total_count: handlersByMailbox[20]!.length } }),
+        'GET mailboxes/10/handler': () => ({ handlers: handlersByMailbox[10], _meta: { total_count: handlersByMailbox[10]!.length } }),
 
         'POST mailboxes': () => {
           const created = {
@@ -99,13 +99,14 @@ test.describe('@smoke Admin mailer mailboxes', () => {
     });
   });
 
-  test('lists mailboxes and opens detail', async ({ page }) => {
+  test('lists mailboxes and opens detail', async ({ page }, testInfo) => {
     await page.goto('/admin/mailer/mailboxes');
 
     await expect(page.getByTestId('admin.mailer.mailboxes.page')).toBeVisible();
     await expect(page.getByTestId('admin.mailer.mailboxes.row.20')).toBeVisible();
     await expect(page.getByTestId('admin.mailer.mailboxes.pagination.page.1')).toBeVisible();
     await expect(page.getByTestId('admin.mailer.mailboxes.pagination')).toContainText('Page 1 of 1');
+    await page.screenshot({ path: testInfo.outputPath('mailer-mailboxes-list.png') });
 
     await page.getByTestId('admin.mailer.mailboxes.row.20').click();
     await expect(page).toHaveURL(/\/admin\/mailer\/mailboxes\/20/);
@@ -114,9 +115,10 @@ test.describe('@smoke Admin mailer mailboxes', () => {
 
     await expect(page.getByTestId('admin.mailer.mailboxes.detail.handlers')).toContainText('Handlers');
     await expect(page.getByTestId('admin.mailer.mailboxes.handler.201')).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath('mailer-mailbox-detail.png'), fullPage: true });
   });
 
-  test('searches and creates mailbox', async ({ page }) => {
+  test('searches and creates mailbox', async ({ page }, testInfo) => {
     const mailboxReqs: URL[] = [];
     page.on('request', (req) => {
       if (req.method() !== 'GET') return;
@@ -133,7 +135,7 @@ test.describe('@smoke Admin mailer mailboxes', () => {
     await expect(page.getByTestId('admin.mailer.mailboxes.row.10')).toBeVisible();
 
     expect(mailboxReqs.length).toBeGreaterThan(0);
-    const last = mailboxReqs[mailboxReqs.length - 1];
+    const last = mailboxReqs[mailboxReqs.length - 1]!;
     expect(last.searchParams.get('mailbox[q]')).toBeNull();
     expect(last.searchParams.get('_meta[count]')).toBeNull();
 
@@ -149,6 +151,7 @@ test.describe('@smoke Admin mailer mailboxes', () => {
     await page.getByTestId('admin.mailer.mailboxes.create.port').fill('993');
     await page.getByTestId('admin.mailer.mailboxes.create.user').fill('new@example.test');
     await page.getByTestId('admin.mailer.mailboxes.create.password').fill('secret');
+    await page.getByTestId('admin.mailer.mailboxes.create.modal').screenshot({ path: testInfo.outputPath('mailer-mailbox-create.png') });
 
     await page.getByTestId('admin.mailer.mailboxes.create.modal.save').click();
     await expect(page.getByTestId('admin.mailer.mailboxes.create.modal')).toHaveCount(0);
@@ -158,7 +161,7 @@ test.describe('@smoke Admin mailer mailboxes', () => {
   });
 });
 
-test('@pr-smoke @pr-smoke-mobile keeps rejected mailbox creation in context for retry', async ({ page }) => {
+test('@pr-smoke @pr-smoke-mobile keeps rejected mailbox creation in context for retry', async ({ page }, testInfo) => {
   await bootstrapVpsAdminWindow(page, { sessionToken: 'MAILBOX_CREATE_RETRY' });
 
   let createAttempts = 0;
@@ -194,6 +197,7 @@ test('@pr-smoke @pr-smoke-mobile keeps rejected mailbox creation in context for 
   await expect(page.getByTestId('admin.mailer.mailboxes.create.server')).toHaveValue('imap.retry.example');
   await expect(page.getByTestId('admin.mailer.mailboxes.create.user')).toHaveValue('retry@example.test');
   await expect(page.getByTestId('admin.mailer.mailboxes.create.password')).toHaveValue('retry-secret');
+  await page.getByTestId('admin.mailer.mailboxes.create.modal').screenshot({ path: testInfo.outputPath('mailer-mailbox-create-rejected.png') });
 
   await page.getByTestId('admin.mailer.mailboxes.create.modal.save').click();
   await expect(page.getByTestId('admin.mailer.mailboxes.create.modal')).toHaveCount(0);
@@ -201,7 +205,7 @@ test('@pr-smoke @pr-smoke-mobile keeps rejected mailbox creation in context for 
   expect(createAttempts).toBe(2);
 });
 
-test('@pr-smoke @pr-smoke-mobile keeps rejected mailbox edits in context for retry', async ({ page }) => {
+test('@pr-smoke @pr-smoke-mobile keeps rejected mailbox edits in context for retry', async ({ page }, testInfo) => {
   await bootstrapVpsAdminWindow(page, { sessionToken: 'MAILBOX_EDIT_RETRY' });
 
   let mailbox: any = {
@@ -246,6 +250,7 @@ test('@pr-smoke @pr-smoke-mobile keeps rejected mailbox edits in context for ret
   await expect(page.getByTestId('admin.mailer.mailboxes.edit.server')).toHaveValue('imap2.example.test');
   await expect(page.getByTestId('admin.mailer.mailboxes.edit.user')).toHaveValue('operator@example.test');
   await expect(page.getByTestId('admin.mailer.mailboxes.edit.password')).toHaveValue('new-test-password');
+  await page.getByTestId('admin.mailer.mailboxes.edit.modal').screenshot({ path: testInfo.outputPath('mailer-mailbox-edit-rejected.png') });
 
   await page.getByTestId('admin.mailer.mailboxes.edit.modal.save').click();
   await expect(page.getByTestId('admin.mailer.mailboxes.edit.modal')).toHaveCount(0);
@@ -255,7 +260,7 @@ test('@pr-smoke @pr-smoke-mobile keeps rejected mailbox edits in context for ret
 
 test('@pr-smoke @pr-smoke-mobile reconciles a partially rejected mailbox handler reorder before retry', async ({
   page,
-}) => {
+}, testInfo) => {
   await bootstrapVpsAdminWindow(page, { sessionToken: 'MAILBOX_HANDLER_REORDER_RETRY' });
 
   const mailbox = {
@@ -307,6 +312,7 @@ test('@pr-smoke @pr-smoke-mobile reconciles a partially rejected mailbox handler
   );
   await expect.poll(() => handlerLoads).toBeGreaterThan(1);
   await expect(page.getByTestId('admin.mailer.mailboxes.handler.101.down')).toBeEnabled();
+  await page.screenshot({ path: testInfo.outputPath('mailer-handler-partial-reorder.png'), fullPage: true });
 
   await page.getByTestId('admin.mailer.mailboxes.handler.101.down').click();
   await expect(page.getByTestId('admin.mailer.mailboxes.handlers.reorder.error')).toHaveCount(0);

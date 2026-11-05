@@ -117,12 +117,33 @@ export function MailLogDetailPage() {
             {t('mailer.log.list.title')}
           </Link>
         }
-        meta={valid ? `#${idNum}` : undefined}
+        meta={
+          valid ? (
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+              <span>#{idNum}</span>
+              {mail && !q.isLoading && !q.isError ? (
+                <>
+                  <span>
+                    {t('common.user')}:{' '}
+                    {userId ? (
+                      <Link className="text-accent hover:underline" to={`${basePath}/users/${userId}`}>
+                        {userLabel}
+                      </Link>
+                    ) : (
+                      <span className="text-muted">{userLabel}</span>
+                    )}
+                  </span>
+                  <span>
+                    {t('mailer.log.row.template')}: {tplLabel}
+                  </span>
+                </>
+              ) : null}
+            </div>
+          ) : undefined
+        }
         titleAfter={<Badge variant="neutral">{formatDateTime(createdAt)}</Badge>}
         actions={
           <div className="flex flex-wrap items-center gap-2">
-
-
             <Button variant="secondary" size="sm" onClick={() => window.print()} testId="admin.mailer.log.detail.print">
               {t('mailer.log.detail.print')}
             </Button>
@@ -154,58 +175,13 @@ export function MailLogDetailPage() {
         />
       ) : mail ? (
         <>
-          <Card testId="admin.mailer.log.detail.summary">
-            <CardHeader title={t('mailer.log.detail.section.summary')} />
-            <CardBody>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                <div>
-                  <div className="text-xs text-muted">{t('common.created')}</div>
-                  <div className="mt-1 text-sm">{formatDateTime(createdAt)}</div>
-                </div>
-
-                <div>
-                  <div className="text-xs text-muted">{t('common.user')}</div>
-                  <div className="mt-1 text-sm">
-                    {userId ? (
-                      <Link className="text-accent hover:underline" to={`${basePath}/users/${userId}`}>
-                        {userLabel}
-                      </Link>
-                    ) : (
-                      <span className="text-muted">{userLabel}</span>
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <div className="text-xs text-muted">{t('mailer.log.row.template')}</div>
-                  <div className="mt-1 text-sm">{tplLabel}</div>
-                </div>
-
-                <div className="sm:col-span-2 lg:col-span-3">
-                  <div className="text-xs text-muted">{t('mailer.log.row.subject')}</div>
-                  <div className="mt-1 text-sm">{subject}</div>
-                </div>
-
-                {messageId ? (
-                  <div className="sm:col-span-2 lg:col-span-3">
-                    <div className="text-xs text-muted">{t('mailer.log.row.message_id')}</div>
-                    <div className="mt-1 flex flex-wrap items-center gap-2">
-                      <div className="min-w-0 truncate text-sm" title={messageId}>
-                        {messageId}
-                      </div>
-                      <CopyButton text={messageId} testId="admin.mailer.log.detail.copy.message_id" />
-                    </div>
-                  </div>
-                ) : null}
-
-
-              </div>
-            </CardBody>
-          </Card>
-
           <Card testId="admin.mailer.log.detail.recipients">
             <CardHeader title={t('mailer.log.detail.section.recipients')} />
             <CardBody>
+              <div className="mb-4">
+                <div className="text-xs text-muted">{t('mailer.log.detail.from')}</div>
+                <div className="mt-1 text-sm">{from || t('common.na')}</div>
+              </div>
               {!recipientAny ? (
                 <div className="text-sm text-muted">{t('mailer.log.detail.recipients.empty')}</div>
               ) : (
@@ -214,7 +190,9 @@ export function MailLogDetailPage() {
                     <div>
                       <div className="text-xs text-muted">{t('mailer.log.row.to')}</div>
                       <div className="mt-1 flex items-start justify-between gap-2">
-                        <pre className="max-h-40 flex-1 overflow-auto rounded-md border border-border bg-surface-2 p-2 text-xs text-fg whitespace-pre-wrap">{to}</pre>
+                        <pre className="max-h-40 flex-1 overflow-auto rounded-md border border-border bg-surface-2 p-2 text-xs text-fg whitespace-pre-wrap">
+                          {to}
+                        </pre>
                         <CopyButton text={to} testId="admin.mailer.log.detail.copy.to" />
                       </div>
                     </div>
@@ -224,7 +202,9 @@ export function MailLogDetailPage() {
                     <div>
                       <div className="text-xs text-muted">{t('mailer.log.detail.cc')}</div>
                       <div className="mt-1 flex items-start justify-between gap-2">
-                        <pre className="max-h-40 flex-1 overflow-auto rounded-md border border-border bg-surface-2 p-2 text-xs text-fg whitespace-pre-wrap">{cc}</pre>
+                        <pre className="max-h-40 flex-1 overflow-auto rounded-md border border-border bg-surface-2 p-2 text-xs text-fg whitespace-pre-wrap">
+                          {cc}
+                        </pre>
                         <CopyButton text={cc} testId="admin.mailer.log.detail.copy.cc" />
                       </div>
                     </div>
@@ -234,45 +214,15 @@ export function MailLogDetailPage() {
                     <div>
                       <div className="text-xs text-muted">{t('mailer.log.detail.bcc')}</div>
                       <div className="mt-1 flex items-start justify-between gap-2">
-                        <pre className="max-h-40 flex-1 overflow-auto rounded-md border border-border bg-surface-2 p-2 text-xs text-fg whitespace-pre-wrap">{bcc}</pre>
+                        <pre className="max-h-40 flex-1 overflow-auto rounded-md border border-border bg-surface-2 p-2 text-xs text-fg whitespace-pre-wrap">
+                          {bcc}
+                        </pre>
                         <CopyButton text={bcc} testId="admin.mailer.log.detail.copy.bcc" />
                       </div>
                     </div>
                   ) : null}
                 </div>
               )}
-            </CardBody>
-          </Card>
-
-          <Card testId="admin.mailer.log.detail.headers">
-            <CardHeader title={t('mailer.log.detail.section.headers')} />
-            <CardBody>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <div className="text-xs text-muted">{t('mailer.log.detail.from')}</div>
-                  <div className="mt-1 text-sm">{from || t('common.na')}</div>
-                </div>
-                <div>
-                  <div className="text-xs text-muted">{t('mailer.log.detail.reply_to')}</div>
-                  <div className="mt-1 text-sm">{replyTo || t('common.na')}</div>
-                </div>
-                <div>
-                  <div className="text-xs text-muted">{t('mailer.log.detail.return_path')}</div>
-                  <div className="mt-1 text-sm">{returnPath || t('common.na')}</div>
-                </div>
-                {inReplyTo ? (
-                  <div>
-                    <div className="text-xs text-muted">{t('mailer.log.detail.in_reply_to')}</div>
-                    <div className="mt-1 text-sm">{inReplyTo}</div>
-                  </div>
-                ) : null}
-                {references ? (
-                  <div className="sm:col-span-2">
-                    <div className="text-xs text-muted">{t('mailer.log.detail.references')}</div>
-                    <div className="mt-1 text-sm break-words">{references}</div>
-                  </div>
-                ) : null}
-              </div>
             </CardBody>
           </Card>
 
@@ -314,6 +264,49 @@ export function MailLogDetailPage() {
 
               {bodyTab}
             </CardBody>
+          </Card>
+
+          <Card testId="admin.mailer.log.detail.headers">
+            <details>
+              <summary className="cursor-pointer px-4 py-3 font-semibold">
+                {t('mailer.log.detail.section.headers')}
+              </summary>
+              <CardBody>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {messageId ? (
+                    <div className="sm:col-span-2">
+                      <div className="text-xs text-muted">{t('mailer.log.row.message_id')}</div>
+                      <div className="mt-1 flex flex-wrap items-center gap-2">
+                        <div className="min-w-0 truncate text-sm" title={messageId}>
+                          {messageId}
+                        </div>
+                        <CopyButton text={messageId} testId="admin.mailer.log.detail.copy.message_id" />
+                      </div>
+                    </div>
+                  ) : null}
+                  <div>
+                    <div className="text-xs text-muted">{t('mailer.log.detail.reply_to')}</div>
+                    <div className="mt-1 text-sm">{replyTo || t('common.na')}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-muted">{t('mailer.log.detail.return_path')}</div>
+                    <div className="mt-1 text-sm">{returnPath || t('common.na')}</div>
+                  </div>
+                  {inReplyTo ? (
+                    <div>
+                      <div className="text-xs text-muted">{t('mailer.log.detail.in_reply_to')}</div>
+                      <div className="mt-1 text-sm">{inReplyTo}</div>
+                    </div>
+                  ) : null}
+                  {references ? (
+                    <div className="sm:col-span-2">
+                      <div className="text-xs text-muted">{t('mailer.log.detail.references')}</div>
+                      <div className="mt-1 text-sm break-words">{references}</div>
+                    </div>
+                  ) : null}
+                </div>
+              </CardBody>
+            </details>
           </Card>
         </>
       ) : (

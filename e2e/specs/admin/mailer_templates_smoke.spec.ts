@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
+import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 
 function visibleTemplateEntry(page: Page, id: number) {
   const mobile = (page.viewportSize()?.width ?? 1280) < 768;
@@ -8,7 +8,11 @@ function visibleTemplateEntry(page: Page, id: number) {
 }
 
 test.describe('@smoke @smoke-mobile Admin mailer templates', () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page }, testInfo) => {
+    await setUiSettingsLocalStorage(page, {
+      language: testInfo.project.name === 'mobile-chrome' ? 'cs' : 'en',
+      theme: testInfo.project.name === 'mobile-chrome' ? 'dark' : 'light',
+    });
     await bootstrapVpsAdminWindow(page, {
       sessionToken: 'TEST',
     });
@@ -89,12 +93,13 @@ test.describe('@smoke @smoke-mobile Admin mailer templates', () => {
     });
   });
 
-  test('lists templates and opens detail + translation', async ({ page }) => {
+  test('lists templates and opens detail + translation', async ({ page }, testInfo) => {
     await page.goto('/admin/mailer/templates');
 
     await expect(page.getByTestId('admin.mailer.templates.page')).toBeVisible();
     const entry = visibleTemplateEntry(page, 1);
     await expect(entry).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath('mailer-templates-list.png'), fullPage: true });
     if ((page.viewportSize()?.width ?? 1280) < 768) await entry.getByRole('link').click();
     else await entry.click();
 
@@ -103,12 +108,14 @@ test.describe('@smoke @smoke-mobile Admin mailer templates', () => {
 
     // Translations list should include EN row.
     await expect(page.getByTestId('admin.mailer.templates.detail.translation.101')).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath('mailer-template-detail.png'), fullPage: true });
 
     await page.getByTestId('admin.mailer.templates.detail.translation.101').click();
 
     await expect(page).toHaveURL(/\/admin\/mailer\/templates\/1\/translations\/101/);
     await expect(page.getByTestId('admin.mailer.templates.translation.detail')).toBeVisible();
     await expect(page.getByTestId('admin.mailer.templates.translation.detail.fields')).toContainText('Welcome');
+    await page.screenshot({ path: testInfo.outputPath('mailer-translation-readonly.png'), fullPage: true });
   });
 
   test('paginates and filters the bounded list locally without unsupported API parameters', async ({ page }) => {

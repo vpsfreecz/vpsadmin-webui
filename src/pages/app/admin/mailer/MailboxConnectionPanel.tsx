@@ -17,7 +17,6 @@ export function MailboxConnectionPanel({ mailbox }: { mailbox: Mailbox | null })
       <div className="flex items-center justify-between gap-3">
         <div>
           <div className="text-sm font-semibold">{t('mailer.mailboxes.detail.connection.title')}</div>
-          <div className="mt-1 text-xs text-muted">{t('mailer.mailboxes.detail.connection.description')}</div>
         </div>
       </div>
 

@@ -357,8 +357,7 @@ export function MailTemplateRecipientModal(props: {
       size="lg"
       testId="admin.mailer.templates.detail.recipients.modal"
       footer={
-        <div className="flex items-center justify-between gap-2">
-          <div className="text-xs text-muted">{t('mailer.templates.detail.recipients.modal.hint')}</div>
+        <div className="flex items-center justify-end gap-2">
           <div className="flex items-center gap-2">
             <Button
               variant="secondary"
@@ -459,9 +458,9 @@ export function MailTemplateRecipientModal(props: {
             testIdPrefix="admin.mailer.templates.detail.recipients.modal.create"
             onChange={setDraft}
           />
-          <Alert variant="info" title={t('mailer.templates.detail.recipients.modal.create_info')}>
+          <p className="text-sm text-muted">
             {t('mailer.templates.detail.recipients.modal.create_info_desc')}
-          </Alert>
+          </p>
 
           <MailTemplateRecipientRecoveryNotice
             recovery={createRecovery}

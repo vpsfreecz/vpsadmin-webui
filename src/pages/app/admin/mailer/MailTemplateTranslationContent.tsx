@@ -57,9 +57,9 @@ export function MailTemplateTranslationContent(props: {
   return (
     <>
       {!props.editingEnabled ? (
-        <Alert variant="info" title={t('mailer.translations.detail.readonly.title')} testId="admin.mailer.templates.translation.detail.readonly">
+        <p className="text-sm text-muted" data-testid="admin.mailer.templates.translation.detail.readonly">
           {t('mailer.translations.detail.readonly.body')}
-        </Alert>
+        </p>
       ) : (
         <Alert variant="warn" title={t('mailer.translations.detail.editing.title')} testId="admin.mailer.templates.translation.detail.editing">
           {t('mailer.translations.detail.editing.body')}
