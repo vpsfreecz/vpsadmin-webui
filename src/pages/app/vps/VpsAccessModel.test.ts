@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 
 import type { VpsPublicKey, VpsSshHostKey } from '../../../lib/api/vpsAccess';
 import {
-  buildVpsAccessChecklist,
   findDuplicatePublicKeyGroups,
   hostKeyDisplayFingerprint,
   hostKeyDisplayType,
@@ -11,40 +10,6 @@ import {
 } from './VpsAccessModel';
 
 describe('VpsAccessModel', () => {
-  it('builds a ready key/fingerprint checklist', () => {
-    const items = buildVpsAccessChecklist({
-      publicKeysLoaded: true,
-      publicKeyCount: 2,
-      duplicatePublicKeyGroupCount: 0,
-      hostKeysLoaded: true,
-      hostKeyCount: 2,
-      mutationAllowed: true,
-    });
-
-    expect(items.map((item) => [item.id, item.state])).toEqual([
-      ['public-key', 'ready'],
-      ['host-key', 'ready'],
-      ['root-password', 'fallback'],
-    ]);
-  });
-
-  it('surfaces missing keys, host keys, and busy states as attention or blocked', () => {
-    const items = buildVpsAccessChecklist({
-      publicKeysLoaded: true,
-      publicKeyCount: 0,
-      duplicatePublicKeyGroupCount: 0,
-      hostKeysLoaded: true,
-      hostKeyCount: 0,
-      mutationAllowed: false,
-    });
-
-    expect(items.map((item) => [item.id, item.state])).toEqual([
-      ['public-key', 'attention'],
-      ['host-key', 'attention'],
-      ['root-password', 'blocked'],
-    ]);
-  });
-
   it('detects duplicate saved public keys by fingerprint or raw key material', () => {
     const keys: VpsPublicKey[] = [
       { id: 1, label: 'laptop', fingerprint: 'SHA256:ABC' },

@@ -1892,3 +1892,7 @@ Prepare the approved RES-05 layout. See the
 
 Prepare approved RES-06. See the
 [scope and localization record](docs/work-log/2026-11-06-todo-admin-team-preference.md).
+
+## 2026-11-06 — Open VPS Access at the actual controls
+
+Prepare ACC-01 and ACC-02. See the [scope record](docs/work-log/2026-11-06-todo-vps-access-controls.md).
