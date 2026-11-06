@@ -215,6 +215,14 @@ resources. [Access](../../src/lib/api/vpsAccess.ts),
 [maintenance](../../src/lib/api/vpsMaintenance.ts),
 [resource fixture](../../e2e/specs/app/vps_resource_workspace.spec.ts).
 
+### Additional VPS configuration (REQ-023)
+
+Additional configuration groups the hostname, namespace, boot and administrator
+controls under short headings inside the existing disclosure. DNS uses its
+direct resolver label. Field help, errors and risk indicators stay with the
+settings they describe. The DNS shortcut still expands, scrolls to and focuses
+the resolver section and shares the same change review.
+
 ### Admin-team VPS configuration preference (REQ-023)
 
 Maintenance exposes the legacy `allow_admin_modifications` preference alongside
