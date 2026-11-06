@@ -66,14 +66,13 @@ test.describe('@pr-smoke-mobile Mobile first-touch interactions', () => {
       await page.setViewportSize(viewport);
       await setup(page);
       await page.goto('/app/vps');
-      await clickShellControl(page, 'palette.open', true);
-      await expect(page.getByTestId('palette.modal')).toBeVisible();
-      await page.getByTestId('palette.input').fill('touch');
-      const result = page.getByTestId('palette.result.0');
+      await clickShellControl(page, 'shell.inline-search.input', true);
+      await page.getByTestId('shell.inline-search.input').fill('touch');
+      const result = page.getByTestId('shell.inline-search.result.0');
       await expect(result).toContainText('touch.example.test');
       await result.tap();
       await expect(page).toHaveURL(/\/app\/vps\/3$/);
-      await expect(page.getByTestId('palette.modal')).toBeHidden();
+      await expect(page.getByTestId('nav.drawer')).toBeHidden();
       await expectNoDocumentHorizontalOverflow(page);
     });
 
@@ -126,7 +125,7 @@ test.describe('@pr-smoke-mobile Mobile first-touch interactions', () => {
     await expect(page.getByTestId('vps.list')).toBeVisible();
     const before = await page.getByTestId('shell.header').boundingBox();
     try {
-      await clickShellControl(page, 'palette.open', true);
+      await page.keyboard.press('Control+k');
       await expect.poll(() => requested).toBe(true);
       const loading = page.getByTestId('shell.command_palette.loading');
       await expect(loading).toHaveAttribute('role', 'dialog');
@@ -136,7 +135,7 @@ test.describe('@pr-smoke-mobile Mobile first-touch interactions', () => {
       await page.getByTestId('shell.command_palette.loading.close').tap();
       await expect(loading).toBeHidden();
       // Reopening while the same import is pending must also need just one tap.
-      await clickShellControl(page, 'palette.open', true);
+      await page.keyboard.press('Control+k');
       await expect(loading).toBeVisible();
     } finally {
       release();

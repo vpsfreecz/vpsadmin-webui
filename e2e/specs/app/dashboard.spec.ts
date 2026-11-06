@@ -244,16 +244,12 @@ test.describe("Dashboard", () => {
       await page.screenshot({ path: clusterProofScreenshot, fullPage: true });
     }
 
-    await expect(page.getByTestId("app.dashboard.preferences.card")).toContainText(
-      "Compact",
-    );
+    await expect(page.getByTestId("app.dashboard.preferences.card")).toBeHidden();
     await page.getByTestId("app.dashboard.preferences.toggle").click();
-    await page
-      .getByTestId("app.dashboard.preferences.density")
-      .selectOption("comfortable");
-    await expect(page.getByTestId("app.dashboard.preferences.card")).toContainText(
-      "Comfortable",
-    );
+    const density = page.getByTestId("app.dashboard.preferences.density");
+    await expect(density).toHaveValue("compact");
+    await density.selectOption("comfortable");
+    await expect(density).toHaveValue("comfortable");
 
     await expect(
       page.getByTestId("app.dashboard.preferences.widget.security.visible").locator("input"),

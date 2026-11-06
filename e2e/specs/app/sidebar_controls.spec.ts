@@ -38,8 +38,11 @@ for (const actor of [
     await expect(tasksLabel).toBeVisible();
     await expect(login).toBeVisible();
     const loginBox = (await login.boundingBox())!;
-    const tasksLabelBox = (await tasksLabel.boundingBox())!;
-    expect(Math.abs(loginBox.x - tasksLabelBox.x)).toBeLessThanOrEqual(1);
+    const settings = navigation.getByTestId('shell.interface-preferences-button');
+    const settingsBox = (await settings.boundingBox())!;
+    expect(settingsBox.x + settingsBox.width).toBeLessThan(loginBox.x);
+    expect(Math.abs(settingsBox.y + settingsBox.height / 2 - loginBox.y - loginBox.height / 2)).toBeLessThanOrEqual(1);
+    await expect(navigation.getByTestId('palette.open')).toHaveCount(0);
     const role = account.getByTestId('shell.user-role');
     const roleLabel = actor.level === 1 ? 'Uživatel'
       : actor.level === 21 ? 'Podpora'
@@ -113,13 +116,26 @@ for (const actor of [
     await clickShellControl(page, 'shell.user-menu-button', isMobile);
     const accountMenu = page.getByTestId('shell.user-menu');
     await expect(accountMenu).toBeVisible();
-    await expect(page.getByTestId('shell.user-menu.scope.all')).toHaveCount(actor.level >= 21 ? 1 : 0);
+    await expect(accountMenu.getByRole('button', { name: /^(Mine|Moje|All objects|Všechny objekty)$/ })).toHaveCount(0);
     await expect(accountMenu.getByTestId('shell.user-menu.logout')).toBeInViewport({ ratio: 1 });
     await expect.poll(() => accountMenu.evaluate(menu => menu.scrollHeight - menu.clientHeight)).toBeLessThanOrEqual(1);
     await page.screenshot({ path: testInfo.outputPath(`account-menu-${actor.mode}-${actor.level}.png`), scale: 'css' });
     await page.keyboard.press('Escape');
     await expect(page.getByTestId('shell.user-menu')).toBeHidden();
     await expect(page.getByTestId('shell.user-menu-button')).toBeFocused();
+    await clickShellControl(page, 'shell.interface-preferences-button', isMobile);
+    const preferences = page.getByTestId('shell.interface-preferences');
+    await expect(preferences).toBeVisible();
+    await expect(preferences.getByTestId('shell.interface-preferences.scope.all')).toHaveCount(actor.level >= 21 ? 1 : 0);
+    if (actor.level >= 21) {
+      await expect(preferences.getByTestId('shell.interface-preferences.scope.mine')).toHaveAttribute('aria-pressed', String(actor.mode === 'app'));
+    }
+    await expect(preferences.getByTestId('shell.interface-preferences.theme.light')).toBeVisible();
+    await expect(preferences.getByTestId('shell.interface-preferences.language.cs')).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath(`preferences-${actor.mode}-${actor.level}.png`), scale: 'css' });
+    await page.keyboard.press('Escape');
+    await expect(preferences).toBeHidden();
+    await expect(settings).toBeFocused();
     await expectNoDocumentHorizontalOverflow(page);
     const shot = await page.screenshot({ path: testInfo.outputPath(`sidebar-${actor.mode}-${actor.level}.png`), fullPage: false, scale: 'css' });
     await testInfo.attach('Synthetic navigation controls', { body: shot, contentType: 'image/png' });

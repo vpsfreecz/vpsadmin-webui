@@ -1,5 +1,13 @@
 ## 2026-11-04 — Approved interface copy
 
+## 2026-11-06 — Consolidate signed-in view controls
+
+[Scope and acceptance](docs/work-log/2026-11-06-sidebar-view-controls.md).
+
+## 2026-11-06 — Open dashboard settings from the page heading
+
+[Scope and acceptance](docs/work-log/2026-11-06-dashboard-editor-trigger.md).
+
 [Remove ten approved interface texts](docs/work-log/2026-11-04-approved-interface-copy.md).
 
 ## 2026-11-04 — Sidebar language and appearance

@@ -142,8 +142,8 @@ Mode gates:
 - `shell.mobile-nav-button`
 - `shell.user-menu-button`
 - `shell.user-menu`
-  - `shell.user-menu.scope.mine` (admin only)
-  - `shell.user-menu.scope.all` (admin only)
+  - `shell.interface-preferences.scope.mine` (admin only)
+  - `shell.interface-preferences.scope.all` (admin only)
   - `shell.user-menu.mode.advanced`
   - `shell.user-menu.mode.basic`
   - `shell.user-menu.theme.system`
@@ -178,7 +178,6 @@ Lock-state staleness banner (rendered on object detail pages when lock state is 
 
 ### Command palette
 
-- `palette.open` (header launcher button)
 - `palette.modal`
 - `palette.input`
 - `palette.result.<index>`

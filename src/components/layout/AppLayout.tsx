@@ -112,8 +112,6 @@ export function AppLayout(props: { children: React.ReactNode }) {
     closeNavigation();
     setPaletteOpen(true);
   }, [closeNavigation]);
-  const shortcutHint =
-    typeof navigator !== 'undefined' && /mac/i.test(String((navigator as any).platform ?? '')) ? '⌘K · /' : 'Ctrl K · /';
 
   // Global command palette shortcut: Ctrl+K / Cmd+K, and "/".
   useEffect(() => {
@@ -644,9 +642,7 @@ export function AppLayout(props: { children: React.ReactNode }) {
               t={i18n.t}
               mode={mode}
               canSwitchMode={canSwitchMode}
-              shortcutHint={shortcutHint}
               onNavigate={closeNavigation}
-              onOpenPalette={openPalette}
               showSyncIndicator={showSyncIndicator}
               syncRef={syncRef}
               syncOpen={syncOpen}
