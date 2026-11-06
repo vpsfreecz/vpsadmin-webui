@@ -1,3 +1,7 @@
+## 2026-11-07 — VPS storage summary and dataset actions
+
+[Scope](docs/work-log/2026-11-07-todo-vps-storage-summary.md).
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path

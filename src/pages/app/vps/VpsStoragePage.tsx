@@ -7,7 +7,6 @@ import { useAuth } from '../../../app/auth';
 import { useI18n } from '../../../app/i18n';
 import { useObjectScope } from '../../../app/objectScope';
 import { useChrome } from '../../../components/layout/ChromeContext';
-import { Alert } from '../../../components/ui/Alert';
 import { fetchDataset, updateDataset } from '../../../lib/api/datasets';
 import { getMetaActionStateId, isMissingActionStateError } from '../../../lib/api/haveapi';
 import { datasetCapabilities, gateDatasetAction } from '../../../lib/gates/dataset';
@@ -390,17 +389,12 @@ export function VpsStoragePage() {
 
   return (
     <div data-testid="vps.storage.page" className="space-y-4">
-      {!canMutateVps ? (
-        <Alert title={t('gate.blocked.permission.title')} variant="warn">
-          <div data-testid="vps.storage.read_only">{t('gate.blocked.permission.body')}</div>
-        </Alert>
-      ) : null}
-
       <VpsStorageOverviewCard
         canMutate={canMutateVps}
         gate={gate}
         root={root}
         summary={overview}
+        mountsStatus={mountsQ.status}
         onAddMount={() => {
           resetCreate();
           setCreateOpen(true);
