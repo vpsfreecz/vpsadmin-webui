@@ -235,3 +235,51 @@ test('@workflow-matrix @pr-smoke VPS access reports failed SSH key deployment an
   ).toBeVisible();
   await expect(page.getByTestId('vps.access.page')).toBeVisible();
 });
+
+for (const { description, mode, level, knownOwner, link } of [
+  { description: 'member profile', mode: 'app', level: 1, knownOwner: true, link: '/app/profile/keys' },
+  { description: 'member profile with implicit owner', mode: 'app', level: 1, knownOwner: false, link: '/app/profile/keys' },
+  { description: 'admin known owner', mode: 'admin', level: 100, knownOwner: true, link: '/admin/users/42/keys' },
+  { description: 'admin unknown owner', mode: 'admin', level: 100, knownOwner: false, link: null },
+  { description: 'read-only support', mode: 'admin', level: 50, knownOwner: true, link: null },
+]) {
+  test(`@pr-smoke @pr-smoke-mobile Access key guidance scopes the link to ${description}`, async ({ page }) => {
+    await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+    const keyRequests: number[] = [];
+    await installHaveApiMock(page, {
+      user: { id: mode === 'app' ? 42 : 1, login: 'fixture', level },
+      handlers: {
+        'GET vpses/123': () => ({ vps: { ...vps, user: knownOwner ? vps.user : null } }),
+        'GET transaction_chains': () => ({ transaction_chains: [] }),
+        'GET users/1/public_keys': () => {
+          keyRequests.push(1);
+          return { public_keys: [] };
+        },
+        'GET users/42/public_keys': () => {
+          keyRequests.push(42);
+          return { public_keys: [] };
+        },
+        'GET vpses/123/ssh_host_keys': () => ({ ssh_host_keys: hostKeys }),
+      },
+    });
+    await page.goto(`/${mode}/vps/123/access`);
+    const access = page.getByTestId('vps.access.page');
+    await expect(access).toContainText('Server SSH fingerprints');
+    const management = access.getByRole('link', { name: 'Manage saved SSH keys' });
+    if (link) {
+      await expect(management).toHaveAttribute('href', link);
+      await expect(access).toContainText('User SSH public keys');
+      await expect(access.getByTestId('vps.access.password.card')).toContainText('when the change succeeds');
+      expect(keyRequests).toEqual([42]);
+    } else {
+      await expect(management).toHaveCount(0);
+      if (level === 100) {
+        await expect(access.getByTestId('vps.access.ssh.deploy')).toBeDisabled();
+        await expect(access).toContainText('The VPS owner could not be determined yet.');
+      } else {
+        await expect(access.getByTestId('vps.access.ssh.deploy')).toHaveCount(0);
+      }
+      expect(keyRequests).toEqual([]);
+    }
+  });
+}
