@@ -5,7 +5,6 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { NodeHeatmapProvider } from '../../components/cluster/NodeHeatmaps';
 import { getRuntimeConfig } from '../../app/config';
 import { useI18n } from '../../app/i18n';
-import { getRuntimeConfig } from '../../app/config';
 import { Alert } from '../../components/ui/Alert';
 import { Button } from '../../components/ui/Button';
 import { fetchNews, fetchOutages, fetchPublicNodeStatus, fetchPublicStats, fetchPublicSecurityAdvisories } from '../../lib/api/public';
@@ -56,7 +55,6 @@ export function OverviewPage() {
     );
   }, [hasSessionExpiredParam, location.hash, location.pathname, location.search, navigate]);
 
-  const cfg = getRuntimeConfig();
   const loginBase = cfg.loginUrl ?? withRouterBasename('/oauth/login', cfg.routerBasename);
   const signInHref = withSameOriginNextParam(loginBase, sessionReturnPath(expiredNotice?.pathname, cfg.routerBasename));
 
