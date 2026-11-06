@@ -26,6 +26,9 @@ for (const view of ['member', 'admin-my-view', 'admin'] as const) {
         { id: 7402, label: language === 'cs' ? 'Odeslání e-mailu' : 'Send mail', name: 'Send', done: 'done', success: 1 },
         { id: 7401, label: language === 'cs' ? 'Příprava sítě' : 'Prepare network', name: 'Configure', done: 'done', success: 0 },
       ].map((tx) => ({ ...tx, type: 9001, priority: 0, user: { id: 1, login: 'demo-member' }, node: { id: 3, label: 'node3.demo' }, vps: { id: 14 }, transaction_chain: { id: 972 }, created_at: '2026-10-27T18:01:46Z', started_at: '2026-10-27T18:01:47Z', finished_at: '2026-10-27T18:01:49Z', input: payload, output: tx.success ? { execute: { status: 'ok' } } : { error: 'Synthetic network failure' } }));
+      const responseRows = transactions.map((tx) => tx.id === 7401 && view === 'member'
+        ? { ...tx, input: undefined, output: undefined }
+        : tx);
       const writes: string[] = [];
       page.on('request', (request) => {
         if (/\/(transaction_chains|transactions)(\/|$)/.test(new URL(request.url()).pathname) && !['GET', 'HEAD', 'OPTIONS'].includes(request.method())) writes.push(request.method());
@@ -35,7 +38,7 @@ for (const view of ['member', 'admin-my-view', 'admin'] as const) {
         handlers: {
           'GET transaction_chains': () => ({ transaction_chains: chains }),
           ...Object.fromEntries(chains.map((chain) => [`GET transaction_chains/${chain.id}`, () => ({ transaction_chain: chain })])),
-          'GET transactions': () => ({ transactions }),
+          'GET transactions': () => ({ transactions: responseRows }),
           ...Object.fromEntries(transactions.map((tx) => [`GET transactions/${tx.id}`, () => ({ transaction: tx })])),
         },
       });
@@ -93,6 +96,18 @@ for (const view of ['member', 'admin-my-view', 'admin'] as const) {
       await expectNoDocumentHorizontalOverflow(page);
       expect(await page.getByTestId('transactions.items.table').locator('table').evaluate((el) => el.scrollWidth <= el.clientWidth + 1)).toBe(true);
       if (view === 'admin' && language === 'cs') await page.screenshot({ path: testInfo.outputPath(`${testInfo.project.name}-items.png`) });
+      const initialStep = page.getByTestId('transactions.items.row.7401.toggle');
+      await expect(initialStep).toHaveAttribute('aria-expanded', 'true');
+      const initialDetails = page.getByTestId('transactions.items.row.7401.expanded');
+      if (view === 'member') await expect(initialDetails).not.toContainText('Synthetic network failure');
+      else await expect(initialDetails).toContainText('Synthetic network failure');
+      await expect(page.getByTestId('transactions.items.row.7402.toggle')).toHaveAttribute('aria-expanded', 'false');
+      if (view === 'admin' && language === 'cs') {
+        await page.getByTestId('transactions.items.table').screenshot({ path: testInfo.outputPath('transaction-context.png') });
+      }
+      await initialStep.click();
+      await expect(initialStep).toHaveAttribute('aria-expanded', 'false');
+
       const toggle = page.getByTestId('transactions.items.row.7402.toggle');
       await toggle.focus();
       await page.keyboard.press('Enter');

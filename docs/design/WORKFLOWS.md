@@ -889,6 +889,11 @@ When the API name is already the heading, do not repeat it as “Backend name”
 Explicit local labels for an action the user just submitted remain available
 before its API state arrives. [Naming regression and evidence](../work-log/2026-10-03-transaction-operation-names.md).
 
+On the first page of a chain-scoped item list, one failed step opens
+automatically, falling back to an unfinished step or the first available step.
+The API still determines which payload fields are available for the account.
+Individual steps can be opened or closed with their existing controls.
+
 Transaction item detail displays input and output vertically at full width.
 The input has a large, bounded reading area; JSON fields are separated and string
 values retain real line breaks, so embedded email bodies can be read normally.
