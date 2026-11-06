@@ -1,5 +1,9 @@
 ## 2026-11-04 — Sidebar language and appearance
 
+## 2026-11-06 — Consolidate signed-in view controls
+
+[Scope and acceptance](docs/work-log/2026-11-06-sidebar-view-controls.md).
+
 [Separate language and appearance from the account menu](docs/work-log/2026-11-04-sidebar-interface-preferences.md).
 
 ## 2026-10-28 — OAuth redirect boundary review

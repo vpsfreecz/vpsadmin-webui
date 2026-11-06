@@ -126,6 +126,19 @@ export function AppUserMenu(props: Pick<AppHeaderProps,
       <div className="flex min-w-0 gap-1.5">
         <button
           type="button"
+          ref={preferencesTriggerRef}
+          className="flex min-h-11 w-11 shrink-0 items-center justify-center rounded-md border border-border bg-surface text-muted hover:bg-surface-2 hover:text-fg md:min-h-9 md:w-9 [@media(any-pointer:coarse)]:min-h-11 [@media(any-pointer:coarse)]:w-11"
+          onClick={() => toggleMenu('preferences')}
+          aria-expanded={preferencesOpen}
+          aria-controls={preferencesOpen ? popupId : undefined}
+          aria-label={preferencesLabel}
+          title={preferencesLabel}
+          data-testid="shell.interface-preferences-button"
+        >
+          <Settings size={18} aria-hidden="true" />
+        </button>
+        <button
+          type="button"
           className="flex min-h-11 min-w-0 flex-1 items-center gap-2 rounded-md bg-surface px-3 text-left text-sm text-muted hover:bg-surface-2 hover:text-fg md:min-h-9 [@media(any-pointer:coarse)]:min-h-11"
           onClick={() => toggleMenu('account')}
           ref={triggerRef}
@@ -148,13 +161,47 @@ export function AppUserMenu(props: Pick<AppHeaderProps,
             data-overlay="popover"
             data-overlay-surface="overlay"
           >
+            <UserMenuButton icon={<User size={16} />} testId="shell.user-menu.account" onClick={() => {
+              setUserMenuOpen(false);
+              onGoToProfile();
+            }}>{t('user_menu.account')}</UserMenuButton>
+            <UserMenuButton className="mt-1" icon={<Globe size={16} />} testId="shell.user-menu.public-status" onClick={() => {
+              setUserMenuOpen(false);
+              onGoToPublicStatus();
+            }}>{t('user_menu.public_status')}</UserMenuButton>
+
+            <div className="mt-2 border-t border-border pt-2">
+              <a
+                data-testid="shell.user-menu.logout"
+                className="flex items-center gap-2 rounded-md px-2 py-2 text-sm hover:bg-surface-2"
+                href={loginLogoutHref}
+              >
+                <LogOut size={16} />
+                <span>{t('user_menu.logout')}</span>
+              </a>
+            </div>
+          </div>
+        ) : null}
+        {preferencesOpen ? (
+          <div
+            id={popupId}
+            ref={preferencesRef}
+            style={preferencesStyle}
+            className={clsx(headerPopoverClassName, 'divide-y divide-border')}
+            role="region"
+            aria-label={preferencesLabel}
+            data-testid="shell.interface-preferences"
+            data-overlay="popover"
+            data-overlay-surface="overlay"
+          >
             {canSwitchMode ? (
-              <div className="px-2 py-1">
+              <div className="px-2 py-2" role="group" aria-label={t('settings.scope.label')}>
                 <div className="text-xs text-muted">{t('settings.scope.label')}</div>
                 <div className="mt-1 grid grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] gap-2">
                   <button
                     type="button"
-                    data-testid="shell.user-menu.scope.mine"
+                    data-testid="shell.interface-preferences.scope.mine"
+                    aria-pressed={mode === 'user'}
                     className={segmentedButtonClass(mode === 'user')}
                     onClick={() => {
                       if (mode === 'user') return;
@@ -166,7 +213,8 @@ export function AppUserMenu(props: Pick<AppHeaderProps,
                   </button>
                   <button
                     type="button"
-                    data-testid="shell.user-menu.scope.all"
+                    data-testid="shell.interface-preferences.scope.all"
+                    aria-pressed={mode === 'admin'}
                     className={segmentedButtonClass(mode === 'admin')}
                     onClick={() => {
                       if (mode === 'admin') return;
@@ -182,55 +230,6 @@ export function AppUserMenu(props: Pick<AppHeaderProps,
                 </p>
               </div>
             ) : null}
-
-            <div className={canSwitchMode ? 'mt-2 border-t border-border pt-2' : undefined}>
-              <UserMenuButton icon={<User size={16} />} testId="shell.user-menu.account" onClick={() => {
-                setUserMenuOpen(false);
-                onGoToProfile();
-              }}>{t('user_menu.account')}</UserMenuButton>
-              <UserMenuButton className="mt-1" icon={<Globe size={16} />} testId="shell.user-menu.public-status" onClick={() => {
-                setUserMenuOpen(false);
-                onGoToPublicStatus();
-              }}>{t('user_menu.public_status')}</UserMenuButton>
-            </div>
-
-            <div className="mt-2 border-t border-border pt-2">
-              <a
-                data-testid="shell.user-menu.logout"
-                className="flex items-center gap-2 rounded-md px-2 py-2 text-sm hover:bg-surface-2"
-                href={loginLogoutHref}
-              >
-                <LogOut size={16} />
-                <span>{t('user_menu.logout')}</span>
-              </a>
-            </div>
-          </div>
-        ) : null}
-        <button
-          type="button"
-          ref={preferencesTriggerRef}
-          className="flex min-h-11 w-11 shrink-0 items-center justify-center rounded-md border border-border bg-surface text-muted hover:bg-surface-2 hover:text-fg md:min-h-9 md:w-9 [@media(any-pointer:coarse)]:min-h-11 [@media(any-pointer:coarse)]:w-11"
-          onClick={() => toggleMenu('preferences')}
-          aria-expanded={preferencesOpen}
-          aria-controls={preferencesOpen ? popupId : undefined}
-          aria-label={preferencesLabel}
-          title={preferencesLabel}
-          data-testid="shell.interface-preferences-button"
-        >
-          <Settings size={18} aria-hidden="true" />
-        </button>
-        {preferencesOpen ? (
-          <div
-            id={popupId}
-            ref={preferencesRef}
-            style={preferencesStyle}
-            className={clsx(headerPopoverClassName, 'divide-y divide-border')}
-            role="region"
-            aria-label={preferencesLabel}
-            data-testid="shell.interface-preferences"
-            data-overlay="popover"
-            data-overlay-surface="overlay"
-          >
             <PreferenceSelector
               label={t('settings.theme.label')}
               options={[

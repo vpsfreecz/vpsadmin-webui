@@ -60,7 +60,7 @@ function t(key: any, vars?: Record<string, unknown>): string {
   return translations[String(key)] ?? String(key);
 }
 
-function HeaderHarness(props: { onOpenPalette?: () => void } = {}) {
+function HeaderHarness() {
   const syncRef = useRef<HTMLDivElement | null>(null);
   const userMenuRef = useRef<HTMLDivElement | null>(null);
   const [syncOpen, setSyncOpen] = useState(false);
@@ -132,14 +132,7 @@ describe('AppHeader', () => {
     vi.mocked(searchUserObjects).mockReset();
   });
 
-  it('opens the command palette from the mobile search trigger', () => {
-    const onOpenPalette = vi.fn();
-    render(<HeaderHarness onOpenPalette={onOpenPalette} />);
 
-    fireEvent.click(screen.getByTestId('palette.open'));
-
-    expect(onOpenPalette).toHaveBeenCalledTimes(1);
-  });
 
   it('anchors the user menu inside the navigation', () => {
     render(<HeaderHarness />);

@@ -1,5 +1,7 @@
 # Workflow catalog and behavior to preserve
 
+The signed-in shell opens appearance, language and role-gated view choices from the gear left of the login. Search uses the full row and the command palette keyboard shortcuts remain available (REQ-004, REQ-010).
+
 This catalog covers all product domains in the current route/API inventory. It is
 not a claim of exhaustive field-level legacy parity. Each workflow inherits the
 role/scope, localization, focus, draft/error and uncertain-write rules from

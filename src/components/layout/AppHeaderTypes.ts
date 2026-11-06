@@ -4,9 +4,7 @@ export interface AppHeaderProps {
   t: (key: any, vars?: Record<string, unknown>) => string;
   mode: 'user' | 'admin';
   canSwitchMode: boolean;
-  shortcutHint: string;
   onNavigate?: () => void;
-  onOpenPalette: () => void;
   showSyncIndicator: boolean;
   syncRef: React.RefObject<HTMLDivElement | null>;
   syncOpen: boolean;

@@ -22,20 +22,19 @@ test.describe('@smoke @smoke-mobile @pr-smoke @pr-smoke-mobile Header controls',
     await expect(page.getByTestId('shell.controls')).toBeVisible();
 
     const inlineSearch = page.getByTestId('shell.inline-search');
-    const mobileSearch = page.getByTestId('palette.open');
     const tasks = page.getByTestId('tasks.open-button');
     const account = page.getByTestId('shell.user-menu-button');
     const nav = page.getByTestId('shell.mobile-nav-button');
 
     await expect(tasks).toBeVisible();
     await expect(account).toBeVisible();
+    await expect(page.getByTestId('palette.open')).toHaveCount(0);
 
     if (isMobile) {
       await expect(nav).toBeVisible();
-      await expect(mobileSearch).toBeVisible();
       await expect(inlineSearch).toBeVisible();
 
-      for (const loc of [mobileSearch, tasks, account]) {
+      for (const loc of [inlineSearch, tasks, account]) {
         const box = await loc.boundingBox();
         expect(box).not.toBeNull();
         // Minimum 44x44 CSS px touch target.
@@ -43,7 +42,7 @@ test.describe('@smoke @smoke-mobile @pr-smoke @pr-smoke-mobile Header controls',
         expect(box!.height).toBeGreaterThanOrEqual(44);
       }
 
-      await mobileSearch.click();
+      await page.keyboard.press('Control+k');
       const palette = page.getByTestId('palette.modal');
       const paletteInput = page.getByTestId('palette.input');
       await expect(palette).toBeVisible();
@@ -73,7 +72,6 @@ test.describe('@smoke @smoke-mobile @pr-smoke @pr-smoke-mobile Header controls',
       await expect(palette).toBeHidden();
     } else {
       await expect(nav).toBeHidden();
-      await expect(mobileSearch).toBeVisible();
       await expect(inlineSearch).toBeVisible();
     }
 
