@@ -36,12 +36,13 @@ export function formatDateTime(value: string | undefined | null): string {
 
 export function formatDateTimeInTimeZone(
   value: string | undefined | null,
-  timeZone: string
+  timeZone: string,
+  language?: 'cs' | 'en'
 ): string {
   if (!value) return '—';
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return value;
-  return d.toLocaleString(undefined, {
+  return d.toLocaleString(language === 'cs' ? 'cs-CZ' : language, {
     timeZone: isValidTimeZone(timeZone) ? timeZone : SAFE_TIME_ZONE,
   });
 }

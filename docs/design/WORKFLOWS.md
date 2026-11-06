@@ -837,6 +837,10 @@ blind retry. [Finance](../../src/lib/api/finance.ts),
 
 ## Tasks, transactions, monitoring, incidents and OOM
 
+The VPS overview aligns recent operations with localized timestamps and states.
+Long names wrap within the card. The activity button opens transaction chains
+filtered by the current VPS.
+
 Transaction history uses compact aligned ID/time/owner/object/action/state
 columns on desktop and folds metadata under the action on small screens. The
 owner column appears only in administrator mode; a normal member and an admin's

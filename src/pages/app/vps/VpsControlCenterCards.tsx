@@ -9,21 +9,22 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+import { useAccountTimeZone } from '../../../app/accountTimeZone';
 import { useI18n } from '../../../app/i18n';
 import type { IpAddress } from '../../../lib/api/ipAddresses';
 import type { TransactionChain } from '../../../lib/api/transactions';
 import type { Vps } from '../../../lib/api/vps';
 import { Badge } from '../../../components/ui/Badge';
 import { Card, CardBody, CardHeader } from '../../../components/ui/Card';
+import { LinkButton } from '../../../components/ui/LinkButton';
 import { ChipLink } from '../../../components/ui/ChipLink';
 import { CopyButton } from '../../../components/ui/CopyButton';
 import { Spinner } from '../../../components/ui/Spinner';
 import { UsageBar } from '../../../components/ui/UsageBar';
-import { formatDateTime, formatDurationSeconds, formatMiB } from '../../../lib/format';
+import { formatDateTimeInTimeZone, formatDurationSeconds, formatMiB } from '../../../lib/format';
 import {
   chainBadgeFromState,
   chainProgressLabel,
-  isFailedChainState,
   runtimeStateBadge,
 } from '../../../lib/taskStatus';
 import {
@@ -373,7 +374,8 @@ export function VpsActivityCard(props: {
   error: boolean;
   className?: string;
 }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
+  const timeZone = useAccountTimeZone();
   const chains = React.useMemo(() => sortChainsForOverview(props.chains).slice(0, 4), [props.chains]);
 
   return (
@@ -381,12 +383,12 @@ export function VpsActivityCard(props: {
       <CardHeader
         title={<SectionTitle icon={<Activity className={iconClass} />}>{t('vps.control.activity.title')}</SectionTitle>}
         actions={(
-          <ChipLink to={`${props.basePath}/transactions?class_name=Vps&row_id=${props.vps.id}`}>
+          <LinkButton to={`${props.basePath}/transactions?class_name=Vps&row_id=${props.vps.id}`} size="sm">
             {t('vps.control.activity.open')}
-          </ChipLink>
+          </LinkButton>
         )}
       />
-      <CardBody>
+      <CardBody className="@container">
         {props.loading ? (
           <div className="flex items-center gap-2 text-sm text-muted"><Spinner /> {t('common.loading')}</div>
         ) : props.error ? (
@@ -401,21 +403,22 @@ export function VpsActivityCard(props: {
               return (
                 <li
                   key={chain.id}
-                  className={`flex flex-wrap items-center justify-between gap-3 py-3 ${isFailedChainState(chain.state) ? 'text-danger' : ''}`}
+                  className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 py-2 @lg:grid-cols-[minmax(0,1fr)_max-content_auto]"
                 >
-                  <div className="min-w-0 flex-1">
-                    <Link
-                      className="block max-w-full truncate text-sm font-medium text-link hover:underline"
-                      to={`${props.basePath}/transactions/${chain.id}`}
-                      title={chain.label || `#${chain.id}`}
-                    >
-                      {chain.label || `#${chain.id}`}
-                    </Link>
-                    <div className="mt-1 truncate text-xs text-faint">
-                      #{chain.id} · {formatDateTime(chain.created_at)}{progress ? ` · ${progress}` : ''}
-                    </div>
+                  <Link
+                    className="min-w-0 text-sm font-medium text-link hover:underline [overflow-wrap:anywhere]"
+                    to={`${props.basePath}/transactions/${chain.id}`}
+                  >
+                    {chain.label || `#${chain.id}`}
+                  </Link>
+                  <div className="col-start-1 row-start-2 text-xs text-muted @lg:col-start-2 @lg:row-start-1">
+                    {chain.label ? `#${chain.id} · ` : null}
+                    <time dateTime={chain.created_at}>{formatDateTimeInTimeZone(chain.created_at, timeZone, lang)}</time>
+                    {progress ? ` · ${progress}` : ''}
                   </div>
-                  <span className="shrink-0"><Badge variant={badge.variant}>{badge.label}</Badge></span>
+                  <span className="col-start-2 row-start-1 justify-self-end @lg:col-start-3">
+                    <Badge variant={badge.variant}>{badge.label}</Badge>
+                  </span>
                 </li>
               );
             })}
