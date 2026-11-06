@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Activity, Maximize2, Search } from 'lucide-react';
+import { Activity, Search } from 'lucide-react';
 
 import { readSessionIdleLimitSeconds } from '../../lib/auth/idleSession';
 import { useAuth } from '../../app/auth';
@@ -92,9 +92,7 @@ export function AppHeader(props: AppHeaderProps) {
     t,
     mode,
     canSwitchMode,
-    shortcutHint,
     onNavigate,
-    onOpenPalette,
     showSyncIndicator,
     syncRef,
     syncOpen,
@@ -394,15 +392,6 @@ export function AppHeader(props: AppHeaderProps) {
           ) : null}
         </form>
 
-        <button
-          type="button"
-          className="inline-flex h-11 w-11 shrink-0 md:h-10 md:w-10 [@media(any-pointer:coarse)]:min-h-11 [@media(any-pointer:coarse)]:min-w-11 items-center justify-center rounded-md border border-border bg-overlay-surface text-muted hover:bg-surface-2"
-          onClick={onOpenPalette}
-          aria-label={t('palette.open')}
-          aria-haspopup="dialog"
-          title={`${t('palette.open')} (${shortcutHint})`}
-          data-testid="palette.open"
-        ><Maximize2 size={16} aria-hidden="true" /></button>
       </div>
       {canSwitchMode || showSyncIndicator ? <div className="flex flex-wrap items-center gap-2">
 

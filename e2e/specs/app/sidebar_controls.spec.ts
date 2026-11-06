@@ -68,6 +68,20 @@ for (const actor of [
     await page.keyboard.press('Escape');
     await expect(page.getByTestId('shell.user-menu')).toBeHidden();
     await expect(page.getByTestId('shell.user-menu-button')).toBeFocused();
+    const settings = page.getByTestId('shell.interface-preferences-button');
+    await clickShellControl(page, 'shell.interface-preferences-button', isMobile);
+    const preferences = page.getByTestId('shell.interface-preferences');
+    await expect(preferences).toBeVisible();
+    await expect(preferences.getByTestId('shell.interface-preferences.scope.all')).toHaveCount(actor.level >= 21 ? 1 : 0);
+    if (actor.level >= 21) {
+      await expect(preferences.getByTestId('shell.interface-preferences.scope.mine')).toHaveAttribute('aria-pressed', String(actor.mode === 'app'));
+    }
+    await expect(preferences.getByTestId('shell.interface-preferences.theme.light')).toBeVisible();
+    await expect(preferences.getByTestId('shell.interface-preferences.language.cs')).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath(`preferences-${actor.mode}-${actor.level}.png`), scale: 'css' });
+    await page.keyboard.press('Escape');
+    await expect(preferences).toBeHidden();
+    await expect(settings).toBeFocused();
     await expectNoDocumentHorizontalOverflow(page);
     const shot = await page.screenshot({ path: testInfo.outputPath(`sidebar-${actor.mode}-${actor.level}.png`), fullPage: false, scale: 'css' });
     await testInfo.attach('Synthetic navigation controls', { body: shot, contentType: 'image/png' });

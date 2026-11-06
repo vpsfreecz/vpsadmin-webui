@@ -1,5 +1,7 @@
 # Workflow catalog and behavior to preserve
 
+The signed-in shell opens appearance, language and role-gated view choices from the gear left of the login. Search uses the full row and the command palette keyboard shortcuts remain available (REQ-004, REQ-010).
+
 This catalog covers all product domains in the current route/API inventory. It is
 not a claim of exhaustive field-level legacy parity. Each workflow inherits the
 role/scope, localization, focus, draft/error and uncertain-write rules from
@@ -502,8 +504,9 @@ view's `/profile/security#session-length`, scrolls to the inactivity setting and
 focuses its input after the panel loads. Repeating the link on that route also
 focuses it. This navigation never saves settings or renews a session beyond the
 existing activity policy; changing the limit still requires the normal Save.
-The member/admin scope switch, preferences, public status and logout remain
-available from the navigation account menu (REQ-004/006/010/012).
+The navigation account menu contains the member/admin scope switch, account,
+public status and logout. The adjacent Language and appearance button opens
+theme and language choices (REQ-004/009/010/012).
 
 Administrator member editing uses a named Role select instead of a numeric
 privilege input. Choices match the legacy UI: User, Power User, Admin,
