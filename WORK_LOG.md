@@ -1900,3 +1900,7 @@ Prepare ACC-01 and ACC-02. See the [scope record](docs/work-log/2026-11-06-todo-
 ## 2026-11-06 — Clarify VPS access and password generation
 
 Prepare ACC-03 and ACC-04. See the [scope record](docs/work-log/2026-11-06-todo-vps-access-guidance.md).
+
+## 2026-11-06 — Preserve orientation when the session expires
+
+Prepare AUTH-01 and AUTH-02. See the [scope record](docs/work-log/2026-11-06-todo-session-expiry.md).
