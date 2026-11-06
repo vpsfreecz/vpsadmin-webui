@@ -1,7 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 
 import { useI18n } from '../../../app/i18n';
+import { useAccountTimeZone } from '../../../app/accountTimeZone';
+import { fetchOomReports } from '../../../lib/api/oom';
+import { useTierSlowIntervalMs } from '../../../lib/refreshTiers';
 import type { Vps } from '../../../lib/api/vps';
 import { Badge } from '../../../components/ui/Badge';
 import { Card, CardBody, CardHeader } from '../../../components/ui/Card';
@@ -9,7 +13,7 @@ import { Alert } from '../../../components/ui/Alert';
 import { ChipLink } from '../../../components/ui/ChipLink';
 import { CopyButton } from '../../../components/ui/CopyButton';
 import { UsageBar } from '../../../components/ui/UsageBar';
-import { formatDateTime, formatDurationSeconds, formatMiB } from '../../../lib/format';
+import { formatDateTime, formatDateTimeInTimeZone, formatDurationSeconds, formatMiB } from '../../../lib/format';
 import {
   objectStateBadge,
   runtimeStateBadge,
@@ -321,11 +325,46 @@ export function OverviewNextActionsCard(props: {
 
 export function OverviewDiagnosticsCard(props: { vps: Vps; basePath: string }) {
   const { t } = useI18n();
+  const timeZone = useAccountTimeZone();
+  const freshness = useTierSlowIntervalMs();
+  const reports = useQuery({
+    queryKey: ['oom_reports', 'vps_overview', props.vps.id],
+    queryFn: async () => (await fetchOomReports({ vpsId: props.vps.id, limit: 3 })).data,
+    staleTime: freshness,
+    retry: false,
+  });
+  const recent = reports.data?.filter((report) => resourceId(report.vps) === props.vps.id).slice(0, 3) ?? [];
 
   return (
     <Card className="lg:col-span-12" testId="vps.overview.diagnostics.card">
-      <CardHeader title={t('vps.overview.diagnostics.title')} subtitle={t('vps.overview.diagnostics.subtitle')} />
-      <CardBody>
+      <CardHeader title={t('vps.overview.diagnostics.title')} />
+      <CardBody className="space-y-3">
+        <section aria-label={t('vps.overview.diagnostics.recent_oom')} data-testid="vps.overview.oom_recent">
+          <h3 className="text-sm font-medium">{t('vps.overview.diagnostics.recent_oom')}</h3>
+          {reports.isPending ? (
+            <p className="mt-1 text-sm text-muted" role="status">{t('common.loading')}</p>
+          ) : reports.isError ? (
+            <p className="mt-1 text-sm text-danger" role="status">{t('vps.overview.diagnostics.oom_load_error')}</p>
+          ) : recent.length === 0 ? (
+            <p className="mt-1 text-sm text-muted">{t('vps.overview.diagnostics.no_oom_reports')}</p>
+          ) : (
+            <ul className="mt-1 divide-y divide-border">
+              {recent.map((report) => (
+                <li key={report.id} className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 py-2">
+                  <Link
+                    className="min-w-0 text-sm font-medium text-link hover:underline [overflow-wrap:anywhere]"
+                    to={`${props.basePath}/oom-reports/${report.id}`}
+                  >
+                    #{report.id}{report.killed_name ? ` · ${report.killed_name}` : ''}
+                  </Link>
+                  <time className="text-xs text-muted" dateTime={report.created_at}>
+                    {formatDateTimeInTimeZone(report.created_at, timeZone)}
+                  </time>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
         <div className="flex flex-wrap items-center gap-2">
           <ChipLink to={`${props.basePath}/oom-reports?vps=${props.vps.id}`} title={t('vps.overview.diagnostics.oom_reports_title')}>
             {t('vps.overview.diagnostics.oom_reports')}
@@ -337,7 +376,6 @@ export function OverviewDiagnosticsCard(props: { vps: Vps; basePath: string }) {
             {t('vps.overview.diagnostics.incidents')}
           </ChipLink>
         </div>
-        <div className="mt-2 text-xs text-faint">{t('vps.overview.diagnostics.hint')}</div>
       </CardBody>
     </Card>
   );

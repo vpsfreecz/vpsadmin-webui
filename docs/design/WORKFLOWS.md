@@ -735,6 +735,10 @@ blind retry. [Finance](../../src/lib/api/finance.ts),
 
 ## Tasks, transactions, monitoring, incidents and OOM
 
+The member VPS overview requests the latest three OOM reports for that VPS.
+Each row links to the report and shows when it was created. Past events remain
+historical. Loading, no reports and failed requests have distinct states.
+
 Transaction history uses compact aligned ID/time/owner/object/action/state
 columns on desktop and folds metadata under the action on small screens. The
 owner column appears only in administrator mode; a normal member and an admin's
