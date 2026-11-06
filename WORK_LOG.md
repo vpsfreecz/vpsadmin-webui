@@ -1896,3 +1896,7 @@ Prepare approved RES-06. See the
 ## 2026-11-06 — Open VPS Access at the actual controls
 
 Prepare ACC-01 and ACC-02. See the [scope record](docs/work-log/2026-11-06-todo-vps-access-controls.md).
+
+## 2026-11-06 — Clarify VPS access and password generation
+
+Prepare ACC-03 and ACC-04. See the [scope record](docs/work-log/2026-11-06-todo-vps-access-guidance.md).

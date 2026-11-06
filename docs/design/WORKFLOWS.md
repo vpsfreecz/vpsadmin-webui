@@ -296,6 +296,12 @@ The VPS Access tab shows the SSH deployment form, host fingerprints and root
 password controls directly. Missing or duplicate keys, missing fingerprints
 and blocked operations retain their warnings and recovery actions.
 
+When saved SSH keys are missing, the member link opens their own profile and
+the administrator link opens the known VPS owner's keys. With an unknown
+owner, the administrator cannot select a key. Server fingerprints are shown
+separately for SSH verification. The password form explains generation,
+successful activation, copying and removing the password from view.
+
 ## Console and VPS deletion
 
 **Intent:** entering Console opens a session directly; intentional replacement and
