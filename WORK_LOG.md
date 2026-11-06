@@ -1,3 +1,7 @@
+## 2026-11-07 — Streamline the VPS address workflow
+
+[Scope and acceptance](docs/work-log/2026-11-07-todo-vps-address-workflow.md).
+
 ## 2026-11-06 — Stable network actions and monthly traffic
 
 [Scope and verification](docs/work-log/2026-11-06-todo-vps-network-traffic.md).

@@ -49,22 +49,7 @@ export function VpsNetworkAddressesSection(props: {
 
   return (
     <section data-testid="vps.network.addresses" className="space-y-4">
-      <Card>
-        <CardBody className="flex flex-wrap items-start justify-between gap-4">
-          <div className="max-w-3xl">
-            <h2 className="text-lg font-semibold">{t('vps.network.addresses.title')}</h2>
-            <p className="mt-1 text-sm text-muted">{t('vps.network.addresses.subtitle')}</p>
-          </div>
-          <div className="flex items-center gap-2 text-xs text-muted">
-            <span className="grid h-6 w-6 place-items-center rounded-full bg-accent font-semibold text-accent-fg">1</span>
-            <span>{t('vps.network.addresses.step.route')}</span>
-            <span aria-hidden="true">→</span>
-            <span className="grid h-6 w-6 place-items-center rounded-full bg-accent font-semibold text-accent-fg">2</span>
-            <span>{t('vps.network.addresses.step.interface')}</span>
-          </div>
-        </CardBody>
-      </Card>
-
+      <h2 className="text-lg font-semibold">{t('vps.network.addresses.title')}</h2>
       <VpsNetworkIpRoutesCard
         canAdmin={props.canAdmin}
         canMutate={props.canMutate}
