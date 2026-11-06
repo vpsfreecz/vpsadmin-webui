@@ -54,7 +54,8 @@ export interface StorageOverviewSummary {
   disabledMountCount: number;
   writableMountCount: number;
   readOnlyMountCount: number;
-  failedMountCount: number;
+  unknownModeMountCount: number;
+  mountAttentionCount: number;
 }
 
 export type SsdResizeValidationIssue = 'required' | 'invalid' | 'unchanged' | 'below_used';
@@ -317,13 +318,14 @@ export function capacityTone(percent: number | null, available: number | null): 
 export function storageOverviewSummary(mounts: VpsMount[]): StorageOverviewSummary {
   let enabledMountCount = 0;
   let writableMountCount = 0;
-  let failedMountCount = 0;
+  let readOnlyMountCount = 0;
+  let mountAttentionCount = 0;
 
   for (const mount of mounts) {
     if (canonicalBool(mount.enabled, true)) enabledMountCount += 1;
-    if (parseMountMode(mount.mode) === 'rw') writableMountCount += 1;
-    const state = String(mount.current_state ?? '').toLowerCase();
-    if (state.includes('fail') || state.includes('error')) failedMountCount += 1;
+    if (mount.mode === 'rw') writableMountCount += 1;
+    if (mount.mode === 'ro') readOnlyMountCount += 1;
+    if (mountStateNeedsAttention(mount)) mountAttentionCount += 1;
   }
 
   return {
@@ -331,15 +333,21 @@ export function storageOverviewSummary(mounts: VpsMount[]): StorageOverviewSumma
     enabledMountCount,
     disabledMountCount: mounts.length - enabledMountCount,
     writableMountCount,
-    readOnlyMountCount: mounts.length - writableMountCount,
-    failedMountCount,
+    readOnlyMountCount,
+    unknownModeMountCount: mounts.length - writableMountCount - readOnlyMountCount,
+    mountAttentionCount,
   };
+}
+
+function mountStateNeedsAttention(mount: VpsMount): boolean {
+  const state = String(mount.current_state ?? '').toLowerCase();
+  return ['skipped', 'delayed', 'waiting'].includes(state) || state.includes('fail') || state.includes('error');
 }
 
 export function mountStateTone(mount: VpsMount): StorageTone {
   const state = String(mount.current_state ?? '').toLowerCase();
   if (state.includes('fail') || state.includes('error')) return 'danger';
-  if (!canonicalBool(mount.enabled, true) || !canonicalBool(mount.master_enabled, true)) return 'warn';
-  if (state.includes('mounted') || state.includes('active') || state.includes('ok')) return 'ok';
+  if (mountStateNeedsAttention(mount) || !canonicalBool(mount.enabled, true) || !canonicalBool(mount.master_enabled, true)) return 'warn';
+  if (state === 'mounted' || state === 'active' || state === 'ok') return 'ok';
   return 'neutral';
 }

@@ -1,7 +1,7 @@
 import { clickShellControl } from '../../helpers/shellNavigation';
 import { expect, test, type Page } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
+import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 
 const vps = {
   id: 123,
@@ -452,3 +452,75 @@ test.describe('@smoke VPS storage tab mounts', () => {
     await expect(mountItemControl(page, 1, 'dataset')).toHaveAttribute('href', '/app/datasets/9');
   });
 });
+
+for (const language of ['cs', 'en'] as const) {
+  test(`shows storage capacity, mount access and root dataset actions (${language})`, async ({ page, isMobile }, testInfo) => {
+    await page.setViewportSize({ width: isMobile ? 320 : 1440, height: 900 });
+    await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+    await setUiSettingsLocalStorage(page, { language, theme: 'dark' });
+    const configuredMounts = [
+      { id: 1, mountpoint: '/srv/data', mode: 'rw', enabled: true, current_state: 'mounted', dataset },
+      { id: 2, mountpoint: '/srv/archive', mode: 'ro', enabled: false, current_state: 'unmounted', dataset },
+      { id: 3, mountpoint: '/srv/waiting', enabled: true, current_state: 'waiting', dataset },
+    ];
+    let mounts = configuredMounts;
+    let loadError = false;
+    await installHaveApiMock(page, {
+      user: { id: 1, login: 'user', level: 1 },
+      handlers: {
+        'GET vpses/123': () => ({ vps }),
+        'GET datasets/10': () => ({ dataset }),
+        'GET vpses/123/mounts': () => loadError
+          ? { status: 503, contentType: 'application/json', body: '{"status":false}' }
+          : { mounts },
+        'GET ip_addresses': () => ({ ip_addresses: [] }),
+        'GET transaction_chains': () => ({ transaction_chains: [] }),
+      },
+    });
+
+    await page.goto('/app/vps/123/storage');
+    const summary = page.getByTestId('vps.storage.summary');
+    const access = summary.getByTestId('vps.storage.summary.access');
+    const root = page.getByTestId('vps.storage.root_dataset');
+    const technical = root.getByTestId('vps.storage.root_dataset.details');
+    const create = root.getByTestId('vps.storage.root_dataset.create_subdataset');
+    await expect(summary.getByTestId('vps.storage.summary.capacity')).toContainText(language === 'cs' ? 'Využito 5.0 GiB z 20 GiB' : '5.0 GiB used of 20 GiB');
+    await expect(summary.getByRole('link', { name: language === 'cs' ? 'Ruční mounty (3)' : 'Manual mounts (3)' })).toHaveAttribute('href', '#vps-storage-mounts');
+    await expect(summary).toContainText(language === 'cs' ? '2 povoleno · 1 vypnuto' : '2 enabled · 1 disabled');
+    await expect(access).toContainText(language === 'cs' ? '1 čtení a zápis · 1 pouze čtení' : '1 read/write · 1 read-only');
+    await expect(access).toContainText(language === 'cs' ? 'Neznámý režim (1)' : 'Unknown mode (1)');
+    await expect(access).toContainText(language === 'cs' ? 'Mounty ke kontrole (1)' : 'Mounts needing attention (1)');
+    await expect(mountItem(page, 3)).toContainText(language === 'cs' ? 'Čeká na připojení' : 'Waiting to mount');
+    await expect(root.getByTestId('vps.storage.root_dataset.open')).toHaveText('#10');
+    await expect(root.getByTestId('vps.storage.root_dataset.open')).toHaveAttribute('href', '/app/datasets/10');
+    await expect(create).toHaveAttribute('href', '/app/datasets/10?create=subdataset');
+    await expect(root.getByTestId('vps.storage.root_dataset.snapshots')).toHaveAttribute('href', '/app/datasets/10/snapshots');
+    await expect(root.getByTestId('vps.storage.root_dataset.downloads')).toHaveAttribute('href', '/app/datasets/10/downloads');
+    await expect(technical.getByText('4.0 GiB', { exact: true })).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+      await page.evaluate(() => document.documentElement.clientWidth + 1),
+    );
+
+    if (language === 'cs') {
+      await summary.screenshot({ path: testInfo.outputPath('storage-overview.png'), scale: 'css' });
+      await access.screenshot({ path: testInfo.outputPath('mount-access.png'), scale: 'css' });
+      await create.screenshot({ path: testInfo.outputPath('subdataset.png'), scale: 'css' });
+      await root.screenshot({ path: testInfo.outputPath('root-dataset.png'), scale: 'css' });
+      await technical.screenshot({ path: testInfo.outputPath('technical.png'), scale: 'css' });
+    }
+
+    mounts = [];
+    await page.reload();
+    await expect(summary.getByTestId('vps.storage.summary.mounts')).toHaveText(language === 'cs' ? 'Žádné mounty nejsou nastavené.' : 'No mounts configured.');
+    await expect(access).toHaveCount(0);
+
+    loadError = true;
+    await page.reload();
+    await expect(summary.getByTestId('vps.storage.summary.mounts')).toHaveText(language === 'cs' ? 'Nepodařilo se načíst mounty.' : 'Failed to load mounts.');
+    await expect(access).toHaveCount(0);
+
+    await create.click();
+    await expect(page.getByTestId('dataset.manage.create.modal')).toBeVisible();
+    await expect(page).toHaveURL(/\/app\/datasets\/10$/);
+  });
+}

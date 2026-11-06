@@ -341,6 +341,12 @@ backend configuration decision. [Console fixture](../../e2e/specs/app/vps_consol
 
 ## Storage, NAS, snapshots, backup and export
 
+The VPS storage view shows used space against its effective quota. The
+manual mount summary links to the mount list and separates configured
+access, unknown modes and current states requiring inspection. The root
+dataset ID opens its detail and the capability-gated subdataset action
+uses that same parent. Short metadata is visible without opening a disclosure.
+
 **Intent:** inspect datasets and usage/quota, create NAS storage, manage snapshots,
 schedules/plans and downloads, export datasets and restore from available backups.
 VPS root disks remain in VPS detail; member NAS and Backup Center retain separate

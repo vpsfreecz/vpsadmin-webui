@@ -1,3 +1,7 @@
+## 2026-11-07 — VPS storage summary and dataset actions
+
+[Scope](docs/work-log/2026-11-07-todo-vps-storage-summary.md).
+
 ## 2026-11-07 — Streamline the VPS address workflow
 
 [Scope and acceptance](docs/work-log/2026-11-07-todo-vps-address-workflow.md).
