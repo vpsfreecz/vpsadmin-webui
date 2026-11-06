@@ -45,6 +45,11 @@ No route, backend permission, publication behavior or API endpoint changes.
 
 ## Public entry and authentication
 
+After expiry, the public overview keeps the current theme and language and
+offers sign-in in the notice. The login return target retains the prior
+protected page pathname. Transient query state, fragments and pending form
+actions are left behind. The notice is per-tab and expires after five minutes.
+
 **Intent:** inspect service availability, sign in, recover access or correct a
 registration without exposing private information. Public overview combines
 cluster/node status with outages/news/advisories; external heatmaps are optional.

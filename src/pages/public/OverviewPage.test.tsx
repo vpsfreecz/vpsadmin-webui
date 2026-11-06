@@ -13,6 +13,7 @@ import { OverviewPage } from './OverviewPage';
 vi.mock('../../app/config', () => ({
   getRuntimeConfig: () => ({
     apiBaseUrl: '/api',
+    routerBasename: '',
     publicStatus: {
       ipv4Warn: 100,
       ipv4Critical: 20,
@@ -121,8 +122,16 @@ describe('OverviewPage session expiry notice', () => {
     renderPage();
 
     expect(await screen.findByTestId('auth.session-expired.notice')).toBeVisible();
+    expect(screen.getByTestId('auth.session-expired.sign-in')).toHaveAttribute('href', expect.stringContaining('next=%2Fapp'));
     await waitFor(() => {
       expect(screen.getByTestId('location.search')).toHaveTextContent('');
     });
+  });
+
+  it('shows the notice after a logout redirect without an expiry query', async () => {
+    installOverviewMocks();
+    markSessionExpiredNotice();
+    renderPage('/');
+    expect(await screen.findByTestId('auth.session-expired.sign-in')).toBeVisible();
   });
 });

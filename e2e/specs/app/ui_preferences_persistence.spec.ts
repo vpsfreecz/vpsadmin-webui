@@ -237,3 +237,83 @@ test('@pr-smoke @pr-smoke-mobile dark theme survives session expiry and a fresh 
   await expect(page.getByTestId('shell.user-menu-button')).toBeVisible();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
 });
+
+for (const preferenceSource of ['device', 'account'] as const) {
+  test(`@pr-smoke @pr-smoke-mobile expiry sign-in preserves ${preferenceSource} appearance and restores the page`, async ({ page }) => {
+    await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST', webuiNext: serverUiSettingsConfig() });
+    await page.emulateMedia({ colorScheme: 'light' });
+    await page.addInitScript((source) => {
+      if (sessionStorage.getItem('appearance-fixture-seeded')) return;
+      sessionStorage.setItem('appearance-fixture-seeded', '1');
+      localStorage.setItem(
+        'vpsadmin.uiSettings.v1',
+        JSON.stringify(source === 'device' ? { theme: 'dark', language: 'cs' } : { theme: 'light', language: 'en' }),
+      );
+    }, preferenceSource);
+
+    const user = { id: 10, login: 'sample-user', level: 1 };
+    let authenticated = true;
+    let anonymousSettingsReads = 0;
+    let signInTarget: string | null = null;
+    const writes: string[] = [];
+    page.on('request', (request) => {
+      const path = new URL(request.url()).pathname;
+      if (/\/v7\.0\//.test(path) && !['GET', 'HEAD', 'OPTIONS'].includes(request.method())) {
+        writes.push(`${request.method()} ${path}`);
+      }
+    });
+
+    await installHaveApiMock(page, {
+      user,
+      handlers: {
+        'GET users/current': () => authenticated ? { user } : jsonFulfill(failEnvelope('Session expired'), 401),
+        'GET webui_user_settings': () => {
+          if (!authenticated) anonymousSettingsReads += 1;
+          return { webui_user_settings: preferenceSource === 'account' ? [{
+            id: 1, namespace: 'ui', key: 'settings', value: encodeSettings({ theme: 'dark', language: 'cs' }),
+          }] : [] };
+        },
+        'GET vpses': () => ({ vpses: [] }),
+      },
+    });
+    await page.route('**/oauth/login?**', async (route) => {
+      signInTarget = new URL(route.request().url()).searchParams.get('next');
+      authenticated = true;
+      await route.fulfill({ status: 302, headers: { location: '/app/vps' } });
+    });
+    await page.route('**/oauth/logout?**', async (route) => {
+      authenticated = false;
+      await route.fulfill({ status: 302, headers: { location: '/' } });
+    });
+
+    const html = page.locator('html');
+    await page.goto('/app/vps?dialog=example#draft');
+    await expect(html).toHaveAttribute('data-theme', 'dark');
+    await expect(html).toHaveAttribute('lang', 'cs');
+
+    authenticated = false;
+    await page.evaluate(() => window.dispatchEvent(new Event('webui-next:session-expired')));
+    await expect(page).toHaveURL(/\/$/);
+    const signIn = page.getByTestId('auth.session-expired.sign-in');
+    await expect(signIn).toBeVisible();
+    await expect(html).toHaveAttribute('data-theme', 'dark');
+    await expect(html).toHaveAttribute('lang', 'cs');
+
+    if (preferenceSource === 'account') {
+      await page.evaluate(() => localStorage.removeItem('vpsadmin.uiSettings.v1'));
+    }
+    await signIn.click();
+    expect(signInTarget).toBe('/app/vps');
+    await expect(page).toHaveURL(/\/app\/vps$/);
+    await expect(html).toHaveAttribute('data-theme', 'dark');
+    await expect(html).toHaveAttribute('lang', 'cs');
+
+    await page.goto('/oauth/logout?next=%2F');
+    await expect(page.getByTestId('public.overview.page')).toBeVisible();
+    await expect(signIn).toHaveCount(0);
+    await expect(html).toHaveAttribute('data-theme', 'dark');
+    await expect(html).toHaveAttribute('lang', 'cs');
+    expect(anonymousSettingsReads).toBe(0);
+    expect(writes).toEqual([]);
+  });
+}
