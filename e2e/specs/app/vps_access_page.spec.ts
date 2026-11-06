@@ -76,15 +76,16 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile VPS access page generates root
   await page.goto('/app/vps/123/access');
 
   await expect(page.getByTestId('vps.access.page')).toBeVisible();
-  await expect(page.getByTestId('vps.access.checklist')).toBeVisible();
+  await expect(page.getByTestId('vps.access.checklist')).toHaveCount(0);
+  await expect(page.getByTestId('vps.access.page').locator(':scope > :visible').first()).toHaveAttribute(
+    'data-testid',
+    'vps.access.ssh.card',
+  );
   await expect(page.getByTestId('vps.access.ssh_command')).toHaveCount(0);
   await expect(page.getByTestId('vps.access.host_keys.fingerprints')).toBeVisible();
   await expect(page.getByTestId('vps.access.host_keys.table')).toBeVisible();
   await expect(page.getByTestId('vps.access.host_keys.row.1')).toContainText('SHA256:host-ed25519');
   await expect(page.getByTestId('vps.access.host_keys.row.1')).toContainText('ssh-ed25519');
-  await expect(page.getByTestId('vps.access.checklist.public-key.action')).toHaveText('Deploy saved key');
-  await expect(page.getByTestId('vps.access.checklist.host-key.action')).toHaveText('View host fingerprints');
-  await expect(page.getByTestId('vps.access.checklist.root-password.action')).toHaveText('Open password fallback');
 
   const savedKeySelect = page.getByRole('combobox', { name: 'Saved public key', exact: true });
   await expect(savedKeySelect).toBeVisible();
@@ -108,15 +109,6 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile VPS access page generates root
   await page.setViewportSize({ width: 390, height: 844 });
   await expectNoDocumentHorizontalOverflow(page);
   await expectTableHorizontalScrollUsable(page, 'vps.access.host_keys.table');
-  await page.getByTestId('vps.access.checklist.public-key.action').click();
-  await expect(page).toHaveURL(/#vps-access-ssh-key$/);
-  await expect(page.getByTestId('vps.access.ssh.deploy')).toBeInViewport();
-  await page.getByTestId('vps.access.checklist.host-key.action').click();
-  await expect(page).toHaveURL(/#vps-access-host-keys$/);
-  await expect(page.getByTestId('vps.access.host_keys')).toBeInViewport();
-  await page.getByTestId('vps.access.checklist.root-password.action').click();
-  await expect(page).toHaveURL(/#vps-access-root-password$/);
-  await expect(page.getByTestId('vps.access.password.generate')).toBeInViewport();
   await page.setViewportSize({ width: 1280, height: 844 });
   await page.getByTestId('vps.access.password_type').selectOption('simple');
   await page.getByTestId('vps.access.password.generate').click();
@@ -234,4 +226,24 @@ test('@workflow-matrix @pr-smoke VPS access reports failed SSH key deployment an
     page.getByTestId('tasks.row.702').getByRole('button', { name: 'Deploy SSH public key', exact: true }),
   ).toBeVisible();
   await expect(page.getByTestId('vps.access.page')).toBeVisible();
+});
+
+test('@pr-smoke @pr-smoke-mobile missing SSH keys and fingerprints retain their recovery actions', async ({ page }) => {
+  await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+  await installHaveApiMock(page, {
+    user: { id: 42, login: 'owner', level: 1 },
+    handlers: {
+      'GET vpses/123': () => ({ vps }),
+      'GET transaction_chains': () => ({ transaction_chains: [] }),
+      'GET users/42/public_keys': () => ({ public_keys: [] }),
+      'GET vpses/123/ssh_host_keys': () => ({ ssh_host_keys: [] }),
+    },
+  });
+
+  await page.goto('/app/vps/123/access');
+  const keyLink = page.getByTestId('vps.access.ssh.no_keys.profile');
+  await expect(keyLink).toHaveAttribute('href', '/app/profile/keys');
+  await expect(page.getByTestId('vps.access.ssh.deploy')).toBeDisabled();
+  await expect(page.getByTestId('vps.access.host_keys')).toContainText('Verify the fingerprint');
+  await expect(page.getByTestId('vps.access.password.generate')).toBeEnabled();
 });
