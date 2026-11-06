@@ -250,6 +250,10 @@ mapping. Closing a day omits times and leaves server validation authoritative,
 including the minimum weekly window. An API rejection preserves the draft;
 success requires a refreshed server baseline. No API changes are required.
 
+The VPS Access tab shows the SSH deployment form, host fingerprints and root
+password controls directly. Missing or duplicate keys, missing fingerprints
+and blocked operations retain their warnings and recovery actions.
+
 ## Console and VPS deletion
 
 **Intent:** entering Console opens a session directly; intentional replacement and

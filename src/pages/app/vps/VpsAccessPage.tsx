@@ -32,23 +32,20 @@ import { freezeVpsMutationSnapshot, type VpsMutationSnapshot } from './VpsMutati
 import {
   actionStateFailed,
   actionStateFinished,
-  boolValue,
   errorMessage,
   extractPassword,
   isBusyError,
   PasswordBox,
   publicKeyLabel,
-  recordField,
   resourceId,
   resourceLabel,
   type GeneratedCredential,
   type PendingGeneratedCredential,
   type PendingPublicKeyDeployment,
 } from './VpsAccessPrimitives';
-import { buildVpsAccessChecklist, findDuplicatePublicKeyGroups } from './VpsAccessModel';
+import { findDuplicatePublicKeyGroups } from './VpsAccessModel';
 import { VpsAccessMutationGuardAlerts } from './VpsAccessMutationGuardAlerts';
 import { VpsConfirmTarget } from './VpsPowerConfirmation';
-import { VpsAccessChecklistCard, VpsAccessStatusCard } from './VpsAccessSummary';
 import { VpsSshHostKeysCard } from './VpsSshHostKeysCard';
 export function VpsAccessPage() {
   const { basePath, mode } = useAppMode();
@@ -60,7 +57,6 @@ export function VpsAccessPage() {
   const vpsId = Number(vps.id);
   const vpsData = vps as Record<string, unknown>;
   const objectLabel = String(vpsData['hostname'] ?? '') || `#${vpsId}`;
-  const isRunning = boolValue(vpsData['is_running']);
   const ownerUserId = resourceId(vpsData['user']);
   const ownerLabel = resourceLabel(vpsData['user']);
   const [passwordType, setPasswordType] = useState<VpsPasswordType>('secure');
@@ -263,69 +259,16 @@ export function VpsAccessPage() {
   });
   const canGenerate = canMutateVps && gate.allowed && !currentPasswdMutationPending && currentPendingGenerated === null;
   const canDeployKey = canMutateVps && gate.allowed && !deployKeyM.isPending && pendingKeyDeployment === null && selectedPublicKeyId !== null && publicKeys.length > 0;
-  const selectedTypeLabel = t(passwordType === 'secure' ? 'vps.access.password_type.secure' : 'vps.access.password_type.simple');
   const pendingTypeLabel = currentPendingPasswordType
     ? t(currentPendingPasswordType.type === 'secure' ? 'vps.access.password_type.secure' : 'vps.access.password_type.simple')
     : '';
   const selectedKeyLabel = publicKeyLabel(selectedPublicKey);
   const pendingKeyLabel = publicKeyLabel(pendingPublicKey);
   const publicKeysLoaded = publicKeyUserId !== null && !publicKeysQ.isPending && !publicKeysQ.error;
-  const hostKeysLoaded = !hostKeysQ.isPending && !hostKeysQ.error;
   const publicKeysHref = mode === 'admin' && publicKeyUserId !== null ? `${basePath}/users/${publicKeyUserId}/keys` : `${basePath}/profile/keys`;
-
-  const checklistItems = useMemo(
-    () =>
-      buildVpsAccessChecklist({
-        publicKeysLoaded,
-        publicKeyCount: publicKeys.length,
-        duplicatePublicKeyGroupCount: duplicatePublicKeyGroups.length,
-        hostKeysLoaded,
-        hostKeyCount: hostKeys.length,
-        mutationAllowed: canMutateVps && gate.allowed,
-      }),
-    [canMutateVps, duplicatePublicKeyGroups.length, gate.allowed, hostKeys.length, hostKeysLoaded, publicKeys.length, publicKeysLoaded]
-  );
 
   return (
     <div className="space-y-4" data-testid="vps.access.page">
-      <VpsAccessStatusCard
-        objectLabel={objectLabel}
-        osTemplateLabel={resourceLabel(recordField(vpsData, 'os_template'))}
-        ownerLabel={ownerLabel}
-        runningLabel={isRunning ? t('vps.access.status.running_yes') : t('vps.access.status.running_no')}
-        passwordTypeLabel={selectedTypeLabel}
-      />
-      <VpsAccessChecklistCard
-        items={checklistItems}
-        actions={{
-          'public-key': publicKeysLoaded && (publicKeys.length === 0 || duplicatePublicKeyGroups.length > 0)
-            ? {
-                to: publicKeysHref,
-                label: t('vps.access.checklist.action.manage_keys'),
-                testId: 'vps.access.checklist.public-key.action',
-              }
-            : publicKeysLoaded && canMutateVps
-              ? {
-                  href: '#vps-access-ssh-key',
-                  label: t('vps.access.checklist.action.deploy_key'),
-                  testId: 'vps.access.checklist.public-key.action',
-                }
-              : undefined,
-          'host-key': {
-            href: '#vps-access-host-keys',
-            label: t('vps.access.checklist.action.view_host_keys'),
-            testId: 'vps.access.checklist.host-key.action',
-          },
-          'root-password': canMutateVps
-            ? {
-                href: '#vps-access-root-password',
-                label: t('vps.access.checklist.action.open_password'),
-                testId: 'vps.access.checklist.root-password.action',
-              }
-            : undefined,
-        }}
-      />
-
       <VpsAccessMutationGuardAlerts canMutateVps={canMutateVps} gate={gate} onOpenTasks={() => chrome.openTasks()} />
 
       {currentPasswordMutationError ? <Alert variant="danger">{errorMessage(currentPasswordMutationError.error, t('vps.mutation.error.missing_action_state'))}</Alert> : null}
@@ -372,22 +315,24 @@ export function VpsAccessPage() {
               <span className="text-sm font-medium text-fg">{t('vps.access.ssh.key.label')}</span>
             </label>
             <div className="grid gap-2 lg:grid-cols-[minmax(0,1fr)_auto_auto] lg:items-center">
-              <select
-                id="vps-access-ssh-key-select"
-                value={selectedPublicKeyId ?? ''}
-                onChange={(event: React.ChangeEvent<HTMLSelectElement>) => setSelectedPublicKeyId(event.target.value ? Number(event.target.value) : null)}
-                disabled={publicKeysQ.isPending || publicKeys.length === 0 || deployKeyM.isPending}
-                aria-describedby="vps-access-ssh-key-description"
-                className="w-full rounded-md border border-border bg-bg px-3 py-2 text-sm text-fg"
-                data-testid="vps.access.ssh.key"
-              >
-                {publicKeys.length === 0 ? <option value="">{t('vps.access.ssh.no_keys_option')}</option> : null}
-                {publicKeys.map((key: VpsPublicKey) => (
-                  <option key={key.id} value={key.id}>
-                    {publicKeyLabel(key)}
-                  </option>
-                ))}
-              </select>
+              <div className="min-w-0 overflow-hidden rounded-md focus-within:ring-2 focus-within:ring-focus">
+                <select
+                  id="vps-access-ssh-key-select"
+                  value={selectedPublicKeyId ?? ''}
+                  onChange={(event: React.ChangeEvent<HTMLSelectElement>) => setSelectedPublicKeyId(event.target.value ? Number(event.target.value) : null)}
+                  disabled={publicKeysQ.isPending || publicKeys.length === 0 || deployKeyM.isPending}
+                  aria-describedby="vps-access-ssh-key-description"
+                  className="w-full rounded-md border border-border bg-bg px-3 py-2 text-sm text-fg"
+                  data-testid="vps.access.ssh.key"
+                >
+                  {publicKeys.length === 0 ? <option value="">{t('vps.access.ssh.no_keys_option')}</option> : null}
+                  {publicKeys.map((key: VpsPublicKey) => (
+                    <option key={key.id} value={key.id}>
+                      {publicKeyLabel(key)}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
               <Button variant="secondary" onClick={() => void publicKeysQ.refetch()} disabled={publicKeyUserId === null || publicKeysQ.isPending} testId="vps.access.ssh.refresh">
                 {publicKeysQ.isPending ? t('vps.access.ssh.loading') : t('vps.access.ssh.refresh')}
@@ -414,7 +359,7 @@ export function VpsAccessPage() {
           </div>
 
           {publicKeysQ.isPending ? <Alert variant="info">{t('vps.access.ssh.loading_keys')}</Alert> : null}
-          {!publicKeysQ.isPending && publicKeyUserId !== null && publicKeys.length === 0 ? (
+          {publicKeysLoaded && publicKeys.length === 0 ? (
             <Alert variant="warn" title={t('vps.access.ssh.no_keys.title')}>
               <div className="space-y-3">
                 <p>{t('vps.access.ssh.no_keys.description')}</p>
