@@ -1,3 +1,7 @@
+## 2026-11-07 — VPS history charts
+
+[Scope](docs/work-log/2026-11-07-todo-vps-history-charts.md).
+
 ## 2026-11-07 — VPS storage summary and dataset actions
 
 [Scope](docs/work-log/2026-11-07-todo-vps-storage-summary.md).

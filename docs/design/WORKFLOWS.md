@@ -339,6 +339,10 @@ accidentally inherit a soft expiry. Dev's missing default retention remains a
 backend configuration decision. [Console fixture](../../e2e/specs/app/vps_console_page.spec.ts),
 [PR518](https://github.com/Kerrycek/clankerdev/pull/518).
 
+The VPS overview history action requests the selected window on demand.
+Expanded charts show value and account-time axes and keep missing samples
+as gaps. A fresh window can be reopened without a duplicate fetch.
+
 ## Storage, NAS, snapshots, backup and export
 
 The VPS storage view shows used space against its effective quota. The

@@ -42,7 +42,7 @@ export const csVps_overview = {
   'vps.overview.metrics.title': 'Grafy využití',
   'vps.overview.metrics.subtitle': 'Posledních {window} · {samples} vzorků',
   'vps.overview.metrics.collapsed_subtitle': 'Historie zátěže, paměti a disku je dostupná na vyžádání.',
-  'vps.overview.metrics.show': 'Zobrazit grafy',
+  'vps.overview.metrics.show': 'Zobrazit historii',
   'vps.overview.metrics.hide': 'Skrýt grafy',
   'vps.overview.metrics.error': 'Nepodařilo se načíst metriky.',
   'vps.overview.metrics.empty': 'Žádné vzorky metrik.',

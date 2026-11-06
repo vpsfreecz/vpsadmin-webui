@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
+import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 
 const vps = {
   id: 123,
@@ -106,4 +106,70 @@ test.describe('VPS overview metrics charts', () => {
     expect(statusesCalls).toBeGreaterThan(0);
 
   });
+});
+
+test('shows history on demand with axes, keyboard inspection and sample gaps', async ({ page, isMobile }, testInfo) => {
+  await page.setViewportSize({ width: isMobile ? 320 : 1440, height: 900 });
+  await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+  await setUiSettingsLocalStorage(page, { language: 'cs', theme: 'dark' });
+  const rows = [statuses[0]!, { ...statuses[1]!, loadavg1: null }, statuses[2]!];
+  let requests = 0;
+  let error = false;
+  await installHaveApiMock(page, {
+    user: { id: 1, login: 'test', level: 1 },
+    handlers: {
+      'GET vpses/123': () => ({ vps }),
+      'GET vpses/123/statuses': () => {
+        requests += 1;
+        return error
+          ? { status: 503, contentType: 'application/json', body: '{"status":false}' }
+          : { statuses: rows };
+      },
+      'GET ip_addresses': () => ({ ip_addresses: [] }),
+      'GET transaction_chains': () => ({ transaction_chains: [] }),
+    },
+  });
+
+  await page.goto('/app/vps/123');
+  const card = page.getByTestId('vps.overview.metrics.card');
+  const toggle = card.getByTestId('vps.overview.metrics.toggle');
+  const plot = card.getByTestId('vps.overview.metrics.chart.load1');
+  await expect(toggle).toHaveText('Zobrazit historii');
+  expect(requests).toBe(0);
+  await card.screenshot({ path: testInfo.outputPath('history-action.png'), scale: 'css' });
+  await toggle.click();
+  await expect(plot).toBeVisible();
+  const xAxis = card.getByTestId('vps.overview.metrics.chart.load1.x-axis');
+  const yAxis = card.getByTestId('vps.overview.metrics.chart.load1.y-axis');
+  await expect(xAxis.locator('span')).toHaveCount(2);
+  await expect(yAxis).toContainText('0.12');
+  await expect(yAxis).toContainText('0.05');
+  await expect(card.getByTestId('vps.overview.metrics.chart.mem_used.y-axis')).toContainText('100.0%');
+  await expect(plot.locator('svg path[d*=" M"]')).toHaveCount(1);
+  expect((await plot.boundingBox())!.height).toBeGreaterThanOrEqual(140);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+    await page.evaluate(() => document.documentElement.clientWidth + 1),
+  );
+
+  await plot.locator('..').screenshot({ path: testInfo.outputPath('history-chart.png'), scale: 'css' });
+  await plot.focus();
+  await expect(plot.getByRole('status')).toContainText('0.12');
+  await plot.press('ArrowLeft');
+  await expect(plot.getByRole('status')).toContainText('0.05');
+  if (isMobile) {
+    await plot.tap({ position: { x: (await plot.boundingBox())!.width - 14, y: 24 } });
+    await expect(plot.getByRole('status')).toContainText('0.12');
+  }
+
+  expect(requests).toBe(1);
+  await toggle.click();
+  await expect(plot).toHaveCount(0);
+  await toggle.click();
+  await expect(plot).toBeVisible();
+  expect(requests).toBe(1);
+
+  error = true;
+  await card.getByTestId('vps.overview.metrics.refresh').click();
+  await expect(card.getByText('Nepodařilo se načíst metriky.')).toBeVisible();
+  expect(requests).toBe(2);
 });
