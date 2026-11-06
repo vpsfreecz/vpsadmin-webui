@@ -72,10 +72,10 @@ export function VpsNetworkIpRoutesCard(props: {
         title={
           <div className="flex items-center gap-2">
             <span className="grid h-7 w-7 place-items-center rounded-full bg-accent text-sm font-semibold text-accent-fg">1</span>
-            <span>{t('vps.network.routing.title')}</span>
+            <h3>{t('vps.network.routing.title')}</h3>
           </div>
         }
-        subtitle={t('vps.network.routing.subtitle')}
+        subtitle={t('vps.network.routing.explanation')}
         actions={
           <div className="flex flex-wrap gap-2">
             <Button variant="secondary" size="sm" onClick={props.onRefresh}>
@@ -96,10 +96,6 @@ export function VpsNetworkIpRoutesCard(props: {
       />
 
       <CardBody className="space-y-4">
-        <div className="rounded-lg border border-info-border bg-info-bg p-3 text-sm text-muted">
-          {t('vps.network.routing.explanation')}
-        </div>
-
         {props.isLoading ? (
           <div className="py-2">
             <Spinner label={t('common.loading')} />
@@ -130,12 +126,14 @@ export function VpsNetworkIpRoutesCard(props: {
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-mono text-sm font-semibold">{routeAddressLabel(ip)}</span>
+                        <span className="min-w-0 break-all font-mono text-sm font-semibold">{routeAddressLabel(ip)}</span>
+                        <Badge variant="neutral" className="min-w-0 break-all">
+                          {t('vps.network.routing.interface', { interface: networkInterface.name ?? `#${networkInterface.id}` })}
+                        </Badge>
                         <Badge variant="info">{t(routeTypeKey(ip))}</Badge>
                         <Badge variant={routeStateBadgeVariant(state)}>{t(routeStateLabelKey(state))}</Badge>
                       </div>
                       <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
-                        <span>{t('vps.network.routing.interface', { interface: networkInterface.name ?? `#${networkInterface.id}` })}</span>
                         {location !== '—' ? <span>{t('vps.network.routing.location', { location })}</span> : null}
                         {routeVia && routeVia !== '—' ? <span>{t('vps.network.routing.via', { address: routeVia })}</span> : null}
                         {props.canAdmin ? <span>{t('vps.network.ip_addresses.field.owner', { owner: labelFromResourceRef(ip.user) })}</span> : null}

@@ -417,6 +417,11 @@ to offer a bounded first page, not a claim to enumerate the entire pool.
 
 ### Address and interface facts (REQ-050)
 
+The VPS Network tab places the numbered route and host address steps on the
+cards that contain their actions. Assigned routes display the exact interface
+inline. A configured PTR appears by the host address; the Add or Edit PTR
+action still follows the existing gate.
+
 The member address overview requests the IP allocation and interface
 explicitly when expanding active assignment records. Some API versions still
 return unresolved allocation references from assignment history: the resource
