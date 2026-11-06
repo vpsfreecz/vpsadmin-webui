@@ -37,8 +37,8 @@ export function VpsNetworkOverviewCard(props: {
   summary: NetworkRouteSummary;
   accountingLoading: boolean;
   accountingError: boolean;
-  bytesIn: number;
-  bytesOut: number;
+  bytesIn: number | null;
+  bytesOut: number | null;
   year: number;
   month: number;
   onRefresh: () => void;
@@ -50,17 +50,19 @@ export function VpsNetworkOverviewCard(props: {
   return (
     <Card testId="vps.network.summary">
       <CardHeader
-        title={t('vps.network.overview.title')}
-        subtitle={t('vps.network.overview.subtitle')}
-        actions={
-          <div className="flex flex-wrap items-center gap-2">
-            <Button variant="secondary" size="sm" testId="vps.network.accounting.refresh" onClick={props.onRefresh}>
-              {t('common.refresh')}
-            </Button>
+        title={
+          <span className="flex flex-wrap items-center gap-2">
+            {t('vps.network.overview.title')}
             <Badge variant={props.netEnabled ? 'ok' : 'warn'}>
               {props.netEnabled ? t('vps.network.status.enabled') : t('vps.network.status.disabled')}
             </Badge>
-          </div>
+          </span>
+        }
+        subtitle={t('vps.network.overview.subtitle')}
+        actions={
+          <Button variant="secondary" size="sm" className="ml-auto" testId="vps.network.accounting.refresh" onClick={props.onRefresh}>
+            {t('common.refresh')}
+          </Button>
         }
       />
 
@@ -84,37 +86,54 @@ export function VpsNetworkOverviewCard(props: {
           </Alert>
         ) : null}
 
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          <OverviewStatusItem
-            testId="vps.network.overview.interfaces"
-            tone={props.summary.disabledInterfaceCount > 0 ? 'warn' : 'ok'}
-            label={t('vps.network.interfaces.title')}
-            value={t('vps.network.overview.interfaces.value', {
-              enabled: props.summary.enabledInterfaceCount,
-              total: props.summary.interfaceCount,
-            })}
-            description={t('vps.network.overview.interfaces.description', { disabled: props.summary.disabledInterfaceCount })}
-          />
-          <OverviewStatusItem
-            testId="vps.network.accounting.in"
-            tone={props.accountingError ? 'warn' : 'neutral'}
-            label={t('vps.network.accounting.ingress')}
-            value={props.accountingLoading ? t('common.loading') : props.accountingError ? t('vps.network.accounting.error') : formatBytes(props.bytesIn)}
-            description={t('vps.network.accounting.period', {
-              year: props.year,
-              month: String(props.month).padStart(2, '0'),
-            })}
-          />
-          <OverviewStatusItem
-            testId="vps.network.accounting.out"
-            tone={props.accountingError ? 'warn' : 'neutral'}
-            label={t('vps.network.accounting.egress')}
-            value={props.accountingLoading ? t('common.loading') : props.accountingError ? t('vps.network.accounting.error') : formatBytes(props.bytesOut)}
-            description={t('vps.network.accounting.period', {
-              year: props.year,
-              month: String(props.month).padStart(2, '0'),
-            })}
-          />
+        <div className="grid gap-3 lg:grid-cols-3">
+          <div className="grid gap-3">
+            <OverviewStatusItem
+              testId="vps.network.overview.interfaces"
+              tone={props.summary.disabledInterfaceCount > 0 ? 'warn' : 'ok'}
+              label={t('vps.network.interfaces.title')}
+              value={t('vps.network.overview.interfaces.value', {
+                enabled: props.summary.enabledInterfaceCount,
+                total: props.summary.interfaceCount,
+              })}
+              description={t('vps.network.overview.interfaces.description', { disabled: props.summary.disabledInterfaceCount })}
+            />
+          </div>
+          <section
+            aria-labelledby="vps-monthly-traffic"
+            data-testid="vps.network.accounting.monthly"
+            className="rounded-lg border border-border bg-surface p-3 lg:col-span-2"
+          >
+            <h3 id="vps-monthly-traffic" className="text-sm font-semibold text-fg">
+              {t('vps.network.accounting.monthly_traffic')}
+            </h3>
+            <p className="text-xs text-muted">
+              {t('vps.network.accounting.period', {
+                year: props.year,
+                month: String(props.month).padStart(2, '0'),
+              })}
+            </p>
+            {props.accountingError ? (
+              <p role="status" className="mt-2 text-sm text-warn">{t('vps.network.accounting.error')}</p>
+            ) : props.accountingLoading ? (
+              <p role="status" className="mt-2 text-sm text-muted">{t('common.loading')}</p>
+            ) : (
+              <dl className="mt-2 grid grid-cols-2 gap-3">
+                <div data-testid="vps.network.accounting.in">
+                  <dt className="text-xs text-muted">{t('vps.network.accounting.ingress')}</dt>
+                  <dd className="text-sm font-semibold text-fg">
+                    {props.bytesIn === null ? t('vps.network.accounting.no_measurement') : formatBytes(props.bytesIn)}
+                  </dd>
+                </div>
+                <div data-testid="vps.network.accounting.out">
+                  <dt className="text-xs text-muted">{t('vps.network.accounting.egress')}</dt>
+                  <dd className="text-sm font-semibold text-fg">
+                    {props.bytesOut === null ? t('vps.network.accounting.no_measurement') : formatBytes(props.bytesOut)}
+                  </dd>
+                </div>
+              </dl>
+            )}
+          </section>
         </div>
       </CardBody>
     </Card>

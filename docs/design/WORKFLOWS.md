@@ -427,6 +427,11 @@ In the VPS overview, the Network card keeps each address selectable as text.
 The adjacent copy control copies the whole displayed address and prefix.
 Keyboard and touch use the same control with success and failure feedback.
 
+The VPS Network summary keeps Refresh at the right edge when the status
+badge changes. Its month-to-date traffic card shows the period once and puts
+incoming and outgoing totals side by side. Only measured zero is displayed
+as zero. Missing values and accounting request errors are reported separately.
+
 ### Admin IP owner search
 
 In Network → IP addresses, a bare positive number filters allocations by that
