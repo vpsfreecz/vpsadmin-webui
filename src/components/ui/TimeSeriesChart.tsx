@@ -258,7 +258,7 @@ export function TimeSeriesChart(props: {
         props.showAxes ? 'h-36 sm:h-44' : 'h-16 p-2',
         props.className,
       )}
-      role={props.showAxes ? 'group' : 'img'}
+      role="group"
       aria-label={props.ariaLabel}
       tabIndex={0}
       onMouseMove={onMouseMove}
