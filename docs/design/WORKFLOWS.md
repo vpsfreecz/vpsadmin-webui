@@ -1,5 +1,7 @@
 # Workflow catalog and behavior to preserve
 
+The signed-in dashboard opens its widget editor from a single control beside the page title (REQ-009).
+
 This catalog covers all product domains in the current route/API inventory. It is
 not a claim of exhaustive field-level legacy parity. Each workflow inherits the
 role/scope, localization, focus, draft/error and uncertain-write rules from

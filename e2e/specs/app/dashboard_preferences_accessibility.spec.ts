@@ -31,6 +31,13 @@ test('@pr-smoke @pr-smoke-mobile dashboard preferences: preserves disclosure foc
   await expect(trigger).toHaveAttribute('aria-expanded', 'false');
   await expect(trigger).toHaveAttribute('aria-controls', 'app-dashboard-preferences-panel');
   await expect(panel).toBeHidden();
+  const heading = page.getByTestId('app.dashboard.header').getByRole('heading', { level: 1 });
+  await expect(heading).toBeVisible();
+  const headingBox = (await heading.boundingBox())!;
+  const triggerBox = (await trigger.boundingBox())!;
+  expect(triggerBox.x).toBeGreaterThan(headingBox.x + headingBox.width);
+  expect(triggerBox.y).toBeLessThan(headingBox.y + headingBox.height);
+  expect(triggerBox.y + triggerBox.height).toBeGreaterThan(headingBox.y);
 
   await trigger.focus();
   await trigger.press('Enter');

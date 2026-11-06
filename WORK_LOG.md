@@ -1,5 +1,9 @@
 ## 2026-11-04 — Dashboard settings header
 
+## 2026-11-06 — Open dashboard settings from the page heading
+
+[Scope and acceptance](docs/work-log/2026-11-06-dashboard-editor-trigger.md).
+
 [Simplify the dashboard settings header](docs/work-log/2026-11-04-dashboard-settings-counts.md).
 
 ## 2026-10-28 — OAuth redirect boundary review
