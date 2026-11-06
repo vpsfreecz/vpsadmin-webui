@@ -1882,3 +1882,8 @@ Give filter help a labeled 44-pixel control beside the input, with a plain searc
 - PUB-11 / REQ-054: omit the public overview card once a successful query
   returns no published advisories. Keep loading and fetch errors visible.
 - Check the empty response in public overview browser smoke coverage.
+
+## 2026-11-06 — Simplify additional VPS configuration
+
+Prepare the approved RES-05 layout. See the
+[scope and localization record](docs/work-log/2026-11-06-todo-vps-config-layout.md).

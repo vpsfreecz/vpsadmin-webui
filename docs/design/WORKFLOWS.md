@@ -245,6 +245,14 @@ connects list discovery, resource review/rejection/retry, tracked completion,
 access-key review and the result on the same VPS. It uses synthetic API data
 in cs/en; it does not certify real provisioning or SSH delivery.
 
+### Additional VPS configuration (REQ-023)
+
+Additional configuration groups the hostname, namespace, boot and administrator
+controls under short headings inside the existing disclosure. DNS uses its
+direct resolver label. Field help, errors and risk indicators stay with the
+settings they describe. The DNS shortcut still expands, scrolls to and focuses
+the resolver section and shares the same change review.
+
 ### Admin-team VPS configuration preference (REQ-023)
 
 Maintenance exposes the legacy `allow_admin_modifications` preference alongside
