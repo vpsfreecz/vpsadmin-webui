@@ -1,6 +1,11 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 
-import { seriesColorClass, thresholdColorClass, type ChartSeriesVariant, type ChartThresholdVariant } from '../../lib/chartPalette';
+import {
+  seriesColorClass,
+  thresholdColorClass,
+  type ChartSeriesVariant,
+  type ChartThresholdVariant,
+} from '../../lib/chartPalette';
 
 import { clsx } from './clsx';
 
@@ -13,6 +18,7 @@ type RenderPoint = {
   y: number;
   xPx: number;
   yPx: number;
+  isolated: boolean;
 };
 
 export type TimeSeriesThreshold = {
@@ -64,6 +70,8 @@ export function TimeSeriesChart(props: {
   formatTime?: (unixSeconds: number) => string;
   /** Optional threshold lines */
   thresholds?: TimeSeriesThreshold[];
+  showAxes?: boolean;
+  emptyLabel?: string;
   testId?: string;
 }) {
   const variant: TimeSeriesVariant = props.variant ?? 'muted';
@@ -99,7 +107,7 @@ export function TimeSeriesChart(props: {
     const plotY0 = padding;
     const plotY1 = h - padding;
 
-    if (finite.length < 2) {
+    if (finite.length < (props.showAxes ? 1 : 2)) {
       return {
         pathD: null as string | null,
         points: [] as RenderPoint[],
@@ -124,7 +132,8 @@ export function TimeSeriesChart(props: {
 
     const yMin = Number.isFinite(props.yMin) ? (props.yMin as number) : yMinData;
     const yMax = Number.isFinite(props.yMax) ? (props.yMax as number) : yMaxData;
-    const ySpan = yMax - yMin || 1;
+    const yUpper = props.showAxes && yMin === yMax ? yMax + 1 : yMax;
+    const ySpan = yUpper - yMin || 1;
 
     const xScale = (x: number) => plotX0 + ((x - minX) / spanX) * (plotX1 - plotX0);
     const yScale = (y: number) => plotY1 - ((y - yMin) / ySpan) * (plotY1 - plotY0);
@@ -144,10 +153,17 @@ export function TimeSeriesChart(props: {
       started = true;
     }
 
-    const renderPoints: RenderPoint[] = finite.map((p) => {
-      const xPx = xScale(p.x);
-      const yPx = yScale(p.y);
-      return { x: p.x, y: p.y, xPx, yPx };
+    const renderPoints: RenderPoint[] = raw.flatMap((p, index) => {
+      if (p.y === null) return [];
+      return [
+        {
+          x: p.x,
+          y: p.y,
+          xPx: xScale(p.x),
+          yPx: yScale(p.y),
+          isolated: raw[index - 1]?.y == null && raw[index + 1]?.y == null,
+        },
+      ];
     });
 
     return {
@@ -163,11 +179,11 @@ export function TimeSeriesChart(props: {
       plotY0,
       plotY1,
       yMin,
-      yMax,
+      yMax: yUpper,
       ySpan,
       yScale,
     };
-  }, [props.points, props.yMin, props.yMax]);
+  }, [props.points, props.showAxes, props.yMin, props.yMax]);
 
   const onMoveAtClientX = useCallback(
     (clientX: number) => {
@@ -236,15 +252,19 @@ export function TimeSeriesChart(props: {
     [computed.points]
   );
 
-  const selected = selectedIdx != null ? computed.points[selectedIdx] ?? null : null;
+  const selected = selectedIdx != null ? (computed.points[selectedIdx] ?? null) : null;
 
   const thresholds: TimeSeriesThreshold[] = props.thresholds ?? [];
 
-  return (
+  const plot = (
     <div
       ref={containerRef}
-      className={clsx('relative h-16 w-full rounded-md border border-border bg-surface p-2', props.className)}
-      role="img"
+      className={clsx(
+        'relative min-w-0 w-full rounded-md border border-border bg-surface',
+        props.showAxes ? 'h-36 sm:h-44' : 'h-16 p-2',
+        props.className
+      )}
+      role="group"
       aria-label={props.ariaLabel}
       tabIndex={0}
       onMouseMove={onMouseMove}
@@ -256,7 +276,11 @@ export function TimeSeriesChart(props: {
       onKeyDown={onKeyDown}
       data-testid={props.testId}
     >
-      <svg viewBox={`0 0 ${computed.w} ${computed.h}`} className="h-full w-full">
+      <svg
+        viewBox={`0 0 ${computed.w} ${computed.h}`}
+        preserveAspectRatio={props.showAxes ? 'none' : undefined}
+        className="h-full w-full"
+      >
         {/* Baseline (subtle) */}
         <path
           d={`M${computed.plotX0} ${computed.plotY1} L${computed.plotX1} ${computed.plotY1}`}
@@ -310,6 +334,7 @@ export function TimeSeriesChart(props: {
             stroke="currentColor"
             className={seriesColorClass(variant)}
             strokeWidth={2}
+            vectorEffect={props.showAxes ? 'non-scaling-stroke' : undefined}
             strokeLinecap="round"
           />
         ) : (
@@ -323,6 +348,21 @@ export function TimeSeriesChart(props: {
             opacity={0.35}
           />
         )}
+
+        {props.showAxes
+          ? computed.points
+              .filter((point) => point.isolated)
+              .map((point, index) => (
+                <circle
+                  key={index}
+                  cx={point.xPx}
+                  cy={point.yPx}
+                  r={1.3}
+                  fill="currentColor"
+                  className={seriesColorClass(variant)}
+                />
+              ))
+          : null}
 
         {/* Crosshair + point */}
         {selected ? (
@@ -351,6 +391,7 @@ export function TimeSeriesChart(props: {
       {selected ? (
         <div
           className="absolute left-2 top-2 rounded-md border border-border bg-overlay-surface px-2 py-1 text-xs text-fg shadow-card"
+          role={props.showAxes ? 'status' : undefined}
           data-overlay="tooltip"
           data-overlay-surface="overlay"
         >
@@ -358,6 +399,36 @@ export function TimeSeriesChart(props: {
           <div className="mt-0.5 text-muted tabular-nums">{formatTime(selected.x)}</div>
         </div>
       ) : null}
+    </div>
+  );
+
+  if (!props.showAxes) return plot;
+  if (computed.points.length === 0) {
+    return (
+      <div className="rounded-md border border-border p-3 text-sm text-muted" data-testid={props.testId}>
+        {props.emptyLabel}
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] gap-x-2 gap-y-1">
+      <div
+        className="flex flex-col justify-between py-3 text-xs text-muted tabular-nums"
+        data-testid={props.testId ? `${props.testId}.y-axis` : undefined}
+      >
+        <span>{formatValue(computed.yMax)}</span>
+        <span>{formatValue(computed.yMin + computed.ySpan / 2)}</span>
+        <span>{formatValue(computed.yMin)}</span>
+      </div>
+      {plot}
+      <div
+        className="col-start-2 grid grid-cols-2 gap-2 text-xs text-muted tabular-nums"
+        data-testid={props.testId ? `${props.testId}.x-axis` : undefined}
+      >
+        <span>{formatTime(computed.minX)}</span>
+        {computed.maxX !== computed.minX ? <span className="text-right">{formatTime(computed.maxX)}</span> : null}
+      </div>
     </div>
   );
 }
