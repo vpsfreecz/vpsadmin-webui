@@ -6,8 +6,10 @@ import { NodeHeatmapProvider } from '../../components/cluster/NodeHeatmaps';
 import { getRuntimeConfig } from '../../app/config';
 import { useI18n } from '../../app/i18n';
 import { Alert } from '../../components/ui/Alert';
+import { Button } from '../../components/ui/Button';
 import { fetchNews, fetchOutages, fetchPublicNodeStatus, fetchPublicStats, fetchPublicSecurityAdvisories } from '../../lib/api/public';
-import { consumeSessionExpiredNotice } from '../../lib/auth/sessionExpiredNotice';
+import { consumeSessionExpiredNotice, sessionReturnPath } from '../../lib/auth/sessionExpiredNotice';
+import { withRouterBasename, withSameOriginNextParam } from '../../lib/routerPaths';
 import {
   categorizePublicOutages,
   groupPublicNodesByLocation,
@@ -30,23 +32,17 @@ export function OverviewPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [showSessionExpired, setShowSessionExpired] = useState(false);
-  const consumedExpiredParamRef = useRef(false);
+  const [expiredNotice, setExpiredNotice] = useState<ReturnType<typeof consumeSessionExpiredNotice>>(null);
+  const consumedNoticeRef = useRef(false);
   const hasSessionExpiredParam = searchParams.get('session') === 'expired';
 
   useEffect(() => {
-    if (!hasSessionExpiredParam) {
-      if (!consumedExpiredParamRef.current) {
-        setShowSessionExpired(false);
-      }
-      return;
+    if (!consumedNoticeRef.current) {
+      consumedNoticeRef.current = true;
+      setExpiredNotice(consumeSessionExpiredNotice());
     }
 
-    if (consumedExpiredParamRef.current) return;
-
-    consumedExpiredParamRef.current = true;
-    setShowSessionExpired(consumeSessionExpiredNotice());
-
+    if (!hasSessionExpiredParam) return;
     const nextParams = new URLSearchParams(location.search);
     nextParams.delete('session');
     navigate(
@@ -58,6 +54,9 @@ export function OverviewPage() {
       { replace: true },
     );
   }, [hasSessionExpiredParam, location.hash, location.pathname, location.search, navigate]);
+
+  const loginBase = cfg.loginUrl ?? withRouterBasename('/oauth/login', cfg.routerBasename);
+  const signInHref = withSameOriginNextParam(loginBase, sessionReturnPath(expiredNotice?.pathname, cfg.routerBasename));
 
   const statsQ = useQuery({
     queryKey: ['cluster', 'public_stats'],
@@ -107,9 +106,14 @@ export function OverviewPage() {
     <>
       <h1 className="sr-only">{i18n.t('public.overview.title')}</h1>
       <div className="space-y-6" data-testid="public.overview.page">
-        {showSessionExpired ? (
+        {expiredNotice ? (
           <Alert title={i18n.t('auth.session_expired.title')} variant="warn" testId="auth.session-expired.notice">
-            {i18n.t('auth.session_expired.body')}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p>{i18n.t('auth.session_expired.body')}</p>
+              <Button as="a" href={signInHref} size="sm" testId="auth.session-expired.sign-in">
+                {i18n.t('auth.action.sign_in')}
+              </Button>
+            </div>
           </Alert>
         ) : null}
 
