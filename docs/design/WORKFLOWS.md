@@ -1,5 +1,7 @@
 # Workflow catalog and behavior to preserve
 
+The signed-in dashboard opens its widget editor from a single control beside the page title (REQ-009).
+
 This catalog covers all product domains in the current route/API inventory. It is
 not a claim of exhaustive field-level legacy parity. Each workflow inherits the
 role/scope, localization, focus, draft/error and uncertain-write rules from
@@ -70,6 +72,7 @@ insets. Heatmap dialogs explain left-to-right CPU user/system/idle and disk I/O,
 time flowing down from the newest row, black/white percentage endpoints, the
 inverted meaning of idle, and click/tap to pause and display device labels.
 External iframe content and access rules are unchanged.
+The dashboard settings header shows the selected density and edit control without totals for hidden or collapsed widgets (REQ-009).
 The authenticated dashboard's Cluster status widget offers the same icon-only
 heatmap action in desktop rows and mobile node cards, in both member and admin
 views (REQ-025/026). It reuses the public heatmap configuration, node eligibility

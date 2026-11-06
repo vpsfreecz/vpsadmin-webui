@@ -39,6 +39,8 @@
     "e2e/specs/app/backup_center.spec.ts",
     "e2e/specs/app/centered_dialogs.spec.ts",
     "e2e/specs/app/command_palette.spec.ts",
+    "e2e/specs/app/dashboard.spec.ts",
+    "e2e/specs/app/dashboard_preferences_accessibility.spec.ts",
     "e2e/specs/app/dataset_snapshot_confirm_workflows.spec.ts",
     "e2e/specs/app/export_hosts_responsive_actions.spec.ts",
     "e2e/specs/app/exports_filter_contract.spec.ts",
@@ -686,20 +688,6 @@
     {
       "path": "e2e/specs/app/contextual_help_boxes_smoke.spec.ts",
       "sha256": "6b7df64f05d4b25048bd6b62234ea34d6a408ac33fc9b3498a2ee9110d4f7461",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/app/dashboard.spec.ts",
-      "sha256": "ab96ad47251fba220f1348db79024f302885008b8dc01e0a48df456101826d25",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/app/dashboard_preferences_accessibility.spec.ts",
-      "sha256": "01fe95afb39ae5c41b9d405c90dacc6b1d8164459f5c6d41e85984a400730aa0",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."

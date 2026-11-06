@@ -29,28 +29,15 @@ vi.mock('./useDashboardSettings', () => ({
 }));
 
 describe('DashboardPreferencesCard', () => {
-  it('keeps one focused disclosure trigger while the panel opens and closes', async () => {
+  it('hides the editor until the page opens it and persists density changes', async () => {
     const user = userEvent.setup();
-    render(<DashboardPreferencesCard />);
+    const { rerender } = render(<DashboardPreferencesCard open={false} />);
+    const panel = screen.getByTestId('app.dashboard.preferences.card');
+    expect(panel).not.toBeVisible();
 
-    const trigger = screen.getByTestId('app.dashboard.preferences.toggle');
-    expect(trigger).toHaveAttribute('aria-expanded', 'false');
-    expect(trigger).toHaveAttribute('aria-controls', 'app-dashboard-preferences-panel');
-    expect(document.getElementById('app-dashboard-preferences-panel')).not.toBeVisible();
-
-    trigger.focus();
-    await user.keyboard('{Enter}');
-
-    expect(screen.getByTestId('app.dashboard.preferences.toggle')).toBe(trigger);
-    expect(trigger).toHaveFocus();
-    expect(trigger).toHaveAttribute('aria-expanded', 'true');
-    expect(document.getElementById('app-dashboard-preferences-panel')).toBeVisible();
-
-    await user.keyboard('{Enter}');
-
-    expect(screen.getByTestId('app.dashboard.preferences.toggle')).toBe(trigger);
-    expect(trigger).toHaveFocus();
-    expect(trigger).toHaveAttribute('aria-expanded', 'false');
-    expect(document.getElementById('app-dashboard-preferences-panel')).not.toBeVisible();
+    rerender(<DashboardPreferencesCard open />);
+    expect(panel).toBeVisible();
+    await user.selectOptions(screen.getByTestId('app.dashboard.preferences.density'), 'comfortable');
+    expect(mocks.setDashboardSettings).toHaveBeenCalledWith(expect.objectContaining({ density: 'comfortable' }));
   });
 });
