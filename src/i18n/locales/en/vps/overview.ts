@@ -42,7 +42,7 @@ export const enVps_overview = {
   'vps.overview.metrics.title': 'Usage charts',
   'vps.overview.metrics.subtitle': 'Last {window} · {samples} samples',
   'vps.overview.metrics.collapsed_subtitle': 'Load, memory and disk history is available on demand.',
-  'vps.overview.metrics.show': 'Show charts',
+  'vps.overview.metrics.show': 'Show history',
   'vps.overview.metrics.hide': 'Hide charts',
   'vps.overview.metrics.error': 'Failed to load metrics.',
   'vps.overview.metrics.empty': 'No metrics samples.',

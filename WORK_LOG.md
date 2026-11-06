@@ -1,3 +1,7 @@
+## 2026-11-07 — VPS history charts
+
+[Scope](docs/work-log/2026-11-07-todo-vps-history-charts.md).
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path

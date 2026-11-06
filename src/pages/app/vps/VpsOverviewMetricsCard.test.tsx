@@ -12,8 +12,11 @@ import { VpsOverviewMetricsCard } from './VpsOverviewMetricsCard';
 vi.mock('../../../app/i18n', () => ({
   useI18n: () => ({
     t: (key: string) => key,
+    lang: 'en',
   }),
 }));
+
+vi.mock('../../../app/accountTimeZone', () => ({ useAccountTimeZone: () => 'UTC' }));
 
 vi.mock('../../../lib/refreshTiers', () => ({
   useTierSlowIntervalMs: () => false,
