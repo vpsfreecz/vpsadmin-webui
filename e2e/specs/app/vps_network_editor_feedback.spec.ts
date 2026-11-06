@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
+import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 
 const baseVps = {
   id: 123,
@@ -166,5 +166,60 @@ test.describe('@pr-smoke @pr-smoke-mobile VPS network editor failure feedback', 
       disableAttempts: 2,
       enableAttempts: 2,
     });
+  });
+});
+
+test.describe('@pr-smoke @pr-smoke-mobile VPS address workflow', () => {
+  test('shows route steps, inline interfaces and editable PTRs at narrow widths', async ({ page, isMobile }, testInfo) => {
+    await page.setViewportSize({ width: isMobile ? 320 : 1440, height: 900 });
+    await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+    await setUiSettingsLocalStorage(page, { language: 'cs', theme: 'dark' });
+    const secondInterface = { id: 502, name: 'vps-private-very-long-network-interface-name', vps: { id: 123 } };
+    const ipRoute = { id: 1, addr: '192.0.2.0', prefix: 28, network_interface: networkInterface, routed: true };
+    const secondRoute = { id: 2, addr: '2001:db8::', prefix: 64, network_interface: secondInterface, routed: true };
+    await installHaveApiMock(page, {
+      user: { id: 7, login: 'member', level: 1 },
+      handlers: {
+        'GET vpses/123': () => ({ vps: { ...baseVps, enable_network: true } }),
+        'GET network_interfaces': () => ({ network_interfaces: [networkInterface, secondInterface] }),
+        'GET network_interface_accountings': () => ({ network_interface_accountings: [] }),
+        'GET ip_addresses': () => ({ ip_addresses: [ipRoute, secondRoute] }),
+        'GET host_ip_addresses': () => ({ host_ip_addresses: [
+          { id: 51, addr: '192.0.2.1', assigned: true, ip_address: ipRoute, reverse_record_value: 'host.example.test.' },
+          { id: 52, addr: '2001:db8::2', assigned: false, ip_address: secondRoute, reverse_record_value: null },
+        ] }),
+      },
+    });
+    await page.goto('/app/vps/123/network');
+
+    const section = page.getByTestId('vps.network.addresses');
+    const routes = section.getByTestId('vps.network.ip_addresses');
+    const hosts = section.getByTestId('vps.network.host_addresses');
+    const route = routes.getByTestId('vps.network.ip_addresses.item.2');
+    const existing = hosts.getByTestId('vps.network.host_addresses.row.51');
+    const missing = hosts.getByTestId('vps.network.host_addresses.row.52');
+    await expect(routes.getByRole('heading', { name: 'Routy k VPS' })).toBeVisible();
+    await expect(hosts.getByRole('heading', { name: 'Adresy rozhraní a PTR' })).toBeVisible();
+    await expect(routes.getByText('1', { exact: true })).toBeVisible();
+    await expect(hosts.getByText('2', { exact: true })).toBeVisible();
+    await expect(routes.getByTestId('vps.network.ip_addresses.item.1')).toContainText('Rozhraní: eth0');
+    const inline = route.getByText('2001:db8::/64', { exact: true }).locator('..');
+    await expect(inline).toContainText(secondInterface.name);
+    await expect(existing.getByText('192.0.2.1', { exact: true }).locator('..')).toContainText('PTR host.example.test.');
+    await expect(missing.getByText('2001:db8::2', { exact: true }).locator('..')).not.toContainText('PTR');
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+      await page.evaluate(() => document.documentElement.clientWidth + 1),
+    );
+
+    await section.screenshot({ path: testInfo.outputPath('address-steps.png'), scale: 'css' });
+    await route.screenshot({ path: testInfo.outputPath('route-interface.png'), scale: 'css' });
+    await hosts.screenshot({ path: testInfo.outputPath('host-ptr.png'), scale: 'css' });
+
+    const ptrEditor = page.getByTestId('vps.network.host_addresses.ptr.value');
+    await existing.getByRole('button', { name: 'Upravit PTR' }).click();
+    await expect(ptrEditor).toHaveValue('host.example.test.');
+    await page.getByTestId('vps.network.host_addresses.ptr.cancel').click();
+    await missing.getByRole('button', { name: 'Přidat PTR' }).click();
+    await expect(ptrEditor).toHaveValue('');
   });
 });

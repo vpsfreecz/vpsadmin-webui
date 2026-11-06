@@ -1,3 +1,7 @@
+## 2026-11-07 — Streamline the VPS address workflow
+
+[Scope and acceptance](docs/work-log/2026-11-07-todo-vps-address-workflow.md).
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path
