@@ -411,6 +411,10 @@ backend blocker. [Datasets](../../src/lib/api/datasets.ts),
 DNSSEC, inspect logs, and manage relevant IP/interface/resolver resources.
 Administrators also have network/address inventories and allocation operations.
 
+The VPS Network tab identifies a disabled VPS network in its header and
+shows the consequence near the summary. An individual disabled interface
+carries its own badge, including in member view.
+
 **Success contract:** UI save and DNS publication are separate evidence. Real
 publication tests query the actual isolated DNS service after the transaction.
 Respect supported record types, TTL and payload fields; preserve zone context on
@@ -418,6 +422,10 @@ errors. Secret-bearing keys must be scrubbed from diagnostics. IP assignment
 history must not lose entries due to a false cursor assumption.
 [DNS](../../src/lib/api/dns.ts), [transfers](../../src/lib/api/dnsTransfers.ts),
 [interfaces](../../src/lib/api/networkInterfaces.ts), [IP history](../../src/lib/api/ipAddresses.ts).
+
+In the VPS overview, the Network card keeps each address selectable as text.
+The adjacent copy control copies the whole displayed address and prefix.
+Keyboard and touch use the same control with success and failure feedback.
 
 ### Admin IP owner search
 

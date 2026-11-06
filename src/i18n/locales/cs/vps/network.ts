@@ -155,8 +155,6 @@ export const csVps_network = {
   'vps.network.host_addresses.delete.description': 'Smazat IP adresu {address}? Tuto akci nepůjde vzít zpět.',
   'vps.network.overview.title': 'Přehled sítě',
   'vps.network.overview.subtitle': 'Stav síťového připojení, rozhraní a provoz za aktuální měsíc.',
-  'vps.network.overview.state.label': 'Síť VPS',
-  'vps.network.overview.state.enabled_help': 'Síťový přístup k této VPS je povolený.',
   'vps.network.overview.state.disabled_help': 'Síťový přístup je vypnutý, dokud ho administrátor znovu nepovolí.',
   'vps.network.overview.interfaces.value': '{enabled}/{total} povoleno',
   'vps.network.overview.interfaces.description': '{disabled} zakázaných rozhraní.',

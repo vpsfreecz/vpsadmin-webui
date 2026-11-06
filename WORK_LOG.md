@@ -1,3 +1,11 @@
+## 2026-11-06 — Separate network and interface warnings
+
+[Scope](docs/work-log/2026-11-06-todo-vps-network-status.md).
+
+## 2026-11-06 — Compact copy controls on the VPS overview
+
+[Scope](docs/work-log/2026-11-06-todo-vps-network-copy.md).
+
 ## 2026-11-04 — Approved interface copy
 
 ## 2026-11-06 — Consolidate signed-in view controls
