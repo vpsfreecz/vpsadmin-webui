@@ -23,6 +23,9 @@ for (const mode of ['admin', 'app'] as const) {
           configurable: true,
           value: {
             writeText: async (text: string) => {
+              if (document.documentElement.dataset['rejectClipboard'] === 'true') {
+                throw new Error('Clipboard unavailable');
+              }
               document.documentElement.dataset['copiedAddress'] = text;
             },
           },
@@ -59,6 +62,39 @@ for (const mode of ['admin', 'app'] as const) {
         if (isMobile) await copy.tap();
         else await copy.click();
         await expect(page.locator('html')).toHaveAttribute('data-copied-address', `${address.addr}/${address.prefix}`);
+      }
+      if (mode === 'admin' && language === 'cs') {
+        const row = rows.first();
+        const copy = row.getByRole('button');
+        const label = row.locator('.font-mono');
+        await page.evaluate(() => {
+          document.documentElement.dataset['rejectClipboard'] = 'true';
+          document.execCommand = () => { throw new Error('Legacy clipboard unavailable'); };
+        });
+        await copy.focus();
+        await label.evaluate((element) => {
+          const range = document.createRange();
+          const text = element.firstChild!;
+          range.setStart(text, 0);
+          range.setEnd(text, 7);
+          window.getSelection()?.removeAllRanges();
+          window.getSelection()?.addRange(range);
+        });
+        await page.keyboard.press('Enter');
+        await expect(row.getByRole('status')).toHaveText('Kopírování selhalo');
+        expect(await page.evaluate(() => window.getSelection()?.toString())).toBe('192.0.2');
+        expect(await page.locator('textarea[readonly]').count()).toBe(0);
+        await expect(copy).toBeFocused();
+        await page.evaluate(() => {
+          delete document.documentElement.dataset['rejectClipboard'];
+          delete document.documentElement.dataset['copiedAddress'];
+        });
+        if (isMobile) await copy.tap();
+        else await copy.click();
+        await expect(row.getByRole('status')).toHaveText('Zkopírováno');
+        await expect(page.locator('html')).toHaveAttribute('data-copied-address', '192.0.2.10/32');
+        expect(await page.evaluate(() => window.getSelection()?.toString())).toBe('192.0.2');
+        await page.evaluate(() => window.getSelection()?.removeAllRanges());
       }
       await expect(card).not.toContainText(/\+\d+ (dalších|more)/);
       expect(

@@ -290,7 +290,18 @@ export function VpsNetworkCard(props: {
                     <div className="break-all font-mono text-sm font-semibold text-fg">{label}</div>
                     <div className="mt-1"><Badge variant={kind === 'ipv4_public' ? 'info' : 'neutral'}>{t(`vps.control.network.type.${typeKey}`)}</Badge></div>
                   </div>
-                  <CopyButton className="min-h-11 sm:min-h-8" text={label} label={t('common.copy')} />
+                  <span
+                    onPointerDown={(event) => {
+                      if (event.pointerType !== 'mouse') return;
+                      const selection = window.getSelection();
+                      if (selection && !selection.isCollapsed && selection.anchorNode &&
+                          event.currentTarget.parentElement?.contains(selection.anchorNode)) {
+                        event.preventDefault();
+                      }
+                    }}
+                  >
+                    <CopyButton iconOnly className="w-8 !px-0" text={label} />
+                  </span>
                 </li>
               );
             })}

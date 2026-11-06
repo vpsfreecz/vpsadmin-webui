@@ -362,6 +362,10 @@ history must not lose entries due to a false cursor assumption.
 [DNS](../../src/lib/api/dns.ts), [transfers](../../src/lib/api/dnsTransfers.ts),
 [interfaces](../../src/lib/api/networkInterfaces.ts), [IP history](../../src/lib/api/ipAddresses.ts).
 
+In the VPS overview, the Network card keeps each address selectable as text.
+The adjacent copy control copies the whole displayed address and prefix.
+Keyboard and touch use the same control with success and failure feedback.
+
 ### Admin IP owner search
 
 In Network → IP addresses, a bare positive number filters allocations by that
