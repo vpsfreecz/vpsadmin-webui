@@ -315,22 +315,24 @@ export function VpsAccessPage() {
               <span className="text-sm font-medium text-fg">{t('vps.access.ssh.key.label')}</span>
             </label>
             <div className="grid gap-2 lg:grid-cols-[minmax(0,1fr)_auto_auto] lg:items-center">
-              <select
-                id="vps-access-ssh-key-select"
-                value={selectedPublicKeyId ?? ''}
-                onChange={(event: React.ChangeEvent<HTMLSelectElement>) => setSelectedPublicKeyId(event.target.value ? Number(event.target.value) : null)}
-                disabled={publicKeysQ.isPending || publicKeys.length === 0 || deployKeyM.isPending}
-                aria-describedby="vps-access-ssh-key-description"
-                className="w-full rounded-md border border-border bg-bg px-3 py-2 text-sm text-fg"
-                data-testid="vps.access.ssh.key"
-              >
-                {publicKeys.length === 0 ? <option value="">{t('vps.access.ssh.no_keys_option')}</option> : null}
-                {publicKeys.map((key: VpsPublicKey) => (
-                  <option key={key.id} value={key.id}>
-                    {publicKeyLabel(key)}
-                  </option>
-                ))}
-              </select>
+              <div className="min-w-0 overflow-hidden rounded-md focus-within:ring-2 focus-within:ring-focus">
+                <select
+                  id="vps-access-ssh-key-select"
+                  value={selectedPublicKeyId ?? ''}
+                  onChange={(event: React.ChangeEvent<HTMLSelectElement>) => setSelectedPublicKeyId(event.target.value ? Number(event.target.value) : null)}
+                  disabled={publicKeysQ.isPending || publicKeys.length === 0 || deployKeyM.isPending}
+                  aria-describedby="vps-access-ssh-key-description"
+                  className="w-full rounded-md border border-border bg-bg px-3 py-2 text-sm text-fg"
+                  data-testid="vps.access.ssh.key"
+                >
+                  {publicKeys.length === 0 ? <option value="">{t('vps.access.ssh.no_keys_option')}</option> : null}
+                  {publicKeys.map((key: VpsPublicKey) => (
+                    <option key={key.id} value={key.id}>
+                      {publicKeyLabel(key)}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
               <Button variant="secondary" onClick={() => void publicKeysQ.refetch()} disabled={publicKeyUserId === null || publicKeysQ.isPending} testId="vps.access.ssh.refresh">
                 {publicKeysQ.isPending ? t('vps.access.ssh.loading') : t('vps.access.ssh.refresh')}

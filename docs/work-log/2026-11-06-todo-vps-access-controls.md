@@ -6,3 +6,6 @@ directly. Warnings remain beside the affected workflow. A failed key request
 shows its error without also claiming that the owner has no keys.
 Czech wording follows vpsAdmin terminology revision
 `a65a4dfeb92a59df4a80a737a20bcbf8558793ff`.
+
+The saved-key select keeps long labels within its grid cell in mobile WebKit.
+The selected key details still display the full label.
