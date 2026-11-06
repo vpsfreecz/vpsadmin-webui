@@ -279,11 +279,17 @@ for (const preferenceSource of ['device', 'account'] as const) {
     await page.route('**/oauth/login?**', async (route) => {
       signInTarget = new URL(route.request().url()).searchParams.get('next');
       authenticated = true;
-      await route.fulfill({ status: 302, headers: { location: '/app/vps' } });
+      await route.fulfill({
+        contentType: 'text/html',
+        body: '<meta http-equiv="refresh" content="0;url=/app/vps">',
+      });
     });
     await page.route('**/oauth/logout?**', async (route) => {
       authenticated = false;
-      await route.fulfill({ status: 302, headers: { location: '/' } });
+      await route.fulfill({
+        contentType: 'text/html',
+        body: '<meta http-equiv="refresh" content="0;url=/">',
+      });
     });
 
     const html = page.locator('html');
