@@ -102,6 +102,7 @@
     "e2e/specs/app/vps_maintenance_sunday.spec.ts",
     "e2e/specs/app/vps_network_editor_feedback.spec.ts",
     "e2e/specs/app/vps_overview_all_ips.spec.ts",
+    "e2e/specs/app/vps_overview_metrics_charts.spec.ts",
     "e2e/specs/app/vps_power_failures.spec.ts",
     "e2e/specs/app/vps_power_stop_confirm.spec.ts",
     "e2e/specs/app/vps_private_ip_availability.spec.ts",
@@ -1288,13 +1289,6 @@
     {
       "path": "e2e/specs/app/vps_network_tab_actions.spec.ts",
       "sha256": "487ccefb30719b0eabdb6299b6a73c56dd185df20412876c743209fd19977d28",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/app/vps_overview_metrics_charts.spec.ts",
-      "sha256": "bf8c20dde6e8f991602f314b0d51e81d27578bc7a35c9f5b6beaab6aab978ee3",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
