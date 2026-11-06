@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
+import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 
 const baseVps = {
   id: 123,
@@ -167,4 +167,40 @@ test.describe('@pr-smoke @pr-smoke-mobile VPS network editor failure feedback', 
       enableAttempts: 2,
     });
   });
+});
+
+test.describe('@pr-smoke @pr-smoke-mobile VPS network state', () => {
+  for (const enabled of [true, false]) {
+    test(`shows the VPS network and interface states separately (${enabled})`, async ({ page, isMobile }, testInfo) => {
+      await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+      await setUiSettingsLocalStorage(page, { language: 'en', theme: 'dark' });
+      await installHaveApiMock(page, {
+        user: { id: 7, login: 'member', level: 1 },
+        handlers: {
+          'GET vpses/123': () => ({ vps: { ...baseVps, enable_network: enabled } }),
+          'GET network_interfaces': () => ({ network_interfaces: [
+            { ...networkInterface, enable: true },
+            { id: 502, name: 'eth1', enable: false, vps: { id: 123 } },
+          ] }),
+          'GET network_interface_accountings': () => ({ network_interface_accountings: [] }),
+          'GET ip_addresses': () => ({ ip_addresses: [] }),
+          'GET host_ip_addresses': () => ({ host_ip_addresses: [] }),
+        },
+      });
+      await page.goto('/app/vps/123/network');
+      const summary = page.getByTestId('vps.network.summary');
+      await expect(summary.getByText(enabled ? 'Network enabled' : 'Network disabled', { exact: true })).toBeVisible();
+      if (enabled) {
+        await expect(summary.getByTestId('vps.network.overview.state')).toHaveCount(0);
+      } else {
+        await expect(summary.getByTestId('vps.network.overview.state')).toContainText('until an admin enables it again');
+      }
+      const row = isMobile ? 'card' : 'row';
+      await expect(page.getByTestId(`vps.network.interfaces.${row}.502`).getByText('Disabled', { exact: true })).toBeVisible();
+      await expect(page.getByTestId(`vps.network.interfaces.${row}.501`).getByText('Disabled', { exact: true })).toHaveCount(0);
+      if (enabled) {
+        await summary.screenshot({ path: testInfo.outputPath('network-status.png'), scale: 'css' });
+      }
+    });
+  }
 });
