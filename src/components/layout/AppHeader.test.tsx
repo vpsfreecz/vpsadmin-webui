@@ -72,8 +72,6 @@ function HeaderHarness() {
         t={t}
         mode="user"
         canSwitchMode={false}
-        shortcutHint="⌘K"
-        onOpenPalette={props.onOpenPalette ?? (() => undefined)}
         showSyncIndicator={false}
         syncRef={syncRef}
         syncOpen={syncOpen}
