@@ -14,6 +14,7 @@ import { gateVpsMutation } from '../../../lib/gates/vps';
 import { objectRef } from '../../../lib/objectRef';
 import { useFastPollIntervalMs } from '../../../lib/refreshTiers';
 import { actionStateFinished, isBusyError } from './VpsAccessPrimitives';
+import { VpsAdminModificationChoice } from './VpsAdminModificationChoice';
 import { useVps } from './VpsContext';
 import { freezeVpsMutationSnapshot, type VpsMutationSnapshot } from './VpsMutationSnapshot';
 import { preflightVpsNotBusy } from './vpsPreflight';
@@ -79,8 +80,10 @@ export function VpsAdminModificationsCard() {
         await qc.invalidateQueries({ queryKey, exact: true, refetchType: 'all' });
         const fresh = qc.getQueryData<Vps>(queryKey);
         const readBack = qc.getQueryState(queryKey);
-        const confirmed = readBack?.status === 'success'
-          && fresh?.id === choice.vpsId && fresh.allow_admin_modifications === choice.allow;
+        const confirmed =
+          readBack?.status === 'success' &&
+          fresh?.id === choice.vpsId &&
+          fresh.allow_admin_modifications === choice.allow;
         setResult(confirmed ? 'saved' : 'failed');
         if (confirmed) setDraft(null);
         return;
@@ -106,31 +109,15 @@ export function VpsAdminModificationsCard() {
       <CardHeader title={t('vps.admin_modifications.title')} subtitle={t('vps.admin_modifications.subtitle')} />
       <CardBody>
         <div className="space-y-4">
-          <p className="text-sm text-muted">{t('vps.admin_modifications.description')}</p>
-          {!known ? <Alert variant="warn" title={t('vps.admin_modifications.unknown')} /> : null}
-          <fieldset disabled={disabled} className="space-y-2">
-            <legend className="sr-only">{t('vps.admin_modifications.title')}</legend>
-            {[true, false].map((allow) => (
-              <label
-                key={String(allow)}
-                className="flex min-h-11 cursor-pointer items-start gap-3 rounded-lg border border-border p-3 text-sm"
-              >
-                <input
-                  type="radio"
-                  name={`admin-modifications-${vps.id}`}
-                  className="mt-1 h-4 w-4 shrink-0 accent-accent"
-                  data-testid={`vps.admin_modifications.${allow ? 'allow' : 'deny'}`}
-                  checked={selected === allow}
-                  onChange={() => {
-                    setDraft(allow);
-                    setResult(null);
-                    saveM.reset();
-                  }}
-                />
-                <span>{t(allow ? 'vps.admin_modifications.allow' : 'vps.admin_modifications.deny')}</span>
-              </label>
-            ))}
-          </fieldset>
+          <VpsAdminModificationChoice
+            selected={selected ?? null}
+            disabled={disabled}
+            onChange={(allow) => {
+              setDraft(allow);
+              setResult(null);
+              saveM.reset();
+            }}
+          />
           {saveM.isError ? (
             <Alert
               variant="danger"

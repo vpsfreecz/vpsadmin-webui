@@ -1887,3 +1887,8 @@ Give filter help a labeled 44-pixel control beside the input, with a plain searc
 
 Prepare the approved RES-05 layout. See the
 [scope and localization record](docs/work-log/2026-11-06-todo-vps-config-layout.md).
+
+## 2026-11-06 — Explain the admin team preference in additional configuration
+
+Prepare approved RES-06. See the
+[scope and localization record](docs/work-log/2026-11-06-todo-admin-team-preference.md).

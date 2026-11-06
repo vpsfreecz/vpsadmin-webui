@@ -5,13 +5,13 @@ import { ActionButton } from '../../../components/ui/ActionButton';
 import { Alert } from '../../../components/ui/Alert';
 import { Badge } from '../../../components/ui/Badge';
 import { Button } from '../../../components/ui/Button';
-import { Checkbox } from '../../../components/ui/Checkbox';
 import { Input } from '../../../components/ui/Input';
 import { Select, type SelectOption } from '../../../components/ui/Select';
 import { Spinner } from '../../../components/ui/Spinner';
 import { UserLookupInput } from '../../../components/ui/UserLookupInput';
 import type { Vps } from '../../../lib/api/vps';
 import type { GateReason } from '../../../lib/gates/types';
+import { VpsAdminModificationChoice } from './VpsAdminModificationChoice';
 import { Field, VpsConfigRiskBadges } from './VpsConfigurationPrimitives';
 import {
   START_MENU_TIMEOUT_MAX,
@@ -253,15 +253,14 @@ export function VpsAdditionalConfiguration({
           </Field>
         </ConfigurationGroup>
 
-        <ConfigurationGroup title={t('vps.config.section.admin_access')} risks={['safe']}>
-          <Checkbox
-            checked={effective.allowAdminModifications}
-            onChange={(checked) => patchDraft({ allowAdminModifications: checked })}
-            label={t('vps.config.field.allow_admin_modifications')}
-            description={t('vps.config.help.allow_admin_modifications')}
+        <section className="min-w-0 space-y-2">
+          <h3 className="text-sm font-semibold text-fg">{t('vps.admin_modifications.title')}</h3>
+          <VpsAdminModificationChoice
+            selected={typeof vps.allow_admin_modifications === 'boolean' ? effective.allowAdminModifications : null}
             disabled={pending}
+            onChange={(allowAdminModifications) => patchDraft({ allowAdminModifications })}
           />
-        </ConfigurationGroup>
+        </section>
 
         {canEditAdminConfig ? (
           <ConfigurationGroup title={t('vps.config.section.admin')} risks={['admin_only']}>
