@@ -837,6 +837,10 @@ blind retry. [Finance](../../src/lib/api/finance.ts),
 
 ## Tasks, transactions, monitoring, incidents and OOM
 
+The member VPS overview requests the latest three OOM reports for that VPS.
+Each row links to the report and shows when it was created. Past events remain
+historical. Loading, no reports and failed requests have distinct states.
+
 The VPS overview aligns recent operations with localized timestamps and states.
 Long names wrap within the card. The activity button opens transaction chains
 filtered by the current VPS.
