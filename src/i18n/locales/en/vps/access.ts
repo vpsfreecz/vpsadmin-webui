@@ -38,7 +38,6 @@ export const enVps_access = {
   'vps.access.host_keys.copy': 'Copy key',
   'vps.access.ssh.title': 'User SSH public keys',
   'vps.access.ssh.subtitle': 'Deploy a saved public key for the VPS owner to allow SSH sign-in.',
-  'vps.access.ssh.loading_user': 'Loading the VPS owner…',
   'vps.access.ssh.loading_keys': 'Loading saved public keys…',
   'vps.access.ssh.loading': 'Loading…',
   'vps.access.ssh.key.label': 'Saved public key',

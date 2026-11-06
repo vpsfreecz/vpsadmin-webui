@@ -38,7 +38,6 @@ export const csVps_access = {
   'vps.access.host_keys.copy': 'Kopírovat klíč',
   'vps.access.ssh.title': 'Veřejné SSH klíče uživatele',
   'vps.access.ssh.subtitle': 'Pro přihlášení přes SSH nasaď uložený veřejný klíč vlastníka VPS.',
-  'vps.access.ssh.loading_user': 'Načítám vlastníka VPS…',
   'vps.access.ssh.loading_keys': 'Načítám uložené veřejné klíče…',
   'vps.access.ssh.loading': 'Načítám…',
   'vps.access.ssh.key.label': 'Uložený veřejný klíč',
