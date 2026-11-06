@@ -78,14 +78,13 @@ export function VpsNetworkOverviewCard(props: {
           </Alert>
         ) : null}
 
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          <OverviewStatusItem
-            testId="vps.network.overview.state"
-            tone={props.netEnabled ? 'ok' : 'warn'}
-            label={t('vps.network.overview.state.label')}
-            value={props.netEnabled ? t('vps.network.state.enabled') : t('vps.network.state.disabled')}
-            description={props.netEnabled ? t('vps.network.overview.state.enabled_help') : t('vps.network.overview.state.disabled_help')}
-          />
+        {!props.netEnabled ? (
+          <Alert variant="warn" testId="vps.network.overview.state">
+            {t('vps.network.overview.state.disabled_help')}
+          </Alert>
+        ) : null}
+
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           <OverviewStatusItem
             testId="vps.network.overview.interfaces"
             tone={props.summary.disabledInterfaceCount > 0 ? 'warn' : 'ok'}

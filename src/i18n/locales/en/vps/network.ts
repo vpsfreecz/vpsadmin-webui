@@ -155,8 +155,6 @@ export const enVps_network = {
   'vps.network.host_addresses.delete.description': 'Delete IP address {address}? This cannot be undone.',
   'vps.network.overview.title': 'Network overview',
   'vps.network.overview.subtitle': 'Network connection state, interfaces and traffic for the current month.',
-  'vps.network.overview.state.label': 'VPS network',
-  'vps.network.overview.state.enabled_help': 'Network access is enabled for this VPS.',
   'vps.network.overview.state.disabled_help': 'Network access is disabled until an admin enables it again.',
   'vps.network.overview.interfaces.value': '{enabled}/{total} enabled',
   'vps.network.overview.interfaces.description': '{disabled} disabled interfaces.',
