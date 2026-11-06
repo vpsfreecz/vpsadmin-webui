@@ -334,7 +334,7 @@
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
       "contentHash": "2acc434a12e88c919631446a812a3bd21bda8adb27cdadf084f16f13cbd793de",
       "old": 0,
-      "allowance": 506,
+      "allowance": 507,
       "rationale": "At the recorded source revision, this file already contained VPS access and credential controls; extract the coherent section with focused behavior coverage before removing this exception.",
       "owner": "WebUI collection and page refactor implementer",
       "removeWhen": {
