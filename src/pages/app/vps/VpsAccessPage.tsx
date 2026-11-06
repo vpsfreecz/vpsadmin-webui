@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAppMode } from '../../../app/appMode';
+import { useAuth } from '../../../app/auth';
 import { useI18n } from '../../../app/i18n';
 import { useChrome } from '../../../components/layout/ChromeContext';
 import { ActionButton } from '../../../components/ui/ActionButton';
@@ -12,12 +13,10 @@ import { fetchActionState } from '../../../lib/api/actionStates';
 import { getMetaActionStateId } from '../../../lib/api/haveapi';
 import {
   deployVpsPublicKey,
-  getCurrentUser,
   listUserPublicKeys,
   listVpsSshHostKeys,
   resetVpsRootPassword,
   type ApiResult,
-  type UserIdentity,
   type VpsGeneratedPassword,
   type VpsPasswordType,
   type VpsPublicKey,
@@ -52,6 +51,7 @@ import { VpsAccessChecklistCard, VpsAccessStatusCard } from './VpsAccessSummary'
 import { VpsSshHostKeysCard } from './VpsSshHostKeysCard';
 export function VpsAccessPage() {
   const { basePath, mode } = useAppMode();
+  const { user } = useAuth();
   const chrome = useChrome();
   const qc = useQueryClient();
   const fastPollMs = useFastPollIntervalMs();
@@ -77,13 +77,7 @@ export function VpsAccessPage() {
     void qc.invalidateQueries({ queryKey: ['transaction_chain', 'list', { className: 'Vps', rowId: targetVpsId }] });
   };
 
-  const currentUserQ = useQuery<ApiResult<UserIdentity>>({
-    queryKey: ['user', 'current'],
-    queryFn: getCurrentUser,
-    enabled: canMutateVps && ownerUserId === null,
-  });
-  const fallbackUserId = resourceId(currentUserQ.data?.data);
-  const publicKeyUserId = ownerUserId ?? fallbackUserId;
+  const publicKeyUserId = ownerUserId ?? (mode === 'user' ? resourceId(user) : null);
 
   const publicKeysQ = useQuery<ApiResult<VpsPublicKey[]>>({
     queryKey: ['user', 'public_keys', { userId: publicKeyUserId }],
@@ -363,8 +357,6 @@ export function VpsAccessPage() {
       {canMutateVps ? <Card id="vps-access-ssh-key" testId="vps.access.ssh.card" className="scroll-mt-24">
         <CardHeader title={t('vps.access.ssh.title')} subtitle={t('vps.access.ssh.subtitle')} />
         <CardBody className="space-y-4">
-          {publicKeyUserId === null && currentUserQ.isPending ? <Alert variant="info">{t('vps.access.ssh.loading_user')}</Alert> : null}
-          {currentUserQ.error ? <Alert variant="danger">{errorMessage(currentUserQ.error)}</Alert> : null}
           {publicKeysQ.error ? <Alert variant="danger">{errorMessage(publicKeysQ.error)}</Alert> : null}
 
           <div className="space-y-2">
@@ -381,7 +373,11 @@ export function VpsAccessPage() {
                 className="w-full rounded-md border border-border bg-bg px-3 py-2 text-sm text-fg"
                 data-testid="vps.access.ssh.key"
               >
-                {publicKeys.length === 0 ? <option value="">{t('vps.access.ssh.no_keys_option')}</option> : null}
+                {publicKeys.length === 0 ? (
+                  <option value="">
+                    {t(publicKeyUserId === null ? 'vps.access.ssh.key.description_unknown_owner' : 'vps.access.ssh.no_keys_option')}
+                  </option>
+                ) : null}
                 {publicKeys.map((key: VpsPublicKey) => (
                   <option key={key.id} value={key.id}>
                     {publicKeyLabel(key)}
@@ -413,7 +409,7 @@ export function VpsAccessPage() {
             </span>
           </div>
 
-          {publicKeysQ.isPending ? <Alert variant="info">{t('vps.access.ssh.loading_keys')}</Alert> : null}
+          {publicKeyUserId !== null && publicKeysQ.isPending ? <Alert variant="info">{t('vps.access.ssh.loading_keys')}</Alert> : null}
           {!publicKeysQ.isPending && publicKeyUserId !== null && publicKeys.length === 0 ? (
             <Alert variant="warn" title={t('vps.access.ssh.no_keys.title')}>
               <div className="space-y-3">

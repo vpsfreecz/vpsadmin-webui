@@ -332,9 +332,9 @@
       "path": "src/pages/app/vps/VpsAccessPage.tsx",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "a8b88527ec26c24029d7951b632857e961a155d91ba0f8c9050bc3d59872aff9",
+      "contentHash": "a49e9ef2c620978981352058bd34b71bb4c8fea16495398fa280bab514650166",
       "old": 0,
-      "allowance": 564,
+      "allowance": 560,
       "rationale": "At the recorded source revision, this file already contained VPS access and credential controls; extract the coherent section with focused behavior coverage before removing this exception.",
       "owner": "WebUI collection and page refactor implementer",
       "removeWhen": {
