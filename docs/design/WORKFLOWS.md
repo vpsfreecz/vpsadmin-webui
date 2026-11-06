@@ -225,6 +225,10 @@ member applications/data, and the email notice. Radio choices show the current
 API boolean; a missing value leaves both unselected and disables writes.
 Nothing is changed simply by opening the page or selecting a choice.
 
+Additional configuration uses the same explanation and choices. It retains the
+common change review and only includes the preference when deliberately changed.
+
+
 A deliberate Save sends only `vps.allow_admin_modifications` to the existing VPS
 update action. Owner/member and administrator scope, state gates, fresh busy
 preflight and durable uncertainty handling remain. The request freezes its VPS
