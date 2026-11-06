@@ -22,7 +22,10 @@ async function setup(page: Page, language: 'cs' | 'en', level = 99, mode = 'app'
 }
 
 async function searchInput(page: Page, mobile: boolean) {
-  if (mobile) await page.keyboard.press('Control+k');
+  if (mobile) {
+    await page.getByTestId('shell.mobile-nav-button').focus();
+    await page.keyboard.press('Control+k');
+  }
   return page.getByTestId(mobile ? 'palette.input' : 'shell.inline-search.input');
 }
 

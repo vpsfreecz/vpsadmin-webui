@@ -2,7 +2,10 @@ import { expect, test, type Page } from '@playwright/test';
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
 
 async function searchUi(page: Page, mobile: boolean) {
-  if (mobile) await page.keyboard.press('Control+k');
+  if (mobile) {
+    await page.getByTestId('shell.mobile-nav-button').focus();
+    await page.keyboard.press('Control+k');
+  }
   const prefix = mobile ? 'palette' : 'shell.inline-search';
   return {
     input: page.getByTestId(`${prefix}.input`),
