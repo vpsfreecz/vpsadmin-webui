@@ -50,6 +50,44 @@ async function captureOptInScreenshot(page: Page, envName: string): Promise<void
   await page.screenshot({ path: screenshotPath, fullPage: true });
 }
 
+for (const result of ['reports', 'empty', 'error'] as const) {
+  test(`VPS overview recent OOM reports distinguish ${result}`, async ({ page }, testInfo) => {
+    const createdAt = '2025-01-02T12:00:00Z';
+    await bootstrapVpsAdminWindow(page);
+    await installHaveApiMock(page, {
+      user: { id: 10, login: 'oom-fixture', level: 1 },
+      handlers: {
+        'GET vpses/123': () => ({ vps }),
+        'GET transaction_chains': () => ({ transaction_chains: [] }),
+        'GET oom_reports': ({ searchParams }) => {
+          expect(searchParams.get('oom_report[vps]')).toBe('123');
+          expect(searchParams.get('oom_report[limit]')).toBe('3');
+          if (result === 'error') return { status: 503 };
+          return {
+            oom_reports: result === 'empty' ? [] : [
+              { id: 1234, vps: { id: 123 }, killed_name: 'fixture-service', created_at: createdAt },
+              { id: 9876, vps: { id: 456 }, killed_name: 'other-vps', created_at: createdAt },
+            ],
+          };
+        },
+      },
+    });
+    if (testInfo.project.name === 'mobile-webkit') await page.setViewportSize({ width: 320, height: 900 });
+    await page.goto('/app/vps/123');
+    const section = page.getByTestId('vps.overview.oom_recent');
+    if (result === 'reports') {
+      await expect(section.getByRole('link')).toHaveCount(1);
+      await expect(section.getByRole('link', { name: '#1234 · fixture-service' })).toHaveAttribute('href', '/app/oom-reports/1234');
+      await expect(section.locator('time')).toHaveAttribute('datetime', createdAt);
+      await expect(section).not.toContainText('other-vps');
+      await page.getByTestId('vps.overview.diagnostics.card').screenshot({ path: testInfo.outputPath('recent-oom.png') });
+    } else {
+      await expect(section).toContainText(result === 'error' ? 'Unable to load OOM reports.' : 'No OOM reports for this VPS.');
+    }
+    await expectNoDocumentHorizontalOverflow(page);
+  });
+}
+
 test('@workflow-matrix @smoke VPS detail tabs expose storage, access, lifecycle, and console routes', async ({ page }) => {
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST_USER_SESSION' });
 
