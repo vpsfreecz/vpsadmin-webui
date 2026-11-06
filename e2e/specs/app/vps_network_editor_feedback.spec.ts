@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
+import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 
 const baseVps = {
   id: 123,
@@ -167,4 +167,78 @@ test.describe('@pr-smoke @pr-smoke-mobile VPS network editor failure feedback', 
       enableAttempts: 2,
     });
   });
+});
+
+test.describe('@pr-smoke @pr-smoke-mobile VPS monthly traffic', () => {
+  for (const language of ['en', 'cs'] as const) {
+    test(`keeps Refresh anchored and distinguishes traffic measurements (${language})`, async ({ page, isMobile }, testInfo) => {
+      await page.setViewportSize({ width: isMobile ? 320 : 1440, height: 900 });
+      await page.clock.setFixedTime(new Date('2026-11-06T12:00:00Z'));
+      await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+      await setUiSettingsLocalStorage(page, { language, theme: 'dark' });
+
+      let enabled = true;
+      let rows: { id: number; bytes_in?: number; bytes_out?: number }[] = [
+        { id: 1, bytes_in: 0, bytes_out: 2048 },
+      ];
+      let error = false;
+      await installHaveApiMock(page, {
+        user: { id: 7, login: 'member', level: 1 },
+        handlers: {
+          'GET vpses/123': () => ({ vps: { ...baseVps, enable_network: enabled } }),
+          'GET network_interfaces': () => ({ network_interfaces: [networkInterface] }),
+          'GET network_interface_accountings': () => error
+            ? { status: 503, contentType: 'application/json', body: '{"status":false}' }
+            : { network_interface_accountings: rows },
+          'GET ip_addresses': () => ({ ip_addresses: [] }),
+          'GET host_ip_addresses': () => ({ host_ip_addresses: [] }),
+        },
+      });
+
+      await page.goto('/app/vps/123/network');
+      const summary = page.getByTestId('vps.network.summary');
+      const refresh = summary.getByTestId('vps.network.accounting.refresh');
+      const monthly = summary.getByTestId('vps.network.accounting.monthly');
+      const inbound = summary.getByTestId('vps.network.accounting.in');
+      const outbound = summary.getByTestId('vps.network.accounting.out');
+      const missing = language === 'cs' ? 'Bez měření' : 'No measurement';
+      await expect(monthly.getByRole('heading')).toHaveText(language === 'cs' ? 'Provoz tento měsíc' : 'Traffic this month');
+      await expect(monthly).toContainText('2026-11');
+      await expect(inbound).toContainText('0 B');
+      await expect(outbound).toContainText('2.0 KiB');
+      await expect(inbound).toContainText(language === 'cs' ? 'Příchozí' : 'Ingress');
+      await expect(outbound).toContainText(language === 'cs' ? 'Odchozí' : 'Egress');
+
+      if (language === 'cs') {
+        await summary.locator(':scope > div').first().screenshot({ path: testInfo.outputPath('network-header.png'), scale: 'css' });
+        await summary.locator(':scope > div').last().screenshot({ path: testInfo.outputPath('monthly-traffic.png'), scale: 'css' });
+      }
+      const enabledX = (await refresh.boundingBox())!.x;
+      const rightGap = (await summary.boundingBox())!.x + (await summary.boundingBox())!.width - enabledX - (await refresh.boundingBox())!.width;
+      expect(rightGap).toBeLessThan(22);
+      expect(rightGap).toBeGreaterThan(8);
+      enabled = false;
+      await page.reload();
+      await expect(summary.getByText(language === 'cs' ? 'Síť zakázána' : 'Network disabled', { exact: true })).toBeVisible();
+      expect((await refresh.boundingBox())!.x).toBeCloseTo(enabledX, 0);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+        await page.evaluate(() => document.documentElement.clientWidth + 1),
+      );
+
+      rows = [{ id: 1, bytes_out: 4096 }];
+      await refresh.click();
+      await expect(inbound).toContainText(missing);
+      await expect(outbound).toContainText('4.0 KiB');
+      rows = [];
+      await refresh.click();
+      await expect(outbound).toContainText(missing);
+
+      error = true;
+      await refresh.click();
+      await expect(monthly.getByRole('status')).toHaveText(
+        language === 'cs' ? 'Nepodařilo se načíst účtování.' : 'Failed to load accounting.',
+      );
+      await expect(inbound).toHaveCount(0);
+    });
+  }
 });

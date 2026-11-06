@@ -99,16 +99,20 @@ export function monthKey(d: Date) {
   return { year: d.getFullYear(), month: d.getMonth() + 1 };
 }
 
-export function sumAccountingRows(rows: NetworkInterfaceAccounting[]): { bytesIn: number; bytesOut: number } {
-  let bytesIn = 0;
-  let bytesOut = 0;
+export function sumAccountingRows(rows: NetworkInterfaceAccounting[]): { bytesIn: number | null; bytesOut: number | null } {
+  const sum = (direction: 'bytes_in' | 'bytes_out') => {
+    if (rows.length === 0) return null;
 
-  for (const r of rows) {
-    if (typeof r.bytes_in === 'number') bytesIn += r.bytes_in;
-    if (typeof r.bytes_out === 'number') bytesOut += r.bytes_out;
-  }
+    let total = 0;
+    for (const row of rows) {
+      const value = row[direction];
+      if (typeof value !== 'number' || !Number.isFinite(value) || value < 0) return null;
+      total += value;
+    }
+    return total;
+  };
 
-  return { bytesIn, bytesOut };
+  return { bytesIn: sum('bytes_in'), bytesOut: sum('bytes_out') };
 }
 
 export function canonicalBool(v: unknown, fallback: boolean): boolean {

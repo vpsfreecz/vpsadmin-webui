@@ -362,6 +362,11 @@ history must not lose entries due to a false cursor assumption.
 [DNS](../../src/lib/api/dns.ts), [transfers](../../src/lib/api/dnsTransfers.ts),
 [interfaces](../../src/lib/api/networkInterfaces.ts), [IP history](../../src/lib/api/ipAddresses.ts).
 
+The VPS Network summary keeps Refresh at the right edge when the status
+badge changes. Its month-to-date traffic card shows the period once and puts
+incoming and outgoing totals side by side. Only measured zero is displayed
+as zero. Missing values and accounting request errors are reported separately.
+
 ### Admin IP owner search
 
 In Network → IP addresses, a bare positive number filters allocations by that

@@ -1,3 +1,7 @@
+## 2026-11-06 — Stable network actions and monthly traffic
+
+[Scope and verification](docs/work-log/2026-11-06-todo-vps-network-traffic.md).
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path
