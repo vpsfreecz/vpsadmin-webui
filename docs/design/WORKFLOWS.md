@@ -1326,3 +1326,16 @@ Keep each filter action at its local reference field height: smart searches
 The standalone DNS-resolver action group uses36px on desktop. Keep existing
 help/advanced dialogs, search tokens, owner/query scopes, refresh/copy/clear,
 view toggles and create actions. This does not change any DNS/API behavior.
+
+### Account control presentation follow-up (2026-11-07)
+
+Namespace/map list filters keep 44px adjacent controls. User-data actions match
+the supported format selector at 36px on desktop with shared 44px touch targets;
+unsupported search/help/advanced controls remain absent. Both wrap action groups
+at narrow widths. Personal profile change requests keep
+their action label on one readable line beside the explanatory text. Owner
+scope, query normalization, confirmation and mutations retain their contracts.
+See [verification scope](../work-log/2026-11-07-todo-profile-control-rhythm.md).
+
+The host-address, assignment-audit and live-network filter rows also match
+the existing 44px VPS lookup, retaining their supported VPS queries and Clear.

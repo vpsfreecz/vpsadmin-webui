@@ -236,7 +236,7 @@ export function HostIpAddressesPage() {
       testId="admin.host_ip_addresses.page"
       header={<PageHeader title={t('admin.host_ip_addresses.title')} description={t('admin.host_ip_addresses.subtitle')} />}
       filters={
-        <FilterBar
+        <FilterBar className="[&_input]:h-11 [&_select]:h-11"
           left={
             <div className="flex flex-wrap items-center gap-3">
               <div className="w-full max-w-sm">
@@ -264,7 +264,7 @@ export function HostIpAddressesPage() {
                   ]}
                 />
               </div>
-              {filtersActive ? <Button variant="secondary" testId="admin.host_ip_addresses.filter.clear" onClick={clearFilters}>{t('common.clear_filters')}</Button> : null}
+              {filtersActive ? <Button variant="secondary" className="h-11" testId="admin.host_ip_addresses.filter.clear" onClick={clearFilters}>{t('common.clear_filters')}</Button> : null}
             </div>
           }
         />

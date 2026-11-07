@@ -253,7 +253,7 @@ export function ProfilePage() {
                 onClick={() => submitChangeM.mutate()}
                 disabled={!personalDirty || !changeReason.trim() || submitChangeM.isPending}
                 loading={submitChangeM.isPending}
-                testId="profile.personal.change.submit"
+                className="shrink-0" testId="profile.personal.change.submit"
               >
                 {t('profile.personal.change.submit')}
               </Button>

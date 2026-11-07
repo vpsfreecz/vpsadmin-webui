@@ -89,3 +89,24 @@ Original failure logs and traces are retained under the release-readiness audit
 and the private `main-preview-integration-20261107/compiled` browser task. The
 new foreground thread owns this work; the existing serial TODO worker and timer
 continue unchanged. No extra worker, merge or production activation is authorized.
+
+## Later approved work retained
+
+Focused PR199 removes the queued account copy request. Its local merge retains
+both histories and the pre-existing optional-description row. The concurrent
+worker's focused PR198 is also being integrated with all seven local presentation
+changes. Conflict review found main intentionally replaced user-data smart search
+with a format-only selector; retain that supported filter and adapt dimensions and
+role/query fixtures accordingly. The other six runtime files merge with style-only
+differences; the complete seven-file AST comparison confirms unchanged logic.
+These additions still require final source/package/browser and CI acceptance.
+
+The first corrected clean `caf6ca83` critical matrix passed 100/100 on desktop
+Chromium and mobile WebKit, including all eight original failures. Its four Nix
+outputs, matching provenance and 381 assets passed. The subsequent account/PR198
+adaptation passed ci:quick (192 checked E2E leaves), 240 script tests, eight
+existing catalog/UserData unit cases, a working build, and 36 working browser cases
+covering the canonical format filter across member/support/admin/My/selected-owner
+contexts, account copy, keyboard/copy/Clear/320px and existing account saves/retry.
+Seven integrated runtime files differ only in presentation attributes by AST review.
+The final clean package and remaining regression matrix still require acceptance.

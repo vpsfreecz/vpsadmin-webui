@@ -215,7 +215,7 @@ export function NetworkLivePage() {
         />
       )}
       filters={(
-        <FilterBar
+        <FilterBar className="[&_input]:h-11 [&_select]:h-11"
           left={(
             <div className="grid w-full gap-3 sm:grid-cols-2 xl:grid-cols-3">
               <Select
@@ -308,7 +308,7 @@ export function NetworkLivePage() {
               {filtersActive ? (
                 <Button
                   variant="secondary"
-                  testId="admin.network_live.filter.clear"
+                  className="h-11" testId="admin.network_live.filter.clear"
                   onClick={clearFilters}
                 >
                   {t('common.clear_filters')}
