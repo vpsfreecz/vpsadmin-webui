@@ -1003,3 +1003,10 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+## Monitoring filter dimensions (approved TODO UX-03)
+
+Help, ordering, advanced filters, copy and clear match the smart field at44px.
+This local styling preserves owner scope, ordering/cursor semantics, URL state,
+copy and clear. See [scope](../work-log/2026-11-07-todo-monitoring-filter-rhythm.md)
+and REQ-010 / REQ-073.

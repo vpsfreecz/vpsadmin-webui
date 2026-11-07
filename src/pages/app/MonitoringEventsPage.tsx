@@ -710,7 +710,7 @@ export function MonitoringEventsPage() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-8 w-8 px-0"
+                    className="h-11 w-11 px-0"
                     onClick={() => setHelpOpen(true)}
                     aria-label={t('filters.help.open')}
                     title={t('filters.help.open')}
@@ -725,7 +725,7 @@ export function MonitoringEventsPage() {
               <Select
                 value={order}
                 onChange={(e) => setOrderInUrl(e.target.value as MonitoredEventOrder)}
-                testId="monitoring.events.filter.order"
+                className="h-11" testId="monitoring.events.filter.order"
               >
                 <option value="latest">{t('monitoring.order.latest')}</option>
                 <option value="oldest">{t('monitoring.order.oldest')}</option>
@@ -740,7 +740,7 @@ export function MonitoringEventsPage() {
               onClick={() => setAdvancedOpen(true)}
               aria-label={t('filters.advanced.open')}
               title={t('filters.advanced.open')}
-              testId="monitoring.events.advanced.open"
+              className="h-11 px-3 text-sm" testId="monitoring.events.advanced.open"
             >
               <SlidersHorizontal className="h-4 w-4" aria-hidden />
               <span className="ml-2 hidden sm:inline">{t('filters.advanced.label')}</span>
@@ -751,11 +751,11 @@ export function MonitoringEventsPage() {
               variant="secondary"
               label={t('common.copy_link')}
               text={typeof window !== 'undefined' ? window.location.href : ''}
-              testId="monitoring.events.copy_link"
+              className="h-11 px-3 text-sm" testId="monitoring.events.copy_link"
             />
 
             {filtersActive ? (
-              <Button variant="secondary" size="sm" onClick={clearFilters} testId="monitoring.events.clear_filters">
+              <Button variant="secondary" size="sm" onClick={clearFilters} className="h-11 px-3 text-sm" testId="monitoring.events.clear_filters">
                 {t('common.clear_filters')}
               </Button>
             ) : null}
