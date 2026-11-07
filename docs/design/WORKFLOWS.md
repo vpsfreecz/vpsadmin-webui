@@ -1232,3 +1232,13 @@ Visual review also found the administrator owner lookup at 36px beside the
 44px field. A local descendant class makes that input 44px without changing
 the shared lookup component. The focused browser check covers its height;
 existing owner lookup focus/filter contract checks remain unchanged.
+
+## OOM report filter dimensions (approved TODO UX-03)
+
+Help, advanced filters, copy-link and clear match the 44px smart field;
+icon-only controls have a square target. Filter chips remain below the row.
+This local styling preserves the member/support backend owner scope, admin
+arbitrary-owner selection, admin My-view scope, URL normalization, parser,
+copy and clear behavior. It adds no navigation variant, API field or write.
+See [scope and verification](../work-log/2026-11-07-todo-oom-filter-rhythm.md)
+and REQ-010 / REQ-073.
