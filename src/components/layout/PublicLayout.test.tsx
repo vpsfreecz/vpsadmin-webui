@@ -45,7 +45,7 @@ vi.mock('../../app/uiSettings', () => ({
 
 function LocationProbe() {
   const location = useLocation();
-  return <div data-testid="location">{`${location.pathname}${location.search}`}</div>;
+  return <div data-testid="location">{`${location.pathname}${location.search}${location.hash}`}</div>;
 }
 
 import { PublicLayout } from './PublicLayout';
@@ -66,8 +66,12 @@ function renderAt(path: string) {
           <Route index element={<div data-testid="public.index" />} />
           <Route path="outages" element={<div data-testid="public.outages" />} />
           <Route path="security-advisories" element={<div data-testid="public.security" />} />
+          <Route path="outages/:outageId" element={<div data-testid="public.outage-detail" />} />
+          <Route path="security-advisories/:advisoryId" element={<div data-testid="public.advisory-detail" />} />
+          <Route path="about" element={<div data-testid="public.about" />} />
         </Route>
         <Route path="/app" element={<div data-testid="app.index" />} />
+        <Route path="/app/*" element={<><LocationProbe /><div data-testid="app.status" /></>} />
       </Routes>
     </MemoryRouter>,
   );
@@ -100,14 +104,23 @@ describe('PublicLayout', () => {
     await waitFor(() => expect(screen.getByTestId('app.index')).toBeVisible());
   });
 
-  it('keeps authenticated visitors on explicit public pages', () => {
-    authState.status = 'authenticated';
+  it.each(['/outages', '/outages/42', '/security-advisories', '/security-advisories/17'])(
+    'opens authenticated status URL %s inside the application and keeps query/hash', async (path) => {
+      authState.status = 'authenticated';
+      renderAt(`${path}?source=shared#details`);
+      await waitFor(() => expect(screen.getByTestId('app.status')).toBeVisible());
+      expect(screen.getByTestId('location')).toHaveTextContent(`/app${path}?source=shared#details`);
+      expect(screen.queryByTestId('public.main')).not.toBeInTheDocument();
+    },
+  );
 
-    renderAt('/outages');
-
-    expect(screen.getByTestId('public.outages')).toBeVisible();
-    expect(screen.getByTestId('location')).toHaveTextContent('/outages');
-  });
+  it.each(['/outages', '/outages/42', '/security-advisories', '/security-advisories/17'])(
+    'keeps anonymous status URL %s available without login', (path) => {
+      renderAt(path);
+      expect(screen.getByTestId('public.main')).toBeVisible();
+      expect(screen.getByTestId('location')).toHaveTextContent(path);
+    },
+  );
 
   it('shows security advisories in the public nav instead of news', () => {
     renderAt('/');
@@ -151,7 +164,7 @@ describe('PublicLayout', () => {
   it('hides password recovery from authenticated visitors', () => {
     authState.status = 'authenticated';
 
-    renderAt('/outages');
+    renderAt('/about');
 
     expect(screen.queryByTestId('public.password-recovery.desktop')).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'public.menu.open' }));

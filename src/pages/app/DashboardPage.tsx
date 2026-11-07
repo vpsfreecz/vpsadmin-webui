@@ -164,10 +164,11 @@ export function DashboardPage() {
   const unknownLocationLabel = t("dashboard.section.cluster.location_unknown");
   const nodeData = useMemo(() => summarizeNodes(nodesQ.data ?? [], unknownLocationLabel), [nodesQ.data, unknownLocationLabel]);
 
-  const outagesListPath = mode === "admin" ? `${basePath}/outages` : "/outages";
-  const outageDetailPath = (id: number) => (mode === "admin" ? `${basePath}/outages/${id}` : `/outages/${id}`);
+  const outagesListPath = `${basePath}/outages`;
+  const outageDetailPath = (id: number) => `${basePath}/outages/${id}`;
   const newsManagementPath = mode === "admin" && auth.role === "admin" ? `${basePath}/content/news` : undefined;
-  const securityBasePath = mode === "admin" ? `${basePath}/security-advisories` : "/security-advisories";
+  const securityBasePath = mode === "admin" && auth.role !== "admin"
+    ? `${basePath}/status/security-advisories` : `${basePath}/security-advisories`;
 
   const statusAlert = DashboardOperationalSummary({
     t,

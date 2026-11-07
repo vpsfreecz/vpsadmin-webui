@@ -50,7 +50,7 @@ describe('buildSidebarNavItems', () => {
 
     expect(admin.map((item) => item.id)).toContain('security-advisories');
     expect(admin.find((item) => item.id === 'security-advisories')?.to).toBe('/admin/security-advisories');
-    expect(support.find((item) => item.id === 'security-advisories')?.to).toBe('/security-advisories');
+    expect(support.find((item) => item.id === 'security-advisories')?.to).toBe('/admin/status/security-advisories');
   });
 
   it('groups admin navigation without hiding links behind another interaction', () => {
@@ -149,8 +149,8 @@ describe('buildSidebarNavItems', () => {
   it.each(['user', 'support', 'admin'] as const)('keeps status links at the end and read-only in My view for %s', (role) => {
     const items = buildSidebarNavItems({ basePath: '/app', appMode: 'user', role, t: fakeT });
     expect(items.filter((item) => item.status).map(({ id, to }) => ({ id, to }))).toEqual([
-      { id: 'outages', to: '/outages' },
-      { id: 'security-advisories', to: '/security-advisories' },
+      { id: 'outages', to: '/app/outages' },
+      { id: 'security-advisories', to: '/app/security-advisories' },
     ]);
     expect(sidebarNavSections(items).flatMap((section) => section.items).slice(-2).map((item) => item.id))
       .toEqual(['outages', 'security-advisories']);

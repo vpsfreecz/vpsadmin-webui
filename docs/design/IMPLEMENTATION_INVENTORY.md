@@ -6,24 +6,28 @@ This is a source inventory, not proof of API permissions, feature parity, or tes
 Paths are relative to the configured router basename. Parent layers include scope/auth
 wrappers; page-level action guards and API authorization still apply.
 
-## Routes (257 entries, including layouts and index routes)
+## Routes (266 entries, including layouts and index routes)
 
 | Route | Kind | Element | Parent layers | Source |
 | --- | --- | --- | --- | --- |
 | `/oauth/login` | page/redirect | `<OAuthLoginPage />` | `<RouteProvidersLayout />` | [source](../../src/routes/router.tsx) |
 | `/oauth/callback` | page/redirect | `<OAuthCallbackPage />` | `<RouteProvidersLayout />` | [source](../../src/routes/router.tsx) |
 | `/oauth/logout` | page/redirect | `<OAuthLogoutPage />` | `<RouteProvidersLayout />` | [source](../../src/routes/router.tsx) |
-| `/` | layout | `<PublicLayout />` | `<RouteProvidersLayout />` | [source](../../src/routes/router.tsx) |
-| `/` | index | `<CoreRoutes.OverviewPage />` | `<RouteProvidersLayout /> → <PublicLayout />` | [source](../../src/routes/router.tsx) |
-| `/outages` | page/redirect | `<CoreRoutes.OutagesPage />` | `<RouteProvidersLayout /> → <PublicLayout />` | [source](../../src/routes/router.tsx) |
-| `/outages/:outageId` | page/redirect | `<CoreRoutes.OutageDetailPage />` | `<RouteProvidersLayout /> → <PublicLayout />` | [source](../../src/routes/router.tsx) |
-| `/news` | page/redirect | `<CoreRoutes.NewsPage />` | `<RouteProvidersLayout /> → <PublicLayout />` | [source](../../src/routes/router.tsx) |
-| `/about` | page/redirect | `<AboutPage />` | `<RouteProvidersLayout /> → <PublicLayout />` | [source](../../src/routes/router.tsx) |
-| `/security-advisories` | page/redirect | `<CoreRoutes.SecurityAdvisoriesPage />` | `<RouteProvidersLayout /> → <PublicLayout />` | [source](../../src/routes/router.tsx) |
-| `/security-advisories/:advisoryId` | page/redirect | `<CoreRoutes.SecurityAdvisoryDetailPage />` | `<RouteProvidersLayout /> → <PublicLayout />` | [source](../../src/routes/router.tsx) |
-| `/requests/registrations/:requestId/:token` | page/redirect | `<ParamKeyedRoute params={['requestId', 'token']}><CoreRoutes.RegistrationCorrectionPage /></ParamKeyedRoute>` | `<RouteProvidersLayout /> → <PublicLayout />` | [source](../../src/routes/router.tsx) |
-| `/*` | page/redirect | `<NotFoundPage />` | `<RouteProvidersLayout /> → <PublicLayout />` | [source](../../src/routes/router.tsx) |
+| `/` | layout | `<PublicLayout />` | `<RouteProvidersLayout />` | [source](../../src/routes/statusReadingRoutes.tsx) |
+| `/outages` | page/redirect | `<CoreRoutes.OutagesPage />` | `<RouteProvidersLayout /> → <PublicLayout />` | [source](../../src/routes/statusReadingRoutes.tsx) |
+| `/outages/:outageId` | page/redirect | `<CoreRoutes.OutageDetailPage />` | `<RouteProvidersLayout /> → <PublicLayout />` | [source](../../src/routes/statusReadingRoutes.tsx) |
+| `/security-advisories` | page/redirect | `<CoreRoutes.SecurityAdvisoriesPage />` | `<RouteProvidersLayout /> → <PublicLayout />` | [source](../../src/routes/statusReadingRoutes.tsx) |
+| `/security-advisories/:advisoryId` | page/redirect | `<CoreRoutes.SecurityAdvisoryDetailPage />` | `<RouteProvidersLayout /> → <PublicLayout />` | [source](../../src/routes/statusReadingRoutes.tsx) |
+| `/` | index | `<CoreRoutes.OverviewPage />` | `<RouteProvidersLayout /> → <PublicLayout />` | [source](../../src/routes/statusReadingRoutes.tsx) |
+| `/news` | page/redirect | `<CoreRoutes.NewsPage />` | `<RouteProvidersLayout /> → <PublicLayout />` | [source](../../src/routes/statusReadingRoutes.tsx) |
+| `/about` | page/redirect | `<AboutPage />` | `<RouteProvidersLayout /> → <PublicLayout />` | [source](../../src/routes/statusReadingRoutes.tsx) |
+| `/requests/registrations/:requestId/:token` | page/redirect | `( <ParamKeyedRoute params={['requestId', 'token']}> <CoreRoutes.RegistrationCorrectionPage /> </ParamKeyedRoute> )` | `<RouteProvidersLayout /> → <PublicLayout />` | [source](../../src/routes/statusReadingRoutes.tsx) |
+| `/*` | page/redirect | `<NotFoundPage />` | `<RouteProvidersLayout /> → <PublicLayout />` | [source](../../src/routes/statusReadingRoutes.tsx) |
 | `/app` | layout | `<CoreRoutes.AppShell mode="user" />` | `<RouteProvidersLayout />` | [source](../../src/routes/router.tsx) |
+| `/app/outages` | page/redirect | `<CoreRoutes.OutagesPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" />` | [source](../../src/routes/statusReadingRoutes.tsx) |
+| `/app/outages/:outageId` | page/redirect | `<CoreRoutes.OutageDetailPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" />` | [source](../../src/routes/statusReadingRoutes.tsx) |
+| `/app/security-advisories` | page/redirect | `<CoreRoutes.SecurityAdvisoriesPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" />` | [source](../../src/routes/statusReadingRoutes.tsx) |
+| `/app/security-advisories/:advisoryId` | page/redirect | `<CoreRoutes.SecurityAdvisoryDetailPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" />` | [source](../../src/routes/statusReadingRoutes.tsx) |
 | `/app` | index | `<CoreRoutes.DashboardPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" />` | [source](../../src/routes/router.tsx) |
 | `/app/nodes` | page/redirect | `<ForbiddenPage appBasePath="/app" />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" />` | [source](../../src/routes/router.tsx) |
 | `/app/nodes/:nodeId` | page/redirect | `<ForbiddenPage appBasePath="/app" />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" />` | [source](../../src/routes/router.tsx) |
@@ -112,6 +116,11 @@ wrappers; page-level action guards and API authorization still apply.
 | `/app/_design` | page/redirect | `<DesignSandboxPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" />` | [source](../../src/routes/router.tsx) |
 | `/app/*` | page/redirect | `<NotFoundPage appBasePath="/app" />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" />` | [source](../../src/routes/router.tsx) |
 | `/admin` | layout | `<CoreRoutes.AppShell mode="admin" />` | `<RouteProvidersLayout />` | [source](../../src/routes/router.tsx) |
+| `/admin/status` | layout | `(layout only)` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/router.tsx) |
+| `/admin/status/outages` | page/redirect | `<CoreRoutes.OutagesPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → (layout only)` | [source](../../src/routes/statusReadingRoutes.tsx) |
+| `/admin/status/outages/:outageId` | page/redirect | `<CoreRoutes.OutageDetailPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → (layout only)` | [source](../../src/routes/statusReadingRoutes.tsx) |
+| `/admin/status/security-advisories` | page/redirect | `<CoreRoutes.SecurityAdvisoriesPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → (layout only)` | [source](../../src/routes/statusReadingRoutes.tsx) |
+| `/admin/status/security-advisories/:advisoryId` | page/redirect | `<CoreRoutes.SecurityAdvisoryDetailPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → (layout only)` | [source](../../src/routes/statusReadingRoutes.tsx) |
 | `/admin` | index | `<CoreRoutes.DashboardPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/router.tsx) |
 | `/admin/outages` | page/redirect | `<AdminOutagesPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/router.tsx) |
 | `/admin/outages/:outageId` | page/redirect | `<ParamKeyedRoute param="outageId"><AdminOutagesPage /></ParamKeyedRoute>` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/router.tsx) |

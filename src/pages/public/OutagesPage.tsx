@@ -1,3 +1,5 @@
+import { useAuth } from '../../app/auth';
+import { useStatusPagePath } from '../../components/layout/useStatusPagePath';
 import React, { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -20,6 +22,7 @@ import { useI18n } from '../../app/i18n';
 const PUBLIC_OUTAGES_LIST_LIMIT = 100;
 
 function OutageRow(props: { outage: Outage }) {
+  const statusPath = useStatusPagePath();
   const i18n = useI18n();
   const summary = pickTranslation(props.outage as any, 'summary', i18n.preferredLanguageCodes);
   const badges = outageBadges(props.outage, i18n.t);
@@ -39,7 +42,7 @@ function OutageRow(props: { outage: Outage }) {
 
   return (
     <Link
-      to={`/outages/${props.outage.id}`}
+      to={statusPath(`/outages/${props.outage.id}`)}
       className={clsx(
         'block rounded-lg border border-l-4 p-3',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus/35',
@@ -79,6 +82,7 @@ function OutageRow(props: { outage: Outage }) {
 }
 
 export function OutagesPage() {
+  const auth = useAuth();
   const i18n = useI18n();
   const outagesQ = useQuery({
     queryKey: ['outages', 'index', { limit: PUBLIC_OUTAGES_LIST_LIMIT }],
@@ -199,9 +203,11 @@ export function OutagesPage() {
           </div>
         )}
 
-        <div className="text-xs text-muted">
-          {i18n.t('public.outages.footer.admin_hint')}
-        </div>
+        {auth.status !== 'authenticated' ? (
+          <div className="text-xs text-muted">
+            {i18n.t('public.outages.footer.admin_hint')}
+          </div>
+        ) : null}
       </div>
     </>
   );

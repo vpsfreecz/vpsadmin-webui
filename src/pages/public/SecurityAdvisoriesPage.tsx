@@ -1,3 +1,4 @@
+import { useStatusPagePath } from '../../components/layout/useStatusPagePath';
 import { SecurityCveBadge } from './SecurityCveBadge';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -29,6 +30,7 @@ function hasInlineCves(advisory: SecurityAdvisory): boolean {
 }
 
 function SecurityAdvisoryRow(props: { advisory: SecurityAdvisory; showPersonalImpact: boolean }) {
+  const statusPath = useStatusPagePath();
   const i18n = useI18n();
   const advisory = props.advisory;
   const cves = advisoryCveLabels(advisory);
@@ -41,7 +43,7 @@ function SecurityAdvisoryRow(props: { advisory: SecurityAdvisory; showPersonalIm
     <Card>
       <CardHeader
         title={
-          <Link className="hover:text-accent hover:underline" to={`/security-advisories/${advisory.id}`}>
+          <Link className="hover:text-accent hover:underline" to={statusPath(`/security-advisories/${advisory.id}`)}>
             {title}
           </Link>
         }
@@ -78,7 +80,7 @@ function SecurityAdvisoryRow(props: { advisory: SecurityAdvisory; showPersonalIm
 
           <Link
             className="inline-flex text-sm font-medium text-accent hover:underline"
-            to={`/security-advisories/${advisory.id}`}
+            to={statusPath(`/security-advisories/${advisory.id}`)}
           >
             {i18n.t('public.security_advisories.open_detail')} →
           </Link>

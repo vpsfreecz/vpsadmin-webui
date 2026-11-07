@@ -36,15 +36,29 @@ change a license or carry over the legacy PHP template credits (REQ-072).
 ## Status navigation while signed in
 
 A separated block above About in the desktop sidebar and mobile drawer contains
-Outages and Security advisories (REQ-054/055). These are direct links, without
-an extra menu. In My view, including privileged accounts, both open the existing
-public read-only pages. In administrator view, Outages opens `/admin/outages`,
-where admins can use the existing create/review flow and support remains
-read-only. Security advisories opens management only for admin; support opens
-the public advisory list. The advisory link is no longer duplicated in Operations.
-Desktop links stay below the scrolling primary navigation; mobile taps close the
-drawer after navigation. Public pages retain the existing return-to-app link.
-No route, backend permission, publication behavior or API endpoint changes.
+Outages and Security advisories (REQ-054/055), without an extra menu. In My view,
+including privileged accounts, both are read-only pages inside the normal
+AppShell: `/app/outages` and `/app/security-advisories`, with matching detail URLs.
+List/detail/back links, dashboard cards and advisory-to-outage links retain the
+shell and its current scope. Desktop keeps navigation; mobile taps close the
+drawer while its opener and the normal account/task controls remain available.
+Reload and browser Back retain this context. The anonymous-only outage footer
+sign-in hint is hidden for authenticated readers in both languages.
+
+Administrator view keeps `/admin/outages` management, read-only for support,
+and admin-only advisory management. Support uses the same published advisory
+reader under `/admin/status/security-advisories`, with related outages under
+`/admin/status/outages`; it never receives advisory editor privileges. These
+readers are also available to administrators without changing their normal
+management destinations. Status navigation stays highlighted on related readers.
+
+An authenticated visit to a shared `/outages[/id]` or
+`/security-advisories[/id]` URL replaces that location with the corresponding
+`/app/` reader, preserving query and fragment and respecting the router basename.
+Anonymous visitors retain the public layout and all public list/detail links;
+no login is required for public information. About, registration correction,
+public news and the expired-session notice keep their existing routing.
+API access, publication filtering and backend permissions are unchanged.
 
 ## Concise interface copy
 
