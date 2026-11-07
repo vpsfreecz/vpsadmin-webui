@@ -101,6 +101,7 @@
     "e2e/specs/app/vps_list_row_click.spec.ts",
     "e2e/specs/app/vps_maintenance_sunday.spec.ts",
     "e2e/specs/app/vps_network_editor_feedback.spec.ts",
+    "e2e/specs/app/vps_overview_access_summary.spec.ts",
     "e2e/specs/app/vps_overview_all_ips.spec.ts",
     "e2e/specs/app/vps_power_failures.spec.ts",
     "e2e/specs/app/vps_power_stop_confirm.spec.ts",
