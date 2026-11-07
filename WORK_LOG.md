@@ -1,3 +1,7 @@
+## 2026-11-07 — Individual transaction filter alignment
+
+[Scope and verification](docs/work-log/2026-11-07-todo-transaction-item-filter-rhythm.md).
+
 ## 2026-11-07 — VPS Access readability
 
 [Scope and verification](docs/work-log/2026-11-07-todo-vps-access-readability.md).

@@ -96,26 +96,4 @@ describe('TransactionItemsFilters', () => {
     expect(done).toHaveFocus();
   });
 
-  it('keeps filter controls touch-sized on mobile and compact above the small breakpoint', () => {
-    renderFilters();
-
-    for (const control of [
-      screen.getByRole('textbox', { name: 'Chain' }),
-      screen.getByRole('textbox', { name: 'Node' }),
-      screen.getByRole('textbox', { name: 'Type' }),
-      screen.getByRole('combobox', { name: 'Done state' }),
-      screen.getByRole('combobox', { name: 'Success' }),
-    ]) {
-      expect(control).toHaveClass('h-11', 'sm:h-9');
-    }
-
-    expect(screen.getByTestId('transactions.items.smart_filter.help')).toHaveClass('h-11', 'w-11', 'sm:h-8', 'sm:w-8');
-    expect(screen.getByTestId('transactions.items.advanced.open')).toHaveClass('h-11', 'min-w-11', 'sm:h-8');
-    expect(screen.getByTestId('transactions.items.copy_link')).toHaveClass('h-11', 'sm:h-8');
-    expect(screen.getAllByRole('button', { name: 'Clear filters' })).not.toHaveLength(0);
-    for (const clearButton of screen.getAllByRole('button', { name: 'Clear filters' })) {
-      expect(clearButton).toHaveClass('h-11', 'sm:h-8');
-    }
-    expect(screen.getByTestId('transactions.items.advanced.footer_done')).toHaveClass('h-11', 'sm:h-8');
-  });
 });

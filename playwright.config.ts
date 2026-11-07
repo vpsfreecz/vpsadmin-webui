@@ -60,6 +60,7 @@ export default defineConfig({
         '**/dashboard_preferences_accessibility.spec.ts',
         '**/vps_access_readability.spec.ts',
         '**/filter_bar_chip_alignment.spec.ts',
+        '**/transaction_items_filter_accessibility.spec.ts',
         '**/about.spec.ts',
         '**/theme_switcher.spec.ts',
         '**/news_language_switch.spec.ts',
