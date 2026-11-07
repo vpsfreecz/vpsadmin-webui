@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 import type { KeysetPaginationState } from '../../../lib/hooks/useKeysetPagination';
-import { formatMiB, formatUptimeSeconds } from '../../../lib/format';
+import { formatUptimeSeconds } from '../../../lib/format';
 
 import { Badge } from '../../../components/ui/Badge';
 import { KeysetPagination } from '../../../components/ui/KeysetPagination';
@@ -10,8 +10,8 @@ import { LockBadge } from '../../../components/ui/LockBadge';
 import { StatusDot } from '../../../components/ui/StatusDot';
 import { TableCard } from '../../../components/ui/TableCard';
 import { TableRowLink } from '../../../components/ui/TableRowLink';
-import { UsageBar } from '../../../components/ui/UsageBar';
 
+import { VpsListResources } from './VpsListResources';
 import { VpsListRowActions } from './VpsListRowActions';
 import { VpsUsageRiskBadges } from './VpsUsageRiskBadges';
 import { VpsRecentFailureBadge } from './VpsRecentFailureBadge';
@@ -152,22 +152,11 @@ export function VpsListTable({
                 </div>
               </td>
               <td className="px-3 py-2 align-top text-xs text-muted">
-                <div className="flex flex-col gap-1">
-                  <div className="text-faint">
-                    {vps.cpu ? t('vps.list.resources.cpu', { count: vps.cpu }) : t('common.na')} ·{' '}
-                    {t('vps.list.resources.load', { value: row.loadLabel })}
-                  </div>
-                  {row.memUsed !== undefined && row.memMax !== undefined && row.memMax > 0 ? (
-                    <UsageBar layout="row" label={t('vps.list.usage.ram')} used={row.memUsed} max={row.memMax} formatValue={formatMiB} />
-                  ) : null}
-                  {row.diskUsed !== undefined && row.diskMax !== undefined && row.diskMax > 0 ? (
-                    <UsageBar layout="row" label={t('vps.list.usage.disk')} used={row.diskUsed} max={row.diskMax} formatValue={formatMiB} />
-                  ) : null}
-                </div>
+                <VpsListResources row={row} t={t} />
               </td>
               <td className="px-3 py-2 align-top text-xs text-muted">
                 <div className="flex flex-col gap-1">
-                  <span>{formatUptimeSeconds(vps.uptime)}</span>
+                  <span>{formatUptimeSeconds(vps.is_running === true ? vps.uptime : undefined)}</span>
                   {row.busyTx ? <span>{t('vps.list.activity.busy')}</span> : null}
                 </div>
               </td>

@@ -2,16 +2,16 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 import type { KeysetPaginationState } from '../../../lib/hooks/useKeysetPagination';
-import { formatMiB, formatUptimeSeconds } from '../../../lib/format';
+import { formatUptimeSeconds } from '../../../lib/format';
 
 import { Badge } from '../../../components/ui/Badge';
 import { Card } from '../../../components/ui/Card';
 import { LockBadge } from '../../../components/ui/LockBadge';
 import { StatusDot } from '../../../components/ui/StatusDot';
 import { toneSurfaceClass } from '../../../components/ui/tone';
-import { UsageBar } from '../../../components/ui/UsageBar';
 import { KeysetPagination } from '../../../components/ui/KeysetPagination';
 
+import { VpsListResources } from './VpsListResources';
 import { VpsListRowActions } from './VpsListRowActions';
 import { VpsUsageRiskBadges } from './VpsUsageRiskBadges';
 import { VpsRecentFailureBadge } from './VpsRecentFailureBadge';
@@ -110,34 +110,14 @@ export function VpsListMobile({
                     <div className="truncate">{row.nodeLabel}</div>
                   </div>
                   <div>
-                    <div className="text-xs text-muted">{t('vps.overview.config.memory')}</div>
-                    <div>{formatMiB(vps.memory)}</div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-muted">{t('vps.overview.config.diskspace')}</div>
-                    <div>{formatMiB(vps.diskspace)}</div>
-                  </div>
-                  <div>
                     <div className="text-xs text-muted">{t('vps.overview.usage.uptime')}</div>
-                    <div>{formatUptimeSeconds(vps.uptime)}</div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-muted">{t('vps.list.resources.load', { value: row.loadLabel })}</div>
-                    <div>{vps.cpu ? t('vps.list.resources.cpu', { count: vps.cpu }) : t('common.na')}</div>
+                    <div>{formatUptimeSeconds(vps.is_running === true ? vps.uptime : undefined)}</div>
                   </div>
                 </div>
 
-                {(row.memUsed !== undefined && row.memMax !== undefined && row.memMax > 0) ||
-                (row.diskUsed !== undefined && row.diskMax !== undefined && row.diskMax > 0) ? (
-                  <div className="mt-3 space-y-2 text-xs text-muted">
-                    {row.memUsed !== undefined && row.memMax !== undefined && row.memMax > 0 ? (
-                      <UsageBar label={t('vps.list.usage.ram')} used={row.memUsed} max={row.memMax} formatValue={formatMiB} />
-                    ) : null}
-                    {row.diskUsed !== undefined && row.diskMax !== undefined && row.diskMax > 0 ? (
-                      <UsageBar label={t('vps.list.usage.disk')} used={row.diskUsed} max={row.diskMax} formatValue={formatMiB} />
-                    ) : null}
-                  </div>
-                ) : null}
+                <div className="mt-3">
+                  <VpsListResources row={row} t={t} />
+                </div>
 
                 <div className="mt-4">
                   <VpsListRowActions
