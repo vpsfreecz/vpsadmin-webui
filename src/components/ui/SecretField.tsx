@@ -56,9 +56,7 @@ export function SecretField(props: {
 
   return (
     <div className={clsx('space-y-1', props.className)} data-testid={prefix}>
-      {props.label ? (
-        <div className="text-xs font-medium text-muted">{props.label}</div>
-      ) : null}
+      {props.label ? <div className="text-xs font-medium text-muted">{props.label}</div> : null}
 
       {props.description ? <div className="text-xs text-faint">{props.description}</div> : null}
 
@@ -87,6 +85,7 @@ export function SecretField(props: {
             <Button
               variant="secondary"
               size="sm"
+              className={props.multiline ? undefined : 'h-9'}
               onClick={() => setRevealed((v) => !v)}
               testId={prefix ? `${prefix}.toggle` : undefined}
             >
@@ -100,6 +99,7 @@ export function SecretField(props: {
               label={props.copyLabel}
               variant="secondary"
               size="sm"
+              className={props.multiline ? undefined : 'h-9'}
               testId={prefix ? `${prefix}.copy` : undefined}
             />
           ) : null}

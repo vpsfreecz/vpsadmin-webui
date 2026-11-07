@@ -574,6 +574,11 @@ admin owner filter; its separate backend filtering/pagination limitation remains
 REQ-042 and is not certified fixed by this change. This is a source/fixture audit,
 not a claim of live API authorization certification.
 
+**Secret presentation (approved UX-03):** Single-line masked fields and adjacent
+Reveal/Copy actions share36px desktop height and the existing44px coarse-pointer
+minimum. Multiline fields keep compact actions. Reveal/hide, explicit exact copy,
+keyboard focus and owner-bound workflows retain their contracts.
+
 **Risk contract:** distinguish security-sensitive changes from ordinary preferences;
 confirm disabling MFA/deleting keys/sessions, preserve failures, never log secrets.
 Passkey setup belongs to the authentication origin. Profile edits may create a

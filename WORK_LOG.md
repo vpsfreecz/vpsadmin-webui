@@ -1,3 +1,7 @@
+## 2026-11-08 — Match single-line secret field controls
+
+[Scope and verification](docs/work-log/2026-11-08-todo-secret-field-controls.md).
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path
