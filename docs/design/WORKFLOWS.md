@@ -1278,3 +1278,11 @@ Keep each filter action at its local reference field height: smart searches
 The standalone DNS-resolver action group uses36px on desktop. Keep existing
 help/advanced dialogs, search tokens, owner/query scopes, refresh/copy/clear,
 view toggles and create actions. This does not change any DNS/API behavior.
+
+### Account control presentation follow-up (2026-11-07)
+
+User-data templates and namespace/map list filters keep 44px adjacent controls
+and wrap action groups at narrow widths. Personal profile change requests keep
+their action label on one readable line beside the explanatory text. Owner
+scope, query normalization, confirmation and mutations retain their contracts.
+See [verification scope](../work-log/2026-11-07-todo-profile-control-rhythm.md).

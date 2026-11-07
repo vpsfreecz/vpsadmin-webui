@@ -366,7 +366,7 @@ function UserNamespaceMapListContent(props: UserNamespaceMapListProps & { viewer
       </div>
 
       <FilterBar testId={`${props.testIdPrefix}.filters`}>
-        <div className="min-w-0 flex-1">
+        <div className="w-full min-w-0 sm:w-auto sm:flex-1">
           <SmartFilterInput
             ref={smartInputRef}
             testId={`${props.testIdPrefix}.search.input`}
@@ -379,7 +379,7 @@ function UserNamespaceMapListContent(props: UserNamespaceMapListProps & { viewer
             suffix={
               <button
                 type="button"
-                className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted hover:bg-surface-2 hover:text-fg"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-md text-muted hover:bg-surface-2 hover:text-fg"
                 onClick={() => setHelpOpen(true)}
                 aria-label={t('filters.help.open')}
                 title={t('filters.help.open')}
@@ -391,20 +391,20 @@ function UserNamespaceMapListContent(props: UserNamespaceMapListProps & { viewer
           />
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             type="button"
             variant="secondary"
-            size="sm"
+            size="sm" className="h-11 min-w-11"
             onClick={() => setAdvancedOpen(true)}
             testId={`${props.testIdPrefix}.filters.advanced`}
           >
             <SlidersHorizontal className="mr-1 h-4 w-4" />
             {t('filters.advanced.label')}
           </Button>
-          <CopyButton text={shareUrl} label={t('common.copy_link')} testId={`${props.testIdPrefix}.filters.copy_link`} />
+          <CopyButton className="h-11 min-w-11" text={shareUrl} label={t('common.copy_link')} testId={`${props.testIdPrefix}.filters.copy_link`} />
           {filtersActive ? (
-            <Button type="button" size="sm" variant="ghost" onClick={clearFilters} testId={`${props.testIdPrefix}.filters.clear`}>
+            <Button type="button" size="sm" className="h-11 min-w-11" variant="ghost" onClick={clearFilters} testId={`${props.testIdPrefix}.filters.clear`}>
               {t('common.clear_filters')}
             </Button>
           ) : null}

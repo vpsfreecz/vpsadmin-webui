@@ -55,6 +55,7 @@ export default defineConfig({
     {
       name: 'mobile-webkit',
       testMatch: [
+        '**/profile_control_rhythm.spec.ts',
         '**/remaining_filter_rhythm.spec.ts',
         '**/action_filter_rhythm.spec.ts',
         '**/vps_all_actions.spec.ts',
