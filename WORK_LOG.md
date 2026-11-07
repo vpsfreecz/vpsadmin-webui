@@ -2,6 +2,10 @@
 
 [Behavior, scope and verification](docs/work-log/2026-11-07-authenticated-status-pages.md).
 
+## 2026-11-07 — Remaining list filter dimensions
+
+[Scope and verification](docs/work-log/2026-11-07-todo-remaining-filter-rhythm.md).
+
 ## 2026-11-07 — Action state filter dimensions
 
 [Scope and verification](docs/work-log/2026-11-07-todo-action-filter-rhythm.md).

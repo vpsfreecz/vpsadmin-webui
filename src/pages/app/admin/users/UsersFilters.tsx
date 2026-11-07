@@ -192,8 +192,8 @@ export function UsersFilters({
             suffix={
               <Button
                 variant="ghost"
-                size="sm"
-                className="h-8 w-8 px-0"
+                size="md"
+                className="w-11 px-0 h-11 min-w-11"
                 onClick={() => onHelpOpenChange(true)}
                 aria-label={t('filters.help.open')}
                 title={t('filters.help.open')}
@@ -204,9 +204,9 @@ export function UsersFilters({
           />
         </div>
 
-        <Button
+        <Button className="h-11 min-w-11"
           variant="secondary"
-          size="sm"
+          size="md"
           onClick={() => onAdvancedOpenChange(true)}
           aria-label={t('filters.advanced.open')}
           title={t('filters.advanced.open')}
@@ -215,14 +215,14 @@ export function UsersFilters({
           <span className="ml-2 hidden sm:inline">{t('filters.advanced.label')}</span>
         </Button>
 
-        <Button variant="primary" size="sm" onClick={onCreateOpen} testId="admin.users.create.open">
+        <Button className="h-11 min-w-11" variant="primary" size="md" onClick={onCreateOpen} testId="admin.users.create.open">
           {t('admin.users.create.open')}
         </Button>
 
-        <CopyButton size="sm" variant="secondary" label={t('common.copy_link')} text={shareUrl} testId="admin.users.copy_link" />
+        <CopyButton className="h-11 min-w-11" size="md" variant="secondary" label={t('common.copy_link')} text={shareUrl} testId="admin.users.copy_link" />
 
         {filtersActive ? (
-          <Button variant="secondary" size="sm" onClick={onClearFilters} testId="admin.users.filter.clear">
+          <Button className="h-11 min-w-11" variant="secondary" size="md" onClick={onClearFilters} testId="admin.users.filter.clear">
             {t('common.clear_filters')}
           </Button>
         ) : null}

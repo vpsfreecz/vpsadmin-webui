@@ -525,10 +525,10 @@ function NetworksContent() {
               suffix={
                 <Button
                   variant="ghost"
-                  size="sm"
+                  size="md"
                   aria-label={t('filters.help.open')}
                   onClick={() => setHelpOpen(true)}
-                  className="px-2"
+                  className="px-2 h-11 min-w-11"
                   testId="admin.cluster.networks.smart.help_button"
                 >
                   <CircleHelp className="h-4 w-4" />
@@ -537,7 +537,7 @@ function NetworksContent() {
             />
 
             <div className="flex flex-wrap items-center gap-2">
-              <Button
+              <Button className="h-11 min-w-11"
                 variant="secondary"
                 onClick={() => setAdvancedOpen(true)}
                 testId="admin.cluster.networks.advanced.open"
@@ -545,16 +545,16 @@ function NetworksContent() {
                 <SlidersHorizontal className="mr-2 h-4 w-4" />
                 {t('common.advanced')}
               </Button>
-              <CopyButton text={shareUrl} label={t('common.copy_link')} testId="admin.cluster.networks.copy_link" />
-              <Button variant="secondary" onClick={() => listQ.refetch()}>
+              <CopyButton className="h-11 min-w-11" text={shareUrl} label={t('common.copy_link')} testId="admin.cluster.networks.copy_link" />
+              <Button className="h-11 min-w-11" variant="secondary" onClick={() => listQ.refetch()}>
                 {t('common.refresh')}
               </Button>
               {filtersActive ? (
-                <Button variant="secondary" onClick={clearAllFilters} testId="admin.cluster.networks.filter.clear">
+                <Button className="h-11 min-w-11" variant="secondary" onClick={clearAllFilters} testId="admin.cluster.networks.filter.clear">
                   {t('common.clear_filters')}
                 </Button>
               ) : null}
-              <Button variant="primary" onClick={openCreate} testId="admin.cluster.networks.create">
+              <Button className="h-11 min-w-11" variant="primary" onClick={openCreate} testId="admin.cluster.networks.create">
                 {t('admin.cluster.networks.create.button')}
               </Button>
             </div>

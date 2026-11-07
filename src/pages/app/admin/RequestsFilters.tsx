@@ -164,9 +164,9 @@ export function RequestsFilters(props: {
           />
         </div>
 
-        <Button
+        <Button className="h-11 min-w-11"
           variant="secondary"
-          size="sm"
+          size="md"
           onClick={() => props.setAdvancedOpen(!props.advancedOpen)}
           aria-label={t('filters.advanced.open')}
           aria-expanded={props.advancedOpen}
@@ -178,9 +178,9 @@ export function RequestsFilters(props: {
         </Button>
 
         {props.canSelect ? (
-          <Button
+          <Button className="h-11 min-w-11"
             variant={props.selectionMode ? 'primary' : 'secondary'}
-            size="sm"
+            size="md"
             onClick={() => props.setSelectionMode(!props.selectionMode)}
             aria-pressed={props.selectionMode}
             testId="admin.requests.bulk.selection_mode"

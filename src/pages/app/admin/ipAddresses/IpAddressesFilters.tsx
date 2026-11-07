@@ -77,8 +77,8 @@ export function IpAddressesFilters({
             suffix={
               <Button
                 variant="ghost"
-                size="sm"
-                className="h-8 w-8 px-0"
+                size="md"
+                className="w-11 px-0 h-11 min-w-11"
                 onClick={() => setHelpOpen(true)}
                 aria-label={t('filters.help.open')}
                 title={t('filters.help.open')}
@@ -89,9 +89,9 @@ export function IpAddressesFilters({
           />
         </div>
 
-        <Button
+        <Button className="h-11 min-w-11"
           variant="secondary"
-          size="sm"
+          size="md"
           onClick={() => setAdvancedOpen(true)}
           aria-label={t('filters.advanced.open')}
           title={t('filters.advanced.open')}
@@ -100,10 +100,10 @@ export function IpAddressesFilters({
           <span className="ml-2 hidden sm:inline">{t('filters.advanced.label')}</span>
         </Button>
 
-        <CopyButton size="sm" variant="secondary" label={t('common.copy_link')} text={shareUrl} testId="admin.ip_addresses.copy_link" />
+        <CopyButton className="h-11 min-w-11" size="md" variant="secondary" label={t('common.copy_link')} text={shareUrl} testId="admin.ip_addresses.copy_link" />
 
         {filtersActive ? (
-          <Button variant="secondary" size="sm" onClick={clearFilters} testId="admin.ip_addresses.clear">
+          <Button className="h-11 min-w-11" variant="secondary" size="md" onClick={clearFilters} testId="admin.ip_addresses.clear">
             {t('common.clear_filters')}
           </Button>
         ) : null}
