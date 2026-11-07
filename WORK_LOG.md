@@ -1948,3 +1948,7 @@ Prepare AUTH-01 and AUTH-02. See the [scope record](docs/work-log/2026-11-06-tod
 ## 2026-11-07 — Remember contextual help placement
 
 Implement approved UX-05 / REQ-053. See the [scope record](docs/work-log/2026-11-07-todo-help-position.md).
+
+## 2026-11-07 — Expose the existing VPS action index
+
+Implement approved DET-02 / REQ-023. See the [scope record](docs/work-log/2026-11-07-todo-vps-all-actions.md).
