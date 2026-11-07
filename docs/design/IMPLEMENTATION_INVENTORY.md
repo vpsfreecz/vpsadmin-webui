@@ -21,7 +21,7 @@ wrappers; page-level action guards and API authorization still apply.
 | `/` | index | `<CoreRoutes.OverviewPage />` | `<RouteProvidersLayout /> → <PublicLayout />` | [source](../../src/routes/statusReadingRoutes.tsx) |
 | `/news` | page/redirect | `<CoreRoutes.NewsPage />` | `<RouteProvidersLayout /> → <PublicLayout />` | [source](../../src/routes/statusReadingRoutes.tsx) |
 | `/about` | page/redirect | `<AboutPage />` | `<RouteProvidersLayout /> → <PublicLayout />` | [source](../../src/routes/statusReadingRoutes.tsx) |
-| `/requests/registrations/:requestId/:token` | page/redirect | `<ParamKeyedRoute params={['requestId', 'token']}><CoreRoutes.RegistrationCorrectionPage /></ParamKeyedRoute>` | `<RouteProvidersLayout /> → <PublicLayout />` | [source](../../src/routes/statusReadingRoutes.tsx) |
+| `/requests/registrations/:requestId/:token` | page/redirect | `( <ParamKeyedRoute params={['requestId', 'token']}> <CoreRoutes.RegistrationCorrectionPage /> </ParamKeyedRoute> )` | `<RouteProvidersLayout /> → <PublicLayout />` | [source](../../src/routes/statusReadingRoutes.tsx) |
 | `/*` | page/redirect | `<NotFoundPage />` | `<RouteProvidersLayout /> → <PublicLayout />` | [source](../../src/routes/statusReadingRoutes.tsx) |
 | `/app` | layout | `<CoreRoutes.AppShell mode="user" />` | `<RouteProvidersLayout />` | [source](../../src/routes/router.tsx) |
 | `/app/outages` | page/redirect | `<CoreRoutes.OutagesPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" />` | [source](../../src/routes/statusReadingRoutes.tsx) |

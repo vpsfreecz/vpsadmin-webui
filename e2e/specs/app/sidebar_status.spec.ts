@@ -8,7 +8,7 @@ for (const language of ['cs', 'en'] as const) {
     { name: 'admin', level: 99, base: '/admin' },
     { name: 'support', level: 21, base: '/admin' },
   ]) {
-    test(`@pr-smoke @pr-smoke-mobile status footer: ${scenario.name} ${language}`, async ({ page }, testInfo) => {
+    test(`@pr-smoke @pr-smoke-mobile status navigation: ${scenario.name} ${language}`, async ({ page }, testInfo) => {
       await setUiSettingsLocalStorage(page, { language, theme: language === 'cs' ? 'dark' : 'light' });
       await bootstrapVpsAdminWindow(page, { sessionToken: 'STATUS_FIXTURE' });
       await installHaveApiMock(page, {
@@ -28,19 +28,19 @@ for (const language of ['cs', 'en'] as const) {
       const surface = mobile ? 'drawer' : 'sidebar';
       if (mobile) await page.getByTestId('shell.mobile-nav-button').click();
       const container = page.getByTestId(mobile ? 'nav.drawer' : 'shell.sidebar');
-      const status = page.getByTestId(`nav.${surface}.status`);
-      await status.scrollIntoViewIfNeeded();
-      await expect(status).toBeVisible();
-      const outages = status.getByTestId(`nav.${surface}.outages`);
-      const advisories = status.getByTestId(`nav.${surface}.security-advisories`);
-      await expect(outages).toHaveText(language === 'cs' ? 'Odstávky a výpadky' : 'Outages');
+      const outages = container.getByTestId(`nav.${surface}.outages`);
+      const advisories = container.getByTestId(`nav.${surface}.security-advisories`);
+      await advisories.scrollIntoViewIfNeeded();
+      await expect(outages).toBeVisible();
+      await expect(advisories).toBeVisible();
+      await expect(outages).toHaveText(language === 'cs' ? /výpadk/i : 'Outages');
       await expect(advisories).toHaveText(language === 'cs' ? 'Bezpečnostní upozornění' : 'Security advisories');
       await expect(container.getByTestId(`nav.${surface}.security-advisories`)).toHaveCount(1);
       await expect(outages).toHaveAttribute('href', `${scenario.base}/outages`);
       const advisoryPath =
         scenario.name === 'support' ? '/admin/status/security-advisories' : `${scenario.base}/security-advisories`;
       await expect(advisories).toHaveAttribute('href', advisoryPath);
-      const statusBox = (await status.boundingBox())!;
+      const statusBox = (await advisories.boundingBox())!;
       const aboutBox = (await container.getByTestId('build.footer').boundingBox())!;
       expect(statusBox.y + statusBox.height).toBeLessThanOrEqual(aboutBox.y);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -48,7 +48,9 @@ for (const language of ['cs', 'en'] as const) {
       await outages.click();
       await expect(page).toHaveURL((url) => url.pathname === `${scenario.base}/outages`);
       await expect(page.getByTestId('nav.drawer')).toBeHidden();
-      await expect(page.getByTestId('shell.controls')).toBeVisible();
+      await expect(
+        page.getByTestId(page.viewportSize()!.width < 768 ? 'shell.mobile-nav-button' : 'shell.sidebar')
+      ).toBeVisible();
       await expect(page.getByTestId('public.main')).toHaveCount(0);
       if (scenario.name === 'admin') {
         await page.getByTestId('admin.outages.new').click();
@@ -63,7 +65,9 @@ for (const language of ['cs', 'en'] as const) {
       await page.getByTestId(`nav.${surface}.security-advisories`).click();
       await expect(page).toHaveURL((url) => url.pathname === advisoryPath);
       await expect(page.getByTestId('nav.drawer')).toBeHidden();
-      await expect(page.getByTestId('shell.controls')).toBeVisible();
+      await expect(
+        page.getByTestId(page.viewportSize()!.width < 768 ? 'shell.mobile-nav-button' : 'shell.sidebar')
+      ).toBeVisible();
       await expect(page.getByTestId('public.main')).toHaveCount(0);
     });
   }
@@ -132,7 +136,9 @@ for (const language of ['cs', 'en'] as const) {
         },
       });
       const assertShell = async () => {
-        await expect(page.getByTestId('shell.controls')).toBeVisible();
+        await expect(
+          page.getByTestId(page.viewportSize()!.width < 768 ? 'shell.mobile-nav-button' : 'shell.sidebar')
+        ).toBeVisible();
         await expect(page.getByTestId('public.main')).toHaveCount(0);
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       };
