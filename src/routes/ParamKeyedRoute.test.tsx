@@ -79,6 +79,11 @@ describe('stateful detail route key contract', () => {
     'utf8',
   ).replace(/\s+/g, ' ');
 
+  const statusSource = readFileSync(
+    resolve(process.cwd(), 'src/routes/statusReadingRoutes.tsx'),
+    'utf8',
+  ).replace(/\s+/g, ' ').replace(/element: \(\s*/g, 'element: ').replace(/>\s+</g, '><');
+
   function expectOccurrences(source: string, fragment: string, count: number) {
     expect(source.split(fragment)).toHaveLength(count + 1);
   }
@@ -113,7 +118,7 @@ describe('stateful detail route key contract', () => {
   });
 
   it('keys every audited composite-identity detail element', () => {
-    expectOccurrences(routerSource, compositeParamRoute('requests/registrations/:requestId/:token', "'requestId', 'token'", 'CoreRoutes.RegistrationCorrectionPage'), 1);
+    expectOccurrences(statusSource, compositeParamRoute('requests/registrations/:requestId/:token', "'requestId', 'token'", 'CoreRoutes.RegistrationCorrectionPage'), 1);
     expectOccurrences(routerSource, compositeParamRoute('mailer/templates/:mailTemplateId/translations/:translationId', "'mailTemplateId', 'translationId'", 'MailTemplateTranslationPage'), 1);
     expectOccurrences(routerSource, compositeParamRoute('requests/:type/:requestId', "'type', 'requestId'", 'RequestDetailPage'), 1);
   });
