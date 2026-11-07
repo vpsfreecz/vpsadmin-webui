@@ -574,8 +574,7 @@ export function DatasetsListPage(props: DatasetsListPageProps = {}) {
               suffix={
                 <Button
                   variant="ghost"
-                  size="sm"
-                  className="h-8 w-8 px-0"
+                  className="h-11 w-11 px-0"
                   onClick={() => setHelpOpen(true)}
                   aria-label={t('filters.help.open')}
                   title={t('filters.help.open')}
@@ -588,7 +587,7 @@ export function DatasetsListPage(props: DatasetsListPageProps = {}) {
 
           <Button
             variant="secondary"
-            size="sm"
+            className="h-11 min-w-11"
             onClick={() => setAdvancedOpen(true)}
             aria-label={t('filters.advanced.open')}
             title={t('filters.advanced.open')}
@@ -599,7 +598,8 @@ export function DatasetsListPage(props: DatasetsListPageProps = {}) {
           </Button>
 
           <CopyButton
-            size="sm"
+            size="md"
+            className="h-11"
             variant="secondary"
             label={t('common.copy_link')}
             text={shareUrl}
@@ -607,7 +607,7 @@ export function DatasetsListPage(props: DatasetsListPageProps = {}) {
           />
 
           {filtersActive ? (
-            <Button variant="secondary" size="sm" onClick={clearFilters} testId="datasets.filter.clear">
+            <Button variant="secondary" className="h-11" onClick={clearFilters} testId="datasets.filter.clear">
               {t('common.clear_filters')}
             </Button>
           ) : null}

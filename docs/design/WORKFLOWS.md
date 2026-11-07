@@ -1003,3 +1003,19 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+## NAS and dataset filter dimensions
+
+The shared dataset list keeps the smart search field, help, advanced filters,
+copy-link and conditional clear controls at 44 CSS pixels, using the same
+button typography as the existing VPS and transaction filter follow-ups.
+Keep the active chips below the control row. On narrow screens the row wraps
+and every action stays reachable. Help remains inside the field; its trigger
+keeps its label and keyboard position. The search, advanced modal, exact URL
+copy and clear actions retain their existing behavior.
+
+This local UX-03 follow-up applies to member NAS, administrator NAS and the
+general administrator dataset list. Preserve the NAS primary-role preset,
+owner restrictions, VPS filter visibility, API requests and pagination. It
+does not change DNS work, global control sizes or other advanced forms, and
+does not complete the application-wide UX-03 umbrella.
