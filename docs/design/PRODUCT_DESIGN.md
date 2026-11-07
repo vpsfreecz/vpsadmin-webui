@@ -17,11 +17,20 @@ privileges in the administrator surface; this is not a third product experience.
 
 Sidebar destinations reflect tasks, not the API table list. VPS storage belongs
 with the VPS; NAS and backups are separate member destinations. Tasks is a global
-header affordance, not a duplicate primary action-states menu item. Administrators
+navigation action, not a duplicate primary action-states destination. Search, Tasks,
+session duration and account preferences sit in a bordered panel above the
+sidebar navigation. Tasks and session duration share a row when space permits.
+The account login aligns with the Tasks label. Admin and support roles have a
+small icon beside the login with a localized description.
+The account popover shows every choice when space permits, with scrolling on short screens. Branding sits directly above About.
+Mobile has one navigation trigger, with the same controls inside its drawer.
+Only one controls instance mounts at a time, so search and outside-click refs
+never point at a hidden duplicate. Tasks/search close mobile navigation before
+opening their own panel. Account submenus retain Escape and focus restoration. Administrators
 see service, operations, users/finance, infrastructure and content groups.
-Outages and security advisories form a separate quiet block above About in the
-sidebar footer and mobile drawer, with role/mode-appropriate read or management
-destinations. They are not duplicated among primary operations links.
+Outages and security advisories are the final destinations in the scrolling
+sidebar and mobile drawer navigation. Their read or management destinations
+follow the current view and role.
 The complete routing surface, including aliases and child pages not present in
 menus, is in the [inventory](IMPLEMENTATION_INVENTORY.md).
 
@@ -34,6 +43,8 @@ removed the optional icon-only mode: desktop navigation always shows its labels
 and has no collapse/expand control. Legacy local/server collapse preferences
 normalize to false while other preferences remain intact. Mobile navigation
 still opens as a labelled drawer and closes after selecting a destination.
+Windows at most 640px high also use this drawer, including landscape tablets,
+so fixed sidebar controls/footer cannot squeeze the destination list to zero.
 
 ## Visual language
 
@@ -56,6 +67,21 @@ but share labels, status semantics, overlays, focus treatment and error behavior
 Browser titles start with vpsAdmin. Favicon reuse was delivered by PR524. Heatmap rows
 are icon-only following PR521; that action still has a tooltip and accessible
 name, and does not imply removing labels from primary navigation.
+
+VPS Access uses strong-border tokens around its three main sections and on
+key/password selectors. Section titles are larger level-two headings. The
+change is local: warnings, nested metadata and action guards retain their
+existing styling and behavior. This does not certify contrast on physical
+displays or the rest of the application.
+
+The dashboard widget editor uses the existing strong-border token on its
+boundary, group cards and controls, with a larger h2 editor title, semibold h3
+widget titles and smaller descriptions. This is a bounded response to weak
+dark-mode grouping, not a global palette or density change.
+
+On the VPS list, filter actions beside the 44px smart search field use the
+same height and compact label size. Filter chips stay on their own row; other
+list layouts and the embedded help action are unchanged.
 
 ## VPS detail and resource editing
 
@@ -109,6 +135,10 @@ Queue navigation is a preference, not an implicit obligation to process the next
 person. See [decision history](DECISIONS.md) for the superseded side layout.
 
 ## Lists, forms, errors and asynchronous work
+
+The transaction chain filter row uses 44px search and action controls. The
+embedded help action shares that height and keeps a visible keyboard focus
+indicator. Active filters stay below the controls.
 
 Lists retain filters, current scope and meaningful pagination in URLs. Page numbers
 represent known cursor history; they do not imply arbitrary page access or a total
@@ -208,3 +238,10 @@ name the selected request and retain the same backend action identifiers.
 Changing force in the lifecycle form requires a fresh acknowledgment. Pending
 copy describes request submission, not completed shutdown. Generic historical
 task records without a force value retain a neutral Stop label.
+
+
+### VPS overview access and runtime data
+
+SSH stays in the detail header with its copy action. Current runtime values stay
+in the header summary. Console and Access remain reachable through the existing
+header action/navigation, without a second overview access card.

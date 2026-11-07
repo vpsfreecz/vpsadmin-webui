@@ -9,7 +9,6 @@ import { useChrome } from '../../../components/layout/ChromeContext';
 import { ActionButton } from '../../../components/ui/ActionButton';
 import { Alert } from '../../../components/ui/Alert';
 import { Button } from '../../../components/ui/Button';
-import { Card, CardHeader } from '../../../components/ui/Card';
 import { Checkbox } from '../../../components/ui/Checkbox';
 import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
 import { Input } from '../../../components/ui/Input';
@@ -251,12 +250,9 @@ export function VpsConfigurationPage() {
 
       <fieldset disabled={!canMutateVps} className="m-0 min-w-0 border-0 p-0">
       <div className="space-y-4">
-      <Card>
-        <CardHeader
-          title={t(focusedResources ? 'vps.resources.title' : 'vps.config.title')}
-          subtitle={t(canEditAdminConfig ? 'vps.resources.subtitle_admin' : 'vps.resources.subtitle_user')}
-        />
-      </Card>
+      <h2 className="text-lg font-semibold" data-testid="vps.config.title">
+        {t(focusedResources ? 'vps.resources.title' : 'vps.config.title')}
+      </h2>
 
       <VpsConfigMobileActionBar
         changeCount={result.changedKeys.length}

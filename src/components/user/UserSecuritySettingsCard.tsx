@@ -197,7 +197,7 @@ export function UserSecuritySettingsCard(props: {
             testId={`${prefix}.settings.new_login`}
           />
 
-          <div className="rounded-md border border-border bg-surface-2 px-3 py-2" data-testid={`${prefix}.settings.session_length`}>
+          <div id="session-length" className="scroll-mt-4 rounded-md border border-border bg-surface-2 px-3 py-2" data-testid={`${prefix}.settings.session_length`}>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <label

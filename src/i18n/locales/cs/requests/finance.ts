@@ -5,7 +5,6 @@ export const csFinance = {
   'finance.tabs.incoming': 'Příchozí platby',
   'finance.tabs.forecast': 'Odhad příjmů',
   'finance.overview.title': 'Finance',
-  'finance.overview.description': 'Globální platební stav členů, měsíční výhled a praktická fronta ke kontrole.',
   'finance.overview.refresh': 'Obnovit přehled',
   'finance.overview.loading': 'Načítám úplný finanční snímek…',
   'finance.overview.load_error': 'Finanční přehled nelze načíst',

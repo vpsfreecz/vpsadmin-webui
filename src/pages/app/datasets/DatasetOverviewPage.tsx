@@ -648,7 +648,6 @@ function DatasetManagementCard() {
     <Card testId="dataset.manage">
       <CardHeader
         title={t('dataset.manage.title')}
-        subtitle={t('dataset.manage.subtitle')}
         actions={
           capabilities.canCreateSubdataset || capabilities.canDelete ? (
             <div className="flex flex-wrap gap-2">

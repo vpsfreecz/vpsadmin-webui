@@ -10,8 +10,7 @@ const common = { open: true, canAdmin: true, gate: { allowed: true as const }, s
 
 describe('supported mount controls', () => {
   test('create has mountpoint/mode, without fabricated type/map or admin master flag', () => {
-    render(<VpsStorageMountCreateModal {...common} draft={defaultMountDraft()} datasetName="" foundDataset={null}
-      findError={null} createError={null} findLoading={false} createLoading={false} onFindDataset={vi.fn()} onDatasetNameChange={vi.fn()} />);
+    render(<VpsStorageMountCreateModal {...common} draft={defaultMountDraft()} datasetPicker={<div data-testid="dataset-picker" />} createError={null} createLoading={false} />);
     expect(screen.getByTestId('vps.storage.mounts.create.mountpoint')).toBeEnabled();
     expect(screen.getByTestId('vps.storage.mounts.create.mode')).toBeEnabled();
     for (const field of ['type', 'use_default_map', 'master_enabled']) {

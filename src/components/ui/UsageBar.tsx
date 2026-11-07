@@ -16,9 +16,13 @@ export function UsageBar(props: {
   max?: number | null;
   /** Value formatter for the numbers (defaults to raw number string). */
   formatValue?: (n: number) => string;
+  /** Format both values together when they can share a unit. */
+  formatPair?: (used: number, max: number) => string;
   /** Backward-compatible simple unit suffix used by older call sites. */
   unit?: string;
   layout?: UsageBarLayout;
+  /** Disable ratio-based warning colors when utilization does not prove pressure. */
+  severity?: 'ratio' | 'none';
   /**
    * When layout="row", these control consistent column widths.
    * Defaults are chosen to match existing dense list usage.
@@ -44,12 +48,18 @@ export function UsageBar(props: {
   const valid = max !== undefined && max > 0;
   const ratio = valid ? used / max : 0;
   const free = valid ? Math.max(0, max - used) : 0;
-  const variant = usageSeverityFromRatio(ratio);
+  const variant = props.severity === 'none' ? 'accent' : usageSeverityFromRatio(ratio);
 
   // Default aria label should not add English-only suffixes.
   // If the label is a string, it is usually descriptive enough for screen readers.
   const aria = props.ariaLabel ?? (typeof props.label === 'string' ? String(props.label) : 'usage');
   const label = props.label ?? null;
+  const values =
+    showValues && valid
+      ? usedRaw !== undefined && props.formatPair
+        ? props.formatPair(usedRaw, max)
+        : `${usedRaw !== undefined ? format(usedRaw) : '—'} / ${format(max)}`
+      : '—';
 
   if (layout === 'row') {
     return (
@@ -72,15 +82,7 @@ export function UsageBar(props: {
         </div>
 
         {showValues ? (
-          <span className={clsx('w-28 text-right text-faint', props.rowValueClassName)}>
-            {valid ? (
-              <>
-                {usedRaw !== undefined ? format(usedRaw) : '—'} / {format(max as number)}
-              </>
-            ) : (
-              '—'
-            )}
-          </span>
+          <span className={clsx('w-28 text-right text-faint', props.rowValueClassName)}>{values}</span>
         ) : null}
       </div>
     );
@@ -91,17 +93,7 @@ export function UsageBar(props: {
     <div data-testid={props.testId} className={clsx('space-y-1', props.className)}>
       <div className="flex items-center justify-between gap-2">
         <span className="min-w-0 truncate">{label}</span>
-        {showValues ? (
-          <span className="shrink-0 text-faint">
-            {valid ? (
-              <>
-                {usedRaw !== undefined ? format(usedRaw) : '—'} / {format(max as number)}
-              </>
-            ) : (
-              '—'
-            )}
-          </span>
-        ) : null}
+        {showValues ? <span className="shrink-0 text-faint">{values}</span> : null}
       </div>
       {valid ? (
         <StackedBar

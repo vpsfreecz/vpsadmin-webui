@@ -121,15 +121,18 @@ describe('VpsStorageModel', () => {
     const mounts: VpsMount[] = [
       { id: 1, mountpoint: '/srv/a', mode: 'rw', enabled: true, current_state: 'mounted' },
       { id: 2, mountpoint: '/srv/b', mode: 'ro', enabled: false, current_state: 'failed' },
+      { id: 3, mountpoint: '/srv/c', enabled: true, current_state: 'waiting' },
+      { id: 4, mountpoint: '/srv/d', mode: 'ro', enabled: false, current_state: 'unmounted' },
     ];
 
     expect(storageOverviewSummary(mounts)).toEqual({
-      mountCount: 2,
-      enabledMountCount: 1,
-      disabledMountCount: 1,
+      mountCount: 4,
+      enabledMountCount: 2,
+      disabledMountCount: 2,
       writableMountCount: 1,
-      readOnlyMountCount: 1,
-      failedMountCount: 1,
+      readOnlyMountCount: 2,
+      unknownModeMountCount: 1,
+      mountAttentionCount: 2,
     });
     expect(mountDeleteConfirmation(mounts[0]!)).toBe('/srv/a');
     expect(computeCapacityPercent(50, 50, null)).toBe(50);

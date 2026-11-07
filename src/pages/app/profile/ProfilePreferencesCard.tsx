@@ -98,7 +98,7 @@ export function ProfilePreferencesCard() {
 
   return (
     <Card testId="profile.prefs.card">
-      <CardHeader title={t('profile.prefs.title')} subtitle={t('profile.prefs.subtitle')} />
+      <CardHeader title={t('profile.prefs.title')} />
       <CardBody>
         <div className="space-y-3">
           {canSwitchScope ? (
@@ -133,10 +133,23 @@ export function ProfilePreferencesCard() {
             </ProfilePreferenceRow>
           ) : null}
 
-          <ProfilePreferenceRow
-            label={t('settings.theme.label')}
-            description={t('profile.prefs.theme.desc')}
-          >
+          <ProfilePreferenceRow label={t('settings.help_placement.label')} description={t('settings.help_placement.local')}>
+            <Select
+              aria-label={t('settings.help_placement.label')}
+              value={ui.helpPlacement}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (value === 'top' || value === 'bottom') ui.setHelpPlacement(value);
+              }}
+              options={[
+                { value: 'top', label: t('settings.help_placement.top') },
+                { value: 'bottom', label: t('settings.help_placement.bottom') },
+              ]}
+              testId="prefs.help-placement"
+            />
+          </ProfilePreferenceRow>
+
+          <ProfilePreferenceRow label={t('settings.theme.label')}>
             <Select
               value={ui.settings.theme}
               onChange={(e) => {

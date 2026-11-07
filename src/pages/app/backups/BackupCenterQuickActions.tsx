@@ -13,7 +13,7 @@ export function BackupCenterQuickActions(props: {
 
   return (
     <Card testId="backups.quick">
-      <CardHeader title={t('backups.quick.title')} subtitle={t('backups.quick.subtitle')} />
+      <CardHeader title={t('backups.quick.title')} />
       <CardBody className="grid gap-3 md:grid-cols-3">
         <Button onClick={props.onRestore} variant="secondary" testId="backups.quick.restore">
           {t('backups.quick.restore')}

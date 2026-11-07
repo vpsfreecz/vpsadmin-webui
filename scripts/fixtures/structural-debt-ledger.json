@@ -162,20 +162,6 @@
     },
     {
       "path": "src/pages/app/admin/cluster/ResourcePackageDetailPage.tsx",
-      "rule": "increased-as-any",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "e8f54890b68cd601a2015454c4b42a55d9e66244cea7cbe4a1dbc58b1a6185e1",
-      "old": 19,
-      "allowance": 20,
-      "rationale": "At the recorded source revision, resource package detail had one additional cast. This file also exceeds its line baseline; type the form and extract its sections together during the page refactor. Reviewed generated-client migration: only the total-count helper import moves to apiErrors. The pre-existing 20 casts and line allowance are unchanged; this review grants no additional cast or line capacity.",
-      "owner": "WebUI collection and page refactor implementer",
-      "removeWhen": {
-        "metric": "asAny",
-        "atMost": 19
-      }
-    },
-    {
-      "path": "src/pages/app/admin/cluster/ResourcePackageDetailPage.tsx",
       "rule": "grown-over-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
       "contentHash": "e8f54890b68cd601a2015454c4b42a55d9e66244cea7cbe4a1dbc58b1a6185e1",
@@ -186,6 +172,20 @@
       "removeWhen": {
         "metric": "lines",
         "atMost": 906
+      }
+    },
+    {
+      "path": "src/pages/app/admin/cluster/ResourcePackageDetailPage.tsx",
+      "rule": "increased-as-any",
+      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
+      "contentHash": "e8f54890b68cd601a2015454c4b42a55d9e66244cea7cbe4a1dbc58b1a6185e1",
+      "old": 19,
+      "allowance": 20,
+      "rationale": "At the recorded source revision, resource package detail had one additional cast. This file also exceeds its line baseline; type the form and extract its sections together during the page refactor. Reviewed generated-client migration: only the total-count helper import moves to apiErrors. The pre-existing 20 casts and line allowance are unchanged; this review grants no additional cast or line capacity.",
+      "owner": "WebUI collection and page refactor implementer",
+      "removeWhen": {
+        "metric": "asAny",
+        "atMost": 19
       }
     },
     {
@@ -231,20 +231,6 @@
       }
     },
     {
-      "path": "src/pages/app/admin/user/AdminUserPaymentsPage.tsx",
-      "rule": "crossed-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "d6b8643e429d2c56e338024ace2d402e24b38b2b894e1b2b2bf36ba597e65f7d",
-      "old": 0,
-      "allowance": 796,
-      "rationale": "At the recorded source revision, this file already contained admin user payments and incoming-payment views; extract the coherent section with focused behavior coverage before removing this exception. Reviewed generated-client migration: paid-until clearing rejects locally with the approved diagnostic, preserving the reviewed owner/value and existing single account mutation. Valid dates and zero monthly amounts retain their prior behavior. Compact formatting reduces this source below its prior allowance; tighten to the exact measured line count without expanding any budget.",
-      "owner": "WebUI implementation lead",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 500
-      }
-    },
-    {
       "path": "src/pages/app/datasets/DatasetExpansionPage.tsx",
       "rule": "grown-over-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
@@ -276,10 +262,10 @@
       "path": "src/pages/app/vps/VpsAccessPage.tsx",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "e74fd40aea77a4e7d8a64ce29dc942a7c0da203f3be39498e1af9882d0c9e537",
+      "contentHash": "468fcd2bb5cc86bc7b19ebcabb2d4fdd092ee786731e764ad3a2e267bcca8e5d",
       "old": 0,
-      "allowance": 564,
-      "rationale": "At the recorded source revision, this file already contained VPS access and credential controls; extract the coherent section with focused behavior coverage before removing this exception. Reviewed generated-client migration: only the action-state receipt helper import moves to apiErrors; behavior, casts and line allowance are unchanged.",
+      "allowance": 505,
+      "rationale": "At the recorded source revision, this file already contained VPS access and credential controls; extract the coherent section with focused behavior coverage before removing this exception. Reviewed UX-04 local heading and border changes only; no controller expansion. Integrated main: action-state receipt helper remains imported from apiErrors; the reviewed preview removes duplicate summary/checklist sections and uses authenticated ownership. The exact 505-line cap is retained.",
       "owner": "WebUI collection and page refactor implementer",
       "removeWhen": {
         "metric": "lines",
@@ -309,34 +295,6 @@
       "allowance": 547,
       "rationale": "At the recorded source revision, this file already contained shared creation wizard controls; extract the coherent section with focused behavior coverage before removing this exception. Reviewed generated-client migration: only the missing-action-state helper import moves to apiErrors; behavior, casts and line allowance are unchanged.",
       "owner": "WebUI collection and page refactor implementer",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 500
-      }
-    },
-    {
-      "path": "src/pages/app/vps/VpsStoragePage.tsx",
-      "rule": "crossed-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "e4d99b983dd5bc248300d6c79698bb9019702cfae2a2d4f9eb96bea1129c4d0f",
-      "old": 0,
-      "allowance": 505,
-      "rationale": "At the recorded source revision, this file already contained VPS storage sections and actions; extract the coherent section with focused behavior coverage before removing this exception. Reviewed generated-client migration: generated Mount Create input replaces an untyped payload, receipt helpers move to apiErrors, and one redundant blank line is removed. Existing preflight, mutation snapshots and uncertainty tracking remain; the exact 505-line allowance is unchanged.",
-      "owner": "WebUI collection and page refactor implementer",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 500
-      }
-    },
-    {
-      "path": "src/routes/router.tsx",
-      "rule": "crossed-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "79c79c174f4ff8eb9286effdc5a32c2b8f001b20f75812754e2b35780415c660",
-      "old": 0,
-      "allowance": 514,
-      "rationale": "At the recorded source revision, this file already contained route declarations and access guards; extract the coherent section with focused behavior coverage before removing this exception. Reviewed 2026-10-14: replace the three personal node routes with ForbiddenPage and add its import (+1 line); retain existing administrator routes and direct-URL role coverage. No general budget increase. Reviewed 2026-10-16 for PR51: the About page adds one lazy import declaration, its separating blank line and one public route (+3 lines). Existing routes and access guards are unchanged; public About and footer browser coverage passed on desktop and mobile. This exact 514-line allowance covers only the reviewed addition, not a general budget increase.",
-      "owner": "WebUI implementation lead",
       "removeWhen": {
         "metric": "lines",
         "atMost": 500

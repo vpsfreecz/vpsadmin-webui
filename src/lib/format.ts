@@ -16,6 +16,17 @@ export function formatMiB(mib: number | undefined | null): string {
   return `${tib.toFixed(1)} TiB`;
 }
 
+/** Format a used/allocated pair of MiB values in a single shared unit. */
+export function formatMiBPair(used: number, allocated: number): string {
+  const smallest = used === 0 ? allocated : Math.min(used, allocated);
+  const divisor = smallest >= 1024 * 1024 ? 1024 * 1024 : smallest >= 1024 ? 1024 : 1;
+  if (divisor === 1) return `${used} / ${allocated} MiB`;
+
+  const usedValue = Number((used / divisor).toFixed(1));
+  const allocatedValue = Number((allocated / divisor).toFixed(1));
+  return `${usedValue} / ${allocatedValue} ${divisor === 1024 ? 'GiB' : 'TiB'}`;
+}
+
 export function formatDateTime(value: string | undefined | null): string {
   if (!value) return '—';
   const d = new Date(value);
@@ -25,12 +36,13 @@ export function formatDateTime(value: string | undefined | null): string {
 
 export function formatDateTimeInTimeZone(
   value: string | undefined | null,
-  timeZone: string
+  timeZone: string,
+  language?: 'cs' | 'en'
 ): string {
   if (!value) return '—';
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return value;
-  return d.toLocaleString(undefined, {
+  return d.toLocaleString(language === 'cs' ? 'cs-CZ' : language, {
     timeZone: isValidTimeZone(timeZone) ? timeZone : SAFE_TIME_ZONE,
   });
 }

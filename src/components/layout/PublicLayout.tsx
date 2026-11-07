@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { BuildFooter } from './BuildFooter';
+import { PublicThemeSwitcher } from './PublicThemeSwitcher';
 
 import { getRuntimeConfig } from '../../app/config';
 import { useAuth } from '../../app/auth';
@@ -70,9 +71,10 @@ function NavItem(props: { to: string; children: React.ReactNode }) {
   );
 }
 
-function languageButtonClass(active: boolean): string {
+function languageButtonClass(active: boolean, mobile = false): string {
   return clsx(
-    'rounded-md px-2 py-1 text-xs font-semibold transition-colors',
+    'rounded-md py-1 text-xs font-semibold transition-colors',
+    mobile ? 'min-h-11 min-w-11 px-1' : 'px-2',
     active ? 'bg-primary text-primary-contrast' : 'text-muted hover:bg-surface-2 hover:text-fg'
   );
 }
@@ -81,37 +83,43 @@ function PublicLanguageSwitcher(props: {
   language: UiLanguagePreference;
   onSetLanguage: (language: UiLanguagePreference) => void;
   t: (key: string) => string;
+  mobile?: boolean;
 }) {
+  const testId = props.mobile ? 'public.language.mobile' : 'public.language';
   return (
     <div
-      className="hidden items-center gap-1 rounded-lg border border-border bg-overlay-surface p-1 shadow-card sm:flex"
+      role="group"
+      className={clsx(
+        'flex items-center rounded-lg border border-border bg-overlay-surface shadow-card',
+        props.mobile ? 'p-0.5' : 'gap-1 p-1'
+      )}
       aria-label={props.t('settings.language.label')}
-      data-testid="public.language.switcher"
+      data-testid={`${testId}.switcher`}
     >
       <button
         type="button"
-        className={languageButtonClass(props.language === 'system')}
+        className={languageButtonClass(props.language === 'system', props.mobile)}
         onClick={() => props.onSetLanguage('system')}
         title={props.t('settings.language.system')}
-        data-testid="public.language.system"
+        data-testid={`${testId}.system`}
       >
         Auto
       </button>
       <button
         type="button"
-        className={languageButtonClass(props.language === 'en')}
+        className={languageButtonClass(props.language === 'en', props.mobile)}
         onClick={() => props.onSetLanguage('en')}
         title={props.t('settings.language.en')}
-        data-testid="public.language.en"
+        data-testid={`${testId}.en`}
       >
         EN
       </button>
       <button
         type="button"
-        className={languageButtonClass(props.language === 'cs')}
+        className={languageButtonClass(props.language === 'cs', props.mobile)}
         onClick={() => props.onSetLanguage('cs')}
         title={props.t('settings.language.cs')}
-        data-testid="public.language.cs"
+        data-testid={`${testId}.cs`}
       >
         CS
       </button>
@@ -145,11 +153,15 @@ function PublicLayoutInner() {
 
   useEffect(() => {
     if (!isLoggedIn) return;
+    if (/^\/(outages|security-advisories)(?:\/[^/]+)?\/?$/.test(location.pathname)) {
+      navigate({ pathname: `/app${location.pathname}`, search: location.search, hash: location.hash }, { replace: true });
+      return;
+    }
     if (location.pathname !== '/') return;
     if (new URLSearchParams(location.search).get('session') === 'expired') return;
 
     navigate('/app', { replace: true });
-  }, [isLoggedIn, location.pathname, location.search, navigate]);
+  }, [isLoggedIn, location.pathname, location.search, location.hash, navigate]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -161,7 +173,7 @@ function PublicLayoutInner() {
               vpsAdmin
             </NavLink>
 
-            <nav className="hidden md:flex items-center gap-1" data-document-title-nav="section">
+            <nav className="hidden lg:flex items-center gap-1" data-document-title-nav="section">
               <NavItem to="/">{i18n.t('public.nav.overview')}</NavItem>
               <NavItem to="/outages">{i18n.t('public.nav.outages')}</NavItem>
               <NavItem to="/security-advisories">{i18n.t('public.nav.security_advisories')}</NavItem>
@@ -169,18 +181,21 @@ function PublicLayoutInner() {
 
             <div className="flex-1" />
 
-            <PublicLanguageSwitcher language={ui.settings.language} onSetLanguage={ui.setLanguage} t={i18n.t} />
+            <div className="hidden items-center gap-3 sm:flex">
+              <PublicLanguageSwitcher language={ui.settings.language} onSetLanguage={ui.setLanguage} t={i18n.t} />
+              <PublicThemeSwitcher preference={ui.settings.theme} onSetTheme={ui.setTheme} t={i18n.t} testId="public.theme.desktop" />
+            </div>
 
             <a
               href={primaryHref}
-              className="hidden md:inline-flex items-center rounded-md border border-border bg-overlay-surface px-3 py-2 text-sm font-medium shadow-card hover:bg-surface-2"
+              className="hidden lg:inline-flex items-center rounded-md border border-border bg-overlay-surface px-3 py-2 text-sm font-medium shadow-card hover:bg-surface-2"
             >
               {primaryLabel}
             </a>
 
             <button
               type="button"
-              className="md:hidden inline-flex items-center justify-center rounded-md border border-border bg-overlay-surface p-2 shadow-card hover:bg-surface-2"
+              className="lg:hidden inline-flex items-center justify-center rounded-md border border-border bg-overlay-surface p-2 shadow-card hover:bg-surface-2"
               aria-label={mobileOpen ? i18n.t('public.menu.close') : i18n.t('public.menu.open')}
               onClick={() => setMobileOpen((v) => !v)}
             >
@@ -189,36 +204,14 @@ function PublicLayoutInner() {
           </div>
 
           {mobileOpen && (
-            <div className="md:hidden pb-4">
+            <div className="lg:hidden pb-4">
               <div className="flex flex-col gap-1" data-document-title-nav="section">
                 <NavItem to="/">{i18n.t('public.nav.overview')}</NavItem>
                 <NavItem to="/outages">{i18n.t('public.nav.outages')}</NavItem>
                 <NavItem to="/security-advisories">{i18n.t('public.nav.security_advisories')}</NavItem>
-                <div className="mt-2 flex items-center gap-1 rounded-lg border border-border bg-overlay-surface p-1 shadow-card">
-                  <button
-                    type="button"
-                    className={languageButtonClass(ui.settings.language === 'system')}
-                    onClick={() => ui.setLanguage('system')}
-                    title={i18n.t('settings.language.system')}
-                  >
-                    Auto
-                  </button>
-                  <button
-                    type="button"
-                    className={languageButtonClass(ui.settings.language === 'en')}
-                    onClick={() => ui.setLanguage('en')}
-                    title={i18n.t('settings.language.en')}
-                  >
-                    EN
-                  </button>
-                  <button
-                    type="button"
-                    className={languageButtonClass(ui.settings.language === 'cs')}
-                    onClick={() => ui.setLanguage('cs')}
-                    title={i18n.t('settings.language.cs')}
-                  >
-                    CS
-                  </button>
+                <div className="mt-2 flex flex-wrap items-center justify-center gap-1.5 sm:hidden">
+                  <PublicLanguageSwitcher language={ui.settings.language} onSetLanguage={ui.setLanguage} t={i18n.t} mobile />
+                  <PublicThemeSwitcher preference={ui.settings.theme} onSetTheme={ui.setTheme} t={i18n.t} mobile testId="public.theme.mobile" />
                 </div>
 
                 <a

@@ -10,6 +10,7 @@ import {
   ipAddressLabel,
   routeStateForIp,
   ipIsRouted,
+  sumAccountingRows,
   validateHostAddressInput,
   validatePtrValue,
 } from './VpsNetworkModel';
@@ -20,6 +21,18 @@ describe('VpsNetworkModel', () => {
     expect(ipIsRouted({ id: 1, route_via: {} })).toBeNull();
     expect(buildNetworkRouteSummary({ netifs: [], ips: [{ id: 1 }], hostAddresses: [] }).routedIpCount).toBeNull();
   });
+  it('distinguishes measured zero from a direction without complete data', () => {
+    expect(sumAccountingRows([])).toEqual({ bytesIn: null, bytesOut: null });
+    expect(sumAccountingRows([
+      { id: 1, bytes_in: 0, bytes_out: 2048 },
+      { id: 2, bytes_in: 0, bytes_out: 1024 },
+    ])).toEqual({ bytesIn: 0, bytesOut: 3072 });
+    expect(sumAccountingRows([
+      { id: 1, bytes_in: 512, bytes_out: 1024 },
+      { id: 2, bytes_out: 0 },
+    ])).toEqual({ bytesIn: null, bytesOut: 1024 });
+  });
+
   it('groups routes by interface and summarizes daily network state', () => {
     const netifs: NetworkInterface[] = [
       { id: 10, name: 'eth0', enable: true },

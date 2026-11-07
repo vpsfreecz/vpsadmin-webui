@@ -22,6 +22,7 @@ export function StatCard(props: {
   /** Backward-compatible size alias used by older pages. */
   size?: StatCardSize;
   className?: string;
+  bodyClassName?: string;
   testId?: string;
 }) {
   const variant: StatCardVariant =
@@ -29,17 +30,12 @@ export function StatCard(props: {
   const title = props.title ?? props.label;
   const subtitle = props.subtitle ?? props.description;
 
-  const valueClass =
-    variant === 'featured'
-      ? 'text-3xl'
-      : variant === 'compact'
-        ? 'text-xl'
-        : 'text-2xl';
+  const valueClass = variant === 'featured' ? 'text-3xl' : variant === 'compact' ? 'text-xl' : 'text-2xl';
 
   return (
     <div data-testid={props.testId} className={clsx('h-full', props.className)}>
       <Card className="h-full">
-        <CardBody>
+        <CardBody className={props.bodyClassName}>
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">

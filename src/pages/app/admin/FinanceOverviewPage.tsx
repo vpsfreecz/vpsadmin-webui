@@ -161,7 +161,6 @@ export function FinanceOverviewPage() {
         <div className="space-y-4">
           <PageHeader
             title={t('finance.overview.title')}
-            description={t('finance.overview.description')}
             actions={(
               <Button
                 variant="secondary"
@@ -301,8 +300,8 @@ export function FinanceOverviewPage() {
             />
           </div>
 
-          <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)]">
-            <section className="min-w-0 space-y-3" aria-labelledby="finance-risk-title">
+          <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)] xl:gap-y-3">
+            <section className="min-w-0 space-y-3 xl:row-span-3 xl:grid xl:grid-rows-subgrid xl:space-y-0" aria-labelledby="finance-risk-title">
               <div>
                 <h2 id="finance-risk-title" className="text-lg font-semibold">{t('finance.overview.risk.title')}</h2>
                 <p className="mt-1 text-sm text-muted">{t('finance.overview.risk.description')}</p>
@@ -330,104 +329,108 @@ export function FinanceOverviewPage() {
                 ))}
               </div>
 
-              {visibleReviewUsers.length > 0 ? (
-                <>
-                  <div className="space-y-2 md:hidden" data-testid="admin.finance.overview.risk.mobile">
-                    {visibleReviewUsers.map(({ user, classification }) => (
-                      <TableCard
-                        key={user.id}
-                        to={`${basePath}/users/${user.id}/payments`}
-                        title={userLabel(user)}
-                        subtitle={formatAmount(safeInt(user.monthly_payment) ?? 0, locale, currency)}
-                        testId={`admin.finance.overview.risk.row.${user.id}.mobile`}
-                        rows={[
-                          { label: t('finance.overview.risk.col.paid_until'), value: formatDateInTimeZone(user.paid_until, accountTimeZone) },
-                          {
-                            label: t('common.state'),
-                            value: <Badge variant={financeStatusBadge(classification.status)}>{t(`finance.overview.status.${classification.status}`)}</Badge>,
-                          },
-                        ]}
-                      />
-                    ))}
-                  </div>
-
-                  <TableCard className="hidden md:block" minWidth="sm" tableTestId="admin.finance.overview.risk.table">
-                    <thead>
-                      <tr className="border-b border-border text-left text-xs text-muted">
-                        <th className="px-4 py-3">{t('common.user')}</th>
-                        <th className="px-4 py-3 text-right">{t('finance.overview.risk.col.monthly_payment')}</th>
-                        <th className="px-4 py-3">{t('finance.overview.risk.col.paid_until')}</th>
-                        <th className="px-4 py-3">{t('common.state')}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
+              <div className="space-y-3">
+                {visibleReviewUsers.length > 0 ? (
+                  <>
+                    <div className="space-y-2 md:hidden" data-testid="admin.finance.overview.risk.mobile">
                       {visibleReviewUsers.map(({ user, classification }) => (
-                        <tr key={user.id} className="border-b border-border/60 last:border-b-0" data-testid={`admin.finance.overview.risk.row.${user.id}`}>
-                          <td className="px-4 py-3 font-medium">
-                            <Link className="text-accent hover:underline" to={`${basePath}/users/${user.id}/payments`}>{userLabel(user)}</Link>
-                          </td>
-                          <td className="px-4 py-3 text-right">{formatAmount(safeInt(user.monthly_payment) ?? 0, locale, currency)}</td>
-                          <td className="px-4 py-3">{formatDateInTimeZone(user.paid_until, accountTimeZone)}</td>
-                          <td className="px-4 py-3">
-                            <Badge variant={financeStatusBadge(classification.status)}>{t(`finance.overview.status.${classification.status}`)}</Badge>
-                          </td>
-                        </tr>
+                        <TableCard
+                          key={user.id}
+                          to={`${basePath}/users/${user.id}/payments`}
+                          title={userLabel(user)}
+                          subtitle={formatAmount(safeInt(user.monthly_payment) ?? 0, locale, currency)}
+                          testId={`admin.finance.overview.risk.row.${user.id}.mobile`}
+                          rows={[
+                            { label: t('finance.overview.risk.col.paid_until'), value: formatDateInTimeZone(user.paid_until, accountTimeZone) },
+                            {
+                              label: t('common.state'),
+                              value: <Badge variant={financeStatusBadge(classification.status)}>{t(`finance.overview.status.${classification.status}`)}</Badge>,
+                            },
+                          ]}
+                        />
                       ))}
-                    </tbody>
-                  </TableCard>
-                  <p className="text-xs text-muted" data-testid="admin.finance.overview.risk.result_count">
-                    {t('finance.overview.risk.result_count', {
-                      shown: visibleReviewUsers.length,
-                      total: reviewCounts[reviewStatus],
-                    })}
-                  </p>
-                </>
-              ) : (
-                <Card className="p-4 text-sm text-muted" testId="admin.finance.overview.risk.empty">
-                  {t('finance.overview.risk.filter.empty', { status: t(`finance.overview.status.${reviewStatus}`) })}
-                </Card>
-              )}
+                    </div>
+
+                    <TableCard className="hidden md:block" minWidth="sm" tableTestId="admin.finance.overview.risk.table">
+                      <thead>
+                        <tr className="border-b border-border text-left text-xs text-muted">
+                          <th className="px-4 py-3">{t('common.user')}</th>
+                          <th className="px-4 py-3 text-right">{t('finance.overview.risk.col.monthly_payment')}</th>
+                          <th className="px-4 py-3">{t('finance.overview.risk.col.paid_until')}</th>
+                          <th className="px-4 py-3">{t('common.state')}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {visibleReviewUsers.map(({ user, classification }) => (
+                          <tr key={user.id} className="border-b border-border/60 last:border-b-0" data-testid={`admin.finance.overview.risk.row.${user.id}`}>
+                            <td className="px-4 py-3 font-medium">
+                              <Link className="text-accent hover:underline" to={`${basePath}/users/${user.id}/payments`}>{userLabel(user)}</Link>
+                            </td>
+                            <td className="px-4 py-3 text-right">{formatAmount(safeInt(user.monthly_payment) ?? 0, locale, currency)}</td>
+                            <td className="px-4 py-3">{formatDateInTimeZone(user.paid_until, accountTimeZone)}</td>
+                            <td className="px-4 py-3">
+                              <Badge variant={financeStatusBadge(classification.status)}>{t(`finance.overview.status.${classification.status}`)}</Badge>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </TableCard>
+                    <p className="text-xs text-muted" data-testid="admin.finance.overview.risk.result_count">
+                      {t('finance.overview.risk.result_count', {
+                        shown: visibleReviewUsers.length,
+                        total: reviewCounts[reviewStatus],
+                      })}
+                    </p>
+                  </>
+                ) : (
+                  <Card className="p-4 text-sm text-muted" testId="admin.finance.overview.risk.empty">
+                    {t('finance.overview.risk.filter.empty', { status: t(`finance.overview.status.${reviewStatus}`) })}
+                  </Card>
+                )}
+              </div>
             </section>
 
-            <section className="min-w-0 space-y-3" aria-labelledby="finance-distribution-title">
+            <section className="min-w-0 space-y-3 xl:row-span-3 xl:grid xl:grid-rows-subgrid xl:space-y-0" aria-labelledby="finance-distribution-title">
               <div>
                 <h2 id="finance-distribution-title" className="text-lg font-semibold">{t('finance.overview.distribution.title')}</h2>
                 <p className="mt-1 text-sm text-muted">{t('finance.overview.distribution.description')}</p>
               </div>
-              {distribution.length > 0 ? (
-                <Card className="overflow-hidden p-4" testId="admin.finance.overview.distribution">
-                  <ol className="space-y-3">
-                    {distribution.map((row) => {
-                      const maxCount = distribution[0]?.count ?? 1;
-                      const percentage = Math.max(4, Math.round((row.count / maxCount) * 100));
-                      return (
-                        <li key={row.amount} data-testid={`admin.finance.overview.distribution.row.${row.amount}`}>
-                          <div className="mb-1.5 flex min-w-0 items-baseline justify-between gap-3 text-sm">
-                            <span className="min-w-0 truncate font-medium" title={formatAmount(row.amount, locale, currency)}>
-                              {formatAmount(row.amount, locale, currency)}
-                            </span>
-                            <span className="shrink-0 text-xs text-muted">
-                              {tc('finance.overview.distribution.accounts', row.count, {
-                                count: new Intl.NumberFormat(locale).format(row.count),
-                              })}
-                            </span>
-                          </div>
-                          <div className="h-2 overflow-hidden rounded-full bg-surface-2" aria-hidden="true">
-                            <div
-                              className="h-full rounded-full bg-accent transition-[width]"
-                              style={{ width: `${percentage}%` }}
-                            />
-                          </div>
-                        </li>
-                      );
-                    })}
-                  </ol>
-                </Card>
-              ) : (
-                <Card className="p-4 text-sm text-muted" testId="admin.finance.overview.distribution.empty">
-                  {t('finance.overview.distribution.empty')}
-                </Card>
-              )}
+              <div className="xl:row-start-3">
+                {distribution.length > 0 ? (
+                  <Card className="overflow-hidden p-4" testId="admin.finance.overview.distribution">
+                    <ol className="space-y-3">
+                      {distribution.map((row) => {
+                        const maxCount = distribution[0]?.count ?? 1;
+                        const percentage = Math.max(4, Math.round((row.count / maxCount) * 100));
+                        return (
+                          <li key={row.amount} data-testid={`admin.finance.overview.distribution.row.${row.amount}`}>
+                            <div className="mb-1.5 flex min-w-0 items-baseline justify-between gap-3 text-sm">
+                              <span className="min-w-0 truncate font-medium" title={formatAmount(row.amount, locale, currency)}>
+                                {formatAmount(row.amount, locale, currency)}
+                              </span>
+                              <span className="shrink-0 text-xs text-muted">
+                                {tc('finance.overview.distribution.accounts', row.count, {
+                                  count: new Intl.NumberFormat(locale).format(row.count),
+                                })}
+                              </span>
+                            </div>
+                            <div className="h-2 overflow-hidden rounded-full bg-surface-2" aria-hidden="true">
+                              <div
+                                className="h-full rounded-full bg-accent transition-[width]"
+                                style={{ width: `${percentage}%` }}
+                              />
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ol>
+                  </Card>
+                ) : (
+                  <Card className="p-4 text-sm text-muted" testId="admin.finance.overview.distribution.empty">
+                    {t('finance.overview.distribution.empty')}
+                  </Card>
+                )}
+              </div>
             </section>
           </div>
         </div>

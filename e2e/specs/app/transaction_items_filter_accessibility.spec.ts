@@ -1,6 +1,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
+import { expectNoDocumentHorizontalOverflow } from '../../helpers/horizontalOverflow';
 
 const labels = {
   chain: /^(Chain|Řetězec)$/,
@@ -17,7 +18,9 @@ async function expectHeight(locator: Locator, expected: number) {
 }
 
 async function expectActiveTestId(page: Page, testId: string) {
-  await expect.poll(() => page.evaluate(() => (document.activeElement as HTMLElement | null)?.dataset.testid ?? null)).toBe(testId);
+  await expect
+    .poll(() => page.evaluate(() => (document.activeElement as HTMLElement | null)?.dataset['testid'] ?? null))
+    .toBe(testId);
 }
 
 test('@pr-smoke @pr-smoke-mobile advanced item filters expose labels, keyboard order, and responsive touch geometry', async ({
@@ -43,7 +46,7 @@ test('@pr-smoke @pr-smoke-mobile advanced item filters expose labels, keyboard o
     page.getByTestId('transactions.items.copy_link'),
     page.getByTestId('transactions.items.clear_filters'),
   ];
-  for (const action of topActions) await expectHeight(action, mobile ? 44 : 32);
+  for (const action of topActions) await expectHeight(action, 44);
   if (mobile) {
     const advancedBox = await page.getByTestId('transactions.items.advanced.open').boundingBox();
     expect(Math.round(advancedBox?.width ?? 0)).toBeGreaterThanOrEqual(44);
@@ -59,7 +62,7 @@ test('@pr-smoke @pr-smoke-mobile advanced item filters expose labels, keyboard o
     page.getByRole('textbox', { name: labels.type }),
     page.getByRole('combobox', { name: labels.done }),
     page.getByRole('combobox', { name: labels.success }),
-  ];
+  ] as const;
   for (const control of controls) await expectHeight(control, mobile ? 44 : 36);
 
   const ids = await Promise.all(controls.map((control) => control.getAttribute('id')));
@@ -93,4 +96,25 @@ test('@pr-smoke @pr-smoke-mobile advanced item filters expose labels, keyboard o
     await page.keyboard.press('Tab');
     await expectActiveTestId(page, testId);
   }
+  await page.keyboard.press('Escape');
+  await expect(drawer).not.toBeVisible();
+  await page.getByTestId('transactions.items.smart_filter.help').click();
+  await expect(page.getByTestId('transactions.items.smart_filter.help_modal')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.getByTestId('transactions.items.smart_filter.help_modal')).not.toBeVisible();
+  await page.evaluate(() => {
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: {
+        writeText: async (value: string) => {
+          document.documentElement.dataset['copiedLink'] = value;
+        },
+      },
+    });
+  });
+  await page.getByTestId('transactions.items.copy_link').click();
+  await expect.poll(() => page.evaluate(() => document.documentElement.dataset['copiedLink'])).toBe(page.url());
+  await page.getByTestId('transactions.items.clear_filters').click();
+  await expect(page.getByTestId('transactions.items.active_filters')).not.toBeVisible();
+  await expectNoDocumentHorizontalOverflow(page);
 });

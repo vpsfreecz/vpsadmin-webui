@@ -8,7 +8,7 @@ import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
 import { Input } from '../../../components/ui/Input';
 import { Modal } from '../../../components/ui/Modal';
 import { Select } from '../../../components/ui/Select';
-import type { Dataset, VpsMount } from '../../../lib/api/vpsMounts';
+import type { VpsMount } from '../../../lib/api/vpsMounts';
 import type { GateDecision } from '../../../lib/gates/types';
 import {
   buildMountDiff,
@@ -118,12 +118,7 @@ function MountFormFields(props: {
   draft: MountDraft;
   canAdmin: boolean;
   startFailOptions: StartFailOption[];
-  datasetName?: string;
-  foundDataset?: Dataset | null;
-  findError?: string | null;
-  findLoading?: boolean;
-  onFindDataset?: () => void;
-  onDatasetNameChange?: (value: string) => void;
+  datasetPicker?: React.ReactNode;
   onDraftPatch: (patch: DraftPatch) => void;
 }) {
   const { t } = useI18n();
@@ -132,34 +127,7 @@ function MountFormFields(props: {
   return (
     <div className="space-y-4">
       {props.mode === 'create' ? (
-        <div>
-          <div className="text-xs font-medium text-muted">{t('vps.storage.dataset_find.label')}</div>
-          <div className="mt-1 flex items-center gap-2">
-            <Input
-              testId="vps.storage.mounts.create.dataset"
-              value={props.datasetName ?? ''}
-              onChange={(e) => props.onDatasetNameChange?.(e.target.value)}
-              placeholder={t('vps.storage.dataset_find.placeholder')}
-              autoComplete="off"
-            />
-            <Button
-              variant="secondary"
-              size="sm"
-              testId="vps.storage.mounts.create.find_dataset"
-              onClick={props.onFindDataset}
-              loading={props.findLoading}
-            >
-              {t('common.find')}
-            </Button>
-          </div>
-          {props.findError ? <div className="mt-1 text-xs text-danger">{props.findError}</div> : null}
-          {props.foundDataset ? (
-            <div className="mt-2 rounded-md border border-border bg-surface-2 p-2 text-sm">
-              <div className="font-medium">{datasetLabel(props.foundDataset)}</div>
-              <div className="mt-0.5 text-xs text-muted">#{props.foundDataset.id}</div>
-            </div>
-          ) : null}
-        </div>
+        props.datasetPicker
       ) : (
         <div className="rounded-md border border-border bg-surface-2 p-2 text-sm">
           <div className="font-medium">{datasetLabel(draft.dataset)}</div>
@@ -249,17 +217,12 @@ export function VpsStorageMountCreateModal(props: {
   draft: MountDraft;
   canAdmin: boolean;
   gate: GateDecision;
-  datasetName: string;
-  foundDataset: Dataset | null;
-  findError: string | null;
+  datasetPicker: React.ReactNode;
   createError: string | null;
-  findLoading: boolean;
   createLoading: boolean;
   canSubmit: boolean;
   startFailOptions: StartFailOption[];
   onClose: () => void;
-  onFindDataset: () => void;
-  onDatasetNameChange: (value: string) => void;
   onDraftPatch: (patch: DraftPatch) => void;
   onSubmit: () => void;
 }) {

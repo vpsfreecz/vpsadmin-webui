@@ -5,14 +5,14 @@ import { ActionButton } from '../../../components/ui/ActionButton';
 import { Alert } from '../../../components/ui/Alert';
 import { Badge } from '../../../components/ui/Badge';
 import { Button } from '../../../components/ui/Button';
-import { Checkbox } from '../../../components/ui/Checkbox';
 import { Input } from '../../../components/ui/Input';
 import { Select, type SelectOption } from '../../../components/ui/Select';
 import { Spinner } from '../../../components/ui/Spinner';
 import { UserLookupInput } from '../../../components/ui/UserLookupInput';
 import type { Vps } from '../../../lib/api/vps';
 import type { GateReason } from '../../../lib/gates/types';
-import { Field, VpsConfigSectionCard } from './VpsConfigurationPrimitives';
+import { VpsAdminModificationChoice } from './VpsAdminModificationChoice';
+import { Field, VpsConfigRiskBadges } from './VpsConfigurationPrimitives';
 import {
   START_MENU_TIMEOUT_MAX,
   VPS_MAP_MODES,
@@ -23,6 +23,26 @@ import {
 } from './VpsConfigurationModel';
 
 type LoadState = { isLoading: boolean; isError: boolean; error: unknown };
+
+function ConfigurationGroup({
+  title,
+  risks,
+  children,
+}: {
+  title: string;
+  risks: React.ComponentProps<typeof VpsConfigRiskBadges>['risks'];
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="min-w-0 space-y-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <h3 className="text-sm font-semibold text-fg">{title}</h3>
+        <VpsConfigRiskBadges risks={risks} />
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">{children}</div>
+    </section>
+  );
+}
 
 export function VpsAdditionalConfiguration({
   focusedResources,
@@ -82,15 +102,8 @@ export function VpsAdditionalConfiguration({
       data-testid="vps.config.additional"
     >
       <summary className="cursor-pointer px-4 py-3 font-semibold">{t('vps.resources.additional')}</summary>
-      <div className="space-y-4 p-4 pt-0">
-        <VpsConfigSectionCard
-          title={t(canEditAdminConfig ? 'vps.config.section.identity_admin' : 'vps.config.section.identity')}
-          subtitle={t(
-            canEditAdminConfig ? 'vps.config.section.identity_help_admin' : 'vps.config.section.identity_help'
-          )}
-          risks={['safe']}
-          bodyClassName="grid gap-4 md:grid-cols-2"
-        >
+      <div className="space-y-4 px-4 pb-4">
+        <ConfigurationGroup title={t('vps.config.section.identity')} risks={['safe']}>
           <Field
             label={t('vps.config.field.hostname_mode')}
             help={t('vps.config.help.hostname_mode')}
@@ -118,21 +131,17 @@ export function VpsAdditionalConfiguration({
               autoComplete="off"
             />
           </Field>
-        </VpsConfigSectionCard>
+        </ConfigurationGroup>
 
         <section
           ref={dnsRef}
           tabIndex={-1}
           aria-label={t('vps.config.section.resolvers')}
           data-testid="vps.config.dns"
-          className="scroll-mt-20 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+          className="min-w-0 space-y-2 scroll-mt-20 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-focus"
         >
-          <VpsConfigSectionCard
-            title={t('vps.config.section.resolvers')}
-            subtitle={t('vps.config.section.resolvers_help')}
-            risks={['network']}
-            bodyClassName="grid gap-4 md:grid-cols-2"
-          >
+          <VpsConfigRiskBadges risks={['network']} />
+          <div className="grid gap-4 md:grid-cols-2">
             <Field
               label={t('vps.config.field.dns_resolver')}
               help={t('vps.config.help.dns_resolver_nullable')}
@@ -152,31 +161,26 @@ export function VpsAdditionalConfiguration({
                 />
               )}
             </Field>
-            {focusedDns ? (
-              <div className="flex flex-wrap gap-2 md:col-span-2">
-                <Button variant="secondary" disabled={pending} onClick={onReset} testId="vps.config.dns.reset">
-                  {t('common.reset')}
-                </Button>
-                <ActionButton
-                  disabled={saveDisabled}
-                  disabledReason={disabledReason}
-                  loading={pending}
-                  onClick={onSave}
-                  testId="vps.config.dns.save"
-                >
-                  {changeCount ? t('vps.config.save_changes', { n: changeCount }) : t('vps.config.save_changes_empty')}
-                </ActionButton>
-              </div>
-            ) : null}
-          </VpsConfigSectionCard>
+          </div>
+          {focusedDns ? (
+            <div className="flex flex-wrap gap-2">
+              <Button variant="secondary" disabled={pending} onClick={onReset} testId="vps.config.dns.reset">
+                {t('common.reset')}
+              </Button>
+              <ActionButton
+                disabled={saveDisabled}
+                disabledReason={disabledReason}
+                loading={pending}
+                onClick={onSave}
+                testId="vps.config.dns.save"
+              >
+                {changeCount ? t('vps.config.save_changes', { n: changeCount }) : t('vps.config.save_changes_empty')}
+              </ActionButton>
+            </div>
+          ) : null}
         </section>
 
-        <VpsConfigSectionCard
-          title={t('vps.config.section.namespace')}
-          subtitle={t('vps.config.section.namespace_help')}
-          risks={['requires_restart']}
-          bodyClassName="grid gap-4 md:grid-cols-2"
-        >
+        <ConfigurationGroup title={t('vps.config.section.namespace')} risks={['requires_restart']}>
           <Field
             label={t('vps.config.field.user_namespace_map')}
             help={t('vps.config.help.user_namespace_map')}
@@ -215,14 +219,9 @@ export function VpsAdditionalConfiguration({
               />
             </Field>
           ) : null}
-        </VpsConfigSectionCard>
+        </ConfigurationGroup>
 
-        <VpsConfigSectionCard
-          title={t('vps.config.section.boot')}
-          subtitle={t(canEditAdminConfig ? 'vps.config.section.boot_help' : 'vps.config.section.boot_help_user')}
-          risks={['boot', 'requires_restart']}
-          bodyClassName={canEditAdminConfig ? 'grid gap-4 md:grid-cols-2' : 'grid gap-4 md:grid-cols-1'}
-        >
+        <ConfigurationGroup title={t('vps.config.section.boot')} risks={['boot', 'requires_restart']}>
           {canEditAdminConfig ? (
             <Field
               label={t('vps.config.field.start_menu_timeout')}
@@ -252,32 +251,19 @@ export function VpsAdditionalConfiguration({
               ]}
             />
           </Field>
-        </VpsConfigSectionCard>
+        </ConfigurationGroup>
 
-        <VpsConfigSectionCard
-          title={t('vps.config.section.admin_access')}
-          subtitle={t('vps.config.section.admin_access_help')}
-          risks={['safe']}
-          bodyClassName="grid gap-4 md:grid-cols-2"
-        >
-          <div className="flex items-end">
-            <Checkbox
-              checked={effective.allowAdminModifications}
-              onChange={(checked) => patchDraft({ allowAdminModifications: checked })}
-              label={t('vps.config.field.allow_admin_modifications')}
-              description={t('vps.config.help.allow_admin_modifications')}
-              disabled={pending}
-            />
-          </div>
-        </VpsConfigSectionCard>
+        <section className="min-w-0 space-y-2">
+          <h3 className="text-sm font-semibold text-fg">{t('vps.admin_modifications.title')}</h3>
+          <VpsAdminModificationChoice
+            selected={typeof vps.allow_admin_modifications === 'boolean' ? effective.allowAdminModifications : null}
+            disabled={pending}
+            onChange={(allowAdminModifications) => patchDraft({ allowAdminModifications })}
+          />
+        </section>
 
         {canEditAdminConfig ? (
-          <VpsConfigSectionCard
-            title={t('vps.config.section.admin')}
-            subtitle={t('vps.config.section.admin_help')}
-            risks={['admin_only']}
-            bodyClassName="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
-          >
+          <ConfigurationGroup title={t('vps.config.section.admin')} risks={['admin_only']}>
             <Field label={t('vps.config.field.owner')} help={t('vps.config.help.owner')} errors={fieldMessages('user')}>
               <UserLookupInput
                 value={effective.user}
@@ -326,7 +312,7 @@ export function VpsAdditionalConfiguration({
                 autoComplete="off"
               />
             </Field>
-          </VpsConfigSectionCard>
+          </ConfigurationGroup>
         ) : null}
       </div>
     </details>

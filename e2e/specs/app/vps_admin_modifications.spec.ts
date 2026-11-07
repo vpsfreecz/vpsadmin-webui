@@ -276,3 +276,69 @@ for (const outcome of ['mismatch', 'unavailable'] as const) {
     expect(writes).toBe(1);
   });
 }
+
+for (const known of [true, false]) {
+  test(`@pr-smoke @pr-smoke-mobile additional configuration uses an explicit admin modification choice (known: ${known})`, async ({
+    page,
+  }) => {
+    await bootstrapVpsAdminWindow(page);
+    await setUiSettingsLocalStorage(page, { language: 'en', theme: 'dark' });
+    let allow = true;
+    const writes: unknown[] = [];
+    const vps = () => ({
+      id: 123,
+      hostname: 'sample.example',
+      object_state: 'active',
+      user: { id: 7 },
+      cpu: 2,
+      memory: 2048,
+      swap: 0,
+      manage_hostname: true,
+      ...(known ? { allow_admin_modifications: allow } : {}),
+      node: { id: 1 },
+    });
+    await installHaveApiMock(page, {
+      user: { id: 7, login: 'member', level: 1 },
+      handlers: {
+        'GET vpses/123': () => ({ vps: vps() }),
+        'GET transaction_chains': () => ({ transaction_chains: [] }),
+        'GET dns_resolvers': () => ({ dns_resolvers: [] }),
+        'GET user_namespace_maps': () => ({ user_namespace_maps: [] }),
+        'PUT vpses/123': (ctx) => {
+          writes.push(ctx.request.postDataJSON());
+          allow = false;
+          return { vps: vps() };
+        },
+      },
+    });
+    await page.goto('/app/vps/123/config');
+    const additional = page.getByTestId('vps.config.additional');
+    await expect(additional.getByText(/does not access or modify your applications or data/)).toBeVisible();
+    const allowChoice = additional.getByTestId('vps.admin_modifications.allow');
+    const denyChoice = additional.getByTestId('vps.admin_modifications.deny');
+    const save = page.getByTestId('vps.config.header.save');
+    await expect(save).toBeDisabled();
+    expect(writes).toEqual([]);
+    if (!known) {
+      await expect(allowChoice).toBeDisabled();
+      await expect(denyChoice).toBeDisabled();
+      await expect(allowChoice).not.toBeChecked();
+      await expect(denyChoice).not.toBeChecked();
+      return;
+    }
+    await expect(allowChoice).toBeChecked();
+    await denyChoice.check();
+    expect(writes).toEqual([]);
+    await save.click();
+    const review = page.getByTestId('vps.config.confirm');
+    await expect(review.getByTestId('vps.config.diff.allow_admin_modifications')).toBeVisible();
+    expect(writes).toEqual([]);
+    await page.getByTestId('vps.config.confirm.confirm').click();
+    await expect(review).toBeHidden();
+    expect(writes).toEqual([{ vps: { allow_admin_modifications: false } }]);
+    await page.reload();
+    await expect(denyChoice).toBeChecked();
+    await expect(save).toBeDisabled();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  });
+}

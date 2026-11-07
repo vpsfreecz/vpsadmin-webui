@@ -5,7 +5,7 @@ export const csCommon_palette = {
   'palette.open': 'Hledat',
   'palette.shortcut_title': 'Otevřít rychlé vyhledávání',
   'search.inline.aria': 'Rychle hledat objekty',
-  'search.inline.placeholder': 'Rychle hledat…',
+  'search.inline.placeholder': 'Vyhledávání',
   'palette.placeholder.admin': 'Hledej VPS, uživatele, IP adresy…',
   'palette.placeholder.user': 'Hledej své VPS, IP adresy, DNS…',
   'palette.loading': 'Vyhledávám…',

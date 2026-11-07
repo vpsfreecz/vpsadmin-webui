@@ -80,7 +80,7 @@ function canonicalKey(raw: string): 'q' | 'user' | 'vps' | 'id' | null {
 export interface DatasetsListPageProps {
   rolePreset?: "primary" | "hypervisor";
   titleKey?: string;
-  descriptionKey?: string;
+  descriptionKey?: string | null;
   searchPlaceholderKey?: string;
   loadErrorTitleKey?: string;
   emptyTitleKey?: string;
@@ -93,7 +93,7 @@ export interface DatasetsListPageProps {
 export function DatasetsListPage(props: DatasetsListPageProps = {}) {
   const rolePreset = props.rolePreset;
   const titleKey = props.titleKey ?? 'datasets.list.title';
-  const descriptionKey = props.descriptionKey ?? 'datasets.list.description';
+  const { descriptionKey = 'datasets.list.description' } = props;
   const searchPlaceholderKey = props.searchPlaceholderKey ?? 'datasets.list.search.placeholder';
   const loadErrorTitleKey = props.loadErrorTitleKey ?? 'datasets.list.load_error.title';
   const emptyTitleKey = props.emptyTitleKey ?? 'datasets.list.empty';
@@ -544,7 +544,7 @@ export function DatasetsListPage(props: DatasetsListPageProps = {}) {
         <PageHeader
           testId="datasets.list.header"
           title={t(titleKey)}
-          description={t(descriptionKey)}
+          description={descriptionKey ? t(descriptionKey) : undefined}
           meta={qText ? t('list.meta.filters_progressive') : filtersActive ? t('list.meta.filters_active') : undefined}
           actions={
             <>
@@ -577,8 +577,7 @@ export function DatasetsListPage(props: DatasetsListPageProps = {}) {
               suffix={
                 <Button
                   variant="ghost"
-                  size="sm"
-                  className="h-8 w-8 px-0"
+                  className="h-11 w-11 px-0"
                   onClick={() => setHelpOpen(true)}
                   aria-label={t('filters.help.open')}
                   title={t('filters.help.open')}
@@ -591,7 +590,7 @@ export function DatasetsListPage(props: DatasetsListPageProps = {}) {
 
           <Button
             variant="secondary"
-            size="sm"
+            className="h-11 min-w-11"
             onClick={() => setAdvancedOpen(true)}
             aria-label={t('filters.advanced.open')}
             title={t('filters.advanced.open')}
@@ -602,7 +601,8 @@ export function DatasetsListPage(props: DatasetsListPageProps = {}) {
           </Button>
 
           <CopyButton
-            size="sm"
+            size="md"
+            className="h-11"
             variant="secondary"
             label={t('common.copy_link')}
             text={shareUrl}
@@ -610,7 +610,7 @@ export function DatasetsListPage(props: DatasetsListPageProps = {}) {
           />
 
           {filtersActive ? (
-            <Button variant="secondary" size="sm" onClick={clearFilters} testId="datasets.filter.clear">
+            <Button variant="secondary" className="h-11" onClick={clearFilters} testId="datasets.filter.clear">
               {t('common.clear_filters')}
             </Button>
           ) : null}

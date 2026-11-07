@@ -25,7 +25,7 @@ import {
 } from '../../../../lib/api/securityAdvisories';
 import { fetchLanguages } from '../../../../lib/api/languages';
 import { advisoryFailureMessage } from './advisoryFailureMessage';
-import { formatDateTime } from '../../../../lib/format';
+import { formatDateTime } from '../../../../lib/time';
 import { pickLocalizedField } from '../../../../lib/translations';
 import {
   SecurityAdvisoryEditorModal,
@@ -316,7 +316,7 @@ export function AdminSecurityAdvisoriesPage() {
                     </Badge>
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap text-sm text-muted">
-                    {advisory.published_at ? formatDateTime(advisory.published_at) : '—'}
+                    {advisory.published_at ? formatDateTime(advisory.published_at, i18n.lang) : '—'}
                   </td>
                   <td className="px-4 py-3 text-right tabular-nums">{count(advisory.affected_node_count)}</td>
                   <td className="px-4 py-3 text-right tabular-nums">{count(advisory.affected_user_count)}</td>

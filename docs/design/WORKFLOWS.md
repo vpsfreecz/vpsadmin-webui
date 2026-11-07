@@ -1,5 +1,8 @@
 # Workflow catalog and behavior to preserve
 
+The signed-in dashboard opens its widget editor from a single control beside the page title (REQ-009).
+The signed-in shell opens appearance, language and role-gated view choices from the gear left of the login. Search uses the full row and the command palette keyboard shortcuts remain available (REQ-004, REQ-010).
+
 This catalog covers all product domains in the current route/API inventory. It is
 not a claim of exhaustive field-level legacy parity. Each workflow inherits the
 role/scope, localization, focus, draft/error and uncertain-write rules from
@@ -33,33 +36,98 @@ change a license or carry over the legacy PHP template credits (REQ-072).
 ## Status navigation while signed in
 
 A separated block above About in the desktop sidebar and mobile drawer contains
-Outages and Security advisories (REQ-054/055). These are direct links, without
-an extra menu. In My view, including privileged accounts, both open the existing
-public read-only pages. In administrator view, Outages opens `/admin/outages`,
-where admins can use the existing create/review flow and support remains
-read-only. Security advisories opens management only for admin; support opens
-the public advisory list. The advisory link is no longer duplicated in Operations.
-Desktop links stay below the scrolling primary navigation; mobile taps close the
-drawer after navigation. Public pages retain the existing return-to-app link.
-No route, backend permission, publication behavior or API endpoint changes.
+Outages and Security advisories (REQ-054/055), without an extra menu. In My view,
+including privileged accounts, both are read-only pages inside the normal
+AppShell: `/app/outages` and `/app/security-advisories`, with matching detail URLs.
+List/detail/back links, dashboard cards and advisory-to-outage links retain the
+shell and its current scope. Desktop keeps navigation; mobile taps close the
+drawer while its opener and the normal account/task controls remain available.
+Reload and browser Back retain this context. The anonymous-only outage footer
+sign-in hint is hidden for authenticated readers in both languages.
+
+Administrator view keeps `/admin/outages` management, read-only for support,
+and admin-only advisory management. Support uses the same published advisory
+reader under `/admin/status/security-advisories`, with related outages under
+`/admin/status/outages`; it never receives advisory editor privileges. These
+readers are also available to administrators without changing their normal
+management destinations. Status navigation stays highlighted on related readers.
+
+An authenticated visit to a shared `/outages[/id]` or
+`/security-advisories[/id]` URL replaces that location with the corresponding
+`/app/` reader, preserving query and fragment and respecting the router basename.
+Anonymous visitors retain the public layout and all public list/detail links;
+no login is required for public information. About, registration correction,
+public news and the expired-session notice keep their existing routing.
+API access, publication filtering and backend permissions are unchanged.
+
+## Concise interface copy
+
+The account overview, VPS activity, dataset space, DNS zones, backup shortcuts,
+transaction chains and Finance overview use their headings and controls without
+the repeated descriptions approved for removal. Navigation and the OAuth shell
+show the vpsAdmin name without a version tagline (REQ-004/009).
 
 ## Public entry and authentication
+
+After expiry, the public overview keeps the current theme and language and
+offers sign-in in the notice. The login return target retains the prior
+protected page pathname. Transient query state, fragments and pending form
+actions are left behind. The notice is per-tab and expires after five minutes.
 
 **Intent:** inspect service availability, sign in, recover access or correct a
 registration without exposing private information. Public overview combines
 cluster/node status with outages/news/advisories; external heatmaps are optional.
+Public overview order is active/planned (and unclassified) outages, news,
+published security advisories, detailed node status, member/VPS statistics,
+then resolved outages. The statistics show member and VPS totals without IPv4
+pool availability (REQ-054). Empty outage sections and the nominal-status banner are
+omitted; pending/error states remain explicit. Current and planned outages may
+coexist at the top, up to three per category; the resolved preview shows three.
+The advisory preview makes one credential-free public GET with limit 5,
+state=published and order=newest, defensively excludes all other states and
+caps/sorts the result. Names and localized plain-text summaries link to the
+public detail/archive. It makes no CVE or private affected-object requests.
+The separate complete advisory archive and authenticated dashboard are unchanged.
+Link valid CVE identifiers to vulnerability records and leave malformed identifiers as plain labels. (REQ-009).
+Format advisory dates with the interface language, using a 24-hour clock in Czech and retaining the existing time zone. (REQ-009).
+Separate account impact and missing personal impact from node mitigation. (REQ-009).
+Overview, outage and advisory list pages retain an accessible screen-reader-only
+h1 and omit the duplicated visible page heading/intro. Detail headings remain.
+Equal-width member/VPS metric cards fill the available space. Their value font size and baseline match;
+node availability retains the percentage/counts without a circular gauge.
+Overview card headers/bodies and statistic cards use equal 12px padding. Repeated
+subtitles are omitted; real status/error content, counts and loading states stay.
+Status badges remain intentionally compact with wider horizontal than vertical
+insets. Heatmap dialogs explain left-to-right CPU user/system/idle and disk I/O,
+time flowing down from the newest row, black/white percentage endpoints, the
+inverted meaning of idle, and click/tap to pause and display device labels.
+External iframe content and access rules are unchanged.
+The dashboard settings header shows the selected density and edit control without totals for hidden or collapsed widgets (REQ-009).
 The authenticated dashboard's Cluster status widget offers the same icon-only
 heatmap action in desktop rows and mobile node cards, in both member and admin
 views (REQ-025/026). It reuses the public heatmap configuration, node eligibility
 and dialog; external frames load only after an explicit click/tap. Missing or
 failed configuration hides the optional action/column without blocking status
 information. Compact dashboard density still limits the visible node list.
+Use the same ratio and exception counts on desktop and mobile, with a text summary in place of the redundant location bar. (REQ-009).
+Show one availability ratio, remove the nominal banner, and retain outage, maintenance and load or error indicators. (REQ-009).
+Label the resource count group once with the actual object scope. Put each resource label and count on a compact wrapping line. (REQ-009).
+Align each widget title and its status badges on their text baseline. The same layout applies to essential, hidden and collapsed labels. (REQ-009).
+Each widget in dashboard settings groups visibility, movement and collapse under its title (REQ-009).
+Dashboard widget headers and content frames use the same inset for the selected
+density (REQ-009). Reordering or hiding a widget retains this alignment.
+The dashboard density help describes spacing and shorter lists in Czech and English (REQ-009).
+The dashboard header shows its title. News and advisory cards omit the generic
+subtitles, and compact cluster cards omit the hidden-node footer. The shell account control
+shows the login and the shell indicates the active view (REQ-004).
 OAuth login/callback/logout preserve a safe return destination and display errors.
 The public desktop header and mobile menu offer sign-in without a separate
 password-reset shortcut (maintainer decision, 2026-09-30). Password recovery
 remains available through sign-in and the login-required/expired-session screen
 using the configured provider flow. Token-scoped registration
 correction exposes only the request allowed by that token.
+
+**Anonymous theme (REQ-005/009):** the public header offers compact system/light/dark controls, with named selected states and keyboard focus. The mobile navigation menu places the same named theme icons next to the language group. The same local preference survives reload and follows system changes in system mode; no private settings request is made. Tablet navigation uses the menu until the full navigation and preference controls fit.
 
 **Failure contract:** public API failure is not “all healthy”; unavailable heatmaps
 must not break node lists. Auth callback errors offer a way back. Expiry redirects
@@ -87,8 +155,24 @@ On desktop the publication time sits beside the complete message; on narrow
 screens it sits above it. Short announcements do not get separate card headers
 or visible internal IDs. Preserve existing ordering, localized/sanitized HTML,
 links, full long messages, missing-date fallback and loading/error/empty states.
+The overview’s All news link aligns with the first title baseline on wider
+screens; mobile keeps the stacked header and consistent header/body padding.
+The anonymous overview uses the same localized message selection as `/news` and
+the authenticated dashboard: explicit cs/en switching updates cached text
+immediately, regardless of the browser locale. Missing translations retain the
+existing preferred-language/legacy fallback. Public bilingual reads remain
+anonymous; existing global locale invalidation/refetch behavior is unchanged.
 
 ## VPS creation, detail and power
+
+VPS detail groups identity, ID and state. The title and commands can wrap
+while the primary action stays within the viewport.
+
+VPS cards and rows keep the same action order across runtime states. Start
+and console share the primary slot. Inactive power controls expose the existing
+gate reason. The resource grid aligns CPU, load, RAM and disk. Stopped VPSs
+show allocated memory and omit historic runtime memory and load readings.
+
 
 **Intent:** choose placement/template/resources, create a VPS, inspect identity and
 runtime status, and manage it. Creation defaults are suggestions; async updates
@@ -164,6 +248,10 @@ See the [parity audit](../work-log/2026-10-03-migration-feedback.md).
 
 ## Compute, disk, access, network and maintenance
 
+The VPS resources card uses its heading and edit link. The focused form
+opens with its heading and fields. Live-change and separate-save guidance
+is inside the performance section, with quota and review near the actions.
+
 The VPS overview network card displays every address returned by the VPS address
 query, in API order, with its prefix, scope badge and copy action. It does not
 collapse addresses behind a “more” count. Long IPv6 values wrap on narrow screens;
@@ -184,6 +272,19 @@ resources. [Access](../../src/lib/api/vpsAccess.ts),
 [maintenance](../../src/lib/api/vpsMaintenance.ts),
 [resource fixture](../../e2e/specs/app/vps_resource_workspace.spec.ts).
 
+The [bounded member journey regression](../../e2e/specs/app/approved_vps_journey.spec.ts)
+connects list discovery, resource review/rejection/retry, tracked completion,
+access-key review and the result on the same VPS. It uses synthetic API data
+in cs/en; it does not certify real provisioning or SSH delivery.
+
+### Additional VPS configuration (REQ-023)
+
+Additional configuration groups the hostname, namespace, boot and administrator
+controls under short headings inside the existing disclosure. DNS uses its
+direct resolver label. Field help, errors and risk indicators stay with the
+settings they describe. The DNS shortcut still expands, scrolls to and focuses
+the resolver section and shares the same change review.
+
 ### Admin-team VPS configuration preference (REQ-023)
 
 Maintenance exposes the legacy `allow_admin_modifications` preference alongside
@@ -193,6 +294,10 @@ The description retains the legacy distinction between base-system files and
 member applications/data, and the email notice. Radio choices show the current
 API boolean; a missing value leaves both unselected and disables writes.
 Nothing is changed simply by opening the page or selecting a choice.
+
+Additional configuration uses the same explanation and choices. It retains the
+common change review and only includes the preference when deliberately changed.
+
 
 A deliberate Save sends only `vps.allow_admin_modifications` to the existing VPS
 update action. Owner/member and administrator scope, state gates, fresh busy
@@ -218,6 +323,16 @@ closing, time edits, per-day retry reconciliation and Allow anytime share this
 mapping. Closing a day omits times and leaves server validation authoritative,
 including the minimum weekly window. An API rejection preserves the draft;
 success requires a refreshed server baseline. No API changes are required.
+
+The VPS Access tab shows the SSH deployment form, host fingerprints and root
+password controls directly. Missing or duplicate keys, missing fingerprints
+and blocked operations retain their warnings and recovery actions.
+
+When saved SSH keys are missing, the member link opens their own profile and
+the administrator link opens the known VPS owner's keys. With an unknown
+owner, the administrator cannot select a key. Server fingerprints are shown
+separately for SSH verification. The password form explains generation,
+successful activation, copying and removing the password from view.
 
 ## Console and VPS deletion
 
@@ -251,7 +366,17 @@ accidentally inherit a soft expiry. Dev's missing default retention remains a
 backend configuration decision. [Console fixture](../../e2e/specs/app/vps_console_page.spec.ts),
 [PR518](https://github.com/Kerrycek/clankerdev/pull/518).
 
+The VPS overview history action requests the selected window on demand.
+Expanded charts show value and account-time axes and keep missing samples
+as gaps. A fresh window can be reopened without a duplicate fetch.
+
 ## Storage, NAS, snapshots, backup and export
+
+The VPS storage view shows used space against its effective quota. The
+manual mount summary links to the mount list and separates configured
+access, unknown modes and current states requiring inspection. The root
+dataset ID opens its detail and the capability-gated subdataset action
+uses that same parent. Short metadata is visible without opening a disclosure.
 
 **Intent:** inspect datasets and usage/quota, create NAS storage, manage snapshots,
 schedules/plans and downloads, export datasets and restore from available backups.
@@ -323,6 +448,10 @@ backend blocker. [Datasets](../../src/lib/api/datasets.ts),
 DNSSEC, inspect logs, and manage relevant IP/interface/resolver resources.
 Administrators also have network/address inventories and allocation operations.
 
+The VPS Network tab identifies a disabled VPS network in its header and
+shows the consequence near the summary. An individual disabled interface
+carries its own badge, including in member view.
+
 **Success contract:** UI save and DNS publication are separate evidence. Real
 publication tests query the actual isolated DNS service after the transaction.
 Respect supported record types, TTL and payload fields; preserve zone context on
@@ -330,6 +459,15 @@ errors. Secret-bearing keys must be scrubbed from diagnostics. IP assignment
 history must not lose entries due to a false cursor assumption.
 [DNS](../../src/lib/api/dns.ts), [transfers](../../src/lib/api/dnsTransfers.ts),
 [interfaces](../../src/lib/api/networkInterfaces.ts), [IP history](../../src/lib/api/ipAddresses.ts).
+
+In the VPS overview, the Network card keeps each address selectable as text.
+The adjacent copy control copies the whole displayed address and prefix.
+Keyboard and touch use the same control with success and failure feedback.
+
+The VPS Network summary keeps Refresh at the right edge when the status
+badge changes. Its month-to-date traffic card shows the period once and puts
+incoming and outgoing totals side by side. Only measured zero is displayed
+as zero. Missing values and accounting request errors are reported separately.
 
 ### Admin IP owner search
 
@@ -385,6 +523,11 @@ availability is not a reservation or a guarantee of quota. The selector continue
 to offer a bounded first page, not a claim to enumerate the entire pool.
 
 ### Address and interface facts (REQ-050)
+
+The VPS Network tab places the numbered route and host address steps on the
+cards that contain their actions. Assigned routes display the exact interface
+inline. A configured PTR appears by the host address; the Add or Edit PTR
+action still follows the existing gate.
 
 The member address overview requests the IP allocation and interface
 explicitly when expanding active assignment records. Some API versions still
@@ -465,6 +608,19 @@ Admin IP desktop and mobile flags add a Network disabled warning only for an
 explicit false state. Existing rows, service links and actions remain visible.
 
 ## Account profile and user administration
+
+The navigation countdown and Never expires control open the session length
+popover below the navigation control, using the account menu surface. It starts with the current preference. It offers 20 and
+40 minutes, no expiry and a custom number of minutes. Save updates only the
+current account's preferred session length. Cancel discards the draft. The
+profile security page remains a separate entry to the same preference.
+The navigation account menu contains the member/admin scope switch, account,
+public status and logout. The adjacent Language and appearance button opens
+theme and language choices (REQ-004/009/010/012).
+The login aligns with the Tasks label. Admin and support role icons sit beside
+the login and expose the role as a tooltip and accessible description.
+Opening the account menu shows all available choices when there is room. On short
+screens, scroll the menu to reach the final choice.
 
 Administrator member editing uses a named Role select instead of a numeric
 privilege input. Choices match the legacy UI: User, Power User, Admin,
@@ -642,11 +798,23 @@ incoming payments as the common working destination. Global finance and sensitiv
 user payment views have explicit administrator gates even if a support-level user
 can access other admin pages.
 
+On wide Finance overviews the queue table and monthly assessment distribution
+share a top edge below the queue filters. On narrower screens the sections stack.
+
 In the administrator's member overview, the source number in each recent payment
 is a direct link to its incoming-payment detail, matching the member Payments
 history. Manual credits without an incoming source do not get a fabricated link.
 The overview retains its administrator-only finance gate. Browser Back returns
 to the member overview; the detail's own Back link retains its finance destination.
+
+After an administrator changes the paid-until date, refresh the account payment
+history and show the previous and new dates and the administrator on a row
+without an amount. The account history requests these changes only when the
+API advertises support. The finance ledger and the member's payment list
+continue to request actual payments.
+
+The administrator incoming payment detail shows the payer account when the bank
+provided it. Previously imported payments can have an empty account number.
 
 Payment instructions offer individual copy icons for recognized bank-account,
 IBAN, BIC, variable-symbol, message and amount rows, alongside the existing
@@ -696,6 +864,18 @@ blind retry. [Finance](../../src/lib/api/finance.ts),
 
 ## Tasks, transactions, monitoring, incidents and OOM
 
+The transaction chain search, help, advanced filters, copy-link and clear
+actions form one aligned control row. Filtering preserves the URL and active
+chips, and help and advanced controls open their existing dialogs.
+
+The member VPS overview requests the latest three OOM reports for that VPS.
+Each row links to the report and shows when it was created. Past events remain
+historical. Loading, no reports and failed requests have distinct states.
+
+The VPS overview aligns recent operations with localized timestamps and states.
+Long names wrap within the card. The activity button opens transaction chains
+filtered by the current VPS.
+
 Transaction history uses compact aligned ID/time/owner/object/action/state
 columns on desktop and folds metadata under the action on small screens. The
 owner column appears only in administrator mode; a normal member and an admin's
@@ -744,6 +924,11 @@ When the API name is already the heading, do not repeat it as “Backend name”
 Explicit local labels for an action the user just submitted remain available
 before its API state arrives. [Naming regression and evidence](../work-log/2026-10-03-transaction-operation-names.md).
 
+On the first page of a chain-scoped item list, one failed step opens
+automatically, falling back to an unfinished step or the first available step.
+The API still determines which payload fields are available for the account.
+Individual steps can be opened or closed with their existing controls.
+
 Transaction item detail displays input and output vertically at full width.
 The input has a large, bounded reading area; JSON fields are separated and string
 values retain real line breaks, so embedded email bodies can be read normally.
@@ -752,11 +937,19 @@ Copy retains the original payload and the raw transaction JSON remains available
 Plain text, malformed JSON and unsafe numeric JSON fall back to verbatim text.
 Inline transaction previews retain their existing compact layout.
 
+Place Create VPS beside the filter actions with the shared control height, keeping the existing role-aware destination. (REQ-010).
+Give filter help a labeled 44-pixel control beside the input, with a plain search placeholder. Retain the question-mark shortcut. (REQ-010).
+The VPS list separates uptime from transaction activity. A running VPS displays
+elapsed runtime; a stopped VPS displays a dash. Locks remain in the status badges.
+VPS list identities keep long hostnames inside their column. On mobile the ID
+aligns with the hostname, then actions appear before resource and location details.
+VPS list usage pairs express used and allocated memory or disk in the same unit.
 The VPS list marks a VPS with a failed or fatal transaction chain only when the
 chain was created within the last 7 days (REQ-074). Failed chains stay failed
 until an administrator resolves them, so an older failure would otherwise flag
 a working VPS indefinitely. The badge links to the chain detail; its tooltip
-gives the operation and creation time.
+gives the operation and creation time. A stopped VPS has a neutral power badge.
+Its row and dot still surface usage warnings and recent failures.
 
 **Contract:** action state, transaction and object state are related but not
 interchangeable. Unknown/stale locks must be shown as such. Users see permitted
@@ -835,7 +1028,7 @@ a match.
 updates, relations and associated outages/rebuilds. Audit history supports
 operational investigation. Mail administration covers templates/translations,
 mailboxes/handlers, recipients and delivery logs. Content includes news and
-contextual help boxes. Whole-template and standalone-recipient deletion are
+contextual help boxes. The contextual panel uses a title and controls. Whole-template and standalone-recipient deletion are
 intentionally blocked pending safe backend relation handling; translations and
 template-recipient membership have separate supported delete operations. See
 [the deletion boundary](ACTION_CONTRACTS.md#deliberately-blocked-mail-deletion).
@@ -919,6 +1112,7 @@ remain separate approval/ownership decisions. [KB repository](https://github.com
 
 ## Global search
 
+The sidebar uses a short Search placeholder. The full palette lists examples of searchable objects.
 The header and command palette search independently of visited list pages
 (REQ-070). Administrator mode calls `cluster/search`; My view uses scoped VPS
 and DNS queries and exact IPv4/IPv6 address queries. A normal member relies on
@@ -1010,3 +1204,115 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+
+### VPS overview access shortcuts
+
+Use the header to copy SSH or open the console, and the Access tab for SSH keys
+and password management. The overview does not repeat those entry points or
+current runtime values in a separate card. Historical charts remain on demand.
+
+## Contextual help placement (UX-05; REQ-053)
+
+The signed-in interface preferences and profile preferences offer Top and Bottom.
+The choice is remembered in this browser, independently of account synchronization;
+resetting interface preferences restores Top. This moves only contextual help in
+the authenticated shell, preserving its expanded state and page drafts. Page
+warnings and mutation errors remain with their controls. Console pages retain
+their existing help exemption. Public help retains its existing placement.
+
+## Find VPS actions on the page (DET-02; REQ-023)
+
+The VPS header offers All actions alongside its existing controls. It opens the
+existing lifecycle action index, where actions are ordinary rendered links in
+the existing user/admin groups, available to browser Find. The shortcut keeps
+the same member/list context and permission gate as the index. Selecting an
+index entry only opens its existing form; existing confirmation and mutation
+guards remain authoritative. Read-only support in the admin view has no shortcut.
+
+## Interpret VPS memory utilization
+
+Report allocated and measured memory neutrally. Used memory alone does not
+measure available memory, cache or pressure and never proves an OOM. Keep disk
+capacity and failed-operation warnings. Show a recent documented OOM with its
+creation time and a direct report link, not an inferred current pressure state.
+Fetch at most 100 OOM reports created in the last 24 hours for the list, with
+admin owner/My-view scope when applicable, and one for an individual VPS. Only
+match valid report/VPS IDs and timestamps; expire cached events every minute
+even if refresh fails. An empty, failed or bounded query is not a healthy-state
+assertion. This changes neither API permissions nor report retention.
+
+## Select a dataset for a VPS mount
+
+STO-03 replaces numeric/name entry with an explicit candidate and confirmation.
+For vpsAdminOS, restrict candidates to active subdatasets of the loaded VPS root,
+its owner and the hypervisor role. API authorization and the transaction's node
+compatibility checks remain authoritative. A remote NAS must be mounted via NFS
+inside the VPS. Selecting a local subdataset defaults the draft to bind; review
+and Create stay separate, with existing role/busy/action-state safeguards.
+
+Dataset#index sorts by full_name while HaveAPI 0.32.2 uses an ID cursor. Avoid
+that mismatch with one subtree snapshot (limit 1000), then local search and
+25-item pagination. Check total_count against the response; an incomplete or
+capped response without count cannot masquerade as a complete list. In that
+case use the existing exact-name lookup, owner-filtered for admins, and recheck
+root prefix/owner/active state, then recheck the candidate through the hypervisor
+index with its own subtree and limit 1 before explicit selection. This is not a backend
+permission change. Changing lookup or target context clears any prior selection;
+late responses cannot select a dataset. Failure/empty states block Create.
+
+## NAS and dataset filter dimensions
+
+The shared dataset list keeps the smart search field, help, advanced filters,
+copy-link and conditional clear controls at 44 CSS pixels, using the same
+button typography as the existing VPS and transaction filter follow-ups.
+Keep the active chips below the control row. On narrow screens the row wraps
+and every action stays reachable. Help remains inside the field; its trigger
+keeps its label and keyboard position. The search, advanced modal, exact URL
+copy and clear actions retain their existing behavior.
+
+This local UX-03 follow-up applies to member NAS, administrator NAS and the
+general administrator dataset list. Preserve the NAS primary-role preset,
+owner restrictions, VPS filter visibility, API requests and pagination. It
+does not change DNS work, global control sizes or other advanced forms, and
+does not complete the application-wide UX-03 umbrella.
+
+## Export list filter dimensions
+
+Keep the export smart input, help, copy-link, conditional clear and refresh
+controls 44 CSS pixels high in member and global administrator lists. Help
+uses a square target; mobile retains wrapping and active chips below the row.
+This UX-03 / REQ-073 follow-up changes only local control classes. Preserve
+owner restrictions, supported id/user smart syntax, unsupported-filter errors,
+URL normalization, cursor pagination, refresh and exact link copy. Do not add
+API filters, change export creation or NFS settings, or resize global controls.
+The wider UX-03 umbrella remains partial.
+
+Visual review also found the administrator owner lookup at 36px beside the
+44px field. A local descendant class makes that input 44px without changing
+the shared lookup component. The focused browser check covers its height;
+existing owner lookup focus/filter contract checks remain unchanged.
+
+## OOM report filter dimensions (approved TODO UX-03)
+
+Help, advanced filters, copy-link and clear match the 44px smart field;
+icon-only controls have a square target. Filter chips remain below the row.
+This local styling preserves the member/support backend owner scope, admin
+arbitrary-owner selection, admin My-view scope, URL normalization, parser,
+copy and clear behavior. It adds no navigation variant, API field or write.
+See [scope and verification](../work-log/2026-11-07-todo-oom-filter-rhythm.md)
+and REQ-010 / REQ-073.
+
+## Monitoring filter dimensions (approved TODO UX-03)
+
+Help, ordering, advanced filters, copy and clear match the smart field at44px.
+This local styling preserves owner scope, ordering/cursor semantics, URL state,
+copy and clear. See [scope](../work-log/2026-11-07-todo-monitoring-filter-rhythm.md)
+and REQ-010 / REQ-073.
+
+### Action state list dimensions (UX-03, 2026-11-07)
+
+The filter toolbar uses matching 44px controls for search, help, visibility,
+ordering, advanced filters, refresh, copy and clear. Visibility, errors and
+text filtering remain local; server requests retain ordering and keyset scope.
+Clear retains order. No permission, cancellation or mutation contract changes.

@@ -675,8 +675,8 @@ export function ActionStatesPage() {
                 suffix={
                   <Button
                     variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 px-0"
+                    size="md"
+                    className="h-11 w-11 px-0"
                     onClick={() => setHelpOpen(true)}
                     ariaLabel={t('filters.help.open')}
                     title={t('filters.help.open')}
@@ -693,7 +693,7 @@ export function ActionStatesPage() {
                 <Button
                   key={value}
                   variant={visibilityFilter === value ? 'primary' : 'secondary'}
-                  size="sm"
+                  className="h-11"
                   onClick={() => setVisibilityFilterInUrl(value)}
                   testId={`action_states.visibility.${value}`}
                 >
@@ -704,7 +704,7 @@ export function ActionStatesPage() {
 
             <div className="w-full sm:w-44">
               <Select
-                testId="action_states.order.select"
+                testId="action_states.order.select" className="h-11"
                 value={order}
                 onChange={(e) => setOrderInUrl(e.target.value === 'oldest' ? 'oldest' : 'newest')}
                 options={[
@@ -716,7 +716,7 @@ export function ActionStatesPage() {
 
             <Button
               variant="secondary"
-              size="sm"
+              className="h-11 min-w-11"
               onClick={() => setAdvancedOpen(true)}
               ariaLabel={t('filters.advanced.open')}
               title={t('filters.advanced.open')}
@@ -726,18 +726,18 @@ export function ActionStatesPage() {
               <span className="ml-2 hidden sm:inline">{t('filters.advanced.label')}</span>
             </Button>
 
-            <Button variant="secondary" size="sm" onClick={() => q.refetch()} testId="action_states.refresh">
+            <Button variant="secondary" className="h-11" onClick={() => q.refetch()} testId="action_states.refresh">
               {t('common.refresh')}
             </Button>
 
             <CopyButton
               text={typeof window !== 'undefined' ? window.location.href : ''}
               label={t('common.copy_link')}
-              testId="action_states.copy_link"
+              testId="action_states.copy_link" size="md" className="h-11"
             />
 
             {filtersActive || smartErrors.length > 0 ? (
-              <Button variant="secondary" size="sm" testId="action_states.clear_filters" onClick={clearFilters}>
+              <Button variant="secondary" className="h-11" testId="action_states.clear_filters" onClick={clearFilters}>
                 {t('common.clear_filters')}
               </Button>
             ) : null}

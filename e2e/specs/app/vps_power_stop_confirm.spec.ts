@@ -1,3 +1,4 @@
+import { clickShellControl } from '../../helpers/shellNavigation';
 import { expect, test, type Page } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock } from '../../fixtures';
@@ -187,7 +188,7 @@ test.describe('@workflow-matrix @pr-smoke @smoke VPS detail power actions', () =
     await page.getByTestId('vps.action.restart_confirm.confirm').click();
     await expect(page.getByTestId('modal.action_progress')).toBeVisible();
     await page.goto('/admin/vps?user=84');
-    await page.getByTestId('tasks.open-button').click();
+    await clickShellControl(page, 'tasks.open-button');
 
     await expect(page.getByTestId('tasks.row.target.780')).toHaveAttribute('href', '/admin/vps/123?user=42');
     await page.getByTestId('tasks.row.target.780').click();

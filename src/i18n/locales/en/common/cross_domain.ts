@@ -10,7 +10,6 @@ export const enCommon_cross_domain = {
   'audit.col.session': 'Session',
   'audit.col.data': 'Data',
   'dataset.field.full_name': 'Full name',
-  'dataset.overview.space.subtitle': 'Referenced quota, usage and available space.',
   'dataset.overview.space.badge.title': 'Space accounting',
   'dataset.overview.space.badge.infinity_title': 'Unlimited quota',
   'dataset.overview.actions.subtitle': 'Open related objects and manage common dataset actions.',

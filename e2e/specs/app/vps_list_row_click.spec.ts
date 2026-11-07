@@ -429,3 +429,48 @@ test.describe('@workflow-matrix @smoke VPS list row navigation', () => {
     await expect(page.getByTestId('vps.row.300.action.delete')).toBeInViewport();
   });
 });
+
+test('VPS list keeps power slots stable and separates allocation from live usage', async ({ page }, testInfo) => {
+  const running = { ...makeVps(300), memory: 2048, used_memory: 1024, loadavg1: 0.14 };
+  const stopped = { ...makeVps(301), is_running: false, memory: 2048, used_memory: 1700, loadavg1: 9.87 };
+  await setUiSettingsLocalStorage(page, { language: 'en' });
+  await installHaveApiMock(page, {
+    handlers: { 'GET vpses': () => ({ vpses: [running, stopped] }) },
+  });
+  await bootstrapVpsAdminWindow(page);
+  await page.setViewportSize({ width: testInfo.project.name === 'chromium' ? 1280 : 320, height: 900 });
+  await page.goto('/app/vps');
+
+  const on = await visibleVpsItem(page, 300);
+  const off = await visibleVpsItem(page, 301);
+  const activeDetails = page.getByTestId(`${on.actionPrefix}.action.details`);
+  const stoppedDetails = page.getByTestId(`${off.actionPrefix}.action.details`);
+  const positionInGroup = (element: Element) => {
+    const bounds = element.getBoundingClientRect();
+    const group = element.parentElement!.getBoundingClientRect();
+    return { x: Math.round(bounds.x - group.x), y: Math.round(bounds.y - group.y) };
+  };
+  expect(await activeDetails.evaluate(positionInGroup)).toEqual(await stoppedDetails.evaluate(positionInGroup));
+
+  const restart = page.getByTestId(`${off.actionPrefix}.action.restart`);
+  await expect(restart).toHaveAttribute('aria-disabled', 'true');
+  await expect(page.getByTestId(`${off.actionPrefix}.action.stop`)).toHaveAttribute('aria-disabled', 'true');
+  await expect(off.item.getByText('2.0 GiB', { exact: true })).toBeVisible();
+  await expect(off.item.getByText(/9\.87|Load|1700/)).toHaveCount(0);
+  await expect(on.item.getByText('0.14', { exact: true })).toBeVisible();
+  await expect(on.item.locator('dl dt')).toHaveText(['CPU', 'Load', 'RAM', 'Disk']);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
+
+  await restart.focus();
+  await page.keyboard.press('Enter');
+  await expect(page.getByTestId(`${off.actionPrefix}.action.restart.reason`)).toContainText('VPS is stopped');
+  await page.getByTestId(`${off.actionPrefix}.action.restart.reason.close`).click();
+  await expect(page).toHaveURL(/\/app\/vps$/);
+
+  await stoppedDetails.locator('..').screenshot({ path: testInfo.outputPath('action-slots.png') });
+  const resourceArea = (row: typeof on) => row.actionPrefix.startsWith('vps.row.')
+    ? row.item.locator('td').nth(4)
+    : row.item;
+  await resourceArea(off).screenshot({ path: testInfo.outputPath('stopped-capacity.png') });
+  await resourceArea(on).screenshot({ path: testInfo.outputPath('resource-alignment.png') });
+});

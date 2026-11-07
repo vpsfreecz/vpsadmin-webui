@@ -19,8 +19,6 @@ export const csStorage = {
   "vps_datasets.list.empty.body":
     "Disky z hypervisor poolu se zde zobrazí, jakmile budou přiřazené k VPS.",
   "nas.list.title": "NAS",
-  "nas.list.description":
-    "Procházej datasety uživatelů v primary poolu bez filtrů specifických pro VPS.",
   "nas.list.search.placeholder": "Filtrovat tuto stranu NAS (název, uživatel, #id)…",
   "nas.list.load_error.title": "Nepodařilo se načíst NAS datasety",
   "nas.list.empty.title": "Žádné NAS datasety",
@@ -116,8 +114,6 @@ export const csStorage = {
   "dataset.overview.tips.item3":
     "Pokud je akce zablokována, otevři Úlohy a podívej se, co právě běží.",
   "dataset.overview.transactions.title": "Transakce",
-  "dataset.overview.transactions.subtitle":
-    "Nedávné transakční řetězce týkající se tohoto datasetu.",
   "dataset.overview.transactions.loading": "Načítám transakční řetězce…",
   "dataset.overview.transactions.load_error.title":
     "Nepodařilo se načíst transakční řetězce",
@@ -138,8 +134,6 @@ export const csStorage = {
   "dataset.overview.transactions.chain_failed_row_title":
     "Tento transakční řetězec obsahuje chyby",
   "dataset.manage.title": "Správa datasetu",
-  "dataset.manage.subtitle":
-    "Uprav velikost a vlastnosti datasetu přímo tady.",
   "dataset.manage.current": "Aktuální dataset: {dataset} (#{id})",
   "dataset.manage.user_limited.title":
     "Běžná správa datasetu",

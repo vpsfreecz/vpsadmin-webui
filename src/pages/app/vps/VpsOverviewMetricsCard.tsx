@@ -3,6 +3,8 @@ import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 
 import { useI18n } from '../../../app/i18n';
+import { useAccountTimeZone } from '../../../app/accountTimeZone';
+import { HaveApiError } from '../../../lib/api/apiErrors';
 import type { Vps } from '../../../lib/api/vps';
 import { fetchVpsStatuses } from '../../../lib/api/vps';
 import { Alert } from '../../../components/ui/Alert';
@@ -24,7 +26,13 @@ import {
 } from './VpsOverviewModel';
 
 export function VpsOverviewMetricsCard(props: { vps: Vps; collapsedByDefault?: boolean }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
+  const timeZone = useAccountTimeZone();
+  const timeFormatter = React.useMemo(() => new Intl.DateTimeFormat(lang, {
+    year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone, timeZoneName: 'short',
+  }), [lang, timeZone]);
+  const formatTime = (seconds: number) => timeFormatter.format(seconds * 1000);
+
   const [searchParams, setSearchParams] = useSearchParams();
   const tierSlowRefetchMs = useTierSlowIntervalMs();
   const [expandedVpsIds, setExpandedVpsIds] = React.useState<Set<number>>(() => new Set());
@@ -58,11 +66,14 @@ export function VpsOverviewMetricsCard(props: { vps: Vps; collapsedByDefault?: b
 
       try {
         return (await fetchVpsStatuses(props.vps.id, { limit: metricsLimit, from, to })).data;
-      } catch {
+      } catch (error) {
+        if (!(error instanceof HaveApiError) || (error.httpStatus !== 400 && error.httpStatus !== 422)) throw error;
         return (await fetchVpsStatuses(props.vps.id, { limit: metricsLimit })).data;
       }
     },
     enabled: expanded && Number.isFinite(props.vps.id) && props.vps.id > 0,
+    staleTime: tierSlowRefetchMs,
+    retry: false,
     refetchInterval: tierSlowRefetchMs,
   });
 
@@ -75,7 +86,6 @@ export function VpsOverviewMetricsCard(props: { vps: Vps; collapsedByDefault?: b
       const ts = s.created_at ? new Date(s.created_at) : null;
       if (!ts || !Number.isFinite(ts.getTime())) continue;
       const y = typeof s.loadavg1 === 'number' ? s.loadavg1 : Number.NaN;
-      if (!Number.isFinite(y)) continue;
       out.push({ x: ts.getTime() / 1000, y });
     }
     return out;
@@ -87,7 +97,6 @@ export function VpsOverviewMetricsCard(props: { vps: Vps; collapsedByDefault?: b
       const ts = s.created_at ? new Date(s.created_at) : null;
       if (!ts || !Number.isFinite(ts.getTime())) continue;
       const y = typeof s.loadavg5 === 'number' ? s.loadavg5 : Number.NaN;
-      if (!Number.isFinite(y)) continue;
       out.push({ x: ts.getTime() / 1000, y });
     }
     return out;
@@ -100,8 +109,7 @@ export function VpsOverviewMetricsCard(props: { vps: Vps; collapsedByDefault?: b
       if (!ts || !Number.isFinite(ts.getTime())) continue;
       const total = typeof s.total_memory === 'number' ? s.total_memory : props.vps.memory;
       const p = safePercent(s.used_memory, total);
-      if (p == null) continue;
-      out.push({ x: ts.getTime() / 1000, y: p });
+      out.push({ x: ts.getTime() / 1000, y: p ?? Number.NaN });
     }
     return out;
   }, [metricsRows, props.vps.memory]);
@@ -148,6 +156,9 @@ export function VpsOverviewMetricsCard(props: { vps: Vps; collapsedByDefault?: b
             <div className="text-xs text-muted">{fmtLoad(loadNow1)}</div>
           </div>
           <TimeSeriesChart
+            showAxes
+            formatTime={formatTime}
+            emptyLabel={t('vps.overview.metrics.empty')}
             testId="vps.overview.metrics.chart.load1"
             ariaLabel={t('vps.overview.chart.loadavg1_aria', { window: metricsWindow })}
             points={load1Points}
@@ -162,6 +173,9 @@ export function VpsOverviewMetricsCard(props: { vps: Vps; collapsedByDefault?: b
             <div className="text-xs text-muted">{fmtLoad(loadNow5)}</div>
           </div>
           <TimeSeriesChart
+            showAxes
+            formatTime={formatTime}
+            emptyLabel={t('vps.overview.metrics.empty')}
             testId="vps.overview.metrics.chart.load5"
             ariaLabel={t('vps.overview.chart.loadavg5_aria', { window: metricsWindow })}
             points={load5Points}
@@ -179,6 +193,9 @@ export function VpsOverviewMetricsCard(props: { vps: Vps; collapsedByDefault?: b
             </div>
           </div>
           <TimeSeriesChart
+            showAxes
+            formatTime={formatTime}
+            emptyLabel={t('vps.overview.metrics.empty')}
             testId="vps.overview.metrics.chart.mem_used"
             ariaLabel={t('vps.overview.chart.memory_used_percent_aria', { window: metricsWindow })}
             points={memUsedPercentPoints}
@@ -202,6 +219,9 @@ export function VpsOverviewMetricsCard(props: { vps: Vps; collapsedByDefault?: b
             </div>
           </div>
           <TimeSeriesChart
+            showAxes
+            formatTime={formatTime}
+            emptyLabel={t('vps.overview.metrics.empty')}
             testId="vps.overview.metrics.chart.disk_used"
             ariaLabel={t('vps.overview.chart.disk_used_percent_aria', { window: metricsWindow })}
             points={diskUsedPercentPoints}
@@ -225,7 +245,21 @@ export function VpsOverviewMetricsCard(props: { vps: Vps; collapsedByDefault?: b
         title={t('vps.overview.metrics.title')}
         subtitle={expanded
           ? t('vps.overview.metrics.subtitle', { window: metricsWindow, samples: metricsRows.length })
-          : t('vps.overview.metrics.collapsed_subtitle')}
+          : (
+            <>
+              <p>{t('vps.overview.metrics.collapsed_subtitle')}</p>
+              <Button
+                testId="vps.overview.metrics.toggle"
+                className="mt-2"
+                size="sm"
+                aria-expanded={false}
+                aria-controls={bodyId}
+                onClick={() => setExpanded(true)}
+              >
+                {t('vps.overview.metrics.show')}
+              </Button>
+            </>
+          )}
         actions={(
           <div className="flex flex-wrap items-center gap-2">
             {expanded ? (
@@ -258,7 +292,7 @@ export function VpsOverviewMetricsCard(props: { vps: Vps; collapsedByDefault?: b
                 </Button>
               </>
             ) : null}
-            {props.collapsedByDefault ? (
+            {props.collapsedByDefault && expanded ? (
               <button
                 type="button"
                 data-testid="vps.overview.metrics.toggle"
@@ -267,7 +301,7 @@ export function VpsOverviewMetricsCard(props: { vps: Vps; collapsedByDefault?: b
                 aria-controls={bodyId}
                 onClick={() => setExpanded(!expanded)}
               >
-                {expanded ? t('vps.overview.metrics.hide') : t('vps.overview.metrics.show')}
+                {t('vps.overview.metrics.hide')}
               </button>
             ) : null}
           </div>

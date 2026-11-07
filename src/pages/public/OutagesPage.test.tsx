@@ -9,6 +9,9 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { fetchOutages } from '../../lib/api/public';
 import { OutagesPage } from './OutagesPage';
 
+const authState = vi.hoisted(() => ({ status: 'anonymous' }));
+vi.mock('../../app/auth', () => ({ useAuth: () => authState }));
+
 vi.mock('../../app/i18n', () => ({
   useI18n: () => ({
     t: (key: string) => key,
@@ -43,10 +46,19 @@ function renderPage() {
 }
 
 afterEach(() => {
+  authState.status = 'anonymous';
   vi.clearAllMocks();
 });
 
 describe('OutagesPage', () => {
+  it('does not ask an authenticated reader to sign in again', async () => {
+    authState.status = 'authenticated';
+    vi.mocked(fetchOutages).mockResolvedValue({ data: [], meta: {}, httpStatus: 200, envelope: { status: true, response: { outages: [] } } });
+    renderPage();
+    await screen.findByTestId('public.outages.page');
+    expect(screen.queryByText('public.outages.footer.admin_hint')).not.toBeInTheDocument();
+  });
+
   it('renders outage summaries and basename-aware detail links', async () => {
     vi.mocked(fetchOutages).mockResolvedValue({
       data: [

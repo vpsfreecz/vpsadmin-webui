@@ -41,6 +41,7 @@ test('@pr-smoke @pr-smoke-mobile incoming payment dates follow the signed-in acc
           amount: 1_000,
           currency: 'CZK',
           account_name: 'Test account',
+          payer_account: 'SK3112000000198742637541',
           vs: '300',
         },
       }),
@@ -62,5 +63,6 @@ test('@pr-smoke @pr-smoke-mobile incoming payment dates follow the signed-in acc
   await expect(page.getByTestId('admin.payments.incoming.detail.event_date')).toContainText('4:30');
   await expect(page.getByTestId('admin.payments.incoming.detail.accepted_at')).toContainText('2/13/2026');
   await expect(page.getByTestId('admin.payments.incoming.detail.accepted_at')).toContainText('5:30');
+  await expect(page.getByTestId('admin.payments.incoming.detail.payer_account')).toHaveCount(0);
   await expectNoDocumentHorizontalOverflow(page);
 });

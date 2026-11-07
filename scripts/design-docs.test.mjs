@@ -16,6 +16,7 @@ function fixture(t, { checkout = false } = {}) {
   fs.writeFileSync(path.join(cwd, 'src/routes/router.tsx'), `createBrowserRouter([{ element: <Shell />, children: [{ path: '/app', element: <Member />, children: [{ index: true, element: <Home /> }, { path: 'vps/:id', element: <Detail /> }, ...adminFinanceRoutes] }] }]);`);
   fs.writeFileSync(path.join(cwd, 'src/routes/adminFinanceRoutes.tsx'), `export const adminFinanceRoutes = [{ element: <Gate />, children: [{path:'payments',element:<Payments />}]}];`);
   fs.writeFileSync(path.join(cwd, 'src/routes/securityAdvisoryAdminRoutes.tsx'), 'export const securityAdvisoryAdminRoutes = [];');
+  fs.writeFileSync(path.join(cwd, 'src/routes/statusReadingRoutes.tsx'), 'export const publicRoutes = []; export const statusReadingRoutes = [];');
   fs.writeFileSync(path.join(cwd, 'src/lib/api/vps.ts'), 'export {};');
   fs.writeFileSync(path.join(cwd, 'src/lib/api/vps.test.ts'), 'test fixture');
   for (const name of ['README.md','UI_REDESIGN.md','SPEC.md','docs/README.md','docs/CANONICAL_DOCS.md','WORK_LOG.md','bff/README.md']) fs.writeFileSync(path.join(cwd,name),'# Fixture\n');
@@ -169,5 +170,24 @@ test('domain coverage rejects missing, duplicate and nonexistent modules', t => 
     const result = run('scripts/audit-design-docs.mjs');
     assert.notEqual(result.status, 0);
     assert.match(result.stderr, /Domain coverage/);
+  }
+});
+
+test('inventory expands shared status readers under public, personal and admin shells', t => {
+  const {cwd, run} = fixture(t);
+  fs.writeFileSync(path.join(cwd, 'src/routes/statusReadingRoutes.tsx'), `
+    export const statusReadingRoutes = [{path:'outages',element:<Outages />},{path:'security-advisories/:id',element:<Advisory />}];
+    export const publicRoutes = [{path:'/',element:<PublicLayout />,children:[...statusReadingRoutes]}];
+  `);
+  fs.writeFileSync(path.join(cwd, 'src/routes/router.tsx'), `
+    createBrowserRouter([...publicRoutes,{path:'/app',element:<Member />,children:[...statusReadingRoutes]},
+      {path:'/admin',element:<Admin />,children:[{path:'status',children:[...statusReadingRoutes]}]}]);
+  `);
+  const result=run('scripts/design-inventory.mjs','--write');
+  assert.equal(result.status,0,result.stderr);
+  const inventory=fs.readFileSync(path.join(cwd,'docs/design/IMPLEMENTATION_INVENTORY.md'),'utf8');
+  for (const prefix of ['', '/app', '/admin/status']) {
+    assert.ok(inventory.includes('`'+prefix+'/outages`'));
+    assert.ok(inventory.includes('`'+prefix+'/security-advisories/:id`'));
   }
 });

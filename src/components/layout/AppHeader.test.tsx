@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -9,7 +10,7 @@ import { AppHeader } from './AppHeader';
 vi.mock('../../app/auth', () => ({
   useAuth: () => ({
     canUseAdminUi: false,
-    user: { preferred_session_length: 40 * 60 },
+    user: { id: 53, preferred_session_length: 40 * 60 },
   }),
 }));
 
@@ -31,7 +32,7 @@ function t(key: any, vars?: Record<string, unknown>): string {
     'auth.session_remaining.minutes': `${vars?.['minutes'] ?? ''} min`,
     'common.open_tasks': 'Open tasks',
     'nav.open': 'Open navigation',
-    'palette.placeholder.user': 'Search VPS',
+    'search.inline.placeholder': 'Search',
     'palette.group.vps': 'VPS',
     'palette.loading': 'Loading…',
     'palette.error_prefix': 'Search failed',
@@ -60,56 +61,56 @@ function t(key: any, vars?: Record<string, unknown>): string {
   return translations[String(key)] ?? String(key);
 }
 
-function HeaderHarness(props: { onOpenPalette?: () => void } = {}) {
+function HeaderHarness() {
   const syncRef = useRef<HTMLDivElement | null>(null);
   const userMenuRef = useRef<HTMLDivElement | null>(null);
   const [syncOpen, setSyncOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
+  const [queryClient] = useState(() => new QueryClient());
   return (
-    <MemoryRouter>
-      <AppHeader
-        t={t}
-        mode="user"
-        canSwitchMode={false}
-        shortcutHint="⌘K"
-        onOpenMobileNav={() => undefined}
-        onOpenPalette={props.onOpenPalette ?? (() => undefined)}
-        showSyncIndicator={false}
-        syncRef={syncRef}
-        syncOpen={syncOpen}
-        setSyncOpen={setSyncOpen}
-        syncStatus="offline"
-        syncTitle="Offline"
-        syncBody="Offline"
-        syncError={null}
-        onRetrySync={() => undefined}
-        tasksFailedCount={0}
-        tasksActiveCount={0}
-        onOpenTasks={() => undefined}
-        userMenuRef={userMenuRef}
-        userMenuOpen={userMenuOpen}
-        setUserMenuOpen={setUserMenuOpen}
-        authLogin="KerryCZE"
-        authRole="admin"
-        sessionExpiresAt={Date.now() + 40 * 60_000}
-        theme="light"
-        language="cs"
-        onSetTheme={() => undefined}
-        onSetLanguage={() => undefined}
-        onGoToOtherMode={() => undefined}
-        onGoToProfile={() => undefined}
-        onGoToPublicStatus={() => undefined}
-        loginLogoutHref="/logout"
-      />
-      <LocationProbe />
-    </MemoryRouter>
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter>
+        <AppHeader
+          t={t}
+          mode="user"
+          canSwitchMode={false}
+          showSyncIndicator={false}
+          syncRef={syncRef}
+          syncOpen={syncOpen}
+          setSyncOpen={setSyncOpen}
+          syncStatus="offline"
+          syncTitle="Offline"
+          syncBody="Offline"
+          syncError={null}
+          onRetrySync={() => undefined}
+          tasksFailedCount={0}
+          tasksActiveCount={0}
+          onOpenTasks={() => undefined}
+          userMenuRef={userMenuRef}
+          userMenuOpen={userMenuOpen}
+          setUserMenuOpen={setUserMenuOpen}
+          authLogin="KerryCZE"
+          authRole="admin"
+          sessionExpiresAt={Date.now() + 40 * 60_000}
+          theme="light"
+          language="cs"
+          onSetTheme={() => undefined}
+          onSetLanguage={() => undefined}
+          onGoToOtherMode={() => undefined}
+          onGoToProfile={() => undefined}
+          onGoToPublicStatus={() => undefined}
+          loginLogoutHref="/logout"
+        />
+        <LocationProbe />
+      </MemoryRouter>
+    </QueryClientProvider>
   );
 }
 
 function LocationProbe() {
   const location = useLocation();
-  return <output data-testid="shell.location-path">{location.pathname}</output>;
+  return <output data-testid="shell.location-path">{location.pathname}{location.hash}</output>;
 }
 
 describe('AppHeader', () => {
@@ -133,22 +134,15 @@ describe('AppHeader', () => {
     vi.mocked(searchUserObjects).mockReset();
   });
 
-  it('opens the command palette from the mobile search trigger', () => {
-    const onOpenPalette = vi.fn();
-    render(<HeaderHarness onOpenPalette={onOpenPalette} />);
 
-    fireEvent.click(screen.getByTestId('palette.open'));
 
-    expect(onOpenPalette).toHaveBeenCalledTimes(1);
-  });
-
-  it('anchors the user menu below the top-right trigger', () => {
+  it('anchors the user menu inside the navigation', () => {
     render(<HeaderHarness />);
 
     fireEvent.click(screen.getByTestId('shell.user-menu-button'));
 
     const menu = screen.getByTestId('shell.user-menu');
-    expect(menu).toHaveClass('right-0');
+    expect(menu).toHaveClass('left-0');
     expect(menu).toHaveClass('top-[calc(100%+0.5rem)]');
     expect(menu.className).not.toContain('top-full');
     expect(menu.className).not.toContain('mt-2');
@@ -181,10 +175,15 @@ describe('AppHeader', () => {
     }
   });
 
-  it('keeps session time informational and out of the user menu', () => {
+  it('opens session length on the current page without opening the account menu', () => {
     render(<HeaderHarness />);
 
+    expect(screen.getByTestId('shell.session-remaining')).toHaveAttribute('aria-expanded', 'false');
     fireEvent.click(screen.getByTestId('shell.session-remaining'));
+    expect(screen.getByTestId('shell.location-path')).toHaveTextContent(/^\/$/);
+    expect(screen.getByTestId('shell.session-length.popover')).toBeInTheDocument();
+    expect(screen.getByTestId('shell.session-length.input')).toHaveValue(40);
+    fireEvent.click(screen.getByText('common.cancel'));
     expect(screen.queryByTestId('shell.user-menu')).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId('shell.user-menu-button'));

@@ -26,7 +26,7 @@ export function ProfileSidebarCards(props: {
   return (
     <div className="space-y-4">
       <Card testId="profile.user.card">
-        <CardHeader title={t('profile.user.title')} subtitle={t('profile.user.subtitle')} />
+        <CardHeader title={t('profile.user.title')} />
         <CardBody>
           {authUser ? (
             <div className="space-y-2 text-sm">

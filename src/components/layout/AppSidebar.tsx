@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link, useMatch } from 'react-router-dom';
 import {
   Activity,
@@ -18,6 +18,7 @@ import {
   Layers,
   ListOrdered,
   Mail,
+  Menu,
   MemoryStick,
   Network,
   Server,
@@ -54,7 +55,7 @@ export type AdminSidebarGroupId =
   | 'content';
 
 export interface SidebarNavSection {
-  id: AdminSidebarGroupId | 'ungrouped';
+  id: AdminSidebarGroupId | 'ungrouped' | 'status';
   labelKey?: string;
   items: NavItem[];
 }
@@ -68,20 +69,20 @@ const adminSidebarGroups: Array<{ id: AdminSidebarGroupId; labelKey: string }> =
 ];
 
 export function sidebarNavSections(items: NavItem[]): SidebarNavSection[] {
-  const mainItems = items.filter((item) => !item.footer && !item.status);
+  const mainItems = items.filter((item) => !item.footer);
   if (!mainItems.some((item) => item.group)) {
     return [{ id: 'ungrouped', items: mainItems }];
   }
 
-  const sections = adminSidebarGroups.flatMap((group) => {
+  const sections: SidebarNavSection[] = adminSidebarGroups.flatMap((group) => {
     const groupItems = mainItems.filter((item) => item.group === group.id);
     return groupItems.length > 0 ? [{ ...group, items: groupItems }] : [];
   });
-  const ungrouped = mainItems.filter((item) => !item.group);
-
-  return ungrouped.length > 0
-    ? [{ id: 'ungrouped' as const, items: ungrouped }, ...sections]
-    : sections;
+  const ungrouped = mainItems.filter((item) => !item.group && !item.status);
+  const status = mainItems.filter((item) => item.status);
+  if (ungrouped.length > 0) sections.unshift({ id: 'ungrouped', items: ungrouped });
+  if (status.length > 0) sections.push({ id: 'status', items: status });
+  return sections;
 }
 
 export function sidebarFooterNavItems(items: NavItem[]): NavItem[] {
@@ -180,14 +181,15 @@ export function buildSidebarNavItems(opts: {
   items.push(
     {
       id: 'outages',
-      to: appMode === 'admin' ? `${basePath}/outages` : '/outages',
+      to: `${basePath}/outages`,
       label: t('nav.outages'),
       icon: <Activity size={18} />,
       status: true,
     },
     {
       id: 'security-advisories',
-      to: appMode === 'admin' && role === 'admin' ? `${basePath}/security-advisories` : '/security-advisories',
+      to: appMode === 'admin' && role !== 'admin'
+        ? `${basePath}/status/security-advisories` : `${basePath}/security-advisories`,
       label: t('nav.security_advisories'),
       icon: <ShieldAlert size={18} />,
       status: true,
@@ -207,10 +209,11 @@ function NavigationLink(props: {
   onClick?: () => void;
 }) {
   const { item, surface, compact = false, onClick } = props;
+  const readingStatus = useMatch('/admin/status/:statusPage/*');
   const isActive = Boolean(useMatch({
     path: item.activePathPrefix ?? item.to,
     end: isExactNavItem(item),
-  }));
+  })) || Boolean(item.status && readingStatus?.params['statusPage'] === item.id);
 
   return (
     <Link
@@ -282,15 +285,34 @@ function NavigationSections(props: {
   );
 }
 
-export function AppLogo(props: { subtitle: string }) {
+export function AppLogo() {
   return (
     <div className="flex items-center gap-2">
       <div className="grid h-8 w-8 place-items-center rounded-md bg-accent text-sm font-semibold text-accent-fg">VA</div>
       <div className="leading-tight">
         <div className="text-sm font-semibold">vpsAdmin</div>
-        <div className="text-xs text-muted">{props.subtitle}</div>
       </div>
     </div>
+  );
+}
+
+/** Mobile has one entry point; desktop controls live entirely in the sidebar. */
+export function MobileNavigationTrigger(props: { open: boolean; onOpen: () => void }) {
+  const { t } = useI18n();
+  return (
+    <header className="sticky top-0 z-10 border-b border-border bg-bg px-4 py-2 md:hidden [@media(max-height:640px)]:block" data-testid="shell.header">
+      <button
+        type="button"
+        className="inline-flex min-h-11 items-center gap-2 rounded-md px-3 text-sm hover:bg-surface-2"
+        onClick={props.onOpen}
+        aria-label={t('nav.open')}
+        aria-expanded={props.open}
+        data-testid="shell.mobile-nav-button"
+      >
+        <Menu size={20} aria-hidden="true" />
+        <span>{t('nav.navigation')}</span>
+      </button>
+    </header>
   );
 }
 
@@ -298,13 +320,18 @@ export function AppSidebar(props: {
   mobileNavOpen: boolean;
   onCloseMobileNav: () => void;
   navItems: NavItem[];
+  controls: React.ReactNode;
 }) {
-  const { mobileNavOpen, onCloseMobileNav, navItems } = props;
+  const { mobileNavOpen, onCloseMobileNav, navItems, controls } = props;
   const { t } = useI18n();
+  useEffect(() => {
+    const desktop = window.matchMedia('(min-width: 768px) and (min-height: 641px)');
+    desktop.addEventListener('change', onCloseMobileNav);
+    return () => desktop.removeEventListener('change', onCloseMobileNav);
+  }, [onCloseMobileNav]);
   const primaryNavItems = primarySidebarNavItems(navItems);
   const navSections = sidebarNavSections(primaryNavItems);
   const footerNavItems = sidebarFooterNavItems(primaryNavItems);
-  const statusNavItems = primaryNavItems.filter((item) => item.status);
   const compactDesktopNav = primaryNavItems.filter((item) => !item.status).length > 18;
 
   return (
@@ -318,7 +345,7 @@ export function AppSidebar(props: {
         closeTestId="nav.drawer.close"
       >
         <div className="space-y-4">
-          <AppLogo subtitle={t('app.logo.subtitle')} />
+          {mobileNavOpen ? controls : null}
 
           <nav className="space-y-1" data-document-title-nav="section">
             <NavigationSections
@@ -340,22 +367,20 @@ export function AppSidebar(props: {
               </div>
             ) : null}
           </nav>
-          <nav aria-label={t('nav.service_status')} className="border-t border-border pt-2" data-testid="nav.drawer.status">
-            {statusNavItems.map((item) => (
-              <NavigationLink key={item.id} item={item} surface="drawer" onClick={onCloseMobileNav} />
-            ))}
-          </nav>
+          <div className="border-t border-border pt-3" data-testid="shell.brand.drawer">
+            <AppLogo />
+          </div>
           <BuildFooter onNavigate={onCloseMobileNav} />
         </div>
       </Drawer>
 
       <aside
         data-testid="shell.sidebar"
-        className="sticky top-0 hidden h-screen w-64 shrink-0 border-r border-border bg-surface md:block"
+        className="sticky top-0 hidden h-screen w-64 shrink-0 border-r border-border bg-surface md:block [@media(max-height:640px)]:hidden"
       >
         <div className="flex h-full min-h-0 flex-col">
-          <div className="shrink-0 p-4">
-            <AppLogo subtitle={t('app.logo.subtitle')} />
+          <div className="shrink-0 border-b border-border p-2">
+            {!mobileNavOpen ? controls : null}
           </div>
 
           <nav
@@ -385,11 +410,9 @@ export function AppSidebar(props: {
               ))}
             </div>
           ) : null}
-          <nav aria-label={t('nav.service_status')} className="shrink-0 border-t border-border px-2 py-2" data-testid="nav.sidebar.status">
-            {statusNavItems.map((item) => (
-              <NavigationLink key={item.id} item={item} surface="sidebar" compact />
-            ))}
-          </nav>
+          <div className="shrink-0 border-t border-border px-4 py-3" data-testid="shell.brand.sidebar">
+            <AppLogo />
+          </div>
           <div className="shrink-0 border-t border-border px-4 py-1">
             <BuildFooter />
           </div>

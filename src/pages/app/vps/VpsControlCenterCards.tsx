@@ -2,35 +2,32 @@ import React from 'react';
 import {
   Activity,
   HardDrive,
-  KeyRound,
   Network,
   Server,
-  Terminal,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+import { useAccountTimeZone } from '../../../app/accountTimeZone';
 import { useI18n } from '../../../app/i18n';
 import type { IpAddress } from '../../../lib/api/ipAddresses';
 import type { TransactionChain } from '../../../lib/api/transactions';
 import type { Vps } from '../../../lib/api/vps';
 import { Badge } from '../../../components/ui/Badge';
 import { Card, CardBody, CardHeader } from '../../../components/ui/Card';
+import { LinkButton } from '../../../components/ui/LinkButton';
 import { ChipLink } from '../../../components/ui/ChipLink';
 import { CopyButton } from '../../../components/ui/CopyButton';
 import { Spinner } from '../../../components/ui/Spinner';
 import { UsageBar } from '../../../components/ui/UsageBar';
-import { formatDateTime, formatDurationSeconds, formatMiB } from '../../../lib/format';
+import { formatDateTimeInTimeZone, formatMiB } from '../../../lib/format';
 import {
   chainBadgeFromState,
   chainProgressLabel,
-  isFailedChainState,
   runtimeStateBadge,
 } from '../../../lib/taskStatus';
 import {
   classifyIpAddress,
-  formatLoadavg,
   ipAddressDisplayLabel,
-  isRemoteConsoleAvailable,
   overviewHealthKey,
   overviewUsageMetric,
   resourceId,
@@ -163,7 +160,6 @@ export function VpsResourcesCard(props: {
     <Card className={props.className ?? 'lg:col-span-6'} testId="vps.overview.resources_usage.card">
       <CardHeader
         title={<SectionTitle icon={<Server className={iconClass} />}>{t('vps.control.resources.title')}</SectionTitle>}
-        subtitle={t('vps.control.resources.subtitle')}
         actions={(
           <ChipLink to={`${props.basePath}/vps/${props.vps.id}/config?${resourceSearch.toString()}`}>
             {t('vps.control.resources.edit')}
@@ -197,54 +193,6 @@ export function VpsResourcesCard(props: {
             max={props.vps.diskspace}
           />
         </div>
-      </CardBody>
-    </Card>
-  );
-}
-
-export function VpsAccessCard(props: { vps: Vps; basePath: string; contextSearch?: string; sshCommand?: string | null }) {
-  const { t } = useI18n();
-  const consoleAvailable = isRemoteConsoleAvailable(props.vps);
-
-  return (
-    <Card className="lg:col-span-6" testId="vps.overview.status_access.card">
-      <CardHeader
-        title={<SectionTitle icon={<KeyRound className={iconClass} />}>{t('vps.control.access.title')}</SectionTitle>}
-        subtitle={t('vps.control.access.subtitle')}
-        actions={<ChipLink to={`${props.basePath}/vps/${props.vps.id}/access${props.contextSearch ?? ''}`}>{t('vps.control.access.open')}</ChipLink>}
-      />
-      <CardBody className="space-y-3">
-        <div data-testid="vps.overview.status_access.ssh">
-          <div className="text-xs text-faint">{t('vps.control.access.ssh')}</div>
-          {props.sshCommand ? (
-            <div className="mt-1 flex min-w-0 items-center gap-2 rounded-lg border border-border bg-surface-2 p-2">
-              <code className="min-w-0 flex-1 truncate font-mono text-xs text-fg">{props.sshCommand}</code>
-              <CopyButton text={props.sshCommand} label={t('common.copy')} />
-            </div>
-          ) : (
-            <div className="mt-1 rounded-lg border border-border bg-surface-2 p-3 text-sm text-muted">
-              {t('vps.control.access.no_ssh')}
-            </div>
-          )}
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-          <MiniStat label={t('vps.control.access.uptime')} value={formatDurationSeconds(props.vps.uptime)} />
-          <MiniStat label={t('vps.control.access.load')} value={formatLoadavg(props.vps)} />
-        </div>
-        {consoleAvailable ? (
-          <Link
-            to={`${props.basePath}/vps/${props.vps.id}/console${props.contextSearch ?? ''}`}
-            className="inline-flex items-center gap-2 text-sm font-medium text-link hover:underline"
-            data-testid="vps.overview.access.console"
-          >
-            <Terminal className="h-4 w-4" aria-hidden="true" />
-            {t('vps.control.access.console')}
-          </Link>
-        ) : (
-          <div className="text-xs text-faint" data-testid="vps.overview.access.console_unavailable">
-            {t('vps.control.access.console_unavailable')}
-          </div>
-        )}
       </CardBody>
     </Card>
   );
@@ -290,7 +238,18 @@ export function VpsNetworkCard(props: {
                     <div className="break-all font-mono text-sm font-semibold text-fg">{label}</div>
                     <div className="mt-1"><Badge variant={kind === 'ipv4_public' ? 'info' : 'neutral'}>{t(`vps.control.network.type.${typeKey}`)}</Badge></div>
                   </div>
-                  <CopyButton className="min-h-11 sm:min-h-8" text={label} label={t('common.copy')} />
+                  <span
+                    onPointerDown={(event) => {
+                      if (event.pointerType !== 'mouse') return;
+                      const selection = window.getSelection();
+                      if (selection && !selection.isCollapsed && selection.anchorNode &&
+                          event.currentTarget.parentElement?.contains(selection.anchorNode)) {
+                        event.preventDefault();
+                      }
+                    }}
+                  >
+                    <CopyButton iconOnly className="w-8 !px-0" text={label} />
+                  </span>
                 </li>
               );
             })}
@@ -362,21 +321,21 @@ export function VpsActivityCard(props: {
   error: boolean;
   className?: string;
 }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
+  const timeZone = useAccountTimeZone();
   const chains = React.useMemo(() => sortChainsForOverview(props.chains).slice(0, 4), [props.chains]);
 
   return (
     <Card className={props.className ?? 'lg:col-span-12'} testId="vps.overview.tx.card">
       <CardHeader
         title={<SectionTitle icon={<Activity className={iconClass} />}>{t('vps.control.activity.title')}</SectionTitle>}
-        subtitle={t('vps.control.activity.subtitle')}
         actions={(
-          <ChipLink to={`${props.basePath}/transactions?class_name=Vps&row_id=${props.vps.id}`}>
+          <LinkButton to={`${props.basePath}/transactions?class_name=Vps&row_id=${props.vps.id}`} size="sm">
             {t('vps.control.activity.open')}
-          </ChipLink>
+          </LinkButton>
         )}
       />
-      <CardBody>
+      <CardBody className="@container">
         {props.loading ? (
           <div className="flex items-center gap-2 text-sm text-muted"><Spinner /> {t('common.loading')}</div>
         ) : props.error ? (
@@ -391,21 +350,22 @@ export function VpsActivityCard(props: {
               return (
                 <li
                   key={chain.id}
-                  className={`flex flex-wrap items-center justify-between gap-3 py-3 ${isFailedChainState(chain.state) ? 'text-danger' : ''}`}
+                  className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 py-2 @lg:grid-cols-[minmax(0,1fr)_max-content_auto]"
                 >
-                  <div className="min-w-0 flex-1">
-                    <Link
-                      className="block max-w-full truncate text-sm font-medium text-link hover:underline"
-                      to={`${props.basePath}/transactions/${chain.id}`}
-                      title={chain.label || `#${chain.id}`}
-                    >
-                      {chain.label || `#${chain.id}`}
-                    </Link>
-                    <div className="mt-1 truncate text-xs text-faint">
-                      #{chain.id} · {formatDateTime(chain.created_at)}{progress ? ` · ${progress}` : ''}
-                    </div>
+                  <Link
+                    className="min-w-0 text-sm font-medium text-link hover:underline [overflow-wrap:anywhere]"
+                    to={`${props.basePath}/transactions/${chain.id}`}
+                  >
+                    {chain.label || `#${chain.id}`}
+                  </Link>
+                  <div className="col-start-1 row-start-2 text-xs text-muted @lg:col-start-2 @lg:row-start-1">
+                    {chain.label ? `#${chain.id} · ` : null}
+                    <time dateTime={chain.created_at ?? undefined}>{formatDateTimeInTimeZone(chain.created_at, timeZone, lang)}</time>
+                    {progress ? ` · ${progress}` : ''}
                   </div>
-                  <span className="shrink-0"><Badge variant={badge.variant}>{badge.label}</Badge></span>
+                  <span className="col-start-2 row-start-1 justify-self-end @lg:col-start-3">
+                    <Badge variant={badge.variant}>{badge.label}</Badge>
+                  </span>
                 </li>
               );
             })}

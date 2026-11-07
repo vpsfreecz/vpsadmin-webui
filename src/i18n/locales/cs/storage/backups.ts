@@ -30,7 +30,6 @@ export const csBackups = {
   'backups.stats.unavailable': 'Nedostupné downloady',
   'backups.stats.unavailable.help': 'Expirované, zrušené nebo neúspěšné',
   'backups.quick.title': 'Co potřebuješ udělat?',
-  'backups.quick.subtitle': 'Přejdi rovnou ke správnému úložišti a existujícím nástrojům.',
   'backups.quick.restore': 'Obnovit nebo vrátit stav',
   'backups.quick.downloads': 'Zobrazit downloady',
   'backups.quick.plans': 'Spravovat plány záloh',

@@ -1,3 +1,4 @@
+import { clickShellControl } from '../../helpers/shellNavigation';
 import { expect, test } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
@@ -75,15 +76,16 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile VPS access page generates root
   await page.goto('/app/vps/123/access');
 
   await expect(page.getByTestId('vps.access.page')).toBeVisible();
-  await expect(page.getByTestId('vps.access.checklist')).toBeVisible();
+  await expect(page.getByTestId('vps.access.checklist')).toHaveCount(0);
+  await expect(page.getByTestId('vps.access.page').locator(':scope > :visible').first()).toHaveAttribute(
+    'data-testid',
+    'vps.access.ssh.card',
+  );
   await expect(page.getByTestId('vps.access.ssh_command')).toHaveCount(0);
   await expect(page.getByTestId('vps.access.host_keys.fingerprints')).toBeVisible();
   await expect(page.getByTestId('vps.access.host_keys.table')).toBeVisible();
   await expect(page.getByTestId('vps.access.host_keys.row.1')).toContainText('SHA256:host-ed25519');
   await expect(page.getByTestId('vps.access.host_keys.row.1')).toContainText('ssh-ed25519');
-  await expect(page.getByTestId('vps.access.checklist.public-key.action')).toHaveText('Deploy saved key');
-  await expect(page.getByTestId('vps.access.checklist.host-key.action')).toHaveText('View host fingerprints');
-  await expect(page.getByTestId('vps.access.checklist.root-password.action')).toHaveText('Open password fallback');
 
   const savedKeySelect = page.getByRole('combobox', { name: 'Saved public key', exact: true });
   await expect(savedKeySelect).toBeVisible();
@@ -107,15 +109,6 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile VPS access page generates root
   await page.setViewportSize({ width: 390, height: 844 });
   await expectNoDocumentHorizontalOverflow(page);
   await expectTableHorizontalScrollUsable(page, 'vps.access.host_keys.table');
-  await page.getByTestId('vps.access.checklist.public-key.action').click();
-  await expect(page).toHaveURL(/#vps-access-ssh-key$/);
-  await expect(page.getByTestId('vps.access.ssh.deploy')).toBeInViewport();
-  await page.getByTestId('vps.access.checklist.host-key.action').click();
-  await expect(page).toHaveURL(/#vps-access-host-keys$/);
-  await expect(page.getByTestId('vps.access.host_keys')).toBeInViewport();
-  await page.getByTestId('vps.access.checklist.root-password.action').click();
-  await expect(page).toHaveURL(/#vps-access-root-password$/);
-  await expect(page.getByTestId('vps.access.password.generate')).toBeInViewport();
   await page.setViewportSize({ width: 1280, height: 844 });
   await page.getByTestId('vps.access.password_type').selectOption('simple');
   await page.getByTestId('vps.access.password.generate').click();
@@ -143,7 +136,7 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile VPS access page generates root
   await page.getByTestId('vps.access.generated_password.clear').click();
   await expect(page.getByTestId('vps.access.generated_password')).toHaveCount(0);
 
-  await page.getByTestId('tasks.open-button').click();
+  await clickShellControl(page, 'tasks.open-button');
   await expect(page.getByTestId('tasks.drawer')).toHaveAttribute('aria-modal', 'false');
   await expect(
     page.getByTestId('tasks.row.700').getByRole('button', { name: 'Generate root password', exact: true }),
@@ -170,7 +163,7 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile VPS access page generates root
   expect(keyReq.postDataJSON()).toEqual({ vps: { public_key: 8 } });
   await expect(page.getByText(/Public key deployed: workstation/)).toBeVisible();
 
-  await page.getByTestId('tasks.open-button').click();
+  await clickShellControl(page, 'tasks.open-button');
   await expect(
     page.getByTestId('tasks.row.701').getByRole('button', { name: 'Deploy SSH public key', exact: true }),
   ).toBeVisible();
@@ -234,3 +227,71 @@ test('@workflow-matrix @pr-smoke VPS access reports failed SSH key deployment an
   ).toBeVisible();
   await expect(page.getByTestId('vps.access.page')).toBeVisible();
 });
+
+test('@pr-smoke @pr-smoke-mobile missing SSH keys and fingerprints retain their recovery actions', async ({ page }) => {
+  await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+  await installHaveApiMock(page, {
+    user: { id: 42, login: 'owner', level: 1 },
+    handlers: {
+      'GET vpses/123': () => ({ vps }),
+      'GET transaction_chains': () => ({ transaction_chains: [] }),
+      'GET users/42/public_keys': () => ({ public_keys: [] }),
+      'GET vpses/123/ssh_host_keys': () => ({ ssh_host_keys: [] }),
+    },
+  });
+
+  await page.goto('/app/vps/123/access');
+  const keyLink = page.getByTestId('vps.access.ssh.no_keys.profile');
+  await expect(keyLink).toHaveAttribute('href', '/app/profile/keys');
+  await expect(page.getByTestId('vps.access.ssh.deploy')).toBeDisabled();
+  await expect(page.getByTestId('vps.access.host_keys')).toContainText('Verify the fingerprint');
+  await expect(page.getByTestId('vps.access.password.generate')).toBeEnabled();
+});
+
+for (const { description, mode, level, knownOwner, link } of [
+  { description: 'member profile', mode: 'app', level: 1, knownOwner: true, link: '/app/profile/keys' },
+  { description: 'member profile with implicit owner', mode: 'app', level: 1, knownOwner: false, link: '/app/profile/keys' },
+  { description: 'admin known owner', mode: 'admin', level: 100, knownOwner: true, link: '/admin/users/42/keys' },
+  { description: 'admin unknown owner', mode: 'admin', level: 100, knownOwner: false, link: null },
+  { description: 'read-only support', mode: 'admin', level: 50, knownOwner: true, link: null },
+]) {
+  test(`@pr-smoke @pr-smoke-mobile Access key guidance scopes the link to ${description}`, async ({ page }) => {
+    await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+    const keyRequests: number[] = [];
+    await installHaveApiMock(page, {
+      user: { id: mode === 'app' ? 42 : 1, login: 'fixture', level },
+      handlers: {
+        'GET vpses/123': () => ({ vps: { ...vps, user: knownOwner ? vps.user : null } }),
+        'GET transaction_chains': () => ({ transaction_chains: [] }),
+        'GET users/1/public_keys': () => {
+          keyRequests.push(1);
+          return { public_keys: [] };
+        },
+        'GET users/42/public_keys': () => {
+          keyRequests.push(42);
+          return { public_keys: [] };
+        },
+        'GET vpses/123/ssh_host_keys': () => ({ ssh_host_keys: hostKeys }),
+      },
+    });
+    await page.goto(`/${mode}/vps/123/access`);
+    const access = page.getByTestId('vps.access.page');
+    await expect(access).toContainText('Server SSH fingerprints');
+    const management = access.getByRole('link', { name: 'Manage saved SSH keys' });
+    if (link) {
+      await expect(management).toHaveAttribute('href', link);
+      await expect(access).toContainText('User SSH public keys');
+      await expect(access.getByTestId('vps.access.password.card')).toContainText('when the change succeeds');
+      expect(keyRequests).toEqual([42]);
+    } else {
+      await expect(management).toHaveCount(0);
+      if (level === 100) {
+        await expect(access.getByTestId('vps.access.ssh.deploy')).toBeDisabled();
+        await expect(access).toContainText('The VPS owner could not be determined yet.');
+      } else {
+        await expect(access.getByTestId('vps.access.ssh.deploy')).toHaveCount(0);
+      }
+      expect(keyRequests).toEqual([]);
+    }
+  });
+}

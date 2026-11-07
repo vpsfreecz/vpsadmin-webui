@@ -1,3 +1,5 @@
+import { useStatusPagePath } from '../../components/layout/useStatusPagePath';
+import { SecurityCveBadge } from './SecurityCveBadge';
 import React, { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
@@ -58,11 +60,6 @@ function recordLabel(value: unknown, fallback: string): string {
   return fallback;
 }
 
-function cveHref(cve: SecurityAdvisoryCve, label: string): string {
-  if (typeof cve.url === 'string' && /^https:\/\//i.test(cve.url.trim())) return cve.url.trim();
-  return `https://nvd.nist.gov/vuln/detail/${encodeURIComponent(label)}`;
-}
-
 function nodeLabel(status: SecurityAdvisoryNodeStatus, fallback: string): string {
   return recordLabel(status.node, fallback);
 }
@@ -85,6 +82,7 @@ function outageInfo(
 }
 
 export function SecurityAdvisoryDetailPage() {
+  const statusPath = useStatusPagePath();
   const i18n = useI18n();
   const auth = useAuth();
   const params = useParams();
@@ -203,25 +201,27 @@ export function SecurityAdvisoryDetailPage() {
   return (
     <div className="space-y-6" data-testid="public.security_advisory_detail.page">
       <div className="space-y-3">
-        <Link className="text-sm text-accent hover:underline" to="/security-advisories">
+        <Link className="text-sm text-accent hover:underline" to={statusPath('/security-advisories')}>
           ← {i18n.t('public.security_advisory_detail.back')}
         </Link>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0 space-y-1">
             <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
             <div className="text-sm text-muted">
-              {i18n.t('public.security_advisories.published')}: {formatDateTime(publicAdvisory.published_at)}
+              {i18n.t('public.security_advisories.published')}: {formatDateTime(publicAdvisory.published_at, i18n.lang)}
               {publicAdvisory.retracted_at
-                ? ` · ${i18n.t('public.security_advisory_detail.retracted')}: ${formatDateTime(publicAdvisory.retracted_at)}`
+                ? ` · ${i18n.t('public.security_advisory_detail.retracted')}: ${formatDateTime(publicAdvisory.retracted_at, i18n.lang)}`
                 : ''}
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            {loadPersonalImpact && typeof publicAdvisory.affected === 'boolean' ? (
-              <Badge variant={publicAdvisory.affected ? 'danger' : 'neutral'}>
-                {i18n.t(publicAdvisory.affected
+            {loadPersonalImpact ? (
+              <Badge variant={publicAdvisory.affected === true ? 'danger' : 'neutral'}>
+                {i18n.t(publicAdvisory.affected === true
                   ? 'dashboard.section.security.affects_me'
-                  : 'dashboard.section.security.not_affected')}
+                  : publicAdvisory.affected === false
+                    ? 'dashboard.section.security.not_affected'
+                    : 'dashboard.section.security.impact_unknown')}
               </Badge>
             ) : null}
             <Badge variant={stateVariant(publicAdvisory.state)}>
@@ -238,17 +238,7 @@ export function SecurityAdvisoryDetailPage() {
           <div className="flex flex-wrap gap-2" aria-label={i18n.t('public.security_advisory_detail.cves.title')}>
             {cveLabels.map((label) => {
               const cve = cvesByLabel.get(label) ?? { id: 0, cve_id: label };
-              return (
-                <a
-                  key={label}
-                  href={cveHref(cve, label)}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus/35"
-                >
-                  <Badge variant="info">{label} ↗</Badge>
-                </a>
-              );
+              return <SecurityCveBadge key={label} label={label} sourceUrl={cve.url ?? undefined} />;
             })}
           </div>
         ) : null}
@@ -284,21 +274,26 @@ export function SecurityAdvisoryDetailPage() {
         <Card testId="public.security_advisory_detail.own_affected_vps">
           <CardHeader
             title={i18n.t('public.security_advisories.affected_vps')}
-            actions={typeof publicAdvisory.affected === 'boolean' ? (
-              <Badge variant={publicAdvisory.affected ? 'danger' : 'neutral'}>
-                {i18n.t(publicAdvisory.affected
+            actions={(
+              <Badge variant={publicAdvisory.affected === true ? 'danger' : 'neutral'}>
+                {i18n.t(publicAdvisory.affected === true
                   ? 'dashboard.section.security.affects_me'
-                  : 'dashboard.section.security.not_affected')}
+                  : publicAdvisory.affected === false
+                    ? 'dashboard.section.security.not_affected'
+                    : 'dashboard.section.security.impact_unknown')}
               </Badge>
-            ) : null}
+            )}
           />
-          <CardBody>
+          <CardBody className="space-y-3">
+            <p className="text-sm text-muted">{i18n.t('dashboard.section.security.impact_help')}</p>
             {ownVpsQ.isLoading ? (
               <Spinner label={i18n.t('common.loading')} />
             ) : ownVpsQ.isError ? (
               <Alert title={i18n.t('common.error')} variant="warn" />
             ) : (ownVpsQ.data?.length ?? 0) === 0 ? (
-              <div className="text-sm text-muted">{i18n.t('dashboard.section.security.not_affected')}</div>
+              <div className="text-sm text-muted">{i18n.t(publicAdvisory.affected === false
+                ? 'dashboard.section.security.not_affected'
+                : 'dashboard.section.security.impact_unknown')}</div>
             ) : (
               <div className="divide-y divide-border">
                 {ownVpsQ.data?.map((row: SecurityAdvisoryAffectedVps) => {
@@ -329,11 +324,11 @@ export function SecurityAdvisoryDetailPage() {
                         </div>
                         <div className="mt-1 text-xs text-muted">
                           {row.vulnerable_until
-                            ? `${i18n.t('public.security_advisory_detail.nodes.vulnerable_until')}: ${formatDateTime(row.vulnerable_until)}`
+                            ? `${i18n.t('public.security_advisory_detail.nodes.vulnerable_until')}: ${formatDateTime(row.vulnerable_until, i18n.lang)}`
                             : null}
                           {row.vulnerable_until && row.mitigated_since ? ' · ' : null}
                           {row.mitigated_since
-                            ? `${i18n.t('public.security_advisory_detail.nodes.mitigated_since')}: ${formatDateTime(row.mitigated_since)}`
+                            ? `${i18n.t('public.security_advisory_detail.nodes.mitigated_since')}: ${formatDateTime(row.mitigated_since, i18n.lang)}`
                             : null}
                         </div>
                       </div>
@@ -373,11 +368,11 @@ export function SecurityAdvisoryDetailPage() {
                       </div>
                       <div className="mt-1 text-xs text-muted">
                         {status.vulnerable_until
-                          ? `${i18n.t('public.security_advisory_detail.nodes.vulnerable_until')}: ${formatDateTime(status.vulnerable_until)}`
+                          ? `${i18n.t('public.security_advisory_detail.nodes.vulnerable_until')}: ${formatDateTime(status.vulnerable_until, i18n.lang)}`
                           : null}
                         {status.vulnerable_until && status.mitigated_since ? ' · ' : null}
                         {status.mitigated_since
-                          ? `${i18n.t('public.security_advisory_detail.nodes.mitigated_since')}: ${formatDateTime(status.mitigated_since)}`
+                          ? `${i18n.t('public.security_advisory_detail.nodes.mitigated_since')}: ${formatDateTime(status.mitigated_since, i18n.lang)}`
                           : null}
                       </div>
                     </div>
@@ -420,7 +415,7 @@ export function SecurityAdvisoryDetailPage() {
                           {updateSummary || i18n.t('public.security_advisory_detail.updates.fallback', { id: update.id })}
                         </h2>
                         <div className="mt-1 text-xs text-muted">
-                          {formatDateTime(publishedAt)}
+                          {formatDateTime(publishedAt, i18n.lang)}
                         </div>
                       </div>
                       {update.state ? (
@@ -459,7 +454,7 @@ export function SecurityAdvisoryDetailPage() {
                   <Link
                     key={link.id}
                     className="block rounded-lg border border-border bg-surface-2 p-3 text-sm font-medium text-accent hover:underline"
-                    to={`/outages/${outage.id}`}
+                    to={statusPath(`/outages/${outage.id}`)}
                   >
                     {outage.label} →
                   </Link>

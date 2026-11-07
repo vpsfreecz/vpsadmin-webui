@@ -1,14 +1,12 @@
 import React from 'react';
 
 import { clsx } from '../../components/ui/clsx';
-import { useI18n } from '../../app/i18n';
 
 export function OAuthShell(props: {
   children: React.ReactNode;
   testId?: string;
   variant?: 'progress' | 'error';
 }) {
-  const { t } = useI18n();
 
   return (
     <main
@@ -23,7 +21,6 @@ export function OAuthShell(props: {
             </div>
             <div className="leading-tight">
               <div className="text-base font-semibold text-fg">vpsAdmin</div>
-              <div className="text-xs text-muted">{t('app.logo.subtitle')}</div>
             </div>
           </div>
 

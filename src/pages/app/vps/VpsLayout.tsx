@@ -497,25 +497,23 @@ export function VpsLayout() {
           testId="vps.header"
           horizontalAt="xl"
           fullWidthDetails
-          kicker={
-            <>
-              <Link className="text-accent hover:underline" to={vpsListHref}>
-                {t('nav.vps')}
-              </Link>
-              <span className="text-faint"> · </span>
-              <span>#{vps.id}</span>
-            </>
-          }
           title={vps.hostname}
-          badges={
-            <VpsHeaderStateBadges
-              vps={vps}
-              runtime={rt}
-              creating={creation.pending}
-              busyTransaction={busyTransaction}
-              busyLocalLock={busyLocalLock}
-              activeChainIds={activeChainIds}
-            />
+          titleAfter={
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1 text-xs text-muted">
+                <Link className="text-accent hover:underline" to={vpsListHref}>{t('nav.vps')}</Link>
+                <span aria-hidden="true">·</span>
+                <span>#{vps.id}</span>
+              </span>
+              <VpsHeaderStateBadges
+                vps={vps}
+                runtime={rt}
+                creating={creation.pending}
+                busyTransaction={busyTransaction}
+                busyLocalLock={busyLocalLock}
+                activeChainIds={activeChainIds}
+              />
+            </div>
           }
           meta={
             <div className="flex flex-wrap gap-x-4 gap-y-1">
@@ -553,12 +551,13 @@ export function VpsLayout() {
               >
                 <span className="shrink-0">{t('vps.header.ssh.label')}:</span>
                 {sshCommand ? (
-                  <span className="mt-1 flex min-w-0 max-w-full items-center gap-2 xl:mt-0">
-                    <code className="min-w-0 flex-1 truncate rounded bg-surface-2 px-2 py-1 font-mono text-xs text-fg">
+                  <span className="mt-1 flex min-w-0 max-w-full items-stretch rounded-md border border-border bg-surface-2 xl:mt-0">
+                    <code className="min-w-0 flex-1 self-center px-2 py-1 font-mono text-xs text-fg [overflow-wrap:anywhere]">
                       {sshCommand}
                     </code>
                     <CopyButton
-                      className="min-h-11 shrink-0 xl:min-h-8"
+                      variant="ghost"
+                      className="h-auto! min-h-11 shrink-0 rounded-l-none border-l border-border xl:min-h-8"
                       text={sshCommand}
                       label={t('common.copy')}
                     />

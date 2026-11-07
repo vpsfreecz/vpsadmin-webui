@@ -54,6 +54,11 @@ export function NodeHeatmapProvider({ children }: { children: React.ReactNode })
         {selected ? (
           <div className="space-y-3">
             <p className="text-sm text-muted">{t('nodes.heatmap.description')}</p>
+            <ul className="list-disc space-y-1 pl-5 text-sm text-muted" data-testid="nodes.heatmap.guide">
+              <li>{t('nodes.heatmap.guide.axes')}</li>
+              <li>{t('nodes.heatmap.guide.colors')}</li>
+              <li>{t('nodes.heatmap.guide.pause')}</li>
+            </ul>
             <iframe
               key={selected.url}
               src={selected.url}

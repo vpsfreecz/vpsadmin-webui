@@ -402,7 +402,7 @@ function isSecurityAdvisory(value: unknown): value is SecurityAdvisory {
     )
   );
 }
-function narrowSecurityAdvisory(value: unknown): SecurityAdvisory {
+export function narrowSecurityAdvisory(value: unknown): SecurityAdvisory {
   if (!isSecurityAdvisory(value)) throw new TypeError('Invalid SecurityAdvisory fields');
   return value;
 }

@@ -10,7 +10,6 @@ export const csCommon_cross_domain = {
   'audit.col.session': 'Relace',
   'audit.col.data': 'Data',
   'dataset.field.full_name': 'Celý název',
-  'dataset.overview.space.subtitle': 'Referenční kvóta, využití a dostupné místo.',
   'dataset.overview.space.badge.title': 'Účtování prostoru',
   'dataset.overview.space.badge.infinity_title': 'Neomezená kvóta',
   'dataset.overview.actions.subtitle': 'Otevři související objekty a spravuj běžné akce datasetu.',

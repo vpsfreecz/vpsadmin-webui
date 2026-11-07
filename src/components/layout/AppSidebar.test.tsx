@@ -50,7 +50,7 @@ describe('buildSidebarNavItems', () => {
 
     expect(admin.map((item) => item.id)).toContain('security-advisories');
     expect(admin.find((item) => item.id === 'security-advisories')?.to).toBe('/admin/security-advisories');
-    expect(support.find((item) => item.id === 'security-advisories')?.to).toBe('/security-advisories');
+    expect(support.find((item) => item.id === 'security-advisories')?.to).toBe('/admin/status/security-advisories');
   });
 
   it('groups admin navigation without hiding links behind another interaction', () => {
@@ -66,6 +66,7 @@ describe('buildSidebarNavItems', () => {
       'users-finance',
       'infrastructure',
       'content',
+      'status',
     ]);
     expect(sections.map((section) => section.labelKey)).toEqual([
       undefined,
@@ -74,6 +75,7 @@ describe('buildSidebarNavItems', () => {
       'nav.group.users_finance',
       'nav.group.infrastructure',
       'nav.group.content',
+      undefined,
     ]);
     expect(sections.flatMap((section) => section.items.map((item) => item.id))).toEqual([
       'dashboard',
@@ -98,22 +100,24 @@ describe('buildSidebarNavItems', () => {
       'admin-info',
       'mailer',
       'content',
+      'outages',
+      'security-advisories',
     ]);
     expect(sidebarFooterNavItems(items).map((item) => item.id)).toEqual(['account']);
   });
 
-  it('keeps the user sidebar flat and keeps Account in its original list position', () => {
+  it('keeps the user sidebar flat with status links after Account', () => {
     const items = primarySidebarNavItems(
       buildSidebarNavItems({ basePath: '/app', appMode: 'user', role: 'user', t: fakeT }),
     );
 
-    expect(sidebarNavSections(items)).toEqual([{ id: 'ungrouped', items: items.filter((item) => !item.status) }]);
+    expect(sidebarNavSections(items)).toEqual([{ id: 'ungrouped', items }]);
     expect(sidebarFooterNavItems(items)).toEqual([]);
     expect(items.map((item) => item.id)).toContain('backups');
     expect(items.map((item) => item.id)).not.toContain('datasets');
     expect(items.map((item) => item.id)).toContain('requests');
     expect(items.find((item) => item.id === 'requests')?.to).toBe('/app/requests');
-    expect(sidebarNavSections(items)[0]?.items.at(-1)?.id).toBe('account');
+    expect(items.slice(-3).map((item) => item.id)).toEqual(['account', 'outages', 'security-advisories']);
   });
 
   it('keeps the generic dataset label in the administrator navigation', () => {
@@ -136,19 +140,20 @@ describe('buildSidebarNavItems', () => {
     );
     const visibleIds = sidebarNavSections(items).flatMap((section) => section.items.map((item) => item.id));
 
-    expect(visibleIds).not.toContain('security-advisories');
+    expect(visibleIds.slice(-2)).toEqual(['outages', 'security-advisories']);
     expect(visibleIds).not.toContain('action-states');
     expect(visibleIds).not.toContain('finance');
     expect(sidebarFooterNavItems(items).map((item) => item.id)).toEqual(['account']);
   });
 
-  it.each(['user', 'support', 'admin'] as const)('keeps status links separate and read-only in My view for %s', (role) => {
+  it.each(['user', 'support', 'admin'] as const)('keeps status links at the end and read-only in My view for %s', (role) => {
     const items = buildSidebarNavItems({ basePath: '/app', appMode: 'user', role, t: fakeT });
     expect(items.filter((item) => item.status).map(({ id, to }) => ({ id, to }))).toEqual([
-      { id: 'outages', to: '/outages' },
-      { id: 'security-advisories', to: '/security-advisories' },
+      { id: 'outages', to: '/app/outages' },
+      { id: 'security-advisories', to: '/app/security-advisories' },
     ]);
-    expect(sidebarNavSections(items).flatMap((section) => section.items).some((item) => item.status)).toBe(false);
+    expect(sidebarNavSections(items).flatMap((section) => section.items).slice(-2).map((item) => item.id))
+      .toEqual(['outages', 'security-advisories']);
     expect(sidebarFooterNavItems(items).some((item) => item.status)).toBe(false);
   });
 

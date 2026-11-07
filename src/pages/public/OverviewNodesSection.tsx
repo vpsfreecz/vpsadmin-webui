@@ -178,8 +178,8 @@ export function OverviewNodesSection(props: {
   return (
     <div data-testid="public.nodes.section">
       <Card>
-        <CardHeader title={i18n.t('public.overview.nodes.title')} subtitle={i18n.t('public.overview.nodes.subtitle')} />
-        <CardBody>
+        <CardHeader className="px-3 py-3" title={i18n.t('public.overview.nodes.title')} />
+        <CardBody className="px-3 py-3">
           {props.loading ? (
             <Spinner label={i18n.t('public.overview.nodes.loading')} />
           ) : props.error ? (

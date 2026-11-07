@@ -4,6 +4,7 @@ import { narrowApiResult } from './apiOutput';
 import { getPublicApi } from './sdk';
 import { narrowOutage, narrowOutageEntity, narrowOutageHandler, narrowOutageUpdate } from './outageViews';
 import { narrowPublicNewsLog } from './newsLogViews';
+import { narrowSecurityAdvisory, type SecurityAdvisory } from './securityAdvisories';
 
 /** Public summaries require real counts; unknown values are never fabricated as zero. */
 export type PublicClusterStats = Required<{ [K in keyof Cluster__PublicStatsOutput]: NonNullable<Cluster__PublicStatsOutput[K]> }>;
@@ -87,4 +88,24 @@ export async function fetchOutageUpdates(outageId: number) {
 export async function fetchNews(opts?: { limit?: number }) {
   return narrowApiResult(await getPublicApi().news_log.index({ params: { limit: opts?.limit } }), data =>
     expectArray<unknown>(data, 'public news').map(narrowPublicNewsLog), 'public news');
+}
+
+/** A bounded homepage preview; keep credentials out even for signed-in visitors. */
+export async function fetchPublicSecurityAdvisories() {
+  const res = narrowApiResult(
+    await getPublicApi().security_advisory.index({ params: { limit: 5, state: 'published', order: 'newest' } }),
+    data => expectArray<unknown>(data, 'public security advisories').map(narrowSecurityAdvisory),
+    'public security advisories'
+  );
+  return {
+    ...res,
+    data: expectArray<SecurityAdvisory>(res.data, 'security_advisories')
+      .filter(advisory => advisory.state === 'published')
+      .sort((a, b) => {
+        const at = Date.parse(a.published_at ?? '') || 0;
+        const bt = Date.parse(b.published_at ?? '') || 0;
+        return bt - at || b.id - a.id;
+      })
+      .slice(0, 5),
+  };
 }

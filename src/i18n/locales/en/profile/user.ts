@@ -5,6 +5,5 @@ export const enProfile_user = {
   "profile.user.loading": "Loading user…",
   "profile.user.login": "Login",
   "profile.user.role": "Role",
-  "profile.user.subtitle": "Who you are logged in as.",
   "profile.user.title": "User",
 } as const;

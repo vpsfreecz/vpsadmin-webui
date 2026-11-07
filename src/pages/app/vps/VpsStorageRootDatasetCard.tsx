@@ -1,10 +1,11 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 import { useI18n } from '../../../app/i18n';
 import { Alert } from '../../../components/ui/Alert';
 import { ActionButton } from '../../../components/ui/ActionButton';
 import { Card, CardBody, CardHeader } from '../../../components/ui/Card';
-import { ChipLink } from '../../../components/ui/ChipLink';
+import { Button } from '../../../components/ui/Button';
 import { Spinner } from '../../../components/ui/Spinner';
 import { formatMiB } from '../../../lib/format';
 import type { RootDatasetSummary } from './VpsStorageModel';
@@ -49,7 +50,49 @@ export function VpsStorageRootDatasetCard(props: {
 
   return (
     <Card testId="vps.storage.root_dataset">
-      <CardHeader title={t('vps.storage.root_dataset.title')} subtitle={t('vps.storage.root_dataset.subtitle', { dataset: root.label })} />
+      <CardHeader
+        title={
+          <span className="flex flex-wrap items-baseline gap-x-2">
+            {t('vps.storage.root_dataset.title')}
+            <Link
+              className="text-link underline"
+              to={`${props.basePath}/datasets/${root.id}`}
+              aria-label={`${t('vps.storage.root_dataset.open')} #${root.id}`}
+              data-testid="vps.storage.root_dataset.open"
+            >
+              #{root.id}
+            </Link>
+          </span>
+        }
+        subtitle={<span className="break-all">{root.label}</span>}
+        actions={
+          <div className="flex flex-wrap gap-2">
+            {props.canAdmin ? (
+              <ActionButton
+                onClick={props.onResize}
+                loading={props.resizeLoading}
+                disabled={!props.canResize}
+                disabledReason={props.resizeDisabledReason}
+                size="sm"
+                testId="vps.storage.root_dataset.resize"
+              >
+                {t('vps.storage.resize.open')}
+              </ActionButton>
+            ) : null}
+            {props.canCreateSubdataset ? (
+              <Button size="sm" variant="primary" to={`${props.basePath}/datasets/${root.id}?create=subdataset`} testId="vps.storage.root_dataset.create_subdataset">
+                {t('vps.storage.root_dataset.create_subdataset')}
+              </Button>
+            ) : null}
+            <Button size="sm" variant="secondary" to={`${props.basePath}/datasets/${root.id}/snapshots`} testId="vps.storage.root_dataset.snapshots">
+              {t('vps.storage.root_dataset.snapshots')}
+            </Button>
+            <Button size="sm" variant="secondary" to={`${props.basePath}/datasets/${root.id}/downloads`} testId="vps.storage.root_dataset.downloads">
+              {t('vps.storage.root_dataset.downloads')}
+            </Button>
+          </div>
+        }
+      />
       <CardBody>
         {props.loading ? (
           <div className="mb-3 flex items-center gap-2 text-sm text-muted" data-testid="vps.storage.root_dataset.loading">
@@ -77,50 +120,20 @@ export function VpsStorageRootDatasetCard(props: {
           />
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          {props.canAdmin ? (
-            <ActionButton
-              onClick={props.onResize}
-              loading={props.resizeLoading}
-              disabled={!props.canResize}
-              disabledReason={props.resizeDisabledReason}
-              testId="vps.storage.root_dataset.resize"
-            >
-              {t('vps.storage.resize.open')}
-            </ActionButton>
-          ) : null}
-          <ChipLink to={`${props.basePath}/datasets/${root.id}`} data-testid="vps.storage.root_dataset.open">
-            {t('vps.storage.root_dataset.open')}
-          </ChipLink>
-          {props.canCreateSubdataset ? (
-            <ChipLink to={`${props.basePath}/datasets/${root.id}?create=subdataset`} data-testid="vps.storage.root_dataset.create_subdataset">
-              {t('vps.storage.root_dataset.create_subdataset')}
-            </ChipLink>
-          ) : null}
-          <ChipLink to={`${props.basePath}/datasets/${root.id}/snapshots`} data-testid="vps.storage.root_dataset.snapshots">
-            {t('vps.storage.root_dataset.snapshots')}
-          </ChipLink>
-          <ChipLink to={`${props.basePath}/datasets/${root.id}/downloads`} data-testid="vps.storage.root_dataset.downloads">
-            {t('vps.storage.root_dataset.downloads')}
-          </ChipLink>
-        </div>
-
         {!props.loading && !props.canCreateSubdataset ? (
           <div className="mt-1 text-xs text-muted">{t('vps.storage.root_dataset.create_subdataset_user_note')}</div>
         ) : null}
 
-        <details className="mt-4 rounded-md border border-border bg-surface-2 p-3 text-xs text-muted" data-testid="vps.storage.root_dataset.details">
-          <summary className="cursor-pointer font-medium text-fg">
-            {t(props.canAdmin ? 'vps.storage.root_dataset.details.title_admin' : 'vps.storage.root_dataset.details.title')}
-          </summary>
-          <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <MetadataItem label={t('dataset.field.referenced')} value={formatMiB(root.referenced)} />
-            <MetadataItem label={t('dataset.field.reference_quota')} value={root.referenceQuota !== null ? formatMiB(root.referenceQuota) : '∞'} />
-            <MetadataItem label={t('dataset.field.quota')} value={formatMiB(root.quota)} />
-            <MetadataItem label={t('common.state')} value={root.state ?? t('common.na')} />
-          </div>
-          {props.canAdmin ? (
-            <div className="mt-3 border-t border-border pt-3" data-testid="vps.storage.root_dataset.system_context">
+        <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4" data-testid="vps.storage.root_dataset.details">
+          <MetadataItem label={t('dataset.field.referenced')} value={formatMiB(root.referenced)} />
+          <MetadataItem label={t('dataset.field.reference_quota')} value={root.referenceQuota !== null ? formatMiB(root.referenceQuota) : '∞'} />
+          <MetadataItem label={t('dataset.field.quota')} value={formatMiB(root.quota)} />
+          <MetadataItem label={t('common.state')} value={root.state ?? t('common.na')} />
+        </div>
+        {props.canAdmin ? (
+          <details className="mt-4 rounded-md border border-border bg-surface-2 p-3 text-xs text-muted">
+            <summary className="cursor-pointer font-medium text-fg">{t('vps.storage.root_dataset.details.title_admin')}</summary>
+            <div className="mt-3" data-testid="vps.storage.root_dataset.system_context">
               <div>
                 {t('vps.storage.root_dataset.related_counts', {
                   snapshots: countLabel(root.snapshotCount),
@@ -130,8 +143,8 @@ export function VpsStorageRootDatasetCard(props: {
               </div>
               <div className="mt-1">{t('vps.storage.root_dataset.system_context.body')}</div>
             </div>
-          ) : null}
-        </details>
+          </details>
+        ) : null}
       </CardBody>
     </Card>
   );

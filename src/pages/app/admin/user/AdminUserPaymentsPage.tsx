@@ -1,9 +1,7 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useSearchParams } from 'react-router-dom';
 
 import { useAccountTimeZone } from '../../../../app/accountTimeZone';
-import { useAppMode } from '../../../../app/appMode';
 import { useI18n } from '../../../../app/i18n';
 import { useToasts } from '../../../../app/toasts';
 
@@ -14,33 +12,30 @@ import { Badge } from '../../../../components/ui/Badge';
 import { Button } from '../../../../components/ui/Button';
 import { Card, CardBody, CardHeader } from '../../../../components/ui/Card';
 import { ConfirmDialog } from '../../../../components/ui/ConfirmDialog';
-import { CopyButton } from '../../../../components/ui/CopyButton';
-import { EmptyState } from '../../../../components/ui/EmptyState';
 import { ErrorState } from '../../../../components/ui/ErrorState';
 import { Input } from '../../../../components/ui/Input';
-import { KeysetPagination } from '../../../../components/ui/KeysetPagination';
 import { LoadingState } from '../../../../components/ui/LoadingState';
 
-import { createUserPayment, fetchPaymentInstructions, fetchUserPayments } from '../../../../lib/api/payments';
+import { createUserPayment } from '../../../../lib/api/payments';
 import { fetchUserAccount, updateUserAccount } from '../../../../lib/api/userAccounts';
 import { ClientInputError, getMetaActionStateId } from '../../../../lib/api/apiErrors';
 import { objectRef } from '../../../../lib/objectRef';
 import type { ObjectRef } from '../../../../lib/objectRef';
-import { formatErrorMessage } from '../../../../lib/errors';
-import { formatDateInTimeZone, formatDateTimeInTimeZone } from '../../../../lib/format';
-import { cursorFromDescendingPage } from '../../../../lib/lockIndex';
+
+import { formatDateInTimeZone } from '../../../../lib/format';
 import { getPaidUntilStatus, paidUntilBadgeVariant, paidUntilStatusLabelKey } from '../../../../lib/paymentsBadges';
 import { formatMoneyLike, safeInt } from '../../../../lib/paymentsFormat';
-import { useKeysetPagination } from '../../../../lib/hooks/useKeysetPagination';
 
+import { paidUntilSubtitleToken } from '../../payments/PaymentsModel';
+
+import { AdminUserPaymentHistory } from './AdminUserPaymentHistory';
+import { AdminUserPaymentInstructions } from './AdminUserPaymentInstructions';
 import {
-  normalizePaymentInstructions,
-  paidUntilSubtitleToken,
-  paymentInstructionsPlainText,
-  resourceRefLabel,
-} from '../../payments/PaymentsModel';
-import { PaymentInstructionsHtml } from '../../payments/PaymentInstructionsHtml';
-
+  AdminUserPaymentManualReview,
+  AdminUserPaymentSettingsReview,
+  type ManualPaymentReview,
+  type PaymentSettingsReview,
+} from './AdminUserPaymentReviews';
 import { useAdminUserContext } from './AdminUserLayout';
 
 function isoToDateInput(value: unknown): string {
@@ -67,27 +62,16 @@ function parseNonNegativeWholeAmount(value: string): number | null {
   return Number.isSafeInteger(amount) && amount >= 0 ? amount : null;
 }
 
-interface ManualPaymentReview {
-  amount: number;
-  monthlyPayment: number;
-  months: number;
-}
-
-type PaymentSettingsReview =
-  | { kind: 'paid_until'; previous: string; next: string }
-  | { kind: 'monthly_payment'; previous: number | null; next: number };
 export function AdminUserPaymentsPage() {
   const accountTimeZone = useAccountTimeZone();
-  const { basePath } = useAppMode();
-  const { lang, t, tc } = useI18n();
+  const { t, tc } = useI18n();
   const toasts = useToasts();
   const qc = useQueryClient();
   const chrome = useChrome();
 
   const { userId, user, refetch } = useAdminUserContext();
+  const paymentTarget = user.login ? `${user.login} (#${userId})` : `#${userId}`;
 
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [instructionsOpen, setInstructionsOpen] = useState(false);
 
   const accountQ = useQuery({
     queryKey: ['user_accounts', userId],
@@ -109,51 +93,6 @@ export function AdminUserPaymentsPage() {
     const token = paidUntilSubtitleToken(status);
     return token.kind === 'plural' ? tc(token.key, token.count) : t(token.key);
   })();
-
-  const pagination = useKeysetPagination({
-    id: 'admin.user.payments.history',
-    filterKey: JSON.stringify({ userId }),
-    searchParams,
-    setSearchParams,
-    defaultLimit: 50,
-    allowedLimits: [25, 50, 100, 200],
-  });
-
-  const historyQ = useQuery({
-    queryKey: ['user_payments', 'list', { userId, limit: pagination.limit + 1, fromId: pagination.fromId }],
-    queryFn: async () =>
-      (
-        await fetchUserPayments({
-          userId,
-          limit: pagination.limit + 1,
-          fromId: pagination.fromId ?? undefined,
-        })
-      ).data,
-    staleTime: 15_000,
-  });
-
-  const instructionsQ = useQuery({
-    queryKey: ['users', 'payment_instructions', userId],
-    queryFn: async () => (await fetchPaymentInstructions(userId)).data,
-    enabled: instructionsOpen,
-    staleTime: 10 * 60_000,
-  });
-
-  const instructions = normalizePaymentInstructions(instructionsQ.data);
-  const instructionsCopyText = useMemo(
-    () => paymentInstructionsPlainText(instructions, lang),
-    [instructions, lang],
-  );
-
-  const historyPage = historyQ.data ?? [];
-  const historyInitialError = historyQ.isError && historyQ.data === undefined;
-  const historyDataStale = historyQ.isError && historyQ.data !== undefined;
-  const visibleHistory = useMemo(
-    () => historyPage.slice(0, pagination.limit),
-    [historyPage, pagination.limit]
-  );
-  const cursor = useMemo(() => cursorFromDescendingPage(visibleHistory), [visibleHistory]);
-  const canNext = pagination.hasForward || (historyPage.length > pagination.limit && cursor !== null);
 
   const [quickPaidUntil, setQuickPaidUntil] = useState('');
   const [quickMonthlyPayment, setQuickMonthlyPayment] = useState('');
@@ -199,6 +138,7 @@ export function AdminUserPaymentsPage() {
     onSuccess: () => {
       toasts.pushToast({ variant: 'ok', title: t('admin.user.payments.settings.toast.paid_until_saved') });
       setSettingsReview(null);
+      void qc.invalidateQueries({ queryKey: ['user_payments', 'account_history', { userId }] });
       void qc.invalidateQueries({ queryKey: ['user_accounts', userId] });
       void qc.invalidateQueries({ queryKey: ['finance'] });
       void qc.invalidateQueries({ queryKey: ['payment_stats', 'estimate_income'] });
@@ -312,13 +252,6 @@ export function AdminUserPaymentsPage() {
 
   const settingsMutationPending = paidUntilM.isPending || monthlyPaymentM.isPending;
   const settingsReviewError = settingsReview?.kind === 'paid_until' ? paidUntilM.error : monthlyPaymentM.error;
-  const paidUntilMovesBackward = settingsReview?.kind === 'paid_until'
-    && Boolean(settingsReview.previous)
-    && Boolean(settingsReview.next)
-    && settingsReview.next < settingsReview.previous;
-  const paidUntilClears = settingsReview?.kind === 'paid_until'
-    && Boolean(settingsReview.previous)
-    && !settingsReview.next;
   const settingsReviewStale = settingsReview !== null && (
     settingsReview.kind === 'paid_until'
       ? settingsReview.previous !== currentPaidUntilInput
@@ -497,74 +430,12 @@ export function AdminUserPaymentsPage() {
         testId="admin.user.payments.settings.review"
       >
         {settingsReview ? (
-          <div className="space-y-3">
-            {settingsReviewStale ? (
-              <Alert
-                variant="warn"
-                title={t('admin.user.payments.review.settings.stale.title')}
-                testId="admin.user.payments.settings.review.stale"
-              >
-                {t('admin.user.payments.review.settings.stale.body')}
-              </Alert>
-            ) : null}
-            {settingsReviewError ? (
-              <Alert variant="danger" title={t('common.error')} testId="admin.user.payments.settings.review.error">
-                {formatErrorMessage(settingsReviewError)}
-              </Alert>
-            ) : null}
-            {paidUntilMovesBackward ? (
-              <Alert
-                variant="warn"
-                title={t('admin.user.payments.review.settings.backward.title')}
-                testId="admin.user.payments.settings.review.backward"
-              >
-                {t('admin.user.payments.review.settings.backward.body')}
-              </Alert>
-            ) : null}
-            {paidUntilClears ? (
-              <Alert
-                variant="danger"
-                title={t('admin.user.payments.review.settings.clear.title')}
-                testId="admin.user.payments.settings.review.clear"
-              >
-                {t('admin.user.payments.review.settings.clear.body')}
-              </Alert>
-            ) : null}
-            {settingsReview.kind === 'monthly_payment' && settingsReview.next === 0 ? (
-              <Alert
-                variant="warn"
-                title={t('admin.user.payments.review.settings.monthly_payment_zero.title')}
-                testId="admin.user.payments.settings.review.monthly_payment_zero"
-              >
-                {t('admin.user.payments.review.settings.monthly_payment_zero.body')}
-              </Alert>
-            ) : null}
-            <div className="divide-y divide-border rounded-md border border-border bg-surface-2 text-sm">
-              <div className="grid gap-1 p-3 sm:grid-cols-[9rem_minmax(0,1fr)]" data-testid="admin.user.payments.settings.review.target">
-                <div className="text-xs font-medium uppercase tracking-wide text-muted">{t('admin.user.payments.review.target')}</div>
-                <div className="break-words font-medium">{user.login ? `${user.login} (#${userId})` : `#${userId}`}</div>
-              </div>
-              <div className="grid gap-1 p-3 sm:grid-cols-[9rem_minmax(0,1fr)]" data-testid="admin.user.payments.settings.review.change">
-                <div className="text-xs font-medium uppercase tracking-wide text-muted">
-                  {t(settingsReview.kind === 'paid_until'
-                    ? 'admin.user.payments.settings.field.paid_until'
-                    : 'admin.user.payments.settings.field.monthly_payment')}
-                </div>
-                <div className="break-words font-medium tabular-nums">
-                  {settingsReview.kind === 'paid_until' ? (
-                    <>{settingsReview.previous || t('common.none')} → {settingsReview.next || t('common.none')}</>
-                  ) : (
-                    <>{formatMoneyLike(settingsReview.previous ?? undefined)} → {formatMoneyLike(settingsReview.next)}</>
-                  )}
-                </div>
-              </div>
-            </div>
-            <Alert variant="info" title={t('admin.user.payments.review.impact')}>
-              {t(settingsReview.kind === 'paid_until'
-                ? 'admin.user.payments.review.settings.paid_until.impact'
-                : 'admin.user.payments.review.settings.monthly_payment.impact')}
-            </Alert>
-          </div>
+          <AdminUserPaymentSettingsReview
+            settingsReview={settingsReview}
+            settingsReviewStale={settingsReviewStale}
+            settingsReviewError={settingsReviewError}
+            target={paymentTarget}
+          />
         ) : null}
       </ConfirmDialog>
 
@@ -590,206 +461,17 @@ export function AdminUserPaymentsPage() {
         testId="admin.user.payments.add.review"
       >
         {manualPaymentReview !== null ? (
-          <div className="space-y-3">
-            {manualPaymentReviewStale ? (
-              <Alert
-                variant="warn"
-                title={t('admin.user.payments.review.add.stale.title')}
-                testId="admin.user.payments.add.review.stale"
-              >
-                {t('admin.user.payments.review.add.stale.body')}
-              </Alert>
-            ) : null}
-            {addM.isError ? (
-              <Alert variant="danger" title={t('common.error')} testId="admin.user.payments.add.review.error">
-                {formatErrorMessage(addM.error)}
-              </Alert>
-            ) : null}
-            <div className="divide-y divide-border rounded-md border border-border bg-surface-2 text-sm">
-              <div className="grid gap-1 p-3 sm:grid-cols-[9rem_minmax(0,1fr)]" data-testid="admin.user.payments.add.review.target">
-                <div className="text-xs font-medium uppercase tracking-wide text-muted">{t('admin.user.payments.review.target')}</div>
-                <div className="break-words font-medium">{user.login ? `${user.login} (#${userId})` : `#${userId}`}</div>
-              </div>
-              <div className="grid gap-1 p-3 sm:grid-cols-[9rem_minmax(0,1fr)]" data-testid="admin.user.payments.add.review.monthly">
-                <div className="text-xs font-medium uppercase tracking-wide text-muted">{t('admin.user.payments.settings.field.monthly_payment')}</div>
-                <div className="font-medium tabular-nums">{formatMoneyLike(manualPaymentReview.monthlyPayment)}</div>
-              </div>
-              <div className="grid gap-1 p-3 sm:grid-cols-[9rem_minmax(0,1fr)]" data-testid="admin.user.payments.add.review.months">
-                <div className="text-xs font-medium uppercase tracking-wide text-muted">{t('admin.user.payments.add_payment.field.months')}</div>
-                <div className="font-medium tabular-nums">{manualPaymentReview.months}</div>
-              </div>
-              <div className="grid gap-1 p-3 sm:grid-cols-[9rem_minmax(0,1fr)]" data-testid="admin.user.payments.add.review.amount">
-                <div className="text-xs font-medium uppercase tracking-wide text-muted">{t('admin.user.payments.add_payment.field.amount')}</div>
-                <div className="font-medium tabular-nums">{formatMoneyLike(manualPaymentReview.amount)}</div>
-              </div>
-            </div>
-            <Alert variant="info" title={t('admin.user.payments.review.impact')}>
-              {t('admin.user.payments.review.add.impact')}
-            </Alert>
-            <Alert variant="warn" title={t('admin.user.payments.review.add.email.title')}>
-              {t('admin.user.payments.review.add.email.body')}
-            </Alert>
-            <p className="text-xs text-muted">{t('admin.user.payments.review.add.queue')}</p>
-          </div>
+          <AdminUserPaymentManualReview
+            manualPaymentReview={manualPaymentReview}
+            manualPaymentReviewStale={manualPaymentReviewStale}
+            error={addM.isError ? addM.error : null}
+            target={paymentTarget}
+          />
         ) : null}
       </ConfirmDialog>
 
-      <Card testId="admin.user.payments.instructions.card">
-        <CardHeader
-          className={instructionsOpen ? undefined : 'border-b-0'}
-          title={t('payments.my.instructions.title')}
-          subtitle={t('admin.user.payments.instructions.description')}
-          actions={(
-            <>
-              {instructionsOpen && instructions ? (
-                <CopyButton
-                  text={instructionsCopyText}
-                  testId="admin.user.payments.instructions.copy"
-                />
-              ) : null}
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                onClick={() => setInstructionsOpen((open) => !open)}
-                aria-expanded={instructionsOpen}
-                aria-controls="admin-user-payment-instructions-content"
-                testId="admin.user.payments.instructions.toggle"
-              >
-                {t(instructionsOpen ? 'common.collapse' : 'common.expand')}
-              </Button>
-            </>
-          )}
-        />
-        {instructionsOpen ? (
-          <CardBody>
-            <div id="admin-user-payment-instructions-content">
-              {instructionsQ.isLoading ? <LoadingState /> : null}
-              {instructionsQ.isError ? (
-                <ErrorState
-                  title={t('payments.my.instructions.load_error.title')}
-                  error={instructionsQ.error}
-                  onRetry={() => void instructionsQ.refetch()}
-                  showBack={false}
-                />
-              ) : null}
-              {!instructionsQ.isLoading && !instructionsQ.isError ? (
-                instructions ? (
-                  <PaymentInstructionsHtml
-                    html={instructions}
-                    testId="admin.user.payments.instructions.text"
-                  />
-                ) : (
-                  <div className="text-sm text-muted" data-testid="admin.user.payments.instructions.empty">
-                    {t('common.na')}
-                  </div>
-                )
-              ) : null}
-            </div>
-          </CardBody>
-        ) : null}
-      </Card>
-
-      <div className="space-y-3">
-        <Card>
-          <CardHeader title={t('admin.user.payments.history.title')} subtitle={t('admin.user.payments.history.description')} />
-          <CardBody>
-            {historyQ.isLoading ? <LoadingState /> : null}
-            {historyInitialError ? (
-              <ErrorState
-                testId="admin.user.payments.history.error"
-                title={t('payments.my.history.load_error.title')}
-                error={historyQ.error}
-              />
-            ) : null}
-            {historyDataStale ? (
-              <Alert
-                variant="warn"
-                title={t('admin.user.payments.history.stale.title')}
-                description={t('admin.user.payments.history.stale.body')}
-                testId="admin.user.payments.history.stale"
-              />
-            ) : null}
-
-            {!historyQ.isLoading && historyQ.data !== undefined ? (
-              visibleHistory.length > 0 ? (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm table-list" data-testid="admin.user.payments.history.table">
-                    <thead className="bg-surface-2">
-                      <tr className="text-left text-xs text-muted">
-                        <th className="px-3 py-2">{t('payments.my.history.col.created')}</th>
-                        <th className="px-3 py-2 text-right">{t('payments.my.history.col.amount')}</th>
-                        <th className="px-3 py-2">{t('payments.my.history.col.period')}</th>
-                        <th className="px-3 py-2">{t('admin.user.payments.history.col.source')}</th>
-                        <th className="px-3 py-2">{t('admin.user.payments.history.col.accounted_by')}</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-border">
-                      {visibleHistory.map((p) => (
-                        <tr key={p.id} data-testid={`admin.user.payments.history.row.${p.id}`}>
-                          <td
-                            className="px-3 py-2 font-medium tabular-nums"
-                            data-testid={`admin.user.payments.history.row.${p.id}.accepted_at`}
-                          >
-                            {formatDateTimeInTimeZone(p.created_at, accountTimeZone)}
-                          </td>
-                          <td className="px-3 py-2 text-right tabular-nums">{formatMoneyLike(safeInt(p.amount))}</td>
-                          <td className="px-3 py-2">
-                            <span className="text-sm font-medium tabular-nums text-fg">
-                              {formatDateInTimeZone(p.from_date, accountTimeZone)}
-                            </span>
-                            <span className="mx-2 text-muted">→</span>
-                            <span className="text-sm font-medium tabular-nums text-fg">
-                              {formatDateInTimeZone(p.to_date, accountTimeZone)}
-                            </span>
-                          </td>
-                          <td className="px-3 py-2 text-xs text-muted">
-                            {p.incoming_payment?.id ? (
-                              <Link
-                                className="text-accent hover:underline"
-                                to={`${basePath}/payments/incoming/${p.incoming_payment.id}`}
-                                data-testid={`admin.user.payments.history.row.${p.id}.source`}
-                              >
-                                #{p.incoming_payment.id}
-                              </Link>
-                            ) : (
-                              <span className="text-faint" data-testid={`admin.user.payments.history.row.${p.id}.source`}>
-                                {t('admin.user.payments.history.source.manual')}
-                              </span>
-                            )}
-                          </td>
-                          <td className="px-3 py-2 text-xs text-muted">
-                            <span className="tabular-nums">{resourceRefLabel(p.accounted_by)}</span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-
-                  <div className="mt-3">
-                    <KeysetPagination
-                      testId="admin.user.payments.history.pagination"
-                      page={pagination.page}
-                      pageCount={pagination.pageCount}
-                      canPrev={pagination.canPrev}
-                      canNext={canNext}
-                      onPrev={pagination.goPrev}
-                      onNext={() => pagination.goNext(cursor)}
-                      onGoToPage={pagination.goToPage}
-                      limit={pagination.limit}
-                      allowedLimits={pagination.allowedLimits}
-                      onLimitChange={pagination.setLimit}
-                    />
-                  </div>
-                </div>
-              ) : (
-                <EmptyState title={t('payments.my.history.empty')} />
-              )
-            ) : null}
-          </CardBody>
-        </Card>
-      </div>
-
+      <AdminUserPaymentInstructions userId={userId} />
+      <AdminUserPaymentHistory userId={userId} />
     </div>
   );
 }

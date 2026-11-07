@@ -1,8 +1,9 @@
+import { clickShellControl } from '../../helpers/shellNavigation';
 import { expect, test, type Page } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
 
-type ScrollTrackingWindow = Window & { __routeFocusScrollToCalls: number };
+type ScrollTrackingWindow = Window & { __routeFocusScrollToCalls?: number };
 
 async function installScrollTracker(page: Page) {
   await page.evaluate(() => {
@@ -10,7 +11,7 @@ async function installScrollTracker(page: Page) {
     const originalScrollTo = window.scrollTo.bind(window);
     trackedWindow.__routeFocusScrollToCalls = 0;
     window.scrollTo = ((first?: number | ScrollToOptions, second?: number) => {
-      trackedWindow.__routeFocusScrollToCalls += 1;
+      trackedWindow.__routeFocusScrollToCalls = (trackedWindow.__routeFocusScrollToCalls ?? 0) + 1;
       if (typeof first === 'number') originalScrollTo(first, second ?? 0);
       else originalScrollTo(first);
     }) as typeof window.scrollTo;
@@ -141,10 +142,10 @@ test('@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile keyboard users can skip ch
   });
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(200);
   await resetScrollTracker(page);
-  await page.getByTestId('shell.user-menu-button').click();
+  await clickShellControl(page, 'shell.interface-preferences-button');
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(200);
   const beforeScopeSwitchY = await page.evaluate(() => window.scrollY);
-  await page.getByTestId('shell.user-menu.scope.all').click();
+  await page.getByTestId('shell.interface-preferences.scope.all').click();
 
   await expect(page).toHaveURL(/\/admin\/vps\?.*q=alpha/);
   await expect(page.getByTestId('vps.list')).toBeVisible();

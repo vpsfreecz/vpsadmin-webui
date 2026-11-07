@@ -1,28 +1,8 @@
 import type { VpsPublicKey, VpsSshHostKey } from '../../../lib/api/vpsAccess';
 
-export type VpsAccessChecklistItemId = 'public-key' | 'host-key' | 'root-password';
-export type VpsAccessChecklistState = 'ready' | 'attention' | 'blocked' | 'fallback' | 'pending';
-
-export interface VpsAccessChecklistItem {
-  id: VpsAccessChecklistItemId;
-  state: VpsAccessChecklistState;
-  titleKey: string;
-  descriptionKey: string;
-  values?: Record<string, string | number>;
-}
-
 export interface DuplicatePublicKeyGroup {
   identity: string;
   keys: VpsPublicKey[];
-}
-
-interface AccessChecklistOptions {
-  publicKeysLoaded: boolean;
-  publicKeyCount: number;
-  duplicatePublicKeyGroupCount: number;
-  hostKeysLoaded: boolean;
-  hostKeyCount: number;
-  mutationAllowed: boolean;
 }
 
 function valueString(value: unknown): string | undefined {
@@ -71,74 +51,4 @@ export function hostKeyMaterial(key: VpsSshHostKey): string {
 export function hostKeyMeta(key: VpsSshHostKey): string {
   const parts = [valueString(key.bits), valueString(key.created_at)].filter((value): value is string => Boolean(value));
   return parts.length > 0 ? parts.join(' · ') : '—';
-}
-
-export function buildVpsAccessChecklist(options: AccessChecklistOptions): VpsAccessChecklistItem[] {
-  const publicKeyItem: VpsAccessChecklistItem = !options.publicKeysLoaded
-    ? {
-        id: 'public-key',
-        state: 'pending',
-        titleKey: 'vps.access.checklist.public_key.loading.title',
-        descriptionKey: 'vps.access.checklist.public_key.loading.description',
-      }
-    : options.publicKeyCount === 0
-      ? {
-          id: 'public-key',
-          state: 'attention',
-          titleKey: 'vps.access.checklist.public_key.empty.title',
-          descriptionKey: 'vps.access.checklist.public_key.empty.description',
-        }
-      : options.duplicatePublicKeyGroupCount > 0
-        ? {
-            id: 'public-key',
-            state: 'attention',
-            titleKey: 'vps.access.checklist.public_key.duplicates.title',
-            descriptionKey: 'vps.access.checklist.public_key.duplicates.description',
-            values: { count: options.duplicatePublicKeyGroupCount },
-          }
-        : {
-            id: 'public-key',
-            state: 'ready',
-            titleKey: 'vps.access.checklist.public_key.ready.title',
-            descriptionKey: 'vps.access.checklist.public_key.ready.description',
-            values: { count: options.publicKeyCount },
-          };
-
-  const hostKeyItem: VpsAccessChecklistItem = !options.hostKeysLoaded
-    ? {
-        id: 'host-key',
-        state: 'pending',
-        titleKey: 'vps.access.checklist.host_key.loading.title',
-        descriptionKey: 'vps.access.checklist.host_key.loading.description',
-      }
-    : options.hostKeyCount > 0
-      ? {
-          id: 'host-key',
-          state: 'ready',
-          titleKey: 'vps.access.checklist.host_key.ready.title',
-          descriptionKey: 'vps.access.checklist.host_key.ready.description',
-          values: { count: options.hostKeyCount },
-        }
-      : {
-          id: 'host-key',
-          state: 'attention',
-          titleKey: 'vps.access.checklist.host_key.empty.title',
-          descriptionKey: 'vps.access.checklist.host_key.empty.description',
-        };
-
-  const rootPasswordItem: VpsAccessChecklistItem = options.mutationAllowed
-    ? {
-        id: 'root-password',
-        state: 'fallback',
-        titleKey: 'vps.access.checklist.root_password.ready.title',
-        descriptionKey: 'vps.access.checklist.root_password.ready.description',
-      }
-    : {
-        id: 'root-password',
-        state: 'blocked',
-        titleKey: 'vps.access.checklist.root_password.blocked.title',
-        descriptionKey: 'vps.access.checklist.root_password.blocked.description',
-      };
-
-  return [publicKeyItem, hostKeyItem, rootPasswordItem];
 }

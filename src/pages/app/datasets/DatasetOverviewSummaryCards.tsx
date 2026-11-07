@@ -61,7 +61,6 @@ export function DatasetSpaceCard(props: { dataset: Dataset }) {
     <Card testId="dataset.overview.space">
       <CardHeader
         title={t('dataset.overview.space.title')}
-        subtitle={t('dataset.overview.space.subtitle')}
         actions={
           clampedQuotaPercent !== null ? (
             <Badge variant={quotaVariant} title={t('dataset.overview.space.badge.title')}>

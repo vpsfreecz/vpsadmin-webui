@@ -4,9 +4,7 @@ export interface AppHeaderProps {
   t: (key: any, vars?: Record<string, unknown>) => string;
   mode: 'user' | 'admin';
   canSwitchMode: boolean;
-  shortcutHint: string;
-  onOpenMobileNav: () => void;
-  onOpenPalette: () => void;
+  onNavigate?: () => void;
   showSyncIndicator: boolean;
   syncRef: React.RefObject<HTMLDivElement | null>;
   syncOpen: boolean;
@@ -25,6 +23,8 @@ export interface AppHeaderProps {
   authLogin?: string;
   authRole?: string;
   sessionExpiresAt?: number;
+  helpPlacement?: 'top' | 'bottom';
+  onSetHelpPlacement?: (placement: 'top' | 'bottom') => void;
   theme: 'system' | 'light' | 'dark';
   language: 'system' | 'en' | 'cs';
   onSetTheme: (next: 'system' | 'light' | 'dark') => void;

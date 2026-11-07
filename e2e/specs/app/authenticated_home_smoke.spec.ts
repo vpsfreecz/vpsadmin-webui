@@ -1,6 +1,7 @@
 import { expect, test, type Request } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
+import { openShellNavigation } from '../../helpers/shellNavigation';
 
 test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke @smoke-mobile authenticated user lands on dashboard and can open VPS list', async ({ page }) => {
   const vpsRequests: Request[] = [];
@@ -27,8 +28,12 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke @smoke-mobile authentic
 
   await page.goto('/app');
 
-  await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
-  await expect(page.getByText('Signed in as alice')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Dashboard', exact: true, level: 1 })).toBeVisible();
+  await expect(page.getByTestId('app.dashboard.header')).not.toContainText('Signed in as alice');
+  await openShellNavigation(page);
+  await expect(page.getByTestId('shell.user-menu-button')).toContainText('alice');
+  const drawer = page.getByTestId('nav.drawer');
+  if (await drawer.isVisible()) await page.keyboard.press('Escape');
   await expect(page.getByTestId('app.dashboard.kpi.vps')).toContainText('VPS');
   await expect(page.getByTestId('app.dashboard.kpi.vps')).toContainText('2');
   await expect(page.getByText('Running:')).toHaveCount(0);

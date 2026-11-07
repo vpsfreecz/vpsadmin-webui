@@ -61,7 +61,9 @@ test.describe('@smoke Admin user payments', () => {
             },
           };
         },
-        'GET user_payments': () => ({
+        'GET user_payments': ({ searchParams }) => {
+          expect(searchParams.has('user_payment[include_expiration_changes]')).toBe(false);
+          return ({
           user_payments: [
             {
               id: 9001,
@@ -73,7 +75,8 @@ test.describe('@smoke Admin user payments', () => {
               incoming_payment: { id: 300 },
             },
           ],
-        }),
+        });
+        },
         'POST user_payments': async () => {
           manualPaymentRequests += 1;
           await manualPaymentGate;
@@ -140,6 +143,9 @@ test.describe('@smoke Admin user payments', () => {
     expect(settingsUpdates).toHaveLength(1);
     releaseSettingsUpdate?.();
     await expect(page.getByTestId('admin.user.payments.settings.review')).toBeHidden();
+    // The published SDK exposes payment history, not manual expiration events.
+    await expect(page.getByTestId('admin.user.payments.history.row.9003')).toHaveCount(0);
+    await expect(page.getByTestId('admin.user.payments.history.row.9001')).toBeVisible();
     await expect(page.getByTestId('admin.user.payments.settings.monthly_payment')).toBeEnabled();
 
     await page.getByTestId('admin.user.payments.settings.monthly_payment').fill('120');

@@ -1,6 +1,12 @@
 import { expect, test, type Request } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock, jsonFulfill, setUiSettingsLocalStorage } from '../../fixtures';
+import {
+  bootstrapVpsAdminWindow,
+  failEnvelope,
+  installHaveApiMock,
+  jsonFulfill,
+  setUiSettingsLocalStorage,
+} from '../../fixtures';
 
 /**
  * Public status landing smoke.
@@ -52,12 +58,17 @@ test('@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile public overview shows key 
       }),
       'GET outages': () => ({ outages: [] }),
       'GET news_logs': () => ({ news_logs: [] }),
+      'GET security_advisories': () => ({ security_advisories: [] }),
       'GET help_boxes': () => ({ help_boxes: [] }),
       'GET users/current': () => jsonFulfill(failEnvelope('Unauthorized'), 401),
     },
   });
 
+  const advisoriesResponse = page.waitForResponse(response =>
+    response.request().method() === 'GET' && new URL(response.url()).pathname.endsWith('/security_advisories'),
+  );
   await page.goto('/');
+  await advisoriesResponse;
 
   // Page shell
   await expect(page.getByTestId('public.overview.page')).toBeVisible();
@@ -65,7 +76,7 @@ test('@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile public overview shows key 
 
   // Primary stats
   await expect(page.getByTestId('public.stats.members')).toBeVisible();
-  await expect(page.getByTestId('public.stats.nodes')).toBeVisible();
+  await expect(page.getByTestId('public.stats.nodes')).toHaveCount(0);
   await expect(page.getByTestId('public.stats.vps')).toBeVisible();
   expect(publicRequests.length).toBeGreaterThanOrEqual(2);
   for (const request of publicRequests) {
@@ -77,19 +88,20 @@ test('@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile public overview shows key 
     expect(request.headers()['accept']).toBe('application/json');
   }
 
-  // Supporting sections. Empty outages are intentionally hidden.
+  // Supporting sections. Empty outages and advisories are hidden.
   await expect(page.locator('[data-testid="public.outages.card"]')).toHaveCount(0);
+  await expect(page.getByTestId('public.advisories.card')).toHaveCount(0);
   await expect(page.getByTestId('public.nodes.section')).toBeVisible();
 
   const nodesSection = page.getByTestId('public.nodes.section');
   const visibleLocationPanels = nodesSection.locator(
-    '[data-cluster-location][data-cluster-location-layout="panel"]:visible',
+    '[data-cluster-location][data-cluster-location-layout="panel"]:visible'
   );
   const prahaPanel = nodesSection.locator(
-    '[data-cluster-location="Praha"][data-cluster-location-layout="panel"]:visible',
+    '[data-cluster-location="Praha"][data-cluster-location-layout="panel"]:visible'
   );
   const brnoPanel = nodesSection.locator(
-    '[data-cluster-location="Brno"][data-cluster-location-layout="panel"]:visible',
+    '[data-cluster-location="Brno"][data-cluster-location-layout="panel"]:visible'
   );
 
   await expect(visibleLocationPanels).toHaveCount(2);
@@ -102,15 +114,15 @@ test('@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile public overview shows key 
 
   for (const panel of [prahaPanel, brnoPanel]) {
     const summary = panel.locator('[data-testid$=".summary"]');
-    await expect.poll(() => summary.evaluate((badge) => {
-      const badgeRect = badge.getBoundingClientRect();
-      const panelRect = badge.closest('[data-cluster-location]')?.getBoundingClientRect();
-      return Boolean(
-        panelRect
-        && badgeRect.left >= panelRect.left
-        && badgeRect.right <= panelRect.right + 1
-      );
-    })).toBe(true);
+    await expect
+      .poll(() =>
+        summary.evaluate((badge) => {
+          const badgeRect = badge.getBoundingClientRect();
+          const panelRect = badge.closest('[data-cluster-location]')?.getBoundingClientRect();
+          return Boolean(panelRect && badgeRect.left >= panelRect.left && badgeRect.right <= panelRect.right + 1);
+        })
+      )
+      .toBe(true);
   }
 
   const prahaSummary = prahaPanel.locator('summary');
@@ -128,19 +140,27 @@ test('@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile public overview shows key 
 
   await prahaSummary.getByText('Praha', { exact: true }).click();
   await expect(prahaPanel).not.toHaveAttribute('open', '');
-  await expect.poll(() => prahaSummary.evaluate((summary) => ({
-    focused: document.activeElement === summary,
-    focusVisible: summary.matches(':focus-visible'),
-    boxShadow: getComputedStyle(summary).boxShadow,
-  }))).toEqual({ focused: true, focusVisible: false, boxShadow: 'none' });
+  await expect
+    .poll(() =>
+      prahaSummary.evaluate((summary) => ({
+        focused: document.activeElement === summary,
+        focusVisible: summary.matches(':focus-visible'),
+        boxShadow: getComputedStyle(summary).boxShadow,
+      }))
+    )
+    .toEqual({ focused: true, focusVisible: false, boxShadow: 'none' });
 
   await prahaSummary.click({ position: { x: 8, y: 8 } });
   await expect(prahaPanel).toHaveAttribute('open', '');
-  await expect.poll(() => prahaSummary.evaluate((summary) => ({
-    focused: document.activeElement === summary,
-    focusVisible: summary.matches(':focus-visible'),
-    boxShadow: getComputedStyle(summary).boxShadow,
-  }))).toEqual({ focused: true, focusVisible: false, boxShadow: 'none' });
+  await expect
+    .poll(() =>
+      prahaSummary.evaluate((summary) => ({
+        focused: document.activeElement === summary,
+        focusVisible: summary.matches(':focus-visible'),
+        boxShadow: getComputedStyle(summary).boxShadow,
+      }))
+    )
+    .toEqual({ focused: true, focusVisible: false, boxShadow: 'none' });
 
   await page.locator('body').click({ position: { x: 4, y: 4 } });
   let keyboardReachedSummary = false;
@@ -150,29 +170,29 @@ test('@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile public overview shows key 
     if (keyboardReachedSummary) break;
   }
   expect(keyboardReachedSummary).toBe(true);
-  await expect.poll(() => prahaSummary.evaluate((summary) => ({
-    focusVisible: summary.matches(':focus-visible'),
-    boxShadow: getComputedStyle(summary).boxShadow,
-  }))).toEqual({
-    focusVisible: true,
-    boxShadow: expect.not.stringMatching(/^none$/),
-  });
+  await expect
+    .poll(() =>
+      prahaSummary.evaluate((summary) => ({
+        focusVisible: summary.matches(':focus-visible'),
+        boxShadow: getComputedStyle(summary).boxShadow,
+      }))
+    )
+    .toEqual({
+      focusVisible: true,
+      boxShadow: expect.not.stringMatching(/^none$/),
+    });
 
   const clusterProofScreenshot = process.env['E2E_CLUSTER_PUBLIC_PROOF_SCREENSHOT']?.trim();
   if (clusterProofScreenshot) {
     await page.screenshot({ path: clusterProofScreenshot, fullPage: true });
   }
-
-  // Not shown when IPv4 is healthy.
-  await expect(page.locator('[data-testid="public.ipv4.alert"]')).toHaveCount(0);
 });
 
-test('public overview shows IPv4 critical alert when low', async ({ page }) => {
+test('public overview keeps the VPS total and omits IPv4 pool availability', async ({ page }) => {
   await bootstrapVpsAdminWindow(page, {
     apiUrl: '/api',
     apiVersion: '7.0',
     sessionToken: 'TEST',
-    webuiNext: { publicStatus: { ipv4Warn: 64, ipv4Critical: 16 } },
   });
 
   await installHaveApiMock(page, {
@@ -184,6 +204,7 @@ test('public overview shows IPv4 critical alert when low', async ({ page }) => {
       'GET nodes/public_status': () => ({ nodes: [] }),
       'GET outages': () => ({ outages: [] }),
       'GET news_logs': () => ({ news_logs: [] }),
+      'GET security_advisories': () => ({ security_advisories: [] }),
       'GET help_boxes': () => ({ help_boxes: [] }),
       'GET users/current': () => jsonFulfill(failEnvelope('Unauthorized'), 401),
     },
@@ -192,6 +213,8 @@ test('public overview shows IPv4 critical alert when low', async ({ page }) => {
   await page.goto('/');
 
   await expect(page.getByTestId('public.overview.page')).toBeVisible();
-  await expect(page.getByTestId('public.ipv4.alert')).toBeVisible();
-  await expect(page.getByTestId('public.ipv4.alert')).toContainText('10');
+  const vpsStats = page.getByTestId('public.stats.vps');
+  await expect(vpsStats.getByText('1', { exact: true })).toBeVisible();
+  await expect(vpsStats).not.toContainText(/IPv4|10/);
+  await expect(page.getByTestId('public.ipv4.alert')).toHaveCount(0);
 });

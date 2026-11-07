@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useId } from 'react';
 
 import {
   DEFAULT_DASHBOARD_SETTINGS,
@@ -26,73 +26,32 @@ function widgetDescriptionKey(id: DashboardWidgetId): string {
   return `dashboard.preferences.widget.${id}.description`;
 }
 
-const PREFERENCES_PANEL_ID = 'app-dashboard-preferences-panel';
-const touchControlClassName = 'dashboard-preferences-touch-control';
+export const DASHBOARD_PREFERENCES_PANEL_ID = 'app-dashboard-preferences-panel';
+const touchControlClassName = 'dashboard-preferences-touch-control border-border-strong';
 
-export function DashboardPreferencesCard() {
+export function DashboardPreferencesCard({ open }: { open: boolean }) {
   const { t } = useI18n();
   const { dashboardSettings, setDashboardSettings } = useDashboardSettingsState();
-  const [open, setOpen] = useState(false);
-
-  const hiddenCount = dashboardSettings.hiddenWidgets.length;
-  const collapsedCount = dashboardSettings.collapsedWidgets.length;
+  const widgetHeadingPrefix = useId();
 
   const updateDensity = (density: DashboardDensity) => {
     setDashboardSettings(setDashboardDensity(dashboardSettings, density));
   };
 
   const reset = () => setDashboardSettings(DEFAULT_DASHBOARD_SETTINGS);
-  const summary = t('dashboard.preferences.summary', {
-    density: t(`dashboard.preferences.density.${dashboardSettings.density}`),
-    hidden: hiddenCount,
-    collapsed: collapsedCount,
-  });
 
   return (
     <section
+      id={DASHBOARD_PREFERENCES_PANEL_ID}
       data-testid="app.dashboard.preferences.card"
       aria-labelledby="app-dashboard-preferences-title"
-      className={
-        open
-          ? 'min-w-0 rounded-lg border border-border bg-surface shadow-card'
-          : 'rounded-lg border border-border bg-surface/70 text-sm'
-      }
+      className="min-w-0 rounded-lg border border-border-strong bg-surface shadow-card"
+      hidden={!open}
     >
-      <div
-        className={
-          open
-            ? 'flex flex-col items-start gap-3 border-b border-border p-4 sm:flex-row'
-            : 'flex flex-wrap items-center justify-between gap-3 px-3 py-2'
-        }
-      >
-        <div className={open ? 'w-full min-w-0 sm:w-auto sm:flex-1' : 'min-w-0 text-muted'}>
-          <span id="app-dashboard-preferences-title" className={open ? 'font-semibold' : 'font-semibold text-fg'}>
-            {t('dashboard.preferences.title')}
-          </span>
-          <span className={open ? 'mt-0.5 block text-sm text-muted' : 'ml-2'}>{summary}</span>
-        </div>
-        <div
-          className={
-            open
-              ? 'flex w-full min-w-0 flex-wrap items-center gap-2 sm:w-auto sm:shrink-0'
-              : 'flex shrink-0 items-center'
-          }
-        >
-          <Button
-            variant="secondary"
-            size="sm"
-            className={touchControlClassName}
-            aria-expanded={open}
-            aria-controls={PREFERENCES_PANEL_ID}
-            onClick={() => setOpen((value) => !value)}
-            testId="app.dashboard.preferences.toggle"
-          >
-            {open ? t('dashboard.preferences.close') : t('dashboard.preferences.open')}
-          </Button>
-        </div>
-      </div>
-
-      <div id={PREFERENCES_PANEL_ID} className="p-4" hidden={!open}>
+      <h2 id="app-dashboard-preferences-title" className="border-b border-border-strong p-4 text-lg font-semibold text-fg">
+        {t('dashboard.preferences.title')}
+      </h2>
+      <div className="p-4">
         <div className="grid gap-4 lg:grid-cols-[minmax(12rem,18rem)_1fr]">
           <div className="space-y-2">
             <label className="block">
@@ -102,7 +61,7 @@ export function DashboardPreferencesCard() {
                 onChange={(event) => updateDensity(event.target.value === 'compact' ? 'compact' : 'comfortable')}
                 testId="app.dashboard.preferences.density"
                 ariaLabel={t('dashboard.preferences.density.label')}
-                className="dashboard-preferences-touch-select"
+                className="dashboard-preferences-touch-select border-border-strong"
                 options={[
                   { value: 'comfortable', label: t('dashboard.preferences.density.comfortable') },
                   { value: 'compact', label: t('dashboard.preferences.density.compact') },
@@ -132,36 +91,39 @@ export function DashboardPreferencesCard() {
                 const hidden = dashboardSettings.hiddenWidgets.includes(id);
                 const collapsed = dashboardSettings.collapsedWidgets.includes(id);
                 const essential = isDashboardEssentialWidget(id);
+                const headingId = `${widgetHeadingPrefix}-${id}`;
 
                 return (
                   <div
                     key={id}
-                    className="grid gap-2 rounded-md border border-border bg-surface-2 p-3 md:grid-cols-[1fr_auto]"
+                    className="min-w-0 space-y-2 rounded-md border border-border-strong bg-surface-2 p-3"
                     data-testid={`app.dashboard.preferences.widget.${id}`}
                   >
                     <div className="space-y-2">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <div className="font-medium">{t(widgetLabelKey(id))}</div>
+                      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                        <h3 id={headingId} className="min-w-0 break-words text-base font-semibold">{t(widgetLabelKey(id))}</h3>
                         {essential ? <Badge variant="info">{t('dashboard.preferences.widget.always_visible')}</Badge> : null}
                         {hidden ? <Badge variant="neutral">{t('dashboard.preferences.widget.hidden')}</Badge> : null}
                         {collapsed ? <Badge variant="neutral">{t('dashboard.preferences.widget.collapsed')}</Badge> : null}
                       </div>
                       <div className="text-xs text-muted">{t(widgetDescriptionKey(id))}</div>
-                      <SwitchRow
-                        label={t('dashboard.preferences.widget.visible')}
-                        description={
-                          essential
-                            ? t('dashboard.preferences.widget.essential_visibility_help')
-                            : t('dashboard.preferences.widget.visibility_help')
-                        }
-                        checked={!hidden}
-                        disabled={essential}
-                        onChange={(checked) => setDashboardSettings(toggleDashboardWidgetHidden(dashboardSettings, id, !checked))}
-                        testId={`app.dashboard.preferences.widget.${id}.visible`}
-                      />
                     </div>
 
-                    <div className="flex flex-wrap items-start gap-2 md:justify-end">
+                    <div role="group" aria-labelledby={headingId} className="flex flex-wrap items-center gap-2 border-t border-border pt-2">
+                      <div className="min-w-0 sm:max-w-sm">
+                        <SwitchRow
+                          label={t('dashboard.preferences.widget.visible')}
+                          description={
+                            essential
+                              ? t('dashboard.preferences.widget.essential_visibility_help')
+                              : t('dashboard.preferences.widget.visibility_help')
+                          }
+                          checked={!hidden}
+                          disabled={essential}
+                          onChange={(checked) => setDashboardSettings(toggleDashboardWidgetHidden(dashboardSettings, id, !checked))}
+                          testId={`app.dashboard.preferences.widget.${id}.visible`}
+                        />
+                      </div>
                       <Button
                         variant="secondary"
                         size="sm"

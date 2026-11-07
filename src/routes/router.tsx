@@ -2,20 +2,19 @@ import React from 'react';
 import { Navigate, createBrowserRouter } from 'react-router-dom';
 import { getRuntimeConfig } from '../app/config';
 
-import { PublicLayout } from '../components/layout/PublicLayout';
 import { RouteProvidersLayout } from './RouteProvidersLayout';
 import { ParamKeyedRoute } from './ParamKeyedRoute';
 import { lazyRoute } from './lazyRoute';
 import * as CoreRoutes from './coreRouteComponents';
 import { adminFinanceRoutes } from './adminFinanceRoutes';
 import { securityAdvisoryAdminRoutes } from './securityAdvisoryAdminRoutes';
+import { publicRoutes, statusReadingRoutes } from './statusReadingRoutes';
 
 import { ForbiddenPage } from '../pages/ForbiddenPage';
 import { ErrorPage } from '../pages/ErrorPage';
 import { NotFoundPage } from '../pages/NotFoundPage';
 import { RootErrorPage } from '../pages/RootErrorPage';
 
-const AboutPage = lazyRoute(() => import('../pages/public/AboutPage'), 'AboutPage');
 
 const DatasetsListPage = lazyRoute(() => import('../pages/app/datasets/DatasetsListPage'), 'DatasetsListPage');
 const DatasetLayout = lazyRoute(() => import('../pages/app/datasets/DatasetLayout'), 'DatasetLayout');
@@ -147,28 +146,13 @@ export const router = createBrowserRouter([
           element: <OAuthLogoutPage />,
           errorElement: <ErrorPage />,
         },
-        {
-          path: '/',
-          element: <PublicLayout />,
-          errorElement: <ErrorPage />,
-          children: [
-            { index: true, element: <CoreRoutes.OverviewPage /> },
-            { path: 'outages', element: <CoreRoutes.OutagesPage /> },
-            { path: 'outages/:outageId', element: <CoreRoutes.OutageDetailPage /> },
-            { path: 'news', element: <CoreRoutes.NewsPage /> },
-            { path: 'about', element: <AboutPage /> },
-            { path: 'security-advisories', element: <CoreRoutes.SecurityAdvisoriesPage /> },
-            { path: 'security-advisories/:advisoryId', element: <CoreRoutes.SecurityAdvisoryDetailPage /> },
-            { path: 'requests/registrations/:requestId/:token', element: <ParamKeyedRoute params={['requestId', 'token']}><CoreRoutes.RegistrationCorrectionPage /></ParamKeyedRoute> },
-            { path: '*', element: <NotFoundPage /> },
-            // The old webui has a useful index page. We keep public status pages accessible.
-          ],
-        },
+        ...publicRoutes,
         {
           path: '/app',
           element: <CoreRoutes.AppShell mode="user" />,
           errorElement: <ErrorPage />,
           children: [
+            ...statusReadingRoutes,
             { index: true, element: <CoreRoutes.DashboardPage /> },
             { path: 'nodes', element: <ForbiddenPage appBasePath="/app" /> },
             { path: 'nodes/:nodeId', element: <ForbiddenPage appBasePath="/app" /> },
@@ -293,6 +277,7 @@ export const router = createBrowserRouter([
           element: <CoreRoutes.AppShell mode="admin" />,
           errorElement: <ErrorPage />,
           children: [
+            { path: 'status', children: [...statusReadingRoutes] },
             { index: true, element: <CoreRoutes.DashboardPage /> },
             { path: 'outages', element: <AdminOutagesPage /> },
             { path: 'outages/:outageId', element: <ParamKeyedRoute param="outageId"><AdminOutagesPage /></ParamKeyedRoute> },

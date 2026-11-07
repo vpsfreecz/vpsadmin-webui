@@ -63,7 +63,7 @@ export function VpsNetworkInterfacesCard(props: {
                             <StatusDot variant={rowVariant} testId={`vps.network.interfaces.card.${ni.id}.dot`} />
                             <div className="truncate text-base font-semibold">{ni.name ?? t('vps.network.interfaces.unnamed')}</div>
                             <Badge variant="neutral">{String(ni.type ?? '—')}</Badge>
-                            {props.canAdmin ? (
+                            {props.canAdmin || ni.enable === false ? (
                               <Badge variant={ni.enable !== false ? 'ok' : 'warn'}>
                                 {ni.enable !== false ? t('vps.network.interfaces.enabled') : t('vps.network.interfaces.disabled')}
                               </Badge>
@@ -144,7 +144,14 @@ export function VpsNetworkInterfacesCard(props: {
                         <td className="px-4 py-3">
                           <StatusDot variant={ni.enable === false ? 'warn' : 'ok'} testId={`vps.network.interfaces.row.${ni.id}.dot`} />
                         </td>
-                        <td className="px-4 py-3 font-medium">{ni.name ?? '—'}</td>
+                        <td className="px-4 py-3 font-medium">
+                          <div className="flex flex-wrap items-center gap-2">
+                            {ni.name ?? '—'}
+                            {!props.canAdmin && ni.enable === false ? (
+                              <Badge variant="warn">{t('vps.network.interfaces.disabled')}</Badge>
+                            ) : null}
+                          </div>
+                        </td>
                         <td className="px-4 py-3">{String(ni.type ?? '—')}</td>
                         <td className="whitespace-nowrap px-4 py-3 font-mono text-xs">{ni.mac || '—'}</td>
                         <td className="px-4 py-3">{ips.length}</td>

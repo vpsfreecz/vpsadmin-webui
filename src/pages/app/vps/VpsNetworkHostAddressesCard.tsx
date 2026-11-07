@@ -11,6 +11,28 @@ import type { HostIpAddress } from '../../../lib/api/networking';
 import type { GateDecision } from '../../../lib/gates/types';
 import { hostAddr, hostAssigned, hostPtrState, hostPtrValue, hostRouteLabel, idFromResourceRef } from './VpsNetworkModel';
 
+function HostAddressIdentity(props: { row: HostIpAddress; children?: React.ReactNode }) {
+  const { t } = useI18n();
+  const ptr = hostPtrValue(props.row);
+
+  return (
+    <div className="min-w-0">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="min-w-0 break-all font-mono text-sm font-semibold">{hostAddr(props.row)}</span>
+        {ptr !== '—' ? (
+          <span className="min-w-0 break-all text-sm font-semibold">
+            {t('vps.network.host_addresses.field.ptr')} {ptr}
+          </span>
+        ) : null}
+        {props.children}
+      </div>
+      <div className="mt-1 text-xs text-muted">
+        {t('vps.network.host_addresses.field.route')}: <span className="break-all font-mono">{hostRouteLabel(props.row)}</span>
+      </div>
+    </div>
+  );
+}
+
 export function VpsNetworkHostAddressesCard(props: {
   canMutate: boolean;
   gate: GateDecision;
@@ -39,10 +61,10 @@ export function VpsNetworkHostAddressesCard(props: {
         title={
           <div className="flex items-center gap-2">
             <span className="grid h-7 w-7 place-items-center rounded-full bg-accent text-sm font-semibold text-accent-fg">2</span>
-            <span>{t('vps.network.ptr.title')}</span>
+            <h3>{t('vps.network.ptr.title')}</h3>
           </div>
         }
-        subtitle={t('vps.network.ptr.subtitle')}
+        subtitle={t('vps.network.ptr.explanation')}
         actions={
           <Button variant="secondary" size="sm" onClick={props.onRefresh}>
             {t('common.refresh')}
@@ -51,10 +73,6 @@ export function VpsNetworkHostAddressesCard(props: {
       />
 
       <CardBody className="space-y-4">
-        <div className="rounded-lg border border-info-border bg-info-bg p-3 text-sm text-muted">
-          {t('vps.network.ptr.explanation')}
-        </div>
-
         {props.isLoading ? (
           <div className="py-2">
             <Spinner label={t('common.loading')} />
@@ -82,20 +100,10 @@ export function VpsNetworkHostAddressesCard(props: {
                       className="rounded-lg border border-border bg-surface-2 p-3"
                     >
                       <div className="flex flex-wrap items-center justify-between gap-3">
-                        <div className="min-w-0">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span className="font-mono text-sm font-semibold">{hostAddr(row)}</span>
-                            <Badge variant="ok">{t('vps.network.ptr.on_interface')}</Badge>
-                            {!gate.allowed ? <Badge variant="warn">{t('vps.network.state.busy')}</Badge> : null}
-                          </div>
-                          <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
-                            <span>{t('vps.network.host_addresses.field.route')}: <span className="font-mono">{hostRouteLabel(row)}</span></span>
-                            <span>
-                              {t('vps.network.host_addresses.field.ptr')}: {' '}
-                              <span className={ptrState === 'set' ? 'font-medium text-fg' : 'text-faint'}>{hostPtrValue(row)}</span>
-                            </span>
-                          </div>
-                        </div>
+                        <HostAddressIdentity row={row}>
+                          <Badge variant="ok">{t('vps.network.ptr.on_interface')}</Badge>
+                          {!gate.allowed ? <Badge variant="warn">{t('vps.network.state.busy')}</Badge> : null}
+                        </HostAddressIdentity>
 
                         {props.canMutate ? <div className="flex flex-wrap justify-end gap-2">
                           <ActionButton
@@ -140,15 +148,7 @@ export function VpsNetworkHostAddressesCard(props: {
 
                     return (
                       <div key={id} data-testid={`vps.network.host_addresses.row.${id}`} className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-border bg-surface p-2">
-                        <div>
-                          <div className="font-mono text-sm font-medium">{hostAddr(row)}</div>
-                          <div className="mt-0.5 text-xs text-muted">
-                            {t('vps.network.host_addresses.field.route')}: <span className="font-mono">{hostRouteLabel(row)}</span>
-                          </div>
-                          <div className="mt-0.5 text-xs text-muted">
-                            {t('vps.network.host_addresses.field.ptr')}: <span className={ptrState === 'set' ? 'text-fg' : 'text-faint'}>{hostPtrValue(row)}</span>
-                          </div>
-                        </div>
+                        <HostAddressIdentity row={row} />
                         {props.canMutate ? <div className="flex flex-wrap gap-2">
                           <ActionButton
                             variant="secondary"

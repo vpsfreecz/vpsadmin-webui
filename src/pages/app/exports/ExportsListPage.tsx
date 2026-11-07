@@ -321,7 +321,7 @@ export function ExportsListPage() {
             <div className="flex items-center gap-1">
               <Button
                 variant="ghost"
-                size="sm"
+                className="h-11 w-11 px-0"
                 onClick={() => setHelpOpen(true)}
                 ariaLabel={t('filters.help.open')}
                 testId="exports.smart_filter.help"
@@ -334,7 +334,7 @@ export function ExportsListPage() {
       </div>
       {isGlobalAdminView ? (
         <UserLookupInput
-          className="w-full sm:w-64"
+          className="w-full sm:w-64 [&_input]:h-11"
           value={userFilter}
           onChange={setUserFilter}
           testId="exports.filter.user"
@@ -345,13 +345,13 @@ export function ExportsListPage() {
         />
       ) : null}
       <div className="flex flex-wrap items-center gap-2">
-        <CopyButton text={copyUrl} label={t('common.copy_link')} testId="exports.copy_link" />
+        <CopyButton size="md" className="h-11" text={copyUrl} label={t('common.copy_link')} testId="exports.copy_link" />
         {filtersActive ? (
-          <Button variant="secondary" onClick={clearFilters} testId="exports.filters.clear">
+          <Button variant="secondary" className="h-11" onClick={clearFilters} testId="exports.filters.clear">
             {t('filters.clear')}
           </Button>
         ) : null}
-        <Button variant="secondary" onClick={() => listQ.refetch()} testId="exports.refresh">
+        <Button variant="secondary" className="h-11" onClick={() => listQ.refetch()} testId="exports.refresh">
           {t('common.refresh')}
         </Button>
       </div>

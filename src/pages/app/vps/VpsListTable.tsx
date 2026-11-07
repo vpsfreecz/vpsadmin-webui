@@ -2,7 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 import type { KeysetPaginationState } from '../../../lib/hooks/useKeysetPagination';
-import { formatMiB, formatUptimeSeconds } from '../../../lib/format';
 
 import { Badge } from '../../../components/ui/Badge';
 import { KeysetPagination } from '../../../components/ui/KeysetPagination';
@@ -10,11 +9,12 @@ import { LockBadge } from '../../../components/ui/LockBadge';
 import { StatusDot } from '../../../components/ui/StatusDot';
 import { TableCard } from '../../../components/ui/TableCard';
 import { TableRowLink } from '../../../components/ui/TableRowLink';
-import { UsageBar } from '../../../components/ui/UsageBar';
 
+import { VpsListResources } from './VpsListResources';
 import { VpsListRowActions } from './VpsListRowActions';
 import { VpsUsageRiskBadges } from './VpsUsageRiskBadges';
 import { VpsRecentFailureBadge } from './VpsRecentFailureBadge';
+import { VpsRecentOomBadge } from './VpsRecentOomBadge';
 import type { VpsListRecord, VpsListTranslator } from './vpsListSemantics';
 
 interface VpsListTableProps {
@@ -90,7 +90,7 @@ export function VpsListTable({
             {showOwnerContext ? t('vps.list.col.owner_location') : t('vps.list.col.location_node')}
           </th>
           <th className="px-3 py-2">{t('vps.overview.resources.title')}</th>
-          <th className="px-3 py-2">{t('vps.list.col.activity')}</th>
+          <th className="px-3 py-2">{t('vps.overview.usage.uptime')}</th>
           <th className="px-3 py-2 text-right">{t('common.actions')}</th>
         </tr>
       </thead>
@@ -107,11 +107,11 @@ export function VpsListTable({
               className="border-b border-border/60 last:border-b-0"
             >
               <td className="px-3 py-2 align-top">
-                <StatusDot variant={row.dotVariant} testId={`vps.row.${vps.id}.dot`} ariaLabel={row.runtimeBadge.label} />
+                <StatusDot variant={row.dotVariant} testId={`vps.row.${vps.id}.dot`} />
               </td>
               <td className="px-3 py-2 align-top">
                 <div className="flex flex-col gap-1">
-                  <Link to={`${basePath}/vps/${vps.id}${detailSearch}`} className="font-medium text-fg underline">
+                  <Link to={`${basePath}/vps/${vps.id}${detailSearch}`} className="font-medium text-fg underline [overflow-wrap:anywhere]">
                     {vps.hostname}
                   </Link>
                   <div className="text-xs text-muted">{t('common.id')} {vps.id}</div>
@@ -122,11 +122,13 @@ export function VpsListTable({
                   <Badge variant={row.runtimeBadge.variant}>{row.runtimeBadge.label}</Badge>
                   <Badge variant={row.objectBadge.variant}>{row.objectBadge.label}</Badge>
                   <VpsUsageRiskBadges
-                    memoryRisk={row.memoryRisk}
                     diskRisk={row.diskRisk}
                     t={t}
                     testIdPrefix={`vps.row.${vps.id}`}
                   />
+                  {row.latestRecentOom ? (
+                    <VpsRecentOomBadge report={row.latestRecentOom} basePath={basePath} testId={`vps.row.${vps.id}.recent_oom`} />
+                  ) : null}
                   {row.latestRecentFailure ? (
                     <VpsRecentFailureBadge
                       chain={row.latestRecentFailure}
@@ -152,24 +154,10 @@ export function VpsListTable({
                 </div>
               </td>
               <td className="px-3 py-2 align-top text-xs text-muted">
-                <div className="flex flex-col gap-1">
-                  <div className="text-faint">
-                    {vps.cpu ? t('vps.list.resources.cpu', { count: vps.cpu }) : t('common.na')} ·{' '}
-                    {t('vps.list.resources.load', { value: row.loadLabel })}
-                  </div>
-                  {row.memUsed !== undefined && row.memMax !== undefined && row.memMax > 0 ? (
-                    <UsageBar layout="row" label={t('vps.list.usage.ram')} used={row.memUsed} max={row.memMax} formatValue={formatMiB} />
-                  ) : null}
-                  {row.diskUsed !== undefined && row.diskMax !== undefined && row.diskMax > 0 ? (
-                    <UsageBar layout="row" label={t('vps.list.usage.disk')} used={row.diskUsed} max={row.diskMax} formatValue={formatMiB} />
-                  ) : null}
-                </div>
+                <VpsListResources row={row} t={t} />
               </td>
               <td className="px-3 py-2 align-top text-xs text-muted">
-                <div className="flex flex-col gap-1">
-                  <span>{formatUptimeSeconds(vps.uptime)}</span>
-                  {row.busyTx ? <span>{t('vps.list.activity.busy')}</span> : null}
-                </div>
+                {row.uptimeLabel}
               </td>
               <td className="px-3 py-2 align-top">
                 <VpsListRowActions

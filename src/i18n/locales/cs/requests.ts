@@ -295,6 +295,7 @@ export const csRequests = {
   'payments.incoming.detail.received_amount': 'Přijatá částka',
   'payments.incoming.detail.accounted_amount': 'Zaúčtovaná částka',
   'payments.incoming.detail.account': 'Účet',
+  'payments.incoming.detail.payer_account': 'Číslo účtu plátce',
   'payments.incoming.detail.user_ident': 'Identifikace uživatele',
   'payments.incoming.detail.user_message': 'Zpráva',
   'payments.incoming.detail.comment': 'Komentář',

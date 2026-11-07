@@ -7,12 +7,13 @@ import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { markSessionExpiredNotice } from '../../lib/auth/sessionExpiredNotice';
-import { fetchNews, fetchOutages, fetchPublicNodeStatus, fetchPublicStats } from '../../lib/api/public';
+import { fetchNews, fetchOutages, fetchPublicNodeStatus, fetchPublicStats, fetchPublicSecurityAdvisories } from '../../lib/api/public';
 import { OverviewPage } from './OverviewPage';
 
 vi.mock('../../app/config', () => ({
   getRuntimeConfig: () => ({
     apiBaseUrl: '/api',
+    routerBasename: '',
     publicStatus: {
       ipv4Warn: 100,
       ipv4Critical: 20,
@@ -33,6 +34,7 @@ vi.mock('../../lib/api/public', () => ({
   fetchOutages: vi.fn(),
   fetchPublicNodeStatus: vi.fn(),
   fetchPublicStats: vi.fn(),
+  fetchPublicSecurityAdvisories: vi.fn(),
 }));
 
 function LocationProbe() {
@@ -72,6 +74,7 @@ function renderPage(initialEntry = '/?session=expired') {
 }
 
 function installOverviewMocks() {
+  vi.mocked(fetchPublicSecurityAdvisories).mockResolvedValue({ data: [], meta: {}, httpStatus: 200, envelope: { status: true, response: {} } });
   vi.mocked(fetchPublicStats).mockResolvedValue({
     data: {
       user_count: 42,
@@ -119,8 +122,16 @@ describe('OverviewPage session expiry notice', () => {
     renderPage();
 
     expect(await screen.findByTestId('auth.session-expired.notice')).toBeVisible();
+    expect(screen.getByTestId('auth.session-expired.sign-in')).toHaveAttribute('href', expect.stringContaining('next=%2Fapp'));
     await waitFor(() => {
       expect(screen.getByTestId('location.search')).toHaveTextContent('');
     });
+  });
+
+  it('shows the notice after a logout redirect without an expiry query', async () => {
+    installOverviewMocks();
+    markSessionExpiredNotice();
+    renderPage('/');
+    expect(await screen.findByTestId('auth.session-expired.sign-in')).toBeVisible();
   });
 });

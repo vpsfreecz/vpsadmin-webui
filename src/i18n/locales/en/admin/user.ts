@@ -227,6 +227,7 @@ export const enAdmin_user = {
   "admin.user.payments.history.col.source": "Source",
   "admin.user.payments.history.description": "Accepted payments and manual accounting actions for this user account.",
   "admin.user.payments.history.source.manual": "Manual",
+  "admin.user.payments.history.source.expiration_change": "Manual date change",
   "admin.user.payments.history.title": "User payment history",
   "admin.user.payments.history.stale.title": "Showing the last loaded payment history",
   "admin.user.payments.history.stale.body": "The latest history refresh failed. These rows may not include the newest accounting action; retry before relying on them for a decision.",

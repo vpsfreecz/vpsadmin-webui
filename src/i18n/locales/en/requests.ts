@@ -295,6 +295,7 @@ export const enRequests = {
   'payments.incoming.detail.received_amount': 'Received amount',
   'payments.incoming.detail.accounted_amount': 'Accounted amount',
   'payments.incoming.detail.account': 'Account',
+  'payments.incoming.detail.payer_account': 'Payer account number',
   'payments.incoming.detail.user_ident': 'User ident',
   'payments.incoming.detail.user_message': 'Message',
   'payments.incoming.detail.comment': 'Comment',

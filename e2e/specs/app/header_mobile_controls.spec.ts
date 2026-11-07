@@ -1,10 +1,11 @@
+import { clickShellControl, openShellNavigation } from '../../helpers/shellNavigation';
 import { expect, test } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
 import { expectNoDocumentHorizontalOverflow } from '../../helpers/horizontalOverflow';
 
 test.describe('@smoke @smoke-mobile @pr-smoke @pr-smoke-mobile Header controls', () => {
-  test('exposes search, tasks and account controls (touch targets on mobile)', async ({ page }, testInfo) => {
+  test('exposes search, tasks and account controls (touch targets on mobile)', async ({ page, isMobile }) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
 
     await installHaveApiMock(page, {
@@ -17,23 +18,23 @@ test.describe('@smoke @smoke-mobile @pr-smoke @pr-smoke-mobile Header controls',
     await page.goto('/app/vps');
     await expect(page.getByTestId('vps.list')).toBeVisible();
 
-    await expect(page.getByTestId('shell.header')).toBeVisible();
+    await openShellNavigation(page);
+    await expect(page.getByTestId('shell.controls')).toBeVisible();
 
     const inlineSearch = page.getByTestId('shell.inline-search');
-    const mobileSearch = page.getByTestId('palette.open');
     const tasks = page.getByTestId('tasks.open-button');
     const account = page.getByTestId('shell.user-menu-button');
     const nav = page.getByTestId('shell.mobile-nav-button');
 
     await expect(tasks).toBeVisible();
     await expect(account).toBeVisible();
+    await expect(page.getByTestId('palette.open')).toHaveCount(0);
 
-    if (testInfo.project.name === 'mobile-chrome') {
+    if (isMobile) {
       await expect(nav).toBeVisible();
-      await expect(mobileSearch).toBeVisible();
-      await expect(inlineSearch).toBeHidden();
+      await expect(inlineSearch).toBeVisible();
 
-      for (const loc of [mobileSearch, tasks, account]) {
+      for (const loc of [inlineSearch, tasks, account]) {
         const box = await loc.boundingBox();
         expect(box).not.toBeNull();
         // Minimum 44x44 CSS px touch target.
@@ -41,7 +42,7 @@ test.describe('@smoke @smoke-mobile @pr-smoke @pr-smoke-mobile Header controls',
         expect(box!.height).toBeGreaterThanOrEqual(44);
       }
 
-      await mobileSearch.click();
+      await page.keyboard.press('Control+k');
       const palette = page.getByTestId('palette.modal');
       const paletteInput = page.getByTestId('palette.input');
       await expect(palette).toBeVisible();
@@ -71,11 +72,10 @@ test.describe('@smoke @smoke-mobile @pr-smoke @pr-smoke-mobile Header controls',
       await expect(palette).toBeHidden();
     } else {
       await expect(nav).toBeHidden();
-      await expect(mobileSearch).toBeHidden();
       await expect(inlineSearch).toBeVisible();
     }
 
-    await account.click();
+    await clickShellControl(page, 'shell.user-menu-button');
     await expect(page.getByTestId('shell.user-menu')).toBeVisible();
     await expect(page.getByTestId('shell.user-menu.account')).toBeVisible();
     await expect(page.getByTestId('shell.user-menu.public-status')).toBeVisible();

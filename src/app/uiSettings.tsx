@@ -4,6 +4,9 @@ import { getRuntimeConfig } from './config';
 import { useAuth } from './auth';
 import {
   DEFAULT_SETTINGS,
+  HELP_PLACEMENT_STORAGE_KEY,
+  loadHelpPlacement,
+  type UiHelpPlacement,
   normalizeUiSettings,
   loadUiSettingsFromLocalStorage,
   resetUiSettingsPreferences,
@@ -30,6 +33,8 @@ export interface UiSettingsSyncState {
 }
 
 interface UiSettingsCtx {
+  helpPlacement: UiHelpPlacement;
+  setHelpPlacement: (placement: UiHelpPlacement) => void;
   settings: UiSettings;
   setSettings: (s: UiSettings) => void;
 
@@ -53,7 +58,7 @@ function nowIso(): string {
 
 function safeErrorMessage(err: unknown): string {
   if (err instanceof HaveApiError) return err.message;
-  if (err && typeof err === 'object' && 'message' in err) return String((err as any).message);
+  if (err && typeof err === 'object' && 'message' in err) return String(err.message);
   return String(err);
 }
 
@@ -82,6 +87,20 @@ export function UiSettingsProvider(props: { children: React.ReactNode; serverSyn
   const cfg = getRuntimeConfig();
 
   const localStorage = typeof window !== 'undefined' ? window.localStorage : undefined;
+
+  const [helpPlacement, setHelpPlacementState] = useState(() => loadHelpPlacement(localStorage));
+  const setHelpPlacement = useCallback(
+    (placement: UiHelpPlacement) => {
+      const next = placement === 'bottom' ? 'bottom' : 'top';
+      setHelpPlacementState(next);
+      try {
+        localStorage?.setItem(HELP_PLACEMENT_STORAGE_KEY, next);
+      } catch {
+        // Keep the choice usable in memory when browser storage is unavailable.
+      }
+    },
+    [localStorage]
+  );
 
   const [settings, setSettings] = useState<UiSettings>(() => loadUiSettingsFromLocalStorage(localStorage));
 
@@ -252,6 +271,7 @@ export function UiSettingsProvider(props: { children: React.ReactNode; serverSyn
 
           lastSavedJsonRef.current = json;
           skipNextServerSaveRef.current = true;
+          setHelpPlacement('top');
           setSettings(next);
           saveUiSettingsToLocalStorage(localStorage, next);
           setSync((s) => ({ ...s, status: 'idle', lastSavedAt: nowIso(), lastSaveError: undefined }));
@@ -270,15 +290,18 @@ export function UiSettingsProvider(props: { children: React.ReactNode; serverSyn
 
       lastSavedJsonRef.current = json;
       skipNextServerSaveRef.current = true;
+      setHelpPlacement('top');
       setSettings(next);
       saveUiSettingsToLocalStorage(localStorage, next);
       setSync((s) => ({ ...s, status: 'idle', lastSavedAt: nowIso(), lastSaveError: undefined }));
     },
-    [auth.status, localStorage, serverEnabled, serverField, serverNamespace, settings]
+    [auth.status, localStorage, serverEnabled, serverField, serverNamespace, settings, setHelpPlacement]
   );
 
   const ctx: UiSettingsCtx = useMemo(
     () => ({
+      helpPlacement,
+      setHelpPlacement,
       settings,
       setSettings: (s) => {
         // Normalize immediately so we don't store garbage.
@@ -299,7 +322,7 @@ export function UiSettingsProvider(props: { children: React.ReactNode; serverSyn
       resetPreferences,
       sync,
     }),
-    [resetPreferences, retryLoad, settings, sync]
+    [helpPlacement, setHelpPlacement, resetPreferences, retryLoad, settings, sync]
   );
 
   return <UiSettingsContext.Provider value={ctx}>{props.children}</UiSettingsContext.Provider>;

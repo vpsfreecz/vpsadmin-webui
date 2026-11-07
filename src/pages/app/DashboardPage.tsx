@@ -1,5 +1,6 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { SlidersHorizontal } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { useAppMode } from "../../app/appMode";
@@ -9,6 +10,7 @@ import { useObjectScope } from "../../app/objectScope";
 import { PageContainer } from "../../components/layout/PageContainer";
 import { PageHeader } from "../../components/layout/PageHeader";
 import { Alert } from "../../components/ui/Alert";
+import { Button } from "../../components/ui/Button";
 import { fetchClusterFullStats } from "../../lib/api/cluster";
 import { fetchDatasets } from "../../lib/api/datasets";
 import { fetchDnsZones } from "../../lib/api/dns";
@@ -20,7 +22,7 @@ import { useTierBIntervalMs, useTierSlowIntervalMs } from "../../lib/refreshTier
 
 import { countDashboardRows } from "./DashboardCounts";
 import { DashboardOperationalSummary } from "./DashboardPageStatus";
-import { DashboardPreferencesCard } from "./DashboardPreferencesCard";
+import { DASHBOARD_PREFERENCES_PANEL_ID, DashboardPreferencesCard } from "./DashboardPreferencesCard";
 import { DashboardSummaryCards } from "./DashboardSummaryCards";
 import { DashboardWidgetGrid } from "./DashboardWidgets";
 import { summarizeNodes } from "./DashboardOperationalCards";
@@ -33,6 +35,7 @@ function thirtyDaysAgoIso(): string {
 }
 
 export function DashboardPage() {
+  const [preferencesOpen, setPreferencesOpen] = useState(false);
   const auth = useAuth();
   const { basePath, mode } = useAppMode();
   const scope = useObjectScope();
@@ -160,16 +163,12 @@ export function DashboardPage() {
 
   const unknownLocationLabel = t("dashboard.section.cluster.location_unknown");
   const nodeData = useMemo(() => summarizeNodes(nodesQ.data ?? [], unknownLocationLabel), [nodesQ.data, unknownLocationLabel]);
-  const nodeIssueCount = nodeData.summary.down + nodeData.summary.maintenance + nodeData.summary.unknown;
 
-  const signedInMeta = auth.user
-    ? t("dashboard.signed_in_as", { login: auth.user.login, role: auth.role })
-    : t("dashboard.signed_in");
-
-  const outagesListPath = mode === "admin" ? `${basePath}/outages` : "/outages";
-  const outageDetailPath = (id: number) => (mode === "admin" ? `${basePath}/outages/${id}` : `/outages/${id}`);
+  const outagesListPath = `${basePath}/outages`;
+  const outageDetailPath = (id: number) => `${basePath}/outages/${id}`;
   const newsManagementPath = mode === "admin" && auth.role === "admin" ? `${basePath}/content/news` : undefined;
-  const securityBasePath = mode === "admin" ? `${basePath}/security-advisories` : "/security-advisories";
+  const securityBasePath = mode === "admin" && auth.role !== "admin"
+    ? `${basePath}/status/security-advisories` : `${basePath}/security-advisories`;
 
   const statusAlert = DashboardOperationalSummary({
     t,
@@ -185,23 +184,41 @@ export function DashboardPage() {
   return (
     <PageContainer variant="wide" testId="app.dashboard.page">
       <div className="space-y-4">
-        <PageHeader testId="app.dashboard.header" title={t("nav.dashboard")} description={t("dashboard.description")} meta={signedInMeta} />
+        <div className="flex items-start justify-between gap-3">
+          <PageHeader testId="app.dashboard.header" title={t("nav.dashboard")} />
+          <Button
+            variant="secondary"
+            size="sm"
+            className="dashboard-preferences-touch-control shrink-0 border-border-strong"
+            aria-label={t("dashboard.preferences.title")}
+            title={t("dashboard.preferences.title")}
+            aria-expanded={preferencesOpen}
+            aria-controls={DASHBOARD_PREFERENCES_PANEL_ID}
+            onClick={() => setPreferencesOpen((value) => !value)}
+            testId="app.dashboard.preferences.toggle"
+          >
+            <SlidersHorizontal size={18} aria-hidden="true" />
+          </Button>
+        </div>
 
-        <Alert title={statusAlert.title} variant={statusAlert.variant} className="p-2.5" testId="app.dashboard.status-alert">
-          <span>{statusAlert.body}</span>
-          {outagesByCategory.current.length > 0 ? (
-            <span className="ml-2">
-              <Link to={outagesListPath} className="underline">
-                {t("dashboard.alert.outage.link")}
-              </Link>
-            </span>
-          ) : null}
-        </Alert>
+        {statusAlert ? (
+          <Alert title={statusAlert.title} variant={statusAlert.variant} className="p-2.5" testId="app.dashboard.status-alert">
+            <span>{statusAlert.body}</span>
+            {outagesByCategory.current.length > 0 ? (
+              <span className="ml-2">
+                <Link to={outagesListPath} className="underline">
+                  {t("dashboard.alert.outage.link")}
+                </Link>
+              </span>
+            ) : null}
+          </Alert>
+        ) : null}
 
-        <DashboardPreferencesCard />
+        <DashboardPreferencesCard open={preferencesOpen} />
 
         <DashboardSummaryCards
           appMode={mode}
+          scope={scope.scope}
           basePath={basePath}
           density={dashboardSettings.density}
           vps={{
@@ -254,7 +271,6 @@ export function DashboardPage() {
             isLoading: nodesQ.isLoading,
             isError: nodesQ.isError,
             nodeData,
-            nodeIssueCount,
           }}
         />
       </div>

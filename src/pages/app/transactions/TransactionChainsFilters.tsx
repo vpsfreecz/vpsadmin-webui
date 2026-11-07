@@ -112,16 +112,16 @@ export function TransactionChainsFilters({
             suggestions={smartSuggestions}
             testId="transactions.chains.smart_filter.input"
             suffix={
-              <button
-                type="button"
-                className="grid h-9 w-9 place-items-center rounded-md text-muted hover:bg-surface-2 hover:text-fg"
+              <Button
+                variant="ghost"
+                className="h-11 w-11 px-0 text-muted hover:text-fg"
                 title={t('filters.help.open')}
-                aria-label={t('filters.help.open')}
+                ariaLabel={t('filters.help.open')}
                 onClick={onHelpOpen}
-                data-testid="transactions.chains.smart_filter.help"
+                testId="transactions.chains.smart_filter.help"
               >
                 <CircleHelp className="h-4 w-4" aria-hidden />
-              </button>
+              </Button>
             }
           />
         </div>
@@ -131,15 +131,16 @@ export function TransactionChainsFilters({
           onClick={onAdvancedOpen}
           title={t('filters.advanced.open')}
           testId="transactions.chains.advanced.open"
+          className="h-11"
         >
           <SlidersHorizontal className="h-4 w-4" />
           <span className="ml-2 hidden sm:inline">{t('filters.advanced.label')}</span>
         </Button>
 
-        <CopyButton text={typeof window !== 'undefined' ? window.location.href : ''} label={t('common.copy_link')} testId="transactions.chains.copy_link" />
+        <CopyButton text={typeof window !== 'undefined' ? window.location.href : ''} label={t('common.copy_link')} className="h-11" testId="transactions.chains.copy_link" />
 
         {filtersActive || smartErrorsCount > 0 ? (
-          <Button variant="secondary" onClick={clearFilters} testId="transactions.chains.clear_filters">
+          <Button variant="secondary" onClick={clearFilters} className="h-11" testId="transactions.chains.clear_filters">
             {t('common.clear_filters')}
           </Button>
         ) : null}

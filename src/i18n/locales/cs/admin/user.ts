@@ -227,6 +227,7 @@ export const csAdmin_user = {
   "admin.user.payments.history.col.source": "Zdroj",
   "admin.user.payments.history.description": "Zaúčtované platby a ruční zásahy na účtu uživatele.",
   "admin.user.payments.history.source.manual": "Ruční",
+  "admin.user.payments.history.source.expiration_change": "Ruční změna data",
   "admin.user.payments.history.title": "Historie plateb uživatele",
   "admin.user.payments.history.stale.title": "Zobrazuje se poslední načtená historie plateb",
   "admin.user.payments.history.stale.body": "Nejnovější obnovení historie selhalo. V řádcích nemusí být nejnovější účetní zásah; před dalším rozhodnutím načtení zopakuj.",

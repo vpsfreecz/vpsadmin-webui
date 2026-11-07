@@ -123,7 +123,10 @@ describe('SecurityAdvisoriesPage', () => {
     expect(await screen.findByText('OpenSSL advisory')).toBeVisible();
     expect(screen.getByText('Retracted advisory')).toBeVisible();
     expect(screen.queryByText('Private draft')).not.toBeInTheDocument();
-    expect(screen.getByText('CVE-2026-0001')).toBeVisible();
+    expect(screen.getByRole('link', { name: /^CVE-2026-0001/ })).toHaveAttribute(
+      'href',
+      'https://nvd.nist.gov/vuln/detail/CVE-2026-0001',
+    );
     expect(screen.getByText('Patch OpenSSL on affected VPS.')).toBeVisible();
     expect(screen.getByRole('link', { name: 'OpenSSL advisory' })).toHaveAttribute(
       'href',

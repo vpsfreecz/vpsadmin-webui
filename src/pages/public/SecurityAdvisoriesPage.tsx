@@ -1,3 +1,5 @@
+import { useStatusPagePath } from '../../components/layout/useStatusPagePath';
+import { SecurityCveBadge } from './SecurityCveBadge';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -28,6 +30,7 @@ function hasInlineCves(advisory: SecurityAdvisory): boolean {
 }
 
 function SecurityAdvisoryRow(props: { advisory: SecurityAdvisory; showPersonalImpact: boolean }) {
+  const statusPath = useStatusPagePath();
   const i18n = useI18n();
   const advisory = props.advisory;
   const cves = advisoryCveLabels(advisory);
@@ -40,18 +43,20 @@ function SecurityAdvisoryRow(props: { advisory: SecurityAdvisory; showPersonalIm
     <Card>
       <CardHeader
         title={
-          <Link className="hover:text-accent hover:underline" to={`/security-advisories/${advisory.id}`}>
+          <Link className="hover:text-accent hover:underline" to={statusPath(`/security-advisories/${advisory.id}`)}>
             {title}
           </Link>
         }
-        subtitle={`${i18n.t('public.security_advisories.published')}: ${formatDateTime(advisory.published_at)}`}
+        subtitle={`${i18n.t('public.security_advisories.published')}: ${formatDateTime(advisory.published_at, i18n.lang)}`}
         actions={
           <div className="flex flex-wrap items-center gap-2">
-            {props.showPersonalImpact && typeof advisory.affected === 'boolean' ? (
-              <Badge variant={advisory.affected ? 'danger' : 'neutral'}>
-                {i18n.t(advisory.affected
+            {props.showPersonalImpact ? (
+              <Badge variant={advisory.affected === true ? 'danger' : 'neutral'}>
+                {i18n.t(advisory.affected === true
                   ? 'dashboard.section.security.affects_me'
-                  : 'dashboard.section.security.not_affected')}
+                  : advisory.affected === false
+                    ? 'dashboard.section.security.not_affected'
+                    : 'dashboard.section.security.impact_unknown')}
               </Badge>
             ) : null}
             <Badge variant={state === 'published' ? 'ok' : state === 'retracted' ? 'warn' : 'neutral'}>
@@ -65,9 +70,7 @@ function SecurityAdvisoryRow(props: { advisory: SecurityAdvisory; showPersonalIm
           {cves.length > 0 ? (
             <div className="flex flex-wrap gap-1">
               {cves.map((cve) => (
-                <Badge key={cve} variant="info">
-                  {cve}
-                </Badge>
+                <SecurityCveBadge key={cve} label={cve} />
               ))}
             </div>
           ) : null}
@@ -77,7 +80,7 @@ function SecurityAdvisoryRow(props: { advisory: SecurityAdvisory; showPersonalIm
 
           <Link
             className="inline-flex text-sm font-medium text-accent hover:underline"
-            to={`/security-advisories/${advisory.id}`}
+            to={statusPath(`/security-advisories/${advisory.id}`)}
           >
             {i18n.t('public.security_advisories.open_detail')} →
           </Link>
@@ -172,42 +175,40 @@ export function SecurityAdvisoriesPage() {
   }), [visibleAdvisories, visibleCvesQ.data]);
 
   return (
-    <div className="space-y-6" data-testid="public.security_advisories.page">
-      <div className="space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight">{i18n.t('public.security_advisories.title')}</h1>
-        <p className="text-sm text-muted">{i18n.t('public.security_advisories.subtitle')}</p>
-      </div>
-
-      {advisoriesQ.isLoading ? (
-        <Spinner label={i18n.t('public.security_advisories.loading')} />
-      ) : advisoriesQ.isError ? (
-        <Alert title={i18n.t('public.security_advisories.error')} variant="danger" />
-      ) : (advisoriesQ.data?.length ?? 0) === 0 ? (
-        <Alert title={i18n.t('public.security_advisories.empty.title')} variant="info">
-          {i18n.t('public.security_advisories.empty.body')}
-        </Alert>
-      ) : (
-        <div className="space-y-4">
-          {renderedAdvisories.map((advisory) => (
-            <SecurityAdvisoryRow
-              key={advisory.id}
-              advisory={advisory}
-              showPersonalImpact={showPersonalImpact}
+    <>
+      <h1 className="sr-only">{i18n.t('public.security_advisories.title')}</h1>
+      <div className="space-y-6" data-testid="public.security_advisories.page">
+        {advisoriesQ.isLoading ? (
+          <Spinner label={i18n.t('public.security_advisories.loading')} />
+        ) : advisoriesQ.isError ? (
+          <Alert title={i18n.t('public.security_advisories.error')} variant="danger" />
+        ) : (advisoriesQ.data?.length ?? 0) === 0 ? (
+          <Alert title={i18n.t('public.security_advisories.empty.title')} variant="info">
+            {i18n.t('public.security_advisories.empty.body')}
+          </Alert>
+        ) : (
+          <div className="space-y-4">
+            {renderedAdvisories.map((advisory) => (
+              <SecurityAdvisoryRow
+                key={advisory.id}
+                advisory={advisory}
+                showPersonalImpact={showPersonalImpact}
+              />
+            ))}
+            <KeysetPagination
+              page={page}
+              pageCount={pageCount}
+              totalPagesKnown
+              canPrev={page > 1}
+              canNext={page < pageCount}
+              onPrev={() => setPage((current) => Math.max(1, current - 1))}
+              onNext={() => setPage((current) => Math.min(pageCount, current + 1))}
+              onGoToPage={setPage}
+              testId="public.security_advisories.pagination"
             />
-          ))}
-          <KeysetPagination
-            page={page}
-            pageCount={pageCount}
-            totalPagesKnown
-            canPrev={page > 1}
-            canNext={page < pageCount}
-            onPrev={() => setPage((current) => Math.max(1, current - 1))}
-            onNext={() => setPage((current) => Math.min(pageCount, current + 1))}
-            onGoToPage={setPage}
-            testId="public.security_advisories.pagination"
-          />
-        </div>
-      )}
-    </div>
+          </div>
+        )}
+      </div>
+    </>
   );
 }

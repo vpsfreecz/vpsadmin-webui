@@ -1,3 +1,165 @@
+## 2026-11-07 — Integrate current main into our preview
+
+[Scope, compatibility and verification](docs/work-log/2026-11-07-main-preview-integration.md).
+Prepared candidate; test and deployment outcomes remain pending.
+
+## 2026-11-07 — Keep signed-in status pages inside the application
+
+[Behavior, scope and verification](docs/work-log/2026-11-07-authenticated-status-pages.md).
+
+## 2026-11-07 — Action state filter dimensions
+
+[Scope and verification](docs/work-log/2026-11-07-todo-action-filter-rhythm.md).
+
+## 2026-11-07 — Monitoring filter dimensions
+
+[Scope and verification](docs/work-log/2026-11-07-todo-monitoring-filter-rhythm.md).
+
+## 2026-11-07 — OOM report filter dimensions
+
+[Scope and verification](docs/work-log/2026-11-07-todo-oom-filter-rhythm.md).
+
+## 2026-11-07 — Export list filter dimensions
+
+[Scope and verification](docs/work-log/2026-11-07-todo-export-filter-rhythm.md).
+
+## 2026-11-07 — NAS and dataset filter dimensions
+
+[Scope and verification](docs/work-log/2026-11-07-todo-dataset-filter-rhythm.md).
+
+## 2026-11-07 — Individual transaction filter alignment
+
+[Scope and verification](docs/work-log/2026-11-07-todo-transaction-item-filter-rhythm.md).
+
+## 2026-11-07 — VPS Access readability
+
+[Scope and verification](docs/work-log/2026-11-07-todo-vps-access-readability.md).
+
+## 2026-11-07 — Remove duplicated VPS access overview
+
+[Scope and verification](docs/work-log/2026-11-07-todo-vps-overview-duplicates.md).
+
+## 2026-11-07 — Transaction chain filter alignment
+
+[Scope and verification](docs/work-log/2026-11-07-todo-transaction-filter-rhythm.md).
+
+## 2026-11-07 — VPS history charts
+
+[Scope](docs/work-log/2026-11-07-todo-vps-history-charts.md).
+
+## 2026-11-07 — VPS storage summary and dataset actions
+
+[Scope](docs/work-log/2026-11-07-todo-vps-storage-summary.md).
+
+## 2026-11-07 — Streamline the VPS address workflow
+
+[Scope and acceptance](docs/work-log/2026-11-07-todo-vps-address-workflow.md).
+
+## 2026-11-06 — Stable network actions and monthly traffic
+
+[Scope and verification](docs/work-log/2026-11-06-todo-vps-network-traffic.md).
+
+## 2026-11-06 — Separate network and interface warnings
+
+[Scope](docs/work-log/2026-11-06-todo-vps-network-status.md).
+
+## 2026-11-06 — Compact copy controls on the VPS overview
+
+[Scope](docs/work-log/2026-11-06-todo-vps-network-copy.md).
+
+## 2026-11-04 — Approved interface copy
+
+## 2026-11-06 — Consolidate signed-in view controls
+
+[Scope and acceptance](docs/work-log/2026-11-06-sidebar-view-controls.md).
+
+## 2026-11-06 — Open dashboard settings from the page heading
+
+[Scope and acceptance](docs/work-log/2026-11-06-dashboard-editor-trigger.md).
+
+[Remove ten approved interface texts](docs/work-log/2026-11-04-approved-interface-copy.md).
+
+## 2026-11-04 — Sidebar language and appearance
+
+[Separate language and appearance from the account menu](docs/work-log/2026-11-04-sidebar-interface-preferences.md).
+
+## 2026-11-04 — Dashboard settings header
+
+[Simplify the dashboard settings header](docs/work-log/2026-11-04-dashboard-settings-counts.md).
+
+## 2026-11-03 — UX-02: verify one complete member VPS journey
+
+Prepare the approved bounded TODO follow-up against kerrycek-021126.
+See [scope and evidence](docs/work-log/2026-11-03-todo-member-vps-journey.md).
+Prepared for review; not approved, merged or deployed.
+
+## 2026-11-04 — Preview maintenance and regression checks
+
+Separate admin payment history and instructions from mutations and their
+review content. Fix current regression checks for search, VPS and CVE links.
+See [scope and verification](docs/work-log/2026-11-04-preview-maintenance-audit.md).
+
+## 2026-11-04 — Remove redundant VPS and NAS copy
+
+Remove generic descriptions from the VPS and NAS lists and the shared dataset
+cards. See [scope and verification](docs/work-log/2026-11-04-vps-nas-redundant-copy.md).
+
+## 2026-11-04 — Remove redundant dashboard copy
+
+Remove generic text from the contextual help panel and signed-in dashboard.
+See [scope and verification](docs/work-log/2026-11-04-dashboard-redundant-copy.md).
+
+## 2026-11-04 — Finance overview panel alignment
+
+Align the top edges of the payment queue and assessment distribution. See
+[scope and verification](docs/work-log/2026-11-04-finance-overview-alignment.md).
+
+## 2026-11-04 — NAV-02 short sidebar search placeholder
+
+Use a compact search label in the sidebar. See
+[scope and verification](docs/work-log/2026-11-04-sidebar-search-label.md).
+
+## 2026-11-04 — VPS-08 shared units for usage
+
+Display one unit for each RAM and disk usage pair in the VPS list. See
+[scope and verification](docs/work-log/2026-11-04-vps-list-usage-units.md).
+
+## 2026-11-04 — VPS-07 list row layout
+
+Keep the VPS name and ID aligned and move mobile actions ahead of secondary
+details. See [scope and verification](docs/work-log/2026-11-04-vps-list-row-layout.md).
+
+## 2026-11-04 — VPS-06 list uptime
+
+Name the duration column and omit uptime for stopped VPS entries. See
+[scope and verification](docs/work-log/2026-11-04-vps-list-uptime.md).
+
+## 2026-11-04 — VPS-03 list severity
+
+Show ordinary stopped VPS entries with a neutral status while retaining
+usage and transaction warnings. See [scope and verification](docs/work-log/2026-11-04-vps-list-severity.md).
+
+## 2026-11-04 — NAV-01 session length dialog
+
+Open and save the session length in place from the navigation countdown.
+See the [scope and verification](docs/work-log/2026-11-04-session-length-dialog.md).
+
+## 2026-11-04 — Public overview IPv4 availability
+
+Remove the standalone IPv4 pool alert from the guest overview. See the
+[scope and regression coverage](docs/work-log/2026-11-04-public-ipv4-banner.md).
+
+## 2026-11-03 — UX-04: distinguish dashboard editor groups
+
+Prepare the approved bounded TODO follow-up against kerrycek-021126.
+See [scope and evidence](docs/work-log/2026-11-03-todo-dashboard-contrast.md).
+Prepared for review; not approved, merged or deployed.
+
+## 2026-11-03 — UX-03: align the VPS filter controls
+
+Prepare the approved bounded TODO follow-up against kerrycek-021126.
+See [scope and evidence](docs/work-log/2026-11-03-todo-vps-filter-rhythm.md).
+Prepared for review; not approved, merged or deployed.
 ## Request return paths (2026-11-04)
 
 Remove legacy `q` from request list return paths while preserving other
@@ -1669,3 +1831,248 @@ Preserve advanced shared main while pinning approved runtime 70bd11d9.
 Completed on all three sites: 90 pre-merge CI checks, Nix packages, 1,930 runtime
 unit tests and 252 served browser checks passed. One config pin was published;
 source/main boundaries, initial failures and remaining audit limits are recorded.
+
+
+## 2026-11-01 — Anonymous theme controls
+
+Expose the existing local light/dark/system preference in the public header and
+mobile menu, retaining accessible state, touch targets and reload persistence.
+[Scope and verification](docs/work-log/2026-11-01-public-theme-switch.md).
+Prepared for review; no merge or deployment.
+
+
+## 2026-11-01 — Anonymous overview news language
+
+Select cached bilingual news using the current UI language on the public
+overview, matching the existing news list and member dashboard.
+[Cause, contract and verification](docs/work-log/2026-11-01-public-news-language.md).
+Prepared for review; no API change, merge or deployment.
+
+
+## 2026-11-01 — Public news header alignment
+
+Align All news with the Novinky title baseline in the public overview, retaining
+shared card padding and mobile stacking. Included in the existing public-news
+review PR124; no merge or deployment.
+
+Verification: the previous bundle fails the new alignment assertion; the updated
+bundle passes all six remote desktop/mobile news browser cases with zero retries.
+Production build, strict E2E typecheck and design-document audit pass. Updated
+synthetic desktop/mobile screenshots are in the dated entry. PR124 remains for
+review; no live release was changed.
+
+## 2026-11-01 — Public overview spacing and heatmap reading guide
+
+Unify public cards at 12px insets, remove redundant subtitles and explain how to
+read heatmap colors/time/columns and pause it. Preserve compact status badges
+and shared defaults on other pages. Included in PR124 for review.
+[Scope, wording sources and verification](docs/work-log/2026-11-01-public-overview-readability.md).
+No merge or deployment.
+
+Verification: 28 served production-bundle browser checks passed on the remote
+Linux dev runner, including mobile WebKit, cs/en, light/dark, existing news and
+admin heatmap regressions. Eight focused unit checks, ci:quick and build pass;
+initial setup failures and synthetic capture limits are recorded in the dated
+entry. PR124 remains reviewable; no merge or live deployment.
+
+## 2026-11-01 — Public headings and aligned summary row
+
+Remove duplicate visible headings/intro on the public overview, outages and
+advisory lists while keeping accessible h1 names. Move the brand mark to the
+summary row; use equal standard cards and remove the node gauge.
+Included in PR124; follow-up verification in the
+[public overview work log](docs/work-log/2026-11-01-public-overview-readability.md).
+No merge or deployment.
+
+Follow-up verification: ci:quick, 12 focused unit checks, production build and
+22 served-bundle public browser checks passed on remote Linux, including mobile
+WebKit. New assertions cover clipped accessible headings on all three lists,
+equal widths/fonts/value baselines and absence of the ring. Synthetic captures
+were refreshed. No merge or live deployment.
+
+## 2026-11-01 — Prioritize public status information
+
+Order the overview as outages, news, published advisories, nodes, member/VPS
+statistics, then resolved outages. Hide empty outage sections and the redundant
+nominal banner/node tile. Add a bounded credential-free advisory preview and
+split independently positioned cards. Included in PR124 for review.
+[Design, API contract and verification](docs/work-log/2026-11-01-public-overview-readability.md).
+No merge or deployment.
+
+Information-priority verification: ci:quick, design inventory regeneration,
+19 focused unit tests, production build and 28 served public browser cases pass
+on remote Linux. Coverage includes mixed/empty/resolved outages, preview ordering,
+draft exclusion, no credential headers, error isolation and mobile WebKit.
+Synthetic screenshots and evidence are in the dated entry. No live deployment.
+
+
+## 2026-11-01 — Authenticated sidebar controls (prepared)
+
+- Moved search, Tasks, session duration and account controls into navigation;
+  moved branding above About and removed the extra desktop toolbar.
+- Session duration opens/focuses the actual profile inactivity setting without
+  saving. Member/admin destinations, search scope and task behavior are retained.
+- Remote verification passed: final compiled-browser acceptance 88/88, unit
+  tests 1960/1960, script tests 232/232, BFF tests 58/58, ci:quick and build.
+  Synthetic desktop/mobile captures are included; no merge/deployment.
+  [Implementation and evidence](docs/work-log/2026-11-01-sidebar-controls.md).
+
+## 2026-11-01 — Combined public/sidebar dev preview
+
+Deploy only the selected PR123/124/125 feature deltas over live `70bd11d9` as
+`4dec43bb`, preserving the existing HaveAPI transport, dependencies and BFF/API
+basis. Feature PRs remain open and production is unchanged. Combined CI, paired
+Nix checks, 1937 unit/230 script/58 BFF tests and 99 candidate browser checks pass.
+Real anonymous deployed checks (all five public reads HTTP 200), auth smoke and
+95/95 deployed fixture browser checks pass with zero retries. [Scope, evidence and rollback](docs/work-log/2026-11-01-public-sidebar-dev-preview.md).
+
+## 2026-11-02 — Separate Kerrycek UI experiment branch
+
+Create `kerrycek-021126` from the already verified public/sidebar preview. Future
+feature PRs target it explicitly; production/main remain outside the experiment.
+Keep PR123/124/125 as historical drafts because their UI deltas are included;
+preserve all branch histories and colleague PRs. Add standard push CI for the
+integration branch, without deployment automation. Dev has isolated test data;
+clankerdev still uses the production API. No host update in this setup.
+[Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
+
+- 2026-11-03: TODO UX-04 CI follow-up narrows the existing dashboard-home
+  assertion to the exact page h1 after the new h2 exposed an ambiguous selector.
+  Six focused browser cases passed, including newly selected WebKit coverage.
+  See docs/work-log/2026-11-03-todo-dashboard-contrast.md.
+
+## 2026-11-03 — Scroll outage and advisory navigation
+
+Move both links into the primary scrolling menu and preserve role-specific
+destinations. See [scope and checks](docs/work-log/2026-11-03-scrolling-status-navigation.md).
+
+## 2026-11-03 — Compact sidebar controls
+
+Group signed-in sidebar controls and place Tasks and session duration side by
+side. See [layout and verification](docs/work-log/2026-11-03-compact-sidebar-controls.md).
+
+- Account menu follow-up: show all options when there is room and keep the
+  existing bounded scroll behavior for short viewports (REQ-004).
+
+## 2026-11-04 — Align public mobile preferences
+
+See [scope and verification](docs/work-log/2026-11-04-pub01-public-followup.md).
+
+## 2026-11-04 — Remove decorative public statistics icons
+
+See [scope and verification](docs/work-log/2026-11-04-pub09-public-followup.md).
+
+
+## 2026-11-04 — Account role in sidebar controls
+
+Align the account login with Tasks and show the admin/support role beside the
+login as an icon with a localized accessible description (REQ-004). Reuse the
+existing Czech and English role strings, reviewed against the vpsAdmin
+localization guide at a65a4dfeb92a59df4a80a737a20bcbf8558793ff.
+The sidebar browser spec checks alignment, badge placement and role descriptions
+for member, support and admin on desktop and mobile.
+
+## 2026-11-04 — Dashboard identity
+
+Keep signed-in identity in the shell account control. [DASH-01 / REQ-004](docs/work-log/2026-11-04-dashboard-identity.md).
+
+## 2026-11-04 — Dashboard widget insets
+
+Align widget headings, actions and content frames. [DASH-03 / REQ-009](docs/work-log/2026-11-04-dashboard-widget-insets.md).
+
+## 2026-11-04 — Dashboard density help
+
+Explain compact mode in plain language. [DASH-05 / REQ-009](docs/work-log/2026-11-04-dashboard-density-help.md).
+
+## 2026-11-04 — Dashboard widget controls
+
+Group actions by widget. [DASH-06 / REQ-009](docs/work-log/2026-11-04-dashboard-widget-controls.md).
+
+## 2026-11-04 — Dashboard widget status alignment
+
+Align each widget title and its status badges on their text baseline. The same layout applies to essential, hidden and collapsed labels. [DASH-07 / REQ-009](docs/work-log/2026-11-04-dash07.md).
+
+## 2026-11-04 — Dashboard count scope
+
+Label the resource count group once with the actual object scope. Put each resource label and count on a compact wrapping line. [DASH-08 / REQ-009](docs/work-log/2026-11-04-dash08.md).
+
+## 2026-11-04 — Explain personal security advisory impact
+
+Separate account impact and missing personal impact from node mitigation. [SEC-01 / REQ-009](docs/work-log/2026-11-04-sec01.md).
+
+## 2026-11-04 — Use the interface locale for advisory dates
+
+Format advisory dates with the interface language, using a 24-hour clock in Czech and retaining the existing time zone. [SEC-02 / REQ-009](docs/work-log/2026-11-04-sec02.md).
+
+## 2026-11-04 — Link valid CVEs in security advisory summaries
+
+Link valid CVE identifiers to vulnerability records and leave malformed identifiers as plain labels. [SEC-03 / REQ-009](docs/work-log/2026-11-04-sec03.md).
+
+## 2026-11-04 — Dashboard cluster availability
+
+Show one availability ratio, remove the nominal banner, and retain outage, maintenance and load or error indicators. [CLU-01 / REQ-009](docs/work-log/2026-11-04-clu01.md).
+
+## 2026-11-04 — Dashboard cluster location summaries
+
+Use the same ratio and exception counts on desktop and mobile, with a text summary in place of the redundant location bar. [CLU-02 / REQ-009](docs/work-log/2026-11-04-clu02.md).
+
+## 2026-11-04 — VPS creation in the list controls
+
+Place Create VPS beside the filter actions with the shared control height, keeping the existing role-aware destination. [VPS-01 / REQ-010](docs/work-log/2026-11-04-vps01.md).
+
+## 2026-11-04 — Visible VPS filter help
+
+Give filter help a labeled 44-pixel control beside the input, with a plain search placeholder. Retain the question-mark shortcut. [VPS-02 / REQ-010](docs/work-log/2026-11-04-vps02.md).
+
+### 2026-11-04 — Center public mobile preferences
+
+- PUB-01 / REQ-009: center the language and theme groups together in the
+  open public mobile menu and center each row if the groups wrap.
+- Extend the 320 px public theme browser scenario to check the group's
+  position alongside the existing touch target and layout checks.
+
+- [2026-11-04 manual paid-until history](docs/work-log/2026-11-04-payment-expiration-history.md) (REQ-052)
+
+### 2026-11-04 — Hide empty public advisory previews
+
+- PUB-11 / REQ-054: omit the public overview card once a successful query
+  returns no published advisories. Keep loading and fetch errors visible.
+- Check the empty response in public overview browser smoke coverage.
+
+## 2026-11-06 — Simplify additional VPS configuration
+
+Prepare the approved RES-05 layout. See the
+[scope and localization record](docs/work-log/2026-11-06-todo-vps-config-layout.md).
+
+## 2026-11-06 — Explain the admin team preference in additional configuration
+
+Prepare approved RES-06. See the
+[scope and localization record](docs/work-log/2026-11-06-todo-admin-team-preference.md).
+
+## 2026-11-06 — Open VPS Access at the actual controls
+
+Prepare ACC-01 and ACC-02. See the [scope record](docs/work-log/2026-11-06-todo-vps-access-controls.md).
+
+## 2026-11-06 — Clarify VPS access and password generation
+
+Prepare ACC-03 and ACC-04. See the [scope record](docs/work-log/2026-11-06-todo-vps-access-guidance.md).
+
+## 2026-11-06 — Preserve orientation when the session expires
+
+Prepare AUTH-01 and AUTH-02. See the [scope record](docs/work-log/2026-11-06-todo-session-expiry.md).
+
+## 2026-11-07 — Remember contextual help placement
+
+Implement approved UX-05 / REQ-053. See the [scope record](docs/work-log/2026-11-07-todo-help-position.md).
+
+## 2026-11-07 — Expose the existing VPS action index
+
+Implement approved DET-02 / REQ-023. See the [scope record](docs/work-log/2026-11-07-todo-vps-all-actions.md).
+
+## 2026-11-07 — Separate RAM usage from OOM evidence
+
+Prepare approved VPS-12 / REQ-075. See the [scope record](docs/work-log/2026-11-07-todo-memory-semantics.md).
+
+## 2026-11-07 — Mount dataset picker
+
+Prepare approved STO-03 / REQ-023. See [scope](docs/work-log/2026-11-07-todo-mount-dataset-picker.md).

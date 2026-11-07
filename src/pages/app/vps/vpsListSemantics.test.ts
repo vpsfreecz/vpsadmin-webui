@@ -83,27 +83,40 @@ describe('vpsListSemantics', () => {
     const failedChains: TransactionChain[] = [
       { id: 9001, state: 'failed', created_at: '2026-10-15T08:00:00Z', concerns: [['Vps', 101]] },
     ];
+    const stopped = recordFor({ ...baseVps, is_running: false });
+    expect(stopped.runtimeBadge.variant).toBe('neutral');
+    expect(stopped.dotVariant).toBe('neutral');
+    expect(stopped.rowVariant).toBeUndefined();
+    expect(recordMatchesStateFilter(stopped, 'failed')).toBe(false);
+
     const row = recordFor({ ...baseVps, is_running: false }, failedChains);
 
     expect(row.primaryAction).toBe('start');
     expect(row.recentFailureChainIds).toEqual([9001]);
     expect(row.latestRecentFailure?.id).toBe(9001);
     expect(row.rowVariant).toBe('danger');
+    expect(row.dotVariant).toBe('danger');
     expect(recordMatchesStateFilter(row, 'stopped')).toBe(true);
     expect(recordMatchesStateFilter(row, 'failed')).toBe(true);
   });
 
-  it('flags memory and disk from 90 % and as danger from 98 %, ignoring non-numeric values', () => {
+  it('reports uptime only for a running VPS', () => {
+    expect(recordFor({ ...baseVps, uptime: 3600, is_running: true }).uptimeLabel).toBe('1h 0m');
+    expect(recordFor({ ...baseVps, uptime: 3600, is_running: false }).uptimeLabel).toBe('—');
+    expect(recordFor({ ...baseVps, uptime: 3600, is_running: undefined }).uptimeLabel).toBe('—');
+  });
+
+  it('keeps memory usage neutral and preserves disk thresholds', () => {
     expect(vpsUsageRisks({ ...baseVps, memory: 1000, used_memory: 899, diskspace: 1000, used_diskspace: 900 }))
-      .toEqual({ memoryRisk: undefined, diskRisk: 'warn' });
+      .toEqual({ diskRisk: 'warn' });
     expect(vpsUsageRisks({ ...baseVps, memory: 1000, used_memory: 980, diskspace: 0, used_diskspace: 10 }))
-      .toEqual({ memoryRisk: 'danger', diskRisk: undefined });
+      .toEqual({ diskRisk: undefined });
     expect(vpsUsageRisks({ ...baseVps, memory: '1000' as unknown as number, used_memory: 990 }))
-      .toEqual({ memoryRisk: undefined, diskRisk: undefined });
+      .toEqual({ diskRisk: undefined });
 
     const row = recordFor({ ...baseVps, memory: 1000, used_memory: 950 });
-    expect(row.memoryRisk).toBe('warn');
-    expect(row.rowVariant).toBe('warn');
+    expect(row.rowVariant).toBeUndefined();
+    expect(row.dotVariant).toBe('ok');
   });
 
   it('ignores failures older than the recent window', () => {

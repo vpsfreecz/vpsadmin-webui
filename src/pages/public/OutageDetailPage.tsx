@@ -1,3 +1,4 @@
+import { useStatusPagePath } from '../../components/layout/useStatusPagePath';
 import React, { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
@@ -22,6 +23,7 @@ import { pickTranslation } from '../../lib/translations';
 import { useI18n } from '../../app/i18n';
 
 export function OutageDetailPage() {
+  const statusPath = useStatusPagePath();
   const i18n = useI18n();
   const params = useParams();
   const outageId = Number(params['outageId']);
@@ -95,7 +97,7 @@ export function OutageDetailPage() {
     <div className="space-y-6" data-testid="public.outage_detail.page">
       <div className="space-y-2">
         <div className="text-sm">
-          <Link to="/outages" className="underline">← {i18n.t('public.outage_detail.back_to_outages')}</Link>
+          <Link to={statusPath('/outages')} className="underline">← {i18n.t('public.outage_detail.back_to_outages')}</Link>
         </div>
         <h1 className="text-2xl font-semibold tracking-tight">{summary}</h1>
         <div className="flex flex-wrap items-center gap-2 text-sm">

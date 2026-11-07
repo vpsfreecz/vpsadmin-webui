@@ -1,3 +1,4 @@
+import { SecurityCveBadge } from '../public/SecurityCveBadge';
 import { useI18n } from '../../app/i18n';
 import { Link } from 'react-router-dom';
 import type { DashboardDensity } from '../../app/dashboardSettingsModel';
@@ -50,7 +51,9 @@ function SecurityAdvisoryItem(props: { advisory: SecurityAdvisory; detailBasePat
             <Badge variant="danger">{i18n.t('dashboard.section.security.affects_me')}</Badge>
           ) : advisory.affected === false ? (
             <Badge variant="neutral">{i18n.t('dashboard.section.security.not_affected')}</Badge>
-          ) : null}
+          ) : (
+            <Badge variant="neutral">{i18n.t('dashboard.section.security.impact_unknown')}</Badge>
+          )}
         </div>
         {summary ? (
           <div className="break-words text-sm text-muted" data-testid="app.dashboard.security.item.summary">
@@ -64,7 +67,7 @@ function SecurityAdvisoryItem(props: { advisory: SecurityAdvisory; detailBasePat
           data-testid="app.dashboard.security.item.meta"
         >
           <span>
-            {i18n.t('dashboard.section.security.published')}: {formatDateTime(advisory.published_at)}
+            {i18n.t('dashboard.section.security.published')}: {formatDateTime(advisory.published_at, i18n.lang)}
           </span>
           {affectedNodeCount !== null ? (
             <span>· {i18n.t('dashboard.section.security.affected_nodes', { count: affectedNodeCount })}</span>
@@ -83,7 +86,7 @@ function SecurityAdvisoryItem(props: { advisory: SecurityAdvisory; detailBasePat
           data-testid="app.dashboard.security.item.cves"
         >
           {cves.length > 0 ? (
-            cves.slice(0, 6).map((cve) => <Badge key={cve} variant="info">{cve}</Badge>)
+            cves.slice(0, 6).map((cve) => <SecurityCveBadge key={cve} label={cve} />)
           ) : (
             <Badge variant="neutral">{i18n.t('dashboard.section.security.no_cves')}</Badge>
           )}
@@ -114,9 +117,9 @@ export function SecurityAdvisoriesCard(props: {
   return (
     <Card testId="app.dashboard.security.card">
       <CardHeader
-        className="items-center p-3"
+        compact={compact}
+        className="items-center"
         title={t('dashboard.section.security.title')}
-        subtitle={t('dashboard.section.security.subtitle')}
         actions={
           <>
             {props.onToggleCollapsed ? (
@@ -130,7 +133,7 @@ export function SecurityAdvisoriesCard(props: {
           </>
         }
       />
-      <CardBody className={compact ? 'p-2.5' : 'p-3'}>
+      <CardBody compact={compact}>
         {props.isLoading ? (
           <Spinner label={t('dashboard.section.security.loading')} />
         ) : props.isError ? (
