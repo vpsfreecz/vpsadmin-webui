@@ -7,6 +7,7 @@ import { withAppUrl } from '../../fixtures/url';
 
 const ipv6 = '2001:0db8:85a3:0000:0000:8a2e:0370:7334';
 const sshCommand = `ssh root@${ipv6}`;
+const hostname = `vps-${'x'.repeat(54)}.example.test`;
 
 async function installClipboardProbe(page: Page) {
   await page.addInitScript(() => {
@@ -32,7 +33,7 @@ test.beforeEach(async ({ page }) => {
       'GET vpses/123': () => ({
         vps: {
           id: 123,
-          hostname: 'vps123.example',
+          hostname,
           object_state: 'active',
           is_running: true,
           enable_network: true,
@@ -90,16 +91,18 @@ test('@pr-smoke @pr-smoke-mobile keeps an IPv6 SSH command and copy action insid
   const header = page.getByTestId('vps.header');
   const ssh = page.getByTestId('vps.header.ssh');
   const code = ssh.locator('code');
-  const row = code.locator('..');
+  const primary = page.getByTestId(/^vps\.action\.primary_(console|access)$/);
   const copy = ssh.locator('button');
 
   await expect(header).toBeVisible();
+  await expect(header.getByRole('heading', { name: hostname })).toBeVisible();
+  await expect(header).toContainText('#123');
   await expect(code).toHaveText(sshCommand);
   await expect(copy).toBeVisible();
   await expect(copy).toHaveAccessibleName(/Kopírovat|Copy/);
   await expect(page.getByTestId('vps.overview.health')).toHaveCount(0);
 
-  if (testInfo.project.name === 'mobile-chrome') {
+  if (['mobile-chrome', 'mobile-webkit'].includes(testInfo.project.name)) {
     for (const width of [320, 390, 640, 768, 800]) {
       await page.setViewportSize({ width, height: 900 });
 
@@ -118,7 +121,6 @@ test('@pr-smoke @pr-smoke-mobile keeps an IPv6 SSH command and copy action insid
           headerOverflow: header ? header.scrollWidth - header.clientWidth : -1,
           sshOverflow: ssh ? ssh.scrollWidth - ssh.clientWidth : -1,
           codeOverflow: code ? code.scrollWidth - code.clientWidth : -1,
-          codeTextOverflow: code ? getComputedStyle(code).textOverflow : '',
           header: rect(header),
           code: rect(code),
           copy: rect(copy),
@@ -128,9 +130,11 @@ test('@pr-smoke @pr-smoke-mobile keeps an IPv6 SSH command and copy action insid
       expect(metrics.documentOverflow, `${width}px document overflow`).toBeLessThanOrEqual(1);
       expect(metrics.headerOverflow, `${width}px header overflow`).toBeLessThanOrEqual(1);
       expect(metrics.sshOverflow, `${width}px SSH row overflow`).toBeLessThanOrEqual(1);
-      if (width <= 390) {
-        expect(metrics.codeOverflow, `${width}px command should truncate visually`).toBeGreaterThan(0);
-        expect(metrics.codeTextOverflow).toBe('ellipsis');
+      expect(metrics.codeOverflow, `${width}px full SSH command must fit`).toBeLessThanOrEqual(1);
+      await expect(primary).toBeInViewport();
+      if (width === 320) {
+        await header.screenshot({ path: testInfo.outputPath('detail-identity.png') });
+        await ssh.screenshot({ path: testInfo.outputPath('ssh-command.png') });
       }
       expect(metrics.code.left).toBeGreaterThanOrEqual(metrics.header.left - 1);
       expect(metrics.code.right).toBeLessThanOrEqual(metrics.header.right + 1);
@@ -191,6 +195,11 @@ test('@pr-smoke @pr-smoke-mobile keeps an IPv6 SSH command and copy action insid
       }
       await expect(code).toHaveText(sshCommand);
       await expect(copy).toBeInViewport();
+      await expect(primary).toBeInViewport();
+      if (width === 1280) {
+        await header.screenshot({ path: testInfo.outputPath('detail-identity.png') });
+        await ssh.screenshot({ path: testInfo.outputPath('ssh-command.png') });
+      }
     }
   } else {
     throw new Error(`Missing VPS header layout coverage for Playwright project ${testInfo.project.name}`);
