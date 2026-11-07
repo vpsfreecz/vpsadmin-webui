@@ -1,6 +1,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
+import { setUiSettingsLocalStorage } from '../../fixtures/uiSettings';
 import { expectNoDocumentHorizontalOverflow } from '../../helpers/horizontalOverflow';
 
 async function box(locator: Locator) {
@@ -9,12 +10,7 @@ async function box(locator: Locator) {
   return result;
 }
 
-async function expectFilterBarOrder(
-  page: Page,
-  isMobile: boolean,
-  filtersTestId: string,
-  chipsTestId: string
-) {
+async function expectFilterBarOrder(page: Page, isMobile: boolean, filtersTestId: string, chipsTestId: string) {
   const filters = page.getByTestId(filtersTestId);
   const chips = page.getByTestId(chipsTestId);
   await expect(chips).toBeVisible();
@@ -55,12 +51,7 @@ test('@smoke @smoke-mobile transaction chain filter chips render below controls 
   isMobile,
 }) => {
   await page.goto('/app/transactions?row_id=456789456');
-  await expectFilterBarOrder(
-    page,
-    isMobile,
-    'transactions.list.filters',
-    'transactions.list.active_filters'
-  );
+  await expectFilterBarOrder(page, isMobile, 'transactions.list.filters', 'transactions.list.active_filters');
 });
 
 test('@smoke @smoke-mobile VPS list filter chips render below controls aligned with the search field', async ({
@@ -82,3 +73,51 @@ test('@smoke @smoke-mobile a long VPS list filter chip stays within the filter b
   expect(remove.x + remove.width).toBeLessThanOrEqual(filters.x + filters.width + 1);
   await expectNoDocumentHorizontalOverflow(page);
 });
+
+for (const language of ['cs', 'en'] as const) {
+  for (const theme of ['light', 'dark'] as const) {
+    test(`@pr-smoke @pr-smoke-mobile transaction filter controls share the input height in ${language} ${theme}`, async ({
+      page,
+    }, testInfo) => {
+      await setUiSettingsLocalStorage(page, { language, theme });
+      await page.goto('/app/transactions?row_id=456789456');
+      const filters = page.getByTestId('transactions.list.filters');
+      const chips = page.getByTestId('transactions.list.active_filters');
+      await expect(chips).toBeVisible();
+      const input = await box(filters.getByRole('combobox'));
+      const buttons = await filters.locator(':scope > button').all();
+      expect(buttons).toHaveLength(3);
+      await page.screenshot({ path: testInfo.outputPath('transaction-filter-controls.png'), fullPage: true });
+      for (const button of buttons) {
+        expect((await box(button)).height).toBe(input.height);
+      }
+      const help = page.getByTestId('transactions.chains.smart_filter.help');
+      expect((await box(help)).height).toBe(input.height);
+      expect((await box(help)).width).toBeGreaterThanOrEqual(44);
+      await help.click();
+      await expect(page.getByTestId('transactions.chains.smart_help')).toBeVisible();
+      await page.keyboard.press('Escape');
+      await expect(page.getByTestId('transactions.chains.smart_help')).not.toBeVisible();
+      await page.getByTestId('transactions.chains.advanced.open').click();
+      await expect(page.getByTestId('transactions.chains.advanced.drawer')).toBeVisible();
+      await page.keyboard.press('Escape');
+      await page.evaluate(() => {
+        Object.defineProperty(navigator, 'clipboard', {
+          configurable: true,
+          value: {
+            writeText: async (value: string) => {
+              document.documentElement.dataset['copiedLink'] = value;
+            },
+          },
+        });
+      });
+      await page.getByTestId('transactions.chains.copy_link').click();
+      await expect
+        .poll(() => page.evaluate(() => document.documentElement.dataset['copiedLink']))
+        .toContain('row_id=456789456');
+      await page.getByTestId('transactions.chains.clear_filters').click();
+      await expect(chips).not.toBeVisible();
+      await expectNoDocumentHorizontalOverflow(page);
+    });
+  }
+}
