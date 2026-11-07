@@ -53,7 +53,7 @@ afterEach(() => {
 describe('OutagesPage', () => {
   it('does not ask an authenticated reader to sign in again', async () => {
     authState.status = 'authenticated';
-    vi.mocked(fetchOutages).mockResolvedValue({ data: [] } as Awaited<ReturnType<typeof fetchOutages>>);
+    vi.mocked(fetchOutages).mockResolvedValue({ data: [], envelope: { status: true, response: { outages: [] } } });
     renderPage();
     await screen.findByTestId('public.outages.page');
     expect(screen.queryByText('public.outages.footer.admin_hint')).not.toBeInTheDocument();
