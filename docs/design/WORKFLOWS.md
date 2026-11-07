@@ -1151,3 +1151,12 @@ never select on touch-down or replay an uncertain tap. See the
 Use the header to copy SSH or open the console, and the Access tab for SSH keys
 and password management. The overview does not repeat those entry points or
 current runtime values in a separate card. Historical charts remain on demand.
+
+## Contextual help placement (UX-05; REQ-053)
+
+The signed-in interface preferences and profile preferences offer Top and Bottom.
+The choice is remembered in this browser, independently of account synchronization;
+resetting interface preferences restores Top. This moves only contextual help in
+the authenticated shell, preserving its expanded state and page drafts. Page
+warnings and mutation errors remain with their controls. Console pages retain
+their existing help exemption. Public help retains its existing placement.

@@ -1944,3 +1944,7 @@ Prepare ACC-03 and ACC-04. See the [scope record](docs/work-log/2026-11-06-todo-
 ## 2026-11-06 — Preserve orientation when the session expires
 
 Prepare AUTH-01 and AUTH-02. See the [scope record](docs/work-log/2026-11-06-todo-session-expiry.md).
+
+## 2026-11-07 — Remember contextual help placement
+
+Implement approved UX-05 / REQ-053. See the [scope record](docs/work-log/2026-11-07-todo-help-position.md).

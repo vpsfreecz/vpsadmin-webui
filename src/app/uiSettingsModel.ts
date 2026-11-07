@@ -9,6 +9,18 @@ import {
 
 export type { DashboardDensity, DashboardSettings, DashboardWidgetId };
 
+export type UiHelpPlacement = 'top' | 'bottom';
+export const HELP_PLACEMENT_STORAGE_KEY = 'vpsadmin.contextualHelp.placement.v1';
+
+/** Browser-only preference, deliberately excluded from the account settings payload. */
+export function loadHelpPlacement(storage?: Storage): UiHelpPlacement {
+  try {
+    return storage?.getItem(HELP_PLACEMENT_STORAGE_KEY) === 'bottom' ? 'bottom' : 'top';
+  } catch {
+    return 'top';
+  }
+}
+
 export type UiThemePreference = 'system' | 'light' | 'dark';
 export type UiLanguagePreference = 'system' | 'en' | 'cs';
 export type UiTipLifecycleState = 'visible' | 'dismissed' | 'accepted';
