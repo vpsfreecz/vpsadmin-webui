@@ -1011,3 +1011,6 @@ and wrap action groups at narrow widths. Personal profile change requests keep
 their action label on one readable line beside the explanatory text. Owner
 scope, query normalization, confirmation and mutations retain their contracts.
 See [verification scope](../work-log/2026-11-07-todo-profile-control-rhythm.md).
+
+The host-address, assignment-audit and live-network filter rows also match
+the existing 44px VPS lookup, retaining their supported VPS queries and Clear.

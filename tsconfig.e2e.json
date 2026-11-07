@@ -60,6 +60,7 @@
     "e2e/specs/app/mobile_touch_interactions.spec.ts",
     "e2e/specs/app/mobile_workflows.spec.ts",
     "e2e/specs/app/network_address_details.spec.ts",
+    "e2e/specs/app/networking_filter_rhythm.spec.ts",
     "e2e/specs/app/node_history.spec.ts",
     "e2e/specs/app/payment_qr_images.spec.ts",
     "e2e/specs/app/payments_page.spec.ts",

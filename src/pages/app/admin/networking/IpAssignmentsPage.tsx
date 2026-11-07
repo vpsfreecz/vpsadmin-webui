@@ -95,7 +95,7 @@ function IpAssignmentsPageContent() {
       testId="admin.ip_assignments.page"
       header={<PageHeader title={t('admin.ip_assignments.title')} description={t('admin.ip_assignments.subtitle')} />}
       filters={
-        <FilterBar
+        <FilterBar className="[&_input]:h-11 [&_select]:h-11"
           left={<div className="flex flex-wrap items-center gap-3">
             <div className="w-full max-w-sm"><Input testId="admin.ip_assignments.filter.ip_addr" value={ipAddr} onChange={(e) => setParam('ip_addr', e.target.value)} placeholder={t('admin.ip_assignments.filter.ip_addr.placeholder')} /></div>
             <div className="w-64"><UserLookupInput testId="admin.ip_assignments.filter.user" value={userId ? String(userId) : ''} onChange={(v) => setParam('user', v)} placeholder={t('admin.ip_assignments.filter.user.placeholder')} /></div>
@@ -104,7 +104,7 @@ function IpAssignmentsPageContent() {
           right={<div className="flex flex-wrap items-center gap-3">
             <div className="w-40"><Select testId="admin.ip_assignments.filter.active" value={active === undefined ? 'all' : active ? 'true' : 'false'} onChange={(e) => setParam('active', e.target.value === 'all' ? '' : e.target.value)} options={[{value:'all',label:t('admin.ip_assignments.filter.active.all')},{value:'true',label:t('admin.ip_assignments.filter.active.true')},{value:'false',label:t('admin.ip_assignments.filter.active.false')}]} /></div>
             <div className="w-40"><Select testId="admin.ip_assignments.filter.order" value={order} onChange={(e) => setParam('order', e.target.value)} options={[{value:'newest',label:t('admin.ip_assignments.filter.order.newest')},{value:'oldest',label:t('admin.ip_assignments.filter.order.oldest')}]} /></div>
-            {filtersActive ? <Button variant="secondary" testId="admin.ip_assignments.filter.clear" onClick={clearFilters}>{t('common.clear_filters')}</Button> : null}
+            {filtersActive ? <Button variant="secondary" className="h-11" testId="admin.ip_assignments.filter.clear" onClick={clearFilters}>{t('common.clear_filters')}</Button> : null}
           </div>}
         />
       }

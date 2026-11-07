@@ -1686,7 +1686,7 @@ integration branch, without deployment automation. Dev has isolated test data;
 clankerdev still uses the production API. No host update in this setup.
 [Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
 
-## 2026-11-07 — Keep account controls aligned and readable
+## 2026-11-07 — Keep shared and network controls aligned
 
 Prepare approved UX-03 / REQ-010, REQ-073. See the
 [scope record](docs/work-log/2026-11-07-todo-profile-control-rhythm.md).
