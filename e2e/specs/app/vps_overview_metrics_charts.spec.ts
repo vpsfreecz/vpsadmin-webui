@@ -7,7 +7,7 @@ const vps = {
   hostname: 'vps123.example',
   object_state: 'active',
   is_running: true,
-  cpus: 2,
+  cpu: 2,
   memory: 2048,
   swap: 0,
   diskspace: 20480,
@@ -19,7 +19,7 @@ const vps = {
   loadavg5: 0.18,
   node: { id: 1, domain_name: 'node1.example' },
   os_template: { label: 'debian' },
-  dns_resolver: 'inherit',
+  dns_resolver: null,
 };
 
 const statuses = [
@@ -29,7 +29,6 @@ const statuses = [
     loadavg1: 0.05,
     loadavg5: 0.08,
     used_memory: 512,
-    used_diskspace: 4096,
   },
   {
     id: 2,
@@ -37,7 +36,6 @@ const statuses = [
     loadavg1: 0.22,
     loadavg5: 0.19,
     used_memory: 768,
-    used_diskspace: 5120,
   },
   {
     id: 3,
@@ -45,7 +43,6 @@ const statuses = [
     loadavg1: 0.12,
     loadavg5: 0.18,
     used_memory: 700,
-    used_diskspace: 5300,
   },
 ];
 

@@ -9,7 +9,7 @@ const vps = {
   object_state: 'active',
   is_running: true,
   enable_network: true,
-  cpus: 2,
+  cpu: 2,
   memory: 2048,
   swap: 0,
   diskspace: 20480,
@@ -26,7 +26,7 @@ const vps = {
   },
   user: { id: 10, login: 'alice' },
   os_template: { id: 6, label: 'Debian 12' },
-  dns_resolver: 'inherit',
+  dns_resolver: null,
 };
 
 for (const [language, theme] of [

@@ -9,7 +9,7 @@ const vps = {
   object_state: 'active',
   is_running: true,
   enable_network: true,
-  cpus: 2,
+  cpu: 2,
   memory: 2048,
   swap: 0,
   diskspace: 20480,
@@ -28,7 +28,6 @@ const vps = {
 const dataset = {
   id: 10,
   name: 'tank/data',
-  full_name: 'tank/data',
   user: { id: 1, login: 'user' },
   used: 5120,
   avail: 15360,

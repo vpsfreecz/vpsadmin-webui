@@ -1,7 +1,8 @@
 ## 2026-11-07 — Integrate current main into our preview
 
 [Scope, compatibility and verification](docs/work-log/2026-11-07-main-preview-integration.md).
-Prepared candidate; test and deployment outcomes remain pending.
+Prepared candidate with canonical fixture repairs; 26 focused packaged browser
+cases pass. Remaining final artifact, CI and deployment outcomes are pending.
 
 ## 2026-11-07 — Keep signed-in status pages inside the application
 

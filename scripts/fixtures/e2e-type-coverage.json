@@ -159,6 +159,7 @@
     "e2e/specs/app/vps_detail_tabs_matrix.spec.ts",
     "e2e/specs/app/vps_dns_shortcut.spec.ts",
     "e2e/specs/app/vps_expiration_reactivation.spec.ts",
+    "e2e/specs/app/vps_features_tab_apply.spec.ts",
     "e2e/specs/app/vps_header_ssh_mobile_layout.spec.ts",
     "e2e/specs/app/vps_header_system_summary.spec.ts",
     "e2e/specs/app/vps_initialization_templates.spec.ts",
@@ -169,6 +170,7 @@
     "e2e/specs/app/vps_lock_transition_reenable.spec.ts",
     "e2e/specs/app/vps_maintenance_mobile.spec.ts",
     "e2e/specs/app/vps_maintenance_sunday.spec.ts",
+    "e2e/specs/app/vps_maintenance_tab_save.spec.ts",
     "e2e/specs/app/vps_memory_evidence.spec.ts",
     "e2e/specs/app/vps_mount_dataset_picker.spec.ts",
     "e2e/specs/app/vps_network_editor_feedback.spec.ts",
@@ -907,13 +909,6 @@
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
     },
     {
-      "path": "e2e/specs/app/vps_features_tab_apply.spec.ts",
-      "sha256": "8dde1c920b26f23e4ae5cc19f836f7956afb5cbd394f472eb1abe92ded8c9fe8",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
       "path": "e2e/specs/app/vps_history.spec.ts",
       "sha256": "ac64e3f287f1f11c9652eeb325769b03ab92e37a034ab5f90524c64713ebed53",
       "owner": "WebUI maintainers",
@@ -930,13 +925,6 @@
     {
       "path": "e2e/specs/app/vps_lookup_combobox.spec.ts",
       "sha256": "d6c73e7eff92f04a0823d47a46ff381fab0a7203d6d646eca11652a80686a3ad",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/app/vps_maintenance_tab_save.spec.ts",
-      "sha256": "3e412c0277cccee4a2b88903fecc8cbf3db8aa313db215c0eaacf3307463dcfb",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."

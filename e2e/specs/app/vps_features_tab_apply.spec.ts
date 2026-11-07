@@ -8,7 +8,7 @@ const vps = {
   object_state: 'active',
   is_running: true,
   enable_network: true,
-  cpus: 2,
+  cpu: 2,
   memory: 2048,
   swap: 0,
   diskspace: 20480,
@@ -19,7 +19,7 @@ const vps = {
   loadavg1: 0.12,
   node: { id: 1, domain_name: 'node1.example' },
   os_template: { label: 'debian' },
-  dns_resolver: 'inherit',
+  dns_resolver: null,
 };
 
 test.describe('VPS features tab', () => {

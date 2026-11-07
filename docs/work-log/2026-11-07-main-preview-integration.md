@@ -64,3 +64,28 @@ The first immutable browser snapshot also exposed old preview assertions for
 mount type/default-map and old public-stat response namespace. These are being
 aligned to the generated contract; original failures remain in the audit logs.
 No compiler setting, timeout or retry budget was relaxed.
+
+## Exact-package fixture correction after thread transfer
+
+The clean `facf4feb` package completed 100 critical browser cases: 92 passed and
+8 failed. On both Chromium and mobile WebKit, three metrics cases stopped before
+rendering because their old `dns_resolver: 'inherit'` fixture violated main's
+resource-or-null relation contract. The subdataset case supplied its parent's
+`full_name` on the child, so the correct detail label was the wrong fixture value.
+These are fixture defects; the strict relation guard and full-name preference
+remain unchanged. Correct the same obsolete resolver in the eight affected
+journey files, and use canonical dataset names without the inherited legacy full-name field. Historical
+disk fields absent from the generated status contract are removed from the metrics
+fixture. Existing chart, navigation, payload and permission assertions remain.
+
+The focused exact-package rerun passed all 26 metrics/storage cases on Chromium
+and mobile WebKit. The canonical final fixture also removes the legacy
+full-name field altogether; its final artifact rerun remains required. All 33
+existing VPS/dataset/metrics unit cases and strict E2E coverage (190 adopted,
+111 deferred) pass. ci:quick, formatting and both production dependency audits
+pass with zero reported vulnerabilities. Remaining integration regressions and
+new clean-artifact verification are pending.
+Original failure logs and traces are retained under the release-readiness audit
+and the private `main-preview-integration-20261107/compiled` browser task. The
+new foreground thread owns this work; the existing serial TODO worker and timer
+continue unchanged. No extra worker, merge or production activation is authorized.

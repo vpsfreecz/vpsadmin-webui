@@ -8,7 +8,7 @@ const vps = {
   object_state: 'active',
   is_running: true,
   enable_network: true,
-  cpus: 2,
+  cpu: 2,
   memory: 2048,
   swap: 0,
   diskspace: 20480,
@@ -20,7 +20,7 @@ const vps = {
   node: { id: 1, domain_name: 'node1.example', location: { id: 2, label: 'Praha' } },
   user: { id: 42, login: 'owner' },
   os_template: { id: 6, label: 'Debian 12' },
-  dns_resolver: 'inherit',
+  dns_resolver: null,
 };
 
 const longPublicKeyLabel = `workstation-${'primary'.repeat(18)}`;
