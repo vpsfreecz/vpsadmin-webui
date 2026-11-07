@@ -1,3 +1,7 @@
+## 2026-11-08 — Match single-line secret field controls
+
+[Scope and verification](docs/work-log/2026-11-08-todo-secret-field-controls.md).
+
 ## 2026-11-07 — Keep signed-in status pages inside the application
 
 [Behavior, scope and verification](docs/work-log/2026-11-07-authenticated-status-pages.md).

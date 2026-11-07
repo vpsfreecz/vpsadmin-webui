@@ -77,6 +77,7 @@
     "e2e/specs/app/payments_page.spec.ts",
     "e2e/specs/app/profile_control_rhythm.spec.ts",
     "e2e/specs/app/profile_metrics_tokens.spec.ts",
+    "e2e/specs/app/secret_field_controls.spec.ts",
     "e2e/specs/app/profile_mfa_recovery.spec.ts",
     "e2e/specs/app/profile_owner_scope.spec.ts",
     "e2e/specs/app/profile_user_data.spec.ts",
