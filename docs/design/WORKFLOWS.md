@@ -1003,3 +1003,11 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+### Account control presentation follow-up (2026-11-07)
+
+User-data templates and namespace/map list filters keep 44px adjacent controls
+and wrap action groups at narrow widths. Personal profile change requests keep
+their action label on one readable line beside the explanatory text. Owner
+scope, query normalization, confirmation and mutations retain their contracts.
+See [verification scope](../work-log/2026-11-07-todo-profile-control-rhythm.md).
