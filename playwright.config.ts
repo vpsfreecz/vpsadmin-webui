@@ -81,6 +81,8 @@ export default defineConfig({
         '**/snapshot_delete_availability.spec.ts',
         '**/export_hosts_responsive_actions.spec.ts',
         '**/exports_filter_contract.spec.ts',
+        '**/oom_filter_rhythm.spec.ts',
+        '**/oom_reports_smart_filter.spec.ts',
         '**/vps_initialization_templates.spec.ts',
         '**/vps_console_controls.spec.ts',
         '**/vps_console_viewport.spec.ts',

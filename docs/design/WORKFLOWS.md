@@ -1003,3 +1003,13 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+## OOM report filter dimensions (approved TODO UX-03)
+
+Help, advanced filters, copy-link and clear match the 44px smart field;
+icon-only controls have a square target. Filter chips remain below the row.
+This local styling preserves the member/support backend owner scope, admin
+arbitrary-owner selection, admin My-view scope, URL normalization, parser,
+copy and clear behavior. It adds no navigation variant, API field or write.
+See [scope and verification](../work-log/2026-11-07-todo-oom-filter-rhythm.md)
+and REQ-010 / REQ-073.
