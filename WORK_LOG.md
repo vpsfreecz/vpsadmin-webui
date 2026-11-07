@@ -1,3 +1,7 @@
+## 2026-11-07 — VPS Access readability
+
+[Scope and verification](docs/work-log/2026-11-07-todo-vps-access-readability.md).
+
 ## 2026-11-07 — Remove duplicated VPS access overview
 
 [Scope and verification](docs/work-log/2026-11-07-todo-vps-overview-duplicates.md).

@@ -58,6 +58,7 @@ export default defineConfig({
         '**/approved_vps_journey.spec.ts',
         '**/authenticated_home_smoke.spec.ts',
         '**/dashboard_preferences_accessibility.spec.ts',
+        '**/vps_access_readability.spec.ts',
         '**/filter_bar_chip_alignment.spec.ts',
         '**/about.spec.ts',
         '**/theme_switcher.spec.ts',

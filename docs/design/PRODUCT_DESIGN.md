@@ -68,6 +68,12 @@ Browser titles start with vpsAdmin. Favicon reuse was delivered by PR524. Heatma
 are icon-only following PR521; that action still has a tooltip and accessible
 name, and does not imply removing labels from primary navigation.
 
+VPS Access uses strong-border tokens around its three main sections and on
+key/password selectors. Section titles are larger level-two headings. The
+change is local: warnings, nested metadata and action guards retain their
+existing styling and behavior. This does not certify contrast on physical
+displays or the rest of the application.
+
 The dashboard widget editor uses the existing strong-border token on its
 boundary, group cards and controls, with a larger h2 editor title, semibold h3
 widget titles and smaller descriptions. This is a bounded response to weak
