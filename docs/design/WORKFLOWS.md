@@ -1003,3 +1003,10 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+### Action state list dimensions (UX-03, 2026-11-07)
+
+The filter toolbar uses matching 44px controls for search, help, visibility,
+ordering, advanced filters, refresh, copy and clear. Visibility, errors and
+text filtering remain local; server requests retain ordering and keyset scope.
+Clear retains order. No permission, cancellation or mutation contract changes.
