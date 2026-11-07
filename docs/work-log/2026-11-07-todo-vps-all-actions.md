@@ -26,3 +26,9 @@ cancels that dialog, verifies its target and asserts zero API writes, without
 changing the confirmation policy. Browser Find is exercised through the native
 window.find engine API and rendered action links; browser chrome shortcuts and
 physical devices are not certified. Exact package checks and CI follow.
+
+CI found the existing VpsActionsMenu unit fixture omitted the router now needed
+by its new link. The fixture now uses MemoryRouter like the real page and checks
+the All actions href with member context. No product code or assertion was
+removed. The first full CI unit run had 1 failure and 1936 passes; this correction
+requires fresh CI and source provenance before deployment.
