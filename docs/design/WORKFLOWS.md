@@ -1003,3 +1003,19 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+## Export list filter dimensions
+
+Keep the export smart input, help, copy-link, conditional clear and refresh
+controls 44 CSS pixels high in member and global administrator lists. Help
+uses a square target; mobile retains wrapping and active chips below the row.
+This UX-03 / REQ-073 follow-up changes only local control classes. Preserve
+owner restrictions, supported id/user smart syntax, unsupported-filter errors,
+URL normalization, cursor pagination, refresh and exact link copy. Do not add
+API filters, change export creation or NFS settings, or resize global controls.
+The wider UX-03 umbrella remains partial.
+
+Visual review also found the administrator owner lookup at 36px beside the
+44px field. A local descendant class makes that input 44px without changing
+the shared lookup component. The focused browser check covers its height;
+existing owner lookup focus/filter contract checks remain unchanged.
