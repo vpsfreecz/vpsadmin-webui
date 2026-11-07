@@ -121,6 +121,9 @@ anonymous; existing global locale invalidation/refetch behavior is unchanged.
 
 ## VPS creation, detail and power
 
+VPS detail groups identity, ID and state. The title and commands can wrap
+while the primary action stays within the viewport.
+
 **Intent:** choose placement/template/resources, create a VPS, inspect identity and
 runtime status, and manage it. Creation defaults are suggestions; async updates
 cannot overwrite entered resources. Member scope stays owned; admins can explicitly
