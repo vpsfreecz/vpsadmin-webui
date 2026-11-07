@@ -24,7 +24,7 @@ export const csVps_core = {
   'vps.list.context.location': 'Lokace',
   'vps.list.activity.busy': 'Probíhá úloha',
   'vps.list.resources.cpu': '{count} CPU',
-  'vps.list.resources.load': 'Zátěž {value}',
+  'vps.list.resources.load': 'Zátěž',
   'vps.layout.load_error.title': 'Nepodařilo se načíst VPS',
   'vps.layout.not_found.title': 'Nenalezeno',
   'vps.layout.not_found.body': 'Tato VPS neexistuje nebo k ní nemáš přístup.',

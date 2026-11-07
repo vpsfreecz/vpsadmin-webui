@@ -63,7 +63,7 @@ export interface VpsListRecord {
   locationLabel: string;
   ownerLabel: string;
   primaryIpLabel: string;
-  loadLabel: string;
+  loadLabel: string | undefined;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -227,7 +227,8 @@ export function primaryActionForVps(vps: Vps): VpsListPrimaryAction {
   return 'details';
 }
 
-export function loadValue(vps: Vps, t: VpsListTranslator): string {
+export function loadValue(vps: Vps, t: VpsListTranslator): string | undefined {
+  if (vps.is_running !== true) return undefined;
   if (typeof vps.loadavg1 === 'number') return String(vps.loadavg1);
   if (vps.loadavg1 !== undefined && vps.loadavg1 !== null && String(vps.loadavg1).trim()) return String(vps.loadavg1);
   return t('common.na');
@@ -257,8 +258,10 @@ export function buildVpsListRecord(args: {
   const restartGate = gateVpsAction('restart', { vps, busyLocal, busyTransaction: busyTx });
   const deleteGate = gateVpsMutation({ vps, busyLocal, busyTransaction: busyTx });
 
-  const { memUsed, memMax, diskUsed, diskMax } = vpsUsageValues(vps);
-  const { memoryRisk, diskRisk } = vpsUsageRisks(vps);
+  const { memUsed: measuredMemory, memMax, diskUsed, diskMax } = vpsUsageValues(vps);
+  const memUsed = vps.is_running === true ? measuredMemory : undefined;
+  const memoryRisk = usageRiskVariant(memUsed, memMax);
+  const diskRisk = usageRiskVariant(diskUsed, diskMax);
 
   const rowVariant = vpsRowVariant({
     runtimeVariant: runtimeBadge.variant,

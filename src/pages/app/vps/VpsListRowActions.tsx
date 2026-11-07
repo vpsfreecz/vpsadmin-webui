@@ -20,7 +20,7 @@ interface VpsListRowActionsProps {
 }
 
 // Contain hidden accessible labels within the table's horizontal scroller.
-const iconOnlyButtonClass = 'relative h-8 min-w-8 px-0';
+const iconOnlyButtonClass = 'relative h-8 w-8 min-w-8 px-0';
 const labeledButtonClass = 'min-h-11 px-3';
 const iconClass = 'h-4 w-4 shrink-0';
 
@@ -48,10 +48,10 @@ export function VpsListRowActions({
 
   return (
     <div
-      className={showLabels ? 'grid grid-cols-2 gap-2 sm:flex sm:flex-wrap' : 'flex flex-nowrap items-center justify-end gap-1.5 [@media(any-pointer:coarse)]:flex-wrap'}
+      className={showLabels ? 'grid grid-cols-2 gap-2 sm:grid-cols-3' : 'flex flex-nowrap items-center justify-end gap-1.5 [@media(any-pointer:coarse)]:flex-wrap'}
       data-row-no-nav
     >
-      {row.primaryAction === 'start' ? (
+      {row.primaryAction !== 'console' ? (
         <ActionButton
           variant="primary"
           size="sm"
@@ -64,10 +64,10 @@ export function VpsListRowActions({
           title={t('action.vps.start.label')}
           onClick={() => onStart(row)}
         >
-          <Play className={iconClass} aria-hidden="true" />
+          {row.inFlightKind !== 'start' ? <Play className={iconClass} aria-hidden="true" /> : null}
           <IconLabel visible={showLabels}>{t('action.vps.start.label')}</IconLabel>
         </ActionButton>
-      ) : row.primaryAction === 'console' ? (
+      ) : (
         <Button
           to={consolePath}
           variant="primary"
@@ -80,43 +80,39 @@ export function VpsListRowActions({
           <Terminal className={iconClass} aria-hidden="true" />
           <IconLabel visible={showLabels}>{t('vps.tabs.console')}</IconLabel>
         </Button>
-      ) : null}
+      )}
 
-      {row.vps.is_running === true ? (
-        <ActionButton
-          variant="secondary"
-          size="sm"
-          className={buttonClass}
-          testId={`${testIdPrefix}.action.restart`}
-          disabled={!row.restartGate.allowed}
-          disabledReason={!row.restartGate.allowed ? row.restartGate.reason : undefined}
-          loading={row.inFlightKind === 'restart'}
-          ariaLabel={t('vps.power.aria.restart')}
-          title={t('action.vps.restart.label')}
-          onClick={() => onRequestRestart(row)}
-        >
-          <RotateCw className={iconClass} aria-hidden="true" />
-          <IconLabel visible={showLabels}>{t('action.vps.restart.label')}</IconLabel>
-        </ActionButton>
-      ) : null}
+      <ActionButton
+        variant="secondary"
+        size="sm"
+        className={buttonClass}
+        testId={`${testIdPrefix}.action.restart`}
+        disabled={!row.restartGate.allowed}
+        disabledReason={!row.restartGate.allowed ? row.restartGate.reason : undefined}
+        loading={row.inFlightKind === 'restart'}
+        ariaLabel={t('vps.power.aria.restart')}
+        title={t('action.vps.restart.label')}
+        onClick={() => onRequestRestart(row)}
+      >
+        {row.inFlightKind !== 'restart' ? <RotateCw className={iconClass} aria-hidden="true" /> : null}
+        <IconLabel visible={showLabels}>{t('action.vps.restart.label')}</IconLabel>
+      </ActionButton>
 
-      {row.vps.is_running === true ? (
-        <ActionButton
-          variant="secondary"
-          size="sm"
-          className={buttonClass}
-          testId={`${testIdPrefix}.action.stop`}
-          disabled={!row.stopGate.allowed}
-          disabledReason={!row.stopGate.allowed ? row.stopGate.reason : undefined}
-          loading={row.inFlightKind === 'stop'}
-          ariaLabel={t('vps.power.aria.stop')}
-          title={t('action.vps.stop.label')}
-          onClick={() => onRequestStop(row)}
-        >
-          <Square className={iconClass} aria-hidden="true" />
-          <IconLabel visible={showLabels}>{t('action.vps.stop.label')}</IconLabel>
-        </ActionButton>
-      ) : null}
+      <ActionButton
+        variant="secondary"
+        size="sm"
+        className={buttonClass}
+        testId={`${testIdPrefix}.action.stop`}
+        disabled={!row.stopGate.allowed}
+        disabledReason={!row.stopGate.allowed ? row.stopGate.reason : undefined}
+        loading={row.inFlightKind === 'stop'}
+        ariaLabel={t('vps.power.aria.stop')}
+        title={t('action.vps.stop.label')}
+        onClick={() => onRequestStop(row)}
+      >
+        {row.inFlightKind !== 'stop' ? <Square className={iconClass} aria-hidden="true" /> : null}
+        <IconLabel visible={showLabels}>{t('action.vps.stop.label')}</IconLabel>
+      </ActionButton>
 
       <Button
         to={detailHref}
@@ -143,7 +139,7 @@ export function VpsListRowActions({
         title={t('action.vps.delete.label')}
         onClick={() => onRequestDelete(row)}
       >
-        <Trash2 className={iconClass} aria-hidden="true" />
+        {row.inFlightKind !== 'delete' ? <Trash2 className={iconClass} aria-hidden="true" /> : null}
         <IconLabel visible={showLabels}>{t('action.vps.delete.label')}</IconLabel>
       </ActionButton>
     </div>
