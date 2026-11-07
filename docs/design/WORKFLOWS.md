@@ -1003,3 +1003,12 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+## Contextual help placement (UX-05; REQ-053)
+
+The signed-in interface preferences and profile preferences offer Top and Bottom.
+The choice is remembered in this browser, independently of account synchronization;
+resetting interface preferences restores Top. This moves only contextual help in
+the authenticated shell, preserving its expanded state and page drafts. Page
+warnings and mutation errors remain with their controls. Console pages retain
+their existing help exemption. Public help retains its existing placement.

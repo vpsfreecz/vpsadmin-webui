@@ -26,7 +26,7 @@ vi.mock('../lib/api/haveapi', () => {
 });
 
 import { UiSettingsProvider, useUiSettings } from './uiSettings';
-import { DEFAULT_SETTINGS, STORAGE_KEY, toUiSettingsJson } from './uiSettingsModel';
+import { HELP_PLACEMENT_STORAGE_KEY, DEFAULT_SETTINGS, STORAGE_KEY, toUiSettingsJson } from './uiSettingsModel';
 
 function serverWindowConfig() {
   window.vpsAdmin = {
@@ -63,6 +63,10 @@ function Probe() {
 
   return (
     <div>
+      <div data-testid="help-placement">{ui.helpPlacement}</div>
+      <button type="button" onClick={() => ui.setHelpPlacement('bottom')}>
+        bottom help
+      </button>
       <div data-testid="theme">{ui.settings.theme}</div>
       <div data-testid="tip">{ui.settings.tips.sidebarTimeZone}</div>
       <div data-testid="status">{ui.sync.status}</div>
@@ -91,7 +95,7 @@ function renderProvider() {
   return render(
     <UiSettingsProvider>
       <Probe />
-    </UiSettingsProvider>,
+    </UiSettingsProvider>
   );
 }
 
@@ -114,13 +118,43 @@ function waitForDebounce() {
 }
 
 describe('UiSettingsProvider', () => {
+  it('persists help placement locally across remount and server loads without API writes', async () => {
+    haveApiCallMock.mockResolvedValue({ data: { value: toUiSettingsJson(DEFAULT_SETTINGS) } });
+    const first = renderProvider();
+    await waitForDebounce();
+    fireEvent.click(screen.getByText('bottom help'));
+    await waitForDebounce();
+    expect(screen.getByTestId('help-placement')).toHaveTextContent('bottom');
+    expect(window.localStorage.getItem(HELP_PLACEMENT_STORAGE_KEY)).toBe('bottom');
+    first.unmount();
+    renderProvider();
+    await waitForDebounce();
+    expect(screen.getByTestId('help-placement')).toHaveTextContent('bottom');
+    expect(haveApiCallMock.mock.calls.every(([opts]) => opts.method === 'GET')).toBe(true);
+    await act(async () => {
+      fireEvent.click(screen.getByText('reset keep tips'));
+    });
+    expect(screen.getByTestId('help-placement')).toHaveTextContent('top');
+    const writes = haveApiCallMock.mock.calls.filter(([opts]) => opts.method === 'PUT');
+    expect(writes).toHaveLength(1);
+    expect(JSON.parse(writes[0]?.[0].params.value)).not.toHaveProperty('helpPlacement');
+  });
+
+  it('defaults to top for unknown stored help positions', async () => {
+    window.localStorage.setItem(HELP_PLACEMENT_STORAGE_KEY, 'hidden');
+    haveApiCallMock.mockResolvedValue({ data: { value: toUiSettingsJson(DEFAULT_SETTINGS) } });
+    renderProvider();
+    await waitForDebounce();
+    expect(screen.getByTestId('help-placement')).toHaveTextContent('top');
+  });
+
   it('keeps local settings available when server load fails', async () => {
     window.localStorage.setItem(
       STORAGE_KEY,
       toUiSettingsJson({
         ...DEFAULT_SETTINGS,
         theme: 'dark',
-      }),
+      })
     );
     haveApiCallMock.mockRejectedValueOnce(new Error('load failed'));
 
@@ -225,7 +259,7 @@ describe('UiSettingsProvider', () => {
     const { rerender } = render(
       <UiSettingsProvider>
         <Probe />
-      </UiSettingsProvider>,
+      </UiSettingsProvider>
     );
 
     await waitFor(() => expect(screen.getByTestId('tip')).toHaveTextContent('visible'));
@@ -238,7 +272,7 @@ describe('UiSettingsProvider', () => {
     rerender(
       <UiSettingsProvider>
         <Probe />
-      </UiSettingsProvider>,
+      </UiSettingsProvider>
     );
 
     await waitForDebounce();
@@ -255,7 +289,7 @@ describe('UiSettingsProvider', () => {
     render(
       <UiSettingsProvider serverSyncEnabled={false}>
         <Probe />
-      </UiSettingsProvider>,
+      </UiSettingsProvider>
     );
 
     await waitForDebounce();
