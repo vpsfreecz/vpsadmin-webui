@@ -1956,3 +1956,7 @@ Implement approved DET-02 / REQ-023. See the [scope record](docs/work-log/2026-1
 ## 2026-11-07 — Separate RAM usage from OOM evidence
 
 Prepare approved VPS-12 / REQ-075. See the [scope record](docs/work-log/2026-11-07-todo-memory-semantics.md).
+
+## 2026-11-07 — Mount dataset picker
+
+Prepare approved STO-03 / REQ-023. See [scope](docs/work-log/2026-11-07-todo-mount-dataset-picker.md).

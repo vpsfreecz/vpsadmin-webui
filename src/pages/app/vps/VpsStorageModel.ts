@@ -157,7 +157,7 @@ export function datasetId(dataset: unknown): number | null {
 export function datasetLabel(dataset: unknown): string {
   if (!dataset) return '—';
   if (typeof dataset === 'string' || typeof dataset === 'number') return String(dataset);
-  return recordString(dataset, 'name') ?? recordString(dataset, 'full_name') ?? recordString(dataset, 'label') ?? (datasetId(dataset) ? `#${datasetId(dataset)}` : '—');
+  return recordString(dataset, 'full_name') ?? recordString(dataset, 'name') ?? recordString(dataset, 'label') ?? (datasetId(dataset) ? `#${datasetId(dataset)}` : '—');
 }
 
 export function defaultMountDraft(): MountDraft {

@@ -19,7 +19,8 @@ const vps = {
   uptime: 12345,
   loadavg1: 0.12,
   dataset: { id: 10, name: 'tank/data' },
-  node: { id: 1, domain_name: 'node1.example' },
+  node: { id: 1, domain_name: 'node1.example', hypervisor_type: 'vpsadminos' },
+  user: { id: 1, login: 'user' },
   os_template: { label: 'debian' },
   dns_resolver: 'inherit',
 };
@@ -227,7 +228,7 @@ test.describe('@smoke VPS storage tab mounts', () => {
         'GET ip_addresses': () => ({ ip_addresses: [] }),
         'GET transaction_chains': () => ({ transaction_chains: [] }),
         'GET vpses/123/mounts': () => ({ mounts }),
-        'GET datasets/find_by_name': () => ({ dataset }),
+        'GET datasets': () => ({ datasets: [{ ...dataset, id: 11, full_name: 'tank/data/child' }], _meta: { total_count: 1 } }),
         'POST vpses/123/mounts': () => {
           const created = {
             id: 2,
@@ -288,8 +289,9 @@ test.describe('@smoke VPS storage tab mounts', () => {
     await expect(page.getByTestId('vps.storage.mounts.create')).toBeVisible();
     await expect(page.getByTestId('vps.storage.mounts.create.master_enabled')).toHaveCount(0);
 
-    await page.getByTestId('vps.storage.mounts.create.dataset').fill('tank/data');
-    await page.getByTestId('vps.storage.mounts.create.find_dataset').click();
+    await page.getByTestId('vps.storage.dataset_picker.open').click();
+    await page.getByTestId('vps.storage.dataset_picker.candidate.11').click();
+    await page.getByTestId('vps.storage.dataset_picker.choose').click();
 
     await page.getByTestId('vps.storage.mounts.create.mountpoint').fill('/mnt/data');
 
@@ -302,9 +304,9 @@ test.describe('@smoke VPS storage tab mounts', () => {
     const req = await reqPromise;
     expect(req.postDataJSON()).toEqual({
       mount: {
-        dataset: 10,
+        dataset: 11,
         mountpoint: '/mnt/data',
-        type: 'nfs',
+        type: 'bind',
         mode: 'rw',
         on_start_fail: 'ignore',
         enabled: true,

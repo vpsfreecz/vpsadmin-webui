@@ -112,6 +112,7 @@
     "e2e/specs/app/vps_list_row_click.spec.ts",
     "e2e/specs/app/vps_maintenance_sunday.spec.ts",
     "e2e/specs/app/vps_memory_evidence.spec.ts",
+    "e2e/specs/app/vps_mount_dataset_picker.spec.ts",
     "e2e/specs/app/vps_network_editor_feedback.spec.ts",
     "e2e/specs/app/vps_overview_access_summary.spec.ts",
     "e2e/specs/app/vps_overview_all_ips.spec.ts",
