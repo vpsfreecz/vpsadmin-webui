@@ -23,3 +23,12 @@ OOM created_at/since, without pressure/cache inputs for this decision. API
 source inspection is not a new authorization audit. External KB workflow is
 unavailable; fixtures cannot certify its captures. Validation/deployment
 evidence follows after execution; this is not merge or production approval.
+
+The older focused-topic baseline lacked the date formatter's optional language
+argument. Add that backward-compatible parameter and a locale regression test
+here. The cumulative preview already has this API and does not receive another
+copy of the compatibility change. The first CI typecheck caught this baseline
+difference after the last language refinement; fresh topic CI is required.
+The focused baseline uses an inline hostname link rather than the cumulative
+preview's stretched link. Its mobile regression checks that the full hostname
+stays on one line, without requiring an arbitrary stretched-link width.

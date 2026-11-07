@@ -119,7 +119,7 @@ for (const [language, theme] of [
       expect(listQuery?.searchParams.get('oom_report[user]')).toBe(level === 99 ? '10' : null);
       if (testInfo.project.name.startsWith('mobile')) {
         const name = page.getByTestId(`${prefix}.124`).getByRole('link', { name: 'oom124.example', exact: true });
-        expect((await name.boundingBox())?.width).toBeGreaterThan(140);
+        expect((await name.boundingBox())?.height).toBeLessThan(28);
       }
       await expectNoDocumentHorizontalOverflow(page);
       await page
