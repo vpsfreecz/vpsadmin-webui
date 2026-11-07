@@ -23,6 +23,7 @@ import {
 
 interface TransactionItemsTableProps {
   rows: TransactionItemRow[];
+  initialExpandedId?: number;
   basePath: string;
   t: TransactionItemsTranslator;
   mode: 'app' | 'admin';
@@ -32,10 +33,10 @@ interface TransactionItemsTableProps {
   filterHrefArgs: Omit<TransactionItemsFilterHrefArgs, 'overrides'>;
 }
 
-export function TransactionItemsTable({ rows, basePath, t, mode, pagination, canNext, pageCursor, filterHrefArgs }: TransactionItemsTableProps) {
+export function TransactionItemsTable({ rows, basePath, t, mode, pagination, canNext, pageCursor, filterHrefArgs, initialExpandedId }: TransactionItemsTableProps) {
   const buildFilterHref = (overrides: TransactionItemsFilterHrefArgs['overrides']) => buildTransactionItemsFilterHref({ ...filterHrefArgs, overrides });
   const columnCount = useTransactionTableColumns(mode === 'admin' ? 1 : 0);
-  const [expandedIds, setExpandedIds] = useState<Set<number>>(() => new Set());
+  const [expandedIds, setExpandedIds] = useState(() => new Set(initialExpandedId === undefined ? [] : [initialExpandedId]));
   const toggle = (id: number) => setExpandedIds((previous) => {
     const next = new Set(previous);
     if (next.has(id)) next.delete(id);

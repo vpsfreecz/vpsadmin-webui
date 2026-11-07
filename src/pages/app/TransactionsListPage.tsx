@@ -117,6 +117,11 @@ function TransactionsListContent() {
   const filtersActive = Boolean(chainIdNum || nodeIdNum || typeNum || done || success !== '');
 
   const rows = useMemo(() => pageData.map((tx) => buildTransactionItemRow(tx, t)), [pageData, t]);
+  const initialContextStep = chainIdNum && !pagination.fromId
+    ? (rows.find((row) => row.rowVariant === 'danger' && row.id)?.id
+      ?? rows.find((row) => row.rowVariant === 'warn' && row.id)?.id
+      ?? rows.find((row) => row.id)?.id)
+    : undefined;
   const primaryLoading = txQuery.isLoading;
   const primaryError = txQuery.isError;
   const primaryErrorObj = txQuery.error;
@@ -446,6 +451,8 @@ function TransactionsListContent() {
         </>
       ) : (
         <TransactionItemsTable
+          key={chainIdNum}
+          initialExpandedId={initialContextStep}
           rows={rows}
           basePath={basePath}
           t={t}
