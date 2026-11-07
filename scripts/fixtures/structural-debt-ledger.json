@@ -192,10 +192,10 @@
       "path": "src/pages/app/admin/cluster/ResourcePackagesPage.tsx",
       "rule": "grown-over-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "cd2c1b15595e2be4507208c4c12ce5bcd9fbaad4239e497553612b17e59601d5",
+      "contentHash": "35cb89f78f203895647f991d89bce54b9c73504a30befd409b4a476a44bc00db",
       "old": 656,
       "allowance": 692,
-      "rationale": "At the recorded source revision, this file already contained resource package list and actions; extract the coherent section with focused behavior coverage before removing this exception. Centered-dialog follow-up (2026-10-17) changes only overlay presentation; existing extraction debt remains and the allowance does not increase. Reviewed generated-client migration: only the total-count helper import moves to apiErrors; behavior, casts and line allowance are unchanged.",
+      "rationale": "At the recorded source revision, this file already contained resource package list and actions; extract the coherent section with focused behavior coverage before removing this exception. Centered-dialog follow-up (2026-10-17) changes only overlay presentation; existing extraction debt remains and the allowance does not increase. Reviewed generated-client migration: only the total-count helper import moves to apiErrors; behavior, casts and line allowance are unchanged. Integrated UX-03 local FilterBar className/size changes preserve main API helper imports and existing line cap.",
       "owner": "WebUI collection and page refactor implementer",
       "removeWhen": {
         "metric": "lines",

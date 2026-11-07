@@ -583,14 +583,14 @@ export function AdminUserHistoryPage() {
   return (
     <div className="space-y-3">
       <FilterBar testId="admin.user.history.filters">
-        <div className="flex flex-wrap items-end gap-2">
-          <div>
+        <div className="flex w-full min-w-0 flex-wrap items-end gap-2 sm:w-auto sm:min-w-72 sm:flex-1">
+          <div className="w-full sm:w-auto">
             <div className="text-xs font-medium text-muted">{t('admin.user.history.view')}</div>
             <div className="mt-1 flex items-center gap-2">
               <Button
                 variant="secondary"
-                size="sm"
-                className={view === 'changes' ? 'border-accent/60 bg-surface-2' : undefined}
+                size="md"
+                className={['h-11 min-w-11', view === 'changes' ? 'border-accent/60 bg-surface-2' : undefined].filter(Boolean).join(' ')}
                 onClick={() => {
                   const next = new URLSearchParams(searchParams);
                   next.delete('view');
@@ -602,8 +602,8 @@ export function AdminUserHistoryPage() {
               </Button>
               <Button
                 variant="secondary"
-                size="sm"
-                className={view === 'actions' ? 'border-accent/60 bg-surface-2' : undefined}
+                size="md"
+                className={['h-11 min-w-11', view === 'actions' ? 'border-accent/60 bg-surface-2' : undefined].filter(Boolean).join(' ')}
                 onClick={() => {
                   const next = new URLSearchParams(searchParams);
                   next.set('view', 'actions');
@@ -616,7 +616,7 @@ export function AdminUserHistoryPage() {
             </div>
           </div>
 
-          <div className="min-w-0 flex-1">
+          <div className="w-full min-w-0 sm:min-w-48 sm:flex-1">
             <SmartFilterInput
               ref={smartInputRef}
               value={smart}
@@ -627,10 +627,10 @@ export function AdminUserHistoryPage() {
               suggestions={smartSuggestions}
               onSubmit={() => void applySmartText(smart)}
               suffix={
-                <Button
+                <Button className="h-11 min-w-11"
                   type="button"
                   variant="ghost"
-                  size="sm"
+                  size="md"
                   onClick={() => setHelpOpen(true)}
                   ariaLabel={t('filters.help.open')}
                   testId="admin.user.history.smart_filter.help_btn"
@@ -641,10 +641,10 @@ export function AdminUserHistoryPage() {
             />
           </div>
 
-          <Button
+          <Button className="h-11 min-w-11"
             type="button"
             variant="secondary"
-            size="sm"
+            size="md"
             onClick={() => setAdvancedOpen(true)}
             ariaLabel={t('filters.advanced.open')}
             testId="admin.user.history.filters.advanced"
@@ -652,13 +652,13 @@ export function AdminUserHistoryPage() {
             <SlidersHorizontal className="h-4 w-4" />
           </Button>
 
-          <Button as="a" href={openAuditHref} variant="secondary" size="sm" testId="admin.user.history.open_audit">
+          <Button className="h-11 min-w-11" as="a" href={openAuditHref} variant="secondary" size="md" testId="admin.user.history.open_audit">
             {t('admin.user.history.open_audit')}
           </Button>
 
-          <Button
+          <Button className="h-11 min-w-11"
             variant="secondary"
-            size="sm"
+            size="md"
             onClick={() => void qHistory.refetch()}
             disabled={qHistory.isFetching}
             testId="admin.user.history.refresh"
@@ -666,16 +666,16 @@ export function AdminUserHistoryPage() {
             {t('common.refresh')}
           </Button>
 
-          <CopyButton
+          <CopyButton className="h-11 min-w-11"
             text={shareUrl}
             label={t('common.copy_link')}
-            size="sm"
+            size="md"
             variant="secondary"
             testId="admin.user.history.copy_link"
           />
 
           {filtersActive ? (
-            <Button variant="secondary" size="sm" onClick={clearFilters} testId="admin.user.history.clear">
+            <Button className="h-11 min-w-11" variant="secondary" size="md" onClick={clearFilters} testId="admin.user.history.clear">
               {t('common.clear_filters')}
             </Button>
           ) : null}

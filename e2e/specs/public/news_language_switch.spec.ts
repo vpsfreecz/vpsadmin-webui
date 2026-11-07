@@ -11,7 +11,7 @@ for (const path of ['/', '/news']) {
       if (/webui_user_settings/.test(request.url())) privateCalls.push(request.url());
     });
     await installHaveApiMock(page, { handlers: {
-      'GET cluster/public_stats': () => ({ public_stats: { user_count: 0, vps_count: 0, ipv4_left: 10 } }),
+      'GET cluster/public_stats': () => ({ cluster: { user_count: 0, vps_count: 0, ipv4_left: 10 } }),
       'GET nodes/public_status': () => ({ nodes: [] }),
       'GET outages': () => ({ outages: [] }),
       'GET security_advisories': () => ({ security_advisories: [] }),

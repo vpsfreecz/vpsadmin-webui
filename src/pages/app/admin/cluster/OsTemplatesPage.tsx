@@ -333,10 +333,10 @@ export function OsTemplatesPage() {
 
       {removedFilters ? <Alert variant="neutral">{t('admin.cluster.os_templates.unsupported_filters_removed')}</Alert> : null}
       <FilterBar testId="admin.cluster.os_templates.filters">
-        <Button variant="secondary" onClick={() => setAdvancedOpen(true)} testId="admin.cluster.os_templates.advanced">{t('filters.advanced.label')}</Button>
-        <CopyButton text={shareUrl} label={t('common.copy_link')} testId="admin.cluster.os_templates.copy_link" />
-        {(osFamily || hypervisorType || cgroupVersion || enableScript || enableCloudInit) ? <Button variant="secondary" onClick={clearAllFilters} testId="admin.cluster.os_templates.filter.clear">{t('common.clear_filters')}</Button> : null}
-        <Button testId="admin.cluster.os_templates.create" variant="primary" onClick={openCreate}>{t('admin.cluster.os_templates.create.button')}</Button>
+        <Button className="h-11 min-w-11" variant="secondary" onClick={() => setAdvancedOpen(true)} testId="admin.cluster.os_templates.advanced">{t('filters.advanced.label')}</Button>
+        <CopyButton className="h-11 min-w-11" text={shareUrl} label={t('common.copy_link')} testId="admin.cluster.os_templates.copy_link" />
+        {(osFamily || hypervisorType || cgroupVersion || enableScript || enableCloudInit) ? <Button className="h-11 min-w-11" variant="secondary" onClick={clearAllFilters} testId="admin.cluster.os_templates.filter.clear">{t('common.clear_filters')}</Button> : null}
+        <Button className="h-11 min-w-11" testId="admin.cluster.os_templates.create" variant="primary" onClick={openCreate}>{t('admin.cluster.os_templates.create.button')}</Button>
       </FilterBar>
 
       <Modal showCloseButton closeTestId="drawer.close"

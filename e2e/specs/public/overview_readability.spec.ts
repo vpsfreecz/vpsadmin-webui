@@ -8,7 +8,7 @@ for (const language of ['cs', 'en'] as const) {
       await setUiSettingsLocalStorage(page, { language, theme });
       await bootstrapVpsAdminWindow(page, { sessionToken: '' });
       await installHaveApiMock(page, { handlers: {
-        'GET cluster/public_stats': () => ({ public_stats: { user_count: 123, vps_count: 456, ipv4_left: 200 } }),
+        'GET cluster/public_stats': () => ({ cluster: { user_count: 123, vps_count: 456, ipv4_left: 200 } }),
         'GET nodes/public_status': () => ({ nodes: [{
           name: 'node1', fqdn: 'node1.prg.example', type: 'node', maintenance_lock: 'no',
           status: true, location: { label: 'Praha' }, vps_count: 42, cpu_idle: 75, pool_state: 'online',
@@ -118,7 +118,7 @@ for (const surface of ['outages', 'advisories'] as const) {
     await setUiSettingsLocalStorage(page, { language: 'en', theme: 'light' });
     await bootstrapVpsAdminWindow(page, { sessionToken: '' });
     await installHaveApiMock(page, { handlers: {
-      'GET cluster/public_stats': () => ({ public_stats: { user_count: 12, vps_count: 34, ipv4_left: 200 } }),
+      'GET cluster/public_stats': () => ({ cluster: { user_count: 12, vps_count: 34, ipv4_left: 200 } }),
       'GET nodes/public_status': () => ({ nodes: [] }),
       'GET outages': () => surface === 'outages' ? jsonFulfill(failEnvelope('Unavailable'), 503) : ({ outages: [] }),
       'GET security_advisories': () => surface === 'advisories' ? jsonFulfill(failEnvelope('Unavailable'), 503) : ({ security_advisories: [] }),

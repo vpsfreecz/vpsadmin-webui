@@ -1316,3 +1316,11 @@ The filter toolbar uses matching 44px controls for search, help, visibility,
 ordering, advanced filters, refresh, copy and clear. Visibility, errors and
 text filtering remain local; server requests retain ordering and keyset scope.
 Clear retains order. No permission, cancellation or mutation contract changes.
+
+### Remaining list filter dimensions (UX-03, 2026-11-07)
+
+Keep each filter action at its local reference field height: smart searches
+44px, compact finance/template fields36px, coarse-pointer controls at least44px.
+The standalone DNS-resolver action group uses36px on desktop. Keep existing
+help/advanced dialogs, search tokens, owner/query scopes, refresh/copy/clear,
+view toggles and create actions. This does not change any DNS/API behavior.

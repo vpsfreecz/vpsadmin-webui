@@ -195,10 +195,10 @@ export function PaymentHistoryPage() {
               ariaInvalid={validationError}
               testId="admin.finance.history.filter.accounted_by"
             />
-            <Button type="submit" size="sm" testId="admin.finance.history.filter.apply">
+            <Button className="h-9 min-w-9" type="submit" size="md" testId="admin.finance.history.filter.apply">
               {t('common.search')}
             </Button>
-            <Button type="button" size="sm" variant="secondary" onClick={clearFilters} testId="admin.finance.history.filter.clear">
+            <Button className="h-9 min-w-9" type="button" size="md" variant="secondary" onClick={clearFilters} testId="admin.finance.history.filter.clear">
               {t('common.clear')}
             </Button>
           </FilterBar>

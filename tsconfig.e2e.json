@@ -122,6 +122,7 @@
     "e2e/specs/app/profile_session_transaction_filter.spec.ts",
     "e2e/specs/app/profile_user_data.spec.ts",
     "e2e/specs/app/profile_user_namespaces.spec.ts",
+    "e2e/specs/app/remaining_filter_rhythm.spec.ts",
     "e2e/specs/app/route_focus_navigation.spec.ts",
     "e2e/specs/app/search_scope_reminder.spec.ts",
     "e2e/specs/app/security_advisories_admin.spec.ts",

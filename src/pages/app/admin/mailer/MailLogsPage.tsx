@@ -205,8 +205,8 @@ function MailLogsPageContent() {
                 suffix={
                   <Button
                     variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 px-0"
+                    size="md"
+                    className="w-11 px-0 h-11 min-w-11"
                     onClick={() => setHelpOpen(true)}
                     aria-label={t('filters.help.open')}
                     title={t('filters.help.open')}
@@ -217,17 +217,17 @@ function MailLogsPageContent() {
               />
             </div>
 
-            <CopyButton
-              size="sm"
+            <CopyButton className="h-11 min-w-11"
+              size="md"
               variant="secondary"
               label={t('common.copy_link')}
               text={typeof window !== 'undefined' ? window.location.href : ''}
               testId="admin.mailer.log.copy_link"
             />
 
-            <Button
+            <Button className="h-11 min-w-11"
               variant="secondary"
-              size="sm"
+              size="md"
               onClick={() => void listQ.refetch()}
               disabled={listQ.isFetching}
               testId="admin.mailer.log.refresh"

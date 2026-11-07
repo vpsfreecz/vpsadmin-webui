@@ -46,3 +46,21 @@ startup is retained as harness evidence, not an API capability result.
 No newadmin production activation or shared main merge has occurred.
 The exact final source, test results, paired preview receipts, rollback and
 remaining release gates will be appended after verification.
+
+## Latest verified preview filter batch
+
+The concurrently authorized TODO worker verified and deployed clean
+`f41af18b1de10126149ebd5d17c0f0c0c5102247` on both previews while this
+integration was being prepared. The candidate preserves that history too.
+Its 22 runtime files are checked against the already integrated main: only
+JSX className/size attributes differ (excluding insignificant JSX whitespace).
+Conflicts on Environments/Locations/OS templates retain main's filter behavior;
+removed unsupported free-text and OS flags are not resurrected. The OS template
+browser case now exercises the supported Advanced dialog instead of a removed
+search-help control. Existing structural limits are retained and retired
+exceptions removed. The union checks 188 strict E2E leaves with 113 deferred.
+
+The first immutable browser snapshot also exposed old preview assertions for
+mount type/default-map and old public-stat response namespace. These are being
+aligned to the generated contract; original failures remain in the audit logs.
+No compiler setting, timeout or retry budget was relaxed.

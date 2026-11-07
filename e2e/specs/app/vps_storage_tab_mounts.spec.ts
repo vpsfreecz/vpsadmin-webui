@@ -154,8 +154,7 @@ test.describe('@smoke VPS storage tab mounts', () => {
     const childDataset = {
       ...dataset,
       id: 11,
-      name: 'storage-child',
-      full_name: 'tank/data/storage-child',
+      name: 'tank/data/storage-child',
       parent: { id: 10 },
       used: 0,
       referenced: 0,

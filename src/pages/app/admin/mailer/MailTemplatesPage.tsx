@@ -288,9 +288,9 @@ export function MailTemplatesPage() {
                 testId="admin.mailer.templates.search.input"
               />
             </div>
-            <Button
+            <Button className="h-9 min-w-9"
               variant="secondary"
-              size="sm"
+              size="md"
               onClick={() => setAdvancedOpen(true)}
               aria-label={t('filters.advanced.open')}
               title={t('filters.advanced.open')}
@@ -299,15 +299,15 @@ export function MailTemplatesPage() {
               <SlidersHorizontal className="h-4 w-4" aria-hidden />
               <span className="ml-2 hidden sm:inline">{t('filters.advanced.label')}</span>
             </Button>
-            <CopyButton
-              size="sm"
+            <CopyButton className="h-9 min-w-9"
+              size="md"
               variant="secondary"
               label={t('common.copy_link')}
               text={typeof window !== 'undefined' ? window.location.href : ''}
               testId="admin.mailer.templates.copy_link"
             />
             {filtersActive ? (
-              <Button variant="secondary" size="sm" onClick={clearFilters} testId="admin.mailer.templates.filter.clear">
+              <Button className="h-9 min-w-9" variant="secondary" size="md" onClick={clearFilters} testId="admin.mailer.templates.filter.clear">
                 {t('common.clear_filters')}
               </Button>
             ) : null}
