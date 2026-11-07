@@ -1003,3 +1003,15 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+## Interpret VPS memory utilization
+
+Report allocated and measured memory neutrally. Used memory alone does not
+measure available memory, cache or pressure and never proves an OOM. Keep disk
+capacity and failed-operation warnings. Show a recent documented OOM with its
+creation time and a direct report link, not an inferred current pressure state.
+Fetch at most 100 OOM reports created in the last 24 hours for the list, with
+admin owner/My-view scope when applicable, and one for an individual VPS. Only
+match valid report/VPS IDs and timestamps; expire cached events every minute
+even if refresh fails. An empty, failed or bounded query is not a healthy-state
+assertion. This changes neither API permissions nor report retention.

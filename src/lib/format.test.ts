@@ -46,13 +46,19 @@ describe('formatDateInTimeZone', () => {
 });
 
 describe('formatDateTimeInTimeZone', () => {
+  it('uses the chosen UI language for event dates without changing the account zone', () => {
+    const value = '2026-11-07T12:00:00Z';
+    expect(formatDateTimeInTimeZone(value, 'Europe/Prague', 'cs')).toContain('7. 11. 2026');
+    expect(formatDateTimeInTimeZone(value, 'Europe/Prague', 'en')).toContain('11/7/2026');
+  });
+
   it('formats the same instant in the selected time zone', () => {
     const value = '2026-09-20T01:02:03.000Z';
     expect(formatDateTimeInTimeZone(value, 'Europe/Prague')).toBe(
-      new Date(value).toLocaleString(undefined, { timeZone: 'Europe/Prague' }),
+      new Date(value).toLocaleString(undefined, { timeZone: 'Europe/Prague' })
     );
     expect(formatDateTimeInTimeZone(value, 'America/Los_Angeles')).toBe(
-      new Date(value).toLocaleString(undefined, { timeZone: 'America/Los_Angeles' }),
+      new Date(value).toLocaleString(undefined, { timeZone: 'America/Los_Angeles' })
     );
   });
 
@@ -61,7 +67,7 @@ describe('formatDateTimeInTimeZone', () => {
     expect(formatDateTimeInTimeZone(null, 'UTC')).toBe('—');
     expect(formatDateTimeInTimeZone('invalid', 'UTC')).toBe('invalid');
     expect(formatDateTimeInTimeZone(value, 'not-a-zone')).toBe(
-      new Date(value).toLocaleString(undefined, { timeZone: 'UTC' }),
+      new Date(value).toLocaleString(undefined, { timeZone: 'UTC' })
     );
   });
 });

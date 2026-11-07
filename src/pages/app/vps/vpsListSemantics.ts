@@ -1,3 +1,4 @@
+import type { OomReport } from '../../../lib/api/oom';
 import type { TransactionChain } from '../../../lib/api/transactions';
 import type { Vps } from '../../../lib/api/vps';
 import type { TransactionLockIndex } from '../../../lib/lockIndex';
@@ -50,11 +51,11 @@ export interface VpsListRecord {
   inFlightKind?: 'start' | 'stop' | 'restart' | 'delete';
   recentFailureChainIds: number[];
   latestRecentFailure: TransactionChain | undefined;
+  latestRecentOom: OomReport | undefined;
   memUsed: number | undefined;
   memMax: number | undefined;
   diskUsed: number | undefined;
   diskMax: number | undefined;
-  memoryRisk: RiskVariant;
   diskRisk: RiskVariant;
   rowVariant: TableRowVariant | undefined;
   dotVariant: StatusDotVariant;
@@ -101,7 +102,7 @@ export function usageRiskVariant(used: number | undefined, max: number | undefin
 }
 
 function vpsUsageValues(vps: Vps) {
-  const usage = (value: unknown) => (typeof value === 'number' ? value : undefined);
+  const usage = (value: unknown) => (typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : undefined);
   return {
     memUsed: usage(vps.used_memory),
     memMax: usage(vps.memory),
@@ -110,9 +111,9 @@ function vpsUsageValues(vps: Vps) {
   };
 }
 
-export function vpsUsageRisks(vps: Vps): { memoryRisk: RiskVariant; diskRisk: RiskVariant } {
-  const { memUsed, memMax, diskUsed, diskMax } = vpsUsageValues(vps);
-  return { memoryRisk: usageRiskVariant(memUsed, memMax), diskRisk: usageRiskVariant(diskUsed, diskMax) };
+export function vpsUsageRisks(vps: Vps): { diskRisk: RiskVariant } {
+  const { diskUsed, diskMax } = vpsUsageValues(vps);
+  return { diskRisk: usageRiskVariant(diskUsed, diskMax) };
 }
 
 export function vpsRowVariant(args: {
@@ -121,23 +122,22 @@ export function vpsRowVariant(args: {
   busyTx: boolean;
   busyLocal: boolean;
   recentFailure: boolean;
-  memoryRisk: RiskVariant;
+  recentOom?: boolean;
   diskRisk: RiskVariant;
 }): TableRowVariant | undefined {
   if (
     args.objectVariant === 'danger' ||
     args.runtimeVariant === 'danger' ||
     args.recentFailure ||
-    args.memoryRisk === 'danger' ||
     args.diskRisk === 'danger'
   ) {
     return 'danger';
   }
   if (
     args.objectVariant === 'warn' ||
+    args.recentOom ||
     args.busyTx ||
     args.busyLocal ||
-    args.memoryRisk === 'warn' ||
     args.diskRisk === 'warn'
   ) {
     return 'warn';
@@ -237,6 +237,7 @@ export function buildVpsListRecord(args: {
   vps: Vps;
   lockIndex: TransactionLockIndex;
   recentFailures?: RecentVpsFailures;
+  recentOoms?: ReadonlyMap<number, OomReport>;
   isLocallyLocked: (id: number) => boolean;
   inFlightKind?: 'start' | 'stop' | 'restart' | 'delete';
   t: VpsListTranslator;
@@ -258,7 +259,7 @@ export function buildVpsListRecord(args: {
   const deleteGate = gateVpsMutation({ vps, busyLocal, busyTransaction: busyTx });
 
   const { memUsed, memMax, diskUsed, diskMax } = vpsUsageValues(vps);
-  const { memoryRisk, diskRisk } = vpsUsageRisks(vps);
+  const { diskRisk } = vpsUsageRisks(vps);
 
   const rowVariant = vpsRowVariant({
     runtimeVariant: runtimeBadge.variant,
@@ -266,7 +267,7 @@ export function buildVpsListRecord(args: {
     busyTx,
     busyLocal,
     recentFailure: recentFailureChainIds.length > 0,
-    memoryRisk,
+    recentOom: args.recentOoms?.has(vps.id),
     diskRisk,
   });
 
@@ -291,11 +292,11 @@ export function buildVpsListRecord(args: {
     inFlightKind,
     recentFailureChainIds,
     latestRecentFailure: recentFailureChains[0],
+    latestRecentOom: args.recentOoms?.get(vps.id),
     memUsed,
     memMax,
     diskUsed,
     diskMax,
-    memoryRisk,
     diskRisk,
     rowVariant,
     dotVariant,
