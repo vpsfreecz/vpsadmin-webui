@@ -850,6 +850,10 @@ blind retry. [Finance](../../src/lib/api/finance.ts),
 
 ## Tasks, transactions, monitoring, incidents and OOM
 
+The transaction chain search, help, advanced filters, copy-link and clear
+actions form one aligned control row. Filtering preserves the URL and active
+chips, and help and advanced controls open their existing dialogs.
+
 The member VPS overview requests the latest three OOM reports for that VPS.
 Each row links to the report and shows when it was created. Past events remain
 historical. Loading, no reports and failed requests have distinct states.

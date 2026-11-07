@@ -130,6 +130,10 @@ person. See [decision history](DECISIONS.md) for the superseded side layout.
 
 ## Lists, forms, errors and asynchronous work
 
+The transaction chain filter row uses 44px search and action controls. The
+embedded help action shares that height and keeps a visible keyboard focus
+indicator. Active filters stay below the controls.
+
 Lists retain filters, current scope and meaningful pagination in URLs. Page numbers
 represent known cursor history; they do not imply arbitrary page access or a total
 that the API does not provide. Search scope must be honest: filtering the loaded

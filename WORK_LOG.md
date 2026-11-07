@@ -1,3 +1,7 @@
+## 2026-11-07 — Transaction chain filter alignment
+
+[Scope and verification](docs/work-log/2026-11-07-todo-transaction-filter-rhythm.md).
+
 ## 2026-11-07 — VPS history charts
 
 [Scope](docs/work-log/2026-11-07-todo-vps-history-charts.md).
