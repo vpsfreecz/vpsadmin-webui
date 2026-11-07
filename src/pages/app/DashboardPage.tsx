@@ -166,10 +166,11 @@ export function DashboardPage() {
     ? t("dashboard.signed_in_as", { login: auth.user.login, role: auth.role })
     : t("dashboard.signed_in");
 
-  const outagesListPath = mode === "admin" ? `${basePath}/outages` : "/outages";
-  const outageDetailPath = (id: number) => (mode === "admin" ? `${basePath}/outages/${id}` : `/outages/${id}`);
+  const outagesListPath = `${basePath}/outages`;
+  const outageDetailPath = (id: number) => `${basePath}/outages/${id}`;
   const newsManagementPath = mode === "admin" && auth.role === "admin" ? `${basePath}/content/news` : undefined;
-  const securityBasePath = mode === "admin" ? `${basePath}/security-advisories` : "/security-advisories";
+  const securityBasePath = mode === "admin" && auth.role !== "admin"
+    ? `${basePath}/status/security-advisories` : `${basePath}/security-advisories`;
 
   const statusAlert = DashboardOperationalSummary({
     t,

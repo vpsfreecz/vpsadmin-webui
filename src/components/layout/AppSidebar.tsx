@@ -181,14 +181,15 @@ export function buildSidebarNavItems(opts: {
   items.push(
     {
       id: 'outages',
-      to: appMode === 'admin' ? `${basePath}/outages` : '/outages',
+      to: `${basePath}/outages`,
       label: t('nav.outages'),
       icon: <Activity size={18} />,
       status: true,
     },
     {
       id: 'security-advisories',
-      to: appMode === 'admin' && role === 'admin' ? `${basePath}/security-advisories` : '/security-advisories',
+      to: appMode === 'admin' && role !== 'admin'
+        ? `${basePath}/status/security-advisories` : `${basePath}/security-advisories`,
       label: t('nav.security_advisories'),
       icon: <ShieldAlert size={18} />,
       status: true,
@@ -208,10 +209,11 @@ function NavigationLink(props: {
   onClick?: () => void;
 }) {
   const { item, surface, compact = false, onClick } = props;
+  const readingStatus = useMatch('/admin/status/:statusPage/*');
   const isActive = Boolean(useMatch({
     path: item.activePathPrefix ?? item.to,
     end: isExactNavItem(item),
-  }));
+  })) || Boolean(item.status && readingStatus?.params['statusPage'] === item.id);
 
   return (
     <Link

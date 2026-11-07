@@ -1,3 +1,7 @@
+## 2026-11-07 — Keep signed-in status pages inside the application
+
+[Behavior, scope and verification](docs/work-log/2026-11-07-authenticated-status-pages.md).
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path

@@ -146,11 +146,15 @@ function PublicLayoutInner() {
 
   useEffect(() => {
     if (!isLoggedIn) return;
+    if (/^\/(outages|security-advisories)(?:\/[^/]+)?\/?$/.test(location.pathname)) {
+      navigate({ pathname: `/app${location.pathname}`, search: location.search, hash: location.hash }, { replace: true });
+      return;
+    }
     if (location.pathname !== '/') return;
     if (new URLSearchParams(location.search).get('session') === 'expired') return;
 
     navigate('/app', { replace: true });
-  }, [isLoggedIn, location.pathname, location.search, navigate]);
+  }, [isLoggedIn, location.pathname, location.search, location.hash, navigate]);
 
   return (
     <div className="min-h-screen flex flex-col">

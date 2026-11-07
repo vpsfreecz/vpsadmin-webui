@@ -1,3 +1,4 @@
+import { useStatusPagePath } from '../../components/layout/useStatusPagePath';
 import React, { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
@@ -85,6 +86,7 @@ function outageInfo(
 }
 
 export function SecurityAdvisoryDetailPage() {
+  const statusPath = useStatusPagePath();
   const i18n = useI18n();
   const auth = useAuth();
   const params = useParams();
@@ -203,7 +205,7 @@ export function SecurityAdvisoryDetailPage() {
   return (
     <div className="space-y-6" data-testid="public.security_advisory_detail.page">
       <div className="space-y-3">
-        <Link className="text-sm text-accent hover:underline" to="/security-advisories">
+        <Link className="text-sm text-accent hover:underline" to={statusPath('/security-advisories')}>
           ← {i18n.t('public.security_advisory_detail.back')}
         </Link>
         <div className="flex flex-wrap items-start justify-between gap-3">
@@ -459,7 +461,7 @@ export function SecurityAdvisoryDetailPage() {
                   <Link
                     key={link.id}
                     className="block rounded-lg border border-border bg-surface-2 p-3 text-sm font-medium text-accent hover:underline"
-                    to={`/outages/${outage.id}`}
+                    to={statusPath(`/outages/${outage.id}`)}
                   >
                     {outage.label} →
                   </Link>
