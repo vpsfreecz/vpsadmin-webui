@@ -1,3 +1,7 @@
+## 2026-11-07 — NAS and dataset filter dimensions
+
+[Scope and verification](docs/work-log/2026-11-07-todo-dataset-filter-rhythm.md).
+
 ## 2026-11-07 — Individual transaction filter alignment
 
 [Scope and verification](docs/work-log/2026-11-07-todo-transaction-item-filter-rhythm.md).
