@@ -157,7 +157,6 @@ export const csVps_overview = {
   'vps.control.health.unknown.title': 'Stav VPS není dostupný',
   'vps.control.health.unknown.body': 'Runtime stav se nepodařilo určit. Zkus data obnovit nebo otevři úlohy.',
   'vps.control.resources.title': 'Zdroje',
-  'vps.control.resources.subtitle': 'Přidělená kapacita a aktuální vytížení VPS.',
   'vps.control.resources.edit': 'Upravit zdroje',
   'vps.control.resources.cpu': 'CPU',
   'vps.control.resources.memory': 'Paměť',

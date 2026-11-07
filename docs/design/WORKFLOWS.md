@@ -151,6 +151,9 @@ anonymous; existing global locale invalidation/refetch behavior is unchanged.
 
 ## VPS creation, detail and power
 
+VPS detail groups identity, ID and state. The title and commands can wrap
+while the primary action stays within the viewport.
+
 VPS cards and rows keep the same action order across runtime states. Start
 and console share the primary slot. Inactive power controls expose the existing
 gate reason. The resource grid aligns CPU, load, RAM and disk. Stopped VPSs
@@ -230,6 +233,10 @@ The single-VPS API does not support the migration-plan `stop_on_error` option.
 See the [parity audit](../work-log/2026-10-03-migration-feedback.md).
 
 ## Compute, disk, access, network and maintenance
+
+The VPS resources card uses its heading and edit link. The focused form
+opens with its heading and fields. Live-change and separate-save guidance
+is inside the performance section, with quota and review near the actions.
 
 The VPS overview network card displays every address returned by the VPS address
 query, in API order, with its prefix, scope badge and copy action. It does not

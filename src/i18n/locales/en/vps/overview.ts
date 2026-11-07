@@ -157,7 +157,6 @@ export const enVps_overview = {
   'vps.control.health.unknown.title': 'VPS state is unavailable',
   'vps.control.health.unknown.body': 'The runtime state could not be determined. Refresh the data or open Tasks.',
   'vps.control.resources.title': 'Resources',
-  'vps.control.resources.subtitle': 'Provisioned capacity and current VPS utilization.',
   'vps.control.resources.edit': 'Edit resources',
   'vps.control.resources.cpu': 'CPU',
   'vps.control.resources.memory': 'Memory',
