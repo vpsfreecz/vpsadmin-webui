@@ -6,6 +6,7 @@ import { formatErrorMessage } from '../../lib/errors';
 import { useClippedPopover } from '../../lib/hooks/useClippedPopover';
 import { Button } from '../ui/Button';
 import { clsx } from '../ui/clsx';
+import { PreferenceSelector, segmentedButtonClass } from './HeaderPreferenceSelector';
 import type { AppHeaderProps } from './AppHeaderTypes';
 
 export function AppSyncPopover(props: Pick<AppHeaderProps,
@@ -62,11 +63,11 @@ export function AppSyncPopover(props: Pick<AppHeaderProps,
 
 export function AppUserMenu(props: Pick<AppHeaderProps,
   't' | 'mode' | 'canSwitchMode' | 'userMenuRef' | 'userMenuOpen' | 'setUserMenuOpen' | 'authLogin' | 'authRole' |
-  'onNavigate' | 'sessionExpiresAt' | 'theme' | 'language' | 'onSetTheme' | 'onSetLanguage' | 'onGoToOtherMode' | 'onGoToProfile' | 'onGoToPublicStatus' | 'loginLogoutHref'
+  'helpPlacement' | 'onSetHelpPlacement' | 'onNavigate' | 'sessionExpiresAt' | 'theme' | 'language' | 'onSetTheme' | 'onSetLanguage' | 'onGoToOtherMode' | 'onGoToProfile' | 'onGoToPublicStatus' | 'loginLogoutHref'
 > & { sessionIdleLimitSeconds: number | null }) {
   const {
     t, mode, canSwitchMode, userMenuRef, userMenuOpen, setUserMenuOpen, authLogin, authRole,
-    onNavigate, sessionExpiresAt, sessionIdleLimitSeconds, theme, language, onSetTheme, onSetLanguage,
+    helpPlacement, onSetHelpPlacement, onNavigate, sessionExpiresAt, sessionIdleLimitSeconds, theme, language, onSetTheme, onSetLanguage,
     onGoToOtherMode, onGoToProfile, onGoToPublicStatus, loginLogoutHref,
   } = props;
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -165,8 +166,22 @@ export function AppUserMenu(props: Pick<AppHeaderProps,
             </div>
           ) : null}
 
-          <PreferenceSelector
-            label={t('settings.theme.label')}
+            {onSetHelpPlacement ? (
+              <PreferenceSelector
+                label={t('settings.help_placement.label')}
+                options={[
+                  { id: 'top', label: t('settings.help_placement.top') },
+                  { id: 'bottom', label: t('settings.help_placement.bottom') },
+                ]}
+                selected={helpPlacement ?? 'top'}
+                testIdPrefix="shell.interface-preferences.help-placement"
+                onSelect={(value) => {
+                  if (value === 'top' || value === 'bottom') onSetHelpPlacement(value);
+                }}
+              />
+            ) : null}
+            <PreferenceSelector
+              label={t('settings.theme.label')}
             options={[
               { id: 'system', label: t('settings.theme.system') },
               { id: 'light', label: t('settings.theme.light') },
@@ -215,33 +230,6 @@ export function AppUserMenu(props: Pick<AppHeaderProps,
   );
 }
 
-function PreferenceSelector(props: {
-  label: string;
-  options: Array<{ id: string; label: string; title?: string }>;
-  selected: string;
-  testIdPrefix: string;
-  onSelect: (value: string) => void;
-}) {
-  return (
-    <div className="mt-2 border-t border-border px-2 pt-2">
-      <div className="text-xs text-muted">{props.label}</div>
-      <div className="mt-1 grid grid-cols-3 gap-2">
-        {props.options.map((option) => (
-          <button
-            key={option.id}
-            type="button"
-            data-testid={`${props.testIdPrefix}.${option.id}`}
-            title={option.title}
-            className={segmentedButtonClass(option.id === props.selected)}
-            onClick={() => props.onSelect(option.id)}
-          >
-            {option.label}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 function UserMenuButton(props: {
   children: React.ReactNode;
@@ -262,13 +250,6 @@ function UserMenuButton(props: {
   );
 }
 
-function segmentedButtonClass(active: boolean) {
-  return clsx(
-    'inline-flex min-h-8 w-full min-w-0 items-center justify-center rounded-md border px-2 py-1 text-center text-xs font-medium leading-tight transition-colors',
-    'focus:outline-none focus:ring-2 focus:ring-focus/35 focus:ring-offset-2 focus:ring-offset-bg',
-    active ? 'border-accent bg-accent text-accent-fg hover:bg-accent-hover' : 'border-border bg-surface text-fg hover:bg-surface-2'
-  );
-}
 
 function formatSessionRemaining(t: AppHeaderProps['t'], expiresAt: number, now: number): string {
   const remainingMs = expiresAt - now;
