@@ -106,18 +106,17 @@ describe('vpsListSemantics', () => {
     expect(recordFor({ ...baseVps, uptime: 3600, is_running: undefined }).uptimeLabel).toBe('—');
   });
 
-  it('flags memory and disk from 90 % and as danger from 98 %, ignoring non-numeric values', () => {
+  it('keeps memory usage neutral and preserves disk thresholds', () => {
     expect(vpsUsageRisks({ ...baseVps, memory: 1000, used_memory: 899, diskspace: 1000, used_diskspace: 900 }))
-      .toEqual({ memoryRisk: undefined, diskRisk: 'warn' });
+      .toEqual({ diskRisk: 'warn' });
     expect(vpsUsageRisks({ ...baseVps, memory: 1000, used_memory: 980, diskspace: 0, used_diskspace: 10 }))
-      .toEqual({ memoryRisk: 'danger', diskRisk: undefined });
+      .toEqual({ diskRisk: undefined });
     expect(vpsUsageRisks({ ...baseVps, memory: '1000' as unknown as number, used_memory: 990 }))
-      .toEqual({ memoryRisk: undefined, diskRisk: undefined });
+      .toEqual({ diskRisk: undefined });
 
     const row = recordFor({ ...baseVps, memory: 1000, used_memory: 950 });
-    expect(row.memoryRisk).toBe('warn');
-    expect(row.rowVariant).toBe('warn');
-    expect(row.dotVariant).toBe('warn');
+    expect(row.rowVariant).toBeUndefined();
+    expect(row.dotVariant).toBe('ok');
   });
 
   it('ignores failures older than the recent window', () => {

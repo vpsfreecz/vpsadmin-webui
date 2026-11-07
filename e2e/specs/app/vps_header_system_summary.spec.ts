@@ -119,9 +119,7 @@ test('@smoke @smoke-mobile VPS detail header shows the same usage badges as the 
 
   const listPrefix = testInfo.project.name.startsWith('mobile') ? 'vps.card' : 'vps.row';
   const expectUsageBadges = async (prefix: string) => {
-    await expect(page.getByTestId(`${prefix}.ram_high`)).toBeVisible();
-    await expect(page.getByTestId(`${prefix}.ram_high`)).toHaveText('RAM high');
-    await expect(page.getByTestId(`${prefix}.ram_high`)).toHaveClass(/text-warn/);
+    await expect(page.getByTestId(`${prefix}.ram_high`)).toHaveCount(0);
     await expect(page.getByTestId(`${prefix}.disk_high`)).toBeVisible();
     await expect(page.getByTestId(`${prefix}.disk_high`)).toHaveText('Disk high');
     await expect(page.getByTestId(`${prefix}.disk_high`)).toHaveClass(/text-danger/);

@@ -21,6 +21,8 @@ export function UsageBar(props: {
   /** Backward-compatible simple unit suffix used by older call sites. */
   unit?: string;
   layout?: UsageBarLayout;
+  /** Disable ratio-based warning colors when utilization does not prove pressure. */
+  severity?: 'ratio' | 'none';
   /**
    * When layout="row", these control consistent column widths.
    * Defaults are chosen to match existing dense list usage.
@@ -46,7 +48,7 @@ export function UsageBar(props: {
   const valid = max !== undefined && max > 0;
   const ratio = valid ? used / max : 0;
   const free = valid ? Math.max(0, max - used) : 0;
-  const variant = usageSeverityFromRatio(ratio);
+  const variant = props.severity === 'none' ? 'accent' : usageSeverityFromRatio(ratio);
 
   // Default aria label should not add English-only suffixes.
   // If the label is a string, it is usually descriptive enough for screen readers.

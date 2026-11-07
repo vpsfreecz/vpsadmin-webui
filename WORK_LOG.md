@@ -1952,3 +1952,7 @@ Implement approved UX-05 / REQ-053. See the [scope record](docs/work-log/2026-11
 ## 2026-11-07 — Expose the existing VPS action index
 
 Implement approved DET-02 / REQ-023. See the [scope record](docs/work-log/2026-11-07-todo-vps-all-actions.md).
+
+## 2026-11-07 — Separate RAM usage from OOM evidence
+
+Prepare approved VPS-12 / REQ-075. See the [scope record](docs/work-log/2026-11-07-todo-memory-semantics.md).

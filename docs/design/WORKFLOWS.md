@@ -1169,3 +1169,15 @@ the existing user/admin groups, available to browser Find. The shortcut keeps
 the same member/list context and permission gate as the index. Selecting an
 index entry only opens its existing form; existing confirmation and mutation
 guards remain authoritative. Read-only support in the admin view has no shortcut.
+
+## Interpret VPS memory utilization
+
+Report allocated and measured memory neutrally. Used memory alone does not
+measure available memory, cache or pressure and never proves an OOM. Keep disk
+capacity and failed-operation warnings. Show a recent documented OOM with its
+creation time and a direct report link, not an inferred current pressure state.
+Fetch at most 100 OOM reports created in the last 24 hours for the list, with
+admin owner/My-view scope when applicable, and one for an individual VPS. Only
+match valid report/VPS IDs and timestamps; expire cached events every minute
+even if refresh fails. An empty, failed or bounded query is not a healthy-state
+assertion. This changes neither API permissions nor report retention.

@@ -98,6 +98,7 @@ export default defineConfig({
         '**/nodes_overview_maintenance.spec.ts',
         '**/vps_header_ssh_mobile_layout.spec.ts',
         '**/vps_header_system_summary.spec.ts',
+        '**/vps_memory_evidence.spec.ts',
         '**/vps_overview_access_summary.spec.ts',
         '**/mobile_touch_interactions.spec.ts',
         '**/mobile_lookup_popover.spec.ts',

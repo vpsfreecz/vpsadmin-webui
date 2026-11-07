@@ -63,20 +63,20 @@ export function ManagementActionLink({ action }: { action: ManagementAction }) {
   );
 }
 
-function UsageMetric(props: { label: string; used: unknown; max: unknown; testId?: string }) {
-  const used = usageValue(props.used);
+function UsageMetric(props: { label: string; used: unknown; max: unknown; testId?: string; severity?: 'none' }) {
+  const used = typeof props.used === 'number' && props.used >= 0 ? usageValue(props.used) : undefined;
   const max = usageValue(props.max);
 
   if (used == null || max == null || max <= 0) {
     return (
       <div className="flex items-center justify-between gap-3" data-testid={props.testId}>
         <div className="text-sm text-faint">{props.label}</div>
-        <div className="text-sm text-muted">—</div>
+        <div className="text-sm text-muted">{max != null && max > 0 ? formatMiB(max) : '—'}</div>
       </div>
     );
   }
 
-  return <UsageBar testId={props.testId} label={props.label} used={used} max={max} formatValue={formatMiB} />;
+  return <UsageBar severity={props.severity} testId={props.testId} label={props.label} used={used} max={max} formatValue={formatMiB} />;
 }
 
 export function OverviewStatusAccessCard(props: {
@@ -250,6 +250,7 @@ export function OverviewResourceUsageCard(props: {
               <div className="space-y-4">
                 <UsageMetric
                   testId="vps.overview.usage.memory"
+                  severity="none"
                   label={t('vps.overview.usage.memory_used')}
                   used={props.vps.used_memory}
                   max={props.vps.memory}

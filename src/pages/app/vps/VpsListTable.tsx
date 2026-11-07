@@ -14,6 +14,7 @@ import { VpsListResources } from './VpsListResources';
 import { VpsListRowActions } from './VpsListRowActions';
 import { VpsUsageRiskBadges } from './VpsUsageRiskBadges';
 import { VpsRecentFailureBadge } from './VpsRecentFailureBadge';
+import { VpsRecentOomBadge } from './VpsRecentOomBadge';
 import type { VpsListRecord, VpsListTranslator } from './vpsListSemantics';
 
 interface VpsListTableProps {
@@ -121,11 +122,13 @@ export function VpsListTable({
                   <Badge variant={row.runtimeBadge.variant}>{row.runtimeBadge.label}</Badge>
                   <Badge variant={row.objectBadge.variant}>{row.objectBadge.label}</Badge>
                   <VpsUsageRiskBadges
-                    memoryRisk={row.memoryRisk}
                     diskRisk={row.diskRisk}
                     t={t}
                     testIdPrefix={`vps.row.${vps.id}`}
                   />
+                  {row.latestRecentOom ? (
+                    <VpsRecentOomBadge report={row.latestRecentOom} basePath={basePath} testId={`vps.row.${vps.id}.recent_oom`} />
+                  ) : null}
                   {row.latestRecentFailure ? (
                     <VpsRecentFailureBadge
                       chain={row.latestRecentFailure}

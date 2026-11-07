@@ -30,6 +30,7 @@ export function VpsListResources({ row, t }: { row: VpsListRecord; t: VpsListTra
                 rowLabelClassName="hidden"
                 rowValueClassName="w-auto whitespace-nowrap"
                 ariaLabel={label}
+                severity={key === 'ram' ? 'none' : 'ratio'}
                 used={used}
                 max={max}
                 formatValue={formatMiB}

@@ -6,6 +6,7 @@ import { Plus } from 'lucide-react';
 import { fetchActiveTransactionChains, fetchTransactionChains } from '../../lib/api/transactions';
 import { fetchVpsList, vpsDelete, vpsRestart, vpsStart, vpsStop } from '../../lib/api/vps';
 import { getMetaActionStateId } from '../../lib/api/haveapi';
+import { useAuth } from '../../app/auth';
 import { useAppMode } from '../../app/appMode';
 import { useObjectScope } from '../../app/objectScope';
 import { useI18n } from '../../app/i18n';
@@ -40,6 +41,7 @@ import {
 } from './vps/vpsListSemantics';
 import { useVpsListSmartFilters } from './vps/useVpsListSmartFilters';
 import { useRecentVpsFailures } from './vps/useRecentVpsFailures';
+import { useRecentVpsOomReports } from './vps/useRecentVpsOomReports';
 
 type VpsPowerKind = 'start' | 'stop' | 'restart';
 type VpsListMutationKind = VpsPowerKind | 'delete';
@@ -85,6 +87,7 @@ export function VpsListPage() {
   const { basePath, mode } = useAppMode();
   const uiMode = mode === 'admin' ? 'admin' : 'app';
   const scope = useObjectScope();
+  const { role } = useAuth();
   const { t } = useI18n();
   const chrome = useChrome();
   const qc = useQueryClient();
@@ -152,6 +155,9 @@ export function VpsListPage() {
   });
 
   const recentFailures = useRecentVpsFailures(tierARefetchMs);
+  const recentOoms = useRecentVpsOomReports({
+    userId: role === 'admin' ? (mode === 'admin' ? listFilters.userIdNum : scope.mineUserId) : undefined,
+  });
 
   const lockIndexStale = isDataStale({
     updatedAt: activeChainsQ.dataUpdatedAt,
@@ -287,12 +293,13 @@ export function VpsListPage() {
           vps,
           lockIndex,
           recentFailures,
+          recentOoms,
           isLocallyLocked: (id) => chrome.isLocallyLocked(objectRef('Vps', id)),
           inFlightKind: inFlight[vps.id],
           t,
         })
       ),
-    [rows, lockIndex, recentFailures, chrome, inFlight, t]
+    [rows, lockIndex, recentFailures, recentOoms, chrome, inFlight, t]
   );
 
   const visibleRows = useMemo(
