@@ -25,3 +25,9 @@ proof or physical Safari/weaker-display testing. No live objects created.
 Prepared for focused draft review and paired previews after required checks.
 No merge, production deployment or claim that all UX-03/04 scope is complete.
 Actual checks, revisions and preview outcomes will be appended after execution.
+
+The complete omitted-filter survey found three more desktop mismatches: host
+addresses, IP assignments and live-network filters had 36px fields beside the
+VPS lookup at 44px. Keep that lookup intact and match adjacent fields and Clear
+locally to 44px. Query normalization, read-only support and owner policy remain
+unchanged. Four other omitted legacy filters already matched and are untouched.

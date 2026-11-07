@@ -1989,7 +1989,7 @@ Prepare approved VPS-12 / REQ-075. See the [scope record](docs/work-log/2026-11-
 
 Prepare approved STO-03 / REQ-023. See [scope](docs/work-log/2026-11-07-todo-mount-dataset-picker.md).
 
-## 2026-11-07 — Keep account controls aligned and readable
+## 2026-11-07 — Keep shared and network controls aligned
 
 Prepare approved UX-03 / REQ-010, REQ-073. See the
 [scope record](docs/work-log/2026-11-07-todo-profile-control-rhythm.md).
