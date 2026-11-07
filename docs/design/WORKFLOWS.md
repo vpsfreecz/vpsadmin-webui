@@ -1249,3 +1249,10 @@ Help, ordering, advanced filters, copy and clear match the smart field at44px.
 This local styling preserves owner scope, ordering/cursor semantics, URL state,
 copy and clear. See [scope](../work-log/2026-11-07-todo-monitoring-filter-rhythm.md)
 and REQ-010 / REQ-073.
+
+### Action state list dimensions (UX-03, 2026-11-07)
+
+The filter toolbar uses matching 44px controls for search, help, visibility,
+ordering, advanced filters, refresh, copy and clear. Visibility, errors and
+text filtering remain local; server requests retain ordering and keyset scope.
+Clear retains order. No permission, cancellation or mutation contract changes.
