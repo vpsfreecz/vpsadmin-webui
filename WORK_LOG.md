@@ -1,3 +1,7 @@
+## 2026-11-07 — Monitoring filter dimensions
+
+[Scope and verification](docs/work-log/2026-11-07-todo-monitoring-filter-rhythm.md).
+
 ## 2026-11-07 — OOM report filter dimensions
 
 [Scope and verification](docs/work-log/2026-11-07-todo-oom-filter-rhythm.md).

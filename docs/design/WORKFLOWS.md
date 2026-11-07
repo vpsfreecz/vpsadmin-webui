@@ -1242,3 +1242,10 @@ arbitrary-owner selection, admin My-view scope, URL normalization, parser,
 copy and clear behavior. It adds no navigation variant, API field or write.
 See [scope and verification](../work-log/2026-11-07-todo-oom-filter-rhythm.md)
 and REQ-010 / REQ-073.
+
+## Monitoring filter dimensions (approved TODO UX-03)
+
+Help, ordering, advanced filters, copy and clear match the smart field at44px.
+This local styling preserves owner scope, ordering/cursor semantics, URL state,
+copy and clear. See [scope](../work-log/2026-11-07-todo-monitoring-filter-rhythm.md)
+and REQ-010 / REQ-073.

@@ -89,6 +89,8 @@ export default defineConfig({
         '**/snapshot_delete_availability.spec.ts',
         '**/export_hosts_responsive_actions.spec.ts',
         '**/exports_filter_contract.spec.ts',
+        '**/monitoring_filter_rhythm.spec.ts',
+        '**/monitoring_events_keyset_pagination.spec.ts',
         '**/oom_filter_rhythm.spec.ts',
         '**/oom_reports_smart_filter.spec.ts',
         '**/export_filter_rhythm.spec.ts',
