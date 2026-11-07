@@ -735,6 +735,10 @@ blind retry. [Finance](../../src/lib/api/finance.ts),
 
 ## Tasks, transactions, monitoring, incidents and OOM
 
+The transaction chain search, help, advanced filters, copy-link and clear
+actions form one aligned control row. Filtering preserves the URL and active
+chips, and help and advanced controls open their existing dialogs.
+
 Transaction history uses compact aligned ID/time/owner/object/action/state
 columns on desktop and folds metadata under the action on small screens. The
 owner column appears only in administrator mode; a normal member and an admin's
