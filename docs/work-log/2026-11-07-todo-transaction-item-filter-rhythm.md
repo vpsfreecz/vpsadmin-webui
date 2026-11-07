@@ -4,6 +4,7 @@ Approved umbrella TODO UX-03; bounded to the top filter row on
 /app/transactions/items. Requirements REQ-010 and REQ-073. The field is 44px,
 while adjacent actions shrink to 32px on desktop. Retain 44px actions at every
 width and use the normal Button size so action text aligns with the field.
+Copy-link explicitly uses the normal Button size too.
 Keep the existing filter grammar, URL, chips, copy feedback, help and advanced
 form behavior. Advanced-form field/footer sizes remain outside this change.
 

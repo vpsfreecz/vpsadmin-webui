@@ -128,6 +128,7 @@ export function TransactionItemsFilters({
         <CopyButton
           text={typeof window !== 'undefined' ? window.location.href : ''}
           label={t('common.copy_link')}
+          size="md"
           className="h-11"
           testId="transactions.items.copy_link"
         />
