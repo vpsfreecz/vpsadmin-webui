@@ -360,8 +360,8 @@ export function VpsAccessPage() {
       ) : null}
       {keyDeployMessage ? <Alert variant="info">{t('vps.access.ssh.deployed', { key: keyDeployMessage })}</Alert> : null}
 
-      {canMutateVps ? <Card id="vps-access-ssh-key" testId="vps.access.ssh.card" className="scroll-mt-24">
-        <CardHeader title={t('vps.access.ssh.title')} subtitle={t('vps.access.ssh.subtitle')} />
+      {canMutateVps ? <Card id="vps-access-ssh-key" testId="vps.access.ssh.card" className="scroll-mt-24 border-border-strong">
+        <CardHeader className="border-border-strong" title={<h2 className="text-lg font-semibold">{t('vps.access.ssh.title')}</h2>} subtitle={t('vps.access.ssh.subtitle')} />
         <CardBody className="space-y-4">
           {publicKeyUserId === null && currentUserQ.isPending ? <Alert variant="info">{t('vps.access.ssh.loading_user')}</Alert> : null}
           {currentUserQ.error ? <Alert variant="danger">{errorMessage(currentUserQ.error)}</Alert> : null}
@@ -378,7 +378,7 @@ export function VpsAccessPage() {
                 onChange={(event: React.ChangeEvent<HTMLSelectElement>) => setSelectedPublicKeyId(event.target.value ? Number(event.target.value) : null)}
                 disabled={publicKeysQ.isPending || publicKeys.length === 0 || deployKeyM.isPending}
                 aria-describedby="vps-access-ssh-key-description"
-                className="w-full rounded-md border border-border bg-bg px-3 py-2 text-sm text-fg"
+                className="w-full rounded-md border border-border-strong bg-bg px-3 py-2 text-sm text-fg"
                 data-testid="vps.access.ssh.key"
               >
                 {publicKeys.length === 0 ? <option value="">{t('vps.access.ssh.no_keys_option')}</option> : null}
@@ -456,8 +456,8 @@ export function VpsAccessPage() {
 
       <VpsSshHostKeysCard hostKeys={hostKeys} loading={hostKeysQ.isPending} error={hostKeysQ.error} onRefresh={() => void hostKeysQ.refetch()} />
 
-      {canMutateVps ? <Card id="vps-access-root-password" testId="vps.access.password.card" className="scroll-mt-24">
-        <CardHeader title={t('vps.access.reset.title')} subtitle={t('vps.access.reset.subtitle')} />
+      {canMutateVps ? <Card id="vps-access-root-password" testId="vps.access.password.card" className="scroll-mt-24 border-border-strong">
+        <CardHeader className="border-border-strong" title={<h2 className="text-lg font-semibold">{t('vps.access.reset.title')}</h2>} subtitle={t('vps.access.reset.subtitle')} />
         <CardBody className="space-y-4">
           <div className="space-y-2">
             <label htmlFor="vps-access-password-type-select" className="block">
@@ -470,7 +470,7 @@ export function VpsAccessPage() {
                 onChange={(event: React.ChangeEvent<HTMLSelectElement>) => setPasswordType(event.target.value as VpsPasswordType)}
                 disabled={currentPasswdMutationPending}
                 aria-describedby="vps-access-password-type-description"
-                className="w-full rounded-md border border-border bg-bg px-3 py-2 text-sm text-fg"
+                className="w-full rounded-md border border-border-strong bg-bg px-3 py-2 text-sm text-fg"
                 data-testid="vps.access.password_type"
               >
                 <option value="secure">{t('vps.access.password_type.secure')}</option>
