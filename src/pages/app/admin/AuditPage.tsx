@@ -478,10 +478,10 @@ export function AuditPage() {
               suggestions={smartSuggestions}
               onSubmit={() => void applySmartText(smart)}
               suffix={
-                <Button
+                <Button className="h-11 min-w-11"
                   type="button"
                   variant="ghost"
-                  size="sm"
+                  size="md"
                   onClick={() => setHelpOpen(true)}
                   ariaLabel={t('filters.help.open')}
                   testId="admin.audit.smart_filter.help_btn"
@@ -491,10 +491,10 @@ export function AuditPage() {
               }
             />
 
-            <Button
+            <Button className="h-11 min-w-11"
               type="button"
               variant="secondary"
-              size="sm"
+              size="md"
               onClick={() => setAdvancedOpen(true)}
               ariaLabel={t('filters.advanced.open')}
               testId="admin.audit.filters.advanced"
@@ -502,9 +502,9 @@ export function AuditPage() {
               <SlidersHorizontal className="h-4 w-4" />
             </Button>
 
-            <Button
+            <Button className="h-11 min-w-11"
               variant="secondary"
-              size="sm"
+              size="md"
               onClick={() => void eventsQ.refetch()}
               disabled={eventsQ.isFetching}
               testId="admin.audit.refresh"
@@ -512,16 +512,16 @@ export function AuditPage() {
               {t('common.refresh')}
             </Button>
 
-            <CopyButton
+            <CopyButton className="h-11 min-w-11"
               text={shareUrl}
               label={t('common.copy_link')}
-              size="sm"
+              size="md"
               variant="secondary"
               testId="admin.audit.filters.copy_link"
             />
 
             {filtersActive ? (
-              <Button variant="secondary" size="sm" onClick={clearFilters} testId="admin.audit.clear">
+              <Button className="h-11 min-w-11" variant="secondary" size="md" onClick={clearFilters} testId="admin.audit.clear">
                 {t('common.clear_filters')}
               </Button>
             ) : null}

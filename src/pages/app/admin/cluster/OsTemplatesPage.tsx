@@ -595,7 +595,7 @@ export function OsTemplatesPage() {
             suffix={
               <button
                 type="button"
-                className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted hover:bg-surface-2 hover:text-fg"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-md text-muted hover:bg-surface-2 hover:text-fg"
                 aria-label={t('filters.help.open')}
                 title={t('filters.help.open')}
                 onClick={() => setHelpOpen(true)}
@@ -606,15 +606,15 @@ export function OsTemplatesPage() {
           />
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Button variant="secondary" onClick={() => setAdvancedOpen(true)} testId="admin.cluster.os_templates.advanced">
+          <Button className="h-11 min-w-11" variant="secondary" onClick={() => setAdvancedOpen(true)} testId="admin.cluster.os_templates.advanced">
             <SlidersHorizontal className="h-4 w-4" aria-hidden />
             <span>{t('filters.advanced.label')}</span>
           </Button>
-          <CopyButton text={shareUrl} label={t('common.copy_link')} testId="admin.cluster.os_templates.copy_link" />
+          <CopyButton className="h-11 min-w-11" text={shareUrl} label={t('common.copy_link')} testId="admin.cluster.os_templates.copy_link" />
           {(qTrim || osFamily || enabled || supported || hypervisorType || cgroupVersion || enableScript || enableCloudInit || smartErrors.length > 0) ? (
-            <Button variant="secondary" onClick={clearAllFilters} testId="admin.cluster.os_templates.filter.clear">{t('common.clear_filters')}</Button>
+            <Button className="h-11 min-w-11" variant="secondary" onClick={clearAllFilters} testId="admin.cluster.os_templates.filter.clear">{t('common.clear_filters')}</Button>
           ) : null}
-          <Button testId="admin.cluster.os_templates.create" variant="primary" onClick={openCreate}>
+          <Button className="h-11 min-w-11" testId="admin.cluster.os_templates.create" variant="primary" onClick={openCreate}>
             {t('admin.cluster.os_templates.create.button')}
           </Button>
         </div>

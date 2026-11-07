@@ -434,7 +434,7 @@ export function EnvironmentsPage() {
             suffix={
               <button
                 type="button"
-                className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted hover:bg-surface-2 hover:text-fg"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-md text-muted hover:bg-surface-2 hover:text-fg"
                 aria-label={t('filters.help.open')}
                 title={t('filters.help.open')}
                 onClick={() => setHelpOpen(true)}
@@ -445,20 +445,20 @@ export function EnvironmentsPage() {
           />
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Button variant="secondary" onClick={() => setAdvancedOpen(true)} testId="admin.cluster.environments.advanced">
+          <Button className="h-11 min-w-11" variant="secondary" onClick={() => setAdvancedOpen(true)} testId="admin.cluster.environments.advanced">
             <SlidersHorizontal className="h-4 w-4" aria-hidden />
             <span>{t('filters.advanced.label')}</span>
           </Button>
-          <Button variant="secondary" onClick={() => envQ.refetch()}>
+          <Button className="h-11 min-w-11" variant="secondary" onClick={() => envQ.refetch()}>
             {t('common.refresh')}
           </Button>
-          <CopyButton text={shareUrl} label={t('common.copy_link')} testId="admin.cluster.environments.copy_link" />
+          <CopyButton className="h-11 min-w-11" text={shareUrl} label={t('common.copy_link')} testId="admin.cluster.environments.copy_link" />
           {(qTrim || hasHypervisor || hasStorage || smartErrors.length > 0) ? (
-            <Button variant="secondary" onClick={clearAllFilters} testId="admin.cluster.environments.filter.clear">
+            <Button className="h-11 min-w-11" variant="secondary" onClick={clearAllFilters} testId="admin.cluster.environments.filter.clear">
               {t('common.clear_filters')}
             </Button>
           ) : null}
-          <Button onClick={openCreate} testId="admin.cluster.environments.create">
+          <Button className="h-11 min-w-11" onClick={openCreate} testId="admin.cluster.environments.create">
             {t('admin.cluster.environments.create')}
           </Button>
         </div>

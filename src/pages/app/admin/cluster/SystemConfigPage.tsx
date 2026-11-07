@@ -304,7 +304,7 @@ export function SystemConfigPage() {
   return (
     <div className="mt-4 space-y-4" data-testid="admin.cluster.system_config.page">
       <FilterBar testId="admin.cluster.system_config.filters">
-        <div className="flex flex-col gap-3">
+        <div className="flex w-full min-w-0 flex-col gap-3">
           <div className="flex flex-col gap-2 lg:flex-row lg:items-center">
             <SmartFilterInput
               ref={smartInputRef}
@@ -316,13 +316,13 @@ export function SystemConfigPage() {
               placeholder={t('admin.cluster.system_config.filter.search_placeholder')}
               ariaLabel={t('admin.cluster.system_config.filter.search_placeholder')}
               className="min-w-0 flex-1"
-              suffix={<Button variant="ghost" size="sm" aria-label={t('filters.help.open')} className="px-2" onClick={() => setHelpOpen(true)} testId="admin.cluster.system_config.smart.help_button"><CircleHelp className="h-4 w-4" /></Button>}
+              suffix={<Button variant="ghost" size="md" aria-label={t('filters.help.open')} className="px-2 h-11 min-w-11" onClick={() => setHelpOpen(true)} testId="admin.cluster.system_config.smart.help_button"><CircleHelp className="h-4 w-4" /></Button>}
             />
             <div className="flex flex-wrap items-center gap-2">
-              <Button variant="secondary" onClick={() => setAdvancedOpen(true)} testId="admin.cluster.system_config.advanced.open"><SlidersHorizontal className="mr-2 h-4 w-4" />{t('common.advanced')}</Button>
-              <CopyButton text={shareUrl} label={t('common.copy_link')} testId="admin.cluster.system_config.copy_link" />
-              <Button variant="secondary" onClick={() => cfgQ.refetch()}>{t('common.refresh')}</Button>
-              {filtersActive ? <Button variant="secondary" onClick={clearAllFilters} testId="admin.cluster.system_config.filter.clear">{t('common.clear_filters')}</Button> : null}
+              <Button className="h-11 min-w-11" variant="secondary" onClick={() => setAdvancedOpen(true)} testId="admin.cluster.system_config.advanced.open"><SlidersHorizontal className="mr-2 h-4 w-4" />{t('common.advanced')}</Button>
+              <CopyButton className="h-11 min-w-11" text={shareUrl} label={t('common.copy_link')} testId="admin.cluster.system_config.copy_link" />
+              <Button className="h-11 min-w-11" variant="secondary" onClick={() => cfgQ.refetch()}>{t('common.refresh')}</Button>
+              {filtersActive ? <Button className="h-11 min-w-11" variant="secondary" onClick={clearAllFilters} testId="admin.cluster.system_config.filter.clear">{t('common.clear_filters')}</Button> : null}
             </div>
           </div>
           {filtersActive ? (

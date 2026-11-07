@@ -1003,3 +1003,11 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+### Remaining list filter dimensions (UX-03, 2026-11-07)
+
+Keep each filter action at its local reference field height: smart searches
+44px, compact finance/template fields36px, coarse-pointer controls at least44px.
+The standalone DNS-resolver action group uses36px on desktop. Keep existing
+help/advanced dialogs, search tokens, owner/query scopes, refresh/copy/clear,
+view toggles and create actions. This does not change any DNS/API behavior.

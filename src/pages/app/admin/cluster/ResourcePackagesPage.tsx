@@ -413,21 +413,21 @@ export function ResourcePackagesPage() {
               ariaLabel={t('admin.cluster.resource_packages.filter.smart_placeholder')}
               className="min-w-0 flex-1"
               suffix={
-                <Button variant="ghost" size="sm" aria-label={t('filters.help.open')} className="px-2" onClick={() => setHelpOpen(true)} testId="admin.cluster.resource_packages.smart.help_button">
+                <Button variant="ghost" size="md" aria-label={t('filters.help.open')} className="px-2 h-11 min-w-11" onClick={() => setHelpOpen(true)} testId="admin.cluster.resource_packages.smart.help_button">
                   <CircleHelp className="h-4 w-4" />
                 </Button>
               }
             />
 
             <div className="flex flex-wrap items-center gap-2">
-              <Button variant="secondary" onClick={() => setAdvancedOpen(true)} testId="admin.cluster.resource_packages.advanced.open">
+              <Button className="h-11 min-w-11" variant="secondary" onClick={() => setAdvancedOpen(true)} testId="admin.cluster.resource_packages.advanced.open">
                 <SlidersHorizontal className="mr-2 h-4 w-4" />
                 {t('common.advanced')}
               </Button>
-              <CopyButton text={shareUrl} label={t('common.copy_link')} testId="admin.cluster.resource_packages.copy_link" />
-              <Button variant="secondary" onClick={() => listQ.refetch()} disabled={personalUserRequired || listQ.isFetching}>{t('common.refresh')}</Button>
-              {filtersActive ? <Button variant="secondary" onClick={clearAllFilters} testId="admin.cluster.resource_packages.filter.clear">{t('common.clear_filters')}</Button> : null}
-              <Button variant="primary" onClick={openCreate} testId="admin.cluster.resource_packages.create">{t('admin.cluster.resource_packages.create.button')}</Button>
+              <CopyButton className="h-11 min-w-11" text={shareUrl} label={t('common.copy_link')} testId="admin.cluster.resource_packages.copy_link" />
+              <Button className="h-11 min-w-11" variant="secondary" onClick={() => listQ.refetch()} disabled={personalUserRequired || listQ.isFetching}>{t('common.refresh')}</Button>
+              {filtersActive ? <Button className="h-11 min-w-11" variant="secondary" onClick={clearAllFilters} testId="admin.cluster.resource_packages.filter.clear">{t('common.clear_filters')}</Button> : null}
+              <Button className="h-11 min-w-11" variant="primary" onClick={openCreate} testId="admin.cluster.resource_packages.create">{t('admin.cluster.resource_packages.create.button')}</Button>
             </div>
           </div>
 

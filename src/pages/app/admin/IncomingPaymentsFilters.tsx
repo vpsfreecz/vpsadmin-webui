@@ -68,10 +68,10 @@ export function IncomingPaymentsFilters(props: {
             inputMode="numeric"
             testId="admin.payments.incoming.open_id.input"
           />
-          <Button
+          <Button className="h-9 min-w-9"
             type="submit"
             variant="secondary"
-            size="sm"
+            size="md"
             disabled={parsedPaymentId === undefined}
             testId="admin.payments.incoming.open_id.submit"
           >
@@ -96,20 +96,20 @@ export function IncomingPaymentsFilters(props: {
             ))}
         </Select>
 
-        <Button
+        <Button className="h-9 min-w-9"
           type="button"
           variant="secondary"
-          size="sm"
+          size="md"
           loading={props.refreshing}
           onClick={props.onRefresh}
           testId="admin.payments.incoming.filters.refresh"
         >
           {t('common.refresh')}
         </Button>
-        <CopyButton
+        <CopyButton className="h-9 min-w-9"
           text={props.shareUrl}
           label={t('common.copy_link')}
-          size="sm"
+          size="md"
           variant="secondary"
           testId="admin.payments.incoming.filters.copy_link"
         />

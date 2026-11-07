@@ -241,9 +241,9 @@ export function DnsResolversPage() {
     <div className="mt-4 space-y-4" data-testid="admin.cluster.dns_resolvers.page">
       <FilterBar testId="admin.cluster.dns_resolvers.filters" className="justify-end">
         <div className="flex flex-wrap items-center gap-2">
-          <CopyButton text={shareUrl} label={t('common.copy_link')} testId="admin.cluster.dns_resolvers.copy_link" />
-          <Button variant="secondary" onClick={() => listQ.refetch()}>{t('common.refresh')}</Button>
-          <Button variant="primary" onClick={openCreate} testId="admin.cluster.dns_resolvers.create">
+          <CopyButton className="h-9 min-w-9" text={shareUrl} label={t('common.copy_link')} testId="admin.cluster.dns_resolvers.copy_link" />
+          <Button className="h-9 min-w-9" variant="secondary" onClick={() => listQ.refetch()}>{t('common.refresh')}</Button>
+          <Button className="h-9 min-w-9" variant="primary" onClick={openCreate} testId="admin.cluster.dns_resolvers.create">
             {t('admin.cluster.dns_resolvers.create.button')}
           </Button>
         </div>

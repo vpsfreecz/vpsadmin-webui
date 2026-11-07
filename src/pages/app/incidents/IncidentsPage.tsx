@@ -696,10 +696,10 @@ export function IncidentsPage() {
               suggestions={smartSuggestions}
               onSubmit={() => void applySmartText(smart)}
               suffix={
-                <Button
+                <Button className="h-11 min-w-11"
                   type="button"
                   variant="ghost"
-                  size="sm"
+                  size="md"
                   onClick={() => setHelpOpen(true)}
                   ariaLabel={t('filters.help.open')}
                   testId="incidents.smart_filter.help_btn"
@@ -709,10 +709,10 @@ export function IncidentsPage() {
               }
             />
 
-            <Button
+            <Button className="h-11 min-w-11"
               type="button"
               variant="secondary"
-              size="sm"
+              size="md"
               onClick={() => setAdvancedOpen(true)}
               ariaLabel={t('filters.advanced.open')}
               testId="incidents.filters.advanced"
@@ -720,16 +720,16 @@ export function IncidentsPage() {
               <SlidersHorizontal className="h-4 w-4" aria-hidden />
             </Button>
 
-            <CopyButton
+            <CopyButton className="h-11 min-w-11"
               text={shareUrl}
               label={t('common.copy_link')}
-              size="sm"
+              size="md"
               variant="secondary"
               testId="incidents.filters.copy_link"
             />
 
             {hasFilterState ? (
-              <Button variant="secondary" size="sm" onClick={clearFilters} testId="incidents.filters.clear">
+              <Button className="h-11 min-w-11" variant="secondary" size="md" onClick={clearFilters} testId="incidents.filters.clear">
                 {t('common.clear_filters')}
               </Button>
             ) : null}
