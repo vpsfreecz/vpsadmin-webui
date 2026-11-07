@@ -557,7 +557,7 @@ export function VpsLayout() {
                     </code>
                     <CopyButton
                       variant="ghost"
-                      className="min-h-11 shrink-0 rounded-l-none border-l border-border xl:min-h-8"
+                      className="h-auto! min-h-11 shrink-0 rounded-l-none border-l border-border xl:min-h-8"
                       text={sshCommand}
                       label={t('common.copy')}
                     />

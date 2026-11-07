@@ -21,7 +21,7 @@ export const csVps_config = {
   'vps.config.section.identity': 'Identita',
   'vps.config.section.resources': 'Prostředky',
   'vps.config.section.resources_help': 'CPU, paměť a swap vpsAdmin aplikuje za běhu; spuštěnou VPS není nutné restartovat.',
-  'vps.config.section.resources_help_admin': 'Změny výkonu se projeví za běhu. Výkon a disk se ukládají samostatně.',
+  'vps.config.section.resources_help_admin': 'Výkon a disk se ukládají samostatně.',
   'vps.config.section.resolvers': 'DNS resolver',
   'vps.config.section.namespace': 'UID/GID mapování',
   'vps.config.section.boot': 'Preference bootu',

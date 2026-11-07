@@ -21,7 +21,7 @@ export const enVps_config = {
   'vps.config.section.identity': 'Identity',
   'vps.config.section.resources': 'Resources',
   'vps.config.section.resources_help': 'vpsAdmin applies CPU, memory, and swap changes live; a running VPS does not need to restart.',
-  'vps.config.section.resources_help_admin': 'Performance changes apply while the VPS runs. Save performance and disk separately.',
+  'vps.config.section.resources_help_admin': 'Save performance and disk separately.',
   'vps.config.section.resolvers': 'DNS resolver',
   'vps.config.section.namespace': 'UID/GID mapping',
   'vps.config.section.boot': 'Boot preferences',
