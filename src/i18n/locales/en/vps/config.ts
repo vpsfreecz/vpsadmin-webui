@@ -2,8 +2,6 @@
 export const enVps_config = {
   'vps.resources.performance': 'VPS performance',
   "vps.resources.title": "Edit VPS resources",
-  "vps.resources.subtitle_admin": "VPS performance and root disk in one place. Save each card separately; unsaved changes in the other card are preserved.",
-  "vps.resources.subtitle_user": "CPU, memory and swap together in one place.",
   "vps.resources.additional": "Additional VPS configuration",
   "vps.resources.disk.subtitle": "Root dataset capacity. Changes apply while the VPS is running.",
   "vps.resources.disk.current": "Current capacity",
@@ -26,7 +24,7 @@ export const enVps_config = {
   'vps.config.section.identity_help_admin': 'Hostname management and owner assignment.',
   'vps.config.section.resources': 'Resources',
   'vps.config.section.resources_help': 'vpsAdmin applies CPU, memory, and swap changes live; a running VPS does not need to restart.',
-  'vps.config.section.resources_help_admin': 'vpsAdmin applies CPU, CPU limit, memory, and swap changes live; a running VPS does not need to restart.',
+  'vps.config.section.resources_help_admin': 'Performance changes apply while the VPS runs. Save performance and disk separately.',
   'vps.config.section.resolvers': 'DNS resolver',
   'vps.config.section.resolvers_help': 'Resolver preference used inside the VPS.',
   'vps.config.section.namespace': 'UID/GID mapping',
