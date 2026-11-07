@@ -146,7 +146,7 @@ test.describe('Transactions items list keyset pagination', () => {
     const row = page.getByTestId('transactions.items.row.300');
     await expect(row.getByRole('link', { name: '#300', exact: true }).filter({ visible: true })).toBeVisible();
     await expect(row.getByRole('link', { name: 'Tx 300', exact: true })).toHaveAttribute('href', '/admin/transactions/items/300');
-    await page.getByTestId('transactions.items.row.300.toggle').click();
+    await expect(page.getByTestId('transactions.items.row.300.toggle')).toHaveAttribute('aria-expanded', 'true');
     const details = page.getByTestId('transactions.items.row.300.expanded');
     await expect(page.locator('a[href="/admin/transactions/123"]')).toBeVisible();
     await expect(details.locator('a[href="/admin/transactions?user=7"]')).toBeVisible();
