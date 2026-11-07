@@ -97,13 +97,11 @@ export function TransactionItemsFilters({
             placeholder={t('transactions.items.search.placeholder')}
             ariaLabel={t('transactions.items.search.placeholder')}
             testId="transactions.items.smart_filter.input"
-            className="[&_input]:h-11 sm:[&_input]:h-9"
             suggestions={smartSuggestions}
             suffix={
               <Button
                 variant="ghost"
-                size="sm"
-                className="h-11 w-11 px-0 sm:h-8 sm:w-8"
+                className="h-11 w-11 px-0"
                 onClick={onHelpOpen}
                 ariaLabel={t('filters.help.open')}
                 title={t('filters.help.open')}
@@ -117,8 +115,7 @@ export function TransactionItemsFilters({
 
         <Button
           variant="secondary"
-          size="sm"
-          className="h-11 min-w-11 sm:h-8 sm:min-w-0"
+          className="h-11 min-w-11"
           onClick={onAdvancedOpen}
           aria-label={t('filters.advanced.open')}
           title={t('filters.advanced.open')}
@@ -131,15 +128,14 @@ export function TransactionItemsFilters({
         <CopyButton
           text={typeof window !== 'undefined' ? window.location.href : ''}
           label={t('common.copy_link')}
-          className="h-11 sm:h-8"
+          className="h-11"
           testId="transactions.items.copy_link"
         />
 
         {filtersActive || smartErrorsCount > 0 ? (
           <Button
             variant="secondary"
-            size="sm"
-            className="h-11 sm:h-8"
+            className="h-11"
             onClick={clearFilters}
             testId="transactions.items.clear_filters"
           >

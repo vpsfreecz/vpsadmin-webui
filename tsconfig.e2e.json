@@ -82,6 +82,7 @@
     "e2e/specs/app/transaction_chain_detail_page.spec.ts",
     "e2e/specs/app/transaction_chains_ux.spec.ts",
     "e2e/specs/app/transaction_detail_page.spec.ts",
+    "e2e/specs/app/transaction_items_filter_accessibility.spec.ts",
     "e2e/specs/app/transactions_items_keyset_pagination.spec.ts",
     "e2e/specs/app/transactions_readability.spec.ts",
     "e2e/specs/app/transactions_table_followup.spec.ts",
