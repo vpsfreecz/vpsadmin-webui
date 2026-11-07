@@ -11,7 +11,7 @@ import { Alert } from '../../../components/ui/Alert';
 import { fetchDataset, updateDataset } from '../../../lib/api/datasets';
 import { getMetaActionStateId, isMissingActionStateError } from '../../../lib/api/haveapi';
 import { datasetCapabilities, gateDatasetAction } from '../../../lib/gates/dataset';
-import { createVpsMount, deleteVpsMount, fetchVpsMounts, findDatasetByName, updateVpsMount, type Dataset, type VpsMount } from '../../../lib/api/vpsMounts';
+import { createVpsMount, deleteVpsMount, fetchVpsMounts, updateVpsMount, type VpsMount } from '../../../lib/api/vpsMounts';
 import { gateVpsMutation } from '../../../lib/gates/vps';
 import { objectRef } from '../../../lib/objectRef';
 import { preflightVpsNotBusy } from './vpsPreflight';
@@ -32,6 +32,8 @@ import {
   type MountValidationIssue,
 } from './VpsStorageModel';
 import { VpsStorageMountCreateModal, VpsStorageMountDeleteDialog, VpsStorageMountEditModal, type StartFailOption } from './VpsStorageMountDialogs';
+import { VpsMountDatasetPicker } from './VpsMountDatasetPicker';
+import { positiveId } from './mountDatasetPickerModel';
 import { VpsStorageMountsCard } from './VpsStorageMountsCard';
 import { VpsStorageOverviewCard } from './VpsStorageOverviewCard';
 import { VpsStorageRootDatasetCard } from './VpsStorageRootDatasetCard';
@@ -190,36 +192,10 @@ export function VpsStoragePage() {
 
   const [createOpen, setCreateOpen] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
-  const [datasetName, setDatasetName] = useState('');
-  const [foundDataset, setFoundDataset] = useState<Dataset | null>(null);
-  const [findError, setFindError] = useState<string | null>(null);
-
   const resetCreate = () => {
     setDraft(defaultMountDraft());
-    setDatasetName('');
-    setFoundDataset(null);
-    setFindError(null);
     setCreateError(null);
   };
-
-  const findDatasetM = useMutation({
-    mutationFn: async (name: string) => {
-      if (!canMutateVps) throw new Error(t('gate.blocked.permission.body'));
-      const q = name.trim();
-      if (!q) throw new Error(t('vps.storage.dataset_find.validation.empty'));
-      return findDatasetByName(q);
-    },
-    onSuccess: (response) => {
-      setFindError(null);
-      setFoundDataset(response.data);
-      patchDraft({ dataset: response.data });
-    },
-    onError: (error) => {
-      setFoundDataset(null);
-      patchDraft({ dataset: null });
-      setFindError(errorMessage(error));
-    },
-  });
 
   const createValidation = validateMountDraft(draft, { requireDataset: true });
   const canCreate = createValidation.ok;
@@ -319,6 +295,10 @@ export function VpsStoragePage() {
     ).data,
     refetchOnWindowFocus: false,
   });
+  useEffect(() => {
+    setCreateOpen(false);
+    setDraft(defaultMountDraft());
+  }, [vpsId, rootDatasetId, vps.user?.id, auth.role]);
   const root = rootDatasetSummary(rootDatasetQ.data ?? null, vps.dataset ?? null);
   const rootCapabilities = rootDatasetQ.data
     ? datasetCapabilities(rootDatasetQ.data, {
@@ -438,17 +418,20 @@ export function VpsStoragePage() {
         draft={draft}
         canAdmin={canAdmin}
         gate={gate}
-        datasetName={datasetName}
-        foundDataset={foundDataset}
-        findError={findError}
+        datasetPicker={createOpen ? <VpsMountDatasetPicker
+          key={`${vpsId}:${rootDatasetId}:${vps.user?.id}:${auth.role}`}
+          root={rootDatasetQ.data}
+          ownerId={positiveId(vps.user?.id)}
+          supported={vps.node?.hypervisor_type === 'vpsadminos'}
+          admin={auth.role === 'admin'}
+          selected={draft.dataset}
+          onSelect={(dataset) => patchDraft({ dataset, ...(dataset ? { type: 'bind' as const } : {}) })}
+        /> : null}
         createError={createError}
-        findLoading={findDatasetM.isPending}
         createLoading={createMountM.isPending}
         canSubmit={canCreate}
         startFailOptions={startFailOptions}
         onClose={() => setCreateOpen(false)}
-        onFindDataset={() => void findDatasetM.mutate(datasetName)}
-        onDatasetNameChange={setDatasetName}
         onDraftPatch={patchDraft}
         onSubmit={() => void submitCreate()}
       /> : null}

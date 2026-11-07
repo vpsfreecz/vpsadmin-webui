@@ -1685,3 +1685,7 @@ preserve all branch histories and colleague PRs. Add standard push CI for the
 integration branch, without deployment automation. Dev has isolated test data;
 clankerdev still uses the production API. No host update in this setup.
 [Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
+
+## 2026-11-07 — Mount dataset picker
+
+Prepare approved STO-03 / REQ-023. See [scope](docs/work-log/2026-11-07-todo-mount-dataset-picker.md).
