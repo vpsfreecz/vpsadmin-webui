@@ -72,6 +72,7 @@ export const csVps_core = {
   'vps.tabs.console': 'Konzole',
   'vps.actions.menu.label': 'Akce VPS',
   'vps.actions.menu.placeholder': 'Správa VPS…',
+  'vps.actions.all': 'Všechny akce',
   'vps.actions.more.placeholder': 'Další…',
   'vps.list.actions.more.label': 'Další akce řádku VPS',
   'vps.actions.dns_servers': 'DNS servery',

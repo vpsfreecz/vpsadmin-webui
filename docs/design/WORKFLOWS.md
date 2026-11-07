@@ -1003,3 +1003,12 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+## Find VPS actions on the page (DET-02; REQ-023)
+
+The VPS header offers All actions alongside its existing controls. It opens the
+existing lifecycle action index, where actions are ordinary rendered links in
+the existing user/admin groups, available to browser Find. The shortcut keeps
+the same member/list context and permission gate as the index. Selecting an
+index entry only opens its existing form; existing confirmation and mutation
+guards remain authoritative. Read-only support in the admin view has no shortcut.
