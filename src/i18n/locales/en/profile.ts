@@ -33,7 +33,6 @@ import { enProfile_smart } from './profile/smart';
 import { enProfile_snooze } from './profile/snooze';
 import { enProfile_state_log } from './profile/state_log';
 import { enProfile_tabs } from './profile/tabs';
-import { enProfile_tips } from './profile/tips';
 import { enProfile_toast } from './profile/toast';
 import { enProfile_user } from './profile/user';
 import { enProfile_userns } from './profile/userns';
@@ -74,7 +73,6 @@ export const enProfile = {
   ...enProfile_snooze,
   ...enProfile_state_log,
   ...enProfile_tabs,
-  ...enProfile_tips,
   ...enProfile_toast,
   ...enProfile_user,
   ...enProfile_userns,

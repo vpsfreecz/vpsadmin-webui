@@ -44,12 +44,11 @@ export function ProfileSidebarCards(props: {
       </Card>
 
       <Card testId="profile.time_zone.card">
-        <CardHeader title={t('profile.personal.time_zone.title')} subtitle={t('profile.personal.time_zone.subtitle')} />
+        <CardHeader title={t('profile.personal.time_zone.title')} />
         <CardBody>
           <div className="space-y-3">
             <ProfilePreferenceRow
               label={t('profile.personal.time_zone.label')}
-              description={t('profile.personal.time_zone.description')}
             >
               <Select
                 value={timeZone}
@@ -100,15 +99,6 @@ export function ProfileSidebarCards(props: {
         </CardBody>
       </Card>
 
-      <Card testId="profile.tips.card">
-        <CardHeader title={t('profile.tips.title')} subtitle={t('profile.tips.subtitle')} />
-        <CardBody>
-          <ul className="list-disc space-y-1 pl-4 text-sm text-muted">
-            <li>{t('profile.tips.item.0')}</li>
-            <li>{t('profile.tips.item.2')}</li>
-          </ul>
-        </CardBody>
-      </Card>
     </div>
   );
 }

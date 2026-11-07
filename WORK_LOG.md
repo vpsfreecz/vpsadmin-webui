@@ -1,3 +1,7 @@
+## 2026-11-07 — Remove redundant account overview copy
+
+[Scope and verification](docs/work-log/2026-11-07-account-copy-trim.md).
+
 ## Request return paths (2026-11-04)
 
 Remove legacy `q` from request list return paths while preserving other

@@ -519,6 +519,8 @@ instead of claiming primary-email fallback; changing members cannot retain anoth
 member's contacts. Support retains the address but does not query these privileged
 contacts. Personal/My-view account pages have no administrator summary.
 
+**Account overview copy (2026-11-07):** Keep the time-zone controls and current/browser values visible, without the redundant subtitle, formatting description or generic Tips card. Remove the matching Czech and English catalog entries.
+
 **Personal scope (maintainer decision, 2026-09-30):** Account from the header
 always means the authenticated account, in both member and administrator layouts.
 Admin privileges do not turn these pages into global lists. Sessions and metrics
