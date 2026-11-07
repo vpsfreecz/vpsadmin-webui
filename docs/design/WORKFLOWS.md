@@ -151,6 +151,12 @@ anonymous; existing global locale invalidation/refetch behavior is unchanged.
 
 ## VPS creation, detail and power
 
+VPS cards and rows keep the same action order across runtime states. Start
+and console share the primary slot. Inactive power controls expose the existing
+gate reason. The resource grid aligns CPU, load, RAM and disk. Stopped VPSs
+show allocated memory and omit historic runtime memory and load readings.
+
+
 **Intent:** choose placement/template/resources, create a VPS, inspect identity and
 runtime status, and manage it. Creation defaults are suggestions; async updates
 cannot overwrite entered resources. Member scope stays owned; admins can explicitly

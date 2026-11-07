@@ -21,7 +21,7 @@ export const enVps_core = {
   'vps.list.context.owner': 'Owner',
   'vps.list.context.location': 'Location',
   'vps.list.resources.cpu': '{count} CPU',
-  'vps.list.resources.load': 'Load {value}',
+  'vps.list.resources.load': 'Load',
   'vps.layout.load_error.title': 'Failed to load VPS',
   'vps.layout.not_found.title': 'Not found',
   'vps.layout.not_found.body': 'This VPS does not exist or is not accessible.',
