@@ -33,7 +33,6 @@ import { csProfile_smart } from './profile/smart';
 import { csProfile_snooze } from './profile/snooze';
 import { csProfile_state_log } from './profile/state_log';
 import { csProfile_tabs } from './profile/tabs';
-import { csProfile_tips } from './profile/tips';
 import { csProfile_toast } from './profile/toast';
 import { csProfile_user } from './profile/user';
 import { csProfile_userns } from './profile/userns';
@@ -74,7 +73,6 @@ export const csProfile = {
   ...csProfile_snooze,
   ...csProfile_state_log,
   ...csProfile_tabs,
-  ...csProfile_tips,
   ...csProfile_toast,
   ...csProfile_user,
   ...csProfile_userns,

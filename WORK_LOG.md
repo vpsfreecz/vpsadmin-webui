@@ -1,3 +1,7 @@
+## 2026-11-07 — Remove redundant account overview copy
+
+[Scope and verification](docs/work-log/2026-11-07-account-copy-trim.md).
+
 ## 2026-11-07 — Integrate current main into our preview
 
 [Scope, compatibility and verification](docs/work-log/2026-11-07-main-preview-integration.md).
