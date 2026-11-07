@@ -26,3 +26,11 @@ and the navigation-close test ID) are corrected without weakening assertions.
 Exact package browser checks, full CI and release activation are recorded in the
 PR and private operations continuity after execution. Prepared work
 is distinct from a deployment; no merge or production authorization is implied.
+
+The first full mobile CI run caught a real 320px compatibility regression on the
+older experiment baseline: the added setting pushed the Account link below its
+256px popover scroll boundary (593 mobile Chromium scenarios passed, one failed).
+Keep account destinations at the beginning of that baseline's account menu;
+preferences remain reachable by scrolling. Retain the existing strict viewport
+assertions. The cumulative preview already separates the account menu and
+preferences, so this baseline compatibility adjustment does not change it.

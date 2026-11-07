@@ -131,6 +131,17 @@ export function AppUserMenu(props: Pick<AppHeaderProps,
           data-overlay="popover"
           data-overlay-surface="overlay"
         >
+          <div className="border-b border-border pb-2">
+            <UserMenuButton icon={<User size={16} />} testId="shell.user-menu.account" onClick={() => {
+              setUserMenuOpen(false);
+              onGoToProfile();
+            }}>{t('user_menu.account')}</UserMenuButton>
+            <UserMenuButton className="mt-1" icon={<Globe size={16} />} testId="shell.user-menu.public-status" onClick={() => {
+              setUserMenuOpen(false);
+              onGoToPublicStatus();
+            }}>{t('user_menu.public_status')}</UserMenuButton>
+          </div>
+
           {canSwitchMode ? (
             <div className="px-2 py-1">
               <div className="text-xs text-muted">{t('settings.scope.label')}</div>
@@ -202,17 +213,6 @@ export function AppUserMenu(props: Pick<AppHeaderProps,
             testIdPrefix="shell.user-menu.language"
             onSelect={(value) => onSetLanguage(value as AppHeaderProps['language'])}
           />
-
-          <div className="mt-2 border-t border-border pt-2">
-            <UserMenuButton icon={<User size={16} />} testId="shell.user-menu.account" onClick={() => {
-              setUserMenuOpen(false);
-              onGoToProfile();
-            }}>{t('user_menu.account')}</UserMenuButton>
-            <UserMenuButton className="mt-1" icon={<Globe size={16} />} testId="shell.user-menu.public-status" onClick={() => {
-              setUserMenuOpen(false);
-              onGoToPublicStatus();
-            }}>{t('user_menu.public_status')}</UserMenuButton>
-          </div>
 
           <div className="mt-2 border-t border-border pt-2">
             <a
