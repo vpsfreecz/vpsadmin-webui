@@ -6,7 +6,6 @@ import { LifecyclePanel } from '../../../components/lifetimes/LifecyclePanel';
 import { useVps } from './VpsContext';
 import { VpsOverviewMetricsCard } from './VpsOverviewMetricsCard';
 import {
-  VpsAccessCard,
   VpsActivityCard,
   VpsHealthBanner,
   VpsNetworkCard,
@@ -66,14 +65,6 @@ export function VpsOverviewPage() {
         className={isAdminView ? 'lg:col-span-6' : undefined}
       />
 
-      {!isAdminView ? (
-        <VpsAccessCard
-          vps={vps}
-          basePath={basePath}
-          contextSearch={detailContextSearch}
-          sshCommand={sshCommand}
-        />
-      ) : null}
 
       <VpsNetworkCard
         vps={vps}

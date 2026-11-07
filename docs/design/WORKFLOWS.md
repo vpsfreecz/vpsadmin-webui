@@ -1144,3 +1144,10 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+
+### VPS overview access shortcuts
+
+Use the header to copy SSH or open the console, and the Access tab for SSH keys
+and password management. The overview does not repeat those entry points or
+current runtime values in a separate card. Historical charts remain on demand.

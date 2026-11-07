@@ -2,10 +2,8 @@ import React from 'react';
 import {
   Activity,
   HardDrive,
-  KeyRound,
   Network,
   Server,
-  Terminal,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -21,7 +19,7 @@ import { ChipLink } from '../../../components/ui/ChipLink';
 import { CopyButton } from '../../../components/ui/CopyButton';
 import { Spinner } from '../../../components/ui/Spinner';
 import { UsageBar } from '../../../components/ui/UsageBar';
-import { formatDateTimeInTimeZone, formatDurationSeconds, formatMiB } from '../../../lib/format';
+import { formatDateTimeInTimeZone, formatMiB } from '../../../lib/format';
 import {
   chainBadgeFromState,
   chainProgressLabel,
@@ -29,9 +27,7 @@ import {
 } from '../../../lib/taskStatus';
 import {
   classifyIpAddress,
-  formatLoadavg,
   ipAddressDisplayLabel,
-  isRemoteConsoleAvailable,
   overviewHealthKey,
   overviewUsageMetric,
   resourceId,
@@ -197,54 +193,6 @@ export function VpsResourcesCard(props: {
             max={props.vps.diskspace}
           />
         </div>
-      </CardBody>
-    </Card>
-  );
-}
-
-export function VpsAccessCard(props: { vps: Vps; basePath: string; contextSearch?: string; sshCommand?: string | null }) {
-  const { t } = useI18n();
-  const consoleAvailable = isRemoteConsoleAvailable(props.vps);
-
-  return (
-    <Card className="lg:col-span-6" testId="vps.overview.status_access.card">
-      <CardHeader
-        title={<SectionTitle icon={<KeyRound className={iconClass} />}>{t('vps.control.access.title')}</SectionTitle>}
-        subtitle={t('vps.control.access.subtitle')}
-        actions={<ChipLink to={`${props.basePath}/vps/${props.vps.id}/access${props.contextSearch ?? ''}`}>{t('vps.control.access.open')}</ChipLink>}
-      />
-      <CardBody className="space-y-3">
-        <div data-testid="vps.overview.status_access.ssh">
-          <div className="text-xs text-faint">{t('vps.control.access.ssh')}</div>
-          {props.sshCommand ? (
-            <div className="mt-1 flex min-w-0 items-center gap-2 rounded-lg border border-border bg-surface-2 p-2">
-              <code className="min-w-0 flex-1 truncate font-mono text-xs text-fg">{props.sshCommand}</code>
-              <CopyButton text={props.sshCommand} label={t('common.copy')} />
-            </div>
-          ) : (
-            <div className="mt-1 rounded-lg border border-border bg-surface-2 p-3 text-sm text-muted">
-              {t('vps.control.access.no_ssh')}
-            </div>
-          )}
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-          <MiniStat label={t('vps.control.access.uptime')} value={formatDurationSeconds(props.vps.uptime)} />
-          <MiniStat label={t('vps.control.access.load')} value={formatLoadavg(props.vps)} />
-        </div>
-        {consoleAvailable ? (
-          <Link
-            to={`${props.basePath}/vps/${props.vps.id}/console${props.contextSearch ?? ''}`}
-            className="inline-flex items-center gap-2 text-sm font-medium text-link hover:underline"
-            data-testid="vps.overview.access.console"
-          >
-            <Terminal className="h-4 w-4" aria-hidden="true" />
-            {t('vps.control.access.console')}
-          </Link>
-        ) : (
-          <div className="text-xs text-faint" data-testid="vps.overview.access.console_unavailable">
-            {t('vps.control.access.console_unavailable')}
-          </div>
-        )}
       </CardBody>
     </Card>
   );

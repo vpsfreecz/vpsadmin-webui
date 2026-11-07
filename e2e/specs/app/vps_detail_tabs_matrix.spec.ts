@@ -153,8 +153,9 @@ test('@workflow-matrix @smoke VPS detail tabs expose storage, access, lifecycle,
   await expect(page.getByTestId('vps.overview.control_center')).toBeVisible();
   await expect(page.getByTestId('vps.overview.health')).toBeVisible();
   await expect(page.getByTestId('vps.overview.resources_usage.card')).toBeVisible();
-  await expect(page.getByTestId('vps.overview.status_access.card')).toBeVisible();
-  await expect(page.getByTestId('vps.overview.access.console')).toHaveAttribute('href', '/app/vps/123/console');
+  await expect(page.getByTestId('vps.overview.status_access.card')).toHaveCount(0);
+  await expect(page.getByTestId('vps.header.ssh')).toBeVisible();
+  await expect(page.getByTestId('vps.header.runtime')).toBeVisible();
   await expect(page.getByTestId('vps.overview.network.card')).toBeVisible();
   await expect(page.getByTestId('vps.overview.storage.card')).toBeVisible();
   await expect(page.getByTestId('vps.overview.diagnostics.card')).toBeVisible();
