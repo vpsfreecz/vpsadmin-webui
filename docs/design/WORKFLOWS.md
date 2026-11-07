@@ -1003,3 +1003,22 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+## Select a dataset for a VPS mount
+
+STO-03 replaces numeric/name entry with an explicit candidate and confirmation.
+For vpsAdminOS, restrict candidates to active subdatasets of the loaded VPS root,
+its owner and the hypervisor role. API authorization and the transaction's node
+compatibility checks remain authoritative. A remote NAS must be mounted via NFS
+inside the VPS. Selecting a local subdataset defaults the draft to bind; review
+and Create stay separate, with existing role/busy/action-state safeguards.
+
+Dataset#index sorts by full_name while HaveAPI 0.32.2 uses an ID cursor. Avoid
+that mismatch with one subtree snapshot (limit 1000), then local search and
+25-item pagination. Check total_count against the response; an incomplete or
+capped response without count cannot masquerade as a complete list. In that
+case use the existing exact-name lookup, owner-filtered for admins, and recheck
+root prefix/owner/active state, then recheck the candidate through the hypervisor
+index with its own subtree and limit 1 before explicit selection. This is not a backend
+permission change. Changing lookup or target context clears any prior selection;
+late responses cannot select a dataset. Failure/empty states block Create.
