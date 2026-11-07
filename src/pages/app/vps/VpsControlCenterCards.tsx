@@ -163,7 +163,6 @@ export function VpsResourcesCard(props: {
     <Card className={props.className ?? 'lg:col-span-6'} testId="vps.overview.resources_usage.card">
       <CardHeader
         title={<SectionTitle icon={<Server className={iconClass} />}>{t('vps.control.resources.title')}</SectionTitle>}
-        subtitle={t('vps.control.resources.subtitle')}
         actions={(
           <ChipLink to={`${props.basePath}/vps/${props.vps.id}/config?${resourceSearch.toString()}`}>
             {t('vps.control.resources.edit')}

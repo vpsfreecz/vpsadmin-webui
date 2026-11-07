@@ -195,6 +195,10 @@ See the [parity audit](../work-log/2026-10-03-migration-feedback.md).
 
 ## Compute, disk, access, network and maintenance
 
+The VPS resources card uses its heading and edit link. The focused form
+opens with its heading and fields. Live-change and separate-save guidance
+is inside the performance section, with quota and review near the actions.
+
 The VPS overview network card displays every address returned by the VPS address
 query, in API order, with its prefix, scope badge and copy action. It does not
 collapse addresses behind a “more” count. Long IPv6 values wrap on narrow screens;

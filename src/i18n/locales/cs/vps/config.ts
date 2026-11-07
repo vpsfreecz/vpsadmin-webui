@@ -2,8 +2,6 @@
 export const csVps_config = {
   'vps.resources.performance': 'Výkon VPS',
   "vps.resources.title": "Upravit prostředky VPS",
-  "vps.resources.subtitle_admin": "Výkon VPS a kořenový disk na jednom místě. Každou kartu ukládáš samostatně; rozpracované změny ve druhé zůstanou zachované.",
-  "vps.resources.subtitle_user": "CPU, paměť a swap přehledně na jednom místě.",
   "vps.resources.additional": "Další konfigurace VPS",
   "vps.resources.disk.subtitle": "Velikost kořenového datasetu. Změna se aplikuje za běhu.",
   "vps.resources.disk.current": "Aktuální velikost",
@@ -26,7 +24,7 @@ export const csVps_config = {
   'vps.config.section.identity_help_admin': 'Správa hostname a přiřazení vlastníka.',
   'vps.config.section.resources': 'Prostředky',
   'vps.config.section.resources_help': 'CPU, paměť a swap vpsAdmin aplikuje za běhu; spuštěnou VPS není nutné restartovat.',
-  'vps.config.section.resources_help_admin': 'CPU, CPU limit, paměť a swap vpsAdmin aplikuje za běhu; spuštěnou VPS není nutné restartovat.',
+  'vps.config.section.resources_help_admin': 'Výkon a disk se ukládají samostatně.',
   'vps.config.section.resolvers': 'DNS resolver',
   'vps.config.section.resolvers_help': 'Preference resolveru používaného uvnitř VPS.',
   'vps.config.section.namespace': 'UID/GID mapování',
