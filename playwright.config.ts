@@ -89,6 +89,7 @@ export default defineConfig({
         '**/node_heatmaps.spec.ts',
         '**/nodes_overview_maintenance.spec.ts',
         '**/vps_header_system_summary.spec.ts',
+        '**/vps_memory_evidence.spec.ts',
         '**/mobile_touch_interactions.spec.ts',
         '**/mobile_lookup_popover.spec.ts',
         '**/mobile_workflows.spec.ts',

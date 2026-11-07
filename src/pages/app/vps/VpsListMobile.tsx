@@ -15,6 +15,7 @@ import { KeysetPagination } from '../../../components/ui/KeysetPagination';
 import { VpsListRowActions } from './VpsListRowActions';
 import { VpsUsageRiskBadges } from './VpsUsageRiskBadges';
 import { VpsRecentFailureBadge } from './VpsRecentFailureBadge';
+import { VpsRecentOomBadge } from './VpsRecentOomBadge';
 import type { VpsListRecord, VpsListTranslator } from './vpsListSemantics';
 
 interface VpsListMobileProps {
@@ -60,8 +61,15 @@ export function VpsListMobile({
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <div className="flex items-center gap-2">
-                      <StatusDot variant={row.dotVariant} testId={`vps.card.${vps.id}.dot`} ariaLabel={row.runtimeBadge.label} />
-                      <Link to={`${basePath}/vps/${vps.id}${detailSearch}`} className="text-base font-semibold text-fg underline">
+                      <StatusDot
+                        variant={row.dotVariant}
+                        testId={`vps.card.${vps.id}.dot`}
+                        ariaLabel={row.runtimeBadge.label}
+                      />
+                      <Link
+                        to={`${basePath}/vps/${vps.id}${detailSearch}`}
+                        className="text-base font-semibold text-fg underline"
+                      >
                         {vps.hostname}
                       </Link>
                     </div>
@@ -72,12 +80,7 @@ export function VpsListMobile({
                   <div className="flex flex-col items-end gap-1">
                     <Badge variant={row.runtimeBadge.variant}>{row.runtimeBadge.label}</Badge>
                     <Badge variant={row.objectBadge.variant}>{row.objectBadge.label}</Badge>
-                    <VpsUsageRiskBadges
-                      memoryRisk={row.memoryRisk}
-                      diskRisk={row.diskRisk}
-                      t={t}
-                      testIdPrefix={`vps.card.${vps.id}`}
-                    />
+                    <VpsUsageRiskBadges diskRisk={row.diskRisk} t={t} testIdPrefix={`vps.card.${vps.id}`} />
                     {row.latestRecentFailure ? (
                       <VpsRecentFailureBadge
                         chain={row.latestRecentFailure}
@@ -131,11 +134,32 @@ export function VpsListMobile({
                 (row.diskUsed !== undefined && row.diskMax !== undefined && row.diskMax > 0) ? (
                   <div className="mt-3 space-y-2 text-xs text-muted">
                     {row.memUsed !== undefined && row.memMax !== undefined && row.memMax > 0 ? (
-                      <UsageBar label={t('vps.list.usage.ram')} used={row.memUsed} max={row.memMax} formatValue={formatMiB} />
+                      <UsageBar
+                        label={t('vps.list.usage.ram')}
+                        severity="none"
+                        used={row.memUsed}
+                        max={row.memMax}
+                        formatValue={formatMiB}
+                      />
                     ) : null}
                     {row.diskUsed !== undefined && row.diskMax !== undefined && row.diskMax > 0 ? (
-                      <UsageBar label={t('vps.list.usage.disk')} used={row.diskUsed} max={row.diskMax} formatValue={formatMiB} />
+                      <UsageBar
+                        label={t('vps.list.usage.disk')}
+                        used={row.diskUsed}
+                        max={row.diskMax}
+                        formatValue={formatMiB}
+                      />
                     ) : null}
+                  </div>
+                ) : null}
+
+                {row.latestRecentOom ? (
+                  <div className="mt-3">
+                    <VpsRecentOomBadge
+                      report={row.latestRecentOom}
+                      basePath={basePath}
+                      testId={`vps.card.${vps.id}.recent_oom`}
+                    />
                   </div>
                 ) : null}
 

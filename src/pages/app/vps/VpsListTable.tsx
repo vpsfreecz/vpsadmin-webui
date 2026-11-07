@@ -15,6 +15,7 @@ import { UsageBar } from '../../../components/ui/UsageBar';
 import { VpsListRowActions } from './VpsListRowActions';
 import { VpsUsageRiskBadges } from './VpsUsageRiskBadges';
 import { VpsRecentFailureBadge } from './VpsRecentFailureBadge';
+import { VpsRecentOomBadge } from './VpsRecentOomBadge';
 import type { VpsListRecord, VpsListTranslator } from './vpsListSemantics';
 
 interface VpsListTableProps {
@@ -122,11 +123,13 @@ export function VpsListTable({
                   <Badge variant={row.runtimeBadge.variant}>{row.runtimeBadge.label}</Badge>
                   <Badge variant={row.objectBadge.variant}>{row.objectBadge.label}</Badge>
                   <VpsUsageRiskBadges
-                    memoryRisk={row.memoryRisk}
                     diskRisk={row.diskRisk}
                     t={t}
                     testIdPrefix={`vps.row.${vps.id}`}
                   />
+                  {row.latestRecentOom ? (
+                    <VpsRecentOomBadge report={row.latestRecentOom} basePath={basePath} testId={`vps.row.${vps.id}.recent_oom`} />
+                  ) : null}
                   {row.latestRecentFailure ? (
                     <VpsRecentFailureBadge
                       chain={row.latestRecentFailure}
@@ -158,7 +161,7 @@ export function VpsListTable({
                     {t('vps.list.resources.load', { value: row.loadLabel })}
                   </div>
                   {row.memUsed !== undefined && row.memMax !== undefined && row.memMax > 0 ? (
-                    <UsageBar layout="row" label={t('vps.list.usage.ram')} used={row.memUsed} max={row.memMax} formatValue={formatMiB} />
+                    <UsageBar layout="row" label={t('vps.list.usage.ram')} severity="none" used={row.memUsed} max={row.memMax} formatValue={formatMiB} />
                   ) : null}
                   {row.diskUsed !== undefined && row.diskMax !== undefined && row.diskMax > 0 ? (
                     <UsageBar layout="row" label={t('vps.list.usage.disk')} used={row.diskUsed} max={row.diskMax} formatValue={formatMiB} />
