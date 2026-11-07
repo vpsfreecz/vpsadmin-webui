@@ -66,6 +66,9 @@ for (const [language, theme] of [
       await input.fill('');
       await input.press('Escape');
       expect(await controlHeight(input)).toBe(44);
+      if (mode === 'admin') {
+        expect(await controlHeight(page.getByTestId('exports.filter.user'))).toBe(baseline && !mobile ? 36 : 44);
+      }
       for (const [control, oldHeight] of [
         [help, 32],
         [copy, 32],

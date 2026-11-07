@@ -28,3 +28,14 @@ link copy, refresh and clear. The first quick check required formatting the
 explicit E2E TypeScript file list; no product behavior or assertion was changed.
 The broader export contract run, clean package verification, public CI and
 paired deployment remain separate gates and are reported after completion.
+
+Visual review also found the administrator owner lookup at 36px beside the
+44px field. A local descendant class makes that input 44px without changing
+the shared lookup component. The focused browser check covers its height;
+existing owner lookup focus/filter contract checks remain unchanged.
+
+The owner-input follow-up passes ci:quick on both branches and eight revised
+working Chromium/mobile WebKit checks; eight repeated baseline checks confirm
+the old owner height. The previous four-control package was staged but never
+activated. Preserve its artifacts; the final source needs new clean packages
+and fresh CI on the new head. No unit model logic changed in this follow-up.

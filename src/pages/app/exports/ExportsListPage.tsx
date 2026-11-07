@@ -334,7 +334,7 @@ export function ExportsListPage() {
       </div>
       {isGlobalAdminView ? (
         <UserLookupInput
-          className="w-full sm:w-64"
+          className="w-full sm:w-64 [&_input]:h-11"
           value={userFilter}
           onChange={setUserFilter}
           testId="exports.filter.user"
