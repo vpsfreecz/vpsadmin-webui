@@ -1227,3 +1227,8 @@ owner restrictions, supported id/user smart syntax, unsupported-filter errors,
 URL normalization, cursor pagination, refresh and exact link copy. Do not add
 API filters, change export creation or NFS settings, or resize global controls.
 The wider UX-03 umbrella remains partial.
+
+Visual review also found the administrator owner lookup at 36px beside the
+44px field. A local descendant class makes that input 44px without changing
+the shared lookup component. The focused browser check covers its height;
+existing owner lookup focus/filter contract checks remain unchanged.
