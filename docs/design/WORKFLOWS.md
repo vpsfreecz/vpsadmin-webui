@@ -1216,3 +1216,14 @@ general administrator dataset list. Preserve the NAS primary-role preset,
 owner restrictions, VPS filter visibility, API requests and pagination. It
 does not change DNS work, global control sizes or other advanced forms, and
 does not complete the application-wide UX-03 umbrella.
+
+## Export list filter dimensions
+
+Keep the export smart input, help, copy-link, conditional clear and refresh
+controls 44 CSS pixels high in member and global administrator lists. Help
+uses a square target; mobile retains wrapping and active chips below the row.
+This UX-03 / REQ-073 follow-up changes only local control classes. Preserve
+owner restrictions, supported id/user smart syntax, unsupported-filter errors,
+URL normalization, cursor pagination, refresh and exact link copy. Do not add
+API filters, change export creation or NFS settings, or resize global controls.
+The wider UX-03 umbrella remains partial.

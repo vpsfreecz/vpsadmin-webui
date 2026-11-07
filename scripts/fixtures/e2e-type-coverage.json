@@ -47,6 +47,7 @@
     "e2e/specs/app/dashboard_preferences_accessibility.spec.ts",
     "e2e/specs/app/dataset_filter_rhythm.spec.ts",
     "e2e/specs/app/dataset_snapshot_confirm_workflows.spec.ts",
+    "e2e/specs/app/export_filter_rhythm.spec.ts",
     "e2e/specs/app/export_hosts_responsive_actions.spec.ts",
     "e2e/specs/app/exports_filter_contract.spec.ts",
     "e2e/specs/app/filter_bar_chip_alignment.spec.ts",

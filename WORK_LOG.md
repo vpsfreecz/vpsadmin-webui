@@ -1,3 +1,7 @@
+## 2026-11-07 — Export list filter dimensions
+
+[Scope and verification](docs/work-log/2026-11-07-todo-export-filter-rhythm.md).
+
 ## 2026-11-07 — NAS and dataset filter dimensions
 
 [Scope and verification](docs/work-log/2026-11-07-todo-dataset-filter-rhythm.md).
