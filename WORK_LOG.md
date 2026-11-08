@@ -2,6 +2,10 @@
 
 [Scope, data and verification](docs/work-log/2026-11-08-dashboard-summary.md).
 
+## 2026-11-08 — Prepare development modules for complete CI
+
+[Scope, failures and measured verification](docs/work-log/2026-11-08-ci-development-bundles.md).
+
 ## 2026-11-08 — Reduce CI locale module requests
 
 [Scope and verification](docs/work-log/2026-11-08-ci-locale-bundles.md).

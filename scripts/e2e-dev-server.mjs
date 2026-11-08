@@ -7,11 +7,16 @@ const host = process.argv[2];
 const port = Number(process.argv[3]);
 if (!host || !Number.isInteger(port) || port < 1 || port > 65535) throw new Error('Expected fixture host and port');
 
-// Keep production-mode catalog compilation in a separate process from React DEV.
-execFileSync(process.execPath, ['node_modules/vite/bin/vite.js', 'build', '--config', 'build/e2eLocales.config.ts'], {
-  stdio: 'inherit',
-});
-process.env.VPSADMIN_E2E_LOCALE_BUNDLES = '1';
+// Prepare immutable application modules while keeping the real React DEV runtime.
+execFileSync(
+  process.execPath,
+  ['node_modules/vite/bin/vite.js', 'build', '--config', 'build/e2eDevelopment.config.ts', '--mode', 'development'],
+  {
+    stdio: 'inherit',
+    env: { ...process.env, NODE_ENV: 'development', VITE_RUNTIME_MODE: process.env.VITE_RUNTIME_MODE ?? 'legacy' },
+  }
+);
+process.env.VPSADMIN_E2E_APP_BUNDLE = '1';
 let ready = false;
 const server = await createServer({
   server: { host, port, strictPort: true },
@@ -35,17 +40,10 @@ process.once('SIGINT', stop);
 process.once('SIGTERM', stop);
 try {
   await server.listen();
-  await Promise.all(
-    [
-      '/src/main.tsx',
-      '/src/routes/RouteProvidersLayout.tsx',
-      '/src/components/layout/AppShell.tsx',
-      '/src/pages/app/DashboardPage.tsx',
-    ].map((path) => server.environments.client.warmupRequest(path))
-  );
+  await server.environments.client.warmupRequest('/@vite/client');
   await server.waitForRequestsIdle();
   ready = true;
-  console.log('Fixture Vite DEV ready; common modules warmed, StrictMode unchanged.');
+  console.log('Fixture Vite DEV ready; prepared development modules, StrictMode unchanged.');
 } catch (error) {
   await server.close();
   throw error;
