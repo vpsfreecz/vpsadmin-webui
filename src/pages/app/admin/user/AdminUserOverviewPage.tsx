@@ -538,7 +538,7 @@ export function AdminUserOverviewPage() {
                     />
                     <Button
                       type="button"
-                      size="sm"
+                      size="md"
                       variant="secondary"
                       onClick={() => setStateField('remindAfterDate', '')}
                       disabled={!stateDraft.remindAfterDate.trim()}
