@@ -1,3 +1,8 @@
+## 2026-11-08 — Respect OOM process API limits and retain later pages
+
+Issue103 / REQ-051, REQ-010. See the
+[scope and verification record](docs/work-log/2026-11-08-oom-task-pagination.md).
+
 ## 2026-11-08 — Use the original favicon in sidebar branding
 
 Implement queued request5 / REQ-004, REQ-010. See the

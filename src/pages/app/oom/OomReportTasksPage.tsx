@@ -1,6 +1,6 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, useSearchParams } from 'react-router-dom';
 
 import { useAppMode } from '../../../app/appMode';
 import { useI18n } from '../../../app/i18n';
@@ -11,6 +11,9 @@ import { formatBytesIec, formatPages4k } from '../../../lib/bytes';
 import { Card, CardBody, CardHeader } from '../../../components/ui/Card';
 import { ErrorState } from '../../../components/ui/ErrorState';
 import { LoadingState } from '../../../components/ui/LoadingState';
+import { KeysetPagination } from '../../../components/ui/KeysetPagination';
+import { useKeysetPagination } from '../../../lib/hooks/useKeysetPagination';
+import { cursorFromAscendingPage } from '../../../lib/lockIndex';
 
 function MobileCellLabel(props: { children: React.ReactNode }) {
   return (
@@ -25,10 +28,30 @@ export function OomReportTasksPage() {
   const { basePath } = useAppMode();
   const { t } = useI18n();
 
-  const tasksQ = useQuery({
-    queryKey: ['oom_reports', report.id, 'tasks', { scope: basePath }],
-    queryFn: async () => (await fetchOomReportTasks(report.id, { limit: 2000 })).data,
+  const [searchParams, setSearchParams] = useSearchParams();
+  const pagination = useKeysetPagination({
+    id: `oom.${report.id}.tasks`,
+    filterKey: JSON.stringify({ reportId: report.id, scope: basePath }),
+    searchParams,
+    setSearchParams,
+    defaultLimit: 100,
+    allowedLimits: [25, 50, 100],
   });
+  const tasksQ = useQuery({
+    queryKey: ['oom_reports', report.id, 'tasks', { scope: basePath, fromId: pagination.fromId, limit: pagination.limit }],
+    queryFn: async ({ signal }) => (await fetchOomReportTasks(report.id, {
+      // One look-ahead row keeps an exactly full last page from exposing an
+      // empty Next page. All supported sizes remain below the API's 1000 cap.
+      limit: pagination.limit + 1,
+      fromId: pagination.fromId,
+      signal,
+    })).data,
+  });
+  const pageData = tasksQ.data ?? [];
+  const tasks = pageData.slice(0, pagination.limit);
+  const nextCursor = cursorFromAscendingPage(tasks);
+  const canNext = pagination.hasForward || pageData.length > pagination.limit;
+  const pageCount = Math.max(pagination.pageCount, pagination.page + (canNext && !pagination.hasForward ? 1 : 0));
 
   return (
     <Card className="@container" testId="oom.detail.tasks">
@@ -38,7 +61,7 @@ export function OomReportTasksPage() {
           <LoadingState />
         ) : tasksQ.isError ? (
           <ErrorState title={t('oom.detail.tasks.error')} error={tasksQ.error} onRetry={() => void tasksQ.refetch()} />
-        ) : (tasksQ.data ?? []).length === 0 ? (
+        ) : tasks.length === 0 ? (
           <div className="text-sm text-muted">{t('oom.detail.tasks.empty')}</div>
         ) : (
           <div
@@ -61,7 +84,7 @@ export function OomReportTasksPage() {
                 </tr>
               </thead>
               <tbody className="block @4xl:table-row-group">
-                {(tasksQ.data ?? []).map((p: OomReportTask) => (
+                {tasks.map((p: OomReportTask) => (
                   <tr
                     key={p.id}
                     className="block border-b border-border/50 last:border-b-0 @4xl:table-row"
@@ -134,6 +157,21 @@ export function OomReportTasksPage() {
           </div>
         )}
       </CardBody>
+      {!tasksQ.isLoading && !tasksQ.isError && (tasks.length > 0 || pagination.canPrev) ? (
+        <KeysetPagination
+          testId="oom.detail.tasks.pagination"
+          page={pagination.page}
+          pageCount={pageCount}
+          canPrev={pagination.canPrev}
+          canNext={canNext}
+          onPrev={pagination.goPrev}
+          onNext={() => pagination.goNext(nextCursor)}
+          onGoToPage={pagination.goToPage}
+          limit={pagination.limit}
+          allowedLimits={pagination.allowedLimits}
+          onLimitChange={pagination.setLimit}
+        />
+      ) : null}
     </Card>
   );
 }

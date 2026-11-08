@@ -226,3 +226,21 @@ fixtures so screenshots do not contain unrelated synchronization errors. All
 scope, owner, query, failure and navigation assertions remain. Corrected exact
 6cd3 cases passed18 on Chromium, mobile Chrome and mobile WebKit; fresh CI is
 still required. This changes fixtures/documentation only, not runtime guards.
+
+## Received queue6: independent OOM task limit fix
+
+Locally integrate focused main-based41ba4806 (issue103), preserving its independent
+history and all received requests1–5. All six full originals are now available.
+Runtime OOM source was identical on main and6cf before the fix; generated SDK
+contracts and all Aither guards remain authoritative. Resolve documentation and
+strict E2E inventory conflicts by retaining the complete existing preview content
+and adding only the bounded process paging contract and two adopted specs.
+No deferred hash reset or compiler/test budget change.
+
+The full merged working source passes356 files/2309 unit tests (45.67s), and
+ci:quick passes200 adopted E2E leaves/109 deferred plus normal lint/catalog/type
+and BFF contract checks. Focused source passes unit6, quick155/129 and clean
+Nix4/379; its exact18 browsers are still waiting for the shared lease. Original
+6cf reproduces the invalid2000 request in both engines. Final matching combined
+Nix/browser/CI and paired preview activation/live checks remain pending; no
+production switch or shared-main/PR merge is authorized.

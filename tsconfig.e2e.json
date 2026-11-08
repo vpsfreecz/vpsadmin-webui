@@ -115,6 +115,8 @@
     "e2e/specs/app/networking_filter_rhythm.spec.ts",
     "e2e/specs/app/node_history.spec.ts",
     "e2e/specs/app/oom_filter_rhythm.spec.ts",
+    "e2e/specs/app/oom_report_tasks_mobile_layout.spec.ts",
+    "e2e/specs/app/oom_report_tasks_pagination.spec.ts",
     "e2e/specs/app/pagination_control_rhythm.spec.ts",
     "e2e/specs/app/payment_qr_images.spec.ts",
     "e2e/specs/app/payments_page.spec.ts",
