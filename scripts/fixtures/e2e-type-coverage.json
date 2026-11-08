@@ -44,6 +44,7 @@
     "e2e/specs/admin/security_advisory_outages_mobile_actions.spec.ts",
     "e2e/specs/admin/user_contact_summary.spec.ts",
     "e2e/specs/admin/user_detail_page.spec.ts",
+    "e2e/specs/admin/user_environment_configs_smoke.spec.ts",
     "e2e/specs/admin/user_packages_assigned_date.spec.ts",
     "e2e/specs/admin/user_packages_bulk_remove.spec.ts",
     "e2e/specs/admin/user_password_dialog.spec.ts",
@@ -481,13 +482,6 @@
     {
       "path": "e2e/specs/admin/user_detail_error_retry.spec.ts",
       "sha256": "3351f01daa1744e6856778b8aab2ef2855c4c6a4c82617aee365d99d4a64250d",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/admin/user_environment_configs_smoke.spec.ts",
-      "sha256": "79add39516257a3948f8df6d4cd8025d1a544f6f960fcacd94fab6103cf8915c",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."

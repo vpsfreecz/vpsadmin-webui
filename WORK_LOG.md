@@ -2163,3 +2163,8 @@ Prepare approved UX-03 / REQ-010 and REQ-053. See the
 
 Prepare approved UX-03/04 / REQ-010 and REQ-023. See the
 [scope and verification](docs/work-log/2026-11-08-todo-vps-config-review-wrap.md).
+
+## 2026-11-08 — Align selected-owner environment actions
+
+Prepare approved UX-03 / REQ-010. See the
+[scope and verification](docs/work-log/2026-11-08-todo-user-environment-control.md).
