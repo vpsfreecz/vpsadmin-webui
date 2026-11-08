@@ -1,10 +1,14 @@
 import { expect, test } from '@playwright/test';
 import type { Transaction__IndexOutput } from 'vpsadmin-typescript-client';
 
-import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
 import {
-  expectNoDocumentHorizontalOverflow,
-} from '../../helpers/horizontalOverflow';
+  bootstrapVpsAdminWindow,
+  installHaveApiMock,
+  setUiSettingsLocalStorage,
+  jsonFulfill,
+  failEnvelope,
+} from '../../fixtures';
+import { expectNoDocumentHorizontalOverflow } from '../../helpers/horizontalOverflow';
 
 // Member responses omit the admin-only transaction fields.
 const memberTransactions = [
@@ -93,82 +97,86 @@ const handlers = {
   'GET transactions': ({ searchParams }: { searchParams: URLSearchParams }) => {
     const chainId = searchParams.get('transaction[transaction_chain]');
     if (chainId === '124') {
-      return { transactions: [
-        {
-          id: 801,
-          name: 'Prepare VPS',
-          done: 'done',
-          success: 1,
-          priority: 10,
-          type: 1,
-          created_at: '2026-02-02T09:00:10Z',
-          started_at: '2026-02-02T09:00:15Z',
-          finished_at: '2026-02-02T09:01:00Z',
-          node: { id: 2, name: 'node2' },
-          vps: { id: 101, hostname: 'vps101' },
-          transaction_chain: { id: 124 },
-          input: JSON.stringify({ action: 'prepare' }),
-          output: JSON.stringify({ ok: true }),
-        },
-        {
-          id: 802,
-          name: 'Start VPS',
-          done: 'done',
-          success: 1,
-          priority: 20,
-          type: 2,
-          created_at: '2026-02-02T09:01:00Z',
-          started_at: '2026-02-02T09:01:05Z',
-          finished_at: '2026-02-02T09:02:00Z',
-          node: { id: 2, name: 'node2' },
-          vps: { id: 101, hostname: 'vps101' },
-          transaction_chain: { id: 124 },
-          input: JSON.stringify({ action: 'start' }),
-          output: JSON.stringify({ ok: true, stdout: 'booted' }),
-        },
-      ] };
+      return {
+        transactions: [
+          {
+            id: 801,
+            name: 'Prepare VPS',
+            done: 'done',
+            success: 1,
+            priority: 10,
+            type: 1,
+            created_at: '2026-02-02T09:00:10Z',
+            started_at: '2026-02-02T09:00:15Z',
+            finished_at: '2026-02-02T09:01:00Z',
+            node: { id: 2, name: 'node2' },
+            vps: { id: 101, hostname: 'vps101' },
+            transaction_chain: { id: 124 },
+            input: JSON.stringify({ action: 'prepare' }),
+            output: JSON.stringify({ ok: true }),
+          },
+          {
+            id: 802,
+            name: 'Start VPS',
+            done: 'done',
+            success: 1,
+            priority: 20,
+            type: 2,
+            created_at: '2026-02-02T09:01:00Z',
+            started_at: '2026-02-02T09:01:05Z',
+            finished_at: '2026-02-02T09:02:00Z',
+            node: { id: 2, name: 'node2' },
+            vps: { id: 101, hostname: 'vps101' },
+            transaction_chain: { id: 124 },
+            input: JSON.stringify({ action: 'start' }),
+            output: JSON.stringify({ ok: true, stdout: 'booted' }),
+          },
+        ],
+      };
     }
     if (chainId === '125') {
-      return { transactions: [
-        {
-          id: 901,
-          name: 'Create dataset',
-          done: 'done',
-          success: 1,
-          created_at: '2026-02-02T10:00:10Z',
-          started_at: '2026-02-02T10:00:15Z',
-          finished_at: '2026-02-02T10:01:00Z',
-          node: { id: 3, name: 'node3' },
-          vps: { id: 102, hostname: 'vps102' },
-          transaction_chain: { id: 125 },
-        },
-        {
-          id: 902,
-          name: 'Configure network',
-          done: 'waiting',
-          success: 1,
-          created_at: '2026-02-02T10:01:00Z',
-          started_at: '2026-02-02T10:01:10Z',
-          finished_at: null,
-          node: { id: 3, name: 'node3' },
-          vps: { id: 102, hostname: 'vps102' },
-          transaction_chain: { id: 125 },
-          output: JSON.stringify({ stdout: 'creating veth' }),
-        },
-        {
-          id: 903,
-          name: 'Start services',
-          done: 'waiting',
-          success: 1,
-          created_at: '2026-02-02T10:02:00Z',
-          started_at: null,
-          finished_at: null,
-          node: { id: 3, name: 'node3' },
-          vps: { id: 102, hostname: 'vps102' },
-          transaction_chain: { id: 125 },
-          depends_on: { id: 902 },
-        },
-      ] };
+      return {
+        transactions: [
+          {
+            id: 901,
+            name: 'Create dataset',
+            done: 'done',
+            success: 1,
+            created_at: '2026-02-02T10:00:10Z',
+            started_at: '2026-02-02T10:00:15Z',
+            finished_at: '2026-02-02T10:01:00Z',
+            node: { id: 3, name: 'node3' },
+            vps: { id: 102, hostname: 'vps102' },
+            transaction_chain: { id: 125 },
+          },
+          {
+            id: 902,
+            name: 'Configure network',
+            done: 'waiting',
+            success: 1,
+            created_at: '2026-02-02T10:01:00Z',
+            started_at: '2026-02-02T10:01:10Z',
+            finished_at: null,
+            node: { id: 3, name: 'node3' },
+            vps: { id: 102, hostname: 'vps102' },
+            transaction_chain: { id: 125 },
+            output: JSON.stringify({ stdout: 'creating veth' }),
+          },
+          {
+            id: 903,
+            name: 'Start services',
+            done: 'waiting',
+            success: 1,
+            created_at: '2026-02-02T10:02:00Z',
+            started_at: null,
+            finished_at: null,
+            node: { id: 3, name: 'node3' },
+            vps: { id: 102, hostname: 'vps102' },
+            transaction_chain: { id: 125 },
+            depends_on: { id: 902 },
+          },
+        ],
+      };
     }
     if (chainId !== '123') return { transactions: [] };
 
@@ -197,15 +205,23 @@ test.describe('@pr-smoke TransactionChainDetailPage', () => {
     await expect(concerns).not.toContainText('#998');
     await expect(concerns).not.toContainText('#997');
     await expect(page.getByTestId('transactions.chain.detail.concern.0.open')).toHaveAttribute('href', '/app/vps/100');
-    await expect(page.getByTestId('transactions.chain.detail.concern.1.open')).toHaveAttribute('href', '/app/datasets/200');
-    await expect(page.getByTestId('transactions.chain.detail.concern.2.open')).toHaveAttribute('href', '/app/dns/zones/300');
+    await expect(page.getByTestId('transactions.chain.detail.concern.1.open')).toHaveAttribute(
+      'href',
+      '/app/datasets/200'
+    );
+    await expect(page.getByTestId('transactions.chain.detail.concern.2.open')).toHaveAttribute(
+      'href',
+      '/app/dns/zones/300'
+    );
     await expect(page.getByTestId('transactions.chain.detail.concern.3.open')).toHaveCount(0);
     await expect(page.getByTestId('transactions.chain.detail.concern.4.open')).toHaveCount(0);
     await expect(concerns.locator('a[href^="/admin"]')).toHaveCount(0);
 
     await expect(page.getByTestId('transactions.chain.detail.tx.701')).toBeVisible();
     await expect(page.getByTestId('transactions.chain.detail.tx.702')).toBeVisible();
-    await expect(page.getByTestId('transactions.chain.detail.tx.702').getByRole('link', { name: 'Step 2', exact: true })).toHaveAttribute('href', '/app/transactions/items/702');
+    await expect(
+      page.getByTestId('transactions.chain.detail.tx.702').getByRole('link', { name: 'Step 2', exact: true })
+    ).toHaveAttribute('href', '/app/transactions/items/702');
 
     // RowTone Full: every transaction row has an explicit variant.
     await expect(page.getByTestId('transactions.chain.detail.tx.701')).toHaveAttribute('data-row-variant', 'warn');
@@ -214,13 +230,19 @@ test.describe('@pr-smoke TransactionChainDetailPage', () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await expectNoDocumentHorizontalOverflow(page);
     await expect(page.getByTestId('transactions.chain.detail.transactions.table')).toBeVisible();
-    expect(await page.getByTestId('transactions.chain.detail.transactions.table').evaluate((table) => table.scrollWidth <= table.clientWidth + 1)).toBe(true);
+    expect(
+      await page
+        .getByTestId('transactions.chain.detail.transactions.table')
+        .evaluate((table) => table.scrollWidth <= table.clientWidth + 1)
+    ).toBe(true);
 
     await page.getByTestId('transactions.chain.detail.tx.toggle.702').click();
     await expect(page.getByTestId('transactions.chain.detail.tx.expanded.702')).toBeVisible();
     const expanded = page.getByTestId('transactions.chain.detail.tx.expanded.702');
     await expect(expanded).toContainText('node2');
-    await expect(expanded.getByText('No input/output payload recorded for this transaction.', { exact: true })).toHaveCount(2);
+    await expect(
+      expanded.getByText('No input/output payload recorded for this transaction.', { exact: true })
+    ).toHaveCount(2);
     await expect(expanded).not.toContainText('step failed on node2');
     await expect(expanded).not.toContainText('mount: permission denied');
     await expect(expanded).not.toContainText('rollback_needed');
@@ -245,7 +267,9 @@ test.describe('@pr-smoke TransactionChainDetailPage', () => {
     await expect(pin).toHaveAttribute('aria-label', /Unpin transaction chain/i);
   });
 
-  test('renders admin My-view done chain with multiple expandable transactions at narrow desktop width', async ({ page }) => {
+  test('renders admin My-view done chain with multiple expandable transactions at narrow desktop width', async ({
+    page,
+  }) => {
     await page.setViewportSize({ width: 1100, height: 720 });
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST_TOKEN' });
     // Admin identity is required for the payload while retaining the /app My-view layout.
@@ -259,7 +283,9 @@ test.describe('@pr-smoke TransactionChainDetailPage', () => {
     await expect(page.getByTestId('transactions.chain.detail.tx.802')).toBeVisible();
 
     await page.getByRole('button', { name: /expand all|rozbalit vše/i }).click();
-    const input801 = page.getByTestId('transactions.chain.detail.tx.expanded.801').getByRole('region', { name: 'Input', exact: true });
+    const input801 = page
+      .getByTestId('transactions.chain.detail.tx.expanded.801')
+      .getByRole('region', { name: 'Input', exact: true });
     await expect(input801.locator('dt')).toHaveText('action');
     await expect(input801.locator('dd')).toHaveText('prepare');
     await expect(page.getByTestId('transactions.chain.detail.tx.expanded.802')).toContainText('booted');
@@ -278,7 +304,11 @@ test.describe('@pr-smoke TransactionChainDetailPage', () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await expectNoDocumentHorizontalOverflow(page);
     await expect(page.getByTestId('transactions.chain.detail.transactions.table')).toBeVisible();
-    expect(await page.getByTestId('transactions.chain.detail.transactions.table').evaluate((table) => table.scrollWidth <= table.clientWidth + 1)).toBe(true);
+    expect(
+      await page
+        .getByTestId('transactions.chain.detail.transactions.table')
+        .evaluate((table) => table.scrollWidth <= table.clientWidth + 1)
+    ).toBe(true);
 
     await page.getByTestId('transactions.chain.detail.tx.toggle.902').click();
     await expect(page.getByTestId('transactions.chain.detail.tx.expanded.902')).toContainText('creating veth');
@@ -295,12 +325,14 @@ test.describe('@pr-smoke TransactionChainDetailPage', () => {
         ...handlers,
         'GET transaction_chains/126': () => {
           chainRequests += 1;
-          return { transaction_chain: {
-            id: 126,
-            state: 'failed',
-            label: 'Failed scheduled backup',
-            created_at: '2026-02-02T11:00:00Z',
-          } };
+          return {
+            transaction_chain: {
+              id: 126,
+              state: 'failed',
+              label: 'Failed scheduled backup',
+              created_at: '2026-02-02T11:00:00Z',
+            },
+          };
         },
         'GET transactions': (args: { searchParams: URLSearchParams }) => {
           if (args.searchParams.get('transaction[transaction_chain]') === '126') {
@@ -330,22 +362,24 @@ test.describe('@pr-smoke TransactionChainDetailPage', () => {
       user: { id: 1, login: 'admin', level: 99 },
       handlers: {
         ...handlers,
-        'GET transactions': () => ({ transactions: [
-          memberTransactions[0],
-          {
-            ...memberTransactions[1],
-            priority: 20,
-            urgent: true,
-            type: 2,
-            input: JSON.stringify({ a: 1 }),
-            output: JSON.stringify({
-              ok: false,
-              error: 'step failed on node2',
-              result: { rollback_needed: true },
-              stderr: 'mount: permission denied',
-            }),
-          },
-        ] }),
+        'GET transactions': () => ({
+          transactions: [
+            memberTransactions[0],
+            {
+              ...memberTransactions[1],
+              priority: 20,
+              urgent: true,
+              type: 2,
+              input: JSON.stringify({ a: 1 }),
+              output: JSON.stringify({
+                ok: false,
+                error: 'step failed on node2',
+                result: { rollback_needed: true },
+                stderr: 'mount: permission denied',
+              }),
+            },
+          ],
+        }),
       },
     });
 
@@ -360,15 +394,31 @@ test.describe('@pr-smoke TransactionChainDetailPage', () => {
       'href',
       '/admin/transactions/items/702'
     );
-    await expect(page.getByTestId('transactions.chain.detail.concern.0.open')).toHaveAttribute('href', '/admin/vps/100');
-    await expect(page.getByTestId('transactions.chain.detail.concern.1.open')).toHaveAttribute('href', '/admin/datasets/200');
-    await expect(page.getByTestId('transactions.chain.detail.concern.2.open')).toHaveAttribute('href', '/admin/dns/zones/300');
-    await expect(page.getByTestId('transactions.chain.detail.concern.3.open')).toHaveAttribute('href', '/admin/nodes/2');
+    await expect(page.getByTestId('transactions.chain.detail.concern.0.open')).toHaveAttribute(
+      'href',
+      '/admin/vps/100'
+    );
+    await expect(page.getByTestId('transactions.chain.detail.concern.1.open')).toHaveAttribute(
+      'href',
+      '/admin/datasets/200'
+    );
+    await expect(page.getByTestId('transactions.chain.detail.concern.2.open')).toHaveAttribute(
+      'href',
+      '/admin/dns/zones/300'
+    );
+    await expect(page.getByTestId('transactions.chain.detail.concern.3.open')).toHaveAttribute(
+      'href',
+      '/admin/nodes/2'
+    );
     await expect(page.getByTestId('transactions.chain.detail.concern.4.open')).toHaveCount(0);
     await page.setViewportSize({ width: 390, height: 844 });
     await expectNoDocumentHorizontalOverflow(page);
     await expect(page.getByTestId('transactions.chain.detail.transactions.table')).toBeVisible();
-    expect(await page.getByTestId('transactions.chain.detail.transactions.table').evaluate((table) => table.scrollWidth <= table.clientWidth + 1)).toBe(true);
+    expect(
+      await page
+        .getByTestId('transactions.chain.detail.transactions.table')
+        .evaluate((table) => table.scrollWidth <= table.clientWidth + 1)
+    ).toBe(true);
     await page.getByTestId('transactions.chain.detail.tx.toggle.702').click();
     const expanded = page.getByTestId('transactions.chain.detail.tx.expanded.702');
     await expect(expanded).toBeVisible();
@@ -399,3 +449,53 @@ test.describe('@pr-smoke TransactionChainDetailPage', () => {
     await expect(page.getByTestId('transactions.chain.detail.tx.702')).toBeVisible();
   });
 });
+
+for (const mode of ['app', 'admin'] as const) {
+  for (const [language, theme] of [
+    ['cs', 'dark'],
+    ['en', 'light'],
+  ] as const) {
+    test(`@pr-smoke @pr-smoke-mobile chain item read error remains labelled and readable (${mode}/${language}/${theme})`, async ({
+      page,
+    }) => {
+      const writes: string[] = [];
+      page.on('request', (request) => {
+        if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method())) writes.push(request.url());
+      });
+      await setUiSettingsLocalStorage(page, { language, theme });
+      await bootstrapVpsAdminWindow(page, { webuiNext: { uiSettings: { persistence: 'local' } } });
+      const message = 'Synthetic transaction items read failure';
+      await installHaveApiMock(page, {
+        user: { id: 1, login: 'synthetic-audit-user', level: mode === 'admin' ? 99 : 1 },
+        handlers: {
+          'GET transaction_chains/123': () => ({
+            transaction_chain: { id: 123, state: 'queued', label: 'Synthetic chain' },
+          }),
+          'GET transactions': () => jsonFulfill(failEnvelope(message), 503),
+        },
+      });
+      await page.goto(`/${mode}/transactions/123`);
+      const error = page.getByTestId('transactions.chain.detail.transactions.error');
+      await expect(error).toContainText(language === 'cs' ? 'Chyba' : 'Error');
+      await expect(error).toContainText(message);
+      const contrast = await error.getByText(message, { exact: true }).evaluate((el) => {
+        const rgb = (text: string) => (text.match(/[\d.]+/g) ?? []).slice(0, 3).map(Number);
+        const luminance = (c: number[]) =>
+          c
+            .map((v) => v / 255)
+            .map((v) => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4))
+            .reduce((sum, v, i) => sum + v * [0.2126, 0.7152, 0.0722][i]!, 0);
+        let surface: Element | null = el;
+        while (surface && ['rgba(0, 0, 0, 0)', 'transparent'].includes(getComputedStyle(surface).backgroundColor))
+          surface = surface.parentElement;
+        const foreground = luminance(rgb(getComputedStyle(el).color));
+        const background = luminance(rgb(getComputedStyle(surface!).backgroundColor));
+        return (Math.max(foreground, background) + 0.05) / (Math.min(foreground, background) + 0.05);
+      });
+      expect(contrast).toBeGreaterThanOrEqual(4.5);
+      await page.setViewportSize({ width: 320, height: 844 });
+      await expectNoDocumentHorizontalOverflow(page);
+      expect(writes).toEqual([]);
+    });
+  }
+}

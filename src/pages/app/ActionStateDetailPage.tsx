@@ -302,7 +302,7 @@ export function ActionStateDetailPage() {
               label={failedTxId ? t('transactions.tx.failed_here') : t('transactions.tx.current_step')}
               value={
                 failedTxId ? (
-                  <Link className="text-danger hover:underline" to={`${basePath}/transactions/items/${failedTxId}`}>
+                  <Link className="text-fg underline" to={`${basePath}/transactions/items/${failedTxId}`}>
                     #{failedTxId}
                   </Link>
                 ) : currentTxId ? (
