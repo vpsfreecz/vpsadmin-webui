@@ -23,3 +23,11 @@ deferred entry and add its explicit root. A callback-populated query observation
 uses a mutable container so strict control-flow analysis can see the result.
 The main-compatible preview already adopted this file. No compiler guard is
 weakened.
+
+The first exact-package geometry checks passed layout but all four failed an
+incorrect new query expectation: unfiltered requests correctly ask for total
+count, while filtered requests omit it. Read the actual page/adapter contract;
+assert initial count=true, then poll the filtered final request for no count
+and retain absence of unsupported search/visibility/zone API parameters.
+This corrects the test only; preserve failed traces and repeat exact-head CI
+and clean provenance before activation. No runtime/query behaviour changed.
