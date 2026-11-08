@@ -63,7 +63,10 @@ for (const language of ['cs', 'en'] as const) {
       if (testInfo.project.name.startsWith('mobile')) await setNow.tap();
       else {
         await date.focus();
-        await page.keyboard.press('Tab');
+        // Native date/time inputs have several internal Tab stops.
+        for (let i = 0; i < 10 && !(await setNow.evaluate(el => document.activeElement === el)); i++) {
+          await page.keyboard.press('Tab');
+        }
         await expect(setNow).toBeFocused();
         await page.keyboard.press('Enter');
       }
