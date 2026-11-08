@@ -1,3 +1,7 @@
+## 2026-11-08 — Match lifetime date field actions
+
+[Scope and verification](docs/work-log/2026-11-08-todo-lifetime-field-rhythm.md).
+
 ## 2026-11-08 — Align native field and pagination controls
 
 [Scope and verification](docs/work-log/2026-11-08-todo-pagination-control-rhythm.md).

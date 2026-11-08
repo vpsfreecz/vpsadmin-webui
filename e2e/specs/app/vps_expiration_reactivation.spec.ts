@@ -7,7 +7,7 @@ for (const language of ['cs', 'en'] as const) {
     hasTouch,
   }, testInfo) => {
     await bootstrapVpsAdminWindow(page);
-    await setUiSettingsLocalStorage(page, { language });
+    await setUiSettingsLocalStorage(page, { language, theme: language === 'cs' ? 'dark' : 'light' });
     const vps = {
       id: 123,
       hostname: 'expired-playground-test',
@@ -59,6 +59,14 @@ for (const language of ['cs', 'en'] as const) {
     const open = async () => {
       await page.goto('/admin/vps/123/lifecycle/lifetime');
       await page.getByTestId('lifetimes.admin.edit').click();
+      const expectedHeight = await page.evaluate(() => matchMedia('(any-pointer:coarse)').matches ? 44 : 36);
+      for (const id of [
+        'lifetimes.admin.expiration', 'lifetimes.admin.expiration.clear',
+        'lifetimes.admin.remind_after', 'lifetimes.admin.remind_after.clear',
+      ]) {
+        await expect(page.getByTestId(id)).toBeVisible();
+        expect((await page.getByTestId(id).boundingBox())?.height, id).toBe(expectedHeight);
+      }
     };
     const save = async () => {
       const button = page
