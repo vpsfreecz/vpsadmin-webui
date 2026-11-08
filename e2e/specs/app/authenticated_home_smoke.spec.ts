@@ -8,7 +8,7 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke @smoke-mobile authentic
   page.on('request', request => {
     if (new URL(request.url()).pathname.endsWith('/vpses')) vpsRequests.push(request);
   });
-  await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST_USER_SESSION' });
+  await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST_USER_SESSION', webuiNext: { haveApi: { authHeader: 'X-HaveAPI-Auth-Token', metaNamespace: '_meta' } } });
 
   await installHaveApiMock(page, {
     user: { id: 10, login: 'alice', level: 1 },
@@ -38,7 +38,10 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke @smoke-mobile authentic
   await expect(page.getByTestId('app.dashboard.kpi.vps')).toContainText('2');
   await expect(page.getByText('Running:')).toHaveCount(0);
 
-  await page.getByTestId('app.dashboard.kpi.vps').getByRole('link', { name: 'Open' }).click();
+  await expect(page.getByTestId('app.dashboard.kpi.vps').getByRole('link', { name: 'Open' })).toHaveCount(0);
+  await openShellNavigation(page);
+  const navigation = page.getByTestId(await drawer.isVisible() ? 'nav.drawer' : 'shell.sidebar');
+  await navigation.getByRole('link', { name: 'VPS', exact: true }).click();
 
   await expect(page).toHaveURL(/\/app\/vps$/);
   await expect(page.getByRole('heading', { name: 'VPS' })).toBeVisible();
