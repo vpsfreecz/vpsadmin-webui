@@ -19,6 +19,7 @@
     "e2e/specs/admin/ip_addresses_primary_location.spec.ts",
     "e2e/specs/admin/ip_addresses_suggested_request_budget.spec.ts",
     "e2e/specs/admin/ip_assignment_vps_first.spec.ts",
+    "e2e/specs/admin/migration_plan_action_feedback.spec.ts",
     "e2e/specs/admin/network_availability.spec.ts",
     "e2e/specs/admin/networking_surfaces_smoke.spec.ts",
     "e2e/specs/admin/node_heatmaps.spec.ts",
@@ -329,13 +330,6 @@
     {
       "path": "e2e/specs/admin/mailer_templates_smoke.spec.ts",
       "sha256": "1ef548c4b71295d36086e0f4de6f316db5e892ffd552b1d7fd68f86c44be0a9c",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/admin/migration_plan_action_feedback.spec.ts",
-      "sha256": "d3795bb16f860418d2790055f57fe5ed86ad6e1a6a091f533924d557b8954e67",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
