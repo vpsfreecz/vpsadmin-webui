@@ -282,6 +282,7 @@ for (const [language, theme] of [
     const hidden = page.getByTestId('admin.cluster.dns_servers.filter.hidden');
     const zones = page.getByTestId('admin.cluster.dns_servers.filter.user_zones');
     await page.evaluate(() => document.fonts.ready);
+    expect(requests[0]?.searchParams.get('_meta[count]')).toBe('true');
     if (!mobile) {
       const boxes = await Promise.all(
         [input, hidden, zones, ...(await filters.getByRole('button').all())].map((control) => control.boundingBox())
@@ -308,9 +309,11 @@ for (const [language, theme] of [
     await hidden.selectOption('false');
     await zones.selectOption('true');
     expect(requests.length).toBeGreaterThan(0);
+    await expect.poll(() => requests.at(-1)?.searchParams.get('_meta[count]')).toBeNull();
     for (const url of requests) {
       expect(url.searchParams.get('dns_server[q]')).toBeNull();
-      expect(url.searchParams.get('_meta[count]')).toBeNull();
+      expect(url.searchParams.get('dns_server[hidden]')).toBeNull();
+      expect(url.searchParams.get('dns_server[enable_user_dns_zones]')).toBeNull();
     }
     expect(writes).toEqual([]);
   });
