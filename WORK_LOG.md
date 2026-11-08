@@ -1,3 +1,7 @@
+## 2026-11-08 — Wrap full IPv6 addresses in mobile interface cards
+
+[Scope and verification](docs/work-log/2026-11-08-todo-network-interface-address-wrap.md).
+
 ## 2026-11-08 — Record CI videos on the first retry
 
 [Scope, performance measurement and diagnostic retention](docs/work-log/2026-11-08-ci-video-capture.md).
