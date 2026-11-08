@@ -288,7 +288,7 @@ function NavigationSections(props: {
 export function AppLogo() {
   return (
     <div className="flex items-center gap-2">
-      <div className="grid h-8 w-8 place-items-center rounded-md bg-accent text-sm font-semibold text-accent-fg">VA</div>
+      <img src="/favicon.png" alt="" aria-hidden="true" width={32} height={32} className="h-8 w-8 shrink-0 object-contain" />
       <div className="leading-tight">
         <div className="text-sm font-semibold">vpsAdmin</div>
       </div>

@@ -1,3 +1,8 @@
+## 2026-11-08 — Use the original favicon in sidebar branding
+
+Implement queued request5 / REQ-004, REQ-010. See the
+[scope and verification record](docs/work-log/2026-11-08-sidebar-favicon-brand.md).
+
 ## 2026-11-08 — Show dashboard servers hosting my VPS
 
 Implement queued request 4 / REQ-009, REQ-010, REQ-054. See the

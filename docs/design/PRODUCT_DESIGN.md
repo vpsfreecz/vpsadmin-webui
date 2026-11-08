@@ -22,7 +22,7 @@ session duration and account preferences sit in a bordered panel above the
 sidebar navigation. Tasks and session duration share a row when space permits.
 The account login aligns with the Tasks label. Admin and support roles have a
 small icon beside the login with a localized description.
-The account popover shows every choice when space permits, with scrolling on short screens. Branding sits directly above About.
+The account popover shows every choice when space permits, with scrolling on short screens. Branding sits directly above About and uses the existing favicon beside the visible vpsAdmin name in both the sidebar and mobile drawer. The image is decorative because the adjacent name identifies the product.
 Mobile has one navigation trigger, with the same controls inside its drawer.
 Only one controls instance mounts at a time, so search and outside-click refs
 never point at a hidden duplicate. Tasks/search close mobile navigation before
