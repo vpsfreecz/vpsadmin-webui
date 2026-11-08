@@ -83,11 +83,11 @@ export function VpsNetworkInterfacesCard(props: {
                           <div className="break-all font-mono">{ni.mac || '—'}</div>
                         </div>
                         <div>
-                          <div className="text-xs text-muted">{t('vps.network.interfaces.max_tx')}</div>
+                          <div className="text-xs text-muted">{t('vps.network.interfaces.field.max_tx')}</div>
                           <div className="font-mono">{formatMbpsFromBytesPerSec(ni.max_tx)}</div>
                         </div>
                         <div>
-                          <div className="text-xs text-muted">{t('vps.network.interfaces.max_rx')}</div>
+                          <div className="text-xs text-muted">{t('vps.network.interfaces.field.max_rx')}</div>
                           <div className="font-mono">{formatMbpsFromBytesPerSec(ni.max_rx)}</div>
                         </div>
                       </div>
