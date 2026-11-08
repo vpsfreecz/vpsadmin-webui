@@ -1,3 +1,7 @@
+## 2026-11-08 — Readable operation cards and read failures
+
+[Scope and verification](docs/work-log/2026-11-08-todo-operation-body-presentation.md).
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path
