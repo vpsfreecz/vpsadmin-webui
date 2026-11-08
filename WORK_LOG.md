@@ -2220,3 +2220,6 @@ Prepare approved UX-03 / REQ-010. See [scope and verification](docs/work-log/202
 
 Prepare approved UX-03 / REQ-010 after actual long-label clipping in the
 infrastructure audit. [Scope, baseline and pending verification](docs/work-log/2026-11-08-todo-node-pool-title-wrap.md).
+
+2026-11-08: Preserve the verified same-frame language selection color regression
+correction from 539e92a9 in this preview. Runtime behavior is unchanged.
