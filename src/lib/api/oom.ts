@@ -119,11 +119,13 @@ export async function fetchOomReportStats(oomReportId: number, opts?: { limit?: 
   return narrowApiResult(res, narrowOomReportStatList, `oom_reports/${oomReportId}/stats#index`);
 }
 
-export async function fetchOomReportTasks(oomReportId: number, opts?: { limit?: number }) {
+export async function fetchOomReportTasks(oomReportId: number, opts?: { limit?: number; fromId?: number; signal?: AbortSignal }) {
   const params: OomReport__Task__IndexInput = {};
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
 
-  const res = await (await getApi()).oom_report.task.index({ path: { oom_report_id: oomReportId }, params });
+  if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
+
+  const res = await (await getApi()).oom_report.task.index({ path: { oom_report_id: oomReportId }, params, signal: opts?.signal });
 
   return narrowApiResult(res, narrowOomReportTaskList, `oom_reports/${oomReportId}/tasks#index`);
 }

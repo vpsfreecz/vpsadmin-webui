@@ -696,6 +696,17 @@ blind retry. [Finance](../../src/lib/api/finance.ts),
 
 ## Tasks, transactions, monitoring, incidents and OOM
 
+The OOM report Processes tab uses shared keyset pagination (25/50/100 visible
+rows, default100). Requests add one look-ahead row, staying below the API's1000
+maximum. The ascending cursor is the largest displayed task ID; the extra row
+is not skipped on the next page. Previous/visited pages, reload/deep links and
+page-size reset reuse the shared pagination contract. Query identity includes
+the report, view, cursor and size; abort signals reach the generated SDK. A failed
+page renders an error/retry state rather than stale processes. This fixes
+[issue103](https://github.com/vpsfreecz/vpsadmin-webui/issues/103); the original
+fixed2000 request was invalid and reducing it to1000 alone would leave later
+processes unreachable. Report authorization remains entirely API-owned.
+
 Transaction history uses compact aligned ID/time/owner/object/action/state
 columns on desktop and folds metadata under the action on small screens. The
 owner column appears only in administrator mode; a normal member and an admin's

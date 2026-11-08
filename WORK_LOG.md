@@ -1,3 +1,8 @@
+## 2026-11-08 — Respect OOM process API limits and retain later pages
+
+Issue103 / REQ-051, REQ-010. See the
+[scope and verification record](docs/work-log/2026-11-08-oom-task-pagination.md).
+
 ## Request return paths (2026-11-04)
 
 Remove legacy `q` from request list return paths while preserving other

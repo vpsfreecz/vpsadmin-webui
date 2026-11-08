@@ -2,7 +2,7 @@ import { beforeEach } from 'vitest';
 import { apiWire } from '../../test/haveapiXhr';
 import { describe, expect, test, vi } from 'vitest';
 
-import { fetchOomReports } from './oom';
+import { fetchOomReports, fetchOomReportTasks } from './oom';
 
 function mockFetchOk(response: any) {
   return vi.fn().mockResolvedValue({ ok: true, json: async () => ({ status: true, response }) });
@@ -14,6 +14,16 @@ function lastFetchCall() {
 }
 
 describe('oom API wrappers', () => {
+  test('fetchOomReportTasks forwards the supported bounded page and cursor to the report task resource', async () => {
+    apiWire.respond = mockFetchOk({ tasks: [{ id: 1001, name: 'last-process', rss: null }] });
+    const result = await fetchOomReportTasks(77, { limit: 101, fromId: 1000 });
+    const url = new URL(lastFetchCall()[0]);
+    expect(url.pathname).toBe('/v7.0/oom_reports/77/tasks');
+    expect(url.searchParams.get('task[limit]')).toBe('101');
+    expect(url.searchParams.get('task[from_id]')).toBe('1000');
+    expect(result.data).toEqual([{ id: 1001, name: 'last-process', rss: null }]);
+  });
+
   test('fetchOomReports forwards only supported filter params', async () => {
     apiWire.respond = mockFetchOk({ oom_reports: [], _meta: { total_count: 0 } }) as any;
 
