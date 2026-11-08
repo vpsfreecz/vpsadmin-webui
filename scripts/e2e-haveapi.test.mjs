@@ -37,13 +37,14 @@ function fakePage() {
     async addInitScript(fn, args) {
       initScripts.push({ fn, args });
     },
-    async request(pathname, { method = 'GET', body = null } = {}) {
+    async request(pathname, { method = 'GET', body = null, headers = {} } = {}) {
       assert.equal(typeof handler, 'function');
       const result = { fulfilled: null, fallback: false };
       const request = {
         url: () => `https://fixture.test${pathname}`,
         method: () => method,
         postData: () => body,
+        headers: () => headers,
       };
       const route = {
         request: () => request,
@@ -126,9 +127,11 @@ test('handler selection keeps query/body aliases and fallback responses', async 
   const response = await page.request('/api/v7.0/items?filter=query', {
     method: 'POST',
     body: '{"filter":"body","item":{"id":7}}',
+    headers: { 'x-haveapi-auth-token': 'synthetic-router-token' },
   });
   assert.deepEqual(json(response), { status: true, response: { items: [{ id: 7 }] } });
   assert.equal(observed.request.postData(), '{"filter":"body","item":{"id":7}}');
+  assert.deepEqual(observed.headers, { 'x-haveapi-auth-token': 'synthetic-router-token' });
   assert.deepEqual(observed.request.postDataJSON(), observed.reqJson);
   assert.deepEqual(observed.json, observed.reqJson);
   assert.equal(observed.searchParams.get('filter'), 'query');
