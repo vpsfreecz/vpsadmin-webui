@@ -2,7 +2,7 @@
 
 The maintainer's approved UX-03 and UX-04 continuation covers consistent
 sizes, alignment and readable dark-theme groups throughout the interface.
-A finite audit of transaction chains, items and action states found three
+A finite audit of transaction chains, items and action states found four
 specific problems in the unchanged operation bodies at preview e4dc02bf.
 
 At 320px, action-state badges and controls occupied the same horizontal
@@ -20,6 +20,11 @@ handlers, links, payloads, polling and the OAuth BFF are unchanged.
 Failed-step links in action and chain summaries had 2.65:1 contrast on the
 dark action tile. They now use readable text and a persistent underline,
 retaining the explicit Failed here/Selhalo zde label and exact target.
+
+The small payload error heading used the same danger foreground on an
+ordinary card. It now retains its explicit error label and medium weight
+with the normal readable foreground; payload contents and copy actions
+are unchanged. The same browser regression measures this heading too.
 
 REQ-009 and REQ-010 apply. Terminology was read from locked vpsAdmin
 revision a65a4dfeb92a59df4a80a737a20bcbf8558793ff. No catalog, label,

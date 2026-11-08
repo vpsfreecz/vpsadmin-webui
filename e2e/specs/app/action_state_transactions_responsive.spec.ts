@@ -151,7 +151,7 @@ for (const mode of ['app', 'admin'] as const) {
     ['cs', 'dark'],
     ['en', 'light'],
   ] as const) {
-    test(`@pr-smoke @pr-smoke-mobile failed-step links retain readable text and targets (${mode}/${language}/${theme})`, async ({
+    test(`@pr-smoke @pr-smoke-mobile failed-step links and payload error headings stay readable (${mode}/${language}/${theme})`, async ({
       page,
     }) => {
       await setUiSettingsLocalStorage(page, { language, theme });
@@ -176,18 +176,38 @@ for (const mode of ['app', 'admin'] as const) {
               { id: 701, name: 'Synthetic failed step', done: 'done', success: 0, transaction_chain: { id: 456 } },
             ],
           }),
+          'GET transactions/701': () => ({
+            transaction: {
+              id: 701,
+              name: 'Synthetic failed step',
+              done: 'done',
+              success: 0,
+              error: 'Synthetic execution failure',
+              input: '{}',
+              output: '{}',
+            },
+          }),
         },
       });
       for (const [route, rootId] of [
         ['action-states/123', 'action_state.detail'],
         ['transactions/456', 'transactions.chain.detail.info'],
+        ['transactions/items/701', 'transactions.items.detail.debug_sections'],
       ]) {
         await page.goto(`/${mode}/${route}`);
         const root = page.getByTestId(rootId!);
-        const label = root.getByText(language === 'cs' ? 'Selhalo zde' : 'Failed here', { exact: true }).first();
+        const payload = route!.includes('/items/');
+        const text = payload
+          ? language === 'cs'
+            ? 'Chyba'
+            : 'Error'
+          : language === 'cs'
+            ? 'Selhalo zde'
+            : 'Failed here';
+        const label = root.getByText(text, { exact: true }).first();
         await expect(label).toBeVisible();
-        const link = label.locator('..').locator('a').first();
-        await expect(link).toHaveAttribute('href', `/${mode}/transactions/items/701`);
+        const link = payload ? label : label.locator('..').locator('a').first();
+        if (!payload) await expect(link).toHaveAttribute('href', `/${mode}/transactions/items/701`);
         const contrast = await link.evaluate((el) => {
           const rgb = (text: string) => (text.match(/[\d.]+/g) ?? []).slice(0, 3).map(Number);
           const lum = (c: number[]) =>
@@ -203,7 +223,7 @@ for (const mode of ['app', 'admin'] as const) {
           return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
         });
         expect(contrast).toBeGreaterThanOrEqual(4.5);
-        await expect(link).toHaveCSS('text-decoration-line', 'underline');
+        if (!payload) await expect(link).toHaveCSS('text-decoration-line', 'underline');
         await page.setViewportSize({ width: 320, height: 844 });
         await expectNoDocumentHorizontalOverflow(page);
       }
