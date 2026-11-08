@@ -196,6 +196,7 @@
     "e2e/specs/app/vps_private_ip_availability.spec.ts",
     "e2e/specs/app/vps_resource_workspace.spec.ts",
     "e2e/specs/app/vps_resources_failures.spec.ts",
+    "e2e/specs/app/vps_route_query_feedback.spec.ts",
     "e2e/specs/app/vps_storage_tab_mounts.spec.ts",
     "e2e/specs/app/vps_support_permissions.spec.ts",
     "e2e/specs/public/about.spec.ts",

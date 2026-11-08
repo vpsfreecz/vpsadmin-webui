@@ -1,3 +1,7 @@
+## 2026-11-08 — Distinguish route-list read errors from uncertain writes
+
+[Scope and verification](docs/work-log/2026-11-08-todo-network-query-feedback.md).
+
 ## 2026-11-08 — Wrap full IPv6 addresses in mobile interface cards
 
 [Scope and verification](docs/work-log/2026-11-08-todo-network-interface-address-wrap.md).
