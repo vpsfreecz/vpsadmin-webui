@@ -272,3 +272,16 @@ from this follow-up only in that one presentation prop. A new matching artifact
 and narrow final eight date-field/workflow cases will cover the final source.
 Do not attribute98af results to a different revision. No production activation
 or shared-main/PR merge is authorized.
+
+## Preserve diagnostics while reducing CI capture cost
+
+The former public6cf candidate finished18 checks successfully and two project
+jobs cancelled at the existing40-minute budget. Logs show progress without a
+failed assertion report; do not classify the incomplete jobs as passed. A
+controlled two-engine navigation comparison passed12/12 in both modes and
+measured129.15s versus111.58s excluding lease wait. Record CI video only on
+the first retry, retaining the first failure trace/screenshot and local video
+behavior. The expected-failure diagnostic probe verified both projects'
+first-attempt trace/PNG and first-retry video/trace/PNG. No timeout, assertion,
+selection, retry or worker limit changes. This is a separate main-based
+verification commit; final runtime remains identical to49b6aa3b.

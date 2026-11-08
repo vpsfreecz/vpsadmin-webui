@@ -1,3 +1,7 @@
+## 2026-11-08 — Record CI videos on the first retry
+
+[Scope, performance measurement and diagnostic retention](docs/work-log/2026-11-08-ci-video-capture.md).
+
 ## 2026-11-08 — Match lifetime date field actions
 
 [Scope and verification](docs/work-log/2026-11-08-todo-lifetime-field-rhythm.md).
