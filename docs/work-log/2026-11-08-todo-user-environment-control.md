@@ -41,3 +41,21 @@ Both focused and cumulative normal source quick checks, complete strict adopted
 E2E leaf, six BFF type tests and BFF-mode frontend builds pass after these guard
 corrections. Original failed logs remain local. Clean-package browser checks and
 fresh exact-head CI are still release gates; no deployment is claimed here.
+
+The first cleanffae package passed its16 bounded cases, but actual image review
+confirmed a second alignment defect in the same mobile card: a wrapped lifetime
+label moves that input below the max-count input. Keep those first receipts as
+initial scope, not final acceptance. Put both labels in a shared two-column row
+above the two unchanged inputs, preserving their handlers/values/IDs and helper.
+Extend the focused regression to require equal input top edges at320px in both
+pointer modes/languages. Update the SAME focused draft PR by normal fast-forward;
+require a fresh clean artifact and six checks on its new head before activation.
+No earlier candidate was staged or activated.
+
+Actual baseline measurements distinguish widths: CS390px card fields differ
+by16px but align at320px; EN390px aligns but differs by16px at320px. The mobile
+320px-only negative check therefore correctly reports1pass/1failure, not two
+failures. Preserve it. Check paired inputs at BOTH normal mobile width and320px
+in the final regression; shared label rows resolve both concrete observations.
+Both source quick checks/builds pass after the shared-row markup change; final
+normal-width test additions receive strict leaf/format/docs checks separately.

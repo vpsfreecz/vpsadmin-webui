@@ -277,9 +277,12 @@ export function UserEnvironmentConfigsPanel(props: {
                                 >
                                   <BoolCell cfg={cfg} draft={draft} field="canCreate" {...fieldProps} />
                                   <BoolCell cfg={cfg} draft={draft} field="canDestroy" {...fieldProps} />
-                                  <div>
+                                  <div className="col-span-2 grid grid-cols-2 gap-x-2">
                                     <div className="text-xs text-faint">
                                       {t('admin.user.env_configs.field.vps_lifetime_days')}
+                                    </div>
+                                    <div className="text-xs text-faint">
+                                      {t('admin.user.env_configs.field.max_vps')}
                                     </div>
                                     <Input
                                       type="number"
@@ -289,14 +292,6 @@ export function UserEnvironmentConfigsPanel(props: {
                                       disabled={draft.inherit}
                                       testId={`${prefix}.row.${cfg.id}.vps_lifetime_days`}
                                     />
-                                    <div className="mt-1 text-xs text-muted">
-                                      {draftPreview(draft, t('common.unlimited'))}
-                                    </div>
-                                  </div>
-                                  <div>
-                                    <div className="text-xs text-faint">
-                                      {t('admin.user.env_configs.field.max_vps')}
-                                    </div>
                                     <Input
                                       type="number"
                                       min={0}
@@ -305,6 +300,9 @@ export function UserEnvironmentConfigsPanel(props: {
                                       disabled={draft.inherit}
                                       testId={`${prefix}.row.${cfg.id}.max_vps`}
                                     />
+                                    <div className="mt-1 text-xs text-muted">
+                                      {draftPreview(draft, t('common.unlimited'))}
+                                    </div>
                                   </div>
                                 </div>
                                 <Button

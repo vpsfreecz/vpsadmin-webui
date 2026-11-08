@@ -213,6 +213,14 @@ for (const [language, theme] of [
       );
       expect(Math.max(...tops) - Math.min(...tops)).toBeLessThanOrEqual(1);
     }
+    if (isMobile) {
+      const tops = await Promise.all(
+        ['vps_lifetime_days', 'max_vps'].map(async (field) => {
+          return (await row.getByTestId('admin.user.env_configs.row.1.' + field).boundingBox())!.y;
+        })
+      );
+      expect(Math.max(...tops) - Math.min(...tops)).toBeLessThanOrEqual(1);
+    }
     await page.setViewportSize({ width: 320, height: 750 });
     const narrow = page.locator('[data-testid="admin.user.env_configs.row.1"]:visible');
     for (const field of ['mode', 'vps_lifetime_days', 'max_vps', 'save']) {
@@ -220,6 +228,12 @@ for (const [language, theme] of [
         isMobile ? 44 : 36
       );
     }
+    const narrowTops = await Promise.all(
+      ['vps_lifetime_days', 'max_vps'].map(async (field) => {
+        return (await narrow.getByTestId('admin.user.env_configs.row.1.' + field).boundingBox())!.y;
+      })
+    );
+    expect(Math.max(...narrowTops) - Math.min(...narrowTops)).toBeLessThanOrEqual(1);
     expect(
       writes.filter((write) => !/^PUT \/api\/v7\.0\/webui_user_settings\/(ui|ui_setting)\/settings$/.test(write))
     ).toEqual([]);
