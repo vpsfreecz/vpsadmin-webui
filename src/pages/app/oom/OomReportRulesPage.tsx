@@ -378,7 +378,7 @@ export function OomReportRulesPage() {
               <div className="mt-1">
                 <Badge variant={ruleVariant(deleteCandidate.action ?? undefined)}>{t(ruleLabelKey(deleteCandidate.action ?? undefined))}</Badge>
               </div>
-              <div className="mt-1 font-mono text-xs">{deleteCandidate.cgroup_pattern ? String(deleteCandidate.cgroup_pattern) : '—'}</div>
+              <div className="mt-1 min-w-0 break-all font-mono text-xs">{deleteCandidate.cgroup_pattern ? String(deleteCandidate.cgroup_pattern) : '—'}</div>
             </div>
           ) : null}
 

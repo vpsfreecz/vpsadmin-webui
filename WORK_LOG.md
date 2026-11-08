@@ -1,3 +1,7 @@
+## 2026-11-09 — Wrap the OOM rule in deletion confirmation
+
+[Scope and verification](docs/work-log/2026-11-09-oom-rule-confirmation-wrap.md).
+
 ## 2026-11-08 — Fix owned-server status identity and admin scope
 
 [Root cause, API boundary, role scope and verification](docs/work-log/2026-11-08-dashboard-owned-server-identity.md).
