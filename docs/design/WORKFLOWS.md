@@ -648,6 +648,12 @@ history. Manual credits without an incoming source do not get a fabricated link.
 The overview retains its administrator-only finance gate. Browser Back returns
 to the member overview; the detail's own Back link retains its finance destination.
 
+The member Payments header and monthly-amount/reference cards use concise labels
+without their redundant explanatory subtitles. The shared reference label is
+`VS / ID` in both languages, including the administrator's member-payment view.
+Its value remains the existing member ID; paid-until status and API-provided
+banking instructions keep their existing meaning and behavior.
+
 Payment instructions offer individual copy icons for recognized bank-account,
 IBAN, BIC, variable-symbol, message and amount rows, alongside the existing
 whole-instructions copy. Account/IBAN whitespace is removed; variable-symbol
