@@ -31,3 +31,11 @@ assert initial count=true, then poll the filtered final request for no count
 and retain absence of unsupported search/visibility/zone API parameters.
 This corrects the test only; preserve failed traces and repeat exact-head CI
 and clean provenance before activation. No runtime/query behaviour changed.
+
+The standard legacy CI fixture defaults to server UI-settings persistence.
+Its automatic preference PUT was incorrectly caught by this geometry test's
+strict no-write assertion; the isolated BFF harness did not produce that write.
+Set local UI-settings persistence explicitly for this test, retaining the
+zero-write assertion for every POST/PUT/PATCH/DELETE. Do not filter the observed
+write away or change application persistence. Verify both standard legacy and
+special BFF fixture modes before repeating the exact-head full CI gate.

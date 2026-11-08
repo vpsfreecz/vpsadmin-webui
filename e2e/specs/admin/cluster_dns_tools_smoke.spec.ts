@@ -250,7 +250,10 @@ for (const [language, theme] of [
     const writes: string[] = [];
     await page.setViewportSize(mobile ? { width: 390, height: 844 } : { width: 1440, height: 1000 });
     await setUiSettingsLocalStorage(page, { language, theme });
-    await bootstrapVpsAdminWindow(page, { sessionToken: 'DNS_FILTER_ALIGNMENT' });
+    await bootstrapVpsAdminWindow(page, {
+      sessionToken: 'DNS_FILTER_ALIGNMENT',
+      webuiNext: { uiSettings: { persistence: 'local' } },
+    });
     await installHaveApiMock(page, {
       user: { id: 7, login: 'admin', level: 90 },
       handlers: {
