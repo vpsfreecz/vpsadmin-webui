@@ -1,3 +1,7 @@
+## 2026-11-08 — Place interface settings next to logout
+
+[Scope and verification](docs/work-log/2026-11-08-sidebar-settings-order.md).
+
 ## 2026-11-08 — Match public language and appearance selection
 
 [Scope, verification and CI transition-reference follow-up](docs/work-log/2026-11-08-public-language-selection.md).

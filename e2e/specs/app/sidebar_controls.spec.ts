@@ -12,6 +12,7 @@ for (const actor of [
   test(`@pr-smoke @pr-smoke-mobile navigation controls and session setting (${actor.mode}/${actor.level}/${actor.language})`, async ({ page, isMobile }, testInfo) => {
     if (isMobile) await page.setViewportSize({ width: 320, height: 700 });
     else await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.clock.setFixedTime(new Date('2026-11-08T20:00:00Z'));
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
     await setUiSettingsLocalStorage(page, { language: actor.language, theme: actor.theme });
     const writes: unknown[] = [];
@@ -33,6 +34,7 @@ for (const actor of [
     const navigation = page.getByTestId(mobile ? 'nav.drawer' : 'shell.sidebar');
     const controls = page.getByTestId('shell.controls');
     await expect(controls).toHaveCount(1);
+    await controls.screenshot({ path: testInfo.outputPath(`account-row-${actor.mode}-${actor.level}.png`), scale: 'css' });
     await expect(navigation.getByTestId('shell.controls')).toBeVisible();
     await expect(navigation.getByTestId('shell.inline-search.input')).toBeVisible();
     const tasksLabel = navigation.getByTestId('tasks.open-button').getByText(actor.language === 'cs' ? 'Úlohy' : 'Tasks', { exact: true });
@@ -43,7 +45,13 @@ for (const actor of [
     const loginBox = (await login.boundingBox())!;
     const settings = navigation.getByTestId('shell.interface-preferences-button');
     const settingsBox = (await settings.boundingBox())!;
-    expect(settingsBox.x + settingsBox.width).toBeLessThan(loginBox.x);
+    const accountBox = (await account.boundingBox())!;
+    const logoutBox = (await navigation.getByTestId('shell.logout').boundingBox())!;
+    expect(accountBox.x + accountBox.width).toBeLessThan(settingsBox.x);
+    expect(settingsBox.x + settingsBox.width).toBeLessThan(logoutBox.x);
+    expect(logoutBox.x - settingsBox.x - settingsBox.width).toBeLessThanOrEqual(8);
+    expect(Math.abs(settingsBox.y - logoutBox.y)).toBeLessThanOrEqual(1);
+    expect(settingsBox.height).toBe(logoutBox.height);
     expect(Math.abs(settingsBox.y + settingsBox.height / 2 - loginBox.y - loginBox.height / 2)).toBeLessThanOrEqual(1);
     await expect(navigation.getByTestId('palette.open')).toHaveCount(0);
     const role = account.getByTestId('shell.user-role');
@@ -123,6 +131,8 @@ for (const actor of [
     await expect(page.getByTestId('shell.user-menu')).toHaveCount(0);
     await expect(page.getByTestId('shell.user-menu.public-status')).toHaveCount(0);
     await account.focus();
+    await page.keyboard.press('Tab');
+    await expect(settings).toBeFocused();
     await page.keyboard.press('Tab');
     await expect(logout).toBeFocused();
     await page.screenshot({ path: testInfo.outputPath(`account-controls-${actor.mode}-${actor.level}.png`), scale: 'css' });
