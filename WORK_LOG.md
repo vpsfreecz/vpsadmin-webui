@@ -1685,3 +1685,8 @@ preserve all branch histories and colleague PRs. Add standard push CI for the
 integration branch, without deployment automation. Dev has isolated test data;
 clankerdev still uses the production API. No host update in this setup.
 [Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
+
+## 2026-11-08 — Align selected-owner environment actions
+
+Prepare approved UX-03 / REQ-010. See the
+[scope and verification](docs/work-log/2026-11-08-todo-user-environment-control.md).

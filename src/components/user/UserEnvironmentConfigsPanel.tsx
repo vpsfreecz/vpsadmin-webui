@@ -18,7 +18,7 @@ import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { Card, CardBody, CardHeader } from '../ui/Card';
 import { Input } from '../ui/Input';
-import { Select } from '../ui/Select';
+import { ModeCell, BoolCell, type EnvConfigDraft } from './UserEnvironmentConfigFields';
 import { Spinner } from '../ui/Spinner';
 import { Table } from '../ui/Table';
 
@@ -56,13 +56,6 @@ function daysStringToSeconds(daysStr: string): number {
   return Math.round(n * 86400);
 }
 
-interface EnvConfigDraft {
-  inherit: boolean;
-  canCreate: boolean;
-  canDestroy: boolean;
-  lifetimeDays: string;
-  maxVps: string;
-}
 
 function makeDraft(cfg: UserEnvironmentConfig): EnvConfigDraft {
   return {
@@ -193,34 +186,7 @@ export function UserEnvironmentConfigsPanel(props: {
     return false;
   }
 
-  function ModeCell(props2: { cfg: UserEnvironmentConfig; draft: EnvConfigDraft }) {
-    return (
-      <Select
-        value={props2.draft.inherit ? 'inherit' : 'custom'}
-        onChange={(e) => updateDraft(props2.cfg, 'inherit', e.target.value === 'inherit')}
-        testId={`${prefix}.row.${props2.cfg.id}.mode`}
-      >
-        <option value="inherit">{t('admin.user.env_configs.badge.inherited')}</option>
-        <option value="custom">{t('admin.user.env_configs.badge.custom')}</option>
-      </Select>
-    );
-  }
-
-  function BoolCell(props2: { cfg: UserEnvironmentConfig; draft: EnvConfigDraft; field: 'canCreate' | 'canDestroy' }) {
-    return (
-      <label className="inline-flex items-center gap-2 text-sm">
-        <input
-          type="checkbox"
-          checked={props2.draft[props2.field]}
-          disabled={props2.draft.inherit}
-          onChange={(e) => updateDraft(props2.cfg, props2.field, e.target.checked)}
-          data-testid={`${prefix}.row.${props2.cfg.id}.${props2.field}`}
-          className="h-4 w-4 rounded border-border text-accent focus:ring-focus"
-        />
-        <span>{props2.draft[props2.field] ? t('common.yes') : t('common.no')}</span>
-      </label>
-    );
-  }
+  const fieldProps = { prefix, updateDraft };
 
   return (
     <>
@@ -303,14 +269,14 @@ export function UserEnvironmentConfigsPanel(props: {
                             const draft = draftFor(cfg);
                             return (
                               <>
-                                <ModeCell cfg={cfg} draft={draft} />
+                                <ModeCell cfg={cfg} draft={draft} {...fieldProps} />
                                 <div
                                   className={
                                     draft.inherit ? 'grid grid-cols-2 gap-2 opacity-60' : 'grid grid-cols-2 gap-2'
                                   }
                                 >
-                                  <BoolCell cfg={cfg} draft={draft} field="canCreate" />
-                                  <BoolCell cfg={cfg} draft={draft} field="canDestroy" />
+                                  <BoolCell cfg={cfg} draft={draft} field="canCreate" {...fieldProps} />
+                                  <BoolCell cfg={cfg} draft={draft} field="canDestroy" {...fieldProps} />
                                   <div>
                                     <div className="text-xs text-faint">
                                       {t('admin.user.env_configs.field.vps_lifetime_days')}
@@ -343,7 +309,7 @@ export function UserEnvironmentConfigsPanel(props: {
                                 </div>
                                 <Button
                                   variant="primary"
-                                  size="sm"
+                                  size="md"
                                   onClick={() => saveM.mutate({ cfg, draft })}
                                   loading={saveM.isPending}
                                   disabled={saveDisabled(cfg, draft)}
@@ -397,7 +363,7 @@ export function UserEnvironmentConfigsPanel(props: {
                       return (
                         <tr
                           key={cfg.id}
-                          className="border-b border-border/60 last:border-b-0"
+                          className={`border-b border-border/60 last:border-b-0${props.editable ? ' [&>td]:align-top' : ''}`}
                           data-testid={`${prefix}.row.${cfg.id}`}
                         >
                           <td className="px-4 py-2">
@@ -406,7 +372,7 @@ export function UserEnvironmentConfigsPanel(props: {
                           </td>
                           <td className="px-4 py-2">
                             {props.editable ? (
-                              <ModeCell cfg={cfg} draft={draft} />
+                              <ModeCell cfg={cfg} draft={draft} {...fieldProps} />
                             ) : isDefault ? (
                               <Badge variant="neutral">{t('admin.user.env_configs.badge.inherited')}</Badge>
                             ) : isCustom ? (
@@ -417,7 +383,7 @@ export function UserEnvironmentConfigsPanel(props: {
                           </td>
                           <td className="px-4 py-2">
                             {props.editable ? (
-                              <BoolCell cfg={cfg} draft={draft} field="canCreate" />
+                              <BoolCell cfg={cfg} draft={draft} field="canCreate" {...fieldProps} />
                             ) : cfg.can_create_vps ? (
                               t('common.yes')
                             ) : (
@@ -426,7 +392,7 @@ export function UserEnvironmentConfigsPanel(props: {
                           </td>
                           <td className="px-4 py-2">
                             {props.editable ? (
-                              <BoolCell cfg={cfg} draft={draft} field="canDestroy" />
+                              <BoolCell cfg={cfg} draft={draft} field="canDestroy" {...fieldProps} />
                             ) : cfg.can_destroy_vps ? (
                               t('common.yes')
                             ) : (
@@ -477,7 +443,7 @@ export function UserEnvironmentConfigsPanel(props: {
                               <div className="flex flex-col items-end gap-2">
                                 <Button
                                   variant="primary"
-                                  size="sm"
+                                  size="md"
                                   onClick={() => saveM.mutate({ cfg, draft })}
                                   loading={saveM.isPending}
                                   disabled={saveDisabled(cfg, draft)}
