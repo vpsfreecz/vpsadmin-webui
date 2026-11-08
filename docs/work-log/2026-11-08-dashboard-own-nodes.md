@@ -28,8 +28,9 @@ and empty/error states are added. No legacy KB route or managed page changes;
 new React-control captures do not certify old KB screenshots.
 
 Prepared source in an isolated branch based on verified integration6cd32cfb.
-The focused draft will stack on the unchanged account-controls branch at6cd32cfb
-to keep this request separate when the combined preview branch advances.
+The focused draft targets a frozen foundation containing6cd32cfb plus the separately
+verified mobile search fixture correction. This keeps that integration repair out
+of the feature diff when the combined preview branch advances.
 Initial unit run found two fixture expectations: the new default field was absent
 from an old exact object, and a test beforeEach accidentally returned a cleanup
 function. Corrected those, preserving all assertions; rerun24 unit tests pass.
@@ -50,7 +51,7 @@ serial worker; no extra AI worker or browser bypass is introduced.
 Clean initial b4bb package passed four Nix outputs (381 assets), the complete
 356-file / 2308-unit suite, exact own-node browser40, previous-package baseline8
 and working preflight4. Those checks use synthetic intercepted requests; they do
-not certify live permissions. Existing dashboard regressions are finishing.
+not certify live permissions. Existing dashboard and preference regressions also passed14 on that package.
 
 Visual inspection found the shared Select's full width winning over a local auto
 width, stacking desktop actions. Wrap it in a bounded desktop group and keep the
@@ -58,3 +59,11 @@ full mobile width; add an existing-case alignment assertion and contextual full
 page captures so a sticky navigation header does not obscure the card title in
 an element crop. This follow-up changes presentation/evidence only. Final matching
 package and affected render reruns are still required.
+
+
+The integration foundation's search-scope CI correction is inherited without
+runtime changes: explicit shell readiness, a non-text keyboard target and the
+published SDK search namespace. Its corrected18 cases pass across Chromium,
+mobile Chrome and mobile WebKit. Final combined strict quick checks pass198/110,
+with the original allowances and failures retained. The bounded header rendering
+follow-up still requires its final exact artifact captures before publication.

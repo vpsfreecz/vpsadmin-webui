@@ -8,12 +8,14 @@ async function setup(page: Page, language: 'cs' | 'en', level = 99, mode = 'app'
   const mock = await installHaveApiMock(page, {
     user: { id: 42, login: 'search-review', level },
     handlers: {
+      'GET webui_user_settings': () => ({ webui_user_settings: [] }),
+      'PUT webui_user_settings/ui/settings': () => ({ webui_user_setting: {} }),
       'GET vpses': ({ searchParams }) => ({ vpses: searchParams.get('vps[hostname_any]') === 'imgtpx.cz' ? [{ id: 123, hostname: 'imgtpx.cz', user: { id: 42 } }] : [] }),
       'GET dns_zones': () => ({ dns_zones: [] }),
       'GET ip_addresses': () => ({ ip_addresses: [] }),
       'POST cluster/search': () => {
         adminSearches++;
-        return { cluster_search: [] };
+        return { clusters: [] };
       },
     },
   });
@@ -22,7 +24,15 @@ async function setup(page: Page, language: 'cs' | 'en', level = 99, mode = 'app'
 }
 
 async function searchInput(page: Page, mobile: boolean) {
-  if (mobile) await page.keyboard.press('Control+k');
+  if (mobile) {
+    // Wait for the authenticated shell before using its global shortcut, and
+    // start outside a text field (where the shortcut intentionally does not run).
+    const trigger = page.getByTestId('shell.mobile-nav-button');
+    await expect(trigger).toBeVisible();
+    await trigger.focus();
+    await page.keyboard.press('Control+k');
+    await expect(page.getByTestId('palette.input')).toBeVisible();
+  }
   return page.getByTestId(mobile ? 'palette.input' : 'shell.inline-search.input');
 }
 
@@ -63,6 +73,9 @@ for (const language of ['cs', 'en'] as const) {
     if (isMobile) await expect(page.getByTestId('palette.input')).toHaveValue('1234');
     else await page.getByTestId('shell.inline-search.input').fill('1234');
     await expect.poll(adminSearches).toBeGreaterThan(0);
+    await expect(page.getByTestId(isMobile ? 'palette.no_results' : 'shell.inline-search.status')).toContainText(
+      language === 'cs' ? 'Žádné výsledky' : 'No results'
+    );
     await expect(page.getByTestId('search.scope-reminder')).toHaveCount(0);
   });
 }
