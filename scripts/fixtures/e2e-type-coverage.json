@@ -72,6 +72,7 @@
     "e2e/specs/app/dashboard.spec.ts",
     "e2e/specs/app/dashboard_own_nodes.spec.ts",
     "e2e/specs/app/dashboard_preferences_accessibility.spec.ts",
+    "e2e/specs/app/dashboard_summary.spec.ts",
     "e2e/specs/app/dataset_download_delete_confirm.spec.ts",
     "e2e/specs/app/dataset_downloads_keyset_pagination.spec.ts",
     "e2e/specs/app/dataset_filter_rhythm.spec.ts",

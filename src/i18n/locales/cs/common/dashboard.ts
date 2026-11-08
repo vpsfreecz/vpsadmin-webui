@@ -1,5 +1,12 @@
 // Common dashboard copy
 export const csCommon_dashboard = {
+  'dashboard.summary.title': 'Souhrn',
+  'dashboard.summary.paid_until': 'Zaplaceno do',
+  'dashboard.summary.monthly_payment': 'Měsíční příspěvek',
+  'dashboard.summary.payment_details': 'Platební údaje',
+  'dashboard.summary.dns.one': 'DNS zóna',
+  'dashboard.summary.dns.few': 'DNS zóny',
+  'dashboard.summary.dns.other': 'DNS zón',
   'dashboard.summary.scope.mine': 'Moje objekty',
   'dashboard.summary.scope.all': 'Všechny dostupné objekty',
   'dashboard.kpi.active_operations': 'Aktivní operace',

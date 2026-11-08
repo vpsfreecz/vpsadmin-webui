@@ -30,6 +30,12 @@ describe('compactText', () => {
 });
 
 describe('formatDateInTimeZone', () => {
+  it('uses an explicit UI language across a year boundary without adopting the browser zone', () => {
+    const value = '2027-01-01T00:30:00Z';
+    expect(formatDateInTimeZone(value, 'America/Los_Angeles', 'cs')).toBe('31. 12. 2026');
+    expect(formatDateInTimeZone(value, 'America/Los_Angeles', 'en')).toBe('12/31/2026');
+    expect(formatDateInTimeZone(value, 'Europe/Prague', 'cs')).toBe('1. 1. 2027');
+  });
   it('formats the calendar date in the explicit account time zone', () => {
     const value = '2026-02-01T00:00:00Z';
     const date = new Date(value);

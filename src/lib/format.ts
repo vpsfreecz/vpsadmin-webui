@@ -59,7 +59,8 @@ export function formatDate(value: string | undefined | null): string {
 
 export function formatDateInTimeZone(
   value: string | undefined | null,
-  timeZone: string
+  timeZone: string,
+  language?: 'cs' | 'en'
 ): string {
   if (!value) return '—';
   const d = new Date(value);
@@ -67,7 +68,7 @@ export function formatDateInTimeZone(
     const trimmed = value.trim();
     return /^\d{4}-\d{2}-\d{2}/.test(trimmed) ? trimmed.slice(0, 10) : value;
   }
-  return d.toLocaleDateString(undefined, {
+  return d.toLocaleDateString(language === 'cs' ? 'cs-CZ' : language, {
     timeZone: isValidTimeZone(timeZone) ? timeZone : SAFE_TIME_ZONE,
   });
 }

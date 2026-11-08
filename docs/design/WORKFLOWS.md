@@ -122,6 +122,19 @@ public anonymous status and global operational warnings keep their full scope.
 
 Use the same ratio and exception counts on desktop and mobile, with a text summary in place of the redundant location bar. (REQ-009).
 Show one availability ratio, remove the nominal banner, and retain outage, maintenance and load or error indicators. (REQ-009).
+**Dashboard Summary (REQ-009/010):** the existing single panel is titled Summary
+(Souhrn). In My view it shows VPS and DNS zone counts plus the signed-in
+account’s paid-until date and monthly membership fee from cached user.current.
+The payment-details link stays beside the date, wrapping within that same field.
+Wide/medium/narrow layouts use four/two/one columns. Use catalog plural forms
+for DNS zones (Czech0/5+/11–14 use DNS zón); no component grammar rules.
+Shared date/payment formatters receive the interface locale; dates use the
+account time zone. Zero is retained, missing values remain unavailable, and the
+monthly amount has no invented currency. No new finance or privileged settings
+request is needed. Administrator All view keeps its aggregate resource counts
+and dataset item with an explicit scope caption; personal finance is omitted.
+Dates remain neutral; this change adds no payment-status calculation.
+
 Label the resource count group once with the actual object scope. Put each resource label and count on a compact wrapping line. (REQ-009).
 Align each widget title and its status badges on their text baseline. The same layout applies to essential, hidden and collapsed labels. (REQ-009).
 Each widget in dashboard settings groups visibility, movement and collapse under its title (REQ-009).

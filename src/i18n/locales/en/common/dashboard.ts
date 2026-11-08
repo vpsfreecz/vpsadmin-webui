@@ -1,5 +1,12 @@
 // Common dashboard copy
 export const enCommon_dashboard = {
+  'dashboard.summary.title': 'Summary',
+  'dashboard.summary.paid_until': 'Paid until',
+  'dashboard.summary.monthly_payment': 'Monthly membership fee',
+  'dashboard.summary.payment_details': 'Payment details',
+  'dashboard.summary.dns.one': 'DNS zone',
+  'dashboard.summary.dns.few': 'DNS zones',
+  'dashboard.summary.dns.other': 'DNS zones',
   'dashboard.summary.scope.mine': 'My objects',
   'dashboard.summary.scope.all': 'All accessible objects',
   'dashboard.kpi.active_operations': 'Active operations',

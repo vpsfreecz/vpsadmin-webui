@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 
 import { useAppMode } from "../../app/appMode";
 import { useAuth } from "../../app/auth";
+import { useAccountTimeZone } from "../../app/accountTimeZone";
 import { useI18n } from "../../app/i18n";
 import { useObjectScope } from "../../app/objectScope";
 import { PageContainer } from "../../components/layout/PageContainer";
@@ -37,6 +38,7 @@ function thirtyDaysAgoIso(): string {
 export function DashboardPage() {
   const [preferencesOpen, setPreferencesOpen] = useState(false);
   const auth = useAuth();
+  const accountTimeZone = useAccountTimeZone();
   const { basePath, mode } = useAppMode();
   const scope = useObjectScope();
   const { t } = useI18n();
@@ -221,6 +223,11 @@ export function DashboardPage() {
           scope={scope.scope}
           basePath={basePath}
           density={dashboardSettings.density}
+          membership={{
+            paidUntil: auth.user?.paid_until,
+            monthlyPayment: auth.user?.monthly_payment,
+            timeZone: accountTimeZone,
+          }}
           vps={{
             isLoading: isAdminScope ? clusterStatsQ.isLoading : vpsQ.isLoading,
             isError: isAdminScope ? clusterStatsQ.isError : vpsQ.isError,
