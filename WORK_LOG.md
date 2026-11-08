@@ -1,3 +1,7 @@
+## 2026-11-08 — Fix owned-server status identity and admin scope
+
+[Root cause, API boundary, role scope and verification](docs/work-log/2026-11-08-dashboard-owned-server-identity.md).
+
 ## 2026-11-08 — Readable monitoring and incident inline validation
 
 [Scope and verification](docs/work-log/2026-11-08-todo-monitoring-incident-validation-readability.md).

@@ -1,7 +1,7 @@
 import { expectArray } from './apiErrors';
 import type { Cluster__PublicStatsOutput, Location__ShowOutput, Node__PublicStatusOutput } from 'vpsadmin-typescript-client';
 import { narrowApiResult } from './apiOutput';
-import { getPublicApi } from './sdk';
+import { getApi, getPublicApi } from './sdk';
 import { narrowOutage, narrowOutageEntity, narrowOutageHandler, narrowOutageUpdate } from './outageViews';
 import { narrowPublicNewsLog } from './newsLogViews';
 import { narrowSecurityAdvisory, type SecurityAdvisory } from './securityAdvisories';
@@ -59,6 +59,19 @@ export async function fetchPublicNodeStatus() {
     if (!Array.isArray(data)) throw new Error('Invalid public node collection');
     return data.map(publicNode);
   }, 'public node status');
+}
+
+/** The signed-in status response includes node IDs needed for owned-VPS membership. */
+export async function fetchAuthenticatedNodeStatus() {
+  return narrowApiResult(await (await getApi()).node.public_status(), data => {
+    if (!Array.isArray(data)) throw new Error('Invalid authenticated node collection');
+    return data.map(node => {
+      if (typeof node?.id !== 'number' || !Number.isSafeInteger(node.id) || node.id <= 0) {
+        throw new Error('Missing authenticated node identity');
+      }
+      return { ...publicNode(node), id: node.id };
+    });
+  }, 'authenticated node status');
 }
 
 export async function fetchOutages(opts?: { limit?: number }) {
