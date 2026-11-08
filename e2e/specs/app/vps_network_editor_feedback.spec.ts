@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
+import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 
 const baseVps = {
   id: 123,
@@ -33,20 +33,22 @@ test.describe('@pr-smoke @pr-smoke-mobile VPS network editor failure feedback', 
     let ownerAttempts = 0;
     let disableAttempts = 0;
     let enableAttempts = 0;
-    const ipAddresses = [{
-      id: 1,
-      addr: '198.51.100.10',
-      network_interface: networkInterface,
-      routed: true,
-      user: { id: 20, login: 'old-owner' },
-      network: {
-        role: 'public_access',
-        purpose: 'vps',
-        ip_version: 4,
-        location: { id: 10, label: 'Prague' },
-        primary_location: { id: 10, label: 'Prague' },
+    const ipAddresses = [
+      {
+        id: 1,
+        addr: '198.51.100.10',
+        network_interface: networkInterface,
+        routed: true,
+        user: { id: 20, login: 'old-owner' },
+        network: {
+          role: 'public_access',
+          purpose: 'vps',
+          ip_version: 4,
+          location: { id: 10, label: 'Prague' },
+          primary_location: { id: 10, label: 'Prague' },
+        },
       },
-    }];
+    ];
     const hostAddresses = [
       {
         id: 50,
@@ -91,7 +93,10 @@ test.describe('@pr-smoke @pr-smoke-mobile VPS network editor failure feedback', 
           ownerAttempts += 1;
           return ownerAttempts === 1
             ? rejected('Address ownership changed on the server.')
-            : { ip_address: { ...ipAddresses[0], user: { id: 77, login: 'new-owner' } }, _meta: { action_state_id: 913 } };
+            : {
+                ip_address: { ...ipAddresses[0], user: { id: 77, login: 'new-owner' } },
+                _meta: { action_state_id: 913 },
+              };
         },
         'PUT vpses/123': (ctx) => {
           const body = ctx.request.postDataJSON?.() as { vps?: { enable_network?: boolean } };
@@ -107,11 +112,21 @@ test.describe('@pr-smoke @pr-smoke-mobile VPS network editor failure feedback', 
           networkEnabled = true;
           return { vps: { ...baseVps, enable_network: true }, _meta: { action_state_id: 915 } };
         },
-        'GET action_states/911': () => ({ action_state: { id: 911, finished: true, status: true, current: 1, total: 1 } }),
-        'GET action_states/912': () => ({ action_state: { id: 912, finished: true, status: true, current: 1, total: 1 } }),
-        'GET action_states/913': () => ({ action_state: { id: 913, finished: true, status: true, current: 1, total: 1 } }),
-        'GET action_states/914': () => ({ action_state: { id: 914, finished: true, status: true, current: 1, total: 1 } }),
-        'GET action_states/915': () => ({ action_state: { id: 915, finished: true, status: true, current: 1, total: 1 } }),
+        'GET action_states/911': () => ({
+          action_state: { id: 911, finished: true, status: true, current: 1, total: 1 },
+        }),
+        'GET action_states/912': () => ({
+          action_state: { id: 912, finished: true, status: true, current: 1, total: 1 },
+        }),
+        'GET action_states/913': () => ({
+          action_state: { id: 913, finished: true, status: true, current: 1, total: 1 },
+        }),
+        'GET action_states/914': () => ({
+          action_state: { id: 914, finished: true, status: true, current: 1, total: 1 },
+        }),
+        'GET action_states/915': () => ({
+          action_state: { id: 915, finished: true, status: true, current: 1, total: 1 },
+        }),
       },
     });
 
@@ -120,7 +135,9 @@ test.describe('@pr-smoke @pr-smoke-mobile VPS network editor failure feedback', 
     await page.getByTestId('vps.network.host_addresses.row.50.ptr').click();
     await page.getByTestId('vps.network.host_addresses.ptr.value').fill('new.example.test.');
     await page.getByTestId('vps.network.host_addresses.ptr.submit').click();
-    await expect(page.getByTestId('vps.network.host_addresses.ptr.error')).toContainText('PTR record changed on the server.');
+    await expect(page.getByTestId('vps.network.host_addresses.ptr.error')).toContainText(
+      'PTR record changed on the server.'
+    );
     await expect(page.getByTestId('vps.network.host_addresses.ptr.value')).toHaveValue('new.example.test.');
     await page.getByTestId('vps.network.host_addresses.ptr.submit').click();
     await expect(page.getByTestId('vps.network.host_addresses.ptr')).toBeHidden();
@@ -128,7 +145,9 @@ test.describe('@pr-smoke @pr-smoke-mobile VPS network editor failure feedback', 
     await page.getByTestId('vps.network.host_addresses.row.51.assign').click();
     await expect(page.getByTestId('vps.network.host_addresses.assign.interface')).toHaveValue('501');
     await page.getByTestId('vps.network.host_addresses.assign.submit').click();
-    await expect(page.getByTestId('vps.network.host_addresses.assign.error')).toContainText('Interface assignment changed on the server.');
+    await expect(page.getByTestId('vps.network.host_addresses.assign.error')).toContainText(
+      'Interface assignment changed on the server.'
+    );
     await expect(page.getByTestId('vps.network.host_addresses.assign.interface')).toHaveValue('501');
     await page.getByTestId('vps.network.host_addresses.assign.submit').click();
     await expect(page.getByTestId('vps.network.host_addresses.assign')).toBeHidden();
@@ -137,7 +156,9 @@ test.describe('@pr-smoke @pr-smoke-mobile VPS network editor failure feedback', 
     await page.getByTestId('vps.network.ip_addresses.owner.user').fill('77');
     await page.getByTestId('vps.network.ip_addresses.owner.environment').selectOption('3');
     await page.getByTestId('vps.network.ip_addresses.owner.submit').click();
-    await expect(page.getByTestId('vps.network.ip_addresses.owner.error')).toContainText('Address ownership changed on the server.');
+    await expect(page.getByTestId('vps.network.ip_addresses.owner.error')).toContainText(
+      'Address ownership changed on the server.'
+    );
     await expect(page.getByTestId('vps.network.ip_addresses.owner.user')).toHaveValue('77');
     await expect(page.getByTestId('vps.network.ip_addresses.owner.environment')).toHaveValue('3');
     await page.getByTestId('vps.network.ip_addresses.owner.submit').click();
@@ -167,4 +188,63 @@ test.describe('@pr-smoke @pr-smoke-mobile VPS network editor failure feedback', 
       enableAttempts: 2,
     });
   });
+});
+
+test.describe('@pr-smoke @pr-smoke-mobile VPS interface address wrapping', () => {
+  for (const [language, theme] of [
+    ['cs', 'dark'],
+    ['en', 'light'],
+  ] as const) {
+    test(`retains full IPv6 within a narrow interface card (${language})`, async ({ page, isMobile }, info) => {
+      const address = '2001:0db8:1234:5678:90ab:cdef:1234:5678';
+      await page.setViewportSize({ width: isMobile ? 390 : 1440, height: 900 });
+      await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+      await setUiSettingsLocalStorage(page, { language, theme });
+      await installHaveApiMock(page, {
+        user: { id: 7, login: 'member', level: 1 },
+        handlers: {
+          'GET vpses/123': () => ({ vps: { ...baseVps, enable_network: true } }),
+          'GET network_interfaces': () => ({ network_interfaces: [{ ...networkInterface, enable: true }] }),
+          'GET network_interface_accountings': () => ({ network_interface_accountings: [] }),
+          'GET ip_addresses': () => ({
+            ip_addresses: [
+              {
+                id: 2,
+                addr: address,
+                prefix: 64,
+                routed: true,
+                network_interface: networkInterface,
+                user: { id: 7 },
+                network: { id: 2, ip_version: 6, role: 'public_access', purpose: 'vps' },
+              },
+            ],
+          }),
+          'GET host_ip_addresses': () => ({ host_ip_addresses: [] }),
+        },
+      });
+      await page.goto('/app/vps/123/network');
+      await expect(page.getByTestId('vps.network.interfaces.' + (isMobile ? 'card' : 'row') + '.501')).toBeVisible();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+        isMobile ? 390 : 1440
+      );
+      await page.setViewportSize({ width: 320, height: 750 });
+      const card = page.getByTestId('vps.network.interfaces.card.501');
+      await expect(card).toBeVisible();
+      const value = card.getByText(address, { exact: true });
+      await expect(value).toBeVisible();
+      await expect(value).toHaveText(address);
+      const bounds = await value.evaluate((el) => {
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        return Array.from(range.getClientRects()).map((b) => ({ left: b.left, right: b.right }));
+      });
+      const cardBounds = await card.boundingBox();
+      expect(cardBounds).not.toBeNull();
+      expect(bounds.length).toBeGreaterThan(1);
+      expect(bounds.every((b) => b.left >= cardBounds!.x && b.right <= cardBounds!.x + cardBounds!.width)).toBe(true);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
+      await card.scrollIntoViewIfNeeded();
+      await page.screenshot({ path: info.outputPath('interface-full-ipv6-320.png'), scale: 'css' });
+    });
+  }
 });

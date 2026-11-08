@@ -98,7 +98,7 @@ export function VpsNetworkInterfacesCard(props: {
                           <div className="mt-1 space-y-1">
                             {ips.map((ip) => (
                               <div key={ip.id} className="text-sm">
-                                <span className="font-mono">{ipAddressLabel(ip)}</span>
+                                <span className="break-all font-mono">{ipAddressLabel(ip)}</span>
                                 {ipPurposeLabel(ip) !== '—' || ipIsRouted(ip) ? (
                                   <span className="ml-2 text-xs text-muted">
                                     {ipPurposeLabel(ip) !== '—' ? ipPurposeLabel(ip) : ''}

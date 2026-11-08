@@ -1,3 +1,7 @@
+## 2026-11-08 — Wrap full IPv6 addresses in mobile interface cards
+
+[Scope and verification](docs/work-log/2026-11-08-todo-network-interface-address-wrap.md).
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path
