@@ -293,12 +293,23 @@ for (const preferenceSource of ['device', 'account'] as const) {
     });
 
     const html = page.locator('html');
-    await page.goto('/app/vps?dialog=example#draft');
+    // Device appearance is available before authentication. Wait for the actual
+    // account settings read before expiring this signed-in session.
+    await Promise.all([
+      page.waitForResponse(response => response.request().method() === 'GET' &&
+        new URL(response.url()).pathname.endsWith('/webui_user_settings') && response.status() === 200),
+      page.goto('/app/vps?dialog=example#draft'),
+    ]);
+    await openShellNavigation(page);
+    await expect(page.getByTestId('shell.user-menu-button')).toBeVisible();
     await expect(html).toHaveAttribute('data-theme', 'dark');
     await expect(html).toHaveAttribute('lang', 'cs');
 
     authenticated = false;
-    await page.evaluate(() => window.dispatchEvent(new Event('webui-next:session-expired')));
+    // Return the evaluation before the event intentionally replaces the document.
+    await page.evaluate(() => {
+      window.setTimeout(() => window.dispatchEvent(new Event('webui-next:session-expired')), 0);
+    });
     await expect(page).toHaveURL(/\/$/);
     const signIn = page.getByTestId('auth.session-expired.sign-in');
     await expect(signIn).toBeVisible();

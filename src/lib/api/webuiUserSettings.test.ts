@@ -20,6 +20,15 @@ afterEach(() => {
 });
 
 describe('generated settings operations', () => {
+  it('does not dispatch a settings read cancelled while the client initializes', async () => {
+    const respond = fixture('/webui_user_settings', { webui_user_settings: [] });
+    const controller = new AbortController();
+    const pending = fetchWebuiUserSetting('ui', 'settings', { signal: controller.signal });
+    controller.abort();
+    await expect(pending).rejects.toMatchObject({ name: 'AbortError' });
+    expect(respond).not.toHaveBeenCalled();
+  });
+
   it('uses the mounted version base and encodes keyed segments once', async () => {
     const respond = fixture('/webui_user_settings/');
     await saveWebuiUserSetting('ui prefs', 'theme/key', { theme: 'dark' });

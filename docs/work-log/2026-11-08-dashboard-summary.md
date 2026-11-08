@@ -31,3 +31,7 @@ focused draft review; no main merge, production activation or KB publication is
 implied. Isolated fixtures do not certify live permissions or OAuth. External KB
 contracts are owned by the separate legacy-vpsAdmin capture project; review the
 reported dashboard/navigation concepts before any documentation release.
+
+## Expiry regression follow-up
+
+Rejected integration7fd59be passed nine checks but failed the Chromium expiry case in run42505435954 (948passed, one failed and one flaky). Neither it nor the earlier timed-out candidates was activated. Focused draft[221](https://github.com/vpsfreecz/vpsadmin-webui/pull/221) cancels pending private preference reads and queued saves on expiry, avoids implicit writes for missing records, and fixes the fixture's authentication precondition and navigation evaluation. Its2313 unit tests and12 actual-wrapper expiry cases pass, with four regressions confirmed failing against the preceding implementation. The Summary base advances to46b9249b while the expiry PR retains a separate frozen base365. A new integration needs fresh exact-head CI, matching Nix outputs and paired activation/actual-host evidence. Existing Summary layout/data/localization and CI budgets/assertions are preserved.
