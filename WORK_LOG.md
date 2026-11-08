@@ -2097,3 +2097,9 @@ Keep main's guarded transport, read-only fields and uncertainty behavior. Correc
 obsolete fixture namespaces, assertions and mobile selectors; retain failure
 evidence and require focused exact-package reruns before activation. See the
 [integration work log](docs/work-log/2026-11-07-main-preview-integration.md).
+
+## 2026-11-08 — Shorten the payment summary copy
+
+Implement queued request2 / REQ-052: remove three redundant summary descriptions
+and use VS / ID for the shared payment reference. See the
+[scope and verification record](docs/work-log/2026-11-08-payment-summary-copy.md).

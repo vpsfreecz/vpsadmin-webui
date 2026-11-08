@@ -818,6 +818,12 @@ continue to request actual payments.
 The administrator incoming payment detail shows the payer account when the bank
 provided it. Previously imported payments can have an empty account number.
 
+The member Payments header and monthly-amount/reference cards use concise labels
+without their redundant explanatory subtitles. The shared reference label is
+`VS / ID` in both languages, including the administrator's member-payment view.
+Its value remains the existing member ID; paid-until status and API-provided
+banking instructions keep their existing meaning and behavior.
+
 Payment instructions offer individual copy icons for recognized bank-account,
 IBAN, BIC, variable-symbol, message and amount rows, alongside the existing
 whole-instructions copy. Account/IBAN whitespace is removed; variable-symbol
