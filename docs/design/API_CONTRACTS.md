@@ -34,6 +34,43 @@ claims. Local adapter tests verify serialization, not deployed backend capabilit
 
 ## Intentional capability and filter limits
 
+### Secondary DNS transfer evidence
+
+REQ-049 separates local BIND serving state (`dns_server_zone.zone_status`) from
+direct user-primary readiness. A matching serial or successful peer transfer
+does not establish a user's primary path or prove loaded freshness. The
+`dns_server_zone_primary_transfer_state` read resource provides per-primary and
+per-secondary paths; `evidence_current` must be true before a raw success/failure
+can be presented as current. Missing or stale evidence is pending. Readiness
+aggregates on configured transfers use the same backend predicate. Visible
+secondary-zone readiness, configuration and serving queries refresh each minute;
+the browser does not duplicate the backend evidence-age policy.
+
+The frontend checks authenticated API resource/action/output descriptions before
+requesting new paths or displaying aggregate/serving/source fields. Older APIs
+retain DNS controls and historical attempts, with readiness unavailable. A
+description or read error remains an error; it does not become a positive or
+negative health result. Transfer diagnostics retain their source kind, including
+`legacy` for historical attempts that cannot establish readiness.
+
+A separate successful `dns_zone_transfer.index` query with `dns_zone`,
+`peer_type=primary_type`, `limit=1` and no cursor establishes missing user-primary
+configuration. Empty paginated slices, missing probe paths and peer-only serving
+cannot substitute for that predicate. New path pagination uses ascending IDs.
+
+Attachment diagnostics expand `host_ip_address__ip_address__network_interface`
+and `host_ip_address__ip_address__user`. An identified parent allocation owned
+by the zone owner with an explicitly null interface produces an owned-detached
+warning. Missing/unresolved/denied expansion is unknown; `host.assigned` does not
+describe parent allocation attachment. Retained detached primaries remain
+configured and continue to receive readiness checks.
+
+Generated bindings must contain the path resource, aggregates, `zone_status`,
+`evidence_current` and diagnostic kinds. A verified feature SDK can be used in
+development; the [published SDK dependency gate](HAVEAPI_CLIENT.md#generated-vpsadmin-typescript-sdk)
+still applies before merge. Capability discovery remains necessary after SDK
+publication because package versions do not establish backend deployment.
+
 These are the checked frontend contracts at the handbook baseline, not a new
 certification of every deployed API version. A field displayed on an object is
 not automatically a supported list filter. Pagination and includes metadata are

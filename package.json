@@ -82,7 +82,7 @@
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-router-dom": "7.18.2",
-    "vpsadmin-typescript-client": "0.4.0"
+    "vpsadmin-typescript-client": "file:../vpsadmin-typescript-client/vpsadmin-typescript-client-0.4.0.tgz"
   },
   "devDependencies": {
     "@playwright/test": "^1.61.0",

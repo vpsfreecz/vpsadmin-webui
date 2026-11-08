@@ -362,3 +362,15 @@ trace/receipt privately if it contains data. Investigate test drift versus produ
 regression; do not dismiss a failure based solely on another passing run. A passing
 retry is not automatically a resolved race. Update the requirement/work log with
 the limitation and evidence needed to close it.
+
+
+### Secondary DNS isolated SDK and browser acceptance
+
+The [guarded DNS harness preparation](../work-log/2026-11-08-dns-transfer-readiness.md#guarded-real-api-acceptance-preparation)
+uses the final pinned API and the declared SDK archive, a registered loopback
+fixture and a temporary synthetic database. It preserves the existing environment,
+source, receipt and credential boundaries. Path/history authorization and decoded
+currentness/serving/ownership are SDK HTTP checks; the optional unmocked preview
+visit is a separate browser observation. Run only after committed harness review.
+The ordinary mocked readiness suite remains fixture evidence, even when all ten
+member/admin/locale/viewport cases pass. Neither check replaces real BIND tests.

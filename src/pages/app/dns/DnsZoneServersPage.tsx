@@ -20,6 +20,7 @@ import { cursorFromDescendingPage } from '../../../lib/lockIndex';
 import { getMetaActionStateId } from '../../../lib/api/apiErrors';
 import { formatErrorMessage } from '../../../lib/errors';
 
+import { fetchDnsReadinessCapabilities } from '../../../lib/api/dnsReadiness';
 import { useDnsZoneContext } from './DnsZoneContext';
 import { DnsZoneServersList, dnsZoneServerName } from './DnsZoneServersList';
 import { preflightDnsZoneNotBusy } from './dnsPreflight';
@@ -39,6 +40,11 @@ export function DnsZoneServersPage() {
     setSearchParams,
     defaultLimit: 50,
     allowedLimits: [25, 50, 100],
+  });
+
+  const capabilitiesQ = useQuery({
+    queryKey: ['dns_readiness_capabilities', mode],
+    queryFn: async () => (await fetchDnsReadinessCapabilities()).data,
   });
 
   const listQ = useQuery({
@@ -133,6 +139,7 @@ export function DnsZoneServersPage() {
         <DnsZoneServersList
           rows={rows}
           isAdmin={isAdmin}
+          serving={capabilitiesQ.data?.serving}
           page={pagination.page}
           pageCount={pagination.stack.length}
           canPrev={pagination.canPrev}
