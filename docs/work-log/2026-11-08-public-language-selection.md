@@ -18,3 +18,21 @@ combinations per engine. Desktop/mobile screenshots show the implemented header.
 No live API mutation was performed. Exact release packaging and paired preview
 activation are separate receipts; no newadmin deployment or merge is authorized
 for this follow-up.
+
+
+## CI comparison follow-up
+
+The first full Chromium job at `aef51fc9` ended with951 passed and3 failed new
+language scenarios. The UI returned the correct resting orange; the assertion
+had frozen a reference sampled while the appearance button was still animating
+(e.g. rgba(...,0.957)). It then repeatedly compared settled colors against that
+obsolete intermediate value. Mobile Chrome and WebKit jobs passed.
+
+Read both computed background/foreground pairs in the same browser evaluation on
+every bounded poll. Retain exact orange, selected semantics, all choices/themes,
+reload and viewport checks; no animation suppression, timeout increase, skipped
+case or retry workaround. This follow-up changes only the test and documentation;
+the deployed application code is unchanged. Verification uses a forced slow-transition red/green probe and the normal27-case
+suite. Actual outcomes are recorded in PR223 and the durable
+`language-transition-ci-20261108` evidence on the development host; pending
+checks are kept distinct from completed application/deployment evidence.

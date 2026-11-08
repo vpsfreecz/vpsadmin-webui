@@ -1,6 +1,6 @@
 ## 2026-11-08 — Match public language and appearance selection
 
-[Scope and verification](docs/work-log/2026-11-08-public-language-selection.md).
+[Scope, verification and CI transition-reference follow-up](docs/work-log/2026-11-08-public-language-selection.md).
 
 ## 2026-11-08 — Add the personal dashboard Summary
 
