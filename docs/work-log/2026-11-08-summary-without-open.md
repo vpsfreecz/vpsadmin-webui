@@ -18,3 +18,7 @@ release receipts, without claiming that fixture UI tests update published KB.
 Existing Summary/dashboard browser assertions now require the exact count/label
 without an Open action in CS/EN and all existing roles/scopes. Verification and
 actual deployment receipts are recorded separately after execution.
+
+The authenticated landing workflow now reaches the VPS list through the existing
+sidebar and explicitly supplies the token-header fixture contract. It still
+checks rendered VPS rows and every outgoing authenticated XHR header.
