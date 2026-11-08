@@ -50,12 +50,14 @@
     "e2e/specs/app/header_popovers_background_opaque.spec.ts",
     "e2e/specs/app/header_session_limit.spec.ts",
     "e2e/specs/app/incident_create_context.spec.ts",
+    "e2e/specs/app/incident_create_permissions.spec.ts",
     "e2e/specs/app/incidents_responsive_layout.spec.ts",
     "e2e/specs/app/ip_addresses_environment_filter.spec.ts",
     "e2e/specs/app/member_payment_links.spec.ts",
     "e2e/specs/app/mobile_lookup_popover.spec.ts",
     "e2e/specs/app/mobile_touch_interactions.spec.ts",
     "e2e/specs/app/mobile_workflows.spec.ts",
+    "e2e/specs/app/monitoring_event_action_feedback.spec.ts",
     "e2e/specs/app/network_address_details.spec.ts",
     "e2e/specs/app/node_history.spec.ts",
     "e2e/specs/app/payment_qr_images.spec.ts",
@@ -901,13 +903,6 @@
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
     },
     {
-      "path": "e2e/specs/app/incident_create_permissions.spec.ts",
-      "sha256": "799a9efa4ac885b48da0cd32c000f99917daefc52514276405d1acef8cb7a7a9",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
       "path": "e2e/specs/app/incidents_smart_filter.spec.ts",
       "sha256": "8ffea3c8330e6452631cca970f506f8bb68476f177952c8a89ad835a647f4de9",
       "owner": "WebUI maintainers",
@@ -931,13 +926,6 @@
     {
       "path": "e2e/specs/app/modal_focus_trap.spec.ts",
       "sha256": "0317e0983b3da474777f585d7c9c4e0337ffc9d99e3414f93ae287b814ac7061",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/app/monitoring_event_action_feedback.spec.ts",
-      "sha256": "5536388b02ab1a74dd4c45768ef29dbc79fd67d3c61a374861ab2f4be00e0729",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
