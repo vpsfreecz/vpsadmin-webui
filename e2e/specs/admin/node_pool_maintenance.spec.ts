@@ -37,10 +37,82 @@ function pool(id: number, overrides: Record<string, unknown> = {}) {
   };
 }
 
-async function installAdminNodeHandlers(
-  page: Page,
-  handlers: Record<string, HaveApiHandler>,
-) {
+for (const [language, theme] of [
+  ['cs', 'dark'],
+  ['en', 'light'],
+] as const) {
+  test(`@pr-smoke @pr-smoke-mobile pool headings keep complete long labels and metadata ${language}`, async ({
+    page,
+  }) => {
+    const labels = [
+      'Ověřovací dlouhý český název prostředí v Českých Budějovicích',
+      'OverovaciUlozisteBezMezer'.repeat(8),
+    ];
+    const writes: string[] = [];
+    page.on('request', (request) => {
+      if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method())) {
+        writes.push(request.method() + ' ' + new URL(request.url()).pathname);
+      }
+    });
+    await setUiSettingsLocalStorage(page, { language, theme });
+    await bootstrapVpsAdminWindow(page, {
+      sessionToken: 'POOL_LABEL_LAYOUT',
+      webuiNext: { uiSettings: { persistence: 'local' } },
+    });
+    await installHaveApiMock(page, {
+      user: { id: 1, login: 'admin', level: 100 },
+      handlers: {
+        'GET nodes/5': () => ({ node }),
+        'GET nodes': () => ({ nodes: [node] }),
+        'GET nodes/public_status': () => ({ nodes: [] }),
+        'GET nodes/5/statuses': () => ({ statuses: [] }),
+        'GET pools': () => ({
+          pools: labels.map((label, index) =>
+            pool(index + 11, {
+              label,
+              node: { id: 5, domain_name: node.domain_name },
+              checked_at: '2026-11-08T12:00:00Z',
+            })
+          ),
+        }),
+      },
+    });
+    await page.goto('/admin/nodes/5?section=storage');
+    for (const width of [page.viewportSize()?.width ?? 1440, 320]) {
+      await page.setViewportSize({ width, height: 1000 });
+      for (const [index, label] of labels.entries()) {
+        const panel = page.getByTestId(`admin.node.storage.pool.${index + 11}`);
+        const title = panel.getByText(label, { exact: true });
+        await expect(title).toBeVisible();
+        await expect(panel.getByText(`#${index + 11}`, { exact: true })).toBeVisible();
+        const geometry = await title.evaluate((element) => {
+          const style = getComputedStyle(element);
+          const panel = element.closest('[data-testid]')!;
+          const header = panel.firstElementChild!;
+          const bounds = panel.getBoundingClientRect();
+          return {
+            clipped: element.scrollWidth > element.clientWidth + 1,
+            whiteSpace: style.whiteSpace,
+            height: element.getBoundingClientRect().height,
+            lineHeight: Number.parseFloat(style.lineHeight),
+            headerContained: [...header.querySelectorAll('*')].every((child) => {
+              const box = child.getBoundingClientRect();
+              return box.left >= bounds.left && box.right <= bounds.right + 1;
+            }),
+          };
+        });
+        expect(geometry.clipped).toBe(false);
+        expect(geometry.whiteSpace).toBe('normal');
+        expect(geometry.headerContained).toBe(true);
+        if (width === 320) expect(geometry.height).toBeGreaterThan(geometry.lineHeight);
+      }
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+    }
+    expect(writes).toEqual([]);
+  });
+}
+
+async function installAdminNodeHandlers(page: Page, handlers: Record<string, HaveApiHandler>) {
   await setUiSettingsLocalStorage(page, { language: 'en' });
   await bootstrapVpsAdminWindow(page, { sessionToken: 'POOL_MAINTENANCE' });
   await installHaveApiMock(page, {
@@ -96,13 +168,13 @@ test('@pr-smoke @pr-smoke-mobile admin locks and unlocks a real pool, while inhe
   await expect(page.getByTestId(`${directControl}.lock`)).toBeVisible();
   await expect(page.getByTestId(inheritedControl)).toContainText('Inherited lock');
   await expect(page.getByTestId(`${inheritedControl}.details`)).toContainText(
-    'inherited from higher-level infrastructure',
+    'inherited from higher-level infrastructure'
   );
   await expect(page.getByTestId(`${inheritedControl}.reason`)).toContainText('Location maintenance');
   await expect(page.getByTestId(`${inheritedControl}.lock`)).toHaveCount(0);
   await expect(page.getByTestId(`${inheritedControl}.unlock`)).toHaveCount(0);
   await expect(
-    page.getByTestId('admin.node.storage.aggregate').locator('[data-testid$=".maintenance.section"]'),
+    page.getByTestId('admin.node.storage.aggregate').locator('[data-testid$=".maintenance.section"]')
   ).toHaveCount(0);
 
   await page.getByTestId(`${directControl}.lock`).click();
@@ -116,9 +188,7 @@ test('@pr-smoke @pr-smoke-mobile admin locks and unlocks a real pool, while inhe
   await page.getByTestId(`${directControl}.reason`).fill('Disk replacement');
   await page.getByTestId(`${directControl}.lock_dialog.confirm`).click();
 
-  await expect.poll(() => payloads).toEqual([
-    { pool: { lock: true, reason: 'Disk replacement' } },
-  ]);
+  await expect.poll(() => payloads).toEqual([{ pool: { lock: true, reason: 'Disk replacement' } }]);
   await expect.poll(() => poolReads).toBeGreaterThan(1);
   await expect(page.getByTestId(`${directControl}.unlock`)).toBeVisible();
   await expect(page.getByTestId(`${directControl}.details`)).toContainText('locked directly');
@@ -129,10 +199,9 @@ test('@pr-smoke @pr-smoke-mobile admin locks and unlocks a real pool, while inhe
   await expect(page.getByTestId(`${directControl}.unlock_dialog`)).toContainText('Disk replacement');
   await page.getByTestId(`${directControl}.unlock_dialog.confirm`).click();
 
-  await expect.poll(() => payloads).toEqual([
-    { pool: { lock: true, reason: 'Disk replacement' } },
-    { pool: { lock: false } },
-  ]);
+  await expect
+    .poll(() => payloads)
+    .toEqual([{ pool: { lock: true, reason: 'Disk replacement' } }, { pool: { lock: false } }]);
   await expect(page.getByTestId(`${directControl}.lock`)).toBeVisible();
   await expect(page.getByTestId(`${directControl}.details`)).toHaveCount(0);
   expect(nodeReads).toBe(1);
@@ -185,16 +254,20 @@ test('@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile a definitively rejected po
   expect(payloads).toHaveLength(1);
 
   releaseFailure?.();
-  await expect(page.getByTestId(`${control}.lock_dialog`).getByRole('alert').filter({ hasText: 'pool maintenance unavailable' })).toBeVisible();
+  await expect(
+    page.getByTestId(`${control}.lock_dialog`).getByRole('alert').filter({ hasText: 'pool maintenance unavailable' })
+  ).toBeVisible();
   await expect(page.getByTestId(`${control}.lock_dialog`)).toBeVisible();
   await expect(page.getByTestId(`${control}.reason`)).toHaveValue('Keep this reason');
   await expect(page.getByTestId(`${control}.lock_dialog.confirm`)).toBeEnabled();
 
   await page.getByTestId(`${control}.lock_dialog.confirm`).click();
-  await expect.poll(() => payloads).toEqual([
-    { pool: { lock: true, reason: 'Keep this reason' } },
-    { pool: { lock: true, reason: 'Keep this reason' } },
-  ]);
+  await expect
+    .poll(() => payloads)
+    .toEqual([
+      { pool: { lock: true, reason: 'Keep this reason' } },
+      { pool: { lock: true, reason: 'Keep this reason' } },
+    ]);
   await expect(page.getByTestId(`${control}.unlock`)).toBeVisible();
 });
 
@@ -322,7 +395,9 @@ test('@pr-smoke @pr-smoke-mobile an applied 503 pool lock is reconciled by exact
 });
 
 test('a null reason in an exact non-applied read-back permits a safe retry', async ({ page }) => {
-  const pools: [ReturnType<typeof pool>, ...ReturnType<typeof pool>[]] = [pool(11, { label: 'Null reason pool', maintenance_lock_reason: null })];
+  const pools: [ReturnType<typeof pool>, ...ReturnType<typeof pool>[]] = [
+    pool(11, { label: 'Null reason pool', maintenance_lock_reason: null }),
+  ];
   let mutations = 0;
 
   await installAdminNodeHandlers(page, {
@@ -359,7 +434,9 @@ test('a null reason in an exact non-applied read-back permits a safe retry', asy
   await expect(page.getByTestId(`${control}.unlock`)).toBeVisible();
 });
 
-test('@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile an ambiguous pool mutation stays fail-closed when its exact read-back fails', async ({ page }) => {
+test('@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile an ambiguous pool mutation stays fail-closed when its exact read-back fails', async ({
+  page,
+}) => {
   const pools: [ReturnType<typeof pool>, ...ReturnType<typeof pool>[]] = [pool(11, { label: 'Unverified pool' })];
   let mutations = 0;
   let readbacks = 0;
@@ -391,7 +468,9 @@ test('@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile an ambiguous pool mutation
 
   await expect(page.getByTestId(`${control}.verification_required`)).toBeVisible();
   await expect(page.getByTestId(`${control}.lock_dialog.confirm`)).toBeDisabled();
-  await expect(page.getByTestId(`${control}.lock_dialog`).getByRole('alert').filter({ hasText: 'read-back unavailable' })).toBeVisible();
+  await expect(
+    page.getByTestId(`${control}.lock_dialog`).getByRole('alert').filter({ hasText: 'read-back unavailable' })
+  ).toBeVisible();
   expect(mutations).toBe(1);
   expect(readbacks).toBe(1);
 
@@ -460,7 +539,9 @@ test('@pr-smoke @pr-smoke-mobile a successful pool lock keeps stale actions disa
   expect(mutations).toBe(1);
 });
 
-test('a successful mutation that finishes outside Storage forces a refresh before clearing its guard', async ({ page }) => {
+test('a successful mutation that finishes outside Storage forces a refresh before clearing its guard', async ({
+  page,
+}) => {
   const pools: [ReturnType<typeof pool>, ...ReturnType<typeof pool>[]] = [pool(11, { label: 'Inactive refresh pool' })];
   let poolReads = 0;
   let mutations = 0;
@@ -511,9 +592,7 @@ test('a successful mutation that finishes outside Storage forces a refresh befor
   expect(mutations).toBe(1);
 });
 
-test('an ordinary user cannot reach pool maintenance controls or invoke the admin-only action', async ({
-  page,
-}) => {
+test('an ordinary user cannot reach pool maintenance controls or invoke the admin-only action', async ({ page }) => {
   let poolReads = 0;
   let mutations = 0;
 

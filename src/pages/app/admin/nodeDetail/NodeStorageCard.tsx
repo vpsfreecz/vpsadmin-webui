@@ -118,7 +118,7 @@ function PoolPanel(props: {
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <div className="truncate font-semibold text-fg">
+            <div className="min-w-0 max-w-full font-semibold text-fg [overflow-wrap:anywhere]">
               {props.aggregate ? t('admin.node.storage.aggregate.title') : nodePoolTitle(pool)}
             </div>
             <Badge variant={STATE_VARIANTS[state] ?? 'neutral'}>{stateLabel(t, state)}</Badge>
