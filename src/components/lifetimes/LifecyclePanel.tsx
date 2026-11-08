@@ -453,7 +453,7 @@ export function LifecyclePanel(props: {
                   testId="lifetimes.admin.expiration"
                 />
                 <Button
-                  size="sm"
+                  size="md"
                   variant="secondary"
                   onClick={() => { setAdminExpirationLocal(''); setAdminRemindLocal(''); }}
                   testId="lifetimes.admin.expiration.clear"
@@ -475,7 +475,7 @@ export function LifecyclePanel(props: {
                   testId="lifetimes.admin.remind_after"
                 />
                 <Button
-                  size="sm"
+                  size="md"
                   variant="secondary"
                   onClick={() => setAdminRemindLocal('')}
                   testId="lifetimes.admin.remind_after.clear"

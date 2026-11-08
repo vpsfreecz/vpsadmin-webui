@@ -245,3 +245,8 @@ task records without a force value retain a neutral Stop label.
 SSH stays in the detail header with its copy action. Current runtime values stay
 in the header summary. Console and Access remain reachable through the existing
 header action/navigation, without a second overview access card.
+
+
+### Lifetime editor field actions
+
+Expiration and reminder Clear actions use the same 36px desktop height as their adjacent date inputs; both retain the shared 44px coarse-pointer minimum. Compact standalone lifecycle card actions keep their existing size. Clearing dates retains the existing reason, validation, null handling and confirmation behavior. See the [scoped follow-up](../work-log/2026-11-08-todo-lifetime-field-rhythm.md).

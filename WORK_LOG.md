@@ -1,3 +1,7 @@
+## 2026-11-08 — Match lifetime date field actions
+
+[Scope and verification](docs/work-log/2026-11-08-todo-lifetime-field-rhythm.md).
+
 ## 2026-11-08 — Respect OOM process API limits and retain later pages
 
 Issue103 / REQ-051, REQ-010. See the

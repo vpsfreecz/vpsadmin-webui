@@ -244,3 +244,15 @@ Nix4/379; its exact18 browsers are still waiting for the shared lease. Original
 6cf reproduces the invalid2000 request in both engines. Final matching combined
 Nix/browser/CI and paired preview activation/live checks remain pending; no
 production switch or shared-main/PR merge is authorized.
+
+## Lifetime field action alignment from the serial TODO worker
+
+Locally integrate its cumulative04e4686e history (focused counterpart50bb8edf).
+The only runtime difference from our preceding93aef54c is two Clear-button size
+props in LifecyclePanel, from sm to md. Retain main's typed lifetime contracts,
+state-log limits and guards; do not restore the older preview's removed history
+controls or unsupported SDK inputs. Resolve requirement/work-log conflicts by
+keeping both scopes. Source quick200/109 and existing LifecyclePanel unit4 pass.
+The preceding full merged unit2309 result remains attributed to its source before
+these two presentation props. Final matching artifact and affected browser checks
+are still pending. The worker's own legacy-basis exact results are separate proof.
