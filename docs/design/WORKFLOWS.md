@@ -1003,3 +1003,11 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+### Affected-outage read failures (REQ-010)
+
+Administrator and support outage-detail cards keep user, VPS and export read
+failures inside the affected section. Each failure uses the existing danger
+alert with the localized Error/Chyba title and readable body text. The message
+and requests retain their original source; other cards remain independently
+available. This presentation change adds no retry, role, query or write behavior.

@@ -55,6 +55,7 @@ export default defineConfig({
     {
       name: 'mobile-webkit',
       testMatch: [
+        '**/outage_affected_errors.spec.ts',
         '**/about.spec.ts',
         '**/theme_switcher.spec.ts',
         '**/news_language_switch.spec.ts',
