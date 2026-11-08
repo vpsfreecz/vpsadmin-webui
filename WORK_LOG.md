@@ -2116,3 +2116,9 @@ evidence and require focused exact-package reruns before activation. See the
 Implement queued request2 / REQ-052: remove three redundant summary descriptions
 and use VS / ID for the shared payment reference. See the
 [scope and verification record](docs/work-log/2026-11-08-payment-summary-copy.md).
+
+
+## 2026-11-08 — Wait for mobile search readiness in integration fixtures
+
+Fix the observed CI fixture race without increasing budgets. See the
+[integration evidence](docs/work-log/2026-11-07-main-preview-integration.md).

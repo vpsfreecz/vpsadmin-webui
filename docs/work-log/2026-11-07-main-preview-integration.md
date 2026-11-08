@@ -207,3 +207,22 @@ Both fixture replies now use that namespace. All URI/secret/recovery values,
 reveal/hide, clipboard, focus and dimension assertions remain unchanged. Strict
 E2E coverage and the existing canonical TOTP unit3 pass; the corrected browser
 rerun is required before accepting this follow-up. Product guards are unchanged.
+
+
+## Mobile search fixture readiness
+
+Fresh6cd3 mobile CI jobs reached their unchanged40-minute budget while old search
+scope tests repeatedly waited90 seconds for a palette that never opened. The
+fixture invoked Ctrl+K immediately after navigation, without waiting for the
+shell; its real handler is registered on mount and deliberately ignores text
+fields. Wait for the visible navigation trigger, focus that native button, then
+invoke one shortcut and await the actual palette. No retry, sleep or budget
+increase replaces readiness.
+
+The same fixture also used obsolete `cluster_search` output. Generated SDK0.4
+requires `clusters`; return that namespace and assert the empty result UI after
+explicit scope switching, not just a request counter. Add canonical settings
+fixtures so screenshots do not contain unrelated synchronization errors. All
+scope, owner, query, failure and navigation assertions remain. Corrected exact
+6cd3 cases passed18 on Chromium, mobile Chrome and mobile WebKit; fresh CI is
+still required. This changes fixtures/documentation only, not runtime guards.
