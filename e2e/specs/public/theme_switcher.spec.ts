@@ -95,7 +95,20 @@ for (const width of [320, 1280]) {
         // Measure generated CSS, including the resting state after pointer hover ends.
         await page.mouse.move(width - 1, 840);
         await expect.poll(async () => (await colors(`${languagePrefix}.${choice}`)).background).toBe('rgb(236, 140, 53)');
-        await expect.poll(async () => colors(`${languagePrefix}.${choice}`)).toEqual(await colors(`${themePrefix}.${appearance}`));
+        await expect.poll(() => page.evaluate(({ language, theme }) => {
+          const read = (id: string) => {
+            const element = document.querySelector(`[data-testid="${id}"]`);
+            if (!element) throw new Error(`Missing selection control: ${id}`);
+            const style = getComputedStyle(element);
+            return { background: style.backgroundColor, foreground: style.color };
+          };
+          const current = read(language);
+          const reference = read(theme);
+          return {
+            background: current.background === reference.background,
+            foreground: current.foreground === reference.foreground,
+          };
+        }, { language: `${languagePrefix}.${choice}`, theme: `${themePrefix}.${appearance}` })).toEqual({ background: true, foreground: true });
         await expectNoDocumentHorizontalOverflow(page);
       };
       for (const choice of ['system', 'en', 'cs', 'system']) {

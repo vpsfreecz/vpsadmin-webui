@@ -162,7 +162,7 @@ test.describe("Dashboard", () => {
       0,
     );
 
-    await expect(page.getByTestId("app.dashboard.kpi.vps.open")).toBeVisible();
+    await expect(page.getByTestId("app.dashboard.kpi.vps.open")).toHaveCount(0);
     await expect(page.getByTestId("app.dashboard.kpi.tasks")).toHaveCount(0);
     await expect(page.getByTestId("app.dashboard.operations.card")).toHaveCount(
       0,

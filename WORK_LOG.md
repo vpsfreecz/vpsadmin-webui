@@ -1,10 +1,14 @@
+## 2026-11-08 — Remove redundant Summary Open actions
+
+[Scope and verification](docs/work-log/2026-11-08-summary-without-open.md).
+
 ## 2026-11-08 — Place interface settings next to logout
 
 [Scope and verification](docs/work-log/2026-11-08-sidebar-settings-order.md).
 
 ## 2026-11-08 — Match public language and appearance selection
 
-[Scope and verification](docs/work-log/2026-11-08-public-language-selection.md).
+[Scope, verification and CI transition-reference follow-up](docs/work-log/2026-11-08-public-language-selection.md).
 
 ## 2026-11-08 — Readable migration-plan read errors
 
