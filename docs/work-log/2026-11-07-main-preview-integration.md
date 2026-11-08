@@ -168,4 +168,33 @@ assert the exact configured synthetic token and absence of legacy headers. Keep
 the source legacy regression unchanged; it passed in the normal CI runtime.
 The original expanded-run failure remains evidence, not a product auth failure.
 
-All corrected browser reruns and remaining final acceptance are pending.
+The expanded exact c09 workflow run finished 279 passed / 15 failed. Its remaining
+failures were stale rejection/body/error selectors, not a reason to change main:
+HTTP200 with status:false is intentionally ambiguous, so explicit rejection mocks
+now use HTTP422. Generated power requests retain exact assertions for
+`{ vps: {} }` (start) and `{ vps: { force: false } }` (stop/restart). The malformed
+password response is asserted in its precise confirmation error, retaining the
+uncertainty lock and absence of a generated secret.
+
+Corrected reruns passed power24, bulk-rejection2 and password2 on the same immutable
+c09 artifact, covering all 15 failures plus related safety cases. This is not a
+claim of 294 passing in one run. The CI sidebar/support cases passed14 (the local
+wrapper initially expected10 and reported only a count mismatch; collection
+confirmed14). Main-comparison captures passed22. Earlier journey4, advisory4,
+controls100 and remaining-filter112 exact-package results remain retained. All
+these requests are intercepted synthetic fixtures, not live API certification.
+No timeout, retry, compiler baseline, transport or runtime guard was weakened.
+The updated integration still needs matching packages, fresh CI and paired live
+verification.
+
+
+## Additional verified preview controls
+
+Integrate PR201's single-line secret controls and PR202's pagination/native map-kind
+presentation history while retaining main's adapters and API guards. The map-detail
+conflict retains main's apiErrors import and adds only coarse-pointer dimensions;
+its existing structural exception keeps the same line allowance, owner and removal
+condition, rebinding its content hash with both rationales. Strict E2E coverage is
+the union of adopted leaves; no deferred baseline is reset. Existing source and
+exact-package proofs for the focused changes do not certify this new integration
+artifact. Matching package, affected control reruns and fresh CI are required.

@@ -832,7 +832,7 @@ test('@workflow-matrix @smoke admin requests: bulk writes require confirmation a
       },
       'POST user_request/changes/401/resolve': () => {
         failedCalls += 1;
-        return failEnvelope('Temporary failure');
+        return { status: 422, contentType: 'application/json', body: JSON.stringify(failEnvelope('Temporary failure')) };
       },
     },
   });

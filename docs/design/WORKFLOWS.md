@@ -1355,3 +1355,14 @@ See [verification scope](../work-log/2026-11-07-todo-profile-control-rhythm.md).
 
 The host-address, assignment-audit and live-network filter rows also match
 the existing 44px VPS lookup, retaining their supported VPS queries and Clear.
+
+### Shared keyset pagination control dimensions
+
+Approved UX-03: navigation, jump and limit controls use matching36px desktop
+height and the existing44px coarse-pointer minimum. Numeric page targets wrap
+with the row. Cursor stacks, progressive counts, clamping, pending state and
+owner-bound requests retain their contracts; this is a presentation correction.
+
+The native UID/GID/both choice in namespace map entry forms uses the same44px
+coarse-pointer minimum and font as adjacent shared fields. Desktop remains36px;
+choice values, draft state, map creation/save/delete and ownership are unchanged.

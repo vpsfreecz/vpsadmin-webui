@@ -3,6 +3,10 @@
 Implement queued request3 / REQ-004, REQ-010, REQ-040. See the
 [scope and verification record](docs/work-log/2026-11-08-direct-account-controls.md).
 
+## 2026-11-08 — Align native field and pagination controls
+
+[Scope and verification](docs/work-log/2026-11-08-todo-pagination-control-rhythm.md).
+
 ## 2026-11-08 — Match single-line secret field controls
 
 [Scope and verification](docs/work-log/2026-11-08-todo-secret-field-controls.md).

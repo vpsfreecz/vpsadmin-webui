@@ -72,7 +72,7 @@ test.describe('@workflow-matrix VPS power failure regressions', () => {
       await installPowerFailureMock(page, {
         action,
         isRunning: action !== 'start',
-        mutation: () => failEnvelope(message),
+        mutation: () => ({ status: 422, contentType: 'application/json', body: JSON.stringify(failEnvelope(message)) }),
       });
 
       await page.goto('/app/vps/123');
@@ -83,8 +83,8 @@ test.describe('@workflow-matrix VPS power failure regressions', () => {
       await submitPowerAction(page, action);
 
       const request = await requestPromise;
-      // start has no options; stop/restart must not silently force the operation.
-      expect(request.postDataJSON()).toEqual({});
+      // The SDK namespaces every action; stop/restart must explicitly remain graceful.
+      expect(request.postDataJSON()).toEqual({ vps: action === 'start' ? {} : { force: false } });
       if (action === 'start') {
         await expect(page.getByText('Action failed')).toBeVisible();
         await expect(page.getByText(message)).toBeVisible();
@@ -302,7 +302,7 @@ test.describe('@workflow-matrix VPS power failure regressions', () => {
       );
       await submitPowerAction(page, action);
 
-      expect((await requestPromise).postDataJSON()).toEqual({});
+      expect((await requestPromise).postDataJSON()).toEqual({ vps: action === 'start' ? {} : { force: false } });
       await expect(page.getByTestId('modal.action_progress')).toBeHidden();
       await expect(page.getByText(/server did not return a task identifier/i)).toBeVisible();
       await expect(page.getByTestId('vps.mutation.uncertain')).toBeVisible();

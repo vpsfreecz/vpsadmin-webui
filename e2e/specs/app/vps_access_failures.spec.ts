@@ -113,7 +113,7 @@ test.describe('@workflow-matrix VPS access failure regressions', () => {
     await page.goto('/app/vps/123/access');
     await submitPasswordReset(page);
 
-    await expect(page.getByText('Invalid VPS password reset response', { exact: true })).toBeVisible();
+    await expect(page.getByTestId('vps.access.password.confirm.error')).toHaveText('Invalid VPS password reset response');
     await expect(page.getByTestId('vps.mutation.uncertain')).toBeVisible();
     await expect(page.getByTestId('vps.access.generated_password')).toHaveCount(0);
   });
