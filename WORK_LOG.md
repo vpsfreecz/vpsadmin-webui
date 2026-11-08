@@ -2168,3 +2168,8 @@ Prepare approved UX-03/04 / REQ-010 and REQ-023. See the
 
 Prepare approved UX-03 / REQ-010. See the
 [scope and verification](docs/work-log/2026-11-08-todo-user-environment-control.md).
+
+
+## 2026-11-08 — Align DNS server filters
+
+Prepare approved UX-03 / REQ-010. See [scope and verification](docs/work-log/2026-11-08-todo-dns-server-filter-alignment.md).

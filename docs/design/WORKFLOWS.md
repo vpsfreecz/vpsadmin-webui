@@ -1388,3 +1388,8 @@ owner-bound requests retain their contracts; this is a presentation correction.
 The native UID/GID/both choice in namespace map entry forms uses the same44px
 coarse-pointer minimum and font as adjacent shared fields. Desktop remains36px;
 choice values, draft state, map creation/save/delete and ownership are unchanged.
+
+
+### DNS server filter alignment (REQ-010)
+
+Use the shared wrapping FilterBar child layout for the DNS server search and labelled selectors. Align controls along their bottom edge on desktop; stack the search before wrapping selectors/actions at narrow widths. Keep search/visibility/zone filtering local and preserve pagination and API query contracts. This presentation change does not alter DNS writes or authorization.
