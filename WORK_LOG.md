@@ -1,3 +1,7 @@
+## 2026-11-08 — Readable operation cards and read failures
+
+[Scope and verification](docs/work-log/2026-11-08-todo-operation-body-presentation.md).
+
 ## 2026-11-08 — Place interface settings next to logout
 
 [Scope and verification](docs/work-log/2026-11-08-sidebar-settings-order.md).
