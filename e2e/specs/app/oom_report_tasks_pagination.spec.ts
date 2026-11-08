@@ -17,7 +17,10 @@ async function setup(page: Page, opts: {
   await installHaveApiMock(page, {
     user: { id: 53, login: 'synthetic-member', level: opts.level ?? 1 },
     handlers: {
-      'GET webui_user_settings': () => ({ webui_user_settings: [] }),
+      'GET webui_user_settings': () => ({ webui_user_settings: [{
+        id: 1, namespace: 'ui', key: 'settings',
+        value: JSON.stringify({ language: opts.language ?? 'cs', theme: opts.theme ?? 'light' }),
+      }] }),
       'GET oom_reports/77': () => ({ oom_report: {
         id: 77, created_at: '2026-11-07T12:00:00Z',
         vps: { id: 123, hostname: 'synthetic-oom.example.test', user: { id: 53 } },

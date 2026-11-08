@@ -47,3 +47,12 @@ reproduce the original wire2000 failure against the1000 cap. Original failures
 and metadata are retained. Earlier preparation quick stopped on an unnecessary
 new as-any cast; remove it without adding an allowance. No baseline/test budget
 was relaxed. Clean package/browser verification still follows this source commit.
+
+Initial exact41ba package run finished6 passes/12 failures. All12 failures were
+the unchanged strict zero-write assertion: the empty UI-settings fixture caused
+the existing preference provider to initialize missing account settings. The
+1001-record traversal, last cursor, reload, size reset and retry assertions had
+already succeeded in those cases. Supply an existing canonical settings resource
+with the requested language/theme; retain zero-write and all paging assertions,
+budgets and retries unchanged. Original failed run/log is retained. Strict
+E2E155/129 passes after this fixture-only correction; no runtime change.
