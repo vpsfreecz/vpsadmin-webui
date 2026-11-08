@@ -1,4 +1,4 @@
-## 2026-11-08 — Align shared pagination controls
+## 2026-11-08 — Align native field and pagination controls
 
 [Scope and verification](docs/work-log/2026-11-08-todo-pagination-control-rhythm.md).
 
