@@ -105,20 +105,6 @@
       }
     },
     {
-      "path": "src/pages/app/admin/MigrationPlanDetailPage.tsx",
-      "rule": "grown-over-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "4d0108e52f4643e677b0225a916fb9826a367da511594b67ab75783a3afa273f",
-      "old": 1201,
-      "allowance": 1212,
-      "rationale": "At the recorded source revision, this file already contained migration plan detail and actions; extract the coherent section with focused behavior coverage before removing this exception. Reviewed generated-client migration: only action-state/uncertainty helper imports move to apiErrors; behavior, casts and line allowance are unchanged.",
-      "owner": "WebUI implementation lead",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 1201
-      }
-    },
-    {
       "path": "src/pages/app/admin/NodeDetailPage.tsx",
       "rule": "grown-over-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",

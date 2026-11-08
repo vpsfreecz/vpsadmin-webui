@@ -31,6 +31,7 @@
     "e2e/specs/admin/ip_addresses_suggested_request_budget.spec.ts",
     "e2e/specs/admin/ip_assignment_vps_first.spec.ts",
     "e2e/specs/admin/mailer_log_smoke.spec.ts",
+    "e2e/specs/admin/migration_plan_action_feedback.spec.ts",
     "e2e/specs/admin/network_availability.spec.ts",
     "e2e/specs/admin/networking_surfaces_smoke.spec.ts",
     "e2e/specs/admin/node_detail_action_gating_busy_transaction.spec.ts",

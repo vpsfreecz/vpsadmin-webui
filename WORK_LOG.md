@@ -1,3 +1,9 @@
+## 2026-11-08 — Readable migration-plan read errors
+
+Prepared existing semantic error panels for independent migration-row and
+destination-node read failures. See the [scope and verification](docs/work-log/2026-11-08-todo-migration-error-readability.md).
+Not merged or deployed; browser, exact CI and release checks remain pending.
+
 ## 2026-11-08 — Add the personal dashboard Summary
 
 [Scope, data and verification](docs/work-log/2026-11-08-dashboard-summary.md).
