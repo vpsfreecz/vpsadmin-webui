@@ -37,10 +37,10 @@ export function DashboardSummaryCards(props: {
   const items = [
     {
       testId: 'app.dashboard.kpi.vps',
-      openTestId: 'app.dashboard.kpi.vps.open',
+      openTestId: null,
       label: t('nav.vps'),
       value: props.vps.isLoading ? '…' : props.vps.isError ? '—' : formatDashboardNumber(props.vps.totalCount, lang),
-      to: `${props.basePath}/vps`,
+      to: null,
     },
     ...(props.appMode === 'admin'
       ? [{
@@ -53,12 +53,12 @@ export function DashboardSummaryCards(props: {
       : []),
     {
       testId: 'app.dashboard.kpi.dns',
-      openTestId: 'app.dashboard.kpi.dns.open',
+      openTestId: null,
       label: props.dns.isLoading || props.dns.isError || props.dns.totalCount == null
         ? t('dashboard.summary.dns.other')
         : tc('dashboard.summary.dns', props.dns.totalCount),
       value: props.dns.isLoading ? '…' : props.dns.isError ? '—' : formatDashboardNumber(props.dns.totalCount, lang),
-      to: `${props.basePath}/dns`,
+      to: null,
     },
   ];
 
@@ -84,9 +84,11 @@ export function DashboardSummaryCards(props: {
                 <div className="text-2xl font-semibold leading-none">{item.value}</div>
                 <div className="text-xs font-medium text-muted">{item.label}</div>
               </div>
-              <LinkButton to={item.to} variant="secondary" size="sm" testId={item.openTestId}>
-                {t('common.open')}
-              </LinkButton>
+              {item.to && item.openTestId ? (
+                <LinkButton to={item.to} variant="secondary" size="sm" testId={item.openTestId}>
+                  {t('common.open')}
+                </LinkButton>
+              ) : null}
             </div>
           ))}
           {props.scope === 'mine' ? <DashboardMembershipSummary membership={props.membership} /> : null}

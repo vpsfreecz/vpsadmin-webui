@@ -57,8 +57,10 @@ for (const actor of [{ mode: 'app', level: 1 }, { mode: 'app', level: 21 }, { mo
         await page.goto(`/${actor.mode}?user=84`);
         const summary = page.getByTestId('app.dashboard.summary-grid');
         await expect(summary.getByRole('heading', { name: language === 'cs' ? 'Souhrn' : 'Summary', exact: true })).toBeVisible();
+        await expect(summary.getByTestId('app.dashboard.kpi.vps.open')).toHaveCount(0);
+        await expect(summary.getByTestId('app.dashboard.kpi.dns.open')).toHaveCount(0);
         const noun = language === 'cs' ? (count === 1 ? 'DNS zóna' : count >= 2 && count <= 4 ? 'DNS zóny' : 'DNS zón') : count === 1 ? 'DNS zone' : 'DNS zones';
-        await expect(summary.getByTestId('app.dashboard.kpi.dns')).toHaveText(`${count}${noun}${language === 'cs' ? 'Otevřít' : 'Open'}`);
+        await expect(summary.getByTestId('app.dashboard.kpi.dns')).toHaveText(`${count}${noun}`);
         if (actor.mode === 'app') {
           const paid = summary.getByTestId('app.dashboard.kpi.paid-until');
           await expect(paid).toContainText(language === 'cs' ? '31. 12. 2026' : '12/31/2026');
@@ -95,7 +97,7 @@ for (const language of ['cs', 'en'] as const) {
       state.count = count;
       await page.goto('/app');
       const noun = language === 'cs' ? (count === 1 ? 'DNS zóna' : 'DNS zón') : count === 1 ? 'DNS zone' : 'DNS zones';
-      await expect(page.getByTestId('app.dashboard.kpi.dns')).toHaveText(`${count}${noun}${language === 'cs' ? 'Otevřít' : 'Open'}`);
+      await expect(page.getByTestId('app.dashboard.kpi.dns')).toHaveText(`${count}${noun}`);
       expect(state.writes).toEqual([]);
       expect(state.errors).toEqual([]);
     });
