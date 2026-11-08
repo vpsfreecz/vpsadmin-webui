@@ -64,10 +64,7 @@ export function KeysetPagination(props: {
   const prefix = props.testId ?? 'pagination';
   const [jumpPage, setJumpPage] = useState('');
   const totalPagesKnown = Boolean(props.totalPagesKnown && pageCount >= page);
-  const maxDirectPage = Math.max(
-    page,
-    Math.min(pageCount, Math.floor(props.maxDirectPage ?? pageCount))
-  );
+  const maxDirectPage = Math.max(page, Math.min(pageCount, Math.floor(props.maxDirectPage ?? pageCount)));
   const jumpPending = Boolean(props.jumpPending);
 
   const submitJump = (event: React.FormEvent<HTMLFormElement>) => {
@@ -92,6 +89,7 @@ export function KeysetPagination(props: {
         <Button
           variant="secondary"
           size="sm"
+          className="h-9"
           disabled={!props.canPrev || jumpPending}
           onClick={props.onPrev}
           testId={`${prefix}.prev`}
@@ -110,14 +108,9 @@ export function KeysetPagination(props: {
                 key={it}
                 variant="secondary"
                 size="sm"
-                className={clsx(
-                  'min-w-8 px-2',
-                  it === page ? 'border-accent/60 bg-surface-2' : undefined
-                )}
+                className={clsx('h-9 min-w-9 px-2', it === page ? 'border-accent/60 bg-surface-2' : undefined)}
                 ariaLabel={
-                  it === page
-                    ? t('pagination.page_current', { page: it })
-                    : t('pagination.go_to_page', { page: it })
+                  it === page ? t('pagination.page_current', { page: it }) : t('pagination.go_to_page', { page: it })
                 }
                 onClick={() => props.onGoToPage?.(it)}
                 disabled={!props.onGoToPage || it > maxDirectPage || jumpPending}
@@ -132,6 +125,7 @@ export function KeysetPagination(props: {
         <Button
           variant="secondary"
           size="sm"
+          className="h-9"
           disabled={!props.canNext || jumpPending}
           onClick={props.onNext}
           testId={`${prefix}.next`}
@@ -153,7 +147,7 @@ export function KeysetPagination(props: {
             <input
               id={`${prefix}.jump`}
               data-testid={`${prefix}.jump`}
-              className="h-9 w-20 rounded-lg border border-border bg-surface px-2 text-sm text-foreground outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
+              className="h-9 [@media(any-pointer:coarse)]:min-h-11 [@media(any-pointer:coarse)]:text-base w-20 rounded-lg border border-border bg-surface px-2 text-sm text-foreground outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/20"
               type="number"
               min={1}
               max={maxDirectPage}
@@ -167,6 +161,7 @@ export function KeysetPagination(props: {
               type="submit"
               variant="secondary"
               size="sm"
+              className="h-9"
               disabled={!jumpPage.trim() || jumpPending}
               testId={`${prefix}.jump.submit`}
             >

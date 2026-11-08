@@ -186,3 +186,15 @@ these requests are intercepted synthetic fixtures, not live API certification.
 No timeout, retry, compiler baseline, transport or runtime guard was weakened.
 The updated integration still needs matching packages, fresh CI and paired live
 verification.
+
+
+## Additional verified preview controls
+
+Integrate PR201's single-line secret controls and PR202's pagination/native map-kind
+presentation history while retaining main's adapters and API guards. The map-detail
+conflict retains main's apiErrors import and adds only coarse-pointer dimensions;
+its existing structural exception keeps the same line allowance, owner and removal
+condition, rebinding its content hash with both rationales. Strict E2E coverage is
+the union of adopted leaves; no deferred baseline is reset. Existing source and
+exact-package proofs for the focused changes do not certify this new integration
+artifact. Matching package, affected control reruns and fresh CI are required.

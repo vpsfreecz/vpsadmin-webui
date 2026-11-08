@@ -525,7 +525,7 @@ export function UserNamespaceMapDetail(props: {
               <label className="text-xs text-muted">{t('userns.entry.grid.kind')}</label>
               <select
                 data-testid={`${props.testIdPrefix}.add.kind`}
-                className="mt-1 h-9 w-full rounded-md border border-border bg-surface px-2 text-sm text-fg"
+                className="mt-1 h-9 w-full rounded-md border border-border bg-surface px-2 text-sm text-fg [@media(any-pointer:coarse)]:min-h-11 [@media(any-pointer:coarse)]:text-base"
                 value={addKind}
                 onChange={(e) => setAddKind(e.target.value as any)}
                 disabled={addM.isPending || !canInteract}
