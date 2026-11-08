@@ -1,3 +1,7 @@
+## 2026-11-08 — Match public language and appearance selection
+
+[Scope and verification](docs/work-log/2026-11-08-public-language-selection.md).
+
 ## 2026-11-08 — Readable migration-plan read errors
 
 Prepared existing semantic error panels for independent migration-row and
