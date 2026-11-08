@@ -161,14 +161,14 @@ function ChangeRow(props: { change: VpsConfigChangeSummary; compact?: boolean })
       <div className="min-w-0 grid gap-2 text-sm md:grid-cols-[1fr_auto_1fr] md:items-start">
         <div>
           <div className="text-xs font-medium uppercase tracking-wide text-muted">{t('vps.config.review.before')}</div>
-          <div className="mt-1 break-words [overflow-wrap:anywhere] rounded-md border border-border bg-surface px-2 py-1 text-fg">{props.change.before}</div>
+          <div className="mt-1 [overflow-wrap:anywhere] rounded-md border border-border bg-surface px-2 py-1 text-fg">{props.change.before}</div>
         </div>
         <div className="hidden px-1 pt-6 text-muted md:block" aria-hidden="true">
           {t('vps.config.review.arrow')}
         </div>
         <div>
           <div className="text-xs font-medium uppercase tracking-wide text-muted">{t('vps.config.review.after')}</div>
-          <div className="mt-1 break-words [overflow-wrap:anywhere] rounded-md border border-info-border bg-info-bg px-2 py-1 text-fg">{props.change.after}</div>
+          <div className="mt-1 [overflow-wrap:anywhere] rounded-md border border-info-border bg-info-bg px-2 py-1 text-fg">{props.change.after}</div>
         </div>
       </div>
     </div>
