@@ -1003,3 +1003,10 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+### Shared keyset pagination control dimensions
+
+Approved UX-03: navigation, jump and limit controls use matching36px desktop
+height and the existing44px coarse-pointer minimum. Numeric page targets wrap
+with the row. Cursor stacks, progressive counts, clamping, pending state and
+owner-bound requests retain their contracts; this is a presentation correction.
