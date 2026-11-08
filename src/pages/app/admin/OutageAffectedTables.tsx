@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { useI18n } from '../../../app/i18n';
+import { Alert } from '../../../components/ui/Alert';
 import { Card, CardBody, CardHeader } from '../../../components/ui/Card';
 import { Spinner } from '../../../components/ui/Spinner';
 import { formatErrorMessage } from '../../../lib/errors';
@@ -85,7 +86,9 @@ function AffectedCard<T extends { id: number }>(props: {
       <CardHeader title={props.title} />
       <CardBody>
         {props.query.isLoading ? <Spinner label={t('common.loading')} /> : props.query.isError ? (
-          <div className="text-sm text-danger">{formatErrorMessage(props.query.error)}</div>
+          <Alert variant="danger" title={t('common.error')} testId={`${props.testId}.error`}>
+            {formatErrorMessage(props.query.error)}
+          </Alert>
         ) : shownRows.length ? (
           <>
             <ul className="space-y-1 text-sm">{shownRows.map((row) => <li key={row.id}>{props.render(row)}</li>)}</ul>

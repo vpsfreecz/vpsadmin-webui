@@ -14,6 +14,14 @@
 
 [Scope and verification](docs/work-log/2026-11-08-ci-locale-bundles.md).
 
+## 2026-11-08 — Readable affected-outage errors
+
+Prepared local semantic error alerts for affected user/VPS/export cards after
+actual dark-theme fixture inspection exposed low-contrast red body text on blue
+cards. Existing translated Error/Chyba labels and readable alert body text keep
+the failure understandable without color alone. See the [scope and verification](docs/work-log/2026-11-08-todo-outage-error-readability.md).
+Not merged or deployed; exact browser/release verification remains gated.
+
 ## 2026-11-08 — Distinguish route-list read errors from uncertain writes
 
 [Scope and verification](docs/work-log/2026-11-08-todo-network-query-feedback.md).
