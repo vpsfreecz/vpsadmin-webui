@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
+import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 import { expectNoDocumentHorizontalOverflow } from '../../helpers/horizontalOverflow';
 
 for (const mode of ['app', 'admin'] as const) {
@@ -86,4 +86,62 @@ for (const mode of ['app', 'admin'] as const) {
     await expect(expanded).toHaveCount(0);
     await expectNoDocumentHorizontalOverflow(page);
   });
+}
+
+for (const mode of ['app', 'admin'] as const) {
+  for (const [language, theme] of [
+    ['cs', 'dark'],
+    ['en', 'light'],
+  ] as const) {
+    test(`@pr-smoke @pr-smoke-mobile action list keeps long titles and actions readable (${mode}/${language}/${theme})`, async ({
+      page,
+      isMobile,
+    }) => {
+      const writes: string[] = [];
+      page.on('request', (request) => {
+        if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method())) writes.push(request.url());
+      });
+      await setUiSettingsLocalStorage(page, { language, theme });
+      await bootstrapVpsAdminWindow(page);
+      const title = 'Ověřovací dlouhý český popis provozní operace správce v Českých Budějovicích';
+      await installHaveApiMock(page, {
+        user: { id: 1, login: 'synthetic-audit-user', level: mode === 'admin' ? 99 : 1 },
+        handlers: {
+          'GET action_states': () => ({
+            action_states: [
+              { id: 123, label: title, current: 3, total: 9, finished: false, status: true, can_cancel: true },
+              { id: 122, label: 'SyntheticOperation'.repeat(12), finished: true, status: false, can_cancel: false },
+            ],
+          }),
+        },
+      });
+      await page.goto(`/${mode}/action-states`);
+      const row = page.getByTestId('action_states.row.123');
+      await expect(row).toContainText(title);
+      for (const width of [390, 320, 1440]) {
+        await page.setViewportSize({ width, height: 900 });
+        await expectNoDocumentHorizontalOverflow(page);
+        const link = row.locator(`a[href="/${mode}/action-states/123"]`);
+        const box = await row.boundingBox();
+        const titleBox = await link.boundingBox();
+        expect(box).not.toBeNull();
+        expect(titleBox).not.toBeNull();
+        if (width < 640) expect(titleBox!.width).toBeGreaterThanOrEqual(box!.width - 44);
+        for (const button of await row.getByRole('button').all()) {
+          const buttonBox = await button.boundingBox();
+          expect(buttonBox).not.toBeNull();
+          expect(buttonBox!.x).toBeGreaterThanOrEqual(box!.x);
+          expect(buttonBox!.x + buttonBox!.width).toBeLessThanOrEqual(box!.x + box!.width);
+          if (width < 640) expect(buttonBox!.y).toBeGreaterThanOrEqual(titleBox!.y + titleBox!.height);
+          if (isMobile) expect(buttonBox!.height).toBeGreaterThanOrEqual(44);
+        }
+        await link.focus();
+        await page.keyboard.press('Shift+Tab');
+        await page.keyboard.press('Tab');
+        await expect(link).toBeFocused();
+        expect(await link.evaluate((el) => el.matches(':focus-visible'))).toBe(true);
+      }
+      expect(writes).toEqual([]);
+    });
+  }
 }
