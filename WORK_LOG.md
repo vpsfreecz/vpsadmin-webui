@@ -1685,3 +1685,8 @@ preserve all branch histories and colleague PRs. Add standard push CI for the
 integration branch, without deployment automation. Dev has isolated test data;
 clankerdev still uses the production API. No host update in this setup.
 [Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
+
+## 2026-11-08 — Wrap long node pool labels
+
+Prepare approved UX-03 / REQ-010 after actual long-label clipping in the
+infrastructure audit. [Scope, baseline and pending verification](docs/work-log/2026-11-08-todo-node-pool-title-wrap.md).
