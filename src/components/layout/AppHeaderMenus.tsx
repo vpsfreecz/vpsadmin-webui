@@ -258,19 +258,6 @@ export function AppUserMenu(props: Pick<AppHeaderProps,
       <div className="flex min-w-0 gap-1.5">
         <button
           type="button"
-          ref={preferencesTriggerRef}
-          className="flex min-h-11 w-11 shrink-0 items-center justify-center rounded-md border border-border bg-surface text-muted hover:bg-surface-2 hover:text-fg md:min-h-9 md:w-9 [@media(any-pointer:coarse)]:min-h-11 [@media(any-pointer:coarse)]:w-11"
-          onClick={() => setUserMenuOpen(!userMenuOpen)}
-          aria-expanded={preferencesOpen}
-          aria-controls={preferencesOpen ? popupId : undefined}
-          aria-label={preferencesLabel}
-          title={preferencesLabel}
-          data-testid="shell.interface-preferences-button"
-        >
-          <Settings size={18} aria-hidden="true" />
-        </button>
-        <button
-          type="button"
           className="flex min-h-11 min-w-0 flex-1 items-center gap-1.5 rounded-md border border-transparent bg-surface px-2 text-left text-sm text-muted hover:bg-surface-2 hover:text-fg md:min-h-9 [@media(any-pointer:coarse)]:min-h-11"
           onClick={() => {
             setUserMenuOpen(false);
@@ -288,6 +275,19 @@ export function AppUserMenu(props: Pick<AppHeaderProps,
             </span>
           ) : null}
           {roleLabel ? <span id={roleDescriptionId} className="sr-only">{roleLabel}</span> : null}
+        </button>
+        <button
+          type="button"
+          ref={preferencesTriggerRef}
+          className="flex min-h-11 w-11 shrink-0 items-center justify-center rounded-md border border-border bg-surface text-muted hover:bg-surface-2 hover:text-fg md:min-h-9 md:w-9 [@media(any-pointer:coarse)]:min-h-11 [@media(any-pointer:coarse)]:w-11"
+          onClick={() => setUserMenuOpen(!userMenuOpen)}
+          aria-expanded={preferencesOpen}
+          aria-controls={preferencesOpen ? popupId : undefined}
+          aria-label={preferencesLabel}
+          title={preferencesLabel}
+          data-testid="shell.interface-preferences-button"
+        >
+          <Settings size={18} aria-hidden="true" />
         </button>
         <a
           href={loginLogoutHref}
