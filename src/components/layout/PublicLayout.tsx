@@ -75,7 +75,7 @@ function languageButtonClass(active: boolean, mobile = false): string {
   return clsx(
     'rounded-md py-1 text-xs font-semibold transition-colors',
     mobile ? 'min-h-11 min-w-11 px-1' : 'px-2',
-    active ? 'bg-primary text-primary-contrast' : 'text-muted hover:bg-surface-2 hover:text-fg'
+    active ? 'bg-accent text-accent-fg hover:bg-accent-hover' : 'text-muted hover:bg-surface-2 hover:text-fg'
   );
 }
 
@@ -99,6 +99,7 @@ function PublicLanguageSwitcher(props: {
       <button
         type="button"
         className={languageButtonClass(props.language === 'system', props.mobile)}
+        aria-pressed={props.language === 'system'}
         onClick={() => props.onSetLanguage('system')}
         title={props.t('settings.language.system')}
         data-testid={`${testId}.system`}
@@ -108,6 +109,7 @@ function PublicLanguageSwitcher(props: {
       <button
         type="button"
         className={languageButtonClass(props.language === 'en', props.mobile)}
+        aria-pressed={props.language === 'en'}
         onClick={() => props.onSetLanguage('en')}
         title={props.t('settings.language.en')}
         data-testid={`${testId}.en`}
@@ -117,6 +119,7 @@ function PublicLanguageSwitcher(props: {
       <button
         type="button"
         className={languageButtonClass(props.language === 'cs', props.mobile)}
+        aria-pressed={props.language === 'cs'}
         onClick={() => props.onSetLanguage('cs')}
         title={props.t('settings.language.cs')}
         data-testid={`${testId}.cs`}
