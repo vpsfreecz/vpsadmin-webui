@@ -2,6 +2,10 @@
 
 [Scope, data and verification](docs/work-log/2026-11-08-dashboard-summary.md).
 
+## 2026-11-08 — Reduce CI locale module requests
+
+[Scope and verification](docs/work-log/2026-11-08-ci-locale-bundles.md).
+
 ## 2026-11-08 — Distinguish route-list read errors from uncertain writes
 
 [Scope and verification](docs/work-log/2026-11-08-todo-network-query-feedback.md).
@@ -2177,3 +2181,8 @@ Prepare approved UX-03 / REQ-010. See the
 ## 2026-11-08 — Align DNS server filters
 
 Prepare approved UX-03 / REQ-010. See [scope and verification](docs/work-log/2026-11-08-todo-dns-server-filter-alignment.md).
+
+## 2026-11-08 — Wrap long node pool labels
+
+Prepare approved UX-03 / REQ-010 after actual long-label clipping in the
+infrastructure audit. [Scope, baseline and pending verification](docs/work-log/2026-11-08-todo-node-pool-title-wrap.md).

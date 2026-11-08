@@ -1068,6 +1068,10 @@ for verification and release status.
 return tracked results and retain errors. A node route being present is not proof
 that every action is allowed for support/member roles. History cursors and status
 sampling intervals need their real API semantics.
+Storage pool headers keep the full pool label readable, including long Czech
+names and unbroken labels at 320px. Wrapping retains the visible pool ID, state
+badge and checked time inside the card; maintenance gates stay unchanged
+(REQ-010).
 Sysctl history distinguishes missing observations, explicit unavailability and
 explicitly unconfigured values. A match or difference requires an available
 observation and actual configured/effective strings; missing values never imply
