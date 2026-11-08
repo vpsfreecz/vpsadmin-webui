@@ -13,6 +13,7 @@
     "e2e/helpers/horizontalOverflow.ts",
     "e2e/helpers/shellNavigation.ts",
     "e2e/specs/admin/admin_dashboard.spec.ts",
+    "e2e/specs/admin/cluster_dns_tools_smoke.spec.ts",
     "e2e/specs/admin/cluster_resource_maintenance.spec.ts",
     "e2e/specs/admin/ip_addresses_empty_clear_filters.spec.ts",
     "e2e/specs/admin/ip_addresses_filters_pagination.spec.ts",
@@ -154,13 +155,6 @@
     {
       "path": "e2e/specs/admin/cluster_dns_resolvers_smoke.spec.ts",
       "sha256": "f32b8ca4559cd86f50b77a77261083293d29f71e20ae788bc3718c7d42c1e498",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/admin/cluster_dns_tools_smoke.spec.ts",
-      "sha256": "e377f02b4f1cb613a4934168c984145de95f293abe5087ee5c6e70ffd9bf2800",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."

@@ -1003,3 +1003,8 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+
+### DNS server filter alignment (REQ-010)
+
+Use the shared wrapping FilterBar child layout for the DNS server search and labelled selectors. Align controls along their bottom edge on desktop; stack the search before wrapping selectors/actions at narrow widths. Keep search/visibility/zone filtering local and preserve pagination and API query contracts. This presentation change does not alter DNS writes or authorization.
