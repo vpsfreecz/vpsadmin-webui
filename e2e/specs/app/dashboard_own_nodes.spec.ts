@@ -78,12 +78,20 @@ for (const actor of [{ mode: 'app', level: 1 }, { mode: 'app', level: 21 }, { mo
         expect(fixture.lookups.every(query => new URLSearchParams(query).get('vps[user]') === '53')).toBe(true);
         await expect(page).toHaveURL(originalUrl);
         expect((await select.boundingBox())?.height).toBe(isMobile ? 44 : 36);
+        if (!isMobile) {
+          const collapseBox = await card.getByTestId('app.dashboard.widget.cluster.collapse').boundingBox();
+          expect(Math.abs((await select.boundingBox())!.y - collapseBox!.y)).toBeLessThanOrEqual(1);
+        }
         await select.focus();
         await page.keyboard.press('Tab');
         await expect(card.getByTestId('app.dashboard.widget.cluster.collapse')).toBeFocused();
         await page.keyboard.press('Shift+Tab');
         await expect(select).toBeFocused();
         await card.screenshot({ path: info.outputPath('own-servers.png') });
+        if (language === 'cs' && theme === 'light') {
+          await page.evaluate(() => window.scrollTo(0, 0));
+          await page.screenshot({ path: info.outputPath('own-servers-page.png'), fullPage: true });
+        }
         await expectNoDocumentHorizontalOverflow(page);
         await page.reload();
         await expect(select).toHaveValue('mine');

@@ -45,3 +45,16 @@ owner isolation, persisted reload, keyboard/touch targets, collapse and four
 empty/error/foreign/missing states. Actual browser/clean-package/CI/paired-preview
 acceptance is pending. Shared browser capacity is occupied by the already authorized
 serial worker; no extra AI worker or browser bypass is introduced.
+
+
+Clean initial b4bb package passed four Nix outputs (381 assets), the complete
+356-file / 2308-unit suite, exact own-node browser40, previous-package baseline8
+and working preflight4. Those checks use synthetic intercepted requests; they do
+not certify live permissions. Existing dashboard regressions are finishing.
+
+Visual inspection found the shared Select's full width winning over a local auto
+width, stacking desktop actions. Wrap it in a bounded desktop group and keep the
+full mobile width; add an existing-case alignment assertion and contextual full
+page captures so a sticky navigation header does not obscure the card title in
+an element crop. This follow-up changes presentation/evidence only. Final matching
+package and affected render reruns are still required.

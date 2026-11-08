@@ -57,10 +57,11 @@ export function DashboardClusterCard(props: {
       emptyMessage={onlyMine ? t('dashboard.section.cluster.mine.empty') : undefined}
       headerControl={
         <>
+        <div className="w-full sm:w-48">
         <Select
           testId="app.dashboard.cluster.scope"
           ariaLabel={t('dashboard.section.cluster.scope.label')}
-          className="w-auto max-w-full"
+          className="max-w-full"
           value={onlyMine ? 'mine' : 'all'}
           onChange={event => props.onChangeSettings({ ...props.settings, nodeScope: event.target.value === 'mine' ? 'mine' : 'all' })}
           options={[
@@ -68,6 +69,7 @@ export function DashboardClusterCard(props: {
             { value: 'mine', label: t('dashboard.section.cluster.scope.mine') },
           ]}
         />
+        </div>
         {membershipError ? (
           <Button variant="secondary" size="sm" testId="app.dashboard.cluster.scope.retry"
             disabled={!validUserId || ownNodes.isFetching}
