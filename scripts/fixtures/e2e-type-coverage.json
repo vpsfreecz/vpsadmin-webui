@@ -37,6 +37,7 @@
     "e2e/specs/admin/nodes_issues_only_filter.spec.ts",
     "e2e/specs/admin/nodes_overview_maintenance.spec.ts",
     "e2e/specs/admin/os_templates_responsive_actions.spec.ts",
+    "e2e/specs/admin/outage_affected_errors.spec.ts",
     "e2e/specs/admin/outages_admin_smoke.spec.ts",
     "e2e/specs/admin/registration_reason_presets.spec.ts",
     "e2e/specs/admin/requests_operations_smoke.spec.ts",

@@ -1406,3 +1406,11 @@ choice values, draft state, map creation/save/delete and ownership are unchanged
 ### DNS server filter alignment (REQ-010)
 
 Use the shared wrapping FilterBar child layout for the DNS server search and labelled selectors. Align controls along their bottom edge on desktop; stack the search before wrapping selectors/actions at narrow widths. Keep search/visibility/zone filtering local and preserve pagination and API query contracts. This presentation change does not alter DNS writes or authorization.
+
+### Affected-outage read failures (REQ-010)
+
+Administrator and support outage-detail cards keep user, VPS and export read
+failures inside the affected section. Each failure uses the existing danger
+alert with the localized Error/Chyba title and readable body text. The message
+and requests retain their original source; other cards remain independently
+available. This presentation change adds no retry, role, query or write behavior.
