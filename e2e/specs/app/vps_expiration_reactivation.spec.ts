@@ -105,3 +105,36 @@ for (const language of ['cs', 'en'] as const) {
     expect(writes.at(-1)).toEqual({ expiration_date: null });
   });
 }
+
+for (const language of ['cs', 'en'] as const) {
+  test(`@pr-smoke @pr-smoke-mobile administrator reminder retains a local clear draft (${language})`, async ({ page, hasTouch }) => {
+    const userWrites: string[] = [];
+    page.on('request', (request) => {
+      if (request.method() === 'PUT' && new URL(request.url()).pathname.endsWith('/users/42')) userWrites.push(request.url());
+    });
+    await bootstrapVpsAdminWindow(page);
+    await setUiSettingsLocalStorage(page, { language, theme: language === 'cs' ? 'dark' : 'light' });
+    await installHaveApiMock(page, {
+      user: { id: 7, login: 'fixture-admin', level: 100 },
+      handlers: {
+        'GET users/42': () => ({ user: { id: 42, login: 'fixture-member', level: 1, object_state: 'active', expiration_date: '2099-01-01T00:00:00Z', remind_after_date: '2098-12-01T00:00:00Z' } }),
+        'GET vpses': () => ({ vpses: [], _meta: { total_count: 0 } }),
+        'GET user_payments': () => ({ user_payments: [] }),
+      },
+    });
+    await page.goto('/admin/users/42');
+    const field = page.getByTestId('admin.user.lifecycle.remind_after');
+    const clear = page.getByTestId('admin.user.lifecycle.remind_after.clear');
+    await expect(field).toBeVisible();
+    await expect(field).not.toHaveValue('');
+    const expectedHeight = await page.evaluate(() => matchMedia('(any-pointer:coarse)').matches ? 44 : 36);
+    for (const element of [field, clear]) expect((await element.boundingBox())?.height).toBe(expectedHeight);
+    if (hasTouch) await clear.tap();
+    else await clear.click();
+    await expect(field).toHaveValue('');
+    await expect(clear).toBeDisabled();
+    await field.fill('2098-11-01T12:00');
+    await expect(clear).toBeEnabled();
+    expect(userWrites).toEqual([]);
+  });
+}

@@ -256,3 +256,19 @@ keeping both scopes. Source quick200/109 and existing LifecyclePanel unit4 pass.
 The preceding full merged unit2309 result remains attributed to its source before
 these two presentation props. Final matching artifact and affected browser checks
 are still pending. The worker's own legacy-basis exact results are separate proof.
+
+## Complete the same date-field sizing cohort
+
+Inherit the worker's verified cumulative134eb01f history (focused draft PR207,
+357205be). After98af, the only runtime change is the selected-user reminder
+Clear button size. The bounded proof verifies exactly three size props across
+the lifetime and selected-user components relative to93aef54c. Main's generated
+SDK contracts and all handlers/guards remain intact. Preserve the tighter768-line
+selected-user allowance and every other ledger field; update only its hash and
+review rationale. Source quick200/109 passes.
+
+The all-received146-case run remains immutable on clean98af. Its source differs
+from this follow-up only in that one presentation prop. A new matching artifact
+and narrow final eight date-field/workflow cases will cover the final source.
+Do not attribute98af results to a different revision. No production activation
+or shared-main/PR merge is authorized.
