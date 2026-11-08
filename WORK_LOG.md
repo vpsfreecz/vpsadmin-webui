@@ -1,3 +1,7 @@
+## 2026-11-08 — Record CI videos on the first retry
+
+[Scope, performance measurement and diagnostic retention](docs/work-log/2026-11-08-ci-video-capture.md).
+
 ## Request return paths (2026-11-04)
 
 Remove legacy `q` from request list return paths while preserving other

@@ -206,6 +206,11 @@ retains the failed attempt; the report records title, project, first error,
 timing and retry outcome, while its trace records requests and console/page
 errors. Artifact retention remains seven days for PR smoke and fourteen days
 for broad/nightly. These are runner and workflow contracts, not a browser run.
+CI records video on the first retry rather than encoding every passing test.
+The first failed attempt still retains its trace and screenshot, and the first
+retry adds video; local retain-on-failure video behavior is unchanged when
+artifact recording is enabled. Test selection, workers, timeouts and retry
+counts remain the same.
 Browser fixtures do not establish live API behavior. Release readiness also
 requires later built-assets/nginx/BFF and pinned-API evidence.
 

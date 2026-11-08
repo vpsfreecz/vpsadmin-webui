@@ -41,7 +41,7 @@ export default defineConfig({
     ignoreHTTPSErrors,
     trace: recordArtifacts ? 'retain-on-failure' : 'off',
     screenshot: recordArtifacts ? 'only-on-failure' : 'off',
-    video: recordArtifacts ? 'retain-on-failure' : 'off',
+    video: recordArtifacts ? (process.env['CI'] ? 'on-first-retry' : 'retain-on-failure') : 'off',
   },
   webServer: process.env['E2E_START_SERVER']
     ? {
