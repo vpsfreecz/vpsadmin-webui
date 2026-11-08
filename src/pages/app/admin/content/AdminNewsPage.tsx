@@ -316,7 +316,7 @@ export function AdminNewsPage() {
             </Alert>
           ) : null}
 
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_auto]">
             <div>
               <div className="text-xs text-faint">{t('admin.newslog.field.published_at')}</div>
               <div className="mt-1 flex flex-col items-start gap-2 sm:flex-row sm:items-center">

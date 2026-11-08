@@ -17,3 +17,15 @@ cases/16 states. This is rendered presentation, not live permissions.
 
 Verification and paired preview activation remain pending for this new change.
 No production/newadmin activation, PR approval or merge is authorized.
+
+## Exact first package findings
+
+The initial clean37ca package passed four presentation cases and the narrow
+card case, but two existing bilingual workflow cases failed: Czech natural
+button width exceeded the half-width row by5.16px and the keyboard fixture
+assumed a single Tab leaves a native date/time input. Both original failures
+and five valid passes are retained. Give the date/action column remaining
+space and the status column its natural width. Traverse the bounded native
+internal Tab stops without altering the focus assertion or budgets. Include
+the existing news spec explicitly in the mobile WebKit project. Fresh source,
+packages, exact browsers and focused-head CI are required for this follow-up.
