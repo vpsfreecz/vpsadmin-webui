@@ -52,10 +52,10 @@
       "path": "src/components/userNamespaces/UserNamespaceMapDetail.tsx",
       "rule": "grown-over-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "eb6d3e873f2b5ce5cae74b021a3a629d07ba676daa2e003f5934df1f3eb33101",
+      "contentHash": "8a7155772385fe5c559ae2ccd39c7f5e878aecc7d5d300d85bd128515a5f2b17",
       "old": 770,
       "allowance": 798,
-      "rationale": "At the recorded source revision, this file already contained namespace map detail states; extract the coherent section with focused behavior coverage before removing this exception.",
+      "rationale": "At the recorded source revision, this file already contained namespace map detail states; extract the coherent section with focused behavior coverage before removing this exception. Reviewed2026-11-08: native coarse field minimum/font only, with unchanged line count and allowance; extraction debt remains.",
       "owner": "WebUI implementation lead",
       "removeWhen": {
         "metric": "lines",
