@@ -1,3 +1,8 @@
+## 2026-11-08 — Show dashboard servers hosting my VPS
+
+Implement queued request 4 / REQ-009, REQ-010, REQ-054. See the
+[scope and verification record](docs/work-log/2026-11-08-dashboard-own-nodes.md).
+
 ## 2026-11-08 — Open Account directly and expose logout
 
 Implement queued request3 / REQ-004, REQ-010, REQ-040. See the

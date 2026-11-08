@@ -108,6 +108,7 @@ describe('uiSettingsModel', () => {
       }).dashboard,
     ).toEqual({
       density: 'compact',
+      nodeScope: 'all',
       widgetOrder: ['news', 'security', 'outages', 'cluster'],
       hiddenWidgets: ['outages'],
       collapsedWidgets: ['cluster'],

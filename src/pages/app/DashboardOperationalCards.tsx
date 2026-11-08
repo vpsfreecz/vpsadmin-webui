@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import type { ReactNode } from "react";
 import { type AppMode, useAppMode } from "../../app/appMode";
 import type { DashboardDensity } from "../../app/dashboardSettingsModel";
 import { useI18n } from "../../app/i18n";
@@ -234,7 +235,7 @@ export function summarizeNodes(nodes: PublicNodeStatus[], unknownLocationLabel: 
   return { byLocation, summary: { ok, maintenance, down, unknown, total, vps } };
 }
 export { SecurityAdvisoriesCard } from "./DashboardSecurityAdvisoriesCard";
-export function ClusterHealthCard(props: { isLoading: boolean; isError: boolean; nodeData: ReturnType<typeof summarizeNodes>; collapsed?: boolean; density?: DashboardDensity; onToggleCollapsed?: () => void; }) {
+export function ClusterHealthCard(props: { isLoading: boolean; isError: boolean; nodeData: ReturnType<typeof summarizeNodes>; collapsed?: boolean; density?: DashboardDensity; onToggleCollapsed?: () => void; headerControl?: ReactNode; emptyMessage?: string; errorMessage?: string; }) {
   const { t } = useI18n();
   const { basePath, mode } = useAppMode();
   const compact = props.density === "compact";
@@ -276,18 +277,20 @@ export function ClusterHealthCard(props: { isLoading: boolean; isError: boolean;
         title={t("dashboard.section.cluster.title")}
         actions={
           <>
+            {props.headerControl}
             {props.onToggleCollapsed ? (
               <Button
                 variant="secondary"
                 size="sm"
                 onClick={props.onToggleCollapsed}
                 testId="app.dashboard.widget.cluster.collapse"
+                className="h-9"
               >
                 {collapsed ? t("dashboard.preferences.widget.expand") : t("dashboard.preferences.widget.collapse")}
               </Button>
             ) : null}
             {mode === "admin" ? (
-              <LinkButton to={`${basePath}/nodes`} variant="secondary" size="sm">
+              <LinkButton to={`${basePath}/nodes`} variant="secondary" size="sm" className="h-9">
                 {t("nav.nodes")}
               </LinkButton>
             ) : null}
@@ -298,9 +301,9 @@ export function ClusterHealthCard(props: { isLoading: boolean; isError: boolean;
         {props.isLoading ? (
           <Spinner label={t("dashboard.section.cluster.loading")} />
         ) : props.isError ? (
-          <Alert title={t("dashboard.section.cluster.error")} variant="danger" />
+          <Alert title={props.errorMessage ?? t("dashboard.section.cluster.error")} variant="danger" />
         ) : props.nodeData.summary.total === 0 ? (
-          <div className="text-sm text-muted">{t("dashboard.section.cluster.empty")}</div>
+          <div className="text-sm text-muted">{props.emptyMessage ?? t("dashboard.section.cluster.empty")}</div>
         ) : (
           <div className={compact ? "space-y-3" : "space-y-4"}>
             {statusBadges}

@@ -1,5 +1,6 @@
 import { Pencil } from 'lucide-react';
 import { NodeHeatmapProvider } from '../../components/cluster/NodeHeatmaps';
+import { DashboardClusterCard } from './DashboardClusterCard';
 import { LinkButton } from '../../components/ui/LinkButton';
 import { Alert } from '../../components/ui/Alert';
 import { Button } from '../../components/ui/Button';
@@ -18,7 +19,6 @@ import {
 import { useI18n } from '../../app/i18n';
 
 import {
-  ClusterHealthCard,
   DashboardNewsItem,
   SecurityAdvisoriesCard,
   summarizeNodes,
@@ -72,6 +72,7 @@ export function DashboardWidgetGrid(props: {
     isLoading: boolean;
     isError: boolean;
     nodeData: NodeData;
+    onReload?: () => void;
   };
 }) {
   const { t } = useI18n();
@@ -208,13 +209,14 @@ export function DashboardWidgetGrid(props: {
 
     return (
       <NodeHeatmapProvider key={id}>
-        <ClusterHealthCard
+        <DashboardClusterCard
           isLoading={props.cluster.isLoading}
           isError={props.cluster.isError}
           nodeData={props.cluster.nodeData}
-          collapsed={collapsed}
-          density={props.density}
+          settings={props.dashboardSettings}
+          onChangeSettings={props.setDashboardSettings}
           onToggleCollapsed={() => toggleCollapsed(id)}
+          onReload={props.cluster.onReload}
         />
       </NodeHeatmapProvider>
     );

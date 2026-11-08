@@ -271,6 +271,7 @@ export function DashboardPage() {
             isLoading: nodesQ.isLoading,
             isError: nodesQ.isError,
             nodeData,
+            onReload: () => { void nodesQ.refetch(); },
           }}
         />
       </div>

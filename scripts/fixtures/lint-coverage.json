@@ -9,6 +9,7 @@
     "src/app/auth.tsx",
     "src/app/bootstrapFailure.ts",
     "src/app/config.ts",
+    "src/app/dashboardSettingsModel.ts",
     "src/app/i18n.tsx",
     "src/app/runtimeMode.ts",
     "src/app/toasts.tsx",
@@ -48,7 +49,6 @@
   "deferred": {
     "src/app/accountTimeZone.ts": "5d7b27444f525e0f67f39dc520910bcf32101a39dba526943488667fa79d2a92",
     "src/app/appMode.tsx": "d68be8f74a4ffbcbbbaaf0eae9deef010688e69e8dead53cbc64b7b63f91b5c1",
-    "src/app/dashboardSettingsModel.ts": "55710b33bf86a0e7e6b68357430631a8b2f0541ce5397f2504c3ef63313c08da",
     "src/app/designSandbox.ts": "24ea33ff61c719f4667fa55c0d822be82d6a45b40e20cd97cc8dc363e3892c66",
     "src/app/objectScope.ts": "173fbc814775e8f44eba0c8688b792d16a79e6d6d7a3de826cc40178a374faf9",
     "src/app/runtimeBootstrap.ts": "5e58f00c6c112bf4e09329d6d0341a0e1ec05860f5b223ef39525cd53ac02ca4",

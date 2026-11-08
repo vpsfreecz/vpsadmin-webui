@@ -7,6 +7,8 @@ export type DashboardDensity = 'comfortable' | 'compact';
 
 export interface DashboardSettings {
   density: DashboardDensity;
+  /** Optional in older persisted settings; normalization defaults to all nodes. */
+  nodeScope?: 'all' | 'mine';
   hiddenWidgets: DashboardWidgetId[];
   collapsedWidgets: DashboardWidgetId[];
   widgetOrder: DashboardWidgetId[];
@@ -14,6 +16,7 @@ export interface DashboardSettings {
 
 export const DEFAULT_DASHBOARD_SETTINGS: DashboardSettings = {
   density: 'compact',
+  nodeScope: 'all',
   hiddenWidgets: [],
   collapsedWidgets: [],
   widgetOrder: [...DASHBOARD_WIDGET_IDS],
@@ -62,6 +65,7 @@ function normalizeHiddenWidgets(value: unknown): DashboardWidgetId[] {
 export function cloneDashboardSettings(settings: DashboardSettings): DashboardSettings {
   return {
     density: settings.density,
+    nodeScope: settings.nodeScope === 'mine' ? 'mine' : 'all',
     hiddenWidgets: [...settings.hiddenWidgets],
     collapsedWidgets: [...settings.collapsedWidgets],
     widgetOrder: [...settings.widgetOrder],
@@ -76,6 +80,7 @@ export function normalizeDashboardSettings(input: unknown): DashboardSettings {
 
   return {
     density,
+    nodeScope: input['nodeScope'] === 'mine' ? 'mine' : 'all',
     hiddenWidgets: normalizeHiddenWidgets(input['hiddenWidgets']),
     collapsedWidgets: uniqueWidgetIds(input['collapsedWidgets']),
     widgetOrder: normalizeWidgetOrder(input['widgetOrder']),
@@ -101,7 +106,7 @@ export function setDashboardDensity(settings: DashboardSettings, density: Dashbo
 export function toggleDashboardWidgetHidden(
   settings: DashboardSettings,
   id: DashboardWidgetId,
-  hidden: boolean,
+  hidden: boolean
 ): DashboardSettings {
   const normalized = normalizeDashboardSettings(settings);
   const hiddenSet = new Set(normalized.hiddenWidgets);
@@ -118,7 +123,7 @@ export function toggleDashboardWidgetHidden(
 export function toggleDashboardWidgetCollapsed(
   settings: DashboardSettings,
   id: DashboardWidgetId,
-  collapsed: boolean,
+  collapsed: boolean
 ): DashboardSettings {
   const normalized = normalizeDashboardSettings(settings);
   const collapsedSet = new Set(normalized.collapsedWidgets);
@@ -135,7 +140,7 @@ export function toggleDashboardWidgetCollapsed(
 export function moveDashboardWidget(
   settings: DashboardSettings,
   id: DashboardWidgetId,
-  direction: 'up' | 'down',
+  direction: 'up' | 'down'
 ): DashboardSettings {
   const normalized = normalizeDashboardSettings(settings);
   const nextOrder = [...normalized.widgetOrder];

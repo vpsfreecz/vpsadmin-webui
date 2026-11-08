@@ -73,6 +73,7 @@ export default defineConfig({
         '**/overview_readability.spec.ts',
         '**/sidebar_controls.spec.ts',
         '**/account_controls_direct.spec.ts',
+        '**/dashboard_own_nodes.spec.ts',
         '**/header_mobile_controls.spec.ts',
         '**/header_account_menu_narrow_mobile.spec.ts',
         '**/header_account_width.spec.ts',

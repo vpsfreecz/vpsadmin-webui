@@ -28,6 +28,7 @@ describe('dashboardSettingsModel', () => {
       }),
     ).toEqual({
       density: 'compact',
+      nodeScope: 'all',
       widgetOrder: ['security', 'news', 'outages', 'cluster'],
       hiddenWidgets: ['news'],
       collapsedWidgets: ['cluster', 'outages'],
@@ -78,5 +79,13 @@ describe('dashboardSettingsModel', () => {
     expect(movedDown.widgetOrder).toEqual(['news', 'outages', 'security', 'cluster']);
 
     expect(moveDashboardWidget(movedDown, 'cluster', 'down').widgetOrder).toEqual(movedDown.widgetOrder);
+  });
+
+  it('keeps an explicit own-node choice through normalization and other preference edits', () => {
+    const mine = normalizeDashboardSettings({ nodeScope: 'mine' });
+    expect(mine.nodeScope).toBe('mine');
+    expect(setDashboardDensity(mine, 'comfortable').nodeScope).toBe('mine');
+    expect(toggleDashboardWidgetCollapsed(mine, 'cluster', true).nodeScope).toBe('mine');
+    expect(normalizeDashboardSettings({ nodeScope: 'foreign' }).nodeScope).toBe('all');
   });
 });

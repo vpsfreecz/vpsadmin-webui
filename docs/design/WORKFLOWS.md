@@ -108,7 +108,18 @@ heatmap action in desktop rows and mobile node cards, in both member and admin
 views (REQ-025/026). It reuses the public heatmap configuration, node eligibility
 and dialog; external frames load only after an explicit click/tap. Missing or
 failed configuration hides the optional action/column without blocking status
-information. Compact dashboard density still limits the visible node list.
+information. Compact dashboard density still limits the visible node list. The cluster card also
+lets a signed-in user choose All servers or With my VPS. This preference is saved
+with dashboard settings, without changing density, widget order or collapse.
+The personal choice always uses the authenticated account, including admin All
+view; it never substitutes a selected member or every accessible VPS. The client
+reads the bounded complete keyset collection through the existing generated VPS
+Index and joins stable node IDs against public status. Missing relations/status,
+failed or incomplete pagination show a localized error rather than an empty or
+healthy partial result. A confirmed empty own collection has its own message.
+The card's node/location/availability summaries are filtered together, while
+public anonymous status and global operational warnings keep their full scope.
+
 Use the same ratio and exception counts on desktop and mobile, with a text summary in place of the redundant location bar. (REQ-009).
 Show one availability ratio, remove the nominal banner, and retain outage, maintenance and load or error indicators. (REQ-009).
 Label the resource count group once with the actual object scope. Put each resource label and count on a compact wrapping line. (REQ-009).
