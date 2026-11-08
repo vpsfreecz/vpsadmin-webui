@@ -58,7 +58,8 @@ does not itself verify registry signatures or perform network requests.
 
 ## Published generated client
 
-The root selects exact registry dependency `vpsadmin-typescript-client: "0.4.0"`.
+The published baseline selects exact registry dependency `vpsadmin-typescript-client: "0.4.0"`.
+The DNS feature branch uses the [declared development candidate](#dns-readiness-development-candidate) below.
 The npm-generated lock pins its canonical registry URL and SHA-512 integrity.
 `npm ci` installs the published JavaScript and declarations without a sibling
 checkout or source build. Nix uses ordinary registry dependency fetching; see
@@ -212,3 +213,34 @@ Follow vpsAdmin's [generated-client synchronization procedure](https://github.co
 for the API/client update sequence. Ordinary source synchronization does not
 require a release. When a TypeScript-client release is needed, default to the
 next minor version unless the user explicitly specifies a version or bump.
+
+
+## DNS readiness development candidate
+
+The DNS feature branch temporarily selects
+`file:../vpsadmin-typescript-client/vpsadmin-typescript-client-0.4.0.tgz`.
+This is an unpublished development artifact, not registry 0.4.0. Its exact source,
+API schema and archive hashes are in
+[the candidate receipt](../../packages/dns-readiness-sdk-candidate.json).
+Prepare the sibling checkout at clean
+`a888031e19dea5354aac320f2d291902e45f3bad`, then from that checkout run:
+
+```sh
+nix develop --command npm ci --ignore-scripts --no-audit --no-fund
+nix develop --command npm run build
+nix develop --command npm pack --ignore-scripts
+sha256sum vpsadmin-typescript-client-0.4.0.tgz
+```
+
+The archive must match SHA-256
+`d1c3375507322dcfc6803eb0b94e36691da1e51cf716b656f089cf8e35ca823f`.
+Then run `nix develop --command npm ci` in WebUI. The lock verifies the archive's
+SHA-512 integrity and preserves the unchanged runtime peer. The archive and
+compiled SDK remain ignored, without global links or install-time generators.
+WebUI CI needs that explicit sibling preparation while this draft uses the file
+input. Ordinary isolated Nix packaging cannot resolve the sibling artifact.
+
+Before merge, replace this input with a separately authorized published registry
+SDK containing the new DNS members, refresh lock/provenance and frontend npm cache
+hash, remove the development receipt and rerun final checks. No SDK publication
+or release version is implied by this development dependency.

@@ -1,0 +1,15 @@
+{
+  "status": "development-only-unpublished",
+  "dependency": "file:../vpsadmin-typescript-client/vpsadmin-typescript-client-0.4.0.tgz",
+  "source_repository": "git@github.com:vpsfreecz/vpsadmin-typescript-client.git",
+  "source_revision": "a888031e19dea5354aac320f2d291902e45f3bad",
+  "source_dirty": false,
+  "api_revision": "2656c876aab1966ae2498447d2ac0e23283b3af7",
+  "schema_sha256": "46317b52cbb73ddb54973e5227a9a274bc74f76834eb8e4ead3f2266cf46a972",
+  "haveapi_generator_revision": "1ef9b204ba45bb261d3334be5c555cc1856b713b",
+  "runtime_peer": "haveapi-client@0.32.0",
+  "archive_sha256": "d1c3375507322dcfc6803eb0b94e36691da1e51cf716b656f089cf8e35ca823f",
+  "archive_integrity": "sha512-/6latqmcF3XbCQAK3XY1Dzp7Wta1KWT7/hlFpgsxgUobkeGEMgyEivQFOU2AwSFXYgRggXP8NnCdE67ot62N0A==",
+  "archive_size": 339986,
+  "merge_gate": "Replace development dependency with published registry SDK containing these members; refresh lock/provenance/Nix dependency input and rerun checks."
+}

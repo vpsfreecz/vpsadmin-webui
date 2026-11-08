@@ -1,3 +1,11 @@
+## Secondary DNS readiness and retained IP diagnostics (2026-11-08)
+
+Separate source-bound primary readiness from local BIND serving and historical
+transfer attempts. Retain ownership-aware attachment warnings and detect missing
+user primaries independently of pagination. The candidate gates new backend
+capabilities and needs a published generated SDK before merge.
+[Contract, verification and limits](docs/work-log/2026-11-08-dns-transfer-readiness.md).
+
 ## Request return paths (2026-11-04)
 
 Remove legacy `q` from request list return paths while preserving other

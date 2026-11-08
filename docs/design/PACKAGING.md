@@ -33,7 +33,14 @@ to work around a fetch failure.
 
 ### Generated client registry input
 
-The root selects exact `vpsadmin-typescript-client@0.4.0`, with its canonical
+The DNS readiness feature candidate temporarily uses a declared sibling tarball
+with locked integrity; see [its preparation recipe](HAVEAPI_CLIENT.md#dns-readiness-development-candidate).
+Clean npm installation requires that exact prepared sibling. Isolated Nix
+packaging and default-branch integration remain blocked until a published SDK
+replaces it and the registry dependency hash/provenance are refreshed.
+
+
+The published baseline selects exact `vpsadmin-typescript-client@0.4.0`, with its canonical
 registry URL and integrity in `package-lock.json`. The release adds guarded advisory operations and inputs described in
 [the client contract](HAVEAPI_CLIENT.md#unpublished-generated-sdk); its shared
 HaveAPI runtime peer remains unchanged.

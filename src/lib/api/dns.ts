@@ -455,6 +455,7 @@ function isDnsServerZone(value: unknown): value is DnsServerZone {
         'loaded_at',
         'refresh_at',
         'type',
+        'zone_status',
         'updated_at',
       ],
       ['last_transfer_log_id', 'last_transfer_serial', 'serial'],

@@ -7,6 +7,7 @@ import { Card } from '../../../components/ui/Card';
 import { CopyButton } from '../../../components/ui/CopyButton';
 import { KeysetPagination } from '../../../components/ui/KeysetPagination';
 import type { DnsServerZone } from '../../../lib/api/dns';
+import { DnsServingBadge } from './DnsReadinessBadge';
 import { formatDateTime } from '../../../lib/format';
 
 export function dnsZoneServerName(row: DnsServerZone): string {
@@ -68,6 +69,7 @@ function ServerAddresses(props: { row: DnsServerZone; testIdPrefix: string }) {
 export function DnsZoneServersList(props: {
   rows: readonly DnsServerZone[];
   isAdmin: boolean;
+  serving?: boolean;
   page: number;
   pageCount: number;
   canPrev: boolean;
@@ -99,6 +101,7 @@ export function DnsZoneServersList(props: {
                   <div className="min-w-0">
                     <div className="break-all text-base font-semibold text-fg">{name}</div>
                     <div className="mt-1 text-xs text-faint">#{row.id}</div>
+                    <DnsServingBadge status={props.serving ? row['zone_status'] : undefined} />
                     <ServerAddresses row={row} testIdPrefix={`dns.servers.card.${row.id}`} />
                   </div>
                   <Badge variant="neutral" className="shrink-0">
@@ -181,6 +184,7 @@ export function DnsZoneServersList(props: {
                 <tr key={row.id} className="border-t border-border" data-testid={`dns.servers.row.${row.id}`}>
                   <td className="py-2 pl-4 pr-3 text-fg">
                     <div className="font-medium">{dnsZoneServerName(row)}</div>
+                    <DnsServingBadge status={props.serving ? row['zone_status'] : undefined} />
                     <ServerAddresses row={row} testIdPrefix={`dns.servers.row.${row.id}`} />
                   </td>
                   <td className="py-2 pr-3"><Badge variant="neutral">{zoneTypeLabel(row.type, t)}</Badge></td>

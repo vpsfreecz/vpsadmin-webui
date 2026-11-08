@@ -328,6 +328,13 @@ publication tests query the actual isolated DNS service after the transaction.
 Respect supported record types, TTL and payload fields; preserve zone context on
 errors. Secret-bearing keys must be scrubbed from diagnostics. IP assignment
 history must not lose entries due to a false cursor assumption.
+
+For externally sourced secondary zones, show direct primary readiness separately
+from BIND serving state and historical transfer attempts. Missing user-primary
+configuration and owned-detached primaries have separate diagnostics. Pending
+or stale path evidence cannot become healthy through a peer transfer. New reads
+require authenticated backend capabilities; older APIs retain the ordinary
+controls and history. See [the evidence contract](API_CONTRACTS.md#secondary-dns-transfer-evidence).
 [DNS](../../src/lib/api/dns.ts), [transfers](../../src/lib/api/dnsTransfers.ts),
 [interfaces](../../src/lib/api/networkInterfaces.ts), [IP history](../../src/lib/api/ipAddresses.ts).
 
