@@ -35,7 +35,7 @@ test('@pr-smoke session counts down despite polling, renews on interaction and s
   await page.clock.fastForward(61_000);
   await expect(remaining).toHaveText('39 min');
   // A real input extends the inactivity deadline. Merely rendering/polling does not.
-  await clickShellControl(page, 'shell.user-menu-button');
+  await clickShellControl(page, 'shell.interface-preferences-button');
   await expect(remaining).toHaveText('40 min');
   await page.clock.fastForward(121_000);
   await expect(remaining).toHaveText('38 min');

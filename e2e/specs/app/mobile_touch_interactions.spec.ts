@@ -38,7 +38,7 @@ test.describe('@pr-smoke-mobile Mobile first-touch interactions', () => {
   test.beforeEach(async ({ hasTouch }) => { test.skip(!hasTouch, 'Uses real touchscreen input'); });
 
   for (const viewport of [{ width: 320, height: 568 }, { width: 360, height: 640 }, { width: 390, height: 500 }]) {
-    test(`navigation, account and tasks respond to one tap at ${viewport.width}x${viewport.height}`, async ({ page }) => {
+    test(`navigation, settings and tasks respond to one tap at ${viewport.width}x${viewport.height}`, async ({ page }) => {
       await page.setViewportSize(viewport);
       await setup(page);
       await page.goto('/app/vps');
@@ -53,10 +53,10 @@ test.describe('@pr-smoke-mobile Mobile first-touch interactions', () => {
         await expect(page.getByTestId('tasks.drawer')).toBeVisible();
         await page.getByTestId('tasks.close-button').tap();
         await expect(page.getByTestId('tasks.drawer')).toBeHidden();
-        await clickShellControl(page, 'shell.user-menu-button', true);
-        await expect(page.getByTestId('shell.user-menu')).toBeVisible();
-        await clickShellControl(page, 'shell.user-menu-button', true);
-        await expect(page.getByTestId('shell.user-menu')).toBeHidden();
+        await clickShellControl(page, 'shell.interface-preferences-button', true);
+        await expect(page.getByTestId('shell.interface-preferences')).toBeVisible();
+        await clickShellControl(page, 'shell.interface-preferences-button', true);
+        await expect(page.getByTestId('shell.interface-preferences')).toBeHidden();
         await page.getByTestId('nav.drawer.close').tap();
       }
       await expectNoDocumentHorizontalOverflow(page);
@@ -242,10 +242,15 @@ test.describe('@pr-smoke-mobile Mobile first-touch interactions', () => {
   });
 });
 
-test('compact mouse controls retain their desktop height', async ({ page, hasTouch }) => {
+test('desktop account controls stay compact while VPS filter actions match the field', async ({ page, hasTouch }) => {
   test.skip(hasTouch, 'Desktop mouse layout');
   await setup(page);
   await page.goto('/app/vps');
   const box = await page.getByTestId('vps.list.copy_link').boundingBox();
-  expect(box?.height).toBe(32);
+  const inputBox = await page.getByTestId('vps.smart_filter.input').boundingBox();
+  expect(box?.height).toBe(44);
+  expect(inputBox?.height).toBe(box?.height);
+  await clickShellControl(page, 'shell.interface-preferences-button');
+  expect((await page.getByTestId('shell.interface-preferences-button').boundingBox())?.height).toBe(36);
+  expect((await page.getByTestId('shell.logout').boundingBox())?.height).toBe(36);
 });

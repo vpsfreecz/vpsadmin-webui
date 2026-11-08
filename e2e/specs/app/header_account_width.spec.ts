@@ -17,7 +17,8 @@ for (const actor of [
       user: { id: 1, login: 'syntheticauditaccount'.padEnd(63, 'x'), level: actor.level },
     });
     await page.goto(`/${actor.mode}/vps`);
-    const button = page.getByTestId('shell.user-menu-button');
+    const account = page.getByTestId('shell.user-menu-button');
+    const button = page.getByTestId('shell.interface-preferences-button');
     await openShellNavigation(page);
     await expect(button).toBeVisible();
     for (const width of [320, 390, 640, 768, 1024, 1280]) {
@@ -26,9 +27,12 @@ for (const actor of [
       await expectNoDocumentHorizontalOverflow(page);
       if (isMobile) await button.tap();
       else await button.click();
-      const menu = page.getByTestId('shell.user-menu');
+      const menu = page.getByTestId('shell.interface-preferences');
       await expect(menu).toBeVisible();
       await expect(button).toHaveAttribute('aria-expanded', 'true');
+      await expect(account).toBeVisible();
+      await expect(account).not.toHaveAttribute('aria-expanded');
+      await expect(page.getByTestId('shell.logout')).toBeInViewport({ ratio: 1 });
       await expectNoDocumentHorizontalOverflow(page);
       const box = await menu.boundingBox();
       expect(box).not.toBeNull();
@@ -42,7 +46,7 @@ for (const actor of [
       await expect(button).toBeFocused();
       if (width === 768 || width === 1280) {
         const shot = await page
-          .getByTestId('shell.sidebar')
+          .locator('[data-testid="shell.sidebar"]:visible, [data-testid="nav.drawer"]:visible')
           .screenshot({ path: testInfo.outputPath(`header-${actor.mode}-${width}.png`) });
         await testInfo.attach(`Header ${actor.name} ${width}px`, { body: shot, contentType: 'image/png' });
       }

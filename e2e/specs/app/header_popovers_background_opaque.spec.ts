@@ -1,4 +1,4 @@
-import { clickShellControl } from '../../helpers/shellNavigation';
+import { clickShellControl, openShellNavigation } from '../../helpers/shellNavigation';
 import { expect, test } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, failEnvelope, installHaveApiMock } from '../../fixtures';
@@ -16,21 +16,16 @@ function alphaFromComputedBg(bg: string): number {
 }
 
 test.describe('@smoke Header popovers', () => {
-  test('header, user menu and sync panel backgrounds are opaque', async ({ page }) => {
+  test('header, interface preferences and sync panel backgrounds are opaque', async ({ page }) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
 
-    // Force one background failure so the sync indicator appears.
-    let actionStatesCalls = 0;
+    // Keep the background failure active while checking the error surface.
 
     await installHaveApiMock(page, {
       user: { id: 1, login: 'test', level: 90 },
       handlers: {
         'GET vpses': () => ({ vpses: [], _meta: { total_count: 0 } }),
-        'GET action_states': () => {
-          actionStatesCalls += 1;
-          if (actionStatesCalls === 1) return failEnvelope('temporary failure');
-          return { action_states: [] };
-        },
+        'GET action_states': () => failEnvelope('temporary failure'),
       },
     });
 
@@ -38,7 +33,8 @@ test.describe('@smoke Header popovers', () => {
     await expect(page.getByTestId('vps.list')).toBeVisible();
 
     // Sticky header and chrome controls must be fully opaque, and controls must not visually collapse into the header surface.
-    const header = page.getByTestId('shell.sidebar');
+    await openShellNavigation(page);
+    const header = page.getByTestId((page.viewportSize()?.width ?? 0) < 768 ? 'nav.drawer' : 'shell.sidebar');
     await expect(header).toBeVisible();
     const headerBg = await header.evaluate((el) => window.getComputedStyle(el).backgroundColor);
     expect(alphaFromComputedBg(headerBg)).toBeGreaterThanOrEqual(0.999);
@@ -58,9 +54,9 @@ test.describe('@smoke Header popovers', () => {
     const userButtonBg = await userMenuButton.evaluate((el) => window.getComputedStyle(el).backgroundColor);
     expect(alphaFromComputedBg(userButtonBg)).toBeGreaterThanOrEqual(0.999);
 
-    // User menu popover
-    await clickShellControl(page, 'shell.user-menu-button');
-    const userMenu = page.getByTestId('shell.user-menu');
+    // Interface preference popover
+    await clickShellControl(page, 'shell.interface-preferences-button');
+    const userMenu = page.getByTestId('shell.interface-preferences');
     await expect(userMenu).toBeVisible();
     const userMenuBg = await userMenu.evaluate((el) => window.getComputedStyle(el).backgroundColor);
     expect(alphaFromComputedBg(userMenuBg)).toBeGreaterThanOrEqual(0.999);

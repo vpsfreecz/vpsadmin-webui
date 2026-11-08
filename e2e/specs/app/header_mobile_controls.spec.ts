@@ -75,13 +75,14 @@ test.describe('@smoke @smoke-mobile @pr-smoke @pr-smoke-mobile Header controls',
       await expect(inlineSearch).toBeVisible();
     }
 
+    await clickShellControl(page, 'shell.interface-preferences-button');
+    await expect(page.getByTestId('shell.interface-preferences')).toBeVisible();
+    await expect(page.getByTestId('shell.user-menu')).toHaveCount(0);
+    await expect(page.getByTestId('shell.user-menu.public-status')).toHaveCount(0);
+    await expect(page.getByTestId('shell.logout')).toHaveAttribute('href', /\/oauth\/logout\?next=%2F$/);
+    await page.keyboard.press('Escape');
     await clickShellControl(page, 'shell.user-menu-button');
-    await expect(page.getByTestId('shell.user-menu')).toBeVisible();
-    await expect(page.getByTestId('shell.user-menu.account')).toBeVisible();
-    await expect(page.getByTestId('shell.user-menu.public-status')).toBeVisible();
-    await expect(page.getByTestId('shell.user-menu.logout')).toHaveAttribute(
-      'href',
-      /\/oauth\/logout\?next=%2F$/,
-    );
+    await expect(page).toHaveURL(/\/app\/profile$/);
+
   });
 });

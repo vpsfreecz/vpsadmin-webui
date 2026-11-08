@@ -116,16 +116,16 @@ for (const actor of [
     await expect(page.getByTestId('tasks.drawer')).toBeVisible();
     await expect(page.getByTestId('nav.drawer')).toBeHidden();
     await page.getByTestId('tasks.close-button').click();
-    await clickShellControl(page, 'shell.user-menu-button', isMobile);
-    const accountMenu = page.getByTestId('shell.user-menu');
-    await expect(accountMenu).toBeVisible();
-    await expect(accountMenu.getByRole('button', { name: /^(Mine|Moje|All objects|Všechny objekty)$/ })).toHaveCount(0);
-    await expect(accountMenu.getByTestId('shell.user-menu.logout')).toBeInViewport({ ratio: 1 });
-    await expect.poll(() => accountMenu.evaluate(menu => menu.scrollHeight - menu.clientHeight)).toBeLessThanOrEqual(1);
-    await page.screenshot({ path: testInfo.outputPath(`account-menu-${actor.mode}-${actor.level}.png`), scale: 'css' });
-    await page.keyboard.press('Escape');
-    await expect(page.getByTestId('shell.user-menu')).toBeHidden();
-    await expect(page.getByTestId('shell.user-menu-button')).toBeFocused();
+    await openShellNavigation(page);
+    const logout = navigation.getByTestId('shell.logout');
+    await expect(logout).toBeInViewport({ ratio: 1 });
+    await expect(logout).toHaveAccessibleName(actor.language === 'cs' ? 'Odhlásit se' : 'Logout');
+    await expect(page.getByTestId('shell.user-menu')).toHaveCount(0);
+    await expect(page.getByTestId('shell.user-menu.public-status')).toHaveCount(0);
+    await account.focus();
+    await page.keyboard.press('Tab');
+    await expect(logout).toBeFocused();
+    await page.screenshot({ path: testInfo.outputPath(`account-controls-${actor.mode}-${actor.level}.png`), scale: 'css' });
     await clickShellControl(page, 'shell.interface-preferences-button', isMobile);
     const preferences = page.getByTestId('shell.interface-preferences');
     await expect(preferences).toBeVisible();
@@ -142,24 +142,28 @@ for (const actor of [
     await expectNoDocumentHorizontalOverflow(page);
     const shot = await page.screenshot({ path: testInfo.outputPath(`sidebar-${actor.mode}-${actor.level}.png`), fullPage: false, scale: 'css' });
     await testInfo.attach('Synthetic navigation controls', { body: shot, contentType: 'image/png' });
+    await clickShellControl(page, 'shell.user-menu-button', isMobile);
+    await expect(page).toHaveURL(new RegExp(`/${actor.mode}/profile$`));
+    await expect(page.getByTestId('shell.user-menu')).toHaveCount(0);
   });
 }
 
-test('@pr-smoke @pr-smoke-mobile account choices stay reachable in a short viewport', async ({ page }) => {
+test('@pr-smoke @pr-smoke-mobile account controls and interface preferences stay reachable in a short viewport', async ({ page }) => {
   await page.setViewportSize({ width: 1024, height: 420 });
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
   await installHaveApiMock(page, { user: { id: 53, login: 'sample-admin', level: 99 } });
   await page.goto('/app/vps');
-  await clickShellControl(page, 'shell.user-menu-button');
+  await clickShellControl(page, 'shell.interface-preferences-button');
   await expect(page.getByTestId('nav.drawer')).toBeVisible();
-  const menu = page.getByTestId('shell.user-menu');
+  const menu = page.getByTestId('shell.interface-preferences');
   await expect(menu).toBeVisible();
   const box = await menu.boundingBox();
   expect(box).not.toBeNull();
   expect(box!.y).toBeGreaterThanOrEqual(0);
   expect(box!.y + box!.height).toBeLessThanOrEqual(420);
-  await page.getByTestId('shell.user-menu.logout').scrollIntoViewIfNeeded();
-  await expect(page.getByTestId('shell.user-menu.logout')).toBeInViewport({ ratio: 1 });
+  await expect(page.getByTestId('shell.logout')).toBeInViewport({ ratio: 1 });
+  await menu.getByTestId('shell.interface-preferences.language.en').scrollIntoViewIfNeeded();
+  await expect(menu.getByTestId('shell.interface-preferences.language.en')).toBeInViewport({ ratio: 1 });
   await expectNoDocumentHorizontalOverflow(page);
   await page.keyboard.press('Escape');
   const vpsLink = page.getByTestId('nav.drawer.vps');

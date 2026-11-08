@@ -53,6 +53,7 @@
     "e2e/specs/admin/user_payments_smoke.spec.ts",
     "e2e/specs/admin/user_security_delete_failures.spec.ts",
     "e2e/specs/admin/user_security_status_badges.spec.ts",
+    "e2e/specs/app/account_controls_direct.spec.ts",
     "e2e/specs/app/action_filter_rhythm.spec.ts",
     "e2e/specs/app/action_state_detail_page.spec.ts",
     "e2e/specs/app/action_state_transactions_responsive.spec.ts",

@@ -614,13 +614,18 @@ popover below the navigation control, using the account menu surface. It starts 
 40 minutes, no expiry and a custom number of minutes. Save updates only the
 current account's preferred session length. Cancel discards the draft. The
 profile security page remains a separate entry to the same preference.
-The navigation account menu contains the member/admin scope switch, account,
-public status and logout. The adjacent Language and appearance button opens
-theme and language choices (REQ-004/009/010/012).
-The login aligns with the Tasks label. Admin and support role icons sit beside
-the login and expose the role as a tooltip and accessible description.
-Opening the account menu shows all available choices when there is room. On short
-screens, scroll the menu to reach the final choice.
+The login control opens the signed-in user's Account directly through the existing
+personal-route callback, including administrator aliases. A labelled icon link in
+the same row as interface settings exposes logout without opening another menu;
+it retains the configured native logout URL and existing authentication flow.
+The login keeps its Tasks alignment and privileged role icon/accessibility text.
+The removed Account/Public status submenu adds no duplicate destinations.
+
+The adjacent Language and appearance button retains scope selection for permitted
+roles, theme, language and contextual-help placement (REQ-004/009/010/012). Its
+popover remains bounded to the viewport with internal scrolling on short screens;
+Escape dismisses it and restores focus to Settings. Session length retains its
+separate control and existing save/failure/expiry behavior.
 
 Administrator member editing uses a named Role select instead of a numeric
 privilege input. Choices match the legacy UI: User, Power User, Admin,

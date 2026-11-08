@@ -1,6 +1,6 @@
 import React, { useEffect, useId, useRef, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { AlertTriangle, Clock3, Globe, Headset, LogOut, Settings, ShieldCheck, User, WifiOff } from 'lucide-react';
+import { AlertTriangle, Clock3, Headset, LogOut, Settings, ShieldCheck, WifiOff } from 'lucide-react';
 
 import { updateUser } from '../../lib/api/users';
 import { formatErrorMessage } from '../../lib/errors';
@@ -227,28 +227,19 @@ export function AppUserMenu(props: Pick<AppHeaderProps,
   const {
     t, mode, canSwitchMode, userMenuRef, userMenuOpen, setUserMenuOpen, authLogin, authRole,
     helpPlacement, onSetHelpPlacement, onNavigate, theme, language, onSetTheme, onSetLanguage,
-    onGoToOtherMode, onGoToProfile, onGoToPublicStatus, loginLogoutHref,
+    onGoToOtherMode, onGoToProfile, loginLogoutHref,
   } = props;
   const roleDescriptionId = useId();
   const RoleIcon = authRole === 'admin' ? ShieldCheck : authRole === 'support' ? Headset : null;
   const roleLabel = authRole === 'admin' || authRole === 'support' || authRole === 'user'
     ? t(`admin.users.role.${authRole}`)
     : undefined;
-  const [selectedMenu, setSelectedMenu] = useState<'account' | 'preferences'>('account');
-  const accountOpen = userMenuOpen && selectedMenu === 'account';
-  const preferencesOpen = userMenuOpen && selectedMenu === 'preferences';
-  const triggerRef = useRef<HTMLButtonElement>(null);
+  const preferencesOpen = userMenuOpen;
   const preferencesTriggerRef = useRef<HTMLButtonElement>(null);
   const popupId = useId();
   const preferencesLabel = t('settings.interface.label');
 
-  const toggleMenu = (menu: typeof selectedMenu) => {
-    setUserMenuOpen(!userMenuOpen || selectedMenu !== menu);
-    setSelectedMenu(menu);
-  };
-  const popupRef = useRef<HTMLDivElement>(null);
   const preferencesRef = useRef<HTMLDivElement>(null);
-  const popupStyle = useClippedPopover(accountOpen, userMenuRef, popupRef, Infinity);
   const preferencesStyle = useClippedPopover(preferencesOpen, userMenuRef, preferencesRef, Infinity);
   useEffect(() => {
     if (!userMenuOpen) return;
@@ -256,7 +247,7 @@ export function AppUserMenu(props: Pick<AppHeaderProps,
       if (event.key !== 'Escape' || event.defaultPrevented) return;
       event.preventDefault();
       setUserMenuOpen(false);
-      (preferencesOpen ? preferencesTriggerRef : triggerRef).current?.focus();
+      preferencesTriggerRef.current?.focus();
     };
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
@@ -269,7 +260,7 @@ export function AppUserMenu(props: Pick<AppHeaderProps,
           type="button"
           ref={preferencesTriggerRef}
           className="flex min-h-11 w-11 shrink-0 items-center justify-center rounded-md border border-border bg-surface text-muted hover:bg-surface-2 hover:text-fg md:min-h-9 md:w-9 [@media(any-pointer:coarse)]:min-h-11 [@media(any-pointer:coarse)]:w-11"
-          onClick={() => toggleMenu('preferences')}
+          onClick={() => setUserMenuOpen(!userMenuOpen)}
           aria-expanded={preferencesOpen}
           aria-controls={preferencesOpen ? popupId : undefined}
           aria-label={preferencesLabel}
@@ -281,11 +272,12 @@ export function AppUserMenu(props: Pick<AppHeaderProps,
         <button
           type="button"
           className="flex min-h-11 min-w-0 flex-1 items-center gap-1.5 rounded-md border border-transparent bg-surface px-2 text-left text-sm text-muted hover:bg-surface-2 hover:text-fg md:min-h-9 [@media(any-pointer:coarse)]:min-h-11"
-          onClick={() => toggleMenu('account')}
-          ref={triggerRef}
-          aria-expanded={accountOpen}
-          aria-controls={accountOpen ? popupId : undefined}
-          aria-label={t('user_menu.open')}
+          onClick={() => {
+            setUserMenuOpen(false);
+            onGoToProfile();
+          }}
+          aria-label={t('user_menu.account_for', { login: authLogin ?? '—' })}
+          title={t('user_menu.account')}
           aria-describedby={roleLabel ? roleDescriptionId : undefined}
           data-testid="shell.user-menu-button"
         >
@@ -297,37 +289,15 @@ export function AppUserMenu(props: Pick<AppHeaderProps,
           ) : null}
           {roleLabel ? <span id={roleDescriptionId} className="sr-only">{roleLabel}</span> : null}
         </button>
-        {accountOpen ? (
-          <div
-            id={popupId}
-            ref={popupRef}
-            style={popupStyle}
-            className={headerPopoverClassName}
-            data-testid="shell.user-menu"
-            data-overlay="popover"
-            data-overlay-surface="overlay"
-          >
-            <UserMenuButton icon={<User size={16} />} testId="shell.user-menu.account" onClick={() => {
-              setUserMenuOpen(false);
-              onGoToProfile();
-            }}>{t('user_menu.account')}</UserMenuButton>
-            <UserMenuButton className="mt-1" icon={<Globe size={16} />} testId="shell.user-menu.public-status" onClick={() => {
-              setUserMenuOpen(false);
-              onGoToPublicStatus();
-            }}>{t('user_menu.public_status')}</UserMenuButton>
-
-            <div className="mt-2 border-t border-border pt-2">
-              <a
-                data-testid="shell.user-menu.logout"
-                className="flex items-center gap-2 rounded-md px-2 py-2 text-sm hover:bg-surface-2"
-                href={loginLogoutHref}
-              >
-                <LogOut size={16} />
-                <span>{t('user_menu.logout')}</span>
-              </a>
-            </div>
-          </div>
-        ) : null}
+        <a
+          href={loginLogoutHref}
+          className="flex min-h-11 w-11 shrink-0 items-center justify-center rounded-md border border-border bg-surface text-muted hover:bg-surface-2 hover:text-fg md:min-h-9 md:w-9 [@media(any-pointer:coarse)]:min-h-11 [@media(any-pointer:coarse)]:w-11"
+          aria-label={t('user_menu.logout')}
+          title={t('user_menu.logout')}
+          data-testid="shell.logout"
+        >
+          <LogOut size={18} aria-hidden="true" />
+        </a>
         {preferencesOpen ? (
           <div
             id={popupId}
@@ -416,26 +386,6 @@ export function AppUserMenu(props: Pick<AppHeaderProps,
         ) : null}
       </div>
     </div>
-  );
-}
-
-
-function UserMenuButton(props: {
-  children: React.ReactNode;
-  className?: string;
-  icon: React.ReactNode;
-  testId: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      className={clsx('flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm hover:bg-surface-2', props.className)}
-      onClick={props.onClick}
-      data-testid={props.testId}
-    >
-      {props.icon}
-      <span>{props.children}</span>
-    </button>
   );
 }
 

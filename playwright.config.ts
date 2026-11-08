@@ -72,6 +72,7 @@ export default defineConfig({
         '**/news_language_switch.spec.ts',
         '**/overview_readability.spec.ts',
         '**/sidebar_controls.spec.ts',
+        '**/account_controls_direct.spec.ts',
         '**/header_mobile_controls.spec.ts',
         '**/header_account_menu_narrow_mobile.spec.ts',
         '**/header_account_width.spec.ts',

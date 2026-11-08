@@ -54,14 +54,13 @@ function t(key: any, vars?: Record<string, unknown>): string {
     'tasks.title': 'Tasks',
     'user_menu.account': 'Account',
     'user_menu.logout': 'Logout',
-    'user_menu.open': 'Open user menu',
-    'user_menu.public_status': 'Public status',
+    'user_menu.account_for': 'Account: {login}',
   };
 
-  return translations[String(key)] ?? String(key);
+  return (translations[String(key)] ?? String(key)).replace('{login}', String(vars?.['login'] ?? ''));
 }
 
-function HeaderHarness() {
+function HeaderHarness(props: { onGoToProfile?: () => void } = {}) {
   const syncRef = useRef<HTMLDivElement | null>(null);
   const userMenuRef = useRef<HTMLDivElement | null>(null);
   const [syncOpen, setSyncOpen] = useState(false);
@@ -98,7 +97,7 @@ function HeaderHarness() {
           onSetTheme={() => undefined}
           onSetLanguage={() => undefined}
           onGoToOtherMode={() => undefined}
-          onGoToProfile={() => undefined}
+          onGoToProfile={props.onGoToProfile ?? (() => undefined)}
           onGoToPublicStatus={() => undefined}
           loginLogoutHref="/logout"
         />
@@ -136,29 +135,41 @@ describe('AppHeader', () => {
 
 
 
-  it('anchors the user menu inside the navigation', () => {
+  it('anchors interface preferences inside the navigation', () => {
     render(<HeaderHarness />);
 
-    fireEvent.click(screen.getByTestId('shell.user-menu-button'));
+    fireEvent.click(screen.getByTestId('shell.interface-preferences-button'));
 
-    const menu = screen.getByTestId('shell.user-menu');
+    const menu = screen.getByTestId('shell.interface-preferences');
     expect(menu).toHaveClass('left-0');
     expect(menu).toHaveClass('top-[calc(100%+0.5rem)]');
     expect(menu.className).not.toContain('top-full');
     expect(menu.className).not.toContain('mt-2');
   });
 
-  it('dismisses the account menu with Escape and restores trigger focus', () => {
+  it('dismisses interface preferences with Escape and restores settings focus', () => {
     render(<HeaderHarness />);
-    const trigger = screen.getByTestId('shell.user-menu-button');
+    const trigger = screen.getByTestId('shell.interface-preferences-button');
     fireEvent.click(trigger);
-    const menu = screen.getByTestId('shell.user-menu');
+    const menu = screen.getByTestId('shell.interface-preferences');
     menu.querySelector('button')?.focus();
     expect(trigger).toHaveAttribute('aria-expanded', 'true');
     fireEvent.keyDown(document, { key: 'Escape' });
-    expect(screen.queryByTestId('shell.user-menu')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('shell.interface-preferences')).not.toBeInTheDocument();
     expect(trigger).toHaveAttribute('aria-expanded', 'false');
     expect(trigger).toHaveFocus();
+  });
+
+  it('opens the account directly and exposes logout without an account menu', () => {
+    const onGoToProfile = vi.fn();
+    render(<HeaderHarness onGoToProfile={onGoToProfile} />);
+    const account = screen.getByRole('button', { name: 'Account: KerryCZE' });
+    expect(account).not.toHaveAttribute('aria-expanded');
+    expect(screen.getByRole('link', { name: 'Logout' })).toHaveAttribute('href', '/logout');
+    fireEvent.click(account);
+    expect(onGoToProfile).toHaveBeenCalledTimes(1);
+    expect(screen.queryByTestId('shell.user-menu')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('shell.interface-preferences')).not.toBeInTheDocument();
   });
 
   it('does not briefly show 41 minutes when a 40-minute deadline renews between ticks', () => {
@@ -186,8 +197,8 @@ describe('AppHeader', () => {
     fireEvent.click(screen.getByText('common.cancel'));
     expect(screen.queryByTestId('shell.user-menu')).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByTestId('shell.user-menu-button'));
-    expect(screen.getByTestId('shell.user-menu')).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId('shell.interface-preferences-button'));
+    expect(screen.getByTestId('shell.interface-preferences')).toBeInTheDocument();
     expect(screen.queryByTestId('shell.user-menu.session-remaining')).not.toBeInTheDocument();
   });
 
