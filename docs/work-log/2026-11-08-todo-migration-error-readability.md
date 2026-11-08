@@ -15,7 +15,10 @@ The immutable deferred-source baseline is unchanged.
 
 Only presentation changes. Keep the destination selector disabled on errors,
 retain the error details and preserve all query, role, lock, scheduling and
-mutation contracts. The shared recovery component is unchanged.
+mutation contracts. Verification errors in the shared administrator recovery
+warning use readable foreground text and medium weight; preserve their exact
+message, generation review/verification, acknowledgement and safety lock.
+This shared presentation also applies to existing node recovery.
 
 Terminology source: locked vpsAdmin
 `a65a4dfeb92a59df4a80a737a20bcbf8558793ff`; existing bilingual labels reused.

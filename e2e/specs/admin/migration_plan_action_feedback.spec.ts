@@ -132,3 +132,87 @@ for (const language of ['cs', 'en'] as const) {
     }
   }
 }
+
+for (const language of ['cs', 'en'] as const) {
+  for (const theme of ['light', 'dark'] as const) {
+    test(`@pr-smoke @pr-smoke-mobile migration verification read errors remain readable ${language} ${theme}`, async ({
+      page,
+    }) => {
+      const writes: string[] = [];
+      let verifying = false;
+      page.on('request', (request) => {
+        if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method())) writes.push(request.method());
+      });
+      await setUiSettingsLocalStorage(page, { language, theme });
+      await bootstrapVpsAdminWindow(page, {
+        sessionToken: 'MIGRATION_VERIFY_ERROR',
+        webuiNext: { uiSettings: { persistence: 'local' } },
+      });
+      await page.addInitScript(() => {
+        const lock = {
+          key: 'MigrationPlan:300',
+          kind: 'MigrationPlan',
+          id: 300,
+          acquiredAt: Date.now(),
+          expiresAt: Number.MAX_SAFE_INTEGER,
+          uncertaintyId: 'readability-generation',
+          uncertain: true,
+        };
+        localStorage.setItem(
+          'webui-next.local_locks.user-7.uncertain.' + encodeURIComponent(lock.key) + '.' + lock.uncertaintyId,
+          JSON.stringify(lock)
+        );
+      });
+      await installHaveApiMock(page, {
+        user: { id: 7, login: 'migration-readability', level: 100 },
+        handlers: {
+          'GET migration_plans/300': () =>
+            verifying
+              ? jsonFulfill(failEnvelope('Synthetic verification read failure'), 503)
+              : { migration_plan: { id: 300, state: 'staged', concurrency: 10 } },
+          'GET migration_plans/300/vps_migrations': () => ({ vps_migrations: [] }),
+          'GET nodes': () => ({ nodes: [] }),
+          'GET transaction_chains': () => ({ transaction_chains: [] }),
+        },
+      });
+      await page.goto('/admin/migration-plans/300');
+      const prefix = 'admin.migration_plan.mutation.recovery';
+      await expect(page.getByTestId(prefix + '.uncertain')).toBeVisible();
+      await expect(page.getByTestId(prefix + '.verify')).toBeDisabled();
+      await page.getByTestId(prefix + '.open_tasks').click();
+      await expect(page.getByRole('dialog')).toBeVisible();
+      await page.keyboard.press('Escape');
+      await expect(page.getByRole('dialog')).toHaveCount(0);
+      verifying = true;
+      await page.getByTestId(prefix + '.verify').click();
+      const error = page.getByTestId(prefix + '.error');
+      await expect(error).toContainText(language === 'cs' ? 'Nepodařilo se načíst aktuální stav' : 'The latest affected-object and task state could not be loaded.');
+      await expect(page.getByTestId(prefix + '.acknowledge')).toBeDisabled();
+      const contrast = await error.evaluate((element) => {
+        let background: Element | null = element;
+        while (background && getComputedStyle(background).backgroundColor === 'rgba(0, 0, 0, 0)')
+          background = background.parentElement;
+        if (!background) throw new Error('Missing opaque warning background');
+        const channels = (value: string) =>
+          value
+            .match(/[\d.]+/g)
+            ?.slice(0, 3)
+            .map(Number) ?? [];
+        const luminance = (color: number[]) =>
+          color.reduce((sum, value, index) => {
+            const channel = value / 255;
+            const linear = channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+            return sum + linear * ([0.2126, 0.7152, 0.0722][index] ?? 0);
+          }, 0);
+        const a = luminance(channels(getComputedStyle(element).color)),
+          b = luminance(channels(getComputedStyle(background).backgroundColor));
+        return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+      });
+      expect(contrast).toBeGreaterThanOrEqual(4.5);
+      await page.setViewportSize({ width: 320, height: 750 });
+      expect(await error.evaluate((element) => element.scrollWidth <= element.clientWidth + 1)).toBe(true);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(321);
+      expect(writes).toEqual([]);
+    });
+  }
+}
