@@ -226,18 +226,24 @@ For changed count copy, check rendered output in both languages at 0, 1, 2, 4,
 the early bootstrap screen and BFF OAuth error page separately: neither waits
 for the lazy application catalog. Source/catalog tests cannot certify a deployed
 login flow or the effective API locale for transaction-provided labels.
-CI fixture servers compile the unchanged English/Czech dictionaries into two
-ES modules before starting Vite. `VPSADMIN_E2E_LOCALE_BUNDLES=1` serves only the
-two resolved catalog roots from those compiled modules in that server. Compilation uses a separate CLI
-process; Vite and React remain in development/StrictMode. All application code,
-fixtures, selected scenarios, workers, timeouts and retries retain their normal
-contracts. Complete catalog key/value parity is checked against the source
-modules. Default development/HMR and production builds do not use this loader.
-The CI readiness URL becomes healthy only after frequently used entry modules
-are transformed and their static imports are ready. This avoids timing browser
-assertions against a cold transform waterfall; the120s server-start allowance
-and all test budgets remain unchanged.
-Generated modules stay under ignored `node_modules/.cache/webui-e2e-locales`.
+CI fixture servers prepare immutable development modules before Vite starts.
+The child compiler explicitly uses `NODE_ENV=development`, preserves dynamic
+imports and uses the pinned Rollup small-chunk merger, whose merges preserve
+entry side effects. React stays in development mode and the application retains
+StrictMode. A CI-only probe shares the application's React vendor chunk and
+asserts two renders/effects plus DEV=true/PROD=false in every PR browser engine.
+This is a prepared development graph, not a production build or a hot-reload test.
+
+`VPSADMIN_E2E_APP_BUNDLE=1` selects the prepared HTML/assets only in the CI Vite
+server. Ordinary development/HMR and production builds do not select that plugin;
+contracts verify those boundaries and generated-asset serving. Preparation occurs
+in a separate CLI process, without changing the parent environment. Generated
+modules stay under ignored `node_modules/.cache/webui-e2e-development`. The
+readiness URL becomes healthy after preparation and Vite startup. The 120-second
+server-start allowance and all existing test selections, workers, timeouts,
+retries and failure trace/PNG/first-retry video settings stay unchanged. The
+older dictionary-only preparation remains a source-value parity/diagnostic tool;
+it alone did not bring the larger preview suite inside its job bound.
 
 PR Playwright uses deterministic fixtures. Inspect [workflows](../../.github/workflows)
 and [Playwright config](../../playwright.config.ts) for exact current selection,
