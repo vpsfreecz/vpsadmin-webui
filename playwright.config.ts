@@ -72,6 +72,7 @@ export default defineConfig({
         '**/filter_bar_chip_alignment.spec.ts',
         '**/transaction_items_filter_accessibility.spec.ts',
         '**/about.spec.ts',
+        '**/development_runtime.spec.ts',
         '**/oom_report_tasks_pagination.spec.ts',
         '**/oom_report_tasks_mobile_layout.spec.ts',
         '**/theme_switcher.spec.ts',
