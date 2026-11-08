@@ -1,3 +1,7 @@
+## 2026-11-08 — Readable monitoring and incident inline validation
+
+[Scope and verification](docs/work-log/2026-11-08-todo-monitoring-incident-validation-readability.md).
+
 ## 2026-11-08 — Remove redundant Summary Open actions
 
 [Scope and verification](docs/work-log/2026-11-08-summary-without-open.md).

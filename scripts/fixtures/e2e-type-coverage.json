@@ -102,6 +102,7 @@
     "e2e/specs/app/header_popovers_background_opaque.spec.ts",
     "e2e/specs/app/header_session_limit.spec.ts",
     "e2e/specs/app/incident_create_context.spec.ts",
+    "e2e/specs/app/incident_create_permissions.spec.ts",
     "e2e/specs/app/incidents_responsive_layout.spec.ts",
     "e2e/specs/app/ip_addresses_environment_filter.spec.ts",
     "e2e/specs/app/known_devices_keyset_pagination.spec.ts",
@@ -703,13 +704,6 @@
     {
       "path": "e2e/specs/app/drawer_accessibility.spec.ts",
       "sha256": "d691bfc243adfc983d61a8cd3d85cee9821d312044a6d5fd1a4898d5f245249a",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/app/incident_create_permissions.spec.ts",
-      "sha256": "799a9efa4ac885b48da0cd32c000f99917daefc52514276405d1acef8cb7a7a9",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."

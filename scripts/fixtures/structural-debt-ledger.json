@@ -63,20 +63,6 @@
       }
     },
     {
-      "path": "src/pages/app/MonitoringEventDetailPage.tsx",
-      "rule": "grown-over-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "1908b09d8b61560553bc23a45674a1d392726f2e6200ef3d313c9c38323ac0b2",
-      "old": 647,
-      "allowance": 652,
-      "rationale": "At the recorded source revision, this file already contained monitoring event detail states; extract the coherent section with focused behavior coverage before removing this exception.",
-      "owner": "WebUI implementation lead",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 647
-      }
-    },
-    {
       "path": "src/pages/app/admin/AdminOutagesPage.tsx",
       "rule": "grown-over-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
