@@ -465,6 +465,9 @@ test.describe('@pr-smoke @pr-smoke-mobile VPS interface address wrapping', () =>
       // Integrated artifact checks retain the normal and320px page-overflow assertions.
       const card = page.getByTestId('vps.network.interfaces.card.501');
       await expect(card).toBeVisible();
+      await expect(card.getByText(language === 'cs' ? 'Limit TX' : 'Max TX', { exact: true })).toBeVisible();
+      await expect(card.getByText(language === 'cs' ? 'Limit RX' : 'Max RX', { exact: true })).toBeVisible();
+      await expect(card).not.toContainText('{value}');
       const value = card.getByText(address, { exact: true });
       await expect(value).toBeVisible();
       await expect(value).toHaveText(address);
