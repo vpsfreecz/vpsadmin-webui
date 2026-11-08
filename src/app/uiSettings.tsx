@@ -17,7 +17,7 @@ import {
   type UiThemePreference,
 } from './uiSettingsModel';
 
-import { HaveApiError } from '../lib/api/apiErrors';
+import { HaveApiError, SESSION_EXPIRED_EVENT } from '../lib/api/apiErrors';
 import { fetchWebuiUserSetting, saveWebuiUserSetting } from '../lib/api/webuiUserSettings';
 
 export type { UiLanguagePreference, UiSettings, UiThemePreference };
@@ -121,6 +121,21 @@ export function UiSettingsProvider(props: { children: React.ReactNode; serverSyn
   const skipNextServerSaveRef = useRef(false);
   const [loadedServerKey, setLoadedServerKey] = useState<string | null>(null);
   const loadInFlightRef = useRef<Promise<void> | null>(null);
+  const settingsRef = useRef(settings);
+  settingsRef.current = settings;
+  const loadAbortRef = useRef<AbortController | null>(null);
+  const sessionExpiredRef = useRef(false);
+
+  useEffect(() => {
+    const expire = () => {
+      sessionExpiredRef.current = true;
+      loadAbortRef.current?.abort();
+      if (saveTimerRef.current) window.clearTimeout(saveTimerRef.current);
+      setSync((state) => ({ ...state, status: 'idle' }));
+    };
+    window.addEventListener(SESSION_EXPIRED_EVENT, expire);
+    return () => window.removeEventListener(SESSION_EXPIRED_EVENT, expire);
+  }, []);
 
   // Keep sync.mode in sync when config changes.
   useEffect(() => {
@@ -143,17 +158,23 @@ export function UiSettingsProvider(props: { children: React.ReactNode; serverSyn
 
   const loadFromServer = useCallback(async () => {
     if (!serverEnabled) return;
-    if (auth.status !== 'authenticated') return;
+    if (auth.status !== 'authenticated' || sessionExpiredRef.current) return;
     const loadKey = serverUserKey ?? 'current';
     if (loadInFlightRef.current) return loadInFlightRef.current;
 
+    const localJsonAtLoad = JSON.stringify(normalizeUiSettings(settingsRef.current));
+    const controller = new AbortController();
+    loadAbortRef.current = controller;
     const p = (async () => {
       setSync((s) => ({ ...s, status: 'loading', error: undefined, lastLoadError: undefined }));
       try {
-        const value = await fetchWebuiUserSetting(serverNamespace, serverField);
+        const value = await fetchWebuiUserSetting(serverNamespace, serverField, { signal: controller.signal });
+        controller.signal.throwIfAborted();
 
         if (value === undefined) {
-          // Missing record or empty payload. Keep local settings.
+          // Loading an absent record is not a user edit. Preserve local choices
+          // without migrating them implicitly; edits made during the read still save.
+          lastSavedJsonRef.current = localJsonAtLoad;
           setLoadedServerKey(loadKey);
           setSync((s) => ({ ...s, status: 'idle', lastLoadedAt: nowIso(), lastLoadError: undefined }));
           return;
@@ -171,6 +192,7 @@ export function UiSettingsProvider(props: { children: React.ReactNode; serverSyn
         setLoadedServerKey(loadKey);
         setSync((s) => ({ ...s, status: 'idle', lastLoadedAt: nowIso(), lastLoadError: undefined }));
       } catch (e) {
+        if (controller.signal.aborted) return;
         const message = safeErrorMessage(e);
         setSync((s) => ({
           ...s,
@@ -180,6 +202,7 @@ export function UiSettingsProvider(props: { children: React.ReactNode; serverSyn
         }));
         throw e;
       } finally {
+        if (loadAbortRef.current === controller) loadAbortRef.current = null;
         loadInFlightRef.current = null;
       }
     })();
@@ -212,7 +235,7 @@ export function UiSettingsProvider(props: { children: React.ReactNode; serverSyn
   // Server save (best-effort, debounced) when settings change.
   useEffect(() => {
     if (!serverEnabled) return;
-    if (auth.status !== 'authenticated') return;
+    if (auth.status !== 'authenticated' || sessionExpiredRef.current) return;
     if (!serverUserKey || loadedServerKey !== serverUserKey) return;
 
     // When we set settings from server, we don't want to immediately write back.
@@ -227,6 +250,7 @@ export function UiSettingsProvider(props: { children: React.ReactNode; serverSyn
     if (saveTimerRef.current) window.clearTimeout(saveTimerRef.current);
 
     saveTimerRef.current = window.setTimeout(async () => {
+      if (sessionExpiredRef.current) return;
       try {
         setSync((s) => ({ ...s, status: 'saving', error: undefined, lastSaveError: undefined }));
         await saveWebuiUserSetting(serverNamespace, serverField, normalizeUiSettings(settings));

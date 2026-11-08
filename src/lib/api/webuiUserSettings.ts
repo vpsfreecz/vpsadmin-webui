@@ -22,10 +22,14 @@ function parseStoredValue(value: unknown): unknown {
   }
 }
 
-export async function fetchWebuiUserSetting(namespace: string, key: string): Promise<unknown | undefined> {
+export async function fetchWebuiUserSetting(namespace: string, key: string, opts?: { signal?: AbortSignal }): Promise<unknown | undefined> {
   requireCanonicalSettingsPath();
   try {
-    const result = await (await getApi()).webui_user_setting.index({ params: { namespace, key } });
+    opts?.signal?.throwIfAborted();
+    const api = await getApi();
+    opts?.signal?.throwIfAborted();
+    const result = await api.webui_user_setting.index({ params: { namespace, key }, ...(opts?.signal ? { signal: opts.signal } : {}) });
+    opts?.signal?.throwIfAborted();
     const settings = narrowApiResult(
       result,
       (data) => {

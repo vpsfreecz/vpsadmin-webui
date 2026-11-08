@@ -73,6 +73,15 @@ After expiry, the public overview keeps the current theme and language and
 offers sign-in in the notice. The login return target retains the prior
 protected page pathname. Transient query state, fragments and pending form
 actions are left behind. The notice is per-tab and expires after five minutes.
+Expiry cancels pending account-settings reads through the existing generated SDK
+signal, ignores late responses and prevents queued preference saves while an
+authenticated React closure is stale. An absent server record leaves device
+preferences intact without writing them automatically; subsequent user edits
+still save. The expiry fixture waits for actual authentication/settings loading
+before ending the session, and schedules the expiry event outside its evaluation
+so intentional full navigation cannot destroy the test's return context.
+The zero anonymous-settings-read and zero-write assertions remain strict.
+See the [regression record](../work-log/2026-11-08-settings-expiry-cancellation.md).
 
 **Intent:** inspect service availability, sign in, recover access or correct a
 registration without exposing private information. Public overview combines

@@ -147,7 +147,7 @@ describe('UiSettingsProvider', () => {
     renderProvider();
     expect(await screen.findByTestId('theme')).toHaveTextContent('dark');
     await waitFor(() => expect(screen.getByTestId('load-error')).toHaveTextContent('load failed'));
-    expect(settingsApi.fetch).toHaveBeenCalledWith('ui_setting', 'settings');
+    expect(settingsApi.fetch).toHaveBeenCalledWith('ui_setting', 'settings', { signal: expect.any(AbortSignal) });
   });
 
   it('keeps changed settings visible when a debounced server save fails', async () => {
@@ -202,4 +202,49 @@ describe('UiSettingsProvider', () => {
     expect(settingsApi.fetch).not.toHaveBeenCalled();
     expect(settingsApi.save).not.toHaveBeenCalled();
   });
+});
+
+
+it('aborts expired-session reads and ignores late account preferences with stale auth context', async () => {
+  localStorage.setItem('vpsadmin.uiSettings.v1', JSON.stringify({ theme: 'light', language: 'en' }));
+  let complete!: (value: unknown) => void;
+  settingsApi.fetch.mockImplementation(() => new Promise(resolve => { complete = resolve; }));
+  renderProvider();
+  await waitFor(() => expect(settingsApi.fetch).toHaveBeenCalledOnce());
+  const options = settingsApi.fetch.mock.calls[0]![2] as { signal: AbortSignal };
+  act(() => { window.dispatchEvent(new Event('webui-next:session-expired')); });
+  await act(async () => { complete(toUiSettingsJson({ ...DEFAULT_SETTINGS, theme: 'dark', language: 'cs' })); });
+  expect(screen.getByTestId('theme')).toHaveTextContent('light');
+  expect(options?.signal.aborted).toBe(true);
+  expect(screen.getByTestId('status')).toHaveTextContent('idle');
+  expect(screen.getByTestId('load-error')).toHaveTextContent('');
+  fireEvent.click(screen.getByRole('button', { name: 'retry' }));
+  await act(async () => {});
+  expect(settingsApi.fetch).toHaveBeenCalledOnce();
+});
+
+
+it('does not migrate unchanged device preferences when the account record is missing', async () => {
+  settingsApi.fetch.mockResolvedValue(undefined);
+  settingsApi.save.mockResolvedValue(undefined);
+  renderProvider();
+  await waitFor(() => expect(settingsApi.fetch).toHaveBeenCalledOnce());
+  await waitForDebounce();
+  expect(settingsApi.save).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByText('dark'));
+  await waitForDebounce();
+  expect(settingsApi.save).toHaveBeenCalledOnce();
+});
+
+it('cancels queued saves and blocks later effects after session expiry with stale auth', async () => {
+  settingsApi.fetch.mockResolvedValue(toUiSettingsJson(DEFAULT_SETTINGS));
+  settingsApi.save.mockResolvedValue(undefined);
+  renderProvider();
+  await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('idle'));
+  await waitForDebounce();
+  fireEvent.click(screen.getByText('dark'));
+  act(() => { window.dispatchEvent(new Event('webui-next:session-expired')); });
+  fireEvent.click(screen.getByText('dismiss tip'));
+  await waitForDebounce();
+  expect(settingsApi.save).not.toHaveBeenCalled();
 });

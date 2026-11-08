@@ -1,0 +1,15 @@
+# Cancel preference synchronization on session expiry
+
+REQ-005. The Summary integration run [42505435954](https://github.com/vpsfreecz/vpsadmin-webui/actions/runs/42505435954) failed the device-expiry preference case and reported the account case as flaky: a private settings GET occurred after the fixture ended authentication. This is separate from the CI module-loading performance fix in draft218. The rejected integration was never activated.
+
+The provider now cancels pending settings reads on the existing expiry event, blocks stale authenticated callbacks and ignores late responses. The API adapter passes AbortSignal through the existing generated SDK0.4.0 Index operation, checking cancellation before and after asynchronous client initialization and response parsing. No backend, dependency, transport policy, localization or runtime setting changes are required. Queued saves are also cancelled and guarded against later stale effects. Missing account settings preserve unchanged device choices without an implicit migration PUT; explicit subsequent edits still save.
+
+The browser fixture previously matched device appearance already present in localStorage before authentication had completed. It now waits for the real successful settings response and authenticated account control before simulating expiry. The event is scheduled after the page evaluation returns, avoiding a destroyed execution context during the intended full navigation. Zero anonymous settings reads and zero writes remain required; no assertion, retry, worker, timeout or CI selection was weakened.
+
+## Verification
+
+All four deterministic regressions fail against the preceding implementation and pass with the change. The first full suite passed2311 tests, before two additional missing-record/save regressions were added. All22 focused provider/adapter tests then passed, including an unchanged-device read with no write, a subsequent user edit with exactly one save, queued-save cancellation and stale effects after expiry. The final full suite passes2313 tests in356 files. The corrected actual development-wrapper browser run passes12/12 with no retries: device/account cases, two repetitions each, desktop Chromium/mobileChrome/mobileWebKit. The private WebKit project explicitly includes this file; repository CI selection is unchanged.
+
+The first private browser run of the cancellation change retained the original fixtures and yielded6PASS/2FAIL (Chromium and mobileChrome, two repetitions). Its failures exposed the initial-authentication fixture race, destroyed evaluation context and automatic missing-record PUT; original traces are retained. The next private run adds mobileWebKit coverage explicitly in its private configuration, without changing the repository's project selection. Real API and paired-preview deployment are not certified by intercepted fixtures.
+
+Evidence: /data/codex-workspaces/release-readiness-20261107/settings-expiry-cancel-20261108 and preceding ci-development-bundles-20261108/expiry-cancel-*; runner ci-locale-bundles-20261108/candidate-r10 and candidate-r11. Production activation, merge and PR approval remain held.

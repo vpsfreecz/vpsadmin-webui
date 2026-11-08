@@ -1,3 +1,7 @@
+## 2026-11-08 — Cancel preference synchronization on session expiry
+
+[Failures, scope and verification](docs/work-log/2026-11-08-settings-expiry-cancellation.md).
+
 ## 2026-11-08 — Prepare development modules for complete CI
 
 [Scope, failures and measured verification](docs/work-log/2026-11-08-ci-development-bundles.md).
