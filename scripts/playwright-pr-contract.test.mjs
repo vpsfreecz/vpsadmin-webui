@@ -41,7 +41,7 @@ test('PR desktop and mobile select two workers with a working one-worker overrid
   assert.equal(config.workers, 2);
   assert.equal(config.use.trace, 'retain-on-failure');
   assert.equal(config.use.screenshot, 'only-on-failure');
-  assert.equal(config.use.video, 'retain-on-failure');
+  assert.equal(config.use.video, process.env['CI'] ? 'on-first-retry' : 'retain-on-failure');
   const command = program.commands.find((item) => item.name() === 'test');
   assert(command);
 

@@ -35,3 +35,11 @@ scenarios remain separate: both comparison phases passed 12/12.
 Pinned source ci:quick passes (153 adopted E2E leaves /130 deferred, normal
 lint32, design180/76, root/tooling/E2E/BFF types and BFF contract6). Fresh public
 CI remains required; no full-suite performance guarantee is claimed.
+
+The first published integration CI exposed an existing script contract that still
+expected retain-on-failure video in CI. Update that assertion to distinguish CI
+from local recording, keeping its trace/screenshot/two-worker/override assertions.
+The contract passes separately with and without CI; the full main-based script
+suite passes 239/239 with CI enabled. An initial local full-suite run lacked BFF
+dependencies; installing the locked BFF dependencies resolved that setup error.
+Both original failure logs are retained with the release evidence.
