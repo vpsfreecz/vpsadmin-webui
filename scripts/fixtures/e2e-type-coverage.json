@@ -58,6 +58,7 @@
     "e2e/specs/app/mobile_workflows.spec.ts",
     "e2e/specs/app/network_address_details.spec.ts",
     "e2e/specs/app/node_history.spec.ts",
+    "e2e/specs/app/oom_report_rules_mobile_actions.spec.ts",
     "e2e/specs/app/payment_qr_images.spec.ts",
     "e2e/specs/app/payments_page.spec.ts",
     "e2e/specs/app/profile_metrics_tokens.spec.ts",
@@ -959,13 +960,6 @@
     {
       "path": "e2e/specs/app/oom_report_cgroup_mobile_layout.spec.ts",
       "sha256": "4414f50bfe0d2364baaac6f55fccb806bc6c7b9bd6a5dd363b1ba86ae9c30295",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/app/oom_report_rules_mobile_actions.spec.ts",
-      "sha256": "ce0ac6a4e7d15dc9df1d5dfc5e5a473dfb6510bc57570b591b71940b8637f2a0",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
