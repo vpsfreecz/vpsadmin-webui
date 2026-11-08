@@ -257,3 +257,10 @@ Keep the publication date and Set now action at the shared 36px desktop /
 44px coarse-pointer heights. The action keeps its natural single-line width;
 the mobile form stacks it beneath the date field. Preserve date conversion,
 drafts, localization and submission guards (REQ-010, REQ-053).
+
+### Configuration review value wrapping
+
+Let before/after review tracks shrink and wrap unbroken values, including IPv6,
+within the review panel and confirmation dialog at 320px. Preserve the full
+value and original labels, risk meaning, target and confirmation behavior
+(REQ-010, REQ-023).
