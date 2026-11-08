@@ -2,7 +2,7 @@
 
 The maintainer's approved UX-03 and UX-04 continuation covers consistent
 sizes, alignment and readable dark-theme groups throughout the interface.
-A finite audit of transaction chains, items and action states found two
+A finite audit of transaction chains, items and action states found three
 specific problems in the unchanged operation bodies at preview e4dc02bf.
 
 At 320px, action-state badges and controls occupied the same horizontal
@@ -17,6 +17,10 @@ and the existing localized Error/Chyba label. The body remains readable
 without relying on red alone. Queries, role scopes, pin/track/cancel
 handlers, links, payloads, polling and the OAuth BFF are unchanged.
 
+Failed-step links in action and chain summaries had 2.65:1 contrast on the
+dark action tile. They now use readable text and a persistent underline,
+retaining the explicit Failed here/Selhalo zde label and exact target.
+
 REQ-009 and REQ-010 apply. Terminology was read from locked vpsAdmin
 revision a65a4dfeb92a59df4a80a737a20bcbf8558793ff. No catalog, label,
 member navigation or KB workflow was renamed. External KB screenshots
@@ -26,7 +30,8 @@ have not been recaptured by this fixture audit.
 
 Baseline smoke: six member desktop Chromium scenarios passed on the exact
 clean e4dc02bf frontend. Its 320px action-list image and the actual dark
-chain error image establish the two problems. A broader finite fixture
+chain error image establish the first two problems. Computed styles from
+the same exact build establish the failed-step link contrast deficit. A broader finite fixture
 audit is running separately; it must not be reported as complete yet.
 
 Existing browser specs gain responsive row geometry, keyboard focus,

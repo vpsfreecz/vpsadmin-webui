@@ -422,7 +422,7 @@ for (const mode of ['app', 'admin'] as const) {
         if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method())) writes.push(request.url());
       });
       await setUiSettingsLocalStorage(page, { language, theme });
-      await bootstrapVpsAdminWindow(page);
+      await bootstrapVpsAdminWindow(page, { webuiNext: { uiSettings: { persistence: 'local' } } });
       const message = 'Synthetic transaction items read failure';
       await installHaveApiMock(page, {
         user: { id: 1, login: 'synthetic-audit-user', level: mode === 'admin' ? 99 : 1 },

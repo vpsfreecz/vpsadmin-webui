@@ -102,7 +102,7 @@ for (const mode of ['app', 'admin'] as const) {
         if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method())) writes.push(request.url());
       });
       await setUiSettingsLocalStorage(page, { language, theme });
-      await bootstrapVpsAdminWindow(page);
+      await bootstrapVpsAdminWindow(page, { webuiNext: { uiSettings: { persistence: 'local' } } });
       const title = 'Ověřovací dlouhý český popis provozní operace správce v Českých Budějovicích';
       await installHaveApiMock(page, {
         user: { id: 1, login: 'synthetic-audit-user', level: mode === 'admin' ? 99 : 1 },
@@ -142,6 +142,71 @@ for (const mode of ['app', 'admin'] as const) {
         expect(await link.evaluate((el) => el.matches(':focus-visible'))).toBe(true);
       }
       expect(writes).toEqual([]);
+    });
+  }
+}
+
+for (const mode of ['app', 'admin'] as const) {
+  for (const [language, theme] of [
+    ['cs', 'dark'],
+    ['en', 'light'],
+  ] as const) {
+    test(`@pr-smoke @pr-smoke-mobile failed-step links retain readable text and targets (${mode}/${language}/${theme})`, async ({
+      page,
+    }) => {
+      await setUiSettingsLocalStorage(page, { language, theme });
+      await bootstrapVpsAdminWindow(page, { webuiNext: { uiSettings: { persistence: 'local' } } });
+      await installHaveApiMock(page, {
+        user: { id: 1, login: 'synthetic-audit-user', level: mode === 'admin' ? 99 : 1 },
+        handlers: {
+          'GET action_states/123': () => ({
+            action_state: {
+              id: 123,
+              label: 'Synthetic failed action',
+              finished: true,
+              status: false,
+              transaction_chain: { id: 456 },
+            },
+          }),
+          'GET transaction_chains/456': () => ({
+            transaction_chain: { id: 456, label: 'Synthetic failed chain', state: 'failed', size: 1, progress: 0 },
+          }),
+          'GET transactions': () => ({
+            transactions: [
+              { id: 701, name: 'Synthetic failed step', done: 'done', success: 0, transaction_chain: { id: 456 } },
+            ],
+          }),
+        },
+      });
+      for (const [route, rootId] of [
+        ['action-states/123', 'action_state.detail'],
+        ['transactions/456', 'transactions.chain.detail.info'],
+      ]) {
+        await page.goto(`/${mode}/${route}`);
+        const root = page.getByTestId(rootId!);
+        const label = root.getByText(language === 'cs' ? 'Selhalo zde' : 'Failed here', { exact: true }).first();
+        await expect(label).toBeVisible();
+        const link = label.locator('..').locator('a').first();
+        await expect(link).toHaveAttribute('href', `/${mode}/transactions/items/701`);
+        const contrast = await link.evaluate((el) => {
+          const rgb = (text: string) => (text.match(/[\d.]+/g) ?? []).slice(0, 3).map(Number);
+          const lum = (c: number[]) =>
+            c
+              .map((v) => v / 255)
+              .map((v) => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4))
+              .reduce((sum, v, i) => sum + v * [0.2126, 0.7152, 0.0722][i]!, 0);
+          let surface: Element | null = el;
+          while (surface && getComputedStyle(surface).backgroundColor === 'rgba(0, 0, 0, 0)')
+            surface = surface.parentElement;
+          const a = lum(rgb(getComputedStyle(el).color)),
+            b = lum(rgb(getComputedStyle(surface!).backgroundColor));
+          return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+        });
+        expect(contrast).toBeGreaterThanOrEqual(4.5);
+        await expect(link).toHaveCSS('text-decoration-line', 'underline');
+        await page.setViewportSize({ width: 320, height: 844 });
+        await expectNoDocumentHorizontalOverflow(page);
+      }
     });
   }
 }
