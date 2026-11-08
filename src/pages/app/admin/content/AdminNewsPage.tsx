@@ -327,8 +327,9 @@ export function AdminNewsPage() {
                   testId="admin.newslog.editor.published_at"
                 />
                 <Button
-                  size="sm"
+                  size="md"
                   variant="secondary"
+                  className="shrink-0 whitespace-nowrap"
                   onClick={() => setEditorPublishedLocal(isoToLocalInput(new Date().toISOString()))}
                   testId="admin.newslog.editor.set_now"
                 >

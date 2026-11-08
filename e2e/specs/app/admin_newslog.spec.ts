@@ -7,7 +7,8 @@ for (const language of ['cs', 'en'] as const) {
     test.use({ locale: language === 'cs' ? 'cs-CZ' : 'en-US' });
     test('@pr-smoke @pr-smoke-mobile creates and edits independent translations', async ({ page }, testInfo) => {
       await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
-      await setUiSettingsLocalStorage(page, { language, theme: 'dark' });
+      await setUiSettingsLocalStorage(page, { language, theme: language === 'cs' ? 'dark' : 'light' });
+      await page.clock.setFixedTime(new Date('2026-11-08T12:00:00Z'));
       let record = { id: 42, cs_message: '', en_message: '', published_at: '2026-07-12T18:00:00.000Z' };
       let created = false;
       let createPayload: unknown;
@@ -40,7 +41,38 @@ for (const language of ['cs', 'en'] as const) {
       await expect(cs).toHaveAccessibleName(language === 'cs' ? 'Zpráva (česky)' : 'Message (Czech)');
       await expect(en).toHaveAccessibleName(language === 'cs' ? 'Zpráva (anglicky)' : 'Message (English)');
       await expect(save).toBeDisabled();
-      const nowBox = await page.getByTestId('admin.newslog.editor.set_now').boundingBox();
+      const date = page.getByTestId('admin.newslog.editor.published_at');
+      const setNow = page.getByTestId('admin.newslog.editor.set_now');
+      const nowBox = await setNow.boundingBox();
+      const dateBox = await date.boundingBox();
+      const coarse = await page.evaluate(() => matchMedia('(pointer: coarse)').matches);
+      expect(dateBox?.height).toBe(coarse ? 44 : 36);
+      expect(nowBox?.height).toBe(coarse ? 44 : 36);
+      const text = await setNow.evaluate((el) => {
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        return { height: range.getBoundingClientRect().height, line: parseFloat(getComputedStyle(el).lineHeight) };
+      });
+      expect(text.height).toBeLessThanOrEqual(text.line + 1);
+      if (page.viewportSize()!.width >= 640) {
+        expect(Math.abs(nowBox!.y - dateBox!.y)).toBeLessThanOrEqual(1);
+        const rowBox = await date.locator('..').boundingBox();
+        expect(nowBox!.x + nowBox!.width).toBeLessThanOrEqual(rowBox!.x + rowBox!.width + 1);
+      }
+      await date.fill('2026-10-01T10:00');
+      if (testInfo.project.name.startsWith('mobile')) await setNow.tap();
+      else {
+        await date.focus();
+        await page.keyboard.press('Tab');
+        await expect(setNow).toBeFocused();
+        await page.keyboard.press('Enter');
+      }
+      const expectedLocal = await page.evaluate(() => {
+        const d = new Date();
+        return new Date(d.getTime() - d.getTimezoneOffset() * 60_000).toISOString().slice(0, 16);
+      });
+      await expect(date).toHaveValue(expectedLocal);
+
       expect(nowBox).not.toBeNull();
       expect(nowBox!.x + nowBox!.width).toBeLessThanOrEqual(page.viewportSize()!.width);
       const czech = 'Plánovaná údržba. <a href="https://example.test/notice">Podrobnosti</a>';

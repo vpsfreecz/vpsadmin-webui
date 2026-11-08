@@ -2145,3 +2145,8 @@ and use VS / ID for the shared payment reference. See the
 
 Fix the observed CI fixture race without increasing budgets. See the
 [integration evidence](docs/work-log/2026-11-07-main-preview-integration.md).
+
+## 2026-11-08 — Align the news publication field action
+
+Prepare approved UX-03 / REQ-010 and REQ-053. See the
+[scope and evidence](docs/work-log/2026-11-08-todo-news-date-control.md).
