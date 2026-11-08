@@ -743,7 +743,7 @@ for (const language of ['en', 'cs'] as const) {
             security_advisory: { expected_content_revision: advisory.content_revision, expected_state: 'retracted' },
           });
           deleted = true;
-          return null;
+          return { security_advisory: {} };
         },
       },
     });

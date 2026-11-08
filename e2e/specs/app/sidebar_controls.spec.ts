@@ -20,7 +20,10 @@ for (const actor of [
       handlers: {
         'GET vpses': () => ({ vpses: [], _meta: { total_count: 0 } }),
         'GET help_boxes': () => ({ help_boxes: [] }),
-        'PUT users/53': ({ request }) => { writes.push(request.postDataJSON()); return {}; },
+        'PUT users/53': ({ request }) => {
+          writes.push(request.postDataJSON());
+          return { user: { id: 53, login: 'sample-member', level: actor.level, preferred_session_length: 2100 } };
+        },
       },
     });
     await page.goto(`/${actor.mode}/vps`);

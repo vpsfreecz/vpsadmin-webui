@@ -106,7 +106,7 @@ test.describe('@workflow-matrix VPS power failure regressions', () => {
     await installPowerFailureMock(page, {
       action: 'start',
       isRunning: false,
-      mutation: () => ({ _meta: { action_state_id: 999 } }),
+      mutation: () => ({ vps: {}, _meta: { action_state_id: 999 } }),
     });
     let postCount = 0;
     await page.route('**/api/v7.0/vpses/123/start', async (route) => {
@@ -190,7 +190,7 @@ test.describe('@workflow-matrix VPS power failure regressions', () => {
       isRunning: false,
       mutation: () => {
         postCount += 1;
-        return { _meta: { action_state_id: 999 } };
+        return { vps: {}, _meta: { action_state_id: 999 } };
       },
     });
     await page.addInitScript(() => {
@@ -219,7 +219,7 @@ test.describe('@workflow-matrix VPS power failure regressions', () => {
       isRunning: false,
       mutation: () => {
         postCount += 1;
-        return { _meta: {} };
+        return { vps: {}, _meta: {} };
       },
       user: { id: 42, login: 'admin', level: 90 },
     };
@@ -252,7 +252,7 @@ test.describe('@workflow-matrix VPS power failure regressions', () => {
       isRunning: false,
       mutation: () => {
         startedAt = Date.now();
-        return { _meta: { action_state_id: 790 } };
+        return { vps: {}, _meta: { action_state_id: 790 } };
       },
       actionState: () => {
         const finished = startedAt > 0 && Date.now() - startedAt >= 600;
@@ -292,7 +292,7 @@ test.describe('@workflow-matrix VPS power failure regressions', () => {
         isRunning: action !== 'start',
         mutation: () => {
           postCount += 1;
-          return { _meta: {} };
+          return { vps: {}, _meta: {} };
         },
       });
 

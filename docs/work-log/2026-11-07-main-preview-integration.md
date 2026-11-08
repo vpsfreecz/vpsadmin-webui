@@ -110,3 +110,62 @@ covering the canonical format filter across member/support/admin/My/selected-own
 contexts, account copy, keyboard/copy/Clear/320px and existing account saves/retry.
 Seven integrated runtime files differ only in presentation attributes by AST review.
 The final clean package and remaining regression matrix still require acceptance.
+
+## Feature journey fixture correction
+
+The final c09 package passed controls100 and filters112, then the journey batch
+finished 66 passed / 4 failed. Both feature scenarios on both engines still tried
+to edit `quota`/`xtables`, which main deliberately leaves read-only because SDK0.4
+update-all declares only fuse/impermanence/kvm/lxc/ppp/tun. The fixture now changes
+supported fuse/tun and additionally proves that undeclared rows remain read-only
+and never enter the request. Existing target/payload/rejection/retry assertions
+remain. Runtime guards, timeouts and retries are unchanged. The original failure
+logs are retained. Corrected focused4 pass on exact c09 after also restoring the
+SDK-required `feature: {}` success namespace with the original action-state IDs.
+The broader final regressions are still running.
+
+The published c09 desktop broad-smoke failure was the detail-tabs matrix still
+requiring a removed explanatory boot subtitle. It now checks the actual enabled
+member Cgroup selector and its canonical options; all existing member/admin
+permission exclusions, route and lifecycle assertions remain. No product copy
+is restored. Original CI failure logs are preserved outside the repository.
+
+The advisory lifecycle regression exposed another old fixture envelope: successful
+DELETE returned null although SDK0.4 declares `security_advisory` output namespace.
+It now returns `{ security_advisory: {} }`, matching main's existing API unit
+contract. Content-revision/state guards, the real confirmation and post-delete
+list navigation assertions are retained. No product deletion behavior changes.
+
+## Broader workflow and CI fixture alignment
+
+The full exact-package workflow matrix is running across both engines. It found
+additional legacy fixture contracts: SSH deployment omitted the `vps` output
+namespace, and the session preference PUT returned an empty body instead of a
+valid `user`. Align those successful responses with the generated SDK and existing
+API units, retaining original request/receipt, retry, target and progress checks.
+The same empty `vps` namespace is added to power/delete fixtures; missing-action-ID
+negative tests still omit the ID and keep their exact safety-lock assertions.
+
+The published head's desktop PR smoke reported the two member-journey cases,
+four session preference cases and the support permission case. The last expected
+one disabled fieldset while the shared admin-modification choice now supplies a
+second disabled group. Verify every visible disabled group and every actual form
+input/select/textarea is disabled, retaining all sensitive-control exclusions.
+Malformed password output is rejected earlier by main's typed adapter; assert its
+exact invalid-response error, the preserved uncertainty guard and no secret.
+
+Expanded mobile workflow coverage also exposed desktop-only request-table,
+selection and expansion selectors. Use each actual visible mobile/desktop control
+while retaining payload, confirmation, failed-selection and keyboard assertions.
+Desktop select-all indeterminate semantics stay checked on desktop; the mobile
+partial selection is checked through its two existing row checkboxes. No hidden
+control is forced, no case is skipped and no product permission is changed.
+
+The private served BFF harness supplies a configured Authorization header, whereas
+the unchanged source authentication smoke tests assert the legacy fixture header.
+That mismatch is a harness assertion adaptation: in a later focused BFF rerun,
+assert the exact configured synthetic token and absence of legacy headers. Keep
+the source legacy regression unchanged; it passed in the normal CI runtime.
+The original expanded-run failure remains evidence, not a product auth failure.
+
+All corrected browser reruns and remaining final acceptance are pending.

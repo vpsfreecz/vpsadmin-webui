@@ -218,7 +218,7 @@ test.describe('@workflow-matrix @smoke VPS list row navigation', () => {
       handlers: {
         'GET vpses': () => ({ vpses: [vps] }),
         'GET transaction_chains': () => ({ transaction_chains: [] }),
-        'DELETE vpses/300': () => ({ _meta: { action_state_id: 901 } }),
+        'DELETE vpses/300': () => ({ vps: {}, _meta: { action_state_id: 901 } }),
       },
     });
 
@@ -254,7 +254,7 @@ test.describe('@workflow-matrix @smoke VPS list row navigation', () => {
       handlers: {
         'GET vpses': () => ({ vpses: [vps] }),
         'GET transaction_chains': () => ({ transaction_chains: [] }),
-        'DELETE vpses/300': () => ({ _meta: { action_state_id: 902 } }),
+        'DELETE vpses/300': () => ({ vps: {}, _meta: { action_state_id: 902 } }),
       },
     });
 
@@ -303,7 +303,7 @@ test.describe('@workflow-matrix @smoke VPS list row navigation', () => {
           }
           return { transaction_chains: [] };
         },
-        'DELETE vpses/300': () => ({ _meta: { action_state_id: 903 } }),
+        'DELETE vpses/300': () => ({ vps: {}, _meta: { action_state_id: 903 } }),
       },
     });
     await bootstrapVpsAdminWindow(page);

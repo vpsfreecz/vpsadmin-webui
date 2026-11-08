@@ -151,6 +151,7 @@
     "e2e/specs/app/user_data_editor_accessibility.spec.ts",
     "e2e/specs/app/user_network_page.spec.ts",
     "e2e/specs/app/user_requests_smoke.spec.ts",
+    "e2e/specs/app/vps_access_failures.spec.ts",
     "e2e/specs/app/vps_access_page.spec.ts",
     "e2e/specs/app/vps_access_readability.spec.ts",
     "e2e/specs/app/vps_admin_modifications.spec.ts",

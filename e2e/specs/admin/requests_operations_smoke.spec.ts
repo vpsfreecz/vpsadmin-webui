@@ -61,6 +61,24 @@ function registration(id: number, state = 'awaiting') {
   };
 }
 
+function visibleRequestRow(page: Page, type: 'registration' | 'change', id: number, suffix = '') {
+  return page.locator(
+    `[data-testid="admin.requests.row.${type}.${id}${suffix}"]:visible, [data-testid="admin.requests.mobile.row.${type}.${id}${suffix}"]:visible`
+  );
+}
+
+function visibleRequestSelection(page: Page, type: 'registration' | 'change', id: number) {
+  return page.locator(
+    `[data-testid="admin.requests.bulk.select.${type}.${id}"]:visible, [data-testid="admin.requests.bulk.select.mobile.${type}.${id}"]:visible`
+  );
+}
+
+function visibleExpandedRequest(page: Page, type: 'registration' | 'change', id: number) {
+  return page.locator(
+    `[data-testid="admin.requests.expanded_row.${type}.${id}"]:visible, [data-testid="admin.requests.expanded_row.mobile.${type}.${id}"]:visible`
+  );
+}
+
 async function installOsmMapMock(page: Page, options: { empty?: boolean; failFirst?: boolean } = {}) {
   let requests = 0;
 
@@ -718,6 +736,10 @@ test('@workflow-matrix @smoke admin requests: correction uses the canonical deta
   page,
 }) => {
   await bootstrapVpsAdminWindow(page);
+  const visibleRegistration = (id: number) =>
+    page.locator(
+      `[data-testid="admin.requests.row.registration.${id}"]:visible, [data-testid="admin.requests.mobile.row.registration.${id}"]:visible`
+    );
 
   const resolveBodies: unknown[] = [];
 
@@ -739,9 +761,9 @@ test('@workflow-matrix @smoke admin requests: correction uses the canonical deta
   });
 
   await page.goto('/admin/requests');
-  await expect(page.getByTestId('admin.requests.table')).toBeVisible();
+  await expect(visibleRegistration(401)).toBeVisible();
 
-  await page.getByTestId('admin.requests.row.registration.401').getByRole('link', { name: '#401' }).press('Enter');
+  await visibleRegistration(401).getByRole('link', { name: /#401$/ }).press('Enter');
   await expect(page).toHaveURL(/\/admin\/requests\/registration\/401\?returnTo=/);
   await page.getByTestId('admin.requests.review.continue').uncheck();
   await page.getByTestId('admin.requests.resolve.action.request_correction').click();
@@ -771,10 +793,10 @@ test('@workflow-matrix @smoke admin requests: correction uses the canonical deta
     },
   });
 
-  await expect(page.getByTestId('admin.requests.table')).toBeVisible();
+  await expect(visibleRegistration(400)).toBeVisible();
   await expect(page.getByTestId('admin.requests.bulk')).toHaveCount(0);
   await page.getByTestId('admin.requests.bulk.selection_mode').click();
-  await page.getByTestId('admin.requests.bulk.select.registration.400').check();
+  await visibleRequestSelection(page, 'registration', 400).check();
   await expect(page.getByTestId('admin.requests.bulk')).toBeVisible();
   await expect(page.getByTestId('admin.requests.bulk.registration_approve_blocked')).toBeVisible();
   await expect(page.getByTestId('admin.requests.bulk.action').locator('option[value="approve"]')).toHaveCount(0);
@@ -817,10 +839,14 @@ test('@workflow-matrix @smoke admin requests: bulk writes require confirmation a
 
   await page.goto('/admin/requests');
   await page.getByTestId('admin.requests.bulk.selection_mode').click();
-  await page.getByTestId('admin.requests.bulk.select.change.402').check();
-  await expect(page.getByTestId('admin.requests.bulk.select_all')).toHaveAttribute('aria-checked', 'mixed');
-  await expect(page.getByTestId('admin.requests.bulk.select_all')).toHaveJSProperty('indeterminate', true);
-  await page.getByTestId('admin.requests.bulk.select.change.401').check();
+  await visibleRequestSelection(page, 'change', 402).check();
+  await expect(visibleRequestSelection(page, 'change', 402)).toBeChecked();
+  await expect(visibleRequestSelection(page, 'change', 401)).not.toBeChecked();
+  if ((page.viewportSize()?.width ?? 0) >= 768) {
+    await expect(page.getByTestId('admin.requests.bulk.select_all')).toHaveAttribute('aria-checked', 'mixed');
+    await expect(page.getByTestId('admin.requests.bulk.select_all')).toHaveJSProperty('indeterminate', true);
+  }
+  await visibleRequestSelection(page, 'change', 401).check();
   await page.getByTestId('admin.requests.bulk.action').selectOption('deny');
   await expect(page.getByTestId('admin.requests.bulk.apply')).toBeDisabled();
   await page.getByTestId('admin.requests.bulk.reason').fill('Duplicate request');
@@ -837,8 +863,8 @@ test('@workflow-matrix @smoke admin requests: bulk writes require confirmation a
   await expect.poll(() => resolveBodies.length).toBe(1);
   await expect.poll(() => failedCalls).toBe(1);
   expect(resolveBodies[0]).toEqual({ change: { action: 'deny', reason: 'Duplicate request' } });
-  await expect(page.getByTestId('admin.requests.bulk.select.change.401')).toBeChecked();
-  await expect(page.getByTestId('admin.requests.bulk.select.change.402')).not.toBeChecked();
+  await expect(visibleRequestSelection(page, 'change', 401)).toBeChecked();
+  await expect(visibleRequestSelection(page, 'change', 402)).not.toBeChecked();
 });
 
 test('@workflow-matrix @smoke admin requests: visible state and type segments keep the list simple', async ({
@@ -868,27 +894,27 @@ test('@workflow-matrix @smoke admin requests: visible state and type segments ke
   });
 
   await page.goto('/admin/requests');
-  await expect(page.getByTestId('admin.requests.table')).toBeVisible();
+  await expect(visibleRequestRow(page, 'registration', 201)).toBeVisible();
 
   await expect(page.getByTestId('admin.requests.state_segments')).toBeVisible();
   await expect(page.getByTestId('admin.requests.type_segments')).toBeVisible();
-  await expect(page.getByTestId('admin.requests.row.registration.201.full_name')).toHaveText('Alice Example');
+  await expect(visibleRequestRow(page, 'registration', 201, '.full_name')).toHaveText('Alice Example');
   await expect(page.locator('[data-testid^="admin.requests.expanded_row."]')).toHaveCount(0);
   await page.getByTestId('admin.requests.expand_all').click();
-  await expect(page.getByTestId('admin.requests.expanded_row.registration.201')).toBeVisible();
-  await expect(page.getByTestId('admin.requests.expanded_row.change.199')).toBeVisible();
+  await expect(visibleExpandedRequest(page, 'registration', 201)).toBeVisible();
+  await expect(visibleExpandedRequest(page, 'change', 199)).toBeVisible();
   await expect(page.getByTestId('admin.requests.expand_all')).toHaveText(/collapse all|sbalit vše/i);
   await page.getByTestId('admin.requests.expand_all').click();
   await expect(page.locator('[data-testid^="admin.requests.expanded_row."]')).toHaveCount(0);
 
   await page.getByTestId('admin.requests.type.change').click();
-  await expect(page.getByTestId('admin.requests.row.change.199')).toBeVisible();
-  await expect(page.getByTestId('admin.requests.row.registration.201')).toHaveCount(0);
+  await expect(visibleRequestRow(page, 'change', 199)).toBeVisible();
+  await expect(visibleRequestRow(page, 'registration', 201)).toHaveCount(0);
   await expect(page).toHaveURL(/type=change/);
 
   await page.getByTestId('admin.requests.type.registration').click();
-  await expect(page.getByTestId('admin.requests.row.registration.201')).toBeVisible();
-  await expect(page.getByTestId('admin.requests.row.change.199')).toHaveCount(0);
+  await expect(visibleRequestRow(page, 'registration', 201)).toBeVisible();
+  await expect(visibleRequestRow(page, 'change', 199)).toHaveCount(0);
   await expect(page).toHaveURL(/type=registration/);
 });
 
@@ -1101,9 +1127,9 @@ test('@workflow-matrix @smoke admin requests: advanced filters are keyboard-safe
   });
 
   await page.goto('/admin/requests');
-  await expect(page.getByTestId('admin.requests.table')).toBeVisible();
-  await expect(page.getByTestId('admin.requests.row.registration.301')).toBeVisible();
-  await expect(page.getByTestId('admin.requests.row.registration.302')).toHaveCount(0);
+  await expect(visibleRequestRow(page, 'registration', 301)).toBeVisible();
+  await expect(visibleRequestRow(page, 'registration', 301)).toBeVisible();
+  await expect(visibleRequestRow(page, 'registration', 302)).toHaveCount(0);
 
   const advancedToggle = page.getByTestId('admin.requests.advanced.toggle');
   await advancedToggle.click();
@@ -1122,8 +1148,8 @@ test('@workflow-matrix @smoke admin requests: advanced filters are keyboard-safe
   await advanced.getByLabel(/stav|state/i).selectOption('ignored');
   await expect(page).toHaveURL(/state=ignored/);
   await expect.poll(() => registrationStates.at(-1)).toBe('ignored');
-  await expect(page.getByTestId('admin.requests.row.registration.301')).toHaveCount(0);
-  await expect(page.getByTestId('admin.requests.row.registration.302')).toBeVisible();
+  await expect(visibleRequestRow(page, 'registration', 301)).toHaveCount(0);
+  await expect(visibleRequestRow(page, 'registration', 302)).toBeVisible();
 });
 
 test('@workflow-matrix @smoke @smoke-mobile admin requests: correction queue stays outside the default admin work queue', async ({
@@ -1563,17 +1589,17 @@ test('@workflow-matrix @smoke admin requests: ambiguous bulk mutation stops befo
 
   await page.goto('/admin/requests');
   await page.getByTestId('admin.requests.bulk.selection_mode').click();
-  await page.getByTestId('admin.requests.bulk.select.change.820').check();
-  await page.getByTestId('admin.requests.bulk.select.change.819').check();
+  await visibleRequestSelection(page, 'change', 820).check();
+  await visibleRequestSelection(page, 'change', 819).check();
   await page.getByTestId('admin.requests.bulk.action').selectOption('ignore');
   await page.getByTestId('admin.requests.bulk.apply').click();
   await page.getByTestId('admin.requests.bulk.confirm.confirm').click();
 
   await expect.poll(() => uncertainCalls).toBe(1);
   expect(untouchedCalls).toBe(0);
-  await expect(page.getByTestId('admin.requests.bulk.select.change.820')).toBeDisabled();
-  await expect(page.getByTestId('admin.requests.bulk.select.change.820')).not.toBeChecked();
-  await expect(page.getByTestId('admin.requests.bulk.select.change.819')).toBeChecked();
+  await expect(visibleRequestSelection(page, 'change', 820)).toBeDisabled();
+  await expect(visibleRequestSelection(page, 'change', 820)).not.toBeChecked();
+  await expect(visibleRequestSelection(page, 'change', 819)).toBeChecked();
   await expect(page.getByTestId('admin.requests.bulk')).toContainText(/Selected: 1|Vybráno: 1/);
 });
 
@@ -1601,12 +1627,12 @@ test('@workflow-matrix @smoke admin requests: stale bulk row is not posted and r
 
   await page.goto('/admin/requests');
   await page.getByTestId('admin.requests.bulk.selection_mode').click();
-  await page.getByTestId('admin.requests.bulk.select.change.821').check();
+  await visibleRequestSelection(page, 'change', 821).check();
   await page.getByTestId('admin.requests.bulk.action').selectOption('ignore');
   await page.getByTestId('admin.requests.bulk.apply').click();
   await page.getByTestId('admin.requests.bulk.confirm.confirm').click();
 
-  await expect(page.getByTestId('admin.requests.bulk.select.change.821')).toBeChecked();
+  await expect(visibleRequestSelection(page, 'change', 821)).toBeChecked();
   await expect(page.getByRole('alert')).toContainText(/changed before submission|před odesláním změnila/i);
   expect(resolveCalls).toBe(0);
 });
@@ -1647,17 +1673,17 @@ test('@workflow-matrix @smoke admin requests: a failed bulk preflight stays retr
 
   await page.goto('/admin/requests');
   await page.getByTestId('admin.requests.bulk.selection_mode').click();
-  await page.getByTestId('admin.requests.bulk.select.change.824').check();
-  await page.getByTestId('admin.requests.bulk.select.change.823').check();
+  await visibleRequestSelection(page, 'change', 824).check();
+  await visibleRequestSelection(page, 'change', 823).check();
   await page.getByTestId('admin.requests.bulk.action').selectOption('ignore');
   await page.getByTestId('admin.requests.bulk.apply').click();
   await page.getByTestId('admin.requests.bulk.confirm.confirm').click();
 
   await expect.poll(() => nextTargetPosts).toBe(1);
   expect(failedTargetPosts).toBe(0);
-  await expect(page.getByTestId('admin.requests.bulk.select.change.824')).toBeChecked();
-  await expect(page.getByTestId('admin.requests.bulk.select.change.824')).toBeEnabled();
-  await expect(page.getByTestId('admin.requests.bulk.select.change.823')).not.toBeChecked();
+  await expect(visibleRequestSelection(page, 'change', 824)).toBeChecked();
+  await expect(visibleRequestSelection(page, 'change', 824)).toBeEnabled();
+  await expect(visibleRequestSelection(page, 'change', 823)).not.toBeChecked();
 });
 
 test('@workflow-matrix @smoke admin requests: switching a bulk action cannot leak its previous reason', async ({
@@ -1681,7 +1707,7 @@ test('@workflow-matrix @smoke admin requests: switching a bulk action cannot lea
 
   await page.goto('/admin/requests');
   await page.getByTestId('admin.requests.bulk.selection_mode').click();
-  await page.getByTestId('admin.requests.bulk.select.registration.822').check();
+  await visibleRequestSelection(page, 'registration', 822).check();
   await page.getByTestId('admin.requests.bulk.action').selectOption('deny');
   await page.getByTestId('admin.requests.bulk.reason').fill('Must never leak');
   await page.getByTestId('admin.requests.bulk.action').selectOption('request_correction');

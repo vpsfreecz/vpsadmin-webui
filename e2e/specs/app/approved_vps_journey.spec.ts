@@ -37,7 +37,7 @@ for (const language of ['cs', 'en'] as const) {
         },
         'POST vpses/123/deploy_public_key': ctx => {
           state.keyWrites.push(ctx.json);
-          return { _meta: { action_state_id: 903 } };
+          return { vps: {}, _meta: { action_state_id: 903 } };
         },
         'GET action_states/902': () => ({ action_state: { id: 902, finished: state.resourcesDone, status: state.resourcesDone ? true : null, current: state.resourcesDone ? 1 : 0, total: 1 } }),
         'GET action_states/903': () => ({ action_state: { id: 903, finished: state.keyDone, status: state.keyDone ? true : null, current: state.keyDone ? 1 : 0, total: 1 } }),

@@ -2090,3 +2090,10 @@ Prepare approved STO-03 / REQ-023. See [scope](docs/work-log/2026-11-07-todo-mou
 
 Prepare approved UX-03 / REQ-010, REQ-073. See the
 [scope record](docs/work-log/2026-11-07-todo-profile-control-rhythm.md).
+
+## 2026-11-08 — Align release fixtures with main's SDK and responsive controls
+
+Keep main's guarded transport, read-only fields and uncertainty behavior. Correct
+obsolete fixture namespaces, assertions and mobile selectors; retain failure
+evidence and require focused exact-package reruns before activation. See the
+[integration work log](docs/work-log/2026-11-07-main-preview-integration.md).

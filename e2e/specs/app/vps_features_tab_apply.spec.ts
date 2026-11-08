@@ -27,8 +27,10 @@ test.describe('VPS features tab', () => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
 
     const features = [
-      { id: 1, name: 'quota', label: 'Quota', enabled: false },
-      { id: 2, name: 'xtables', label: 'XTables', enabled: true },
+      { id: 1, name: 'fuse', label: 'FUSE', enabled: false },
+      { id: 2, name: 'tun', label: 'TUN', enabled: true },
+      { id: 3, name: 'quota', label: 'Quota', enabled: false },
+      { id: 4, name: 'xtables', label: 'XTables', enabled: true },
     ];
 
     await installHaveApiMock(page, {
@@ -38,7 +40,7 @@ test.describe('VPS features tab', () => {
         'GET ip_addresses': () => ({ ip_addresses: [] }),
         'GET transaction_chains': () => ({ transaction_chains: [] }),
         'GET vpses/123/features': () => ({ features }),
-        'POST vpses/123/features/update_all': () => ({ _meta: { action_state_id: 42 } }),
+        'POST vpses/123/features/update_all': () => ({ feature: {}, _meta: { action_state_id: 42 } }),
       },
     });
 
@@ -47,7 +49,15 @@ test.describe('VPS features tab', () => {
     await expect(page.getByTestId('vps.features.page')).toBeVisible();
     await expect(page.getByTestId('vps.features.card')).toBeVisible();
 
-    // Flip quota from false -> true to create a dirty draft.
+    // Undeclared update-all fields remain read-only even when returned by the API.
+    await expect(page.getByTestId('vps.features.save')).toBeDisabled();
+    for (const id of [3, 4]) {
+      const unsupported = page.getByTestId(`vps.features.item.${id}`);
+      await expect(unsupported.locator('input')).toHaveCount(0);
+      await unsupported.click();
+      await expect(page.getByTestId('vps.features.save')).toBeDisabled();
+    }
+    // Change a feature declared by the published SDK.
     await page.getByTestId('vps.features.item.1').click();
 
     await expect(page.getByTestId('vps.features.save')).toBeEnabled();
@@ -66,8 +76,8 @@ test.describe('VPS features tab', () => {
     const req = await reqPromise;
     expect(req.postDataJSON()).toEqual({
       feature: {
-        quota: true,
-        xtables: true,
+        fuse: true,
+        tun: true,
       },
     });
 
@@ -78,8 +88,10 @@ test.describe('VPS features tab', () => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
 
     const features = [
-      { id: 1, name: 'quota', label: 'Quota', enabled: false },
-      { id: 2, name: 'xtables', label: 'XTables', enabled: true },
+      { id: 1, name: 'fuse', label: 'FUSE', enabled: false },
+      { id: 2, name: 'tun', label: 'TUN', enabled: true },
+      { id: 3, name: 'quota', label: 'Quota', enabled: false },
+      { id: 4, name: 'xtables', label: 'XTables', enabled: true },
     ];
     let updateAttempts = 0;
 
@@ -104,13 +116,14 @@ test.describe('VPS features tab', () => {
             };
           }
 
-          return { _meta: { action_state_id: 43 } };
+          return { feature: {}, _meta: { action_state_id: 43 } };
         },
       },
     });
 
     await page.goto('/admin/vps/123/features');
     await page.getByTestId('vps.features.item.1').click();
+    await expect(page.getByTestId('vps.features.save')).toBeEnabled();
     await page.getByTestId('vps.features.save').click();
 
     const dialog = page.getByTestId('vps.features.confirm');

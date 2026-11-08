@@ -103,7 +103,7 @@ test.describe('@workflow-matrix VPS access failure regressions', () => {
     await expect(page.getByText(secret, { exact: true })).toHaveCount(0);
   });
 
-  test('treats a malformed password response as missing instead of rendering a secret', async ({ page }) => {
+  test('rejects a malformed password response and preserves uncertainty without rendering a secret', async ({ page }) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
     await installAccessMock(page, {
       'POST vpses/123/passwd': () => ({ vps: { unexpected: 'shape' }, _meta: { action_state_id: 711 } }),
@@ -113,7 +113,8 @@ test.describe('@workflow-matrix VPS access failure regressions', () => {
     await page.goto('/app/vps/123/access');
     await submitPasswordReset(page);
 
-    await expect(page.getByText(/response did not include a password/)).toBeVisible();
+    await expect(page.getByText('Invalid VPS password reset response', { exact: true })).toBeVisible();
+    await expect(page.getByTestId('vps.mutation.uncertain')).toBeVisible();
     await expect(page.getByTestId('vps.access.generated_password')).toHaveCount(0);
   });
 

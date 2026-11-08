@@ -131,7 +131,12 @@ test('@pr-smoke support account stays read-only inside the admin VPS shell', asy
   await expect(page.getByText('Admin lock type', { exact: true })).toHaveCount(0);
   await expect(page.getByTestId('vps.config.admin_override')).toHaveCount(0);
   await expect(page.getByText('You do not have permission to perform this action.')).toBeVisible();
-  await expect(page.locator('fieldset:disabled')).toBeVisible();
+  const configFieldsets = page.locator('main fieldset:disabled');
+  expect(await configFieldsets.count()).toBeGreaterThan(0);
+  for (const fieldset of await configFieldsets.all()) await expect(fieldset).toBeVisible();
+  const configInputs = page.locator('main fieldset input, main fieldset select, main fieldset textarea');
+  expect(await configInputs.count()).toBeGreaterThan(0);
+  for (const input of await configInputs.all()) await expect(input).toBeDisabled();
 
   await page.goto('/admin/vps/123/lifecycle');
 

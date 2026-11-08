@@ -192,7 +192,12 @@ test('@workflow-matrix @smoke VPS detail tabs expose storage, access, lifecycle,
   await moreActions.selectOption('/app/vps/123/config');
   await expect(page).toHaveURL(/\/app\/vps\/123\/config$/);
   await expect(page.getByText('Boot preferences')).toBeVisible();
-  await expect(page.getByText('Basic runtime preferences available to a member.')).toBeVisible();
+  await expect(page.getByRole('combobox', { name: 'Cgroup version', exact: true })).toBeEnabled();
+  await expect(page.getByRole('combobox', { name: 'Cgroup version', exact: true }).locator('option')).toHaveText([
+    'Automatic/default',
+    'cgroup v1',
+    'cgroup v2',
+  ]);
   await expect(page.getByText('Start menu timeout', { exact: true })).toHaveCount(0);
   await expect(page.getByText('Owner', { exact: true })).toHaveCount(0);
   await expect(page.getByText('CPU limit', { exact: true })).toHaveCount(0);
@@ -409,7 +414,7 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile VPS admin overview keeps each 
   await metricsToggle.click();
   await expect(metricsToggle).toHaveAttribute('aria-expanded', 'false');
 
-  const widths = testInfo.project.name === 'mobile-chrome' ? [320, 390] : [];
+  const widths = testInfo.project.name.startsWith('mobile-') ? [320, 390] : [];
   for (const width of widths) {
     await page.setViewportSize({ width, height: 900 });
     await expectNoDocumentHorizontalOverflow(page);
