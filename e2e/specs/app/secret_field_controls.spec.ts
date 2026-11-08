@@ -82,12 +82,14 @@ for (const kind of ['totp', 'metrics'] as const)
               },
             }),
             'POST users/1/totp_devices': () => ({
-              id: 99,
-              label: longLabel,
-              secret: 'JBSWY3DPEHPK3PXP',
-              provisioning_uri: 'otpauth://totp/synthetic-fixture-only?secret=JBSWY3DPEHPK3PXP&issuer=fixture',
+              totp_device: {
+                id: 99,
+                label: longLabel,
+                secret: 'JBSWY3DPEHPK3PXP',
+                provisioning_uri: 'otpauth://totp/synthetic-fixture-only?secret=JBSWY3DPEHPK3PXP&issuer=fixture',
+              },
             }),
-            'POST users/1/totp_devices/99/confirm': () => ({ recovery_code: 'SYNTHETIC-INVALID-RECOVERY-ONLY' }),
+            'POST users/1/totp_devices/99/confirm': () => ({ totp_device: { recovery_code: 'SYNTHETIC-INVALID-RECOVERY-ONLY' } }),
           },
         });
 

@@ -198,3 +198,12 @@ condition, rebinding its content hash with both rationales. Strict E2E coverage 
 the union of adopted leaves; no deferred baseline is reset. Existing source and
 exact-package proofs for the focused changes do not certify this new integration
 artifact. Matching package, affected control reruns and fresh CI are required.
+
+
+The affected-control run on clean9599 exposed one further successful fixture
+mismatch: TOTP create/confirm returned raw objects. Main's existing TOTP unit
+contract requires the `totp_device` namespace and rejects raw recovery data.
+Both fixture replies now use that namespace. All URI/secret/recovery values,
+reveal/hide, clipboard, focus and dimension assertions remain unchanged. Strict
+E2E coverage and the existing canonical TOTP unit3 pass; the corrected browser
+rerun is required before accepting this follow-up. Product guards are unchanged.
