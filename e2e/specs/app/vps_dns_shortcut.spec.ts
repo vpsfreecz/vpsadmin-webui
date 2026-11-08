@@ -1,15 +1,15 @@
 import { expect, test, type Page } from '@playwright/test';
 import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 
-async function setup(page: Page, language: 'cs' | 'en', level: number) {
+async function setup(page: Page, language: 'cs' | 'en', level: number, longResolver = false) {
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
-  await setUiSettingsLocalStorage(page, { language, theme: 'dark' });
+  await setUiSettingsLocalStorage(page, { language, theme: longResolver && language === 'en' ? 'light' : 'dark' });
   let resolverId = 3;
   const writes: unknown[] = [];
   const resolver = (id: number) => ({
     id,
-    label: id === 3 ? 'Default DNS' : 'Alternate DNS',
-    ip_addr: id === 3 ? '192.0.2.53' : '198.51.100.53',
+    label: id === 3 ? 'Default DNS' : longResolver ? 'Dlouhý český název ověřovacího DNS resolveru' : 'Alternate DNS',
+    ip_addr: id === 3 ? '192.0.2.53' : longResolver ? '2001:db8:1234:5678:90ab:cdef:1234:5678' : '198.51.100.53',
   });
   await installHaveApiMock(page, {
     user: { id: 53, login: 'sample-member', level },
@@ -119,3 +119,32 @@ test('@pr-smoke @pr-smoke-mobile support can find DNS settings but retains read-
   await expect(page.getByTestId('vps.config.dns.save')).toBeDisabled();
   expect(writes).toEqual([]);
 });
+
+
+for (const language of ['cs', 'en'] as const) {
+  test(`@pr-smoke @pr-smoke-mobile ${language} contains full long resolver values in both review surfaces`, async ({ page }, info) => {
+    const { writes } = await setup(page, language, 1, true);
+    await page.setViewportSize(info.project.name.startsWith('mobile') ? { width: 390, height: 844 } : { width: 1440, height: 1000 });
+    await page.goto('/app/vps/123/config?section=dns');
+    const selector = page.getByTestId('vps.config.dns.resolver');
+    await selector.selectOption('4');
+    const review = page.getByTestId('vps.config.diff.dns_resolver');
+    const ip = '2001:db8:1234:5678:90ab:cdef:1234:5678';
+    await expect(review).toContainText(ip);
+    await page.setViewportSize({ width: 320, height: 750 });
+    await review.scrollIntoViewIfNeeded();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
+    const value = review.getByText(new RegExp(ip));
+    expect(await value.evaluate(el => el.scrollWidth <= el.clientWidth)).toBe(true);
+    await page.getByTestId('vps.config.dns.save').click();
+    const confirm = page.getByTestId('vps.config.confirm');
+    const confirmedValue = confirm.getByTestId('vps.config.diff.dns_resolver').getByText(new RegExp(ip));
+    await expect(confirmedValue).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
+    expect(await confirmedValue.evaluate(el => el.scrollWidth <= el.clientWidth)).toBe(true);
+    await page.screenshot({ path: info.outputPath(`config-long-resolver-${language}.png`), scale: 'css' });
+    await page.getByTestId('vps.config.confirm.cancel').click();
+    await expect(selector).toHaveValue('4');
+    expect(writes).toEqual([]);
+  });
+}

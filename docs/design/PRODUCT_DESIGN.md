@@ -216,3 +216,10 @@ name the selected request and retain the same backend action identifiers.
 Changing force in the lifecycle form requires a fresh acknowledgment. Pending
 copy describes request submission, not completed shutdown. Generic historical
 task records without a force value retain a neutral Stop label.
+
+### Configuration review value wrapping
+
+Let before/after review tracks shrink and wrap unbroken values, including IPv6,
+within the review panel and confirmation dialog at 320px. Preserve the full
+value and original labels, risk meaning, target and confirmation behavior
+(REQ-010, REQ-023).
