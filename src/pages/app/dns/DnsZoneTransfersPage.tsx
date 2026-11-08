@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useI18n } from '../../../app/i18n';
 import { useAppMode } from '../../../app/appMode';
@@ -32,6 +32,9 @@ import {
   type DnsZoneTransfer,
 } from '../../../lib/api/dns';
 
+import { fetchDnsReadinessCapabilities } from '../../../lib/api/dnsReadiness';
+import { DnsPrimaryReadiness, attemptKindLabel } from './DnsPrimaryReadiness';
+import { DnsServingBadge } from './DnsReadinessBadge';
 import { useDnsZoneContext } from './DnsZoneContext';
 import { DnsZoneTransferCreateModal } from './DnsZoneTransferCreateModal';
 import { DnsZoneTransfersList, dnsZoneTransferPeerLabel } from './DnsZoneTransfersList';
@@ -86,6 +89,7 @@ export function DnsZoneTransfersPage() {
   const { t } = useI18n();
   const { basePath, mode } = useAppMode();
   const chrome = useChrome();
+  const queryClient = useQueryClient();
   const { zone, zoneRef, busyLocalLock, busyTransaction, concernClasses, refetchChains } = useDnsZoneContext();
   const secondaryZone = isSecondaryDnsZone(zone);
   const createPeerType = dnsZoneTransferPeerType(zone);
@@ -104,8 +108,15 @@ export function DnsZoneTransfersPage() {
     allowedLimits: [25, 50, 100],
   });
 
+  const capabilitiesQ = useQuery({
+    queryKey: ['dns_readiness_capabilities', mode],
+    queryFn: async () => (await fetchDnsReadinessCapabilities()).data,
+    enabled: secondaryZone,
+  });
+
   const listQ = useQuery({
     queryKey: ['dns_zone_transfers', zone.id, pagination.page, pagination.limit, pagination.fromId],
+    refetchInterval: secondaryZone ? 60_000 : false,
     queryFn: async () =>
       fetchDnsZoneTransfers({ dns_zone: zone.id, limit: pagination.limit, fromId: pagination.fromId }),
   });
@@ -125,6 +136,7 @@ export function DnsZoneTransfersPage() {
 
   const serverZonesQ = useQuery({
     queryKey: ['dns_server_zones', 'transfer_status', zone.id],
+    refetchInterval: 60_000,
     queryFn: async () => (await fetchDnsServerZones({ dns_zone: zone.id, limit: 100 })).data,
     enabled: secondaryZone,
   });
@@ -184,6 +196,8 @@ export function DnsZoneTransfersPage() {
       setHostIpId(null);
       setTsigKeyId('');
       void listQ.refetch();
+      void queryClient.invalidateQueries({ queryKey: ['dns_primary_exists', zone.id] });
+      void queryClient.invalidateQueries({ queryKey: ['dns_primary_paths', zone.id] });
       refetchChains();
     },
     onError: (err: unknown) => {
@@ -212,6 +226,8 @@ export function DnsZoneTransfersPage() {
       }
       setConfirmDelete(null);
       void listQ.refetch();
+      void queryClient.invalidateQueries({ queryKey: ['dns_primary_exists', zone.id] });
+      void queryClient.invalidateQueries({ queryKey: ['dns_primary_paths', zone.id] });
       refetchChains();
     },
     onError: (err: unknown) => {
@@ -254,11 +270,17 @@ export function DnsZoneTransfersPage() {
         </div>
       </div>
 
+      {secondaryZone ? (
+        <DnsPrimaryReadiness zoneId={zone.id} capabilities={capabilitiesQ.data} capabilityError={capabilitiesQ.error} />
+      ) : null}
+
       {transfers.length === 0 ? (
         <EmptyState testId="dns.transfers.empty" title={t('dns.zone.transfers.empty')} body={t('dns.zone.transfers.empty_body')} />
       ) : (
         <DnsZoneTransfersList
           transfers={transfers}
+          ownerId={zone.user?.id ?? undefined}
+          readiness={capabilitiesQ.data?.aggregates}
           page={pagination.page}
           pageCount={pagination.stack.length}
           canPrev={pagination.canPrev}
@@ -311,7 +333,12 @@ export function DnsZoneTransfersPage() {
                             {row.event_at ? formatDateTime(row.event_at) : t('common.na')}
                           </td>
                           <td className="py-2 pr-3 font-medium text-fg">{transferLogServerName(row)}</td>
-                          <td className="py-2 pr-3">{transferLogStatusBadge(t, row.status)}</td>
+                          <td className="py-2 pr-3">
+                            {transferLogStatusBadge(t, row.status)}
+                            <div className="mt-1 text-xs text-muted">
+                              {capabilitiesQ.data?.sources ? attemptKindLabel(t, row['attempt_kind']) : t('dns.readiness.historical')}
+                            </div>
+                          </td>
                           <td className="py-2 pr-3 font-mono text-xs">{row.primary_addr || t('common.na')}</td>
                           <td className="py-2 pr-3">{typeof row.serial === 'number' ? row.serial : t('common.na')}</td>
                           <td className="py-2 pr-4">
@@ -382,7 +409,12 @@ export function DnsZoneTransfersPage() {
                 <tbody>
                   {(serverZonesQ.data ?? []).map((row) => (
                     <tr key={row.id} className="border-t border-border" data-testid={`dns.transfers.status.row.${row.id}`}>
-                      <td className="py-2 pl-4 pr-3 font-medium text-fg">{serverName(row)}</td>
+                      <td className="py-2 pl-4 pr-3 font-medium text-fg">
+                        {serverName(row)}
+                        <div className="mt-1">
+                          <DnsServingBadge status={capabilitiesQ.data?.serving ? row['zone_status'] : undefined} />
+                        </div>
+                      </td>
                       <td className="py-2 pr-3">{typeof row.serial === 'number' ? row.serial : t('common.na')}</td>
                       <td className="py-2 pr-3">{row.loaded_at ? formatDateTime(row.loaded_at) : t('common.na')}</td>
                       <td className="py-2 pr-3">{row.refresh_at ? formatDateTime(row.refresh_at) : t('common.na')}</td>

@@ -52,7 +52,9 @@ export async function fetchDnsZoneTransfers(opts?: {
       await getApi()
     ).dns_zone_transfer.index({
       params,
-      meta: { includes: 'dns_zone,host_ip_address,dns_tsig_key' },
+      meta: {
+        includes: 'dns_zone,host_ip_address__ip_address__network_interface,host_ip_address__ip_address__user,dns_tsig_key',
+      },
     })
   );
   const safeRes = narrowApiResult(
@@ -123,7 +125,10 @@ function isDnsZoneTransfer(value: unknown): value is DnsZoneTransfer {
   if (
     !isRecord(value) ||
     !isId(value['id']) ||
-    !fields(value, ['created_at', 'peer_type', 'updated_at'], [], []) ||
+    !fields(value, ['created_at', 'peer_type', 'updated_at', 'transfer_check_status', 'last_transfer_check_at'], [
+      'transfer_check_failed_count', 'transfer_check_success_count', 'transfer_check_pending_count',
+      'transfer_check_server_count',
+    ]) ||
     !['dns_zone', 'dns_tsig_key'].every((key) => optional(value[key], reference)) ||
     !optional(value['host_ip_address'], hostReference)
   )
@@ -152,12 +157,15 @@ function isDnsServerZoneTransferLog(value: unknown): value is DnsServerZoneTrans
         'reason_code',
         'source_cursor',
         'status',
+        'attempt_kind',
+        'failure_class',
         'updated_at',
       ],
-      ['serial'],
+      ['serial', 'primary_serial', 'secondary_serial'],
       []
     ) ||
-    !optional(value['dns_server_zone'], serverZoneReference)
+    !optional(value['dns_server_zone'], serverZoneReference) ||
+    !optional(value['dns_zone_transfer'], reference)
   )
     return false;
   return true;

@@ -7,6 +7,7 @@ import { Card } from '../../../components/ui/Card';
 import { CopyButton } from '../../../components/ui/CopyButton';
 import { KeysetPagination } from '../../../components/ui/KeysetPagination';
 import type { DnsZoneTransfer } from '../../../lib/api/dns';
+import { DnsPrimarySummary } from './DnsPrimaryReadiness';
 import { formatDateTime } from '../../../lib/format';
 
 export function dnsZoneTransferPeerLabel(transfer: DnsZoneTransfer): string {
@@ -37,6 +38,8 @@ function transferSnippet(transfer: DnsZoneTransfer): string {
 
 export function DnsZoneTransfersList(props: {
   transfers: readonly DnsZoneTransfer[];
+  ownerId?: number;
+  readiness?: boolean;
   page: number;
   pageCount: number;
   canPrev: boolean;
@@ -60,6 +63,7 @@ export function DnsZoneTransfersList(props: {
                   <div className="min-w-0">
                     <div className="break-all text-base font-semibold text-fg">{peer}</div>
                     <div className="mt-1 text-xs text-faint">#{transfer.id}</div>
+                    <DnsPrimarySummary transfer={transfer} ownerId={props.ownerId} readiness={props.readiness === true} />
                   </div>
                   <Badge variant="neutral">{peerTypeLabel(t, transfer.peer_type)}</Badge>
                 </div>
@@ -144,7 +148,7 @@ export function DnsZoneTransfersList(props: {
                 const snippet = transferSnippet(transfer);
                 return (
                   <tr key={transfer.id} className="border-t border-border" data-testid={`dns.transfers.row.${transfer.id}`}>
-                    <td className="py-2 pl-4 pr-3 font-medium text-fg">{dnsZoneTransferPeerLabel(transfer)}</td>
+                    <td className="py-2 pl-4 pr-3 font-medium text-fg">{dnsZoneTransferPeerLabel(transfer)}<DnsPrimarySummary transfer={transfer} ownerId={props.ownerId} readiness={props.readiness === true} /></td>
                     <td className="py-2 pr-3"><Badge variant="neutral">{peerTypeLabel(t, transfer.peer_type)}</Badge></td>
                     <td className="py-2 pr-3">{transfer.dns_tsig_key?.name ? <Badge variant="ok">{transfer.dns_tsig_key.name}</Badge> : <Badge variant="neutral">{t('common.none')}</Badge>}</td>
                     <td className="py-2 pr-3">{transfer.created_at ? formatDateTime(String(transfer.created_at)) : t('common.na')}</td>
