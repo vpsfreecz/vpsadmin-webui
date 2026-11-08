@@ -5,12 +5,15 @@ const PAGE_SIZE = 200;
 const MAX_PAGES = 20;
 
 /** Resolve the whole owned collection; never treat a truncated result as complete. */
-export async function fetchDashboardOwnNodeIds(userId: number, signal?: AbortSignal): Promise<number[]> {
+export async function fetchDashboardOwnNodeIds(userId: number, signal?: AbortSignal, filterByOwner = false): Promise<number[]> {
   if (!Number.isSafeInteger(userId) || userId <= 0) throw new Error('Missing account identity');
   const nodes = new Set<number>();
   let fromId: number | undefined;
   for (let page = 0; page < MAX_PAGES; page += 1) {
-    const result = await fetchVpsList({ user: userId, includes: 'node,user', limit: PAGE_SIZE, fromId, signal });
+    const result = await fetchVpsList({
+      ...(filterByOwner ? { user: userId } : {}),
+      includes: 'node,user', limit: PAGE_SIZE, fromId, signal,
+    });
     let lastId = fromId ?? 0;
     for (const vps of result.data) {
       const nodeId = ownedNodeId(vps, userId);
