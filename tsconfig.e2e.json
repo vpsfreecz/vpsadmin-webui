@@ -40,6 +40,7 @@
     "e2e/specs/admin/nodes_issues_only_filter.spec.ts",
     "e2e/specs/admin/nodes_overview_maintenance.spec.ts",
     "e2e/specs/admin/os_templates_responsive_actions.spec.ts",
+    "e2e/specs/admin/outage_affected_errors.spec.ts",
     "e2e/specs/admin/outages_admin_smoke.spec.ts",
     "e2e/specs/admin/registration_reason_presets.spec.ts",
     "e2e/specs/admin/requests_operations_smoke.spec.ts",
@@ -47,6 +48,7 @@
     "e2e/specs/admin/security_advisory_outages_mobile_actions.spec.ts",
     "e2e/specs/admin/user_contact_summary.spec.ts",
     "e2e/specs/admin/user_detail_page.spec.ts",
+    "e2e/specs/admin/user_environment_configs_smoke.spec.ts",
     "e2e/specs/admin/user_packages_assigned_date.spec.ts",
     "e2e/specs/admin/user_packages_bulk_remove.spec.ts",
     "e2e/specs/admin/user_password_dialog.spec.ts",
@@ -206,8 +208,7 @@
     "e2e/specs/public/overview_readability.spec.ts",
     "e2e/specs/public/theme_language_bootstrap.spec.ts",
     "e2e/specs/public/theme_switcher.spec.ts",
-    "src/types/vpsadmin.d.ts",
-    "e2e/specs/admin/user_environment_configs_smoke.spec.ts"
+    "src/types/vpsadmin.d.ts"
   ],
   "include": []
 }
