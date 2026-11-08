@@ -216,3 +216,10 @@ name the selected request and retain the same backend action identifiers.
 Changing force in the lifecycle form requires a fresh acknowledgment. Pending
 copy describes request submission, not completed shutdown. Generic historical
 task records without a force value retain a neutral Stop label.
+
+### News publication date row
+
+Keep the publication date and Set now action at the shared 36px desktop /
+44px coarse-pointer heights. The action keeps its natural single-line width;
+the mobile form stacks it beneath the date field. Preserve date conversion,
+drafts, localization and submission guards (REQ-010, REQ-053).
