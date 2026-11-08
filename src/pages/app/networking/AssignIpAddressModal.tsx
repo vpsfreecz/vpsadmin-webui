@@ -233,7 +233,7 @@ export function AssignIpAddressModal(props: {
   const errorMessage = error && !selectedIpUncertainLock
     ? isLocalLockPersistenceError(error)
       ? t('vps.mutation.error.guard_storage')
-      : isAmbiguousMutationError(error)
+      : error === assignM.error && isAmbiguousMutationError(error)
         ? t('vps.mutation.error.outcome_uncertain')
         : formatErrorMessage(error)
     : null;

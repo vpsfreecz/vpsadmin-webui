@@ -1,3 +1,7 @@
+## 2026-11-08 — Distinguish route-list read errors from uncertain writes
+
+[Scope and verification](docs/work-log/2026-11-08-todo-network-query-feedback.md).
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path
