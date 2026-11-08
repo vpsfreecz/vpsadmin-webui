@@ -45,8 +45,10 @@ export default defineConfig({
   },
   webServer: process.env['E2E_START_SERVER']
     ? {
-        command: `npm run dev -- --host ${webServerTarget.host} --port ${webServerTarget.port}`,
-        url: baseURL,
+        command: process.env['CI']
+          ? `node scripts/e2e-dev-server.mjs ${webServerTarget.host} ${webServerTarget.port}`
+          : `npm run dev -- --host ${webServerTarget.host} --port ${webServerTarget.port}`,
+        url: process.env['CI'] ? new URL('/__e2e-ready', baseURL).href : baseURL,
         reuseExistingServer: !process.env['CI'],
         timeout: 120_000,
       }

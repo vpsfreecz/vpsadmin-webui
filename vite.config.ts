@@ -4,6 +4,7 @@ import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 
 import { buildInfoPlugin } from './build/buildInfo';
+import { e2eLocalePlugin } from './build/e2eLocalePlugin';
 
 function escapeRegExp(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -96,7 +97,11 @@ export default defineConfig(({ command, mode }) => {
   const prefixRe = new RegExp(`^${escapeRegExp(proxyPrefix)}`);
 
   return {
-    plugins: [react(), buildInfoPlugin({ cwd: process.cwd(), env })],
+    plugins: [
+      react(),
+      buildInfoPlugin({ cwd: process.cwd(), env }),
+      ...(command === 'serve' && env['VPSADMIN_E2E_LOCALE_BUNDLES'] === '1' ? [e2eLocalePlugin(process.cwd())] : []),
+    ],
     base,
     server: {
       port,

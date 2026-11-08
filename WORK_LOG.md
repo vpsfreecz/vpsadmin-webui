@@ -1,3 +1,7 @@
+## 2026-11-08 — Reduce CI locale module requests
+
+[Scope and verification](docs/work-log/2026-11-08-ci-locale-bundles.md).
+
 ## Request return paths (2026-11-04)
 
 Remove legacy `q` from request list return paths while preserving other
