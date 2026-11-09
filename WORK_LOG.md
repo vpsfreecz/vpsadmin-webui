@@ -2399,3 +2399,9 @@ Match palette/progress Close dimensions and keep shared SVG icons from compressi
 ## 2026-11-09 — Align history and payment-form controls
 
 [Measured scope and verification](docs/work-log/2026-11-09-card-form-control-dimensions.md).
+
+
+## 2026-11-09 — Wrap complete IP dialog identifiers (prepared)
+
+Retain the reviewed address inside narrow modal content.
+[Scope, source integration and checks](docs/work-log/2026-11-09-ip-dialog-identities.md).
