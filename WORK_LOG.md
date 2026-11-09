@@ -1,3 +1,7 @@
+## 2026-11-09 — Close Tasks when opening all transactions
+
+[Scope and verification](docs/work-log/2026-11-09-task-drawer-navigation.md).
+
 ## 2026-11-09 — Align NAS actions and name filter links
 
 [Scope and verification](docs/work-log/2026-11-09-nas-actions-filter-link.md).

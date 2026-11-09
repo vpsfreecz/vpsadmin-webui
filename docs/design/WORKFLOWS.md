@@ -916,6 +916,14 @@ blind retry. [Finance](../../src/lib/api/finance.ts),
 
 ## Tasks, transactions, monitoring, incidents and OOM
 
+The Tasks View all link closes the panel after ordinary pointer or keyboard
+activation and focuses the destination main content, including the current
+transactions route. Modified link clicks preserve browser behavior. The static
+Your actions label is omitted in both locales; filtering feedback, progress,
+transaction context and background-activity disclosure remain available.
+Opening the panel again retains tracked work.
+
+
 The OOM report Processes tab uses shared keyset pagination (25/50/100 visible
 rows, default100). Requests add one look-ahead row, staying below the API's1000
 maximum. The ascending cursor is the largest displayed task ID; the extra row
