@@ -88,6 +88,7 @@
     "e2e/specs/app/dns_zone_delete.spec.ts",
     "e2e/specs/app/dns_zone_logs_keyset_pagination.spec.ts",
     "e2e/specs/app/dns_zone_records_live_contract.spec.ts",
+    "e2e/specs/app/dnssec_record_width.spec.ts",
     "e2e/specs/app/document_title.spec.ts",
     "e2e/specs/app/export_delete_failures.spec.ts",
     "e2e/specs/app/export_filter_rhythm.spec.ts",
