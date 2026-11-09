@@ -298,6 +298,15 @@ heading, including the mount command. Long
 code lines may scroll inside their block without widening the page. Temporary
 snapshot exports continue to show only their temporary mount instructions.
 
+**NAS parent selection:** creation derives its effective parent from the current
+owned/capability-filtered choices. A sole offered parent is selected; several
+choices keep the placeholder until the user chooses. A valid explicit choice
+survives option refreshes. An unavailable choice clears when several remain,
+or becomes the sole current option. The visible select, submit availability
+and existing dataset payload use the same effective ID. No parent means no
+creation form. Ownership filters do not certify API user_create permissions;
+the backend retains its existing ownership and user_create enforcement.
+
 **Snapshot export shortcut:** snapshot rows/cards in Backup Center and dataset,
 VPS storage and NAS views offer NFS export beside Download. Each snapshot ID
 appears once beneath its creation date/time, never repeated beside the actions. An existing export
@@ -1003,3 +1012,12 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+
+## OOM filters during pending navigation
+
+Explicit Next/Previous/numbered-page and page-size actions use the same applied
+filter snapshot as the list request, even before a router transition publishes
+new search params. URL hydration and automatic cursor normalization continue to
+follow the router for Back/Forward. Owner-scope and API contracts remain unchanged.
+See [the reproduced race](../work-log/2026-11-09-oom-pending-filter-navigation.md).
