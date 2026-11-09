@@ -85,7 +85,7 @@ export function NetworkTrafficUsersPage() {
       />}
     >
       {listQ.isLoading ? <LoadingState /> : listQ.isError ? <ErrorState title={t('admin.network_traffic_users.load_error')} /> : rows.length === 0 ? <EmptyState title={t('admin.network_traffic_users.empty')} /> : (
-        <TableCard testId="admin.network_traffic_users.table" footer={<KeysetPagination testId="admin.network_traffic_users.pagination" page={paging.page} pageCount={paging.pageCount} canPrev={paging.canPrev} canNext={canNext} onPrev={paging.goPrev} onNext={() => paging.goNext(nextCursor ?? null)} onGoToPage={paging.goToPage} limit={paging.limit} onLimitChange={paging.setLimit} />}>
+        <TableCard testId="admin.network_traffic_users.table" minWidth="md" tableClassName="[&_th]:px-3 [&_th]:py-2 [&_td]:px-3 [&_td]:py-2" footer={<KeysetPagination testId="admin.network_traffic_users.pagination" page={paging.page} pageCount={paging.pageCount} canPrev={paging.canPrev} canNext={canNext} onPrev={paging.goPrev} onNext={() => paging.goNext(nextCursor ?? null)} onGoToPage={paging.goToPage} limit={paging.limit} onLimitChange={paging.setLimit} />}>
           <thead>
             <tr>
               <th>{t('admin.network_traffic_users.field.user')}</th>
