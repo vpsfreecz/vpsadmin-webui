@@ -1,3 +1,7 @@
+## 2026-11-09 — Restore the administrator shield beside the nickname
+
+[Scope and verification](docs/work-log/2026-11-09-admin-role-icon.md).
+
 ## 2026-11-09 — Align namespace-map entry validation
 
 See the [measured scope](docs/work-log/2026-11-09-namespace-entry-form-readability.md).

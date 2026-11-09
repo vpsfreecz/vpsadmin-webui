@@ -650,8 +650,8 @@ profile security page remains a separate entry to the same preference.
 The nickname button opens the account popover. Account follows the existing
 personal route callback, including administrator aliases. Logout retains its
 configured native URL. Administrators with scope access can switch views here.
-The passive badge beside the nickname follows the current route mode. Support
-access and existing routing capabilities are unchanged.
+The shield beside an administrator's nickname identifies their role. The passive
+badge follows the current route mode for administrators with scope access.
 The popover fits the viewport and scrolls internally on short screens. Escape
 returns focus to the nickname. Session length remains separately accessible
 (REQ-004/009/010/012).
