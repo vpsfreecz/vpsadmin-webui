@@ -1690,3 +1690,9 @@ clankerdev still uses the production API. No host update in this setup.
 
 Correct the reproduced Next/page-size URL race without changing owner scope.
 [Scope, root cause and evidence](docs/work-log/2026-11-09-oom-pending-filter-navigation.md).
+
+
+## 2026-11-09 — Align shell close controls (prepared)
+
+Correct measured palette field/action and coarse-pointer progress Close dimensions.
+[Scope and evidence](docs/work-log/2026-11-09-shell-control-dimensions.md).

@@ -83,15 +83,16 @@ export function BlockingActionProgressModal(props: {
           <div className="text-sm font-semibold text-fg">{title}</div>
           <p className="mt-0.5 text-xs text-muted">{t('modal.progress.body')}</p>
         </div>
-        <button
-          type="button"
-          className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-muted hover:bg-surface-2 hover:text-fg"
+        <Button
+          variant="ghost"
+          size="sm"
+          className="w-8 shrink-0 px-0 text-muted hover:text-fg"
           onClick={props.onClose}
-          aria-label={t('common.close')}
-          data-testid="modal.action_progress.close"
+          ariaLabel={t('common.close')}
+          testId="modal.action_progress.close"
         >
           <X size={16} />
-        </button>
+        </Button>
       </div>
 
       <div className="space-y-3">
