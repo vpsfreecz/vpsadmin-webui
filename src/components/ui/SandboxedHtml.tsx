@@ -270,15 +270,23 @@ export function SandboxedHtml(props: {
     const resize = () => {
       try {
         const doc = iframe.contentDocument;
-        if (!doc) return;
+        const body = doc?.body;
+        if (!doc || !body) return;
 
-        iframe.style.height = '96px';
-        const contentHeight = Math.max(doc.body?.scrollHeight ?? 0, doc.documentElement?.scrollHeight ?? 0, 96);
+        // Measure the content without collapsing the live frame. A temporary
+        // height reset can shrink a containing dialog and discard its scroll.
+        const root = doc.documentElement;
+        const marginBottom = Number.parseFloat(doc.defaultView?.getComputedStyle(body).marginBottom ?? '0') || 0;
+        const bodyHeight = Math.max(body.getBoundingClientRect().height, body.scrollHeight);
+        const documentOverflow = root.scrollHeight > root.clientHeight ? root.scrollHeight : 0;
+        const contentHeight = Math.ceil(Math.max(body.offsetTop + bodyHeight + marginBottom, documentOverflow, 96));
         const height = props.maxAutoHeight
           ? Math.max(96, Math.min(contentHeight + 2, props.maxAutoHeight))
           : contentHeight + 2;
-
-        iframe.style.height = `${height}px`;
+        const currentHeight = Number.parseFloat(iframe.style.height);
+        if (!Number.isFinite(currentHeight) || Math.abs(currentHeight - height) > 2) {
+          iframe.style.height = `${height}px`;
+        }
       } catch {
         // Ignore sizing failures; iframe will keep its fallback height.
       }

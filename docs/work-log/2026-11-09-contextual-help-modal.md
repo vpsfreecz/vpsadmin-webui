@@ -41,3 +41,9 @@ uses the full role/locale/theme matrix; PR smoke keeps representatives per
 surface and the relevant edge cases. Immutable package, actual preview and
 CI outcomes are recorded when completed. This
 change is not a new authorization to merge or deploy on newadmin.
+
+The exact package exposed a scroll reset when a delayed size measurement
+briefly collapsed an already sized help frame. Measure its body and any
+actual document overflow without changing its height first. The browser
+check scrolls the dialog and requires the last paragraph fully visible while
+Close stays available. An anonymous BFF fixture explicitly has no session.
