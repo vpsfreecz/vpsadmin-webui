@@ -19,7 +19,7 @@ export function NotFoundPage(props: { appBasePath?: string }) {
           <div>
             <h1 className="text-xl font-semibold">{t('not_found.title')}</h1>
             <p className="mt-2 text-sm text-muted">
-              {t('not_found.body', { path })} <span className="font-mono">{path}</span>.
+              {t('not_found.body', { path })} <span className="font-mono [overflow-wrap:anywhere]">{path}</span>.
             </p>
           </div>
 
