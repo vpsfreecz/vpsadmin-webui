@@ -1003,3 +1003,21 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+
+## OOM filters during pending navigation
+
+Explicit Next/Previous/numbered-page and page-size actions use the same applied
+filter snapshot as the list request, even before a router transition publishes
+new search params. URL hydration and automatic cursor normalization continue to
+follow the router for Back/Forward. Owner-scope and API contracts remain unchanged.
+See [the reproduced race](../work-log/2026-11-09-oom-pending-filter-navigation.md).
+
+## NAS list presentation follow-up (REQ-048)
+
+NAS-01 and NAS-03 retain the existing right-side create action and action order.
+Refresh matches the shared default action height; narrow controls wrap.
+Copy filter link explicitly names the copied filter in Czech and English.
+The shared dataset list keeps its current URL serialization, owner/role presets,
+query application, refresh callback and clipboard behavior. These changes do
+not certify live API permissions.

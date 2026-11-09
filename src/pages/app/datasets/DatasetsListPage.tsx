@@ -546,7 +546,7 @@ export function DatasetsListPage(props: DatasetsListPageProps = {}) {
           actions={
             <>
               {props.headerActions}
-              <Button variant="secondary" size="sm" onClick={() => void datasetsQ.refetch()} testId="datasets.list.refresh">
+              <Button variant="secondary" onClick={() => void datasetsQ.refetch()} testId="datasets.list.refresh">
                 {t('common.refresh')}
               </Button>
             </>
@@ -601,7 +601,7 @@ export function DatasetsListPage(props: DatasetsListPageProps = {}) {
           <CopyButton
             size="sm"
             variant="secondary"
-            label={t('common.copy_link')}
+            label={t('datasets.copy_filter_link')}
             text={shareUrl}
             testId="datasets.copy_link"
           />
