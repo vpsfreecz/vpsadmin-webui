@@ -1690,3 +1690,8 @@ clankerdev still uses the production API. No host update in this setup.
 
 Correct the reproduced Next/page-size URL race without changing owner scope.
 [Scope, root cause and evidence](docs/work-log/2026-11-09-oom-pending-filter-navigation.md).
+
+## 2026-11-09 — AppShell error body readability (prepared)
+
+Correct measured dark error text while preserving auth gates and recovery.
+[Scope and evidence](docs/work-log/2026-11-09-appshell-error-readability.md).
