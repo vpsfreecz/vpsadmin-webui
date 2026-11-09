@@ -1,3 +1,7 @@
+## 2026-11-09 — Align history and payment-form controls
+
+[Measured scope and verification](docs/work-log/2026-11-09-card-form-control-dimensions.md).
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path
@@ -1685,3 +1689,8 @@ preserve all branch histories and colleague PRs. Add standard push CI for the
 integration branch, without deployment automation. Dev has isolated test data;
 clankerdev still uses the production API. No host update in this setup.
 [Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
+
+## 2026-11-09 — Preserve OOM filters during pending navigation
+
+Correct the reproduced Next/page-size URL race without changing owner scope.
+[Scope, root cause and evidence](docs/work-log/2026-11-09-oom-pending-filter-navigation.md).
