@@ -735,6 +735,14 @@ blind retry. [Finance](../../src/lib/api/finance.ts),
 
 ## Tasks, transactions, monitoring, incidents and OOM
 
+The Tasks View all link closes the panel after ordinary pointer or keyboard
+activation and focuses the destination main content, including the current
+transactions route. Modified link clicks preserve browser behavior. The static
+Your actions label is omitted in both locales; filtering feedback, progress,
+transaction context and background-activity disclosure remain available.
+Opening the panel again retains tracked work.
+
+
 Transaction history uses compact aligned ID/time/owner/object/action/state
 columns on desktop and folds metadata under the action on small screens. The
 owner column appears only in administrator mode; a normal member and an admin's
@@ -1003,3 +1011,16 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+
+## OOM filters during pending navigation
+
+Explicit Next/Previous/numbered-page and page-size actions use the same applied
+filter snapshot as the list request, even before a router transition publishes
+new search params. URL hydration and automatic cursor normalization continue to
+follow the router for Back/Forward. Owner-scope and API contracts remain unchanged.
+See [the reproduced race](../work-log/2026-11-09-oom-pending-filter-navigation.md).
+
+Tasks background-activity disclosure places the action below its explanation
+so both Show and Hide labels fit the fixed control height in the narrow drawer.
+This layout preserves the existing role-dependent scope and collapsed state.
