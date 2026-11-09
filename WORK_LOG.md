@@ -1,3 +1,7 @@
+## 2026-11-09 — Wrap long dataset identity messages
+
+[Scope and verification](docs/work-log/2026-11-09-scope-mismatch-wrap.md).
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path

@@ -686,7 +686,7 @@ function DatasetManagementCard() {
         }
       />
       <CardBody>
-        <div className="mb-4 text-xs text-muted">
+        <div className="mb-4 text-xs text-muted [overflow-wrap:anywhere]">
           {t('dataset.manage.current', { dataset: datasetShortName(dataset), id: dataset.id })}
         </div>
 
