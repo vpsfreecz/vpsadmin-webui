@@ -1,3 +1,7 @@
+## 2026-11-09 — Readable account mail-language lookup errors
+
+[Scope and verification](docs/work-log/2026-11-09-profile-mail-language-readability.md).
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path
