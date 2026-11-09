@@ -2270,3 +2270,9 @@ infrastructure audit. [Scope, baseline and pending verification](docs/work-log/2
 
 2026-11-08: Preserve the verified same-frame language selection color regression
 correction from 539e92a9 in this preview. Runtime behavior is unchanged.
+
+
+## 2026-11-09 — Make SSH key field errors readable
+
+Prepare approved UX-04 / REQ-010. See the
+[scope and evidence](docs/work-log/2026-11-09-ssh-key-validation-readability.md).
