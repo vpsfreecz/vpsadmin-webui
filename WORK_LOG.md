@@ -1,3 +1,7 @@
+## 2026-11-09 — Readable user creation validation
+
+[Scope and verification](docs/work-log/2026-11-09-user-create-validation.md).
+
 ## 2026-11-09 — Restore the administrator shield beside the nickname
 
 [Scope and verification](docs/work-log/2026-11-09-admin-role-icon.md).
