@@ -162,8 +162,18 @@ for (const actor of actors) for (const language of ['cs', 'en'] as const) for (c
     await activate();
     const scroll = dialog.locator('div.overflow-y-auto').first();
     await expect.poll(() => scroll.evaluate(el => el.scrollHeight - el.clientHeight)).toBeGreaterThan(400);
-    await page.frameLocator('[data-testid="contextual.help.box.402"] iframe').getByText(data.last, { exact: true }).scrollIntoViewIfNeeded();
-    expect(await scroll.evaluate(el => el.scrollTop)).toBeGreaterThan(0);
+    const last = page.frameLocator('[data-testid="contextual.help.box.402"] iframe').getByText(data.last, { exact: true });
+    await expect(last).toBeAttached();
+    // Move the dialog's own scroll container. A cross-frame locator may consider
+    // text visible inside the iframe even while the dialog clips that iframe.
+    await scroll.evaluate(el => { el.scrollTop = el.scrollHeight; });
+    await expect.poll(() => scroll.evaluate(el => el.scrollTop)).toBeGreaterThan(0);
+    await expect.poll(async () => {
+      const viewport = await scroll.boundingBox();
+      const paragraph = await last.boundingBox();
+      return Boolean(viewport && paragraph &&
+        paragraph.y >= viewport.y && paragraph.y + paragraph.height <= viewport.y + viewport.height + 1);
+    }).toBe(true);
     await expect(page.getByTestId('contextual.help.done')).toBeInViewport();
     await page.getByTestId('contextual.help.done').click();
     await expect(dialog).toHaveCount(0); await expect(trigger).toBeFocused();
