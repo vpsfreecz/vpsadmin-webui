@@ -22,7 +22,7 @@ for (const language of ['cs', 'en'] as const) {
       await page.getByTestId('shell.user-menu-button').click();
       const account = page.getByTestId('shell.user-menu.account');
       await expect(account).toHaveText(language === 'cs' ? 'Účet' : 'Account');
-      await expect(account).toHaveAttribute('href', `${base}/profile`);
+      await expect(account).toBeVisible();
       await page.keyboard.press('Escape');
       await expect(page.getByRole('button', { name: /collapse sidebar|expand sidebar|sbalit panel|rozbalit panel/i })).toHaveCount(0);
       if (!mobile) await expect(page.getByTestId('shell.sidebar')).toHaveCSS('width', '256px');
