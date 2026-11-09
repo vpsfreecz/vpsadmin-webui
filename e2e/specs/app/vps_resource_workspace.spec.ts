@@ -54,20 +54,35 @@ async function submitVps(page: Page) {
 test.describe('@pr-smoke @pr-smoke-mobile VPS resource workspace', () => {
   for (const language of ['cs', 'en'] as const) {
     test(`opens focused resources from overview, ${language}`, async ({ page }, testInfo) => {
-      await setup(page, { language });
+      const { state } = await setup(page, { language });
       await page.goto('/admin/vps/123');
       const entry = page.getByTestId('vps.overview.resources_usage.card').getByRole('link');
       await expect(entry).toHaveAttribute('href', /\/config\?section=resources/);
       await entry.click();
       await expect(disk(page)).toHaveValue('20');
-      await expect(page.getByTestId('vps.config.additional')).not.toHaveAttribute('open', '');
+      await expect(page.getByTestId('vps.config.additional')).toHaveAttribute('open', '');
       await expect(page.getByTestId('vps.config.review')).toHaveCount(0);
       await page.getByTestId('vps.resources.workspace').scrollIntoViewIfNeeded();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
       await page.evaluate(() => window.scrollTo(0, 0));
       await page.screenshot({ path: testInfo.outputPath(`resources-${language}.png`), fullPage: true });
-      await page.getByTestId('vps.config.additional').locator('summary').click();
-      await expect(page.getByTestId('vps.config.additional')).toHaveAttribute('open', '');
+      const additional = page.getByTestId('vps.config.additional');
+      const hostname = additional.locator('input[autocomplete="off"]').first();
+      await hostname.fill('draft.example.test');
+      const summary = additional.locator('summary');
+      await summary.click();
+      await expect(additional).not.toHaveAttribute('open', '');
+      await summary.focus();
+      await summary.press('Enter');
+      await expect(additional).toHaveAttribute('open', '');
+      await expect(hostname).toHaveValue('draft.example.test');
+      await summary.click();
+      await expect(additional).not.toHaveAttribute('open', '');
+      await page.getByTestId('vps.actions.menu').selectOption('/admin/vps/123/config');
+      await expect(additional).toHaveAttribute('open', '');
+      await expect(hostname).toHaveValue('draft.example.test');
+      expect(state.vpsWrites).toEqual([]);
+      expect(state.diskWrites).toEqual([]);
     });
   }
 

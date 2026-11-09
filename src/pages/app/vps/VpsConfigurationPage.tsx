@@ -360,7 +360,6 @@ export function VpsConfigurationPage() {
       ) : null}
 
       <VpsAdditionalConfiguration
-        focusedResources={focusedResources}
         canEditAdminConfig={canEditAdminConfig}
         effective={effective}
         pending={saveM.isPending}
