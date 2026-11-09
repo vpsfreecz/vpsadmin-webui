@@ -1,3 +1,9 @@
+## 2026-11-09 — Make user-data length errors readable
+
+Prepare approved UX-04 / REQ-010. See the
+[scope and baseline](docs/work-log/2026-11-09-user-data-limit-readability.md).
+
+
 ## 2026-11-09 — Readable preference synchronization errors
 
 [Scope and verification](docs/work-log/2026-11-09-profile-preference-sync-readability.md).

@@ -151,7 +151,7 @@ export function UserDataTemplateEditorDrawer(props: {
             </label>
             <div
               id={contentCountId}
-              className={`text-xs ${props.contentOverLimit ? 'text-danger' : 'text-faint'}`}
+              className={`text-xs ${props.contentOverLimit ? 'border-l-2 border-danger pl-2 font-medium text-fg' : 'text-faint'}`}
             >
               {t('user_data.help.content_len', { n: contentLen, max: MAX_USER_DATA_CONTENT_LEN })}
             </div>
