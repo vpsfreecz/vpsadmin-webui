@@ -58,7 +58,7 @@ export function UserMailSettingsCard(props: {
               {props.languagesLoading ? (
                 <LoadingState kind="inline" />
               ) : props.languagesError ? (
-                <div className="text-sm text-danger">{t('mail.prefs.languages.load_failed')}</div>
+                <div className="border-l-2 border-danger pl-2 text-sm font-medium text-fg">{t('mail.prefs.languages.load_failed')}</div>
               ) : (
                 <Select
                   testId="mail.settings.language"
