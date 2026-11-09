@@ -84,6 +84,7 @@
     "e2e/specs/app/dataset_snapshot_confirm_workflows.spec.ts",
     "e2e/specs/app/dataset_snapshots_keyset_pagination.spec.ts",
     "e2e/specs/app/development_runtime.spec.ts",
+    "e2e/specs/app/dns_log_column_width.spec.ts",
     "e2e/specs/app/dns_record_feedback_readability.spec.ts",
     "e2e/specs/app/dns_record_type_capabilities.spec.ts",
     "e2e/specs/app/dns_records_crud.spec.ts",

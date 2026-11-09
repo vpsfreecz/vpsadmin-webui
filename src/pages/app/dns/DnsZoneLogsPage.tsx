@@ -359,8 +359,8 @@ export function DnsZoneLogsPage() {
                           <td className="py-2 pr-3">
                             {changeBadge(l.change_type, `dns.logs.row.${l.id}.change`)}
                           </td>
-                          <td className="py-2 pr-3">
-                            <div className="font-medium text-fg">{String(l.name ?? '')}</div>
+                          <td className="w-64 min-w-48 py-2 pr-3">
+                            <div className="max-w-64 break-words font-medium text-fg [overflow-wrap:anywhere]">{String(l.name ?? '')}</div>
                             {l.dns_zone_name ? (
                               <div className="mt-1 text-xs text-muted">{String(l.dns_zone_name)}</div>
                             ) : null}
@@ -380,7 +380,7 @@ export function DnsZoneLogsPage() {
                             )}
                           </td>
                           <td className="py-2 pr-4">
-                            <pre className="max-w-content-lg overflow-x-auto whitespace-pre-wrap text-xs text-muted">
+                            <pre className="min-w-64 max-w-content-lg overflow-x-auto whitespace-pre-wrap text-xs text-muted">
                               {l.attr_changes ? JSON.stringify(l.attr_changes, null, 2) : t('common.na')}
                             </pre>
                           </td>

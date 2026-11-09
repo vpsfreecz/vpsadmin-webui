@@ -1,3 +1,9 @@
+## 2026-11-09 — Bounded DNS log columns
+
+Keep long record names from squeezing desktop change details into a thin strip.
+See the [scope and verification](docs/work-log/2026-11-09-dns-log-column-width.md).
+Prepared only; no merge or deployment.
+
 ## 2026-11-09 — Preserve DNS zone owner search drafts
 
 [Scope and verification](docs/work-log/2026-11-09-dns-zone-owner-lookup.md).
