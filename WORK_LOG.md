@@ -1692,3 +1692,10 @@ clankerdev still uses the production API. No host update in this setup.
 Align public locale/theme controls and coarse-pointer navigation targets.
 Preserve labels, destinations and authentication.
 [Cause, scope and verification](docs/work-log/2026-11-09-public-navigation-targets.md).
+
+
+## 2026-11-09 — OOM pagination dependency for navigation review
+
+Retain the already prepared PR243 fix to prevent stale filter/router navigation
+in the focused review baseline. This dependency is already in the actual preview.
+[Cause and deterministic checks](docs/work-log/2026-11-09-oom-pending-filter-navigation.md).
