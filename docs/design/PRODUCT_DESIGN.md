@@ -21,8 +21,9 @@ navigation action, not a duplicate primary action-states destination. Search, Ta
 session duration and account preferences sit in a bordered panel above the
 sidebar navigation. Tasks and session duration share a row when space permits.
 The nickname aligns with the Tasks label and opens the account popover.
-Administrators with scope access see a small neutral badge next to the nickname.
-The nickname truncates first so the badge and disclosure arrow stay visible.
+A small shield identifies administrators beside the nickname. A neutral badge
+shows the current view for administrators with scope access. The nickname
+truncates first so the shield, badge and disclosure arrow stay visible.
 The popover contains appearance, language, Account and logout, plus view
 choices for administrators. It scrolls on short screens. Branding sits directly above About and uses the existing favicon beside the visible vpsAdmin name in both the sidebar and mobile drawer. The image is decorative because the adjacent name identifies the product.
 Mobile has one navigation trigger, with the same controls inside its drawer.
