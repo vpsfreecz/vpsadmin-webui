@@ -4,6 +4,7 @@ import { csDatasetExpansion } from './storage/dataset_expansion';
 import { csBackups } from './storage/backups';
 export const csStorage = {
   ...csBackups,
+  "datasets.copy_filter_link": "Kopírovat odkaz na filtr",
   "datasets.list.title": "Datasety",
   "datasets.list.description":
     "Procházej storage datasety, snapshoty a downloady.",

@@ -1459,3 +1459,12 @@ Administrator fields retain their existing role gate and order.
 Query-only navigation from Resources to general Configuration reuses the same
 component. Restore the open default for the new location without resetting the
 draft. Ordinary field edits and native toggles do not reset the disclosure.
+
+## NAS list presentation follow-up (REQ-048)
+
+NAS-01 and NAS-03 retain the existing right-side create action and action order.
+Refresh matches the shared default action height; narrow controls wrap.
+Copy filter link explicitly names the copied filter in Czech and English.
+The shared dataset list keeps its current URL serialization, owner/role presets,
+query application, refresh callback and clipboard behavior. These changes do
+not certify live API permissions.

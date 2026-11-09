@@ -1,3 +1,7 @@
+## 2026-11-09 — Align NAS actions and name filter links
+
+[Scope and verification](docs/work-log/2026-11-09-nas-actions-filter-link.md).
+
 ## 2026-11-09 — Open additional configuration from Resources
 
 [Scope and verification](docs/work-log/2026-11-09-resources-additional-open.md).

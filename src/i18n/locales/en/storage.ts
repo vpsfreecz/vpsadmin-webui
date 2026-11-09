@@ -4,6 +4,7 @@ import { enDatasetExpansion } from './storage/dataset_expansion';
 import { enBackups } from './storage/backups';
 export const enStorage = {
   ...enBackups,
+  "datasets.copy_filter_link": "Copy filter link",
   "datasets.list.title": "Datasets",
   "datasets.list.description":
     "Browse storage datasets, snapshots and downloads.",
