@@ -1690,3 +1690,8 @@ clankerdev still uses the production API. No host update in this setup.
 
 Improve the four existing field/base error class lists while preserving row
 and API behavior. [Scope and evidence](docs/work-log/2026-11-09-namespace-entry-row-error-readability.md).
+
+## 2026-11-09 — Preserve OOM filters during pending navigation
+
+Correct the reproduced Next/page-size URL race without changing owner scope.
+[Scope, root cause and evidence](docs/work-log/2026-11-09-oom-pending-filter-navigation.md).
