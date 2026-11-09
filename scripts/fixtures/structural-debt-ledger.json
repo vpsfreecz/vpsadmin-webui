@@ -66,10 +66,10 @@
       "path": "src/components/userNamespaces/UserNamespaceMapList.tsx",
       "rule": "grown-over-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "343d2fb1b7be682e5a4e271c53d55effde5243ca2cc31097bfff4a491085dda0",
+      "contentHash": "1913d433865688b4936cb1d7946573d2988cc1aada94329feee9b1cab8357722",
       "old": 675,
       "allowance": 715,
-      "rationale": "At the recorded source revision, this file already contained namespace map list filters and actions; extract the coherent section with focused behavior coverage before removing this exception. Centered-dialog follow-up (2026-10-17) changes only overlay presentation; existing extraction debt remains and the allowance does not increase.",
+      "rationale": "At the recorded source revision, this file already contained namespace map list filters and actions; extract the coherent section with focused behavior coverage before removing this exception. Centered-dialog follow-up (2026-10-17) changes only overlay presentation; existing extraction debt remains and the allowance does not increase. Reviewed 2026-11-09: only the existing table Delete action class list changes to readable foreground, medium weight and a separate marker; no lines, casts, behavior or allowance added. The inherited extraction debt and removal condition remain.",
       "owner": "WebUI implementation lead",
       "removeWhen": {
         "metric": "lines",

@@ -584,7 +584,7 @@ function UserNamespaceMapListContent(props: UserNamespaceMapListProps & { viewer
                       <button
                         data-row-no-nav
                         data-testid={`${props.testIdPrefix}.row.${r.id}.delete`}
-                        className="text-xs text-danger underline"
+                        className="border-l-2 border-danger pl-2 text-xs font-medium text-fg underline"
                         onClick={() => {
                           setDeleteError(null);
                           setDeleteId(r.id);
