@@ -128,7 +128,7 @@ test.describe('Admin / Networking surfaces (smoke)', () => {
     await expect(page.getByTestId('admin.ip_assignments.row.801')).toBeVisible();
   });
 
-  test('live monitor and traffic users render', async ({ page }) => {
+  test('@pr-smoke @pr-smoke-mobile live monitor and traffic users render', async ({ page }) => {
     await installHaveApiMock(page, {
       user: { id: 1, login: 'admin', level: 99 },
       handlers: {
@@ -169,5 +169,25 @@ test.describe('Admin / Networking surfaces (smoke)', () => {
 
     await page.goto('/admin/networking/traffic-users');
     await expect(page.getByTestId('admin.network_traffic_users.row.7')).toBeVisible();
+    await page.setViewportSize({ width: 320, height: 750 });
+    await expectNoDocumentHorizontalOverflow(page);
+    await expectTableScrollContained(page, 'admin.network_traffic_users.table');
+    const trafficTable = page.getByTestId('admin.network_traffic_users.table').locator('table');
+    const headerSpacing = await trafficTable.locator('th').evaluateAll((cells) => cells.map((cell) => {
+      const style = getComputedStyle(cell);
+      return { left: parseFloat(style.paddingLeft), right: parseFloat(style.paddingRight) };
+    }));
+    expect(headerSpacing).toHaveLength(5);
+    for (const padding of headerSpacing) {
+      expect(padding.left).toBeGreaterThanOrEqual(12);
+      expect(padding.right).toBeGreaterThanOrEqual(12);
+    }
+    const scroller = trafficTable.locator('..');
+    const scrolled = await scroller.evaluate((element) => {
+      element.scrollLeft = element.scrollWidth;
+      return { left: element.scrollLeft, width: element.clientWidth, full: element.scrollWidth };
+    });
+    expect(scrolled.full).toBeGreaterThan(scrolled.width);
+    expect(scrolled.left).toBeGreaterThan(0);
   });
 });
