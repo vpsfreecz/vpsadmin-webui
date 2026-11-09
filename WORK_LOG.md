@@ -1,3 +1,9 @@
+## 2026-11-09 — Bounded DNS log columns
+
+Keep long record names from squeezing desktop change details into a thin strip.
+See the [scope and verification](docs/work-log/2026-11-09-dns-log-column-width.md).
+Prepared only; no merge or deployment.
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path
