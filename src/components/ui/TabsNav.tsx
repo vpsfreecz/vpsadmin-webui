@@ -40,7 +40,7 @@ export function TabsNav(props: {
           data-testid={it.testId}
           className={({ isActive }) =>
             clsx(
-              'inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition',
+              'inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition [@media(any-pointer:coarse)]:min-h-11',
               isActive ? 'bg-surface-2 text-fg ring-1 ring-border' : 'text-muted hover:bg-surface-2 hover:text-fg'
             )
           }

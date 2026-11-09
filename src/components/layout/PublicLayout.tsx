@@ -62,7 +62,7 @@ function NavItem(props: { to: string; children: React.ReactNode }) {
       to={props.to}
       className={({ isActive }) =>
         clsx(
-          'rounded-md px-3 py-2 text-sm font-medium transition-colors',
+          'flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors [@media(any-pointer:coarse)]:min-h-11',
           isActive ? 'bg-surface-2 text-fg' : 'text-muted hover:bg-surface-2 hover:text-fg'
         )
       }
@@ -75,7 +75,7 @@ function NavItem(props: { to: string; children: React.ReactNode }) {
 function languageButtonClass(active: boolean, mobile = false): string {
   return clsx(
     'rounded-md py-1 text-xs font-semibold transition-colors',
-    mobile ? 'min-h-11 min-w-11 px-1' : 'px-2',
+    mobile ? 'min-h-11 min-w-11 px-1' : 'min-h-8 min-w-8 px-2 [@media(any-pointer:coarse)]:min-h-11 [@media(any-pointer:coarse)]:min-w-11',
     active ? 'bg-accent text-accent-fg hover:bg-accent-hover' : 'text-muted hover:bg-surface-2 hover:text-fg'
   );
 }
@@ -173,7 +173,7 @@ function PublicLayoutInner() {
       <header className="sticky top-0 z-30 border-b border-border bg-bg">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="flex h-14 items-center gap-3">
-            <NavLink to="/" className="font-semibold tracking-tight">
+            <NavLink to="/" className="inline-flex items-center font-semibold tracking-tight [@media(any-pointer:coarse)]:min-h-11">
               vpsAdmin
             </NavLink>
 
@@ -192,14 +192,14 @@ function PublicLayoutInner() {
 
             <a
               href={primaryHref}
-              className="hidden lg:inline-flex items-center rounded-md border border-border bg-overlay-surface px-3 py-2 text-sm font-medium shadow-card hover:bg-surface-2"
+              className="hidden lg:inline-flex items-center rounded-md border border-border bg-overlay-surface px-3 py-2 text-sm font-medium shadow-card hover:bg-surface-2 [@media(any-pointer:coarse)]:min-h-11"
             >
               {primaryLabel}
             </a>
 
             <button
               type="button"
-              className="lg:hidden inline-flex items-center justify-center rounded-md border border-border bg-overlay-surface p-2 shadow-card hover:bg-surface-2"
+              className="lg:hidden inline-flex items-center justify-center rounded-md border border-border bg-overlay-surface p-2 shadow-card hover:bg-surface-2 [@media(any-pointer:coarse)]:min-h-11 [@media(any-pointer:coarse)]:min-w-11"
               aria-label={mobileOpen ? i18n.t('public.menu.close') : i18n.t('public.menu.open')}
               onClick={() => setMobileOpen((v) => !v)}
             >
@@ -220,7 +220,7 @@ function PublicLayoutInner() {
 
                 <a
                   href={primaryHref}
-                  className="mt-2 inline-flex items-center justify-center rounded-md border border-border bg-overlay-surface px-3 py-2 text-sm font-medium shadow-card hover:bg-surface-2"
+                  className="mt-2 inline-flex items-center justify-center rounded-md border border-border bg-overlay-surface px-3 py-2 text-sm font-medium shadow-card hover:bg-surface-2 [@media(any-pointer:coarse)]:min-h-11"
                 >
                   {primaryLabel}
                 </a>

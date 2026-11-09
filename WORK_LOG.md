@@ -2316,3 +2316,9 @@ Correct the reproduced Next/page-size URL race without changing owner scope.
 ## 2026-11-09 — Readable OAuth error bodies
 
 Approved UX-04 / REQ-010; see the [measured scope and checks](docs/work-log/2026-11-09-oauth-error-readability.md).
+
+
+## 2026-11-09 — Public and shared navigation targets (prepared)
+
+Align public controls and shared detail tabs while preserving labels and routes.
+[Cause, dependency and verification](docs/work-log/2026-11-09-public-navigation-targets.md).
