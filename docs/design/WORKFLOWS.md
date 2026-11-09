@@ -1476,3 +1476,7 @@ Copy filter link explicitly names the copied filter in Czech and English.
 The shared dataset list keeps its current URL serialization, owner/role presets,
 query application, refresh callback and clipboard behavior. These changes do
 not certify live API permissions.
+
+Tasks background-activity disclosure places the action below its explanation
+so both Show and Hide labels fit the fixed control height in the narrow drawer.
+This layout preserves the existing role-dependent scope and collapsed state.
