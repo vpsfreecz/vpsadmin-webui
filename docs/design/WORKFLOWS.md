@@ -139,10 +139,15 @@ Wide/medium/narrow layouts use four/two/one columns. Use catalog plural forms
 for DNS zones (Czech0/5+/11–14 use DNS zón); no component grammar rules.
 Shared date/payment formatters receive the interface locale; dates use the
 account time zone. Zero is retained, missing values remain unavailable, and the
-monthly amount has no invented currency. No new finance or privileged settings
-request is needed. Administrator All view keeps its aggregate resource counts
-and dataset item with an explicit scope caption; personal finance is omitted.
-Dates remain neutral; this change adds no payment-status calculation.
+monthly amount has no invented currency. My view uses the cached account
+fields. Administrator All view combines resource counts, current members,
+unmatched incoming payments and registrations or account changes awaiting
+review in one desktop row. The grid wraps on narrower screens. Current
+membership uses the active and suspended totals already returned by full
+cluster stats. The two queues use filtered API count metadata. Missing or
+failed totals are unavailable and zero remains visible. Only administrators
+in All view request the two queues. The scope caption and dataset action stay
+in the panel.
 
 Label the resource count group once with the actual object scope. Put each resource label and count on a compact wrapping line. (REQ-009).
 Align each widget title and its status badges on their text baseline. The same layout applies to essential, hidden and collapsed labels. (REQ-009).
