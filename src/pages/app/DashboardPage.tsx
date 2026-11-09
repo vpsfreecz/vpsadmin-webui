@@ -12,22 +12,26 @@ import { PageContainer } from "../../components/layout/PageContainer";
 import { PageHeader } from "../../components/layout/PageHeader";
 import { Alert } from "../../components/ui/Alert";
 import { Button } from "../../components/ui/Button";
+import { getMetaTotalCount } from "../../lib/api/apiErrors";
 import { fetchClusterFullStats } from "../../lib/api/cluster";
 import { fetchDatasets } from "../../lib/api/datasets";
 import { fetchDnsZones } from "../../lib/api/dns";
+import { fetchIncomingPayments } from "../../lib/api/payments";
 import { fetchNews, fetchOutages, fetchAuthenticatedNodeStatus, type Outage } from "../../lib/api/public";
+import { fetchChangeRequests, fetchRegistrationRequests } from "../../lib/api/requests";
 import { fetchSecurityAdvisoriesWithCves } from "../../lib/api/securityAdvisories";
 import { fetchVpsList } from "../../lib/api/vps";
 import { categorizeOutage, sortOutagesNewestFirst } from "../../lib/outage";
 import { useTierBIntervalMs, useTierSlowIntervalMs } from "../../lib/refreshTiers";
 
-import { countDashboardRows } from "./DashboardCounts";
+import { countDashboardRows, sumDashboardCounts } from "./DashboardCounts";
 import { DashboardOperationalSummary } from "./DashboardPageStatus";
 import { DASHBOARD_PREFERENCES_PANEL_ID, DashboardPreferencesCard } from "./DashboardPreferencesCard";
 import { DashboardSummaryCards } from "./DashboardSummaryCards";
 import { DashboardWidgetGrid } from "./DashboardWidgets";
 import { summarizeNodes } from "./DashboardOperationalCards";
 import { useDashboardSettingsState } from "./useDashboardSettings";
+import { DEFAULT_ADMIN_REQUEST_STATE } from "./admin/RequestsModel";
 
 function thirtyDaysAgoIso(): string {
   const d = new Date();
@@ -49,11 +53,37 @@ export function DashboardPage() {
 
   const mineUserId = scope.mineUserId;
   const isAdminScope = scope.scope === "all";
+  const showAdminTotals = isAdminScope && auth.role === "admin";
 
   const clusterStatsQ = useQuery({
     queryKey: ["dashboard", "cluster_full_stats"],
     queryFn: async () => (await fetchClusterFullStats()).data,
     enabled: isAdminScope,
+    refetchInterval: tierSlowRefetchMs,
+  });
+
+  const unmatchedPaymentsQ = useQuery({
+    queryKey: ["incoming_payments", "index", { limit: 1, state: "unmatched", count: true }],
+    queryFn: async () => {
+      const result = await fetchIncomingPayments({ limit: 1, state: "unmatched", count: true });
+      const totalCount = getMetaTotalCount(result.meta);
+      return { totalCount: totalCount !== undefined && Number.isSafeInteger(totalCount) && totalCount >= 0 ? totalCount : undefined };
+    },
+    enabled: showAdminTotals,
+    refetchInterval: tierSlowRefetchMs,
+  });
+
+  const awaitingRequestsQ = useQuery({
+    queryKey: ["user_request", "dashboard_count", DEFAULT_ADMIN_REQUEST_STATE],
+    queryFn: async () => {
+      const options = { limit: 1, state: DEFAULT_ADMIN_REQUEST_STATE, count: true };
+      const [registrations, changes] = await Promise.all([
+        fetchRegistrationRequests(options),
+        fetchChangeRequests(options),
+      ]);
+      return { totalCount: sumDashboardCounts(getMetaTotalCount(registrations.meta), getMetaTotalCount(changes.meta)) };
+    },
+    enabled: showAdminTotals,
     refetchInterval: tierSlowRefetchMs,
   });
 
@@ -228,6 +258,23 @@ export function DashboardPage() {
             monthlyPayment: auth.user?.monthly_payment,
             timeZone: accountTimeZone,
           }}
+          adminCounts={showAdminTotals ? {
+            members: {
+              isLoading: clusterStatsQ.isLoading,
+              isError: clusterStatsQ.isError,
+              totalCount: sumDashboardCounts(clusterStatsQ.data?.user_active, clusterStatsQ.data?.user_suspended),
+            },
+            unmatchedPayments: {
+              isLoading: unmatchedPaymentsQ.isLoading,
+              isError: unmatchedPaymentsQ.isError,
+              totalCount: unmatchedPaymentsQ.data?.totalCount,
+            },
+            awaitingRequests: {
+              isLoading: awaitingRequestsQ.isLoading,
+              isError: awaitingRequestsQ.isError,
+              totalCount: awaitingRequestsQ.data?.totalCount,
+            },
+          } : undefined}
           vps={{
             isLoading: isAdminScope ? clusterStatsQ.isLoading : vpsQ.isLoading,
             isError: isAdminScope ? clusterStatsQ.isError : vpsQ.isError,

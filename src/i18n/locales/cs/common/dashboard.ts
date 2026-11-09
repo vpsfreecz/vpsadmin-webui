@@ -8,6 +8,8 @@ export const csCommon_dashboard = {
   'dashboard.summary.dns.few': 'DNS zóny',
   'dashboard.summary.dns.other': 'DNS zón',
   'dashboard.summary.scope.mine': 'Moje objekty',
+  'dashboard.summary.unmatched_payments': 'Nespárované platby',
+  'dashboard.summary.awaiting_requests': 'Žádosti k posouzení',
   'dashboard.summary.scope.all': 'Všechny dostupné objekty',
   'dashboard.kpi.active_operations': 'Aktivní operace',
   'dashboard.kpi.vps.running_ratio': 'Poměr běžících VPS',

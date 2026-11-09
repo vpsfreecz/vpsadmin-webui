@@ -1,3 +1,7 @@
+## 2026-11-09 — Add operational totals to the administrator Summary
+
+[Scope and verification](docs/work-log/2026-11-09-admin-summary-totals.md).
+
 ## 2026-11-09 — Wrap long dataset identity messages
 
 [Scope and verification](docs/work-log/2026-11-09-scope-mismatch-wrap.md).

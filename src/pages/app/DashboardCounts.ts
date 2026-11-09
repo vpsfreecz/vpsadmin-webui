@@ -1,5 +1,11 @@
 import { getMetaTotalCount } from "../../lib/api/apiErrors";
 
+export function sumDashboardCounts(left: number | null | undefined, right: number | null | undefined) {
+  if (left == null || right == null || !Number.isSafeInteger(left) || !Number.isSafeInteger(right)
+    || left < 0 || right < 0 || !Number.isSafeInteger(left + right)) return undefined;
+  return left + right;
+}
+
 const DEFAULT_PAGE_SIZE = 200;
 const DEFAULT_MAX_PAGES = 20;
 
