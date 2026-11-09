@@ -134,6 +134,7 @@
     "e2e/specs/app/payments_page.spec.ts",
     "e2e/specs/app/profile_control_rhythm.spec.ts",
     "e2e/specs/app/profile_keys_sessions.spec.ts",
+    "e2e/specs/app/profile_mail_language_error.spec.ts",
     "e2e/specs/app/profile_mail_settings_failure.spec.ts",
     "e2e/specs/app/profile_metrics_tokens.spec.ts",
     "e2e/specs/app/profile_mfa_recovery.spec.ts",

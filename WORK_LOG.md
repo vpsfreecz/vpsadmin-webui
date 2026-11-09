@@ -1,3 +1,8 @@
+## 2026-11-09 — Readable account mail-language lookup errors
+
+[Scope and verification](docs/work-log/2026-11-09-profile-mail-language-readability.md).
+
+
 ## 2026-11-09 — Bounded DNS log columns
 
 Keep long record names from squeezing desktop change details into a thin strip.
