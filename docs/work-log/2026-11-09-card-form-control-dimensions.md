@@ -107,3 +107,20 @@ is not a new clean wrapped package or a full finance certification. Original
 e665 negative20.90625px frame/trace retained, e665superseded marker enforced.
 All ownTLSfiles removed after controllers; futurecleanwrappedrun needs fresh
 trackedTLS. No old764CI or e665 artifacts accept this new head.
+
+Finite finance follow-up: exact current224 fixture measurements find four
+existing monthly/manual validation messages at2.650463:1 in dark nested panels;
+light is5.547002:1. Use readable foreground text, medium weight and a separate
+danger border for these four class lists only. Keep all messages, values,
+validation/disable gates, roles, review/cancel/mutation callbacks and API unchanged.
+The existing focused finance hash review retains797lines/allowance and500line
+extraction-removal threshold. Current integration still preserves the already
+extracted shorter finance source and removed exception. Prototype/focused/new
+CI/current clean Nix and final paired evidence are required for this follow-up.
+
+Validation follow-up verification: prototype16/16PASS,32width observations,
+dark9.974032:1/light12.895978:1,500weight and2pxseparate marker asserted.
+Exact current224 baseline16 measured dark2.650463/light5.547002; source-specific
+images/traces remain retained. Focused pinnedquick/type114/design/format/
+structural/build and1939existing unit testsPASS. No new mirror unit test.
+This is not a final clean candidate or own-head CI/paired deployment proof.

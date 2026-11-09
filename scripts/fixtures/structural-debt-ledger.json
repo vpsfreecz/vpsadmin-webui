@@ -290,10 +290,10 @@
       "path": "src/pages/app/admin/user/AdminUserPaymentsPage.tsx",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "eb5609ca50527f4d12957334e00e26a4c879cfee11d0a2b50594b63042140bbb",
+      "contentHash": "160acbcb0a6c0169d001a815fb78c239ea90db035bdf77339bd781e8917405fc",
       "old": 0,
       "allowance": 797,
-      "rationale": "At the recorded source revision, this file already contained admin user payments and incoming-payment views; extract the coherent section with focused behavior coverage before removing this exception. Reviewed 2026-11-09: only field/action dimensions and label/footer alignment change; callbacks, review/mutation logic and section responsibilities remain intact. Keep the exact 797-line allowance unchanged; the current preview already has a separately preserved extraction.",
+      "rationale": "At the recorded source revision, this file already contained admin user payments and incoming-payment views; extract the coherent section with focused behavior coverage before removing this exception. Reviewed 2026-11-09: only field/action dimensions and label/footer alignment change; callbacks, review/mutation logic and section responsibilities remain intact. Keep the exact 797-line allowance unchanged; the current preview already has a separately preserved extraction. Reviewed follow-up: four existing validation class lists use readable text, medium weight and a separate danger border after exact dark nested-panel contrast measured 2.650463:1. Messages, validation gates and all mutation callbacks are unchanged; the existing allowance and extraction requirement remain unchanged.",
       "owner": "WebUI implementation lead",
       "removeWhen": {
         "metric": "lines",

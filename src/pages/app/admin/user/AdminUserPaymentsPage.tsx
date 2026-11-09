@@ -404,7 +404,7 @@ export function AdminUserPaymentsPage() {
                     disabled={accountReviewBlocked || settingsMutationPending}
                   />
                   {monthlyPaymentInvalid ? (
-                    <div className="flex-1 text-xs text-danger" role="alert" data-testid="admin.user.payments.settings.monthly.validation">
+                    <div className="flex-1 border-l-2 border-danger pl-2 text-xs font-medium text-fg" role="alert" data-testid="admin.user.payments.settings.monthly.validation">
                       {t('admin.user.payments.settings.validation.monthly_payment')}
                     </div>
                   ) : (
@@ -441,15 +441,15 @@ export function AdminUserPaymentsPage() {
                 disabled={addM.isPending || monthlyPaymentM.isPending || accountReviewBlocked}
               />
               {activeMonthlyPayment === null ? (
-                <div className="text-xs text-danger" data-testid="admin.user.payments.add.validation">
+                <div className="border-l-2 border-danger pl-2 text-xs font-medium text-fg" data-testid="admin.user.payments.add.validation">
                   {t('admin.user.payments.add_payment.validation.no_monthly_payment')}
                 </div>
               ) : quickAmount.trim() && amountParsed === null ? (
-                <div className="text-xs text-danger" data-testid="admin.user.payments.add.validation">
+                <div className="border-l-2 border-danger pl-2 text-xs font-medium text-fg" data-testid="admin.user.payments.add.validation">
                   {t('admin.user.payments.add_payment.validation.amount')}
                 </div>
               ) : amountParsed !== null && manualPaymentMonths === null ? (
-                <div className="text-xs text-danger" data-testid="admin.user.payments.add.validation">
+                <div className="border-l-2 border-danger pl-2 text-xs font-medium text-fg" data-testid="admin.user.payments.add.validation">
                   {t('admin.user.payments.add_payment.validation.multiple', { monthly: formatMoneyLike(activeMonthlyPayment) })}
                 </div>
               ) : activeMonthlyPayment !== null ? (
