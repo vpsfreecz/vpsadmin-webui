@@ -1,3 +1,7 @@
+## 2026-11-09 — Readable OAuth error bodies
+
+Approved UX-04 / REQ-010; see the [measured scope and checks](docs/work-log/2026-11-09-oauth-error-readability.md).
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path
