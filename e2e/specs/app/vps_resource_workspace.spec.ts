@@ -60,14 +60,22 @@ test.describe('@pr-smoke @pr-smoke-mobile VPS resource workspace', () => {
       await expect(entry).toHaveAttribute('href', /\/config\?section=resources/);
       await entry.click();
       await expect(disk(page)).toHaveValue('20');
-      await expect(page.getByTestId('vps.config.additional')).not.toHaveAttribute('open', '');
+      await expect(page.getByTestId('vps.config.additional')).toHaveAttribute('open', '');
       await expect(page.getByTestId('vps.config.review')).toHaveCount(0);
       await page.getByTestId('vps.resources.workspace').scrollIntoViewIfNeeded();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
       await page.evaluate(() => window.scrollTo(0, 0));
       await page.screenshot({ path: testInfo.outputPath(`resources-${language}.png`), fullPage: true });
-      await page.getByTestId('vps.config.additional').locator('summary').click();
-      await expect(page.getByTestId('vps.config.additional')).toHaveAttribute('open', '');
+      const additional = page.getByTestId('vps.config.additional');
+      const hostname = additional.locator('input[autocomplete="off"]').first();
+      await hostname.fill('draft.example.test');
+      const summary = additional.locator('summary');
+      await summary.click();
+      await expect(additional).not.toHaveAttribute('open', '');
+      await summary.focus();
+      await summary.press('Enter');
+      await expect(additional).toHaveAttribute('open', '');
+      await expect(hostname).toHaveValue('draft.example.test');
     });
   }
 

@@ -25,7 +25,6 @@ import {
 type LoadState = { isLoading: boolean; isError: boolean; error: unknown };
 
 export function VpsAdditionalConfiguration({
-  focusedResources,
   canEditAdminConfig,
   effective,
   pending,
@@ -42,7 +41,6 @@ export function VpsAdditionalConfiguration({
   disabledReason,
   changeCount,
 }: {
-  focusedResources: boolean;
   canEditAdminConfig: boolean;
   effective: VpsConfigDraft;
   pending: boolean;
@@ -77,7 +75,7 @@ export function VpsAdditionalConfiguration({
   return (
     <details
       ref={detailsRef}
-      open={!focusedResources || focusedDns || undefined}
+      open
       className="rounded-lg border border-border bg-surface"
       data-testid="vps.config.additional"
     >
