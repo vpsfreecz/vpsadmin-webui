@@ -94,6 +94,7 @@ export const csDns = {
   'dns.zones.create.ttl.label': 'Výchozí TTL',
   'dns.zones.create.dnssec.label': 'DNSSEC povoleno',
   'dns.zones.create.validation.title': 'Před vytvořením oprav formulář',
+  'dns.zones.create.validation.user_invalid': 'Vyber vlastníka z nabídky nebo zadej kladné ID uživatele.',
   'dns.zones.create.validation.name_required': 'Zadej název DNS zóny.',
   'dns.zones.create.validation.email_required': 'Zadej SOA e-mail.',
   'dns.zones.create.validation.email_invalid': 'SOA e-mail musí mít tvar například hostmaster@example.com.',
