@@ -78,3 +78,32 @@ Script-regression suite230/230PASS after installing this isolatedcheckout
 BFF dependencies. Preserve first229pass/1setupfailure (missingcookie-signature)
 log; no productcode or testassertion changed. Dependencies are not committed
 or installed on a deployed host. No live API requests or credentials used.
+
+
+Narrow-card follow-up: clean e665 four-output/control12 checks passed, but
+original320px image review found the long event badge escaping its inner
+mobile card by20.90625px while staying within document width. The explicit
+card-bounds probe fails; retain all screenshots/traces and mark e665 superseded
+before staging/activation. Constrain only the two local history event badges
+to available width and let unbroken names wrap; retain complete text, status,
+branch-specific variant calls and links. Add a regression asserting both card
+and page containment at320px. New focused head/currentcleanpackage/CI/rendered
+checks are required. Old764CI cannot accept this follow-up. No global Badge
+change or live operation; original12control passes do not close the consumer.
+
+Strict E2E adoption: editing the previously deferred history spec correctly
+triggered the coverage guard. Adopt this one root in the explicit TypeScript
+files and inventory, removing only its deferred entry; preserve the immutable
+baseline and compiler strictness. Fix its existing index-signature environment
+access using brackets. Coverage becomes114checked/173deferred; re-run the full
+gates. Prototype nested-card regression passes both engines after the explicit
+20.90625px baseline failure; retain both original sources/traces.230script
+tests and1939unit tests pass for this follow-up. No deferred hash refresh.
+
+Wrap follow-up local verification: pinnedquick/type114/design/format/lint/
+structural andVitebuildPASS,1939unit/230scriptsPASS. Newstrictcardcontainment
+regression2enginesPASSoncurrent224-baseddirtyprototype(defaultENlight); this
+is not a new clean wrapped package or a full finance certification. Original
+e665 negative20.90625px frame/trace retained, e665superseded marker enforced.
+All ownTLSfiles removed after controllers; futurecleanwrappedrun needs fresh
+trackedTLS. No old764CI or e665 artifacts accept this new head.

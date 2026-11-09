@@ -179,7 +179,7 @@ export function VpsHistoryPage() {
                         testId={`vps.history.row.${event.id}`}
                       >
                         <td className="px-4 py-3 text-xs text-muted">{formatDateTime(event.created_at)}</td>
-                        <td className="px-4 py-3"><Badge variant={eventBadgeVariant(event.event_type)}>{label}</Badge></td>
+                        <td className="px-4 py-3"><Badge variant={eventBadgeVariant(event.event_type)} className="max-w-full [overflow-wrap:anywhere]">{label}</Badge></td>
                         <td className="px-4 py-3">{userLabel(event, na)}</td>
                         <td className="px-4 py-3 text-xs text-muted">{sessionLabel(event, na)}</td>
                         <td className="px-4 py-3 text-xs text-muted">{fields || t('vps.history.fields.hidden')}</td>
@@ -199,7 +199,7 @@ export function VpsHistoryPage() {
                       key={event.id}
                       testId={`vps.history.card.${event.id}`}
                       to={adminDetail(event)}
-                      title={<Badge variant={eventBadgeVariant(event.event_type)}>{label}</Badge>}
+                      title={<Badge variant={eventBadgeVariant(event.event_type)} className="max-w-full [overflow-wrap:anywhere]">{label}</Badge>}
                       subtitle={formatDateTime(event.created_at)}
                       rows={[
                         { label: t('audit.table.user'), value: userLabel(event, na) },
