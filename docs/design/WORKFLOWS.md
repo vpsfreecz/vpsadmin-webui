@@ -1020,3 +1020,7 @@ filter snapshot as the list request, even before a router transition publishes
 new search params. URL hydration and automatic cursor normalization continue to
 follow the router for Back/Forward. Owner-scope and API contracts remain unchanged.
 See [the reproduced race](../work-log/2026-11-09-oom-pending-filter-navigation.md).
+
+Tasks background-activity disclosure places the action below its explanation
+so both Show and Hide labels fit the fixed control height in the narrow drawer.
+This layout preserves the existing role-dependent scope and collapsed state.

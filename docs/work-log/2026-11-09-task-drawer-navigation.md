@@ -32,3 +32,24 @@ All fixture configurations are pending; these are not clean-package acceptance.
 Initial extra matched baseline4 used an incorrect exact standalone filtered
 label expectation; old UI prefixes it with a middle dot. Original source/logs
 retained, observer-only correction queued without changing product assertions.
+
+Visual review of the first clean candidate172 rejected activation: system
+activity description squeezed Show/Hide into37–57px text inside a32px fine
+button, or56px inside44px coarse. Actual B8 baseline8 fixture configurations
+measured32/32 overflowing labels across CSdark/ENlight, member/supportMy,
+Chromium/mobileWebKit, native/320 and collapsed/expanded states.
+Under approved UX03/7c773db80dfa673c, only this local background-control
+dimension is reopened; original bounded AppShell/auth/body/dark cohorts remain
+at their recorded revisions. Put the button below the description at intrinsic
+width. Preserve labels, role scope, disclosure callbacks, progress and API.
+Add a real browser regression measuring text bounds in both label states and
+locales, including320px and keyboard focus. Existing strict-root coverage
+already includes the edited browser spec; no baseline or waiver change.
+The old f463 focused CI and clean172 artifacts cannot authorize this follow-up.
+Fresh quick/type/design/locale/build, browser text boundaries, exact6 CI and
+clean Nix/paired/TODO gates remain required. No ACT deployment yet.
+
+Follow-up pinned focused/current-prototype quick/build and4 panel unit tests
+pass. Eight prototype text-boundary configurations contain all32 labels, and
+four real repository browser regressions pass in Chromium/mobileWebKit.
+These dirty-prototype checks do not certify a clean package or deployment.
