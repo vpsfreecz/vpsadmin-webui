@@ -93,6 +93,7 @@ export const enDns = {
   'dns.zones.create.ttl.label': 'Default TTL',
   'dns.zones.create.dnssec.label': 'DNSSEC enabled',
   'dns.zones.create.validation.title': 'Fix the form before creating the zone',
+  'dns.zones.create.validation.user_invalid': 'Choose an owner from the suggestions or enter a positive user ID.',
   'dns.zones.create.validation.name_required': 'Enter a DNS zone name.',
   'dns.zones.create.validation.email_required': 'Enter an SOA email.',
   'dns.zones.create.validation.email_invalid': 'SOA email must look like hostmaster@example.com.',

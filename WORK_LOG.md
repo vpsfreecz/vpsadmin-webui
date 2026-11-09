@@ -1,3 +1,7 @@
+## 2026-11-09 — Preserve DNS zone owner search drafts
+
+[Scope and verification](docs/work-log/2026-11-09-dns-zone-owner-lookup.md).
+
 ## 2026-11-09 — Readable DNS record field errors
 
 [Scope and verification](docs/work-log/2026-11-09-dns-record-feedback.md).
