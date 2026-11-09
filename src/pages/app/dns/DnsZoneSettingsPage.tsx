@@ -199,7 +199,7 @@ export function DnsZoneSettingsPage() {
               />
               <div
                 id="dns-settings-default-ttl-feedback"
-                className={`mt-1 text-xs ${defaultTtlValidation ? 'text-danger' : 'text-faint'}`}
+                className={`mt-1 text-xs ${defaultTtlValidation ? 'border-l-2 border-danger pl-2 font-medium text-fg' : 'text-faint'}`}
                 data-testid="dns.settings.default_ttl.validation"
               >
                 {defaultTtlValidationMessage ||
