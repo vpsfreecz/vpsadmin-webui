@@ -88,6 +88,7 @@
     "e2e/specs/app/dns_records_crud.spec.ts",
     "e2e/specs/app/dns_relation_delete_failures.spec.ts",
     "e2e/specs/app/dns_tsig_keys.spec.ts",
+    "e2e/specs/app/dns_ttl_readability.spec.ts",
     "e2e/specs/app/dns_zone_delete.spec.ts",
     "e2e/specs/app/dns_zone_logs_keyset_pagination.spec.ts",
     "e2e/specs/app/dns_zone_records_live_contract.spec.ts",
