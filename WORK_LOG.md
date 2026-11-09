@@ -1,3 +1,7 @@
+## 2026-11-09 — Align selected-user header Copy
+
+[Scope and verification](docs/work-log/2026-11-09-user-header-copy.md).
+
 ## 2026-11-09 — Readable user creation validation
 
 [Scope and verification](docs/work-log/2026-11-09-user-create-validation.md).
