@@ -82,6 +82,11 @@ export function NasDatasetCreatePage() {
       ),
     [auth.role, auth.user?.id, parentsQ.data, scope.scope]
   );
+  const selectedParentId = parents.some((dataset) => String(dataset.id) === parentId)
+    ? parentId
+    : parents.length === 1
+      ? String(parents[0]!.id)
+      : '';
   const parentOptions = useMemo(
     () => [
       { value: '', label: t('nas.create.parent.placeholder'), disabled: true },
@@ -92,7 +97,7 @@ export function NasDatasetCreatePage() {
 
   const createM = useMutation({
     mutationFn: async () => {
-      const dataset = Number(parentId);
+      const dataset = Number(selectedParentId);
       const childName = name.trim();
       if (!Number.isInteger(dataset) || dataset <= 0) throw new Error('parent-required');
       if (!childName) throw new Error('name-required');
@@ -174,7 +179,7 @@ export function NasDatasetCreatePage() {
                 <Select
                   testId="nas.create.parent"
                   label={t('nas.create.parent')}
-                  value={parentId}
+                  value={selectedParentId}
                   onChange={(event) => setParentId(event.target.value)}
                   options={parentOptions}
                 />
@@ -233,7 +238,7 @@ export function NasDatasetCreatePage() {
               </details>
 
               <div className="flex flex-wrap items-center gap-2 border-t border-border pt-4">
-                <Button testId="nas.create.submit" onClick={submit} loading={createM.isPending} disabled={!parentId || !name.trim()}>
+                <Button testId="nas.create.submit" onClick={submit} loading={createM.isPending} disabled={!selectedParentId || !name.trim()}>
                   {t('nas.create.submit')}
                 </Button>
                 <Button variant="secondary" to={`${basePath}/nas`}>{t('common.cancel')}</Button>

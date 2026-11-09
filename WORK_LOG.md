@@ -1,3 +1,7 @@
+## 2026-11-09 — Select the sole NAS parent
+
+[Scope and verification](docs/work-log/2026-11-09-nas-parent-default.md).
+
 ## 2026-11-09 — Close Tasks when opening all transactions
 
 [Scope and verification](docs/work-log/2026-11-09-task-drawer-navigation.md).

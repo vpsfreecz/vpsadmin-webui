@@ -53,13 +53,13 @@ test.describe('NAS datasets alias', () => {
     const widths = await segments.evaluateAll((elements) =>
       elements.map((element) => Number.parseFloat((element as HTMLElement).style.width))
     );
-    expect(widths[0]).toBeCloseTo((1_900 / 3_300) * 100, 3);
-    expect(widths[1]).toBeCloseTo((1_400 / 3_300) * 100, 3);
+    expect(widths[0]!).toBeCloseTo((1_900 / 3_300) * 100, 3);
+    expect(widths[1]!).toBeCloseTo((1_400 / 3_300) * 100, 3);
 
     expect(requestedRole).toBe('primary');
     expect(requestedIncludes).toBe('user');
 
-    const proofScreenshot = process.env.E2E_NAS_USAGE_PROOF_SCREENSHOT?.trim();
+    const proofScreenshot = process.env['E2E_NAS_USAGE_PROOF_SCREENSHOT']?.trim();
     if (proofScreenshot) {
       await page.screenshot({ path: proofScreenshot, fullPage: true });
     }
@@ -110,7 +110,7 @@ test.describe('NAS datasets alias', () => {
     }
   });
 
-  test('creates a NAS subdataset from the NAS list', async ({ page }) => {
+  test('@pr-smoke @pr-smoke-mobile creates a NAS subdataset from the NAS list', async ({ page }) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
     let payload: Record<string, unknown> | undefined;
     const parentQueries: Array<string | null> = [];
@@ -163,7 +163,7 @@ test.describe('NAS datasets alias', () => {
     await page.goto('/app/nas');
     await page.getByTestId('nas.create.open').click();
     await expect(page).toHaveURL('/app/nas/new');
-    await expect(page.getByTestId('nas.create.parent')).toHaveValue('');
+    await expect(page.getByTestId('nas.create.parent')).toHaveValue('901');
     await expect(page.getByTestId('nas.create.parent').locator('option[value="901"]')).toHaveCount(1);
     await expect(page.getByTestId('nas.create.parent').locator('option[value="999"]')).toHaveCount(0);
     expect(parentQueries).toContain(null);
@@ -173,12 +173,11 @@ test.describe('NAS datasets alias', () => {
     await expect(page.getByTestId('nas.create.atime')).not.toBeVisible();
     await expect(page.getByTestId('nas.create.relatime')).not.toBeVisible();
 
-    await page.getByTestId('nas.create.parent').selectOption('901');
     await page.getByTestId('nas.create.name').fill('projects');
     await page.getByTestId('nas.create.refquota').fill('8');
     await page.getByTestId('nas.create.submit').click();
 
-    await expect.poll(() => payload?.dataset as Record<string, unknown> | undefined).toEqual({
+    await expect.poll(() => payload?.['dataset'] as Record<string, unknown> | undefined).toEqual({
       dataset: 901,
       name: 'projects',
       automount: true,
