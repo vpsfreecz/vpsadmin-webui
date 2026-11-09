@@ -21,7 +21,7 @@ export function ForbiddenPage(props: { appBasePath?: string; title?: string; mes
             <h1 className="text-xl font-semibold">{title}</h1>
             <p className="mt-2 text-sm text-muted">{message}</p>
             <p className="mt-2 text-xs text-faint">
-              {t('common.requested_path')}: <span className="font-mono">{path}</span>
+              {t('common.requested_path')}: <span className="font-mono [overflow-wrap:anywhere]">{path}</span>
             </p>
           </div>
 
