@@ -1,3 +1,7 @@
+## 2026-11-09 — Align NAS actions and name filter links
+
+[Scope and verification](docs/work-log/2026-11-09-nas-actions-filter-link.md).
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path
