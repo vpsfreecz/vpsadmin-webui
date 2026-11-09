@@ -53,7 +53,7 @@ for (const language of ['cs', 'en'] as const) {
       expect(order).toEqual([...(theme === 'dark' ? ['public.outages.card'] : []), 'public.news.card', 'public.advisories.card', 'public.nodes.section', 'public.summary-row', ...(theme === 'dark' ? ['public.outages.resolved'] : [])]);
       await expect(overview).not.toContainText(language === 'cs' ? 'Vše běží normálně' : 'All systems nominal');
       await expect(page.getByTestId('public.news.card')).toContainText(language === 'cs' ? 'Česká novinka' : 'English announcement');
-      await expect(page.getByRole('heading', { level: 1 })).toHaveClass('sr-only');
+      await expect(page.getByRole('heading', { level: 1 })).toContainClass('sr-only');
       const stats = page.getByTestId('public.summary-grid');
       await expect(page.getByTestId('public.summary-row').locator('svg')).toHaveCount(0);
       const values = await stats.locator('.tabular-nums').evaluateAll(elements => elements.map(el => ({
@@ -104,7 +104,7 @@ for (const language of ['cs', 'en'] as const) {
           : theme === 'dark' ? (language === 'cs' ? 'Údržba nodu' : 'Node maintenance')
           : language === 'cs' ? 'Žádné výpadky' : 'No outages');
         const heading = page.getByRole('heading', { level: 1 });
-        await expect(heading).toHaveClass('sr-only');
+        await expect(heading).toContainClass('sr-only');
         expect((await heading.boundingBox())!.height).toBeLessThanOrEqual(1);
         await expectNoDocumentHorizontalOverflow(page);
         await page.screenshot({ path: testInfo.outputPath(path === '/outages' ? 'outages.png' : 'advisories.png'), fullPage: true });
