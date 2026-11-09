@@ -38,10 +38,10 @@
       "path": "src/components/userNamespaces/UserNamespaceMapDetail.tsx",
       "rule": "grown-over-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "fdeb4288c4bc2a8f675f4e9320435cd8b33bdf4bb9c73fa0bb709bc41d88acca",
+      "contentHash": "5de2cd01a8302287313dc53be94f4a7216d0732ef26c0485660c2bb9fa819953",
       "old": 770,
       "allowance": 798,
-      "rationale": "At the recorded source revision, this file already contained namespace map detail states; extract the coherent section with focused behavior coverage before removing this exception. Reviewed generated-client migration: only the count/error helper import moves to apiErrors; behavior, casts and line allowance are unchanged. Reviewed 2026-11-08: native coarse field minimum/font only, with unchanged line count and allowance; extraction debt remains. Reviewed 2026-11-09: only eight add-entry class lists change: readable existing local field errors with independent markers, shared desktop label space and aligned Add. No line, cast, validation, SDK, API or allowance growth; inherited extraction debt remains.",
+      "rationale": "At the recorded source revision, this file already contained namespace map detail states; extract the coherent section with focused behavior coverage before removing this exception. Reviewed generated-client migration: only the count/error helper import moves to apiErrors; behavior, casts and line allowance are unchanged. Reviewed 2026-11-08: native coarse field minimum/font only, with unchanged line count and allowance; extraction debt remains. Reviewed 2026-11-09: only eight add-entry class lists change: readable existing local field errors with independent markers, shared desktop label space and aligned Add. No line, cast, validation, SDK, API or allowance growth; inherited extraction debt remains. Reviewed 2026-11-09: only four existing-row error class lists gain readable foreground, medium weight and a separate danger marker. No row-state, API, validation, line or allowance growth; inherited extraction debt remains.",
       "owner": "WebUI implementation lead",
       "removeWhen": {
         "metric": "lines",

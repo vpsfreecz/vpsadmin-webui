@@ -2302,3 +2302,8 @@ correction from 539e92a9 in this preview. Runtime behavior is unchanged.
 
 Prepare approved UX-04 / REQ-010. See the
 [scope and evidence](docs/work-log/2026-11-09-ssh-key-validation-readability.md).
+
+## 2026-11-09 — Namespace-map existing-row error readability (prepared)
+
+Improve the four existing field/base error class lists while preserving row
+and API behavior. [Scope and evidence](docs/work-log/2026-11-09-namespace-entry-row-error-readability.md).
