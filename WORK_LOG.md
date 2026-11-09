@@ -1,3 +1,8 @@
+## 2026-11-09 — Readable preference synchronization errors
+
+[Scope and verification](docs/work-log/2026-11-09-profile-preference-sync-readability.md).
+
+
 ## 2026-11-09 — Readable account mail-language lookup errors
 
 [Scope and verification](docs/work-log/2026-11-09-profile-mail-language-readability.md).

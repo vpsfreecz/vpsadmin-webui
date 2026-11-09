@@ -140,6 +140,7 @@
     "e2e/specs/app/profile_mfa_recovery.spec.ts",
     "e2e/specs/app/profile_mfa_webauthn.spec.ts",
     "e2e/specs/app/profile_owner_scope.spec.ts",
+    "e2e/specs/app/profile_preference_sync_error.spec.ts",
     "e2e/specs/app/profile_session_transaction_filter.spec.ts",
     "e2e/specs/app/profile_user_data.spec.ts",
     "e2e/specs/app/profile_user_namespaces.spec.ts",
