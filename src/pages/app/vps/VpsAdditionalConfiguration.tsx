@@ -64,6 +64,7 @@ export function VpsAdditionalConfiguration({
   const detailsRef = useRef<HTMLDetailsElement>(null);
   const dnsRef = useRef<HTMLElement>(null);
   useEffect(() => {
+    if (detailsRef.current) detailsRef.current.open = true;
     if (!focusedDns) return;
     const frame = window.requestAnimationFrame(() => {
       if (detailsRef.current) detailsRef.current.open = true;

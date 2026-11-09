@@ -54,7 +54,7 @@ async function submitVps(page: Page) {
 test.describe('@pr-smoke @pr-smoke-mobile VPS resource workspace', () => {
   for (const language of ['cs', 'en'] as const) {
     test(`opens focused resources from overview, ${language}`, async ({ page }, testInfo) => {
-      await setup(page, { language });
+      const { state } = await setup(page, { language });
       await page.goto('/admin/vps/123');
       const entry = page.getByTestId('vps.overview.resources_usage.card').getByRole('link');
       await expect(entry).toHaveAttribute('href', /\/config\?section=resources/);
@@ -76,6 +76,13 @@ test.describe('@pr-smoke @pr-smoke-mobile VPS resource workspace', () => {
       await summary.press('Enter');
       await expect(additional).toHaveAttribute('open', '');
       await expect(hostname).toHaveValue('draft.example.test');
+      await summary.click();
+      await expect(additional).not.toHaveAttribute('open', '');
+      await page.getByTestId('vps.actions.menu').selectOption('/admin/vps/123/config');
+      await expect(additional).toHaveAttribute('open', '');
+      await expect(hostname).toHaveValue('draft.example.test');
+      expect(state.vpsWrites).toEqual([]);
+      expect(state.diskWrites).toEqual([]);
     });
   }
 

@@ -14,3 +14,15 @@ The existing resource workspace browser scenario now expects visible fields,
 edits a hostname, collapses by pointer and reopens by keyboard, then checks the
 draft. Exact packaged role/theme/mobile evidence and preview delivery are pending;
 source checks alone do not certify deployed behavior or live API permissions.
+
+## Query-only entry correction
+
+Preactivation browser inspection found that a static React open prop preserves
+a manually closed details DOM node when the resource query changes to general
+Configuration. Original e03 opens that transition; initial candidate412 does not.
+Reset only the disclosure default when the location key changes, keeping the
+existing DNS focus effect and every field draft. The existing workspace scenario
+now navigates through the real More menu after collapsing and checks open state,
+retained hostname and zero intercepted writes. Candidate412 is rejected before
+activation; its initial68-case fresh-document evidence remains separately scoped.
+New exact-head CI and clean query-entry verification are required.
