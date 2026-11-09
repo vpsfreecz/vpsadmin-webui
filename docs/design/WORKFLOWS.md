@@ -1447,3 +1447,15 @@ filter snapshot as the list request, even before a router transition publishes
 new search params. URL hydration and automatic cursor normalization continue to
 follow the router for Back/Forward. Owner-scope and API contracts remain unchanged.
 See [the reproduced race](../work-log/2026-11-09-oom-pending-filter-navigation.md).
+
+
+### Resources: additional configuration (RES-04)
+
+Resources opens the additional configuration fields immediately, as the general
+Configuration route already does. Native details toggling remains available by
+pointer and keyboard; it does not save, reset a draft or remember a preference.
+Administrator fields retain their existing role gate and order.
+
+Query-only navigation from Resources to general Configuration reuses the same
+component. Restore the open default for the new location without resetting the
+draft. Ordinary field edits and native toggles do not reset the disclosure.
