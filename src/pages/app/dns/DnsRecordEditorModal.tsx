@@ -51,12 +51,12 @@ function FieldFeedback(props: {
   return (
     <div className="mt-1 space-y-1 text-xs" data-testid={props.testId}>
       {fieldIssues.map((issue, index) => (
-        <div key={`${issue.messageKey}.${index}`} className={issue.severity === 'error' ? 'text-danger' : 'text-warn'}>
+        <div key={`${issue.messageKey}.${index}`} className={issue.severity === 'error' ? 'border-l-2 border-danger pl-2 font-medium text-fg' : 'text-warn'}>
           {t(issue.messageKey, issue.vars)}
         </div>
       ))}
       {props.apiMessages.map((message, index) => (
-        <div key={`${message}.${index}`} className="text-danger">
+        <div key={`${message}.${index}`} className="border-l-2 border-danger pl-2 font-medium text-fg">
           {message}
         </div>
       ))}
