@@ -34,13 +34,13 @@ test.describe('Admin dashboard', () => {
       await expect(page.getByTestId('nav.drawer.group.services')).toBeVisible();
       await expect(page.getByTestId('nav.drawer.group.operations')).toBeVisible();
       await expect(page.getByTestId('nav.drawer.group.users-finance')).toBeVisible();
-      await expect(page.getByTestId('nav.drawer.account')).toBeVisible();
+      await expect(page.getByTestId('nav.drawer.account')).toHaveCount(0);
       await page.getByTestId('nav.drawer.close').click();
     } else {
       await expect(page.getByTestId('nav.sidebar.group.services')).toBeVisible();
       await expect(page.getByTestId('nav.sidebar.group.operations')).toBeVisible();
       await expect(page.getByTestId('nav.sidebar.group.users-finance')).toBeVisible();
-      await expect(page.getByTestId('nav.sidebar.account')).toBeVisible();
+      await expect(page.getByTestId('nav.sidebar.account')).toHaveCount(0);
     }
   });
 });

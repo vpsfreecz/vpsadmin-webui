@@ -117,7 +117,6 @@ export function AppHeader(props: AppHeaderProps) {
     onSetLanguage,
     onGoToOtherMode,
     onGoToProfile,
-    onGoToPublicStatus,
     loginLogoutHref,
   } = props;
   const auth = useAuth();
@@ -395,39 +394,19 @@ export function AppHeader(props: AppHeaderProps) {
         </form>
 
       </div>
-      {canSwitchMode || showSyncIndicator ? <div className="flex flex-wrap items-center gap-2">
-
-        {canSwitchMode ? (
-          <Badge
-            variant={mode === 'admin' ? 'black' : 'neutral'}
-            testId="scope.indicator"
-            title={mode === 'admin' ? t('scope.indicator.admin_hint') : t('scope.indicator.my_hint')}
-            className="max-w-full"
-          >
-            <span className="md:hidden">
-              {mode === 'admin' ? t('scope.indicator.admin_short') : t('scope.indicator.my_short')}
-            </span>
-            <span className="hidden md:inline">
-              {mode === 'admin' ? t('scope.indicator.admin') : t('scope.indicator.my')}
-            </span>
-          </Badge>
-        ) : null}
-
-        {showSyncIndicator ? (
-          <AppSyncPopover
-            t={t}
-            syncRef={syncRef}
-            syncOpen={syncOpen}
-            setSyncOpen={setSyncOpen}
-            syncStatus={syncStatus}
-            syncTitle={syncTitle}
-            syncBody={syncBody}
-            syncError={syncError}
-            onRetrySync={onRetrySync}
-          />
-        ) : null}
-
-      </div> : null}
+      {showSyncIndicator ? (
+        <AppSyncPopover
+          t={t}
+          syncRef={syncRef}
+          syncOpen={syncOpen}
+          setSyncOpen={setSyncOpen}
+          syncStatus={syncStatus}
+          syncTitle={syncTitle}
+          syncBody={syncBody}
+          syncError={syncError}
+          onRetrySync={onRetrySync}
+        />
+      ) : null}
       <div className="relative flex flex-wrap gap-1.5" ref={sessionAnchorRef}>
         <button
           className={shortcutClassName}
@@ -463,14 +442,12 @@ export function AppHeader(props: AppHeaderProps) {
         setUserMenuOpen={setUserMenuOpen}
         authLogin={authLogin}
         authRole={authRole}
-        onNavigate={onNavigate}
         theme={theme}
         language={language}
         onSetTheme={onSetTheme}
         onSetLanguage={onSetLanguage}
         onGoToOtherMode={onGoToOtherMode}
         onGoToProfile={onGoToProfile}
-        onGoToPublicStatus={onGoToPublicStatus}
         loginLogoutHref={loginLogoutHref}
       />
     </div>

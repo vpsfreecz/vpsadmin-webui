@@ -42,31 +42,13 @@ for (const actor of [
     const login = account.getByText('sample-member', { exact: true });
     await expect(tasksLabel).toBeVisible();
     await expect(login).toBeVisible();
-    const loginBox = (await login.boundingBox())!;
-    const settings = navigation.getByTestId('shell.interface-preferences-button');
-    const settingsBox = (await settings.boundingBox())!;
-    const accountBox = (await account.boundingBox())!;
-    const logoutBox = (await navigation.getByTestId('shell.logout').boundingBox())!;
-    expect(accountBox.x + accountBox.width).toBeLessThan(settingsBox.x);
-    expect(settingsBox.x + settingsBox.width).toBeLessThan(logoutBox.x);
-    expect(logoutBox.x - settingsBox.x - settingsBox.width).toBeLessThanOrEqual(8);
-    expect(Math.abs(settingsBox.y - logoutBox.y)).toBeLessThanOrEqual(1);
-    expect(settingsBox.height).toBe(logoutBox.height);
-    expect(Math.abs(settingsBox.y + settingsBox.height / 2 - loginBox.y - loginBox.height / 2)).toBeLessThanOrEqual(1);
+    await expect(account).toHaveAttribute('aria-expanded', 'false');
+    await expect(navigation.getByTestId('shell.logout')).toHaveCount(0);
     await expect(navigation.getByTestId('palette.open')).toHaveCount(0);
-    const role = account.getByTestId('shell.user-role');
-    const roleLabel = actor.level === 1 ? 'Uživatel'
-      : actor.level === 21 ? 'Podpora'
-      : actor.language === 'cs' ? 'Administrátor' : 'Admin';
-    await expect(account).toHaveAccessibleDescription(roleLabel);
-    if (actor.level === 1) {
-      await expect(role).toHaveCount(0);
-    } else {
-      await expect(role).toHaveAttribute('title', roleLabel);
-      const roleBox = (await role.boundingBox())!;
-      const gap = roleBox.x - (loginBox.x + loginBox.width);
-      expect(gap).toBeGreaterThan(0);
-      expect(gap).toBeLessThanOrEqual(8);
+    const badge = account.getByTestId('scope.indicator');
+    await expect(badge).toHaveCount(actor.level === 99 ? 1 : 0);
+    if (actor.level === 99) {
+      await expect(badge).toHaveText(actor.mode === 'admin' ? 'Všechny' : 'Mine');
     }
     if (!mobile) await expect(page.getByTestId('shell.header')).toBeHidden();
     const brand = page.getByTestId(`shell.brand.${mobile ? 'drawer' : 'sidebar'}`);
@@ -125,22 +107,15 @@ for (const actor of [
     await expect(page.getByTestId('nav.drawer')).toBeHidden();
     await page.getByTestId('tasks.close-button').click();
     await openShellNavigation(page);
-    const logout = navigation.getByTestId('shell.logout');
-    await expect(logout).toBeInViewport({ ratio: 1 });
-    await expect(logout).toHaveAccessibleName(actor.language === 'cs' ? 'Odhlásit se' : 'Logout');
-    await expect(page.getByTestId('shell.user-menu')).toHaveCount(0);
-    await expect(page.getByTestId('shell.user-menu.public-status')).toHaveCount(0);
+    await expect(navigation.getByTestId('shell.logout')).toHaveCount(0);
+    await expect(navigation.getByTestId('shell.user-menu.public-status')).toHaveCount(0);
     await account.focus();
-    await page.keyboard.press('Tab');
-    await expect(settings).toBeFocused();
-    await page.keyboard.press('Tab');
-    await expect(logout).toBeFocused();
-    await page.screenshot({ path: testInfo.outputPath(`account-controls-${actor.mode}-${actor.level}.png`), scale: 'css' });
-    await clickShellControl(page, 'shell.interface-preferences-button', isMobile);
+    await page.keyboard.press('Enter');
     const preferences = page.getByTestId('shell.interface-preferences');
     await expect(preferences).toBeVisible();
-    await expect(preferences.getByTestId('shell.interface-preferences.scope.all')).toHaveCount(actor.level >= 21 ? 1 : 0);
-    if (actor.level >= 21) {
+    await expect(preferences.getByTestId('shell.logout')).toHaveAccessibleName(actor.language === 'cs' ? 'Odhlásit se' : 'Logout');
+    await expect(preferences.getByTestId('shell.interface-preferences.scope.all')).toHaveCount(actor.level === 99 ? 1 : 0);
+    if (actor.level === 99) {
       await expect(preferences.getByTestId('shell.interface-preferences.scope.mine')).toHaveAttribute('aria-pressed', String(actor.mode === 'app'));
     }
     await expect(preferences.getByTestId('shell.interface-preferences.theme.light')).toBeVisible();
@@ -148,11 +123,12 @@ for (const actor of [
     await page.screenshot({ path: testInfo.outputPath(`preferences-${actor.mode}-${actor.level}.png`), scale: 'css' });
     await page.keyboard.press('Escape');
     await expect(preferences).toBeHidden();
-    await expect(settings).toBeFocused();
+    await expect(account).toBeFocused();
     await expectNoDocumentHorizontalOverflow(page);
     const shot = await page.screenshot({ path: testInfo.outputPath(`sidebar-${actor.mode}-${actor.level}.png`), fullPage: false, scale: 'css' });
     await testInfo.attach('Synthetic navigation controls', { body: shot, contentType: 'image/png' });
     await clickShellControl(page, 'shell.user-menu-button', isMobile);
+    await preferences.getByTestId('shell.user-menu.account').click();
     await expect(page).toHaveURL(new RegExp(`/${actor.mode}/profile$`));
     await expect(page.getByTestId('shell.user-menu')).toHaveCount(0);
   });
@@ -163,7 +139,7 @@ test('@pr-smoke @pr-smoke-mobile account controls and interface preferences stay
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
   await installHaveApiMock(page, { user: { id: 53, login: 'sample-admin', level: 99 } });
   await page.goto('/app/vps');
-  await clickShellControl(page, 'shell.interface-preferences-button');
+  await clickShellControl(page, 'shell.user-menu-button');
   await expect(page.getByTestId('nav.drawer')).toBeVisible();
   const menu = page.getByTestId('shell.interface-preferences');
   await expect(menu).toBeVisible();
@@ -171,7 +147,8 @@ test('@pr-smoke @pr-smoke-mobile account controls and interface preferences stay
   expect(box).not.toBeNull();
   expect(box!.y).toBeGreaterThanOrEqual(0);
   expect(box!.y + box!.height).toBeLessThanOrEqual(420);
-  await expect(page.getByTestId('shell.logout')).toBeInViewport({ ratio: 1 });
+  await menu.getByTestId('shell.logout').scrollIntoViewIfNeeded();
+  await expect(menu.getByTestId('shell.logout')).toBeInViewport({ ratio: 1 });
   await menu.getByTestId('shell.interface-preferences.language.en').scrollIntoViewIfNeeded();
   await expect(menu.getByTestId('shell.interface-preferences.language.en')).toBeInViewport({ ratio: 1 });
   await expectNoDocumentHorizontalOverflow(page);

@@ -667,7 +667,6 @@ export function AppLayout(props: { children: React.ReactNode }) {
               onSetLanguage={ui.setLanguage}
               onGoToOtherMode={goToOtherMode}
               onGoToProfile={() => { closeNavigation(); navigate(`${basePath}/profile`); }}
-              onGoToPublicStatus={() => navigate('/')}
               loginLogoutHref={loginLogoutHref}
             />
           }
