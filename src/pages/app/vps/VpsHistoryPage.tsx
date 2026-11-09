@@ -128,7 +128,6 @@ export function VpsHistoryPage() {
             {eventTypeInput.trim() ? (
               <Button
                 variant="secondary"
-                size="sm"
                 onClick={() => setEventTypeInput('')}
                 testId="vps.history.filter.clear"
               >

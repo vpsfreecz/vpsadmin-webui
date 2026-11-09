@@ -290,10 +290,10 @@
       "path": "src/pages/app/admin/user/AdminUserPaymentsPage.tsx",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "b1e00301fa600fba6164d5725e8721a46be6816826ed42c481922d74332e0b52",
+      "contentHash": "eb5609ca50527f4d12957334e00e26a4c879cfee11d0a2b50594b63042140bbb",
       "old": 0,
       "allowance": 797,
-      "rationale": "At the recorded source revision, this file already contained admin user payments and incoming-payment views; extract the coherent section with focused behavior coverage before removing this exception.",
+      "rationale": "At the recorded source revision, this file already contained admin user payments and incoming-payment views; extract the coherent section with focused behavior coverage before removing this exception. Reviewed 2026-11-09: only field/action dimensions and label/footer alignment change; callbacks, review/mutation logic and section responsibilities remain intact. Keep the exact 797-line allowance unchanged; the current preview already has a separately preserved extraction.",
       "owner": "WebUI implementation lead",
       "removeWhen": {
         "metric": "lines",

@@ -1,3 +1,7 @@
+## 2026-11-09 — Align history and payment-form controls
+
+[Measured scope and verification](docs/work-log/2026-11-09-card-form-control-dimensions.md).
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path
