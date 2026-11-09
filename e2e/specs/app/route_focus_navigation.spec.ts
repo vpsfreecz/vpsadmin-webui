@@ -29,10 +29,15 @@ async function scrollToCallCount(page: Page) {
 }
 
 async function settleAnimationFrames(page: Page) {
-  await page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+  await page.evaluate(
+    () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())))
+  );
 }
 
-test('@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile keyboard users can skip chrome and keep route focus predictable', async ({ page, browserName }, testInfo) => {
+test('@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile keyboard users can skip chrome and keep route focus predictable', async ({
+  page,
+  browserName,
+}, testInfo) => {
   await bootstrapVpsAdminWindow(page, { sessionToken: 'KEYBOARD_USER_SESSION' });
   await installHaveApiMock(page, {
     user: { id: 10, login: 'alice', level: 100 },
@@ -161,5 +166,25 @@ test('@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile keyboard users can skip ch
   await expect(page.getByTestId('shell.main')).toBeFocused();
   await settleAnimationFrames(page);
   expect(await scrollToCallCount(page)).toBe(0);
-  await expect.poll(() => page.evaluate((expected) => Math.abs(window.scrollY - expected), beforeScopeSwitchY)).toBeLessThanOrEqual(2);
+  await expect
+    .poll(() => page.evaluate((expected) => Math.abs(window.scrollY - expected), beforeScopeSwitchY))
+    .toBeLessThanOrEqual(2);
 });
+
+for (const kind of ['forbidden', 'notfound'] as const) {
+  test(`@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile long requested URLs stay readable on ${kind} pages`, async ({
+    page,
+  }) => {
+    await bootstrapVpsAdminWindow(page, { sessionToken: kind === 'forbidden' ? 'ERROR_PATH_SESSION' : '' });
+    await installHaveApiMock(page, { user: { id: 10, login: 'alice', level: 1 } });
+    const path =
+      (kind === 'forbidden' ? '/app/nodes' : '/missing') + '?filter=' + 'long-requested-path'.repeat(18) + '#details';
+    await page.setViewportSize({ width: 320, height: 750 });
+    await page.goto(path);
+    const root = page.getByTestId(`${kind}.page`);
+    await expect(root).toBeVisible();
+    await expect(root.locator('span.font-mono')).toHaveText(path);
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(321);
+    await expect(root.locator('a[href="/app"]')).toBeVisible();
+  });
+}

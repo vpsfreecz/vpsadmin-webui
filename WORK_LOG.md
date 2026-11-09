@@ -2322,3 +2322,9 @@ Approved UX-04 / REQ-010; see the [measured scope and checks](docs/work-log/2026
 
 Align public controls and shared detail tabs while preserving labels and routes.
 [Cause, dependency and verification](docs/work-log/2026-11-09-public-navigation-targets.md).
+
+
+## 2026-11-09 — Requested paths on error pages (prepared)
+
+Wrap full requested paths within403/404cards and retain recovery links.
+[Cause and verification](docs/work-log/2026-11-09-error-path-wrapping.md).
