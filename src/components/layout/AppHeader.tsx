@@ -384,7 +384,7 @@ export function AppHeader(props: AppHeaderProps) {
                   role="status"
                   aria-live="polite"
                   aria-atomic="true"
-                  className={clsx('px-3 py-2 text-sm', searchError ? 'text-danger' : 'text-muted')}
+                  className={clsx('px-3 py-2 text-sm', searchError ? 'border-l-2 border-danger font-medium text-fg' : 'text-muted')}
                   data-testid="shell.inline-search.status"
                 >
                   {searchStatus}
