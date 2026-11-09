@@ -1,3 +1,7 @@
+## 2026-11-09 — Keep DNSSEC records inside narrow cards
+
+[Scope and verification](docs/work-log/2026-11-09-dnssec-record-width.md).
+
 ## 2026-11-09 — Open contextual help beside the page heading
 
 [Scope, shared design and verification](docs/work-log/2026-11-09-contextual-help-modal.md).
