@@ -17,6 +17,7 @@
     "e2e/helpers/shellNavigation.ts",
     "e2e/specs/admin/admin_dashboard.spec.ts",
     "e2e/specs/admin/cluster_resource_maintenance.spec.ts",
+    "e2e/specs/admin/ip_address_detail_page.spec.ts",
     "e2e/specs/admin/ip_addresses_empty_clear_filters.spec.ts",
     "e2e/specs/admin/ip_addresses_filters_pagination.spec.ts",
     "e2e/specs/admin/ip_addresses_primary_location.spec.ts",
