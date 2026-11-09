@@ -1,4 +1,4 @@
-# Align shell close controls — prepared
+# Align shell controls and preserve icon widths — prepared
 
 Approved UX-03 `7c773db80dfa673c`, REQ-010. Exact clean37 child-presentation
 audit records a36px desktop command-palette Close action beside its44px
@@ -43,3 +43,15 @@ the16px glyph non-shrinking and assert its actual16x16px geometry alongside
 the control sizes. The first clean32 pass did not cover glyph geometry and
 therefore does not accept that candidate for activation. Retain its images
 and logs; update the same focused draft without rewriting its history.
+
+A bounded4configuration help-icon probe on actual11a also confirms inherited
+horizontal distortion: desktop palette help8x16px and page help12x16px,
+while coarse controls retain16x16px. The source declares h-4/w-4 for both.
+Preserve direct SVG flex width in the existing shared button class helper;
+no padding, size, colors, labels, callbacks or APIs change. This fixes both
+current and older caller implementations without importing an unrelated
+feature into the focused branch. Check actual glyph geometry across the
+shared Button and raw buttonClassName caller, then compare normalized CSS
+selectors/declarations and representative button workflows before acceptance.
+The already staged19 is superseded for this coherent batch; no activation
+or CI acceptance from8327 may be reused for the new head.

@@ -1692,7 +1692,7 @@ Correct the reproduced Next/page-size URL race without changing owner scope.
 [Scope, root cause and evidence](docs/work-log/2026-11-09-oom-pending-filter-navigation.md).
 
 
-## 2026-11-09 — Align shell close controls (prepared)
+## 2026-11-09 — Align shell controls and icon widths (prepared)
 
-Correct measured palette field/action and coarse-pointer progress Close dimensions.
+Match palette/progress Close dimensions and keep shared SVG icons from compressing.
 [Scope and evidence](docs/work-log/2026-11-09-shell-control-dimensions.md).
