@@ -1690,3 +1690,9 @@ clankerdev still uses the production API. No host update in this setup.
 
 Correct the reproduced Next/page-size URL race without changing owner scope.
 [Scope, root cause and evidence](docs/work-log/2026-11-09-oom-pending-filter-navigation.md).
+
+
+## 2026-11-09 — Readable search error messages (prepared)
+
+Correct measured low-contrast error text in inline and command-palette search.
+[Scope, evidence and limits](docs/work-log/2026-11-09-search-error-readability.md).
