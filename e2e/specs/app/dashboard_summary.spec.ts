@@ -14,6 +14,11 @@ async function setup(page: Page, language: Language, level: number) {
     countState: 'ready' as 'ready' | 'error' | 'loading',
     paidUntil: '2027-01-01T00:30:00Z' as string | null,
     monthlyPayment: 12345 as number | null,
+    paymentsCount: 7 as number | undefined,
+    paymentsUnavailable: false,
+    registrationsCount: 3,
+    changesCount: 12 as number | undefined,
+    adminCountReads: [] as { resource: string; state: string | null; limit: string | null; count: string | null }[],
     reads: [] as string[],
     writes: [] as string[],
     errors: [] as string[],
@@ -25,6 +30,14 @@ async function setup(page: Page, language: Language, level: number) {
     if (request.method() === 'GET') state.reads.push(path);
     else state.writes.push(`${request.method()} ${path}`);
   });
+  function recordCountRequest(resource: string, searchParams: URLSearchParams) {
+    state.adminCountReads.push({
+      resource,
+      state: searchParams.get(`${resource}[state]`),
+      limit: searchParams.get(`${resource}[limit]`),
+      count: searchParams.get('_meta[count]'),
+    });
+  }
   await installHaveApiMock(page, {
     user: { id: 7, login: 'summary-example', level, time_zone: 'America/Los_Angeles' },
     handlers: {
@@ -36,7 +49,22 @@ async function setup(page: Page, language: Language, level: number) {
         if (state.countState === 'loading') return new Promise<never>(() => {});
         return { dns_zones: [], _meta: { total_count: state.count } };
       },
-      'GET cluster/full_stats': () => ({ cluster: { user_count: 10, vps_count: 81, node_count: 3 } }),
+      'GET cluster/full_stats': () => ({ cluster: { user_count: 2400, user_active: 1200, user_suspended: 34, vps_count: 81, node_count: 3 } }),
+      'GET incoming_payments': ({ searchParams }) => {
+        recordCountRequest('incoming_payment', searchParams);
+        if (state.paymentsUnavailable) return {
+          status: 503, contentType: 'application/json', body: JSON.stringify({ status: false, message: 'Synthetic count failure' }),
+        };
+        return { incoming_payments: [], _meta: { total_count: state.paymentsCount } };
+      },
+      'GET user_request/registrations': ({ searchParams }) => {
+        recordCountRequest('registration', searchParams);
+        return { registrations: [], _meta: { total_count: state.registrationsCount } };
+      },
+      'GET user_request/changes': ({ searchParams }) => {
+        recordCountRequest('change', searchParams);
+        return { changes: [], _meta: { total_count: state.changesCount } };
+      },
       'GET nodes/public_status': () => ({ nodes: [] }),
       'GET outages': () => ({ outages: [] }),
       'GET news_logs': () => ({ news_logs: [] }),
@@ -80,10 +108,34 @@ for (const actor of [{ mode: 'app', level: 1 }, { mode: 'app', level: 21 }, { mo
           await expect(summary.getByTestId('app.dashboard.kpi.paid-until')).toHaveCount(0);
           await expect(summary.getByTestId('app.dashboard.kpi.monthly-payment')).toHaveCount(0);
         }
+        const members = summary.getByTestId('app.dashboard.kpi.members');
+        const unmatched = summary.getByTestId('app.dashboard.kpi.unmatched-payments');
+        const requests = summary.getByTestId('app.dashboard.kpi.awaiting-requests');
+        if (actor.mode === 'admin' && actor.level === 100) {
+          await expect(members).toHaveText(language === 'cs' ? '1\u00a0234Členové' : '1,234Members');
+          await expect(unmatched).toHaveText(language === 'cs' ? '7Nespárované platby' : '7Unmatched payments');
+          await expect(requests).toHaveText(language === 'cs' ? '15Žádosti k posouzení' : '15Requests to review');
+          expect(state.adminCountReads).toEqual(expect.arrayContaining([
+            { resource: 'incoming_payment', state: 'unmatched', limit: '1', count: 'true' },
+            { resource: 'registration', state: 'awaiting', limit: '1', count: 'true' },
+            { resource: 'change', state: 'awaiting', limit: '1', count: 'true' },
+          ]));
+          if (!isMobile) {
+            const items = summary.getByTestId(/^app\.dashboard\.kpi\.(vps|datasets|dns|members|unmatched-payments|awaiting-requests)$/);
+            const topEdges = await items.evaluateAll(elements => elements.map(element => element.getBoundingClientRect().top));
+            expect(topEdges).toHaveLength(6);
+            expect(Math.max(...topEdges) - Math.min(...topEdges)).toBeLessThan(1);
+          }
+        } else {
+          await expect(members).toHaveCount(0);
+          await expect(unmatched).toHaveCount(0);
+          await expect(requests).toHaveCount(0);
+          expect(state.adminCountReads).toEqual([]);
+        }
         await expectNoDocumentHorizontalOverflow(page);
         if (count === 2) await summary.screenshot({ path: info.outputPath('summary.png') });
       }
-      expect(state.reads.some(path => /payment|sysconfig/i.test(path))).toBe(false);
+      expect(state.reads.some(path => /(?:user_payments|sysconfig)/i.test(path))).toBe(false);
       expect(state.writes).toEqual([]);
       expect(state.errors).toEqual([]);
     });
@@ -124,3 +176,23 @@ for (const language of ['cs', 'en'] as const) {
     expect(state.errors).toEqual([]);
   });
 }
+
+test('@pr-smoke @pr-smoke-mobile Admin Summary distinguishes zero, missing totals and request failure', async ({ page }) => {
+  const state = await setup(page, 'en', 100);
+  state.paymentsCount = 0;
+  state.changesCount = undefined;
+  await page.goto('/admin');
+  const unmatched = page.getByTestId('app.dashboard.kpi.unmatched-payments');
+  const requests = page.getByTestId('app.dashboard.kpi.awaiting-requests');
+  await expect(unmatched).toHaveText('0Unmatched payments');
+  await expect(requests).toHaveText('—Requests to review');
+
+  state.paymentsUnavailable = true;
+  state.registrationsCount = 0;
+  state.changesCount = 0;
+  await page.reload();
+  await expect(unmatched).toHaveText('—Unmatched payments');
+  await expect(requests).toHaveText('0Requests to review');
+  expect(state.writes).toEqual([]);
+  expect(state.errors).toEqual([]);
+});
