@@ -1685,3 +1685,25 @@ preserve all branch histories and colleague PRs. Add standard push CI for the
 integration branch, without deployment automation. Dev has isolated test data;
 clankerdev still uses the production API. No host update in this setup.
 [Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
+
+
+## 2026-11-09 — Public navigation targets (prepared)
+
+Align public locale/theme controls and coarse-pointer navigation targets.
+Preserve labels, destinations and authentication.
+[Cause, scope and verification](docs/work-log/2026-11-09-public-navigation-targets.md).
+
+
+## 2026-11-09 — OOM pagination dependency for navigation review
+
+Retain the already prepared PR243 fix to prevent stale filter/router navigation
+in the focused review baseline. This dependency is already in the actual preview.
+[Cause and deterministic checks](docs/work-log/2026-11-09-oom-pending-filter-navigation.md).
+
+
+## 2026-11-09 — Include shared detail navigation targets (prepared)
+
+The finite cluster/networking/content wrapper audit confirms36px coarse-pointer
+TabsNav targets. Apply the same44px minimum as public navigation and adopt the
+changed component into scoped lint coverage. Preserve labels, wrapping, active
+state, roles and API behavior. [Evidence and limits](docs/work-log/2026-11-09-public-navigation-targets.md).
