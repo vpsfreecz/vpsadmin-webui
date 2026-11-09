@@ -46,3 +46,14 @@ The selected host labels already exist here; do not replace current assignment
 forms with those from the older focused base. Both spec roots, strict registry
 and frozen baseline are byte-preserved; append only the new regression cases.
 Clean packaging/exact263CI/actual delivery remain separate mandatory gates.
+
+Initial focused263head1b22 failed five MobileChrome zero-write checks due to
+automatic UI-preference synchronization in its geometry fixtures. The exact
+failed path and all retry traces are retained. A pinned same-legacy-runtime
+reproduction fails5before and passes5after explicit local preference setup;
+all3engines pass15, with all API-write and text-fragment bounds unchanged.
+Append only the fixture correction here. Runtime source, current SDK/API/BFF,
+all219strict roots/registry/frozen baseline and the five wrapping classes remain
+byte-equal to the initial preparedfb candidate. That candidate was never
+activated; new exact head, fresh clean package provenance and release gates are
+required. Do not retag oldfb screenshots or CI as this corrected revision.
