@@ -78,7 +78,7 @@ test('@pr-smoke @pr-smoke-mobile authenticated UI preferences load from and save
   if (desktopSidebar) await expect(page.getByTestId('nav.sidebar.vps')).toHaveText('VPS');
   await expect(page.getByRole('button', { name: /collapse sidebar|expand sidebar|sbalit panel|rozbalit panel/i })).toHaveCount(0);
 
-  await clickShellControl(page, 'shell.interface-preferences-button');
+  await clickShellControl(page, 'shell.user-menu-button');
   await page.getByTestId('shell.interface-preferences.theme.light').click();
 
   await expect.poll(() => writes.length).toBeGreaterThanOrEqual(1);
@@ -219,7 +219,7 @@ test('@pr-smoke @pr-smoke-mobile dark theme survives session expiry and a fresh 
   });
   await page.goto('/app/vps');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
-  await clickShellControl(page, 'shell.interface-preferences-button');
+  await clickShellControl(page, 'shell.user-menu-button');
   await page.getByTestId('shell.interface-preferences.theme.dark').click();
   await expect.poll(() => savedTheme).toBe('dark');
   authenticated = false;

@@ -10,7 +10,7 @@ for (const actor of [
 ] as const) {
   for (const language of ['cs', 'en'] as const) {
     for (const theme of ['light', 'dark'] as const) {
-      test(`@pr-smoke @pr-smoke-mobile direct account and logout ${actor.mode}/${actor.level} ${language} ${theme}`, async ({ page, isMobile }, info) => {
+      test(`@pr-smoke @pr-smoke-mobile nickname menu and logout ${actor.mode}/${actor.level} ${language} ${theme}`, async ({ page, isMobile }, info) => {
         await page.setViewportSize(isMobile ? { width: 320, height: 740 } : { width: 1440, height: 1000 });
         await page.clock.setFixedTime(new Date('2026-11-08T00:00:00Z'));
         await bootstrapVpsAdminWindow(page, { sessionToken: 'SYNTHETIC_ACCOUNT_CONTROLS' });
@@ -42,40 +42,41 @@ for (const actor of [
         await page.goto(`/${actor.mode}/vps`);
         await openShellNavigation(page);
         const controls = page.getByTestId('shell.controls');
-        const settings = controls.getByTestId('shell.interface-preferences-button');
         const account = controls.getByTestId('shell.user-menu-button');
-        const logout = controls.getByTestId('shell.logout');
+        const badge = account.getByTestId('scope.indicator');
         await expect(account).toHaveAccessibleName(`${language === 'cs' ? 'Účet' : 'Account'}: ${user.login}`);
-        await expect(account).not.toHaveAttribute('aria-expanded');
-        await expect(logout).toHaveAccessibleName(language === 'cs' ? 'Odhlásit se' : 'Logout');
-        await expect(logout).toBeInViewport({ ratio: 1 });
-        await expect(controls.getByTestId('shell.user-role')).toHaveCount(actor.level >= 21 ? 1 : 0);
-        const [settingBox, accountBox, logoutBox] = await Promise.all([settings.boundingBox(), account.boundingBox(), logout.boundingBox()]);
-        expect(settingBox).not.toBeNull();
-        expect(accountBox).not.toBeNull();
-        expect(logoutBox).not.toBeNull();
-        expect(logoutBox!.height).toBeGreaterThanOrEqual(isMobile ? 44 : 36);
-        expect(logoutBox!.width).toBeGreaterThanOrEqual(isMobile ? 44 : 36);
-        expect(Math.abs(settingBox!.height - logoutBox!.height)).toBeLessThanOrEqual(1);
-        expect(Math.abs(settingBox!.y - logoutBox!.y)).toBeLessThanOrEqual(1);
-        expect(accountBox!.x + accountBox!.width).toBeLessThanOrEqual(logoutBox!.x);
+        await expect(account).toHaveAttribute('aria-expanded', 'false');
+        await expect(controls.getByTestId('shell.logout')).toHaveCount(0);
+        await expect(page.locator('[data-testid="nav.drawer.account"], [data-testid="nav.sidebar.account"]')).toHaveCount(0);
+        await expect(badge).toHaveCount(actor.level === 100 ? 1 : 0);
+        if (actor.level === 100) {
+          await expect(badge).toHaveText(language === 'cs' ? 'Všechny' : 'All');
+          await expect(badge).toBeInViewport({ ratio: 1 });
+        }
+        const label = account.getByText(user.login, { exact: true });
+        expect(await label.evaluate(el => el.scrollWidth > el.clientWidth && getComputedStyle(el).textOverflow === 'ellipsis')).toBe(true);
         await controls.screenshot({ path: info.outputPath('account-controls.png') });
-        await settings.click();
+        await clickShellControl(page, 'shell.user-menu-button', isMobile);
         const preferences = page.getByTestId('shell.interface-preferences');
+        const logout = preferences.getByTestId('shell.logout');
         await expect(preferences).toBeVisible();
-        await expect(preferences.getByTestId('shell.interface-preferences.scope.all')).toHaveCount(actor.level >= 21 ? 1 : 0);
+        await expect(logout).toHaveAccessibleName(language === 'cs' ? 'Odhlásit se' : 'Logout');
+        await expect(preferences.getByTestId('shell.interface-preferences.scope.all')).toHaveCount(actor.level === 100 ? 1 : 0);
+        await expect(preferences.getByText(/Umístění nápovědy|Help placement/)).toHaveCount(0);
         await expect(preferences.getByTestId(`shell.interface-preferences.theme.${theme}`)).toHaveAttribute('aria-pressed', 'true');
         await expect(preferences.getByTestId(`shell.interface-preferences.language.${language}`)).toHaveAttribute('aria-pressed', 'true');
         await preferences.screenshot({ path: info.outputPath('preferences.png') });
         await page.keyboard.press('Escape');
         await expect(preferences).toBeHidden();
-        await expect(settings).toBeFocused();
+        await expect(account).toBeFocused();
         await clickShellControl(page, 'shell.user-menu-button', isMobile);
+        await preferences.getByTestId('shell.user-menu.account').click();
         await expect(page).toHaveURL(new RegExp(`/${actor.mode}/profile$`));
         await expect(page.getByTestId('shell.user-menu')).toHaveCount(0);
         await expect(page.getByTestId('shell.user-menu.public-status')).toHaveCount(0);
         await openShellNavigation(page);
         await expectNoDocumentHorizontalOverflow(page);
+        await clickShellControl(page, 'shell.user-menu-button', isMobile);
         const href = await logout.getAttribute('href');
         expect(href).not.toBeNull();
         const destination = new URL(href!, page.url());

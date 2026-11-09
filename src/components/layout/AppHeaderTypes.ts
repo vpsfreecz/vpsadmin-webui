@@ -29,6 +29,5 @@ export interface AppHeaderProps {
   onSetLanguage: (next: 'system' | 'en' | 'cs') => void;
   onGoToOtherMode: () => void;
   onGoToProfile: () => void;
-  onGoToPublicStatus: () => void;
   loginLogoutHref: string;
 }

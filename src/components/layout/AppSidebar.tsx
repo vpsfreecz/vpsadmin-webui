@@ -25,7 +25,6 @@ import {
   Shield,
   ShieldAlert,
   TriangleAlert,
-  User,
   Users,
 } from 'lucide-react';
 
@@ -43,7 +42,6 @@ export interface NavItem {
   label: string;
   icon: React.ReactNode;
   group?: AdminSidebarGroupId;
-  footer?: boolean;
   status?: boolean;
 }
 
@@ -69,24 +67,19 @@ const adminSidebarGroups: Array<{ id: AdminSidebarGroupId; labelKey: string }> =
 ];
 
 export function sidebarNavSections(items: NavItem[]): SidebarNavSection[] {
-  const mainItems = items.filter((item) => !item.footer);
-  if (!mainItems.some((item) => item.group)) {
-    return [{ id: 'ungrouped', items: mainItems }];
+  if (!items.some((item) => item.group)) {
+    return [{ id: 'ungrouped', items: items }];
   }
 
   const sections: SidebarNavSection[] = adminSidebarGroups.flatMap((group) => {
-    const groupItems = mainItems.filter((item) => item.group === group.id);
+    const groupItems = items.filter((item) => item.group === group.id);
     return groupItems.length > 0 ? [{ ...group, items: groupItems }] : [];
   });
-  const ungrouped = mainItems.filter((item) => !item.group && !item.status);
-  const status = mainItems.filter((item) => item.status);
+  const ungrouped = items.filter((item) => !item.group && !item.status);
+  const status = items.filter((item) => item.status);
   if (ungrouped.length > 0) sections.unshift({ id: 'ungrouped', items: ungrouped });
   if (status.length > 0) sections.push({ id: 'status', items: status });
   return sections;
-}
-
-export function sidebarFooterNavItems(items: NavItem[]): NavItem[] {
-  return items.filter((item) => item.footer);
 }
 
 export function primarySidebarNavItems(items: NavItem[]): NavItem[] {
@@ -171,13 +164,6 @@ export function buildSidebarNavItems(opts: {
     items.push({ id: 'admin-info', to: `${basePath}/admin-info`, label: t('nav.admin'), icon: <Shield size={18} />, group: 'infrastructure' });
   }
 
-  items.push({
-    id: 'account',
-    to: `${basePath}/profile`,
-    label: t('nav.account'),
-    icon: <User size={18} />,
-    ...(appMode === 'admin' ? { footer: true } : {}),
-  });
   items.push(
     {
       id: 'outages',
@@ -331,7 +317,6 @@ export function AppSidebar(props: {
   }, [onCloseMobileNav]);
   const primaryNavItems = primarySidebarNavItems(navItems);
   const navSections = sidebarNavSections(primaryNavItems);
-  const footerNavItems = sidebarFooterNavItems(primaryNavItems);
   const compactDesktopNav = primaryNavItems.filter((item) => !item.status).length > 18;
 
   return (
@@ -354,18 +339,6 @@ export function AppSidebar(props: {
               t={t}
               onNavigate={onCloseMobileNav}
             />
-            {footerNavItems.length > 0 ? (
-              <div className="mt-3 border-t border-border pt-3">
-                {footerNavItems.map((item) => (
-                  <NavigationLink
-                    key={item.to}
-                    item={item}
-                    surface="drawer"
-                    onClick={onCloseMobileNav}
-                  />
-                ))}
-              </div>
-            ) : null}
           </nav>
           <div className="border-t border-border pt-3" data-testid="shell.brand.drawer">
             <AppLogo />
@@ -399,17 +372,6 @@ export function AppSidebar(props: {
             <SidebarTips />
           </div>
 
-          {footerNavItems.length > 0 ? (
-            <div className="shrink-0 border-t border-border px-2 py-2">
-              {footerNavItems.map((item) => (
-                <NavigationLink
-                  key={item.to}
-                  item={item}
-                  surface="sidebar"
-                />
-              ))}
-            </div>
-          ) : null}
           <div className="shrink-0 border-t border-border px-4 py-3" data-testid="shell.brand.sidebar">
             <AppLogo />
           </div>

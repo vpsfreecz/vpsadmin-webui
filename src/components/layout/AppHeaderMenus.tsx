@@ -1,6 +1,6 @@
 import React, { useEffect, useId, useRef, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { AlertTriangle, Clock3, Headset, LogOut, Settings, ShieldCheck, WifiOff } from 'lucide-react';
+import { AlertTriangle, ChevronDown, Clock3, WifiOff } from 'lucide-react';
 
 import { updateUser } from '../../lib/api/users';
 import { formatErrorMessage } from '../../lib/errors';
@@ -222,25 +222,25 @@ export function AppSessionControl(props: Pick<AppHeaderProps, 't' | 'sessionExpi
 
 export function AppUserMenu(props: Pick<AppHeaderProps,
   't' | 'mode' | 'canSwitchMode' | 'userMenuRef' | 'userMenuOpen' | 'setUserMenuOpen' | 'authLogin' | 'authRole' |
-  'onNavigate' | 'theme' | 'language' | 'onSetTheme' | 'onSetLanguage' | 'onGoToOtherMode' | 'onGoToProfile' | 'onGoToPublicStatus' | 'loginLogoutHref'
+  'theme' | 'language' | 'onSetTheme' | 'onSetLanguage' | 'onGoToOtherMode' | 'onGoToProfile' | 'loginLogoutHref'
 >) {
   const {
     t, mode, canSwitchMode, userMenuRef, userMenuOpen, setUserMenuOpen, authLogin, authRole,
-    onNavigate, theme, language, onSetTheme, onSetLanguage,
+    theme, language, onSetTheme, onSetLanguage,
     onGoToOtherMode, onGoToProfile, loginLogoutHref,
   } = props;
   const roleDescriptionId = useId();
-  const RoleIcon = authRole === 'admin' ? ShieldCheck : authRole === 'support' ? Headset : null;
+  const scopeId = useId();
+  const showScope = canSwitchMode && authRole === 'admin';
   const roleLabel = authRole === 'admin' || authRole === 'support' || authRole === 'user'
     ? t(`admin.users.role.${authRole}`)
     : undefined;
-  const preferencesOpen = userMenuOpen;
   const preferencesTriggerRef = useRef<HTMLButtonElement>(null);
   const popupId = useId();
   const preferencesLabel = t('settings.interface.label');
 
   const preferencesRef = useRef<HTMLDivElement>(null);
-  const preferencesStyle = useClippedPopover(preferencesOpen, userMenuRef, preferencesRef, Infinity);
+  const preferencesStyle = useClippedPopover(userMenuOpen, userMenuRef, preferencesRef, Infinity);
   useEffect(() => {
     if (!userMenuOpen) return;
     const onKeyDown = (event: KeyboardEvent) => {
@@ -251,126 +251,124 @@ export function AppUserMenu(props: Pick<AppHeaderProps,
     };
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
-  }, [userMenuOpen, preferencesOpen, setUserMenuOpen]);
+  }, [userMenuOpen, setUserMenuOpen]);
 
   return (
     <div className="relative min-w-0" ref={userMenuRef}>
-      <div className="flex min-w-0 gap-1.5">
-        <button
-          type="button"
-          className="flex min-h-11 min-w-0 flex-1 items-center gap-1.5 rounded-md border border-transparent bg-surface px-2 text-left text-sm text-muted hover:bg-surface-2 hover:text-fg md:min-h-9 [@media(any-pointer:coarse)]:min-h-11"
-          onClick={() => {
-            setUserMenuOpen(false);
-            onGoToProfile();
-          }}
-          aria-label={t('user_menu.account_for', { login: authLogin ?? '—' })}
-          title={t('user_menu.account')}
-          aria-describedby={roleLabel ? roleDescriptionId : undefined}
-          data-testid="shell.user-menu-button"
-        >
-          <span className="min-w-0 truncate font-medium">{authLogin ?? '—'}</span>
-          {RoleIcon ? (
-            <span className="shrink-0" title={roleLabel} data-testid="shell.user-role">
-              <RoleIcon size={14} aria-hidden="true" />
-            </span>
-          ) : null}
-          {roleLabel ? <span id={roleDescriptionId} className="sr-only">{roleLabel}</span> : null}
-        </button>
-        <button
-          type="button"
-          ref={preferencesTriggerRef}
-          className="flex min-h-11 w-11 shrink-0 items-center justify-center rounded-md border border-border bg-surface text-muted hover:bg-surface-2 hover:text-fg md:min-h-9 md:w-9 [@media(any-pointer:coarse)]:min-h-11 [@media(any-pointer:coarse)]:w-11"
-          onClick={() => setUserMenuOpen(!userMenuOpen)}
-          aria-expanded={preferencesOpen}
-          aria-controls={preferencesOpen ? popupId : undefined}
-          aria-label={preferencesLabel}
-          title={preferencesLabel}
-          data-testid="shell.interface-preferences-button"
-        >
-          <Settings size={18} aria-hidden="true" />
-        </button>
-        <a
-          href={loginLogoutHref}
-          className="flex min-h-11 w-11 shrink-0 items-center justify-center rounded-md border border-border bg-surface text-muted hover:bg-surface-2 hover:text-fg md:min-h-9 md:w-9 [@media(any-pointer:coarse)]:min-h-11 [@media(any-pointer:coarse)]:w-11"
-          aria-label={t('user_menu.logout')}
-          title={t('user_menu.logout')}
-          data-testid="shell.logout"
-        >
-          <LogOut size={18} aria-hidden="true" />
-        </a>
-        {preferencesOpen ? (
-          <div
-            id={popupId}
-            ref={preferencesRef}
-            style={preferencesStyle}
-            className={clsx(headerPopoverClassName, 'divide-y divide-border')}
-            role="region"
-            aria-label={preferencesLabel}
-            data-testid="shell.interface-preferences"
-            data-overlay="popover"
-            data-overlay-surface="overlay"
+      <button
+        type="button"
+        ref={preferencesTriggerRef}
+        className="flex min-h-11 w-full min-w-0 items-center gap-1.5 rounded-md border border-transparent bg-surface px-2 text-left text-sm text-muted hover:bg-surface-2 hover:text-fg md:min-h-9 [@media(any-pointer:coarse)]:min-h-11"
+        onClick={() => setUserMenuOpen((open) => !open)}
+        aria-expanded={userMenuOpen}
+        aria-controls={userMenuOpen ? popupId : undefined}
+        aria-label={t('user_menu.account_for', { login: authLogin ?? '—' })}
+        title={authLogin}
+        aria-describedby={[roleLabel ? roleDescriptionId : '', showScope ? scopeId : ''].filter(Boolean).join(' ') || undefined}
+        data-testid="shell.user-menu-button"
+      >
+        <span className="min-w-0 truncate font-medium">{authLogin ?? '—'}</span>
+        {showScope ? (
+          <span
+            id={scopeId}
+            className="shrink-0 rounded bg-surface-2 px-1.5 py-0.5 text-xs font-medium leading-tight text-muted"
+            data-testid="scope.indicator"
           >
-            {canSwitchMode ? (
-              <div className="px-2 py-2" role="group" aria-label={t('settings.scope.label')}>
-                <div className="text-xs text-muted">{t('settings.scope.label')}</div>
-                <div className="mt-1 grid grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] gap-2">
-                  <button
-                    type="button"
-                    data-testid="shell.interface-preferences.scope.mine"
-                    aria-pressed={mode === 'user'}
-                    className={segmentedButtonClass(mode === 'user')}
-                    onClick={() => {
-                      if (mode === 'user') return;
-                      setUserMenuOpen(false);
-                      onGoToOtherMode();
-                    }}
-                  >
-                    {t('settings.scope.mine')}
-                  </button>
-                  <button
-                    type="button"
-                    data-testid="shell.interface-preferences.scope.all"
-                    aria-pressed={mode === 'admin'}
-                    className={segmentedButtonClass(mode === 'admin')}
-                    onClick={() => {
-                      if (mode === 'admin') return;
-                      setUserMenuOpen(false);
-                      onGoToOtherMode();
-                    }}
-                  >
-                    {t('settings.scope.all')}
-                  </button>
-                </div>
-                <p className={clsx('mt-2 text-xs', mode === 'admin' ? 'text-warn' : 'text-muted')}>
-                  {mode === 'admin' ? t('scope.indicator.admin_hint') : t('scope.indicator.my_hint')}
-                </p>
-              </div>
-            ) : null}
-            <PreferenceSelector
-              label={t('settings.theme.label')}
-              options={[
-                { id: 'system', label: t('settings.theme.system') },
-                { id: 'light', label: t('settings.theme.light') },
-                { id: 'dark', label: t('settings.theme.dark') },
-              ]}
-              selected={theme}
-              testIdPrefix="shell.interface-preferences.theme"
-              onSelect={(value) => onSetTheme(value as AppHeaderProps['theme'])}
-            />
-            <PreferenceSelector
-              label={t('settings.language.label')}
-              options={[
-                { id: 'system', label: t('settings.language.system') },
-                { id: 'en', label: 'EN', title: t('settings.language.en') },
-                { id: 'cs', label: 'CS', title: t('settings.language.cs') },
-              ]}
-              selected={language}
-              testIdPrefix="shell.interface-preferences.language"
-              onSelect={(value) => onSetLanguage(value as AppHeaderProps['language'])}
-            />
-          </div>
+            {mode === 'admin' ? t('scope.indicator.admin_short') : t('scope.indicator.my_short')}
+          </span>
         ) : null}
-      </div>
+        {roleLabel ? <span id={roleDescriptionId} className="sr-only">{roleLabel}</span> : null}
+        <ChevronDown size={14} className="ml-auto shrink-0" aria-hidden="true" />
+      </button>
+      {userMenuOpen ? (
+        <div
+          id={popupId}
+          ref={preferencesRef}
+          style={preferencesStyle}
+          className={clsx(headerPopoverClassName, 'divide-y divide-border')}
+          role="region"
+          aria-label={preferencesLabel}
+          data-testid="shell.interface-preferences"
+          data-overlay="popover"
+          data-overlay-surface="overlay"
+        >
+          {showScope ? (
+            <div className="px-2 py-2" role="group" aria-label={t('settings.scope.label')}>
+              <div className="text-xs text-muted">{t('settings.scope.label')}</div>
+              <div className="mt-1 grid grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] gap-2">
+                <button
+                  type="button"
+                  data-testid="shell.interface-preferences.scope.mine"
+                  aria-pressed={mode === 'user'}
+                  className={segmentedButtonClass(mode === 'user')}
+                  onClick={() => {
+                    if (mode === 'user') return;
+                    setUserMenuOpen(false);
+                    onGoToOtherMode();
+                  }}
+                >
+                  {t('settings.scope.mine')}
+                </button>
+                <button
+                  type="button"
+                  data-testid="shell.interface-preferences.scope.all"
+                  aria-pressed={mode === 'admin'}
+                  className={segmentedButtonClass(mode === 'admin')}
+                  onClick={() => {
+                    if (mode === 'admin') return;
+                    setUserMenuOpen(false);
+                    onGoToOtherMode();
+                  }}
+                >
+                  {t('settings.scope.all')}
+                </button>
+              </div>
+            </div>
+          ) : null}
+          <PreferenceSelector
+            label={t('settings.theme.label')}
+            options={[
+              { id: 'system', label: t('settings.theme.system') },
+              { id: 'light', label: t('settings.theme.light') },
+              { id: 'dark', label: t('settings.theme.dark') },
+            ]}
+            selected={theme}
+            testIdPrefix="shell.interface-preferences.theme"
+            onSelect={(value) => onSetTheme(value as AppHeaderProps['theme'])}
+          />
+          <PreferenceSelector
+            label={t('settings.language.label')}
+            options={[
+              { id: 'system', label: t('settings.language.system') },
+              { id: 'en', label: 'EN', title: t('settings.language.en') },
+              { id: 'cs', label: 'CS', title: t('settings.language.cs') },
+            ]}
+            selected={language}
+            testIdPrefix="shell.interface-preferences.language"
+            onSelect={(value) => onSetLanguage(value as AppHeaderProps['language'])}
+          />
+          <div className="space-y-1 px-2 pt-2">
+            <button
+              type="button"
+              className="flex min-h-11 w-full items-center rounded-md px-2 text-left text-sm text-fg hover:bg-surface-2 md:min-h-9 [@media(any-pointer:coarse)]:min-h-11"
+              onClick={() => {
+                setUserMenuOpen(false);
+                onGoToProfile();
+              }}
+              data-testid="shell.user-menu.account"
+            >
+              {t('user_menu.account')}
+            </button>
+            <a
+              href={loginLogoutHref}
+              className="flex min-h-11 items-center rounded-md px-2 text-sm text-fg hover:bg-surface-2 md:min-h-9 [@media(any-pointer:coarse)]:min-h-11"
+              data-testid="shell.logout"
+            >
+              {t('user_menu.logout')}
+            </a>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

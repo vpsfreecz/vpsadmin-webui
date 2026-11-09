@@ -1,7 +1,7 @@
 # Workflow catalog and behavior to preserve
 
 The signed-in dashboard opens its widget editor from a single control beside the page title (REQ-009).
-The signed-in shell opens appearance, language and role-gated view choices from the gear immediately left of logout. Search uses the full row and the command palette keyboard shortcuts remain available (REQ-004, REQ-010).
+The signed-in shell opens appearance, language, Account and logout from the nickname. Administrators with scope access also see view choices. Search uses the full row and the command palette keyboard shortcuts remain available (REQ-004, REQ-010).
 
 This catalog covers all product domains in the current route/API inventory. It is
 not a claim of exhaustive field-level legacy parity. Each workflow inherits the
@@ -647,18 +647,14 @@ popover below the navigation control, using the account menu surface. It starts 
 40 minutes, no expiry and a custom number of minutes. Save updates only the
 current account's preferred session length. Cancel discards the draft. The
 profile security page remains a separate entry to the same preference.
-The login control opens the signed-in user's Account directly through the existing
-personal-route callback, including administrator aliases. A labelled icon link in
-the same row as interface settings exposes logout without opening another menu;
-it retains the configured native logout URL and existing authentication flow.
-The login keeps its Tasks alignment and privileged role icon/accessibility text.
-The removed Account/Public status submenu adds no duplicate destinations.
-
-The adjacent Language and appearance button retains scope selection for permitted
-roles, theme and language (REQ-004/009/010/012). Its
-popover remains bounded to the viewport with internal scrolling on short screens;
-Escape dismisses it and restores focus to Settings. Session length retains its
-separate control and existing save/failure/expiry behavior.
+The nickname button opens the account popover. Account follows the existing
+personal route callback, including administrator aliases. Logout retains its
+configured native URL. Administrators with scope access can switch views here.
+The passive badge beside the nickname follows the current route mode. Support
+access and existing routing capabilities are unchanged.
+The popover fits the viewport and scrolls internally on short screens. Escape
+returns focus to the nickname. Session length remains separately accessible
+(REQ-004/009/010/012).
 
 Administrator member editing uses a named Role select instead of a numeric
 privilege input. Choices match the legacy UI: User, Power User, Admin,

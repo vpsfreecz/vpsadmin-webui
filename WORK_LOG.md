@@ -1,3 +1,7 @@
+## 2026-11-09 — Consolidate the account controls under the nickname
+
+[Scope and verification](docs/work-log/2026-11-09-nickname-menu.md).
+
 ## 2026-11-09 — Keep DNSSEC records inside narrow cards
 
 [Scope and verification](docs/work-log/2026-11-09-dnssec-record-width.md).

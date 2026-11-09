@@ -44,6 +44,8 @@ function t(key: any, vars?: Record<string, unknown>): string {
     'settings.language.en': 'EN',
     'settings.language.label': 'Language',
     'settings.language.system': 'System',
+    'scope.indicator.my_short': 'Mine',
+    'scope.indicator.admin_short': 'All',
     'settings.scope.label': 'Scope',
     'settings.scope.mine': 'Mine',
     'settings.scope.all': 'All',
@@ -60,7 +62,11 @@ function t(key: any, vars?: Record<string, unknown>): string {
   return (translations[String(key)] ?? String(key)).replace('{login}', String(vars?.['login'] ?? ''));
 }
 
-function HeaderHarness(props: { onGoToProfile?: () => void } = {}) {
+function HeaderHarness(props: {
+  onGoToProfile?: () => void;
+  role?: 'admin' | 'support' | 'user';
+  mode?: 'user' | 'admin';
+} = {}) {
   const syncRef = useRef<HTMLDivElement | null>(null);
   const userMenuRef = useRef<HTMLDivElement | null>(null);
   const [syncOpen, setSyncOpen] = useState(false);
@@ -72,8 +78,8 @@ function HeaderHarness(props: { onGoToProfile?: () => void } = {}) {
       <MemoryRouter>
         <AppHeader
           t={t}
-          mode="user"
-          canSwitchMode={false}
+          mode={props.mode ?? 'user'}
+          canSwitchMode={props.role === 'admin' || props.role === 'support'}
           showSyncIndicator={false}
           syncRef={syncRef}
           syncOpen={syncOpen}
@@ -90,7 +96,7 @@ function HeaderHarness(props: { onGoToProfile?: () => void } = {}) {
           userMenuOpen={userMenuOpen}
           setUserMenuOpen={setUserMenuOpen}
           authLogin="KerryCZE"
-          authRole="admin"
+          authRole={props.role ?? 'user'}
           sessionExpiresAt={Date.now() + 40 * 60_000}
           theme="light"
           language="cs"
@@ -98,7 +104,6 @@ function HeaderHarness(props: { onGoToProfile?: () => void } = {}) {
           onSetLanguage={() => undefined}
           onGoToOtherMode={() => undefined}
           onGoToProfile={props.onGoToProfile ?? (() => undefined)}
-          onGoToPublicStatus={() => undefined}
           loginLogoutHref="/logout"
         />
         <LocationProbe />
@@ -138,7 +143,7 @@ describe('AppHeader', () => {
   it('anchors interface preferences inside the navigation', () => {
     render(<HeaderHarness />);
 
-    fireEvent.click(screen.getByTestId('shell.interface-preferences-button'));
+    fireEvent.click(screen.getByTestId('shell.user-menu-button'));
 
     const menu = screen.getByTestId('shell.interface-preferences');
     expect(menu).toHaveClass('left-0');
@@ -147,9 +152,9 @@ describe('AppHeader', () => {
     expect(menu.className).not.toContain('mt-2');
   });
 
-  it('dismisses interface preferences with Escape and restores settings focus', () => {
+  it('dismisses interface preferences with Escape and restores nickname focus', () => {
     render(<HeaderHarness />);
-    const trigger = screen.getByTestId('shell.interface-preferences-button');
+    const trigger = screen.getByTestId('shell.user-menu-button');
     fireEvent.click(trigger);
     const menu = screen.getByTestId('shell.interface-preferences');
     menu.querySelector('button')?.focus();
@@ -160,16 +165,36 @@ describe('AppHeader', () => {
     expect(trigger).toHaveFocus();
   });
 
-  it('opens the account directly and exposes logout without an account menu', () => {
+  it('reveals Account and logout through the nickname button', () => {
     const onGoToProfile = vi.fn();
     render(<HeaderHarness onGoToProfile={onGoToProfile} />);
     const account = screen.getByRole('button', { name: 'Account: KerryCZE' });
-    expect(account).not.toHaveAttribute('aria-expanded');
-    expect(screen.getByRole('link', { name: 'Logout' })).toHaveAttribute('href', '/logout');
+    expect(account).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('link', { name: 'Logout' })).not.toBeInTheDocument();
     fireEvent.click(account);
+    expect(onGoToProfile).not.toHaveBeenCalled();
+    expect(screen.getByRole('link', { name: 'Logout' })).toHaveAttribute('href', '/logout');
+    fireEvent.click(screen.getByTestId('shell.user-menu.account'));
     expect(onGoToProfile).toHaveBeenCalledTimes(1);
-    expect(screen.queryByTestId('shell.user-menu')).not.toBeInTheDocument();
     expect(screen.queryByTestId('shell.interface-preferences')).not.toBeInTheDocument();
+  });
+
+  it.each(['user', 'support', 'admin'] as const)('shows the sidebar view controls only for administrators (%s)', (role) => {
+    const view = render(<HeaderHarness role={role} />);
+    fireEvent.click(screen.getByTestId('shell.user-menu-button'));
+    const badge = screen.queryByTestId('scope.indicator');
+    const choice = screen.queryByTestId('shell.interface-preferences.scope.all');
+
+    if (role === 'admin') {
+      expect(badge).toHaveTextContent(/^Mine$/);
+      expect(choice).toHaveAttribute('aria-pressed', 'false');
+      view.rerender(<HeaderHarness role={role} mode="admin" />);
+      expect(badge).toHaveTextContent(/^All$/);
+      expect(choice).toHaveAttribute('aria-pressed', 'true');
+    } else {
+      expect(badge).not.toBeInTheDocument();
+      expect(choice).not.toBeInTheDocument();
+    }
   });
 
   it('does not briefly show 41 minutes when a 40-minute deadline renews between ticks', () => {
@@ -197,7 +222,7 @@ describe('AppHeader', () => {
     fireEvent.click(screen.getByText('common.cancel'));
     expect(screen.queryByTestId('shell.user-menu')).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByTestId('shell.interface-preferences-button'));
+    fireEvent.click(screen.getByTestId('shell.user-menu-button'));
     expect(screen.getByTestId('shell.interface-preferences')).toBeInTheDocument();
     expect(screen.queryByTestId('shell.user-menu.session-remaining')).not.toBeInTheDocument();
   });

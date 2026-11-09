@@ -17,8 +17,7 @@ for (const actor of [
       user: { id: 1, login: 'syntheticauditaccount'.padEnd(63, 'x'), level: actor.level },
     });
     await page.goto(`/${actor.mode}/vps`);
-    const account = page.getByTestId('shell.user-menu-button');
-    const button = page.getByTestId('shell.interface-preferences-button');
+    const button = page.getByTestId('shell.user-menu-button');
     await openShellNavigation(page);
     await expect(button).toBeVisible();
     for (const width of [320, 390, 640, 768, 1024, 1280]) {
@@ -30,8 +29,6 @@ for (const actor of [
       const menu = page.getByTestId('shell.interface-preferences');
       await expect(menu).toBeVisible();
       await expect(button).toHaveAttribute('aria-expanded', 'true');
-      await expect(account).toBeVisible();
-      await expect(account).not.toHaveAttribute('aria-expanded');
       await expect(page.getByTestId('shell.logout')).toBeInViewport({ ratio: 1 });
       await expectNoDocumentHorizontalOverflow(page);
       const box = await menu.boundingBox();

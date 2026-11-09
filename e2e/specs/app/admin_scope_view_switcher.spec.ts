@@ -1,4 +1,4 @@
-import { clickShellControl } from '../../helpers/shellNavigation';
+import { clickShellControl, openShellNavigation } from '../../helpers/shellNavigation';
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 
@@ -48,16 +48,18 @@ test.describe('@smoke @smoke-mobile Admin scope switcher', () => {
     await page.goto('/admin/vps?from_id=50&page=2');
     await expect(page.getByTestId('vps.list')).toBeVisible();
 
-    await clickShellControl(page, 'shell.interface-preferences-button');
+    await clickShellControl(page, 'shell.user-menu-button');
     await page.getByTestId('shell.interface-preferences.scope.mine').click();
 
     await expectNormalizedVpsListUrl(page, '/app/vps');
+    await openShellNavigation(page);
+    await expect(page.getByTestId('scope.indicator')).toHaveText(/^(Mine|Moje)$/);
 
     // When switching to Mine from an admin-only page, fall back to /app.
     await page.goto('/admin/nodes');
     await expect(page.getByTestId('admin.nodes.page')).toBeVisible();
 
-    await clickShellControl(page, 'shell.interface-preferences-button');
+    await clickShellControl(page, 'shell.user-menu-button');
     await page.getByTestId('shell.interface-preferences.scope.mine').click();
 
     await expect(page).toHaveURL('/app');
@@ -81,10 +83,12 @@ test.describe('@smoke @smoke-mobile Admin scope switcher', () => {
     await page.goto('/app/vps');
     await expect(page.getByTestId('vps.list')).toBeVisible();
 
-    await clickShellControl(page, 'shell.interface-preferences-button');
+    await clickShellControl(page, 'shell.user-menu-button');
     await page.getByTestId('shell.interface-preferences.scope.all').click();
 
     await expectNormalizedVpsListUrl(page, '/admin/vps');
+    await openShellNavigation(page);
+    await expect(page.getByTestId('scope.indicator')).toHaveText(/^(All|Všechny)$/);
     await expect(page.getByTestId('toast.scope.all.back')).toBeVisible();
   });
 });
