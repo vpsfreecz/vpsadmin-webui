@@ -2333,3 +2333,9 @@ Wrap full requested paths within403/404cards and retain recovery links.
 
 Correct measured dark error text while preserving auth gates and recovery.
 [Scope and evidence](docs/work-log/2026-11-09-appshell-error-readability.md).
+
+
+## 2026-11-09 — Align the Tasks drawer filter action (prepared)
+
+Match the clear-search button to its adjacent input after rendered measurements.
+[Scope and verification](docs/work-log/2026-11-09-task-drawer-field-alignment.md).
