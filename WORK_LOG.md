@@ -2328,3 +2328,8 @@ Align public controls and shared detail tabs while preserving labels and routes.
 
 Wrap full requested paths within403/404cards and retain recovery links.
 [Cause and verification](docs/work-log/2026-11-09-error-path-wrapping.md).
+
+## 2026-11-09 — AppShell error body readability (prepared)
+
+Correct measured dark error text while preserving auth gates and recovery.
+[Scope and evidence](docs/work-log/2026-11-09-appshell-error-readability.md).
