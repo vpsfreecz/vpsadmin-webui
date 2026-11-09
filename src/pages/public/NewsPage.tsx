@@ -1,3 +1,4 @@
+import { PageHeading } from '../../components/ui/PageHeading';
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 
@@ -20,7 +21,7 @@ export function NewsPage() {
   return (
     <div className="space-y-6" data-testid="public.news.page">
       <div className="space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight">{i18n.t('public.news.title')}</h1>
+        <PageHeading className="text-2xl font-semibold tracking-tight">{i18n.t('public.news.title')}</PageHeading>
         <p className="text-sm text-muted">{i18n.t('public.news.subtitle')}</p>
       </div>
 

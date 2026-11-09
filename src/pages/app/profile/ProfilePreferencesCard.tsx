@@ -133,21 +133,6 @@ export function ProfilePreferencesCard() {
             </ProfilePreferenceRow>
           ) : null}
 
-          <ProfilePreferenceRow label={t('settings.help_placement.label')} description={t('settings.help_placement.local')}>
-            <Select
-              aria-label={t('settings.help_placement.label')}
-              value={ui.helpPlacement}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (value === 'top' || value === 'bottom') ui.setHelpPlacement(value);
-              }}
-              options={[
-                { value: 'top', label: t('settings.help_placement.top') },
-                { value: 'bottom', label: t('settings.help_placement.bottom') },
-              ]}
-              testId="prefs.help-placement"
-            />
-          </ProfilePreferenceRow>
 
           <ProfilePreferenceRow label={t('settings.theme.label')}>
             <Select

@@ -1,3 +1,4 @@
+import { PageHeading } from '../../components/ui/PageHeading';
 import { useStatusPagePath } from '../../components/layout/useStatusPagePath';
 import React, { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -99,7 +100,7 @@ export function OutageDetailPage() {
         <div className="text-sm">
           <Link to={statusPath('/outages')} className="underline">← {i18n.t('public.outage_detail.back_to_outages')}</Link>
         </div>
-        <h1 className="text-2xl font-semibold tracking-tight">{summary}</h1>
+        <PageHeading className="text-2xl font-semibold tracking-tight">{summary}</PageHeading>
         <div className="flex flex-wrap items-center gap-2 text-sm">
           <StatusDot variant={dotVariant} ariaLabel={badges.lifecycle.label} />
           <Badge variant={badges.lifecycle.variant}>{badges.lifecycle.label}</Badge>

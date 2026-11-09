@@ -1,3 +1,4 @@
+import { PageHeading } from '../../components/ui/PageHeading';
 import { useStatusPagePath } from '../../components/layout/useStatusPagePath';
 import { SecurityCveBadge } from './SecurityCveBadge';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -176,7 +177,7 @@ export function SecurityAdvisoriesPage() {
 
   return (
     <>
-      <h1 className="sr-only">{i18n.t('public.security_advisories.title')}</h1>
+      <PageHeading visuallyHidden className="text-2xl font-semibold tracking-tight">{i18n.t('public.security_advisories.title')}</PageHeading>
       <div className="space-y-6" data-testid="public.security_advisories.page">
         {advisoriesQ.isLoading ? (
           <Spinner label={i18n.t('public.security_advisories.loading')} />

@@ -9,6 +9,7 @@ async function ensureContextualHelpExpanded(page: Page) {
   if ((await toggle.getAttribute('aria-expanded')) !== 'true') {
     await toggle.click();
   }
+  await expect(page.getByTestId('contextual.help.dialog')).toBeVisible();
 }
 
 test('@smoke contextual help renders on the public surface', async ({ page }) => {
@@ -34,7 +35,7 @@ test('@smoke contextual help renders on the public surface', async ({ page }) =>
   });
 
   await page.goto('/');
-  await expect(page.getByTestId('contextual.help.panel')).toBeVisible();
+  await expect(page.getByTestId('contextual.help.panel')).toHaveCount(0);
   await ensureContextualHelpExpanded(page);
   await expect(page.frameLocator('[data-testid="contextual.help.box.1"] iframe').getByText('Public page help')).toBeVisible();
   await expect(page.getByTestId('contextual.help.manage')).toHaveCount(0);
@@ -69,13 +70,13 @@ test('@smoke contextual help renders on user and admin surfaces', async ({ page 
   });
 
   await page.goto('/app/profile');
-  await expect(page.getByTestId('contextual.help.panel')).toBeVisible();
+  await expect(page.getByTestId('contextual.help.panel')).toHaveCount(0);
   await ensureContextualHelpExpanded(page);
   await expect(page.frameLocator('[data-testid="contextual.help.box.2"] iframe').getByText('Profile help')).toBeVisible();
   await expect(page.getByTestId('contextual.help.manage')).toHaveAttribute('href', /\/admin\/content\/help-boxes\?page=profile&action=overview/);
 
   await page.goto('/admin/cluster/summary');
-  await expect(page.getByTestId('contextual.help.panel')).toBeVisible();
+  await expect(page.getByTestId('contextual.help.panel')).toHaveCount(0);
   await ensureContextualHelpExpanded(page);
   await expect(page.frameLocator('[data-testid="contextual.help.box.3"] iframe').getByText('Cluster summary help')).toBeVisible();
   await expect(page.getByTestId('contextual.help.manage')).toHaveAttribute('href', /\/admin\/content\/help-boxes\?page=cluster&action=summary/);

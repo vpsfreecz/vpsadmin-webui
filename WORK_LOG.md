@@ -1,3 +1,7 @@
+## 2026-11-09 — Open contextual help beside the page heading
+
+[Scope, shared design and verification](docs/work-log/2026-11-09-contextual-help-modal.md).
+
 ## 2026-11-09 — Wrap the OOM rule in deletion confirmation
 
 [Scope and verification](docs/work-log/2026-11-09-oom-rule-confirmation-wrap.md).

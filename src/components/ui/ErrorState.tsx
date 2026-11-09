@@ -7,6 +7,7 @@ import { Card } from './Card';
 import { Button } from './Button';
 import { LinkButton } from './LinkButton';
 import { CopyButton } from './CopyButton';
+import { PageHelpAnchor } from './PageHeading';
 import type { ButtonVariant } from './buttonStyles';
 
 type ErrorStateAction = {
@@ -93,8 +94,7 @@ export function ErrorState(props: {
 
   const showBack = props.showBack !== false;
   const showStatus =
-    props.showStatusLink ??
-    (info.kind === 'network' || info.kind === 'server' || info.kind === 'unexpected');
+    props.showStatusLink ?? (info.kind === 'network' || info.kind === 'server' || info.kind === 'unexpected');
 
   const testId = props.testId;
   const retryTestId = testId ? `${testId}.retry` : undefined;
@@ -144,7 +144,10 @@ export function ErrorState(props: {
   return (
     <Card testId={testId}>
       <div className="p-4">
-        <div className="text-sm font-semibold text-fg">{title}</div>
+        <div className="flex items-center gap-2">
+          <div className="min-w-0 text-sm font-semibold text-fg">{title}</div>
+          <PageHelpAnchor priority={10} />
+        </div>
         <div className="mt-1 text-sm text-muted">{body}</div>
 
         <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -177,20 +180,13 @@ export function ErrorState(props: {
           )}
 
           {showDetails ? (
-            <CopyButton
-              testId={copyTestId}
-              text={details.text}
-              label={t('common.copy_details')}
-              variant="ghost"
-            />
+            <CopyButton testId={copyTestId} text={details.text} label={t('common.copy_details')} variant="ghost" />
           ) : null}
         </div>
 
         {showDetails ? (
           <details className="mt-4" data-testid={detailsTestId}>
-            <summary className="cursor-pointer text-sm font-medium text-fg">
-              {t('common.details')}
-            </summary>
+            <summary className="cursor-pointer text-sm font-medium text-fg">{t('common.details')}</summary>
 
             <pre className="mt-2 max-h-64 overflow-auto rounded-md border border-border bg-surface-2 p-3 text-xs text-fg">
               {details.text}
