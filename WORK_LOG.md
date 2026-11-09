@@ -2312,3 +2312,7 @@ and API behavior. [Scope and evidence](docs/work-log/2026-11-09-namespace-entry-
 
 Correct the reproduced Next/page-size URL race without changing owner scope.
 [Scope, root cause and evidence](docs/work-log/2026-11-09-oom-pending-filter-navigation.md).
+
+## 2026-11-09 — Readable OAuth error bodies
+
+Approved UX-04 / REQ-010; see the [measured scope and checks](docs/work-log/2026-11-09-oauth-error-readability.md).

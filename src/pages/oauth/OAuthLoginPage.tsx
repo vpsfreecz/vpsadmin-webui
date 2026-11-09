@@ -52,7 +52,7 @@ export function OAuthLoginPage() {
             <p className="text-sm text-muted">
               {t('oauth.login.error.body')}
             </p>
-            <p className="text-sm text-danger">{error}</p>
+            <p className="border-l-2 border-danger pl-2 text-sm font-medium text-fg">{error}</p>
 
             <div className="flex flex-wrap gap-2">
               <Button variant="primary" onClick={() => window.location.reload()}>
