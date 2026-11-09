@@ -56,6 +56,7 @@
     "e2e/specs/app/mobile_lookup_popover.spec.ts",
     "e2e/specs/app/mobile_touch_interactions.spec.ts",
     "e2e/specs/app/mobile_workflows.spec.ts",
+    "e2e/specs/app/nas_smoke.spec.ts",
     "e2e/specs/app/network_address_details.spec.ts",
     "e2e/specs/app/node_history.spec.ts",
     "e2e/specs/app/oom_reports_smart_filter.spec.ts",
@@ -946,13 +947,6 @@
     {
       "path": "e2e/specs/app/monitoring_events_keyset_pagination.spec.ts",
       "sha256": "123e2be0ed044c247cbbdaa9761a501740275f19bb744cd20966254f244d9059",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/app/nas_smoke.spec.ts",
-      "sha256": "6a90cd13a381f2d0a14fda23f0b2fafe1f175c70fe1e15ec7852a9c5adfd168b",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."

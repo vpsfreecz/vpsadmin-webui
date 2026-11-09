@@ -59,6 +59,7 @@
     "e2e/specs/app/mobile_lookup_popover.spec.ts",
     "e2e/specs/app/mobile_touch_interactions.spec.ts",
     "e2e/specs/app/mobile_workflows.spec.ts",
+    "e2e/specs/app/nas_smoke.spec.ts",
     "e2e/specs/app/network_address_details.spec.ts",
     "e2e/specs/app/node_history.spec.ts",
     "e2e/specs/app/oom_reports_smart_filter.spec.ts",

@@ -298,6 +298,15 @@ heading, including the mount command. Long
 code lines may scroll inside their block without widening the page. Temporary
 snapshot exports continue to show only their temporary mount instructions.
 
+**NAS parent selection:** creation derives its effective parent from the current
+owned/capability-filtered choices. A sole offered parent is selected; several
+choices keep the placeholder until the user chooses. A valid explicit choice
+survives option refreshes. An unavailable choice clears when several remain,
+or becomes the sole current option. The visible select, submit availability
+and existing dataset payload use the same effective ID. No parent means no
+creation form. Ownership filters do not certify API user_create permissions;
+the backend retains its existing ownership and user_create enforcement.
+
 **Snapshot export shortcut:** snapshot rows/cards in Backup Center and dataset,
 VPS storage and NAS views offer NFS export beside Download. Each snapshot ID
 appears once beneath its creation date/time, never repeated beside the actions. An existing export
