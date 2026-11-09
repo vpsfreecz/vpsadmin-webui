@@ -52,10 +52,10 @@
       "path": "src/components/userNamespaces/UserNamespaceMapDetail.tsx",
       "rule": "grown-over-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "eb6d3e873f2b5ce5cae74b021a3a629d07ba676daa2e003f5934df1f3eb33101",
+      "contentHash": "82b094d854f11b2ca0d13e4e689bce5be55d53f3f1a47538f8b07f34f25e19cf",
       "old": 770,
       "allowance": 798,
-      "rationale": "At the recorded source revision, this file already contained namespace map detail states; extract the coherent section with focused behavior coverage before removing this exception.",
+      "rationale": "At the recorded source revision, this file already contained namespace map detail states; extract the coherent section with focused behavior coverage before removing this exception. Reviewed 2026-11-09: only four existing-row error class lists gain readable foreground, medium weight and a separate danger marker. No row-state, API, validation, line or allowance growth; inherited extraction debt remains.",
       "owner": "WebUI implementation lead",
       "removeWhen": {
         "metric": "lines",
