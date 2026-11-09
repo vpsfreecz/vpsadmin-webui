@@ -38,3 +38,23 @@ and the whole CSS inventory is byte-equal. These are intercepted fixture and
 prototype results, not clean packaging, live permissions or delivery. Current
 bothhosts stayda; all required exact-head CI and clean-integration release gates
 remain mandatory. No live accounts, objects, writes or DB locks were created.
+
+Initial exact-head Mobile Chrome CI exposed a fixture initialization error in
+all five new cases: their all-write guard captured an automatic debounced
+PUT to webui_user_settings/ui/settings. All local identifier bounds passed;
+failed traces confirm the preference path, not an address action. Configure
+these geometry/cancel fixtures with supported local UI-preference persistence
+and explicit English/light settings. Keep the strict all-nonGET prohibition,
+complete text-fragment bounds and Escape cancellation; do not whitelist the
+preference PUT or weaken the domain-write assertion. Product persistence/API
+behavior is unchanged. The initial candidate and all failed/retry evidence are
+retained and superseded before activation. A fresh focused head, all six CI
+checks and new clean integration/package provenance are mandatory.
+
+Pinned served legacy-mode reproduction on the same immutable initial1b22
+runtime: all5Pixel5 cases fail on the preference PUT after the known debounce,
+then all5pass with explicit local preferences. The same corrected five tests
+pass in all3engines15executions, zero retries and zero API writes. Diagnostic
+settle time remains only in the private reproduction, not a committed timeout
+change. Strict browser type coverage115/172 and design audit pass; application
+source, assertions, retries and frozen registry are unchanged by this correction.

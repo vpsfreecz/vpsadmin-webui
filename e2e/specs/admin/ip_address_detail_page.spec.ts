@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
+import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 import {
   expectNoDocumentHorizontalOverflow,
   expectTableHorizontalScrollUsable,
@@ -131,7 +131,8 @@ test('@pr-smoke @pr-smoke-mobile admin ip address destructive confirmations keep
  test('@pr-smoke @pr-smoke-mobile IP-detail route keeps the complete IPv6 identifier inside its dialog', async ({ page }) => {
   const address = '2001:0db8:1234:5678:9abc:def0:1234:5678';
   const writes: string[] = [];
-  await bootstrapVpsAdminWindow(page);
+  await setUiSettingsLocalStorage(page, { language: 'en', theme: 'light' });
+  await bootstrapVpsAdminWindow(page, { webuiNext: { uiSettings: { persistence: 'local' } } });
   await installHaveApiMock(page, { user: { id: 1, login: 'synthetic-admin', level: 99 }, handlers: {
    'GET ip_addresses/100': () => ({ ip_address: { id: 100, addr: address, prefix: 128, network: { id: 3, enabled: true }, network_interface: null } }),
    'GET host_ip_addresses': () => ({ host_ip_addresses: [{ id: 601, addr: address, assigned: false, user_created: true, reverse_record_value: 'synthetic.example.test.', ip_address: { id: 100, network_interface: { id: 6, name: 'eth0' } } }] }),
@@ -168,7 +169,8 @@ test('@pr-smoke @pr-smoke-mobile admin ip address destructive confirmations keep
  test('@pr-smoke @pr-smoke-mobile IP-detail hostassign keeps the complete IPv6 identifier inside its dialog', async ({ page }) => {
   const address = '2001:0db8:1234:5678:9abc:def0:1234:5678';
   const writes: string[] = [];
-  await bootstrapVpsAdminWindow(page);
+  await setUiSettingsLocalStorage(page, { language: 'en', theme: 'light' });
+  await bootstrapVpsAdminWindow(page, { webuiNext: { uiSettings: { persistence: 'local' } } });
   await installHaveApiMock(page, { user: { id: 1, login: 'synthetic-admin', level: 99 }, handlers: {
    'GET ip_addresses/100': () => ({ ip_address: { id: 100, addr: address, prefix: 128, network: { id: 3, enabled: true }, network_interface: { id: 6, name: 'eth0' } } }),
    'GET host_ip_addresses': () => ({ host_ip_addresses: [{ id: 601, addr: address, assigned: false, user_created: true, reverse_record_value: 'synthetic.example.test.', ip_address: { id: 100, network_interface: { id: 6, name: 'eth0' } } }] }),
@@ -205,7 +207,8 @@ test('@pr-smoke @pr-smoke-mobile admin ip address destructive confirmations keep
  test('@pr-smoke @pr-smoke-mobile IP-detail ptr keeps the complete IPv6 identifier inside its dialog', async ({ page }) => {
   const address = '2001:0db8:1234:5678:9abc:def0:1234:5678';
   const writes: string[] = [];
-  await bootstrapVpsAdminWindow(page);
+  await setUiSettingsLocalStorage(page, { language: 'en', theme: 'light' });
+  await bootstrapVpsAdminWindow(page, { webuiNext: { uiSettings: { persistence: 'local' } } });
   await installHaveApiMock(page, { user: { id: 1, login: 'synthetic-admin', level: 99 }, handlers: {
    'GET ip_addresses/100': () => ({ ip_address: { id: 100, addr: address, prefix: 128, network: { id: 3, enabled: true }, network_interface: { id: 6, name: 'eth0' } } }),
    'GET host_ip_addresses': () => ({ host_ip_addresses: [{ id: 601, addr: address, assigned: false, user_created: true, reverse_record_value: 'synthetic.example.test.', ip_address: { id: 100, network_interface: { id: 6, name: 'eth0' } } }] }),
