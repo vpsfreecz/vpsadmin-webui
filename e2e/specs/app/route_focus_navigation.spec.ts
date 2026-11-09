@@ -142,7 +142,7 @@ test('@pr-smoke @pr-smoke-mobile @smoke @smoke-mobile keyboard users can skip ch
   });
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(200);
   await resetScrollTracker(page);
-  await clickShellControl(page, 'shell.interface-preferences-button');
+  await clickShellControl(page, 'shell.user-menu-button');
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(200);
   const beforeScopeSwitchY = await page.evaluate(() => window.scrollY);
   await page.getByTestId('shell.interface-preferences.scope.all').click();

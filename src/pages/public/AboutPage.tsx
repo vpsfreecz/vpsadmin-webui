@@ -1,3 +1,4 @@
+import { PageHeading } from '../../components/ui/PageHeading';
 import React from 'react';
 import { useI18n } from '../../app/i18n';
 import { Card, CardBody, CardHeader } from '../../components/ui/Card';
@@ -8,7 +9,7 @@ export function AboutPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-5" data-testid="about.page">
       <div>
-        <h1 className="text-2xl font-semibold">{t('about.title')}</h1>
+        <PageHeading className="text-2xl font-semibold">{t('about.title')}</PageHeading>
         <p className="mt-2 text-muted">{t('about.description')}</p>
       </div>
       <Card>

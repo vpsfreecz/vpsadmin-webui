@@ -55,7 +55,7 @@ test.describe('@smoke Header popovers', () => {
     expect(alphaFromComputedBg(userButtonBg)).toBeGreaterThanOrEqual(0.999);
 
     // Interface preference popover
-    await clickShellControl(page, 'shell.interface-preferences-button');
+    await clickShellControl(page, 'shell.user-menu-button');
     const userMenu = page.getByTestId('shell.interface-preferences');
     await expect(userMenu).toBeVisible();
     const userMenuBg = await userMenu.evaluate((el) => window.getComputedStyle(el).backgroundColor);

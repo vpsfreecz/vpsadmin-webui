@@ -1,7 +1,7 @@
 // i18n-ignore-file
 import React from 'react';
-import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 
 import { SandboxedHtml } from './SandboxedHtml';
 
@@ -28,4 +28,17 @@ describe('SandboxedHtml network isolation', () => {
     expect(srcDoc).toContain('<style>p{color:red}</style>');
     expect(srcDoc).toContain('<p>Preview</p>');
   });
+});
+
+it('forwards Escape from the script-free document and releases listeners on unmount', () => {
+  const onEscape = vi.fn();
+  const view = render(<SandboxedHtml html="<a href='/guide'>Guide</a>" onEscape={onEscape} testId="help-frame" />);
+  const frame = screen.getByTestId('help-frame') as HTMLIFrameElement;
+  fireEvent.load(frame);
+  const doc = frame.contentDocument!;
+  doc.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', cancelable: true }));
+  expect(onEscape).toHaveBeenCalledTimes(1);
+  view.unmount();
+  doc.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', cancelable: true }));
+  expect(onEscape).toHaveBeenCalledTimes(1);
 });

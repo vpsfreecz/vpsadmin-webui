@@ -1,7 +1,7 @@
 # Workflow catalog and behavior to preserve
 
 The signed-in dashboard opens its widget editor from a single control beside the page title (REQ-009).
-The signed-in shell opens appearance, language and role-gated view choices from the gear immediately left of logout. Search uses the full row and the command palette keyboard shortcuts remain available (REQ-004, REQ-010).
+The signed-in shell opens appearance, language, Account and logout from the nickname. Administrators with scope access also see view choices. Search uses the full row and the command palette keyboard shortcuts remain available (REQ-004, REQ-010).
 
 This catalog covers all product domains in the current route/API inventory. It is
 not a claim of exhaustive field-level legacy parity. Each workflow inherits the
@@ -647,18 +647,14 @@ popover below the navigation control, using the account menu surface. It starts 
 40 minutes, no expiry and a custom number of minutes. Save updates only the
 current account's preferred session length. Cancel discards the draft. The
 profile security page remains a separate entry to the same preference.
-The login control opens the signed-in user's Account directly through the existing
-personal-route callback, including administrator aliases. A labelled icon link in
-the same row as interface settings exposes logout without opening another menu;
-it retains the configured native logout URL and existing authentication flow.
-The login keeps its Tasks alignment and privileged role icon/accessibility text.
-The removed Account/Public status submenu adds no duplicate destinations.
-
-The adjacent Language and appearance button retains scope selection for permitted
-roles, theme, language and contextual-help placement (REQ-004/009/010/012). Its
-popover remains bounded to the viewport with internal scrolling on short screens;
-Escape dismisses it and restores focus to Settings. Session length retains its
-separate control and existing save/failure/expiry behavior.
+The nickname button opens the account popover. Account follows the existing
+personal route callback, including administrator aliases. Logout retains its
+configured native URL. Administrators with scope access can switch views here.
+The passive badge beside the nickname follows the current route mode. Support
+access and existing routing capabilities are unchanged.
+The popover fits the viewport and scrolls internally on short screens. Escape
+returns focus to the nickname. Session length remains separately accessible
+(REQ-004/009/010/012).
 
 Administrator member editing uses a named Role select instead of a numeric
 privilege input. Choices match the legacy UI: User, Power User, Admin,
@@ -1094,7 +1090,7 @@ a match.
 updates, relations and associated outages/rebuilds. Audit history supports
 operational investigation. Mail administration covers templates/translations,
 mailboxes/handlers, recipients and delivery logs. Content includes news and
-contextual help boxes. The contextual panel uses a title and controls. Whole-template and standalone-recipient deletion are
+contextual help boxes. Page help opens from the main heading in the shared centered dialog. Whole-template and standalone-recipient deletion are
 intentionally blocked pending safe backend relation handling; translations and
 template-recipient membership have separate supported delete operations. See
 [the deletion boundary](ACTION_CONTRACTS.md#deliberately-blocked-mail-deletion).
@@ -1278,14 +1274,24 @@ Use the header to copy SSH or open the console, and the Access tab for SSH keys
 and password management. The overview does not repeat those entry points or
 current runtime values in a separate card. Historical charts remain on demand.
 
-## Contextual help placement (UX-05; REQ-053)
+## Contextual page help (UX-05; REQ-053)
 
-The signed-in interface preferences and profile preferences offer Top and Bottom.
-The choice is remembered in this browser, independently of account synchronization;
-resetting interface preferences restores Top. This moves only contextual help in
-the authenticated shell, preserving its expanded state and page drafts. Page
-warnings and mutation errors remain with their controls. Console pages retain
-their existing help exemption. Public help retains its existing placement.
+The shell resolves the existing page/action and public or authenticated query.
+Nonblank results attach one localized help button to the shared primary heading;
+object headings take precedence, and a page-level read error supplies a fallback
+anchor when its normal heading cannot render. Public titles that were clipped
+stay clipped without help. Console pages do not request contextual help.
+
+Open the large centered Modal with the original ordered, sandboxed HTML. Long
+content scrolls in the modal body. The header close action, footer Close,
+Escape and backdrop use the normal close flow and restore focus. Chromium
+forwards Escape from sandboxed links; tested mobile WebKit uses native Tab back
+to the dialog controls because it does not dispatch that key in the script-free
+frame. Navigation closes the old help without remounting page drafts.
+The existing admin UI permission controls Manage help boxes, and its link keeps
+the exact page/action filter. No backend, language selection or access contract
+changes. The old local Top/Bottom and expanded values no longer drive rendering;
+interface and profile settings omit the obsolete placement control.
 
 ## Find VPS actions on the page (DET-02; REQ-023)
 

@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { BuildFooter } from './BuildFooter';
+import { PageHelpProvider } from '../../app/pageHelp';
 import { PublicThemeSwitcher } from './PublicThemeSwitcher';
 
 import { getRuntimeConfig } from '../../app/config';
@@ -232,8 +233,10 @@ function PublicLayoutInner() {
       <MainContent className="flex-1" data-testid="public.main" data-document-title-region>
         <div className="mx-auto max-w-6xl px-4 sm:px-6 py-6">
           <div className="space-y-6">
-            <DeferredPublicHelpPanel pathname={location.pathname} scope="public" />
-            <Outlet />
+            <PageHelpProvider>
+              <Outlet />
+              <DeferredPublicHelpPanel pathname={location.pathname} scope="public" />
+            </PageHelpProvider>
           </div>
         </div>
       </MainContent>

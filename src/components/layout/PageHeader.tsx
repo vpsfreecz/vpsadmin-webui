@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { clsx } from '../ui/clsx';
+import { PageHeading } from '../ui/PageHeading';
 
 /**
  * PageHeader
@@ -32,7 +33,7 @@ export function PageHeader(props: {
           - Mobile: text-lg
           - Desktop (md+): text-xl
         */}
-        <h1 className="text-lg font-semibold text-fg md:text-xl" data-document-title-heading>{props.title}</h1>
+        <PageHeading className="text-lg font-semibold text-fg md:text-xl">{props.title}</PageHeading>
         {props.description ? <p className="mt-1 text-sm text-muted">{props.description}</p> : null}
         {props.meta ? <div className="mt-1 text-xs text-faint">{props.meta}</div> : null}
       </div>

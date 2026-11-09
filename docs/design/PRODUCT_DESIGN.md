@@ -20,9 +20,11 @@ with the VPS; NAS and backups are separate member destinations. Tasks is a globa
 navigation action, not a duplicate primary action-states destination. Search, Tasks,
 session duration and account preferences sit in a bordered panel above the
 sidebar navigation. Tasks and session duration share a row when space permits.
-The account login aligns with the Tasks label. Admin and support roles have a
-small icon beside the login with a localized description.
-The account popover shows every choice when space permits, with scrolling on short screens. Branding sits directly above About and uses the existing favicon beside the visible vpsAdmin name in both the sidebar and mobile drawer. The image is decorative because the adjacent name identifies the product.
+The nickname aligns with the Tasks label and opens the account popover.
+Administrators with scope access see a small neutral badge next to the nickname.
+The nickname truncates first so the badge and disclosure arrow stay visible.
+The popover contains appearance, language, Account and logout, plus view
+choices for administrators. It scrolls on short screens. Branding sits directly above About and uses the existing favicon beside the visible vpsAdmin name in both the sidebar and mobile drawer. The image is decorative because the adjacent name identifies the product.
 Mobile has one navigation trigger, with the same controls inside its drawer.
 Only one controls instance mounts at a time, so search and outside-click refs
 never point at a hidden duplicate. Tasks/search close mobile navigation before
@@ -175,6 +177,17 @@ its error next to the actions and its draft intact. Background toasts wait while
 a modal owns interaction and pause expiry until it closes. Urgent error/warning
 notifications render in a bounded scrollable slot inside the active dialog;
 they must not cover a dialog footer. Pending submission still follows its explicit cancellation gate.
+
+### Contextual page help
+
+A single help-circle button follows the primary page or object heading when
+that route has usable help. Use the existing localized Page help label for the
+button, tooltip and centered dialog. The shared heading anchor does not change
+the heading's accessible name. The dialog uses the large Modal size and scrolls
+its body while the close actions stay reachable. Keep HTML and links in their
+existing script-free sandbox, in API order. The existing management permission
+and page/action filters govern the discreet link inside the dialog. Preserve
+public idle loading, page drafts, failure recovery and the console exemption.
 
 ### Centered forms and filters
 

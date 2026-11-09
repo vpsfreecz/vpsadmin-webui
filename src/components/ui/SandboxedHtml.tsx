@@ -212,7 +212,10 @@ function buildRestrictedFullDocument(rawHtml: string): string {
   return `<!doctype html><html><head><meta charset="utf-8" />${SANDBOX_CSP_META}${head}</head><body>${body}</body></html>`;
 }
 
-function buildSrcDoc(rawHtml: string, opts: { variant: SandboxedHtmlVariant; theme: SandboxedHtmlTheme }): {
+function buildSrcDoc(
+  rawHtml: string,
+  opts: { variant: SandboxedHtmlVariant; theme: SandboxedHtmlTheme }
+): {
   srcDoc: string;
   fullDocument: boolean;
 } {
@@ -247,6 +250,8 @@ export function SandboxedHtml(props: {
   maxAutoHeight?: number;
   variant?: SandboxedHtmlVariant;
   theme?: SandboxedHtmlTheme;
+  /** Let an owning dialog handle Escape while focus is inside the script-free frame. */
+  onEscape?: () => void;
 }) {
   const variant = props.variant ?? 'default';
   const theme = props.theme ?? 'light';
@@ -255,6 +260,7 @@ export function SandboxedHtml(props: {
     [props.html, theme, variant]
   );
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const onEscape = props.onEscape;
 
   useEffect(() => {
     if (!props.autoHeight) return;
@@ -264,18 +270,23 @@ export function SandboxedHtml(props: {
     const resize = () => {
       try {
         const doc = iframe.contentDocument;
-        if (!doc) return;
+        const body = doc?.body;
+        if (!doc || !body) return;
 
-        const contentHeight = Math.max(
-          doc.body?.scrollHeight ?? 0,
-          doc.documentElement?.scrollHeight ?? 0,
-          96
-        );
+        // Measure the content without collapsing the live frame. A temporary
+        // height reset can shrink a containing dialog and discard its scroll.
+        const root = doc.documentElement;
+        const marginBottom = Number.parseFloat(doc.defaultView?.getComputedStyle(body).marginBottom ?? '0') || 0;
+        const bodyHeight = Math.max(body.getBoundingClientRect().height, body.scrollHeight);
+        const documentOverflow = root.scrollHeight > root.clientHeight ? root.scrollHeight : 0;
+        const contentHeight = Math.ceil(Math.max(body.offsetTop + bodyHeight + marginBottom, documentOverflow, 96));
         const height = props.maxAutoHeight
           ? Math.max(96, Math.min(contentHeight + 2, props.maxAutoHeight))
           : contentHeight + 2;
-
-        iframe.style.height = `${height}px`;
+        const currentHeight = Number.parseFloat(iframe.style.height);
+        if (!Number.isFinite(currentHeight) || Math.abs(currentHeight - height) > 2) {
+          iframe.style.height = `${height}px`;
+        }
       } catch {
         // Ignore sizing failures; iframe will keep its fallback height.
       }
@@ -285,13 +296,53 @@ export function SandboxedHtml(props: {
     iframe.addEventListener('load', resize);
     const timer = window.setTimeout(resize, 0);
     const delayedTimer = window.setTimeout(resize, 200);
+    let previousWidth = iframe.getBoundingClientRect().width;
+    const observer =
+      typeof ResizeObserver === 'undefined'
+        ? null
+        : new ResizeObserver(() => {
+            const width = iframe.getBoundingClientRect().width;
+            if (width !== previousWidth) {
+              previousWidth = width;
+              resize();
+            }
+          });
+    observer?.observe(iframe);
 
     return () => {
       iframe.removeEventListener('load', resize);
       window.clearTimeout(timer);
       window.clearTimeout(delayedTimer);
+      observer?.disconnect();
     };
   }, [props.autoHeight, props.maxAutoHeight, srcDoc]);
+
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    if (!iframe || !onEscape) return;
+    let frameDocument: Document | null = null;
+    const escape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !event.defaultPrevented) {
+        event.preventDefault();
+        onEscape();
+      }
+    };
+    const attach = () => {
+      frameDocument?.removeEventListener('keydown', escape);
+      try {
+        frameDocument = iframe.contentDocument;
+      } catch {
+        frameDocument = null;
+      }
+      frameDocument?.addEventListener('keydown', escape);
+    };
+    attach();
+    iframe.addEventListener('load', attach);
+    return () => {
+      iframe.removeEventListener('load', attach);
+      frameDocument?.removeEventListener('keydown', escape);
+    };
+  }, [onEscape, srcDoc]);
 
   return (
     <iframe
@@ -304,13 +355,9 @@ export function SandboxedHtml(props: {
       allow=""
       srcDoc={srcDoc}
       className={clsx(
-        props.autoHeight
-          ? 'min-h-24 w-full rounded-md'
-          : 'h-96 w-full rounded-md',
-        variant === 'helpBox' && !fullDocument
-          ? 'border-0 bg-transparent'
-          : 'border border-border bg-surface',
-        props.className,
+        props.autoHeight ? 'min-h-24 w-full rounded-md' : 'h-96 w-full rounded-md',
+        variant === 'helpBox' && !fullDocument ? 'border-0 bg-transparent' : 'border border-border bg-surface',
+        props.className
       )}
     />
   );

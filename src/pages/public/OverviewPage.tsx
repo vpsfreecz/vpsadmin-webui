@@ -1,3 +1,4 @@
+import { PageHeading } from '../../components/ui/PageHeading';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
@@ -98,7 +99,7 @@ export function OverviewPage() {
 
   return (
     <>
-      <h1 className="sr-only">{i18n.t('public.overview.title')}</h1>
+      <PageHeading visuallyHidden className="text-2xl font-semibold tracking-tight">{i18n.t('public.overview.title')}</PageHeading>
       <div className="space-y-6" data-testid="public.overview.page">
         {expiredNotice ? (
           <Alert title={i18n.t('auth.session_expired.title')} variant="warn" testId="auth.session-expired.notice">

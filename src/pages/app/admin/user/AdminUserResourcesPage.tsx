@@ -1,3 +1,4 @@
+import { PageHeading } from '../../../../components/ui/PageHeading';
 import React, { useMemo, useState } from 'react';
 import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 
@@ -181,7 +182,7 @@ export function AdminUserResourcesPage() {
     <div className="space-y-4" data-testid="admin.user.resources.page">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold">{t('admin.user.resources.title')}</h1>
+          <PageHeading className="text-xl font-semibold">{t('admin.user.resources.title')}</PageHeading>
           <p className="mt-1 text-sm text-muted">{t('admin.user.resources.subtitle')}</p>
         </div>
         <Button

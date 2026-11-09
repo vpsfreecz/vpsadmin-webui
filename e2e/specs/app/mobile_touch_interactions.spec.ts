@@ -53,9 +53,9 @@ test.describe('@pr-smoke-mobile Mobile first-touch interactions', () => {
         await expect(page.getByTestId('tasks.drawer')).toBeVisible();
         await page.getByTestId('tasks.close-button').tap();
         await expect(page.getByTestId('tasks.drawer')).toBeHidden();
-        await clickShellControl(page, 'shell.interface-preferences-button', true);
+        await clickShellControl(page, 'shell.user-menu-button', true);
         await expect(page.getByTestId('shell.interface-preferences')).toBeVisible();
-        await clickShellControl(page, 'shell.interface-preferences-button', true);
+        await clickShellControl(page, 'shell.user-menu-button', true);
         await expect(page.getByTestId('shell.interface-preferences')).toBeHidden();
         await page.getByTestId('nav.drawer.close').tap();
       }
@@ -250,7 +250,7 @@ test('desktop account controls stay compact while VPS filter actions match the f
   const inputBox = await page.getByTestId('vps.smart_filter.input').boundingBox();
   expect(box?.height).toBe(44);
   expect(inputBox?.height).toBe(box?.height);
-  await clickShellControl(page, 'shell.interface-preferences-button');
-  expect((await page.getByTestId('shell.interface-preferences-button').boundingBox())?.height).toBe(36);
+  await clickShellControl(page, 'shell.user-menu-button');
+  expect((await page.getByTestId('shell.user-menu-button').boundingBox())?.height).toBe(36);
   expect((await page.getByTestId('shell.logout').boundingBox())?.height).toBe(36);
 });

@@ -2,6 +2,14 @@
 
 [Root cause, API boundary, role scope and verification](docs/work-log/2026-11-08-dashboard-owned-server-identity.md).
 
+## 2026-11-09 — Consolidate the account controls under the nickname
+
+[Scope and verification](docs/work-log/2026-11-09-nickname-menu.md).
+
+## 2026-11-09 — Open contextual help beside the page heading
+
+[Scope, shared design and verification](docs/work-log/2026-11-09-contextual-help-modal.md).
+
 ## 2026-11-08 — Remove redundant Summary Open actions
 
 [Scope and verification](docs/work-log/2026-11-08-summary-without-open.md).

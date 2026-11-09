@@ -23,14 +23,11 @@ export interface AppHeaderProps {
   authLogin?: string;
   authRole?: string;
   sessionExpiresAt?: number;
-  helpPlacement?: 'top' | 'bottom';
-  onSetHelpPlacement?: (placement: 'top' | 'bottom') => void;
   theme: 'system' | 'light' | 'dark';
   language: 'system' | 'en' | 'cs';
   onSetTheme: (next: 'system' | 'light' | 'dark') => void;
   onSetLanguage: (next: 'system' | 'en' | 'cs') => void;
   onGoToOtherMode: () => void;
   onGoToProfile: () => void;
-  onGoToPublicStatus: () => void;
   loginLogoutHref: string;
 }

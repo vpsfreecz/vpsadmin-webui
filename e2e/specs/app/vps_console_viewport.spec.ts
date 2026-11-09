@@ -82,6 +82,7 @@ for (const language of ['cs', 'en'] as const) {
     await expect(keyboard).toBeVisible();
     await expect(page.getByTestId('vps.header')).toHaveCount(0);
     await expect(page.getByTestId('contextual.help.panel')).toHaveCount(0);
+    await expect(page.getByTestId('contextual.help.toggle')).toHaveCount(0);
     await expect(page.getByTestId('vps.console.header')).toContainText('console-demo.example');
     const assertFits = async () => {
       const height = page.viewportSize()!.height;

@@ -4,7 +4,6 @@ import { csCommon_navigation } from '../../i18n/locales/cs/common/navigation';
 import {
   buildSidebarNavItems,
   primarySidebarNavItems,
-  sidebarFooterNavItems,
   sidebarNavSections,
   type NavItem,
 } from './AppSidebar';
@@ -103,21 +102,19 @@ describe('buildSidebarNavItems', () => {
       'outages',
       'security-advisories',
     ]);
-    expect(sidebarFooterNavItems(items).map((item) => item.id)).toEqual(['account']);
   });
 
-  it('keeps the user sidebar flat with status links after Account', () => {
+  it('keeps the user sidebar flat with status links at the end', () => {
     const items = primarySidebarNavItems(
       buildSidebarNavItems({ basePath: '/app', appMode: 'user', role: 'user', t: fakeT }),
     );
 
     expect(sidebarNavSections(items)).toEqual([{ id: 'ungrouped', items }]);
-    expect(sidebarFooterNavItems(items)).toEqual([]);
     expect(items.map((item) => item.id)).toContain('backups');
     expect(items.map((item) => item.id)).not.toContain('datasets');
     expect(items.map((item) => item.id)).toContain('requests');
     expect(items.find((item) => item.id === 'requests')?.to).toBe('/app/requests');
-    expect(items.slice(-3).map((item) => item.id)).toEqual(['account', 'outages', 'security-advisories']);
+    expect(items.slice(-2).map((item) => item.id)).toEqual(['outages', 'security-advisories']);
   });
 
   it('keeps the generic dataset label in the administrator navigation', () => {
@@ -143,7 +140,6 @@ describe('buildSidebarNavItems', () => {
     expect(visibleIds.slice(-2)).toEqual(['outages', 'security-advisories']);
     expect(visibleIds).not.toContain('action-states');
     expect(visibleIds).not.toContain('finance');
-    expect(sidebarFooterNavItems(items).map((item) => item.id)).toEqual(['account']);
   });
 
   it.each(['user', 'support', 'admin'] as const)('keeps status links at the end and read-only in My view for %s', (role) => {
@@ -154,7 +150,6 @@ describe('buildSidebarNavItems', () => {
     ]);
     expect(sidebarNavSections(items).flatMap((section) => section.items).slice(-2).map((item) => item.id))
       .toEqual(['outages', 'security-advisories']);
-    expect(sidebarFooterNavItems(items).some((item) => item.status)).toBe(false);
   });
 
   it.each(['support', 'admin'] as const)('exposes existing outage administration in administrator view for %s', (role) => {
