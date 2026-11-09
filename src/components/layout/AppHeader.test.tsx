@@ -44,6 +44,7 @@ function t(key: any, vars?: Record<string, unknown>): string {
     'settings.language.en': 'EN',
     'settings.language.label': 'Language',
     'settings.language.system': 'System',
+    'admin.users.role.admin': 'Admin',
     'scope.indicator.my_short': 'Mine',
     'scope.indicator.admin_short': 'All',
     'settings.scope.label': 'Scope',
@@ -183,15 +184,19 @@ describe('AppHeader', () => {
     const view = render(<HeaderHarness role={role} />);
     fireEvent.click(screen.getByTestId('shell.user-menu-button'));
     const badge = screen.queryByTestId('scope.indicator');
+    const roleIcon = screen.queryByTestId('shell.user-role');
     const choice = screen.queryByTestId('shell.interface-preferences.scope.all');
 
     if (role === 'admin') {
+      expect(roleIcon).toHaveAttribute('title', 'Admin');
       expect(badge).toHaveTextContent(/^Mine$/);
       expect(choice).toHaveAttribute('aria-pressed', 'false');
       view.rerender(<HeaderHarness role={role} mode="admin" />);
+      expect(screen.getByTestId('shell.user-role')).toBeVisible();
       expect(badge).toHaveTextContent(/^All$/);
       expect(choice).toHaveAttribute('aria-pressed', 'true');
     } else {
+      expect(roleIcon).not.toBeInTheDocument();
       expect(badge).not.toBeInTheDocument();
       expect(choice).not.toBeInTheDocument();
     }

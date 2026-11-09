@@ -1,3 +1,7 @@
+## 2026-11-09 — Restore the administrator shield beside the nickname
+
+[Scope and verification](docs/work-log/2026-11-09-admin-role-icon.md).
+
 ## 2026-11-09 — Consolidate the account controls under the nickname
 
 [Scope and verification](docs/work-log/2026-11-09-nickname-menu.md).
