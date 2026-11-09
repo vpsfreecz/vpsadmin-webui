@@ -1,3 +1,7 @@
+## 2026-11-09 — Align namespace-map entry validation
+
+See the [measured scope](docs/work-log/2026-11-09-namespace-entry-form-readability.md).
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path

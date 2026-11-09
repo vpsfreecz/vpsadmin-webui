@@ -52,10 +52,10 @@
       "path": "src/components/userNamespaces/UserNamespaceMapDetail.tsx",
       "rule": "grown-over-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "eb6d3e873f2b5ce5cae74b021a3a629d07ba676daa2e003f5934df1f3eb33101",
+      "contentHash": "50276fa930c8611e29941bc9ac464d34b30343b02411a8e12221ba4e05671a33",
       "old": 770,
       "allowance": 798,
-      "rationale": "At the recorded source revision, this file already contained namespace map detail states; extract the coherent section with focused behavior coverage before removing this exception.",
+      "rationale": "At the recorded source revision, this file already contained namespace map detail states; extract the coherent section with focused behavior coverage before removing this exception. Reviewed 2026-11-09: only the add-entry form presentation changes: readable existing field-error text with independent markers and a shared desktop label allowance (three lines at narrow grids, two at wide grids); anchor Add beside the inputs rather than below error text. No line, cast, validation, API or allowance growth; inherited extraction debt remains.",
       "owner": "WebUI implementation lead",
       "removeWhen": {
         "metric": "lines",
