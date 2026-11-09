@@ -1699,3 +1699,11 @@ Preserve labels, destinations and authentication.
 Retain the already prepared PR243 fix to prevent stale filter/router navigation
 in the focused review baseline. This dependency is already in the actual preview.
 [Cause and deterministic checks](docs/work-log/2026-11-09-oom-pending-filter-navigation.md).
+
+
+## 2026-11-09 — Include shared detail navigation targets (prepared)
+
+The finite cluster/networking/content wrapper audit confirms36px coarse-pointer
+TabsNav targets. Apply the same44px minimum as public navigation and adopt the
+changed component into scoped lint coverage. Preserve labels, wrapping, active
+state, roles and API behavior. [Evidence and limits](docs/work-log/2026-11-09-public-navigation-targets.md).

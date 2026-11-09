@@ -33,3 +33,31 @@ after (32px buttons). Existing PublicLayout9unit tests pass; pinned
 ci:quick/source checks and production build pass. Two actual prototype
 mobile/narrow originals opened; cleanNix/currentintegration/deployment and
 exactCI remain pending. No actual release or completion is claimed.
+
+## Extended navigation acceptance and required dependency
+
+The finite current4ef wrapper audit passes24geometry/focus scenarios for
+AdminClusterLayout, AdminNetworkingLayout and AdminContentLayout, CS/EN/both
+themes/Chromium/mobileWebKit. It confirms36px shared TabsNav links at320px on
+coarse pointers. Add the same44px coarse minimum to the one shared tab class;
+keep wrapping, routes, labels, active aria/ring meaning and all children intact.
+No redesign or selection of the separate navigation models is made.
+
+The first245head6bb CI is green but its downloadedChromium log reports646passed
+and1flakyOOMhistory/pagination test. Do not deploy or waive that result. Include
+existing PR243/4df369be (already in the running preview) in this focused baseline.
+Original head/logs andfailedattempt are retained. New exact-head CI and zero-flaky
+logs remain required, as do clean packaging and paired runtime guards.
+
+Adopt the changed shared TabsNav source into the existing scoped lint/format
+coverage. Remove only its deferred source hash; preserve every other entry and
+the reviewed revision. No frozen baseline or quality gate is relaxed.
+
+Current-preserving wrapper prototype24/24PASS,48normal/320width states,
+128actual tab focus samples plus24bodyfocus; coarse targets36to44px. Sixactual
+narrow originals opened. Child fixtures show read-error/missingnamespace states;
+only headers/tabs are accepted by this slice, no claim of childworkflow success.
+Eight exact knownOOM scenario executions onclean4ef pass (4perengine,6xCPU
+throttlingChromium), plus18existinghook/UI/semantics unitregressions. Pinned
+quick checks/build and finaldesignaudit pass. Exactupdated245CI and paired
+clean release remainpending; do not activate old4ef staging from flaky6bbhead.
