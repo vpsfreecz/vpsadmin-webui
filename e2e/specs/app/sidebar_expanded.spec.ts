@@ -18,9 +18,12 @@ for (const language of ['cs', 'en'] as const) {
       const vpsLink = page.getByTestId(`nav.${surface}.vps`);
       await expect(vpsLink).toHaveText('VPS');
       await expect(vpsLink.locator('span').last()).toBeVisible();
-      const account = page.getByTestId(`nav.${surface}.account`);
-      await account.scrollIntoViewIfNeeded();
+      await expect(page.getByTestId(`nav.${surface}.account`)).toHaveCount(0);
+      await page.getByTestId('shell.user-menu-button').click();
+      const account = page.getByTestId('shell.user-menu.account');
       await expect(account).toHaveText(language === 'cs' ? 'Účet' : 'Account');
+      await expect(account).toBeVisible();
+      await page.keyboard.press('Escape');
       await expect(page.getByRole('button', { name: /collapse sidebar|expand sidebar|sbalit panel|rozbalit panel/i })).toHaveCount(0);
       if (!mobile) await expect(page.getByTestId('shell.sidebar')).toHaveCSS('width', '256px');
       await page.screenshot({ path: testInfo.outputPath(`sidebar-${mode}-${language}.png`), fullPage: true });
