@@ -2355,3 +2355,7 @@ Correct measured low-contrast error text in inline and command-palette search.
 
 Match palette/progress Close dimensions and keep shared SVG icons from compressing.
 [Scope and evidence](docs/work-log/2026-11-09-shell-control-dimensions.md).
+
+## 2026-11-09 — Align history and payment-form controls
+
+[Measured scope and verification](docs/work-log/2026-11-09-card-form-control-dimensions.md).
