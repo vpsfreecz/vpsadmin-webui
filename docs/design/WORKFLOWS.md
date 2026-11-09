@@ -1433,3 +1433,12 @@ failures inside the affected section. Each failure uses the existing danger
 alert with the localized Error/Chyba title and readable body text. The message
 and requests retain their original source; other cards remain independently
 available. This presentation change adds no retry, role, query or write behavior.
+
+
+## OOM filters during pending navigation
+
+Explicit Next/Previous/numbered-page and page-size actions use the same applied
+filter snapshot as the list request, even before a router transition publishes
+new search params. URL hydration and automatic cursor normalization continue to
+follow the router for Back/Forward. Owner-scope and API contracts remain unchanged.
+See [the reproduced race](../work-log/2026-11-09-oom-pending-filter-navigation.md).
