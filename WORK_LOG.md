@@ -2339,3 +2339,9 @@ Correct measured dark error text while preserving auth gates and recovery.
 
 Match the clear-search button to its adjacent input after rendered measurements.
 [Scope and verification](docs/work-log/2026-11-09-task-drawer-field-alignment.md).
+
+
+## 2026-11-09 — Readable search error messages (prepared)
+
+Correct measured low-contrast error text in inline and command-palette search.
+[Scope, evidence and limits](docs/work-log/2026-11-09-search-error-readability.md).
