@@ -735,6 +735,14 @@ blind retry. [Finance](../../src/lib/api/finance.ts),
 
 ## Tasks, transactions, monitoring, incidents and OOM
 
+The Tasks View all link closes the panel after ordinary pointer or keyboard
+activation and focuses the destination main content, including the current
+transactions route. Modified link clicks preserve browser behavior. The static
+Your actions label is omitted in both locales; filtering feedback, progress,
+transaction context and background-activity disclosure remain available.
+Opening the panel again retains tracked work.
+
+
 Transaction history uses compact aligned ID/time/owner/object/action/state
 columns on desktop and folds metadata under the action on small screens. The
 owner column appears only in administrator mode; a normal member and an admin's

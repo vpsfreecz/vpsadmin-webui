@@ -1,6 +1,6 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 
@@ -67,7 +67,7 @@ vi.mock('../../lib/api/transactions', () => ({
   fetchTransactions: vi.fn(),
 }));
 
-function renderPanel() {
+function renderPanel(props: React.ComponentProps<typeof TransactionChainsPanel> = {}) {
   const qc = new QueryClient({
     defaultOptions: {
       queries: { retry: false },
@@ -77,7 +77,7 @@ function renderPanel() {
   return render(
     <MemoryRouter>
       <QueryClientProvider client={qc}>
-        <TransactionChainsPanel />
+        <TransactionChainsPanel {...props} />
       </QueryClientProvider>
     </MemoryRouter>
   );
@@ -150,6 +150,20 @@ describe('TransactionChainsPanel', () => {
     });
 
     expect(fetchTransactions).toHaveBeenCalledWith({ transactionChainId: 75, limit: 100 });
+  });
+
+  it('closes Tasks for ordinary View all activation while preserving modified links', async () => {
+    const user = userEvent.setup();
+    const onViewAll = vi.fn();
+    renderPanel({ onViewAll });
+    const link = screen.getByRole('link', { name: 'View all' });
+    expect(link).toHaveAttribute('href', '/app/transactions');
+    fireEvent.click(link, { ctrlKey: true });
+    fireEvent.click(link, { metaKey: true });
+    fireEvent.click(link, { shiftKey: true });
+    expect(onViewAll).not.toHaveBeenCalled();
+    await user.click(link);
+    expect(onViewAll).toHaveBeenCalledTimes(1);
   });
 
   it('filters transaction chains to the current admin user in my scope', async () => {

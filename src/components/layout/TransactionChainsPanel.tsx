@@ -34,6 +34,7 @@ import {
 } from '../../lib/operationTaxonomy';
 import { TransactionInlineDetails } from '../ui/TransactionInlineDetails';
 import { useObjectScope } from '../../app/objectScope';
+import { navigateFromTasks } from './taskDrawerNavigation';
 
 function formatConcerns(chain: TransactionChain): string | null {
   const c = chain.concerns as any;
@@ -75,6 +76,7 @@ export function TransactionChainsPanel(props: {
   filterText?: string;
   pinnedIds?: number[];
   onTogglePin?: (chainId: number) => void;
+  onViewAll?: () => void;
 }) {
   const { basePath, mode } = useAppMode();
   const scope = useObjectScope();
@@ -198,7 +200,7 @@ export function TransactionChainsPanel(props: {
       </div>
 
       {showViewAll ? (
-        <Link className="text-xs font-medium underline" to={`${basePath}/transactions`}>
+        <Link className="text-xs font-medium underline" to={`${basePath}/transactions`} onClick={(event) => navigateFromTasks(event, props.onViewAll)}>
           {i18n.t('tasks.action.view_all')}
         </Link>
       ) : null}

@@ -9,7 +9,6 @@ export const csOps_tasks = {
   "tasks.action.track": "Sledovat",
   "tasks.action.unpin": "Odepnout",
   "tasks.action.view_all": "Zobrazit vše",
-  "tasks.basic.actions_title": "Tvoje akce",
   "tasks.basic.operations_title": "Operace na pozadí",
   "tasks.cancel_dialog.confirm": "Zrušit akci",
   "tasks.cancel_dialog.description_default": "Server obdrží požadavek na zrušení akce.",
