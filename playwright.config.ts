@@ -103,6 +103,7 @@ export default defineConfig({
         '**/user_packages_bulk_remove.spec.ts',
         '**/user_packages_assigned_date.spec.ts',
         '**/vps_dns_shortcut.spec.ts',
+        '**/ssh_key_validation_readability.spec.ts',
       ],
       use: { ...devices['iPhone 13'] },
     },
