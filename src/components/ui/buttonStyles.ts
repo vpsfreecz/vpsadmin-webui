@@ -30,6 +30,7 @@ export function buttonClassName(opts: {
 
   return clsx(
     'inline-flex items-center justify-center gap-2 rounded-md font-medium transition-colors',
+    '[&>svg]:shrink-0',
     'focus:outline-none focus:ring-2 focus:ring-focus/35 focus:ring-offset-2 focus:ring-offset-bg',
     // Note: `disabled:` only applies when we use the actual `disabled` attribute.
     'disabled:cursor-not-allowed disabled:opacity-50',
