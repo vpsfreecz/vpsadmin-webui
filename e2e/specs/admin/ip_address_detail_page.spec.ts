@@ -52,7 +52,7 @@ test('@pr-smoke @pr-smoke-mobile admin ip address detail: shows header and links
   await expectNoDocumentHorizontalOverflow(page);
   await expectTableHorizontalScrollUsable(page, 'admin.ip.hosts.table');
 
-  const proofScreenshot = process.env.E2E_IP_DETAIL_ACTIONS_PROOF_SCREENSHOT?.trim();
+  const proofScreenshot = process.env['E2E_IP_DETAIL_ACTIONS_PROOF_SCREENSHOT']?.trim();
   if (proofScreenshot) await page.screenshot({ path: proofScreenshot, fullPage: true });
 });
 
@@ -125,3 +125,116 @@ test('@pr-smoke @pr-smoke-mobile admin ip address destructive confirmations keep
   await expect(deleteHostDialog).toBeHidden();
   expect(deleteHostAttempts).toBe(2);
 });
+
+// Identifiers in a confirmation or editor must remain visible at 320px.
+
+ test('@pr-smoke @pr-smoke-mobile IP-detail route keeps the complete IPv6 identifier inside its dialog', async ({ page }) => {
+  const address = '2001:0db8:1234:5678:9abc:def0:1234:5678';
+  const writes: string[] = [];
+  await bootstrapVpsAdminWindow(page);
+  await installHaveApiMock(page, { user: { id: 1, login: 'synthetic-admin', level: 99 }, handlers: {
+   'GET ip_addresses/100': () => ({ ip_address: { id: 100, addr: address, prefix: 128, network: { id: 3, enabled: true }, network_interface: null } }),
+   'GET host_ip_addresses': () => ({ host_ip_addresses: [{ id: 601, addr: address, assigned: false, user_created: true, reverse_record_value: 'synthetic.example.test.', ip_address: { id: 100, network_interface: { id: 6, name: 'eth0' } } }] }),
+   'GET host_ip_addresses/601': () => ({ host_ip_address: { id: 601, addr: address, assigned: false, user_created: true, reverse_record_value: 'synthetic.example.test.', ip_address: { id: 100, network_interface: { id: 6, name: 'eth0' } } } }),
+   'GET environments': () => ({ environments: [] }),
+  } });
+  await page.route('**/api/**', route => {
+   if (!['GET', 'HEAD', 'OPTIONS'].includes(route.request().method())) { writes.push(route.request().method()); return route.abort(); }
+   return route.fallback();
+  });
+  await page.goto('/admin/networking/ip-addresses/100');
+  await page.setViewportSize({ width: 320, height: 750 });
+  await page.getByTestId('admin.ip.route.assign.open').click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toBeVisible();
+  const identity = dialog.getByText(address + '/128', { exact: true });
+  await expect(identity).toBeVisible();
+  const bounds = await identity.evaluate(element => {
+   const range = document.createRange(); range.selectNodeContents(element);
+   const box = element.getBoundingClientRect();
+   return { width: element.clientWidth, scrollWidth: element.scrollWidth,
+    fragments: [...range.getClientRects()].map(rect => ({ left: rect.left, right: rect.right })),
+    left: box.left, right: box.right };
+  });
+  expect(bounds.scrollWidth).toBeLessThanOrEqual(bounds.width + 1);
+  for (const fragment of bounds.fragments) {
+   expect(fragment.left).toBeGreaterThanOrEqual(bounds.left - 1);
+   expect(fragment.right).toBeLessThanOrEqual(bounds.right + 1);
+  }
+  await page.keyboard.press('Escape'); await expect(dialog).toBeHidden();
+  expect(writes).toEqual([]);
+ });
+
+ test('@pr-smoke @pr-smoke-mobile IP-detail hostassign keeps the complete IPv6 identifier inside its dialog', async ({ page }) => {
+  const address = '2001:0db8:1234:5678:9abc:def0:1234:5678';
+  const writes: string[] = [];
+  await bootstrapVpsAdminWindow(page);
+  await installHaveApiMock(page, { user: { id: 1, login: 'synthetic-admin', level: 99 }, handlers: {
+   'GET ip_addresses/100': () => ({ ip_address: { id: 100, addr: address, prefix: 128, network: { id: 3, enabled: true }, network_interface: { id: 6, name: 'eth0' } } }),
+   'GET host_ip_addresses': () => ({ host_ip_addresses: [{ id: 601, addr: address, assigned: false, user_created: true, reverse_record_value: 'synthetic.example.test.', ip_address: { id: 100, network_interface: { id: 6, name: 'eth0' } } }] }),
+   'GET host_ip_addresses/601': () => ({ host_ip_address: { id: 601, addr: address, assigned: false, user_created: true, reverse_record_value: 'synthetic.example.test.', ip_address: { id: 100, network_interface: { id: 6, name: 'eth0' } } } }),
+   'GET environments': () => ({ environments: [] }),
+  } });
+  await page.route('**/api/**', route => {
+   if (!['GET', 'HEAD', 'OPTIONS'].includes(route.request().method())) { writes.push(route.request().method()); return route.abort(); }
+   return route.fallback();
+  });
+  await page.goto('/admin/networking/ip-addresses/100');
+  await page.setViewportSize({ width: 320, height: 750 });
+  await page.getByTestId('admin.ip.hosts.row.601.assign').click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toBeVisible();
+  const identity = dialog.getByText(address, { exact: true });
+  await expect(identity).toBeVisible();
+  const bounds = await identity.evaluate(element => {
+   const range = document.createRange(); range.selectNodeContents(element);
+   const box = element.getBoundingClientRect();
+   return { width: element.clientWidth, scrollWidth: element.scrollWidth,
+    fragments: [...range.getClientRects()].map(rect => ({ left: rect.left, right: rect.right })),
+    left: box.left, right: box.right };
+  });
+  expect(bounds.scrollWidth).toBeLessThanOrEqual(bounds.width + 1);
+  for (const fragment of bounds.fragments) {
+   expect(fragment.left).toBeGreaterThanOrEqual(bounds.left - 1);
+   expect(fragment.right).toBeLessThanOrEqual(bounds.right + 1);
+  }
+  await page.keyboard.press('Escape'); await expect(dialog).toBeHidden();
+  expect(writes).toEqual([]);
+ });
+
+ test('@pr-smoke @pr-smoke-mobile IP-detail ptr keeps the complete IPv6 identifier inside its dialog', async ({ page }) => {
+  const address = '2001:0db8:1234:5678:9abc:def0:1234:5678';
+  const writes: string[] = [];
+  await bootstrapVpsAdminWindow(page);
+  await installHaveApiMock(page, { user: { id: 1, login: 'synthetic-admin', level: 99 }, handlers: {
+   'GET ip_addresses/100': () => ({ ip_address: { id: 100, addr: address, prefix: 128, network: { id: 3, enabled: true }, network_interface: { id: 6, name: 'eth0' } } }),
+   'GET host_ip_addresses': () => ({ host_ip_addresses: [{ id: 601, addr: address, assigned: false, user_created: true, reverse_record_value: 'synthetic.example.test.', ip_address: { id: 100, network_interface: { id: 6, name: 'eth0' } } }] }),
+   'GET host_ip_addresses/601': () => ({ host_ip_address: { id: 601, addr: address, assigned: false, user_created: true, reverse_record_value: 'synthetic.example.test.', ip_address: { id: 100, network_interface: { id: 6, name: 'eth0' } } } }),
+   'GET environments': () => ({ environments: [] }),
+  } });
+  await page.route('**/api/**', route => {
+   if (!['GET', 'HEAD', 'OPTIONS'].includes(route.request().method())) { writes.push(route.request().method()); return route.abort(); }
+   return route.fallback();
+  });
+  await page.goto('/admin/networking/ip-addresses/100');
+  await page.setViewportSize({ width: 320, height: 750 });
+  await page.getByTestId('admin.ip.hosts.row.601.ptr').click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toBeVisible();
+  const identity = dialog.getByText(address, { exact: true });
+  await expect(identity).toBeVisible();
+  const bounds = await identity.evaluate(element => {
+   const range = document.createRange(); range.selectNodeContents(element);
+   const box = element.getBoundingClientRect();
+   return { width: element.clientWidth, scrollWidth: element.scrollWidth,
+    fragments: [...range.getClientRects()].map(rect => ({ left: rect.left, right: rect.right })),
+    left: box.left, right: box.right };
+  });
+  expect(bounds.scrollWidth).toBeLessThanOrEqual(bounds.width + 1);
+  for (const fragment of bounds.fragments) {
+   expect(fragment.left).toBeGreaterThanOrEqual(bounds.left - 1);
+   expect(fragment.right).toBeLessThanOrEqual(bounds.right + 1);
+  }
+  await page.keyboard.press('Escape'); await expect(dialog).toBeHidden();
+  expect(writes).toEqual([]);
+ });

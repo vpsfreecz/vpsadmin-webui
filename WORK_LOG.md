@@ -1690,3 +1690,9 @@ clankerdev still uses the production API. No host update in this setup.
 
 Correct the reproduced Next/page-size URL race without changing owner scope.
 [Scope, root cause and evidence](docs/work-log/2026-11-09-oom-pending-filter-navigation.md).
+
+
+## 2026-11-09 — Wrap complete IP dialog identifiers (prepared)
+
+Keep long IPv6 identities within route/host-assignment and PTR dialog content.
+[Measured cause, scope and checks](docs/work-log/2026-11-09-ip-dialog-identities.md).
