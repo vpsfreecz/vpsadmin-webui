@@ -23,7 +23,7 @@ export function ScopeMismatchCard(props: {
       <CardBody className="space-y-3">
         <div>
           <div className="text-sm font-semibold">{t('scope.mismatch.title')}</div>
-          <p className="mt-1 text-sm text-muted">
+          <p className="mt-1 text-sm text-muted [overflow-wrap:anywhere]">
             {t('scope.mismatch.body', {
               object: props.objectKind,
               label: props.objectLabel ? `“${props.objectLabel}”` : '',

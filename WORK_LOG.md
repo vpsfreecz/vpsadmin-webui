@@ -1,3 +1,7 @@
+## 2026-11-09 — Wrap long dataset identity messages
+
+[Scope and verification](docs/work-log/2026-11-09-scope-mismatch-wrap.md).
+
 ## 2026-11-09 — Align selected-user header Copy
 
 [Scope and verification](docs/work-log/2026-11-09-user-header-copy.md).
