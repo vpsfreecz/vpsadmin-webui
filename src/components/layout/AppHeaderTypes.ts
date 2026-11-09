@@ -23,8 +23,6 @@ export interface AppHeaderProps {
   authLogin?: string;
   authRole?: string;
   sessionExpiresAt?: number;
-  helpPlacement?: 'top' | 'bottom';
-  onSetHelpPlacement?: (placement: 'top' | 'bottom') => void;
   theme: 'system' | 'light' | 'dark';
   language: 'system' | 'en' | 'cs';
   onSetTheme: (next: 'system' | 'light' | 'dark') => void;

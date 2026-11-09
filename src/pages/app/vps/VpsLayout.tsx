@@ -1,3 +1,4 @@
+import { PageHeading } from '../../../components/ui/PageHeading';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Camera, RotateCw, Square } from 'lucide-react';
 import { Link, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -307,7 +308,7 @@ export function VpsLayout() {
 
   if (!vpsQ.data && creation.pending) return (
     <DetailShell>
-      <h1 className="text-xl font-semibold">{t('common.vps_ref', { id: vpsId })}</h1>
+      <PageHeading className="text-xl font-semibold">{t('common.vps_ref', { id: vpsId })}</PageHeading>
       {creationStatus}
       <LinkButton to={vpsListHref}>{t('common.back_to_list')}</LinkButton>
     </DetailShell>

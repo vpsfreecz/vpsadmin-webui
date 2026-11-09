@@ -1,3 +1,4 @@
+import { PageHeading } from '../../components/ui/PageHeading';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
@@ -281,7 +282,7 @@ export function RegistrationCorrectionPage() {
         <div className="text-sm">
           <Link to="/" className="underline">← {t('common.back')}</Link>
         </div>
-        <h1 className="text-2xl font-semibold tracking-tight">{t('requests.correction.title')}</h1>
+        <PageHeading className="text-2xl font-semibold tracking-tight">{t('requests.correction.title')}</PageHeading>
         <div className="text-sm text-muted">{t('requests.correction.description')}</div>
         <div className="flex flex-wrap items-center gap-2 text-sm">
           <Badge variant="warn">{t('requests.state.pending_correction')}</Badge>

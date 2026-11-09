@@ -661,8 +661,6 @@ export function AppLayout(props: { children: React.ReactNode }) {
               authLogin={auth.user?.login}
               authRole={auth.role ? String(auth.role) : undefined}
               sessionExpiresAt={auth.sessionExpiresAt}
-              helpPlacement={ui.helpPlacement}
-              onSetHelpPlacement={ui.setHelpPlacement}
               theme={ui.settings.theme}
               language={ui.settings.language}
               onSetTheme={ui.setTheme}

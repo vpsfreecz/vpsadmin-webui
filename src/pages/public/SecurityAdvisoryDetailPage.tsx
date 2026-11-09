@@ -1,3 +1,4 @@
+import { PageHeading } from '../../components/ui/PageHeading';
 import { useStatusPagePath } from '../../components/layout/useStatusPagePath';
 import { SecurityCveBadge } from './SecurityCveBadge';
 import React, { useMemo } from 'react';
@@ -206,7 +207,7 @@ export function SecurityAdvisoryDetailPage() {
         </Link>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0 space-y-1">
-            <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+            <PageHeading className="text-2xl font-semibold tracking-tight">{title}</PageHeading>
             <div className="text-sm text-muted">
               {i18n.t('public.security_advisories.published')}: {formatDateTime(publicAdvisory.published_at, i18n.lang)}
               {publicAdvisory.retracted_at

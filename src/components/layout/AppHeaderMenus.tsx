@@ -222,11 +222,11 @@ export function AppSessionControl(props: Pick<AppHeaderProps, 't' | 'sessionExpi
 
 export function AppUserMenu(props: Pick<AppHeaderProps,
   't' | 'mode' | 'canSwitchMode' | 'userMenuRef' | 'userMenuOpen' | 'setUserMenuOpen' | 'authLogin' | 'authRole' |
-  'helpPlacement' | 'onSetHelpPlacement' | 'onNavigate' | 'theme' | 'language' | 'onSetTheme' | 'onSetLanguage' | 'onGoToOtherMode' | 'onGoToProfile' | 'onGoToPublicStatus' | 'loginLogoutHref'
+  'onNavigate' | 'theme' | 'language' | 'onSetTheme' | 'onSetLanguage' | 'onGoToOtherMode' | 'onGoToProfile' | 'onGoToPublicStatus' | 'loginLogoutHref'
 >) {
   const {
     t, mode, canSwitchMode, userMenuRef, userMenuOpen, setUserMenuOpen, authLogin, authRole,
-    helpPlacement, onSetHelpPlacement, onNavigate, theme, language, onSetTheme, onSetLanguage,
+    onNavigate, theme, language, onSetTheme, onSetLanguage,
     onGoToOtherMode, onGoToProfile, loginLogoutHref,
   } = props;
   const roleDescriptionId = useId();
@@ -345,20 +345,6 @@ export function AppUserMenu(props: Pick<AppHeaderProps,
                   {mode === 'admin' ? t('scope.indicator.admin_hint') : t('scope.indicator.my_hint')}
                 </p>
               </div>
-            ) : null}
-            {onSetHelpPlacement ? (
-              <PreferenceSelector
-                label={t('settings.help_placement.label')}
-                options={[
-                  { id: 'top', label: t('settings.help_placement.top') },
-                  { id: 'bottom', label: t('settings.help_placement.bottom') },
-                ]}
-                selected={helpPlacement ?? 'top'}
-                testIdPrefix="shell.interface-preferences.help-placement"
-                onSelect={(value) => {
-                  if (value === 'top' || value === 'bottom') onSetHelpPlacement(value);
-                }}
-              />
             ) : null}
             <PreferenceSelector
               label={t('settings.theme.label')}

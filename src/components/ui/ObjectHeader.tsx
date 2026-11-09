@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 import { Card } from './Card';
+import { PageHeading } from './PageHeading';
 import { clsx } from './clsx';
 
 type HeaderKicker = React.ReactNode | { label: React.ReactNode; href?: string; to?: string };
@@ -93,7 +94,9 @@ export function ObjectHeader(props: {
           {kicker ? <div className="text-xs text-muted">{kicker}</div> : null}
 
           <div className={clsx(kicker ? 'mt-1' : undefined, 'flex flex-wrap items-center gap-2')}>
-            <h1 className="min-w-0 break-words text-xl font-semibold [overflow-wrap:anywhere]" data-document-title-heading>{props.title}</h1>
+            <PageHeading priority={0} className="min-w-0 break-words text-xl font-semibold [overflow-wrap:anywhere]">
+              {props.title}
+            </PageHeading>
             {props.titleAfter ? <div className="min-w-0 max-w-full">{props.titleAfter}</div> : null}
           </div>
 
@@ -106,9 +109,7 @@ export function ObjectHeader(props: {
           <div
             className={clsx(
               'flex min-w-0 w-full flex-col gap-2',
-              horizontalAt === 'xl'
-                ? 'xl:w-auto xl:shrink-0 xl:items-end'
-                : 'sm:w-auto sm:shrink-0 sm:items-end'
+              horizontalAt === 'xl' ? 'xl:w-auto xl:shrink-0 xl:items-end' : 'sm:w-auto sm:shrink-0 sm:items-end'
             )}
           >
             {props.right ? <div>{props.right}</div> : null}

@@ -111,8 +111,6 @@ export function AppHeader(props: AppHeaderProps) {
     authLogin,
     authRole,
     sessionExpiresAt,
-    helpPlacement,
-    onSetHelpPlacement,
     theme,
     language,
     onSetTheme,
@@ -466,8 +464,6 @@ export function AppHeader(props: AppHeaderProps) {
         authLogin={authLogin}
         authRole={authRole}
         onNavigate={onNavigate}
-        helpPlacement={helpPlacement}
-        onSetHelpPlacement={onSetHelpPlacement}
         theme={theme}
         language={language}
         onSetTheme={onSetTheme}

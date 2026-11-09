@@ -176,6 +176,17 @@ a modal owns interaction and pause expiry until it closes. Urgent error/warning
 notifications render in a bounded scrollable slot inside the active dialog;
 they must not cover a dialog footer. Pending submission still follows its explicit cancellation gate.
 
+### Contextual page help
+
+A single help-circle button follows the primary page or object heading when
+that route has usable help. Use the existing localized Page help label for the
+button, tooltip and centered dialog. The shared heading anchor does not change
+the heading's accessible name. The dialog uses the large Modal size and scrolls
+its body while the close actions stay reachable. Keep HTML and links in their
+existing script-free sandbox, in API order. The existing management permission
+and page/action filters govern the discreet link inside the dialog. Preserve
+public idle loading, page drafts, failure recovery and the console exemption.
+
 ### Centered forms and filters
 
 Creation/editing forms and advanced filters use the shared centered `Modal`,

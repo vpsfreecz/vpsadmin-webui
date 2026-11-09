@@ -1,3 +1,4 @@
+import { PageHeading } from '../../components/ui/PageHeading';
 import { useAuth } from '../../app/auth';
 import { useStatusPagePath } from '../../components/layout/useStatusPagePath';
 import React, { useMemo } from 'react';
@@ -119,7 +120,7 @@ export function OutagesPage() {
 
   return (
     <>
-      <h1 className="sr-only">{i18n.t('public.outages.title')}</h1>
+      <PageHeading visuallyHidden className="text-2xl font-semibold tracking-tight">{i18n.t('public.outages.title')}</PageHeading>
       <div className="space-y-6" data-testid="public.outages.page">
         {outagesQ.isLoading ? (
           <Spinner label={i18n.t('public.outages.loading')} />
