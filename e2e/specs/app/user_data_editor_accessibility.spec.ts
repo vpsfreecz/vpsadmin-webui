@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
+import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 
 const TEMPLATE = {
   id: 101,
@@ -18,7 +18,6 @@ test('@smoke @smoke-mobile @pr-smoke @pr-smoke-mobile user data create and edit 
   await installHaveApiMock(page, {
     authorize: {
       user: { id: 1, login: 'e2e', level: 1 },
-      identity: { id: 1, provider: 'mock' },
     },
     handlers: {
       'GET vps_user_data': () => [TEMPLATE],
@@ -37,9 +36,7 @@ test('@smoke @smoke-mobile @pr-smoke @pr-smoke-mobile user data create and edit 
   const contentTextarea = createDrawer.getByRole('textbox', { name: 'Content' });
 
   await expect(labelInput).toHaveAccessibleDescription('Shown in lists and pickers. 1–255 characters.');
-  await expect(formatSelect).toHaveAccessibleDescription(
-    'Choose how vpsAdmin interprets and validates the content.'
-  );
+  await expect(formatSelect).toHaveAccessibleDescription('Choose how vpsAdmin interprets and validates the content.');
   await expect(contentTextarea).toHaveAccessibleDescription('0 / 65536 chars');
 
   await createDrawer.getByText('Label', { exact: true }).click();
@@ -51,9 +48,7 @@ test('@smoke @smoke-mobile @pr-smoke @pr-smoke-mobile user data create and edit 
 
   await contentTextarea.fill('x'.repeat(65_537));
   await expect(contentTextarea).toHaveAttribute('aria-invalid', 'true');
-  await expect(contentTextarea).toHaveAccessibleDescription(
-    /65537 \/ 65536 chars.*Error: Max length 65536 characters/
-  );
+  await expect(contentTextarea).toHaveAccessibleDescription(/65537 \/ 65536 chars.*Error: Max length 65536 characters/);
   await expect(createDrawer.getByRole('status')).toHaveCount(1);
   await expect(createDrawer.getByRole('status')).toContainText('Max length 65536 characters');
   await expect(createDrawer.getByTestId('profile.user_data.editor.create')).toBeDisabled();
@@ -96,3 +91,62 @@ test('@smoke @smoke-mobile @pr-smoke @pr-smoke-mobile user data create and edit 
     expect(saveBox?.height ?? 0).toBeGreaterThanOrEqual(44);
   }
 });
+
+for (const [language, theme] of [
+  ['cs', 'dark'],
+  ['en', 'light'],
+] as const) {
+  test(`@pr-smoke @pr-smoke-mobile user data over-limit count stays readable ${language} ${theme}`, async ({
+    page,
+  }) => {
+    await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST_LIMIT_COUNTER' });
+    await setUiSettingsLocalStorage(page, { language, theme });
+    await installHaveApiMock(page, {
+      authorize: { user: { id: 1, login: 'e2e-limit', level: 1 } },
+      handlers: { 'GET vps_user_data': () => [] },
+    });
+    await page.goto('/app/profile/user-data');
+    await page.getByTestId('profile.user_data.create').click();
+    const drawer = page.getByTestId('profile.user_data.editor.drawer');
+    const content = drawer.getByTestId('profile.user_data.editor.content');
+    await content.fill('x'.repeat(65_537));
+    await expect(content).toHaveAttribute('aria-invalid', 'true');
+    await expect(drawer.getByRole('status')).toBeVisible();
+    await expect(drawer.getByTestId('profile.user_data.editor.create')).toBeDisabled();
+    const counter = drawer.getByText(language === 'cs' ? '65537 / 65536 znaků' : '65537 / 65536 chars', {
+      exact: true,
+    });
+    const metrics = await counter.evaluate((element) => {
+      const style = getComputedStyle(element);
+      let parent: Element | null = element;
+      let background = 'rgba(0, 0, 0, 0)';
+      while (parent && background === 'rgba(0, 0, 0, 0)') {
+        background = getComputedStyle(parent).backgroundColor;
+        parent = parent.parentElement;
+      }
+      const luminance = (color: string) =>
+        color
+          .match(/[\d.]+/g)!
+          .slice(0, 3)
+          .map(Number)
+          .map((value) => {
+            const channel = value / 255;
+            return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+          })
+          .reduce((sum, value, index) => sum + value * [0.2126, 0.7152, 0.0722][index]!, 0);
+      const foreground = luminance(style.color);
+      const backdrop = luminance(background);
+      return {
+        contrast: (Math.max(foreground, backdrop) + 0.05) / (Math.min(foreground, backdrop) + 0.05),
+        marker: parseFloat(style.borderLeftWidth),
+        weight: Number(style.fontWeight),
+      };
+    });
+    expect(metrics.contrast).toBeGreaterThanOrEqual(4.5);
+    expect(metrics.marker).toBe(2);
+    expect(metrics.weight).toBeGreaterThanOrEqual(500);
+    await content.fill('short content');
+    await expect(content).not.toHaveAttribute('aria-invalid', 'true');
+    await expect(counter).toHaveCount(0);
+  });
+}

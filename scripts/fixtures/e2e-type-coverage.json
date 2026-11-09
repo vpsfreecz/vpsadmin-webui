@@ -83,6 +83,7 @@
     "e2e/specs/app/transactions_readability.spec.ts",
     "e2e/specs/app/transactions_table_followup.spec.ts",
     "e2e/specs/app/ui_preferences_persistence.spec.ts",
+    "e2e/specs/app/user_data_editor_accessibility.spec.ts",
     "e2e/specs/app/user_network_page.spec.ts",
     "e2e/specs/app/vps_access_page.spec.ts",
     "e2e/specs/app/vps_admin_modifications.spec.ts",
@@ -1162,13 +1163,6 @@
     {
       "path": "e2e/specs/app/transaction_items_filter_accessibility.spec.ts",
       "sha256": "fd4829881bdec78f5fae69a95a614c4336d96647a25deec0508e394a7e4a3169",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/app/user_data_editor_accessibility.spec.ts",
-      "sha256": "ddf01a723c34d2a8e49cd0b7125fdf667dc988b5573eb6472789ba1b96ce99ab",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
