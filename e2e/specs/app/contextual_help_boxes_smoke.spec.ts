@@ -13,7 +13,7 @@ async function ensureContextualHelpExpanded(page: Page) {
 }
 
 test('@smoke contextual help renders on the public surface', async ({ page }) => {
-  await bootstrapVpsAdminWindow(page);
+  await bootstrapVpsAdminWindow(page, { sessionToken: '' });
 
   await installHaveApiMock(page, {
     handlers: {
