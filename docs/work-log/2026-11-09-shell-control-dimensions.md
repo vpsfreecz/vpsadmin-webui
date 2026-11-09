@@ -36,3 +36,10 @@ progress Close32fine/44coarse; visible controls dismiss correctly. CSS bytes
 match clean37. Focused pinnedquick/typecheck/build/design and1939existing
 unit tests/309files pass. This remains dirty prototype evidence, not clean
 packaging or deployment. Original40baseline configurations retain clean37.
+
+Visual review of the first clean5a caught a squeezed desktop close glyph:
+shared horizontal padding leaves less room than the raw icon control. Keep
+the16px glyph non-shrinking and assert its actual16x16px geometry alongside
+the control sizes. The first clean32 pass did not cover glyph geometry and
+therefore does not accept that candidate for activation. Retain its images
+and logs; update the same focused draft without rewriting its history.

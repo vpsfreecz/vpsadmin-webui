@@ -91,7 +91,7 @@ export function BlockingActionProgressModal(props: {
           ariaLabel={t('common.close')}
           testId="modal.action_progress.close"
         >
-          <X size={16} />
+          <X size={16} className="shrink-0" />
         </Button>
       </div>
 
