@@ -378,7 +378,7 @@ export function VpsAccessPage() {
                 onChange={(event: React.ChangeEvent<HTMLSelectElement>) => setSelectedPublicKeyId(event.target.value ? Number(event.target.value) : null)}
                 disabled={publicKeysQ.isPending || publicKeys.length === 0 || deployKeyM.isPending}
                 aria-describedby="vps-access-ssh-key-description"
-                className="w-full rounded-md border border-border bg-bg px-3 py-2 text-sm text-fg"
+                className="h-9 [@media(any-pointer:coarse)]:min-h-11 w-full rounded-md border border-border bg-bg px-3 py-2 text-sm text-fg"
                 data-testid="vps.access.ssh.key"
               >
                 {publicKeys.length === 0 ? <option value="">{t('vps.access.ssh.no_keys_option')}</option> : null}
@@ -470,7 +470,7 @@ export function VpsAccessPage() {
                 onChange={(event: React.ChangeEvent<HTMLSelectElement>) => setPasswordType(event.target.value as VpsPasswordType)}
                 disabled={currentPasswdMutationPending}
                 aria-describedby="vps-access-password-type-description"
-                className="w-full rounded-md border border-border bg-bg px-3 py-2 text-sm text-fg"
+                className="h-9 [@media(any-pointer:coarse)]:min-h-11 w-full rounded-md border border-border bg-bg px-3 py-2 text-sm text-fg"
                 data-testid="vps.access.password_type"
               >
                 <option value="secure">{t('vps.access.password_type.secure')}</option>

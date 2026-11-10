@@ -1,3 +1,5 @@
+import { setUiSettingsLocalStorage } from '../../fixtures/uiSettings';
+import { writeFile } from 'node:fs/promises';
 import { clickShellControl } from '../../helpers/shellNavigation';
 import { expect, test } from '@playwright/test';
 
@@ -235,3 +237,48 @@ test('@workflow-matrix @pr-smoke VPS access reports failed SSH key deployment an
   ).toBeVisible();
   await expect(page.getByTestId('vps.access.page')).toBeVisible();
 });
+
+
+for (const [language, theme] of [['cs', 'dark'], ['en', 'light']] as const) {
+  test(`@pr-smoke @pr-smoke-mobile Access selectors match adjacent actions (${language})`, async ({ page }, testInfo) => {
+    await page.clock.install({ time: new Date('2026-11-10T05:00:00Z') });
+    await bootstrapVpsAdminWindow(page);
+    await setUiSettingsLocalStorage(page, { language, theme });
+    const mutations: string[] = [];
+    page.on('request', r => { if (!['GET', 'HEAD', 'OPTIONS'].includes(r.method()) && new URL(r.url()).pathname.includes('/vpses/')) mutations.push(r.method()); });
+    await installHaveApiMock(page, { user: { id: 42, login: 'synthetic-owner', level: 1 }, handlers: {
+      'GET vpses/123': () => ({ vps: { id: 123, hostname: 'synthetic-access.example.test', object_state: 'active', is_running: true, enable_network: true, cpu: 2, memory: 2048, diskspace: 20480, swap: 0, user: { id: 42, login: 'synthetic-owner' }, node: { id: 1, domain_name: 'node.example.test' } } }),
+      'GET ip_addresses': () => ({ ip_addresses: [] }), 'GET transaction_chains': () => ({ transaction_chains: [] }),
+      'GET users/42/public_keys': () => ({ public_keys: [{ id: 8, label: 'Dlouhý český název klíče pro kontrolu rozměrů a zarovnání', fingerprint: 'SHA256:synthetic', comment: 'Synthetic fixture', auto_add: false }, { id: 9, label: 'Náhradní syntetický klíč', fingerprint: 'SHA256:backup', auto_add: false }], _meta: { total_count: 2 } }),
+      'GET vpses/123/ssh_host_keys': () => ({ ssh_host_keys: [], _meta: { total_count: 0 } }),
+    } });
+    await page.goto('/app/vps/123/access');
+    const key = page.getByTestId('vps.access.ssh.key'); await expect(key).toBeEnabled();
+    const phases = [];
+    for (const width of [page.viewportSize()!.width, 320, 768]) {
+      await page.setViewportSize({ width, height: 900 });
+      const controls = [];
+      for (const id of ['vps.access.ssh.key', 'vps.access.ssh.refresh', 'vps.access.ssh.deploy', 'vps.access.password_type', 'vps.access.password.generate']) {
+        controls.push(await page.getByTestId(id).evaluate(e => { const r = e.getBoundingClientRect(); return { id: e.getAttribute('data-testid'), height: r.height, top: r.top, width: r.width, left: r.left, right: r.right, coarse: matchMedia('(any-pointer:coarse)').matches }; }));
+      }
+      const expected = controls[0]!.coarse ? 44 : 36;
+      for (const control of controls) expect.soft(control.height, control.id ?? '').toBe(expected);
+      if (width >= 1024) {
+        expect.soft(controls[0]!.top).toBeCloseTo(controls[1]!.top, 1);
+        expect.soft(controls[0]!.top).toBeCloseTo(controls[2]!.top, 1);
+        expect.soft(controls[3]!.top).toBeCloseTo(controls[4]!.top, 1);
+      }
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
+      await key.selectOption('9'); await expect(key).toHaveValue('9');
+      const password = page.getByTestId('vps.access.password_type'); await password.selectOption('simple'); await expect(password).toHaveValue('simple');
+      await key.focus(); await page.keyboard.press('Tab'); await expect(page.getByTestId('vps.access.ssh.refresh')).toBeFocused();
+      phases.push({ width, controls });
+      if (process.env['E2E_ACCESS_FIELD_CAPTURE'] === '1' && width !== 768) await page.screenshot({ path: testInfo.outputPath('access-' + width + '.png'), fullPage: true, scale: 'css', animations: 'disabled' });
+    }
+    expect(mutations).toEqual([]);
+    if (process.env['E2E_ACCESS_FIELD_CAPTURE'] === '1') {
+      const build = await (await page.request.get('/build-info.json')).json();
+      await writeFile(testInfo.outputPath('access-fields.json'), JSON.stringify({ source: build.commit, dirty: build.dirty, language, theme, engine: testInfo.project.name, phases, mutations, fixtureOnly: true, liveWrites: 0 }, null, 2));
+    }
+  });
+}

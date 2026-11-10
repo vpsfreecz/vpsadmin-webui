@@ -216,3 +216,11 @@ name the selected request and retain the same backend action identifiers.
 Changing force in the lifecycle form requires a fresh acknowledgment. Pending
 copy describes request submission, not completed shutdown. Generic historical
 task records without a force value retain a neutral Stop label.
+
+
+### VPS Access field dimensions
+
+Use36px height for the SSH-key and password-type native selectors beside their
+existing desktop actions. Preserve44px coarse-pointer minima, labels, selection
+callbacks and confirmation guards. This is a bounded UX03/REQ-010 correction;
+remaining Access states and broad presentation acceptance remain separate.
