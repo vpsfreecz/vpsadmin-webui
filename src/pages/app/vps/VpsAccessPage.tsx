@@ -343,13 +343,13 @@ export function VpsAccessPage() {
         </Alert>
       ) : null}
       {pendingKeyDeployment ? (
-        <Alert variant="info" title={t('vps.access.ssh.pending_title')}>
+        <Alert className="[overflow-wrap:anywhere]" variant="info" title={t('vps.access.ssh.pending_title')}>
           {t('vps.access.ssh.pending_description', { id: pendingKeyDeployment.asId, key: pendingKeyDeployment.keyLabel })}
         </Alert>
       ) : null}
       {keyDeploymentStateQ.error ? <Alert variant="danger">{errorMessage(keyDeploymentStateQ.error)}</Alert> : null}
       {keyDeploymentError ? (
-        <Alert variant="danger" title={t('vps.access.ssh.failed_title')}>
+        <Alert className="[overflow-wrap:anywhere]" variant="danger" title={t('vps.access.ssh.failed_title')}>
           <div className="space-y-3">
             <p>{t('vps.access.ssh.failed_description', { id: keyDeploymentError.asId, key: keyDeploymentError.keyLabel })}</p>
             <Button variant="secondary" size="sm" onClick={() => chrome.openTasks()} testId="vps.access.ssh.failure.open_tasks">
@@ -358,7 +358,7 @@ export function VpsAccessPage() {
           </div>
         </Alert>
       ) : null}
-      {keyDeployMessage ? <Alert variant="info">{t('vps.access.ssh.deployed', { key: keyDeployMessage })}</Alert> : null}
+      {keyDeployMessage ? <Alert className="[overflow-wrap:anywhere]" variant="info">{t('vps.access.ssh.deployed', { key: keyDeployMessage })}</Alert> : null}
 
       {canMutateVps ? <Card id="vps-access-ssh-key" testId="vps.access.ssh.card" className="scroll-mt-24">
         <CardHeader title={t('vps.access.ssh.title')} subtitle={t('vps.access.ssh.subtitle')} />

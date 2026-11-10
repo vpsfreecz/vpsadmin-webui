@@ -322,3 +322,53 @@ for (const [language, theme] of [['cs', 'dark'], ['en', 'light']] as const) {
     }
   }
 }
+
+for (const [language, theme] of [['cs', 'dark'], ['en', 'light'], ['cs', 'light'], ['en', 'dark']] as const) {
+  test(`@pr-smoke @pr-smoke-mobile generated Access password shares action dimensions (${language}, ${theme})`, async ({ page }, info) => {
+    await bootstrapVpsAdminWindow(page); await setUiSettingsLocalStorage(page, { language, theme });
+    const writes: unknown[] = [], phases: unknown[] = [];
+    await installHaveApiMock(page, { user: { id: 42, login: 'synthetic-owner', level: 1 }, handlers: {
+      'GET vpses/123': () => ({ vps }), 'GET ip_addresses': () => ({ ip_addresses: [] }), 'GET transaction_chains': () => ({ transaction_chains: [] }),
+      'GET users/42/public_keys': () => ({ public_keys: [] }), 'GET vpses/123/ssh_host_keys': () => ({ ssh_host_keys: [] }),
+      'POST vpses/123/passwd': ({ json }) => { writes.push(json); return { vps: { password: 'SYNTHETIC-ONLY-Root-123!' }, _meta: { action_state_id: 745 } }; },
+      'GET action_states/745': () => ({ action_state: { id: 745, finished: true, status: true, current: 1, total: 1 } }),
+    } });
+    await page.goto('/app/vps/123/access'); await page.getByTestId('vps.access.password.generate').click(); await page.getByTestId('vps.access.password.confirm.confirm').click();
+    const field = page.getByTestId('vps.access.generated_password.field'); await expect(field).toHaveAttribute('type', 'password'); await expect(field).toHaveValue('SYNTHETIC-ONLY-Root-123!');
+    const toggle = page.getByTestId('vps.access.generated_password.toggle');
+    for (const width of [...new Set([page.viewportSize()!.width, 320, 768])]) {
+      await page.setViewportSize({ width, height: 900 });
+      const geometry = await page.getByTestId('vps.access.generated_password').evaluate(root => ({ coarse: matchMedia('(any-pointer:coarse)').matches, width: innerWidth, document: document.documentElement.scrollWidth, controls: [...root.querySelectorAll('input,button')].map(e => { const r = e.getBoundingClientRect(); return { id: e.getAttribute('data-testid'), height: r.height, top: r.top, left: r.left, right: r.right }; }) }));
+      for (const c of geometry.controls) { expect.soft(c.height, c.id ?? '').toBe(geometry.coarse ? 44 : 36); expect.soft(c.left).toBeGreaterThanOrEqual(0); expect.soft(c.right).toBeLessThanOrEqual(width); }
+      expect.soft(geometry.document).toBeLessThanOrEqual(width + 1);
+      await toggle.focus(); await page.keyboard.press('Tab'); await page.keyboard.press('Shift+Tab'); await expect(toggle).toBeFocused(); expect(await toggle.evaluate(e => e.matches(':focus-visible'))).toBe(true);
+      phases.push(geometry);
+      if (language === 'cs' && width === 768) await page.screenshot({ path: info.outputPath('generated-password-768.png'), fullPage: true, scale: 'css', animations: 'disabled' });
+    }
+    await toggle.click(); await expect(field).toHaveAttribute('type', 'text'); await toggle.click(); await expect(field).toHaveAttribute('type', 'password'); await page.getByTestId('vps.access.generated_password.clear').click(); await expect(field).toHaveCount(0); expect(writes).toEqual([{ vps: { type: 'secure' } }]);
+    if (process.env['E2E_ACCESS_RESULT_CAPTURE'] === '1') await writeFile(info.outputPath('result-regression.json'), JSON.stringify({ source: (await (await page.request.get('/build-info.json')).json()).commit, kind: 'password', language, theme, phases, writes, liveWrites: 0, fixtureOnly: true }, null, 2));
+  });
+}
+for (const [language, theme] of [['cs', 'dark'], ['en', 'light']] as const) for (const state of ['pending', 'failed', 'success'] as const) {
+  test(`@pr-smoke @pr-smoke-mobile Access key result wraps complete identifiers (${language}, ${state})`, async ({ page }, info) => {
+    await bootstrapVpsAdminWindow(page); await setUiSettingsLocalStorage(page, { language, theme });
+    const fingerprint = 'SHA256:' + 'abcdef0123456789'.repeat(12), keyLabel = 'Dlouhý-český-název-klíče-'.repeat(6), writes: unknown[] = [], phases: unknown[] = [];
+    await installHaveApiMock(page, { user: { id: 42, login: 'synthetic-owner', level: 1 }, handlers: {
+      'GET vpses/123': () => ({ vps }), 'GET ip_addresses': () => ({ ip_addresses: [] }), 'GET transaction_chains': () => ({ transaction_chains: [] }),
+      'GET users/42/public_keys': () => ({ public_keys: [{ id: 8, label: keyLabel, fingerprint }] }), 'GET vpses/123/ssh_host_keys': () => ({ ssh_host_keys: [] }),
+      'POST vpses/123/deploy_public_key': ({ json }) => { writes.push(json); return { vps: {}, _meta: { action_state_id: 746 } }; },
+      'GET action_states/746': () => ({ action_state: { id: 746, finished: state !== 'pending', status: state !== 'failed', current: state === 'pending' ? 0 : 1, total: 1 } }),
+    } });
+    await page.goto('/app/vps/123/access'); await page.getByTestId('vps.access.ssh.deploy').click(); await page.getByTestId('vps.access.ssh.confirm.confirm').click();
+    if (state === 'pending') { await expect(page.getByTestId('modal.action_progress')).toBeVisible(); await page.getByTestId('modal.action_progress.continue').click(); }
+    const message = page.getByTestId('vps.access.page').locator(':scope > div').filter({ hasText: fingerprint }).first(); await expect(message).toContainText(keyLabel); await expect(message).toContainText(fingerprint);
+    for (const width of [...new Set([page.viewportSize()!.width, 320, 768])]) {
+      await page.setViewportSize({ width, height: 900 });
+      const geometry = await message.evaluate(e => { const box = e.getBoundingClientRect(), range = document.createRange(); range.selectNodeContents(e); return { viewport: innerWidth, document: document.documentElement.scrollWidth, box: { left: box.left, right: box.right }, text: [...range.getClientRects()].filter(r => r.width > 0).map(r => ({ left: r.left, right: r.right })) }; });
+      expect.soft(geometry.document).toBeLessThanOrEqual(width + 1); for (const r of geometry.text) { expect.soft(r.left).toBeGreaterThanOrEqual(geometry.box.left - 1); expect.soft(r.right).toBeLessThanOrEqual(geometry.box.right + 1); }
+      phases.push(geometry); if (language === 'cs' && width === 320) await page.screenshot({ path: info.outputPath('key-result-' + state + '-320.png'), fullPage: true, scale: 'css', animations: 'disabled' });
+    }
+    expect(writes).toEqual([{ vps: { public_key: 8 } }]);
+    if (process.env['E2E_ACCESS_RESULT_CAPTURE'] === '1') await writeFile(info.outputPath('result-regression.json'), JSON.stringify({ source: (await (await page.request.get('/build-info.json')).json()).commit, kind: 'key', state, language, theme, phases, writes, liveWrites: 0, fixtureOnly: true }, null, 2));
+  });
+}

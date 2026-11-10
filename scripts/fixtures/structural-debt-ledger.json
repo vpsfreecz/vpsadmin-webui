@@ -332,10 +332,10 @@
       "path": "src/pages/app/vps/VpsAccessPage.tsx",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "49f5eb7dad1684e3063c8311ac8de095f7d09dc74f87743688e5a0b26e68296f",
+      "contentHash": "5cf3fd442941c05735f65b2c9466a19afaaff2d22879e8e58938cf16fb432660",
       "old": 0,
       "allowance": 564,
-      "rationale": "At the recorded source revision, this file already contained VPS access and credential controls; extract the coherent section with focused behavior coverage before removing this exception. Reviewed UX03: only h-9 plus the existing44px coarse minimum on the two native selectors; exact inverse preserves all other source bytes and the existing line allowance.",
+      "rationale": "At the recorded source revision, this file already contained VPS access and credential controls; extract the coherent section with focused behavior coverage before removing this exception. Reviewed UX03: only h-9 plus the existing44px coarse minimum on the two native selectors; exact inverse preserves all other source bytes and the existing line allowance. Reviewed bounded Access result presentation: three local alert wrapping attributes only; exact inverse preserves all controller, API and safety bytes and the existing exact line cap.",
       "owner": "WebUI collection and page refactor implementer",
       "removeWhen": {
         "metric": "lines",

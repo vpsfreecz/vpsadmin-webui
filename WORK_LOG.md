@@ -1698,3 +1698,8 @@ retaining44px coarse minima and all selection/mutation guards.
 
 Allow each host fingerprint grid item to shrink so its code scrolls locally
 and Copy remains reachable. [Scope and verification](docs/work-log/2026-11-10-access-host-key-containment.md).
+
+
+## 2026-11-10 — Align generated-password fields and wrap key results
+
+[Measured Access follow-up](docs/work-log/2026-11-10-access-result-presentation.md).

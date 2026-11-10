@@ -232,3 +232,12 @@ VPS Access fingerprint grid items may shrink below their intrinsic code width.
 Retain the full fingerprint in a local horizontal scroller and keep Copy beside
 it within the card. Preserve the table scroller, SDK fields, clipboard value,
 roles and every mutation guard.
+
+
+### Access result presentation
+
+The generated-password field shares36px fine-pointer and44px coarse-pointer
+height with its reveal, copy and local-clear actions. Preserve masking,
+read-only semantics and callbacks. Key-deployment pending, failure and success
+messages wrap long identifiers without truncating their contents or changing
+the action-state, role, lock or retry contracts.
