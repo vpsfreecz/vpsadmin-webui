@@ -123,7 +123,7 @@ test('admin can retry a failed package removal with the error kept in context', 
         if (deleteCalls === 1) return failEnvelope('Package is still referenced');
 
         assignments = [];
-        return {};
+        return { user_cluster_resource_package: {} };
       },
     },
   });

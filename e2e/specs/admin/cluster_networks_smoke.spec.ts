@@ -186,10 +186,7 @@ test.describe('Admin / Cluster / Networks (smoke)', () => {
 
     // Filter by purpose
     await page.getByTestId('admin.cluster.networks.advanced.open').click();
-    await Promise.all([
-      page.waitForRequest((r) => isApiRequest(r.url(), 'networks') && r.url().includes('network%5Bpurpose%5D=vps')),
-      page.getByTestId('admin.cluster.networks.filter.purpose').selectOption('vps'),
-    ]);
+    await page.getByTestId('admin.cluster.networks.filter.purpose').selectOption('vps');
     await expect.poll(() => seenPurpose).toBe('vps');
     await page.getByTestId('admin.cluster.networks.advanced').getByRole('button', { name: /done/i }).click();
 
@@ -237,7 +234,7 @@ test.describe('Admin / Cluster / Networks (smoke)', () => {
       owned: 12,
       taken: 30,
       locations_count: 1,
-      primary_location: locations[0],
+      primary_location: locations[0] ?? null,
     }];
     let createAttempts = 0;
     let updateAttempts = 0;
@@ -382,7 +379,7 @@ test.describe('Admin / Cluster / Networks (smoke)', () => {
           deleteAttempts += 1;
           if (deleteAttempts === 1) return failEnvelope('Location is still in use');
           locationNetworks = locationNetworks.filter((row) => row.id !== 1001);
-          return {};
+          return { location_network: {} };
         },
         'POST networks/101/add_addresses': () => {
           addAddressAttempts += 1;

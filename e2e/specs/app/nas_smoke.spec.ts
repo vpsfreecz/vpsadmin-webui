@@ -59,7 +59,7 @@ test.describe('NAS datasets alias', () => {
     expect(requestedRole).toBe('primary');
     expect(requestedIncludes).toBe('user');
 
-    const proofScreenshot = process.env.E2E_NAS_USAGE_PROOF_SCREENSHOT?.trim();
+    const proofScreenshot = process.env['E2E_NAS_USAGE_PROOF_SCREENSHOT']?.trim();
     if (proofScreenshot) {
       await page.screenshot({ path: proofScreenshot, fullPage: true });
     }
@@ -178,7 +178,7 @@ test.describe('NAS datasets alias', () => {
     await page.getByTestId('nas.create.refquota').fill('8');
     await page.getByTestId('nas.create.submit').click();
 
-    await expect.poll(() => payload?.dataset as Record<string, unknown> | undefined).toEqual({
+    await expect.poll(() => payload?.['dataset'] as Record<string, unknown> | undefined).toEqual({
       dataset: 901,
       name: 'projects',
       automount: true,
@@ -239,8 +239,8 @@ test.describe('NAS datasets alias', () => {
           if (role !== 'primary') return { datasets: [], _meta: { total_count: 0 } };
           return { datasets: [datasets[901]], _meta: { total_count: 1 } };
         },
-        'GET datasets/901': () => datasets[901],
-        'GET datasets/902': () => datasets[902],
+        'GET datasets/901': () => ({ dataset: datasets[901] }),
+        'GET datasets/902': () => ({ dataset: datasets[902] }),
         'GET transaction_chains': () => ({ transaction_chains: [], _meta: { total_count: 0 } }),
         'POST datasets': () => {
           return { dataset: datasets[902] };

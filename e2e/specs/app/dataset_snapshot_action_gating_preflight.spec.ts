@@ -40,16 +40,18 @@ test.describe('Dataset snapshot action gating (preflight)', () => {
         },
 
         'GET datasets/10': () => ({
-          id: 10,
-          full_name: 'tank/vps/ds10',
-          name: 'ds10',
-          used: 2048,
-          refquota: 10240,
-          snapshots_count: 2,
-          mount_count: 0,
-          export_count: 0,
-          object_state: 'active',
-          vps: { id: 300, hostname: 'alpha.example' },
+          dataset: {
+            id: 10,
+            full_name: 'tank/vps/ds10',
+            name: 'ds10',
+            used: 2048,
+            refquota: 10240,
+            snapshots_count: 2,
+            mount_count: 0,
+            export_count: 0,
+            object_state: 'active',
+            vps: { id: 300, hostname: 'alpha.example' },
+          },
         }),
 
         'GET datasets/10/snapshots': () => ({

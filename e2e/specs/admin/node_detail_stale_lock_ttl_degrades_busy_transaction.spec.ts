@@ -23,27 +23,28 @@ test('admin node detail: stale lock state degrades busy transaction after ttl', 
           domain_name: 'node5.example',
           fqdn: 'node5.example',
           status: true,
-          maintenance_lock: false,
+          maintenance_lock: 'no',
           maintenance_lock_reason: null,
           role: 'hypervisor',
           hypervisor_type: 'vpsadminos',
           ip_address: '192.0.2.5',
         },
       }),
-      'GET nodes': () => [
+      'GET nodes': () => ({ nodes: [
         { id: 5, domain_name: 'node5.example' },
         { id: 6, domain_name: 'node6.example' },
-      ],
-      'GET nodes/public_status': () => [
+      ] }),
+      'GET nodes/public_status': () => ({ nodes: [
         {
           id: 5,
+          name: 'node5',
           status: true,
           location: { label: 'dc1' },
           last_report_at: '2026-02-02T00:00:00.000Z',
         },
-      ],
-      'GET nodes/5/statuses': () => [],
-      'GET transactions': () => [],
+      ] }),
+      'GET nodes/5/statuses': () => ({ statuses: [] }),
+      'GET transactions': () => ({ transactions: [] }),
       'GET nodes/5/metrics': () => ({ rows: [] }),
 
       // First load succeeds (3 calls for staged/queued/rollbacking), subsequent calls fail.

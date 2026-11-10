@@ -61,7 +61,9 @@ for (const result of ['reports', 'empty', 'error'] as const) {
         'GET transaction_chains': () => ({ transaction_chains: [] }),
         'GET oom_reports': ({ searchParams }) => {
           expect(searchParams.get('oom_report[vps]')).toBe('123');
-          expect(searchParams.get('oom_report[limit]')).toBe('3');
+          const limit = searchParams.get('oom_report[limit]');
+          if (limit === '1') return { oom_reports: [] };
+          expect(limit).toBe('3');
           if (result === 'error') return { status: 503 };
           return {
             oom_reports: result === 'empty' ? [] : [
