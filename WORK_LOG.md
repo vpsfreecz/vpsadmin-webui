@@ -2445,3 +2445,11 @@ removal target. Extend the source browser regression for full IPv6/prefix range
 bounds, unchanged URL/query state and actual odd/even/warning row contrast.
 [Scope, functional finding and evidence limits](docs/work-log/2026-11-10-ip-chip-label-wrap.md).
 Broad UX03/04 remain partial; exact CI/package and preview delivery are separate.
+
+
+## 2026-11-10 — Host-IP filter alignment
+
+Flatten only Host-IP's legacy two-column filters so wrapped controls align
+with their row and narrow fields share the available width. Preserve44px and
+all lookup/query callbacks. [Scope and evidence](docs/work-log/2026-11-10-host-ip-filter-alignment.md).
+Verification and delivery remain pending; broad UX03/04 remain partial.
