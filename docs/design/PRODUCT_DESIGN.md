@@ -365,3 +365,7 @@ shared UsageBar defaults, data/severity decisions and action dimensions.
 ## Personal server lookup controls
 
 The conditional personal-server retry action shares its neighboring selector height:36px on fine pointers and44px on coarse pointers. Keep failed membership distinct from an empty result and preserve explicit retry. [Scope and verification](../work-log/2026-11-10-dashboard-own-scope-retry-alignment.md).
+
+### Shared error recovery action alignment
+
+Use the standard medium button size for Copy details inside a shared ErrorState recovery row, matching Retry, Back and Status. Retain the compact copy default everywhere else and the existing 44 px coarse-pointer minimum.

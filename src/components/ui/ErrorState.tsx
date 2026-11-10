@@ -180,7 +180,13 @@ export function ErrorState(props: {
           )}
 
           {showDetails ? (
-            <CopyButton testId={copyTestId} text={details.text} label={t('common.copy_details')} variant="ghost" />
+            <CopyButton
+              testId={copyTestId}
+              text={details.text}
+              label={t('common.copy_details')}
+              variant="ghost"
+              size="md"
+            />
           ) : null}
         </div>
 

@@ -1527,3 +1527,7 @@ pagination, action and resource-pressure contracts remain unchanged.
 ## Personal server membership retry
 
 The existing All servers / With my VPS selector retains its current authenticated membership and retry flow. A read failure exposes an adjacent retry matching the field height. This presentation correction does not change request ownership, pagination, state persistence or admin selector absence. [Scope and verification](../work-log/2026-11-10-dashboard-own-scope-retry-alignment.md).
+
+### Shared error recovery action alignment
+
+Error recovery preserves the original retry, back, status, details and copy behavior. Matching action heights apply to the shared recovery row without changing error classification, navigation or retry policy.
