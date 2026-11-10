@@ -155,7 +155,7 @@ export function IpAddressesFilters({
 
           <div>
             <div className="mb-1 text-xs font-semibold text-muted">{t('admin.ip_addresses.quick.occupancy')}</div>
-            <div className="grid h-10 grid-cols-3 overflow-hidden rounded-md border border-border bg-surface-2 p-0.5">
+            <div className="grid grid-cols-3 rounded-md border border-border bg-surface-2 p-0.5 [&_button]:min-h-9 [@media(any-pointer:coarse)]:[&_button]:min-h-11">
               <button
                 type="button"
                 onClick={() => setBoolParamInUrl('assigned_to_interface', undefined)}
