@@ -139,7 +139,7 @@ export function IpAddressesListTable({ pageData, ipDetailBasePath, basePath, na,
                 <Link className="font-medium text-accent hover:underline" to={detailPath}>
                   {ipLabel(ip)}
                 </Link>
-                <div className="mt-1 text-xs text-faint">#{id}</div>
+                <div className="mt-1 text-xs text-muted">#{id}</div>
               </td>
               <td className="px-3 py-2 text-xs text-muted">{networkLabel(ip, na)}</td>
               <td className="px-3 py-2 text-xs text-muted">
@@ -157,7 +157,7 @@ export function IpAddressesListTable({ pageData, ipDetailBasePath, basePath, na,
                     {vpsLabel(ip, na)}
                   </Link>
                 ) : (
-                  <span className="text-faint">{na}</span>
+                  <span className="text-muted">{na}</span>
                 )}
               </td>
               <td className="px-3 py-2 text-xs">
@@ -166,7 +166,7 @@ export function IpAddressesListTable({ pageData, ipDetailBasePath, basePath, na,
                     {userLabel(ip, na)}
                   </Link>
                 ) : (
-                  <span className="text-faint">{na}</span>
+                  <span className="text-muted">{na}</span>
                 )}
               </td>
               <td className="px-3 py-2 text-xs text-muted">{ifaceLabel(ip, na)}</td>

@@ -1685,3 +1685,37 @@ preserve all branch histories and colleague PRs. Add standard push CI for the
 integration branch, without deployment automation. Dev has isolated test data;
 clankerdev still uses the production API. No host update in this setup.
 [Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
+
+
+## 2026-11-10 — IP occupancy targets (prepared)
+
+Allow complete occupancy labels and shared pointer targets within the inset group.
+[Measured scope and verification](docs/work-log/2026-11-10-ip-occupancy-targets.md).
+
+
+## 2026-11-10 — Readable IP shortcut heading (prepared follow-up)
+
+Correct the measured light-theme heading contrast locally.
+[Cause, source evidence and release ordering](docs/work-log/2026-11-10-ip-shortcut-label-contrast.md).
+
+
+## 2026-11-10 — Error chips and small IP text (prepared)
+
+Correct measured dark error-chip and light secondary-text contrast, retaining
+filter meaning, query behavior and keyboard removal.
+[Source, verification and limits](docs/work-log/2026-11-10-ip-secondary-contrast.md).
+
+
+## 2026-11-10 — Coarse-pointer filter-chip removal (prepared)
+
+Keep ordinary/error removal targets usable at narrow and landscape widths.
+[Measured gap, preservation and verification](docs/work-log/2026-11-10-ip-chip-removal-targets.md).
+
+
+## 2026-11-10 — complete narrow filter-chip labels
+
+Continue existing PR264 with bounded label wrapping and a separate nonshrinking
+removal target. Extend the source browser regression for full IPv6/prefix range
+bounds, unchanged URL/query state and actual odd/even/warning row contrast.
+[Scope, functional finding and evidence limits](docs/work-log/2026-11-10-ip-chip-label-wrap.md).
+Broad UX03/04 remain partial; exact CI/package and preview delivery are separate.
