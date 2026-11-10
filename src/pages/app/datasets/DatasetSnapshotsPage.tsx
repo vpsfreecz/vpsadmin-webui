@@ -556,7 +556,6 @@ export function DatasetSnapshotsPage({ queryParamPrefix = '' }: DatasetSnapshots
         title={t('dataset.snapshots.create.modal_title')}
       >
         <div className="space-y-4" data-testid="dataset.snapshots.create.modal">
-          <div className="text-sm text-muted">{t('dataset.snapshots.create.help')}</div>
           <div className="rounded-md border border-border bg-surface-2 p-3 text-xs text-muted">
             {t('dataset.snapshots.create.scope', { dataset: datasetLabelForToast })}
           </div>
