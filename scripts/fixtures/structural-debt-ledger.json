@@ -192,10 +192,10 @@
       "path": "src/pages/app/datasets/DatasetExpansionPage.tsx",
       "rule": "grown-over-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "5f7cb96750ff0156361584bf2a0e11322060dd9d607dd7914cb8620ac443df19",
+      "contentHash": "b48c73192815b71a550913d5e0f43d776c9c7bd55be86767cbbd9b3397cf3fe8",
       "old": 635,
       "allowance": 697,
-      "rationale": "At the recorded source revision, this file already contained dataset expansion state and actions; extract the coherent section with focused behavior coverage before removing this exception. Reviewed generated-client migration: the receipt helper import moves to apiErrors and the existing max-over-days guard also rejects absent values before constructing the generated input. The line allowance is unchanged.",
+      "rationale": "At the recorded source revision, this file already contained dataset expansion state and actions; extract the coherent section with focused behavior coverage before removing this exception. Reviewed generated-client migration: the receipt helper import moves to apiErrors and the existing max-over-days guard also rejects absent values before constructing the generated input. The line allowance is unchanged. Reviewed UX08 footer-only alignment and information-before-primary ordering; the action callback, all other source bytes, and the existing exact 697-line allowance are preserved by an inverse proof.",
       "owner": "WebUI implementation lead",
       "removeWhen": {
         "metric": "lines",

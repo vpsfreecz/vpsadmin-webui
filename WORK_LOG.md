@@ -2489,3 +2489,13 @@ and Copy remains reachable. [Scope and verification](docs/work-log/2026-11-10-ac
 
 Use a dedicated destructive-button foreground after a rendered dark sample
 measured3.997:1; improve the same gallery’s light tertiary text and usage values. [Scope and verification](docs/work-log/2026-11-10-danger-button-foreground.md).
+
+## 2026-11-10 — Consistent dataset form controls (prepared)
+
+Align NAS labels, use one native advanced disclosure with a visible state
+indicator and put the primary confirmation last and right. Apply the same
+rule to the related inline expansion form while retaining its explanation.
+Focused raw Vite checks pass 150 cases across three browsers with no retries;
+source quick/build and strict E2E adoption checks pass in both source trees.
+Clean integration, CI and paired preview delivery remain separate gates.
+[Scope, contracts and verification](docs/work-log/2026-11-10-nas-form-consistency.md).
