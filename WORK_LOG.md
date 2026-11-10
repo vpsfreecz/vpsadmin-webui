@@ -1696,3 +1696,9 @@ Correct the reproduced Next/page-size URL race without changing owner scope.
 
 Keep long IPv6 identities within route/host-assignment and PTR dialog content.
 [Measured cause, scope and checks](docs/work-log/2026-11-09-ip-dialog-identities.md).
+
+
+## 2026-11-10 — Complete IP-list identifiers (prepared)
+
+Extend existing PR263 with complete mobile-card and confirmation text.
+[New finite-audit findings and verification](docs/work-log/2026-11-10-ip-list-identities.md).

@@ -1,3 +1,4 @@
+import { setUiSettingsLocalStorage } from '../../fixtures/uiSettings';
 import { expect, test } from '../../fixtures/vpsadmin-window';
 import { bootstrapVpsAdminWindow } from '../../fixtures/bootstrap';
 import { installHaveApiMock } from '../../fixtures/haveapi';
@@ -171,3 +172,22 @@ test.describe('Admin / Networking surfaces (smoke)', () => {
     await expect(page.getByTestId('admin.network_traffic_users.row.7')).toBeVisible();
   });
 });
+
+// Complete technical identifiers must fit their local card or confirmation.
+for(const [language,theme]of [['cs','dark'],['en','light']]as const)for(const scene of ['card','delete']){
+ test('@pr-smoke @pr-smoke-mobile List identity '+scene+' '+language+' '+theme,async({page})=>{
+  const address='2001:0db8:1234:5678:9abc:def0:1234:5678';const writes:string[]=[];
+  await bootstrapVpsAdminWindow(page,{webuiNext:{uiSettings:{persistence:'local'}}});await setUiSettingsLocalStorage(page,{language,theme});await page.clock.install({time:new Date('2026-11-10T00:15:00Z')});
+  const parent={id:100,addr:address,prefix:128,network:{id:3,enabled:true},network_interface:null};const host={id:601,addr:address,assigned:false,user_created:true,ip_address:parent};
+  await installHaveApiMock(page,{user:{id:1,login:'synthetic-admin',level:99},handlers:{'GET locations':()=>({locations:[]}),'GET ip_addresses':()=>({ip_addresses:[parent]}),'GET host_ip_addresses':()=>({host_ip_addresses:[host]})}});
+  await page.route('**/api/**',route=>{if(!['GET','HEAD','OPTIONS'].includes(route.request().method())){writes.push(route.request().method());return route.abort()}return route.fallback()});
+  await page.setViewportSize({width:320,height:900});await page.goto(scene==='card'?'/admin/networking/ip-addresses?version=6':'/admin/networking/host-ip-addresses?assigned=false');
+  if(scene==='delete')await page.getByTestId('admin.host_ip_addresses.row.601.delete').click();
+  const target=scene==='card'?page.getByTestId('admin.ip_addresses.card.100').getByRole('link',{name:address+'/128',exact:true}):page.getByRole('dialog').locator('p').filter({hasText:address});await expect(target).toBeVisible();await target.scrollIntoViewIfNeeded();
+  if(scene==='card'){await expect(target).toHaveAttribute('href','/admin/networking/ip-addresses/100');await target.focus();await expect(target).toBeFocused()}
+  else {const cancel=page.getByTestId('admin.host_ip_addresses.delete_confirm.cancel');await cancel.focus();await expect(cancel).toBeFocused()}
+  const bounds=await target.evaluate(el=>{const b=el.getBoundingClientRect(),r=document.createRange();r.selectNodeContents(el);return{x:b.x,y:b.y,width:b.width,height:b.height,scrollWidth:el.scrollWidth,clientWidth:el.clientWidth,fragments:[...r.getClientRects()].map(x=>({left:x.left,right:x.right}))}});
+  expect(bounds.scrollWidth).toBeLessThanOrEqual(bounds.clientWidth+1);for(const f of bounds.fragments){expect(f.left).toBeGreaterThanOrEqual(bounds.x-1);expect(f.right).toBeLessThanOrEqual(bounds.x+bounds.width+1)}
+  if(scene==='delete'){await page.getByTestId('admin.host_ip_addresses.delete_confirm.cancel').press('Enter');await expect(page.getByRole('dialog')).toHaveCount(0)}expect(writes).toEqual([]);
+ });
+}
