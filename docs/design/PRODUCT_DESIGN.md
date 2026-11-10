@@ -277,3 +277,8 @@ Let before/after review tracks shrink and wrap unbroken values, including IPv6,
 within the review panel and confirmation dialog at 320px. Preserve the full
 value and original labels, risk meaning, target and confirmation behavior
 (REQ-010, REQ-023).
+
+
+## Personal server lookup controls
+
+The conditional personal-server retry action shares its neighboring selector height:36px on fine pointers and44px on coarse pointers. Keep failed membership distinct from an empty result and preserve explicit retry. [Scope and verification](../work-log/2026-11-10-dashboard-own-scope-retry-alignment.md).
