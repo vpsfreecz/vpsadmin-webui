@@ -53,7 +53,7 @@ export function VpsSshHostKeysCard(props: {
                 const fingerprint = hostKeyDisplayFingerprint(key);
 
                 return (
-                  <div key={rowId} className="rounded-lg border border-border bg-surface p-3" data-testid={`vps.access.host_keys.fingerprint.${rowId}`}>
+                  <div key={rowId} className="min-w-0 rounded-lg border border-border bg-surface p-3" data-testid={`vps.access.host_keys.fingerprint.${rowId}`}>
                     <div className="text-xs uppercase tracking-wide text-muted">{hostKeyDisplayType(key)}</div>
                     <div className="mt-2 flex min-w-0 items-center gap-2">
                       <code className="min-w-0 flex-1 overflow-x-auto rounded-md bg-surface-2 px-2 py-1 font-mono text-xs text-fg">{fingerprint}</code>

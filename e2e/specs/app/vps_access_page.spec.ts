@@ -282,3 +282,43 @@ for (const [language, theme] of [['cs', 'dark'], ['en', 'light']] as const) {
     }
   });
 }
+
+
+for (const [language, theme] of [['cs', 'dark'], ['en', 'light']] as const) {
+  for (const role of ['member', 'support'] as const) {
+    for (const length of [43, 192]) {
+      test(`@pr-smoke @pr-smoke-mobile Access host fingerprint copy stays reachable (${language}, ${role}, ${length})`, async ({ page }) => {
+        await bootstrapVpsAdminWindow(page);
+        await setUiSettingsLocalStorage(page, { language, theme });
+        const writes: string[] = [];
+        page.on('request', r => { if (!['GET', 'HEAD', 'OPTIONS'].includes(r.method())) writes.push(r.method()); });
+        await installHaveApiMock(page, { user: { id: role === 'member' ? 42 : 1, login: 'synthetic-actor', level: role === 'member' ? 1 : 21 }, handlers: {
+          'GET vpses/123': () => ({ vps }),
+          'GET ip_addresses': () => ({ ip_addresses: [] }),
+          'GET transaction_chains': () => ({ transaction_chains: [] }),
+          'GET users/42/public_keys': () => ({ public_keys: [] }),
+          'GET vpses/123/ssh_host_keys': () => ({ ssh_host_keys: [{ id: 3, algorithm: 'ssh-ed25519', fingerprint: 'SHA256:' + 'a'.repeat(length), bits: 256 }] }),
+        } });
+        await page.goto((role === 'member' ? '/app' : '/admin') + '/vps/123/access');
+        const copy = page.getByTestId('vps.access.host_keys.fingerprint.3.copy');
+        await expect(copy).toBeVisible();
+        for (const width of [page.viewportSize()!.width, 320, 768]) {
+          await page.setViewportSize({ width, height: 900 });
+          await expectNoDocumentHorizontalOverflow(page);
+          const geometry = await copy.evaluate(e => { const r = e.getBoundingClientRect(); return { left: r.left, right: r.right, height: r.height, coarse: matchMedia('(any-pointer:coarse)').matches }; });
+          expect(geometry.left).toBeGreaterThanOrEqual(0);
+          expect(geometry.right).toBeLessThanOrEqual(width);
+          expect(geometry.height).toBeGreaterThanOrEqual(geometry.coarse ? 44 : 32);
+          const code = page.getByTestId('vps.access.host_keys.fingerprint.3').locator('code');
+          await expect(code).toHaveText('SHA256:' + 'a'.repeat(length));
+          const scroll = await code.evaluate(e => { const el = e as HTMLElement; el.scrollLeft = 10000; return { client: el.clientWidth, content: el.scrollWidth, left: el.scrollLeft }; });
+          if (scroll.content > scroll.client) expect(scroll.left).toBeGreaterThan(0);
+          await copy.focus(); await page.keyboard.press('Tab'); await page.keyboard.press('Shift+Tab');
+          await expect(copy).toBeFocused();
+          expect(await copy.evaluate(e => e.matches(':focus-visible'))).toBe(true);
+        }
+        expect(writes).toEqual([]);
+      });
+    }
+  }
+}

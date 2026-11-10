@@ -1692,3 +1692,9 @@ clankerdev still uses the production API. No host update in this setup.
 Give only the two native Access selectors the shared36px fine-pointer height,
 retaining44px coarse minima and all selection/mutation guards.
 [Scope and verification](docs/work-log/2026-11-10-access-field-rhythm.md).
+
+
+## 2026-11-10 — Keep host fingerprint Copy inside Access cards
+
+Allow each host fingerprint grid item to shrink so its code scrolls locally
+and Copy remains reachable. [Scope and verification](docs/work-log/2026-11-10-access-host-key-containment.md).

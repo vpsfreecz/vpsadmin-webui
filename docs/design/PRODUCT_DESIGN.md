@@ -224,3 +224,11 @@ Use36px height for the SSH-key and password-type native selectors beside their
 existing desktop actions. Preserve44px coarse-pointer minima, labels, selection
 callbacks and confirmation guards. This is a bounded UX03/REQ-010 correction;
 remaining Access states and broad presentation acceptance remain separate.
+
+
+### Host fingerprint containment
+
+VPS Access fingerprint grid items may shrink below their intrinsic code width.
+Retain the full fingerprint in a local horizontal scroller and keep Copy beside
+it within the card. Preserve the table scroller, SDK fields, clipboard value,
+roles and every mutation guard.
