@@ -25,3 +25,25 @@ All8 new targeted held-iframe cases fail on exact cleanab6 at terminal-scale
 assertions, and the same8 pass on the working cumulative source. Both engines,
 CS/EN,320/768px, local text bounds and32px fine/44px coarse recovery action;
 reconnect retains one token creation. Clean Nix/CI/preview gates remain pending.
+
+The first exact a046 finite matrix also exposed the dark revoke confirmation
+label at3.997:1. Retain that failure; it is not accepted console readability.
+A default-inert optional ConfirmDialog confirmClassName allows this one console
+confirmation to select black text using the effective color scheme in dark mode. Its red danger surface, label and
+handler stay unchanged; all other consumers retain their exact classes. Normal,
+hover and keyboard-focus contrast are covered by the extended browser test.
+The old a046 clean package and old558b CI are now superseded candidates, never
+deployed. A new exact head and four clean outputs are required.
+
+The first dark: utility experiment failed both dark checks because Tailwind
+uses operating-system media while this app supports an explicit theme override.
+Retain those failed working logs. The scoped light-dark() color follows the
+existing color-scheme contract, preserving the original light foreground.
+Expanded tests include explicit dark on OSlight, explicit light on OSdark,
+and system mode on each OS scheme; no assertion threshold or retry changed.
+
+The retained exacta046 confirmation regression fails4 dark-theme
+engine cases at3.997:1 and passes4 light-theme cases. The unchanged8
+pass with the effective-scheme foreground correction, including normal/hover/focus and
+cancel without DELETE. R2 pinnedquick/build passed for focused112/175 and
+cumulative219/102; newhead CI/cleanpackage/preview gates remain separate.

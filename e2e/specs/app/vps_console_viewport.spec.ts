@@ -195,3 +195,44 @@ for (const language of ['cs', 'en'] as const) for (const state of ['loading', 'd
     for (const route of held) await route.fulfill({ contentType: 'text/html', body: '<!doctype html><html><body>Synthetic console</body></html>' }).catch(() => {});
   });
 }
+
+
+for (const [language, theme, colorScheme] of [['cs', 'dark', 'light'], ['en', 'light', 'dark'], ['cs', 'system', 'dark'], ['en', 'system', 'light']] as const) {
+  test(`@pr-smoke @pr-smoke-mobile console revoke confirmation keeps readable text (${language} ${theme} ${colorScheme})`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme });
+    await bootstrapVpsAdminWindow(page);
+    await setUiSettingsLocalStorage(page, { language, theme });
+    await page.route('https://console.example.test/**', route => route.fulfill({ contentType: 'text/html', body: '<!doctype html><html><body>Synthetic console</body></html>' }));
+    let creations = 0, deletions = 0;
+    await installHaveApiMock(page, { user: { id: 1, login: 'console-review', level: 1 }, handlers: {
+      'GET vpses/123': () => ({ vps: { id: 123, hostname: 'console-demo.example', is_running: true, object_state: 'active', node: { id: 1, location: { remote_console_server: 'https://console.example.test' } } } }),
+      'GET ip_addresses': () => ({ ip_addresses: [] }), 'GET transaction_chains': () => ({ transaction_chains: [] }),
+      'POST vpses/123/console_token': () => { creations++; return { console_token: { token: 'FIXTURE', expiration: '2027-12-31T00:00:00Z' } }; },
+      'DELETE vpses/123/console_token': () => { deletions++; return { console_token: {} }; },
+    } });
+    await page.goto('/app/vps/123/console');
+    await expect(page.getByTestId('vps.console.frame_status')).toContainText(language === 'cs' ? 'Připojeno' : 'Connected');
+    await page.getByTestId('vps.console.revoke_session').click();
+    const confirm = page.getByTestId('vps.console.revoke_session_dialog.confirm');
+    const contrast = () => confirm.evaluate(element => {
+      const canvas = document.createElement('canvas'); canvas.width = canvas.height = 1;
+      const ctx = canvas.getContext('2d')!;
+      const rgba = (css: string) => { ctx.clearRect(0, 0, 1, 1); ctx.fillStyle = css; ctx.fillRect(0, 0, 1, 1); const d = ctx.getImageData(0, 0, 1, 1).data; return [d[0]!, d[1]!, d[2]!, d[3]! / 255]; };
+      const over = (f: number[], b: number[]) => f.slice(0, 3).map((x, i) => x * f[3]! + b[i]! * (1 - f[3]!));
+      const lum = (c: number[]) => c.map(v => { const n = v / 255; return n <= .04045 ? n / 12.92 : ((n + .055) / 1.055) ** 2.4; }).reduce((s, v, i) => s + v * [.2126, .7152, .0722][i]!, 0);
+      const chain: Element[] = []; for (let n: Element | null = element; n; n = n.parentElement) chain.unshift(n);
+      let bg = [255, 255, 255]; for (const n of chain) bg = over(rgba(getComputedStyle(n).backgroundColor), bg);
+      const fg = over(rgba(getComputedStyle(element).color), bg), x = lum(bg), y = lum(fg);
+      return (Math.max(x, y) + .05) / (Math.min(x, y) + .05);
+    });
+    for (const width of [320, 768]) {
+      await page.setViewportSize({ width, height: 900 }); await page.mouse.move(0, 0);
+      await expect.poll(contrast).toBeGreaterThanOrEqual(4.5);
+      await confirm.hover(); await expect.poll(contrast).toBeGreaterThanOrEqual(4.5);
+      await page.getByTestId('vps.console.revoke_session_dialog.cancel').focus(); await page.keyboard.press('Tab');
+      await expect(confirm).toBeFocused(); await expect.poll(contrast).toBeGreaterThanOrEqual(4.5);
+    }
+    await page.getByTestId('vps.console.revoke_session_dialog.cancel').click();
+    expect(creations).toBe(1); expect(deletions).toBe(0);
+  });
+}
