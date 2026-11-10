@@ -9,19 +9,19 @@ test.describe('Admin node detail: embedded keyset pagination', () => {
     await installHaveApiMock(page, {
       user: { id: 1, login: 'admin', level: 100 },
       handlers: {
-        'GET nodes/public_status': () => [
+        'GET nodes/public_status': () => ({ nodes: [
           {
             id: 5,
             name: 'node5',
             fqdn: 'node5.example',
-            status: 'online',
+            status: true,
             updated_at: '2025-01-01T00:00:00Z',
           },
-        ],
+        ] }),
         'GET nodes': () => ({
           nodes: [
-            { id: 5, domain_name: 'node5', fqdn: 'node5.example', location: { label: 'DC1' } },
-            { id: 6, domain_name: 'node6', fqdn: 'node6.example', location: { label: 'DC1' } },
+            { id: 5, domain_name: 'node5', fqdn: 'node5.example', location: { id: 1, label: 'DC1' } },
+            { id: 6, domain_name: 'node6', fqdn: 'node6.example', location: { id: 1, label: 'DC1' } },
           ],
         }),
         'GET nodes/5': () => ({
@@ -29,15 +29,15 @@ test.describe('Admin node detail: embedded keyset pagination', () => {
             id: 5,
             domain_name: 'node5',
             fqdn: 'node5.example',
-            status: 'online',
+            status: true,
             version: 'v1.2.3',
-            location: { label: 'DC1' },
+            location: { id: 1, label: 'DC1' },
             total_memory: 262144,
             total_swap: 131072,
             total_space: 1048576,
             total_vps: 120,
             total_cpu: 64,
-            maintenance_lock: false,
+            maintenance_lock: 'no',
             maintenance_lock_reason: null,
           },
         }),

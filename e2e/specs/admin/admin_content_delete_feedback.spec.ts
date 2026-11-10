@@ -38,7 +38,7 @@ test.describe('Admin content deletion feedback', () => {
           }
 
           newsLogs.splice(0, newsLogs.length);
-          return { status: true, response: null };
+          return { news_log: {} };
         },
       },
     });
@@ -100,7 +100,7 @@ test.describe('Admin content deletion feedback', () => {
           }
 
           helpBoxes.splice(0, helpBoxes.length);
-          return { status: true, response: null };
+          return { help_box: {} };
         },
       },
     });

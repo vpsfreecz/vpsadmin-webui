@@ -6,8 +6,8 @@ import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 
 async function captureProof(page: Page, testInfo: TestInfo, name: string): Promise<void> {
-  if (process.env.E2E_CAPTURE_SCREENSHOTS !== '1') return;
-  const dir = process.env.E2E_SCREENSHOT_DIR?.trim() || 'docs/e2e-screenshots';
+  if (process.env['E2E_CAPTURE_SCREENSHOTS'] !== '1') return;
+  const dir = process.env['E2E_SCREENSHOT_DIR']?.trim() || 'docs/e2e-screenshots';
   fs.mkdirSync(dir, { recursive: true });
   await page.screenshot({
     path: path.join(dir, `${name}-${testInfo.project.name}.png`),
@@ -243,7 +243,7 @@ test.describe('Admin node create and edit lifecycle', () => {
       'OPTIONS nodes/5': () => ({ input: { parameters: { name: {}, ip_addr: {}, max_vps: {} } } }),
       'PUT nodes/5': (ctx) => {
         requestBody = ctx.reqJson;
-        return {};
+        return { node: { ...node, max_vps: 0 } };
       },
     });
 

@@ -117,7 +117,6 @@ test('admin users: creates member with legacy payload fields and opens detail', 
       address: 'Main street',
       level: 2,
       info: 'Admin note',
-      monthly_payment: 300,
       mailer_enabled: true,
     }),
   });

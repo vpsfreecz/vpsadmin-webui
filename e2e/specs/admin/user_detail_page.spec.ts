@@ -222,6 +222,8 @@ test('admin user detail: lifecycle state update sends object state', async ({ pa
     full_name: 'Alice Example',
     email: 'alice@example.test',
     object_state: 'active',
+    expiration_date: null,
+    remind_after_date: null,
   };
 
   await installHaveApiMock(page, {
@@ -267,7 +269,7 @@ test('admin user detail: lifecycle state update sends object state', async ({ pa
   await page.getByTestId('admin.user.lifecycle.confirm.confirm').click();
 
   await expect.poll(() => updates.length).toBe(1);
-  expect(updates).toEqual([{ user: { object_state: 'suspended' } }]);
+  expect(updates).toEqual([{ user: { object_state: 'suspended', expiration_date: null } }]);
 });
 
 test('@pr-smoke @pr-smoke-mobile admin user detail: soft delete keeps a durable queued receipt with task links', async ({ page }) => {
@@ -336,8 +338,8 @@ test('admin user detail: resets lifecycle draft when the user route changes', as
   await installHaveApiMock(page, {
     user: { id: 1, login: 'admin', level: 100 },
     handlers: {
-      'GET users/42': () => ({ user: { id: 42, login: 'alice', level: 1, object_state: 'active' } }),
-      'GET users/43': () => ({ user: { id: 43, login: 'bob', level: 1, object_state: 'active' } }),
+      'GET users/42': () => ({ user: { id: 42, login: 'alice', level: 1, object_state: 'active', expiration_date: null, remind_after_date: null } }),
+      'GET users/43': () => ({ user: { id: 43, login: 'bob', level: 1, object_state: 'active', expiration_date: null, remind_after_date: null } }),
       'GET users': () => ({ users: [] }),
       'PUT users/42': () => { updates.push('42'); return { user: { id: 42, object_state: 'suspended' } }; },
       'PUT users/43': () => { updates.push('43'); return { user: { id: 43, object_state: 'active' } }; },
@@ -467,6 +469,8 @@ for (const scenario of [
       full_name: 'Alice Example',
       email: 'alice@example.test',
       object_state: 'active',
+      expiration_date: null,
+      remind_after_date: null,
     };
     let updateRequests = 0;
     let releaseResponse: (() => void) | undefined;

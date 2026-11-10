@@ -8,10 +8,10 @@ test('admin nodes: keyset pagination (from_id)', async ({ page }) => {
   await installHaveApiMock(page, {
     user: { id: 1, login: 'admin', level: 100 },
     handlers: {
-      'GET nodes/public_status': () => [
-        { domain_name: 'node125.example.test', fqdn: 'node125.example.test', status: false, maintenance_lock: null },
-        { domain_name: 'node124.example.test', fqdn: 'node124.example.test', status: true, maintenance_lock: 'lock', maintenance_lock_reason: 'maint' },
-      ],
+      'GET nodes/public_status': () => ({ nodes: [
+        { name: 'node125.example.test', domain_name: 'node125.example.test', fqdn: 'node125.example.test', status: false, maintenance_lock: null },
+        { name: 'node124.example.test', domain_name: 'node124.example.test', fqdn: 'node124.example.test', status: true, maintenance_lock: 'lock', maintenance_lock_reason: 'maint' },
+      ] }),
       'GET nodes': (ctx) => {
         const fromId = ctx.searchParams.get('node[from_id]');
         const limitStr = ctx.searchParams.get('node[limit]');
@@ -26,7 +26,7 @@ test('admin nodes: keyset pagination (from_id)', async ({ page }) => {
             id,
             domain_name: `node${id}.example.test`,
             fqdn: `node${id}.example.test`,
-            location: { label: 'dc1' },
+            location: { id: 1, label: 'dc1' },
           };
         }).filter((n) => n.id > 0);
 

@@ -761,6 +761,14 @@ test('admin user view fetches assignments through own user scope instead of the 
         const ownerId = ctx.searchParams.get('ip_address[user]');
 
         if (assignedFilter === 'false' && ownerId === '7') return { ip_addresses: [ownedDetached] };
+        if (ctx.searchParams.get('ip_address[vps]') === '123') {
+          return {
+            ip_addresses: [{
+              ...assignedWithoutNestedInterface,
+              network_interface: { id: 17, vps },
+            }],
+          };
+        }
 
         return {
           ip_addresses: [{ ...assignedWithoutNestedInterface, id: 999, addr: '203.0.113.99' }],
@@ -780,7 +788,8 @@ test('admin user view fetches assignments through own user scope instead of the 
   expect(assignmentRequests).toHaveLength(1);
   expect(assignmentRequests[0]?.searchParams.get('ip_address_assignment[user]')).toBe('7');
   expect(assignmentRequests[0]?.searchParams.get('ip_address_assignment[active]')).toBe('true');
-  expect(requests.some((url) => url.searchParams.has('ip_address[vps]'))).toBe(false);
+  expect(requests.filter((url) => url.searchParams.has('ip_address[vps]'))
+    .map((url) => url.searchParams.get('ip_address[vps]'))).toEqual(['123']);
   expect(accountingRequests).toHaveLength(0);
 
   await page.getByTestId('network.user.tab.traffic').click();
