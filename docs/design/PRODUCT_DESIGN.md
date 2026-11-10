@@ -360,3 +360,8 @@ strings. Within the VPS resource group, use the existing muted role for
 tertiary child labels and amounts so warning-row backgrounds do not reduce
 small-text contrast. Scope the descendant override to that group; retain
 shared UsageBar defaults, data/severity decisions and action dimensions.
+
+
+## Personal server lookup controls
+
+The conditional personal-server retry action shares its neighboring selector height:36px on fine pointers and44px on coarse pointers. Keep failed membership distinct from an empty result and preserve explicit retry. [Scope and verification](../work-log/2026-11-10-dashboard-own-scope-retry-alignment.md).

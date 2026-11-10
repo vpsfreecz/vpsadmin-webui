@@ -73,7 +73,7 @@ export function DashboardClusterCard(props: {
         />
         </div>
         {membershipError ? (
-          <Button variant="secondary" size="sm" testId="app.dashboard.cluster.scope.retry"
+          <Button variant="secondary" size="sm" className="h-9" testId="app.dashboard.cluster.scope.retry"
             disabled={!validUserId || ownNodes.isFetching}
             onClick={() => { void ownNodes.refetch(); props.onReload?.(); }}>
             {t('common.retry')}

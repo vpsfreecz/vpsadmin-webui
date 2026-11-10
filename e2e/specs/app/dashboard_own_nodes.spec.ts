@@ -147,8 +147,33 @@ for (const state of ['empty', 'error', 'foreign', 'missing', 'status-id-missing'
     } else {
       await expect(card.getByText('Servery s tvými VPS se nepodařilo určit.', { exact: true })).toBeVisible();
       await expect(card.getByTestId('app.dashboard.cluster.availability')).toHaveCount(0);
+      const select = card.getByTestId('app.dashboard.cluster.scope');
+      const retry = card.getByTestId('app.dashboard.cluster.scope.retry');
+      const observations = [];
+      const coarse = await page.evaluate(() => matchMedia('(any-pointer: coarse)').matches);
+      for (const width of [1280, 320, 768]) {
+        await page.setViewportSize({ width, height: 1000 });
+        const fieldBox = await select.boundingBox();
+        const retryBox = await retry.boundingBox();
+        expect(fieldBox).not.toBeNull();
+        expect(retryBox).not.toBeNull();
+        expect(fieldBox!.height).toBe(coarse ? 44 : 36);
+        expect(retryBox!.height).toBe(fieldBox!.height);
+        if (width === 1280) expect(Math.abs(fieldBox!.y - retryBox!.y)).toBeLessThanOrEqual(1);
+        await retry.focus();
+        await page.keyboard.press('Tab');
+        await page.keyboard.press('Shift+Tab');
+        await expect(retry).toBeFocused();
+        expect(await retry.evaluate(element => element.matches(':focus-visible'))).toBe(true);
+        await expectNoDocumentHorizontalOverflow(page);
+        observations.push({ width, fieldBox, retryBox, coarse });
+      }
+      await test.info().attach('own-scope-dimensions', {
+        body: JSON.stringify({ state, observations, fixtureOnly: true }),
+        contentType: 'application/json',
+      });
       fixture.state = 'populated';
-      await card.getByTestId('app.dashboard.cluster.scope.retry').click();
+      await retry.click();
       await expect(card.getByTestId('app.dashboard.cluster.availability')).toHaveText('1/2 online');
     }
     await card.getByTestId('app.dashboard.cluster.scope').selectOption('all');

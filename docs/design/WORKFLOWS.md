@@ -1522,3 +1522,8 @@ values; warning rows keep legible numeric usage labels. Mobile metadata's
 existing intentional truncation and all navigation, role, scope, filter,
 pagination, action and resource-pressure contracts remain unchanged.
 [Presentation evidence and source variants](../work-log/2026-11-10-vps-list-context-readability.md).
+
+
+## Personal server membership retry
+
+The existing All servers / With my VPS selector retains its current authenticated membership and retry flow. A read failure exposes an adjacent retry matching the field height. This presentation correction does not change request ownership, pagination, state persistence or admin selector absence. [Scope and verification](../work-log/2026-11-10-dashboard-own-scope-retry-alignment.md).
