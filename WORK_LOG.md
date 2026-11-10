@@ -1,3 +1,7 @@
+## 2026-11-10 — Clarify backup plan ownership and removal
+
+[BAK-11/12 backup plan wording](docs/work-log/2026-11-10-backup-plan-copy.md).
+
 ## 2026-11-10 — Keep backup actions above compact statistics
 
 [BAK-01/02 overview layout](docs/work-log/2026-11-10-backup-overview-layout.md).
