@@ -471,6 +471,7 @@ function MutableVpsConsolePage() {
         description={t('vps.console.revoke_session.confirm_body')}
         confirmLabel={t('vps.console.revoke_session.confirm')}
         confirmVariant="danger"
+        confirmClassName="![color:light-dark(rgb(var(--c-bg)),black)]"
         confirmLoading={revokeSessionM.isPending}
         cancelDisabled={revokeSessionM.isPending}
         onCancel={() => {
