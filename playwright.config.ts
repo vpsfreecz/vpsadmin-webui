@@ -57,6 +57,7 @@ export default defineConfig({
     {
       name: 'mobile-webkit',
       testMatch: [
+        '**/export_list_containment.spec.ts',
         '**/nas_capacity_semantics.spec.ts',
         '**/nas_form_consistency.spec.ts',
         '**/danger_button_contrast.spec.ts',

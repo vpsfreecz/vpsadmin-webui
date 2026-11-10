@@ -98,6 +98,7 @@
     "e2e/specs/app/export_delete_failures.spec.ts",
     "e2e/specs/app/export_filter_rhythm.spec.ts",
     "e2e/specs/app/export_hosts_responsive_actions.spec.ts",
+    "e2e/specs/app/export_list_containment.spec.ts",
     "e2e/specs/app/exports_filter_contract.spec.ts",
     "e2e/specs/app/exports_smoke.spec.ts",
     "e2e/specs/app/filter_bar_chip_alignment.spec.ts",

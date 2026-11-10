@@ -49,7 +49,8 @@ export function ExportsListResults(props: {
       <div className="hidden md:block">
         <TableCard
           testId={`${prefix}.table`}
-          tableClassName="table-fixed"
+          minWidth="lg"
+          tableClassName="table-fixed [overflow-wrap:anywhere]"
           footer={
             props.canPaginate && pagination ? (
               <KeysetPagination {...pagination} testId={`${prefix}.pagination.desktop`} />
@@ -107,7 +108,7 @@ export function ExportsListResults(props: {
           const badge = exportBadge(ex, t);
           return (
             <Card key={ex.id} testId={`exports.card.${ex.id}`} className={clsx(variant === 'warn' ? 'bg-warn-row border-warn-border' : undefined)}>
-              <Link to={`${props.basePath}/exports/${ex.id}`} className="block p-4">
+              <Link to={`${props.basePath}/exports/${ex.id}`} className="block p-4 [overflow-wrap:anywhere]">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
@@ -117,7 +118,7 @@ export function ExportsListResults(props: {
                     </div>
                     <div className="mt-1 text-sm text-muted">{sourceLabel(ex)}</div>
                     {props.showUser ? (
-                      <div className="mt-1 text-xs text-faint">
+                      <div className="mt-1 text-xs text-muted">
                         {t('common.user')}: {String(ex.user?.['login'] ?? (ex.user?.id ? `#${ex.user.id}` : '—'))}
                       </div>
                     ) : null}
