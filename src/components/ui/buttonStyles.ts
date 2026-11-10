@@ -4,7 +4,7 @@ export const buttonVariants = {
   primary: 'bg-accent text-accent-fg hover:bg-accent-hover',
   secondary: 'bg-surface text-fg border border-border hover:bg-surface-2',
   ok: 'bg-ok text-bg hover:bg-ok/90',
-  warn: 'bg-warn text-accent-fg hover:bg-warn/90',
+  warn: 'bg-warn text-bg hover:bg-warn/90',
   danger: 'bg-danger text-danger-fg hover:bg-danger/90',
   ghost: 'bg-transparent text-fg hover:bg-surface-2',
 } as const;

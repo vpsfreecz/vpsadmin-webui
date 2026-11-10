@@ -1719,3 +1719,19 @@ Both exact-lock source trees pass pinned ci:quick and production builds.
 This source’s complete shared-foreground regression passes72/72 in
 Chromium, mobile Chromium and mobile WebKit,2workers/0retries.
 Clean Nix packages, new-head CI and paired preview delivery remain pending.
+
+
+## 2026-11-10 — Readable warning action foreground (prepared)
+
+Use the page-background foreground on semantic warning actions after actual
+selected-owner light renders measured2.12:1. Preserve semantic fills, sizes
+and all action guards. Extend the existing shared rendered regression in
+light/dark/system, normal/focus/hover and narrow viewports.
+[Scope, negative evidence and pending gates](docs/work-log/2026-11-10-warning-action-foreground.md).
+No merge or delivery claim.
+
+Both exact-lock branches pass ci:quick, build and final strict E2E coverage.
+The actual OAuth warning action passes12/12 raw cases per source in three
+engines, light/dark/system, normal/focus/hover and narrow viewports. Retain
+initial setup/category diagnostics; no threshold or product guard relaxed.
+Exact clean package, six new-head CI and paired delivery are still pending.
