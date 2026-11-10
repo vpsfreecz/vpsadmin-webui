@@ -1707,3 +1707,14 @@ Clean Nix packages, complete96-case finite acceptance, new-head CI and
 paired preview delivery remain pending. The shared results component also
 backs DatasetExportsPage; include its8bounded parent-route regression cases
 without relabelling old116/CE8detail/create/backup evidence as current.
+
+## 2026-11-10 — Export data-column readable width (prepared)
+
+Visual review of draft PR271's initial840px table minimum found excessive
+wrapping despite passing containment checks. Keep that candidate held and
+use the existing1280px token, with a real regression requiring160px for each
+dataset, address and path cell. Both exact-lock source trees pass ci:quick,
+build and12targeted raw cases across three engines without retries.
+Clean packages, new-head CI, fresh96-case acceptance and paired delivery
+remain pending; the earlier candidate was not activated.
+[Scope and retained evidence](docs/work-log/2026-11-10-export-list-value-containment.md).

@@ -1,45 +1,42 @@
-# Export list values and warning-card owner text — prepared
+# Export list containment and readable columns — prepared
 
-REQ-009/REQ-010, approved UX-03/UX-04 continuation. Source-qualified earlier
-116export/backup cases at134e and8current-SDK cases atCE mainly cover details,
-creation and backups. They do not close the unique ExportsListPage results
-consumer. All16export runtime/model/test files remain byte-identical CE→a441;
-no previous case or screenshot is relabelled as a new run.
+REQ-009/REQ-010, approved UX-03/UX-04 continuation in draft
+[PR271](https://github.com/vpsfreecz/vpsadmin-webui/pull/271). Earlier filter
+PR192 remains closed; this change addresses the shared results body.
 
-Eight actual clean a441 fixture configurations expose a320→363px document
-overflow and346px mobile-card contents within286px client width. The dark
-warning card's12px owner text measures4.478427, below unchanged4.5. Separate
-two-engine table probes prove111px data cells with240px IPv6 contents at1280,
-and three zero-width data columns at768 while other columns remain visible.
-Four original viewport/table images were actually opened; original negative
-records, traces and screenshots are retained. No hidden-cell failure inferred.
+Clean a441 fixture cases expose320→363px document overflow,346px mobile-card
+contents inside286px, and dark warning-owner text4.478427 below4.5. Separate
+table probes prove111px cells with240px IPv6 contents at1280 and three
+zero-width data columns at768. Original negative traces/images are retained.
 
-Use the existing840px table minimum inside the existing local scroller and
-inherit overflow-wrap:anywhere through the table and mobile card link.
-Use the ordinary muted role for owner metadata on warning cards. Exact inverse
-checks restore the single runtime file; row data, variants, callbacks, roles,
-queries, pagination and destinations remain unchanged. No UI wording, API,
-SDK, BFF, package or global token changes.
+Use the existing1280px table token within TableCard's local scroller, inherit
+overflow-wrap:anywhere in table/card text, and use muted owner metadata on
+warning cards. Public browser regressions require real dataset/address/path
+cell widths≥160px, complete strings, bounded cards, numeric owner contrast,
+keyboard focus and unchanged destinations. ExportsListResults is the only
+runtime file; DatasetExportsPage shares it. Data, variants, callbacks, roles,
+queries, pagination and DOM structure are retained. No UI wording, API, SDK,
+BFF, package or global token changes.
 
-Verification is ongoing; no new commit, PR, clean build, CI or deployment
-is claimed yet. Earlier filter PR192 is closed/unmerged and stays closed;
-no currently open overlapping export PR was found among54open PRs. Prepare a
-new focused draft against kerrycek-021126 rather than duplicate an open change.
-All scenarios use intercepted synthetic fixtures and local UI preferences,
-zero live writes/identities/objects. No live permissions, physical Safari or
-weaker display, complete WCAG, real OAuth or OS clipboard claim. Broad tasks
-remain partial; paired delivery requires exact six new-head checks and four
-clean package outputs with fresh runtime/authorization guards.
+The initial840px candidate a581/49f is held after visual review: its cells
+were only61px wide at768 despite numerical containment passes. No activation
+or TODO publication occurred. Its96unique finite fixture configurations were
+accepted in qualified24original+72corrected cohorts after16harness failures,
+with2interrupted and54initially unstarted. Those are preserved original
+results, not96initial passes or fresh proof of this refinement. The new
+≥160px regression fails8cases against clean49f as expected.
 
-Both exact-lock source trees pass pinned ci:quick and production builds,
-and12/12 targeted raw cases per source across three engines,0retries.
-A separately labelled dirty working artifact passes8public regressions,
-8previously negative narrow/readability cases and2table probes; these18
-executions overlap underlying configurations and are not96finite cases.
-The corrected320px document and286px card contain all content;24width/focus
-phases/996text samples have minimum5.090863. Warning-owner minimum6.621692.
-Original negative and cancelled launcher-preflight cohorts remain separate.
-Clean Nix packages, complete96-case finite acceptance, new-head CI and
-paired preview delivery remain pending. The shared results component also
-backs DatasetExportsPage; include its8bounded parent-route regression cases
-without relabelling old116/CE8detail/create/backup evidence as current.
+Both exact-lock sources pass ci:quick and build for this refinement; targeted
+raw browser checks are ongoing. Fresh96-case finite acceptance includes
+normal/empty/error/retry/pagination states, five role/mode contexts, all four
+locale/theme pairs and8bounded embedded-parent cases. New clean packages,
+exact-head six CI/original zero-flaky logs, actual image review and paired
+delivery remain pending; current previews remain a441.
+
+Earlier116export/backup cases at134e and8current-SDK cases atCE cover their
+recorded details/create/backup scope. Source qualification retains those
+actual revisions, not new execution counts or whole-parent certification.
+All current tests use intercepted synthetic fixtures/local preferences and
+zero live writes/identities/objects. No live permissions, real OAuth, physical
+Safari/display, OS clipboard or complete WCAG claim. Broad UX tasks remain
+partial; no merge, human completion or production/newadmin/API deployment.

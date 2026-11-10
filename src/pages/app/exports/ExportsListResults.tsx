@@ -49,7 +49,7 @@ export function ExportsListResults(props: {
       <div className="hidden md:block">
         <TableCard
           testId={`${prefix}.table`}
-          minWidth="lg"
+          minWidth="xl"
           tableClassName="table-fixed [overflow-wrap:anywhere]"
           footer={
             props.canPaginate && pagination ? (

@@ -124,16 +124,14 @@ for (const actor of ['member', 'admin'] as const)
       for (const width of [1280, 768]) {
         await page.setViewportSize({ width, height: 1000 });
         const table = page.getByTestId('exports.table');
-        const cells = await table
-          .locator('th,tbody td')
-          .evaluateAll((elements) =>
-            elements.map((element) => ({
-              text: element.textContent,
-              client: element.clientWidth,
-              scroll: element.scrollWidth,
-              width: element.getBoundingClientRect().width,
-            }))
-          );
+        const cells = await table.locator('th,tbody td').evaluateAll((elements) =>
+          elements.map((element) => ({
+            text: element.textContent,
+            client: element.clientWidth,
+            scroll: element.scrollWidth,
+            width: element.getBoundingClientRect().width,
+          }))
+        );
         await info.attach('export-cell-observations', {
           body: JSON.stringify({ width, cells }),
           contentType: 'application/json',
@@ -143,6 +141,14 @@ for (const actor of ['member', 'admin'] as const)
           expect(cell.width, cell.text ?? '').toBeGreaterThan(0);
           expect(cell.scroll, cell.text ?? '').toBeLessThanOrEqual(cell.client + 1);
         }
+        const valueColumns = await page
+          .getByTestId('exports.row.10')
+          .locator('td')
+          .evaluateAll(
+            (elements, start) => elements.slice(start, start + 3).map((element) => element.clientWidth),
+            actor === 'admin' ? 3 : 2
+          );
+        for (const columnWidth of valueColumns) expect(columnWidth).toBeGreaterThanOrEqual(160);
         expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
         const scroller = table.locator('div.overflow-x-auto').first();
         await scroller.evaluate((element) => {
