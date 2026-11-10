@@ -51,3 +51,22 @@ legacy PHP rather than React, so no unrelated legacy capture pin is changed.
 API/PHP remain untouched. Clean integration packages, exact focused CI,
 matching screenshots, paired previews and protected result publication are
 independent requirements before delivery; no merge or production promotion.
+
+## Admin creation contract correction
+
+Clean integration verification found that opening advanced creation options
+sent admin_override and admin_lock_type, which the current API declares only
+for Update. Published TypeScript client 0.4.0 correctly rejects those Create
+parameters before sending a request. Remove those unsupported creation
+controls and state, and constrain creation properties to their declared
+fields. Keep both controls and payload flags for Update. The API and SDK
+remain unchanged. This is necessary to complete the verified NAS workflow.
+Regression checks assert valid admin creation requests and explicit Update
+flags/draft retention. The original 98-pass/2-failure package remains recorded.
+
+The corrected consumer passes 48 affected raw Vite cases across three
+browsers and 24 compiled rejection-contract cases against the current
+published SDK, with no retries, failures or page errors. Both quick/build
+checks pass. These are working-source results; new clean Nix, full compiled
+acceptance and exact focused CI remain separate delivery requirements.
+All original 98/2 results and earlier diagnostics remain source-qualified.

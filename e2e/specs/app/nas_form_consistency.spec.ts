@@ -307,6 +307,14 @@ for (const ctx of [contexts[0]!, contexts[1]!])
         const draft = page.getByTestId(prefix + (scene === 'manage' ? '.refquota' : '.name'));
         await draft.fill(scene === 'manage' ? '12' : 'synthetic-child');
         if (scene === 'manage' && advanced) await page.getByTestId('dataset.manage.quota').fill('0');
+        if (scene === 'manage' && advanced && ctx.level === 99) {
+          await page.getByTestId('dataset.manage.admin_override').check();
+          await page.getByTestId('dataset.manage.admin_lock_type').selectOption('absolute');
+        }
+        if (scene === 'child' && ctx.level === 99) {
+          await expect(page.getByTestId('dataset.manage.create.admin_override')).toHaveCount(0);
+          await expect(page.getByTestId('dataset.manage.create.admin_lock_type')).toHaveCount(0);
+        }
         if (scene === 'standalone') await page.getByTestId('nas.create.parent').selectOption('10');
         if (scene !== 'manage') await page.getByTestId(prefix + '.refquota').fill('8');
         const summary = page.getByTestId(prefix + '.advanced_properties.summary');
@@ -339,8 +347,9 @@ for (const ctx of [contexts[0]!, contexts[1]!])
             relatime: false,
             sync: 'standard',
           });
-          if (scene === 'child' && ctx.level === 99)
-            Object.assign(expected, { sharenfs: '', admin_override: false, admin_lock_type: 'no_lock' });
+          if (scene === 'child' && ctx.level === 99) Object.assign(expected, { sharenfs: '' });
+          if (scene === 'manage' && ctx.level === 99)
+            Object.assign(expected, { admin_override: true, admin_lock_type: 'absolute' });
         }
         expect(calls[0]?.dataset).toEqual(expected);
         await expect(page.getByText('Synthetic form rejection', { exact: true })).toBeVisible();
@@ -350,6 +359,10 @@ for (const ctx of [contexts[0]!, contexts[1]!])
           await summary.click();
           await expect(page.getByTestId(prefix + '.compression')).not.toBeChecked();
           await expect(page.getByTestId(prefix + '.recordsize')).toHaveValue('64');
+        }
+        if (scene === 'manage' && advanced && ctx.level === 99) {
+          await expect(page.getByTestId('dataset.manage.admin_override')).toBeChecked();
+          await expect(page.getByTestId('dataset.manage.admin_lock_type')).toHaveValue('absolute');
         }
         expect(unexpected).toEqual([]);
         expect(errors).toEqual([]);

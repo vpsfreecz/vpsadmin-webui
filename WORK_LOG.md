@@ -1695,3 +1695,22 @@ Focused raw Vite checks pass 150 cases across three browsers with no retries;
 source quick/build and strict E2E adoption checks pass in both source trees.
 Clean integration, CI and paired preview delivery remain separate gates.
 [Scope, contracts and verification](docs/work-log/2026-11-10-nas-form-consistency.md).
+
+## Admin creation contract correction
+
+Clean integration verification found that opening advanced creation options
+sent admin_override and admin_lock_type, which the current API declares only
+for Update. Published TypeScript client 0.4.0 correctly rejects those Create
+parameters before sending a request. Remove those unsupported creation
+controls and state, and constrain creation properties to their declared
+fields. Keep both controls and payload flags for Update. The API and SDK
+remain unchanged. This is necessary to complete the verified NAS workflow.
+Regression checks assert valid admin creation requests and explicit Update
+flags/draft retention. The original 98-pass/2-failure package remains recorded.
+
+The corrected consumer passes 48 affected raw Vite cases across three
+browsers and 24 compiled rejection-contract cases against the current
+published SDK, with no retries, failures or page errors. Both quick/build
+checks pass. These are working-source results; new clean Nix, full compiled
+acceptance and exact focused CI remain separate delivery requirements.
+All original 98/2 results and earlier diagnostics remain source-qualified.

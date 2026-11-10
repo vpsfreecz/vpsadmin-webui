@@ -25,6 +25,7 @@ import {
   updateDataset,
   type Dataset,
   type DatasetEditablePayload,
+  type DatasetCreatePayload,
 } from '../../../lib/api/datasets';
 import { getMetaActionStateId } from '../../../lib/api/haveapi';
 import { datasetCapabilities, gateDatasetAction } from '../../../lib/gates/dataset';
@@ -89,6 +90,11 @@ type DatasetEditForm = {
   adminLockType?: 'no_lock' | 'absolute' | 'not_less' | 'not_more';
 };
 
+type DatasetCreateProperties = Pick<
+  DatasetCreatePayload,
+  'quota' | 'refquota' | 'compression' | 'atime' | 'relatime' | 'sync' | 'recordsize' | 'sharenfs'
+>;
+
 type DatasetCreateForm = {
   name: string;
   automount: boolean;
@@ -100,8 +106,6 @@ type DatasetCreateForm = {
   recordsizeKiB: string;
   sync: NonNullable<DatasetEditablePayload['sync']>;
   sharenfs: string;
-  adminOverride: boolean;
-  adminLockType: NonNullable<DatasetEditablePayload['admin_lock_type']>;
   includeAdvanced: boolean;
 };
 
@@ -117,8 +121,6 @@ function initialDatasetCreateForm(): DatasetCreateForm {
     recordsizeKiB: '128',
     sync: 'standard',
     sharenfs: '',
-    adminOverride: false,
-    adminLockType: 'no_lock',
     includeAdvanced: false,
   };
 }
@@ -157,8 +159,8 @@ function buildEditablePayload(
   return payload;
 }
 
-function buildCreateProperties(form: DatasetCreateForm, isAdmin: boolean): DatasetEditablePayload {
-  const payload: DatasetEditablePayload = {};
+function buildCreateProperties(form: DatasetCreateForm, isAdmin: boolean): DatasetCreateProperties {
+  const payload: DatasetCreateProperties = {};
 
   if (form.quotaGiB.trim()) payload.quota = parseGiBToMiB(form.quotaGiB);
   if (form.refquotaGiB.trim()) payload.refquota = parseGiBToMiB(form.refquotaGiB);
@@ -172,8 +174,6 @@ function buildCreateProperties(form: DatasetCreateForm, isAdmin: boolean): Datas
 
     if (isAdmin) {
       payload.sharenfs = form.sharenfs.trim();
-      payload.admin_override = form.adminOverride;
-      payload.admin_lock_type = form.adminLockType;
     }
   }
 
@@ -509,7 +509,7 @@ function DatasetManagementCard() {
       </div>
 
       {showAdminControls ? (
-        <div className="grid gap-3 border-t border-border pt-4 sm:grid-cols-2">
+        <div className="border-t border-border pt-4">
           <label className="block">
             <div className="mb-1 text-xs font-semibold text-muted">{t('dataset.manage.field.sharenfs')}</div>
             <Input
@@ -519,29 +519,6 @@ function DatasetManagementCard() {
               testId="dataset.manage.create.sharenfs"
             />
           </label>
-          <label className="block">
-            <div className="mb-1 text-xs font-semibold text-muted">{t('dataset.manage.field.admin_lock_type')}</div>
-            <Select
-              value={createForm.adminLockType}
-              onChange={(event) => setCreateForm((previous) => ({
-                ...previous,
-                adminLockType: event.target.value as DatasetCreateForm['adminLockType'],
-              }))}
-              testId="dataset.manage.create.admin_lock_type"
-              options={[
-                { value: 'no_lock', label: t('dataset.manage.admin_lock.no_lock') },
-                { value: 'absolute', label: t('dataset.manage.admin_lock.absolute') },
-                { value: 'not_less', label: t('dataset.manage.admin_lock.not_less') },
-                { value: 'not_more', label: t('dataset.manage.admin_lock.not_more') },
-              ]}
-            />
-          </label>
-          <Checkbox
-            checked={createForm.adminOverride}
-            onChange={(value) => setCreateForm((previous) => ({ ...previous, adminOverride: value }))}
-            label={t('dataset.manage.field.admin_override')}
-            testId="dataset.manage.create.admin_override"
-          />
         </div>
       ) : null}
     </DatasetAdvancedProperties>
