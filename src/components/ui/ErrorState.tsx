@@ -93,8 +93,7 @@ export function ErrorState(props: {
 
   const showBack = props.showBack !== false;
   const showStatus =
-    props.showStatusLink ??
-    (info.kind === 'network' || info.kind === 'server' || info.kind === 'unexpected');
+    props.showStatusLink ?? (info.kind === 'network' || info.kind === 'server' || info.kind === 'unexpected');
 
   const testId = props.testId;
   const retryTestId = testId ? `${testId}.retry` : undefined;
@@ -182,15 +181,14 @@ export function ErrorState(props: {
               text={details.text}
               label={t('common.copy_details')}
               variant="ghost"
+              size="md"
             />
           ) : null}
         </div>
 
         {showDetails ? (
           <details className="mt-4" data-testid={detailsTestId}>
-            <summary className="cursor-pointer text-sm font-medium text-fg">
-              {t('common.details')}
-            </summary>
+            <summary className="cursor-pointer text-sm font-medium text-fg">{t('common.details')}</summary>
 
             <pre className="mt-2 max-h-64 overflow-auto rounded-md border border-border bg-surface-2 p-3 text-xs text-fg">
               {details.text}

@@ -216,3 +216,7 @@ name the selected request and retain the same backend action identifiers.
 Changing force in the lifecycle form requires a fresh acknowledgment. Pending
 copy describes request submission, not completed shutdown. Generic historical
 task records without a force value retain a neutral Stop label.
+
+### Shared error recovery action alignment
+
+Use the standard medium button size for Copy details inside a shared ErrorState recovery row, matching Retry, Back and Status. Retain the compact copy default everywhere else and the existing 44 px coarse-pointer minimum.
