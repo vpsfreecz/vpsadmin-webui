@@ -2661,3 +2661,10 @@ The actual OAuth warning action passes12/12 raw cases per source in three
 engines, light/dark/system, normal/focus/hover and narrow viewports. Retain
 initial setup/category diagnostics; no threshold or product guard relaxed.
 Exact clean package, six new-head CI and paired delivery are still pending.
+
+
+## 2026-11-10 — Preserve unchanged lifecycle timestamps (prepared)
+
+Compare lifecycle dates by instant and retain seconds in administrator inputs,
+after the selected-owner audit reproduced false dirty state. Keep actual edits,
+nullable payload rules, confirmations and locks. [Cause and verification](docs/work-log/2026-11-10-lifecycle-timestamp-equality.md).
