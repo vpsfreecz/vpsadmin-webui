@@ -630,6 +630,33 @@ for (const [language, theme] of [['cs', 'dark'], ['en', 'light']] as const) {
       return route.fallback();
     });
     await page.goto('/admin/networking/ip-addresses?version=6');
+    const heading = page.getByTestId('admin.ip_addresses.quick_filters').getByText(language === 'cs' ? 'Rychlé filtry' : 'Quick filters', { exact: true });
+    const contrast = await heading.evaluate((element) => {
+      const canvas = document.createElement('canvas');
+      canvas.width = canvas.height = 1;
+      const context = canvas.getContext('2d')!;
+      const rgba = (value: string) => {
+        context.clearRect(0, 0, 1, 1);
+        context.fillStyle = value;
+        context.fillRect(0, 0, 1, 1);
+        const pixel = context.getImageData(0, 0, 1, 1).data;
+        return [pixel[0]!, pixel[1]!, pixel[2]!, pixel[3]! / 255];
+      };
+      const over = (foreground: number[], background: number[]) => foreground.slice(0, 3).map((value, index) => value * foreground[3]! + background[index]! * (1 - foreground[3]!));
+      const luminance = (color: number[]) => color.slice(0, 3).map((value) => {
+        const channel = value / 255;
+        return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+      }).reduce((sum, value, index) => sum + value * [0.2126, 0.7152, 0.0722][index]!, 0);
+      const ancestors: Element[] = [];
+      for (let current: Element | null = element; current; current = current.parentElement) ancestors.unshift(current);
+      let background = [255, 255, 255];
+      for (const ancestor of ancestors) background = over(rgba(getComputedStyle(ancestor).backgroundColor), background);
+      const foreground = over(rgba(getComputedStyle(element).color), background);
+      const a = luminance(background);
+      const b = luminance(foreground);
+      return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+    });
+    expect(contrast).toBeGreaterThanOrEqual(4.5);
     const coarse = await page.evaluate(() => matchMedia('(any-pointer:coarse)').matches);
     for (const width of [page.viewportSize()!.width, 320, 768]) {
       await page.setViewportSize({ width, height: 900 });

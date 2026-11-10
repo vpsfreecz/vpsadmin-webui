@@ -185,7 +185,7 @@ export function IpAddressesFilters({
         </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          <span className="text-xs font-semibold uppercase text-faint">{t('admin.ip_addresses.quick.shortcuts')}</span>
+          <span className="text-xs font-semibold uppercase text-muted">{t('admin.ip_addresses.quick.shortcuts')}</span>
           <Button variant={versionNum === 4 ? 'primary' : 'secondary'} size="sm" onClick={() => setTextParam('version', '4')} testId="admin.ip_addresses.quick.shortcut.ipv4">
             IPv4
           </Button>

@@ -1691,3 +1691,9 @@ clankerdev still uses the production API. No host update in this setup.
 
 Allow complete occupancy labels and shared pointer targets within the inset group.
 [Measured scope and verification](docs/work-log/2026-11-10-ip-occupancy-targets.md).
+
+
+## 2026-11-10 — Readable IP shortcut heading (prepared follow-up)
+
+Correct the measured light-theme heading contrast locally.
+[Cause, source evidence and release ordering](docs/work-log/2026-11-10-ip-shortcut-label-contrast.md).
