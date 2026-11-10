@@ -1,7 +1,6 @@
 // User backup center
 export const csBackups = {
   'backups.title': 'Centrum záloh',
-  'backups.subtitle': 'Snapshoty datasetů, vygenerované downloady a plány záloh na jednom místě.',
   'backups.tabs.aria': 'Sekce centra záloh',
   'backups.tabs.overview': 'Přehled',
   'backups.tabs.snapshots': 'Snapshoty',
@@ -29,8 +28,6 @@ export const csBackups = {
   'backups.stats.pending.help': 'Čekající v právě načteném přehledu',
   'backups.stats.unavailable': 'Nedostupné downloady',
   'backups.stats.unavailable.help': 'Expirované, zrušené nebo neúspěšné',
-  'backups.quick.title': 'Co potřebuješ udělat?',
-  'backups.quick.subtitle': 'Přejdi rovnou ke správnému úložišti a existujícím nástrojům.',
   'backups.quick.restore': 'Obnovit nebo vrátit stav',
   'backups.quick.downloads': 'Zobrazit downloady',
   'backups.quick.plans': 'Spravovat plány záloh',

@@ -9,12 +9,11 @@ import { ListShell } from '../../../components/layout/ListShell';
 import { PageHeader } from '../../../components/layout/PageHeader';
 import { Alert } from '../../../components/ui/Alert';
 import { Button } from '../../../components/ui/Button';
-import { Card, CardBody, CardHeader } from '../../../components/ui/Card';
+import { Card, CardBody } from '../../../components/ui/Card';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { ErrorState } from '../../../components/ui/ErrorState';
 import { Input } from '../../../components/ui/Input';
 import { LoadingState } from '../../../components/ui/LoadingState';
-import { StatCard } from '../../../components/ui/StatCard';
 import { type Dataset } from '../../../lib/api/datasets';
 import {
   BACKUP_CENTER_TABS,
@@ -252,7 +251,7 @@ export function BackupCenterPage() {
     <ListShell
       variant="wide"
       testId="backups.page"
-      header={<PageHeader title={t('backups.title')} description={t('backups.subtitle')} />}
+      header={<PageHeader title={t('backups.title')} />}
       filters={
         <div className="space-y-3">
           <BackupTabs active={tab} onChange={changeTab} />
@@ -274,6 +273,13 @@ export function BackupCenterPage() {
         aria-labelledby={`backups-tab-${tab}`}
         className="space-y-6"
       >
+        {!loading && !error && tab === 'overview' ? (
+          <BackupCenterQuickActions
+            onRestore={beginRestore}
+            onDownloads={() => changeTab('downloads')}
+            onPlans={() => changeTab('plans')}
+          />
+        ) : null}
         {loading ? <LoadingState testId="backups.loading" /> : null}
         {!loading && error ? (
           <ErrorState error={error} onRetry={retryActiveTab} testId="backups.error" />
@@ -309,45 +315,30 @@ export function BackupCenterPage() {
 
         {!loading && !error && tab === 'overview' ? (
           <div className="space-y-6" data-testid="backups.overview">
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-              <StatCard
-                testId="backups.stats.datasets"
-                title={t('backups.stats.datasets')}
-                value={datasetsQ.isPending
-                  ? '…'
-                  : backupCenterCount(datasetTotal ?? summary.datasets, datasetsComplete)}
-                subtitle={t('backups.stats.datasets.help')}
-              />
-              <StatCard
-                testId="backups.stats.downloads"
-                title={t('backups.stats.downloads')}
-                value={backupCenterCount(downloadTotal ?? summary.downloads, downloadsComplete)}
-                subtitle={t('backups.stats.downloads.help')}
-              />
-              <StatCard
-                testId="backups.stats.ready"
-                title={t('backups.stats.ready')}
-                value={backupCenterCount(summary.readyDownloads, downloadsComplete)}
-                subtitle={t('backups.stats.ready.help')}
-              />
-              <StatCard
-                testId="backups.stats.pending"
-                title={t('backups.stats.pending')}
-                value={backupCenterCount(summary.pendingDownloads, downloadsComplete)}
-                subtitle={t('backups.stats.pending.help')}
-              />
-              <StatCard
-                testId="backups.stats.unavailable"
-                title={t('backups.stats.unavailable')}
-                value={backupCenterCount(summary.unavailableDownloads, downloadsComplete)}
-                subtitle={t('backups.stats.unavailable.help')}
-              />
+            <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
+              {[
+                {
+                  key: 'datasets',
+                  value: datasetsQ.isPending
+                    ? '…'
+                    : backupCenterCount(datasetTotal ?? summary.datasets, datasetsComplete),
+                },
+                { key: 'downloads', value: backupCenterCount(downloadTotal ?? summary.downloads, downloadsComplete) },
+                { key: 'ready', value: backupCenterCount(summary.readyDownloads, downloadsComplete) },
+                { key: 'pending', value: backupCenterCount(summary.pendingDownloads, downloadsComplete) },
+                { key: 'unavailable', value: backupCenterCount(summary.unavailableDownloads, downloadsComplete) },
+              ].map(({ key, value }) => (
+                <Card key={key} testId={`backups.stats.${key}`}>
+                  <div className="p-3">
+                    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-2">
+                      <div className="min-w-0 break-words text-sm font-medium">{t(`backups.stats.${key}`)}</div>
+                      <div className="text-lg font-semibold leading-none tabular-nums">{value}</div>
+                    </div>
+                    <p className="mt-1 break-words text-xs text-muted">{t(`backups.stats.${key}.help`)}</p>
+                  </div>
+                </Card>
+              ))}
             </div>
-            <BackupCenterQuickActions
-              onRestore={beginRestore}
-              onDownloads={() => changeTab('downloads')}
-              onPlans={() => changeTab('plans')}
-            />
             <div>
               <h2 className="mb-3 text-base font-semibold">{t('backups.recent_downloads')}</h2>
               {downloads.length ? (
