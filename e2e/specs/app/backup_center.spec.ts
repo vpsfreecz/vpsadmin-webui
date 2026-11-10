@@ -462,7 +462,7 @@ test.describe('Backup center', () => {
 
     await expect(page).toHaveURL(/(?=.*[?&]tab=plans)(?=.*[?&]dataset=10)/);
     await expect(page.getByTestId('backups.plans')).toContainText(
-      'Plans are administrator-defined automatic rules'
+      'Administrators configure backup plans.'
     );
     await expect(page.getByTestId('dataset.plans.row.21.description')).toHaveText(
       'Takes a snapshot every night and keeps seven restore points.'

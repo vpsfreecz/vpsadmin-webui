@@ -20,3 +20,8 @@ both variants. A private bilingual Playwright cohort exercises the existing
 permitted and restricted cases in three browser projects. Desktop and
 320px mobile paths preserve descriptions, containment and confirmation.
 The inspected API source and intercepted fixtures verify distinct layers.
+
+The first PR276 CI run found an older exact-text assertion in the
+Backup Center direct-entry test. It now checks the shortened introduction
+and retains every original plan payload and selection assertion.
+Desktop and mobile Chromium pass that full scenario on both source variants.
