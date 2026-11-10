@@ -48,6 +48,12 @@ so fixed sidebar controls/footer cannot squeeze the destination list to zero.
 The implementation uses reusable React primitives and semantic Tailwind tokens.
 Read [styles](../../src/styles/index.css), [Button](../../src/components/ui/Button.tsx),
 [Modal](../../src/components/ui/Modal.tsx), and [Drawer](../../src/components/ui/Drawer.tsx).
+Textual accents and empty-field hints have separate readable foreground roles.
+Use the derived link palette on textual accent elements and the tertiary role
+for enabled placeholders, at full opacity against the field background. Keep
+brand/glyph/checkbox fills independently tokenized. See the [measured foreground
+follow-up](../work-log/2026-11-10-readable-link-and-placeholder-foregrounds.md).
+
 Keep surface/border/text/status colors semantic across light/dark themes rather
 than introducing page-local hardcoded palettes. Orange marks primary actions;
 state meaning also needs text/icons, not color alone. All icons use the established

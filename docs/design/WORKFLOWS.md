@@ -1003,3 +1003,11 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+## Shared foreground readability
+
+Operational links retain their navigation, ownership and query contracts while
+using readable text foregrounds in normal, focus and hover states. Empty enabled
+fields use the tertiary hint role; actual values, disabled controls and pending
+cancellation retain their behavior. Explicit light/dark and system preference
+require actual rendered checks. See the [source and evidence boundaries](../work-log/2026-11-10-readable-link-and-placeholder-foregrounds.md).
