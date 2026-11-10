@@ -1710,3 +1710,12 @@ filter meaning, query behavior and keyboard removal.
 
 Keep ordinary/error removal targets usable at narrow and landscape widths.
 [Measured gap, preservation and verification](docs/work-log/2026-11-10-ip-chip-removal-targets.md).
+
+
+## 2026-11-10 — complete narrow filter-chip labels
+
+Continue existing PR264 with bounded label wrapping and a separate nonshrinking
+removal target. Extend the source browser regression for full IPv6/prefix range
+bounds, unchanged URL/query state and actual odd/even/warning row contrast.
+[Scope, functional finding and evidence limits](docs/work-log/2026-11-10-ip-chip-label-wrap.md).
+Broad UX03/04 remain partial; exact CI/package and preview delivery are separate.

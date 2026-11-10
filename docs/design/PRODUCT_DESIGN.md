@@ -216,3 +216,12 @@ name the selected request and retain the same backend action identifiers.
 Changing force in the lifecycle form requires a fresh acknowledgment. Pending
 copy describes request submission, not completed shutdown. Generic historical
 task records without a force value retain a neutral Stop label.
+
+
+### Complete filter-chip labels
+
+A selected address/prefix can be longer than the available mobile row. The
+shared FilterChip wraps the full label within its existing maximum width and
+keeps the removal button separate and nonshrinking. Preserve compact desktop
+controls and coarse-pointer targets, existing labels, tones and callbacks.
+This presentation correction does not change address/prefix URL update semantics.

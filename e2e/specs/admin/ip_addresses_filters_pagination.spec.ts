@@ -698,7 +698,10 @@ for (const [language, theme] of [['cs', 'dark'], ['en', 'light']] as const) {
 for (const actor of [{ name: 'admin', level: 99 }, { name: 'support', level: 21 }]) {
   for (const [language, theme] of [['cs', 'dark'], ['en', 'light']] as const) {
     test(`@pr-smoke @pr-smoke-mobile ${language} ${actor.name} IP error chips and metadata remain readable`, async ({ page }, testInfo) => {
+      const address = '2001:0db8:1234:5678:9abc:def0:1234:5678';
       const writes: string[] = [];
+      const requests: string[] = [];
+      const chipGeometry: unknown[] = [];
       const observations: Array<{ width: number; text: Array<{ label: string; ratio: number }> }> = [];
       await bootstrapVpsAdminWindow(page, { webuiNext: { uiSettings: { persistence: 'local' } } });
       await setUiSettingsLocalStorage(page, { language, theme });
@@ -706,7 +709,10 @@ for (const actor of [{ name: 'admin', level: 99 }, { name: 'support', level: 21 
         user: { id: 1, login: `synthetic-${actor.name}`, level: actor.level },
         handlers: {
           'GET locations': () => ({ locations: [] }),
-          'GET ip_addresses': () => ({ ip_addresses: [{ id: 100, addr: '2001:0db8:1234:5678:9abc:def0:1234:5678', prefix: 128, routed: true, user: null, vps: null, network: { id: 3, address: '2001:db8::', prefix: 32 }, network_interface: null }] }),
+          'GET ip_addresses': (ctx) => {
+            requests.push(ctx.url.search);
+            return { ip_addresses: [0, 1, 2].map((offset) => ({ id: 100 + offset, addr: address, prefix: 128, routed: true, user: null, vps: null, network: { id: 3, address: '2001:db8::', prefix: 32 }, network_interface: offset < 2 ? { id: 6, name: 'eth0' } : null })) };
+          },
         },
       });
       await page.route('**/api/**', (route) => {
@@ -716,7 +722,7 @@ for (const actor of [{ name: 'admin', level: 99 }, { name: 'support', level: 21 
         }
         return route.fallback();
       });
-      await page.goto('/admin/networking/ip-addresses?version=6');
+      await page.goto(`/admin/networking/ip-addresses?version=6&addr=${encodeURIComponent(address)}&prefix=128&marker=retained`);
       const area = page.getByTestId('admin.ip_addresses.page');
       await expect(area).toContainText('#100');
       const input = page.getByTestId('admin.ip_addresses.smart_filter.input');
@@ -724,6 +730,10 @@ for (const actor of [{ name: 'admin', level: 99 }, { name: 'support', level: 21 
       await input.press('Enter');
       const error = page.getByTestId('admin.ip_addresses.chip.error.0');
       await expect(error).toContainText(language === 'cs' ? 'Neplatný prefix: 999' : 'Invalid prefix: 999');
+      const addressChip = page.getByTestId('admin.ip_addresses.chip.addr');
+      await expect(addressChip).toContainText(`addr:${address}/128`);
+      expect(new URL(page.url()).searchParams.get('addr')).toBe(address);
+      expect(new URL(page.url()).searchParams.get('prefix')).toBe('128');
       const coarse = await page.evaluate(() => matchMedia('(any-pointer:coarse)').matches);
       for (const width of [page.viewportSize()!.width, 320, 768]) {
         await page.setViewportSize({ width, height: 900 });
@@ -733,6 +743,32 @@ for (const actor of [{ name: 'admin', level: 99 }, { name: 'support', level: 21 
           expect(bounds).not.toBeNull();
           expect.soft(bounds!.width).toBeGreaterThanOrEqual(coarse ? 44 : 16);
           expect.soft(bounds!.height).toBeGreaterThanOrEqual(coarse ? 44 : 16);
+        }
+        const geometry = await addressChip.evaluate((chip) => {
+          const label = chip.querySelector('span')!;
+          const button = chip.querySelector('button')!;
+          const range = document.createRange();
+          range.selectNodeContents(label);
+          const fragments = [...range.getClientRects()].map((r) => ({ left: r.left, right: r.right, top: r.top, bottom: r.bottom }));
+          const bounds = chip.getBoundingClientRect();
+          const target = button.getBoundingClientRect();
+          const labelBounds = label.getBoundingClientRect();
+          return { fragments, left: bounds.left, right: bounds.right, top: bounds.top, bottom: bounds.bottom, targetLeft: target.left, targetRight: target.right, labelRight: labelBounds.right, scrollWidth: label.scrollWidth, clientWidth: label.clientWidth, documentWidth: document.documentElement.scrollWidth, viewport: innerWidth };
+        });
+        chipGeometry.push({ width, coarse, geometry });
+        expect.soft(geometry.scrollWidth).toBeLessThanOrEqual(geometry.clientWidth + 1);
+        expect.soft(geometry.documentWidth).toBeLessThanOrEqual(width + 1);
+        expect.soft(geometry.labelRight).toBeLessThanOrEqual(geometry.targetLeft + 1);
+        for (const fragment of geometry.fragments) {
+          expect.soft(fragment.left).toBeGreaterThanOrEqual(geometry.left - 1);
+          expect.soft(fragment.right).toBeLessThanOrEqual(geometry.targetLeft + 1);
+          expect.soft(fragment.top).toBeGreaterThanOrEqual(geometry.top - 1);
+          expect.soft(fragment.bottom).toBeLessThanOrEqual(geometry.bottom + 1);
+        }
+        expect.soft(geometry.targetRight).toBeLessThanOrEqual(geometry.right + 1);
+        if (width === 320) {
+          await addressChip.scrollIntoViewIfNeeded();
+          await page.screenshot({ path: testInfo.outputPath('long-chip-320.png'), animations: 'disabled', scale: 'css' });
         }
         const text = await area.evaluate((root) => {
           const canvas = document.createElement('canvas');
@@ -762,7 +798,7 @@ for (const actor of [{ name: 'admin', level: 99 }, { name: 'support', level: 21 
             return [{ label: element.textContent!.trim(), ratio: (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05) }];
           });
         });
-        expect(text.some((sample) => sample.label === '#100')).toBe(true);
+        for (const id of ['#100', '#101', '#102']) expect(text.some((sample) => sample.label === id)).toBe(true);
         expect(text.some((sample) => sample.label.includes('999'))).toBe(true);
         for (const sample of text.filter((sample) => sample.label !== '·')) expect.soft(sample.ratio, sample.label).toBeGreaterThanOrEqual(4.5);
         observations.push({ width, text });
@@ -781,6 +817,11 @@ for (const actor of [{ name: 'admin', level: 99 }, { name: 'support', level: 21 
       else await versionRemove.press('Enter');
       await expect(versionChip).toHaveCount(0);
       expect(new URL(page.url()).searchParams.get('version')).toBeNull();
+      expect(new URL(page.url()).searchParams.get('addr')).toBe(address);
+      expect(new URL(page.url()).searchParams.get('prefix')).toBe('128');
+      expect(new URL(page.url()).searchParams.get('marker')).toBe('retained');
+      await expect.poll(() => requests.some((query) => new URLSearchParams(query).get('ip_address[addr]') === address && new URLSearchParams(query).get('ip_address[prefix]') === '128')).toBe(true);
+      await testInfo.attach('long-chip-geometry-and-requests', { body: JSON.stringify({ chipGeometry, requests, writes }, null, 2), contentType: 'application/json' });
       expect(writes).toEqual([]);
       await testInfo.attach('rendered-contrast-and-widths', { body: JSON.stringify(observations, null, 2), contentType: 'application/json' });
     });
