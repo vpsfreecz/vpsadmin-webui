@@ -1,3 +1,7 @@
+## 2026-11-10 — Keep backup actions above compact statistics
+
+[BAK-01/02 overview layout](docs/work-log/2026-11-10-backup-overview-layout.md).
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path
