@@ -344,7 +344,7 @@ the action-state, role, lock or retry contracts.
 
 ### Export list value containment
 
-The export table reserves the existing840px minimum width inside TableCard's
+The export table reserves the existing1280px minimum width inside TableCard's
 local horizontal scroller so fixed ID, owner, state, mode and date columns do
 not reduce dataset, address and path columns to zero width. Let complete text
 wrap anywhere in table cells and mobile card links. Use the ordinary muted
