@@ -98,7 +98,12 @@ describe('BackupCenterPage', () => {
     renderPage();
 
     expect(await screen.findByTestId('backups.overview')).toBeVisible();
-    expect(screen.getByTestId('backups.stats.datasets')).toHaveTextContent('2');
+    const quickActions = screen.getByTestId('backups.quick');
+    const datasetCount = screen.getByTestId('backups.stats.datasets');
+    expect(quickActions.compareDocumentPosition(datasetCount)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(screen.queryByText('backups.subtitle')).not.toBeInTheDocument();
+    expect(screen.queryByText('backups.quick.title')).not.toBeInTheDocument();
+    expect(datasetCount).toHaveTextContent('2');
     expect(screen.getByTestId('backups.stats.downloads')).toHaveTextContent('1');
     expect(screen.getByTestId('backups.stats.unavailable')).toHaveTextContent('0');
     expect(screen.getByTestId('backups.downloads.row.1')).toBeVisible();
