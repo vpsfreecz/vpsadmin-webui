@@ -41,7 +41,7 @@ export function FilterChip(props: {
       {props.onRemove ? (
         <button
           type="button"
-          className="inline-flex h-4 w-4 items-center justify-center rounded hover:bg-surface-2"
+          className="inline-flex h-4 w-4 items-center justify-center rounded hover:bg-surface-2 [@media(any-pointer:coarse)]:min-h-11 [@media(any-pointer:coarse)]:min-w-11"
           onClick={props.onRemove}
           aria-label={t('common.remove')}
           title={t('common.remove')}
