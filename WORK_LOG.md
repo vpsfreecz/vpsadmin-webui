@@ -1,3 +1,7 @@
+## 2026-11-10 — Describe the snapshot target before confirmation
+
+[BAK-06 snapshot confirmation copy](docs/work-log/2026-11-10-snapshot-create-copy.md).
+
 ## 2026-11-10 — Align the own-server retry control
 
 [Rendered defect, scope and verification](docs/work-log/2026-11-10-dashboard-own-scope-retry-alignment.md).
