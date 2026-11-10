@@ -70,7 +70,7 @@ export const enBackups = {
   'backups.plans.filter': 'Filter datasets by name, VPS or ID…',
   'backups.plans.open': 'Manage plans',
   'backups.plans.scope.title': 'What backup plans do',
-  'backups.plans.scope.body': 'Plans are administrator-defined automatic rules for individual datasets. They typically schedule recurring snapshots or copies to backup storage. Choose storage on the left to compare active and available plans.',
+  'backups.plans.scope.body': 'Administrators configure backup plans.',
   'backups.plans.workspace.empty.title': 'Choose a dataset',
   'backups.plans.workspace.empty.body': 'Its active plans and the plans you are allowed to assign will appear here with a description of what each one does.',
   'backups.plans.empty.title': 'No matching datasets',

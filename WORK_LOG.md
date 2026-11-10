@@ -1,3 +1,7 @@
+## 2026-11-10 — Clarify backup plan ownership and removal
+
+[BAK-11/12 backup plan wording](docs/work-log/2026-11-10-backup-plan-copy.md).
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path

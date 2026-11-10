@@ -332,7 +332,7 @@ export const csStorage = {
   "dataset.tabs.expansion": "Dočasné navýšení",
   "dataset.plans.title": "Plány datasetu",
   "dataset.plans.subtitle":
-    "Plány definované administrátory aplikují na tento dataset automatická pravidla, typicky pravidelné snapshoty nebo záložní kopie. Před změnou si zkontroluj popis.",
+    "Plány záloh nastavují administrátoři.",
   "dataset.plans.assigned_count": "Přiřazené plány",
   "dataset.plans.available_count": "Dostupné k přiřazení",
   "dataset.plans.environment": "Prostředí",
@@ -359,7 +359,7 @@ export const csStorage = {
   "dataset.plans.column.permissions": "Oprávnění uživatele",
   "dataset.plans.permission.user_add": "Uživatel může přidat",
   "dataset.plans.permission.user_add_off": "Uživatel nemůže přidat",
-  "dataset.plans.permission.user_remove": "Uživatel může odebrat",
+  "dataset.plans.permission.user_remove": "Vlastníci mohou plán odebrat ze svých datasetů",
   "dataset.plans.permission.user_remove_off": "Uživatel nemůže odebrat",
   "dataset.plans.assign.open": "Přiřadit plán",
   "dataset.plans.assign.title": "Přiřadit plán datasetu",
@@ -372,6 +372,6 @@ export const csStorage = {
   "dataset.plans.remove.body": "Tímto odstraníš {label} z datasetu.",
   "dataset.plans.remove.success": "Plán datasetu byl odebrán",
   "dataset.plans.remove.error": "Plán datasetu se nepodařilo odebrat",
-  "dataset.plans.remove.not_allowed": "Odebrání omezeno",
+  "dataset.plans.remove.not_allowed": "Tento plán může odebrat jen administrátor.",
   ...csDatasetExpansion,
 } as const;

@@ -325,7 +325,7 @@ export const enStorage = {
   "dataset.tabs.expansion": "Temporary increase",
   "dataset.plans.title": "Dataset plans",
   "dataset.plans.subtitle":
-    "Administrator-defined plans apply automatic rules to this dataset, typically recurring snapshots or backup copies. Review the description before making a change.",
+    "Administrators configure backup plans.",
   "dataset.plans.assigned_count": "Assigned plans",
   "dataset.plans.available_count": "Available to assign",
   "dataset.plans.environment": "Environment",
@@ -351,7 +351,7 @@ export const enStorage = {
   "dataset.plans.column.permissions": "User permissions",
   "dataset.plans.permission.user_add": "User can add",
   "dataset.plans.permission.user_add_off": "User cannot add",
-  "dataset.plans.permission.user_remove": "User can remove",
+  "dataset.plans.permission.user_remove": "Owners can remove this plan from their datasets",
   "dataset.plans.permission.user_remove_off": "User cannot remove",
   "dataset.plans.assign.open": "Assign plan",
   "dataset.plans.assign.title": "Assign dataset plan",
@@ -364,6 +364,6 @@ export const enStorage = {
   "dataset.plans.remove.body": "This removes {label} from the dataset.",
   "dataset.plans.remove.success": "Dataset plan removed",
   "dataset.plans.remove.error": "Failed to remove dataset plan",
-  "dataset.plans.remove.not_allowed": "Removal restricted",
+  "dataset.plans.remove.not_allowed": "Only an administrator can remove this plan.",
   ...enDatasetExpansion,
 } as const;
