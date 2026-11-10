@@ -15,6 +15,7 @@ import { Card, CardBody, CardHeader } from '../../../components/ui/Card';
 import { Checkbox } from '../../../components/ui/Checkbox';
 import { ErrorState } from '../../../components/ui/ErrorState';
 import { Input } from '../../../components/ui/Input';
+import { DatasetAdvancedProperties } from './DatasetAdvancedProperties';
 import { LoadingState } from '../../../components/ui/LoadingState';
 import { Select } from '../../../components/ui/Select';
 import { createDataset, fetchDatasets, type Dataset } from '../../../lib/api/datasets';
@@ -203,40 +204,32 @@ export function NasDatasetCreatePage() {
                 <Checkbox testId="nas.create.automount" checked={automount} onChange={setAutomount} label={t('nas.create.automount')} />
               </div>
 
-              <details
-                className="rounded-lg border border-border bg-surface-2"
-                data-testid="nas.create.advanced_properties"
+              <DatasetAdvancedProperties
+                testId="nas.create.advanced_properties"
                 onToggle={(event) => {
                   if (event.currentTarget.open) setIncludeAdvanced(true);
                 }}
+                title={<>{t('filters.advanced.label')} ZFS</>}
               >
-                <summary
-                  className="cursor-pointer select-none px-3 py-3 text-sm font-medium text-fg"
-                  data-testid="nas.create.advanced_properties.summary"
-                >
-                  {t('filters.advanced.label')} ZFS
-                </summary>
-                <div className="space-y-4 border-t border-border px-3 py-4">
-                  <Input
-                    testId="nas.create.recordsize"
-                    label={t('nas.create.recordsize')}
-                    value={recordsizeKiB}
-                    onChange={(event) => setRecordsizeKiB(event.target.value)}
-                    inputMode="numeric"
-                  />
-                  <div className="grid gap-2 sm:grid-cols-2">
-                    <Checkbox testId="nas.create.compression" checked={compression} onChange={setCompression} label={t('nas.create.compression')} />
-                    <Checkbox testId="nas.create.atime" checked={atime} onChange={setAtime} label={t('nas.create.atime')} />
-                    <Checkbox testId="nas.create.relatime" checked={relatime} onChange={setRelatime} label={t('nas.create.relatime')} />
-                  </div>
+                <Input
+                  testId="nas.create.recordsize"
+                  label={t('nas.create.recordsize')}
+                  value={recordsizeKiB}
+                  onChange={(event) => setRecordsizeKiB(event.target.value)}
+                  inputMode="numeric"
+                />
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <Checkbox testId="nas.create.compression" checked={compression} onChange={setCompression} label={t('nas.create.compression')} />
+                  <Checkbox testId="nas.create.atime" checked={atime} onChange={setAtime} label={t('nas.create.atime')} />
+                  <Checkbox testId="nas.create.relatime" checked={relatime} onChange={setRelatime} label={t('nas.create.relatime')} />
                 </div>
-              </details>
+              </DatasetAdvancedProperties>
 
-              <div className="flex flex-wrap items-center gap-2 border-t border-border pt-4">
+              <div className="flex flex-wrap items-center justify-end gap-2 border-t border-border pt-4">
+                <Button variant="secondary" to={`${basePath}/nas`}>{t('common.cancel')}</Button>
                 <Button testId="nas.create.submit" onClick={submit} loading={createM.isPending} disabled={!parentId || !name.trim()}>
                   {t('nas.create.submit')}
                 </Button>
-                <Button variant="secondary" to={`${basePath}/nas`}>{t('common.cancel')}</Button>
               </div>
             </div>
           )}
