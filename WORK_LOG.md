@@ -2606,3 +2606,12 @@ build and12targeted raw cases across three engines without retries.
 Clean packages, new-head CI, fresh96-case acceptance and paired delivery
 remain pending; the earlier candidate was not activated.
 [Scope and retained evidence](docs/work-log/2026-11-10-export-list-value-containment.md).
+
+## 2026-11-10 — VPS list context and usage readability (prepared)
+
+Wrap long owner/node metadata within the context column and strengthen small
+usage annotations on warning rows after actual rendered overflow/contrast
+failures. Keep existing resource composition in each SDK source variant;
+values, severity, roles, actions and shared defaults remain unchanged.
+[Evidence, scope and pending verification](docs/work-log/2026-11-10-vps-list-context-readability.md).
+No commit, PR or activation claim; verification is ongoing.

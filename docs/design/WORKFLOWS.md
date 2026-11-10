@@ -1514,3 +1514,11 @@ and path, owner visibility and detail destination. A narrow desktop table
 scrolls within its card; mobile cards wrap full values rather than expanding
 the page. Disabled export state remains explicit in its badge and row variant.
 [Containment correction and evidence](../work-log/2026-11-10-export-list-value-containment.md).
+
+### VPS list: readable context and resource annotations
+
+Long owner/node identities stay within the context cell beside resource
+values; warning rows keep legible numeric usage labels. Mobile metadata's
+existing intentional truncation and all navigation, role, scope, filter,
+pagination, action and resource-pressure contracts remain unchanged.
+[Presentation evidence and source variants](../work-log/2026-11-10-vps-list-context-readability.md).
