@@ -2560,3 +2560,16 @@ and mobile WebKit,2workers/0retries; both pinned quick/build checks pass.
 Model and six-example unit source remain byte-identical to the prior
 verified source; no new unit execution is claimed here. New clean Nix,
 full56 browser acceptance, images and fresh exact-head CI remain pending.
+
+## 2026-11-10 — Readable textual accents and empty-field hints
+
+Extend the shared foreground review with derived readable link colors and the
+tertiary placeholder role after rendered IP-row and empty-field failures.
+Keep brand/semantic backgrounds, disabled controls, API/roles/queries and layout
+contracts. See [scope, negative evidence and checks](docs/work-log/2026-11-10-readable-link-and-placeholder-foregrounds.md).
+Prepared and verification ongoing; no merge or deployment claim.
+
+Both exact-lock source trees pass pinned ci:quick and production builds.
+This source’s complete shared-foreground regression passes72/72 in
+Chromium, mobile Chromium and mobile WebKit,2workers/0retries.
+Clean Nix packages, new-head CI and paired preview delivery remain pending.
