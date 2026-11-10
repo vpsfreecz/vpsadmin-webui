@@ -609,6 +609,7 @@ export function DatasetSnapshotsPage({ queryParamPrefix = '' }: DatasetSnapshots
           <div className="flex flex-wrap items-center justify-end gap-2">
             {createdDownload && createdDownloadStatus ? (
               <DatasetDownloadOpenButton
+                size="md"
                 href={createdDownloadHref}
                 canOpen={createdDownloadCanOpen}
                 disabledTitle={datasetDownloadStatusHelp(createdDownloadStatus, createdDownload, t)}

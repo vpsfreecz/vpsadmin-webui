@@ -1,3 +1,9 @@
+## 2026-11-10 — Align created snapshot download actions
+
+Keep the Download action aligned with the adjacent dialog footer actions in
+pending and ready states. Compact list actions retain their size. See the
+[scope, reproduction and verification limits](docs/work-log/2026-11-10-snapshot-download-action-rhythm.md).
+
 ## 2026-11-10 — Clarify backup plan ownership and removal
 
 [BAK-11/12 backup plan wording](docs/work-log/2026-11-10-backup-plan-copy.md).
