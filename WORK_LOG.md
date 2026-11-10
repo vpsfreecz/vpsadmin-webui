@@ -1685,3 +1685,11 @@ preserve all branch histories and colleague PRs. Add standard push CI for the
 integration branch, without deployment automation. Dev has isolated test data;
 clankerdev still uses the production API. No host update in this setup.
 [Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
+
+## 2026-11-10 — Align shared error recovery actions (prepared)
+
+Use the standard medium Copy details action beside Retry/Back/Status after
+a current desktop NAS error render proved a 32/36 px mismatch. Keep the
+compact copy default elsewhere and all recovery/clipboard behavior.
+[Scope and verification](docs/work-log/2026-11-10-error-recovery-action-rhythm.md).
+No paired delivery or full TODO completion is claimed.

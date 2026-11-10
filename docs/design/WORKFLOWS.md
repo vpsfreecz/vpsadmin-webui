@@ -1003,3 +1003,7 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+### Shared error recovery action alignment
+
+Error recovery preserves the original retry, back, status, details and copy behavior. Matching action heights apply to the shared recovery row without changing error classification, navigation or retry policy.
