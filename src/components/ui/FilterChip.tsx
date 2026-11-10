@@ -21,7 +21,7 @@ export function FilterChip(props: {
       : tone === 'warn'
         ? 'text-warn'
         : tone === 'danger'
-          ? 'text-danger'
+          ? 'text-fg'
           : tone === 'info'
             ? 'text-info'
             : tone === 'neutral'

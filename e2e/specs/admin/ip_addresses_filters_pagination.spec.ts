@@ -693,3 +693,81 @@ for (const [language, theme] of [['cs', 'dark'], ['en', 'light']] as const) {
     expect(writes).toEqual([]);
   });
 }
+
+// Exercise the measured error-chip and secondary table/card text surfaces.
+for (const actor of [{ name: 'admin', level: 99 }, { name: 'support', level: 21 }]) {
+  for (const [language, theme] of [['cs', 'dark'], ['en', 'light']] as const) {
+    test(`@pr-smoke @pr-smoke-mobile ${language} ${actor.name} IP error chips and metadata remain readable`, async ({ page }, testInfo) => {
+      const writes: string[] = [];
+      const observations: Array<{ width: number; text: Array<{ label: string; ratio: number }> }> = [];
+      await bootstrapVpsAdminWindow(page, { webuiNext: { uiSettings: { persistence: 'local' } } });
+      await setUiSettingsLocalStorage(page, { language, theme });
+      await installHaveApiMock(page, {
+        user: { id: 1, login: `synthetic-${actor.name}`, level: actor.level },
+        handlers: {
+          'GET locations': () => ({ locations: [] }),
+          'GET ip_addresses': () => ({ ip_addresses: [{ id: 100, addr: '2001:0db8:1234:5678:9abc:def0:1234:5678', prefix: 128, routed: true, user: null, vps: null, network: { id: 3, address: '2001:db8::', prefix: 32 }, network_interface: null }] }),
+        },
+      });
+      await page.route('**/api/**', (route) => {
+        if (!['GET', 'HEAD', 'OPTIONS'].includes(route.request().method())) {
+          writes.push(route.request().method());
+          return route.abort();
+        }
+        return route.fallback();
+      });
+      await page.goto('/admin/networking/ip-addresses?version=6');
+      const area = page.getByTestId('admin.ip_addresses.page');
+      await expect(area).toContainText('#100');
+      const input = page.getByTestId('admin.ip_addresses.smart_filter.input');
+      await input.fill('prefix:999');
+      await input.press('Enter');
+      const error = page.getByTestId('admin.ip_addresses.chip.error.0');
+      await expect(error).toContainText(language === 'cs' ? 'Neplatný prefix: 999' : 'Invalid prefix: 999');
+      for (const width of [page.viewportSize()!.width, 320]) {
+        await page.setViewportSize({ width, height: 900 });
+        const text = await area.evaluate((root) => {
+          const canvas = document.createElement('canvas');
+          canvas.width = canvas.height = 1;
+          const context = canvas.getContext('2d')!;
+          const rgba = (value: string) => {
+            context.clearRect(0, 0, 1, 1);
+            context.fillStyle = value;
+            context.fillRect(0, 0, 1, 1);
+            const pixel = context.getImageData(0, 0, 1, 1).data;
+            return [pixel[0]!, pixel[1]!, pixel[2]!, pixel[3]! / 255];
+          };
+          const over = (foreground: number[], background: number[]) => foreground.slice(0, 3).map((value, index) => value * foreground[3]! + background[index]! * (1 - foreground[3]!));
+          const luminance = (color: number[]) => color.slice(0, 3).map((value) => {
+            const channel = value / 255;
+            return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+          }).reduce((sum, value, index) => sum + value * [0.2126, 0.7152, 0.0722][index]!, 0);
+          return [...root.querySelectorAll('h1,h2,h3,p,th,td,span,div,label')].filter((element) => element.getBoundingClientRect().width > 0 && element.children.length === 0 && element.textContent?.trim() && !element.closest('.sr-only')).flatMap((element) => {
+            const ancestors: Element[] = [];
+            for (let current: Element | null = element; current; current = current.parentElement) ancestors.unshift(current);
+            if (ancestors.some((ancestor) => Number(getComputedStyle(ancestor).opacity) < 1)) return [];
+            let background = [255, 255, 255];
+            for (const ancestor of ancestors) background = over(rgba(getComputedStyle(ancestor).backgroundColor), background);
+            const foreground = over(rgba(getComputedStyle(element).color), background);
+            const a = luminance(background);
+            const b = luminance(foreground);
+            return [{ label: element.textContent!.trim(), ratio: (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05) }];
+          });
+        });
+        expect(text.some((sample) => sample.label === '#100')).toBe(true);
+        expect(text.some((sample) => sample.label.includes('999'))).toBe(true);
+        for (const sample of text.filter((sample) => sample.label !== '·')) expect.soft(sample.ratio, sample.label).toBeGreaterThanOrEqual(4.5);
+        observations.push({ width, text });
+      }
+      const remove = error.getByRole('button', { name: language === 'cs' ? 'Odebrat' : 'Remove', exact: true });
+      await remove.focus();
+      await expect(remove).toBeFocused();
+      await page.keyboard.press('Enter');
+      await expect(error).toHaveCount(0);
+      await expect(page.getByTestId('admin.ip_addresses.chip.version')).toBeVisible();
+      expect(new URL(page.url()).searchParams.get('version')).toBe('6');
+      expect(writes).toEqual([]);
+      await testInfo.attach('rendered-contrast-and-widths', { body: JSON.stringify(observations, null, 2), contentType: 'application/json' });
+    });
+  }
+}
