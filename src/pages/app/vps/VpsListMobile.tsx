@@ -129,7 +129,7 @@ export function VpsListMobile({
 
                 {(row.memUsed !== undefined && row.memMax !== undefined && row.memMax > 0) ||
                 (row.diskUsed !== undefined && row.diskMax !== undefined && row.diskMax > 0) ? (
-                  <div className="mt-3 space-y-2 text-xs text-muted">
+                  <div className="mt-3 space-y-2 text-xs text-muted [&_.text-faint]:text-muted">
                     {row.memUsed !== undefined && row.memMax !== undefined && row.memMax > 0 ? (
                       <UsageBar label={t('vps.list.usage.ram')} used={row.memUsed} max={row.memMax} formatValue={formatMiB} />
                     ) : null}
