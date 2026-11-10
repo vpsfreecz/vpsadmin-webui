@@ -46,3 +46,18 @@ noAPIwrites/pageerrors. These remain dirty working observations, not new clean
 committed-package or live-permission evidence. Original failures and CSS4
 color-parser diagnostics remain retained. Final clean Nix/exact-head CI/paired
 preview/TODO delivery remain pending; current serving release299 excludes this.
+
+The first PR268 CI attempt failed all eight new browser cases in each
+engine at the zero-write assertion. A raw Vite diagnostic reproduced
+PUT /api/v7.0/webui_user_settings/ui/settings: implicit preferences
+synchronization, absent from the compiled BFF fixture configuration.
+Set local preferences persistence explicitly in this read-only regression,
+preserving every contrast, geometry, focus and zero-write assertion.
+Product source and persistence behavior are unchanged. Original failures
+remain recorded; raw Vite parity and new exact-head CI must pass.
+
+Corrected raw Vite parity passes 24/24 initial cases per source tree,
+48/48 total across Chromium, mobile Chrome and mobile WebKit, with
+zero retries, writes and page errors. Both pinned quick/build checks pass.
+The original expected failure and a project-name preflight error (zero
+tests) remain retained. Clean Nix/new exact-head CI/preview remain pending.

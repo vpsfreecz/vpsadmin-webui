@@ -1691,3 +1691,18 @@ clankerdev still uses the production API. No host update in this setup.
 
 Use a dedicated destructive-button foreground after a rendered dark sample
 measured3.997:1; improve the same gallery’s light tertiary text and usage values. [Scope and verification](docs/work-log/2026-11-10-danger-button-foreground.md).
+
+The first PR268 CI attempt failed all eight new browser cases in each
+engine at the zero-write assertion. A raw Vite diagnostic reproduced
+PUT /api/v7.0/webui_user_settings/ui/settings: implicit preferences
+synchronization, absent from the compiled BFF fixture configuration.
+Set local preferences persistence explicitly in this read-only regression,
+preserving every contrast, geometry, focus and zero-write assertion.
+Product source and persistence behavior are unchanged. Original failures
+remain recorded; raw Vite parity and new exact-head CI must pass.
+
+Corrected raw Vite parity passes 24/24 initial cases per source tree,
+48/48 total across Chromium, mobile Chrome and mobile WebKit, with
+zero retries, writes and page errors. Both pinned quick/build checks pass.
+The original expected failure and a project-name preflight error (zero
+tests) remain retained. Clean Nix/new exact-head CI/preview remain pending.
