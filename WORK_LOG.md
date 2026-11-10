@@ -1699,3 +1699,16 @@ unlimited-summary deduplication assertion. Both pinned quick/build checks
 and six model examples pass. Earlier compiled56 working cases predate
 the small duplication correction and are retained separately. Exact clean
 Nix/browser acceptance, focused CI and paired/result delivery remain pending.
+
+
+## 2026-11-10 — Keep both quota names visible (prepared)
+
+Retain named reference and regular quota for unlimited and missing limits,
+without inferring infinity from absent data.
+[Criterion correction and evidence](docs/work-log/2026-11-10-nas-capacity-limit-labels.md).
+
+The named-limit correction passes24/24 targeted raw cases in Chromium
+and mobile WebKit,2workers/0retries; both pinned quick/build checks pass.
+Model and six-example unit source remain byte-identical to the prior
+verified source; no new unit execution is claimed here. New clean Nix,
+full56 browser acceptance, images and fresh exact-head CI remain pending.
