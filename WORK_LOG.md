@@ -2405,3 +2405,9 @@ Match palette/progress Close dimensions and keep shared SVG icons from compressi
 
 Retain the reviewed address inside narrow modal content.
 [Scope, source integration and checks](docs/work-log/2026-11-09-ip-dialog-identities.md).
+
+
+## 2026-11-10 — IP occupancy targets (prepared)
+
+Allow complete occupancy labels and shared pointer targets within the inset group.
+[Measured scope and verification](docs/work-log/2026-11-10-ip-occupancy-targets.md).

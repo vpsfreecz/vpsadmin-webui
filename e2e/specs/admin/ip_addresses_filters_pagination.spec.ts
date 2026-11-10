@@ -608,3 +608,61 @@ for (const language of ['cs', 'en'] as const) {
     }
   });
 }
+
+// Keep the complete occupancy labels reachable beside the quick-filter fields.
+for (const [language, theme] of [['cs', 'dark'], ['en', 'light']] as const) {
+  test(`@pr-smoke @pr-smoke-mobile ${language} IP occupancy targets retain keyboard filtering at narrow widths`, async ({ page }) => {
+    const writes: string[] = [];
+    await bootstrapVpsAdminWindow(page, { webuiNext: { uiSettings: { persistence: 'local' } } });
+    await setUiSettingsLocalStorage(page, { language, theme });
+    await installHaveApiMock(page, {
+      user: { id: 1, login: 'synthetic-admin', level: 99 },
+      handlers: {
+        'GET locations': () => ({ locations: [] }),
+        'GET ip_addresses': () => ({ ip_addresses: [] }),
+      },
+    });
+    await page.route('**/api/**', (route) => {
+      if (!['GET', 'HEAD', 'OPTIONS'].includes(route.request().method())) {
+        writes.push(route.request().method());
+        return route.abort();
+      }
+      return route.fallback();
+    });
+    await page.goto('/admin/networking/ip-addresses?version=6');
+    const coarse = await page.evaluate(() => matchMedia('(any-pointer:coarse)').matches);
+    for (const width of [page.viewportSize()!.width, 320, 768]) {
+      await page.setViewportSize({ width, height: 900 });
+      for (const [key, value] of [['any', 'any'], ['assigned', '1'], ['unassigned', '0']] as const) {
+        const button = page.getByTestId(`admin.ip_addresses.quick.occupancy.${key}`);
+        await button.scrollIntoViewIfNeeded();
+        await button.focus();
+        await expect(button).toBeFocused();
+        const bounds = await button.evaluate((element) => {
+          const box = element.getBoundingClientRect();
+          const range = document.createRange();
+          range.selectNodeContents(element);
+          return {
+            x: box.x, width: box.width, height: box.height,
+            scrollWidth: element.scrollWidth, clientWidth: element.clientWidth,
+            parentOverflow: getComputedStyle(element.parentElement!).overflow,
+            fragments: [...range.getClientRects()].map((rect) => ({ left: rect.left, right: rect.right })),
+          };
+        });
+        expect(bounds.height).toBeGreaterThanOrEqual(coarse ? 44 : 36);
+        expect(bounds.parentOverflow).toBe('visible');
+        expect(bounds.scrollWidth).toBeLessThanOrEqual(bounds.clientWidth + 1);
+        for (const fragment of bounds.fragments) {
+          expect(fragment.left).toBeGreaterThanOrEqual(bounds.x - 1);
+          expect(fragment.right).toBeLessThanOrEqual(bounds.x + bounds.width + 1);
+        }
+        await button.press('Enter');
+        await expect.poll(() => new URL(page.url()).searchParams.get(key === 'any' ? 'occupancy' : 'assigned_to_interface')).toBe(value);
+        expect(new URL(page.url()).searchParams.get('version')).toBe('6');
+        await expect(button).toHaveClass(/bg-surface/);
+      }
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1)).toBe(true);
+    }
+    expect(writes).toEqual([]);
+  });
+}
