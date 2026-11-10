@@ -304,10 +304,10 @@
       "path": "src/pages/app/datasets/DatasetExpansionPage.tsx",
       "rule": "grown-over-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "d2072281b40ccbc1e8600d44afc58efc4a112a9f3f4fbc446fa802ce8cb6b5b7",
+      "contentHash": "a4bfac9a9be1db412acb88e55a32748640afdbb0483013defb9cc9fff826b826",
       "old": 635,
       "allowance": 697,
-      "rationale": "At the recorded source revision, this file already contained dataset expansion state and actions; extract the coherent section with focused behavior coverage before removing this exception.",
+      "rationale": "At the recorded source revision, this file already contained dataset expansion state and actions; extract the coherent section with focused behavior coverage before removing this exception. Reviewed UX08 footer-only alignment and information-before-primary ordering; the action callback, all other source bytes, and the existing exact 697-line allowance are preserved by an inverse proof.",
       "owner": "WebUI implementation lead",
       "removeWhen": {
         "metric": "lines",

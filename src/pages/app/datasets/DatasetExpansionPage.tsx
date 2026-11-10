@@ -498,11 +498,11 @@ export function DatasetExpansionPage() {
                 testId="dataset.expansion.create.error"
               />
             ) : null}
-            <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-border pt-4">
+            <div className="mt-4 flex flex-wrap items-center justify-end gap-3 border-t border-border pt-4">
+              <span className="min-w-0 flex-1 basis-64 text-xs text-muted">{t('dataset.expansion.form.max_over_hint')}</span>
               <Button testId="dataset.expansion.create.submit" onClick={() => void createM.mutate({ ...newForm, mode: 'create' })} loading={createM.isPending} disabled={busy}>
                 {t('dataset.expansion.create.submit')}
               </Button>
-              <span className="text-xs text-muted">{t('dataset.expansion.form.max_over_hint')}</span>
             </div>
           </CardBody>
         </Card>
