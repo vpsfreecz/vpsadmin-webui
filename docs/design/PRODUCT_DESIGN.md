@@ -216,3 +216,12 @@ name the selected request and retain the same backend action identifiers.
 Changing force in the lifecycle form requires a fresh acknowledgment. Pending
 copy describes request submission, not completed shutdown. Generic historical
 task records without a force value retain a neutral Stop label.
+
+
+### Host-IP filter wrapping
+
+Host-IP text/lookup fields, assignment select and conditional clear action share
+the flat FilterBar layout. At desktop wrap boundaries, each44px control aligns
+with its row instead of centering a separate actions group between input rows.
+At narrow widths every field and clear action uses the available row width.
+Keep lookup scope, role restrictions, query keys and clear callback unchanged.

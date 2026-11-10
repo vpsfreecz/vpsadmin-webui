@@ -237,38 +237,30 @@ export function HostIpAddressesPage() {
       testId="admin.host_ip_addresses.page"
       header={<PageHeader title={t('admin.host_ip_addresses.title')} description={t('admin.host_ip_addresses.subtitle')} />}
       filters={
-        <FilterBar
-          left={
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="w-full max-w-sm">
-                <Input testId="admin.host_ip_addresses.filter.addr" value={addr} onChange={(e) => setParam('addr', e.target.value)} placeholder={t('admin.network_list.exact_addr')} />
-              </div>
-              <div className="w-64">
-                <UserLookupInput testId="admin.host_ip_addresses.filter.user" value={userId ? String(userId) : ''} onChange={(v) => setParam('user', v)} placeholder={t('admin.host_ip_addresses.filter.user.placeholder')} />
-              </div>
-              <div className="w-64">
-                <VpsLookupInput testId="admin.host_ip_addresses.filter.vps" value={vpsId ?? null} onChange={(v) => setParam('vps', v == null ? '' : String(v))} placeholder={t('admin.host_ip_addresses.filter.vps.placeholder')} />
-              </div>
-            </div>
-          }
-          right={
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="w-40">
-                <Select
-                  testId="admin.host_ip_addresses.filter.assigned"
-                  value={assigned === undefined ? 'all' : assigned ? 'true' : 'false'}
-                  onChange={(e) => setParam('assigned', e.target.value === 'all' ? '' : e.target.value)}
-                  options={[
-                    { value: 'all', label: t('admin.host_ip_addresses.filter.assigned.all') },
-                    { value: 'true', label: t('admin.host_ip_addresses.filter.assigned.true') },
-                    { value: 'false', label: t('admin.host_ip_addresses.filter.assigned.false') },
-                  ]}
-                />
-              </div>
-              {filtersActive ? <Button variant="secondary" testId="admin.host_ip_addresses.filter.clear" onClick={clearFilters}>{t('common.clear_filters')}</Button> : null}
-            </div>
-          }
-        />
+        <FilterBar className="[&_input]:h-11 [&_select]:h-11">
+          <div className="w-full sm:w-96">
+            <Input testId="admin.host_ip_addresses.filter.addr" value={addr} onChange={(e) => setParam('addr', e.target.value)} placeholder={t('admin.network_list.exact_addr')} />
+          </div>
+          <div className="w-full sm:w-64">
+            <UserLookupInput testId="admin.host_ip_addresses.filter.user" value={userId ? String(userId) : ''} onChange={(v) => setParam('user', v)} placeholder={t('admin.host_ip_addresses.filter.user.placeholder')} />
+          </div>
+          <div className="w-full sm:w-64">
+            <VpsLookupInput testId="admin.host_ip_addresses.filter.vps" value={vpsId ?? null} onChange={(v) => setParam('vps', v == null ? '' : String(v))} placeholder={t('admin.host_ip_addresses.filter.vps.placeholder')} />
+          </div>
+          <div className="w-full sm:w-40">
+            <Select
+              testId="admin.host_ip_addresses.filter.assigned"
+              value={assigned === undefined ? 'all' : assigned ? 'true' : 'false'}
+              onChange={(e) => setParam('assigned', e.target.value === 'all' ? '' : e.target.value)}
+              options={[
+                { value: 'all', label: t('admin.host_ip_addresses.filter.assigned.all') },
+                { value: 'true', label: t('admin.host_ip_addresses.filter.assigned.true') },
+                { value: 'false', label: t('admin.host_ip_addresses.filter.assigned.false') },
+              ]}
+            />
+          </div>
+          {filtersActive ? <Button variant="secondary" className="h-11 w-full sm:w-auto" testId="admin.host_ip_addresses.filter.clear" onClick={clearFilters}>{t('common.clear_filters')}</Button> : null}
+        </FilterBar>
       }
     >
       {legacyReset ? <Alert variant="info" className="mb-3" testId="admin.host_ip_addresses.legacy_reset">{t('admin.network_list.legacy_reset')}</Alert> : null}

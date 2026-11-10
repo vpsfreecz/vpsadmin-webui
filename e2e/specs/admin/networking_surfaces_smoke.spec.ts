@@ -1,3 +1,4 @@
+import { setUiSettingsLocalStorage } from '../../fixtures/uiSettings';
 import { expect, test } from '../../fixtures/vpsadmin-window';
 import { bootstrapVpsAdminWindow } from '../../fixtures/bootstrap';
 import { installHaveApiMock } from '../../fixtures/haveapi';
@@ -171,3 +172,71 @@ test.describe('Admin / Networking surfaces (smoke)', () => {
     await expect(page.getByTestId('admin.network_traffic_users.row.7')).toBeVisible();
   });
 });
+
+for (const actor of [{ name: 'admin', level: 99 }, { name: 'support', level: 21 }]) {
+  for (const [language, theme] of [['cs', 'dark'], ['en', 'light']] as const) {
+    test(`@pr-smoke @pr-smoke-mobile Host filter alignment ${actor.name} ${language}`, async ({ page }, testInfo) => {
+      const writes: string[] = [];
+      const requests: string[] = [];
+      const observations: unknown[] = [];
+      page.on('request', (request) => {
+        if (!['GET', 'HEAD', 'OPTIONS'].includes(request.method())) writes.push(request.method() + ' ' + new URL(request.url()).pathname);
+      });
+      await bootstrapVpsAdminWindow(page, { webuiNext: { uiSettings: { persistence: 'local' } } });
+      await setUiSettingsLocalStorage(page, { language, theme });
+      await installHaveApiMock(page, {
+        user: { id: 1, login: `synthetic-${actor.name}`, level: actor.level },
+        handlers: {
+          'GET host_ip_addresses': (ctx) => { requests.push(ctx.url.search); return { host_ip_addresses: [] }; },
+        },
+      });
+      await page.goto('/admin/networking/host-ip-addresses?assigned=false');
+      const prefix = 'admin.host_ip_addresses.filter.';
+      const input = page.getByTestId(prefix + 'addr');
+      await expect(input).toBeVisible();
+      for (const width of [page.viewportSize()!.width, 320, 768]) {
+        await page.setViewportSize({ width, height: 900 });
+        const controls = [];
+        for (const name of ['addr', 'user', 'vps', 'assigned', 'clear']) {
+          const geometry = await page.getByTestId(prefix + name).evaluate((element) => {
+            const control = element.matches('input,select,button') ? element : element.querySelector('input,select,button')!;
+            const r = control.getBoundingClientRect();
+            return { tag: control.tagName, left: r.left, right: r.right, top: r.top, height: r.height, width: r.width };
+          });
+          controls.push({ name, ...geometry });
+          expect.soft(geometry.height, name + ' height').toBe(44);
+          expect.soft(geometry.left, name + ' left').toBeGreaterThanOrEqual(-1);
+          expect.soft(geometry.right, name + ' right').toBeLessThanOrEqual(width + 1);
+        }
+        const first = controls[0]!;
+        const textRows = [...new Set(controls.filter((c) => c.tag === 'INPUT').map((c) => c.top))].sort((a, b) => a - b);
+        const pitch = textRows.length > 1 ? textRows[1]! - textRows[0]! : 52;
+        for (const control of controls) {
+          const row = (control.top - first.top) / pitch;
+          expect.soft(Math.abs(row - Math.round(row)), control.name + ' row alignment').toBeLessThan(0.02);
+          if (width < 640) expect.soft(control.width, control.name + ' mobile width').toBe(first.width);
+        }
+        const documentWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+        expect.soft(documentWidth).toBeLessThanOrEqual(width + 1);
+        observations.push({ width, controls, pitch, documentWidth });
+        await input.focus();
+        await expect(input).toBeFocused();
+        if (width !== 768) await page.screenshot({ path: testInfo.outputPath(`filters-${width}.png`), animations: 'disabled', scale: 'css' });
+      }
+      const address = '2001:0db8:1234:5678:9abc:def0:1234:5678';
+      await input.fill(address);
+      await expect.poll(() => new URL(page.url()).searchParams.get('addr')).toBe(address);
+      expect(new URL(page.url()).searchParams.get('assigned')).toBe('false');
+      await page.getByTestId(prefix + 'assigned').selectOption('true');
+      await expect.poll(() => new URL(page.url()).searchParams.get('assigned')).toBe('true');
+      expect(new URL(page.url()).searchParams.get('addr')).toBe(address);
+      await expect.poll(() => requests.some((query) => new URLSearchParams(query).get('host_ip_address[addr]') === address && new URLSearchParams(query).get('host_ip_address[assigned]') === 'true')).toBe(true);
+      await page.getByTestId(prefix + 'clear').press('Enter');
+      await expect.poll(() => new URL(page.url()).searchParams.get('addr')).toBeNull();
+      expect(new URL(page.url()).searchParams.get('assigned')).toBeNull();
+      await expect(page.getByTestId(prefix + 'clear')).toHaveCount(0);
+      expect(writes).toEqual([]);
+      await testInfo.attach('host-filter-alignment-and-query', { body: JSON.stringify({ observations, requests, writes }, null, 2), contentType: 'application/json' });
+    });
+  }
+}
