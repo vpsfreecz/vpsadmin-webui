@@ -2453,3 +2453,10 @@ Flatten only Host-IP's legacy two-column filters so wrapped controls align
 with their row and narrow fields share the available width. Preserve44px and
 all lookup/query callbacks. [Scope and evidence](docs/work-log/2026-11-10-host-ip-filter-alignment.md).
 Verification and delivery remain pending; broad UX03/04 remain partial.
+
+
+## 2026-11-10 — Readable console connection messages (prepared)
+
+Keep application loading/recovery messages outside the scaled terminal so their
+text and reconnect action retain normal dimensions on narrow screens.
+[Scope and verification](docs/work-log/2026-11-10-console-overlay-readability.md).

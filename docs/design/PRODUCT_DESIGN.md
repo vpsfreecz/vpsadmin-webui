@@ -296,3 +296,12 @@ the flat FilterBar layout. At desktop wrap boundaries, each44px control aligns
 with its row instead of centering a separate actions group between input rows.
 At narrow widths every field and clear action uses the available row width.
 Keep lookup scope, role restrictions, query keys and clear callback unchanged.
+
+
+### Console connection messages
+
+The terminal retains its pinned virtual viewport and scale. Application loading
+and disconnected recovery messages are separate, unscaled viewport overlays.
+Their normal text and controls remain readable at320px; the panel grows when
+wrapping needs more room. Original size, session creation/revocation and role
+guards retain their existing behavior (REQ-020, approved UX03/04).
