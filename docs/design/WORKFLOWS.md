@@ -175,6 +175,9 @@ present. Reactivating an expired VPS with no reminder omits that field. Changing
 expiration preserves a nonempty reminder explicitly, because setting expiration
 also resets the reminder. Clearing only a reminder reapplies the existing
 expiration without a reminder; clearing expiration sends only its nullable field.
+Compare unchanged lifecycle datetimes by instant, so UTC/offset or fractional-zero
+formatting alone cannot enable Save. Administrator date inputs preserve seconds.
+Actual state/date edits and nullable clearing keep the same API payload rules.
 State transitions keep asynchronous action tracking and the existing power-action
 confirmation/transaction locks. See the
 [renewal regression evidence](../work-log/2026-10-18-vps-expiration-reactivation.md).

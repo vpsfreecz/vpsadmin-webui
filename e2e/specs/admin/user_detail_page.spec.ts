@@ -615,3 +615,66 @@ for (const language of ['en', 'cs'] as const) {
     }
   });
 }
+
+
+for (const language of ['cs', 'en'] as const) {
+  for (const raw of ['2027-01-15T15:00:56Z', '2027-01-15T16:00:56+01:00']) {
+    test(`@pr-smoke @pr-smoke-mobile lifecycle timestamps: unchanged instant ${language} ${raw}`, async ({ page }) => {
+      await bootstrapVpsAdminWindow(page, { webuiNext: { uiSettings: { persistence: 'local' } } });
+      await setUiSettingsLocalStorage(page, { language, theme: language === 'cs' ? 'dark' : 'light' });
+      const writes: string[] = [];
+      const errors: string[] = [];
+      page.on('pageerror', (error) => errors.push(String(error)));
+      await installHaveApiMock(page, {
+        user: { id: 7, login: 'synthetic-admin', level: 99 },
+        handlers: {
+          'GET users/42': () => ({ user: {
+            id: 42, login: 'synthetic-owner', level: 2, object_state: 'active',
+            expiration_date: raw, remind_after_date: raw,
+          } }),
+          'GET vpses': () => ({ vpses: [] }),
+          'GET user_payments': () => ({ user_payments: [] }),
+          'GET users/42/mail_role_recipients': () => ({ mail_role_recipients: [] }),
+        },
+      });
+      await page.route('**/api/**', (route) => {
+        if (['GET', 'HEAD', 'OPTIONS'].includes(route.request().method())) return route.fallback();
+        writes.push(route.request().method() + ' ' + new URL(route.request().url()).pathname);
+        return route.abort();
+      });
+      await page.goto('/admin/users/42');
+      const expirationInput = page.getByTestId('admin.user.lifecycle.expiration');
+      const reminderInput = page.getByTestId('admin.user.lifecycle.remind_after');
+      const save = page.getByTestId('admin.user.lifecycle.save');
+      await expect(expirationInput).toHaveValue(/:56$/);
+      await expect(reminderInput).toHaveValue(/:56$/);
+      await expect(save).toBeDisabled();
+      await page.getByTestId('admin.user.lifecycle.reason').fill('Synthetic reason alone');
+      await expect(save).toBeDisabled();
+      const original = await expirationInput.inputValue();
+      await expirationInput.fill(original.replace(/:56$/, ':57'));
+      await expect(save).toBeEnabled();
+      await expirationInput.fill(original);
+      await expect(save).toBeDisabled();
+      await page.getByTestId('admin.user.lifecycle.remind_after.clear').click();
+      await expect(save).toBeEnabled();
+      await reminderInput.fill((await reminderInput.evaluate((_element, raw) => {
+        const date = new Date(raw);
+        const pad = (value: number) => String(value).padStart(2, '0');
+        return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+      }, raw)));
+      await expect(save).toBeDisabled();
+      await page.getByTestId('admin.user.lifecycle.state').selectOption('suspended');
+      await save.click();
+      await expect(page.getByTestId('admin.user.lifecycle.confirm')).toBeVisible();
+      expect(writes).toEqual([]);
+      await page.getByTestId('admin.user.lifecycle.confirm.cancel').click();
+      await expect(page.getByTestId('admin.user.lifecycle.confirm')).toHaveCount(0);
+      await page.getByTestId('admin.user.lifecycle.state').selectOption('active');
+      await expect(save).toBeDisabled();
+      await expectNoDocumentHorizontalOverflow(page);
+      expect(writes).toEqual([]);
+      expect(errors).toEqual([]);
+    });
+  }
+}
