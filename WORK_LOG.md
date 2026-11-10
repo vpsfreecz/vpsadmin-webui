@@ -2411,3 +2411,9 @@ Retain the reviewed address inside narrow modal content.
 
 Allow complete occupancy labels and shared pointer targets within the inset group.
 [Measured scope and verification](docs/work-log/2026-11-10-ip-occupancy-targets.md).
+
+
+## 2026-11-10 — Complete IP-list identifiers (prepared)
+
+Keep full technical identifiers inside mobile cards and confirmations.
+[Cause and source-qualified verification](docs/work-log/2026-11-10-ip-list-identities.md).
