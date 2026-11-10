@@ -21,7 +21,12 @@ for (const variant of variants)
       });
       page.on('pageerror', (error) => errors.push(String(error)));
       await page.emulateMedia({ colorScheme: variant.scheme });
-      await bootstrapVpsAdminWindow(page, { webuiNext: surface === 'gallery' ? { enableDesignSandbox: true } : {} });
+      await bootstrapVpsAdminWindow(page, {
+        webuiNext: {
+          uiSettings: { persistence: 'local' },
+          ...(surface === 'gallery' ? { enableDesignSandbox: true } : {}),
+        },
+      });
       await setUiSettingsLocalStorage(page, { language: variant.language, theme: variant.theme });
       const dataset = {
         id: 10,
