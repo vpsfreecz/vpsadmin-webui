@@ -220,10 +220,10 @@
       "path": "src/pages/app/vps/VpsAccessPage.tsx",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "468fcd2bb5cc86bc7b19ebcabb2d4fdd092ee786731e764ad3a2e267bcca8e5d",
+      "contentHash": "a6db058069b748cbe9a72d2b26d8006287d83fc9351b8af934627848c0731f6b",
       "old": 0,
       "allowance": 505,
-      "rationale": "At the recorded source revision, this file already contained VPS access and credential controls; extract the coherent section with focused behavior coverage before removing this exception. Reviewed UX-04 local heading and border changes only; no controller expansion. Integrated main: action-state receipt helper remains imported from apiErrors; the reviewed preview removes duplicate summary/checklist sections and uses authenticated ownership. The exact 505-line cap is retained.",
+      "rationale": "At the recorded source revision, this file already contained VPS access and credential controls; extract the coherent section with focused behavior coverage before removing this exception. Reviewed UX-04 local heading and border changes only; no controller expansion. Integrated main: action-state receipt helper remains imported from apiErrors; the reviewed preview removes duplicate summary/checklist sections and uses authenticated ownership. The exact 505-line cap is retained. Reviewed UX03: only h-9 plus the existing44px coarse minimum on the two native selectors; exact inverse preserves all other source bytes and the existing line allowance.",
       "owner": "WebUI collection and page refactor implementer",
       "removeWhen": {
         "metric": "lines",

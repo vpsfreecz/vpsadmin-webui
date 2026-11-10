@@ -2460,3 +2460,10 @@ Verification and delivery remain pending; broad UX03/04 remain partial.
 Keep application loading/recovery messages outside the scaled terminal so their
 text and reconnect action retain normal dimensions on narrow screens.
 [Scope and verification](docs/work-log/2026-11-10-console-overlay-readability.md).
+
+
+## 2026-11-10 — Align Access selectors with adjacent actions (prepared)
+
+Give only the two native Access selectors the shared36px fine-pointer height,
+retaining44px coarse minima and all selection/mutation guards.
+[Scope and verification](docs/work-log/2026-11-10-access-field-rhythm.md).
