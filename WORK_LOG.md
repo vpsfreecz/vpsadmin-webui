@@ -1703,3 +1703,8 @@ and Copy remains reachable. [Scope and verification](docs/work-log/2026-11-10-ac
 ## 2026-11-10 — Align generated-password fields and wrap key results
 
 [Measured Access follow-up](docs/work-log/2026-11-10-access-result-presentation.md).
+
+
+## 2026-11-10 — Bound Access input height in column layouts
+
+[CI and fixture parity follow-up](docs/work-log/2026-11-10-access-ci-parity.md).
