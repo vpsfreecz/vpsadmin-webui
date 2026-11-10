@@ -72,6 +72,7 @@
     "e2e/specs/app/sidebar_status.spec.ts",
     "e2e/specs/app/snapshot_delete_availability.spec.ts",
     "e2e/specs/app/snapshot_export_shortcut.spec.ts",
+    "e2e/specs/app/storage_sections_contract.spec.ts",
     "e2e/specs/app/task_storage_scope_isolation.spec.ts",
     "e2e/specs/app/tasks_compact_history.spec.ts",
     "e2e/specs/app/tasks_drawer_focus_trap.spec.ts",
@@ -1127,13 +1128,6 @@
     {
       "path": "e2e/specs/app/smart_filter_accessibility.spec.ts",
       "sha256": "f83cb180639cc3d682c11e80c59f9ce1616ceadf24a6deeb1903e356c1d14996",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/app/storage_sections_contract.spec.ts",
-      "sha256": "25e110a12435ea5ec20a5c2ec58951c484da419b7bec8cc25e34ac58d13729f5",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
