@@ -216,3 +216,13 @@ name the selected request and retain the same backend action identifiers.
 Changing force in the lifecycle form requires a fresh acknowledgment. Pending
 copy describes request submission, not completed shutdown. Generic historical
 task records without a force value retain a neutral Stop label.
+
+### Export list value containment
+
+The export table reserves the existing1280px minimum width inside TableCard's
+local horizontal scroller so fixed ID, owner, state, mode and date columns do
+not reduce dataset, address and path columns to zero width. Let complete text
+wrap anywhere in table cells and mobile card links. Use the ordinary muted
+owner role on semantic warning cards; small tertiary owner text was below
+the unchanged4.5 threshold in dark mode. Preserve navigation, row variants,
+filters, pagination and the full source strings.
