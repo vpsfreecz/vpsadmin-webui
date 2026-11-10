@@ -2645,3 +2645,19 @@ a current desktop NAS error render proved a 32/36 px mismatch. Keep the
 compact copy default elsewhere and all recovery/clipboard behavior.
 [Scope and verification](docs/work-log/2026-11-10-error-recovery-action-rhythm.md).
 No paired delivery or full TODO completion is claimed.
+
+
+## 2026-11-10 — Readable warning action foreground (prepared)
+
+Use the page-background foreground on semantic warning actions after actual
+selected-owner light renders measured2.12:1. Preserve semantic fills, sizes
+and all action guards. Extend the existing shared rendered regression in
+light/dark/system, normal/focus/hover and narrow viewports.
+[Scope, negative evidence and pending gates](docs/work-log/2026-11-10-warning-action-foreground.md).
+No merge or delivery claim.
+
+Both exact-lock branches pass ci:quick, build and final strict E2E coverage.
+The actual OAuth warning action passes12/12 raw cases per source in three
+engines, light/dark/system, normal/focus/hover and narrow viewports. Retain
+initial setup/category diagnostics; no threshold or product guard relaxed.
+Exact clean package, six new-head CI and paired delivery are still pending.

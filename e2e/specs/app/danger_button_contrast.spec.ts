@@ -73,7 +73,7 @@ async function measureForeground(target: Locator, pseudo?: '::placeholder') {
 }
 
 for (const variant of variants)
-  for (const surface of ['gallery', 'confirmation'] as const) {
+  for (const surface of ['gallery', 'warning', 'confirmation'] as const) {
     test(`@pr-smoke @pr-smoke-mobile destructive ${surface} ${variant.theme} ${variant.scheme}`, async ({
       page,
     }, info) => {
@@ -116,20 +116,36 @@ for (const variant of variants)
         user: { id: 42, login: 'synthetic-member', level: surface === 'gallery' ? 1 : 99 },
         handlers: {
           'GET datasets/10': () => ({ dataset }),
+          'GET users/42': () => ({
+            user: { id: 42, login: 'synthetic-selected-owner', level: 1, enable_oauth2_auth: false },
+          }),
+          'GET vpses': () => ({ vpses: [], _meta: { total_count: 0 } }),
           'GET transaction_chains': () => ({ transaction_chains: [] }),
           'GET help_boxes': () => ({ help_boxes: [] }),
           'GET action_states': () => ({ action_states: [] }),
         },
       });
-      await page.goto(surface === 'gallery' ? '/app/_design' : '/admin/datasets/10');
+      await page.goto(
+        surface === 'warning'
+          ? '/admin/users/42/security'
+          : surface === 'gallery'
+            ? '/app/_design'
+            : '/admin/datasets/10'
+      );
       if (surface === 'confirmation') await page.getByTestId('dataset.manage.delete.open').click();
       const group = page.getByTestId(
-        surface === 'gallery' ? 'design.components.buttons' : 'dataset.manage.delete.confirm'
+        surface === 'warning'
+          ? 'admin.user.security.settings.card'
+          : surface === 'gallery'
+            ? 'design.components.buttons'
+            : 'dataset.manage.delete.confirm'
       );
       const button =
-        surface === 'gallery'
-          ? group.getByRole('button', { name: 'Danger', exact: true })
-          : page.getByTestId('dataset.manage.delete.confirm.confirm');
+        surface === 'warning'
+          ? page.getByTestId('admin.user.security.settings.oauth2.enable')
+          : surface === 'gallery'
+            ? group.getByRole('button', { name: 'Danger', exact: true })
+            : page.getByTestId('dataset.manage.delete.confirm.confirm');
       await expect(button).toBeVisible();
       const observations = [];
       for (const width of [...new Set([320, page.viewportSize()!.width])]) {
@@ -185,7 +201,9 @@ for (const variant of variants)
           expect(observation.document).toBeLessThanOrEqual(width + 1);
           expect(observation.left).toBeGreaterThanOrEqual(-1);
           expect(observation.right).toBeLessThanOrEqual(width + 1);
-          expect(observation.height).toBeGreaterThanOrEqual(info.project.name === 'chromium' ? 36 : 44);
+          expect(observation.height).toBeGreaterThanOrEqual(
+            info.project.name === 'chromium' ? (surface === 'warning' ? 32 : 36) : 44
+          );
           observations.push({ state, ...observation });
         }
       }
