@@ -2483,3 +2483,9 @@ and Copy remains reachable. [Scope and verification](docs/work-log/2026-11-10-ac
 ## 2026-11-10 — Bound Access input height in column layouts
 
 [CI and fixture parity follow-up](docs/work-log/2026-11-10-access-ci-parity.md).
+
+
+## 2026-11-10 — Readable shared foregrounds (prepared)
+
+Use a dedicated destructive-button foreground after a rendered dark sample
+measured3.997:1; improve the same gallery’s light tertiary text and usage values. [Scope and verification](docs/work-log/2026-11-10-danger-button-foreground.md).
