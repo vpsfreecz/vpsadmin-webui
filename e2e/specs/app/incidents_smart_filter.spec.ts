@@ -203,6 +203,7 @@ test.describe('Incident reports - exact Smart Filter contract', () => {
     await input.fill('vps:7 user:42 filed_by:1 ip:203.0.113.10 assignment:55 codename:abuse mailbox:9');
     await input.press('Enter');
     await expect(listItem(page, mobile, 125)).toBeVisible();
+    await expect.poll(() => new URL(page.url()).searchParams.get('page')).toBe('1');
     await expect(page.getByTestId('incidents.chip.codename')).toContainText('codename:abuse');
 
     await expect.poll(() => new URL(page.url()).searchParams.get('vps')).toBe('7');
@@ -236,24 +237,21 @@ test.describe('Incident reports - exact Smart Filter contract', () => {
 
     expectNoForbiddenRequests(scenario, { allowArbitraryAdminFilters: true });
 
-    const pushSupportedFilter = async (codename: string) => {
-      await page.evaluate((nextCodename) => {
-        const next = `/admin/incidents?limit=25&codename=${encodeURIComponent(nextCodename)}`;
-        window.history.pushState({}, '', next);
-        window.dispatchEvent(new PopStateEvent('popstate'));
-      }, codename);
-      await expect.poll(() => new URL(page.url()).searchParams.get('codename')).toBe(codename);
-      await expect.poll(() => incidentField(scenario.listRequests.at(-1)!, 'codename')).toBe(codename);
-    };
-
-    await pushSupportedFilter('abuse');
+    await page.getByTestId('incidents.list.pagination.prev').click();
     await expect(listItem(page, mobile, 125)).toBeVisible();
-    await pushSupportedFilter('other');
+    await expect.poll(() => new URL(page.url()).searchParams.get('page')).toBe('1');
+
+    await page.getByTestId('incidents.filters.clear').click();
+    await expect(page.getByTestId('incidents.chip.codename')).toHaveCount(0);
+    await input.fill('codename:other');
+    await input.press('Enter');
+    await expect.poll(() => incidentField(scenario.listRequests.at(-1)!, 'codename')).toBe('other');
     await expect(listItem(page, mobile, 75)).toBeVisible();
 
     await page.goBack();
     await expect.poll(() => new URL(page.url()).searchParams.get('codename')).toBe('abuse');
     await expect(listItem(page, mobile, 125)).toBeVisible();
+    await expect.poll(() => new URL(page.url()).searchParams.get('page')).toBe('1');
     await expect(page.getByTestId('incidents.chip.codename')).toContainText('codename:abuse');
     const afterBack = scenario.listRequests.length;
     await page.waitForTimeout(250);
