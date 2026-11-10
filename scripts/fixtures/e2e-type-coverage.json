@@ -40,6 +40,7 @@
     "e2e/specs/app/centered_dialogs.spec.ts",
     "e2e/specs/app/command_palette.spec.ts",
     "e2e/specs/app/dataset_snapshot_confirm_workflows.spec.ts",
+    "e2e/specs/app/dataset_snapshots_keyset_pagination.spec.ts",
     "e2e/specs/app/export_hosts_responsive_actions.spec.ts",
     "e2e/specs/app/exports_filter_contract.spec.ts",
     "e2e/specs/app/filter_bar_chip_alignment.spec.ts",
@@ -742,13 +743,6 @@
     {
       "path": "e2e/specs/app/dataset_snapshot_action_gating_preflight.spec.ts",
       "sha256": "a6bf244587c2591b546f2a812073347d757a3209777b51feee350d12e8deda6d",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/app/dataset_snapshots_keyset_pagination.spec.ts",
-      "sha256": "239d7afb1d3a8103c4da63b368840342ad3e7fbde7680d7a2596d7ae91beb377",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."

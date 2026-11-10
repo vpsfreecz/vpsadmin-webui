@@ -1,3 +1,7 @@
+## 2026-11-10 — Hide inactive snapshot pagination
+
+[BAK-08 snapshot pagination](docs/work-log/2026-11-10-snapshot-pagination.md).
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path

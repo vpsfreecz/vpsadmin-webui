@@ -304,6 +304,7 @@ export function DatasetSnapshotsPage({ queryParamPrefix = '' }: DatasetSnapshots
 
   const pageCursor = useMemo(() => cursorFromAscendingPage(rows as any), [rows]);
   const hasMore = pagination.hasForward || pageData.length > pagination.limit;
+  const showPagination = pagination.canPrev || hasMore;
 
   function requestSnapshotDownload(s: Snapshot) {
     createDl.mutate(s);
@@ -509,24 +510,7 @@ export function DatasetSnapshotsPage({ queryParamPrefix = '' }: DatasetSnapshots
               </table>
             </div>
 
-            <KeysetPagination
-              page={pagination.page}
-              pageCount={pagination.stack.length}
-              canPrev={pagination.canPrev}
-              canNext={hasMore}
-              onPrev={pagination.goPrev}
-              onNext={() => pagination.goNext(pageCursor)}
-              onGoToPage={pagination.goToPage}
-              limit={pagination.limit}
-              allowedLimits={pagination.allowedLimits}
-              onLimitChange={pagination.setLimit}
-              testId="dataset.snapshots.pagination.desktop"
-            />
-          </Card>
-
-          {/* Mobile pagination */}
-          <div className="md:hidden">
-            <Card>
+            {showPagination ? (
               <KeysetPagination
                 page={pagination.page}
                 pageCount={pagination.stack.length}
@@ -538,11 +522,31 @@ export function DatasetSnapshotsPage({ queryParamPrefix = '' }: DatasetSnapshots
                 limit={pagination.limit}
                 allowedLimits={pagination.allowedLimits}
                 onLimitChange={pagination.setLimit}
-                testId="dataset.snapshots.pagination.mobile"
-                className="border-t-0"
+                testId="dataset.snapshots.pagination.desktop"
               />
-            </Card>
-          </div>
+            ) : null}
+          </Card>
+
+          {showPagination ? (
+            <div className="md:hidden">
+              <Card>
+                <KeysetPagination
+                  page={pagination.page}
+                  pageCount={pagination.stack.length}
+                  canPrev={pagination.canPrev}
+                  canNext={hasMore}
+                  onPrev={pagination.goPrev}
+                  onNext={() => pagination.goNext(pageCursor)}
+                  onGoToPage={pagination.goToPage}
+                  limit={pagination.limit}
+                  allowedLimits={pagination.allowedLimits}
+                  onLimitChange={pagination.setLimit}
+                  testId="dataset.snapshots.pagination.mobile"
+                  className="border-t-0"
+                />
+              </Card>
+            </div>
+          ) : null}
         </>
       )}
 
