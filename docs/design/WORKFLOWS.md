@@ -410,6 +410,14 @@ as gaps. A fresh window can be reopened without a duplicate fetch.
 
 ## Storage, NAS, snapshots, backup and export
 
+**Dataset capacity:** list and detail distinguish referenced space / reference quota
+from dataset and descendant usage / quota. Each configured positive limit has
+its own named value, percentage and bar with shared VPS severity thresholds.
+Zero quotas mean no limit; show numeric usage without estimating a capacity
+from pool availability. Missing measurements stay unknown, including when a
+configured limit is known. Do not repeat the reference-quota value in a second
+summary row. This changes presentation only, not allocation or API writes.
+
 The VPS storage view shows used space against its effective quota. The
 manual mount summary links to the mount list and separates configured
 access, unknown modes and current states requiring inspection. The root

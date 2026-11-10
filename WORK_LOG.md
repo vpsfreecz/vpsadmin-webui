@@ -2533,3 +2533,17 @@ published SDK, with no retries, failures or page errors. Both quick/build
 checks pass. These are working-source results; new clean Nix, full compiled
 acceptance and exact focused CI remain separate delivery requirements.
 All original 98/2 results and earlier diagnostics remain source-qualified.
+
+
+## 2026-11-10 — Explain dataset capacity against explicit limits (prepared)
+
+Use referenced/reference quota and dataset usage/quota consistently; avoid
+percentage bars for unlimited datasets and retain unknown measurements.
+[Scope, API evidence and verification](docs/work-log/2026-11-10-nas-capacity-semantics.md).
+
+Final focused source passes84/84 raw Vite scenarios across Chromium,
+mobile Chrome and mobile WebKit,2workers/0retries, including the numeric
+unlimited-summary deduplication assertion. Both pinned quick/build checks
+and six model examples pass. Earlier compiled56 working cases predate
+the small duplication correction and are retained separately. Exact clean
+Nix/browser acceptance, focused CI and paired/result delivery remain pending.

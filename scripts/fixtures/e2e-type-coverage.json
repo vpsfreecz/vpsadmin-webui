@@ -120,6 +120,7 @@
     "e2e/specs/app/modal_focus_trap.spec.ts",
     "e2e/specs/app/monitoring_event_action_feedback.spec.ts",
     "e2e/specs/app/monitoring_filter_rhythm.spec.ts",
+    "e2e/specs/app/nas_capacity_semantics.spec.ts",
     "e2e/specs/app/nas_form_consistency.spec.ts",
     "e2e/specs/app/nas_smoke.spec.ts",
     "e2e/specs/app/network_address_details.spec.ts",
