@@ -2668,3 +2668,10 @@ Exact clean package, six new-head CI and paired delivery are still pending.
 Compare lifecycle dates by instant and retain seconds in administrator inputs,
 after the selected-owner audit reproduced false dirty state. Keep actual edits,
 nullable payload rules, confirmations and locks. [Cause and verification](docs/work-log/2026-11-10-lifecycle-timestamp-equality.md).
+
+
+## 2026-11-11 — Readable selected-owner validation feedback (prepared)
+
+Correct two measured low-contrast local validation messages and clear the
+package selector's stale local error when its choice changes. Preserve API,
+server errors and locks. [Cause, scope and pending verification](docs/work-log/2026-11-11-selected-owner-validation-feedback.md).
