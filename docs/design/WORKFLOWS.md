@@ -1003,3 +1003,11 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+### Export list: complete values in responsive results
+
+Export rows and cards retain the same dataset/snapshot label, complete address
+and path, owner visibility and detail destination. A narrow desktop table
+scrolls within its card; mobile cards wrap full values rather than expanding
+the page. Disabled export state remains explicit in its badge and row variant.
+[Containment correction and evidence](../work-log/2026-11-10-export-list-value-containment.md).

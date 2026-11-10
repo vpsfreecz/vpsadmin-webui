@@ -1685,3 +1685,25 @@ preserve all branch histories and colleague PRs. Add standard push CI for the
 integration branch, without deployment automation. Dev has isolated test data;
 clankerdev still uses the production API. No host update in this setup.
 [Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
+
+## 2026-11-10 — Export list value containment (prepared)
+
+Wrap complete dataset/snapshot and address/path values inside export cells and
+cards, reserve the standard table minimum in its local scroller, and strengthen
+small owner text on warning cards after actual narrow/contrast failures.
+Keep API, role, query, navigation and pagination contracts unchanged.
+[Negative evidence, scope and verification](docs/work-log/2026-11-10-export-list-value-containment.md).
+No merge or deployment claim; verification is ongoing.
+
+Both exact-lock source trees pass pinned ci:quick and production builds,
+and12/12 targeted raw cases per source across three engines,0retries.
+A separately labelled dirty working artifact passes8public regressions,
+8previously negative narrow/readability cases and2table probes; these18
+executions overlap underlying configurations and are not96finite cases.
+The corrected320px document and286px card contain all content;24width/focus
+phases/996text samples have minimum5.090863. Warning-owner minimum6.621692.
+Original negative and cancelled launcher-preflight cohorts remain separate.
+Clean Nix packages, complete96-case finite acceptance, new-head CI and
+paired preview delivery remain pending. The shared results component also
+backs DatasetExportsPage; include its8bounded parent-route regression cases
+without relabelling old116/CE8detail/create/backup evidence as current.
