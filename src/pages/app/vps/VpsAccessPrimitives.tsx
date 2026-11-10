@@ -147,7 +147,7 @@ export function PasswordBox(props: { password: string; onClear: () => void; test
           autoComplete="off"
           spellCheck={false}
           aria-describedby={descriptionId}
-          className="min-w-0 flex-1 rounded-md border border-border bg-bg px-3 py-2 font-mono text-sm text-fg"
+          className="h-9 min-h-9 [@media(any-pointer:coarse)]:min-h-11 min-w-0 flex-1 rounded-md border border-border bg-bg px-3 py-2 font-mono text-sm text-fg"
           data-testid={prefix ? `${prefix}.field` : undefined}
         />
         <div className="flex flex-wrap gap-2">
