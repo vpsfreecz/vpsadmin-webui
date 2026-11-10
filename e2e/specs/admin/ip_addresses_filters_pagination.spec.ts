@@ -724,8 +724,16 @@ for (const actor of [{ name: 'admin', level: 99 }, { name: 'support', level: 21 
       await input.press('Enter');
       const error = page.getByTestId('admin.ip_addresses.chip.error.0');
       await expect(error).toContainText(language === 'cs' ? 'Neplatný prefix: 999' : 'Invalid prefix: 999');
-      for (const width of [page.viewportSize()!.width, 320]) {
+      const coarse = await page.evaluate(() => matchMedia('(any-pointer:coarse)').matches);
+      for (const width of [page.viewportSize()!.width, 320, 768]) {
         await page.setViewportSize({ width, height: 900 });
+        for (const chip of [error, page.getByTestId('admin.ip_addresses.chip.version')]) {
+          const remove = chip.getByRole('button', { name: language === 'cs' ? 'Odebrat' : 'Remove', exact: true });
+          const bounds = await remove.boundingBox();
+          expect(bounds).not.toBeNull();
+          expect.soft(bounds!.width).toBeGreaterThanOrEqual(coarse ? 44 : 16);
+          expect.soft(bounds!.height).toBeGreaterThanOrEqual(coarse ? 44 : 16);
+        }
         const text = await area.evaluate((root) => {
           const canvas = document.createElement('canvas');
           canvas.width = canvas.height = 1;
@@ -766,6 +774,13 @@ for (const actor of [{ name: 'admin', level: 99 }, { name: 'support', level: 21 
       await expect(error).toHaveCount(0);
       await expect(page.getByTestId('admin.ip_addresses.chip.version')).toBeVisible();
       expect(new URL(page.url()).searchParams.get('version')).toBe('6');
+      await page.setViewportSize({ width: 320, height: 900 });
+      const versionChip = page.getByTestId('admin.ip_addresses.chip.version');
+      const versionRemove = versionChip.getByRole('button', { name: language === 'cs' ? 'Odebrat' : 'Remove', exact: true });
+      if (coarse) await versionRemove.tap();
+      else await versionRemove.press('Enter');
+      await expect(versionChip).toHaveCount(0);
+      expect(new URL(page.url()).searchParams.get('version')).toBeNull();
       expect(writes).toEqual([]);
       await testInfo.attach('rendered-contrast-and-widths', { body: JSON.stringify(observations, null, 2), contentType: 'application/json' });
     });

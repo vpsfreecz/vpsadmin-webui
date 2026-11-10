@@ -1704,3 +1704,9 @@ Correct the measured light-theme heading contrast locally.
 Correct measured dark error-chip and light secondary-text contrast, retaining
 filter meaning, query behavior and keyboard removal.
 [Source, verification and limits](docs/work-log/2026-11-10-ip-secondary-contrast.md).
+
+
+## 2026-11-10 — Coarse-pointer filter-chip removal (prepared)
+
+Keep ordinary/error removal targets usable at narrow and landscape widths.
+[Measured gap, preservation and verification](docs/work-log/2026-11-10-ip-chip-removal-targets.md).

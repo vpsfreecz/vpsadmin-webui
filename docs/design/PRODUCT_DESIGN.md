@@ -173,7 +173,7 @@ and filters; see the [verification record](../work-log/2026-10-17-centered-form-
 ## Accessibility, localization and persistence
 
 Shared buttons keep compact desktop sizing but use a minimum 44 × 44 CSS px
-hit area when any pointer is coarse, including landscape phones and tablets.
+hit area when any pointer is coarse, including landscape phones and tablets. Filter-chip removal follows this rule for both ordinary and error chips; allow the chip group to grow and wrap rather than overlapping neighboring targets.
 Screen-reader-only labels inside these controls must stay positioned relative to
 their button so a horizontally scrolling table cannot expand the document.
 Cold modal code must show an immediate, cancellable modal loading state without
