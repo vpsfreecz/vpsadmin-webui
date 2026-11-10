@@ -1685,3 +1685,20 @@ preserve all branch histories and colleague PRs. Add standard push CI for the
 integration branch, without deployment automation. Dev has isolated test data;
 clankerdev still uses the production API. No host update in this setup.
 [Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
+
+## 2026-11-09 — Preserve OOM filters during pending navigation
+
+Correct the reproduced Next/page-size URL race without changing owner scope.
+[Scope, root cause and evidence](docs/work-log/2026-11-09-oom-pending-filter-navigation.md).
+
+
+## 2026-11-09 — Wrap complete IP dialog identifiers (prepared)
+
+Keep long IPv6 identities within route/host-assignment and PTR dialog content.
+[Measured cause, scope and checks](docs/work-log/2026-11-09-ip-dialog-identities.md).
+
+
+## 2026-11-10 — Complete IP-list identifiers (prepared)
+
+Extend existing PR263 with complete mobile-card and confirmation text.
+[New finite-audit findings and verification](docs/work-log/2026-11-10-ip-list-identities.md).

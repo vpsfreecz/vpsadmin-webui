@@ -86,7 +86,7 @@ export function IpAddressesListMobile({ pageData, ipDetailBasePath, basePath, na
                         ariaLabel={assigned ? t('admin.ip_addresses.chip.assigned_true') : t('admin.ip_addresses.chip.assigned_false')}
                         testId={`admin.ip_addresses.card.${id}.dot`}
                       />
-                      <Link className="block truncate text-base font-semibold text-accent hover:underline" to={detailPath}>
+                      <Link className="block [overflow-wrap:anywhere] text-base font-semibold text-accent hover:underline" to={detailPath}>
                         {ipLabel(ip)}
                       </Link>
                     </div>
