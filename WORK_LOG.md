@@ -2417,3 +2417,9 @@ Allow complete occupancy labels and shared pointer targets within the inset grou
 
 Keep full technical identifiers inside mobile cards and confirmations.
 [Cause and source-qualified verification](docs/work-log/2026-11-10-ip-list-identities.md).
+
+
+## 2026-11-10 — Readable IP shortcut heading (prepared follow-up)
+
+Correct measured light-theme heading contrast in the current IP-list package.
+[Scope, source evidence and release ordering](docs/work-log/2026-11-10-ip-shortcut-label-contrast.md).
