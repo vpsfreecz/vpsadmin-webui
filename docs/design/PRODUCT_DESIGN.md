@@ -278,3 +278,12 @@ Let before/after review tracks shrink and wrap unbroken values, including IPv6,
 within the review panel and confirmation dialog at 320px. Preserve the full
 value and original labels, risk meaning, target and confirmation behavior
 (REQ-010, REQ-023).
+
+
+### Complete filter-chip labels
+
+A selected address/prefix can be longer than the available mobile row. The
+shared FilterChip wraps the full label within its existing maximum width and
+keeps the removal button separate and nonshrinking. Preserve compact desktop
+controls and coarse-pointer targets, existing labels, tones and callbacks.
+This presentation correction does not change address/prefix URL update semantics.

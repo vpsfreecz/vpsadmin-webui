@@ -37,11 +37,11 @@ export function FilterChip(props: {
         textClass
       )}
     >
-      <span className="min-w-0 truncate">{props.label}</span>
+      <span className="min-w-0 break-all whitespace-normal">{props.label}</span>
       {props.onRemove ? (
         <button
           type="button"
-          className="inline-flex h-4 w-4 items-center justify-center rounded hover:bg-surface-2 [@media(any-pointer:coarse)]:min-h-11 [@media(any-pointer:coarse)]:min-w-11"
+          className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded hover:bg-surface-2 [@media(any-pointer:coarse)]:min-h-11 [@media(any-pointer:coarse)]:min-w-11"
           onClick={props.onRemove}
           aria-label={t('common.remove')}
           title={t('common.remove')}
