@@ -1003,3 +1003,11 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+### VPS list: readable context and resource annotations
+
+Long owner/node identities stay within the context cell beside resource
+values; warning rows keep legible numeric usage labels. Mobile metadata's
+existing intentional truncation and all navigation, role, scope, filter,
+pagination, action and resource-pressure contracts remain unchanged.
+[Presentation evidence and source variants](../work-log/2026-11-10-vps-list-context-readability.md).

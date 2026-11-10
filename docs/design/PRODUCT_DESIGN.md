@@ -216,3 +216,12 @@ name the selected request and retain the same backend action identifiers.
 Changing force in the lifecycle form requires a fresh acknowledgment. Pending
 copy describes request submission, not completed shutdown. Generic historical
 task records without a force value retain a neutral Stop label.
+
+### VPS list context and usage text
+
+Let owner, location and node metadata wrap anywhere within the existing
+context column. Keep its original column allocation and complete source
+strings. Within the VPS resource group, use the existing muted role for
+tertiary child labels and amounts so warning-row backgrounds do not reduce
+small-text contrast. Scope the descendant override to that group; retain
+shared UsageBar defaults, data/severity decisions and action dimensions.

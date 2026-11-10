@@ -142,7 +142,7 @@ export function VpsListTable({
                   ) : null}
                 </div>
               </td>
-              <td className="px-3 py-2 align-top text-xs">
+              <td className="px-3 py-2 align-top text-xs [overflow-wrap:anywhere]">
                 <div className="flex flex-col gap-1">
                   {showOwnerContext ? (
                     <div><span className="text-muted">{t('vps.list.context.owner')}:</span> {row.ownerLabel}</div>
@@ -151,7 +151,7 @@ export function VpsListTable({
                   <div><span className="text-muted">{t('common.node')}:</span> {row.nodeLabel}</div>
                 </div>
               </td>
-              <td className="px-3 py-2 align-top text-xs text-muted">
+              <td className="px-3 py-2 align-top text-xs text-muted [&_.text-faint]:text-muted">
                 <div className="flex flex-col gap-1">
                   <div className="text-faint">
                     {vps.cpu ? t('vps.list.resources.cpu', { count: vps.cpu }) : t('common.na')} ·{' '}
