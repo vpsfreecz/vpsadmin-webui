@@ -1,3 +1,4 @@
+import { sameLifecycleTimestamp } from '../../../../components/lifetimes/lifecyclePayload';
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -6,7 +7,6 @@ import { useAuth } from '../../../../app/auth';
 import { useI18n } from '../../../../app/i18n';
 import { resolveAccountTimeZone, useAccountTimeZone, useServerTimeZone } from '../../../../app/accountTimeZone';
 import { useToasts } from '../../../../app/toasts';
-
 import { Alert } from '../../../../components/ui/Alert';
 import { Badge } from '../../../../components/ui/Badge';
 import { Button } from '../../../../components/ui/Button';
@@ -150,10 +150,10 @@ export function AdminUserOverviewPage() {
     const nextState = stateDraft.objectState.trim() || 'active';
 
     if (nextState !== currentState) payload['object_state'] = nextState;
-    if (expirationParsed.valid && expirationParsed.iso !== (u.expiration_date ?? null)) {
+    if (expirationParsed.valid && !sameLifecycleTimestamp(expirationParsed.iso, u.expiration_date ?? null)) {
       payload['expiration_date'] = expirationParsed.iso;
     }
-    if (remindParsed.valid && remindParsed.iso !== (u.remind_after_date ?? null)) {
+    if (remindParsed.valid && !sameLifecycleTimestamp(remindParsed.iso, u.remind_after_date ?? null)) {
       payload['remind_after_date'] = remindParsed.iso;
     }
     if (Object.keys(payload).length > 0 && stateDraft.reason.trim()) {
