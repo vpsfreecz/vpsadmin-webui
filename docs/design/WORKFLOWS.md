@@ -1433,3 +1433,8 @@ failures inside the affected section. Each failure uses the existing danger
 alert with the localized Error/Chyba title and readable body text. The message
 and requests retain their original source; other cards remain independently
 available. This presentation change adds no retry, role, query or write behavior.
+
+
+## Personal server membership retry
+
+The existing All servers / With my VPS selector retains its current authenticated membership and retry flow. A read failure exposes an adjacent retry matching the field height. This presentation correction does not change request ownership, pagination, state persistence or admin selector absence. [Scope and verification](../work-log/2026-11-10-dashboard-own-scope-retry-alignment.md).

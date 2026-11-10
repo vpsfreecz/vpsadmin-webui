@@ -1,3 +1,11 @@
+## 2026-11-10 — Align the own-server retry control
+
+[Rendered defect, scope and verification](docs/work-log/2026-11-10-dashboard-own-scope-retry-alignment.md).
+
+## 2026-11-08 — Fix owned-server status identity and admin scope
+
+[Root cause, API boundary, role scope and verification](docs/work-log/2026-11-08-dashboard-owned-server-identity.md).
+
 ## 2026-11-09 — Consolidate the account controls under the nickname
 
 [Scope and verification](docs/work-log/2026-11-09-nickname-menu.md).
