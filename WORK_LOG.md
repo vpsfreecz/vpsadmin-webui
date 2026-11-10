@@ -2423,3 +2423,10 @@ Keep full technical identifiers inside mobile cards and confirmations.
 
 Correct measured light-theme heading contrast in the current IP-list package.
 [Scope, source evidence and release ordering](docs/work-log/2026-11-10-ip-shortcut-label-contrast.md).
+
+
+## 2026-11-10 — Error chips and small IP text (prepared)
+
+Correct measured dark error-chip and light secondary-text contrast, retaining
+filter meaning, query behavior and keyboard removal.
+[Source, verification and limits](docs/work-log/2026-11-10-ip-secondary-contrast.md).
