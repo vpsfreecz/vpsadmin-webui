@@ -4,6 +4,7 @@ import { useI18n } from "../../../app/i18n";
 import { ActionButton } from "../../../components/ui/ActionButton";
 import { Badge } from "../../../components/ui/Badge";
 import { Button } from "../../../components/ui/Button";
+import type { ButtonSize } from "../../../components/ui/buttonStyles";
 import type { SnapshotDownload } from "../../../lib/api/datasets";
 import {
   snapshotDownloadFailureMessage,
@@ -77,6 +78,7 @@ export function shouldOfferDownloadRetry(
 export function DatasetDownloadOpenButton(props: {
   href?: string;
   canOpen: boolean;
+  size?: ButtonSize;
   disabledTitle: string;
   ariaLabel?: string;
   testId: string;
@@ -90,7 +92,7 @@ export function DatasetDownloadOpenButton(props: {
         href={props.href}
         target="_blank"
         rel="noopener noreferrer"
-        size="sm"
+        size={props.size ?? "sm"}
         variant="secondary"
         ariaLabel={props.ariaLabel}
         testId={props.testId}
@@ -102,7 +104,7 @@ export function DatasetDownloadOpenButton(props: {
 
   return (
     <ActionButton
-      size="sm"
+      size={props.size ?? "sm"}
       variant="secondary"
       disabled
       title={props.disabledTitle}
