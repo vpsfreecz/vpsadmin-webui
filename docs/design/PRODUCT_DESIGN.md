@@ -216,3 +216,17 @@ name the selected request and retain the same backend action identifiers.
 Changing force in the lifecycle form requires a fresh acknowledgment. Pending
 copy describes request submission, not completed shutdown. Generic historical
 task records without a force value retain a neutral Stop label.
+
+
+### Console connection messages
+
+The terminal retains its pinned virtual viewport and scale. Application loading
+and disconnected recovery messages are separate, unscaled viewport overlays.
+Their normal text and controls remain readable at320px; the panel grows when
+wrapping needs more room. Original size, session creation/revocation and role
+guards retain their existing behavior (REQ-020, approved UX03/04).
+
+Console revocation retains its danger surface, label and confirmation workflow.
+Only its dark confirmation foreground uses black to retain readable contrast
+against the existing red surface, including hover. Other confirmation styles
+and all session handlers remain unchanged.
