@@ -127,3 +127,71 @@ for (const language of ['cs', 'en'] as const) {
     expect(creations).toBe(1);
   });
 }
+
+
+for (const language of ['cs', 'en'] as const) for (const state of ['loading', 'disconnected'] as const) {
+  test(`@pr-smoke @pr-smoke-mobile console ${state} messages keep their size at narrow widths (${language})`, async ({ page }, testInfo) => {
+    await page.clock.install();
+    await bootstrapVpsAdminWindow(page);
+    await setUiSettingsLocalStorage(page, { language, theme: language === 'cs' ? 'dark' : 'light' });
+    const held: import('@playwright/test').Route[] = [];
+    await page.route('https://console.example.test/**', (route) => { held.push(route); });
+    let creations = 0;
+    await installHaveApiMock(page, {
+      user: { id: 1, login: 'console-review', level: 1 },
+      handlers: {
+        'GET vpses/123': () => ({ vps: {
+          id: 123, hostname: 'console-demo.example', is_running: true, object_state: 'active',
+          node: { id: 1, location: { remote_console_server: 'https://console.example.test' } },
+        } }),
+        'GET ip_addresses': () => ({ ip_addresses: [] }),
+        'GET transaction_chains': () => ({ transaction_chains: [] }),
+        'POST vpses/123/console_token': () => {
+          creations++;
+          return { console_token: { token: 'FIXTURE', expiration: '2027-12-31T00:00:00Z' } };
+        },
+      },
+    });
+    await page.goto('/app/vps/123/console', { waitUntil: 'domcontentloaded' });
+    const loading = page.getByTestId('vps.console.iframe_loading');
+    await expect(loading).toBeVisible();
+    if (state === 'disconnected') await page.clock.runFor(12_200);
+    const overlay = page.getByTestId(state === 'loading' ? 'vps.console.iframe_loading' : 'vps.console.embed_fallback');
+    await expect(overlay).toBeVisible();
+    for (const width of [320, 768]) {
+      await page.setViewportSize({ width, height: 900 });
+      const geometry = await overlay.evaluate((element) => {
+        const box = element.getBoundingClientRect();
+        const range = document.createRange(); range.selectNodeContents(element);
+        return { width: box.width, layoutWidth: (element as HTMLElement).offsetWidth,
+          documentWidth: document.documentElement.scrollWidth,
+          text: [...range.getClientRects()].filter(r => r.width > 0).map(r => ({ left: r.left, right: r.right, top: r.top, bottom: r.bottom })),
+          bounds: { left: box.left, right: box.right, top: box.top, bottom: box.bottom } };
+      });
+      // Application messages and their actions must not inherit the terminal scale.
+      expect(geometry.width / geometry.layoutWidth).toBeCloseTo(1, 2);
+      expect(geometry.documentWidth).toBeLessThanOrEqual(width + 1);
+      for (const rect of geometry.text) {
+        expect(rect.left).toBeGreaterThanOrEqual(geometry.bounds.left - 1);
+        expect(rect.right).toBeLessThanOrEqual(geometry.bounds.right + 1);
+        expect(rect.top).toBeGreaterThanOrEqual(geometry.bounds.top - 1);
+        expect(rect.bottom).toBeLessThanOrEqual(geometry.bounds.bottom + 1);
+      }
+      if (state === 'disconnected') {
+        const reconnect = page.getByTestId('vps.console.fallback.reconnect');
+        const coarse = await page.evaluate(() => matchMedia('(any-pointer: coarse)').matches);
+        const box = (await reconnect.boundingBox())!;
+        expect(box.height).toBeGreaterThanOrEqual(coarse ? 44 : 32);
+        await reconnect.focus(); await expect(reconnect).toBeFocused();
+      }
+    }
+    if (state === 'disconnected') {
+      await page.getByTestId('vps.console.fallback.reconnect').click();
+      await expect(loading).toBeVisible();
+    }
+    expect(creations).toBe(1);
+    // Fulfill held fixture documents; aborting them creates opaque browser-error
+    // documents where the test bootstrap cannot access localStorage.
+    for (const route of held) await route.fulfill({ contentType: 'text/html', body: '<!doctype html><html><body>Synthetic console</body></html>' }).catch(() => {});
+  });
+}
