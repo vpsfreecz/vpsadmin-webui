@@ -115,7 +115,10 @@ for (const actor of actors)
             ] as const) {
               const group = root.getByTestId('dataset.usage.' + kind);
               if (percent === null) {
-                await expect(group).toHaveCount(0);
+                await expect(group).toHaveCount(1);
+                await expect(group.getByRole('img')).toHaveCount(0);
+                const rawLimit = kind === 'reference' ? cfg.values.refquota : cfg.values.quota;
+                await expect(group).toContainText(rawLimit === 0 ? '∞' : '—');
                 continue;
               }
               await expect(group).toHaveCount(1);
@@ -145,7 +148,7 @@ for (const actor of actors)
             }
             if (scene === 'detail') {
               const label = language === 'cs' ? 'Referenční kvóta' : 'Reference quota';
-              await expect(root.getByText(label, { exact: true })).toHaveCount(cfg.reference === null ? 0 : 1);
+              await expect(root.getByText(label, { exact: true })).toHaveCount(1);
             } else {
               await expect(root.getByRole('link', { name: '318', exact: true })).toHaveAttribute(
                 'href',
