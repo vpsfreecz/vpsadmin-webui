@@ -1685,3 +1685,9 @@ preserve all branch histories and colleague PRs. Add standard push CI for the
 integration branch, without deployment automation. Dev has isolated test data;
 clankerdev still uses the production API. No host update in this setup.
 [Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
+
+
+## 2026-11-10 — Readable shared foregrounds (prepared)
+
+Use a dedicated destructive-button foreground after a rendered dark sample
+measured3.997:1; improve the same gallery’s light tertiary text and usage values. [Scope and verification](docs/work-log/2026-11-10-danger-button-foreground.md).

@@ -94,6 +94,7 @@ module.exports = {
         'warn-row': 'rgb(var(--c-warn-row) / <alpha-value>)',
 
         danger: 'rgb(var(--c-danger) / <alpha-value>)',
+        'danger-fg': 'rgb(var(--c-danger-fg) / <alpha-value>)',
         'danger-bg': 'rgb(var(--c-danger-bg) / <alpha-value>)',
         'danger-border': 'rgb(var(--c-danger-border) / <alpha-value>)',
         'danger-row': 'rgb(var(--c-danger-row) / <alpha-value>)',

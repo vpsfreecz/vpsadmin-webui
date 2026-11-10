@@ -63,7 +63,7 @@
     /* Text */
     --c-fg: 22 39 63; /* text.primary */
     --c-fg-muted: 51 65 85; /* text.secondary */
-    --c-fg-faint: 100 116 139; /* text.muted */
+    --c-fg-faint: 90 106 128; /* text.muted */
     --c-fg-disabled: 148 163 184; /* text.disabled */
 
     /* Links */
@@ -87,6 +87,7 @@
     --c-warn-row: 255 247 237;
 
     --c-danger: 185 28 28;
+    --c-danger-fg: 255 255 255;
     --c-danger-bg: 255 236 236;
     --c-danger-border: 252 165 165;
     --c-danger-row: 254 242 242;
@@ -181,6 +182,7 @@
       --c-warn-row: 78 79 72;
 
       --c-danger: 239 68 68;
+      --c-danger-fg: 0 0 0;
       --c-danger-bg: 43 15 20;
       --c-danger-border: 153 27 27;
       --c-danger-row: 93 60 83;
@@ -230,7 +232,7 @@
     /* Text */
     --c-fg: 22 39 63;
     --c-fg-muted: 51 65 85;
-    --c-fg-faint: 100 116 139;
+    --c-fg-faint: 90 106 128;
     --c-fg-disabled: 148 163 184;
 
     /* Links */
@@ -254,6 +256,7 @@
     --c-warn-row: 255 247 237;
 
     --c-danger: 185 28 28;
+    --c-danger-fg: 255 255 255;
     --c-danger-bg: 255 236 236;
     --c-danger-border: 252 165 165;
     --c-danger-row: 254 242 242;
@@ -326,6 +329,7 @@
     --c-warn-row: 78 79 72;
 
     --c-danger: 239 68 68;
+    --c-danger-fg: 0 0 0;
     --c-danger-bg: 43 15 20;
     --c-danger-border: 153 27 27;
     --c-danger-row: 93 60 83;
