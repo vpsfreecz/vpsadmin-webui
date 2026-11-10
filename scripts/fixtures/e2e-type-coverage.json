@@ -39,6 +39,7 @@
     "e2e/specs/app/backup_center.spec.ts",
     "e2e/specs/app/centered_dialogs.spec.ts",
     "e2e/specs/app/command_palette.spec.ts",
+    "e2e/specs/app/dataset_plans_responsive_actions.spec.ts",
     "e2e/specs/app/dataset_snapshot_confirm_workflows.spec.ts",
     "e2e/specs/app/export_hosts_responsive_actions.spec.ts",
     "e2e/specs/app/exports_filter_contract.spec.ts",
@@ -728,13 +729,6 @@
     {
       "path": "e2e/specs/app/dataset_plans_expansion_smoke.spec.ts",
       "sha256": "6b3d31abd42d547cfa195a3d271efd69ac8d10b0087cc28634c8537bd61be155",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/app/dataset_plans_responsive_actions.spec.ts",
-      "sha256": "f7fcde049e9db899b3f68e67dac2352c2d70189d946911f00a2e680c92a4dc86",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."

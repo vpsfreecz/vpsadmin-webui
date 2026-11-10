@@ -70,7 +70,7 @@ export const csBackups = {
   'backups.plans.filter': 'Filtrovat datasety podle názvu, VPS nebo ID…',
   'backups.plans.open': 'Spravovat plány',
   'backups.plans.scope.title': 'K čemu slouží plány záloh',
-  'backups.plans.scope.body': 'Plány jsou automatická pravidla pro jednotlivé datasety nastavená administrátory. Typicky plánují opakované snapshoty nebo kopie do záložního úložiště. Vlevo vyber úložiště a porovnej aktivní a dostupné plány.',
+  'backups.plans.scope.body': 'Plány záloh nastavují administrátoři.',
   'backups.plans.workspace.empty.title': 'Vyber dataset',
   'backups.plans.workspace.empty.body': 'Tady se zobrazí jeho aktivní plány i plány, které smíš přiřadit, včetně popisu jejich účelu.',
   'backups.plans.empty.title': 'Žádné odpovídající datasety',
