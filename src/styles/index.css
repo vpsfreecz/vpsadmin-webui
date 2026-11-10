@@ -67,7 +67,7 @@
     --c-fg-disabled: 148 163 184; /* text.disabled */
 
     /* Links */
-    --c-link: 183 92 19; /* link.fg (contrast-safe orange on white) */
+    --c-link: 164 74 13; /* link.fg (contrast-safe orange on white) */
     --c-link-hover: 146 64 14; /* link.hover */
 
     /* Accent (brand orange) */
@@ -162,8 +162,8 @@
       --c-fg-disabled: 127 147 171; /* text.disabled */
 
       /* Links */
-      --c-link: 236 140 53; /* link.fg */
-      --c-link-hover: 242 163 90; /* link.hover */
+      --c-link: 255 216 165; /* link.fg */
+      --c-link-hover: 255 232 199; /* link.hover */
 
       /* Accent */
       --c-accent: 236 140 53; /* brand.orange */
@@ -236,7 +236,7 @@
     --c-fg-disabled: 148 163 184;
 
     /* Links */
-    --c-link: 183 92 19;
+    --c-link: 164 74 13;
     --c-link-hover: 146 64 14;
 
     /* Accent */
@@ -309,8 +309,8 @@
     --c-fg-disabled: 127 147 171;
 
     /* Links */
-    --c-link: 236 140 53;
-    --c-link-hover: 242 163 90;
+    --c-link: 255 216 165;
+    --c-link-hover: 255 232 199;
 
     /* Accent */
     --c-accent: 236 140 53;
@@ -367,6 +367,13 @@
       Cantarell, Noto Sans, Arial, "Apple Color Emoji", "Segoe UI Emoji";
     background-color: rgb(var(--c-bg) / 1);
     color: rgb(var(--c-fg) / 1);
+  }
+
+  /* Enabled empty-field hints use the readable tertiary text role. */
+  input:not(:disabled)::placeholder,
+  textarea:not(:disabled)::placeholder {
+    color: rgb(var(--c-fg-faint) / 1);
+    opacity: 1;
   }
 
   a {
@@ -645,4 +652,17 @@
    intercept their taps or cover their footer. Toasts remain after dismissal. */
 body:has([aria-modal="true"][data-overlay]) [data-testid="toast.viewport"] {
   visibility: hidden;
+}
+
+/* Textual accents use readable link foregrounds; brand fills keep their role. */
+@layer utilities {
+  .text-accent:where(a, button, summary, span, td) {
+    color: rgb(var(--c-link) / 1);
+  }
+
+  @media (hover: hover) {
+    a.hover\:text-accent:hover {
+      color: rgb(var(--c-link-hover) / 1);
+    }
+  }
 }

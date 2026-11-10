@@ -1706,3 +1706,16 @@ Corrected raw Vite parity passes 24/24 initial cases per source tree,
 zero retries, writes and page errors. Both pinned quick/build checks pass.
 The original expected failure and a project-name preflight error (zero
 tests) remain retained. Clean Nix/new exact-head CI/preview remain pending.
+
+## 2026-11-10 — Readable textual accents and empty-field hints
+
+Extend the shared foreground review with derived readable link colors and the
+tertiary placeholder role after rendered IP-row and empty-field failures.
+Keep brand/semantic backgrounds, disabled controls, API/roles/queries and layout
+contracts. See [scope, negative evidence and checks](docs/work-log/2026-11-10-readable-link-and-placeholder-foregrounds.md).
+Prepared and verification ongoing; no merge or deployment claim.
+
+Both exact-lock source trees pass pinned ci:quick and production builds.
+This source’s complete shared-foreground regression passes72/72 in
+Chromium, mobile Chromium and mobile WebKit,2workers/0retries.
+Clean Nix packages, new-head CI and paired preview delivery remain pending.
