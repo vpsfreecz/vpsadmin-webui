@@ -103,3 +103,28 @@ recognize both mobile projects, and explicitly enroll the complete contract in
 hosted WebKit too. The original failed execution remains evidence; this is a
 test-layout correction, with no product runtime change. Final clean81 and new
 exact-head CI are still required.
+
+## Focus ownership follow-up (prepared, 2026-11-11)
+
+The exact 40891c2b hosted mobile Chrome run has 610 passed, one failed and
+five flaky cases; WebKit has 319 passed and two existing skips. Original logs
+and artifacts remain retained. This head is not qualified for release.
+
+Instrumented original-candidate playback reproduces the existing POP/drawer
+failure: focus restoration on the shell navigation trigger claims the pending
+route frame, preventing main-content focus. A deterministic unit test reproduces
+that boundary. A second controlled ordering installs destination browser history,
+then focuses a persistent dataset header before React commits the destination.
+All six NAS/VPS/browser cases lose focus on the old candidate. This proves the
+ordering defect; natural original CI traces were not focus-instrumented.
+
+Remember a main-content focus claim against the browser history entry key, so
+the route effect can recognize a claim made before its listener is attached.
+Keep the deferred-frame listener scoped to main content; shell drawer restoration
+must not suppress route focus. Preserve fragment behavior, same-path query focus,
+scroll semantics, exact return URLs and all existing keyboard expectations.
+Add both deterministic unit boundaries and two pre-commit browser scenarios in
+each existing profile. No transport, API, BFF, roles, action gates or dependencies
+change. Local verification and exact new-head CI/package/release gates are still
+required; neither the prepared correction nor these controlled fixtures certify
+live permissions or authorize production deployment.

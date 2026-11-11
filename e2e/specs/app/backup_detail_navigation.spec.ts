@@ -244,3 +244,34 @@ for (const kind of ['nas', 'vps'] as const) {
     });
   }
 }
+
+for (const kind of ['nas', 'vps'] as const) {
+  test(`@pr-smoke @pr-smoke-mobile focus before route commit ${kind}`, async ({ page }, info) => {
+    const ctx = await setup(page, info, kind, 'en');
+    await page.goto(ctx.path + '/downloads?from=backups&backups.tab=downloads&backups.q=synthetic');
+    const header = page.getByTestId('dataset.header');
+    await expect(header).toBeVisible();
+    const back = header.getByRole('link', { name: 'Backups', exact: true });
+    await page.evaluate(() => {
+      const push = history.pushState.bind(history);
+      history.pushState = (...args) => {
+        push(...args);
+        if (String(args[2]).includes('/snapshots?')) {
+          const link = document.querySelector(
+            '[data-testid="dataset.header"] a[href="/app/backups?tab=downloads&q=synthetic"]'
+          ) as HTMLElement;
+          link.focus();
+        }
+      };
+    });
+    await header.getByRole('link', { name: 'Snapshots', exact: true }).click();
+    await expect(page).toHaveURL(new RegExp(ctx.path + '/snapshots\\?'));
+    await page.evaluate(
+      () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())))
+    );
+    await expect(back).toBeFocused();
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(/\/app\/backups\?tab=downloads&q=synthetic$/);
+    await journal(info, ctx);
+  });
+}
