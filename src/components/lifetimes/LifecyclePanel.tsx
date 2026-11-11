@@ -383,7 +383,7 @@ export function LifecyclePanel(props: {
                 onChange={(e) => setSnoozeCustom(e.target.value)}
                 testId="lifetimes.snooze.custom"
               />
-              {!snooze.valid ? <div className="mt-1 text-xs text-danger">{t('lifetimes.snooze.invalid')}</div> : null}
+              {!snooze.valid ? <div className="mt-1 border-l-2 border-danger-border pl-2 text-xs font-medium text-fg">{t('lifetimes.snooze.invalid')}</div> : null}
             </div>
           ) : null}
 
@@ -462,7 +462,7 @@ export function LifecyclePanel(props: {
                   {t('common.clear')}
                 </Button>
               </div>
-              {!expParsed.valid ? <div className="mt-1 text-xs text-danger">{t('lifetimes.admin_update.invalid_date')}</div> : null}
+              {!expParsed.valid ? <div className="mt-1 border-l-2 border-danger-border pl-2 text-xs font-medium text-fg">{t('lifetimes.admin_update.invalid_date')}</div> : null}
             </div>
 
             <div>
@@ -484,7 +484,7 @@ export function LifecyclePanel(props: {
                   {t('common.clear')}
                 </Button>
               </div>
-              {!remindParsed.valid ? <div className="mt-1 text-xs text-danger">{t('lifetimes.admin_update.invalid_date')}</div> : null}
+              {!remindParsed.valid ? <div className="mt-1 border-l-2 border-danger-border pl-2 text-xs font-medium text-fg">{t('lifetimes.admin_update.invalid_date')}</div> : null}
               {!adminExpirationLocal.trim() ? (
                 <div className="mt-1 text-xs text-faint">{t('lifetimes.admin_update.remind_requires_expiration')}</div>
               ) : null}

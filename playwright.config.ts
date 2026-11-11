@@ -76,6 +76,7 @@ export default defineConfig({
         '**/profile_user_data.spec.ts',
         '**/centered_dialogs.spec.ts',
 
+        '**/lifecycle_text_contrast.spec.ts',
         '**/vps_expiration_reactivation.spec.ts',
         '**/snapshot_export_shortcut.spec.ts',
         '**/snapshot_delete_availability.spec.ts',
