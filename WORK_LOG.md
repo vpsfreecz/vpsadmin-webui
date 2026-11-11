@@ -1685,3 +1685,9 @@ preserve all branch histories and colleague PRs. Add standard push CI for the
 integration branch, without deployment automation. Dev has isolated test data;
 clankerdev still uses the production API. No host update in this setup.
 [Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
+
+
+## 2026-11-11 — Keep complete host-address text inside the dialog (prepared)
+
+Host-address creation wraps complete route and failed IPv6 text inside its dialog at narrow widths, preserving address bytes and the retry draft. [Cause, scope and verification](docs/work-log/2026-11-11-host-address-text-wrap.md).
+No merge or delivery claim.

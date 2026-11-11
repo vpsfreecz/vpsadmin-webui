@@ -196,7 +196,7 @@ export function VpsNetworkHostAddressesCard(props: {
         )}
 
         {props.actionErrorMessage ? (
-          <Alert title={t('vps.network.host_addresses.action_error')} variant="danger">
+          <Alert title={t('vps.network.host_addresses.action_error')} variant="danger" className="min-w-0 [overflow-wrap:anywhere]">
             {props.actionErrorMessage}
           </Alert>
         ) : null}
