@@ -1,3 +1,20 @@
+## 2026-11-11 — Reuse the verified PR browser runner
+
+The focused OOM refresh branch uses the exact workflow image already verified
+for NAS06/PR295 and PR294. Keep their official pinned Playwright1.61.0 image,
+test commands, matrix, assertions, permissions and artifact collection. This
+CI-only dependency avoids the documented Ubuntu mirror DNS setup failure.
+See the [shared runner record](docs/work-log/2026-11-11-pr-browser-runner-image.md).
+No application or test selection changes in this dependency commit.
+
+## 2026-11-11 — OOM refresh preserves the current list
+
+Prepared a focused NAS-02 correction: Refresh refetches the current OOM query
+instead of navigating to the unfiltered list. Keep the existing error retry,
+owner scope, filter URL and cursor. See the [scope and evidence](docs/work-log/2026-11-11-oom-refresh-context.md).
+Prepared for verification; no merge or deployment. The broader NAS/request
+refresh audit remains open.
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path
