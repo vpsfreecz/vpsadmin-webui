@@ -1,3 +1,10 @@
+## 2026-11-11 — Reuse the verified PR browser runner for download feedback
+
+Use the exact reviewed PR296 CI files and pinned official Playwright image for
+BAK-09/10 checks. This avoids the recorded Ubuntu mirror DNS setup failure without
+changing tests, selectors, locks, permissions or timeouts. The cumulative
+preview already has these CI files. [Runner evidence](docs/work-log/2026-11-11-pr-browser-runner-image.md).
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path
