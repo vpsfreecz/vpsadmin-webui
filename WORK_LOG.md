@@ -2773,3 +2773,11 @@ bounds; do not import unrelated features or shorten the synthetic hostname.
 
 Mutation-reconciliation failures retain readable foreground text, medium weight and a separate danger marker on their actual warning panel while preserving the verification and safety-lock rules. [Cause, scope and verification](docs/work-log/2026-11-11-mutation-reconcile-feedback.md).
 No merge or delivery claim.
+
+
+## 2026-11-11 — Select both network regressions in hosted WebKit
+
+The actual pinned CLI proves both new files were omitted by the explicit
+WebKit project allowlist. Enroll them while preserving source fixtures and all
+assertions. Historical188 results retain7795 provenance; fresh packaging and
+source checks remain required. [Evidence and gates](docs/work-log/2026-11-11-network-webkit-selection.md).

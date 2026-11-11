@@ -151,6 +151,8 @@ export default defineConfig({
         '**/vps_maintenance_sunday.spec.ts',
         '**/network_address_details.spec.ts',
         '**/vps_network_editor_feedback.spec.ts',
+        '**/vps_host_address_text_wrap.spec.ts',
+        '**/mutation_reconciliation_readability.spec.ts',
         '**/vps_route_query_feedback.spec.ts',
         '**/user_packages_bulk_remove.spec.ts',
         '**/user_packages_assigned_date.spec.ts',
