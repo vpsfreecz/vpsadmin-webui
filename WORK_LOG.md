@@ -1,3 +1,10 @@
+## 2026-11-11 — Reuse the verified PR browser runner for backup navigation
+
+Use the exact reviewed PR296 CI files and pinned official Playwright image for
+BAK-05 checks. This avoids the recorded Ubuntu mirror DNS setup failure without
+changing tests, selectors, locks, permissions or timeouts. The cumulative
+preview already has these CI files. [Runner evidence](docs/work-log/2026-11-11-pr-browser-runner-image.md).
+
 ## 2026-11-11 — Preserve Backup Center detail context (prepared)
 
 Retain the existing menu context and fixed return through reload and detail tabs,
