@@ -3,6 +3,8 @@ import { csStorageExports } from "./storage/exports";
 import { csDatasetExpansion } from './storage/dataset_expansion';
 import { csBackups } from './storage/backups';
 export const csStorage = {
+  'dataset.identity.name': 'Název datasetu: {name}',
+  'dataset.identity.internal_id': 'Interní ID: #{id}',
   ...csBackups,
   "datasets.copy_filter_link": "Kopírovat odkaz na filtr",
   "datasets.list.title": "Datasety",

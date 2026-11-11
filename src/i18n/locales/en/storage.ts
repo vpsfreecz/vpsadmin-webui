@@ -3,6 +3,8 @@ import { enStorageExports } from "./storage/exports";
 import { enDatasetExpansion } from './storage/dataset_expansion';
 import { enBackups } from './storage/backups';
 export const enStorage = {
+  'dataset.identity.name': 'Dataset name: {name}',
+  'dataset.identity.internal_id': 'Internal ID: #{id}',
   ...enBackups,
   "datasets.copy_filter_link": "Copy filter link",
   "datasets.list.title": "Datasets",

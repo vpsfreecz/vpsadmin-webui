@@ -2800,3 +2800,11 @@ feature import or changed API contract. Verification/release remains pending.
 ## 2026-11-11 — Use a pinned Playwright image for PR browser checks
 
 [Runner DNS failure and verification](docs/work-log/2026-11-11-pr-browser-runner-image.md).
+
+
+## 2026-11-11 — Distinguish dataset names and internal IDs (prepared)
+
+Label the internal ID on list/detail and name the dataset in mobile cards and
+detail headings. Keep complete and numeric names separate from request IDs.
+[Contract and verification](docs/work-log/2026-11-11-nas-name-identity.md).
+No merge or preview activation claimed.

@@ -1633,3 +1633,12 @@ with the existing view parameter. Filters, selected-user scope and pagination
 retain their existing contracts. This makes the current mode available through
 semantic state as well as the highlighted appearance; native assistive speech
 output still requires device review.
+
+
+### Dataset identity (NAS-06)
+
+NAS and general dataset list/detail routes distinguish the dataset name from
+its internal ID, including numeric names. Desktop lists retain the Name column;
+mobile cards and detail headings explicitly name the dataset, and both surfaces
+label the internal ID. Links and API requests use that ID, never the displayed
+name. Role and owner gates, filters and mutations remain unchanged.

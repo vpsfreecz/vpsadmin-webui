@@ -670,10 +670,10 @@ export function DatasetsListPage(props: DatasetsListPageProps = {}) {
                             className="block truncate text-base font-semibold text-accent hover:underline"
                             to={`${basePath}/${detailSection}/${ds.id}`}
                           >
-                            {label}
+                            {t('dataset.identity.name', { name: label })}
                           </Link>
                         </div>
-                        <div className="mt-0.5 text-xs text-faint">#{ds.id}</div>
+                        <div className="mt-0.5 text-xs text-muted">{t('dataset.identity.internal_id', { id: ds.id })}</div>
                       </div>
                       {state ? <Badge variant={state.variant}>{state.label}</Badge> : null}
                     </div>
@@ -807,7 +807,7 @@ export function DatasetsListPage(props: DatasetsListPageProps = {}) {
                       <Link className="font-medium text-accent hover:underline" to={`${basePath}/${detailSection}/${ds.id}`}>
                         {label}
                       </Link>
-                      <div className="mt-0.5 text-xs text-faint">#{ds.id}</div>
+                      <div className="mt-0.5 text-xs text-muted">{t('dataset.identity.internal_id', { id: ds.id })}</div>
                     </td>
                     {showOwnerColumn ? (
                       <td className="px-3 py-2">
