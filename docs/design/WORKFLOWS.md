@@ -307,6 +307,8 @@ See the [parity audit](../work-log/2026-10-03-migration-feedback.md).
 
 ## Compute, disk, access, network and maintenance
 
+A failed reconciliation keeps its existing safety-lock message and verification gate. The feedback remains readable on the warning panel and uses weight and a separate border marker as well as semantic color. It must not release the lock or resubmit the operation merely to dismiss the warning.
+
 The VPS resources card uses its heading and edit link. The focused form
 opens with its heading and fields. Live-change and separate-save guidance
 is inside the performance section, with quota and review near the actions.

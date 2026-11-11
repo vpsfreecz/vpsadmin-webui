@@ -2767,3 +2767,9 @@ No merge or delivery claim.
 The focused-base follow-up adds wrapping to two route values already wrapped in
 this cumulative source. Preserve the full fixture and add complete route/page
 bounds; do not import unrelated features or shorten the synthetic hostname.
+
+
+## 2026-11-11 — Keep reconciliation feedback readable on warning panels (prepared)
+
+Mutation-reconciliation failures retain readable foreground text, medium weight and a separate danger marker on their actual warning panel while preserving the verification and safety-lock rules. [Cause, scope and verification](docs/work-log/2026-11-11-mutation-reconcile-feedback.md).
+No merge or delivery claim.
