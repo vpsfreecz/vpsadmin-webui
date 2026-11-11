@@ -1,3 +1,9 @@
+## 2026-11-11 — Group dataset header context as a path
+
+Prepared NAS-09 dataset-only header grouping; preserve full names, internal
+IDs, VPS/return links and operation state. [Scope and verification](docs/work-log/2026-11-11-dataset-header-breadcrumb.md).
+Unverified local candidate; no merge or deployment.
+
 ## 2026-11-11 — Explain NAS, backup and task filters consistently
 
 Add shared-style accessible Help to Backup Center and Tasks, retaining NAS

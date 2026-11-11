@@ -453,6 +453,13 @@ schedules/plans and downloads, export datasets and restore from available backup
 VPS root disks remain in VPS detail; member NAS and Backup Center retain separate
 navigation. Backup filters remain stable across tab changes.
 
+**Dataset header:** a dataset-only breadcrumb groups the existing return context
+and complete labelled name. The internal ID, existing VPS association and
+Busy/Working state remain distinct and wrap without clipping. Preserve plain
+heading text for the object document title, contextual Help priority0, existing
+return targets and capability-dependent tabs. This chooses no navigation model.
+
+
 **Filter help (UX-06):** NAS, Backup Center and Tasks expose the same question-mark
 button and SmartInputHelp modal, operable by click, touch, Enter and Space.
 Closing returns focus without changing the filter or URL. Backup Center explains

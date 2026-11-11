@@ -359,4 +359,5 @@ export const enStorage = {
   "dataset.plans.remove.error": "Failed to remove dataset plan",
   "dataset.plans.remove.not_allowed": "Only an administrator can remove this plan.",
   ...enDatasetExpansion,
+  'dataset.header.path': 'Dataset path',
 } as const;

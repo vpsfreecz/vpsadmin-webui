@@ -367,4 +367,5 @@ export const csStorage = {
   "dataset.plans.remove.error": "Plán datasetu se nepodařilo odebrat",
   "dataset.plans.remove.not_allowed": "Tento plán může odebrat jen administrátor.",
   ...csDatasetExpansion,
+  'dataset.header.path': 'Cesta datasetu',
 } as const;

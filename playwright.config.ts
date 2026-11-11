@@ -148,6 +148,7 @@ export default defineConfig({
         '**/mobile_lookup_popover.spec.ts',
         '**/mobile_workflows.spec.ts',
         '**/dataset_identity.spec.ts',
+        '**/dataset_header_breadcrumb.spec.ts',
         '**/payment_qr_images.spec.ts',
         '**/incident_create_context.spec.ts',
         '**/vps_overview_all_ips.spec.ts',
