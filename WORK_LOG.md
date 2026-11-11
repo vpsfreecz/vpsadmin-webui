@@ -2689,3 +2689,10 @@ confirmation. [Scope and verification](docs/work-log/2026-11-11-owner-reminder-l
 The initial reminder draft's mobile Chromium run found two real1440px width
 failures. Derive the flexible input basis from native max-content and retain the test
 threshold. [Exact negative and next gates](docs/work-log/2026-11-11-owner-reminder-layout.md).
+
+
+## 2026-11-11 — Distinguish package read errors from empty data
+
+Expose query loading/error/retry for selected-owner package choices and items,
+without changing owner scope, cached values or mutation payloads. [Scope and
+verification](docs/work-log/2026-11-11-resource-package-read-feedback.md).

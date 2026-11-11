@@ -54,6 +54,7 @@
     "e2e/specs/admin/user_packages_bulk_remove.spec.ts",
     "e2e/specs/admin/user_password_dialog.spec.ts",
     "e2e/specs/admin/user_payments_smoke.spec.ts",
+    "e2e/specs/admin/user_resources.spec.ts",
     "e2e/specs/admin/user_security_delete_failures.spec.ts",
     "e2e/specs/admin/user_security_status_badges.spec.ts",
     "e2e/specs/app/account_controls_direct.spec.ts",

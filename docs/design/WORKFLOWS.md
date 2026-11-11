@@ -1543,3 +1543,15 @@ value at narrow widths. Clear wraps below when both controls cannot fit; control
 heights, keyboard order, nullable clearing, presets and confirmation remain. This
 is presentation acceptance for REQ-010; fixture evidence does not certify API
 permissions, native picker behavior on a physical device or the whole account audit.
+
+
+### Selected-owner package read recovery
+
+Package assignment choices retain independent environment and shared-package
+queries. Show their loading/error state below the relevant labelled field and
+retry only that query without clearing the comment or the other choices. Item
+queries remain keyed by package ID; show read errors separately from a successful
+empty item list and preserve cached badges when a background refresh fails.
+Keep selected-owner filtering, the null shared-package owner and existing
+assignment/removal payloads. This is REQ-011 read feedback, not a permission
+change or a claim that fixture requests establish live access.
