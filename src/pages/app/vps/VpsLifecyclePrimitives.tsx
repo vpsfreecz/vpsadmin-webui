@@ -34,7 +34,7 @@ export function ImpactItem(props: { label: ReactNode; children: ReactNode; testI
   return (
     <div className="rounded-md border border-border bg-surface p-3" data-testid={props.testId}>
       <div className="text-xs font-medium text-muted">{props.label}</div>
-      <div className="mt-1 text-sm">{props.children}</div>
+      <div className="mt-1 text-sm [overflow-wrap:anywhere]">{props.children}</div>
     </div>
   );
 }
