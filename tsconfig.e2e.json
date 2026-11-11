@@ -121,6 +121,7 @@
     "e2e/specs/app/incidents_responsive_layout.spec.ts",
     "e2e/specs/app/ip_addresses_environment_filter.spec.ts",
     "e2e/specs/app/known_devices_keyset_pagination.spec.ts",
+    "e2e/specs/app/lifecycle_text_contrast.spec.ts",
     "e2e/specs/app/lifecycle_value_wrapping.spec.ts",
     "e2e/specs/app/map_kind_control_rhythm.spec.ts",
     "e2e/specs/app/member_payment_links.spec.ts",

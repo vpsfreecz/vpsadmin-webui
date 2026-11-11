@@ -2737,3 +2737,12 @@ inherited value wrapping to the existing lifecycle impact body and swap grid;
 content, row associations and operations stay intact. [Evidence, scope and
 verification gates](docs/work-log/2026-11-11-lifecycle-value-wrapping.md). Prepared only; no PR, merge
 or new preview activation is claimed yet.
+
+
+## 2026-11-11 — Make lifecycle action and date-error text readable (prepared)
+
+The current finite dark-theme audit measures3.12:1 for small red destructive
+choice titles and date-validation errors. Use the existing readable foreground,
+retaining danger borders and explicit localized labels. Keep all date parsing,
+roles, field values, disabled-submit and mutation behavior. [Scope and verification
+boundaries](docs/work-log/2026-11-11-lifecycle-text-readability.md). No merge or preview activation claimed.
