@@ -1003,3 +1003,16 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+
+## Created snapshot download feedback (BAK-09/10)
+
+The snapshot shortcut keeps the exact archive request with send_mail true.
+Its result modal describes the returned download state once; a ready URL remains
+usable, failed replies retain backend details, and expired/missing/unknown states
+use a neutral title instead of saying preparation continues. Pending receipt
+metadata permits a short Tasks hint. It does not create a task when no receipt
+exists or certify email delivery. The existing progress popover, background
+continuation, Tasks inspection and completion/failure notifications are retained.
+The creation result describes the initial reply; progress is observed in Tasks.
+[Scope and verification](../work-log/2026-11-11-backup-download-feedback.md).

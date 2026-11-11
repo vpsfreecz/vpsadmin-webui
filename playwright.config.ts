@@ -77,6 +77,7 @@ export default defineConfig({
         '**/centered_dialogs.spec.ts',
 
         '**/vps_expiration_reactivation.spec.ts',
+        '**/backup_download_feedback.spec.ts',
         '**/snapshot_export_shortcut.spec.ts',
         '**/snapshot_delete_availability.spec.ts',
         '**/export_hosts_responsive_actions.spec.ts',

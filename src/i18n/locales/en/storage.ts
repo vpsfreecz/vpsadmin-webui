@@ -257,10 +257,9 @@ export const enStorage = {
   "dataset.download.create_link": "Create link",
   "dataset.download.created.title.pending": "Backup is being prepared",
   "dataset.download.created.title.ready": "Backup is ready",
-  "dataset.download.created.body.pending":
-    "Preparation is running in the background. When the link is ready, we will send it by email and show it in Downloads.",
-  "dataset.download.created.body.ready":
-    "The temporary snapshot download link is ready. We sent it by email and it is also available in Downloads.",
+  "dataset.download.created.title.failed": "Backup preparation failed",
+  "dataset.download.created.title.other": "Snapshot download",
+  "dataset.download.created.tracked": "Follow preparation progress in Tasks.",
   "dataset.download.created.open_downloads": "Open downloads",
   "dataset.downloads.title": "Downloads",
   "dataset.downloads.subtitle": "Create and manage snapshot download links.",
