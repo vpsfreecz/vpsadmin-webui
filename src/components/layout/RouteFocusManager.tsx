@@ -11,6 +11,8 @@ import { MAIN_CONTENT_ID } from './MainContentAccessibility';
 export function RouteFocusManager() {
   const location = useLocation();
   const navigationType = useNavigationType();
+  const navigationTypeRef = useRef(navigationType);
+  navigationTypeRef.current = navigationType;
   const previousPathnameRef = useRef(location.pathname);
 
   useLayoutEffect(() => {
@@ -20,15 +22,27 @@ export function RouteFocusManager() {
     // Do not override destination fragment navigation with the main target.
     if (location.hash) return undefined;
 
-    if (navigationType !== 'POP') {
+    if (navigationTypeRef.current !== 'POP') {
       window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
     }
 
+    // A user or destination control can claim focus before this deferred frame.
+    // Preserve that choice rather than moving Enter/Space to the main element.
+    let focusClaimed = false;
+    const onFocus = () => {
+      focusClaimed = true;
+    };
+    document.addEventListener('focusin', onFocus);
     const frame = window.requestAnimationFrame(() => {
+      document.removeEventListener('focusin', onFocus);
+      if (focusClaimed && document.activeElement !== document.body) return;
       document.getElementById(MAIN_CONTENT_ID)?.focus({ preventScroll: true });
     });
 
-    return () => window.cancelAnimationFrame(frame);
+    return () => {
+      document.removeEventListener('focusin', onFocus);
+      window.cancelAnimationFrame(frame);
+    };
   }, [location.hash, location.pathname]);
 
   return null;

@@ -1017,3 +1017,11 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+
+Backup Center keyboard returns also preserve explicit destination focus claimed
+before the deferred route-focus frame. This protects immediate Enter activation
+while ordinary main-content focus, fragment navigation and scroll rules remain.
+The BAK-05 [corrective verification](../work-log/2026-11-11-backup-detail-navigation.md)
+records the original hosted failure and deterministic scheduling regression;
+prepared source does not certify a deployed release.

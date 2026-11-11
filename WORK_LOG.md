@@ -1700,3 +1700,14 @@ preserve all branch histories and colleague PRs. Add standard push CI for the
 integration branch, without deployment automation. Dev has isolated test data;
 clankerdev still uses the production API. No host update in this setup.
 [Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
+
+
+## 2026-11-11 — Backup detail keyboard-return correction (prepared)
+
+Original BAK-05 hosted results contain real keyboard-return failures and remain
+unqualified. Controlled deferred-frame checks reproduce focus being stolen from
+the return link in all three browser profiles; preserve the destination's focus
+claim before that frame. Keep exact return/filter assertions, add a deterministic
+regression and adopt the changed storage-section contract into strict typing.
+[Evidence and release gates](docs/work-log/2026-11-11-backup-detail-navigation.md).
+No merge, approval, API deployment or preview activation is claimed.

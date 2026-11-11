@@ -67,3 +67,30 @@ regression and remained red. Aligning the implementation and its two callers to
 the declared navigationPathname contract fixes that edit; no assertion was
 weakened. Corrective native, source, clean-package and hosted checks are pending.
 No API deployment, live mutation, final task completion or preview activation.
+
+
+## Hosted keyboard-return failure and deferred focus
+
+Original focused head64453000 was not qualified: Chromium665 pass/2 failed/4
+flaky, mobile Chrome609 pass/1 failed/4 flaky, WebKit315 pass/1 flaky/2 old skips.
+One failure was the existing storage-section contract still demanding bare Open
+hrefs; both exact expected links now include the approved Center context and
+settled snapshot pagination. Existing storage/owner/API assertions remain.
+
+A new deterministic unit test establishes that the deferred route-focus frame
+can override a destination control focused after navigation. Before correction,
+nine tests pass and that test fails with main-content holding the control's
+focus. Controlled-frame browser regressions reproduce the same lost Backups
+link focus in actual clean16CE bundles; natural instrumented12 cases passed,
+so this is scheduling-order proof rather than a claim every natural run fails.
+Preserve destination focus claimed before the deferred frame; keep normal main
+focus, scroll, fragment, POP and superseded-navigation behavior. The corrected
+unit suite passes10/10. Six new browser configurations hold only the deferred
+frame and require the link to remain focused, Enter to return to the exact
+Center URL and the filter to survive. Natural cases keep their original checks.
+
+Fresh human333/current BAK05 approval, both6F47 runtimes, API22adc and protected
+BAK09/10 were checked. Full finite81-case three-profile verification, native checks,
+new exact-head hosted six checks and cumulative recomposition on actual6F47
+remain required. Old16CE/F182 bundles are not eligible for deployment. No API
+writes, preview activation, completion, merge or approval is claimed.
