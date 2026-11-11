@@ -1685,3 +1685,14 @@ preserve all branch histories and colleague PRs. Add standard push CI for the
 integration branch, without deployment automation. Dev has isolated test data;
 clankerdev still uses the production API. No host update in this setup.
 [Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
+
+## 2026-11-11 — Readable mount lookup feedback (prepared)
+
+Style the existing local form's error descendants with readable text and a
+separate danger marker. Support the old finder and current picker without a
+feature import or changed API contract. Verification/release remains pending.
+[Compatibility boundary and verification](docs/work-log/2026-11-11-storage-form-error-readability.md).
+
+## 2026-11-11 — Use a pinned Playwright image for PR browser checks
+
+[Runner DNS failure and verification](docs/work-log/2026-11-11-pr-browser-runner-image.md).
