@@ -656,7 +656,7 @@ for (const language of ['cs', 'en'] as const)
         clear = page.getByTestId('admin.user.lifecycle.remind_after.clear'),
         save = page.getByTestId('admin.user.lifecycle.save');
       await expect(input).toBeVisible();
-      for (const width of [320, 390, 768, 1024, 1280, 1440]) {
+      for (const width of [320, 390, 768, 1024, 1280, 1440, 1536, 1920]) {
         await page.setViewportSize({ width, height: 1000 });
         await expectNoDocumentHorizontalOverflow(page);
         const m = await input.evaluate((e) => {

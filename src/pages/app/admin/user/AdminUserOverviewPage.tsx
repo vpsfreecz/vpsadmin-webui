@@ -534,7 +534,7 @@ export function AdminUserOverviewPage() {
                       ariaLabel={t('lifetimes.field.remind_after')}
                       ariaDescribedBy="admin-user-reminder-help"
                       testId="admin.user.lifecycle.remind_after"
-                      className="min-w-0 flex-[1_1_16rem]"
+                      className="min-w-0 flex-[1_1_max-content]"
                     />
                     <Button
                       type="button"
