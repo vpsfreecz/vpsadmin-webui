@@ -303,7 +303,7 @@ export function AdminUserResourcesPage() {
         title={t('admin.user.resources.add.title')}
         testId="admin.user.resources.add.modal"
         footer={(
-          <>
+          <div className="flex flex-wrap items-center gap-2">
             <Button
               variant="secondary"
               disabled={addM.isPending}
@@ -318,7 +318,7 @@ export function AdminUserResourcesPage() {
             <Button variant="primary" loading={addM.isPending} onClick={() => addM.mutate()}>
               {t('admin.user.resources.add.save')}
             </Button>
-          </>
+          </div>
         )}
       >
         <div className="space-y-3">

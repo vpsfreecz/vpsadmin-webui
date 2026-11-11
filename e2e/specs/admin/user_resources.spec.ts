@@ -370,3 +370,92 @@ test('@pr-smoke @pr-smoke-mobile user package cached items survive a failed back
     contentType: 'application/json',
   });
 });
+
+for (const { language, theme } of [{ language: 'cs', theme: 'dark' }, { language: 'en', theme: 'light' }] as const) {
+  test(`@pr-smoke @pr-smoke-mobile ${language} package footer actions stay aligned during submission`, async ({ page }) => {
+    await bootstrapVpsAdminWindow(page, { webuiNext: { uiSettings: { persistence: 'local' } } });
+    await setUiSettingsLocalStorage(page, { language, theme });
+    const writes: unknown[] = [];
+    const unexpectedWrites: string[] = [];
+    const errors: string[] = [];
+    const measurements: unknown[] = [];
+    page.on('pageerror', error => errors.push(String(error)));
+    let release!: () => void;
+    const held = new Promise<void>(resolve => { release = resolve; });
+    await installHaveApiMock(page, {
+      user: { id: 7, level: 99, login: 'synthetic-operator' },
+      handlers: {
+        'GET users/42': () => ({ user: { id: 42, level: 2, login: 'synthetic-selected-owner' } }),
+        'GET vpses': () => ({ vpses: [] }),
+        'GET environments': () => ({ environments: [{ id: 7, label: 'Synthetic environment' }] }),
+        'GET cluster_resource_packages': () => ({ cluster_resource_packages: [{ id: 11, label: 'Synthetic shared package' }] }),
+        'GET user_cluster_resource_packages': () => ({ user_cluster_resource_packages: [] }),
+        'POST user_cluster_resource_packages': async ctx => {
+          writes.push(ctx.reqJson);
+          await held;
+          return { status: 403, contentType: 'application/json', body: JSON.stringify(failEnvelope('Synthetic rejected assignment')) };
+        },
+      },
+    });
+    await page.route('**/api/**', route => {
+      if (['GET', 'HEAD', 'OPTIONS'].includes(route.request().method())) return route.fallback();
+      if (route.request().method() === 'POST' && new URL(route.request().url()).pathname.endsWith('/user_cluster_resource_packages')) return route.fallback();
+      unexpectedWrites.push(route.request().method() + ' ' + new URL(route.request().url()).pathname);
+      return route.abort();
+    });
+    try {
+      await page.goto('/admin/users/42/resources');
+      await page.getByTestId('admin.user.resources.add').click();
+      const modal = page.getByTestId('admin.user.resources.add.modal');
+      const environment = modal.getByRole('combobox').nth(0);
+      const resourcePackage = modal.getByRole('combobox').nth(1);
+      const note = modal.getByRole('textbox');
+      const cancel = modal.getByRole('button', { name: language === 'cs' ? 'Zrušit' : 'Cancel', exact: true });
+      const submit = modal.getByRole('button', { name: language === 'cs' ? 'Přidat balíček' : 'Add package', exact: true });
+      await environment.selectOption('7');
+      await resourcePackage.selectOption('11');
+      await note.fill('Alignment check keeps the typed note.');
+      const inspect = async (phase: string) => {
+        for (const width of [1280, 320, 768]) {
+          await page.setViewportSize({ width, height: 1000 });
+          const fields = await modal.locator('select,input').evaluateAll(elements => elements.map(element => {
+            const rect = element.getBoundingClientRect();
+            return { left: rect.left, right: rect.right, top: rect.top, height: rect.height };
+          }));
+          const first = await cancel.boundingBox();
+          const second = await submit.boundingBox();
+          expect(first).not.toBeNull(); expect(second).not.toBeNull();
+          measurements.push({ phase, width, fields, cancel: first, submit: second });
+          expect.soft(Math.abs(first!.y - second!.y), phase + ': action top alignment').toBeLessThanOrEqual(1);
+          expect.soft(first!.height, phase + ': matched action heights').toBe(second!.height);
+          expect.soft(second!.x - (first!.x + first!.width), phase + ': visible action spacing').toBeGreaterThanOrEqual(4);
+          for (const field of fields) expect.soft(field.height, phase + ': field/action height').toBe(first!.height);
+          expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+        }
+      };
+      await inspect('ready');
+      await submit.click();
+      await expect.poll(() => writes.length).toBe(1);
+      await expect(cancel).toBeDisabled(); await expect(submit).toBeDisabled();
+      await page.keyboard.press('Escape');
+      await expect(modal).toBeVisible();
+      await inspect('pending');
+      release();
+      await expect(page.getByTestId('admin.user.resources.add.error')).toBeVisible();
+      await expect(cancel).toBeEnabled(); await expect(submit).toBeEnabled();
+      await expect(environment).toHaveValue('7'); await expect(resourcePackage).toHaveValue('11');
+      await expect(note).toHaveValue('Alignment check keeps the typed note.');
+      await inspect('rejected');
+      expect(writes).toEqual([{ user_cluster_resource_package: {
+        cluster_resource_package: 11, comment: 'Alignment check keeps the typed note.', environment: 7, from_personal: false, user: 42,
+      } }]);
+      expect(unexpectedWrites).toEqual([]); expect(errors).toEqual([]);
+    } finally {
+      release();
+      await test.info().attach('footer-alignment-evidence', {
+        body: JSON.stringify({ language, theme, measurements, writes, unexpectedWrites, errors, fixtureOnly: true, liveWrites: 0 }),
+        contentType: 'application/json',
+      });
+    }
+  });
+}
