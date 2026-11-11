@@ -75,6 +75,14 @@ for (const language of ['cs', 'en'] as const) {
       });
       await page.setViewportSize({ width: 320, height: 900 });
       await page.goto('/app/vps/123/network');
+      const addHosts = page.getByTestId('vps.network.ip_addresses.item.2.add_hosts');
+      await expect(addHosts).toBeVisible();
+      await expectCompleteText(
+        page.getByTestId('vps.network.interfaces.card.501').getByText(route.addr, { exact: true }),
+        'complete-interface-route'
+      );
+      await expectCompleteText(page.getByText(`${route.addr}/64`, { exact: true }), 'complete-route-card');
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(321);
       await page.getByTestId('vps.network.ip_addresses.item.2.add_hosts').click();
       const modal = page.getByTestId('vps.network.host_addresses.create');
       await expect(modal).toBeVisible();

@@ -52,3 +52,29 @@ The cumulative whole-document321px bound passes after both local text surfaces
 are corrected. Preserve the initial modal-only12/16 result and the focused-base
 340px unrelated-layout diagnostic. The source regression checks local modal
 bounds and every text rectangle in both affected surfaces.
+
+## Exact focused-base mobile Chromium follow-up
+
+The original head49419da9 has four deterministic hosted mobile-Chromium
+failures. Shortening only the synthetic hostname is not a repair: the
+controlled counterfactual still fails all four mobile-Chromium cases, while
+the unchanged target-text regression fails12/12 on clean previewdb4d721.
+Keep the original full hostname, full IPv6 bytes, intercepted403, exact POST,
+retained retry draft and every text/modal bound.
+
+A settled-source Vite probe identifies two earlier IPv6 spans escaping the
+interface and route cards at right323px and340px. They widen Chromium's layout
+viewport from320px to340px before the modal opens. Add local breaking to those
+two spans, using exactly the classes already present in the current cumulative
+preview. This imports no header, shared-overlay, API, locale or feature change.
+The new assertions also bound these complete route values and the whole
+document before opening the dialog. The old hostname-only proposal was
+explicitly rejected; all original negatives remain in the private evidence.
+
+Pinned clean-parent build and private fixture typecheck pass. The working Vite
+regression passes12/12 across desktop Chromium, mobile Chromium and mobile
+WebKit, Czech/English and light/dark, without retries. The complete original
+hostname and all original target assertions remain. Required checks, a new
+exact-head CI gate and cumulative packaging/delivery remain pending at this
+checkpoint. Browser
+fixtures establish neither real API permissions nor physical Safari behavior.

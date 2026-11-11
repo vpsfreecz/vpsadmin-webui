@@ -1691,3 +1691,11 @@ clankerdev still uses the production API. No host update in this setup.
 
 Host-address creation wraps complete route and failed IPv6 text inside its dialog at narrow widths, preserving address bytes and the retry draft. [Cause, scope and verification](docs/work-log/2026-11-11-host-address-text-wrap.md).
 No merge or delivery claim.
+
+
+## 2026-11-11 — Bound route cards before host-address creation
+
+Exact-head mobile Chromium exposed two overflowing IPv6 spans on the focused
+base before the host-address dialog opens. Keep the full original fixture and
+locally wrap the interface/route values; strengthen complete-text and page
+bounds without changing API behavior. [Cause and verification boundaries](docs/work-log/2026-11-11-host-address-text-wrap.md).
