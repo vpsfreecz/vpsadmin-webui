@@ -1003,3 +1003,25 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+
+### Selected-owner package read recovery
+
+Package assignment choices retain independent environment and shared-package
+queries. Show their loading/error state below the relevant labelled field and
+retry only that query without clearing the comment or the other choices. Item
+queries remain keyed by package ID; show read errors separately from a successful
+empty item list and preserve cached badges when a background refresh fails.
+Keep selected-owner filtering, the null shared-package owner and existing
+assignment/removal payloads. This is REQ-011 read feedback, not a permission
+change or a claim that fixture requests establish live access.
+
+## Selected-owner package footer alignment (REQ-010)
+
+Keep Cancel and Add package in one explicit wrapping action group. While a
+fixture-held assignment shows its spinner, both actions retain equal heights
+and top alignment with visible separation. Normal, pending and rejected states
+remain contained at narrow widths; rejection preserves the chosen environment,
+package and comment. Pending dismissal/duplicates and exact owner/payload rules
+remain unchanged. This is a local package-form layout correction, not a shared
+button, API or role change. [Evidence and gates](../work-log/2026-11-11-resource-form-footer-alignment.md).

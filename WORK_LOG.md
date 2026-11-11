@@ -1685,3 +1685,16 @@ preserve all branch histories and colleague PRs. Add standard push CI for the
 integration branch, without deployment automation. Dev has isolated test data;
 clankerdev still uses the production API. No host update in this setup.
 [Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
+
+
+## 2026-11-11 — Distinguish package read errors from empty data
+
+Expose query loading/error/retry for selected-owner package choices and items,
+without changing owner scope, cached values or mutation payloads. [Scope and
+verification](docs/work-log/2026-11-11-resource-package-read-feedback.md).
+
+## 2026-11-11 — Align package actions while submission is pending
+
+The finite presentation audit found a 3–4 px action offset when the spinner
+appears in the selected-owner package dialog. Group its footer actions with flex wrapping and
+a consistent gap. [Reproduction and verification gates](docs/work-log/2026-11-11-resource-form-footer-alignment.md).

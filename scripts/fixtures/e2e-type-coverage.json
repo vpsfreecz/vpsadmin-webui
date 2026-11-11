@@ -31,6 +31,7 @@
     "e2e/specs/admin/user_packages_assigned_date.spec.ts",
     "e2e/specs/admin/user_packages_bulk_remove.spec.ts",
     "e2e/specs/admin/user_password_dialog.spec.ts",
+    "e2e/specs/admin/user_resources.spec.ts",
     "e2e/specs/app/action_state_transactions_responsive.spec.ts",
     "e2e/specs/app/admin_default_review_queue.spec.ts",
     "e2e/specs/app/admin_newslog.spec.ts",
@@ -539,13 +540,6 @@
     {
       "path": "e2e/specs/admin/user_resource_usage_error_recovery.spec.ts",
       "sha256": "7b0e96a3d332a6c2dc025eba7b7aeb07d6b1e375f39958acd81297a815e5291e",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/admin/user_resources.spec.ts",
-      "sha256": "cd1b3f6a6b13bf9f5af0ebfd8bed84c7c95735d889f54ecccac4d032cc7effe5",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
