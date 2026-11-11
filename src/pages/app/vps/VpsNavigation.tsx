@@ -52,7 +52,7 @@ export function VpsActionsMenu(props: {
     <div className="flex w-full min-w-0 gap-2 sm:w-auto">
       {props.canMutateVps ? (
         <LinkButton
-          to={contextualVpsPath('/lifecycle')}
+          to={`${contextualVpsPath('/lifecycle')}#vps-operations`}
           variant="secondary"
           className="shrink-0"
           testId="vps.actions.all"
@@ -127,7 +127,9 @@ export function VpsActionsMenu(props: {
                 {t('vps.overview.admin_actions.user_data')}
               </option>
             ) : null}
-            <option value={`${props.basePath}/user-namespaces`}>{t('vps.overview.admin_actions.user_namespaces')}</option>
+            <option value={`${props.basePath}/user-namespaces`}>
+              {t('vps.overview.admin_actions.user_namespaces')}
+            </option>
             <option value={contextualVpsPath('/lifecycle/lifetime')}>{t('action.vps.lifecycle.label')}</option>
             <option value={contextualVpsPath('/lifecycle/replace')}>{t('action.vps.replace.label')}</option>
             <option value={contextualVpsPath('/lifecycle/migrate')}>{t('action.vps.migrate.label')}</option>

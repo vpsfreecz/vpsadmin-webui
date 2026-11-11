@@ -27,6 +27,27 @@ const vps = {
   os_template: { id: 6, label: 'Debian 12' },
   dns_resolver: 'inherit',
 };
+const operationJournals = new WeakMap<Page, { errors: string[]; writes: string[] }>();
+test.beforeEach(async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-11-11T18:00:00Z'));
+  const journal = { errors: [] as string[], writes: [] as string[] };
+  operationJournals.set(page, journal);
+  page.on('pageerror', (error) => journal.errors.push(String(error)));
+  page.on('request', (request) => {
+    if (new URL(request.url()).pathname.includes('/api/') && !['GET', 'HEAD', 'OPTIONS'].includes(request.method()))
+      journal.writes.push(request.method() + ' ' + new URL(request.url()).pathname);
+  });
+});
+test.afterEach(async ({ page }, info) => {
+  const journal = operationJournals.get(page)!;
+  await info.attach('operation-page-journal', {
+    body: JSON.stringify({ ...journal, fixtureOnly: true }),
+    contentType: 'application/json',
+  });
+  expect(journal.errors).toEqual([]);
+  expect(journal.writes).toEqual([]);
+});
+
 async function findRenderedAction(page: Page, needle: string) {
   return page.evaluate((text) => {
     const find: unknown = Reflect.get(window, 'find');
@@ -51,9 +72,9 @@ for (const [language, theme] of [
         page,
       }, testInfo) => {
         await page.setViewportSize(
-          testInfo.project.name.includes('mobile') ? { width: 390, height: 844 } : { width: 1440, height: 1000 }
+          testInfo.project.name.includes('mobile') ? { width: 320, height: 844 } : { width: 1440, height: 1000 }
         );
-        await bootstrapVpsAdminWindow(page);
+        await bootstrapVpsAdminWindow(page, { webuiNext: { uiSettings: { persistence: 'local' } } });
         await setUiSettingsLocalStorage(page, { language, theme });
         const writes: string[] = [];
         page.on('request', (request) => {
@@ -85,10 +106,10 @@ for (const [language, theme] of [
           return;
         }
         const allActions = page.getByRole('link', {
-          name: language === 'cs' ? 'Všechny akce' : 'All actions',
+          name: language === 'cs' ? 'Zobrazit operace' : 'Show operations',
           exact: true,
         });
-        await expect(allActions).toHaveAttribute('href', `/${mode}/vps/123/lifecycle${query}`);
+        await expect(allActions).toHaveAttribute('href', `/${mode}/vps/123/lifecycle${query}#vps-operations`);
         await header.screenshot({ path: testInfo.outputPath(`header-${language}-${mode}-${running}-after.png`) });
         const allBox = await allActions.boundingBox();
         const moreBox = await page.getByTestId('vps.actions.menu').boundingBox();
@@ -98,6 +119,14 @@ for (const [language, theme] of [
         await allActions.focus();
         await page.keyboard.press('Enter');
         await expect(page.getByTestId('vps.lifecycle.action_index')).toBeVisible();
+        const operationList = page.getByTestId('vps.lifecycle.page');
+        await expect(operationList).toBeFocused();
+        await expect(operationList).toHaveAttribute('aria-label', language === 'cs' ? 'Operace VPS' : 'VPS operations');
+        const listBox = (await operationList.boundingBox())!;
+        expect(listBox.y).toBeGreaterThanOrEqual(0);
+        await expect(page.getByTestId('vps.lifecycle.action_link.start')).toBeInViewport({ ratio: 1 });
+        await page.screenshot({ path: testInfo.outputPath(`list-entry-${language}-${mode}-${running}.png`) });
+
         await expect(page.getByTestId('vps.lifecycle.daily_actions')).toBeVisible();
         await expect(page.getByTestId('vps.lifecycle.admin_actions')).toHaveCount(mode === 'admin' ? 1 : 0);
         const clone = page.getByTestId('vps.lifecycle.action_link.clone');
@@ -121,12 +150,15 @@ for (const [language, theme] of [
         await expect(confirmation).not.toBeVisible();
         await expectNoDocumentHorizontalOverflow(page);
         expect(writes).toEqual([]);
+        await page.goBack();
+        await expect(operationList).toBeFocused();
+        await expect(page).toHaveURL(`/${mode}/vps/123/lifecycle${query}#vps-operations`);
       });
     }
   }
 }
 test('@pr-smoke @pr-smoke-mobile read-only support has no all-actions shortcut', async ({ page }) => {
-  await bootstrapVpsAdminWindow(page);
+  await bootstrapVpsAdminWindow(page, { webuiNext: { uiSettings: { persistence: 'local' } } });
   await installHaveApiMock(page, {
     user: { id: 10, login: 'synthetic-support', level: 50 },
     handlers: {
@@ -138,6 +170,7 @@ test('@pr-smoke @pr-smoke-mobile read-only support has no all-actions shortcut',
   await page.goto('/admin/vps/123');
   await expect(page.getByTestId('vps.header')).toBeVisible();
   await expect(page.getByTestId('vps.actions.all')).toHaveCount(0);
+  await page.waitForLoadState('networkidle');
   await page.goto('/admin/vps/123/lifecycle');
   await expect(page.getByTestId('vps.lifecycle.page')).toBeVisible();
   await expect(page.getByTestId('vps.lifecycle.action_index')).toHaveCount(0);

@@ -72,7 +72,7 @@ export const enVps_core = {
   'vps.tabs.console': 'Console',
   'vps.actions.menu.label': 'VPS actions',
   'vps.actions.menu.placeholder': 'Manage VPS…',
-  'vps.actions.all': 'All actions',
+  'vps.actions.all': 'Show operations',
   'vps.actions.more.placeholder': 'More…',
   'vps.list.actions.more.label': 'More VPS row actions',
   'vps.actions.dns_servers': 'DNS servers',
