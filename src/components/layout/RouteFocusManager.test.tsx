@@ -46,7 +46,7 @@ function createRouter(initialEntries = ['/app'], initialIndex = initialEntries.l
         ],
       },
     ],
-    { initialEntries, initialIndex },
+    { initialEntries, initialIndex }
   );
 }
 
@@ -85,7 +85,7 @@ describe('RouteFocusManager', () => {
     render(
       <React.StrictMode>
         <RouterProvider router={createRouter()} />
-      </React.StrictMode>,
+      </React.StrictMode>
     );
 
     expect(screen.getByTestId('app-main')).not.toHaveFocus();
@@ -100,7 +100,7 @@ describe('RouteFocusManager', () => {
     render(
       <React.StrictMode>
         <RouterProvider router={router} />
-      </React.StrictMode>,
+      </React.StrictMode>
     );
 
     await act(() => router.navigate('/outages'));
@@ -182,6 +182,35 @@ describe('RouteFocusManager', () => {
     expect(screen.getByTestId('public-main')).not.toHaveFocus();
     expect(frames.pending()).toBe(0);
     expect(scrollTo).not.toHaveBeenCalled();
+  });
+
+  it('preserves a destination control focused before the deferred route focus runs', async () => {
+    const frames = installAnimationFrameQueue();
+    vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
+    const router = createRouter(['/outages']);
+    render(<RouterProvider router={router} />);
+
+    await act(() => router.navigate('/app'));
+    expect(frames.pending()).toBe(1);
+    const input = screen.getByRole('textbox', { name: 'Filter' });
+    input.focus();
+
+    act(() => frames.flush());
+    expect(input).toHaveFocus();
+    expect(screen.getByTestId('app-main')).not.toHaveFocus();
+  });
+
+  it('still moves focus when the focused source control departs with the old page', async () => {
+    const frames = installAnimationFrameQueue();
+    vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
+    const router = createRouter();
+    render(<RouterProvider router={router} />);
+    screen.getByRole('textbox', { name: 'Filter' }).focus();
+
+    await act(() => router.navigate('/outages'));
+    act(() => frames.flush());
+
+    expect(screen.getByTestId('public-main')).toHaveFocus();
   });
 
   it('cancels stale focus work when navigation is superseded', async () => {

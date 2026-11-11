@@ -1,3 +1,11 @@
+## 2026-11-11 — Preserve Backup Center detail context (prepared)
+
+Retain the existing menu context and fixed return through reload and detail tabs,
+with safe URL-only tab/filter/selection state. Direct VPS-dataset links mark VPS;
+NAS/admin routes retain normal navigation. REQ-048/BAK-05;
+[scope and verification](docs/work-log/2026-11-11-backup-detail-navigation.md).
+No navigation consolidation or NAS-14 variant selection; not deployed.
+
 ## 2026-11-11 — Clarify what the VPS operation shortcut opens
 
 Address requested DET-02 result changes without changing its approved criteria
@@ -2841,3 +2849,14 @@ State each delivery instruction once, distinguish failed/other responses from
 pending preparation and name Tasks only with actual receipt metadata. Preserve
 payloads, actions, tracking and selected-owner context. REQ-048;
 [scope, verification and release limits](docs/work-log/2026-11-11-backup-download-feedback.md).
+
+
+## 2026-11-11 — Backup detail keyboard-return correction (prepared)
+
+Original BAK-05 hosted results contain real keyboard-return failures and remain
+unqualified. Controlled deferred-frame checks reproduce focus being stolen from
+the return link in all three browser profiles; preserve the destination's focus
+claim before that frame. Keep exact return/filter assertions, add a deterministic
+regression and adopt the changed storage-section contract into strict typing.
+[Evidence and release gates](docs/work-log/2026-11-11-backup-detail-navigation.md).
+No merge, approval, API deployment or preview activation is claimed.

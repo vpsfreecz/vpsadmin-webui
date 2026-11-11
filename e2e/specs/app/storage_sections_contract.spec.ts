@@ -146,13 +146,13 @@ test.describe('User storage section contract', () => {
     await page.getByTestId('backups.snapshots.row.101').click();
     await expect(page.getByRole('link', { name: 'Open full detail' })).toHaveAttribute(
       'href',
-      '/app/datasets/101/snapshots',
+      '/app/datasets/101/snapshots?from=backups&backups.tab=snapshots&backups.dataset=101&backups.backup_snapshot_limit=50&backups.backup_snapshot_page=1',
     );
 
     await page.getByTestId('backups.snapshots.row.202').click();
     await expect(page.getByRole('link', { name: 'Open full detail' })).toHaveAttribute(
       'href',
-      '/app/nas/202/snapshots',
+      '/app/nas/202/snapshots?from=backups&backups.tab=snapshots&backups.dataset=202&backups.backup_snapshot_limit=50&backups.backup_snapshot_page=1',
     );
   });
 });

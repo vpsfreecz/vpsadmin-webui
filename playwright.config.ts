@@ -92,6 +92,7 @@ export default defineConfig({
         '**/news_language_switch.spec.ts',
         '**/overview_readability.spec.ts',
         '**/sidebar_controls.spec.ts',
+        '**/backup_detail_navigation.spec.ts',
         '**/account_controls_direct.spec.ts',
         '**/dashboard_own_nodes.spec.ts',
         '**/dashboard_summary.spec.ts',

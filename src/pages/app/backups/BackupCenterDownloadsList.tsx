@@ -1,4 +1,6 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom';
+import { backupDetailHref } from '../../../lib/backupNavigation';
 
 import { useI18n } from '../../../app/i18n';
 import { Button } from '../../../components/ui/Button';
@@ -28,6 +30,7 @@ export function BackupCenterDownloadsList(props: {
   hrefOptions: { webuiUrl?: string; origin?: string };
 }) {
   const { t } = useI18n();
+  const location = useLocation();
   const rows = props.compact ? props.downloads.slice(0, 5) : props.downloads;
   const items = rows.map((download) => {
     const href = snapshotDownloadHref(download, props.hrefOptions);
@@ -112,7 +115,7 @@ export function BackupCenterDownloadsList(props: {
                 <div className="mt-4 flex flex-wrap gap-2">
                   {detailPath ? (
                     <Button
-                      to={detailPath}
+                      to={backupDetailHref(detailPath, location.search)}
                       size="sm"
                       variant="ghost"
                       ariaLabel={t('backups.downloads.open_dataset', { dataset: datasetLabel })}
@@ -183,7 +186,7 @@ export function BackupCenterDownloadsList(props: {
                 <div className="flex justify-end gap-2">
                   {detailPath ? (
                     <Button
-                      to={detailPath}
+                      to={backupDetailHref(detailPath, location.search)}
                       size="sm"
                       variant="ghost"
                       ariaLabel={t('backups.downloads.open_dataset', { dataset: datasetLabel })}
