@@ -818,6 +818,13 @@ clears its selected IP assignment. Successful creation still opens the target VP
 Return URLs are restricted to the incident list in the current application mode.
 See the [context regression record](../work-log/2026-10-08-incident-create-context.md).
 
+OOM Refresh reads the current query again, preserving its filter, owner and
+pagination context. It never navigates to a different list. A rejected read
+retains the current URL and the existing Retry action. NAS and member-request
+manual refresh controls remain until their separate update/recovery audit is
+complete. Administrator requests already use the slow visibility-aware refresh
+tier; this OOM fix does not change their behavior.
+
 [Transactions](../../src/lib/api/transactions.ts),
 [monitoring](../../src/lib/api/monitoring.ts), [incidents](../../src/lib/api/incidents.ts),
 [OOM](../../src/lib/api/oom.ts).
