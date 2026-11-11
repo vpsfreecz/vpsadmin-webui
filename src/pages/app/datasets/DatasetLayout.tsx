@@ -199,10 +199,10 @@ export function DatasetLayout() {
                     : t('nav.datasets')}
               </Link>
               <span className="text-faint"> · </span>
-              <span>#{ds.id}</span>
+              <span>{t('dataset.identity.internal_id', { id: ds.id })}</span>
             </>
           }
-          title={name}
+          title={t('dataset.identity.name', { name })}
           badges={
             <>
               {busyTransaction ? (
