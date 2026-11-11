@@ -57,6 +57,7 @@ export default defineConfig({
     {
       name: 'mobile-webkit',
       testMatch: [
+        '**/user_history_smoke.spec.ts',
         '**/storage_root_header.spec.ts',
         '**/error_recovery_action_alignment.spec.ts',
         '**/vps_list_context_readability.spec.ts',

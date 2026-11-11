@@ -2711,3 +2711,10 @@ this local header to wrap and bound its children, and make the measured dark
 resize validation readable without changing its guard, preserving actions and API
 contracts. [Cause, exact-source evidence and pending checks](docs/work-log/2026-11-11-storage-root-actions-wrap.md).
 No merge or deployment is claimed.
+
+
+## 2026-11-11 — Expose the selected user-history view
+
+The finite UX-04 audit found that History's current view was represented only by
+CSS classes. Add explicit pressed state to the two existing buttons and exercise
+pointer plus Space/Enter changes. [Scope, evidence and verification gates](docs/work-log/2026-11-11-history-view-selection.md). Prepared only; no merge or deployment claimed.

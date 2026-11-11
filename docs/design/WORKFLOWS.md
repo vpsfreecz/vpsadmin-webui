@@ -1576,3 +1576,13 @@ gates, destinations and dataset IDs do not change.
 Invalid root-SSD size feedback remains readable while native invalid state and
 submission guards stay active. A valid size clears the local message without
 submitting the draft.
+
+
+## Selected-user history view selection (REQ-010)
+
+Changes to user and Actions by user are toggle buttons with explicit pressed
+state. Pointer selection and Space/Enter activation update that state together
+with the existing view parameter. Filters, selected-user scope and pagination
+retain their existing contracts. This makes the current mode available through
+semantic state as well as the highlighted appearance; native assistive speech
+output still requires device review.
