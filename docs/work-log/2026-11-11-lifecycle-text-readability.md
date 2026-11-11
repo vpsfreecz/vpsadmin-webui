@@ -101,3 +101,15 @@ these typing-only corrections change no executed expression or check.
 The full300configuration bounded matrix, final clean package, fresh exactCI,
 paired activation and protected readback remain pending. No whole-group or
 broad-task completion is claimed.
+
+## Chromium smoke-selection follow-up
+
+The first draft passed the standard six checks, but its new regression was
+selected only by the WebKit file list. The Chromium smoke scripts filter exact
+@pr-smoke and @pr-smoke-mobile tags; the untagged cases were excluded. Actual
+pinned CLI listings confirm zero selected cases in each Chromium job. Add both
+tags to the unchanged cases so both smoke selectors include this regression;
+keep the existing WebKit adoption and strict type coverage. Do not remove an
+assertion, change a payload, alter runtime code, increase a timeout, retry away
+a failure or relax a baseline. Keep the original CI/browser receipts at their
+exact revisions, and refresh exact-head CI/provenance before paired promotion.
