@@ -1003,3 +1003,17 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+
+### Shared snapshot-download presentation (BAK-13, prepared)
+
+The Backup Center and dataset downloads use one responsive presenter. Snapshot
+identity includes the complete filename and snapshot reference; format and size,
+state and its explanation, expiration, and the action region keep the same order
+in both views. Mobile groups are labelled and long unbroken values wrap. The
+Center adds dataset context and its existing detail link; dataset detail keeps
+its existing pagination, create/delete gates, busy checks, confirmation, and
+retry draft callbacks. Safe download links and copying are client operations;
+no Center mutation capability or new API request is inferred from presentation.
+Loading, error, empty and selected-owner/request contracts remain with callers.
+Fixture evidence and exact release status belong in the dated work log.
