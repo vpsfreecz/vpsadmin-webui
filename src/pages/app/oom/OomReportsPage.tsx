@@ -180,7 +180,13 @@ export function OomReportsPage() {
     if (uTrim) next.set('until', uTrim);
     else next.delete('until');
 
-    if (next.toString() !== searchParamsKey) setSp(next, { replace: true });
+    if (next.toString() === searchParamsKey) return;
+
+    // Publish the filters and their cursor reset together. A pending router
+    // transition can otherwise put the previous filter's cursor back.
+    next.delete('from_id');
+    next.set('page', '1');
+    setSp(next, { replace: true });
   }, [
     activeSearchParams,
     cgroup,

@@ -296,15 +296,15 @@ test.describe('OOM report list filter contract', () => {
       cgroup: '/system.slice',
     });
 
-    await page.getByTestId('oom.list.pagination.prev').click();
-    await expect(reportSurface(page, testInfo, 125)).toContainText('/system.slice');
-    await expect.poll(() => new URL(page.url()).searchParams.get('page')).toBe('1');
+    await expect.poll(() => new URL(page.url()).searchParams.get('page')).toBe('2');
 
     await input.fill('cgroup:/history-two.slice');
     await input.press('Enter');
     await expect.poll(() => lastRequest(requests).fields['cgroup']).toBe('/history-two.slice');
     await expect(reportSurface(page, testInfo, 125)).toContainText('/history-two.slice');
     await expect.poll(() => new URL(page.url()).searchParams.get('page')).toBe('1');
+    expect(new URL(page.url()).searchParams.has('from_id')).toBe(false);
+    expect(lastRequest(requests).fields).not.toHaveProperty('from_id');
 
     const beforeBack = requests.length;
     await page.goBack();
