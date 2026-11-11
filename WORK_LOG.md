@@ -1685,3 +1685,12 @@ preserve all branch histories and colleague PRs. Add standard push CI for the
 integration branch, without deployment automation. Dev has isolated test data;
 clankerdev still uses the production API. No host update in this setup.
 [Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
+
+
+## 2026-11-11 — Make lifecycle action and date-error text readable (prepared)
+
+The current finite dark-theme audit measures3.12:1 for small red destructive
+choice titles and date-validation errors. Use the existing readable foreground,
+retaining danger borders and explicit localized labels. Keep all date parsing,
+roles, field values, disabled-submit and mutation behavior. [Scope and verification
+boundaries](docs/work-log/2026-11-11-lifecycle-text-readability.md). No merge or preview activation claimed.
