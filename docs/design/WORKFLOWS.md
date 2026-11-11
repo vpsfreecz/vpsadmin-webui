@@ -1375,6 +1375,11 @@ copy and clear behavior. It adds no navigation variant, API field or write.
 See [scope and verification](../work-log/2026-11-07-todo-oom-filter-rhythm.md)
 and REQ-010 / REQ-073.
 
+Applying a different OOM report filter on a later page replaces the URL with
+the new filter and page one in the same transition. The previous filter's
+cursor is removed from the URL and the next list request. Browser history
+continues to restore filters and previously visited pages (REQ-046).
+
 ## Monitoring filter dimensions (approved TODO UX-03)
 
 Help, ordering, advanced filters, copy and clear match the smart field at44px.

@@ -1,3 +1,7 @@
+## 2026-11-11 — Exercise filter history through application controls
+
+[Incident and OOM Playwright verification](docs/work-log/2026-11-11-filter-history-browser-tests.md).
+
 ## 2026-11-09 — Consolidate the account controls under the nickname
 
 [Scope and verification](docs/work-log/2026-11-09-nickname-menu.md).

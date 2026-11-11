@@ -83,13 +83,13 @@ async function setupOomApi(page: Page, options: OomMockOptions): Promise<OomList
         const requestRecord: OomListRequest = { url: request.toString(), includes, fields };
         requests.push(requestRecord);
 
-        if (!options.allowArbitraryUser && options.expectedImplicitUserId === undefined && fields.user !== undefined) {
-          throw new Error(`Owner-scoped OOM request must not send oom_report[user], got ${fields.user}`);
+        if (!options.allowArbitraryUser && options.expectedImplicitUserId === undefined && fields['user'] !== undefined) {
+          throw new Error(`Owner-scoped OOM request must not send oom_report[user], got ${fields['user']}`);
         }
 
-        if (options.expectedImplicitUserId !== undefined && fields.user !== String(options.expectedImplicitUserId)) {
+        if (options.expectedImplicitUserId !== undefined && fields['user'] !== String(options.expectedImplicitUserId)) {
           throw new Error(
-            `Expected implicit oom_report[user]=${options.expectedImplicitUserId}, got ${fields.user ?? '<missing>'}`
+            `Expected implicit oom_report[user]=${options.expectedImplicitUserId}, got ${fields['user'] ?? '<missing>'}`
           );
         }
 
@@ -100,9 +100,9 @@ async function setupOomApi(page: Page, options: OomMockOptions): Promise<OomList
           );
         }
 
-        const limit = Number(fields.limit ?? '25') || 25;
-        const fromId = fields.from_id ? Number(fields.from_id) : 0;
-        const cgroup = fields.cgroup ?? '/default.slice';
+        const limit = Number(fields['limit'] ?? '25') || 25;
+        const fromId = fields['from_id'] ? Number(fields['from_id']) : 0;
+        const cgroup = fields['cgroup'] ?? '/default.slice';
         const responseLimit = fromId === 0 ? (options.firstPageResponseLimit?.() ?? limit) : limit;
 
         const oom_reports = reportIds
@@ -265,7 +265,7 @@ test.describe('OOM report list filter contract', () => {
     );
     await input.press('Enter');
 
-    await expect.poll(() => lastRequest(requests).fields.cgroup).toBe('/system.slice');
+    await expect.poll(() => lastRequest(requests).fields['cgroup']).toBe('/system.slice');
 
     const exactRequest = lastRequest(requests);
     expect(exactRequest.fields).toMatchObject({
@@ -278,8 +278,8 @@ test.describe('OOM report list filter contract', () => {
       oom_report_rule: '6',
       cgroup: '/system.slice',
     });
-    expect(exactRequest.fields.since).toBeTruthy();
-    expect(exactRequest.fields.until).toBeTruthy();
+    expect(exactRequest.fields['since']).toBeTruthy();
+    expect(exactRequest.fields['until']).toBeTruthy();
     expect(exactRequest.fields).not.toHaveProperty('from_id');
     await expect(reportSurface(page, testInfo, 125)).toContainText('/system.slice');
 
@@ -296,27 +296,22 @@ test.describe('OOM report list filter contract', () => {
       cgroup: '/system.slice',
     });
 
-    const pushCgroupHistory = async (cgroup: string) => {
-      await page.evaluate((nextCgroup) => {
-        const next = new URL(window.location.href);
-        next.searchParams.set('cgroup', nextCgroup);
-        next.searchParams.delete('from_id');
-        next.searchParams.set('page', '1');
-        window.history.pushState({}, '', `${next.pathname}?${next.searchParams.toString()}`);
-        window.dispatchEvent(new PopStateEvent('popstate'));
-      }, cgroup);
-      await expect.poll(() => lastRequest(requests).fields.cgroup).toBe(cgroup);
-      await expect(reportSurface(page, testInfo, 125)).toContainText(cgroup);
-    };
+    await expect.poll(() => new URL(page.url()).searchParams.get('page')).toBe('2');
 
-    await pushCgroupHistory('/history-one.slice');
-    await pushCgroupHistory('/history-two.slice');
+    await input.fill('cgroup:/history-two.slice');
+    await input.press('Enter');
+    await expect.poll(() => lastRequest(requests).fields['cgroup']).toBe('/history-two.slice');
+    await expect(reportSurface(page, testInfo, 125)).toContainText('/history-two.slice');
+    await expect.poll(() => new URL(page.url()).searchParams.get('page')).toBe('1');
+    expect(new URL(page.url()).searchParams.has('from_id')).toBe(false);
+    expect(lastRequest(requests).fields).not.toHaveProperty('from_id');
 
     const beforeBack = requests.length;
     await page.goBack();
-    await expect.poll(() => new URL(page.url()).searchParams.get('cgroup')).toBe('/history-one.slice');
-    await expect(page.getByTestId('oom.chip.cgroup')).toContainText('cgroup:/history-one.slice');
-    await expect(reportSurface(page, testInfo, 125)).toContainText('/history-one.slice');
+    await expect.poll(() => new URL(page.url()).searchParams.get('cgroup')).toBe('/system.slice');
+    await expect(page.getByTestId('oom.chip.cgroup')).toContainText('cgroup:/system.slice');
+    await expect(reportSurface(page, testInfo, 125)).toContainText('/system.slice');
+    await expect.poll(() => new URL(page.url()).searchParams.get('page')).toBe('1');
     await page.waitForTimeout(250);
     expect(requests).toHaveLength(beforeBack);
 
