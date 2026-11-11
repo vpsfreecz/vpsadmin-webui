@@ -195,6 +195,8 @@ See the [parity audit](../work-log/2026-10-03-migration-feedback.md).
 
 ## Compute, disk, access, network and maintenance
 
+A failed reconciliation keeps its existing safety-lock message and verification gate. The feedback remains readable on the warning panel and uses weight and a separate border marker as well as semantic color. It must not release the lock or resubmit the operation merely to dismiss the warning.
+
 The VPS overview network card displays every address returned by the VPS address
 query, in API order, with its prefix, scope badge and copy action. It does not
 collapse addresses behind a “more” count. Long IPv6 values wrap on narrow screens;
