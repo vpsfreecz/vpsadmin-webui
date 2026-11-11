@@ -1003,3 +1003,13 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+
+## Selected-user history view selection (REQ-010)
+
+Changes to user and Actions by user are toggle buttons with explicit pressed
+state. Pointer selection and Space/Enter activation update that state together
+with the existing view parameter. Filters, selected-user scope and pagination
+retain their existing contracts. This makes the current mode available through
+semantic state as well as the highlighted appearance; native assistive speech
+output still requires device review.

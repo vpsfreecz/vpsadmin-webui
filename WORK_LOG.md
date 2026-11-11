@@ -1685,3 +1685,10 @@ preserve all branch histories and colleague PRs. Add standard push CI for the
 integration branch, without deployment automation. Dev has isolated test data;
 clankerdev still uses the production API. No host update in this setup.
 [Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
+
+
+## 2026-11-11 — Expose the selected user-history view
+
+The finite UX-04 audit found that History's current view was represented only by
+CSS classes. Add explicit pressed state to the two existing buttons and exercise
+pointer plus Space/Enter changes. [Scope, evidence and verification gates](docs/work-log/2026-11-11-history-view-selection.md). Prepared only; no merge or deployment claimed.
