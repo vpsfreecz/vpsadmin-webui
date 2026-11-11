@@ -2675,3 +2675,10 @@ nullable payload rules, confirmations and locks. [Cause and verification](docs/w
 Correct two measured low-contrast local validation messages and clear the
 package selector's stale local error when its choice changes. Preserve API,
 server errors and locks. [Cause, scope and pending verification](docs/work-log/2026-11-11-selected-owner-validation-feedback.md).
+
+
+## 2026-11-11 — Keep the selected-owner reminder value readable (prepared)
+
+Wrap Clear below the native reminder input when their combined width would
+shorten the displayed date/time. Preserve lifecycle values, keyboard order and
+confirmation. [Scope and verification](docs/work-log/2026-11-11-owner-reminder-layout.md).
