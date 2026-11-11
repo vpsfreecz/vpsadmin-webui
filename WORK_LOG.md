@@ -2870,3 +2870,12 @@ failures and controlled red cases are retained; new unit/browser regressions kee
 the complete URL, focus and scroll contracts.
 [Evidence and pending release gates](docs/work-log/2026-11-11-backup-detail-navigation.md).
 No merge, API deployment or preview activation.
+
+
+## 2026-11-12 — Shared download presentation (prepared)
+
+Use one download presenter in the Backup Center and dataset detail, retaining
+complete filename/snapshot identity and consistent mobile labelled groups.
+Detail-owned mutation gates and callbacks remain local. REQ-048;
+[scope and verification](docs/work-log/2026-11-12-backup-download-presentation.md).
+No merge, approval, API deployment or preview activation.
