@@ -79,7 +79,7 @@ test.describe('User storage section contract', () => {
       },
     });
 
-    const mobile = testInfo.project.name === 'mobile-chrome';
+    const mobile = testInfo.project.name.startsWith('mobile-');
 
     await page.goto('/app/datasets');
     await expect(page).toHaveURL(/\/app\/vps(?:\?|$)/);

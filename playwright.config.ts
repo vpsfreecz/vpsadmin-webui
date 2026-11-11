@@ -61,6 +61,7 @@ export default defineConfig({
         '**/overview_readability.spec.ts',
         '**/sidebar_controls.spec.ts',
         '**/backup_detail_navigation.spec.ts',
+        '**/storage_sections_contract.spec.ts',
         '**/header_mobile_controls.spec.ts',
         '**/header_account_menu_narrow_mobile.spec.ts',
         '**/header_account_width.spec.ts',
