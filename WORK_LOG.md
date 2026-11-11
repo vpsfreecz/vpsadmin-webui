@@ -1685,3 +1685,9 @@ preserve all branch histories and colleague PRs. Add standard push CI for the
 integration branch, without deployment automation. Dev has isolated test data;
 clankerdev still uses the production API. No host update in this setup.
 [Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
+
+
+## 2026-11-11 — Keep reconciliation feedback readable on warning panels (prepared)
+
+Mutation-reconciliation failures retain readable foreground text, medium weight and a separate danger marker on their actual warning panel while preserving the verification and safety-lock rules. [Cause, scope and verification](docs/work-log/2026-11-11-mutation-reconcile-feedback.md).
+No merge or delivery claim.
