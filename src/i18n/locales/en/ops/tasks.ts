@@ -52,4 +52,7 @@ export const enOps_tasks = {
   "tasks.section.recent": "Recent",
   "tasks.title": "Tasks",
   "tasks.tracking_action": "Tracking: {action}",
+  "tasks.filter_help.title": "Task filter help",
+  "tasks.filter_help.intro": "Filter actions and transactions in this panel by part of their label, ID or target. Matching ignores letter case.",
+  "tasks.filter_help.scope": "This is a local filter of loaded items, including tracked actions. It does not search the full history. Open all transactions to search older transactions.",
 } as const;

@@ -16,7 +16,7 @@ import {
 } from '../../lib/taskStatus';
 import { Drawer } from '../ui/Drawer';
 import { Button } from '../ui/Button';
-import { Input } from '../ui/Input';
+import { TasksFilter } from './TasksFilter';
 import { DeferredChromeModal, DeferredChromeSection } from './DeferredChromeSection';
 import { ChromeContextProvider, type TrackedActionState } from './ChromeContext';
 import { normalizeObjectRef, objectRefKey, parseObjectRefKey, type ObjectRef } from '../../lib/objectRef';
@@ -688,20 +688,7 @@ export function AppLayout(props: { children: React.ReactNode }) {
           closeTestId="tasks.close-button"
         >
           <div className="space-y-6">
-            <div className="flex items-center gap-2">
-              <Input
-                testId="tasks.filter-input"
-                value={tasksFilter}
-                onChange={(e) => setTasksFilter(e.target.value)}
-                placeholder={i18n.t('tasks.filter.placeholder')}
-                className="flex-1"
-              />
-              {tasksFilter ? (
-                <Button size="sm" variant="secondary" onClick={() => setTasksFilter('')}>
-                  {i18n.t('common.clear_search')}
-                </Button>
-              ) : null}
-            </div>
+            <TasksFilter value={tasksFilter} onChange={setTasksFilter} />
 
             <DeferredChromeSection testId="tasks.drawer.loading.action_states">
               <LazyActionStatesPanel

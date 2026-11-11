@@ -574,8 +574,7 @@ export function DatasetsListPage(props: DatasetsListPageProps = {}) {
               suffix={
                 <Button
                   variant="ghost"
-                  size="sm"
-                  className="h-8 w-8 px-0"
+                  className="h-11 w-11 px-0"
                   onClick={() => setHelpOpen(true)}
                   aria-label={t('filters.help.open')}
                   title={t('filters.help.open')}
