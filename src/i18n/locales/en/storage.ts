@@ -140,9 +140,7 @@ export const enStorage = {
   "dataset.manage.user_limited.body":
     "You can resize within available resources. Admins also get destructive actions and quota override.",
   "dataset.manage.create.open": "Create subdataset",
-  "dataset.manage.create.title": "Create subdataset",
-  "dataset.manage.create.scope":
-    "Parent dataset: {dataset}. The new subdataset opens after the create action starts if the API returns its ID.",
+  "dataset.manage.create.title": "Create subdataset under {dataset}",
   "dataset.manage.create.error": "Dataset creation failed",
   "dataset.manage.edit.title": "Edit dataset properties",
   "dataset.manage.edit.error": "Dataset update failed",

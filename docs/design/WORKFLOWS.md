@@ -289,6 +289,14 @@ schedules/plans and downloads, export datasets and restore from available backup
 VPS root disks remain in VPS detail; member NAS and Backup Center retain separate
 navigation. Backup filters remain stable across tab changes.
 
+**Subdataset context:** the creation dialog title includes the complete parent
+label (full name, name or existing fallback), including numeric names that differ
+from the resource ID. Long unbroken labels wrap inside the title. The redundant
+parent/API-ID information box is removed; child name and existing creation fields
+remain. API rejection retains the title and draft. Cancel/Escape and reopening
+retain existing reset behavior. The exact parent-ID payload and existing
+ownership/lifecycle gates remain unchanged.
+
 Export detail presents its summary, allowed hosts and mount instructions as
 full-width sections in that order. Hosts remain a compact table on desktop;
 narrow screens use labeled rows with reachable edit/delete actions. The mount
