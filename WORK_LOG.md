@@ -1699,3 +1699,10 @@ Exact-head mobile Chromium exposed two overflowing IPv6 spans on the focused
 base before the host-address dialog opens. Keep the full original fixture and
 locally wrap the interface/route values; strengthen complete-text and page
 bounds without changing API behavior. [Cause and verification boundaries](docs/work-log/2026-11-11-host-address-text-wrap.md).
+
+
+## 2026-11-11 — Select the network regression in mobile WebKit CI
+
+The explicit WebKit allowlist omitted this new source regression even while both
+Chromium smoke jobs selected it. Enroll its filename without changing a fixture,
+assertion or application byte. [Actual selector proof and verification gates](docs/work-log/2026-11-11-network-webkit-selection.md).
