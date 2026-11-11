@@ -1,3 +1,8 @@
+## 2026-11-11 — Clarify what the VPS operation shortcut opens
+
+Address requested DET-02 result changes without changing its approved criteria
+or action semantics. [Scope and closure provenance](docs/work-log/2026-11-11-vps-operation-list-context.md). Prepared only.
+
 ## 2026-11-11 — Group dataset header context as a path
 
 Prepared NAS-09 dataset-only header grouping; preserve full names, internal

@@ -1666,3 +1666,15 @@ its internal ID, including numeric names. Desktop lists retain the Name column;
 mobile cards and detail headings explicitly name the dataset, and both surfaces
 label the internal ID. Links and API requests use that ID, never the displayed
 name. Role and owner gates, filters and mutations remain unchanged.
+
+## VPS operation list wording (DET-02 result revision)
+
+Show operations / Zobrazit operace opens the existing grouped VPS operation
+list. Its title and group descriptions use the same wording. Find on page can
+locate rendered operation names; opening the list or an operation link does not
+submit it. The shortcut preserves its pathname and selected-user search, adding an explicit
+#vps-operations fragment to focus and show the list below the sticky header.
+Ordinary lifecycle URLs, all operation/form targets, role gates and confirmations
+stay unchanged. Browser Back to the shortcut fragment shows the list again.
+[Prepared correction](../work-log/2026-11-11-vps-operation-list-context.md);
+original result changes remain recorded pending a separately verified delivery.

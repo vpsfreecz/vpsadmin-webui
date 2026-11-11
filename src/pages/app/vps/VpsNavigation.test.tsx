@@ -48,7 +48,7 @@ describe('VPS detail navigation context', () => {
 
     expect(screen.getByRole('link', { name: 'vps.actions.all' })).toHaveAttribute(
       'href',
-      '/admin/vps/14/lifecycle?user=1'
+      '/admin/vps/14/lifecycle?user=1#vps-operations'
     );
 
     const menu = screen.getByTestId('vps.actions.menu');
