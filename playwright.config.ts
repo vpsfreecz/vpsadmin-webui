@@ -75,6 +75,7 @@ export default defineConfig({
         '**/sidebar_status.spec.ts',
         '**/profile_user_data.spec.ts',
         '**/centered_dialogs.spec.ts',
+        '**/storage_form_error_readability.spec.ts',
 
         '**/vps_expiration_reactivation.spec.ts',
         '**/snapshot_export_shortcut.spec.ts',
