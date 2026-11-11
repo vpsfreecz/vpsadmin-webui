@@ -350,6 +350,8 @@ backend blocker. [Datasets](../../src/lib/api/datasets.ts),
 
 ## DNS and networking
 
+Host-address creation wraps long route values, failed addresses and validation text inside the existing dialog and surrounding network failure panel. A rejected request keeps the complete remaining address input and existing partial-batch explanation; layout does not change the submitted address bytes or retry sequence.
+
 **Intent:** create/edit zones and records, configure transfers, servers, TSIG and
 DNSSEC, inspect logs, and manage relevant IP/interface/resolver resources.
 Administrators also have network/address inventories and allocation operations.
