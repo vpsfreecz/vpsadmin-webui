@@ -103,7 +103,7 @@ export function AdminUserResourcesPage() {
       staleTime: 30_000,
     })),
   });
-  const itemsByPackage = useMemo(() => new Map(packageIds.map((id, index) => [id, itemQueries[index]?.data ?? []])), [itemQueries, packageIds]);
+  const itemQueriesByPackage = useMemo(() => new Map(packageIds.map((id, index) => [id, itemQueries[index]])), [itemQueries, packageIds]);
 
   const grouped = useMemo(() => {
     const groups = new Map<string, { environment: any; rows: UserClusterResourcePackage[] }>();
@@ -236,7 +236,8 @@ export function AdminUserResourcesPage() {
             <div className="divide-y divide-border">
             {group.rows.map((row: any) => {
               const pkg = row.cluster_resource_package;
-              const items = itemsByPackage.get(Number(pkg?.id)) ?? [];
+              const itemQuery = itemQueriesByPackage.get(Number(pkg?.id));
+              const items = itemQuery?.data ?? [];
               const personal = isPersonalPackageAssignment(row);
               return <div key={row.id} data-testid={`admin.user.resources.assignment.${row.id}`} className="flex flex-wrap items-start justify-between gap-3 py-3 first:pt-0 last:pb-0">
                 {bulk.allowed ? <Checkbox checked={bulk.selectedIds.has(row.id)}
@@ -252,6 +253,12 @@ export function AdminUserResourcesPage() {
                     ) : '—'}
                   </div>
                   {row.comment ? <div className="mt-1 text-sm text-muted">{row.comment}</div> : null}
+                  {itemQuery?.isFetching ? (
+                    <div role="status" className="mt-1 text-sm text-muted" data-testid={`admin.user.resources.assignment.${row.id}.items.loading`}>{t('common.loading')}</div>
+                  ) : null}
+                  {itemQuery?.isError ? (
+                    <ErrorState error={itemQuery.error} onRetry={() => void itemQuery.refetch()} testId={`admin.user.resources.assignment.${row.id}.items.error`} />
+                  ) : null}
                   {items.length ? (
                     <div className="mt-2 flex flex-wrap gap-1.5" aria-label={t('admin.user.resources.limits')}>
                       {items.map((item: any) => (
@@ -260,7 +267,7 @@ export function AdminUserResourcesPage() {
                         </Badge>
                       ))}
                     </div>
-                  ) : <div className="mt-1 text-sm text-muted">{t('admin.user.resources.none')}</div>}
+                  ) : !itemQuery?.isFetching && !itemQuery?.isError ? <div className="mt-1 text-sm text-muted" data-testid={`admin.user.resources.assignment.${row.id}.items.empty`}>{t('admin.user.resources.none')}</div> : null}
                 </div>
                 <div className="flex shrink-0 gap-2">
                   {personal ? (
@@ -319,10 +326,14 @@ export function AdminUserResourcesPage() {
             <span className="mb-1 block">{t('admin.user.resources.add.environment')}</span>
             <Select ariaLabel={t('admin.user.resources.add.environment')} value={environmentId} onChange={(e) => setEnvironmentId(e.target.value)} options={[{ value: '', label: t('common.select') }, ...(environmentsQ.data ?? []).map((env) => ({ value: String(env.id), label: environmentLabel(env) }))]} />
           </label>
+          {environmentsQ.isFetching ? <div role="status" className="text-sm text-muted" data-testid="admin.user.resources.environments.loading">{t('common.loading')}</div> : null}
+          {environmentsQ.isError ? <ErrorState error={environmentsQ.error} onRetry={() => void environmentsQ.refetch()} testId="admin.user.resources.environments.error" /> : null}
           <label className="block text-sm font-medium">
             <span className="mb-1 block">{t('admin.user.resources.add.package')}</span>
             <Select ariaLabel={t('admin.user.resources.add.package')} value={packageId} onChange={(e) => setPackageId(e.target.value)} options={[{ value: '', label: t('common.select') }, ...(packagesQ.data ?? []).map((pkg: any) => ({ value: String(pkg.id), label: packageLabel(pkg) }))]} />
           </label>
+          {packagesQ.isFetching ? <div role="status" className="text-sm text-muted" data-testid="admin.user.resources.packages.loading">{t('common.loading')}</div> : null}
+          {packagesQ.isError ? <ErrorState error={packagesQ.error} onRetry={() => void packagesQ.refetch()} testId="admin.user.resources.packages.error" /> : null}
           <label className="block text-sm font-medium">
             <span className="mb-1 block">{t('admin.user.resources.add.comment')}</span>
             <Input ariaLabel={t('admin.user.resources.add.comment')} value={comment} onChange={(e) => setComment(e.target.value)} />
