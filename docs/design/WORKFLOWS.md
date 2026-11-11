@@ -453,6 +453,12 @@ schedules/plans and downloads, export datasets and restore from available backup
 VPS root disks remain in VPS detail; member NAS and Backup Center retain separate
 navigation. Backup filters remain stable across tab changes.
 
+**Mount lookup feedback:** dataset lookup failures retain the mount draft and
+show readable foreground text, medium weight and a separate danger border. The
+local form styles its error descendants for both the earlier inline finder and
+the current embedded picker. Retry keeps each implementation's existing query
+contract; displaying or retrying a lookup sends no mount mutation.
+
 **Subdataset context:** the creation dialog title includes the complete parent
 label (full name, name or existing fallback), including numeric names that differ
 from the resource ID. Long unbroken labels wrap inside the title. The redundant

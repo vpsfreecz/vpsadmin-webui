@@ -2789,3 +2789,10 @@ the redundant technical scope box. Keep parent-ID payload, role/lifecycle gates,
 draft retention and cancellation unchanged. Private baseline4 fails on the old
 title; cumulative working40 fixture cases pass, no live writes. Focused CI and
 clean release verification remain pending. [Scope and evidence](docs/work-log/2026-11-11-dataset-parent-dialog.md).
+
+## 2026-11-11 — Readable mount lookup feedback (prepared)
+
+Style the existing local form's error descendants with readable text and a
+separate danger marker. Support the old finder and current picker without a
+feature import or changed API contract. Verification/release remains pending.
+[Compatibility boundary and verification](docs/work-log/2026-11-11-storage-form-error-readability.md).

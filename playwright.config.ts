@@ -112,6 +112,7 @@ export default defineConfig({
         '**/map_kind_control_rhythm.spec.ts',
         '**/secret_field_controls.spec.ts',
         '**/centered_dialogs.spec.ts',
+        '**/storage_form_error_readability.spec.ts',
         '**/dataset_parent_dialog.spec.ts',
 
         '**/lifecycle_value_wrapping.spec.ts',
