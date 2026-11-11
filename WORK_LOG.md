@@ -2682,3 +2682,10 @@ server errors and locks. [Cause, scope and pending verification](docs/work-log/2
 Wrap Clear below the native reminder input when their combined width would
 shorten the displayed date/time. Preserve lifecycle values, keyboard order and
 confirmation. [Scope and verification](docs/work-log/2026-11-11-owner-reminder-layout.md).
+
+
+## 2026-11-11 — Reserve native width with coarse pointers (prepared)
+
+The initial reminder draft's mobile Chromium run found two real1440px width
+failures. Derive the flexible input basis from native max-content and retain the test
+threshold. [Exact negative and next gates](docs/work-log/2026-11-11-owner-reminder-layout.md).
