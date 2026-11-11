@@ -27,6 +27,7 @@
     "e2e/specs/admin/registration_reason_presets.spec.ts",
     "e2e/specs/admin/requests_operations_smoke.spec.ts",
     "e2e/specs/admin/user_contact_summary.spec.ts",
+    "e2e/specs/admin/user_data_owner_scope.spec.ts",
     "e2e/specs/admin/user_detail_page.spec.ts",
     "e2e/specs/admin/user_packages_assigned_date.spec.ts",
     "e2e/specs/admin/user_packages_bulk_remove.spec.ts",
