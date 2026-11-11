@@ -1,3 +1,10 @@
+## 2026-11-11 — Reuse the verified PR browser runner for dataset headers
+
+Use the exact reviewed PR296 CI files and pinned official Playwright image for
+NAS-09 checks. This avoids the recorded Ubuntu mirror DNS setup failure without
+changing tests, selectors, locks, permissions or timeouts. The cumulative
+preview already has these CI files. [Runner evidence](docs/work-log/2026-11-11-pr-browser-runner-image.md).
+
 ## 2026-11-11 — Group dataset header context as a path
 
 Prepared NAS-09 dataset-only header grouping; preserve full names, internal
