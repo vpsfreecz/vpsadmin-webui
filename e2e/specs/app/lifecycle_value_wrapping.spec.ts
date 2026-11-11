@@ -49,7 +49,9 @@ for (const action of ['template', 'swap'] as const) {
       ['cs', 'dark'],
       ['en', 'light'],
     ] as const) {
-      test(`Lifecycle long values ${action} ${actor} ${language} ${theme}`, async ({ page }) => {
+      test(`@pr-smoke @pr-smoke-mobile Lifecycle long values ${action} ${actor} ${language} ${theme}`, async ({
+        page,
+      }) => {
         const errors: string[] = [];
         const writes: string[] = [];
         page.on('pageerror', (error) => errors.push(String(error)));

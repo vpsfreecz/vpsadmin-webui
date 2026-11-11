@@ -62,7 +62,9 @@ async function expectReadableText(text: Locator) {
 for (const cohort of ['action-index', 'admin-date-errors', 'member-snooze-error'] as const) {
   for (const language of ['cs', 'en'] as const)
     for (const theme of ['light', 'dark'] as const) {
-      test(`Lifecycle readable text ${cohort} ${language} ${theme}`, async ({ page }, info) => {
+      test(`@pr-smoke @pr-smoke-mobile Lifecycle readable text ${cohort} ${language} ${theme}`, async ({
+        page,
+      }, info) => {
         const errors: string[] = [],
           writes: string[] = [],
           measurements: unknown[] = [];
