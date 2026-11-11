@@ -2718,3 +2718,12 @@ No merge or deployment is claimed.
 The finite UX-04 audit found that History's current view was represented only by
 CSS classes. Add explicit pressed state to the two existing buttons and exercise
 pointer plus Space/Enter changes. [Scope, evidence and verification gates](docs/work-log/2026-11-11-history-view-selection.md). Prepared only; no merge or deployment claimed.
+
+
+## 2026-11-11 — Keep selected-user templates in their actual owner context
+
+The finite approved UX audit found support's personal templates under another
+member's heading. Follow the existing API owner restriction in the dossier UI,
+retaining administrator and own-account panels. [Source, negative evidence and
+verification gates](docs/work-log/2026-11-11-selected-userdata-owner-guard.md). Prepared only; no new PR, merge
+or paired activation is claimed here.

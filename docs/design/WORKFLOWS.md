@@ -758,6 +758,17 @@ Reveal/Copy actions share36px desktop height and the existing44px coarse-pointer
 minimum. Multiline fields keep compact actions. Reveal/hide, explicit exact copy,
 keyboard focus and owner-bound workflows retain their contracts.
 
+**Selected-user User data (2026-11-11, REQ-001):** The administrative dossier
+must not label the support operator's own templates as another member's data.
+Mount the existing panel for global administrators or when the selected user is
+the authenticated account. Otherwise render the existing localized permission
+message without requesting template data or mounting create/edit/deploy/delete.
+The API's existing non-administrator owner restriction and blacklist of the user
+filter remain authoritative. Administrators retain their selected-owner filter
+and create owner; support on its own dossier retains the implicit current owner.
+Member/My profile and VPS initialization consumers are unchanged. This is a UI
+context guard, not an API privilege change. [Evidence and limits](../work-log/2026-11-11-selected-userdata-owner-guard.md).
+
 **Risk contract:** distinguish security-sensitive changes from ordinary preferences;
 confirm disabling MFA/deleting keys/sessions, preserve failures, never log secrets.
 Passkey setup belongs to the authentication origin. Profile edits may create a
