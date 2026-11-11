@@ -66,6 +66,7 @@ export default defineConfig({
         '**/action_state_transactions_responsive.spec.ts',
         '**/transactions_readability.spec.ts',
         '**/tasks_compact_history.spec.ts',
+        '**/filter_help_consistency.spec.ts',
         '**/transactions_table_followup.spec.ts',
         '**/ip_addresses_filters_pagination.spec.ts',
         '**/ip_addresses_primary_location.spec.ts',

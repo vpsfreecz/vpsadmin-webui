@@ -1,4 +1,5 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
+import { CircleHelp } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
 
@@ -14,6 +15,7 @@ import { EmptyState } from '../../../components/ui/EmptyState';
 import { ErrorState } from '../../../components/ui/ErrorState';
 import { Input } from '../../../components/ui/Input';
 import { LoadingState } from '../../../components/ui/LoadingState';
+import { SmartInputHelp } from '../../../components/ui/SmartInputHelp';
 import { StatCard } from '../../../components/ui/StatCard';
 import { type Dataset } from '../../../lib/api/datasets';
 import {
@@ -91,6 +93,7 @@ function BackupTabs(props: { active: BackupCenterTab; onChange: (tab: BackupCent
 
 export function BackupCenterPage() {
   const { t } = useI18n();
+  const [filterHelpOpen, setFilterHelpOpen] = useState(false);
   const scope = useObjectScope();
   const runtime = useMemo(() => getRuntimeConfig(), []);
   const hrefOptions = useMemo(
@@ -257,17 +260,38 @@ export function BackupCenterPage() {
         <div className="space-y-3">
           <BackupTabs active={tab} onChange={changeTab} />
           {tab !== 'overview' ? (
-            <Input
-              value={query}
-              onChange={(event) => changeQuery(event.target.value)}
-              placeholder={t(`backups.${tab}.filter`)}
-              ariaLabel={t(`backups.${tab}.filter`)}
-              testId="backups.filter"
-            />
+            <div className="flex items-center gap-2">
+              <Input
+                value={query}
+                onChange={(event) => changeQuery(event.target.value)}
+                placeholder={t(`backups.${tab}.filter`)}
+                ariaLabel={t(`backups.${tab}.filter`)}
+                testId="backups.filter"
+                className="h-11 min-h-11 min-w-0 flex-1"
+              />
+              <Button
+                variant="ghost"
+                className="h-11 w-11 shrink-0 px-0"
+                onClick={() => setFilterHelpOpen(true)}
+                aria-label={t('filters.help.open')}
+                title={t('filters.help.open')}
+                testId="backups.filter.help"
+              >
+                <CircleHelp className="h-4 w-4" aria-hidden />
+              </Button>
+            </div>
           ) : null}
         </div>
       }
     >
+      <SmartInputHelp
+        open={filterHelpOpen}
+        onClose={() => setFilterHelpOpen(false)}
+        title={t('backups.filter_help.title')}
+        intro={t(`backups.filter_help.${tab === 'downloads' ? 'downloads' : 'datasets'}`)}
+        footnote={t('backups.filter_help.scope')}
+        testId="backups.filter.help.dialog"
+      />
       <div
         id="backups-tab-panel"
         role="tabpanel"

@@ -18,6 +18,10 @@ jobs:
   smoke:
     name: PR smoke E2E (${{ matrix.project }})
     runs-on: ubuntu-latest
+    container:
+      # Match the Playwright version in package-lock.json.
+      image: mcr.microsoft.com/playwright:v1.61.0-noble@sha256:57b65fdc9ceabe0ef613124c7bbe2babcf9362c4d85e382fe3b03604e84b428a
+      options: --ipc=host
     # A full PR desktop run now takes about 30 minutes before setup/reporting.
     # Keep the complete two-worker suite and allow bounded completion headroom.
     timeout-minutes: 40
@@ -27,13 +31,10 @@ jobs:
         include:
           - project: chromium
             script: e2e:pr:desktop
-            browser: chromium
           - project: mobile-chrome
             script: e2e:pr:mobile
-            browser: chromium
           - project: mobile-webkit
             script: e2e:touch:webkit
-            browser: webkit
 
     steps:
       - name: Checkout
@@ -50,9 +51,6 @@ jobs:
 
       - name: Verify locked toolchain
         run: npm run env:locked
-
-      - name: Install Playwright browsers
-        run: npm run e2e:install -- --with-deps ${{ matrix.browser }}
 
       - name: Run PR smoke E2E
         run: npm run ${{ matrix.script }}

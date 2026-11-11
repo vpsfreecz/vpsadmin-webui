@@ -84,4 +84,8 @@ export const csBackups = {
   'backups.workspace.invalid.title': 'Tento dataset není dostupný',
   'backups.workspace.invalid.body': 'V aktuálně načteném výběru účtu není k dispozici. Jeho detail se nenačetl.',
   'backups.workspace.invalid.clear': 'Zrušit výběr',
+  'backups.filter_help.title': 'Nápověda k filtru záloh',
+  'backups.filter_help.datasets': 'Filtrovat datasety podle části názvu, úplného názvu, popisku, interního ID nebo popisku VPS. Na kartách Snapshoty a Plány se vybírají datasety; jednotlivé snapshoty ani plány se neprohledávají.',
+  'backups.filter_help.downloads': 'Filtrovat načtená stažení podle ID stažení, popisku snapshotu, popisku datasetu nebo formátu.',
+  'backups.filter_help.scope': 'Nezáleží na velikosti písmen. Filtr prohledává jen načtené položky v aktuálním rozsahu. Pokud načítání není úplné, některé výsledky mohou chybět.',
 } as const;

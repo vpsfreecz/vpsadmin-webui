@@ -84,4 +84,8 @@ export const enBackups = {
   'backups.workspace.invalid.title': 'This dataset is not available',
   'backups.workspace.invalid.body': 'It is not present in the currently loaded account selection. No dataset details were loaded.',
   'backups.workspace.invalid.clear': 'Clear selection',
+  'backups.filter_help.title': 'Backup filter help',
+  'backups.filter_help.datasets': 'Filter datasets by part of their name, full name, label, internal ID or VPS label. On the Snapshots and Plans tabs, this selects datasets; it does not search individual snapshots or plans.',
+  'backups.filter_help.downloads': 'Filter loaded downloads by download ID, snapshot label, dataset label or format.',
+  'backups.filter_help.scope': 'Matching ignores letter case. The filter only searches loaded items in the current scope. If loading is incomplete, some matches may be missing.',
 } as const;

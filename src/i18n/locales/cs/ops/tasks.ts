@@ -52,4 +52,7 @@ export const csOps_tasks = {
   "tasks.section.recent": "Nedávné",
   "tasks.title": "Úlohy",
   "tasks.tracking_action": "Sledování: {action}",
+  "tasks.filter_help.title": "Nápověda k filtru úloh",
+  "tasks.filter_help.intro": "Filtrovat akce a transakce v tomto panelu podle části popisku, ID nebo cíle. Nezáleží na velikosti písmen.",
+  "tasks.filter_help.scope": "Jde o místní filtr načtených položek včetně sledovaných akcí. Neprohledává celou historii. Starší transakce lze vyhledat po otevření všech transakcí.",
 } as const;
