@@ -1685,3 +1685,11 @@ preserve all branch histories and colleague PRs. Add standard push CI for the
 integration branch, without deployment automation. Dev has isolated test data;
 clankerdev still uses the production API. No host update in this setup.
 [Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
+
+
+## 2026-11-11 — Distinguish dataset names and internal IDs (prepared)
+
+Label the internal ID on list/detail and name the dataset in mobile cards and
+detail headings. Keep complete and numeric names separate from request IDs.
+[Contract and verification](docs/work-log/2026-11-11-nas-name-identity.md).
+No merge or preview activation claimed.

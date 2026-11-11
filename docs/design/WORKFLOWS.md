@@ -1003,3 +1003,12 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+
+### Dataset identity (NAS-06)
+
+NAS and general dataset list/detail routes distinguish the dataset name from
+its internal ID, including numeric names. Desktop lists retain the Name column;
+mobile cards and detail headings explicitly name the dataset, and both surfaces
+label the internal ID. Links and API requests use that ID, never the displayed
+name. Role and owner gates, filters and mutations remain unchanged.
