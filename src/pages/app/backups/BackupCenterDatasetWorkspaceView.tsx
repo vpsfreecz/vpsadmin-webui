@@ -1,4 +1,6 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom';
+import { backupDetailHref } from '../../../lib/backupNavigation';
 
 import { useI18n } from '../../../app/i18n';
 import { Badge } from '../../../components/ui/Badge';
@@ -29,6 +31,7 @@ interface BackupCenterDatasetWorkspaceViewProps {
 
 export function BackupCenterDatasetWorkspaceView(props: BackupCenterDatasetWorkspaceViewProps) {
   const { t } = useI18n();
+  const location = useLocation();
 
   return (
     <div className="grid items-start gap-4 lg:grid-cols-[minmax(17rem,0.34fr)_minmax(0,1fr)]">
@@ -90,7 +93,7 @@ export function BackupCenterDatasetWorkspaceView(props: BackupCenterDatasetWorks
                 subtitle={t('backups.workspace.selected', { id: props.selectedDataset.id })}
                 actions={
                   <Button
-                    to={datasetBackupPath(props.selectedDataset, props.section)}
+                    to={backupDetailHref(datasetBackupPath(props.selectedDataset, props.section), location.search)}
                     size="sm"
                     variant="secondary"
                   >

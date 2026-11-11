@@ -1,3 +1,18 @@
+## 2026-11-11 — Reuse the verified PR browser runner for backup navigation
+
+Use the exact reviewed PR296 CI files and pinned official Playwright image for
+BAK-05 checks. This avoids the recorded Ubuntu mirror DNS setup failure without
+changing tests, selectors, locks, permissions or timeouts. The cumulative
+preview already has these CI files. [Runner evidence](docs/work-log/2026-11-11-pr-browser-runner-image.md).
+
+## 2026-11-11 — Preserve Backup Center detail context (prepared)
+
+Retain the existing menu context and fixed return through reload and detail tabs,
+with safe URL-only tab/filter/selection state. Direct VPS-dataset links mark VPS;
+NAS/admin routes retain normal navigation. REQ-048/BAK-05;
+[scope and verification](docs/work-log/2026-11-11-backup-detail-navigation.md).
+No navigation consolidation or NAS-14 variant selection; not deployed.
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path
@@ -1685,3 +1700,24 @@ preserve all branch histories and colleague PRs. Add standard push CI for the
 integration branch, without deployment automation. Dev has isolated test data;
 clankerdev still uses the production API. No host update in this setup.
 [Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
+
+
+## 2026-11-11 — Backup detail keyboard-return correction (prepared)
+
+Original BAK-05 hosted results contain real keyboard-return failures and remain
+unqualified. Controlled deferred-frame checks reproduce focus being stolen from
+the return link in all three browser profiles; preserve the destination's focus
+claim before that frame. Keep exact return/filter assertions, add a deterministic
+regression and adopt the changed storage-section contract into strict typing.
+[Evidence and release gates](docs/work-log/2026-11-11-backup-detail-navigation.md).
+No merge, approval, API deployment or preview activation is claimed.
+
+## 2026-11-11 — Backup focus ownership boundaries (prepared)
+
+Preserve a main-content focus claim made after browser history changes but before
+React commits the route. Exclude shell drawer restoration from destination focus
+claims so existing POP navigation still focuses main content. Exact old hosted
+failures and controlled red cases are retained; new unit/browser regressions keep
+the complete URL, focus and scroll contracts.
+[Evidence and pending release gates](docs/work-log/2026-11-11-backup-detail-navigation.md).
+No merge, API deployment or preview activation.

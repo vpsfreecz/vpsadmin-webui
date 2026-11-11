@@ -289,6 +289,20 @@ schedules/plans and downloads, export datasets and restore from available backup
 VPS root disks remain in VPS detail; member NAS and Backup Center retain separate
 navigation. Backup filters remain stable across tab changes.
 
+**Backup detail navigation (BAK-05):** opening a dataset from a download or the
+snapshot/plan workspace retains the existing Backup Center entry as active.
+The URL carries only presentation context, so reload and detail-tab navigation
+keep the same fixed `/app/backups` return with the original tab, text filter,
+dataset selection, restore intent and snapshot-list parameters. It cannot select
+an API owner, trigger an action or supply an arbitrary return URL. A direct
+member VPS-dataset URL without this context highlights VPS and retains its
+Storage backlink; direct NAS and administrator routes keep their usual context.
+This narrow correction does not consolidate navigation or select a NAS-14 model. Dataset
+snapshot/download pagination also checks the browser pathname owning its URL
+before writing, so an old page cannot replace the destination query during a
+rapid return. Other keyset consumers retain their existing behavior.
+
+
 Export detail presents its summary, allowed hosts and mount instructions as
 full-width sections in that order. Hosts remain a compact table on desktop;
 narrow screens use labeled rows with reachable edit/delete actions. The mount
@@ -1003,3 +1017,11 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+
+Backup Center keyboard returns also preserve explicit destination focus claimed
+before the deferred route-focus frame. This protects immediate Enter activation
+while ordinary main-content focus, fragment navigation and scroll rules remain.
+The BAK-05 [corrective verification](../work-log/2026-11-11-backup-detail-navigation.md)
+records the original hosted failure and deterministic scheduling regression;
+prepared source does not certify a deployed release.

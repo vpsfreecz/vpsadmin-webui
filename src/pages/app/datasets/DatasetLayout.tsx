@@ -15,6 +15,7 @@ import { objectRef } from '../../../lib/objectRef';
 import { useTierAIntervalMs } from '../../../lib/refreshTiers';
 import { deriveChainLockState } from '../../../lib/lockState';
 import { useNetworkStatus } from '../../../lib/useNetworkStatus';
+import { backupDetailContext } from '../../../lib/backupNavigation';
 import { resourceId } from '../../../lib/resources';
 
 import { ErrorState } from '../../../components/ui/ErrorState';
@@ -44,6 +45,7 @@ export function DatasetLayout() {
   const online = useNetworkStatus();
   const section = location.pathname.includes('/nas/') ? 'nas' : 'datasets';
   const routeListPath = `${basePath}/${section}`;
+  const backupContext = backupDetailContext(location.pathname, location.search);
 
   const datasetRef = React.useMemo(() => {
     if (!Number.isFinite(id) || id <= 0) return null;
@@ -76,7 +78,7 @@ export function DatasetLayout() {
         kindOverride="not_found"
         title={t('dataset.layout.invalid_id')}
         body={t('error.not_found.body')}
-        backTo={routeListPath}
+        backTo={backupContext?.returnTo ?? routeListPath}
         showStatusLink={false}
         showDetails={false}
         detailsExtra={{ page: 'dataset.detail', datasetId }}
@@ -93,7 +95,7 @@ export function DatasetLayout() {
         title={t('dataset.layout.load_error.title')}
         error={q.error}
         onRetry={() => void q.refetch()}
-        backTo={routeListPath}
+        backTo={backupContext?.returnTo ?? routeListPath}
         detailsExtra={{ page: 'dataset.detail', datasetId: id, scope: scope.scope }}
       />
     );
@@ -103,9 +105,9 @@ export function DatasetLayout() {
   const name = datasetTitle(ds, id);
   const vpsId = resourceId(ds.vps);
   const vpsHostname = ds.vps && typeof ds.vps === 'object' ? String((ds.vps as any).hostname ?? '') : '';
-  const returnPath = mode === 'user' && section === 'datasets' && vpsId !== undefined
+  const returnPath = backupContext?.returnTo ?? (mode === 'user' && section === 'datasets' && vpsId !== undefined
     ? `${basePath}/vps/${vpsId}/storage`
-    : routeListPath;
+    : routeListPath);
 
   const chains = chainsQ.data ?? [];
   const chainLock = deriveChainLockState({
@@ -160,10 +162,10 @@ export function DatasetLayout() {
     ...(expansionCapabilities.showEntry
       ? [{ label: t('dataset.tabs.expansion'), to: `${detailPath}/expansion` }]
       : []),
-  ];
+  ].map((tab) => ({ ...tab, to: tab.to + (backupContext?.search ?? '') }));
 
   if (!expansionCapabilities.showEntry && location.pathname === `${detailPath}/expansion`) {
-    return <Navigate replace to={detailPath} />;
+    return <Navigate replace to={detailPath + (backupContext?.search ?? '')} />;
   }
 
   return (
@@ -192,7 +194,7 @@ export function DatasetLayout() {
           kicker={
             <>
               <Link className="text-accent hover:underline" to={returnPath}>
-                {section === 'nas'
+                {backupContext ? t('nav.backups') : section === 'nas'
                   ? t('nav.nas')
                   : mode === 'user' && vpsId !== undefined
                     ? t('vps.tabs.storage')

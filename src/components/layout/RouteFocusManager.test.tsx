@@ -1,6 +1,6 @@
 import React from 'react';
 import { act, render, screen } from '@testing-library/react';
-import { createMemoryRouter, Outlet, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, createMemoryRouter, Outlet, RouterProvider } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { MainContent } from './MainContentAccessibility';
@@ -29,6 +29,7 @@ function PublicPage() {
 function Root() {
   return (
     <>
+      <button type="button">Navigation trigger</button>
       <RouteFocusManager />
       <Outlet />
     </>
@@ -43,10 +44,18 @@ function createRouter(initialEntries = ['/app'], initialIndex = initialEntries.l
         children: [
           { path: '/app', element: <AppPage /> },
           { path: '/outages', element: <PublicPage /> },
+          {
+            path: '/focused',
+            element: (
+              <MainContent>
+                <input aria-label="Destination" autoFocus />
+              </MainContent>
+            ),
+          },
         ],
       },
     ],
-    { initialEntries, initialIndex },
+    { initialEntries, initialIndex }
   );
 }
 
@@ -85,7 +94,7 @@ describe('RouteFocusManager', () => {
     render(
       <React.StrictMode>
         <RouterProvider router={createRouter()} />
-      </React.StrictMode>,
+      </React.StrictMode>
     );
 
     expect(screen.getByTestId('app-main')).not.toHaveFocus();
@@ -100,7 +109,7 @@ describe('RouteFocusManager', () => {
     render(
       <React.StrictMode>
         <RouterProvider router={router} />
-      </React.StrictMode>,
+      </React.StrictMode>
     );
 
     await act(() => router.navigate('/outages'));
@@ -182,6 +191,98 @@ describe('RouteFocusManager', () => {
     expect(screen.getByTestId('public-main')).not.toHaveFocus();
     expect(frames.pending()).toBe(0);
     expect(scrollTo).not.toHaveBeenCalled();
+  });
+
+  it('preserves a destination control focused before the deferred route focus runs', async () => {
+    const frames = installAnimationFrameQueue();
+    vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
+    const router = createRouter(['/outages']);
+    render(<RouterProvider router={router} />);
+
+    await act(() => router.navigate('/app'));
+    expect(frames.pending()).toBe(1);
+    const input = screen.getByRole('textbox', { name: 'Filter' });
+    input.focus();
+
+    act(() => frames.flush());
+    expect(input).toHaveFocus();
+    expect(screen.getByTestId('app-main')).not.toHaveFocus();
+  });
+
+  it('still moves focus when the focused source control departs with the old page', async () => {
+    const frames = installAnimationFrameQueue();
+    vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
+    const router = createRouter();
+    render(<RouterProvider router={router} />);
+    screen.getByRole('textbox', { name: 'Filter' }).focus();
+
+    await act(() => router.navigate('/outages'));
+    act(() => frames.flush());
+
+    expect(screen.getByTestId('public-main')).toHaveFocus();
+  });
+
+  it('does not treat shell focus restoration as a destination focus claim', async () => {
+    const frames = installAnimationFrameQueue();
+    vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
+    const router = createRouter(['/app', '/outages']);
+    render(<RouterProvider router={router} />);
+
+    await act(() => router.navigate(-1));
+    screen.getByRole('button', { name: 'Navigation trigger' }).focus();
+    act(() => frames.flush());
+
+    expect(screen.getByTestId('app-main')).toHaveFocus();
+  });
+
+  it('preserves destination autofocus committed before the manager layout effect', async () => {
+    const frames = installAnimationFrameQueue();
+    vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
+    const router = createRouter();
+    render(<RouterProvider router={router} />);
+
+    await act(() => router.navigate('/focused'));
+    const input = screen.getByRole('textbox', { name: 'Destination' });
+    expect(input).toHaveFocus();
+    act(() => frames.flush());
+    expect(input).toHaveFocus();
+  });
+
+  it('keeps a persistent destination control focused after history changes before route commit', async () => {
+    const frames = installAnimationFrameQueue();
+    vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
+    window.history.replaceState(null, '', '/app');
+    const router = createBrowserRouter([
+      {
+        element: (
+          <>
+            <RouteFocusManager />
+            <MainContent>
+              <input aria-label="Persistent return" />
+              <Outlet />
+            </MainContent>
+          </>
+        ),
+        children: [
+          { path: '/app', element: <span>App</span> },
+          { path: '/outages', element: <span>Outages</span> },
+        ],
+      },
+    ]);
+    render(<RouterProvider router={router} />);
+    const input = screen.getByRole('textbox', { name: 'Persistent return' });
+    const pushState = window.history.pushState.bind(window.history);
+    vi.spyOn(window.history, 'pushState').mockImplementation((...args) => {
+      pushState(...args);
+      input.focus();
+    });
+
+    await act(() => router.navigate('/outages'));
+    expect(input).toHaveFocus();
+    act(() => frames.flush());
+    expect(input).toHaveFocus();
+    router.dispose();
+    window.history.replaceState(null, '', '/');
   });
 
   it('cancels stale focus work when navigation is superseded', async () => {
