@@ -713,7 +713,13 @@ function DatasetManagementCard() {
         </div>
       </CardBody>
 
-      <Modal open={createOpen} onClose={closeCreate} title={t('dataset.manage.create.title')}>
+      <Modal
+        open={createOpen}
+        onClose={closeCreate}
+        title={
+          <span className="[overflow-wrap:anywhere]">{t('dataset.manage.create.title', { dataset: objectLabel })}</span>
+        }
+      >
         <div className="space-y-4" data-testid="dataset.manage.create.modal">
           <label className="block">
             <div className="text-xs font-medium text-muted">{t('dataset.manage.field.child_name')}</div>
@@ -724,9 +730,6 @@ function DatasetManagementCard() {
               testId="dataset.manage.create.name"
             />
           </label>
-          <div className="rounded-md border border-border bg-surface-2 p-3 text-xs text-muted">
-            {t('dataset.manage.create.scope', { dataset: objectLabel })}
-          </div>
           <Checkbox
             checked={createForm.automount}
             onChange={(value) => setCreateForm((previous) => ({ ...previous, automount: value }))}
