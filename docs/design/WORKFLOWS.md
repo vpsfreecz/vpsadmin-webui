@@ -1003,3 +1003,14 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+
+### Root dataset header containment (REQ-010)
+
+The root dataset card keeps its identity and capability-gated actions within the
+card at intermediate viewport widths. Header actions may move to a new row; role
+gates, destinations and dataset IDs do not change.
+
+Invalid root-SSD size feedback remains readable while native invalid state and
+submission guards stay active. A valid size clears the local message without
+submitting the draft.

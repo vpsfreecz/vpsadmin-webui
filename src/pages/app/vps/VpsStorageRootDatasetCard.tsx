@@ -39,7 +39,10 @@ export function VpsStorageRootDatasetCard(props: {
   if (!root.id) {
     return (
       <Card testId="vps.storage.root_dataset.empty">
-        <CardHeader title={t('vps.storage.root_dataset.title')} subtitle={t('vps.storage.root_dataset.empty.subtitle')} />
+        <CardHeader
+          title={t('vps.storage.root_dataset.title')}
+          subtitle={t('vps.storage.root_dataset.empty.subtitle')}
+        />
         <CardBody>
           <div className="text-sm text-muted">{t('vps.storage.root_dataset.empty.body')}</div>
         </CardBody>
@@ -49,10 +52,17 @@ export function VpsStorageRootDatasetCard(props: {
 
   return (
     <Card testId="vps.storage.root_dataset">
-      <CardHeader title={t('vps.storage.root_dataset.title')} subtitle={t('vps.storage.root_dataset.subtitle', { dataset: root.label })} />
+      <CardHeader
+        className="sm:flex-wrap [&>div]:max-w-full sm:[&>div:first-child]:basis-60"
+        title={t('vps.storage.root_dataset.title')}
+        subtitle={t('vps.storage.root_dataset.subtitle', { dataset: root.label })}
+      />
       <CardBody>
         {props.loading ? (
-          <div className="mb-3 flex items-center gap-2 text-sm text-muted" data-testid="vps.storage.root_dataset.loading">
+          <div
+            className="mb-3 flex items-center gap-2 text-sm text-muted"
+            data-testid="vps.storage.root_dataset.loading"
+          >
             <Spinner /> {t('common.loading')}
           </div>
         ) : null}
@@ -64,7 +74,10 @@ export function VpsStorageRootDatasetCard(props: {
           </div>
         ) : null}
 
-        <div className="mb-4 grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4" data-testid="vps.storage.root_dataset.metadata">
+        <div
+          className="mb-4 grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4"
+          data-testid="vps.storage.root_dataset.metadata"
+        >
           <MetadataItem label={t('dataset.field.used')} value={formatMiB(root.used)} />
           <MetadataItem label={t('dataset.field.available')} value={formatMiB(root.available)} />
           <MetadataItem
@@ -73,7 +86,11 @@ export function VpsStorageRootDatasetCard(props: {
           />
           <MetadataItem
             label={t('vps.storage.root_dataset.capacity')}
-            value={root.capacityPercent !== null ? t('vps.storage.root_dataset.capacity_percent', { percent: root.capacityPercent }) : t('common.na')}
+            value={
+              root.capacityPercent !== null
+                ? t('vps.storage.root_dataset.capacity_percent', { percent: root.capacityPercent })
+                : t('common.na')
+            }
           />
         </div>
 
@@ -93,14 +110,23 @@ export function VpsStorageRootDatasetCard(props: {
             {t('vps.storage.root_dataset.open')}
           </ChipLink>
           {props.canCreateSubdataset ? (
-            <ChipLink to={`${props.basePath}/datasets/${root.id}?create=subdataset`} data-testid="vps.storage.root_dataset.create_subdataset">
+            <ChipLink
+              to={`${props.basePath}/datasets/${root.id}?create=subdataset`}
+              data-testid="vps.storage.root_dataset.create_subdataset"
+            >
               {t('vps.storage.root_dataset.create_subdataset')}
             </ChipLink>
           ) : null}
-          <ChipLink to={`${props.basePath}/datasets/${root.id}/snapshots`} data-testid="vps.storage.root_dataset.snapshots">
+          <ChipLink
+            to={`${props.basePath}/datasets/${root.id}/snapshots`}
+            data-testid="vps.storage.root_dataset.snapshots"
+          >
             {t('vps.storage.root_dataset.snapshots')}
           </ChipLink>
-          <ChipLink to={`${props.basePath}/datasets/${root.id}/downloads`} data-testid="vps.storage.root_dataset.downloads">
+          <ChipLink
+            to={`${props.basePath}/datasets/${root.id}/downloads`}
+            data-testid="vps.storage.root_dataset.downloads"
+          >
             {t('vps.storage.root_dataset.downloads')}
           </ChipLink>
         </div>
@@ -109,13 +135,21 @@ export function VpsStorageRootDatasetCard(props: {
           <div className="mt-1 text-xs text-muted">{t('vps.storage.root_dataset.create_subdataset_user_note')}</div>
         ) : null}
 
-        <details className="mt-4 rounded-md border border-border bg-surface-2 p-3 text-xs text-muted" data-testid="vps.storage.root_dataset.details">
+        <details
+          className="mt-4 rounded-md border border-border bg-surface-2 p-3 text-xs text-muted"
+          data-testid="vps.storage.root_dataset.details"
+        >
           <summary className="cursor-pointer font-medium text-fg">
-            {t(props.canAdmin ? 'vps.storage.root_dataset.details.title_admin' : 'vps.storage.root_dataset.details.title')}
+            {t(
+              props.canAdmin ? 'vps.storage.root_dataset.details.title_admin' : 'vps.storage.root_dataset.details.title'
+            )}
           </summary>
           <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <MetadataItem label={t('dataset.field.referenced')} value={formatMiB(root.referenced)} />
-            <MetadataItem label={t('dataset.field.reference_quota')} value={root.referenceQuota !== null ? formatMiB(root.referenceQuota) : '∞'} />
+            <MetadataItem
+              label={t('dataset.field.reference_quota')}
+              value={root.referenceQuota !== null ? formatMiB(root.referenceQuota) : '∞'}
+            />
             <MetadataItem label={t('dataset.field.quota')} value={formatMiB(root.quota)} />
             <MetadataItem label={t('common.state')} value={root.state ?? t('common.na')} />
           </div>
