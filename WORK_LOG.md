@@ -1711,3 +1711,13 @@ claim before that frame. Keep exact return/filter assertions, add a deterministi
 regression and adopt the changed storage-section contract into strict typing.
 [Evidence and release gates](docs/work-log/2026-11-11-backup-detail-navigation.md).
 No merge, approval, API deployment or preview activation is claimed.
+
+## 2026-11-11 — Backup focus ownership boundaries (prepared)
+
+Preserve a main-content focus claim made after browser history changes but before
+React commits the route. Exclude shell drawer restoration from destination focus
+claims so existing POP navigation still focuses main content. Exact old hosted
+failures and controlled red cases are retained; new unit/browser regressions keep
+the complete URL, focus and scroll contracts.
+[Evidence and pending release gates](docs/work-log/2026-11-11-backup-detail-navigation.md).
+No merge, API deployment or preview activation.
