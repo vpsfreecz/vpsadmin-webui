@@ -56,6 +56,7 @@ export default defineConfig({
       name: 'mobile-webkit',
       testMatch: [
         '**/about.spec.ts',
+        '**/dataset_header_breadcrumb.spec.ts',
         '**/theme_switcher.spec.ts',
         '**/news_language_switch.spec.ts',
         '**/overview_readability.spec.ts',

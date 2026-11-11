@@ -374,4 +374,7 @@ export const csStorage = {
   "dataset.plans.remove.error": "Plán datasetu se nepodařilo odebrat",
   "dataset.plans.remove.not_allowed": "Odebrání omezeno",
   ...csDatasetExpansion,
+  'dataset.identity.name': 'Název datasetu: {name}',
+  'dataset.identity.internal_id': 'Interní ID: #{id}',
+  'dataset.header.path': 'Cesta datasetu',
 } as const;

@@ -1,3 +1,9 @@
+## 2026-11-11 — Group dataset header context as a path
+
+Prepared NAS-09 dataset-only header grouping; preserve full names, internal
+IDs, VPS/return links and operation state. [Scope and verification](docs/work-log/2026-11-11-dataset-header-breadcrumb.md).
+Unverified local candidate; no merge or deployment.
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path

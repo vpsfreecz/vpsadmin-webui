@@ -366,4 +366,7 @@ export const enStorage = {
   "dataset.plans.remove.error": "Failed to remove dataset plan",
   "dataset.plans.remove.not_allowed": "Removal restricted",
   ...enDatasetExpansion,
+  'dataset.identity.name': 'Dataset name: {name}',
+  'dataset.identity.internal_id': 'Internal ID: #{id}',
+  'dataset.header.path': 'Dataset path',
 } as const;
