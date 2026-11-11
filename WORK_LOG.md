@@ -2833,3 +2833,11 @@ Label the internal ID on list/detail and name the dataset in mobile cards and
 detail headings. Keep complete and numeric names separate from request IDs.
 [Contract and verification](docs/work-log/2026-11-11-nas-name-identity.md).
 No merge or preview activation claimed.
+
+
+## 2026-11-11 — Clear created-download feedback (prepared)
+
+State each delivery instruction once, distinguish failed/other responses from
+pending preparation and name Tasks only with actual receipt metadata. Preserve
+payloads, actions, tracking and selected-owner context. REQ-048;
+[scope, verification and release limits](docs/work-log/2026-11-11-backup-download-feedback.md).
