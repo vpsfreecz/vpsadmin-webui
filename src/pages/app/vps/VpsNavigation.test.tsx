@@ -14,28 +14,41 @@ describe('VPS detail navigation context', () => {
     render(
       <MemoryRouter>
         <VpsTabsNav basePath="/admin" vpsId={14} contextSearch="?user=1" />
-      </MemoryRouter>,
+      </MemoryRouter>
     );
 
     expect(screen.getByRole('link', { name: 'vps.tabs.overview' })).toHaveAttribute('href', '/admin/vps/14?user=1');
-    expect(screen.getByRole('link', { name: 'vps.tabs.access' })).toHaveAttribute('href', '/admin/vps/14/access?user=1');
-    expect(screen.getByRole('link', { name: 'vps.tabs.console' })).toHaveAttribute('href', '/admin/vps/14/console?user=1');
+    expect(screen.getByRole('link', { name: 'vps.tabs.access' })).toHaveAttribute(
+      'href',
+      '/admin/vps/14/access?user=1'
+    );
+    expect(screen.getByRole('link', { name: 'vps.tabs.console' })).toHaveAttribute(
+      'href',
+      '/admin/vps/14/console?user=1'
+    );
   });
 
   it('puts the member context into section and lifecycle menu destinations', () => {
     render(
-      <VpsActionsMenu
-        basePath="/admin"
-        vpsId={14}
-        canMutateVps
-        passwordAllowed
-        showTasks={false}
-        showSupportActions
-        showAdminActions
-        ownerUserId={1}
-        contextSearch="?user=1"
-        onSelect={() => undefined}
-      />,
+      <MemoryRouter>
+        <VpsActionsMenu
+          basePath="/admin"
+          vpsId={14}
+          canMutateVps
+          passwordAllowed
+          showTasks={false}
+          showSupportActions
+          showAdminActions
+          ownerUserId={1}
+          contextSearch="?user=1"
+          onSelect={() => undefined}
+        />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByRole('link', { name: 'vps.actions.all' })).toHaveAttribute(
+      'href',
+      '/admin/vps/14/lifecycle?user=1#vps-operations'
     );
 
     const menu = screen.getByTestId('vps.actions.menu');

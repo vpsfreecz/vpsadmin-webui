@@ -1003,3 +1003,24 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+## Find VPS actions on the page (DET-02; REQ-023)
+
+The VPS header offers All actions alongside its existing controls. It opens the
+existing lifecycle action index, where actions are ordinary rendered links in
+the existing user/admin groups, available to browser Find. The shortcut keeps
+the same member/list context and permission gate as the index. Selecting an
+index entry only opens its existing form; existing confirmation and mutation
+guards remain authoritative. Read-only support in the admin view has no shortcut.
+
+## VPS operation list wording (DET-02 result revision)
+
+Show operations / Zobrazit operace opens the existing grouped VPS operation
+list. Its title and group descriptions use the same wording. Find on page can
+locate rendered operation names; opening the list or an operation link does not
+submit it. The shortcut preserves its pathname and selected-user search, adding an explicit
+#vps-operations fragment to focus and show the list below the sticky header.
+Ordinary lifecycle URLs, all operation/form targets, role gates and confirmations
+stay unchanged. Browser Back to the shortcut fragment shows the list again.
+[Prepared correction](../work-log/2026-11-11-vps-operation-list-context.md);
+original result changes remain recorded pending a separately verified delivery.
