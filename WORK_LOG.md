@@ -1,3 +1,11 @@
+## 2026-11-11 — Preserve Backup Center detail context (prepared)
+
+Retain the existing menu context and fixed return through reload and detail tabs,
+with safe URL-only tab/filter/selection state. Direct VPS-dataset links mark VPS;
+NAS/admin routes retain normal navigation. REQ-048/BAK-05;
+[scope and verification](docs/work-log/2026-11-11-backup-detail-navigation.md).
+No navigation consolidation or NAS-14 variant selection; not deployed.
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path

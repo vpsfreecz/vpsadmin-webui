@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Link, useMatch } from 'react-router-dom';
+import { Link, useMatch, useLocation } from 'react-router-dom';
 import {
   Activity,
   Boxes,
@@ -28,6 +28,8 @@ import {
   User,
   Users,
 } from 'lucide-react';
+
+import { backupDetailContext } from '../../lib/backupNavigation';
 
 import { BuildFooter } from './BuildFooter';
 import { Drawer } from '../ui/Drawer';
@@ -208,14 +210,21 @@ function NavigationLink(props: {
   onClick?: () => void;
 }) {
   const { item, surface, compact = false, onClick } = props;
-  const isActive = Boolean(useMatch({
+  const location = useLocation();
+  const backupContext = backupDetailContext(location.pathname, location.search);
+  const fromBackups = Boolean(backupContext);
+  const memberDataset = Boolean(useMatch('/app/datasets/:datasetId/*'));
+  const matched = Boolean(useMatch({
     path: item.activePathPrefix ?? item.to,
     end: isExactNavItem(item),
   }));
+  const isActive = fromBackups
+    ? item.id === 'backups'
+    : memberDataset && item.id === 'vps' ? true : matched;
 
   return (
     <Link
-      to={item.to}
+      to={item.id === 'backups' && backupContext ? backupContext.returnTo : item.to}
       aria-current={isActive ? 'page' : undefined}
       data-testid={`nav.${surface}.${item.id}`}
       className={

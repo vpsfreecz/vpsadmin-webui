@@ -753,7 +753,7 @@ test.describe('Backup center', () => {
     await expect(page.getByTestId(`backups.downloads.${layout}.999`)).toHaveCount(0);
     await expect(page.getByTestId(`backups.downloads.${layout}.51.detail`)).toHaveAttribute(
       'href',
-      '/app/datasets/10/downloads',
+      '/app/datasets/10/downloads?from=backups',
     );
     expect(requestedDatasetIds.sort()).toEqual(['10', '11']);
     expect(requestedDatasetIds).not.toContain(null);

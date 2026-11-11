@@ -124,7 +124,7 @@ describe('BackupCenterPage', () => {
     expect(screen.getByTestId('backups.downloads.table')).toHaveClass('hidden', 'xl:block');
     expect(screen.getByTestId('backups.downloads.card.1.detail')).toHaveAttribute(
       'href',
-      '/app/datasets/10/downloads',
+      '/app/datasets/10/downloads?from=backups&backups.tab=downloads',
     );
     expect(screen.getByTestId('backups.downloads.card.1.detail')).toHaveAttribute(
       'aria-label',
@@ -306,7 +306,7 @@ describe('BackupCenterPage', () => {
     expect(screen.getByTestId('backups.downloads.row.51')).toBeVisible();
     expect(screen.getByTestId('backups.downloads.row.51.detail')).toHaveAttribute(
       'href',
-      '/app/datasets/10/downloads',
+      '/app/datasets/10/downloads?from=backups',
     );
   });
 
