@@ -67,3 +67,37 @@ test('browser back and forward still restore the visited cursor', () => {
   expect(result.current.page).toBe(2);
   expect(result.current.fromId).toBe(50);
 });
+
+test('a departed dataset page cannot normalize or paginate the new route URL', () => {
+  const originalUrl = window.location.href;
+  window.history.replaceState(null, '', '/app/backups?tab=downloads&q=synthetic');
+  const setSearchParams = vi.fn();
+  try {
+    const { result, rerender } = renderHook(
+      ({ filterKey }) =>
+        useKeysetPagination({
+          id: 'departing-dataset-route',
+          filterKey,
+          navigationPathname: '/app/nas/10/snapshots',
+          searchParams: new URLSearchParams('from=backups&backups.tab=downloads&backups.q=synthetic'),
+          setSearchParams,
+        }),
+      { initialProps: { filterKey: 'dataset=10' } }
+    );
+    expect(setSearchParams).not.toHaveBeenCalled();
+    act(() => {
+      result.current.goNext(31);
+      result.current.setLimit(100);
+    });
+    expect(setSearchParams).not.toHaveBeenCalled();
+    window.history.replaceState(null, '', '/app/nas/10/snapshots');
+    rerender({ filterKey: 'dataset=11' });
+    const next = setSearchParams.mock.calls.at(-1)?.[0] as URLSearchParams;
+    expect(next.get('limit')).toBe('50');
+    expect(next.get('page')).toBe('1');
+    expect(next.get('backups.q')).toBe('synthetic');
+    expect(next.get('backups.tab')).toBe('downloads');
+  } finally {
+    window.history.replaceState(null, '', originalUrl);
+  }
+});

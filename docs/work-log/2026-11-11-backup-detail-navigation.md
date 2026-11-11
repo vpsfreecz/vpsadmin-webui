@@ -39,3 +39,31 @@ source. Candidate tests cover Center downloads and workspace entry, reload,
 detail tabs, keyboard return, member/admin-My/support-My, CSdark/ENlight, direct
 NAS/VPS/admin links and URL input boundaries. Fixtures do not prove live API
 permissions, OAuth or physical Safari. Prepared only, no activation or done claim.
+
+
+## Clean-package route race and corrective verification
+
+The first clean F182 bundle passed42/44 but failed two EN mobile-WebKit NAS
+returns (member/support-My). A departing dataset page could normalize its old
+pagination query after the browser already navigated to Backup Center, replacing
+the destination tab/filter. This is a real product race; the correct assertions
+and both original traces are retained. F182 is not eligible for activation even
+if its focused hosted head passes. This differs from the earlier new assertion
+mistakes described above.
+
+Add an optional navigationPathname ownership check to the existing keyset hook,
+enabled only by dataset snapshot/download pages. Once browser navigation leaves
+the path owning those params, automatic normalization and explicit pagination
+must not write its query to the new page. Other hook callers retain their
+existing behavior. Preserve dataset request/payload/gate code and its default
+pagination semantics. The regression reproduces an old page normalizing after
+browser history has moved and fails before the guard. Keep current-path normal
+pagination and the existing pending-filter/cursor tests. Four rapid-return browser
+configurations add three deliberate immediate tab/keyboard-return cycles each;
+the final finite matrix is48 configurations with no test retries.
+
+The first guard edit used a different optional-property spelling from the
+regression and remained red. Aligning the implementation and its two callers to
+the declared navigationPathname contract fixes that edit; no assertion was
+weakened. Corrective native, source, clean-package and hosted checks are pending.
+No API deployment, live mutation, final task completion or preview activation.

@@ -168,6 +168,33 @@ for (const kind of ['nas', 'vps'] as const) {
     await expect(page).toHaveURL(/\/app\/backups$/);
     await journal(info, ctx);
   });
+  test(`@pr-smoke @pr-smoke-mobile rapid return ${kind}`, async ({ page }, info) => {
+    const ctx = await setup(page, info, kind, 'en');
+    // Deliberately return as soon as the browser URL changes, while the old
+    // dataset page may still be committing its automatic pagination query.
+    for (let cycle = 0; cycle < 3; cycle++) {
+      await page.goto('/app/backups?tab=downloads&q=synthetic');
+      await page
+        .locator(
+          '[data-testid="backups.downloads.card.41.detail"]:visible,[data-testid="backups.downloads.row.41.detail"]:visible'
+        )
+        .click();
+      const header = page.getByTestId('dataset.header');
+      await expect(header).toBeVisible();
+      await expect(
+        page.locator(
+          '[data-testid="dataset.downloads.row.41"]:visible,[data-testid="dataset.downloads.card.41"]:visible'
+        )
+      ).toBeVisible();
+      await header.getByRole('link', { name: 'Snapshots', exact: true }).click();
+      await expect(page).toHaveURL(new RegExp(ctx.path + '/snapshots\\?'));
+      await header.getByRole('link', { name: ctx.label, exact: true }).focus();
+      await page.keyboard.press('Enter');
+      await expect(page).toHaveURL(/\/app\/backups\?tab=downloads&q=synthetic$/);
+      await expect(page.getByTestId('backups.filter')).toHaveValue('synthetic');
+    }
+    await journal(info, ctx);
+  });
   for (const base of ['/app', '/admin']) {
     test(`@pr-smoke @pr-smoke-mobile direct detail ${base} ${kind}`, async ({ page }, info) => {
       const ctx = await setup(page, info, kind, 'en', base === '/admin' ? 99 : 1);

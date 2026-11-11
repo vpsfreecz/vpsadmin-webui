@@ -297,7 +297,10 @@ dataset selection, restore intent and snapshot-list parameters. It cannot select
 an API owner, trigger an action or supply an arbitrary return URL. A direct
 member VPS-dataset URL without this context highlights VPS and retains its
 Storage backlink; direct NAS and administrator routes keep their usual context.
-This narrow correction does not consolidate navigation or select a NAS-14 model.
+This narrow correction does not consolidate navigation or select a NAS-14 model. Dataset
+snapshot/download pagination also checks the browser pathname owning its URL
+before writing, so an old page cannot replace the destination query during a
+rapid return. Other keyset consumers retain their existing behavior.
 
 
 Export detail presents its summary, allowed hosts and mount instructions as
