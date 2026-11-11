@@ -263,10 +263,9 @@ export const csStorage = {
   "dataset.download.create_link": "Vytvořit odkaz",
   "dataset.download.created.title.pending": "Záloha se připravuje ke stažení",
   "dataset.download.created.title.ready": "Záloha je připravená",
-  "dataset.download.created.body.pending":
-    "Příprava běží na pozadí. Jakmile bude odkaz hotový, pošleme ho e-mailem a uvidíš ho i v sekci Downloady.",
-  "dataset.download.created.body.ready":
-    "Dočasný odkaz pro stažení snapshotu je připravený. Poslali jsme ho e-mailem a najdeš ho i v sekci Downloady.",
+  "dataset.download.created.title.failed": "Příprava zálohy selhala",
+  "dataset.download.created.title.other": "Stažení snapshotu",
+  "dataset.download.created.tracked": "Průběh přípravy můžeš sledovat v Úlohách.",
   "dataset.download.created.open_downloads": "Otevřít downloady",
   "dataset.downloads.title": "Downloady",
   "dataset.downloads.subtitle":
