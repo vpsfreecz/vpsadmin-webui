@@ -113,6 +113,7 @@ export default defineConfig({
         '**/secret_field_controls.spec.ts',
         '**/centered_dialogs.spec.ts',
 
+        '**/lifecycle_value_wrapping.spec.ts',
         '**/vps_expiration_reactivation.spec.ts',
         '**/snapshot_export_shortcut.spec.ts',
         '**/snapshot_delete_availability.spec.ts',

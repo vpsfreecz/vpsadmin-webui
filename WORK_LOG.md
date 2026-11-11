@@ -2727,3 +2727,13 @@ member's heading. Follow the existing API owner restriction in the dossier UI,
 retaining administrator and own-account panels. [Source, negative evidence and
 verification gates](docs/work-log/2026-11-11-selected-userdata-owner-guard.md). Prepared only; no new PR, merge
 or paired activation is claimed here.
+
+
+## 2026-11-11 — Keep complete lifecycle values inside comparison columns
+
+The approved dimensions/dark-readability audit found a template card overflowing
+at768px and overlapping swap values at320px despite document containment. Add
+inherited value wrapping to the existing lifecycle impact body and swap grid;
+content, row associations and operations stay intact. [Evidence, scope and
+verification gates](docs/work-log/2026-11-11-lifecycle-value-wrapping.md). Prepared only; no PR, merge
+or new preview activation is claimed yet.
