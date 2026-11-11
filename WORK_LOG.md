@@ -2781,3 +2781,11 @@ The actual pinned CLI proves both new files were omitted by the explicit
 WebKit project allowlist. Enroll them while preserving source fixtures and all
 assertions. Historical188 results retain7795 provenance; fresh packaging and
 source checks remain required. [Evidence and gates](docs/work-log/2026-11-11-network-webkit-selection.md).
+
+## 2026-11-11 — Parent context in subdataset creation (prepared)
+
+Show the complete parent in the CS/EN creation title and wrap long labels; remove
+the redundant technical scope box. Keep parent-ID payload, role/lifecycle gates,
+draft retention and cancellation unchanged. Private baseline4 fails on the old
+title; cumulative working40 fixture cases pass, no live writes. Focused CI and
+clean release verification remain pending. [Scope and evidence](docs/work-log/2026-11-11-dataset-parent-dialog.md).

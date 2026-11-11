@@ -85,6 +85,7 @@
     "e2e/specs/app/dataset_download_delete_confirm.spec.ts",
     "e2e/specs/app/dataset_downloads_keyset_pagination.spec.ts",
     "e2e/specs/app/dataset_filter_rhythm.spec.ts",
+    "e2e/specs/app/dataset_parent_dialog.spec.ts",
     "e2e/specs/app/dataset_plans_responsive_actions.spec.ts",
     "e2e/specs/app/dataset_snapshot_confirm_workflows.spec.ts",
     "e2e/specs/app/dataset_snapshots_keyset_pagination.spec.ts",
