@@ -2754,3 +2754,16 @@ The new cases were selected by the WebKit file list but lacked the two tags
 required by Chromium smoke selectors. Add both tags without changing assertions
 or application code. Preserve the original exact-source evidence and refresh
 the focused-head CI and clean release verification before promotion.
+
+
+## 2026-11-11 — Keep complete host-address text inside the dialog (prepared)
+
+Host-address creation wraps complete route and failed IPv6 text inside its dialog at narrow widths, preserving address bytes and the retry draft. [Cause, scope and verification](docs/work-log/2026-11-11-host-address-text-wrap.md).
+No merge or delivery claim.
+
+
+## 2026-11-11 — Retain complete route text before host creation
+
+The focused-base follow-up adds wrapping to two route values already wrapped in
+this cumulative source. Preserve the full fixture and add complete route/page
+bounds; do not import unrelated features or shorten the synthetic hostname.

@@ -102,7 +102,7 @@ export function VpsHostAddressCreateModal(props: {
         </div>
       }
     >
-      <div className="space-y-4">
+      <div className="min-w-0 space-y-4 [overflow-wrap:anywhere]">
         <div className="text-sm text-muted">
           {props.route ? t('vps.network.host_addresses.create.route', { route: ipAddressLabel(props.route) }) : null}
         </div>
