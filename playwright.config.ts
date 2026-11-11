@@ -93,6 +93,7 @@ export default defineConfig({
         '**/overview_readability.spec.ts',
         '**/sidebar_controls.spec.ts',
         '**/backup_detail_navigation.spec.ts',
+        '**/storage_sections_contract.spec.ts',
         '**/account_controls_direct.spec.ts',
         '**/dashboard_own_nodes.spec.ts',
         '**/dashboard_summary.spec.ts',

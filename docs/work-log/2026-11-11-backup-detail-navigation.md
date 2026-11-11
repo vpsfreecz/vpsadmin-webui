@@ -94,3 +94,12 @@ BAK09/10 were checked. Full finite81-case three-profile verification, native che
 new exact-head hosted six checks and cumulative recomposition on actual6F47
 remain required. Old16CE/F182 bundles are not eligible for deployment. No API
 writes, preview activation, completion, merge or approval is claimed.
+
+
+The expanded private81 run also enrolled the existing storage-section contract
+in WebKit for the first time. Its hard-coded mobile-Chrome check classified
+WebKit as desktop and searched for a hidden table row. Keep every assertion,
+recognize both mobile projects, and explicitly enroll the complete contract in
+hosted WebKit too. The original failed execution remains evidence; this is a
+test-layout correction, with no product runtime change. Final clean81 and new
+exact-head CI are still required.
