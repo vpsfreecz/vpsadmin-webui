@@ -453,6 +453,16 @@ schedules/plans and downloads, export datasets and restore from available backup
 VPS root disks remain in VPS detail; member NAS and Backup Center retain separate
 navigation. Backup filters remain stable across tab changes.
 
+**Filter help (UX-06):** NAS, Backup Center and Tasks expose the same question-mark
+button and SmartInputHelp modal, operable by click, touch, Enter and Space.
+Closing returns focus without changing the filter or URL. Backup Center explains
+local dataset matching on Snapshots/Plans (not snapshot/plan names) and its
+distinct download fields on Downloads. Tasks explains case-insensitive matching
+on loaded action/transaction labels, IDs and targets, including tracked actions;
+it does not search the full history. Existing loading limits and role scopes
+remain authoritative. Opening help performs no reads or writes.
+
+
 **Mount lookup feedback:** dataset lookup failures retain the mount draft and
 show readable foreground text, medium weight and a separate danger border. The
 local form styles its error descendants for both the earlier inline finder and
