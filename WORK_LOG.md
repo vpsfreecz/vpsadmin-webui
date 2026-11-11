@@ -1693,3 +1693,12 @@ Label the internal ID on list/detail and name the dataset in mobile cards and
 detail headings. Keep complete and numeric names separate from request IDs.
 [Contract and verification](docs/work-log/2026-11-11-nas-name-identity.md).
 No merge or preview activation claimed.
+
+
+## 2026-11-11 — Run NAS identity CI in the verified browser image
+
+PR295 hit the same security.ubuntu.com DNS failure during browser dependency
+installation before tests ran. Reuse the exact workflow image/dependency fix
+from PR294 d2bb2567, already present in the cumulative preview source. Keep
+all test commands, projects, assertions, locks, permissions and timeouts.
+[Runner failure and pinned-image contract](docs/work-log/2026-11-11-pr-browser-runner-image.md).
