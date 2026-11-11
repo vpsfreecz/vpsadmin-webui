@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, Navigate, Outlet, useLocation, useParams } from 'react-router-dom';
+import { Navigate, Outlet, useLocation, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 
 import { useAppMode } from '../../../app/appMode';
@@ -21,7 +21,7 @@ import { ErrorState } from '../../../components/ui/ErrorState';
 import { LoadingState } from '../../../components/ui/LoadingState';
 import { LockBadge } from '../../../components/ui/LockBadge';
 import { LockStateStaleAlert } from '../../../components/ui/LockStateStaleAlert';
-import { ObjectHeader } from '../../../components/ui/ObjectHeader';
+import { DatasetHeader } from './DatasetHeader';
 import { TabsNav } from '../../../components/ui/TabsNav';
 
 import { DatasetContextProvider } from './DatasetContext';
@@ -187,42 +187,24 @@ export function DatasetLayout() {
       }}
     >
       <DetailShell>
-        <ObjectHeader
-          testId="dataset.header"
-          kicker={
-            <>
-              <Link className="text-accent hover:underline" to={returnPath}>
-                {section === 'nas'
-                  ? t('nav.nas')
-                  : mode === 'user' && vpsId !== undefined
-                    ? t('vps.tabs.storage')
-                    : t('nav.datasets')}
-              </Link>
-              <span className="text-faint"> · </span>
-              <span>#{ds.id}</span>
-            </>
-          }
-          title={name}
-          badges={
-            <>
-              {busyTransaction ? (
-                <LockBadge
-                  kind="transaction"
-                  t={t}
-                  chainIds={activeChainIds}
-                  showDetails
-                />
-              ) : busyLocalLock ? (
-                <LockBadge kind="local" t={t} />
-              ) : null}
-
-              {vpsId ? (
-                <Link className="text-accent hover:underline" to={`${basePath}/vps/${vpsId}`}>
-                  {t('common.vps')}: {vpsHostname ? vpsHostname : `#${vpsId}`}
-                </Link>
-              ) : null}
-            </>
-          }
+        <DatasetHeader
+          name={name}
+          id={ds.id}
+          returnPath={returnPath}
+          returnLabel={section === 'nas'
+            ? t('nav.nas')
+            : mode === 'user' && vpsId !== undefined
+              ? t('vps.tabs.storage')
+              : t('nav.datasets')}
+          status={busyTransaction ? (
+            <LockBadge kind="transaction" t={t} chainIds={activeChainIds} showDetails />
+          ) : busyLocalLock ? (
+            <LockBadge kind="local" t={t} />
+          ) : null}
+          vpsLink={vpsId ? {
+            to: `${basePath}/vps/${vpsId}`,
+            label: `${t('common.vps')}: ${vpsHostname || `#${vpsId}`}`,
+          } : undefined}
           tabs={<TabsNav items={tabs} />}
         />
 

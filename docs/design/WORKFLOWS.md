@@ -289,6 +289,13 @@ schedules/plans and downloads, export datasets and restore from available backup
 VPS root disks remain in VPS detail; member NAS and Backup Center retain separate
 navigation. Backup filters remain stable across tab changes.
 
+**Dataset header:** a dataset-only breadcrumb groups the existing return context
+and complete labelled name. The internal ID, existing VPS association and
+Busy/Working state remain distinct and wrap without clipping. Preserve plain
+heading text for the object document title, contextual Help priority0, existing
+return targets and capability-dependent tabs. This chooses no navigation model.
+
+
 Export detail presents its summary, allowed hosts and mount instructions as
 full-width sections in that order. Hosts remain a compact table on desktop;
 narrow screens use labeled rows with reachable edit/delete actions. The mount
