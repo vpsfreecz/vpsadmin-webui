@@ -1691,3 +1691,10 @@ clankerdev still uses the production API. No host update in this setup.
 
 Mutation-reconciliation failures retain readable foreground text, medium weight and a separate danger marker on their actual warning panel while preserving the verification and safety-lock rules. [Cause, scope and verification](docs/work-log/2026-11-11-mutation-reconcile-feedback.md).
 No merge or delivery claim.
+
+
+## 2026-11-11 — Select the network regression in mobile WebKit CI
+
+The explicit WebKit allowlist omitted this new source regression even while both
+Chromium smoke jobs selected it. Enroll its filename without changing a fixture,
+assertion or application byte. [Actual selector proof and verification gates](docs/work-log/2026-11-11-network-webkit-selection.md).

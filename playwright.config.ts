@@ -100,6 +100,7 @@ export default defineConfig({
         '**/vps_maintenance_sunday.spec.ts',
         '**/network_address_details.spec.ts',
         '**/vps_network_editor_feedback.spec.ts',
+        '**/mutation_reconciliation_readability.spec.ts',
         '**/user_packages_bulk_remove.spec.ts',
         '**/user_packages_assigned_date.spec.ts',
         '**/vps_dns_shortcut.spec.ts',
