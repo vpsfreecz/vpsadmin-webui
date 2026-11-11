@@ -2702,3 +2702,12 @@ verification](docs/work-log/2026-11-11-resource-package-read-feedback.md).
 The finite presentation audit found a 3–4 px action offset when the spinner
 appears in the selected-owner package dialog. Group its footer actions with flex wrapping and
 a consistent gap. [Reproduction and verification gates](docs/work-log/2026-11-11-resource-form-footer-alignment.md).
+
+
+## 2026-11-11 — Keep storage actions and resize feedback readable (prepared)
+
+The finite UX-03/UX-04 audit found selected-admin storage overflow at768px. Allow
+this local header to wrap and bound its children, and make the measured dark
+resize validation readable without changing its guard, preserving actions and API
+contracts. [Cause, exact-source evidence and pending checks](docs/work-log/2026-11-11-storage-root-actions-wrap.md).
+No merge or deployment is claimed.
