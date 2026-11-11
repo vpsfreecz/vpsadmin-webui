@@ -57,6 +57,7 @@ export default defineConfig({
     {
       name: 'mobile-webkit',
       testMatch: [
+        '**/oom_refresh_context.spec.ts',
         '**/user_data_owner_scope.spec.ts',
         '**/user_history_smoke.spec.ts',
         '**/storage_root_header.spec.ts',
