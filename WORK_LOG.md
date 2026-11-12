@@ -1,3 +1,11 @@
+## 2026-11-12 — Distinguish exit actions by their effect (UX-07)
+
+Document Cancel/Back/Close and destination-named navigation, preserving existing
+pending, draft and focus contracts. The current dataset/console controls already
+meet the finite audit; no runtime change. See [source,36 fixture configurations
+and limits](docs/work-log/2026-11-12-exit-action-rule.md). Protected TODO result
+publication remains pending; no approval, merge or runtime deployment.
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path

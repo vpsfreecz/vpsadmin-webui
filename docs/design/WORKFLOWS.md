@@ -1003,3 +1003,19 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+
+## Exit action semantics (UX-07)
+
+REQ-010, REQ-020, REQ-048: Cancel abandons an unfinished action, Back navigates
+from viewing, and Close dismisses a viewing overlay. A destination-named link
+is valid navigation. The rule preserves existing dirty/pending guards and does
+not create a new unsaved-changes requirement.
+
+The audited NAS standalone header/footer Cancel links target the NAS list and
+discard the unsubmitted draft. Child creation Cancel/Escape/backdrop keep the
+dataset route, reset the draft and restore opener focus. Console size controls
+change only the view; Overview targets the VPS overview. Cancelling session
+replacement sends neither another token create nor a delete. These are fixture
+observations on clean C9, not live lifecycle or permission certification. See
+[the finite audit record](../work-log/2026-11-12-exit-action-rule.md).
