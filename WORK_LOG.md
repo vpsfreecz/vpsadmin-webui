@@ -1701,3 +1701,12 @@ Reuse the exact qualified PR302/PR301 runner workflow and documentation bytes
 from5fc90733 to avoid the known package-mirror DNS setup failure. Keep all jobs,
 selectors, assertions, two-worker limits and timeouts; the DNSSEC scope cases remain
 in every relevant profile. [Runner evidence](docs/work-log/2026-11-11-pr-browser-runner-image.md).
+
+
+## 2026-11-12 — Keep primary DNSSEC records contained in the focused fix
+
+PR304's original mobile WebKit run exposed the missing primary-card containment
+on the isolated experiment base. Retain the exact two-line previously approved
+min-width fix and keep all primary320px regression assertions. The cumulative
+preview already has these bytes; no runtime activation occurred.
+[Failure and correction](docs/work-log/2026-11-12-secondary-dnssec-management.md#isolated-pr-mobile-qualification-correction).

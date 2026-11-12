@@ -47,3 +47,27 @@ assertion changed to the existing wire contract; application requests, APIs,
 assertion intent, timeouts and retries did not change. Exact own CLI stopped
 with SIGINT130 and cleanup0; final full48 completed with cleanup0.
 Clean Nix/clean browser, hosted CI and paired/protected release remain pending.
+
+
+### Isolated PR mobile qualification correction
+
+Original PR304 attempt1 (43130478523) failed14 mobile WebKit cases: the primary
+DNSKEY/DS cards widened the320px document to443px. The cumulative EBEB preview
+already contained the previously approved6fa981d4 grid-item containment; the
+focused13a base did not. Preserve that exact two-line min-width correction in
+this focused change so primary DNSSEC regression coverage passes independently.
+Do not remove or relax the width assertion or skip primary scenarios. DNSSEC
+values, copy actions, queries and permissions are unchanged. Original hosted
+logs/artifacts and a clean exact-focused baseline reproduction are retained at
+/data/webui-browser-runner/verification-20261103/todo-dns-ci-diagnosis-20261112.
+Further local verification and a fresh exact-head hosted run remain required.
+DNS03 is separately held by its original OOM URL/history flaky attempt; no
+prepared preview was activated and no human TODO field was changed.
+
+
+Corrected focused working build: all48 Chromium1440/mobileWebKit320 cases pass
+without retries or page errors, including all28 primary cases and20 secondary
+cases. All48 PUTs were intercepted; no live API write occurred. Pinned ci:quick,
+production build and4 existing zone-model tests pass. Mobile/desktop primary
+raw captures were individually viewed. Exact clean package/provenance and new
+hosted six-check qualification still remain; this is local working evidence.
