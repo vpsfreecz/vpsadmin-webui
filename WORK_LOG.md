@@ -2887,3 +2887,11 @@ Prepare approved DNS-03 / REQ-049: allow API-supported `*` without changing
 other owner-name checks, content/TTL/conflict checks, payloads or error handling.
 [Reproduction, scope and verification](docs/work-log/2026-11-12-dns-bare-wildcard.md).
 Not merged or deployed; no live DNS/API mutation or naming-model selection.
+
+
+## 2026-11-12 — Explain secondary-zone DNSSEC management
+
+Prepare approved DNS-02 / REQ-049: distinguish primary-server management from
+secondary signing status in list, header, settings and direct DNSSEC view.
+[Scope, API semantics, terminology and verification](docs/work-log/2026-11-12-secondary-dnssec-management.md).
+Not merged/deployed; no DNS-01 naming-model selection or live API/DNS changes.
