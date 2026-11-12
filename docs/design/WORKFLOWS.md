@@ -350,6 +350,14 @@ backend blocker. [Datasets](../../src/lib/api/datasets.ts),
 
 ## DNS and networking
 
+The DNS record editor accepts the API-supported bare `*` owner, including A,
+AAAA and TXT records. It preserves the existing `*.subdomain` owner syntax and
+rejects embedded, repeated or non-leading wildcard labels. This is an owner-name
+check only: content, TTL, record-set conflicts, permissions and the unchanged
+API request/error handling remain authoritative. An API rejection retains the
+draft and field error; an intercepted save does not prove live DNS publication.
+[Prepared wildcard verification](../work-log/2026-11-12-dns-bare-wildcard.md).
+
 **Intent:** create/edit zones and records, configure transfers, servers, TSIG and
 DNSSEC, inspect logs, and manage relevant IP/interface/resolver resources.
 Administrators also have network/address inventories and allocation operations.
