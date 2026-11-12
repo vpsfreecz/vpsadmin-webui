@@ -206,10 +206,10 @@
       "path": "src/pages/app/dns/DnsRecordModel.ts",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "6a53ee8b7ff93f6604f3344ee3b489c420b685d0aeef438d9b72b1acd3ad5cd8",
+      "contentHash": "757beb4d590f7cae951ff97fa7e1c5c7c9dbb54194c1b5f306bc2e73e06bbebf",
       "old": 0,
       "allowance": 518,
-      "rationale": "At the recorded source revision, this file already contained DNS record form validation and mapping; extract the coherent section with focused behavior coverage before removing this exception. Reviewed generated-client migration: generated Create/Update inputs replace duplicate payload declarations, and consumed label/name helpers preserve nullable fields. Tighten the reduced file to its exact measured count; no additional budget is granted.",
+      "rationale": "At the recorded source revision, this file already contained DNS record form validation and mapping; extract the coherent section with focused behavior coverage before removing this exception. Reviewed generated-client migration: generated Create/Update inputs replace duplicate payload declarations, and consumed label/name helpers preserve nullable fields. Tighten the reduced file to its exact measured count; no additional budget is granted. Reviewed DNS-03: only allow the API-supported bare wildcard beside @; allowance and all other validation rules are unchanged and covered by regression tests.",
       "owner": "WebUI implementation lead",
       "removeWhen": {
         "metric": "lines",

@@ -2879,3 +2879,11 @@ complete filename/snapshot identity and consistent mobile labelled groups.
 Detail-owned mutation gates and callbacks remain local. REQ-048;
 [scope and verification](docs/work-log/2026-11-12-backup-download-presentation.md).
 No merge, approval, API deployment or preview activation.
+
+
+## 2026-11-12 — Accept bare DNS wildcard record owners
+
+Prepare approved DNS-03 / REQ-049: allow API-supported `*` without changing
+other owner-name checks, content/TTL/conflict checks, payloads or error handling.
+[Reproduction, scope and verification](docs/work-log/2026-11-12-dns-bare-wildcard.md).
+Not merged or deployed; no live DNS/API mutation or naming-model selection.

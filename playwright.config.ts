@@ -57,6 +57,7 @@ export default defineConfig({
     {
       name: 'mobile-webkit',
       testMatch: [
+        '**/app/dns_record_wildcard.spec.ts',
         '**/oom_refresh_context.spec.ts',
         '**/user_data_owner_scope.spec.ts',
         '**/user_history_smoke.spec.ts',
