@@ -283,6 +283,15 @@ backend configuration decision. [Console fixture](../../e2e/specs/app/vps_consol
 [PR518](https://github.com/Kerrycek/clankerdev/pull/518).
 
 ## Storage, NAS, snapshots, backup and export
+**Counted-record links (BAK-03):** complete Backup Center dataset and download
+statistics open the existing dataset picker and Downloads list. The destination
+clears local text matching, prior dataset selection, restore intent and embedded
+snapshot pagination so it contains the same IDs as the count. Keep the current
+route, account scope and unrelated query values. Normal tabs continue preserving
+filters. Links use native keyboard/new-tab/history semantics. Incomplete or failed
+collections and lifecycle groups without an exact existing filter remain inert;
+no API filter, role permission or lifecycle meaning is invented.
+
 
 **Intent:** inspect datasets and usage/quota, create NAS storage, manage snapshots,
 schedules/plans and downloads, export datasets and restore from available backups.

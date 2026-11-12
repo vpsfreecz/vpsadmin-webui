@@ -1685,3 +1685,11 @@ preserve all branch histories and colleague PRs. Add standard push CI for the
 integration branch, without deployment automation. Dev has isolated test data;
 clankerdev still uses the production API. No host update in this setup.
 [Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
+
+
+## 2026-11-12 — Link backup statistics to counted records (prepared)
+
+BAK-03 / REQ-048: only complete dataset/download statistics open their exact
+existing lists, clearing local matching/selection while preserving scope.
+Lifecycle/incomplete counts remain inert. [Scope and verification](docs/work-log/2026-11-12-backup-statistics-links.md).
+No merge, approval or preview delivery claimed.
