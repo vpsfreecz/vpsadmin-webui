@@ -40,6 +40,7 @@
     "e2e/specs/app/centered_dialogs.spec.ts",
     "e2e/specs/app/command_palette.spec.ts",
     "e2e/specs/app/dataset_snapshot_confirm_workflows.spec.ts",
+    "e2e/specs/app/dns_record_wildcard.spec.ts",
     "e2e/specs/app/export_hosts_responsive_actions.spec.ts",
     "e2e/specs/app/exports_filter_contract.spec.ts",
     "e2e/specs/app/filter_bar_chip_alignment.spec.ts",
@@ -58,6 +59,7 @@
     "e2e/specs/app/mobile_workflows.spec.ts",
     "e2e/specs/app/network_address_details.spec.ts",
     "e2e/specs/app/node_history.spec.ts",
+    "e2e/specs/app/oom_reports_smart_filter.spec.ts",
     "e2e/specs/app/payment_qr_images.spec.ts",
     "e2e/specs/app/payments_page.spec.ts",
     "e2e/specs/app/profile_metrics_tokens.spec.ts",
@@ -973,13 +975,6 @@
     {
       "path": "e2e/specs/app/oom_report_tasks_mobile_layout.spec.ts",
       "sha256": "98d6644b604d04165bb62fe36e8eed7fbf728114f050895c4b8c597e66a2038b",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/app/oom_reports_smart_filter.spec.ts",
-      "sha256": "e21248cf60d437af12f73da1252b67741c2502fe035c21f257d4003902e36775",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."

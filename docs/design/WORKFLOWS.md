@@ -350,6 +350,14 @@ backend blocker. [Datasets](../../src/lib/api/datasets.ts),
 
 ## DNS and networking
 
+The DNS record editor accepts the API-supported bare `*` owner, including A,
+AAAA and TXT records. It preserves the existing `*.subdomain` owner syntax and
+rejects embedded, repeated or non-leading wildcard labels. This is an owner-name
+check only: content, TTL, record-set conflicts, permissions and the unchanged
+API request/error handling remain authoritative. An API rejection retains the
+draft and field error; an intercepted save does not prove live DNS publication.
+[Prepared wildcard verification](../work-log/2026-11-12-dns-bare-wildcard.md).
+
 **Intent:** create/edit zones and records, configure transfers, servers, TSIG and
 DNSSEC, inspect logs, and manage relevant IP/interface/resolver resources.
 Administrators also have network/address inventories and allocation operations.
@@ -1003,3 +1011,12 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+
+## OOM filters during pending navigation
+
+Explicit Next/Previous/numbered-page and page-size actions use the same applied
+filter snapshot as the list request, even before a router transition publishes
+new search params. URL hydration and automatic cursor normalization continue to
+follow the router for Back/Forward. Owner-scope and API contracts remain unchanged.
+See [the reproduced race](../work-log/2026-11-09-oom-pending-filter-navigation.md).

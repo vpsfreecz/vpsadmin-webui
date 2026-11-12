@@ -21,6 +21,35 @@ function draft(overrides: Partial<ReturnType<typeof defaultDnsRecordDraft>> = {}
 }
 
 describe('DnsRecordModel', () => {
+  it.each([
+    ['A', '192.0.2.10'],
+    ['AAAA', '2001:db8::10'],
+    ['TXT', 'synthetic-wildcard-value'],
+    ['CNAME', 'target.example.test.'],
+  ])('accepts the API-supported bare wildcard for %s records', (type, content) => {
+    const d = draft({ name: ' * ', type, content });
+    expect(validateDnsRecordDraft(d, []).hasErrors).toBe(false);
+    expect(buildDnsRecordCreatePayload(10, d)).toMatchObject({ dns_zone: 10, name: '*', type, content });
+    expect(validateExistingDnsRecord({ id: 1, name: '*', type, content, enabled: true }, []).hasErrors).toBe(false);
+  });
+
+  it.each(['*foo', 'foo*', 'www.*', 'www.*.example.test.', '**', '*..example.test.', '*.', '*.bad-.example.test.'])(
+    'rejects an invalid wildcard owner name %s',
+    (name) => {
+      const result = validateDnsRecordDraft(draft({ name, type: 'A', content: '192.0.2.10' }), []);
+      expect(result.errors.some((issue) => issue.field === 'name')).toBe(true);
+    }
+  );
+
+  it.each(['*.sub', '*.example.test.', '@', 'www'])('retains valid existing owner syntax %s', (name) => {
+    expect(validateDnsRecordDraft(draft({ name, type: 'A', content: '192.0.2.10' }), []).hasErrors).toBe(false);
+  });
+
+  it('retains content and TTL validation for a wildcard owner', () => {
+    const result = validateDnsRecordDraft(draft({ name: '*', type: 'A', content: '999.2.3.4', ttl: '3.5' }), []);
+    expect(result.errors.map((issue) => issue.field)).toEqual(expect.arrayContaining(['content', 'ttl']));
+  });
+
   it('leaves TTL empty for new records so the zone default is inherited', () => {
     expect(defaultDnsRecordDraft(600).ttl).toBe('');
     expect(buildDnsRecordCreatePayload(10, defaultDnsRecordDraft(600)).ttl).toBeUndefined();
@@ -84,12 +113,28 @@ describe('DnsRecordModel', () => {
     const mx = validateDnsRecordDraft(draft({ name: 'mail', type: 'MX', content: 'mail.example.test.' }), []);
     expect(mx.errors.map((issue) => issue.messageKey)).toContain('dns.zone.records.validation.priority.required');
 
-    const okMx = validateDnsRecordDraft(draft({ name: 'mail', type: 'MX', content: 'mail.example.test.', priority: '10' }), []);
+    const okMx = validateDnsRecordDraft(
+      draft({ name: 'mail', type: 'MX', content: 'mail.example.test.', priority: '10' }),
+      []
+    );
     expect(okMx.hasErrors).toBe(false);
   });
 
   it('matches the complete live API record type capability set', () => {
-    expect(DNS_RECORD_TYPES).toEqual(['A', 'AAAA', 'CAA', 'CNAME', 'DS', 'MX', 'NS', 'PTR', 'SRV', 'SSHFP', 'TLSA', 'TXT']);
+    expect(DNS_RECORD_TYPES).toEqual([
+      'A',
+      'AAAA',
+      'CAA',
+      'CNAME',
+      'DS',
+      'MX',
+      'NS',
+      'PTR',
+      'SRV',
+      'SSHFP',
+      'TLSA',
+      'TXT',
+    ]);
     expect(dnsRecordSupportsPriority('MX')).toBe(true);
     expect(dnsRecordSupportsPriority('TLSA')).toBe(false);
     expect(dnsRecordSupportsDynamicUpdate('AAAA')).toBe(true);
@@ -143,7 +188,13 @@ describe('DnsRecordModel', () => {
     expect(apexDs.errors.map((issue) => issue.messageKey)).toContain('dns.zone.records.validation.conflict.ds_apex');
 
     const incompatible = validateDnsRecordDraft(
-      draft({ name: 'ssh', type: 'SSHFP', content: `4 2 ${'B'.repeat(64)}`, priority: '10', dynamicUpdateEnabled: true }),
+      draft({
+        name: 'ssh',
+        type: 'SSHFP',
+        content: `4 2 ${'B'.repeat(64)}`,
+        priority: '10',
+        dynamicUpdateEnabled: true,
+      }),
       []
     );
     expect(incompatible.errors.map((issue) => issue.messageKey)).toEqual(
@@ -192,11 +243,18 @@ describe('DnsRecordModel', () => {
       { id: 2, name: 'alias', type: 'CNAME', content: 'www.example.test.' },
     ];
 
-    const cnameOverA = validateDnsRecordDraft(draft({ name: 'www', type: 'CNAME', content: 'target.example.test.' }), existing);
-    expect(cnameOverA.errors.map((issue) => issue.messageKey)).toContain('dns.zone.records.validation.conflict.cname_existing');
+    const cnameOverA = validateDnsRecordDraft(
+      draft({ name: 'www', type: 'CNAME', content: 'target.example.test.' }),
+      existing
+    );
+    expect(cnameOverA.errors.map((issue) => issue.messageKey)).toContain(
+      'dns.zone.records.validation.conflict.cname_existing'
+    );
 
     const aOverCname = validateDnsRecordDraft(draft({ name: 'alias', type: 'A', content: '192.0.2.11' }), existing);
-    expect(aOverCname.errors.map((issue) => issue.messageKey)).toContain('dns.zone.records.validation.conflict.cname_blocks');
+    expect(aOverCname.errors.map((issue) => issue.messageKey)).toContain(
+      'dns.zone.records.validation.conflict.cname_blocks'
+    );
   });
 
   it('builds edit previews from changed payload fields only', () => {

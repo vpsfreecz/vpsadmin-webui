@@ -1685,3 +1685,33 @@ preserve all branch histories and colleague PRs. Add standard push CI for the
 integration branch, without deployment automation. Dev has isolated test data;
 clankerdev still uses the production API. No host update in this setup.
 [Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
+
+## 2026-11-09 — Preserve OOM filters during pending navigation
+
+Correct the reproduced Next/page-size URL race without changing owner scope.
+[Scope, root cause and evidence](docs/work-log/2026-11-09-oom-pending-filter-navigation.md).
+
+
+## 2026-11-12 — Accept bare DNS wildcard record owners
+
+Prepare approved DNS-03 / REQ-049: allow API-supported `*` without changing
+other owner-name checks, content/TTL/conflict checks, payloads or error handling.
+[Reproduction, scope and verification](docs/work-log/2026-11-12-dns-bare-wildcard.md).
+Not merged or deployed; no live DNS/API mutation or naming-model selection.
+
+
+## 2026-11-12 — Reuse the qualified browser runner for DNS checks
+
+Reuse the exact qualified PR302/PR301 runner workflow and documentation bytes
+from5fc90733 to avoid the known package-mirror DNS setup failure. Keep all jobs,
+selectors, assertions, two-worker limits and timeouts; the wildcard cases remain
+in every relevant profile. [Runner evidence](docs/work-log/2026-11-11-pr-browser-runner-image.md).
+
+
+## 2026-11-12 — Include the reviewed OOM navigation dependency in DNS review
+
+Preserve DNS-03 and include existing draft PR243 as the explicit dependency
+for its independently reproduced OOM CI blocker. The focused foundation lacks
+that correction while the cumulative preview already contains it. Both original
+Next/page-size regressions fail on the focused source before inclusion.
+[DNS scope and dependency evidence](docs/work-log/2026-11-12-dns-bare-wildcard.md).

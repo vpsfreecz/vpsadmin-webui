@@ -147,6 +147,10 @@ export function useKeysetPagination(opts: {
   filterKey: string;
   /** Current URLSearchParams from react-router. */
   searchParams: URLSearchParams;
+  /** Applied filter params while their router transition is still pending.
+   * Used only for explicit navigation; URL hydration keeps using searchParams.
+   */
+  navigationSearchParams?: URLSearchParams;
   /** Setter from react-router. */
   setSearchParams: (nextInit: URLSearchParams | string, navigateOpts?: { replace?: boolean }) => void;
   /** Optional prefix for query params (for pages that embed multiple paginated lists). Example: 'tx_' => tx_from_id, tx_page, tx_limit. */
@@ -222,8 +226,11 @@ export function useKeysetPagination(opts: {
   const cursor = viewStack[viewIndex] === null ? undefined : (viewStack[viewIndex] ?? undefined);
 
   const syncUrl = (nextStack: KeysetCursorStack, nextIndex: number, mode: 'push' | 'replace') => {
-    // Use the router-provided params as the baseline (more deterministic than window.location).
-    const cur = new URLSearchParams(opts.searchParams);
+    // Explicit navigation may follow an applied filter before the router publishes it.
+    // Automatic normalization must still follow the router, including Back/Forward.
+    const cur = new URLSearchParams(
+      mode === 'push' ? (opts.navigationSearchParams ?? opts.searchParams) : opts.searchParams
+    );
     const next = new URLSearchParams(cur);
 
     // Limit is always explicit once the hook is active.
@@ -359,7 +366,7 @@ export function useKeysetPagination(opts: {
 
   const setLimit = (nextLimit: number) => {
     const l = clampLimit(nextLimit, allowedLimits, defaultLimit);
-    const cur = new URLSearchParams(opts.searchParams);
+    const cur = new URLSearchParams(opts.navigationSearchParams ?? opts.searchParams);
     const next = new URLSearchParams(cur);
     next.set(limitKey, String(l));
     next.delete(cursorKey);
