@@ -83,6 +83,16 @@ test.describe('@pr-smoke @pr-smoke-mobile Dataset snapshots keyset pagination', 
     await expect(item(1)).toBeVisible();
   });
 
+  test('omits pagination when the first page already contains every snapshot', async ({ page }) => {
+    const mobile = (page.viewportSize()?.width ?? 1024) < 768;
+    await page.goto('/app/datasets/10/snapshots?limit=100');
+
+    await expect(page.getByTestId(`dataset.snapshots.${mobile ? 'card' : 'row'}.100`)).toBeVisible();
+    expect(requestedSnapshotParams.at(-1)?.get('snapshot[limit]')).toBe('101');
+    await expect(page.getByTestId('dataset.snapshots.pagination.desktop')).toHaveCount(0);
+    await expect(page.getByTestId('dataset.snapshots.pagination.mobile')).toHaveCount(0);
+  });
+
   test('does not offer or send the unsupported q filter', async ({ page }) => {
     const mobile = (page.viewportSize()?.width ?? 1024) < 768;
     await page.goto('/app/datasets/10/snapshots?q=legacy-search');

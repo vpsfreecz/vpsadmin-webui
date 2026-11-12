@@ -40,6 +40,7 @@
     "e2e/specs/app/centered_dialogs.spec.ts",
     "e2e/specs/app/command_palette.spec.ts",
     "e2e/specs/app/dataset_snapshot_confirm_workflows.spec.ts",
+    "e2e/specs/app/dataset_snapshots_keyset_pagination.spec.ts",
     "e2e/specs/app/export_hosts_responsive_actions.spec.ts",
     "e2e/specs/app/exports_filter_contract.spec.ts",
     "e2e/specs/app/filter_bar_chip_alignment.spec.ts",
@@ -51,6 +52,7 @@
     "e2e/specs/app/header_session_limit.spec.ts",
     "e2e/specs/app/incident_create_context.spec.ts",
     "e2e/specs/app/incidents_responsive_layout.spec.ts",
+    "e2e/specs/app/incidents_smart_filter.spec.ts",
     "e2e/specs/app/ip_addresses_environment_filter.spec.ts",
     "e2e/specs/app/member_payment_links.spec.ts",
     "e2e/specs/app/mobile_lookup_popover.spec.ts",
@@ -58,6 +60,7 @@
     "e2e/specs/app/mobile_workflows.spec.ts",
     "e2e/specs/app/network_address_details.spec.ts",
     "e2e/specs/app/node_history.spec.ts",
+    "e2e/specs/app/oom_reports_smart_filter.spec.ts",
     "e2e/specs/app/payment_qr_images.spec.ts",
     "e2e/specs/app/payments_page.spec.ts",
     "e2e/specs/app/profile_metrics_tokens.spec.ts",
@@ -747,13 +750,6 @@
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
     },
     {
-      "path": "e2e/specs/app/dataset_snapshots_keyset_pagination.spec.ts",
-      "sha256": "239d7afb1d3a8103c4da63b368840342ad3e7fbde7680d7a2596d7ae91beb377",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
       "path": "e2e/specs/app/datasets_list_keyset_pagination.spec.ts",
       "sha256": "cd1c32f2685e94e599520f4303d184b21baa89cc6f33505e852deebe128c8202",
       "owner": "WebUI maintainers",
@@ -908,13 +904,6 @@
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
     },
     {
-      "path": "e2e/specs/app/incidents_smart_filter.spec.ts",
-      "sha256": "8ffea3c8330e6452631cca970f506f8bb68476f177952c8a89ad835a647f4de9",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
       "path": "e2e/specs/app/known_devices_keyset_pagination.spec.ts",
       "sha256": "7833484cd069015b5e68ed52627463de0c55f5e72664761ddc2a820fde8d3684",
       "owner": "WebUI maintainers",
@@ -973,13 +962,6 @@
     {
       "path": "e2e/specs/app/oom_report_tasks_mobile_layout.spec.ts",
       "sha256": "98d6644b604d04165bb62fe36e8eed7fbf728114f050895c4b8c597e66a2038b",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/app/oom_reports_smart_filter.spec.ts",
-      "sha256": "e21248cf60d437af12f73da1252b67741c2502fe035c21f257d4003902e36775",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."

@@ -735,6 +735,13 @@ blind retry. [Finance](../../src/lib/api/finance.ts),
 
 ## Tasks, transactions, monitoring, incidents and OOM
 
+Incident explicit page navigation and page-size changes use the same applied
+exact filter snapshot as the URL writer, including all administrator filters.
+They retain those filters while the router is still publishing a prior URL.
+URL normalization and browser history continue to use actual router params;
+role filtering, API fields and cursor/visited-page behavior remain unchanged.
+See the [caller correction](../work-log/2026-11-12-incident-pending-filter-navigation.md).
+
 Transaction history uses compact aligned ID/time/owner/object/action/state
 columns on desktop and folds metadata under the action on small screens. The
 owner column appears only in administrator mode; a normal member and an admin's
@@ -1003,3 +1010,12 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+
+## OOM filters during pending navigation
+
+Explicit Next/Previous/numbered-page and page-size actions use the same applied
+filter snapshot as the list request, even before a router transition publishes
+new search params. URL hydration and automatic cursor normalization continue to
+follow the router for Back/Forward. Owner-scope and API contracts remain unchanged.
+See [the reproduced race](../work-log/2026-11-09-oom-pending-filter-navigation.md).
