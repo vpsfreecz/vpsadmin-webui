@@ -36,6 +36,7 @@ import {
 import { BackupCenterDatasetWorkspaceView } from './BackupCenterDatasetWorkspaceView';
 import { BackupCenterQuickActions } from './BackupCenterQuickActions';
 import { BackupCenterRestoreGuide } from './BackupCenterRestoreGuide';
+import { BackupStatisticLink } from './BackupStatisticLink';
 
 const DATASET_LIMIT = 100;
 const DOWNLOAD_LIMIT = 100;
@@ -63,12 +64,7 @@ function BackupTabs(props: { active: BackupCenterTab; onChange: (tab: BackupCent
   }
 
   return (
-    <div
-      className="flex flex-wrap gap-2"
-      role="tablist"
-      aria-label={t('backups.tabs.aria')}
-      onKeyDown={handleKeyDown}
-    >
+    <div className="flex flex-wrap gap-2" role="tablist" aria-label={t('backups.tabs.aria')} onKeyDown={handleKeyDown}>
       {BACKUP_CENTER_TABS.map((tab) => (
         <Button
           key={tab}
@@ -98,7 +94,7 @@ export function BackupCenterPage() {
       webuiUrl: runtime.webuiUrl,
       origin: typeof window !== 'undefined' ? window.location.origin : undefined,
     }),
-    [runtime.webuiUrl],
+    [runtime.webuiUrl]
   );
   const [searchParams, setSearchParams] = useSearchParams();
   const tab = parseBackupCenterTab(searchParams.get('tab'));
@@ -111,11 +107,12 @@ export function BackupCenterPage() {
 
   const datasetsQ = useQuery({
     queryKey: ['backup-center', 'datasets', { user: scope.mineUserId }],
-    queryFn: () => fetchAllBackupDatasets({
-      limit: DATASET_LIMIT,
-      includes: 'vps,parent,environment,user',
-      user: scope.mineUserId,
-    }),
+    queryFn: () =>
+      fetchAllBackupDatasets({
+        limit: DATASET_LIMIT,
+        includes: 'vps,parent,environment,user',
+        user: scope.mineUserId,
+      }),
     staleTime: 30_000,
     enabled: true,
   });
@@ -123,8 +120,7 @@ export function BackupCenterPage() {
   const scopedDatasetIds = needsDatasetScopedDownloads
     ? datasets.map((dataset) => Number(dataset.id)).filter(Number.isFinite)
     : [];
-  const downloadsEnabled = shouldLoadDownloads
-    && (!needsDatasetScopedDownloads || datasetsQ.isSuccess);
+  const downloadsEnabled = shouldLoadDownloads && (!needsDatasetScopedDownloads || datasetsQ.isSuccess);
   const downloadsQ = useQuery({
     queryKey: [
       'backup-center',
@@ -144,27 +140,31 @@ export function BackupCenterPage() {
   });
 
   const downloads = downloadsQ.data?.data ?? [];
-  const selectedDatasetId = selectedDatasetParam && /^\d+$/.test(selectedDatasetParam)
-    ? Number(selectedDatasetParam)
-    : undefined;
-  const selectedDataset = selectedDatasetId !== undefined
-    ? datasets.find((dataset) => dataset.id === selectedDatasetId)
-    : undefined;
+  const selectedDatasetId =
+    selectedDatasetParam && /^\d+$/.test(selectedDatasetParam) ? Number(selectedDatasetParam) : undefined;
+  const selectedDataset =
+    selectedDatasetId !== undefined ? datasets.find((dataset) => dataset.id === selectedDatasetId) : undefined;
   const invalidDatasetSelection = Boolean(selectedDatasetParam && !selectedDataset);
   const filteredDatasets = useMemo(() => filterBackupDatasets(datasets, query), [datasets, query]);
   const filteredDownloads = useMemo(() => {
     const needle = query.trim().toLocaleLowerCase();
     if (!needle) return downloads;
-    return downloads.filter((download) => [
-      download.id,
-      resourceLabel(download.snapshot, ''),
-      resourceLabel(resolveSnapshotDownloadDataset(download, datasets), ''),
-      download.format,
-    ].filter(Boolean).join(' ').toLocaleLowerCase().includes(needle));
+    return downloads.filter((download) =>
+      [
+        download.id,
+        resourceLabel(download.snapshot, ''),
+        resourceLabel(resolveSnapshotDownloadDataset(download, datasets), ''),
+        download.format,
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLocaleLowerCase()
+        .includes(needle)
+    );
   }, [datasets, downloads, query]);
   const summary = useMemo(
     () => summarizeBackupCenter(datasets, downloads, hrefOptions),
-    [datasets, downloads, hrefOptions],
+    [datasets, downloads, hrefOptions]
   );
 
   // Commit URL edits before another control reads the current tab/filter.
@@ -197,6 +197,18 @@ export function BackupCenterPage() {
     }
   }
 
+  // A statistic describes the whole loaded scope, independently of the local
+  // matching query or previously selected snapshot workspace.
+  function statisticHref(nextTab: 'snapshots' | 'downloads') {
+    const next = new URLSearchParams(searchParams);
+    next.set('tab', nextTab);
+    next.delete('q');
+    next.delete('dataset');
+    next.delete('intent');
+    clearEmbeddedSnapshotParams(next);
+    return `?${next.toString()}`;
+  }
+
   function selectDataset(dataset: Dataset) {
     const next = new URLSearchParams(searchParams);
     next.set('dataset', String(dataset.id));
@@ -214,29 +226,26 @@ export function BackupCenterPage() {
   const datasetTotal = datasetsQ.data?.totalCount;
   const downloadTotal = downloadsQ.data?.totalCount;
   const datasetsComplete = datasetsQ.data?.complete === true;
-  const downloadsComplete = downloadsQ.data?.complete === true
-    && (!needsDatasetScopedDownloads || datasetsComplete);
+  const downloadsComplete = downloadsQ.data?.complete === true && (!needsDatasetScopedDownloads || datasetsComplete);
   const datasetScopeLimited = datasetsQ.isSuccess && !datasetsComplete;
   const downloadScopeLimited = downloadsQ.isSuccess && !downloadsComplete;
-  const datasetScopeIsRequired = needsDatasetScopedDownloads
-    || tab === 'snapshots'
-    || tab === 'plans';
-  const scopeLimited = (datasetScopeIsRequired && datasetScopeLimited)
-    || (shouldLoadDownloads && downloadScopeLimited);
-  const datasetMetadataLimited = !needsDatasetScopedDownloads
-    && shouldLoadDownloads
-    && (datasetsQ.isError || datasetScopeLimited);
+  const datasetScopeIsRequired = needsDatasetScopedDownloads || tab === 'snapshots' || tab === 'plans';
+  const scopeLimited = (datasetScopeIsRequired && datasetScopeLimited) || (shouldLoadDownloads && downloadScopeLimited);
+  const datasetMetadataLimited =
+    !needsDatasetScopedDownloads && shouldLoadDownloads && (datasetsQ.isError || datasetScopeLimited);
   const partialDownloadDatasetCount = downloadsQ.data?.failedDatasetIds.length ?? 0;
-  const downloadsLoading = (downloadsEnabled && downloadsQ.isPending)
-    || (needsDatasetScopedDownloads && datasetsQ.isPending);
-  const loading = (tab === 'overview' && downloadsLoading)
-    || ((tab === 'snapshots' || tab === 'plans') && datasetsQ.isPending)
-    || (tab === 'downloads' && downloadsLoading);
-  const error = tab === 'downloads'
-    ? downloadsQ.error ?? (needsDatasetScopedDownloads ? datasetsQ.error : null)
-    : tab === 'overview'
-      ? downloadsQ.error ?? (needsDatasetScopedDownloads ? datasetsQ.error : null)
-      : datasetsQ.error;
+  const downloadsLoading =
+    (downloadsEnabled && downloadsQ.isPending) || (needsDatasetScopedDownloads && datasetsQ.isPending);
+  const loading =
+    (tab === 'overview' && downloadsLoading) ||
+    ((tab === 'snapshots' || tab === 'plans') && datasetsQ.isPending) ||
+    (tab === 'downloads' && downloadsLoading);
+  const error =
+    tab === 'downloads'
+      ? (downloadsQ.error ?? (needsDatasetScopedDownloads ? datasetsQ.error : null))
+      : tab === 'overview'
+        ? (downloadsQ.error ?? (needsDatasetScopedDownloads ? datasetsQ.error : null))
+        : datasetsQ.error;
 
   function retryActiveTab() {
     if (tab === 'downloads') {
@@ -268,16 +277,9 @@ export function BackupCenterPage() {
         </div>
       }
     >
-      <div
-        id="backups-tab-panel"
-        role="tabpanel"
-        aria-labelledby={`backups-tab-${tab}`}
-        className="space-y-6"
-      >
+      <div id="backups-tab-panel" role="tabpanel" aria-labelledby={`backups-tab-${tab}`} className="space-y-6">
         {loading ? <LoadingState testId="backups.loading" /> : null}
-        {!loading && error ? (
-          <ErrorState error={error} onRetry={retryActiveTab} testId="backups.error" />
-        ) : null}
+        {!loading && error ? <ErrorState error={error} onRetry={retryActiveTab} testId="backups.error" /> : null}
         {!loading && !error && scopeLimited ? (
           <Card>
             <CardBody className="text-sm text-muted">
@@ -298,11 +300,7 @@ export function BackupCenterPage() {
           </Alert>
         ) : null}
         {!loading && !error && shouldLoadDownloads && partialDownloadDatasetCount > 0 ? (
-          <Alert
-            variant="warn"
-            title={t('backups.downloads.partial.title')}
-            testId="backups.downloads.partial"
-          >
+          <Alert variant="warn" title={t('backups.downloads.partial.title')} testId="backups.downloads.partial">
             {t('backups.downloads.partial.body', { count: partialDownloadDatasetCount })}
           </Alert>
         ) : null}
@@ -310,20 +308,40 @@ export function BackupCenterPage() {
         {!loading && !error && tab === 'overview' ? (
           <div className="space-y-6" data-testid="backups.overview">
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-              <StatCard
-                testId="backups.stats.datasets"
-                title={t('backups.stats.datasets')}
-                value={datasetsQ.isPending
-                  ? '…'
-                  : backupCenterCount(datasetTotal ?? summary.datasets, datasetsComplete)}
-                subtitle={t('backups.stats.datasets.help')}
-              />
-              <StatCard
-                testId="backups.stats.downloads"
-                title={t('backups.stats.downloads')}
-                value={backupCenterCount(downloadTotal ?? summary.downloads, downloadsComplete)}
-                subtitle={t('backups.stats.downloads.help')}
-              />
+              <BackupStatisticLink
+                to={datasetsComplete && !datasetsQ.isError ? statisticHref('snapshots') : undefined}
+                testId="backups.stats.datasets.link"
+              >
+                <StatCard
+                  testId="backups.stats.datasets"
+                  title={
+                    <span
+                      className={datasetsComplete && !datasetsQ.isError ? 'underline underline-offset-4' : undefined}
+                    >
+                      {t('backups.stats.datasets')}
+                    </span>
+                  }
+                  value={
+                    datasetsQ.isPending ? '…' : backupCenterCount(datasetTotal ?? summary.datasets, datasetsComplete)
+                  }
+                  subtitle={t('backups.stats.datasets.help')}
+                />
+              </BackupStatisticLink>
+              <BackupStatisticLink
+                to={downloadsComplete ? statisticHref('downloads') : undefined}
+                testId="backups.stats.downloads.link"
+              >
+                <StatCard
+                  testId="backups.stats.downloads"
+                  title={
+                    <span className={downloadsComplete ? 'underline underline-offset-4' : undefined}>
+                      {t('backups.stats.downloads')}
+                    </span>
+                  }
+                  value={backupCenterCount(downloadTotal ?? summary.downloads, downloadsComplete)}
+                  subtitle={t('backups.stats.downloads.help')}
+                />
+              </BackupStatisticLink>
               <StatCard
                 testId="backups.stats.ready"
                 title={t('backups.stats.ready')}
@@ -358,10 +376,7 @@ export function BackupCenterPage() {
                   hrefOptions={hrefOptions}
                 />
               ) : (
-                <EmptyState
-                  title={t('backups.downloads.empty.title')}
-                  body={t('backups.downloads.empty.body')}
-                />
+                <EmptyState title={t('backups.downloads.empty.title')} body={t('backups.downloads.empty.body')} />
               )}
             </div>
           </div>
@@ -392,16 +407,20 @@ export function BackupCenterPage() {
               />
             ) : (
               <EmptyState
-                title={t(tab === 'snapshots' && intent === 'restore'
-                  ? 'backups.restore.workspace.empty.title'
-                  : hasDatasetFilter
-                    ? `backups.${tab}.empty.title`
-                    : 'backups.storage.empty.title')}
-                body={t(tab === 'snapshots' && intent === 'restore'
-                  ? 'backups.restore.workspace.empty.body'
-                  : hasDatasetFilter
-                    ? `backups.${tab}.empty.body`
-                    : 'backups.storage.empty.body')}
+                title={t(
+                  tab === 'snapshots' && intent === 'restore'
+                    ? 'backups.restore.workspace.empty.title'
+                    : hasDatasetFilter
+                      ? `backups.${tab}.empty.title`
+                      : 'backups.storage.empty.title'
+                )}
+                body={t(
+                  tab === 'snapshots' && intent === 'restore'
+                    ? 'backups.restore.workspace.empty.body'
+                    : hasDatasetFilter
+                      ? `backups.${tab}.empty.body`
+                      : 'backups.storage.empty.body'
+                )}
               />
             )}
           </div>
@@ -410,16 +429,9 @@ export function BackupCenterPage() {
         {!loading && !error && tab === 'downloads' ? (
           <div data-testid="backups.downloads">
             {filteredDownloads.length ? (
-              <BackupCenterDownloadsList
-                downloads={filteredDownloads}
-                datasets={datasets}
-                hrefOptions={hrefOptions}
-              />
+              <BackupCenterDownloadsList downloads={filteredDownloads} datasets={datasets} hrefOptions={hrefOptions} />
             ) : (
-              <EmptyState
-                title={t('backups.downloads.empty.title')}
-                body={t('backups.downloads.empty.body')}
-              />
+              <EmptyState title={t('backups.downloads.empty.title')} body={t('backups.downloads.empty.body')} />
             )}
           </div>
         ) : null}
