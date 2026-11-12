@@ -350,6 +350,17 @@ backend blocker. [Datasets](../../src/lib/api/datasets.ts),
 
 ## DNS and networking
 
+For secondary zones, the list and detail show DNSSEC management on the primary
+server; the local enable flag cannot establish the transferred zone's signing
+status. Settings explains that boundary and omits the signing checkbox and
+`dnssec_enabled` update parameter for secondary zones. An explicit secondary
+DNSSEC URL shows the same explanation without requesting local keys or claiming
+that the zone is unsigned. Primary true/false settings, controls and key views
+retain their existing behavior; missing status is unknown. DNSSEC filters retain
+the API configuration predicate and the help calls it a setting. This does not
+select the separate DNS-01 zone-naming models.
+[Scope and verification](../work-log/2026-11-12-secondary-dnssec-management.md).
+
 **Intent:** create/edit zones and records, configure transfers, servers, TSIG and
 DNSSEC, inspect logs, and manage relevant IP/interface/resolver resources.
 Administrators also have network/address inventories and allocation operations.

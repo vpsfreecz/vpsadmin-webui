@@ -1,6 +1,8 @@
 // DNS surfaces
 export const csDns = {
   'dns.zones.badge.dnssec': 'DNSSEC',
+  'dns.zones.badge.dnssec_primary_server': 'DNSSEC: primární server',
+  'dns.zone.dnssec.external_help': 'DNSSEC spravuješ na primárním serveru. Stav podpisu této sekundární zóny tady neověřujeme.',
   'dns.zones.badge.no_dnssec': 'Bez DNSSEC',
   'dns.zones.page.title': 'DNS zóny',
   'dns.zones.page.description': 'Spravuj DNS zóny a jejich záznamy.',
@@ -36,7 +38,7 @@ export const csDns = {
   'dns.zones.smart_help.items.open': 'Otevřít zónu #123',
   'dns.zones.smart_help.items.q': 'Hledat podle názvu zóny, štítku, reverzní sítě nebo uživatele',
   'dns.zones.smart_help.items.enabled': 'Zobrazit jen povolené/zakázané zóny',
-  'dns.zones.smart_help.items.dnssec': 'Filtrovat podle stavu DNSSEC',
+  'dns.zones.smart_help.items.dnssec': 'Filtrovat podle nastavení DNSSEC',
   'dns.zones.smart_help.items.role': 'Filtrovat podle role (forward/reverse)',
   'dns.zones.smart_help.items.source': 'Filtrovat podle zdroje (internal/external)',
   'dns.zones.smart_help.items.user': 'Filtrovat podle vlastníka (jen v administraci)',

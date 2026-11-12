@@ -1,6 +1,8 @@
 // DNS surfaces
 export const enDns = {
   'dns.zones.badge.dnssec': 'DNSSEC',
+  'dns.zones.badge.dnssec_primary_server': 'DNSSEC: primary server',
+  'dns.zone.dnssec.external_help': 'Manage DNSSEC on the primary server. The signing status of this secondary zone is not verified here.',
   'dns.zones.badge.no_dnssec': 'No DNSSEC',
   'dns.zones.page.title': 'DNS zones',
   'dns.zones.page.description': 'Manage DNS zones and their records.',
@@ -36,7 +38,7 @@ export const enDns = {
   'dns.zones.smart_help.items.open': 'Open zone #123',
   'dns.zones.smart_help.items.q': 'Search by zone name, label, reverse network or user',
   'dns.zones.smart_help.items.enabled': 'Show only enabled/disabled zones',
-  'dns.zones.smart_help.items.dnssec': 'Filter by DNSSEC state',
+  'dns.zones.smart_help.items.dnssec': 'Filter by DNSSEC setting',
   'dns.zones.smart_help.items.role': 'Filter by role (forward/reverse)',
   'dns.zones.smart_help.items.source': 'Filter by source (internal/external)',
   'dns.zones.smart_help.items.user': 'Filter by owner user (admin only)',

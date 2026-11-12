@@ -1685,3 +1685,28 @@ preserve all branch histories and colleague PRs. Add standard push CI for the
 integration branch, without deployment automation. Dev has isolated test data;
 clankerdev still uses the production API. No host update in this setup.
 [Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
+
+
+## 2026-11-12 — Explain secondary-zone DNSSEC management
+
+Prepare approved DNS-02 / REQ-049: distinguish primary-server management from
+secondary signing status in list, header, settings and direct DNSSEC view.
+[Scope, API semantics, terminology and verification](docs/work-log/2026-11-12-secondary-dnssec-management.md).
+Not merged/deployed; no DNS-01 naming-model selection or live API/DNS changes.
+
+
+## 2026-11-12 — Reuse the qualified browser runner for DNS checks
+
+Reuse the exact qualified PR302/PR301 runner workflow and documentation bytes
+from5fc90733 to avoid the known package-mirror DNS setup failure. Keep all jobs,
+selectors, assertions, two-worker limits and timeouts; the DNSSEC scope cases remain
+in every relevant profile. [Runner evidence](docs/work-log/2026-11-11-pr-browser-runner-image.md).
+
+
+## 2026-11-12 — Keep primary DNSSEC records contained in the focused fix
+
+PR304's original mobile WebKit run exposed the missing primary-card containment
+on the isolated experiment base. Retain the exact two-line previously approved
+min-width fix and keep all primary320px regression assertions. The cumulative
+preview already has these bytes; no runtime activation occurred.
+[Failure and correction](docs/work-log/2026-11-12-secondary-dnssec-management.md#isolated-pr-mobile-qualification-correction).
