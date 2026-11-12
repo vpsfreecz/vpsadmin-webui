@@ -1693,3 +1693,11 @@ Prepare approved DNS-02 / REQ-049: distinguish primary-server management from
 secondary signing status in list, header, settings and direct DNSSEC view.
 [Scope, API semantics, terminology and verification](docs/work-log/2026-11-12-secondary-dnssec-management.md).
 Not merged/deployed; no DNS-01 naming-model selection or live API/DNS changes.
+
+
+## 2026-11-12 — Reuse the qualified browser runner for DNS checks
+
+Reuse the exact qualified PR302/PR301 runner workflow and documentation bytes
+from5fc90733 to avoid the known package-mirror DNS setup failure. Keep all jobs,
+selectors, assertions, two-worker limits and timeouts; the DNSSEC scope cases remain
+in every relevant profile. [Runner evidence](docs/work-log/2026-11-11-pr-browser-runner-image.md).
