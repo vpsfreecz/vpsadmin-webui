@@ -37,3 +37,34 @@ The first structural hash refusal and absent-SDK fixture import diagnostic are
 preserved privately; the fixture uses a narrow checked local DTO without adding
 dependencies. Cumulative source retains delivered SDK aliases/nullability.
 Clean Nix/browser, hosted CI and paired/protected delivery remain pending.
+
+
+### Focused foundation dependency — 2026-11-12
+
+Original PR303/C264 Chromium CI retained652 passes and1 flaky OOM history
+scenario. Its trace shows Next restoring preserved.slice while the API still
+uses system.slice and the new filters. The cumulative DCB25 preview already
+contains the reviewed PR243/4df369be correction; the focused13a foundation does
+not.12 ordinary and6 CPU6 cumulative repetitions pass, but cannot reproduce
+a defect whose fix is already present. A rejected synthetic microtask diagnostic
+hit a missing button during loading; it is not application-failure evidence.
+
+On a fresh C264 clone, the exact two original PR243 pending-router regressions
+fail with preserved.slice instead of system.slice; all4 older tests pass.
+Include PR243 as an explicit Git dependency, retaining its authorship and all
+strict browser/API/history/URL assertions. Only WORK_LOG append sections conflict;
+preserve both entries. No cumulative runtime change is needed for this existing
+correction. Verification on this prepared dependency remains separate from clean
+new-head packages, hosted CI and paired activation; those are not yet qualified.
+Private evidence: /data/webui-browser-runner/verification-20261103/
+todo-oom-router-race-20261112/actual-acceptance-report.md. No live API writes.
+
+
+Prepared dependency validation: pinned ci:quick passes (114 strict E2E roots,
+174 unchanged deferrals), production build passes, and all52 focused hook/UI/
+OOM-semantics/DNS model tests pass. Working source24/24 browser cases pass across
+Chromium and mobile WebKit:12 exact-filter/history/owner-scope OOM contracts and
+12 wildcard scenarios with48 intercepted DNS creates/rejections. Zero retries
+or live writes. OOM cases retain all public URL/API/history assertions; wildcard
+journals record zero page errors. Clean new-head/Nix qualification and original
+hosted six-check/zero-flaky evidence remain pending. No preview activation.
