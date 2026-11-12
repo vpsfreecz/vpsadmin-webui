@@ -1762,3 +1762,16 @@ retry draft callbacks. Safe download links and copying are client operations;
 no Center mutation capability or new API request is inferred from presentation.
 Loading, error, empty and selected-owner/request contracts remain with callers.
 Fixture evidence and exact release status belong in the dated work log.
+
+
+### Approved snapshot selection and pagination follow-up
+
+The Snapshots tab omits its generic introductory card. Its empty workspace
+names Storage as the first selection step in both languages. Plans and guided
+restore retain their existing context. Selection still exposes the original
+snapshot actions and correct VPS or NAS dataset detail link. Dataset snapshot
+views omit inactive pagination when the first page contains all records; a
+previous or next page keeps controls, including page-size selection. The
+extra-row probe and prefixed embedded queries are unchanged. Page size and
+counts do not claim a creation limit or automatic retention.
+[Prepared integration and verification](../work-log/2026-11-12-backup-picker-pagination-integration.md).

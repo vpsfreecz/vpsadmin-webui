@@ -2912,3 +2912,14 @@ qualification. Explicit page/size navigation uses the existing applied-filter
 snapshot support from PR243, preserving role/API/history contracts.
 [Reproduction and verification](docs/work-log/2026-11-12-incident-pending-filter-navigation.md).
 No merge, preview activation or API deployment is claimed.
+
+
+## 2026-11-12 — Integrate approved snapshot picker and pagination previews
+
+Prepare only BAK-04/e7773fac6bc24a88 and BAK-08/21b5b44ca530e084 from
+existing drafts278/277 on cumulative incident prerequisite009aeae2. Preserve
+current Backup Center statistics, lifecycle and focus improvements. Remove the
+redundant snapshots intro, name Storage in the empty prompt and show keyset
+controls only with a previous or next page.
+[Integration, acceptance and release limits](docs/work-log/2026-11-12-backup-picker-pagination-integration.md).
+No merge, preview activation or task completion is claimed.

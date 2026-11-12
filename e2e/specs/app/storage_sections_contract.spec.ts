@@ -135,10 +135,9 @@ test.describe('User storage section contract', () => {
     await expect.poll(() => requestedRoles).toEqual([null]);
 
     await page.getByTestId('backups.tab.snapshots').click();
-    await expect(page.getByText(
-      'Choose a dataset and manage its snapshots here. Only the selected dataset is loaded.',
-      { exact: true },
-    )).toBeVisible();
+    await expect(page.getByTestId('backups.workspace.empty')).toHaveText(
+      'Choose a dataset in Storage',
+    );
     await expect(page.getByText(/on the left/i)).toHaveCount(0);
     await expect(page.getByTestId('backups.snapshots.row.101')).toContainText('VPS disk');
     await expect(page.getByTestId('backups.snapshots.row.202')).toContainText('NAS');
