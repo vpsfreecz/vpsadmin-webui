@@ -1693,3 +1693,11 @@ Prepare approved DNS-03 / REQ-049: allow API-supported `*` without changing
 other owner-name checks, content/TTL/conflict checks, payloads or error handling.
 [Reproduction, scope and verification](docs/work-log/2026-11-12-dns-bare-wildcard.md).
 Not merged or deployed; no live DNS/API mutation or naming-model selection.
+
+
+## 2026-11-12 — Reuse the qualified browser runner for DNS checks
+
+Reuse the exact qualified PR302/PR301 runner workflow and documentation bytes
+from5fc90733 to avoid the known package-mirror DNS setup failure. Keep all jobs,
+selectors, assertions, two-worker limits and timeouts; the wildcard cases remain
+in every relevant profile. [Runner evidence](docs/work-log/2026-11-11-pr-browser-runner-image.md).
