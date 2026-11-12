@@ -72,6 +72,8 @@
     "e2e/specs/app/backup_detail_navigation.spec.ts",
     "e2e/specs/app/backup_download_feedback.spec.ts",
     "e2e/specs/app/backup_downloads_presentation.spec.ts",
+    "e2e/specs/app/backup_statistics_limits.spec.ts",
+    "e2e/specs/app/backup_statistics_links.spec.ts",
     "e2e/specs/app/blocking_action_progress_modal.spec.ts",
     "e2e/specs/app/centered_dialogs.spec.ts",
     "e2e/specs/app/command_palette.spec.ts",

@@ -2895,3 +2895,11 @@ Prepare approved DNS-02 / REQ-049: distinguish primary-server management from
 secondary signing status in list, header, settings and direct DNSSEC view.
 [Scope, API semantics, terminology and verification](docs/work-log/2026-11-12-secondary-dnssec-management.md).
 Not merged/deployed; no DNS-01 naming-model selection or live API/DNS changes.
+
+
+## 2026-11-12 — Link backup statistics to counted records (prepared)
+
+BAK-03 / REQ-048: only complete dataset/download statistics open their exact
+existing lists, clearing local matching/selection while preserving scope.
+Lifecycle/incomplete counts remain inert. [Scope and verification](docs/work-log/2026-11-12-backup-statistics-links.md).
+No merge, approval or preview delivery claimed.

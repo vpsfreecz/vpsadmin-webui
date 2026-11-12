@@ -72,6 +72,8 @@
     "e2e/specs/app/approved_vps_journey.spec.ts",
     "e2e/specs/app/authenticated_home_smoke.spec.ts",
     "e2e/specs/app/backup_center.spec.ts",
+    "e2e/specs/app/backup_statistics_limits.spec.ts",
+    "e2e/specs/app/backup_statistics_links.spec.ts",
     "e2e/specs/app/backup_detail_navigation.spec.ts",
     "e2e/specs/app/backup_download_feedback.spec.ts",
     "e2e/specs/app/backup_downloads_presentation.spec.ts",

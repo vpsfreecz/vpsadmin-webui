@@ -453,6 +453,15 @@ schedules/plans and downloads, export datasets and restore from available backup
 VPS root disks remain in VPS detail; member NAS and Backup Center retain separate
 navigation. Backup filters remain stable across tab changes.
 
+**Counted-record links (BAK-03):** complete Backup Center dataset and download
+statistics open the existing dataset picker and Downloads list. The destination
+clears local text matching, prior dataset selection, restore intent and embedded
+snapshot pagination so it contains the same IDs as the count. Keep the current
+route, account scope and unrelated query values. Normal tabs continue preserving
+filters. Links use native keyboard/new-tab/history semantics. Incomplete or failed
+collections and lifecycle groups without an exact existing filter remain inert;
+no API filter, role permission or lifecycle meaning is invented.
+
 **Backup detail navigation (BAK-05):** opening a dataset from a download or the
 snapshot/plan workspace retains the existing Backup Center entry as active.
 The URL carries only presentation context, so reload and detail-tab navigation
