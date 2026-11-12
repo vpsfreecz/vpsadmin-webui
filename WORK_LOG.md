@@ -1690,3 +1690,12 @@ clankerdev still uses the production API. No host update in this setup.
 
 Correct the reproduced Next/page-size URL race without changing owner scope.
 [Scope, root cause and evidence](docs/work-log/2026-11-09-oom-pending-filter-navigation.md).
+
+
+## 2026-11-12 — Keep applied incident filters during pagination (prepared)
+
+Close the demonstrated incident caller race blocking original BAK-08 browser
+qualification. Explicit page/size navigation uses the existing applied-filter
+snapshot support from PR243, preserving role/API/history contracts.
+[Reproduction and verification](docs/work-log/2026-11-12-incident-pending-filter-navigation.md).
+No merge, preview activation or API deployment is claimed.

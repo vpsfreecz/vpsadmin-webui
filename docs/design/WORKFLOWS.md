@@ -735,6 +735,13 @@ blind retry. [Finance](../../src/lib/api/finance.ts),
 
 ## Tasks, transactions, monitoring, incidents and OOM
 
+Incident explicit page navigation and page-size changes use the same applied
+exact filter snapshot as the URL writer, including all administrator filters.
+They retain those filters while the router is still publishing a prior URL.
+URL normalization and browser history continue to use actual router params;
+role filtering, API fields and cursor/visited-page behavior remain unchanged.
+See the [caller correction](../work-log/2026-11-12-incident-pending-filter-navigation.md).
+
 Transaction history uses compact aligned ID/time/owner/object/action/state
 columns on desktop and folds metadata under the action on small screens. The
 owner column appears only in administrator mode; a normal member and an admin's
