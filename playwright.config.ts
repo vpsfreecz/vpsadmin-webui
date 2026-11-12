@@ -57,6 +57,7 @@ export default defineConfig({
     {
       name: 'mobile-webkit',
       testMatch: [
+        '**/app/incidents_smart_filter.spec.ts',
         '**/backup_statistics_links.spec.ts',
         '**/backup_statistics_limits.spec.ts',
         '**/app/dnssec_secondary_management.spec.ts',

@@ -1043,6 +1043,13 @@ blind retry. [Finance](../../src/lib/api/finance.ts),
 
 ## Tasks, transactions, monitoring, incidents and OOM
 
+Incident explicit page navigation and page-size changes use the same applied
+exact filter snapshot as the URL writer, including all administrator filters.
+They retain those filters while the router is still publishing a prior URL.
+URL normalization and browser history continue to use actual router params;
+role filtering, API fields and cursor/visited-page behavior remain unchanged.
+See the [caller correction](../work-log/2026-11-12-incident-pending-filter-navigation.md).
+
 The Tasks View all link closes the panel after ordinary pointer or keyboard
 activation and focuses the destination main content, including the current
 transactions route. Modified link clicks preserve browser behavior. The static

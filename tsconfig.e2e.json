@@ -130,6 +130,7 @@
     "e2e/specs/app/incident_create_context.spec.ts",
     "e2e/specs/app/incident_create_permissions.spec.ts",
     "e2e/specs/app/incidents_responsive_layout.spec.ts",
+    "e2e/specs/app/incidents_smart_filter.spec.ts",
     "e2e/specs/app/ip_addresses_environment_filter.spec.ts",
     "e2e/specs/app/known_devices_keyset_pagination.spec.ts",
     "e2e/specs/app/lifecycle_text_contrast.spec.ts",
