@@ -369,16 +369,15 @@ export function BackupCenterPage() {
 
         {!loading && !error && (tab === 'snapshots' || tab === 'plans') ? (
           <div className="space-y-4" data-testid={`backups.${tab}`}>
-            {tab === 'snapshots' && intent === 'restore' ? (
-              <BackupCenterRestoreGuide />
-            ) : (
+            {tab === 'snapshots' && intent === 'restore' ? <BackupCenterRestoreGuide /> : null}
+            {tab === 'plans' ? (
               <Card>
                 <CardBody>
-                  <div className="font-semibold">{t(`backups.${tab}.scope.title`)}</div>
-                  <p className="mt-1 text-sm text-muted">{t(`backups.${tab}.scope.body`)}</p>
+                  <div className="font-semibold">{t('backups.plans.scope.title')}</div>
+                  <p className="mt-1 text-sm text-muted">{t('backups.plans.scope.body')}</p>
                 </CardBody>
               </Card>
-            )}
+            ) : null}
             {filteredDatasets.length || selectedDataset || invalidDatasetSelection ? (
               <BackupCenterDatasetWorkspaceView
                 datasets={filteredDatasets}

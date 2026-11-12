@@ -150,7 +150,10 @@ describe('BackupCenterPage', () => {
     expect(await screen.findByTestId('backups.snapshots')).toBeVisible();
     expect(screen.getByTestId('backups.snapshots.row.10')).toBeVisible();
     expect(screen.getByTestId('backups.snapshots.row.11')).toBeVisible();
-    expect(screen.getByTestId('backups.workspace.empty')).toBeVisible();
+    expect(screen.getByTestId('backups.workspace.empty')).toHaveTextContent(
+      'backups.snapshots.workspace.empty.title',
+    );
+    expect(screen.queryByText('backups.snapshots.scope.title')).not.toBeInTheDocument();
     expect(screen.queryByTestId('backups.workspace.snapshots')).not.toBeInTheDocument();
 
     await user.click(screen.getByTestId('backups.snapshots.row.10'));
