@@ -170,6 +170,24 @@ this distinction against new accidental left-hand forms. This maintainer
 clarification (2026-10-17) supersedes the earlier drawer presentation for forms
 and filters; see the [verification record](../work-log/2026-10-17-centered-form-dialogs.md).
 
+### Exit action names
+
+Use **Cancel / Zrušit** to abandon an unfinished action, **Back / Zpět** for
+navigation from a viewing context, and **Close / Zavřít** to dismiss a viewing
+overlay. A link naming its destination, such as Overview / Přehled, is also
+explicit navigation. Name the actual effect; do not rename console fit/original
+size controls as navigation or imply that leaving a view revokes its session.
+Cancelling a confirmation must not perform the confirmed action.
+
+Preserve the existing draft, pending-submission and focus-restoration contracts.
+This rule does not add an unsaved-changes prompt where none exists. In the
+audited dataset creation paths, explicit cancellation discards the unfinished
+draft; the standalone form has no existing dirty-navigation blocker. The child
+form resets on Cancel, Escape or backdrop dismissal. The console Overview link
+returns to the VPS overview while its view-size controls preserve the session.
+See the [UX-07 audit](../work-log/2026-11-12-exit-action-rule.md) for exact source,
+finite fixture coverage and limits.
+
 ## Accessibility, localization and persistence
 
 Shared buttons keep compact desktop sizing but use a minimum 44 × 44 CSS px
