@@ -139,13 +139,8 @@ export function IncidentsPage() {
   const assignmentId = useMemo(() => safeNumber(assignment), [assignment]);
   const mailboxId = useMemo(() => (isAdmin ? safeNumber(mailbox) : undefined), [isAdmin, mailbox]);
 
-  // Keep filters in the URL.
-  useEffect(() => {
-    if (hydratingFiltersFromUrlRef.current) {
-      hydratingFiltersFromUrlRef.current = false;
-      return;
-    }
-
+  // Explicit pagination and URL writes use the same applied filter snapshot.
+  const filterSearchParams = useMemo(() => {
     const next = new URLSearchParams(activeSearchParams);
     next.delete('q');
 
@@ -181,8 +176,16 @@ export function IncidentsPage() {
       next.delete('mailbox');
     }
 
-    if (next.toString() !== searchParamsKey) setSp(next, { replace: true });
-  }, [activeSearchParams, assignment, assignmentId, codename, filedBy, filedById, ip, isAdmin, mailbox, mailboxId, searchParamsKey, setSp, user, userId, vps, vpsId]);
+    return next;
+  }, [activeSearchParams, assignment, assignmentId, codename, filedBy, filedById, ip, isAdmin, mailbox, mailboxId, user, userId, vps, vpsId]);
+
+  useEffect(() => {
+    if (hydratingFiltersFromUrlRef.current) {
+      hydratingFiltersFromUrlRef.current = false;
+      return;
+    }
+    if (filterSearchParams.toString() !== searchParamsKey) setSp(filterSearchParams, { replace: true });
+  }, [filterSearchParams, searchParamsKey, setSp]);
 
   const filtersActive = Boolean(
     vpsId ||
@@ -208,6 +211,7 @@ export function IncidentsPage() {
       mailbox: mailboxId,
     }),
     searchParams: activeSearchParams,
+    navigationSearchParams: filterSearchParams,
     setSearchParams: setSp,
     defaultLimit: 50,
     allowedLimits: [25, 50, 100],
