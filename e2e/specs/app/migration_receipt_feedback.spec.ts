@@ -16,6 +16,8 @@ async function scene(page: Page, language: 'cs' | 'en', outcome = 'accepted', re
   };
   const submitted: unknown[] = [];
   let accepted = false;
+  let finished = false;
+  let finishedReads = 0;
   const mock = await installHaveApiMock(page, {
     user: { id: 1, login: 'fixture-admin', level: outcome === 'support' ? 21 : 99 },
     handlers: {
@@ -24,7 +26,7 @@ async function scene(page: Page, language: 'cs' | 'en', outcome = 'accepted', re
       'GET os_templates': () => ({ os_templates: [] }),
       'GET locations': () => ({ locations: [location] }),
       'GET transaction_chains': () => ({
-        transaction_chains: accepted ? [{ id: 510, state: 'queued', label: 'Migrate VPS' }] : [],
+        transaction_chains: accepted ? [{ id: 510, state: finished ? 'done' : 'queued', label: 'Migrate VPS' }] : [],
       }),
       'GET nodes': (ctx) => ({
         nodes: [
@@ -42,9 +44,12 @@ async function scene(page: Page, language: 'cs' | 'en', outcome = 'accepted', re
         accepted = true;
         return { vps: {}, _meta: { action_state_id: 510 } };
       },
-      'GET action_states/510': () => ({
-        action_state: { id: 510, label: 'Migrate VPS', finished: false, status: true, current: 1, total: 3 },
-      }),
+      'GET action_states/510': () => {
+        if (finished) finishedReads++;
+        return {
+          action_state: { id: 510, label: 'Migrate VPS', finished, status: true, current: 1, total: 3 },
+        };
+      },
     },
   });
   if (outcome === 'transport') {
@@ -53,7 +58,14 @@ async function scene(page: Page, language: 'cs' | 'en', outcome = 'accepted', re
       await route.abort('failed');
     });
   }
-  return { submitted, mock };
+  return {
+    submitted,
+    mock,
+    complete: () => {
+      finished = true;
+    },
+    completedReads: () => finishedReads,
+  };
 }
 
 async function fill(page: Page, mode: 'maintenance' | 'custom' | 'now') {
@@ -181,6 +193,27 @@ for (const language of ['cs', 'en'] as const) {
     accept();
     await expect(page.getByTestId('toast.viewport')).toContainText(scheduled);
     expect(submitted).toHaveLength(1);
+  });
+  test(`@pr-smoke @pr-smoke-mobile ${language} accepted receipt stays accurate after task completion`, async ({
+    page,
+  }) => {
+    const fixture = await scene(page, language);
+    await page.goto('/admin/vps/123/lifecycle/migrate');
+    await fill(page, 'maintenance');
+    await page.getByTestId('vps.lifecycle.migrate.submit').click();
+    const toast = page.getByTestId('toast.viewport');
+    const confirmation =
+      language === 'cs'
+        ? 'Přijetí požadavku nepotvrzuje dokončení migrace.'
+        : 'Acceptance does not confirm completion.';
+    await expect(toast).toContainText(confirmation);
+    fixture.complete();
+    await expect.poll(fixture.completedReads).toBeGreaterThan(0);
+    await expect(toast).toContainText(confirmation);
+    await expect(toast).not.toContainText(
+      language === 'cs' ? 'migrace ještě není dokončená' : 'the migration has not finished yet'
+    );
+    expect(fixture.submitted).toHaveLength(1);
   });
   test(`@pr-smoke @pr-smoke-mobile ${language} support cannot schedule a migration`, async ({ page }) => {
     const { submitted } = await scene(page, language, 'support');
