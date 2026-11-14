@@ -30,3 +30,9 @@ absence assertion now permits an absent toast container. No product assertion or
 lock weakened. Exact focused final quick/build/browser, clean Nix, hosted6CI and
 paired delivery remain pending. KB workflow scope was reviewed: its current pins
 are legacyPHP/API, no React input; no external KB certification or write claimed.
+
+Before publication, an audit found the existing lifecycle receipt regression still
+expected the old maintenance title. Update it to the specific scheduled title and
+add the new title to rejection absence checks, retaining every original assertion.
+Add direct header-link navigation and no blocking progress modal to the new matrix.
+Qualify the existing migration subset as well as the new matrix before pushing.
