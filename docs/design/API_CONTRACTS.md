@@ -25,7 +25,7 @@ claims. Local adapter tests verify serialization, not deployed backend capabilit
 | Resource overrides | Explicit admin override only where backend action supports it. | PR503; do not infer that every create/edit endpoint accepts one universal flag. |
 | Custom soft deletion | Admin lifecycle PUT for the supported future lifetime transition; member uses normal DELETE. | PR518; do not send invented expiry parameters to DELETE or use a delete-then-edit race. |
 | Hard deletion | Explicit privileged mode; disregard a leftover soft-expiry draft. | PR518; validate actual backend permission and receipt. |
-| Console entry | Acquire/reuse console token through existing API; bounded request on entry. | PR517; do not create unbounded replacement sessions during polling. |
+| Console entry | Acquire/reuse console token through existing API; bounded request on entry. Read-only ConsoleToken Show checks current validity every 15 seconds; router traffic alone extends the sliding expiration. Never infer current expiry from the original Create timestamp. | PR517; do not create unbounded replacement sessions during polling. |
 | Registration reconsideration | Derive supported actions from actual request state/created-user constraints. | PR510; a generic state dropdown must not advertise unsupported transitions. |
 | Effective timezone | Resolve actual account/server timezone when account field is absent. | PR502; Europe/Prague is a real zone ID, not a hardcoded label for all accounts. |
 | Node heatmap | Use configured legacy base URL, validated node FQDN/type/maintenance eligibility. | [URL model](../../src/lib/nodeHeatmap.ts); missing config omits unavailable actions. |

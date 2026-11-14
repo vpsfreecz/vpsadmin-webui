@@ -2933,3 +2933,11 @@ standard Open dataset action. Existing payloads, rejection handling, mutation
 gates and dataset/view routes remain unchanged.
 [Scope and verification](docs/work-log/2026-11-14-export-review-source.md).
 No hosted qualification, merge or paired preview delivery is claimed.
+
+
+## 2026-11-14 — Respect the console router's sliding session lifetime
+
+Prepare direct FORUM-372-23 / REQ-020. Check current validity with read-only
+Show instead of unmounting at Create's stale expiration; preserve authoritative
+revocation and explicit replacement. [Contract and verification limits](docs/work-log/2026-11-14-console-sliding-lifetime.md).
+No deployment or completion claimed.

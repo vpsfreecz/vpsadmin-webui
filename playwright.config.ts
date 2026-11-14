@@ -144,6 +144,7 @@ export default defineConfig({
         '**/vps_console_controls.spec.ts',
         '**/vps_console_viewport.spec.ts',
         '**/vps_console_page.spec.ts',
+        '**/vps_console_lifetime.spec.ts',
         '**/vps_access_page.spec.ts',
         '**/search_scope_reminder.spec.ts',
         '**/node_heatmaps.spec.ts',

@@ -398,7 +398,12 @@ successful activation, copying and removing the password from view.
 ## Console and VPS deletion
 
 **Intent:** entering Console opens a session directly; intentional replacement and
-revocation remain explicit. Opening a page must not spawn an uncontrolled retry
+revocation remain explicit. The original token expiration is a snapshot:
+router traffic renews it. The parent checks the existing read-only Show action
+every 15 seconds without creating or extending a token. Authoritative denial,
+a changed token or a freshly returned expired token removes the terminal;
+uncertain validation warns while the router continues enforcing access.
+Reconnect reloads the same token. Opening a page must not spawn an uncontrolled retry
 loop after a failed token request. Secure console URLs are required.
 
 Console pages use a compact VPS identity and session toolbar, without the full

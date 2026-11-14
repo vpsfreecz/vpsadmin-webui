@@ -364,6 +364,17 @@ export async function createConsoleToken(vpsId: number) {
   }, 'VPS console token');
 }
 
+/** Read the current token without creating or extending a console session. */
+export async function fetchConsoleToken(vpsId: number) {
+  const res = await (await getApi()).vps.console_token.show({
+    path: { vps_id: vpsId },
+  });
+  return narrowApiResult(res, data => {
+    if (typeof data.token !== 'string' || !data.token || typeof data.expiration !== 'string' || !data.expiration) throw new Error('Invalid console token');
+    return { token: data.token, expiration: data.expiration };
+  }, 'VPS console token');
+}
+
 export async function deleteConsoleToken(vpsId: number) {
   return (await getApi()).vps.console_token.delete({
     path: { vps_id: vpsId },
