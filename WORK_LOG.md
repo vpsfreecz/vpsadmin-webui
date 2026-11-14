@@ -3277,3 +3277,10 @@ Prepare direct FORUM-372-23 / REQ-020. Check current validity with read-only
 Show instead of unmounting at Create's stale expiration; preserve authoritative
 revocation and explicit replacement. [Contract and verification limits](docs/work-log/2026-11-14-console-sliding-lifetime.md).
 No deployment or completion claimed.
+
+### 2026-11-14 — scheduled migration acceptance feedback
+
+Direct maintainer request, REQ-028. Distinguish accepted scheduling from completed
+migration using the frozen submitted request, with Tasks tracking and permission
+to leave the page. Preserve backend timing, mutation/duplicate/uncertainty gates.
+[Scope and verification](docs/work-log/2026-11-14-migration-scheduled-receipt.md).

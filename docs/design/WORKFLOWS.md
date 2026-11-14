@@ -1980,3 +1980,7 @@ Use a shorter introduction identifying the zone DNSKEY and DS for the parent zon
 ## Approved account follow-up: ACC-07
 
 Name the known-device search with its visible label and associate its always-visible help. Explain that filtering covers the current page, local changes refresh automatically and Refresh loads changes made elsewhere. Preserve owner scope, cursor recovery, polling intervals, device mutation confirmation and query invalidation.
+Migration acceptance receipts distinguish immediate work from maintenance-window or
+custom scheduled completion using the captured submitted payload. Acceptance is
+not completion; preparation can begin before the window. The user may leave and
+track Tasks, while duplicate-operation and uncertain-request locks remain intact.

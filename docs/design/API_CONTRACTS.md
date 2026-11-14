@@ -705,3 +705,9 @@ This is a presentation change, with no API adapter/payload/permission/lock chang
 Actual deployed cff desktopChromium/mobileWebKit both showed the raw English
 reason inside the dialog; no visibility regression was invented. Real fixture
 cleanup and final candidate/release qualification remain separately required.
+
+VPS migration acceptance returns a tracked action state before completion. The
+receipt uses the frozen submitted maintenance_window/finish_weekday/finish_minutes
+values (maintenance defaults true; custom Sunday0/midnight0 are valid). Initial
+preparation and data transfer can precede the backend window wait. Leaving the
+page does not cancel the operation or release duplicate/uncertainty locks.
