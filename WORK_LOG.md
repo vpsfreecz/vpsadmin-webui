@@ -2923,3 +2923,13 @@ redundant snapshots intro, name Storage in the empty prompt and show keyset
 controls only with a previous or next page.
 [Integration, acceptance and release limits](docs/work-log/2026-11-12-backup-picker-pagination-integration.md).
 No merge, preview activation or task completion is claimed.
+
+
+## 2026-11-14 — Review NFS choices and expose the export source (prepared)
+
+Prepare approved EXP-02 and EXP-06 / REQ-048: the create review explains the
+current Sync and Subtree check states; the export source appears once beside a
+standard Open dataset action. Existing payloads, rejection handling, mutation
+gates and dataset/view routes remain unchanged.
+[Scope and verification](docs/work-log/2026-11-14-export-review-source.md).
+No hosted qualification, merge or paired preview delivery is claimed.

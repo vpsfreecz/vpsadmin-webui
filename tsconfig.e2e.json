@@ -1,8 +1,15 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "types": ["node", "@playwright/test"]
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "types": [
+      "node",
+      "@playwright/test"
+    ]
   },
   "files": [
     "e2e/fixtures/bootstrap.ts",
@@ -72,11 +79,11 @@
     "e2e/specs/app/approved_vps_journey.spec.ts",
     "e2e/specs/app/authenticated_home_smoke.spec.ts",
     "e2e/specs/app/backup_center.spec.ts",
-    "e2e/specs/app/backup_statistics_limits.spec.ts",
-    "e2e/specs/app/backup_statistics_links.spec.ts",
     "e2e/specs/app/backup_detail_navigation.spec.ts",
     "e2e/specs/app/backup_download_feedback.spec.ts",
     "e2e/specs/app/backup_downloads_presentation.spec.ts",
+    "e2e/specs/app/backup_statistics_limits.spec.ts",
+    "e2e/specs/app/backup_statistics_links.spec.ts",
     "e2e/specs/app/blocking_action_progress_modal.spec.ts",
     "e2e/specs/app/centered_dialogs.spec.ts",
     "e2e/specs/app/command_palette.spec.ts",
@@ -117,6 +124,8 @@
     "e2e/specs/app/export_filter_rhythm.spec.ts",
     "e2e/specs/app/export_hosts_responsive_actions.spec.ts",
     "e2e/specs/app/export_list_containment.spec.ts",
+    "e2e/specs/app/export_review_options.spec.ts",
+    "e2e/specs/app/export_source_navigation.spec.ts",
     "e2e/specs/app/exports_filter_contract.spec.ts",
     "e2e/specs/app/exports_smoke.spec.ts",
     "e2e/specs/app/filter_bar_chip_alignment.spec.ts",

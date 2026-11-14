@@ -15,6 +15,7 @@ import { Badge } from '../../../components/ui/Badge';
 import { Button } from '../../../components/ui/Button';
 import { Card, CardBody, CardHeader } from '../../../components/ui/Card';
 import { ErrorState } from '../../../components/ui/ErrorState';
+import { LinkButton } from '../../../components/ui/LinkButton';
 import { LoadingState } from '../../../components/ui/LoadingState';
 import { formatDateTime } from '../../../lib/format';
 import {
@@ -336,7 +337,6 @@ export function ExportDetailPage() {
         <PageHeader
           testId="exports.detail.header"
           title={t('exports.detail.title', { id: String(id) })}
-          description={sourceLabel(ex)}
           meta={
             <span className="flex flex-wrap items-center gap-2">
               <Badge variant={badgeVariant} testId="exports.detail.badge.enabled">{boolBadgeLabel(Boolean(ex.enabled), t)}</Badge>
@@ -360,7 +360,17 @@ export function ExportDetailPage() {
             <div className="grid min-w-0 grid-cols-1 gap-3 md:grid-cols-2">
               <div>
                 <div className="text-xs font-semibold text-muted">{t('exports.field.source')}</div>
-                <div className="mt-1 text-sm text-fg">{sourceLabel(ex)}</div>
+                <div className="mt-1 break-all text-sm text-fg">{sourceLabel(ex)}</div>
+                {datasetId ? (
+                  <LinkButton
+                    variant="secondary"
+                    className="mt-2"
+                    to={`${basePath}/datasets/${datasetId}`}
+                    testId="exports.detail.open_dataset"
+                  >
+                    {t('exports.detail.open_dataset')}
+                  </LinkButton>
+                ) : null}
               </div>
               <div>
                 <div className="text-xs font-semibold text-muted">{t('exports.field.address')}</div>
@@ -397,7 +407,6 @@ export function ExportDetailPage() {
             <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-faint">
               <span>{t('common.updated')}: {ex.updated_at ? formatDateTime(ex.updated_at) : '—'}</span>
               <span>{t('common.created')}: {ex.created_at ? formatDateTime(ex.created_at) : '—'}</span>
-              {datasetId ? <Link className="text-accent hover:underline" to={`${basePath}/datasets/${datasetId}`}>{t('exports.detail.open_dataset')}</Link> : null}
             </div>
           </CardBody>
         </Card>
