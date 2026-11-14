@@ -56,13 +56,48 @@ does not itself verify registry signatures or perform network requests.
 
 <a id="unpublished-generated-sdk"></a>
 
-## Published generated client
+## Selected generated client development input
 
-The root selects exact registry dependency `vpsadmin-typescript-client: "0.4.0"`.
-The npm-generated lock pins its canonical registry URL and SHA-512 integrity.
-`npm ci` installs the published JavaScript and declarations without a sibling
-checkout or source build. Nix uses ordinary registry dependency fetching; see
-[packaging](PACKAGING.md#temporary-unpublished-sdk-input).
+The root package temporarily selects the SDK-owned immutable HTTPS archive for generic
+incident-policy discovery, per-VPS policy settings and saved report evaluations.
+The [development provenance](../../packages/vpsadmin-typescript-client-development.json)
+binds artifact commit 2d251bb0e10f5379a19df3a07eb7a0b0f19e3c88 to packed source
+44c651b2a57e8de553dd51236c2dccbc09946fac. Its 345048-byte archive has SHA-256
+983061ec981e24e45c25abeef81d8049d4253bad4d473ea37d5ce27ff0a1b718.
+Package 0.4.0 is a development candidate, not a registry release. Standard npm ci
+installs the self-contained compiled exports and declarations; ordinary Nix dependency
+fetching needs no private checkout, generated shim or custom pipeline.
+
+The generation input is API de4df3d63f4d4afb0c27e8b9be2785c15d24811c,
+schema SHA-256 7cb28ebd8e0957d9a8ba2c359c8658040ed1cd195f0dd14327c03b595012fc85.
+HaveAPI generator 1ef9b204ba45bb261d3334be5c555cc1856b713b (version 0.32.2)
+and consumer runtime haveapi-client@0.32.0 remain unchanged. Embedded raw
+provenance retains this generation source and is not relabelled after
+downstream review or history changes.
+
+The application uses generated incident_policy.index/show,
+vps.incident_policy.index/show/update and
+incident_report.policy_evaluation.index. Policy keys are runtime strings, never
+configured-key enums. Generated checks for primitive types, required values and nullability, and server
+registry validation remain authoritative. Nullable limit resets and false shared
+permission survive actual SDK serialization. Policy updates return their scoped
+authoritative row; the separate VPS permission acknowledgement requires exact
+VPS Show verification. A failure after an accepted write remains uncertain.
+Current counters, declared limits, configuration validity and scoped saved history
+follow [the generic API contract](API_CONTRACTS.md#generic-incident-policies).
+
+This supersedes the prior selected-policy interface and its callback-Unknown
+state; development evidence retains the original inputs and reviews. Before WebUI
+merge, replace the temporary input with a published SDK registry artifact
+containing these resources and update manifest, lock, provenance and frontend
+dependency hash together. Compatibility with the deployed API, configuration and schema remains a separate requirement.
+See [packaging](PACKAGING.md#temporary-unpublished-sdk-input).
+
+## Published generated client baseline
+
+The preceding registry selection was `vpsadmin-typescript-client@0.4.0`.
+Its provenance below describes that published baseline, not the selected
+development archive.
 
 The public tag [`v0.4.0`](https://github.com/vpsfreecz/vpsadmin-typescript-client/tree/v0.4.0)
 selects source `c53cb4dabb0b3aac8d05834478872d2cfa698fa7`. Its 338234-byte npm
