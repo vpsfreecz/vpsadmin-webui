@@ -400,6 +400,17 @@ export async function createConsoleToken(vpsId: number) {
   });
 }
 
+/** Read the current token without creating or extending a console session. */
+export async function fetchConsoleToken(vpsId: number) {
+  const res = await haveApiCall<ConsoleToken>({
+    method: 'GET',
+    path: `/vpses/${vpsId}/console_token`,
+  });
+  if (!res.data || typeof res.data.token !== 'string' || !res.data.token
+    || typeof res.data.expiration !== 'string' || !res.data.expiration) throw new Error('Invalid console token');
+  return res;
+}
+
 export async function deleteConsoleToken(vpsId: number) {
   return haveApiCall<null>({
     method: 'DELETE',

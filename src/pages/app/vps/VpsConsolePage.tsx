@@ -4,7 +4,7 @@ import { Maximize2, Minimize2, PlugZap, RotateCw, Trash2 } from 'lucide-react';
 
 import { VpsConsoleFrame } from './VpsConsoleFrame';
 import { useI18n } from '../../../app/i18n';
-import { createConsoleToken, deleteConsoleToken } from '../../../lib/api/vps';
+import { createConsoleToken, deleteConsoleToken, fetchConsoleToken } from '../../../lib/api/vps';
 import { HaveApiError } from '../../../lib/api/haveapi';
 import { Alert } from '../../../components/ui/Alert';
 import { Button } from '../../../components/ui/Button';
@@ -15,14 +15,12 @@ import { clsx } from '../../../components/ui/clsx';
 import {
   buildConsoleUrl,
   isConsoleTokenExpired,
-  millisecondsUntilConsoleTokenExpiry,
   normalizeConsoleToken,
   normalizeRemoteConsoleServer,
 } from '../../../lib/consoleToken';
 import {
   CONSOLE_CONNECTION_STATE_VARIANT,
   consoleMutationErrorMessage,
-  formatConsoleExpiration,
   getConsoleConnectionState,
   hasKnownConsoleToken,
   isConsoleSessionStateUncertain,
@@ -66,7 +64,6 @@ function MutableVpsConsolePage() {
   const [frameNonce, setFrameNonce] = useState(0);
   const [manualReconnect, setManualReconnect] = useState(false);
   const [sessionSuspended, setSessionSuspended] = useState(false);
-  const [now, setNow] = useState(() => Date.now());
 
   const tokenQueryKey = ['vps', vps.id, 'consoleToken'] as const;
   const server = normalizeRemoteConsoleServer((vps.node as any)?.location?.remote_console_server);
@@ -168,16 +165,31 @@ function MutableVpsConsolePage() {
     setIframeProblem(false);
   }, [consoleUrl]);
 
+  // Router traffic renews the token on the server. The Create timestamp is
+  // only a snapshot: reaching it must never tear down a working terminal.
+  // Show is read-only and does not keep an abandoned console alive.
+  const validityQ = useQuery({
+    queryKey: ['vps', vps.id, 'consoleTokenValidity', activeToken?.token],
+    queryFn: async () => {
+      const { data } = await fetchConsoleToken(vps.id);
+      return { ...data, checkedAt: Date.now() };
+    },
+    enabled: Boolean(activeToken?.token),
+    retry: false,
+    refetchInterval: 15_000,
+    refetchOnWindowFocus: true,
+    gcTime: 0,
+  });
+
   useEffect(() => {
-    const currentNow = Date.now();
-    setNow(currentNow);
-
-    const msUntilExpiry = millisecondsUntilConsoleTokenExpiry(activeToken?.expiration, currentNow);
-    if (msUntilExpiry === null) return undefined;
-
-    const timer = window.setTimeout(() => setNow(Date.now()), Math.min(msUntilExpiry + 250, 2_147_483_647));
-    return () => window.clearTimeout(timer);
-  }, [activeToken?.expiration, activeToken?.token]);
+    const current = validityQ.data;
+    if (current && current.token === activeToken?.token
+      && !isConsoleTokenExpired(current.expiration, current.checkedAt)) {
+      // Keep navigation's cached snapshot current without changing the iframe
+      // URL or issuing a token mutation when the user returns to this tab.
+      qc.setQueryData(['vps', vps.id, 'consoleToken'], { token: current.token, expiration: current.expiration });
+    }
+  }, [validityQ.data, activeToken?.token, qc, vps.id]);
 
   useEffect(() => {
     if (!consoleUrl || iframeLoaded) return;
@@ -193,7 +205,16 @@ function MutableVpsConsolePage() {
 
   const techError = tokenQ.error instanceof HaveApiError ? tokenQ.error : null;
 
-  const tokenExpired = isConsoleTokenExpired(activeToken?.expiration, now);
+  const validityDenied = validityQ.error instanceof HaveApiError
+    && !('failure' in validityQ.error && validityQ.error.failure === 'protocol')
+    && validityQ.error.envelope.errors !== 'MALFORMED_HAVEAPI_ENVELOPE'
+    && validityQ.error.envelope.errors !== 'INVALID_JSON_RESPONSE'
+    && validityQ.error.envelope.status === false
+    && [403, 404].includes(validityQ.error.httpStatus ?? 0);
+  const tokenExpired = validityDenied || Boolean(validityQ.data && (
+    validityQ.data.token !== activeToken?.token
+    || isConsoleTokenExpired(validityQ.data.expiration, validityQ.data.checkedAt)
+  ));
   const hasActiveLiveToken = Boolean(activeToken?.token && !tokenExpired);
   const hasConsoleUrl = Boolean(consoleUrl && !tokenExpired);
   const sessionActionPending = newSessionM.isPending || revokeSessionM.isPending;
@@ -212,7 +233,6 @@ function MutableVpsConsolePage() {
     sessionSuspended, tokenExpired, tokenFetching: tokenQ.isFetching,
     hasActiveToken: Boolean(activeToken?.token), iframeProblem, iframeLoaded,
   });
-  const expiresAt = formatConsoleExpiration(activeToken?.expiration);
 
   return (
     <div className="space-y-3" data-testid="vps.console.page">
@@ -221,7 +241,7 @@ function MutableVpsConsolePage() {
           <div className="flex min-w-0 flex-wrap items-center gap-2 sm:min-h-8">
             <h2 className="text-base font-semibold">{t('vps.console.title')}</h2>
             <div
-              title={expiresAt ? t('vps.console.expires_at', { time: expiresAt }) : undefined}
+              title={t('vps.console.lifetime_hint')}
               className="inline-flex items-center gap-2 rounded-md border border-border bg-surface px-2.5 py-1 text-xs font-medium text-fg"
               data-testid="vps.console.connection_state"
             >
@@ -405,6 +425,12 @@ function MutableVpsConsolePage() {
         </div>
       ) : null}
 
+      {validityQ.isError && !validityDenied && activeToken ? (
+        <Alert variant="warn" title={t('vps.console.validation_error.title')} testId="vps.console.validation_error">
+          {t('vps.console.validation_error.body')}
+        </Alert>
+      ) : null}
+
       {tokenExpired && consoleUrl ? (
         <div data-testid="vps.console.expired">
           <Alert variant="warn" title={t('vps.console.expired.title')}>
@@ -414,9 +440,9 @@ function MutableVpsConsolePage() {
                 variant="secondary"
                 size="sm"
                 testId="vps.console.expired.new_session"
-                onClick={() => newSessionM.mutate()}
+                onClick={() => { void tokenQ.refetch(); }}
                 disabled={disabledNewSession}
-                loading={newSessionM.isPending}
+                loading={tokenQ.isFetching}
               >
                 {t('vps.console.new_session.label')}
               </Button>

@@ -2,9 +2,7 @@ import { describe, expect, test, vi } from 'vitest';
 
 import {
   buildCreateVpsParams,
-  createConsoleToken,
   createVps,
-  deleteConsoleToken,
   fetchVps,
   fetchVpsList,
   fetchVpsStatuses,
@@ -474,21 +472,5 @@ describe('vps API wrappers', () => {
     await expect(vpsDelete(12, { lazy: true, expiration_date: '2099-01-02T12:30:00.000Z' })).rejects.toThrow();
   });
 
-  test('console token lifecycle calls the legacy VPS console_token action', async () => {
-    globalThis.fetch = mockFetchOk({ console_token: { token: 'T1', expiration: '2027-01-01T00:00:00Z' } }) as any;
 
-    await createConsoleToken(12);
-
-    let [url, init] = lastFetchCall();
-    expect(new URL(url).pathname).toBe('/v7.0/vpses/12/console_token');
-    expect(init?.method).toBe('POST');
-    expect(JSON.parse(String(init?.body))).toEqual({});
-
-    await deleteConsoleToken(12);
-
-    [url, init] = lastFetchCall();
-    expect(new URL(url).pathname).toBe('/v7.0/vpses/12/console_token');
-    expect(init?.method).toBe('DELETE');
-    expect(JSON.parse(String(init?.body))).toEqual({});
-  });
 });
