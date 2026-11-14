@@ -115,13 +115,17 @@ for (const language of ['cs', 'en'] as const) {
       await expect(toast).toContainText(
         mode === 'now' ? (language === 'cs' ? 'Migrace zařazena' : 'Migration queued') : scheduled
       );
+      await expect(page.getByTestId('modal.action_progress')).toBeHidden();
+      await page
+        .getByTestId('vps.header')
+        .getByRole('link', { name: language === 'cs' ? 'Přehled' : 'Overview', exact: true })
+        .click();
+      await expect(page).toHaveURL('/admin/vps/123');
       await toast
         .getByRole('button', { name: language === 'cs' ? 'Otevřít úlohy' : 'Open tasks', exact: true })
         .click();
       await expect(page.getByTestId('tasks.drawer')).toBeVisible();
       await expect(page.getByTestId('tasks.drawer')).toContainText('scheduled-fixture.example');
-      await page.goto('/admin/vps/123');
-      await expect(page).toHaveURL('/admin/vps/123');
       await page.goto('/admin/vps/123/lifecycle/migrate');
       await page.reload();
       await expect(page.getByTestId('vps.lifecycle.migrate.pending')).toContainText(leave);
