@@ -424,7 +424,7 @@ export function VpsLifecyclePage() {
     onMutate: acquireMutationContext,
     onSuccess: (res, variables, context) => {
       track(res.meta, 'action.vps.migrate.label', variables, context);
-      toasts.pushToast(vpsMigrateReceipt(t, variables.objectLabel, () => chrome.openTasks()));
+      if (variables.preparedPayload.ok) toasts.pushToast(vpsMigrateReceipt(t, variables.objectLabel, variables.preparedPayload.value, () => chrome.openTasks()));
       setMigrate((p) => ({ ...p, confirm: false }));
     },
     onError: (e: any) => {

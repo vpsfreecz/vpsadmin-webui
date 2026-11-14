@@ -84,6 +84,7 @@ export default defineConfig({
         '**/vps_initialization_templates.spec.ts',
         '**/vps_console_controls.spec.ts',
         '**/vps_console_viewport.spec.ts',
+        '**/migration_receipt_feedback.spec.ts',
         '**/vps_console_page.spec.ts',
         '**/search_scope_reminder.spec.ts',
         '**/node_heatmaps.spec.ts',

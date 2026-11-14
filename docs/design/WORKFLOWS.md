@@ -1003,3 +1003,9 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+
+Migration acceptance receipts distinguish immediate work from maintenance-window or
+custom scheduled completion using the captured submitted payload. Acceptance is
+not completion; preparation can begin before the window. The user may leave and
+track Tasks, while duplicate-operation and uncertain-request locks remain intact.

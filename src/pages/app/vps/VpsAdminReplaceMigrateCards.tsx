@@ -214,6 +214,12 @@ export function VpsAdminMigrateCard(props: {
     && props.targetContext.sourceEnvironmentId !== undefined
     && props.targetContext.sourceEnvironmentId === props.targetContext.targetEnvironmentId;
 
+  // Presentation only: submission still uses the original unchanged gate.
+  const feedbackGate: GateDecision = !props.gate.allowed
+    && ['gate.busy.local.title', 'gate.busy.transaction.title'].includes(props.gate.reason.titleKey)
+    ? { ...props.gate, reason: { ...props.gate.reason, descriptionKey: 'vps.lifecycle.migrate.pending_body' } }
+    : props.gate;
+
   return (
     <LifecycleActionShell
       testId="vps.lifecycle.migrate"
@@ -230,7 +236,7 @@ export function VpsAdminMigrateCard(props: {
         </LifecycleSubmitButton>
       }
     >
-      <ActionGateAlert gate={props.gate} onOpenTasks={props.onOpenTasks} />
+      <ActionGateAlert gate={feedbackGate} onOpenTasks={props.onOpenTasks} testId="vps.lifecycle.migrate.pending" />
       <VpsMigrationNodePicker
         nodes={props.nodes}
         sourceId={props.targetContext.sourceNodeId}

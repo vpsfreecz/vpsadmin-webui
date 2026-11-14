@@ -53,6 +53,7 @@
     "e2e/specs/app/incidents_responsive_layout.spec.ts",
     "e2e/specs/app/ip_addresses_environment_filter.spec.ts",
     "e2e/specs/app/member_payment_links.spec.ts",
+    "e2e/specs/app/migration_receipt_feedback.spec.ts",
     "e2e/specs/app/mobile_lookup_popover.spec.ts",
     "e2e/specs/app/mobile_touch_interactions.spec.ts",
     "e2e/specs/app/mobile_workflows.spec.ts",
