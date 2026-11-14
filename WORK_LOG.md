@@ -55,6 +55,7 @@ A production maintenance-page report exposed an incorrect mandatory-task assumpt
 for the DB-only admin-team preference. Recognize only that isolated boolean write
 as synchronous, verify exact VPS read-back, and retain all async/ambiguity guards.
 Protect independent Sunday edits. See [contract and evidence](docs/work-log/2026-10-28-vps-admin-preference-sync.md).
+
 ## 2026-10-28 — Prepare approved three-site release
 
 The maintainer approves PR97/98/99 after testing dev, then explicitly adds
@@ -244,7 +245,6 @@ Prepared for review; not merged or deployed.
 Member overview gains a password dialog before Edit user, with secure generation,
 copy and a default next-login password reset. Prepared for review; not deployed.
 See [implementation and checks](docs/work-log/2026-10-22-admin-user-password.md).
-
 
 ## 2026-10-22 — Member communication contacts
 
@@ -1582,7 +1582,6 @@ Keep the newly advanced shared main intact and use an exact approved runtime pin
 [Scope, source/main distinction, checks and deployment receipt](docs/work-log/2026-11-01-approved-three-site-release.md).
 Preparation only; activation and main integration require their recorded gates.
 
-
 ## 2026-11-01 — Anonymous theme controls
 
 Expose the existing local light/dark/system preference in the public header and
@@ -1590,14 +1589,12 @@ mobile menu, retaining accessible state, touch targets and reload persistence.
 [Scope and verification](docs/work-log/2026-11-01-public-theme-switch.md).
 Prepared for review; no merge or deployment.
 
-
 ## 2026-11-01 — Anonymous overview news language
 
 Select cached bilingual news using the current UI language on the public
 overview, matching the existing news list and member dashboard.
 [Cause, contract and verification](docs/work-log/2026-11-01-public-news-language.md).
 Prepared for review; no API change, merge or deployment.
-
 
 ## 2026-11-01 — Public news header alignment
 
@@ -1655,7 +1652,6 @@ on remote Linux. Coverage includes mixed/empty/resolved outages, preview orderin
 draft exclusion, no credential headers, error isolation and mobile WebKit.
 Synthetic screenshots and evidence are in the dated entry. No live deployment.
 
-
 ## 2026-11-01 — Authenticated sidebar controls (prepared)
 
 - Moved search, Tasks, session duration and account controls into navigation;
@@ -1685,3 +1681,12 @@ preserve all branch histories and colleague PRs. Add standard push CI for the
 integration branch, without deployment automation. Dev has isolated test data;
 clankerdev still uses the production API. No host update in this setup.
 [Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
+
+## 2026-11-15 — Select an export dataset by name
+
+Prepare approved EXP-01 / REQ-048: offer authorized dataset names with explicit
+internal-ID identity and `#ID` fallback. Clear stale snapshot selection, preserve
+ownership preflight and backend Create contracts, and disclose bounded lists.
+[Scope, implementation and verification](docs/work-log/2026-11-15-export-dataset-selection.md).
+Prepared only; exact committed qualification, focused PR/CI and paired delivery
+remain separate.

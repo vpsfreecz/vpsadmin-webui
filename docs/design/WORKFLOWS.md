@@ -994,7 +994,6 @@ exact read-back and remains blocked if unverifiable. Support has no maintenance
 control and ordinary member mode has no Nodes route.
 [Review evidence](../work-log/2026-10-19-nodes-overview-maintenance.md).
 
-
 ### Lookup popover touch bounds (2026-10-28)
 
 REQ-010: user/node suggestions remain inside the visual viewport and clipping
@@ -1003,3 +1002,22 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+### Export dataset selection
+
+The global create dialog offers the currently authorized datasets by complete
+name in the shared keyboard/touch combobox. Names and internal IDs are distinct:
+a numeric name is still a name, and only an explicit `#ID` requests direct lookup.
+Typing a different name or selecting another dataset clears the old snapshot.
+The existing dataset/snapshot source payload and fixed snapshot shortcut remain.
+The snapshot list retains its existing bound and exact preselected snapshot.
+
+Member/support choices are filtered to the current account. Administrator My
+view explicitly scopes Dataset#index to its own user and rejects foreign rows;
+global administrators retain their authorized scope. Preserve Dataset#show and
+the fresh My-view ownership read immediately before Create. Listing options is
+not a grant of mutation permission. Loading/error lists hide stale choices and
+support retry. A bounded or incomplete list offers the existing exact-ID/detail
+entrypoints rather than claiming a complete sorted numeric cursor traversal.
+Creation disables the dataset picker while its captured request is pending.
+See [EXP-01 scope and evidence](../work-log/2026-11-15-export-dataset-selection.md).
