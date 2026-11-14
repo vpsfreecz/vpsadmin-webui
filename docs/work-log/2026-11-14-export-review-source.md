@@ -33,3 +33,18 @@ Source checks and final qualification results will be recorded before delivery.
 No live identities or objects created; no API activation, PR merge or production
 deployment. Paired previews remain on the preceding verified release until all
 release gates pass.
+
+
+## 2026-11-14 — Isolate navigation from preference synchronization
+
+The original EXP-06 CI counted the seeded theme/language preference PUT as a
+navigation mutation. Server persistence is the source fixture default, while
+the separate BFF build harness uses local preferences. Explicitly select local
+persistence here, retaining the strict zero-write assertion and every exact
+destination, source identity and keyboard check. The native source fixture
+passes all36 CS/EN/light/dark/member/admin/My cases across desktop Chromium,
+mobile Chrome and mobile WebKit, retries0. The first native probe had a5-second
+assertion budget and stopped while cold modules loaded; preserve its traces.
+The qualifying probe uses the repository's15-second assertion budget.
+Original hosted failures and logs remain; the new head still needs all six
+required checks. No product runtime, CI selection or retry policy changed.
