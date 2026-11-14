@@ -99,6 +99,8 @@ function ExportCreateReview(props: {
         <li>{form.sourceType === 'snapshot' ? t('exports.review.snapshot_temporary') : t('exports.review.dataset_persistent')}</li>
         <li>{form.rw ? t('exports.review.rw') : t('exports.review.ro')}</li>
         <li>{form.allVps ? t('exports.review.all_vps') : t('exports.review.selected_hosts')}</li>
+        <li data-testid="exports.create.review.sync">{t(form.sync ? 'exports.review.sync_on' : 'exports.review.sync_off')}</li>
+        <li data-testid="exports.create.review.subtree_check">{t(form.subtreeCheck ? 'exports.review.subtree_check_on' : 'exports.review.subtree_check_off')}</li>
         <li>{form.rootSquash ? t('exports.review.root_squash_on') : t('exports.review.root_squash_off')}</li>
       </ul>
     </div>
