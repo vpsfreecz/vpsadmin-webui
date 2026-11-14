@@ -36,3 +36,9 @@ expected the old maintenance title. Update it to the specific scheduled title an
 add the new title to rejection absence checks, retaining every original assertion.
 Add direct header-link navigation and no blocking progress modal to the new matrix.
 Qualify the existing migration subset as well as the new matrix before pushing.
+
+Visual review identified a persistent-receipt wording issue: an unconditional
+"not finished yet" claim can become stale after the task completes. Use timeless
+acceptance-versus-completion wording and exercise the persistent receipt after a
+finished action response. Keep prior CI evidence and qualify the follow-up in the
+same draft, without canceling or bypassing original checks.
