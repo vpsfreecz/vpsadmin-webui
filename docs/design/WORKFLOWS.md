@@ -1780,3 +1780,9 @@ previous or next page keeps controls, including page-size selection. The
 extra-row probe and prefixed embedded queries are unchanged. Page size and
 counts do not claim a creation limit or automatic retention.
 [Prepared integration and verification](../work-log/2026-11-12-backup-picker-pagination-integration.md).
+
+
+Migration acceptance receipts distinguish immediate work from maintenance-window or
+custom scheduled completion using the captured submitted payload. Acceptance is
+not completion; preparation can begin before the window. The user may leave and
+track Tasks, while duplicate-operation and uncertain-request locks remain intact.

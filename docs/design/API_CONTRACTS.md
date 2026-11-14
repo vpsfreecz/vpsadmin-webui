@@ -477,3 +477,10 @@ array, filters exact published states, sorts by publication date/ID and caps at
 five. This is a preview with an archive link, not a complete paginated result;
 public archive behavior is unchanged. Failed previews have their own explicit
 error state. No new backend endpoint or permission is required.
+
+
+VPS migration acceptance returns a tracked action state before completion. The
+receipt uses the frozen submitted maintenance_window/finish_weekday/finish_minutes
+values (maintenance defaults true; custom Sunday0/midnight0 are valid). Initial
+preparation and data transfer can precede the backend window wait. Leaving the
+page does not cancel the operation or release duplicate/uncertainty locks.

@@ -213,6 +213,7 @@
     "e2e/specs/app/vps_console_lifetime.spec.ts",
     "e2e/specs/app/vps_console_page.spec.ts",
     "e2e/specs/app/vps_console_viewport.spec.ts",
+    "e2e/specs/app/migration_receipt_feedback.spec.ts",
     "e2e/specs/app/vps_create_admin_flow.spec.ts",
     "e2e/specs/app/vps_create_failures.spec.ts",
     "e2e/specs/app/vps_creation_progress.spec.ts",
