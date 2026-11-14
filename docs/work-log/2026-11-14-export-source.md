@@ -17,3 +17,18 @@ hosted exact-head results are pending. No merge or preview activation claimed.
 KB impact: the React export detail source summary capture changes; legacy PHP
 navigation IDs and documentation routes stay unchanged. Production KB is
 untouched. No live objects created; no API activation or production deployment.
+
+
+## 2026-11-14 — Isolate navigation from preference synchronization
+
+The original EXP-06 CI counted the seeded theme/language preference PUT as a
+navigation mutation. Server persistence is the source fixture default, while
+the separate BFF build harness uses local preferences. Explicitly select local
+persistence here, retaining the strict zero-write assertion and every exact
+destination, source identity and keyboard check. The native source fixture
+passes all36 CS/EN/light/dark/member/admin/My cases across desktop Chromium,
+mobile Chrome and mobile WebKit, retries0. The first native probe had a5-second
+assertion budget and stopped while cold modules loaded; preserve its traces.
+The qualifying probe uses the repository's15-second assertion budget.
+Original hosted failures and logs remain; the new head still needs all six
+required checks. No product runtime, CI selection or retry policy changed.

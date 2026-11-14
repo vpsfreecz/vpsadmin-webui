@@ -7,7 +7,9 @@ for (const language of ['cs', 'en'] as const) {
     for (const role of ['member', 'admin', 'my'] as const) {
       test(`@pr-smoke @pr-smoke-mobile export source action ${language} ${theme} ${role}`, async ({ page }, testInfo) => {
         const baseline = process.env['CAPTURE_SIDE']?.startsWith('baseline') ?? false;
-        await bootstrapVpsAdminWindow(page);
+        // Navigation must not write; preference persistence is outside this
+        // fixture's scope and otherwise asynchronously saves seeded settings.
+        await bootstrapVpsAdminWindow(page, { webuiNext: { uiSettings: { persistence: 'local' } } });
         await setUiSettingsLocalStorage(page, { language, theme });
         const name = 'tank/demo/dlouhy-nazev-datasetu-se-zalohami-a-dalsimi-daty';
         const writes: string[] = [];
