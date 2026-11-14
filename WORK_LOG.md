@@ -2949,3 +2949,13 @@ Direct maintainer request, REQ-028. Distinguish accepted scheduling from complet
 migration using the frozen submitted request, with Tasks tracking and permission
 to leave the page. Preserve backend timing, mutation/duplicate/uncertainty gates.
 [Scope and verification](docs/work-log/2026-11-14-migration-scheduled-receipt.md).
+
+
+## 2026-11-15 — Select an export dataset by name
+
+Prepare approved EXP-01 / REQ-048: offer authorized dataset names with explicit
+internal-ID identity and `#ID` fallback. Clear stale snapshot selection, preserve
+ownership preflight and backend Create contracts, and disclose bounded lists.
+[Scope, implementation and verification](docs/work-log/2026-11-15-export-dataset-selection.md).
+Prepared only; exact committed qualification, focused PR/CI and paired delivery
+remain separate.

@@ -484,3 +484,18 @@ receipt uses the frozen submitted maintenance_window/finish_weekday/finish_minut
 values (maintenance defaults true; custom Sunday0/midnight0 are valid). Initial
 preparation and data transfer can precede the backend window wait. Leaving the
 page does not cancel the operation or release duplicate/uncertainty locks.
+
+
+### Export dataset picker reads
+
+The picker uses existing Dataset#index `limit=1000`, `_meta[count]` and
+`_meta[includes]=user`. Only administrator My view sends its own `user` filter;
+non-administrator ownership remains enforced by the API. The UI rejects foreign
+or missing-owner rows when ownership is required. Unknown/mismatched counts do
+not imply a complete collection. Do not use a numeric-ID cursor to claim complete
+traversal of Dataset#index's name order (REQ-044 remains a backend dependency).
+Explicit `#ID` keeps the existing authorized Dataset#show path; ordinary numeric
+names require an offered choice. No new API parameter, transport or mutation is
+introduced. Snapshot reads and both Create source payloads retain their existing
+contract. Authoritative ownership and the fresh administrator My-view check
+remain immediately before Create.

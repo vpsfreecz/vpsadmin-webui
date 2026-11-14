@@ -27,7 +27,8 @@ export const enStorageExports = {
   'exports.review.edit_title': 'Review export changes',
   'exports.review.edit_intro': 'Only the changed export options are shown here before saving.',
   'exports.review.no_changes': 'No changes to save.',
-  'exports.review.snapshot_temporary': 'Snapshot exports are temporary; do not persist them in client mount configuration.',
+  'exports.review.snapshot_temporary':
+    'Snapshot exports are temporary; do not persist them in client mount configuration.',
   'exports.review.dataset_persistent': 'Dataset exports can be mounted persistently after the export is ready.',
   'exports.review.rw': 'The export allows read-write access.',
   'exports.review.ro': 'The export is read-only.',
@@ -35,12 +36,15 @@ export const enStorageExports = {
   'exports.review.selected_hosts': 'Only explicitly selected hosts will be allowed.',
   'exports.review.sync_on': 'Sync is enabled: the server replies after changes reach stable storage.',
   'exports.review.sync_off': 'Sync is disabled (async): the server may reply before changes reach stable storage.',
-  'exports.review.subtree_check_on': 'Subtree check is enabled: the server checks that requested files belong to the exported directory.',
-  'exports.review.subtree_check_off': 'Subtree check is disabled: the server does not perform the additional directory check.',
+  'exports.review.subtree_check_on':
+    'Subtree check is enabled: the server checks that requested files belong to the exported directory.',
+  'exports.review.subtree_check_off':
+    'Subtree check is disabled: the server does not perform the additional directory check.',
   'exports.review.root_squash_on': 'Root squash is enabled for safer client isolation.',
   'exports.review.root_squash_off': 'Root squash is disabled; review whether that is intended.',
   'exports.delete.review.title': 'Deletion review',
-  'exports.delete.review.body': 'Deleting an export removes the server-side NFS publication and can break existing client mounts. It does not delete the dataset or snapshot.',
+  'exports.delete.review.body':
+    'Deleting an export removes the server-side NFS publication and can break existing client mounts. It does not delete the dataset or snapshot.',
   'exports.action.update': 'Update export',
   'exports.action.delete': 'Delete export',
   'exports.field.source': 'Source',
@@ -61,10 +65,15 @@ export const enStorageExports = {
   'exports.form.source': 'Source type',
   'exports.form.source.dataset': 'Dataset',
   'exports.form.source.snapshot': 'Snapshot',
-  'exports.form.dataset.placeholder': 'Enter a dataset ID…',
-  'exports.form.dataset.help': 'Enter an exact ID. To choose by name, open the dataset and create its export from the Export tab.',
+  'exports.form.dataset.id': 'ID: #{id}',
+  'exports.form.dataset.placeholder': 'Select an available dataset…',
+  'exports.form.dataset.help': 'Choose a dataset by name. If you know its exact ID, enter #ID.',
+  'exports.form.dataset.limited':
+    'More datasets may be available. Use an exact #ID or open the dataset to create its export.',
+  'exports.form.dataset.list_error': 'Unable to load available datasets.',
   'exports.form.dataset_load_error.title': 'Unable to verify dataset',
-  'exports.form.dataset_load_error.body': 'Dataset #{id} could not be loaded. Check the ID and your access, then try again.',
+  'exports.form.dataset_load_error.body':
+    'Dataset #{id} could not be loaded. Check the ID and your access, then try again.',
   'exports.form.snapshot.placeholder': 'Select a snapshot…',
   'exports.form.address.placeholder': 'Select a host IP…',
   'exports.filter.owner.label': 'Export owner',
@@ -73,14 +82,16 @@ export const enStorageExports = {
   'exports.smart.placeholder': 'Open an export by ID…',
   'exports.smart.aria': 'Open an export or filter by a supported field',
   'exports.smart.help.title': 'Find an export',
-  'exports.smart.help.intro': 'Open a known export ID. Global administrators can also filter the list by an exact owner ID.',
+  'exports.smart.help.intro':
+    'Open a known export ID. Global administrators can also filter the list by an exact owner ID.',
   'exports.smart.help.hint': 'Type “?” in the filter to show available keys.',
   'exports.smart.help.example_user': 'Filter by an exact owner ID (global admin view only).',
   'exports.smart.help.example_open': 'Open export detail by id.',
   'exports.smart.help.key.user': 'Filter by owner user id (admin only).',
   'exports.smart.help.key.id': 'Open export detail by id.',
   'exports.smart.help.inference.1': 'A bare number opens export detail.',
-  'exports.smart.help.inference.2': 'The API does not support global text, dataset, snapshot, host or state filters. Use the related object detail instead.',
+  'exports.smart.help.inference.2':
+    'The API does not support global text, dataset, snapshot, host or state filters. Use the related object detail instead.',
   'exports.smart.suggest.open': 'Open export #{id}',
   'exports.smart.suggest.open.secondary': 'Go to export detail',
   'exports.smart.suggest.unsupported': 'Global text search is not available',
@@ -92,7 +103,8 @@ export const enStorageExports = {
   'exports.smart.error.unsupported_filter': 'The Export API does not support the “{key}” list filter.',
   'exports.smart.error.unknown_key': 'Unknown export filter key: {key}',
   'dataset.exports.title': 'Persistent NFS export',
-  'dataset.exports.subtitle': 'This view shows the export attached directly to this dataset. Temporary snapshot exports remain available in the global Exports list.',
+  'dataset.exports.subtitle':
+    'This view shows the export attached directly to this dataset. Temporary snapshot exports remain available in the global Exports list.',
   'dataset.exports.empty.title': 'This dataset has no persistent export',
   'dataset.exports.empty.body': 'Create an export to publish this dataset over NFS.',
   'dataset.exports.load_error.title': 'Failed to load the dataset export',
@@ -105,9 +117,11 @@ export const enStorageExports = {
   'exports.detail.summary.subtitle': 'Source, server address and export options.',
   'exports.detail.instructions.title': 'Mount instructions',
   'exports.detail.instructions.dataset_subtitle': 'Copy-ready command and persistence helpers for this dataset export.',
-  'exports.detail.instructions.snapshot_subtitle': 'Snapshot exports are temporary; only the immediate mount command is shown.',
+  'exports.detail.instructions.snapshot_subtitle':
+    'Snapshot exports are temporary; only the immediate mount command is shown.',
   'exports.detail.instructions.temporary.title': 'Temporary export',
-  'exports.detail.instructions.temporary.body': 'Snapshot exports are temporary. Do not persist them in fstab/systemd/NixOS configuration.',
+  'exports.detail.instructions.temporary.body':
+    'Snapshot exports are temporary. Do not persist them in fstab/systemd/NixOS configuration.',
   'exports.detail.hosts.title': 'Allowed hosts',
   'exports.detail.hosts.subtitle': 'Explicit host allow-list for this export.',
   'exports.detail.hosts.all_vps_subtitle': 'This export is available to all VPS of the owner.',
@@ -140,5 +154,6 @@ export const enStorageExports = {
   'exports.host.review.edit_title': 'Review host changes',
   'exports.host.review.edit_intro': 'Only the changed host options are shown here before saving.',
   'exports.host.delete.review.title': 'Host removal review',
-  'exports.host.delete.review.body': 'Removing this host can immediately stop its access to the export. Existing mounts from that address may fail.',
+  'exports.host.delete.review.body':
+    'Removing this host can immediately stop its access to the export. Existing mounts from that address may fail.',
 } as const;

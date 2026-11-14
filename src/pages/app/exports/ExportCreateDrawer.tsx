@@ -9,6 +9,7 @@ import { Input } from '../../../components/ui/Input';
 import { Modal } from '../../../components/ui/Modal';
 import { Select } from '../../../components/ui/Select';
 import type { Dataset, Snapshot } from '../../../lib/api/datasets';
+import { ExportDatasetPicker } from './ExportDatasetPicker';
 import {
   resourceLabel,
   type CreateExportFormState,
@@ -47,16 +48,20 @@ function ExportCreateReview(props: {
   const { t } = useI18n();
   const form = props.form;
   const validation = validateCreateExportForm(form, props.isAdmin);
-  const sourceLabel = form.sourceType === 'snapshot'
-    ? selectedSnapshotLabel(props.snapshots, form.snapshotId)
-    : props.dataset
-      ? resourceLabel(props.dataset)
-      : form.datasetId
-        ? `#${form.datasetId}`
-        : '—';
+  const sourceLabel =
+    form.sourceType === 'snapshot'
+      ? selectedSnapshotLabel(props.snapshots, form.snapshotId)
+      : props.dataset
+        ? resourceLabel(props.dataset)
+        : form.datasetId
+          ? `#${form.datasetId}`
+          : '—';
 
   return (
-    <div className="space-y-3 rounded-md border border-border bg-surface-2 p-3 text-sm" data-testid="exports.create.review">
+    <div
+      className="space-y-3 rounded-md border border-border bg-surface-2 p-3 text-sm"
+      data-testid="exports.create.review"
+    >
       <div>
         <div className="text-xs font-semibold uppercase tracking-wide text-muted">{t('exports.review.title')}</div>
         <div className="mt-1 text-muted">{t('exports.review.create_intro')}</div>
@@ -65,11 +70,13 @@ function ExportCreateReview(props: {
       <div className="grid gap-2 sm:grid-cols-2">
         <div>
           <div className="text-xs text-faint">{t('exports.field.source')}</div>
-          <div className="font-medium text-fg">{sourceLabel}</div>
+          <div className="break-all font-medium text-fg">{sourceLabel}</div>
         </div>
         <div>
           <div className="text-xs text-faint">{t('exports.field.scope')}</div>
-          <div className="font-medium text-fg">{form.allVps ? t('exports.field.all_vps') : t('exports.field.selected_hosts')}</div>
+          <div className="font-medium text-fg">
+            {form.allVps ? t('exports.field.all_vps') : t('exports.field.selected_hosts')}
+          </div>
         </div>
         <div>
           <div className="text-xs text-faint">{t('exports.field.mode')}</div>
@@ -90,17 +97,27 @@ function ExportCreateReview(props: {
       {validation.issues.length > 0 ? (
         <Alert title={t('exports.validation.title')} variant="warn">
           <ul className="list-disc space-y-1 pl-5">
-            {validation.issues.map((issue) => <li key={issue}>{issueLabel(issue, t)}</li>)}
+            {validation.issues.map((issue) => (
+              <li key={issue}>{issueLabel(issue, t)}</li>
+            ))}
           </ul>
         </Alert>
       ) : null}
 
       <ul className="list-disc space-y-1 pl-5 text-xs text-muted">
-        <li>{form.sourceType === 'snapshot' ? t('exports.review.snapshot_temporary') : t('exports.review.dataset_persistent')}</li>
+        <li>
+          {form.sourceType === 'snapshot'
+            ? t('exports.review.snapshot_temporary')
+            : t('exports.review.dataset_persistent')}
+        </li>
         <li>{form.rw ? t('exports.review.rw') : t('exports.review.ro')}</li>
         <li>{form.allVps ? t('exports.review.all_vps') : t('exports.review.selected_hosts')}</li>
-        <li data-testid="exports.create.review.sync">{t(form.sync ? 'exports.review.sync_on' : 'exports.review.sync_off')}</li>
-        <li data-testid="exports.create.review.subtree_check">{t(form.subtreeCheck ? 'exports.review.subtree_check_on' : 'exports.review.subtree_check_off')}</li>
+        <li data-testid="exports.create.review.sync">
+          {t(form.sync ? 'exports.review.sync_on' : 'exports.review.sync_off')}
+        </li>
+        <li data-testid="exports.create.review.subtree_check">
+          {t(form.subtreeCheck ? 'exports.review.subtree_check_on' : 'exports.review.subtree_check_off')}
+        </li>
         <li>{form.rootSquash ? t('exports.review.root_squash_on') : t('exports.review.root_squash_off')}</li>
       </ul>
     </div>
@@ -120,6 +137,9 @@ export function ExportCreateDrawer(props: {
   datasetSelectionPending: boolean;
   datasetSelectionAlert?: { title: string; body: string };
   isAdmin: boolean;
+  accountId: number | undefined;
+  requiresOwnDataset: boolean;
+  requiredDatasetOwnerId: number | undefined;
   pending: boolean;
   onSubmit: () => void;
 }) {
@@ -139,10 +159,14 @@ export function ExportCreateDrawer(props: {
       testId={props.embedded ? 'dataset.exports.create' : 'exports.create'}
       footer={
         <div className="flex justify-end gap-2">
-          <Button variant="secondary" onClick={props.onClose}>{t('common.cancel')}</Button>
+          <Button variant="secondary" onClick={props.onClose}>
+            {t('common.cancel')}
+          </Button>
           <Button
             variant="primary"
-            disabled={!validation.ok || !props.datasetSelectionAllowed || props.datasetSelectionPending || props.pending}
+            disabled={
+              !validation.ok || !props.datasetSelectionAllowed || props.datasetSelectionPending || props.pending
+            }
             loading={props.pending}
             onClick={props.onSubmit}
             testId="exports.create.submit"
@@ -156,20 +180,23 @@ export function ExportCreateDrawer(props: {
         {props.fixedDatasetId === undefined ? (
           <div>
             <div className="mb-1 text-sm font-medium text-fg">{t('common.dataset')}</div>
-            <Input
+            <ExportDatasetPicker
               value={props.form.datasetId}
-              onChange={(event) => patch({ datasetId: event.target.value, snapshotId: '' })}
-              testId="exports.create.dataset"
-              ariaLabel={t('common.dataset')}
-              placeholder={t('exports.form.dataset.placeholder')}
-              inputMode="numeric"
+              onChange={(datasetId) => patch({ datasetId, snapshotId: '' })}
+              open={props.open}
+              pending={props.pending}
+              isAdmin={props.isAdmin}
+              accountId={props.accountId}
+              requiresOwnDataset={props.requiresOwnDataset}
+              requiredDatasetOwnerId={props.requiredDatasetOwnerId}
             />
-            <div className="mt-1 text-xs text-faint">{t('exports.form.dataset.help')}</div>
           </div>
         ) : (
           <Card>
             <CardBody>
-              <div className="text-sm text-muted">{props.selectedDataset ? resourceLabel(props.selectedDataset) : `#${props.fixedDatasetId}`}</div>
+              <div className="text-sm text-muted">
+                {props.selectedDataset ? resourceLabel(props.selectedDataset) : `#${props.fixedDatasetId}`}
+              </div>
             </CardBody>
           </Card>
         )}
@@ -203,25 +230,51 @@ export function ExportCreateDrawer(props: {
             >
               <option value="">{t('exports.form.snapshot.placeholder')}</option>
               {props.snapshots.map((snapshot) => (
-                <option key={snapshot.id} value={String(snapshot.id)}>{resourceLabel(snapshot)}</option>
+                <option key={snapshot.id} value={String(snapshot.id)}>
+                  {resourceLabel(snapshot)}
+                </option>
               ))}
             </Select>
           </div>
         ) : null}
 
         <div className="grid gap-3 sm:grid-cols-2">
-          <Checkbox checked={props.form.allVps} onChange={(value) => patch({ allVps: value })} label={t('exports.field.all_vps')} />
-          <Checkbox checked={props.form.enabled} onChange={(value) => patch({ enabled: value })} label={t('common.enabled')} />
+          <Checkbox
+            checked={props.form.allVps}
+            onChange={(value) => patch({ allVps: value })}
+            label={t('exports.field.all_vps')}
+          />
+          <Checkbox
+            checked={props.form.enabled}
+            onChange={(value) => patch({ enabled: value })}
+            label={t('common.enabled')}
+          />
           <Checkbox checked={props.form.rw} onChange={(value) => patch({ rw: value })} label={t('exports.field.rw')} />
-          <Checkbox checked={props.form.sync} onChange={(value) => patch({ sync: value })} label={t('exports.field.sync')} />
-          <Checkbox checked={props.form.subtreeCheck} onChange={(value) => patch({ subtreeCheck: value })} label={t('exports.field.subtree_check')} />
-          <Checkbox checked={props.form.rootSquash} onChange={(value) => patch({ rootSquash: value })} label={t('exports.field.root_squash')} />
+          <Checkbox
+            checked={props.form.sync}
+            onChange={(value) => patch({ sync: value })}
+            label={t('exports.field.sync')}
+          />
+          <Checkbox
+            checked={props.form.subtreeCheck}
+            onChange={(value) => patch({ subtreeCheck: value })}
+            label={t('exports.field.subtree_check')}
+          />
+          <Checkbox
+            checked={props.form.rootSquash}
+            onChange={(value) => patch({ rootSquash: value })}
+            label={t('exports.field.root_squash')}
+          />
         </div>
 
         {props.isAdmin ? (
           <div>
             <div className="mb-1 text-sm font-medium text-fg">{t('exports.field.threads')}</div>
-            <Input value={props.form.threads} onChange={(e) => patch({ threads: e.target.value })} ariaLabel={t('exports.field.threads')} />
+            <Input
+              value={props.form.threads}
+              onChange={(e) => patch({ threads: e.target.value })}
+              ariaLabel={t('exports.field.threads')}
+            />
           </div>
         ) : null}
 
@@ -231,7 +284,6 @@ export function ExportCreateDrawer(props: {
           snapshots={props.snapshots}
           isAdmin={props.isAdmin}
         />
-
       </div>
     </Modal>
   );

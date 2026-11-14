@@ -27,20 +27,25 @@ export const csStorageExports = {
   'exports.review.edit_title': 'Kontrola změn exportu',
   'exports.review.edit_intro': 'Před uložením jsou zde zobrazené jen změněné volby exportu.',
   'exports.review.no_changes': 'Nejsou žádné změny k uložení.',
-  'exports.review.snapshot_temporary': 'Exporty snapshotů jsou dočasné; neukládej je do perzistentní klientské konfigurace mountů.',
+  'exports.review.snapshot_temporary':
+    'Exporty snapshotů jsou dočasné; neukládej je do perzistentní klientské konfigurace mountů.',
   'exports.review.dataset_persistent': 'Exporty datasetů lze po připravení mountovat perzistentně.',
   'exports.review.rw': 'Export povoluje čtení i zápis.',
   'exports.review.ro': 'Export je pouze pro čtení.',
   'exports.review.all_vps': 'Všechny adresy VPS vlastníka budou povolené automaticky.',
   'exports.review.selected_hosts': 'Povolení budou jen explicitně vybraní hosté.',
   'exports.review.sync_on': 'Synchronní režim je zapnutý: server odpovídá až po zápisu změn na trvalé úložiště.',
-  'exports.review.sync_off': 'Synchronní režim je vypnutý (async): server může odpovědět ještě před zápisem změn na trvalé úložiště.',
-  'exports.review.subtree_check_on': 'Kontrola podstromu je zapnutá: server ověřuje, že požadované soubory patří do exportovaného adresáře.',
-  'exports.review.subtree_check_off': 'Kontrola podstromu je vypnutá: server dodatečně neověřuje příslušnost souborů k adresáři.',
+  'exports.review.sync_off':
+    'Synchronní režim je vypnutý (async): server může odpovědět ještě před zápisem změn na trvalé úložiště.',
+  'exports.review.subtree_check_on':
+    'Kontrola podstromu je zapnutá: server ověřuje, že požadované soubory patří do exportovaného adresáře.',
+  'exports.review.subtree_check_off':
+    'Kontrola podstromu je vypnutá: server dodatečně neověřuje příslušnost souborů k adresáři.',
   'exports.review.root_squash_on': 'Root squash je zapnutý pro bezpečnější izolaci klientů.',
   'exports.review.root_squash_off': 'Root squash je vypnutý; zkontroluj, jestli je to záměr.',
   'exports.delete.review.title': 'Kontrola mazání',
-  'exports.delete.review.body': 'Smazání exportu odstraní serverovou NFS publikaci a může rozbít existující klientské mounty. Dataset ani snapshot se nesmaže.',
+  'exports.delete.review.body':
+    'Smazání exportu odstraní serverovou NFS publikaci a může rozbít existující klientské mounty. Dataset ani snapshot se nesmaže.',
   'exports.action.update': 'Upravit export',
   'exports.action.delete': 'Smazat export',
   'exports.field.source': 'Zdroj',
@@ -61,10 +66,15 @@ export const csStorageExports = {
   'exports.form.source': 'Typ zdroje',
   'exports.form.source.dataset': 'Dataset',
   'exports.form.source.snapshot': 'Snímek',
-  'exports.form.dataset.placeholder': 'Zadej ID datasetu…',
-  'exports.form.dataset.help': 'Zadej přesné ID. Pro výběr podle názvu otevři dataset a vytvoř export na jeho kartě Export.',
+  'exports.form.dataset.id': 'ID: #{id}',
+  'exports.form.dataset.placeholder': 'Vyber dostupný dataset…',
+  'exports.form.dataset.help': 'Vyber dataset podle názvu. Pokud znáš jeho přesné ID, zadej #ID.',
+  'exports.form.dataset.limited':
+    'Mohou být dostupné další datasety. Zadej přesné #ID nebo otevři dataset a vytvoř export na jeho kartě Export.',
+  'exports.form.dataset.list_error': 'Dostupné datasety se nepodařilo načíst.',
   'exports.form.dataset_load_error.title': 'Dataset se nepodařilo ověřit',
-  'exports.form.dataset_load_error.body': 'Dataset #{id} se nepodařilo načíst. Zkontroluj ID a oprávnění a zkus to znovu.',
+  'exports.form.dataset_load_error.body':
+    'Dataset #{id} se nepodařilo načíst. Zkontroluj ID a oprávnění a zkus to znovu.',
   'exports.form.snapshot.placeholder': 'Vyber snapshot…',
   'exports.form.address.placeholder': 'Vyber host IP…',
   'exports.filter.owner.label': 'Vlastník exportu',
@@ -73,14 +83,16 @@ export const csStorageExports = {
   'exports.smart.placeholder': 'Otevřít export podle ID…',
   'exports.smart.aria': 'Otevřít export nebo filtrovat podporované pole',
   'exports.smart.help.title': 'Najít export',
-  'exports.smart.help.intro': 'Otevři známé ID exportu. Globální administrátor může seznam filtrovat také podle přesného ID vlastníka.',
+  'exports.smart.help.intro':
+    'Otevři známé ID exportu. Globální administrátor může seznam filtrovat také podle přesného ID vlastníka.',
   'exports.smart.help.hint': 'Napiš „?“ do filtru pro zobrazení dostupných klíčů.',
   'exports.smart.help.example_user': 'Filtr podle přesného ID vlastníka (jen globální administrace).',
   'exports.smart.help.example_open': 'Otevře detail exportu podle id.',
   'exports.smart.help.key.user': 'Filtr podle ID vlastníka (jen v administraci).',
   'exports.smart.help.key.id': 'Otevře detail exportu podle id.',
   'exports.smart.help.inference.1': 'Samotné číslo otevře detail exportu.',
-  'exports.smart.help.inference.2': 'API nepodporuje globální filtr textu, datasetu, snapshotu, hosta ani stavu. Použij detail souvisejícího objektu.',
+  'exports.smart.help.inference.2':
+    'API nepodporuje globální filtr textu, datasetu, snapshotu, hosta ani stavu. Použij detail souvisejícího objektu.',
   'exports.smart.suggest.open': 'Otevřít export #{id}',
   'exports.smart.suggest.open.secondary': 'Přejít na detail exportu',
   'exports.smart.suggest.unsupported': 'Globální textové hledání není dostupné',
@@ -92,7 +104,8 @@ export const csStorageExports = {
   'exports.smart.error.unsupported_filter': 'API exportů nepodporuje filtr seznamu „{key}“.',
   'exports.smart.error.unknown_key': 'Neznámý klíč filtru exportů: {key}',
   'dataset.exports.title': 'Trvalý NFS export',
-  'dataset.exports.subtitle': 'Tady je jen export připojený přímo k tomuto datasetu. Dočasné exporty snapshotů zůstávají v globálním seznamu Exporty.',
+  'dataset.exports.subtitle':
+    'Tady je jen export připojený přímo k tomuto datasetu. Dočasné exporty snapshotů zůstávají v globálním seznamu Exporty.',
   'dataset.exports.empty.title': 'Tento dataset nemá trvalý export',
   'dataset.exports.empty.body': 'Vytvoř export a zpřístupni dataset přes NFS.',
   'dataset.exports.load_error.title': 'Nepodařilo se načíst export datasetu',
@@ -105,9 +118,11 @@ export const csStorageExports = {
   'exports.detail.summary.subtitle': 'Zdroj, adresa serveru a volby exportu.',
   'exports.detail.instructions.title': 'Instrukce pro mount',
   'exports.detail.instructions.dataset_subtitle': 'Příkaz i perzistentní konfigurace pro export datasetu.',
-  'exports.detail.instructions.snapshot_subtitle': 'Exporty snapshotů jsou dočasné; zobrazen je jen okamžitý mount příkaz.',
+  'exports.detail.instructions.snapshot_subtitle':
+    'Exporty snapshotů jsou dočasné; zobrazen je jen okamžitý mount příkaz.',
   'exports.detail.instructions.temporary.title': 'Dočasný export',
-  'exports.detail.instructions.temporary.body': 'Exporty snapshotů jsou dočasné. Nezapisuj je do fstab/systemd/NixOS konfigurace.',
+  'exports.detail.instructions.temporary.body':
+    'Exporty snapshotů jsou dočasné. Nezapisuj je do fstab/systemd/NixOS konfigurace.',
   'exports.detail.hosts.title': 'Povolení hosté',
   'exports.detail.hosts.subtitle': 'Explicitní allow-list hostů pro tento export.',
   'exports.detail.hosts.all_vps_subtitle': 'Tento export je dostupný pro všechny VPS vlastníka.',
@@ -140,5 +155,6 @@ export const csStorageExports = {
   'exports.host.review.edit_title': 'Kontrola změn hosta',
   'exports.host.review.edit_intro': 'Před uložením jsou zde zobrazené jen změněné volby hosta.',
   'exports.host.delete.review.title': 'Kontrola odebrání hosta',
-  'exports.host.delete.review.body': 'Odebrání hosta může okamžitě zastavit jeho přístup k exportu. Existující mounty z této adresy mohou selhat.',
+  'exports.host.delete.review.body':
+    'Odebrání hosta může okamžitě zastavit jeho přístup k exportu. Existující mounty z této adresy mohou selhat.',
 } as const;

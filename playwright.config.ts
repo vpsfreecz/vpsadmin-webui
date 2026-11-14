@@ -69,6 +69,7 @@ export default defineConfig({
         '**/error_recovery_action_alignment.spec.ts',
         '**/vps_list_context_readability.spec.ts',
         '**/export_list_containment.spec.ts',
+        '**/export_dataset_selection.spec.ts',
         '**/nas_capacity_semantics.spec.ts',
         '**/nas_form_consistency.spec.ts',
         '**/danger_button_contrast.spec.ts',
