@@ -18,7 +18,7 @@ import {
 } from './vpsListSemantics';
 import { buildVpsListSmartSuggestions, stateFilterLabelKey } from './VpsListSmartSuggestions';
 import {
-  canonicalKey,
+  canonicalKey, clearVpsListSearchParams,
   isStateLiteral,
   normalizeVpsListSearchParams,
   numericParam,
@@ -26,7 +26,6 @@ import {
   useVpsListSmartSuggestionQueries,
   type UseVpsListSmartFiltersArgs,
 } from './vpsListSmartFilterHelpers';
-
 
 export function useVpsListSmartFilters(args: UseVpsListSmartFiltersArgs) {
   const { basePath, mode, scope, t, toasts } = args;
@@ -169,13 +168,8 @@ export function useVpsListSmartFilters(args: UseVpsListSmartFiltersArgs) {
   const { userSuggestQuery, nodesSuggestQuery } = useVpsListSmartSuggestionQueries(debouncedSmartNeedle, mode);
 
   function clearFilters() {
-    setSearch('');
-    setNodeId('');
-    setUserId('');
-    setUserNamespaceMapId('');
-    setLocationId('');
-    setStateFilter('all');
     setSmartErrors([]);
+    setSearchParams(clearVpsListSearchParams(activeSearchParams), { replace: true });
   }
 
   async function copyCurrentLink() {
@@ -440,9 +434,10 @@ export function useVpsListSmartFilters(args: UseVpsListSmartFiltersArgs) {
     activeUserIdNum !== undefined ||
     activeUserNamespaceMapIdNum !== undefined ||
     activeLocationIdNum !== undefined ||
-    activeStateFilter !== 'all';
+    activeStateFilter !== 'all' || activeSearchParams.has('incident_status') || activeSearchParams.has('incident_enforcement_enabled');
 
   const filterKey = JSON.stringify({
+    incident_status: activeSearchParams.get('incident_status'), incident_enforcement_enabled: activeSearchParams.get('incident_enforcement_enabled'),
     q: activeSearch,
     node: activeNodeIdNum ?? null,
     user: (mode === 'admin' ? activeUserIdNum : scope.mineUserId) ?? null,

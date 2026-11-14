@@ -1,5 +1,5 @@
 import { vpsDeleteReceipt } from './vps/vpsDeleteReceipt';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus } from 'lucide-react';
 
@@ -28,6 +28,8 @@ import { useKeysetPagination } from '../../lib/hooks/useKeysetPagination';
 import { useTierAIntervalMs } from '../../lib/refreshTiers';
 import { useNetworkStatus } from '../../lib/useNetworkStatus';
 import { isDataStale } from '../../lib/lockState';
+import { VpsIncidentFilters } from './vps/VpsIncidentFilters';
+import { hasIncidentSummary, incidentStatus } from './vps/vpsIncidentEscalation';
 import { VpsListFilters } from './vps/VpsListFilters';
 import { VpsListMobile } from './vps/VpsListMobile';
 import { VpsListTable } from './vps/VpsListTable';
@@ -110,11 +112,17 @@ export function VpsListPage() {
   });
   const requestLimit = pagination.limit + 1;
 
+  const [incidentPolicy, setIncidentPolicy] = useState<string>();
+  const incidentAvailable = incidentPolicy !== undefined;
+  const incidentStatusFilter = mode === 'admin' && incidentAvailable ? incidentStatus(listFilters.searchParams.get('incident_status')) : undefined;
+  const incidentEnabledFilter = mode === 'admin' && incidentAvailable && ['true', 'false'].includes(listFilters.searchParams.get('incident_enforcement_enabled') ?? '')
+    ? listFilters.searchParams.get('incident_enforcement_enabled') === 'true' : undefined;
   const q = useQuery({
     queryKey: [
       'vps',
       'list',
       {
+        incidentPolicy, incidentStatus: incidentStatusFilter, incidentEnforcementEnabled: incidentEnabledFilter,
         limit: requestLimit,
         fromId: pagination.fromId,
         hostnameAny: serverHostnameNeedle,
@@ -127,6 +135,7 @@ export function VpsListPage() {
     queryFn: async () =>
       (
         await fetchVpsList({
+          incidentPolicy, incidentStatus: incidentStatusFilter, incidentEnforcementEnabled: incidentEnabledFilter,
           limit: requestLimit,
           fromId: pagination.fromId,
           hostnameAny: serverHostnameNeedle,
@@ -138,6 +147,10 @@ export function VpsListPage() {
         })
       ).data,
   });
+
+  useEffect(() => {
+    if (q.data?.length) setIncidentPolicy(q.data.find(hasIncidentSummary)?.incident_policy);
+  }, [q.data]);
 
   const [actionError, setActionError] = useState<null | {
     title: string;
@@ -357,7 +370,7 @@ export function VpsListPage() {
         />
       }
       filters={
-        <VpsListFilters
+        <><VpsListFilters
           {...listFilters.filterProps}
           createAction={
             <Button to={createPath} className="h-11" testId="vps.list.create">
@@ -365,7 +378,7 @@ export function VpsListPage() {
               {t('vps.create.open')}
             </Button>
           }
-        />
+        /><VpsIncidentFilters available={incidentAvailable} mode={mode} limit={pagination.limit} /></>
       }
     >
       {actionError && !confirmError ? (

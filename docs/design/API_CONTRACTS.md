@@ -477,3 +477,44 @@ array, filters exact published states, sorts by publication date/ID and caps at
 five. This is a preview with an archive link, not a complete paginated result;
 public archive behavior is unchanged. Failed previews have their own explicit
 error state. No new backend endpoint or permission is required.
+
+## Selected incident escalation summaries
+
+The existing VPS Index and Show accept an optional registered `incident_policy`
+selector, defaulting to `oomd` only when omitted. Unknown, blank and null
+selectors are rejected by the backend. The flat `incident_*` output includes
+the selected key and API-localized `incident_policy_label`, per-type counts,
+effective/raw limits and warning state. Physical stop permission, confirmed stop,
+cooldown, outstanding action and ownership epoch are VPS-wide across types.
+The only production rule describes trusted whole-VPS memory-pressure incidents;
+process OOM reports and existing report codenames remain separate.
+
+These fields use the generated SDK and shared request policy. The SDK validates
+primitive kind/required/nullable rules; registered selector/status choices are
+validated by the server. Unknown strings reach the server and its normal errors
+propagate. See [SDK inputs and provenance](HAVEAPI_CLIENT.md#unpublished-generated-sdk).
+
+Index adds `incident_status` and `incident_enforcement_enabled` filters within
+existing owner scope, before pagination. Reads do not create per-type settings.
+The UI never counts incident pages or makes per-row summary requests. A numeric
+`incident_count_7d` together with returned `incident_policy` detects support.
+Initial reads send no new selector; after detection list/detail refreshes carry
+the returned key. Older APIs hide the feature without pretending counts are zero.
+Unreleased narrow `oom_*` feature fields are not aliases for this interface.
+
+Admin Update must include explicit `incident_policy` and at least one of
+`incident_warning_limit_override`, `incident_stop_limit_override` or
+`incident_enforcement_enabled`. Raw limits are selected-type/admin-only;
+null inherits defaults. The exemption is shared by every rule for the VPS, even
+when edited from one selected type. The backend validates the final effective
+pair atomically and rejects mixed incident/unrelated mutations before effects.
+The client synchronous exception admits only the valid selector and these three
+settings, and still validates any provided async receipt. A fresh selected-type
+read verifies both the selector and saved values. Unrelated receipt guards,
+mutation snapshots, locks, confirmation and retained failure drafts remain.
+
+The backend owns registered qualification, type isolation, counting, authorization
+and dispatch. There is no arbitrary rule editor, additional navigation, BFF route
+or frontend enforcement timer. See the [change record](../work-log/2026-10-30-incident-escalation.md)
+and vpsAdmin's authoritative `docs/incident-escalation.md` for behavior and
+verification limits.
