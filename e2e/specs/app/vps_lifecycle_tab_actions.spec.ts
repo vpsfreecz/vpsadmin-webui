@@ -844,7 +844,7 @@ test.describe('@pr-smoke VPS lifecycle tab', () => {
       await page.evaluate(() => window.scrollTo(0, 0));
       accept?.();
 
-      const title = language === 'cs' ? 'Migrace zařazena' : 'Migration queued';
+      const title = language === 'cs' ? 'Migrace naplánována' : 'Migration scheduled';
       const toast = page.getByTestId('toast.viewport');
       await expect(toast).toContainText(title);
       await expect(toast).toContainText('vps123.example');
@@ -881,6 +881,7 @@ test.describe('@pr-smoke VPS lifecycle tab', () => {
       await expect(page.getByTestId('vps.lifecycle.migrate').getByText('Migration failed', { exact: true })).toBeVisible();
       await expect(page.getByTestId('vps.lifecycle.migrate.reason')).toHaveValue('Keep this draft');
       await expect(page.getByTestId('toast.viewport').getByText('Migration queued')).toHaveCount(0);
+      await expect(page.getByTestId('toast.viewport').getByText('Migration scheduled')).toHaveCount(0);
       if (outcome === 'missing-receipt') {
         await expect(page.getByTestId('vps.lifecycle.migrate.submit')).toBeDisabled();
       }
