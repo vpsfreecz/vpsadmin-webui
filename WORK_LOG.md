@@ -1685,3 +1685,11 @@ preserve all branch histories and colleague PRs. Add standard push CI for the
 integration branch, without deployment automation. Dev has isolated test data;
 clankerdev still uses the production API. No host update in this setup.
 [Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
+
+
+## 2026-11-14 — Respect the console router's sliding session lifetime
+
+Prepare direct FORUM-372-23 / REQ-020. Check current validity with read-only
+Show instead of unmounting at Create's stale expiration; preserve authoritative
+revocation and explicit replacement. [Contract and verification limits](docs/work-log/2026-11-14-console-sliding-lifetime.md).
+No deployment or completion claimed.

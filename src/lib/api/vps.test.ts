@@ -3,6 +3,7 @@ import { describe, expect, test, vi } from 'vitest';
 import {
   buildCreateVpsParams,
   createConsoleToken,
+  fetchConsoleToken,
   createVps,
   deleteConsoleToken,
   fetchVps,
@@ -483,6 +484,12 @@ describe('vps API wrappers', () => {
     expect(new URL(url).pathname).toBe('/v7.0/vpses/12/console_token');
     expect(init?.method).toBe('POST');
     expect(JSON.parse(String(init?.body))).toEqual({});
+
+    const current = await fetchConsoleToken(12);
+    expect(current.data.token).toBe('T1');
+    [url, init] = lastFetchCall();
+    expect(new URL(url).pathname).toBe('/v7.0/vpses/12/console_token');
+    expect(init?.method).toBe('GET');
 
     await deleteConsoleToken(12);
 
