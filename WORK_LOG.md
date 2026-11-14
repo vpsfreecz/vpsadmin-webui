@@ -3270,3 +3270,10 @@ normalization could publish old filters ahead of the applied draft. Defer that
 opt-in write to the caller while resetting local cursor state immediately.
 A second old-fail/new-pass regression preserves Next and all original browser
 assertions; qualification and paired promotion remain pending.
+
+## 2026-11-14 — Respect the console router's sliding session lifetime
+
+Prepare direct FORUM-372-23 / REQ-020. Check current validity with read-only
+Show instead of unmounting at Create's stale expiration; preserve authoritative
+revocation and explicit replacement. [Contract and verification limits](docs/work-log/2026-11-14-console-sliding-lifetime.md).
+No deployment or completion claimed.
