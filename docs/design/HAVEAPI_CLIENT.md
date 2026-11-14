@@ -56,13 +56,43 @@ does not itself verify registry signatures or perform network requests.
 
 <a id="unpublished-generated-sdk"></a>
 
-## Published generated client
+## Selected generated client development input
 
-The root selects exact registry dependency `vpsadmin-typescript-client: "0.4.0"`.
-The npm-generated lock pins its canonical registry URL and SHA-512 integrity.
-`npm ci` installs the published JavaScript and declarations without a sibling
-checkout or source build. Nix uses ordinary registry dependency fetching; see
+The root temporarily selects an immutable HTTPS archive from the SDK repository
+for the incident escalation interface. The [development provenance record](../../packages/vpsadmin-typescript-client-development.json)
+binds its URL and npm integrity to packed source
+`6a5227c156aeef89447abb1f2e68988cecb735f4` and artifact-only commit
+`6a6ca3613ce947a1393597d5ddcbc78294f6b12d`. The archive is 341450 bytes with SHA-256
+`fee3800140869c1f721c5a07eda3e438d1a347690dc89aa5f8379a9efc1663bf`.
+Its package version remains `0.4.0`; this candidate is not a registry release.
+`npm ci` installs compiled JavaScript and declarations without a sibling checkout
+or source build. Nix uses the ordinary locked dependency cache; see
 [packaging](PACKAGING.md#temporary-unpublished-sdk-input).
+
+The candidate was generated from API
+`7919441ccb8e9587ad0afc84674b074ca9c5a880`, API 7 / protocol 2 schema SHA-256
+`f919dcebf8ce5453dce6b0eb09e718f72664b5137443bb8e2064ff6452470ca7`, using
+HaveAPI generator `1ef9b204ba45bb261d3334be5c555cc1856b713b` (version `0.32.2`).
+The consumer runtime remains `haveapi-client@0.32.0`.
+
+VPS Index/Show/Update require the generated `incident_policy` selector, Index
+status/enforcement filters, common summary outputs and the three Update settings
+described in [API contracts](API_CONTRACTS.md#selected-incident-escalation-summaries).
+Generated selectors/statuses are strings: the SDK validates primitive kind,
+required and nullable rules, while the server validates registered choices.
+Omitted initial-read selectors stay omitted on the wire; null override resets
+and false stop permission are preserved. Backend-stored ordinary incident
+subjects/text use the recipient's configured language without new React fields.
+
+Before WebUI merge, replace this development input with a published SDK registry
+artifact containing those members, including matching manifest, lock, provenance
+and frontend dependency hash. Compatible live backend support remains separate.
+
+## Published generated client baseline
+
+The preceding registry selection was `vpsadmin-typescript-client@0.4.0`.
+Its provenance below describes that published baseline, not the selected
+development archive.
 
 The public tag [`v0.4.0`](https://github.com/vpsfreecz/vpsadmin-typescript-client/tree/v0.4.0)
 selects source `c53cb4dabb0b3aac8d05834478872d2cfa698fa7`. Its 338234-byte npm

@@ -10,7 +10,7 @@ is disabled by default and site configuration remains separate.
 ## Reproduce the dependencies
 
 Enter `nix develop` for the locked Node and npm. The root and BFF are independent
-npm projects. Both use ordinary `buildNpmPackage` registry dependency fetching.
+npm projects. Both use ordinary `buildNpmPackage` locked dependency fetching.
 Compute each project's cache hash from its own lock:
 
 ```sh
@@ -20,7 +20,7 @@ prefetch-npm-deps bff/package-lock.json
 
 The frontend cache hash belongs to [frontend.nix](../../packages/frontend.nix);
 the separate BFF hash belongs to [bff.nix](../../packages/bff.nix). The frontend
-includes exact registry dependencies for the generated client and HaveAPI runtime,
+includes exact inputs for the generated client and HaveAPI runtime,
 with the locked XMLHttpRequest transport. See their
 [source and artifact contract](HAVEAPI_CLIENT.md). The root prefetch reports six
 bundled optional dependencies nested under `@tailwindcss/oxide-wasm32-wasi`
@@ -31,23 +31,33 @@ to work around a fetch failure.
 
 <a id="temporary-unpublished-sdk-input"></a>
 
-### Generated client registry input
+### Generated client input
 
-The root selects exact `vpsadmin-typescript-client@0.4.0`, with its canonical
-registry URL and integrity in `package-lock.json`. The release adds guarded advisory operations and inputs described in
-[the client contract](HAVEAPI_CLIENT.md#unpublished-generated-sdk); its shared
-HaveAPI runtime peer remains unchanged.
+The root temporarily selects the SDK-owned immutable HTTPS archive described in
+[the client contract](HAVEAPI_CLIENT.md#unpublished-generated-sdk). Manifest,
+npm-generated lock and [development provenance](../../packages/vpsadmin-typescript-client-development.json)
+select artifact commit `6a6ca3613ce947a1393597d5ddcbc78294f6b12d`, packed source
+`6a5227c156aeef89447abb1f2e68988cecb735f4` and the same verified archive integrity.
+The archive includes compiled exports and declarations. It needs no sibling
+checkout, private path, local file dependency or custom fetch/build pipeline.
+Standard `prefetch-npm-deps` supplies the frontend hash. The shared HaveAPI
+runtime peer and separate BFF dependency graph remain unchanged.
+
+This is a development candidate, not registry publication or merge readiness.
+A published SDK release containing the required incident members must replace
+the temporary input before WebUI merge. Update the manifest, lock, provenance
+and frontend hash together.
 The installed public root contains only the reviewed compiled frontend output.
 
 For an intentional dependency update:
 
-1. Verify the release archive, source/provenance, public exports and exact HaveAPI
+1. Verify the selected archive, source/provenance, public exports and exact HaveAPI
    peer. Keep runtime and generator versions distinct.
 2. Generate the manifest and lock with pinned npm:
    `npm install --package-lock-only --ignore-scripts --save-exact vpsadmin-typescript-client@<verified-version>`.
    Inspect the bounded lock delta and preserve unrelated dependency records.
 3. Coordinate with local runners before `npm ci`, then verify the installed
-   release and affected policy/wire and declaration checks.
+   input and affected policy/wire and declaration checks.
 4. Run `prefetch-npm-deps package-lock.json` and update only the frontend
    `npmDepsHash` for a root dependency change. The BFF lock and hash are separate.
    Commit source, lock, hash and documentation changes and complete independent
@@ -56,7 +66,7 @@ For an intentional dependency update:
 Rollback restores the matching source, manifest, lock and cache-hash set.
 The [optional local-client workflow](HAVEAPI_CLIENT.md#optional-local-generated-client-development)
 uses standard `npm pack` and a no-save npm archive override. It leaves committed
-packaging inputs unchanged; Nix continues to use the locked registry dependency.
+packaging inputs unchanged; Nix continues to use the committed locked input.
 
 ## Source, contents and provenance
 
