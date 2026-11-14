@@ -29,6 +29,7 @@ for (const language of ['cs', 'en'] as const) {
     await bootstrapVpsAdminWindow(page);
     await setUiSettingsLocalStorage(page, { language, theme: 'dark' });
     let creations = 0;
+    let validations = 0;
     const source = process.env['E2E_CONSOLE_ROUTER_SOURCE'];
     await page.route('https://console.example.test/**', async (route) => {
       const url = new URL(route.request().url());
@@ -69,6 +70,10 @@ for (const language of ['cs', 'en'] as const) {
         }),
         'GET ip_addresses': () => ({ ip_addresses: [] }),
         'GET transaction_chains': () => ({ transaction_chains: [] }),
+        'GET vpses/123/console_token': () => {
+          validations++;
+          return { console_token: { token: 'FIXTURE', expiration: '2027-12-31T00:00:00Z' } };
+        },
         'POST vpses/123/console_token': () => {
           creations++;
           return { console_token: { token: 'FIXTURE', expiration: '2027-12-31T00:00:00Z' } };
@@ -80,6 +85,8 @@ for (const language of ['cs', 'en'] as const) {
     const iframe = page.getByTestId('vps.console.iframe');
     const keyboard = page.frameLocator('[data-testid="vps.console.iframe"]').locator('.keyboardContainer');
     await expect(keyboard).toBeVisible();
+    await expect.poll(() => validations).toBeGreaterThan(0);
+    await expect(page.getByTestId('vps.console.validation_error')).toHaveCount(0);
     await expect(page.getByTestId('vps.header')).toHaveCount(0);
     await expect(page.getByTestId('contextual.help.panel')).toHaveCount(0);
     await expect(page.getByTestId('contextual.help.toggle')).toHaveCount(0);

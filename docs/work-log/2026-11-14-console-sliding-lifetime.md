@@ -82,3 +82,11 @@ its edited e2e config. The original failed CI log is retained. Exact final-head
 CI and guarded paired activation/readback remain required; no merge/deployment
 or direct-task completion is claimed here. Durable evidence and practical limits:
 `/data/webui-browser-runner/verification-20261103/todo-console-expiry-20261114/actual-acceptance-report.md`.
+
+The original mobile CI also exposed the viewport fixture's missing read-only
+Show handler. Its default fallback produced the new validation warning, so it
+was not the intended connected-layout scene. Supply matching namespace-correct
+POST/GET responses, require a successful validation and no warning, and retain
+all original fit/scroll/keyboard bounds. Adopt the edited fixture into strict
+checking and verify all console specs in all three browser profiles before the
+coherent follow-up push. Original failed mobile logs remain retained.
