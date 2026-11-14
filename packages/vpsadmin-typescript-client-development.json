@@ -1,0 +1,23 @@
+{
+  "repository": "git@github.com:vpsfreecz/vpsadmin-typescript-client.git",
+  "head": "d8cb484748db8687554822772a98a1f873414d65",
+  "api_source": "de4df3d63f4d4afb0c27e8b9be2785c15d24811c",
+  "schema_sha256": "7cb28ebd8e0957d9a8ba2c359c8658040ed1cd195f0dd14327c03b595012fc85",
+  "provenance_sha256": "a9e536e9984183866604a7b8d14c6f1ba02f26e7986b52f10131ee82f2cd6fd8",
+  "exporter_lock_sha256": "2e9a124eff7b80d6fd57cd0f03cb2809847c67cc7f1af6364911c3622d7242a0",
+  "generator_revision": "1ef9b204ba45bb261d3334be5c555cc1856b713b",
+  "runtime": "haveapi-client@0.32.0",
+  "archive_sha256": "9cf9a37506e5af19611b27956f582e8a4860da1f22fc63941ef5b0c4bdb796d9",
+  "archive_size": 345047,
+  "name": "vpsadmin-typescript-client",
+  "package_version": "0.5.0",
+  "status": "published registry release",
+  "source_boundary": "verified registry archive; compiled exports, declarations and saved generation inputs included",
+  "artifact_commit": "d8cb484748db8687554822772a98a1f873414d65",
+  "resolved": "https://registry.npmjs.org/vpsadmin-typescript-client/-/vpsadmin-typescript-client-0.5.0.tgz",
+  "integrity": "sha512-Np67FPsMd7xdOQhZNWRzAojMSjZu0wdyzW6FuT6/EWbAs27989hRHdHClr0W8Z4g5JyUXqKz8V9IQhPLswTynw==",
+  "release_tag": "v0.5.0",
+  "release_tag_object": "2f436f80ef5a5cfd0858126e5388680387003828",
+  "release_run": "https://github.com/vpsfreecz/vpsadmin-typescript-client/actions/runs/45236858019/attempts/1",
+  "provenance_url": "https://registry.npmjs.org/-/npm/v1/attestations/vpsadmin-typescript-client@0.5.0"
+}
