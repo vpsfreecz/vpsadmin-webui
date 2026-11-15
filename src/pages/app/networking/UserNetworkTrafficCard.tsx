@@ -370,6 +370,8 @@ export function UserNetworkTrafficCard(props: { userId: number | null; isAdmin: 
                   </div>
                 </div>
                 <TimeSeriesChart
+                  showAxes
+                  emptyLabel={t('common.no_data')}
                   testId="network.user.traffic.chart"
                   ariaLabel={t('network.user.traffic.chart.aria')}
                   points={monthly.map((row) => ({ x: row.timestamp, y: row.total }))}
