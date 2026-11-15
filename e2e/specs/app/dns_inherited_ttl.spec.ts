@@ -17,6 +17,7 @@ for (const language of ['cs', 'en'] as const) for (const role of ['member', 'adm
     ].map(row => ({ ...row, type: 'A', content: '192.0.2.10', enabled: true, managed: false, dynamic_update_enabled: false }));
     const zone = (id: number) => ({ id, name: `zone${id}.example.test`, source: 'internal_source', user, enabled: true, ...(id === 21 ? { default_ttl: 7200 } : id === 23 ? { default_ttl: 0 } : {}) });
     await installHaveApiMock(page, { user, handlers: {
+      'GET dns_zones': () => ({ dns_zones: [zone(21), zone(22), zone(23)] }),
       'GET dns_zones/21': () => zone(21), 'GET dns_zones/22': () => zone(22), 'GET dns_zones/23': () => zone(23),
       'GET dns_records': () => ({ dns_records: rows }), 'GET dns_record_logs': () => ({ dns_record_logs: [] }), 'GET transaction_chains': () => ({ transaction_chains: [] }),
       'PUT dns_records/101': async ({ request }) => {
@@ -38,7 +39,15 @@ for (const language of ['cs', 'en'] as const) for (const role of ['member', 'adm
     } });
     const base = `/${role === 'admin' ? 'admin' : 'app'}/dns/zones/`;
     const kind = hasTouch ? 'card' : 'row';
+    async function visitZone(id: number) {
+      await page.getByTestId('dns.zone.header').getByRole('link').first().click();
+      const entry = page.getByTestId(`dns.zones.${hasTouch ? 'card' : 'row'}.${id}`);
+      await expect(entry).toBeVisible(); await entry.getByRole('link').first().click();
+      await expect(page).toHaveURL(base + id);
+    }
+
     await page.goto(base + '21');
+    const documentOrigin = await page.evaluate(() => performance.timeOrigin);
     const explicit = page.getByTestId(`dns.record.${kind}.101.ttl`), inherited = page.getByTestId(`dns.record.${kind}.102.ttl`), omitted = page.getByTestId(`dns.record.${kind}.103.ttl`);
     await expect(explicit).toHaveAttribute('data-ttl-source', 'explicit'); await expect(explicit).toContainText('600 s');
     await expect(inherited).toHaveAttribute('data-ttl-source', 'inherited'); await expect(inherited).toContainText('7200 s');
@@ -54,7 +63,7 @@ for (const language of ['cs', 'en'] as const) for (const role of ['member', 'adm
     await page.getByTestId('dns.records.create.submit').click(); await expect(page.getByTestId('dns.records.create.modal')).not.toBeVisible();
     expect(payloads.map(p => p.method)).toEqual(['PUT', 'POST']);
     for (const id of [22, 23]) {
-      await page.goto(base + id);
+      await visitZone(id);
       await expect(inherited).toHaveAttribute('data-ttl-source', 'inherited'); await expect(inherited).toContainText(language === 'cs' ? 'Neznámé' : 'Unknown');
       await expect(inherited).not.toContainText('3600'); await expect(inherited).not.toContainText('7200');
       await page.getByTestId(`dns.record.${kind}.102.edit`).click(); await expect(ttl).toHaveValue(''); await expect(ttl).not.toHaveAttribute('placeholder', '3600'); await expect(ttl).not.toHaveAttribute('placeholder', '7200');
@@ -63,6 +72,6 @@ for (const language of ['cs', 'en'] as const) for (const role of ['member', 'adm
       if (process.env['AUDIT_CLEAN_CAPTURE'] === '1') await page.screenshot({ path: info.outputPath(`unknown-default-${id}.png`), fullPage: true, scale: 'css' });
       await page.keyboard.press('Escape');
     }
-    await page.goto(base + '21'); await expect(inherited).toContainText('7200 s'); expect(payloads).toHaveLength(2); expect(errors).toEqual([]);
+    await visitZone(21); expect(await page.evaluate(() => performance.timeOrigin)).toBe(documentOrigin); await expect(inherited).toContainText('7200 s'); expect(payloads).toHaveLength(2); expect(errors).toEqual([]);
   });
 }

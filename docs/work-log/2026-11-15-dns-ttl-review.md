@@ -59,3 +59,13 @@ fixture to that contract; the cumulative generated SDK retains its named
 resource envelope. Product adapters, payloads and all assertions are unchanged.
 Repeat exact focused checks and Nix/browser qualification on the new head;
 previous package/native receipts stay historical. No push or deployment.
+
+Clean cumulative testing retained196PASS/1FAIL: WebKit recorded two helper
+XHR access-control errors around repeated hard navigations. Separate event
+diagnostics confirmed cancelled helper reads with controlled latency; the
+exact original CORS message was not forced. Exercise actual breadcrumb/list
+links instead, retaining every value/payload/pageerror assertion and initial
+load, with a same-document assertion. The delayed SPA diagnostic has zero
+cancelled background reads and no pageerror. This is not live-server CORS
+certification or a product timing/permission/lock change. Repeat exact
+source checks and clean packaging/browser qualification on this head.
