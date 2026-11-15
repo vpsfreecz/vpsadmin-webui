@@ -75,3 +75,9 @@ The snapshot-state working build passed132 cases, including all original102 and
 passed6 additional cases on its own immutable dirty working build, without retry.
 These are not138 cases on one build. Final exact committed quick/unit/build and
 clean Nix/browser qualification must follow before the first source push.
+
+Use the explicit semantic link foreground for the new snapshot fallback. The
+focused integration base lacks the cumulative preview's global textual-accent
+override; this feature must use a readable link color independently. Rendered
+focused-theme inspection and final exact-head qualification are recorded in the
+external acceptance report before publication. No source submission change.

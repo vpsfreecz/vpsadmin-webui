@@ -58,7 +58,7 @@ export function ExportSnapshotPicker(props: {
       ) : null}
       {(props.incomplete || props.failed) && props.allSnapshotsHref ? (
         <Link
-          className="text-sm text-accent hover:underline"
+          className="text-sm text-link hover:underline"
           to={props.allSnapshotsHref}
           data-testid="exports.create.snapshot_picker.all"
         >
