@@ -1690,3 +1690,7 @@ clankerdev still uses the production API. No host update in this setup.
 
 Prepare approved UX-04 / REQ-010. See the
 [scope and measured baseline](docs/work-log/2026-11-09-namespace-map-delete-readability.md).
+## 2026-11-09 — Preserve OOM filters during pending navigation
+
+Correct the reproduced Next/page-size URL race without changing owner scope.
+[Scope, root cause and evidence](docs/work-log/2026-11-09-oom-pending-filter-navigation.md).
