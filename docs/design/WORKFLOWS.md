@@ -1862,3 +1862,18 @@ rootfs from the host and that the snippet adds an NFS mount inside the VPS.
 The note stays beside that example, not in temporary snapshot command-only
 guidance. All example bytes, existing controls, source fields and write gates
 remain unchanged. See [approved EXP-03 evidence](../work-log/2026-11-15-export-nfs-help.md).
+
+### Bound DNS record columns and preserve complete names (REQ-049)
+
+Use one fixed shared column grid with the standard minimum table width and local horizontal scrolling. Wrap complete record names and content within cells and mobile cards; keep row actions reachable and preserve managed/busy/role contracts.
+[Scope and evidence](../work-log/2026-11-15-dns-grid-review.md).
+
+### Show known inherited DNS record TTL (REQ-049)
+
+Distinguish explicit record TTL, null inheritance from the current validated zone default, and missing/invalid unknown values. Show the known default in blank-field help without filling the draft. Preserve omitted TTL on Create and null on Update when clearing an override; no query, mutation, validation or lock changes.
+[Scope and evidence](../work-log/2026-11-15-dns-ttl-review.md).
+
+### Explain DNSSEC record purpose concisely (REQ-049)
+
+Use a shorter introduction identifying the zone DNSKEY and DS for the parent zone. Keep full record text, clipboard values, requests and primary/secondary/error/empty handling unchanged. RFC4034 section5 supports the parent-zone distinction; this is not DNS publication or signing-status verification.
+[Scope and evidence](../work-log/2026-11-15-dns-dnssec-review.md).

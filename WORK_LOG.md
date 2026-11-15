@@ -2992,3 +2992,18 @@ exports(5) manual and explain host-provided container rootfs beside the persiste
 NixOS example. Preserve snippets, flags and all mutation/permission contracts.
 [Sources, scope, verification and limits](docs/work-log/2026-11-15-export-nfs-help.md).
 Prepared only; exact tests/CI and paired/protected delivery remain separate.
+
+## 2026-11-15 — Bound DNS record columns and preserve complete names
+
+Use one fixed shared column grid with the standard minimum table width and local horizontal scrolling. Wrap complete record names and content within cells and mobile cards; keep row actions reachable and preserve managed/busy/role contracts.
+[Prepared DNS-09 verification](docs/work-log/2026-11-15-dns-grid-review.md).
+
+## 2026-11-15 — Show known inherited DNS record TTL
+
+Distinguish explicit record TTL, null inheritance from the current validated zone default, and missing/invalid unknown values. Show the known default in blank-field help without filling the draft. Preserve omitted TTL on Create and null on Update when clearing an override; no query, mutation, validation or lock changes.
+[Prepared DNS-10 verification](docs/work-log/2026-11-15-dns-ttl-review.md).
+
+## 2026-11-15 — Explain DNSSEC record purpose concisely
+
+Use a shorter introduction identifying the zone DNSKEY and DS for the parent zone. Keep full record text, clipboard values, requests and primary/secondary/error/empty handling unchanged. RFC4034 section5 supports the parent-zone distinction; this is not DNS publication or signing-status verification.
+[Prepared DNS-12 verification](docs/work-log/2026-11-15-dns-dnssec-review.md).

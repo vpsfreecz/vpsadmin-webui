@@ -57,6 +57,10 @@ export default defineConfig({
     {
       name: 'mobile-webkit',
       testMatch: [
+        '**/dns_records_crud.spec.ts',
+        '**/dnssec_introduction.spec.ts',
+        '**/dns_inherited_ttl.spec.ts',
+        '**/dns_record_grid_alignment.spec.ts',
         '**/app/incidents_smart_filter.spec.ts',
         '**/backup_statistics_links.spec.ts',
         '**/backup_statistics_limits.spec.ts',
