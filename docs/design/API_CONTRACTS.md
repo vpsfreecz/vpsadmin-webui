@@ -325,3 +325,17 @@ array, filters exact published states, sorts by publication date/ID and caps at
 five. This is a preview with an archive link, not a complete paginated result;
 public archive behavior is unchanged. Failed previews have their own explicit
 error state. No new backend endpoint or permission is required.
+
+## Verified export collision receipt
+
+Approved EXP-05 eee13eb8f00dd658 / REQ-048. Actual isolated dev API22adc8b5
+created disabled export3 for new member66/dataset89 on local NAS node104, with
+physical chain480 done1/1, then rejected the repeated captured payload with
+HTTP200, statusfalse, responsenull, errors{} and `dataset <full_name> is already
+exported`. The API chain source uses the analogous snapshot reason. Match only
+a non-ambiguous Create error for POST /exports and the captured source type;
+403/404, other actions, transport/protocol failures and other reasons stay distinct.
+This is a presentation change, with no API adapter/payload/permission/lock change.
+Actual deployed cff desktopChromium/mobileWebKit both showed the raw English
+reason inside the dialog; no visibility regression was invented. Real fixture
+cleanup and final candidate/release qualification remain separately required.

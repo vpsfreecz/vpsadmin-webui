@@ -1,5 +1,10 @@
 // Storage exports and NFS publication locale strings
 export const csStorageExports = {
+  'exports.create.conflict.title': 'Export už existuje',
+  'exports.create.conflict.dataset.body': 'Dataset „{source}“ už má export. Jeho nastavení lze zkontrolovat a upravit v přehledu exportů datasetu.',
+  'exports.create.conflict.dataset.open': 'Otevřít exporty datasetu',
+  'exports.create.conflict.snapshot.body': 'Snapshot „{source}“ už má export. Existující export je dostupný v seznamu snapshotů datasetu.',
+  'exports.create.conflict.snapshot.open': 'Otevřít snapshoty datasetu',
   'exports.page.title': 'Exporty',
   'dataset.snapshots.export': 'NFS export',
   'exports.page.description': 'Správa NFS exportů a povolených hostů.',

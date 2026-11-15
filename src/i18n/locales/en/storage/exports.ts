@@ -1,5 +1,10 @@
 // Storage exports and NFS publication locale strings
 export const enStorageExports = {
+  'exports.create.conflict.title': 'Export already exists',
+  'exports.create.conflict.dataset.body': 'Dataset “{source}” already has an export. Check its exports and adjust the existing export if needed.',
+  'exports.create.conflict.dataset.open': 'Open dataset exports',
+  'exports.create.conflict.snapshot.body': 'Snapshot “{source}” already has an export. Open the dataset snapshots to find the existing export.',
+  'exports.create.conflict.snapshot.open': 'Open dataset snapshots',
   'exports.page.title': 'Exports',
   'dataset.snapshots.export': 'NFS export',
   'exports.page.description': 'Manage NFS exports and allowed hosts.',
