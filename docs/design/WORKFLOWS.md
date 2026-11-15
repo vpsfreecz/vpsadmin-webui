@@ -1889,3 +1889,19 @@ quick-links subtitle and retains the actual View maps link and scope gate.
 Map Open remains a real link; Delete remains an explicit confirmation with its
 existing pending/error/retry behavior. New-map Cancel precedes Create in visual
 and tab order at the right edge. Creation payload and pending guard are unchanged.
+
+## Approved account follow-up: ACC-05
+
+Place each preference description below its associated control, in the same named and described group. Preserve selector callbacks, persistence, scope choices and the existing readable synchronization errors.
+
+## Approved account follow-up: ACC-09
+
+Keep one primary Create template entry in the filter bar for both empty and populated lists. Remove the redundant empty-state entry and its unused list callback. Preserve editor validation, existing filter/query/owner policy, creation payloads, deploy/delete guards and the existing readable length error.
+
+## Approved account follow-up: ACC-07
+
+Name the known-device search with its visible label and associate its always-visible help. Explain that filtering covers the current page, local changes refresh automatically and Refresh loads changes made elsewhere. Preserve owner scope, cursor recovery, polling intervals, device mutation confirmation and query invalidation.
+
+## Approved account follow-up: ACC-08
+
+Use the common secondary button for both effective-recipient Copy actions, preserving exact comma-separated clipboard contents, contextual accessible names, success/failure feedback and mouse, touch and keyboard behavior. No recipient selection, precedence, mutation or mail-setting contract changes.

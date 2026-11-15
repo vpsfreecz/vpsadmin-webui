@@ -7,20 +7,6 @@
   "note": "Inherited exceptions retain their original debt source revisions. Source bytes match those revisions. An exact source edit or measured improvement requires review/removal; the historical baseline remains unchanged.",
   "exceptions": [
     {
-      "path": "src/components/user/UserMailRecipientsTables.tsx",
-      "rule": "crossed-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "71920013bf1bd9d2b23eabb300a2a5c85cbb5b99f001c483675ce8a620e1fe84",
-      "old": 0,
-      "allowance": 527,
-      "rationale": "At the recorded source revision, this file already contained mail recipient tables and edit controls; extract the coherent section with focused behavior coverage before removing this exception. Reviewed generated-client migration: explicit recipients and disabled state remain; absent template role data now displays the existing unavailable state without inventing a primary/role destination or a copy target. Focused owner checks cover the model and its direct consumers. This source remains smaller than the prior allowance; tighten the allowance to the exact measured line count.",
-      "owner": "WebUI implementation lead",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 500
-      }
-    },
-    {
       "path": "src/components/userNamespaces/UserNamespaceMapDetail.tsx",
       "rule": "grown-over-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",

@@ -3014,3 +3014,19 @@ Implement approved NSP-01/02/03/04 on the existing namespace-map PR while
 preserving owner scope, supported filters, navigation and mutation safeguards.
 [Source, baseline evidence and verification](docs/work-log/2026-11-15-namespace-controls.md).
 Prepared; new-head qualification and paired preview delivery remain pending.
+
+## 2026-11-15 — ACC-05 account follow-up
+
+[Place each preference description below its associated control, in the same named and described group](docs/work-log/2026-11-15-account-preference-description.md). Prepared; qualification and delivery pending.
+
+## 2026-11-15 — ACC-09 account follow-up
+
+[Keep one primary Create template entry in the filter bar for both empty and populated lists](docs/work-log/2026-11-15-account-user-data-primary-action.md). Prepared; qualification and delivery pending.
+
+## 2026-11-15 — ACC-07 account follow-up
+
+[Name the known-device search with its visible label and associate its always-visible help](docs/work-log/2026-11-15-account-known-device-help.md). Prepared; qualification and delivery pending.
+
+## 2026-11-15 — ACC-08 recipient Copy controls
+
+[Give both recipient Copy actions the common secondary button](docs/work-log/2026-11-15-account-mail-copy-controls.md), preserving clipboard contents and feedback. Prepared; qualification and paired preview pending.

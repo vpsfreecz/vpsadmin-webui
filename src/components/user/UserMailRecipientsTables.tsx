@@ -11,12 +11,12 @@ import {
   type UserMailTemplateRecipient,
 } from '../../lib/api/userMail';
 
+import { MobileCellLabel, SourceBadge, recipientIdentity, MailRecipientCopyButton } from './UserMailRecipientPresentation';
+
 import { Alert } from '../ui/Alert';
-import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Checkbox } from '../ui/Checkbox';
-import { CopyButton } from '../ui/CopyButton';
 import { ErrorState } from '../ui/ErrorState';
 import { Input } from '../ui/Input';
 import { LoadingState } from '../ui/LoadingState';
@@ -31,33 +31,8 @@ import {
   formatEmailsForTextarea,
   isMailTemplateView,
   normalizeEmailsForApi,
-  type EffectiveToSource,
   type MailTemplateView,
 } from './UserMailPreferencesModel';
-
-function MobileCellLabel(props: { children: React.ReactNode }) {
-  return <div className="mb-1 text-xs font-semibold text-muted md:hidden">{props.children}</div>;
-}
-
-function SourceBadge(props: { source: EffectiveToSource }) {
-  const { t } = useI18n();
-
-  if (props.source === 'disabled') {
-    return <Badge variant="danger">{t('mail.prefs.effective.source.disabled')}</Badge>;
-  }
-
-  if (props.source === 'template') {
-    return <Badge variant="info">{t('mail.prefs.effective.source.template')}</Badge>;
-  }
-
-  return <Badge variant="neutral">{t('common.na')}</Badge>;
-}
-
-function recipientIdentity(recipient: { id: string; label?: string | null }): string {
-  const id = String(recipient.id);
-  const label = recipient.label?.trim();
-  return label && label !== id ? `${label} (${id})` : id;
-}
 
 function RoleRecipientRow(props: {
   userId: number;
@@ -164,13 +139,10 @@ function RoleRecipientRow(props: {
         {effective.length > 0 ? (
           <div className="flex flex-col gap-2">
             <div className="break-all text-sm text-fg">{effective.join(', ')}</div>
-            <CopyButton
+            <MailRecipientCopyButton
               text={effective.join(',')}
-              size="sm"
-              variant="ghost"
               testId={`mail.roles.copy.${props.recp.id}`}
               ariaLabel={t('mail.prefs.roles.copy_aria', { recipient })}
-              className="min-h-11 md:min-h-0"
             />
           </div>
         ) : (
@@ -285,13 +257,10 @@ function TemplateRecipientRow(props: {
             <div className="text-sm text-muted">{t('common.na')}</div>
           )}
           {effective.source !== 'disabled' && effective.to.length > 0 ? (
-            <CopyButton
+            <MailRecipientCopyButton
               text={effective.to.join(',')}
-              size="sm"
-              variant="ghost"
               testId={`mail.templates.copy.${props.recp.id}`}
               ariaLabel={t('mail.prefs.templates.copy_aria', { recipient })}
-              className="min-h-11 md:min-h-0"
             />
           ) : null}
         </div>
