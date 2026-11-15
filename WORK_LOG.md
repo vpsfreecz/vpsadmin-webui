@@ -1685,3 +1685,8 @@ preserve all branch histories and colleague PRs. Add standard push CI for the
 integration branch, without deployment automation. Dev has isolated test data;
 clankerdev still uses the production API. No host update in this setup.
 [Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
+
+## 2026-11-15 — Show known inherited DNS record TTL
+
+Distinguish explicit record TTL, null inheritance from the current validated zone default, and missing/invalid unknown values. Show the known default in blank-field help without filling the draft. Preserve omitted TTL on Create and null on Update when clearing an override; no query, mutation, validation or lock changes.
+[Prepared DNS-10 verification](docs/work-log/2026-11-15-dns-ttl-review.md).
