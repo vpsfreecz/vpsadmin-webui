@@ -123,6 +123,7 @@ export function DnsZoneServersPage() {
         <div>
           <h2 className="text-xl font-semibold text-fg">{t('dns.zone.servers.title')}</h2>
           <p className="mt-1 text-sm text-muted">{t('dns.zone.servers.description')}</p>
+          <p className="mt-2 max-w-3xl text-sm text-muted">{t('dns.zone.servers.serial_help')}</p>
         </div>
         {isAdmin ? <Button onClick={() => setCreateOpen(true)} testId="dns.servers.create.open">{t('common.create')}</Button> : null}
       </div>

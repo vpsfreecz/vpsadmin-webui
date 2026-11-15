@@ -53,6 +53,7 @@ import {
   zoneName,
 } from './dnsZoneListSemantics';
 import { DnsZoneCreateModal, type DnsZoneCreatedResult } from './DnsZoneCreateModal';
+import { dnsConfiguredSerialText } from './dnsSerialPresentation';
 
 function matchesZoneSearch(zone: DnsZone, query: string): boolean {
   const needle = query.trim().toLocaleLowerCase();
@@ -792,7 +793,7 @@ export function DnsZonesPage() {
                         {t('dns.zones.field.role')}: {z.role ? roleLabel(t, z.role) : '—'}
                       </span>
                       <span>
-                        {t('dns.zones.field.serial')}: {typeof z.serial === 'number' ? z.serial : '—'}
+                        {t('dns.zones.field.configured_serial')}: {dnsConfiguredSerialText(z, t)}
                       </span>
                       <span>
                         {t('dns.zones.field.ttl')}: {typeof z.default_ttl === 'number' ? z.default_ttl : '—'}
@@ -847,7 +848,7 @@ export function DnsZonesPage() {
                 <th className="px-3 py-2">{t('dns.zones.table.role')}</th>
                 <th className="px-3 py-2">{t('dns.zones.table.status')}</th>
                 <th className="px-3 py-2">{t('dns.zones.table.security')}</th>
-                <th className="px-3 py-2">{t('dns.zones.table.serial')}</th>
+                <th className="px-3 py-2">{t('dns.zones.field.configured_serial')}</th>
                 <th className="px-3 py-2">{t('dns.zones.table.ttl')}</th>
               </tr>
             </thead>
@@ -881,7 +882,7 @@ export function DnsZonesPage() {
                   <td className="px-3 py-2">{z.role ? roleLabel(t, z.role) : '—'}</td>
                   <td className="px-3 py-2">{enabledBadge(z.enabled)}</td>
                   <td className="px-3 py-2">{dnssecBadge(z.dnssec_enabled)}</td>
-                  <td className="px-3 py-2">{typeof z.serial === 'number' ? z.serial : '—'}</td>
+                  <td className="px-3 py-2">{dnsConfiguredSerialText(z, t)}</td>
                   <td className="px-3 py-2">{typeof z.default_ttl === 'number' ? z.default_ttl : '—'}</td>
                   </TableRowLink>
                 );

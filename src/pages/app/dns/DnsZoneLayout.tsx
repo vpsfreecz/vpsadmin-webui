@@ -24,6 +24,7 @@ import { DnsZoneRecentTransactionsCard } from './DnsZoneRecentTransactionsCard';
 import { ScopeMismatchCard } from '../../../components/layout/ScopeMismatchCard';
 import { useDnsZoneTransactionChains } from './useDnsZoneTransactionChains';
 import { isSecondaryDnsZone } from './DnsZoneModel';
+import { dnsConfiguredSerialText } from './dnsSerialPresentation';
 
 function zoneTitle(z: any): string {
   return String(z?.name ?? z?.label ?? `Zone #${z?.id}`);
@@ -183,8 +184,8 @@ export function DnsZoneLayout() {
           }
           right={
             <div className="text-sm text-muted">
-              <div className="text-xs">{t('dns.zones.field.serial')}</div>
-              <div className="font-medium text-fg">{typeof zone.serial === 'number' ? zone.serial : t('common.na')}</div>
+              <div className="text-xs">{t('dns.zones.field.configured_serial')}</div>
+              <div className="break-words font-medium text-fg" data-testid="dns.zone.configured_serial">{dnsConfiguredSerialText(zone, t)}</div>
             </div>
           }
           tabs={<TabsNav items={tabs} />}
