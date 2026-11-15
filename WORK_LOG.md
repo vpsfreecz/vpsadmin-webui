@@ -1,5 +1,13 @@
 ## 2026-10-28 — OAuth redirect boundary review
 
+## 2026-11-15 — Readable incident filters and complete reports
+
+Approved INC-01/02: short growing smart field, visible44px Help/Advanced
+controls, one detail summary and complete page-flow report text. Preserve
+role/query/navigation/payload contracts; no API or deployment activation yet.
+[Scope, actual baseline and verification limits](docs/work-log/2026-11-15-incident-filter-message.md).
+
+
 Prepared a focused BFF credential-forwarding defense and consistent local-path
 validation after dummy loopback reproductions. See the [finding and checks](docs/work-log/2026-10-28-oauth-redirect-boundaries.md).
 Not merged or deployed; no API or provider changes.
@@ -1685,3 +1693,17 @@ preserve all branch histories and colleague PRs. Add standard push CI for the
 integration branch, without deployment automation. Dev has isolated test data;
 clankerdev still uses the production API. No host update in this setup.
 [Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
+
+## 2026-11-09 — Preserve OOM filters during pending navigation
+
+Correct the reproduced Next/page-size URL race without changing owner scope.
+[Scope, root cause and evidence](docs/work-log/2026-11-09-oom-pending-filter-navigation.md).
+
+
+## 2026-11-12 — Keep applied incident filters during pagination (prepared)
+
+Close the demonstrated incident caller race blocking original BAK-08 browser
+qualification. Explicit page/size navigation uses the existing applied-filter
+snapshot support from PR243, preserving role/API/history contracts.
+[Reproduction and verification](docs/work-log/2026-11-12-incident-pending-filter-navigation.md).
+No merge, preview activation or API deployment is claimed.

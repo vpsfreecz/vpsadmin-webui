@@ -162,7 +162,7 @@ function expectNoForbiddenRequests(
 
 test.describe('Incident reports - exact Smart Filter contract', () => {
   test('admin normalizes stale q before the first GET, rejects full text, and retains exact filters across pages @pr-smoke @pr-smoke-mobile', async ({ page }, testInfo) => {
-    const mobile = testInfo.project.name === 'mobile-chrome';
+    const mobile = testInfo.project.name.startsWith('mobile-');
     const scenario = await installIncidentScenario(page, {
       id: 1,
       login: 'admin',
@@ -231,6 +231,13 @@ test.describe('Incident reports - exact Smart Filter contract', () => {
     await expect.poll(() => incidentField(scenario.listRequests.at(-1)!, 'from_id')).toBe('101');
     const secondPage = scenario.listRequests.at(-1)!;
     expect(incidentField(secondPage, 'codename')).toBe('abuse');
+    // Pagination can run before the router publishes the applied Smart Filter.
+    for (const [key, value] of Object.entries({
+      vps: '7', user: '42', filed_by: '1', ip_addr: '203.0.113.10',
+      ip_address_assignment: '55', codename: 'abuse', mailbox: '9',
+    })) {
+      expect(new URL(page.url()).searchParams.get(key), `Next preserved ${key}`).toBe(value);
+    }
     expect(incidentField(secondPage, 'user')).toBe('42');
     expect(new URL(page.url()).searchParams.get('page')).toBe('2');
 
@@ -281,7 +288,7 @@ test.describe('Incident reports - exact Smart Filter contract', () => {
     { id: 21, login: 'support', level: 21, path: '/admin/incidents', label: 'support role' },
   ] satisfies Actor[]) {
     test(`${actor.label} strips stale and admin-only URL fields before the first GET and stays exact across pages @pr-smoke @pr-smoke-mobile`, async ({ page }, testInfo) => {
-      const mobile = testInfo.project.name === 'mobile-chrome';
+      const mobile = testInfo.project.name.startsWith('mobile-');
       const scenario = await installIncidentScenario(page, actor);
       const directUrl = `${actor.path}?q=legacy&from_id=101&page=2&limit=25&user=42&filed_by=1&mailbox=9&codename=abuse`;
 
@@ -336,7 +343,7 @@ test.describe('Incident reports - exact Smart Filter contract', () => {
     { id: 21, login: 'support', level: 21, path: '/app/incidents', label: 'support My view' },
   ] satisfies Actor[]) {
     test(`${actor.label} replaces arbitrary URL scope with its own implicit user before the first GET @pr-smoke @pr-smoke-mobile`, async ({ page }, testInfo) => {
-      const mobile = testInfo.project.name === 'mobile-chrome';
+      const mobile = testInfo.project.name.startsWith('mobile-');
       const scenario = await installIncidentScenario(page, actor);
 
       await page.goto(
