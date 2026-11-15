@@ -762,6 +762,17 @@ test('admin user view fetches assignments through own user scope instead of the 
 
         if (assignedFilter === 'false' && ownerId === '7') return { ip_addresses: [ownedDetached] };
 
+        // Current APIs revalidate incomplete assignment includes against this
+        // exact owned VPS. The assignment actor does not establish ownership.
+        if (ctx.searchParams.get('ip_address[vps]') === '123') {
+          return {
+            ip_addresses: [{
+              ...assignedWithoutNestedInterface,
+              network_interface: { id: 501, name: 'eth0', vps },
+            }],
+          };
+        }
+
         return {
           ip_addresses: [{ ...assignedWithoutNestedInterface, id: 999, addr: '203.0.113.99' }],
         };
@@ -780,7 +791,16 @@ test('admin user view fetches assignments through own user scope instead of the 
   expect(assignmentRequests).toHaveLength(1);
   expect(assignmentRequests[0]?.searchParams.get('ip_address_assignment[user]')).toBe('7');
   expect(assignmentRequests[0]?.searchParams.get('ip_address_assignment[active]')).toBe('true');
-  expect(requests.some((url) => url.searchParams.has('ip_address[vps]'))).toBe(false);
+  const currentVpsReads = requests.filter((url) => url.searchParams.has('ip_address[vps]'));
+  expect(currentVpsReads.length).toBeLessThanOrEqual(1);
+  expect(currentVpsReads.every((url) => (
+    url.searchParams.get('ip_address[vps]') === '123' &&
+    url.searchParams.get('ip_address[limit]') === '250'
+  ))).toBe(true);
+  expect(requests.every((url) => (
+    url.searchParams.get('ip_address[user]') === '7' ||
+    url.searchParams.get('ip_address[vps]') === '123'
+  ))).toBe(true);
   expect(accountingRequests).toHaveLength(0);
 
   await page.getByTestId('network.user.tab.traffic').click();

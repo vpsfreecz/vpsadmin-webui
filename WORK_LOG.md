@@ -3052,3 +3052,7 @@ Prepared; new-head qualification and paired preview delivery remain pending.
 ## 2026-11-15 — ACC-08 recipient Copy controls
 
 [Give both recipient Copy actions the common secondary button](docs/work-log/2026-11-15-account-mail-copy-controls.md), preserving clipboard contents and feedback. Prepared; qualification and paired preview pending.
+
+## 2026-11-15 — Network chart orientation
+
+[Approved NET-14 scope and verification limits](docs/work-log/2026-11-15-network-chart-orientation.md).

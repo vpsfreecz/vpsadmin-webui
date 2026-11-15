@@ -591,6 +591,8 @@ backend blocker. [Datasets](../../src/lib/api/datasets.ts),
 
 ## DNS and networking
 
+Monthly traffic and live network graphs expose visible time/value axes. Keep IEC byte totals distinct from IEC bytes per second, and preserve the existing formats, owner/filter queries, rate calculation, polling and bounded session history. Keyboard/touch point inspection retains the exact sample, including a single first measurement. Keep its selection while focused; Escape or blur dismisses it and unfocused hover clears on leaving; distinguish a measured zero from empty history. The same display applies in member/My and administrator live views. [Approved NET-14 scope](../work-log/2026-11-15-network-chart-orientation.md).
+
 Approved DNS-06/07/08/13 distinguish the managed configuration serial from
 individual server reports. A secondary zone's stored counter is not a response
 from its external primary; show where it is managed instead of echoing that

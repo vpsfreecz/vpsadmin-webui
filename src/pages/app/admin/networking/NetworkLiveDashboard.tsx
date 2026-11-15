@@ -210,6 +210,8 @@ export function NetworkLiveDashboard(props: {
           <div className="rounded-lg border border-border bg-surface-2/60 p-4">
             <div className="mb-3 font-medium">{t('admin.network_live.chart.in')}</div>
             <TimeSeriesChart
+              showAxes
+              emptyLabel={t('common.no_data')}
               points={props.history.map((sample) => ({ x: sample.timestamp, y: sample.bytesIn }))}
               ariaLabel={t('admin.network_live.chart.in')}
               formatValue={byteRate}
@@ -223,6 +225,8 @@ export function NetworkLiveDashboard(props: {
           <div className="rounded-lg border border-border bg-surface-2/60 p-4">
             <div className="mb-3 font-medium">{t('admin.network_live.chart.out')}</div>
             <TimeSeriesChart
+              showAxes
+              emptyLabel={t('common.no_data')}
               points={props.history.map((sample) => ({ x: sample.timestamp, y: sample.bytesOut }))}
               ariaLabel={t('admin.network_live.chart.out')}
               formatValue={byteRate}
