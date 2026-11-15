@@ -298,6 +298,15 @@ heading, including the mount command. Long
 code lines may scroll inside their block without widening the page. Temporary
 snapshot exports continue to show only their temporary mount instructions.
 
+**Export conflict feedback:** a definitive HTTP200/status-false Create receipt
+with the verified dataset/snapshot already-exported reason stays in a bounded
+alert above the dialog actions. Explain the conflict in Czech/English and link
+to the submitted dataset exports or snapshots. Capture the submitted form so
+later edits cannot redirect this receipt. Keep drafts, Cancel and existing
+submission/role/owner/lock rules. Other API, lookup, permission, protocol or
+uncertain failures are never relabeled as duplication; they retain their reason.
+No implicit retry, export removal or backend timing change.
+
 **Snapshot export shortcut:** snapshot rows/cards in Backup Center and dataset,
 VPS storage and NAS views offer NFS export beside Download. Each snapshot ID
 appears once beneath its creation date/time, never repeated beside the actions. An existing export
