@@ -75,6 +75,7 @@ export default defineConfig({
         '**/admin_dashboard.spec.ts',
         '**/sidebar_status.spec.ts',
         '**/profile_user_data.spec.ts',
+        '**/preference_description.spec.ts',
         '**/centered_dialogs.spec.ts',
 
         '**/vps_expiration_reactivation.spec.ts',

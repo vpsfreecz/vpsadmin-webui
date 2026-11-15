@@ -1003,3 +1003,7 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+## Approved account follow-up: ACC-05
+
+Place each preference description below its associated control, in the same named and described group. Preserve selector callbacks, persistence, scope choices and the existing readable synchronization errors.
