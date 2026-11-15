@@ -76,9 +76,24 @@ async function setup(page: Page, language: 'cs' | 'en', role: Role, outcome = 'o
               body: JSON.stringify({ status: false, message: 'Synthetic forbidden dataset', response: null }),
             };
       },
-      'GET datasets/20/snapshots': () => {
+      'GET datasets/20/snapshots': async () => {
         snapshots.push(20);
-        return { snapshots: [{ id: 101, name: 'backup-a' }] };
+        if (outcome === 'snapshot-delayed') await responseGate;
+        if (outcome === 'snapshot-error' && snapshots.filter((id) => id === 20).length === 1)
+          return {
+            status: 503,
+            contentType: 'application/json',
+            body: JSON.stringify({ status: false, message: 'Synthetic snapshots unavailable', response: null }),
+          };
+        return {
+          snapshots: ['snapshot-empty', 'snapshot-unknown-empty'].includes(outcome)
+            ? []
+            : [{ id: 101, name: 'backup-a' }],
+          _meta:
+            outcome === 'snapshot-unknown-empty'
+              ? {}
+              : { total_count: outcome === 'snapshot-partial' ? 101 : outcome === 'snapshot-empty' ? 0 : 1 },
+        };
       },
       'GET datasets/21/snapshots': () => {
         snapshots.push(21);
@@ -99,7 +114,12 @@ async function setup(page: Page, language: 'cs' | 'en', role: Role, outcome = 'o
             contentType: 'application/json',
             body: JSON.stringify({ status: false, message: 'Synthetic export rejection', response: null }),
           };
-        const picked = payload.export.snapshot ? long : payload.export.dataset === 999 ? foreign : numeric;
+        const picked =
+          payload.export.snapshot === 102
+            ? long
+            : payload.export.snapshot === 303 || payload.export.dataset === 999
+              ? foreign
+              : numeric;
         created = {
           id: 70,
           dataset: picked,
@@ -174,6 +194,111 @@ for (const language of ['cs', 'en'] as const) {
       });
     }
   }
+  test(`@pr-smoke @pr-smoke-mobile ${language} empty snapshots stay distinct from a failed list`, async ({
+    page,
+    hasTouch,
+  }) => {
+    const fixture = await setup(page, language, 'member', 'snapshot-empty');
+    await page.getByTestId('exports.create.dataset').fill('999');
+    await choose(page, 20, hasTouch);
+    await page
+      .getByRole('combobox', { name: language === 'cs' ? 'Typ zdroje' : 'Source type', exact: true })
+      .selectOption('snapshot');
+    await expect(page.getByTestId('exports.create.snapshot_picker.empty')).toBeVisible();
+    await expect(page.getByTestId('exports.create.snapshot_picker.retry')).toHaveCount(0);
+    await expect(page.getByTestId('exports.create.submit')).toBeDisabled();
+    expect(fixture.writes).toEqual([]);
+  });
+  test(`@pr-smoke @pr-smoke-mobile ${language} unknown empty snapshot response does not claim verified absence`, async ({
+    page,
+    hasTouch,
+  }) => {
+    const fixture = await setup(page, language, 'member', 'snapshot-unknown-empty');
+    await page.getByTestId('exports.create.dataset').fill('999');
+    await choose(page, 20, hasTouch);
+    await page
+      .getByRole('combobox', { name: language === 'cs' ? 'Typ zdroje' : 'Source type', exact: true })
+      .selectOption('snapshot');
+    await expect(page.getByTestId('exports.create.snapshot_picker.limited')).toBeVisible();
+    await expect(page.getByTestId('exports.create.snapshot_picker.empty')).toHaveCount(0);
+    await expect(page.getByTestId('exports.create.snapshot_picker.retry')).toHaveCount(0);
+    await expect(page.getByTestId('exports.create.submit')).toBeDisabled();
+    expect(fixture.writes).toEqual([]);
+  });
+  test(`@pr-smoke @pr-smoke-mobile ${language} failed snapshots retry without claiming the dataset is empty`, async ({
+    page,
+    hasTouch,
+  }) => {
+    const fixture = await setup(page, language, 'member', 'snapshot-error');
+    await page.getByTestId('exports.create.dataset').fill('999');
+    await choose(page, 20, hasTouch);
+    await page
+      .getByRole('combobox', { name: language === 'cs' ? 'Typ zdroje' : 'Source type', exact: true })
+      .selectOption('snapshot');
+    await expect(page.getByTestId('exports.create.snapshot_picker.retry')).toBeVisible();
+    await expect(page.getByTestId('exports.create.snapshot_picker.empty')).toHaveCount(0);
+    await expect(page.getByTestId('exports.create.submit')).toBeDisabled();
+    await page.getByTestId('exports.create.snapshot_picker.retry').click();
+    await page.getByRole('combobox', { name: 'Snapshot', exact: true }).selectOption('101');
+    await expect(page.getByTestId('exports.create.snapshot_picker.retry')).toHaveCount(0);
+    await page.getByTestId('exports.create.submit').click();
+    await expect(page).toHaveURL('/app/exports/70');
+    expect(fixture.writes).toEqual([expect.objectContaining({ export: expect.objectContaining({ snapshot: 101 }) })]);
+  });
+  for (const role of ['member', 'admin'] as const) {
+    test(`@pr-smoke @pr-smoke-mobile ${language} ${role} partial snapshots link to the existing scoped selection route`, async ({
+      page,
+      hasTouch,
+    }) => {
+      const fixture = await setup(page, language, role, 'snapshot-partial');
+      await page.getByTestId('exports.create.dataset').fill('999');
+      await choose(page, 20, hasTouch);
+      await page
+        .getByRole('combobox', { name: language === 'cs' ? 'Typ zdroje' : 'Source type', exact: true })
+        .selectOption('snapshot');
+      await expect(page.getByTestId('exports.create.snapshot_picker.limited')).toBeVisible();
+      await expect(page.getByTestId('exports.create.snapshot_picker.all')).toHaveAttribute(
+        'href',
+        role === 'admin' ? '/admin/datasets/20/snapshots' : '/app/backups?tab=snapshots&dataset=20'
+      );
+      expect(fixture.writes).toEqual([]);
+    });
+  }
+  test(`@pr-smoke @pr-smoke-mobile ${language} late snapshots from the previous dataset cannot replace the current source`, async ({
+    page,
+    hasTouch,
+  }) => {
+    let respond = () => {};
+    const gate = new Promise<void>((resolve) => {
+      respond = resolve;
+    });
+    const fixture = await setup(page, language, 'member', 'snapshot-delayed', gate);
+    try {
+      await page.getByTestId('exports.create.dataset').fill('999');
+      await choose(page, 20, hasTouch);
+      await expect.poll(() => fixture.snapshots.includes(20)).toBe(true);
+      await page
+        .getByRole('combobox', { name: language === 'cs' ? 'Typ zdroje' : 'Source type', exact: true })
+        .selectOption('snapshot');
+      const picker = page.getByTestId('exports.create.snapshot_picker');
+      await expect(picker.getByRole('status')).toBeVisible();
+      await expect(page.getByTestId('exports.create.submit')).toBeDisabled();
+      await page.getByTestId('exports.create.dataset').fill('bezmezer');
+      await choose(page, 21, hasTouch);
+      const snapshot = page.getByRole('combobox', { name: 'Snapshot', exact: true });
+      await snapshot.selectOption('102');
+      const oldResponse = page.waitForResponse((response) => response.url().includes('/datasets/20/snapshots'));
+      respond();
+      await oldResponse;
+      await expect(snapshot).toHaveValue('102');
+      await expect(snapshot.getByRole('option', { name: 'backup-a', exact: true })).toHaveCount(0);
+      await page.getByTestId('exports.create.submit').click();
+      await expect(page).toHaveURL('/app/exports/70');
+      expect(fixture.writes).toEqual([expect.objectContaining({ export: expect.objectContaining({ snapshot: 102 }) })]);
+    } finally {
+      respond();
+    }
+  });
   test(`@pr-smoke @pr-smoke-mobile ${language} global admin can choose another owner dataset`, async ({
     page,
     hasTouch,

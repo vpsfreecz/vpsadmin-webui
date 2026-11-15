@@ -10,6 +10,7 @@ import { Modal } from '../../../components/ui/Modal';
 import { Select } from '../../../components/ui/Select';
 import type { Dataset, Snapshot } from '../../../lib/api/datasets';
 import { ExportDatasetPicker } from './ExportDatasetPicker';
+import { ExportSnapshotPicker } from './ExportSnapshotPicker';
 import {
   resourceLabel,
   type CreateExportFormState,
@@ -129,6 +130,11 @@ export function ExportCreateDrawer(props: {
   snapshots: Snapshot[];
   datasetSelectionAllowed: boolean;
   datasetSelectionPending: boolean;
+  snapshotsLoading: boolean;
+  snapshotsFailed: boolean;
+  snapshotsIncomplete: boolean;
+  onSnapshotsRetry: () => void;
+  allSnapshotsHref: string | undefined;
   datasetSelectionAlert?: { title: string; body: string };
   isAdmin: boolean;
   accountId: number | undefined;
@@ -214,22 +220,17 @@ export function ExportCreateDrawer(props: {
         </div>
 
         {props.form.sourceType === 'snapshot' ? (
-          <div>
-            <div className="mb-1 text-sm font-medium text-fg">{t('common.snapshot')}</div>
-            <Select
-              value={props.form.snapshotId}
-              onChange={(e) => patch({ snapshotId: e.target.value })}
-              disabled={!props.datasetSelectionAllowed || props.datasetSelectionPending}
-              ariaLabel={t('common.snapshot')}
-            >
-              <option value="">{t('exports.form.snapshot.placeholder')}</option>
-              {props.snapshots.map((snapshot) => (
-                <option key={snapshot.id} value={String(snapshot.id)}>
-                  {resourceLabel(snapshot)}
-                </option>
-              ))}
-            </Select>
-          </div>
+          <ExportSnapshotPicker
+            value={props.form.snapshotId}
+            onChange={(snapshotId) => patch({ snapshotId })}
+            snapshots={props.snapshots}
+            disabled={!props.datasetSelectionAllowed || props.datasetSelectionPending}
+            loading={props.snapshotsLoading}
+            failed={props.snapshotsFailed}
+            incomplete={props.snapshotsIncomplete}
+            onRetry={props.onSnapshotsRetry}
+            allSnapshotsHref={props.allSnapshotsHref}
+          />
         ) : null}
 
         <div className="grid gap-3 sm:grid-cols-2">

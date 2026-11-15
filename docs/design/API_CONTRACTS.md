@@ -338,3 +338,11 @@ names require an offered choice. No new API parameter, transport or mutation is
 introduced. Snapshot reads and both Create source payloads retain their existing
 contract. Authoritative ownership and the fresh administrator My-view check
 remain immediately before Create.
+
+Snapshot picker reads keep `limit=100` and request existing `_meta[count]`.
+Loading, failed and verified-empty responses remain distinct; read-only retry
+repeats the same authorized request. Unknown/partial counts disclose the bound
+and link to the existing scoped snapshot route, whose row shortcut preserves the
+exact selected snapshot outside the first100. Query keys include the selected
+dataset, so a late prior-dataset response cannot replace current choices. This
+does not introduce a cursor, change Create or bypass server source permissions.

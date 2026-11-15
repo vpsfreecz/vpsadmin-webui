@@ -68,6 +68,11 @@ export const enStorageExports = {
   'exports.form.dataset_load_error.title': 'Unable to verify dataset',
   'exports.form.dataset_load_error.body':
     'Dataset #{id} could not be loaded. Check the ID and your access, then try again.',
+  'exports.form.snapshot.list_error': 'Unable to load snapshots for this dataset.',
+  'exports.form.snapshot.empty': 'No snapshots are available for this dataset.',
+  'exports.form.snapshot.limited':
+    'This list shows up to 100 snapshots and may be incomplete. Use the snapshot list to choose another snapshot.',
+  'exports.form.snapshot.all': 'Choose another snapshot',
   'exports.form.snapshot.placeholder': 'Select a snapshot…',
   'exports.form.address.placeholder': 'Select a host IP…',
   'exports.filter.owner.label': 'Export owner',

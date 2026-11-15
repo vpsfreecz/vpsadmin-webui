@@ -54,7 +54,24 @@ later isolated duplicate-export investigation; it created no objects.
 
 Evidence directory:
 `/data/webui-browser-runner/verification-20261103/todo-export-selection-help-conflict-20261114`.
+A final pre-push acceptance review also identified existing snapshot-list states:
+loading, failure and empty results were not distinguished, and the first-100
+limit was not disclosed. Add count metadata, explicit loading/error/empty feedback,
+a read-only retry and a scoped link to the existing snapshot selection route.
+Preserve the 100 limit, numeric cursor contract, preselected snapshot outside that
+list, captured Create payload and server permissions. New cases cover delayed
+responses from a previous dataset, empty/error/retry and partial/unknown lists. Verified-empty wording requires a known zero count,
+not an empty page with absent count metadata. These
+follow-up changes are not yet qualified; the original 102+45 focused and 102+81
+cumulative clean runs describe the earlier picker commit only.
+
 The canonical acceptance report distinguishes prepared, locally tested,
 CI-qualified, paired deployed and protected TODO result publication. No current
 PR, merge, deployment or task-completion claim for EXP-01. Current external KB
 contract pins legacy PHP/API, not React; no unrelated KB pin or freshness claim.
+
+The snapshot-state working build passed132 cases, including all original102 and
+30 new state/race cases, without retry. A subsequent unknown-count refinement
+passed6 additional cases on its own immutable dirty working build, without retry.
+These are not138 cases on one build. Final exact committed quick/unit/build and
+clean Nix/browser qualification must follow before the first source push.
