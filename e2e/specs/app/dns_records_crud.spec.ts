@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
 
-test.describe('@smoke DNS records CRUD', () => {
+test.describe('@smoke @pr-smoke @pr-smoke-mobile DNS records CRUD', () => {
   test('can create, edit, and delete a record', async ({ page }) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
     let createPayload: any;
@@ -72,6 +72,7 @@ test.describe('@smoke DNS records CRUD', () => {
 
     await page.goto('/app/dns/zones/10');
     await expect(page.getByTestId('dns.records.list')).toBeVisible();
+    const itemKind = await page.evaluate(() => innerWidth < 768 ? 'card' : 'row');
 
     // Create
     await page.getByTestId('dns.records.create.open').click();
@@ -83,23 +84,23 @@ test.describe('@smoke DNS records CRUD', () => {
 
     await expect.poll(() => createPayload?.dns_record?.ttl).toBeUndefined();
     await expect(page.getByTestId('dns.records.create.modal')).toHaveCount(0);
-    await expect(page.getByTestId('dns.record.row.101')).toBeVisible();
-    await expect(page.getByTestId('dns.record.row.101')).toContainText('5.6.7.8');
+    await expect(page.getByTestId(`dns.record.${itemKind}.101`)).toBeVisible();
+    await expect(page.getByTestId(`dns.record.${itemKind}.101`)).toContainText('5.6.7.8');
 
     // Edit
-    await page.getByTestId('dns.record.row.101.edit').click();
+    await page.getByTestId(`dns.record.${itemKind}.101.edit`).click();
     await expect(page.getByTestId('dns.records.edit.modal')).toBeVisible();
     await page.getByTestId('dns.records.edit.content').fill('5.6.7.9');
     await page.getByTestId('dns.records.edit.submit').click();
 
     await expect(page.getByTestId('dns.records.edit.modal')).toHaveCount(0);
-    await expect(page.getByTestId('dns.record.row.101')).toContainText('5.6.7.9');
+    await expect(page.getByTestId(`dns.record.${itemKind}.101`)).toContainText('5.6.7.9');
 
     // Delete
-    await page.getByTestId('dns.record.row.101.delete').click();
+    await page.getByTestId(`dns.record.${itemKind}.101.delete`).click();
     await expect(page.getByTestId('dns.records.delete_confirm')).toBeVisible();
     await page.getByTestId('dns.records.delete_confirm.confirm').click();
 
-    await expect(page.getByTestId('dns.record.row.101')).toHaveCount(0);
+    await expect(page.getByTestId(`dns.record.${itemKind}.101`)).toHaveCount(0);
   });
 });
