@@ -46,6 +46,7 @@ import {
   sourceShortName,
   type EditExportFormState,
 } from './ExportModel';
+import { ExportNfsHelp } from './ExportNfsHelp';
 
 export function ExportDetailPage() {
   const { exportId } = useParams();
@@ -384,6 +385,7 @@ export function ExportDetailPage() {
                   <Badge variant={Boolean(ex.subtree_check) ? 'info' : 'neutral'}>{t('exports.field.subtree_check')}</Badge>
                   <Badge variant={Boolean(ex.root_squash) ? 'info' : 'neutral'}>{t('exports.field.root_squash')}</Badge>
                 </div>
+                <div className="mt-2"><ExportNfsHelp testId="exports.detail.nfs_help" /></div>
               </div>
               <div>
                 <div className="text-xs font-semibold text-muted">{t('exports.field.scope')}</div>
