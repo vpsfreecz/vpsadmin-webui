@@ -2,12 +2,26 @@ import { expect, test } from '@playwright/test';
 
 import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
 
+interface FixtureRecord {
+  id: number;
+  dns_zone: number | { id: number };
+  name: string;
+  type: string;
+  content: string;
+  ttl?: number | null;
+  priority: null;
+  enabled: boolean;
+  dynamic_update_enabled: boolean;
+  dynamic_update_url: null;
+  comment: string;
+}
+
 test.describe('@smoke @pr-smoke @pr-smoke-mobile DNS records CRUD', () => {
   test('can create, edit, and delete a record', async ({ page }) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
-    let createPayload: any;
+    let createTtl: unknown = 'not-submitted';
 
-    let records = [
+    let records: FixtureRecord[] = [
       {
         id: 100,
         dns_zone: { id: 10 },
@@ -41,14 +55,23 @@ test.describe('@smoke @pr-smoke @pr-smoke-mobile DNS records CRUD', () => {
         'GET dns_record_logs': () => ({ dns_record_logs: [] }),
 
         'POST dns_records': async ({ request }) => {
-          createPayload = await request.postDataJSON();
-          const created = {
+          const body: unknown = await request.postDataJSON();
+          if (!body || typeof body !== 'object' || Array.isArray(body) || !('dns_record' in body) ||
+              !body.dns_record || typeof body.dns_record !== 'object' || Array.isArray(body.dns_record)) {
+            throw new Error('Expected DNS record creation payload');
+          }
+          const ttl: unknown = Reflect.get(body.dns_record, 'ttl');
+          if (ttl !== undefined && ttl !== null && typeof ttl !== 'number') {
+            throw new Error('Expected optional numeric TTL');
+          }
+          createTtl = ttl;
+          const created: FixtureRecord = {
             id: 101,
             dns_zone: { id: 10 },
             name: 'api',
             type: 'A',
             content: '5.6.7.8',
-            ttl: createPayload?.dns_record?.ttl,
+            ttl,
             priority: null,
             enabled: true,
             dynamic_update_enabled: false,
@@ -62,6 +85,7 @@ test.describe('@smoke @pr-smoke @pr-smoke-mobile DNS records CRUD', () => {
         'PUT dns_records/101': () => {
           records = records.map((r) => (r.id === 101 ? { ...r, content: '5.6.7.9' } : r));
           const updated = records.find((r) => r.id === 101);
+          if (!updated) throw new Error('Expected created record before edit');
           return { dns_record: updated };
         },
 
@@ -84,7 +108,7 @@ test.describe('@smoke @pr-smoke @pr-smoke-mobile DNS records CRUD', () => {
     await page.getByTestId('dns.records.create.content').fill('5.6.7.8');
     await page.getByTestId('dns.records.create.submit').click();
 
-    await expect.poll(() => createPayload?.dns_record?.ttl).toBeUndefined();
+    await expect.poll(() => createTtl).toBeUndefined();
     await expect(page.getByTestId('dns.records.create.modal')).toHaveCount(0);
     await expect(page.getByTestId(`dns.record.${itemKind}.101`)).toBeVisible();
     await expect(page.getByTestId(`dns.record.${itemKind}.101`)).toContainText('5.6.7.8');
