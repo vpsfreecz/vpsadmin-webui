@@ -52,3 +52,13 @@ all CRUD assertions. All three strict source checks and targeted browsers3
 pass. Product code is unchanged; full final exact checks remain pending.
 The original coverage-gate failure remains private evidence, not a disabled
 check or updated deferred hash.
+
+Clean cumulative testing retained196PASS/1FAIL: WebKit recorded two helper
+XHR access-control errors around repeated hard navigations. Separate event
+diagnostics confirmed cancelled helper reads with controlled latency; the
+exact original CORS message was not forced. Exercise actual breadcrumb/list
+links instead, retaining every value/payload/pageerror assertion and initial
+load, with a same-document assertion. The delayed SPA diagnostic has zero
+cancelled background reads and no pageerror. This is not live-server CORS
+certification or a product timing/permission/lock change. Repeat exact
+source checks and clean packaging/browser qualification on this head.
