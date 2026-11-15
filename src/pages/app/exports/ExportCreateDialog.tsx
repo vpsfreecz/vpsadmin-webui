@@ -10,7 +10,7 @@ import { useToasts } from '../../../app/toasts';
 import { useChrome } from '../../../components/layout/ChromeContext';
 import { fetchDataset, fetchDatasetSnapshots, type Snapshot } from '../../../lib/api/datasets';
 import { createExport } from '../../../lib/api/exports';
-import { getMetaActionStateId } from '../../../lib/api/apiErrors';
+import { getMetaActionStateId, getMetaTotalCount } from '../../../lib/api/apiErrors';
 import { objectRef } from '../../../lib/objectRef';
 
 import { ExportCreateDrawer } from './ExportCreateDrawer';
@@ -98,17 +98,27 @@ export function ExportCreateDialog(props: {
 
   const snapshotsQ = useQuery({
     queryKey: ['datasets', selectedDatasetId, 'snapshots', 'export_create'],
+    retry: false,
     enabled: props.open && selectedDatasetId !== null && datasetSelectionAllowed,
     queryFn: async () => {
       if (selectedDatasetId === null) throw new Error('invalid dataset id');
-      return (await fetchDatasetSnapshots(selectedDatasetId, { limit: 100 })).data;
+      return fetchDatasetSnapshots(selectedDatasetId, { limit: 100, count: true });
     },
     staleTime: 15_000,
   });
 
   // A row selected on a later page may not be in the picker's first 100 results.
   // Keep that exact source visible instead of silently falling back to live data.
-  const snapshots = snapshotsQ.data ?? [];
+  const snapshots = snapshotsQ.data?.data ?? [];
+  const snapshotCount = getMetaTotalCount(snapshotsQ.data?.meta);
+  const snapshotListIncomplete =
+    !!snapshotsQ.data && (snapshotCount === undefined || snapshotCount !== snapshots.length);
+  const allSnapshotsHref =
+    selectedDatasetId !== null && datasetSelectionAllowed
+      ? mode === 'admin'
+        ? `${basePath}/datasets/${selectedDatasetId}/snapshots`
+        : `${basePath}/backups?tab=snapshots&dataset=${selectedDatasetId}`
+      : undefined;
   const snapshotChoices =
     props.initialSnapshot &&
     selectedDatasetId === props.fixedDatasetId &&
@@ -187,6 +197,11 @@ export function ExportCreateDialog(props: {
       onFormChange={setForm}
       selectedDataset={selectedDatasetQ.data}
       snapshots={snapshotChoices}
+      snapshotsLoading={snapshotsQ.isFetching}
+      snapshotsFailed={snapshotsQ.isError}
+      snapshotsIncomplete={snapshotListIncomplete}
+      onSnapshotsRetry={() => void snapshotsQ.refetch()}
+      allSnapshotsHref={allSnapshotsHref}
       datasetSelectionAllowed={datasetSelectionAllowed}
       datasetSelectionPending={datasetSelectionPending}
       datasetSelectionAlert={datasetSelectionAlert}

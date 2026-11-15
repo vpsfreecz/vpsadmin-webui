@@ -1806,3 +1806,11 @@ support retry. A bounded or incomplete list offers the existing exact-ID/detail
 entrypoints rather than claiming a complete sorted numeric cursor traversal.
 Creation disables the dataset picker while its captured request is pending.
 See [EXP-01 scope and evidence](../work-log/2026-11-15-export-dataset-selection.md).
+
+Snapshot selection distinguishes loading, failure/retry and verified empty data.
+The existing first100 bound is disclosed when count metadata is absent or partial;
+users can choose another snapshot on the existing dataset-scoped snapshot page
+and return through its exact-source export shortcut. Administrator My/member
+links stay in the user view; global administrator links stay in administrator
+view. Keep the existing initial snapshot even outside that first page. Late
+responses for a previously selected dataset cannot replace the current list.

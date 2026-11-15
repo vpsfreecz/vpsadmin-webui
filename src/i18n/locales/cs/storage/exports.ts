@@ -75,6 +75,11 @@ export const csStorageExports = {
   'exports.form.dataset_load_error.title': 'Dataset se nepodařilo ověřit',
   'exports.form.dataset_load_error.body':
     'Dataset #{id} se nepodařilo načíst. Zkontroluj ID a oprávnění a zkus to znovu.',
+  'exports.form.snapshot.list_error': 'Snapshoty tohoto datasetu se nepodařilo načíst.',
+  'exports.form.snapshot.empty': 'Pro tento dataset nejsou dostupné žádné snapshoty.',
+  'exports.form.snapshot.limited':
+    'Seznam zobrazuje nejvýše 100 snapshotů a nemusí být úplný. Jiný snapshot můžete vybrat v seznamu snapshotů.',
+  'exports.form.snapshot.all': 'Vybrat jiný snapshot',
   'exports.form.snapshot.placeholder': 'Vyber snapshot…',
   'exports.form.address.placeholder': 'Vyber host IP…',
   'exports.filter.owner.label': 'Vlastník exportu',

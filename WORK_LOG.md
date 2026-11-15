@@ -2956,6 +2956,8 @@ to leave the page. Preserve backend timing, mutation/duplicate/uncertainty gates
 Prepare approved EXP-01 / REQ-048: offer authorized dataset names with explicit
 internal-ID identity and `#ID` fallback. Clear stale snapshot selection, preserve
 ownership preflight and backend Create contracts, and disclose bounded lists.
+Distinguish snapshot loading/error/empty results, offer retry and an existing
+scoped snapshot-selection route for choices outside the first100.
 [Scope, implementation and verification](docs/work-log/2026-11-15-export-dataset-selection.md).
 Prepared only; exact committed qualification, focused PR/CI and paired delivery
 remain separate.
