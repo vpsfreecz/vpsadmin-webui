@@ -52,3 +52,10 @@ all CRUD assertions. All three strict source checks and targeted browsers3
 pass. Product code is unchanged; full final exact checks remain pending.
 The original coverage-gate failure remains private evidence, not a disabled
 check or updated deferred hash.
+
+Before clean browsers, source-contract inspection found that this focused
+legacy adapter consumes a flat single-zone Show response. Match the new
+fixture to that contract; the cumulative generated SDK retains its named
+resource envelope. Product adapters, payloads and all assertions are unchanged.
+Repeat exact focused checks and Nix/browser qualification on the new head;
+previous package/native receipts stay historical. No push or deployment.

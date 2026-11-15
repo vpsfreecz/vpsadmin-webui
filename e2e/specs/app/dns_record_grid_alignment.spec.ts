@@ -18,7 +18,7 @@ for (const language of ['cs', 'en'] as const) for (const role of ['member', 'adm
       { id: 104, name: 'managed', type: 'A', content: '192.0.2.11', ttl: 3600, managed: true },
     ].map(row => ({ ...row, dns_zone: { id: 21 }, enabled: true, dynamic_update_enabled: false }));
     await installHaveApiMock(page, { user: { id: 7, login: 'grid-review', level: role === 'admin' ? 99 : 1 }, handlers: {
-      'GET dns_zones/21': () => ({ dns_zone: { id: 21, name: 'example.test', source: 'internal_source', user: { id: 7 }, enabled: true, default_ttl: 7200 } }),
+      'GET dns_zones/21': () => ({ id: 21, name: 'example.test', source: 'internal_source', user: { id: 7 }, enabled: true, default_ttl: 7200 }),
       'GET dns_records': () => ({ dns_records: rows }), 'GET dns_record_logs': () => ({ dns_record_logs: [] }),
       'GET transaction_chains': () => ({ transaction_chains: [] }),
     } });
