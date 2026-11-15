@@ -296,7 +296,7 @@ export const enDns = {
     'Zone state on DNS servers: serial, last load, refresh, expiration and last check.',
   'dns.zone.transfers.status.empty': 'No transfer status is available for this zone yet.',
   'dns.zone.dnssec.title': 'DNSSEC',
-  'dns.zone.dnssec.description': 'Copy-ready DNSKEY and DS records for this zone.',
+  'dns.zone.dnssec.description': 'Zone DNSKEY and DS for the parent zone.',
   'dns.zone.dnssec.loading': 'Loading DNSSEC records…',
   'dns.zone.dnssec.load_failed': 'Failed to load DNSSEC records',
   'dns.zone.dnssec.empty': 'No DNSSEC records',
