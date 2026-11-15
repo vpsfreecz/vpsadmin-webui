@@ -1,5 +1,9 @@
 // Storage exports and NFS publication locale strings
 export const enStorageExports = {
+  'exports.nfs.help.body': 'These NFS server options control read-write access, write acknowledgments, subtree checks and mapping of the client root user.',
+  'exports.nfs.help.link': 'NFS server options (exports(5))',
+  'exports.nfs.help.new_tab': ' (opens in a new tab)',
+  'exports.instructions.nixos_rootfs': 'In vpsAdminOS, the host provides the container root filesystem; this example adds an NFS mount inside the VPS.',
   'exports.page.title': 'Exports',
   'dataset.snapshots.export': 'NFS export',
   'exports.page.description': 'Manage NFS exports and allowed hosts.',

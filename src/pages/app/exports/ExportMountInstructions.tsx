@@ -61,6 +61,9 @@ export function ExportMountInstructions(props: {
                 <CopyButton text={nixSnippet} label={t('common.copy')} testId="exports.detail.instructions.nixos.copy" />
               </div>
               <pre data-testid="exports.detail.instructions.nixos" className="max-h-scroll-lg max-w-full overflow-auto rounded-md border border-border bg-code p-3 text-xs text-fg">{nixSnippet}</pre>
+              <p className="text-xs text-muted" data-testid="exports.detail.instructions.nixos.rootfs">
+                {t('exports.instructions.nixos_rootfs')}
+              </p>
             </div>
           </div>
         ) : null}

@@ -1814,3 +1814,18 @@ and return through its exact-source export shortcut. Administrator My/member
 links stay in the user view; global administrator links stay in administrator
 view. Keep the existing initial snapshot even outside that first page. Late
 responses for a previously selected dataset cannot replace the current list.
+
+
+### NFS export documentation context
+
+Create/edit/host options and read-only export detail link to the published
+exports(5) server-options manual. The compact explanation identifies write access,
+write acknowledgments, subtree checks and mapping of client root; vpsAdmin-only
+flags and current form defaults remain distinct. Links open safely in a new tab
+with a readable semantic foreground and an accessible announcement.
+
+The persistent NixOS mount example explains that vpsAdminOS supplies container
+rootfs from the host and that the snippet adds an NFS mount inside the VPS.
+The note stays beside that example, not in temporary snapshot command-only
+guidance. All example bytes, existing controls, source fields and write gates
+remain unchanged. See [approved EXP-03 evidence](../work-log/2026-11-15-export-nfs-help.md).
