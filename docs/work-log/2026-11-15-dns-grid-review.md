@@ -43,3 +43,12 @@ These results qualify the working cumulative artifact only; each committed
 focused source still needs its own full quick/build, relevant tests, clean
 Nix/browser and original six hosted checks before publication or deployment.
 No live DNS permission, propagation or physical Safari claim.
+
+Focused exact quick correctly rejected the modified CRUD source while it was
+still deferred on the old foundation. Adopt the complete file in the strict
+registry and explicit files list; replace any with checked unknown payloads
+and explicit fixture types. Preserve original flat/wrapped wire shapes and
+all CRUD assertions. All three strict source checks and targeted browsers3
+pass. Product code is unchanged; full final exact checks remain pending.
+The original coverage-gate failure remains private evidence, not a disabled
+check or updated deferred hash.
