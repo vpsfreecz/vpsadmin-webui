@@ -1,3 +1,10 @@
+## 2026-11-15 — Anchor the changing DNS-zone creation form
+
+Prepare approved DNS-05 / REQ-049: retain a stable top viewport inset while
+switching primary/secondary fields, preserving default centered dialogs and
+all form contracts. [Scope and baseline](docs/work-log/2026-11-15-dns-zone-dialog-position.md).
+Prepared only; exact checks/CI/preview delivery remain separate.
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path
