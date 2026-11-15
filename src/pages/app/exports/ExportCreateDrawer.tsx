@@ -15,6 +15,7 @@ import {
   type ExportCreateIssue,
   validateCreateExportForm,
 } from './ExportModel';
+import { ExportNfsHelp } from './ExportNfsHelp';
 
 function selectedSnapshotLabel(snapshots: Snapshot[], idValue: string): string {
   const id = Number(idValue);
@@ -215,6 +216,8 @@ export function ExportCreateDrawer(props: {
           <Checkbox checked={props.form.subtreeCheck} onChange={(value) => patch({ subtreeCheck: value })} label={t('exports.field.subtree_check')} />
           <Checkbox checked={props.form.rootSquash} onChange={(value) => patch({ rootSquash: value })} label={t('exports.field.root_squash')} />
         </div>
+
+        <ExportNfsHelp testId="exports.create.nfs_help" />
 
         {props.isAdmin ? (
           <div>

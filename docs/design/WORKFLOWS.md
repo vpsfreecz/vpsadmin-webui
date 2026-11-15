@@ -1003,3 +1003,18 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+
+### NFS export documentation context
+
+Create/edit/host options and read-only export detail link to the published
+exports(5) server-options manual. The compact explanation identifies write access,
+write acknowledgments, subtree checks and mapping of client root; vpsAdmin-only
+flags and current form defaults remain distinct. Links open safely in a new tab
+with a readable semantic foreground and an accessible announcement.
+
+The persistent NixOS mount example explains that vpsAdminOS supplies container
+rootfs from the host and that the snippet adds an NFS mount inside the VPS.
+The note stays beside that example, not in temporary snapshot command-only
+guidance. All example bytes, existing controls, source fields and write gates
+remain unchanged. See [approved EXP-03 evidence](../work-log/2026-11-15-export-nfs-help.md).

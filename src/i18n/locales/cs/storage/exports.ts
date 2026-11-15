@@ -1,5 +1,9 @@
 // Storage exports and NFS publication locale strings
 export const csStorageExports = {
+  'exports.nfs.help.body': 'Tyto volby serveru NFS určují přístup pro čtení a zápis, potvrzování zápisů, kontrolu podstromu a mapování klientského uživatele root.',
+  'exports.nfs.help.link': 'Volby serveru NFS (exports(5))',
+  'exports.nfs.help.new_tab': ' (otevře se na nové kartě)',
+  'exports.instructions.nixos_rootfs': 'V prostředí vpsAdminOS poskytuje kořenový souborový systém kontejneru hostitel; ukázka přidává mount NFS uvnitř VPS.',
   'exports.page.title': 'Exporty',
   'dataset.snapshots.export': 'NFS export',
   'exports.page.description': 'Správa NFS exportů a povolených hostů.',
