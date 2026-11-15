@@ -1,3 +1,7 @@
+## 2026-11-09 — Readable account mail-language lookup errors
+
+[Scope and verification](docs/work-log/2026-11-09-profile-mail-language-readability.md).
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path
@@ -1685,3 +1689,7 @@ preserve all branch histories and colleague PRs. Add standard push CI for the
 integration branch, without deployment automation. Dev has isolated test data;
 clankerdev still uses the production API. No host update in this setup.
 [Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
+
+## 2026-11-15 — ACC-08 recipient Copy controls
+
+[Give both recipient Copy actions the common secondary button](docs/work-log/2026-11-15-account-mail-copy-controls.md), preserving clipboard contents and feedback. Prepared; qualification and paired preview pending.
