@@ -1,5 +1,10 @@
 // Storage exports and NFS publication locale strings
 export const enStorageExports = {
+  'exports.create.conflict.title': 'Export already exists',
+  'exports.create.conflict.dataset.body': 'Dataset “{source}” already has an export. Check its exports and adjust the existing export if needed.',
+  'exports.create.conflict.dataset.open': 'Open dataset exports',
+  'exports.create.conflict.snapshot.body': 'Snapshot “{source}” already has an export. Open the dataset snapshots to find the existing export.',
+  'exports.create.conflict.snapshot.open': 'Open dataset snapshots',
   'exports.nfs.help.body': 'These NFS server options control read-write access, write acknowledgments, subtree checks and mapping of the client root user.',
   'exports.nfs.help.link': 'NFS server options (exports(5))',
   'exports.nfs.help.new_tab': ' (opens in a new tab)',

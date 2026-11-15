@@ -14,6 +14,8 @@ import { getMetaActionStateId, getMetaTotalCount } from '../../../lib/api/apiErr
 import { objectRef } from '../../../lib/objectRef';
 
 import { ExportCreateDrawer } from './ExportCreateDrawer';
+import { ExportCreateFailure } from './ExportCreateFailure';
+import type { ExportCreateSubmissionFailure } from './exportCreateConflict';
 import {
   buildCreateExportPayload,
   defaultCreateForm,
@@ -56,10 +58,12 @@ export function ExportCreateDialog(props: {
   const [form, setForm] = useState<CreateExportFormState>(() =>
     defaultCreateForm(props.fixedDatasetId ?? null, props.initialSnapshot?.id)
   );
+  const [submissionFailure, setSubmissionFailure] = useState<ExportCreateSubmissionFailure | null>(null);
   const selectedDatasetId = parsePositiveInt(form.datasetId);
 
   useEffect(() => {
     if (!props.open) return;
+    setSubmissionFailure(null);
     setForm(defaultCreateForm(props.fixedDatasetId ?? null, props.initialSnapshot?.id));
   }, [props.fixedDatasetId, props.initialSnapshot?.id, props.open]);
 
@@ -149,6 +153,7 @@ export function ExportCreateDialog(props: {
       return createExport(buildCreateExportPayload(variables.form, variables.isAdminAccount));
     },
     onMutate: (variables): ExportCreateMutationContext => {
+      setSubmissionFailure(null);
       const datasetId = parsePositiveInt(variables.form.datasetId);
       if (datasetId !== null) chrome.acquireLocalLock(objectRef('Dataset', datasetId));
       return { datasetId };
@@ -173,12 +178,9 @@ export function ExportCreateDialog(props: {
       const exportId = parsePositiveInt(res.data?.id);
       if (exportId) navigate(`${basePath}/exports/${exportId}`);
     },
-    onError: (err: unknown) => {
-      pushToast({
-        variant: 'danger',
-        title: t('exports.create.error'),
-        body: err instanceof Error ? err.message : String(err),
-      });
+    onError: (error: unknown, variables) => {
+      // Keep the submitted source even if the user has since edited the form.
+      setSubmissionFailure({ error, form: { ...variables.form } });
     },
     onSettled: (_data, _error, _variables, context) => {
       if (context?.datasetId !== null && context?.datasetId !== undefined) {
@@ -209,6 +211,9 @@ export function ExportCreateDialog(props: {
       accountId={auth.user?.id}
       requiresOwnDataset={requiresOwnDataset}
       requiredDatasetOwnerId={requiredDatasetOwnerId}
+      submissionFailure={submissionFailure ? (
+        <ExportCreateFailure failure={submissionFailure} basePath={basePath} onLeave={props.onClose} />
+      ) : undefined}
       pending={createM.isPending}
       onSubmit={() =>
         createM.mutate({

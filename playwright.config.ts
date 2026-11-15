@@ -136,6 +136,7 @@ export default defineConfig({
         '**/export_review_options.spec.ts',
         '**/export_source_navigation.spec.ts',
         '**/exports_filter_contract.spec.ts',
+        '**/export_create_conflict.spec.ts',
         '**/export_nfs_help.spec.ts',
         '**/monitoring_filter_rhythm.spec.ts',
         '**/monitoring_events_keyset_pagination.spec.ts',

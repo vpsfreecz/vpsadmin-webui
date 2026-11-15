@@ -110,6 +110,7 @@
     "e2e/specs/app/dnssec_secondary_management.spec.ts",
     "e2e/specs/app/document_title.spec.ts",
     "e2e/specs/app/error_recovery_action_alignment.spec.ts",
+    "e2e/specs/app/export_create_conflict.spec.ts",
     "e2e/specs/app/export_dataset_selection.spec.ts",
     "e2e/specs/app/export_delete_failures.spec.ts",
     "e2e/specs/app/export_filter_rhythm.spec.ts",

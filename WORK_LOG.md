@@ -1,3 +1,10 @@
+## 2026-11-15 — Explain verified export conflicts
+
+Reproduce a duplicate export with new isolated dev objects and add persistent,
+localized feedback bound to the submitted source. Retain distinct error meanings
+and existing mutation gates. See [scope and evidence](docs/work-log/2026-11-15-export-conflict-feedback.md).
+Prepared for review; exact committed checks, cleanup, CI and previews are pending.
+
 ## 2026-11-11 — Preserve Backup Center detail context (prepared)
 
 Retain the existing menu context and fixed return through reload and detail tabs,
