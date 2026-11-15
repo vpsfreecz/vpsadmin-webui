@@ -1,3 +1,7 @@
+## 2026-11-15 — Preserve narrow namespace filter fields
+
+[REQ-073 regression and verification](docs/work-log/2026-11-15-namespace-minimum-field.md).
+
 ## 2026-11-15 — Explain monitoring state deadlines and decisions
 
 ## 2026-11-15 — Kernel OOM reading and recovery

@@ -881,6 +881,10 @@ those roles). Session exact-ID lookup must match that same owner. Namespace/map
 deep links verify ownership before mounting their detail, entry queries or actions.
 The separate `/admin/users/:id` dossier continues to target its selected user.
 
+Namespace and map filters retain a200px minimum smart field at a320px viewport.
+The labeled Help control wraps when needed; filter grammar, focus restoration,
+owner queries, advanced/clear actions and mutation callbacks remain unchanged.
+
 **Scope audit:** profile/security, resource usage, SSH keys, MFA/known devices and
 mail preferences already pass the authenticated ID through user-scoped paths or
 panels. Namespace/map lists already fix the current owner. User-data passes the
