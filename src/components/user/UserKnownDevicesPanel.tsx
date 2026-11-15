@@ -265,19 +265,23 @@ function KnownDevicesSearch(props: {
   onChange: (value: string) => void;
 }) {
   const { t } = useI18n();
+  const searchId = React.useId();
+  const hintId = React.useId();
 
   return (
     <div className="mb-3">
-      <div className="text-xs font-medium text-muted">{t('common.find')}</div>
+      <label htmlFor={searchId} className="text-xs font-medium text-muted">{t('common.find')}</label>
       <div className="mt-1">
         <Input
+          inputId={searchId}
+          ariaDescribedBy={hintId}
           value={props.value}
           onChange={(e) => props.onChange(e.target.value)}
           placeholder={t('profile.security.known_devices.search.placeholder')}
           testId={`${props.testIdPrefix}.known_devices.search`}
         />
       </div>
-      <div className="mt-1 text-xs text-faint">{t('profile.security.known_devices.search.hint')}</div>
+      <div id={hintId} className="mt-1 text-xs leading-5 text-muted">{t('profile.security.known_devices.search.hint')}</div>
     </div>
   );
 }

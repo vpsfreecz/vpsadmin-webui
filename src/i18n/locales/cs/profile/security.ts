@@ -11,7 +11,7 @@ export const csProfile_security = {
   "profile.security.known_devices.forget.body": "Zařízení již nebude důvěryhodné. Pokud je zapnuté dvoufázové ověření, možná budeš znovu vyzván(a) k dalšímu ověření.",
   "profile.security.known_devices.forget.title": "Zapomenout toto zařízení?",
   "profile.security.known_devices.load_failed": "Nepodařilo se načíst známá zařízení.",
-  "profile.security.known_devices.search.hint": "Lokální filtrování (nevolá API).",
+  "profile.security.known_devices.search.hint": "Filtruje jen zařízení na této stránce. Změny zde se načtou automaticky; tlačítkem Obnovit načteš změny odjinud.",
   "profile.security.known_devices.search.placeholder": "Filtrovat podle IP / hostname / user agent…",
   "profile.security.known_devices.subtitle": "Zařízení, ze kterých ses přihlašoval(a). Důvěryhodná zařízení mohou dočasně přeskočit dvoufázové ověření.",
   "profile.security.known_devices.title": "Známá zařízení",

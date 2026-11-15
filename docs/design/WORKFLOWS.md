@@ -1003,3 +1003,7 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+## Approved account follow-up: ACC-07
+
+Name the known-device search with its visible label and associate its always-visible help. Explain that filtering covers the current page, local changes refresh automatically and Refresh loads changes made elsewhere. Preserve owner scope, cursor recovery, polling intervals, device mutation confirmation and query invalidation.
