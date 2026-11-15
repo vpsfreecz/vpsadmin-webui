@@ -1003,3 +1003,7 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+## Approved account follow-up: ACC-09
+
+Keep one primary Create template entry in the filter bar for both empty and populated lists. Remove the redundant empty-state entry and its unused list callback. Preserve editor validation, existing filter/query/owner policy, creation payloads, deploy/delete guards and the existing readable length error.

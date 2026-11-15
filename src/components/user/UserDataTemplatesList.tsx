@@ -27,7 +27,6 @@ export function UserDataTemplatesList(props: {
   onPrev: () => void;
   onNext: () => void;
   onLimitChange: (limit: number) => void;
-  onCreate: () => void;
   onDeploy: (item: VpsUserData) => void;
   onEdit: (item: VpsUserData) => void;
   onDelete: (item: VpsUserData) => void;
@@ -62,13 +61,6 @@ export function UserDataTemplatesList(props: {
         <div className="mt-1 text-sm text-muted">
           {props.filtersActive ? t('empty.list.no_matches.body') : t('user_data.empty.body')}
         </div>
-        {!props.filtersActive ? (
-          <div className="mt-4 flex justify-center">
-            <Button variant="secondary" onClick={props.onCreate}>
-              {t('user_data.action.create')}
-            </Button>
-          </div>
-        ) : null}
       </div>
     );
   }

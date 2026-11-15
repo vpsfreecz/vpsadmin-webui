@@ -1690,3 +1690,7 @@ clankerdev still uses the production API. No host update in this setup.
 
 Prepare approved UX-04 / REQ-010. See the
 [scope and baseline](docs/work-log/2026-11-09-user-data-limit-readability.md).
+
+## 2026-11-15 — ACC-09 account follow-up
+
+[Keep one primary Create template entry in the filter bar for both empty and populated lists](docs/work-log/2026-11-15-account-user-data-primary-action.md). Prepared; qualification and delivery pending.
