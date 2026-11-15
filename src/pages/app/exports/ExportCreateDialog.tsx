@@ -10,7 +10,7 @@ import { useToasts } from '../../../app/toasts';
 import { useChrome } from '../../../components/layout/ChromeContext';
 import { fetchDataset, fetchDatasetSnapshots, type Snapshot } from '../../../lib/api/datasets';
 import { createExport } from '../../../lib/api/exports';
-import { getMetaActionStateId } from '../../../lib/api/haveapi';
+import { getMetaActionStateId, getMetaTotalCount } from '../../../lib/api/haveapi';
 import { objectRef } from '../../../lib/objectRef';
 
 import { ExportCreateDrawer } from './ExportCreateDrawer';
@@ -76,44 +76,55 @@ export function ExportCreateDialog(props: {
   const datasetSelectionAllowed =
     selectedDatasetId !== null &&
     selectedDatasetQ.isSuccess &&
-    (!requiresOwnDataset || (
-      requiredDatasetOwnerId !== undefined &&
-      exportDatasetMatchesRequiredOwner(selectedDatasetQ.data, requiredDatasetOwnerId)
-    ));
-  const datasetSelectionPending =
-    selectedDatasetId !== null && selectedDatasetQ.isPending;
-  const datasetSelectionAlert = selectedDatasetId !== null && selectedDatasetQ.isError
-    ? {
-        title: t('exports.form.dataset_load_error.title'),
-        body: t('exports.form.dataset_load_error.body', { id: String(selectedDatasetId) }),
-      }
-    : requiresOwnDataset && selectedDatasetId !== null && selectedDatasetQ.isSuccess && !datasetSelectionAllowed
+    (!requiresOwnDataset ||
+      (requiredDatasetOwnerId !== undefined &&
+        exportDatasetMatchesRequiredOwner(selectedDatasetQ.data, requiredDatasetOwnerId)));
+  const datasetSelectionPending = selectedDatasetId !== null && selectedDatasetQ.isPending;
+  const datasetSelectionAlert =
+    selectedDatasetId !== null && selectedDatasetQ.isError
       ? {
-          title: t('scope.mismatch.title'),
-          body: t('scope.mismatch.body', {
-            object: t('object_kind.dataset'),
-            label: `“${String(selectedDatasetQ.data.full_name ?? selectedDatasetQ.data.name ?? `#${selectedDatasetId}`)}”`,
-          }),
+          title: t('exports.form.dataset_load_error.title'),
+          body: t('exports.form.dataset_load_error.body', { id: String(selectedDatasetId) }),
         }
-      : undefined;
+      : requiresOwnDataset && selectedDatasetId !== null && selectedDatasetQ.isSuccess && !datasetSelectionAllowed
+        ? {
+            title: t('scope.mismatch.title'),
+            body: t('scope.mismatch.body', {
+              object: t('object_kind.dataset'),
+              label: `“${String(selectedDatasetQ.data.full_name ?? selectedDatasetQ.data.name ?? `#${selectedDatasetId}`)}”`,
+            }),
+          }
+        : undefined;
 
   const snapshotsQ = useQuery({
     queryKey: ['datasets', selectedDatasetId, 'snapshots', 'export_create'],
+    retry: false,
     enabled: props.open && selectedDatasetId !== null && datasetSelectionAllowed,
     queryFn: async () => {
       if (selectedDatasetId === null) throw new Error('invalid dataset id');
-      return (await fetchDatasetSnapshots(selectedDatasetId, { limit: 100 })).data;
+      return fetchDatasetSnapshots(selectedDatasetId, { limit: 100, count: true });
     },
     staleTime: 15_000,
   });
 
   // A row selected on a later page may not be in the picker's first 100 results.
   // Keep that exact source visible instead of silently falling back to live data.
-  const snapshots = snapshotsQ.data ?? [];
-  const snapshotChoices = props.initialSnapshot && selectedDatasetId === props.fixedDatasetId &&
+  const snapshots = snapshotsQ.data?.data ?? [];
+  const snapshotCount = getMetaTotalCount(snapshotsQ.data?.meta);
+  const snapshotListIncomplete =
+    !!snapshotsQ.data && (snapshotCount === undefined || snapshotCount !== snapshots.length);
+  const allSnapshotsHref =
+    selectedDatasetId !== null && datasetSelectionAllowed
+      ? mode === 'admin'
+        ? `${basePath}/datasets/${selectedDatasetId}/snapshots`
+        : `${basePath}/backups?tab=snapshots&dataset=${selectedDatasetId}`
+      : undefined;
+  const snapshotChoices =
+    props.initialSnapshot &&
+    selectedDatasetId === props.fixedDatasetId &&
     !snapshots.some((snapshot) => snapshot.id === props.initialSnapshot?.id)
-    ? [props.initialSnapshot, ...snapshots]
-    : snapshots;
+      ? [props.initialSnapshot, ...snapshots]
+      : snapshots;
 
   const createM = useMutation({
     mutationFn: async (variables: ExportCreateMutationVariables) => {
@@ -129,9 +140,7 @@ export function ExportCreateDialog(props: {
         // The account has administrator API privileges even in /app. Re-check
         // ownership immediately before Create so a stale lookup result cannot
         // turn My view into a cross-user write.
-        const latestDataset = (
-          await fetchDataset(datasetId, { includes: 'user' })
-        ).data;
+        const latestDataset = (await fetchDataset(datasetId, { includes: 'user' })).data;
         if (!exportDatasetMatchesRequiredOwner(latestDataset, variables.requiredDatasetOwnerId)) {
           throw new Error(t('scope.mismatch.title'));
         }
@@ -188,17 +197,27 @@ export function ExportCreateDialog(props: {
       onFormChange={setForm}
       selectedDataset={selectedDatasetQ.data}
       snapshots={snapshotChoices}
+      snapshotsLoading={snapshotsQ.isFetching}
+      snapshotsFailed={snapshotsQ.isError}
+      snapshotsIncomplete={snapshotListIncomplete}
+      onSnapshotsRetry={() => void snapshotsQ.refetch()}
+      allSnapshotsHref={allSnapshotsHref}
       datasetSelectionAllowed={datasetSelectionAllowed}
       datasetSelectionPending={datasetSelectionPending}
       datasetSelectionAlert={datasetSelectionAlert}
       isAdmin={isAdminAccount}
+      accountId={auth.user?.id}
+      requiresOwnDataset={requiresOwnDataset}
+      requiredDatasetOwnerId={requiredDatasetOwnerId}
       pending={createM.isPending}
-      onSubmit={() => createM.mutate({
-        form: { ...form },
-        isAdminAccount,
-        requiresOwnDataset,
-        requiredDatasetOwnerId,
-      })}
+      onSubmit={() =>
+        createM.mutate({
+          form: { ...form },
+          isAdminAccount,
+          requiresOwnDataset,
+          requiredDatasetOwnerId,
+        })
+      }
     />
   );
 }
