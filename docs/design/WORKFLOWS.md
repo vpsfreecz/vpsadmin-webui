@@ -1877,3 +1877,15 @@ Distinguish explicit record TTL, null inheritance from the current validated zon
 
 Use a shorter introduction identifying the zone DNSKEY and DS for the parent zone. Keep full record text, clipboard values, requests and primary/secondary/error/empty handling unchanged. RFC4034 section5 supports the parent-zone distinction; this is not DNS publication or signing-status verification.
 [Scope and evidence](../work-log/2026-11-15-dns-dnssec-review.md).
+
+### Namespace controls: approved review NSP-01 through NSP-04
+
+Namespace and map lists share presentation, keeping their own API parameters,
+owner/role guards, numeric navigation, URL filters and pagination. Labeled Help
+and secondary Clear filters match the common list pattern. The placeholder says
+ID or filter; it does not promise unsupported free-text label search. Existing
+help retains supported keys and role-specific examples. Detail drops the generic
+quick-links subtitle and retains the actual View maps link and scope gate.
+Map Open remains a real link; Delete remains an explicit confirmation with its
+existing pending/error/retry behavior. New-map Cancel precedes Create in visual
+and tab order at the right edge. Creation payload and pending guard are unchanged.

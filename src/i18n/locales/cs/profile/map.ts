@@ -37,7 +37,7 @@ export const csProfile_map = {
   "userns.map.smart.help.keys.id": "Otevře detail mapy podle id.",
   "userns.map.smart.help.keys.namespace": "Filtr podle id jmenného prostoru.",
   "userns.map.smart.help.keys.user": "Filtr podle id vlastníka (jen v administraci).",
-  "userns.map.smart.placeholder": "#123, namespace:101…",
+  "userns.map.smart.placeholder": "ID nebo filtr…",
   "userns.map.smart.suggestion.open": "Otevřít mapu #{id}",
   "userns.map.smart.suggestion.open_hint": "Přejít na detail mapy",
   "userns.map.subtitle": "Upravit popisek a položky mapování.",

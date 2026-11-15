@@ -3007,3 +3007,10 @@ Distinguish explicit record TTL, null inheritance from the current validated zon
 
 Use a shorter introduction identifying the zone DNSKEY and DS for the parent zone. Keep full record text, clipboard values, requests and primary/secondary/error/empty handling unchanged. RFC4034 section5 supports the parent-zone distinction; this is not DNS publication or signing-status verification.
 [Prepared DNS-12 verification](docs/work-log/2026-11-15-dns-dnssec-review.md).
+
+## 2026-11-15 — Consistent namespace filters and map controls
+
+Implement approved NSP-01/02/03/04 on the existing namespace-map PR while
+preserving owner scope, supported filters, navigation and mutation safeguards.
+[Source, baseline evidence and verification](docs/work-log/2026-11-15-namespace-controls.md).
+Prepared; new-head qualification and paired preview delivery remain pending.
