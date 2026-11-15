@@ -57,6 +57,7 @@ export default defineConfig({
     {
       name: 'mobile-webkit',
       testMatch: [
+        '**/oom_reading_recovery.spec.ts',
         '**/incident_reading_acceptance.spec.ts',
         '**/monitoring_state_meaning.spec.ts',
         '**/monitoring_event_action_feedback.spec.ts',

@@ -139,6 +139,7 @@
     "e2e/specs/app/header_session_limit.spec.ts",
     "e2e/specs/app/incident_create_context.spec.ts",
     "e2e/specs/app/incident_create_permissions.spec.ts",
+    "e2e/specs/app/incident_reading_acceptance.spec.ts",
     "e2e/specs/app/incidents_responsive_layout.spec.ts",
     "e2e/specs/app/incidents_smart_filter.spec.ts",
     "e2e/specs/app/ip_addresses_environment_filter.spec.ts",
@@ -156,6 +157,7 @@
     "e2e/specs/app/modal_focus_trap.spec.ts",
     "e2e/specs/app/monitoring_event_action_feedback.spec.ts",
     "e2e/specs/app/monitoring_filter_rhythm.spec.ts",
+    "e2e/specs/app/monitoring_state_meaning.spec.ts",
     "e2e/specs/app/mutation_reconciliation_readability.spec.ts",
     "e2e/specs/app/nas_capacity_semantics.spec.ts",
     "e2e/specs/app/nas_form_consistency.spec.ts",
@@ -164,7 +166,9 @@
     "e2e/specs/app/networking_filter_rhythm.spec.ts",
     "e2e/specs/app/node_history.spec.ts",
     "e2e/specs/app/oom_filter_rhythm.spec.ts",
+    "e2e/specs/app/oom_reading_recovery.spec.ts",
     "e2e/specs/app/oom_refresh_context.spec.ts",
+    "e2e/specs/app/oom_report_cgroup_mobile_layout.spec.ts",
     "e2e/specs/app/oom_report_rules_mobile_actions.spec.ts",
     "e2e/specs/app/oom_report_tasks_mobile_layout.spec.ts",
     "e2e/specs/app/oom_report_tasks_pagination.spec.ts",
@@ -271,9 +275,7 @@
     "e2e/specs/public/overview_readability.spec.ts",
     "e2e/specs/public/theme_language_bootstrap.spec.ts",
     "e2e/specs/public/theme_switcher.spec.ts",
-    "src/types/vpsadmin.d.ts",
-    "e2e/specs/app/monitoring_state_meaning.spec.ts",
-    "e2e/specs/app/incident_reading_acceptance.spec.ts"
+    "src/types/vpsadmin.d.ts"
   ],
   "include": []
 }

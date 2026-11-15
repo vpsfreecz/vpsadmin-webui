@@ -64,6 +64,10 @@ export function ErrorState(props: {
   /** Optional "Open status" action. */
   showStatusLink?: boolean;
   statusTo?: string;
+  /** Optional visible destination name; default status label is preserved. */
+  statusLabel?: React.ReactNode;
+  /** Trailing recovery buttons keep native actions and disclosure semantics. */
+  actionsLayout?: 'default' | 'trailing';
 
   /** Optional details payload fields included in Copy details. */
   detailsExtra?: Record<string, unknown>;
@@ -96,6 +100,7 @@ export function ErrorState(props: {
   const showStatus =
     props.showStatusLink ?? (info.kind === 'network' || info.kind === 'server' || info.kind === 'unexpected');
 
+  const trailingActions = props.actionsLayout === 'trailing';
   const testId = props.testId;
   const retryTestId = testId ? `${testId}.retry` : undefined;
   const backTestId = testId ? `${testId}.back` : undefined;
@@ -150,7 +155,7 @@ export function ErrorState(props: {
         </div>
         <div className="mt-1 text-sm text-muted">{body}</div>
 
-        <div className="mt-4 flex flex-wrap items-center gap-2">
+        <div className={`mt-4 flex flex-wrap items-center gap-2${trailingActions ? ' justify-end' : ''}`}>
           {compatActions ? (
             compatActions
           ) : (
@@ -172,8 +177,12 @@ export function ErrorState(props: {
               ) : null}
 
               {showStatus ? (
-                <LinkButton testId={statusTestId} to={props.statusTo ?? '/'} variant="ghost">
-                  {t('nav.status')}
+                <LinkButton
+                  testId={statusTestId}
+                  to={props.statusTo ?? '/'}
+                  variant={trailingActions ? 'secondary' : 'ghost'}
+                >
+                  {props.statusLabel ?? t('nav.status')}
                 </LinkButton>
               ) : null}
             </>
@@ -184,7 +193,7 @@ export function ErrorState(props: {
               testId={copyTestId}
               text={details.text}
               label={t('common.copy_details')}
-              variant="ghost"
+              variant={trailingActions ? 'secondary' : 'ghost'}
               size="md"
             />
           ) : null}

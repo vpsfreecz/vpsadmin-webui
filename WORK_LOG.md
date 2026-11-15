@@ -1,5 +1,11 @@
 ## 2026-11-15 — Explain monitoring state deadlines and decisions
 
+## 2026-11-15 — Kernel OOM reading and recovery
+
+Approved OOM-01/02: clarify kernel reports, retain unique Summary diagnostics,
+and align native process-read recovery controls. Working only; see
+[scope, compatibility and evidence limits](docs/work-log/2026-11-15-oom-reading-recovery.md).
+
 ## 2026-11-15 — Readable incident filters and complete reports
 
 Approved INC-01/02: short growing smart field, visible44px Help/Advanced

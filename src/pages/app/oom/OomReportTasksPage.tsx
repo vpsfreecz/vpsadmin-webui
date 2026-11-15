@@ -38,14 +38,22 @@ export function OomReportTasksPage() {
     allowedLimits: [25, 50, 100],
   });
   const tasksQ = useQuery({
-    queryKey: ['oom_reports', report.id, 'tasks', { scope: basePath, fromId: pagination.fromId, limit: pagination.limit }],
-    queryFn: async ({ signal }) => (await fetchOomReportTasks(report.id, {
-      // One look-ahead row keeps an exactly full last page from exposing an
-      // empty Next page. All supported sizes remain below the API's 1000 cap.
-      limit: pagination.limit + 1,
-      fromId: pagination.fromId,
-      signal,
-    })).data,
+    queryKey: [
+      'oom_reports',
+      report.id,
+      'tasks',
+      { scope: basePath, fromId: pagination.fromId, limit: pagination.limit },
+    ],
+    queryFn: async ({ signal }) =>
+      (
+        await fetchOomReportTasks(report.id, {
+          // One look-ahead row keeps an exactly full last page from exposing an
+          // empty Next page. All supported sizes remain below the API's 1000 cap.
+          limit: pagination.limit + 1,
+          fromId: pagination.fromId,
+          signal,
+        })
+      ).data,
   });
   const pageData = tasksQ.data ?? [];
   const tasks = pageData.slice(0, pagination.limit);
@@ -60,7 +68,14 @@ export function OomReportTasksPage() {
         {tasksQ.isLoading ? (
           <LoadingState />
         ) : tasksQ.isError ? (
-          <ErrorState title={t('oom.detail.tasks.error')} error={tasksQ.error} onRetry={() => void tasksQ.refetch()} />
+          <ErrorState
+            title={t('oom.detail.tasks.error')}
+            error={tasksQ.error}
+            onRetry={() => void tasksQ.refetch()}
+            actionsLayout="trailing"
+            statusLabel={t('oom.detail.tasks.status_link')}
+            testId="oom.detail.tasks.error"
+          />
         ) : tasks.length === 0 ? (
           <div className="text-sm text-muted">{t('oom.detail.tasks.empty')}</div>
         ) : (
