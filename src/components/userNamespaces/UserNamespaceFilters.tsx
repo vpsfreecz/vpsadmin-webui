@@ -27,19 +27,19 @@ export function UserNamespaceFilters(props: {
 
   return (
     <FilterBar testId={`${props.testIdPrefix}.filters`}>
-      <div className="flex min-w-0 basis-full items-center gap-2 lg:basis-0 lg:flex-1">
-        <div className="min-w-0 flex-1">
-          <SmartFilterInput
-            ref={props.inputRef}
-            testId={`${props.testIdPrefix}.search.input`}
-            ariaLabel={props.ariaLabel}
-            placeholder={props.placeholder}
-            value={props.value}
-            onChange={props.onChange}
-            onSubmit={props.onSubmit}
-            suggestions={props.suggestions}
-          />
-        </div>
+      <div className="min-w-0 basis-full lg:basis-0 lg:flex-1">
+        <SmartFilterInput
+          ref={props.inputRef}
+          testId={`${props.testIdPrefix}.search.input`}
+          ariaLabel={props.ariaLabel}
+          placeholder={props.placeholder}
+          value={props.value}
+          onChange={props.onChange}
+          onSubmit={props.onSubmit}
+          suggestions={props.suggestions}
+        />
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
         <Button
           variant="secondary"
           size="sm"
@@ -50,8 +50,6 @@ export function UserNamespaceFilters(props: {
           <CircleHelp className="h-4 w-4" />
           {t('filters.help.open')}
         </Button>
-      </div>
-      <div className="flex flex-wrap items-center gap-2">
         <Button
           variant="secondary"
           size="sm"

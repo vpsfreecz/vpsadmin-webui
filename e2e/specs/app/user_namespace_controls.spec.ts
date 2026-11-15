@@ -1,4 +1,4 @@
-import type { Locator } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 
 import { expect, test } from '../../fixtures/bootstrap';
 import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
@@ -10,6 +10,20 @@ async function expectTouchSize(control: Locator) {
   expect(rect).not.toBeNull();
   expect(rect?.height).toBeGreaterThanOrEqual(44);
   expect(rect?.width).toBeGreaterThanOrEqual(44);
+}
+
+async function expectNarrowSmartField(page: Page, field: Locator) {
+  const viewport = page.viewportSize();
+  await page.setViewportSize({ width: 320, height: 1000 });
+  const bounds = await field.boundingBox();
+  expect(bounds).not.toBeNull();
+  expect(bounds?.width).toBeGreaterThanOrEqual(200);
+  await expectNoDocumentHorizontalOverflow(page);
+  if (process.env['AUDIT_CLEAN_CAPTURE'] === '1') {
+    const name = await field.getAttribute('data-testid');
+    await page.screenshot({ path: test.info().outputPath(`${name}-minimum-width.png`), fullPage: true });
+  }
+  if (viewport) await page.setViewportSize(viewport);
 }
 
 async function expectReadableButton(control: Locator) {
@@ -86,6 +100,7 @@ for (const role of ['member', 'support', 'admin'] as const) {
       await expect(page.getByTestId(prefix + '.namespaces.row.22')).toBeVisible();
       const input = page.getByTestId(prefix + '.namespaces.search.input');
       await expect(input).toHaveAttribute('placeholder', language === 'cs' ? 'ID nebo filtr…' : 'ID or filter…');
+      await expectNarrowSmartField(page, input);
       const help = page.getByTestId(prefix + '.namespaces.smart.help_button');
       await expect(help).toHaveText(language === 'cs' ? 'Nápověda' : 'Help');
       await help.focus();
@@ -146,6 +161,7 @@ for (const role of ['member', 'support', 'admin'] as const) {
       await page.getByTestId(prefix + '.maps.filters.clear').click();
       await expect(page.getByTestId(prefix + '.maps.row.72')).toBeVisible();
       const mapInput = page.getByTestId(prefix + '.maps.search.input');
+      await expectNarrowSmartField(page, mapInput);
       await mapInput.fill('namespace:21');
       await mapInput.press('Enter');
       await expect(page.getByTestId(prefix + '.maps.row.72')).toHaveCount(0);
