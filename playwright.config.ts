@@ -57,6 +57,8 @@ export default defineConfig({
     {
       name: 'mobile-webkit',
       testMatch: [
+        '**/monitoring_state_meaning.spec.ts',
+        '**/monitoring_event_action_feedback.spec.ts',
         '**/dns_records_crud.spec.ts',
         '**/dnssec_introduction.spec.ts',
         '**/dns_inherited_ttl.spec.ts',
