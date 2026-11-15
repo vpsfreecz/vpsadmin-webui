@@ -110,6 +110,7 @@ export function DnsZoneCreateModal(props: {
       onClose={props.onClose}
       title={t('dns.zones.create.title')}
       testId="dns.zones.create.modal"
+      verticalAlign="start"
       footer={
         <div className="flex items-center justify-end gap-2">
           <Button

@@ -198,6 +198,11 @@ public idle loading, page drafts, failure recovery and the console exemption.
 
 ### Centered forms and filters
 
+The approved DNS-zone creation exception keeps a stable top viewport inset
+when switching between primary and secondary fields. It remains horizontally
+centered with bounded body scrolling and reachable footer actions. Other forms
+keep the default vertical centering; see approved DNS-05 / REQ-049.
+
 Creation/editing forms and advanced filters use the shared centered `Modal`,
 including user-data templates/deployment, exports/hosts, user editing and
 namespace maps. Use content-sized dialog height bounded by the visual viewport,

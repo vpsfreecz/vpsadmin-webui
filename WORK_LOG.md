@@ -1,3 +1,10 @@
+## 2026-11-15 — Anchor the changing DNS-zone creation form
+
+Prepare approved DNS-05 / REQ-049: retain a stable top viewport inset while
+switching primary/secondary fields, preserving default centered dialogs and
+all form contracts. [Scope and baseline](docs/work-log/2026-11-15-dns-zone-dialog-position.md).
+Prepared only; exact checks/CI/preview delivery remain separate.
+
 ## 2026-11-15 — Explain verified export conflicts
 
 Reproduce a duplicate export with new isolated dev objects and add persistent,

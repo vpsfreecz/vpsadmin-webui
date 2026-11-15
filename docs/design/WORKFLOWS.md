@@ -591,6 +591,12 @@ backend blocker. [Datasets](../../src/lib/api/datasets.ts),
 
 ## DNS and networking
 
+DNS-zone creation keeps a stable top inset as primary/secondary fields change.
+The form remains horizontally centered, bounds its height to the visual viewport
+and scrolls its body while retaining the footer, focus/close behavior, draft
+values and existing Create/role contracts. Other Modal callers retain their
+default vertical centering (approved DNS-05 / REQ-049).
+
 For secondary zones, the list and detail show DNSSEC management on the primary
 server; the local enable flag cannot establish the transferred zone's signing
 status. Settings explains that boundary and omits the signing checkbox and
