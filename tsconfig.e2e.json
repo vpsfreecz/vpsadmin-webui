@@ -119,7 +119,8 @@
     "e2e/specs/public/overview_readability.spec.ts",
     "e2e/specs/public/theme_language_bootstrap.spec.ts",
     "e2e/specs/public/theme_switcher.spec.ts",
-    "src/types/vpsadmin.d.ts"
+    "src/types/vpsadmin.d.ts",
+    "e2e/specs/app/monitoring_state_meaning.spec.ts"
   ],
   "include": []
 }
