@@ -80,6 +80,7 @@ export default defineConfig({
         '**/export_list_containment.spec.ts',
         '**/export_dataset_selection.spec.ts',
         '**/nas_capacity_semantics.spec.ts',
+        '**/nas_smoke.spec.ts',
         '**/nas_form_consistency.spec.ts',
         '**/danger_button_contrast.spec.ts',
         '**/profile_preference_sync_error.spec.ts',

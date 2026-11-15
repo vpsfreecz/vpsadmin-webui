@@ -3060,3 +3060,12 @@ Prepared; new-head qualification and paired preview delivery remain pending.
 ## 2026-11-15 — Network chart orientation
 
 [Approved NET-14 scope and verification limits](docs/work-log/2026-11-15-network-chart-orientation.md).
+
+## 2026-11-15 — Align the NAS smoke test with explicit quota semantics
+
+The final deployed-dev audit found an obsolete smoke assertion deriving a quota
+bar from used plus available space. REQ-048 deliberately removed that inference.
+Keep missing limits unknown, retain numeric usage and strengthen the smoke test;
+promote the complete file to strict TypeScript and mobile WebKit coverage.
+See the [scope, preserved checks and limits](docs/work-log/2026-11-15-nas-smoke-quota-contract.md).
+Test maintenance in existing draft PR270; no product or API behavior changes.

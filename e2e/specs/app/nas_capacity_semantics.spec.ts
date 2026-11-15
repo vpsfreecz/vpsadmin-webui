@@ -150,10 +150,12 @@ for (const actor of actors)
               const label = language === 'cs' ? 'Referenční kvóta' : 'Reference quota';
               await expect(root.getByText(label, { exact: true })).toHaveCount(1);
             } else {
-              await expect(root.getByRole('link', { name: '318', exact: true })).toHaveAttribute(
-                'href',
-                actor.base + '/nas/10'
-              );
+              await expect(
+                root.getByRole('link', {
+                  name: width === 320 ? (language === 'cs' ? 'Název datasetu: 318' : 'Dataset name: 318') : '318',
+                  exact: true,
+                })
+              ).toHaveAttribute('href', actor.base + '/nas/10');
             }
             expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
             observations.push({
