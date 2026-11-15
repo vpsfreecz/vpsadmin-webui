@@ -1012,3 +1012,15 @@ filter snapshot as the list request, even before a router transition publishes
 new search params. URL hydration and automatic cursor normalization continue to
 follow the router for Back/Forward. Owner-scope and API contracts remain unchanged.
 See [the reproduced race](../work-log/2026-11-09-oom-pending-filter-navigation.md).
+
+### Namespace controls: approved review NSP-01 through NSP-04
+
+Namespace and map lists share presentation, keeping their own API parameters,
+owner/role guards, numeric navigation, URL filters and pagination. Labeled Help
+and secondary Clear filters match the common list pattern. The placeholder says
+ID or filter; it does not promise unsupported free-text label search. Existing
+help retains supported keys and role-specific examples. Detail drops the generic
+quick-links subtitle and retains the actual View maps link and scope gate.
+Map Open remains a real link; Delete remains an explicit confirmation with its
+existing pending/error/retry behavior. New-map Cancel precedes Create in visual
+and tab order at the right edge. Creation payload and pending guard are unchanged.

@@ -1694,3 +1694,10 @@ Prepare approved UX-04 / REQ-010. See the
 
 Correct the reproduced Next/page-size URL race without changing owner scope.
 [Scope, root cause and evidence](docs/work-log/2026-11-09-oom-pending-filter-navigation.md).
+
+## 2026-11-15 — Consistent namespace filters and map controls
+
+Implement approved NSP-01/02/03/04 on the existing namespace-map PR while
+preserving owner scope, supported filters, navigation and mutation safeguards.
+[Source, baseline evidence and verification](docs/work-log/2026-11-15-namespace-controls.md).
+Prepared; new-head qualification and paired preview delivery remain pending.
