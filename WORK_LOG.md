@@ -1,3 +1,7 @@
+## 2026-11-09 — Readable preference synchronization errors
+
+[Scope and verification](docs/work-log/2026-11-09-profile-preference-sync-readability.md).
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path
@@ -1685,3 +1689,7 @@ preserve all branch histories and colleague PRs. Add standard push CI for the
 integration branch, without deployment automation. Dev has isolated test data;
 clankerdev still uses the production API. No host update in this setup.
 [Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
+
+## 2026-11-15 — ACC-05 account follow-up
+
+[Place each preference description below its associated control, in the same named and described group](docs/work-log/2026-11-15-account-preference-description.md). Prepared; qualification and delivery pending.

@@ -55,6 +55,7 @@ export default defineConfig({
     {
       name: 'mobile-webkit',
       testMatch: [
+        '**/profile_preference_sync_error.spec.ts',
         '**/about.spec.ts',
         '**/theme_switcher.spec.ts',
         '**/news_language_switch.spec.ts',
@@ -74,6 +75,7 @@ export default defineConfig({
         '**/admin_dashboard.spec.ts',
         '**/sidebar_status.spec.ts',
         '**/profile_user_data.spec.ts',
+        '**/preference_description.spec.ts',
         '**/centered_dialogs.spec.ts',
 
         '**/vps_expiration_reactivation.spec.ts',
