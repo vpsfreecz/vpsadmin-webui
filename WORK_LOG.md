@@ -1712,3 +1712,12 @@ and mobile WebKit,2workers/0retries; both pinned quick/build checks pass.
 Model and six-example unit source remain byte-identical to the prior
 verified source; no new unit execution is claimed here. New clean Nix,
 full56 browser acceptance, images and fresh exact-head CI remain pending.
+
+## 2026-11-15 — Align the NAS smoke test with explicit quota semantics
+
+The final deployed-dev audit found an obsolete smoke assertion deriving a quota
+bar from used plus available space. REQ-048 deliberately removed that inference.
+Keep missing limits unknown, retain numeric usage and strengthen the smoke test;
+promote the complete file to strict TypeScript and mobile WebKit coverage.
+See the [scope, preserved checks and limits](docs/work-log/2026-11-15-nas-smoke-quota-contract.md).
+Test maintenance in existing draft PR270; no product or API behavior changes.
