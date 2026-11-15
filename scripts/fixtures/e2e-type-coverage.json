@@ -40,6 +40,8 @@
     "e2e/specs/app/centered_dialogs.spec.ts",
     "e2e/specs/app/command_palette.spec.ts",
     "e2e/specs/app/dataset_snapshot_confirm_workflows.spec.ts",
+    "e2e/specs/app/dns_inherited_ttl.spec.ts",
+    "e2e/specs/app/dns_records_crud.spec.ts",
     "e2e/specs/app/export_hosts_responsive_actions.spec.ts",
     "e2e/specs/app/exports_filter_contract.spec.ts",
     "e2e/specs/app/filter_bar_chip_alignment.spec.ts",
@@ -784,13 +786,6 @@
     {
       "path": "e2e/specs/app/dns_record_type_capabilities.spec.ts",
       "sha256": "473eb3c31a54ed137bdeb71492b0063fdadcbaf99897669348157eb8d53e1dbe",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/app/dns_records_crud.spec.ts",
-      "sha256": "487d88f0883a82bdee1ae881187a06b9400efd889b5ea0e6a63aef6bd12443ef",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."

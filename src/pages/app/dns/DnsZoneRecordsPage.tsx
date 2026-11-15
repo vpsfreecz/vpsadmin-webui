@@ -343,6 +343,7 @@ function PrimaryDnsZoneRecordsPage() {
       ) : (
         <DnsRecordsList
           rows={rows}
+          zoneDefaultTtl={zone.default_ttl}
           validationById={validationById}
           rowErrors={rowErrors}
           updateGate={updateGate}
@@ -354,6 +355,7 @@ function PrimaryDnsZoneRecordsPage() {
 
       <DnsRecordEditorModal
         mode="create"
+        zoneDefaultTtl={zone.default_ttl}
         open={createOpen}
         draft={createDraft}
         validation={createValidation}
@@ -371,6 +373,7 @@ function PrimaryDnsZoneRecordsPage() {
 
       <DnsRecordEditorModal
         mode="edit"
+        zoneDefaultTtl={zone.default_ttl}
         open={edit !== null}
         draft={editDraft}
         validation={editValidation}
