@@ -37,7 +37,7 @@ export const enProfile_map = {
   "userns.map.smart.help.keys.id": "Open map detail by id.",
   "userns.map.smart.help.keys.namespace": "Filter by namespace id.",
   "userns.map.smart.help.keys.user": "Filter by owner id (admin only).",
-  "userns.map.smart.placeholder": "#123, namespace:101…",
+  "userns.map.smart.placeholder": "ID or filter…",
   "userns.map.smart.suggestion.open": "Open map #{id}",
   "userns.map.smart.suggestion.open_hint": "Open map detail",
   "userns.map.subtitle": "Edit label and mapping entries.",

@@ -83,13 +83,17 @@ async function setupOomApi(page: Page, options: OomMockOptions): Promise<OomList
         const requestRecord: OomListRequest = { url: request.toString(), includes, fields };
         requests.push(requestRecord);
 
-        if (!options.allowArbitraryUser && options.expectedImplicitUserId === undefined && fields.user !== undefined) {
-          throw new Error(`Owner-scoped OOM request must not send oom_report[user], got ${fields.user}`);
+        if (
+          !options.allowArbitraryUser &&
+          options.expectedImplicitUserId === undefined &&
+          fields['user'] !== undefined
+        ) {
+          throw new Error(`Owner-scoped OOM request must not send oom_report[user], got ${fields['user']}`);
         }
 
-        if (options.expectedImplicitUserId !== undefined && fields.user !== String(options.expectedImplicitUserId)) {
+        if (options.expectedImplicitUserId !== undefined && fields['user'] !== String(options.expectedImplicitUserId)) {
           throw new Error(
-            `Expected implicit oom_report[user]=${options.expectedImplicitUserId}, got ${fields.user ?? '<missing>'}`
+            `Expected implicit oom_report[user]=${options.expectedImplicitUserId}, got ${fields['user'] ?? '<missing>'}`
           );
         }
 
@@ -100,9 +104,9 @@ async function setupOomApi(page: Page, options: OomMockOptions): Promise<OomList
           );
         }
 
-        const limit = Number(fields.limit ?? '25') || 25;
-        const fromId = fields.from_id ? Number(fields.from_id) : 0;
-        const cgroup = fields.cgroup ?? '/default.slice';
+        const limit = Number(fields['limit'] ?? '25') || 25;
+        const fromId = fields['from_id'] ? Number(fields['from_id']) : 0;
+        const cgroup = fields['cgroup'] ?? '/default.slice';
         const responseLimit = fromId === 0 ? (options.firstPageResponseLimit?.() ?? limit) : limit;
 
         const oom_reports = reportIds
@@ -155,9 +159,7 @@ async function setupOomApi(page: Page, options: OomMockOptions): Promise<OomList
 }
 
 function reportSurface(page: Page, testInfo: TestInfo, id: number) {
-  return page.getByTestId(
-    testInfo.project.name.includes('mobile') ? `oom.list.card.${id}` : `oom.list.row.${id}`
-  );
+  return page.getByTestId(testInfo.project.name.includes('mobile') ? `oom.list.card.${id}` : `oom.list.row.${id}`);
 }
 
 function lastRequest(requests: OomListRequest[]): OomListRequest {
@@ -233,9 +235,7 @@ test.describe('OOM report list filter contract', () => {
       includeUserRelation: true,
     });
 
-    await page.goto(
-      withAppUrl('/admin/oom-reports?q=nginx&from_id=101&page=2&limit=25&cgroup=%2Fpreserved.slice')
-    );
+    await page.goto(withAppUrl('/admin/oom-reports?q=nginx&from_id=101&page=2&limit=25&cgroup=%2Fpreserved.slice'));
 
     await expect.poll(() => requests.length).toBeGreaterThan(0);
     expect(requests[0]?.fields).toMatchObject({ limit: '26', cgroup: '/preserved.slice' });
@@ -265,7 +265,7 @@ test.describe('OOM report list filter contract', () => {
     );
     await input.press('Enter');
 
-    await expect.poll(() => lastRequest(requests).fields.cgroup).toBe('/system.slice');
+    await expect.poll(() => lastRequest(requests).fields['cgroup']).toBe('/system.slice');
 
     const exactRequest = lastRequest(requests);
     expect(exactRequest.fields).toMatchObject({
@@ -278,8 +278,8 @@ test.describe('OOM report list filter contract', () => {
       oom_report_rule: '6',
       cgroup: '/system.slice',
     });
-    expect(exactRequest.fields.since).toBeTruthy();
-    expect(exactRequest.fields.until).toBeTruthy();
+    expect(exactRequest.fields['since']).toBeTruthy();
+    expect(exactRequest.fields['until']).toBeTruthy();
     expect(exactRequest.fields).not.toHaveProperty('from_id');
     await expect(reportSurface(page, testInfo, 125)).toContainText('/system.slice');
 
@@ -296,6 +296,23 @@ test.describe('OOM report list filter contract', () => {
       cgroup: '/system.slice',
     });
 
+    const paginatedUrl = new URL(page.url());
+    for (const [key, value] of Object.entries({
+      vps: '7',
+      user: '42',
+      node: '1',
+      location: '1',
+      environment: '1',
+      oom_report_rule: '6',
+      cgroup: '/system.slice',
+      since: '2026-03-01T00:00',
+      until: '2026-03-02T23:59',
+      from_id: '101',
+      page: '2',
+      limit: '25',
+    }))
+      expect(paginatedUrl.searchParams.get(key), key).toBe(value);
+
     const pushCgroupHistory = async (cgroup: string) => {
       await page.evaluate((nextCgroup) => {
         const next = new URL(window.location.href);
@@ -305,7 +322,7 @@ test.describe('OOM report list filter contract', () => {
         window.history.pushState({}, '', `${next.pathname}?${next.searchParams.toString()}`);
         window.dispatchEvent(new PopStateEvent('popstate'));
       }, cgroup);
-      await expect.poll(() => lastRequest(requests).fields.cgroup).toBe(cgroup);
+      await expect.poll(() => lastRequest(requests).fields['cgroup']).toBe(cgroup);
       await expect(reportSurface(page, testInfo, 125)).toContainText(cgroup);
     };
 
@@ -385,8 +402,18 @@ test.describe('OOM report list filter contract', () => {
   });
 
   for (const account of [
-    { name: 'regular user', path: '/app/oom-reports', user: { id: 7, login: 'member', level: 1 }, ownerLabel: 'member' },
-    { name: 'support My view', path: '/app/oom-reports', user: { id: 21, login: 'support', level: 30 }, ownerLabel: 'support-mine' },
+    {
+      name: 'regular user',
+      path: '/app/oom-reports',
+      user: { id: 7, login: 'member', level: 1 },
+      ownerLabel: 'member',
+    },
+    {
+      name: 'support My view',
+      path: '/app/oom-reports',
+      user: { id: 21, login: 'support', level: 30 },
+      ownerLabel: 'support-mine',
+    },
   ]) {
     test(`@pr-smoke @pr-smoke-mobile ${account.name} relies on backend owner scope without a user parameter`, async ({
       page,
