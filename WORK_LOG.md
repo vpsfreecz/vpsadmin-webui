@@ -1,3 +1,11 @@
+## 2026-11-15 — Distinguish DNS configuration and server reports
+
+Prepare approved DNS-06/07/08/13 / REQ-049: separate counters, node observations
+and transfer events; put secondary reports first and preserve full server
+identity, unknown states and existing action contracts. Improve CS/EN transfer
+wording. [Scope and source evidence](docs/work-log/2026-11-15-dns-zone-server-reports.md).
+Prepared working change; exact checks, CI and delivery remain separate.
+
 ## 2026-11-15 — Anchor the changing DNS-zone creation form
 
 Prepare approved DNS-05 / REQ-049: retain a stable top viewport inset while

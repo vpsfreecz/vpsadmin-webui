@@ -534,3 +534,29 @@ This is a presentation change, with no API adapter/payload/permission/lock chang
 Actual deployed cff desktopChromium/mobileWebKit both showed the raw English
 reason inside the dialog; no visibility regression was invented. Real fixture
 cleanup and final candidate/release qualification remain separately required.
+
+
+## DNS configuration counters and server reports
+
+Approved DNS-06/07/08/13 / REQ-049, inspected API22adc8b54d464e0f899550746b69181930da80fd.
+`DnsZone.serial` is a stored unsigned configuration counter (schema default1),
+incremented by record operations. Zone creation does not query an external
+primary to populate it. `Supervisor::Node::DnsStatus` independently updates
+`DnsServerZone.serial`, load/refresh/expiration and `last_check_at` from node
+reports. Those timestamps and serials are observations, not proof of current
+availability or complete DNS publication. Zero is a valid serial; no numeric
+ordering or equality is used to infer readiness.
+
+`Supervisor::Node::DnsTransferLog` maintains the latest transfer event by its
+event time. A previous failure can coexist with a later loaded-zone report;
+show the event result/time separately. Keep known reason-code translations and
+unrecognized diagnostics without manufacturing a failure from absent evidence.
+Nonadministrator reads of internally sourced zones mask transfer-event fields;
+no new privileged read or readiness endpoint is introduced. Existing owner and
+hidden-server restrictions remain authoritative.
+
+The secondary report keeps its existing first100 server-zone read. The Servers
+tab retains its own50-row keyset pagination and administrator-only mutation
+callbacks. Query keys, filters, limits, Create/Delete payloads, task tracking,
+preflight and local locks remain unchanged. Presentation does not incorporate
+the separate PR219 API/SDK readiness proposal or require API activation.

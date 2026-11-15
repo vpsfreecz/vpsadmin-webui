@@ -8,13 +8,14 @@ import { CopyButton } from '../../../components/ui/CopyButton';
 import { KeysetPagination } from '../../../components/ui/KeysetPagination';
 import type { DnsServerZone } from '../../../lib/api/dns';
 import { formatDateTime } from '../../../lib/format';
+import { dnsReportedSerialText } from './dnsSerialPresentation';
 
 export function dnsZoneServerName(row: DnsServerZone): string {
   const server = row.dns_server;
   return String(server?.name ?? (typeof server?.id === 'number' ? `#${server.id}` : '—'));
 }
 
-function zoneTypeLabel(value: unknown, t: (key: string) => string): string {
+export function dnsZoneServerRoleLabel(value: unknown, t: (key: string) => string): string {
   const type = String(value ?? '');
   if (type === 'primary_type' || type === 'primary') return t('dns.zone.servers.type.primary');
   if (type === 'secondary_type' || type === 'secondary') return t('dns.zone.servers.type.secondary');
@@ -33,7 +34,7 @@ function serverAddress(row: DnsServerZone, field: 'ipv4_addr' | 'ipv6_addr'): st
   return typeof value === 'string' && value.trim() !== '' ? value.trim() : null;
 }
 
-function ServerAddresses(props: { row: DnsServerZone; testIdPrefix: string }) {
+export function DnsZoneServerAddresses(props: { row: DnsServerZone; testIdPrefix: string }) {
   const { t } = useI18n();
 
   return (
@@ -95,47 +96,37 @@ export function DnsZoneServersList(props: {
           return (
             <Card key={row.id} testId={`dns.servers.card.${row.id}`}>
               <div className="min-w-0 p-4">
-                <div className="flex min-w-0 items-start justify-between gap-3">
+                <div className="flex min-w-0 flex-col items-start gap-3">
                   <div className="min-w-0">
                     <div className="break-all text-base font-semibold text-fg">{name}</div>
-                    <div className="mt-1 text-xs text-faint">#{row.id}</div>
-                    <ServerAddresses row={row} testIdPrefix={`dns.servers.card.${row.id}`} />
+                    <div className="mt-1 text-xs text-faint">{t('dns.zone.servers.assignment_id', { id: row.id })}</div>
+                    <DnsZoneServerAddresses row={row} testIdPrefix={`dns.servers.card.${row.id}`} />
                   </div>
-                  <Badge variant="neutral" className="shrink-0">
-                    {zoneTypeLabel(row.type, t)}
+                  <Badge variant="neutral" className="max-w-full whitespace-normal break-words">
+                    {dnsZoneServerRoleLabel(row.type, t)}
                   </Badge>
                 </div>
 
                 <dl className="mt-4 grid min-w-0 grid-cols-1 gap-3 text-sm sm:grid-cols-2">
                   <div className="min-w-0">
-                    <dt className="text-xs text-faint">{t('dns.zone.servers.table.serial')}</dt>
-                    <dd className="mt-1 break-all text-fg">
-                      {typeof row.serial === 'number' ? row.serial : t('common.na')}
-                    </dd>
+                    <dt className="text-xs text-faint">{t('dns.zone.servers.table.reported_serial')}</dt>
+                    <dd className="mt-1 break-all text-fg">{dnsReportedSerialText(row.serial, t)}</dd>
                   </div>
                   <div className="min-w-0">
                     <dt className="text-xs text-faint">{t('dns.zone.servers.table.loaded')}</dt>
-                    <dd className="mt-1 break-words text-fg">
-                      {dateTimeLabel(row.loaded_at, t('common.na'))}
-                    </dd>
+                    <dd className="mt-1 break-words text-fg">{dateTimeLabel(row.loaded_at, t('common.na'))}</dd>
                   </div>
                   <div className="min-w-0">
                     <dt className="text-xs text-faint">{t('dns.zone.servers.table.refresh')}</dt>
-                    <dd className="mt-1 break-words text-fg">
-                      {dateTimeLabel(row.refresh_at, t('common.na'))}
-                    </dd>
+                    <dd className="mt-1 break-words text-fg">{dateTimeLabel(row.refresh_at, t('common.na'))}</dd>
                   </div>
                   <div className="min-w-0">
                     <dt className="text-xs text-faint">{t('dns.zone.servers.table.expires')}</dt>
-                    <dd className="mt-1 break-words text-fg">
-                      {dateTimeLabel(row.expires_at, t('common.na'))}
-                    </dd>
+                    <dd className="mt-1 break-words text-fg">{dateTimeLabel(row.expires_at, t('common.na'))}</dd>
                   </div>
                   <div className="min-w-0 sm:col-span-2">
                     <dt className="text-xs text-faint">{t('dns.zone.servers.table.last_check')}</dt>
-                    <dd className="mt-1 break-words text-fg">
-                      {dateTimeLabel(row.last_check_at, t('common.na'))}
-                    </dd>
+                    <dd className="mt-1 break-words text-fg">{dateTimeLabel(row.last_check_at, t('common.na'))}</dd>
                   </div>
                 </dl>
 
@@ -168,7 +159,7 @@ export function DnsZoneServersList(props: {
               <tr className="text-left text-xs uppercase tracking-wide text-faint">
                 <th className="py-2 pl-4 pr-3">{t('dns.zone.servers.table.server')}</th>
                 <th className="py-2 pr-3">{t('dns.zone.servers.table.type')}</th>
-                <th className="py-2 pr-3">{t('dns.zone.servers.table.serial')}</th>
+                <th className="py-2 pr-3">{t('dns.zone.servers.table.reported_serial')}</th>
                 <th className="py-2 pr-3">{t('dns.zone.servers.table.loaded')}</th>
                 <th className="py-2 pr-3">{t('dns.zone.servers.table.refresh')}</th>
                 <th className="py-2 pr-3">{t('dns.zone.servers.table.expires')}</th>
@@ -180,11 +171,13 @@ export function DnsZoneServersList(props: {
               {props.rows.map((row) => (
                 <tr key={row.id} className="border-t border-border" data-testid={`dns.servers.row.${row.id}`}>
                   <td className="py-2 pl-4 pr-3 text-fg">
-                    <div className="font-medium">{dnsZoneServerName(row)}</div>
-                    <ServerAddresses row={row} testIdPrefix={`dns.servers.row.${row.id}`} />
+                    <div className="break-all font-medium">{dnsZoneServerName(row)}</div>
+                    <DnsZoneServerAddresses row={row} testIdPrefix={`dns.servers.row.${row.id}`} />
                   </td>
-                  <td className="py-2 pr-3"><Badge variant="neutral">{zoneTypeLabel(row.type, t)}</Badge></td>
-                  <td className="py-2 pr-3">{typeof row.serial === 'number' ? row.serial : t('common.na')}</td>
+                  <td className="py-2 pr-3">
+                    <Badge variant="neutral">{dnsZoneServerRoleLabel(row.type, t)}</Badge>
+                  </td>
+                  <td className="py-2 pr-3">{dnsReportedSerialText(row.serial, t)}</td>
                   <td className="py-2 pr-3">{dateTimeLabel(row.loaded_at, t('common.na'))}</td>
                   <td className="py-2 pr-3">{dateTimeLabel(row.refresh_at, t('common.na'))}</td>
                   <td className="py-2 pr-3">{dateTimeLabel(row.expires_at, t('common.na'))}</td>
