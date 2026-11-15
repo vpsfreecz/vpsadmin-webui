@@ -6,6 +6,7 @@ import { withAppUrl } from '../../fixtures/url';
 const compactWidths = {
   chromium: [1024, 1152],
   'mobile-chrome': [768, 390, 320],
+  'mobile-webkit': [768, 390, 320],
 } as const;
 
 const expectedCells = [
@@ -46,7 +47,7 @@ test.beforeEach(async ({ page }) => {
         },
       }),
       'GET oom_reports/77/tasks': ({ searchParams }) => {
-        expect(searchParams.get('task[limit]')).toBe('2000');
+        expect(searchParams.get('task[limit]')).toBe('101');
         return {
           tasks: [
             {
@@ -123,13 +124,13 @@ test('@pr-smoke @pr-smoke-mobile keeps every OOM process field visible in narrow
         ),
         allCellsInsideCard: Boolean(
           cardRect &&
-            cellRects.length === 10 &&
-            cellRects.every((rect) => rect.left >= cardRect.left - 1 && rect.right <= cardRect.right + 1)
+          cellRects.length === 10 &&
+          cellRects.every((rect) => rect.left >= cardRect.left - 1 && rect.right <= cardRect.right + 1)
         ),
         allValuesInsideCard: Boolean(
           cardRect &&
-            valueRects.length === 10 &&
-            valueRects.every((rect) => rect.left >= cardRect.left - 1 && rect.right <= cardRect.right + 1)
+          valueRects.length === 10 &&
+          valueRects.every((rect) => rect.left >= cardRect.left - 1 && rect.right <= cardRect.right + 1)
         ),
       };
     });

@@ -3,8 +3,7 @@ import { setupHaveApiMock } from '../../fixtures/haveapi';
 import { setUiSettingsLocalStorage } from '../../fixtures/uiSettings';
 import { withAppUrl } from '../../fixtures/url';
 
-const cgroup =
-  '/system.slice/docker-0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef.scope';
+const cgroup = '/system.slice/docker-0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef.scope';
 
 test.beforeEach(async ({ page }) => {
   await setUiSettingsLocalStorage(page, { language: 'cs', sidebarCollapsed: false });
@@ -62,7 +61,8 @@ test('@pr-smoke @pr-smoke-mobile keeps long OOM cgroup paths inside the detail v
   const configureRules = page.getByTestId('oom.detail.rules');
   await expect(header).toBeVisible();
   await expect(summary).toBeVisible();
-  await expect(headerCgroup).toHaveText(cgroup);
+  await expect(headerCgroup).toHaveCount(0);
+  await expect(header).not.toContainText(cgroup);
   await expect(overviewCgroup).toHaveText(cgroup);
   await expect(ruleCgroup).toHaveText(cgroup);
 
@@ -80,7 +80,6 @@ test('@pr-smoke @pr-smoke-mobile keeps long OOM cgroup paths inside the detail v
       const header = document.querySelector<HTMLElement>('[data-testid="oom.detail.header"]');
       const summary = document.querySelector<HTMLElement>('[data-testid="oom.detail.overview.summary"]');
       const cgroupElements = [
-        document.querySelector<HTMLElement>('[data-testid="oom.detail.header.cgroup"]'),
         document.querySelector<HTMLElement>('[data-testid="oom.detail.overview.cgroup"]'),
         document.querySelector<HTMLElement>('[data-testid="oom.detail.overview.rule_cgroup"]'),
       ];

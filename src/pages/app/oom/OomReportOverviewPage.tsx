@@ -10,6 +10,7 @@ import { formatDateTime } from '../../../lib/format';
 import { formatKib } from '../../../lib/bytes';
 
 import { Badge } from '../../../components/ui/Badge';
+import { ChipLink } from '../../../components/ui/ChipLink';
 import { Card, CardBody, CardHeader } from '../../../components/ui/Card';
 import { ErrorState } from '../../../components/ui/ErrorState';
 import { LoadingState } from '../../../components/ui/LoadingState';
@@ -26,7 +27,7 @@ function ruleLabelKey(action?: string): string {
 }
 
 export function OomReportOverviewPage() {
-  const { report } = useOutletContext<OomReportOutletContext>();
+  const { report, overviewContext } = useOutletContext<OomReportOutletContext>();
   const { basePath } = useAppMode();
   const { t } = useI18n();
 
@@ -73,6 +74,27 @@ export function OomReportOverviewPage() {
         <CardHeader title={t('oom.detail.overview.summary_title')} />
         <CardBody>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div>
+              <div className="text-xs text-muted">{t('oom.field.created_at')}</div>
+              <div className="mt-0.5 text-sm">{overviewContext.createdAt}</div>
+            </div>
+            {overviewContext.vpsId ? (
+              <div>
+                <div className="text-xs text-muted">{t('common.vps')}</div>
+                <div className="mt-0.5 text-sm">
+                  <ChipLink to={`${basePath}/vps/${overviewContext.vpsId}`}>
+                    {overviewContext.vpsHost || `#${overviewContext.vpsId}`}
+                  </ChipLink>
+                </div>
+              </div>
+            ) : null}
+            {overviewContext.nodeName ? (
+              <div className="min-w-0">
+                <div className="text-xs text-muted">{t('oom.filter.node')}</div>
+                <div className="mt-0.5 break-all text-sm">{overviewContext.nodeName}</div>
+              </div>
+            ) : null}
+
             <div className="min-w-0">
               <div className="text-xs text-muted">{t('oom.field.cgroup')}</div>
               <div
@@ -100,7 +122,9 @@ export function OomReportOverviewPage() {
               <div className="text-xs text-muted">{t('oom.field.invoked_by')}</div>
               <div className="mt-0.5 text-sm">
                 {report.invoked_by_name ? String(report.invoked_by_name) : '—'}
-                {report.invoked_by_pid ? <span className="ml-1 font-mono text-xs">({report.invoked_by_pid})</span> : null}
+                {report.invoked_by_pid ? (
+                  <span className="ml-1 font-mono text-xs">({report.invoked_by_pid})</span>
+                ) : null}
               </div>
             </div>
 
@@ -111,7 +135,9 @@ export function OomReportOverviewPage() {
 
             <div>
               <div className="text-xs text-muted">{t('oom.field.reported_at')}</div>
-              <div className="mt-0.5 text-sm">{report.reported_at ? formatDateTime(report.reported_at) : t('common.na')}</div>
+              <div className="mt-0.5 text-sm">
+                {report.reported_at ? formatDateTime(report.reported_at) : t('common.na')}
+              </div>
             </div>
           </div>
         </CardBody>
@@ -123,7 +149,11 @@ export function OomReportOverviewPage() {
           {usagesQ.isLoading ? (
             <LoadingState />
           ) : usagesQ.isError ? (
-            <ErrorState title={t('oom.detail.overview.usages_error')} error={usagesQ.error} onRetry={() => void usagesQ.refetch()} />
+            <ErrorState
+              title={t('oom.detail.overview.usages_error')}
+              error={usagesQ.error}
+              onRetry={() => void usagesQ.refetch()}
+            />
           ) : (usagesQ.data ?? []).length === 0 ? (
             <div className="text-sm text-muted">{t('oom.detail.overview.usages_empty')}</div>
           ) : (

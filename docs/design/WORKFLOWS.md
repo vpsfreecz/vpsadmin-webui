@@ -1012,3 +1012,15 @@ filter snapshot as the list request, even before a router transition publishes
 new search params. URL hydration and automatic cursor normalization continue to
 follow the router for Back/Forward. Owner-scope and API contracts remain unchanged.
 See [the reproduced race](../work-log/2026-11-09-oom-pending-filter-navigation.md).
+
+## Kernel OOM reading and read-error recovery
+
+The kernel OOM list names its source explicitly. Detail uses one report heading;
+Summary retains distinct creation/reporting times, VPS/node, full cgroup,
+killed/invoking process, count and rule. Tabs retain usages, statistics and
+bounded process pages. Process-read errors align Retry, Back, Service overview
+and Copy details at the trailing edge. The overview link retains `/` and its
+existing authenticated redirect to `/app`; copying retains full diagnostics
+and Details remains a native keyboard disclosure. These are recovery/navigation actions, not process
+mutations. Other error surfaces retain default presentation. See the
+[approved OOM follow-up](../work-log/2026-11-15-oom-reading-recovery.md).

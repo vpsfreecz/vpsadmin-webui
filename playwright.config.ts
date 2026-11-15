@@ -55,6 +55,9 @@ export default defineConfig({
     {
       name: 'mobile-webkit',
       testMatch: [
+        '**/oom_reading_recovery.spec.ts',
+        '**/oom_report_tasks_pagination.spec.ts',
+        '**/oom_report_tasks_mobile_layout.spec.ts',
         '**/about.spec.ts',
         '**/theme_switcher.spec.ts',
         '**/news_language_switch.spec.ts',
