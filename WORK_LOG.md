@@ -1,5 +1,13 @@
 ## 2026-11-15 — Explain monitoring state deadlines and decisions
 
+## 2026-11-15 — Readable incident filters and complete reports
+
+Approved INC-01/02: short growing smart field, visible44px Help/Advanced
+controls, one detail summary and complete page-flow report text. Preserve
+role/query/navigation/payload contracts; no API or deployment activation yet.
+[Scope, actual baseline and verification limits](docs/work-log/2026-11-15-incident-filter-message.md).
+
+
 Approved MON-01/02 / REQ-051: explain state expiry, distinguish system
 confirmation and user acknowledgement, and describe actual ignore behavior.
 Keep API timing, scopes, callbacks and mutation safeguards unchanged.

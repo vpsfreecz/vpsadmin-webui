@@ -1,14 +1,13 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { CircleHelp, SlidersHorizontal } from 'lucide-react';
 
 import { useAppMode } from '../../../app/appMode';
 import { useAuth } from '../../../app/auth';
 import { useI18n } from '../../../app/i18n';
 import { useObjectScope } from '../../../app/objectScope';
 import { useToasts } from '../../../app/toasts';
-import { FilterBar } from '../../../components/layout/FilterBar';
+import { IncidentFilters } from '../../../components/incidents/IncidentFilters';
 import { ListShell } from '../../../components/layout/ListShell';
 import { PageHeader } from '../../../components/layout/PageHeader';
 import { searchUsers } from '../../../lib/api/users';
@@ -17,17 +16,11 @@ import { fetchIncidentReports } from '../../../lib/api/incidents';
 import { fetchMailboxes } from '../../../lib/api/mailer';
 import { formatDateTime } from '../../../lib/format';
 import { useKeysetPagination } from '../../../lib/hooks/useKeysetPagination';
-import {
-  parseNumericToken,
-  splitKeyValueToken,
-  tokenizeSmartInput,
-  unquoteSmartValue,
-} from '../../../lib/smartFilter';
+import { parseNumericToken, splitKeyValueToken, tokenizeSmartInput, unquoteSmartValue } from '../../../lib/smartFilter';
 
 import { Badge } from '../../../components/ui/Badge';
 import { Button } from '../../../components/ui/Button';
 import { ChipLink, MiniLink } from '../../../components/ui/ChipLink';
-import { CopyButton } from '../../../components/ui/CopyButton';
 import { Modal } from '../../../components/ui/Modal';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { ErrorState } from '../../../components/ui/ErrorState';
@@ -36,7 +29,7 @@ import { Input } from '../../../components/ui/Input';
 import { KeysetPagination } from '../../../components/ui/KeysetPagination';
 import { LoadingState } from '../../../components/ui/LoadingState';
 import { Select } from '../../../components/ui/Select';
-import { type SmartFilterSuggestion, SmartFilterInput } from '../../../components/ui/SmartFilterInput';
+import type { SmartFilterSuggestion } from '../../../components/ui/SmartFilterInput';
 import { SmartInputHelp } from '../../../components/ui/SmartInputHelp';
 import { StatusDot } from '../../../components/ui/StatusDot';
 import { TableCard } from '../../../components/ui/TableCard';
@@ -177,7 +170,22 @@ export function IncidentsPage() {
     }
 
     return next;
-  }, [activeSearchParams, assignment, assignmentId, codename, filedBy, filedById, ip, isAdmin, mailbox, mailboxId, user, userId, vps, vpsId]);
+  }, [
+    activeSearchParams,
+    assignment,
+    assignmentId,
+    codename,
+    filedBy,
+    filedById,
+    ip,
+    isAdmin,
+    mailbox,
+    mailboxId,
+    user,
+    userId,
+    vps,
+    vpsId,
+  ]);
 
   useEffect(() => {
     if (hydratingFiltersFromUrlRef.current) {
@@ -189,12 +197,12 @@ export function IncidentsPage() {
 
   const filtersActive = Boolean(
     vpsId ||
-      (isAdmin && userId) ||
-      (isAdmin && filedById) ||
-      ip.trim() ||
-      assignmentId ||
-      codename.trim() ||
-      (isAdmin && mailboxId)
+    (isAdmin && userId) ||
+    (isAdmin && filedById) ||
+    ip.trim() ||
+    assignmentId ||
+    codename.trim() ||
+    (isAdmin && mailboxId)
   );
   const hasFilterState = filtersActive || smartErrors.length > 0;
 
@@ -246,8 +254,7 @@ export function IncidentsPage() {
           ipAddressAssignmentId: assignmentId,
           codename: codename.trim() || undefined,
           mailboxId,
-          includes:
-            isAdmin ? 'user,vps,ip_address_assignment,filed_by,mailbox' : 'vps,ip_address_assignment,filed_by',
+          includes: isAdmin ? 'user,vps,ip_address_assignment,filed_by,mailbox' : 'vps,ip_address_assignment,filed_by',
         })
       ).data,
     enabled: !normalizedSearch.changed,
@@ -675,7 +682,12 @@ export function IncidentsPage() {
       meta={filtersActive ? <span className="text-xs text-faint">{t('list.meta.filters_active')}</span> : null}
       actions={
         isAdmin ? (
-          <Button variant="secondary" size="sm" to={incidentCreateHref(basePath, activeSearchParams, vpsId)} testId="incidents.list.new">
+          <Button
+            variant="secondary"
+            size="sm"
+            to={incidentCreateHref(basePath, activeSearchParams, vpsId)}
+            testId="incidents.list.new"
+          >
             {t('incidents.list.new')}
           </Button>
         ) : null
@@ -689,55 +701,18 @@ export function IncidentsPage() {
       header={header}
       filters={
         <>
-          <FilterBar testId="incidents.list.filters">
-            <SmartFilterInput
-              ref={smartInputRef}
-              value={smart}
-              onChange={setSmart}
-              placeholder={t('incidents.search.placeholder')}
-              ariaLabel={t('incidents.search.aria')}
-              testId="incidents.smart_filter.input"
-              suggestions={smartSuggestions}
-              onSubmit={() => void applySmartText(smart)}
-              suffix={
-                <Button className="h-11 min-w-11"
-                  type="button"
-                  variant="ghost"
-                  size="md"
-                  onClick={() => setHelpOpen(true)}
-                  ariaLabel={t('filters.help.open')}
-                  testId="incidents.smart_filter.help_btn"
-                >
-                  <CircleHelp className="h-4 w-4" aria-hidden />
-                </Button>
-              }
-            />
-
-            <Button className="h-11 min-w-11"
-              type="button"
-              variant="secondary"
-              size="md"
-              onClick={() => setAdvancedOpen(true)}
-              ariaLabel={t('filters.advanced.open')}
-              testId="incidents.filters.advanced"
-            >
-              <SlidersHorizontal className="h-4 w-4" aria-hidden />
-            </Button>
-
-            <CopyButton className="h-11 min-w-11"
-              text={shareUrl}
-              label={t('common.copy_link')}
-              size="md"
-              variant="secondary"
-              testId="incidents.filters.copy_link"
-            />
-
-            {hasFilterState ? (
-              <Button className="h-11 min-w-11" variant="secondary" size="md" onClick={clearFilters} testId="incidents.filters.clear">
-                {t('common.clear_filters')}
-              </Button>
-            ) : null}
-          </FilterBar>
+          <IncidentFilters
+            inputRef={smartInputRef}
+            value={smart}
+            onChange={setSmart}
+            suggestions={smartSuggestions}
+            onSubmit={() => void applySmartText(smart)}
+            onHelp={() => setHelpOpen(true)}
+            onAdvanced={() => setAdvancedOpen(true)}
+            shareUrl={shareUrl}
+            hasFilterState={hasFilterState}
+            onClear={clearFilters}
+          />
 
           {activeChips.length ? <div className="flex flex-wrap gap-2">{activeChips}</div> : null}
 
@@ -800,7 +775,9 @@ export function IncidentsPage() {
             testId="incidents.smart_help"
           />
 
-          <Modal showCloseButton closeTestId="drawer.close"
+          <Modal
+            showCloseButton
+            closeTestId="drawer.close"
             open={advancedOpen}
             onClose={() => setAdvancedOpen(false)}
             title={t('filters.advanced.title')}
@@ -912,7 +889,12 @@ export function IncidentsPage() {
                 </Button>
               ) : null}
 
-              <Button variant="primary" size="sm" onClick={() => setAdvancedOpen(false)} testId="incidents.advanced.done">
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => setAdvancedOpen(false)}
+                testId="incidents.advanced.done"
+              >
                 {t('common.done')}
               </Button>
             </div>
@@ -947,137 +929,137 @@ export function IncidentsPage() {
             tableClassName="table-fixed [overflow-wrap:anywhere]"
             tableTestId="incidents.list.table"
           >
-                <colgroup>
-                  <col className="w-8" />
-                  <col className="w-20" />
-                  <col className="w-1/8" />
-                  {isAdmin ? <col className="w-1/10" /> : null}
-                  <col className="w-1/8" />
-                  <col className="w-1/6" />
-                  <col />
-                  <col className="w-1/8" />
-                  {isAdmin ? <col className="w-1/10" /> : null}
-                </colgroup>
-                <thead>
-                  <tr className="border-b border-border text-left text-xs text-muted">
-                    <th className="w-8 px-2 py-2" aria-label={t('common.state')} />
-                    <th className="px-3 py-2">{t('common.id')}</th>
-                    <th className="px-3 py-2">{t('incidents.field.detected_at')}</th>
-                    {isAdmin ? <th className="px-3 py-2">{t('common.user')}</th> : null}
-                    <th className="px-3 py-2">{t('common.vps')}</th>
-                    <th className="px-3 py-2">{t('incidents.field.ip')}</th>
-                    <th className="px-3 py-2">{t('incidents.field.subject')}</th>
-                    <th className="px-3 py-2">{t('incidents.field.codename')}</th>
-                    {isAdmin ? <th className="px-3 py-2">{t('incidents.field.filed_by')}</th> : null}
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map((r) => {
-                    const to = `${basePath}/incidents/${r.id}`;
-                    const det = formatDateTime(r.detected_at);
+            <colgroup>
+              <col className="w-8" />
+              <col className="w-20" />
+              <col className="w-1/8" />
+              {isAdmin ? <col className="w-1/10" /> : null}
+              <col className="w-1/8" />
+              <col className="w-1/6" />
+              <col />
+              <col className="w-1/8" />
+              {isAdmin ? <col className="w-1/10" /> : null}
+            </colgroup>
+            <thead>
+              <tr className="border-b border-border text-left text-xs text-muted">
+                <th className="w-8 px-2 py-2" aria-label={t('common.state')} />
+                <th className="px-3 py-2">{t('common.id')}</th>
+                <th className="px-3 py-2">{t('incidents.field.detected_at')}</th>
+                {isAdmin ? <th className="px-3 py-2">{t('common.user')}</th> : null}
+                <th className="px-3 py-2">{t('common.vps')}</th>
+                <th className="px-3 py-2">{t('incidents.field.ip')}</th>
+                <th className="px-3 py-2">{t('incidents.field.subject')}</th>
+                <th className="px-3 py-2">{t('incidents.field.codename')}</th>
+                {isAdmin ? <th className="px-3 py-2">{t('incidents.field.filed_by')}</th> : null}
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r) => {
+                const to = `${basePath}/incidents/${r.id}`;
+                const det = formatDateTime(r.detected_at);
 
-                    const vpsHost = (r.vps as any)?.hostname ? String((r.vps as any).hostname) : undefined;
-                    const vpsIdRow = (r.vps as any)?.id ? Number((r.vps as any).id) : undefined;
+                const vpsHost = (r.vps as any)?.hostname ? String((r.vps as any).hostname) : undefined;
+                const vpsIdRow = (r.vps as any)?.id ? Number((r.vps as any).id) : undefined;
 
-                    const userLogin = (r.user as any)?.login ? String((r.user as any).login) : undefined;
-                    const userIdRow = (r.user as any)?.id ? Number((r.user as any).id) : undefined;
+                const userLogin = (r.user as any)?.login ? String((r.user as any).login) : undefined;
+                const userIdRow = (r.user as any)?.id ? Number((r.user as any).id) : undefined;
 
-                    const filedLogin = (r.filed_by as any)?.login ? String((r.filed_by as any).login) : undefined;
-                    const filedId = (r.filed_by as any)?.id ? Number((r.filed_by as any).id) : undefined;
+                const filedLogin = (r.filed_by as any)?.login ? String((r.filed_by as any).login) : undefined;
+                const filedId = (r.filed_by as any)?.id ? Number((r.filed_by as any).id) : undefined;
 
-                    const assignmentIp = (r.ip_address_assignment as any)?.ip_addr
-                      ? String((r.ip_address_assignment as any).ip_addr)
-                      : undefined;
-                    const subject = r.subject ? String(r.subject) : '';
-                    const codename = r.codename ? String(r.codename) : '';
+                const assignmentIp = (r.ip_address_assignment as any)?.ip_addr
+                  ? String((r.ip_address_assignment as any).ip_addr)
+                  : undefined;
+                const subject = r.subject ? String(r.subject) : '';
+                const codename = r.codename ? String(r.codename) : '';
 
-                    const action = String(r.vps_action ?? 'none');
-                    const cpu = typeof r.cpu_limit === 'number' && Number.isFinite(r.cpu_limit) ? Math.floor(r.cpu_limit) : null;
-                    const rowVariant = incidentRowVariant(r);
-                    const dotVariant = dotVariantFromRowVariant(rowVariant);
+                const action = String(r.vps_action ?? 'none');
+                const cpu =
+                  typeof r.cpu_limit === 'number' && Number.isFinite(r.cpu_limit) ? Math.floor(r.cpu_limit) : null;
+                const rowVariant = incidentRowVariant(r);
+                const dotVariant = dotVariantFromRowVariant(rowVariant);
 
-                    return (
-                      <TableRowLink key={r.id} to={to} variant={rowVariant} testId={`incidents.list.row.${r.id}`}>
-                        <td className="px-2 py-2">
-                          <StatusDot variant={dotVariant} testId={`incidents.list.row.${r.id}.dot`} />
-                        </td>
-                        <td className="px-3 py-2 font-mono text-xs">
-                          <MiniLink data-row-no-nav to={to}>
-                            #{r.id}
-                          </MiniLink>
-                        </td>
-                        <td className="px-3 py-2">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span className="text-sm">{det}</span>
-                            {action !== 'none' ? (
-                              <Badge variant={vpsActionVariant(action)} testId={`incidents.list.row.${r.id}.action`}>
-                                {t(vpsActionLabelKey(action))}
-                              </Badge>
-                            ) : null}
-                            {cpu !== null ? (
-                              <Badge variant="warn" testId={`incidents.list.row.${r.id}.cpu_limit`}>
-                                {t('incidents.badge.cpu_limit', { pct: cpu })}
-                              </Badge>
-                            ) : null}
-                          </div>
-                        </td>
-
-                        {isAdmin ? (
-                          <td className="px-3 py-2">
-                            {userIdRow ? (
-                              <ChipLink data-row-no-nav to={`${basePath}/users/${userIdRow}`} className="max-w-full">
-                                {userLogin || `#${userIdRow}`}
-                              </ChipLink>
-                            ) : userLogin ? (
-                              userLogin
-                            ) : (
-                              '—'
-                            )}
-                          </td>
+                return (
+                  <TableRowLink key={r.id} to={to} variant={rowVariant} testId={`incidents.list.row.${r.id}`}>
+                    <td className="px-2 py-2">
+                      <StatusDot variant={dotVariant} testId={`incidents.list.row.${r.id}.dot`} />
+                    </td>
+                    <td className="px-3 py-2 font-mono text-xs">
+                      <MiniLink data-row-no-nav to={to}>
+                        #{r.id}
+                      </MiniLink>
+                    </td>
+                    <td className="px-3 py-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-sm">{det}</span>
+                        {action !== 'none' ? (
+                          <Badge variant={vpsActionVariant(action)} testId={`incidents.list.row.${r.id}.action`}>
+                            {t(vpsActionLabelKey(action))}
+                          </Badge>
                         ) : null}
-
-                        <td className="px-3 py-2">
-                          {vpsIdRow ? (
-                            <ChipLink data-row-no-nav to={`${basePath}/vps/${vpsIdRow}`} className="max-w-full">
-                              {vpsHost || `#${vpsIdRow}`}
-                            </ChipLink>
-                          ) : r.raw_vps_id ? (
-                            `#${r.raw_vps_id}`
-                          ) : (
-                            '—'
-                          )}
-                        </td>
-
-                        <td className="px-3 py-2 break-all font-mono text-xs">{assignmentIp || '—'}</td>
-                        <td className="px-3 py-2">
-                          <div className="min-w-0 text-sm font-medium leading-5" title={subject || undefined}>
-                            {subject || '—'}
-                          </div>
-                        </td>
-                        <td className="px-3 py-2 font-mono text-xs">
-                          <span className="block" title={codename || undefined}>
-                            {codename || '—'}
-                          </span>
-                        </td>
-
-                        {isAdmin ? (
-                          <td className="px-3 py-2">
-                            {filedId ? (
-                              <ChipLink data-row-no-nav to={`${basePath}/users/${filedId}`} className="max-w-full">
-                                {filedLogin || `#${filedId}`}
-                              </ChipLink>
-                            ) : filedLogin ? (
-                              filedLogin
-                            ) : (
-                              '—'
-                            )}
-                          </td>
+                        {cpu !== null ? (
+                          <Badge variant="warn" testId={`incidents.list.row.${r.id}.cpu_limit`}>
+                            {t('incidents.badge.cpu_limit', { pct: cpu })}
+                          </Badge>
                         ) : null}
+                      </div>
+                    </td>
 
-                      </TableRowLink>
-                    );
-                  })}
-                </tbody>
+                    {isAdmin ? (
+                      <td className="px-3 py-2">
+                        {userIdRow ? (
+                          <ChipLink data-row-no-nav to={`${basePath}/users/${userIdRow}`} className="max-w-full">
+                            {userLogin || `#${userIdRow}`}
+                          </ChipLink>
+                        ) : userLogin ? (
+                          userLogin
+                        ) : (
+                          '—'
+                        )}
+                      </td>
+                    ) : null}
+
+                    <td className="px-3 py-2">
+                      {vpsIdRow ? (
+                        <ChipLink data-row-no-nav to={`${basePath}/vps/${vpsIdRow}`} className="max-w-full">
+                          {vpsHost || `#${vpsIdRow}`}
+                        </ChipLink>
+                      ) : r.raw_vps_id ? (
+                        `#${r.raw_vps_id}`
+                      ) : (
+                        '—'
+                      )}
+                    </td>
+
+                    <td className="px-3 py-2 break-all font-mono text-xs">{assignmentIp || '—'}</td>
+                    <td className="px-3 py-2">
+                      <div className="min-w-0 text-sm font-medium leading-5" title={subject || undefined}>
+                        {subject || '—'}
+                      </div>
+                    </td>
+                    <td className="px-3 py-2 font-mono text-xs">
+                      <span className="block" title={codename || undefined}>
+                        {codename || '—'}
+                      </span>
+                    </td>
+
+                    {isAdmin ? (
+                      <td className="px-3 py-2">
+                        {filedId ? (
+                          <ChipLink data-row-no-nav to={`${basePath}/users/${filedId}`} className="max-w-full">
+                            {filedLogin || `#${filedId}`}
+                          </ChipLink>
+                        ) : filedLogin ? (
+                          filedLogin
+                        ) : (
+                          '—'
+                        )}
+                      </td>
+                    ) : null}
+                  </TableRowLink>
+                );
+              })}
+            </tbody>
           </TableCard>
 
           <div className="xl:hidden [overflow-wrap:anywhere]" data-testid="incidents.list.cards">
@@ -1099,7 +1081,8 @@ export function IncidentsPage() {
                 const codename = r.codename ? String(r.codename) : '';
 
                 const action = String(r.vps_action ?? 'none');
-                const cpu = typeof r.cpu_limit === 'number' && Number.isFinite(r.cpu_limit) ? Math.floor(r.cpu_limit) : null;
+                const cpu =
+                  typeof r.cpu_limit === 'number' && Number.isFinite(r.cpu_limit) ? Math.floor(r.cpu_limit) : null;
                 const rowVariant = incidentRowVariant(r);
                 const dotVariant = dotVariantFromRowVariant(rowVariant);
 
@@ -1136,13 +1119,17 @@ export function IncidentsPage() {
                         <div className="mt-2 flex min-w-0 flex-wrap items-center gap-2 text-sm text-muted">
                           {isAdmin ? (
                             userIdRow ? (
-                              <ChipLink to={`${basePath}/users/${userIdRow}`} className="max-w-full">{userLogin || `#${userIdRow}`}</ChipLink>
+                              <ChipLink to={`${basePath}/users/${userIdRow}`} className="max-w-full">
+                                {userLogin || `#${userIdRow}`}
+                              </ChipLink>
                             ) : userLogin ? (
                               <span>{userLogin}</span>
                             ) : null
                           ) : null}
                           {vpsIdRow ? (
-                            <ChipLink to={`${basePath}/vps/${vpsIdRow}`} className="max-w-full">{vpsHost || `#${vpsIdRow}`}</ChipLink>
+                            <ChipLink to={`${basePath}/vps/${vpsIdRow}`} className="max-w-full">
+                              {vpsHost || `#${vpsIdRow}`}
+                            </ChipLink>
                           ) : r.raw_vps_id ? (
                             <span>#{r.raw_vps_id}</span>
                           ) : (
