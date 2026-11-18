@@ -73,7 +73,7 @@ function RecentTasksContent() {
                 {chain.label || `#${chain.id}`}
               </Link>
               <div className="flex flex-wrap gap-x-3 text-xs text-muted">
-                <time dateTime={chain.created_at}>{createdLabel}</time>
+                <time dateTime={chain.created_at ?? undefined}>{createdLabel}</time>
                 {refs.map((ref) => (
                   <span key={`${ref.class_name}:${ref.row_id}`}>
                     {shortConcernClassName(ref.class_name)} #{ref.row_id}

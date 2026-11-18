@@ -1,3 +1,7 @@
+## 2026-11-18 — Integrate delegated model choices
+
+[Eleven selected scopes, integration and verification limits](docs/work-log/2026-11-18-delegated-model-integration.md).
+
 ## 2026-11-18 — Initially open the failed chain step
 
 [ACT-08 delegated expansion choice](docs/work-log/2026-11-18-failed-chain-step.md).
