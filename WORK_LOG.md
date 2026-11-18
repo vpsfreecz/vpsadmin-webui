@@ -1,3 +1,7 @@
+## 2026-11-18 — Initially open the failed chain step
+
+[ACT-08 delegated expansion choice](docs/work-log/2026-11-18-failed-chain-step.md).
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path
