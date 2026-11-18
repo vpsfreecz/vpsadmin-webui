@@ -1,3 +1,7 @@
+## 2026-11-18 — Recognizable VPS diagnostic actions
+
+[DIA-02 selected narrow variant](docs/work-log/2026-11-18-vps-diagnostic-actions.md).
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path
