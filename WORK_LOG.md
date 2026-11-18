@@ -1,3 +1,16 @@
+## 2026-11-18 — Explain resources and IP ownership
+
+[Scope and contract](docs/work-log/2026-11-18-resource-live-explanation.md).
+[Scope and contract](docs/work-log/2026-11-18-ip-ownership-explanation.md).
+
+## 2026-11-18 — Explain IP route and allocation ownership
+
+[NET-12 scope and API contract](docs/work-log/2026-11-18-ip-ownership-explanation.md).
+
+## 2026-11-18 — Explain live resource changes
+
+[RES-03 scope and verification](docs/work-log/2026-11-18-resource-live-explanation.md).
+
 ## 2026-11-15 — Preserve narrow namespace filter fields
 
 [REQ-073 regression and verification](docs/work-log/2026-11-15-namespace-minimum-field.md).

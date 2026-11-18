@@ -104,7 +104,7 @@ export const enVps_network = {
   'vps.network.ip_addresses.assign.validation.interface': 'Select a network interface.',
   'vps.network.ip_addresses.assign.help': 'The selected route will be assigned to this VPS interface. Add the concrete IP address in the second step.',
   'vps.network.ip_addresses.free_route.title': 'Free IP route from VPS?',
-  'vps.network.ip_addresses.free_route.description': 'Free route for IP address {address} from this VPS? This may affect services using this address.',
+  "vps.network.ip_addresses.free_route.description": "Free route for IP address {address} from this VPS? This does not change address ownership. This may affect services using this address.",
   'vps.network.ip_addresses.owner.title': 'Edit route owner',
   'vps.network.ip_addresses.owner.title_for_ip': 'Edit owner for {address}',
   'vps.network.ip_addresses.owner.current_user': 'Current owner',
@@ -296,4 +296,8 @@ export const enVps_network = {
   'vps.network.host_addresses.create.partial_error': 'Created: {count}. Address {address} could not be created: {error}. Only addresses that still need to be retried remain in the field.',
   'vps.network.host_addresses.create.submit': 'Add addresses',
   'vps.network.host_addresses.create.toast': '{count} host address(es) added',
+  "network.user.ownership_help.title": "Disconnecting and returning an IP address",
+  "network.user.ownership_help.detach": "To disconnect an assigned address, open the VPS detail → Network and choose Free route.",
+  "network.user.ownership_help.ownership": "The address will no longer be reachable through this VPS. If you own it, it remains allocated to your account.",
+  "network.user.ownership_help.return": "To return an IP address you own to the pool, contact the administrator team.",
 } as const;
