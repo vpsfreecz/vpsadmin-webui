@@ -19,6 +19,7 @@ import { Select } from '../../../components/ui/Select';
 import { UserNetworkAddressActions } from './UserNetworkAddressActions';
 import { NetworkTabButton } from './NetworkTabButton';
 import { UserNetworkAddresses } from './UserNetworkAddresses';
+import { IpAddressOwnershipHelp } from './IpAddressOwnershipHelp';
 import { fetchAssignedIpAddresses, ipVpsId } from './UserNetworkAddressesModel';
 import type { ResourceRef } from '../../../lib/api/appTypes';
 import { fetchIpAddress, fetchIpAddresses, type IpAddress } from '../../../lib/api/ipAddresses';
@@ -398,6 +399,7 @@ export function UserNetworkPage() {
                   />
                   <div className="text-sm text-muted">{t('network.user.scope_hint')}</div>
                 </div>
+                <IpAddressOwnershipHelp />
               </Card>
             ) : null}
           </div>

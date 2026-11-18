@@ -1,3 +1,11 @@
+## 2026-11-18 — Explain IP route ownership
+
+[Scope and contract](docs/work-log/2026-11-18-ip-ownership-explanation.md).
+
+## 2026-11-18 — Explain IP route and allocation ownership
+
+[NET-12 scope and API contract](docs/work-log/2026-11-18-ip-ownership-explanation.md).
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path
