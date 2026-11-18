@@ -67,3 +67,12 @@ are not a claim that the separate external KB has been updated.
 
 Current state: prepared integration, with qualification and paired delivery
 recorded separately in the canonical local operations continuity and evidence.
+
+The first integrated browser run passed 226 configurations and found two stale
+administrator-route assertions in the newer preview-only payload regression.
+That case clicked the failed step before reading its payload; with the selected
+automatic expansion, the click closed it. Update the case to require initial
+visibility, manual collapse and reopening, retaining all payload assertions.
+The original run and interrupted/not-run cases remain recorded separately.
+This is an additional cumulative regression case absent from the older focused
+PR base; application runtime content is unchanged by this follow-up.

@@ -422,8 +422,11 @@ test.describe('@pr-smoke TransactionChainDetailPage', () => {
         .getByTestId('transactions.chain.detail.transactions.table')
         .evaluate((table) => table.scrollWidth <= table.clientWidth + 1)
     ).toBe(true);
-    await page.getByTestId('transactions.chain.detail.tx.toggle.702').click();
     const expanded = page.getByTestId('transactions.chain.detail.tx.expanded.702');
+    await expect(expanded).toBeVisible();
+    await page.getByTestId('transactions.chain.detail.tx.toggle.702').click();
+    await expect(expanded).toBeHidden();
+    await page.getByTestId('transactions.chain.detail.tx.toggle.702').click();
     await expect(expanded).toBeVisible();
     await expect(expanded).toContainText('step failed on node2');
     await expect(expanded).toContainText('mount: permission denied');
