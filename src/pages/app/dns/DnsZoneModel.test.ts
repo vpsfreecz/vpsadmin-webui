@@ -1,8 +1,14 @@
 import { describe, expect, test } from 'vitest';
 
-import { dnsZoneTransferPeerType, isSecondaryDnsZone } from './DnsZoneModel';
+import { dnsZoneAuthoritativeRole, dnsZoneTransferPeerType, isSecondaryDnsZone } from './DnsZoneModel';
 
 describe('DnsZoneModel', () => {
+  test('keeps forward/reverse type independent from primary/secondary authority and preserves unknown source', () => {
+    expect(dnsZoneAuthoritativeRole({ id: 1, role: 'reverse_role', source: 'internal_source' })).toBe('primary');
+    expect(dnsZoneAuthoritativeRole({ id: 2, role: 'forward_role', source: 'external_source' })).toBe('secondary');
+    expect(dnsZoneAuthoritativeRole({ id: 3, role: 'forward_role' })).toBeNull();
+    expect(dnsZoneAuthoritativeRole({ id: 4, source: 'future_source' })).toBeNull();
+  });
   test('treats external source zones as secondary zones', () => {
     expect(isSecondaryDnsZone({ id: 1, source: 'external_source' })).toBe(true);
     expect(isSecondaryDnsZone({ id: 1, source: 'external' })).toBe(true);
