@@ -120,6 +120,7 @@
     "e2e/specs/app/export_delete_failures.spec.ts",
     "e2e/specs/app/export_filter_rhythm.spec.ts",
     "e2e/specs/app/dns_zone_type_role.spec.ts",
+    "e2e/specs/app/dns_record_id_preference.spec.ts",
     "e2e/specs/app/export_hosts_responsive_actions.spec.ts",
     "e2e/specs/app/export_list_containment.spec.ts",
     "e2e/specs/app/export_nfs_help.spec.ts",

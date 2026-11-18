@@ -351,4 +351,5 @@ export const csDns = {
   'dns.zones.authority.primary': 'Primární',
   'dns.zones.authority.secondary': 'Sekundární',
   'dns.zones.authority.help': 'Typ zóny rozlišuje dopředné a reverzní zóny. Role určuje, zda záznamy spravuješ ve vpsAdminu (primární), nebo se zóna načítá z primárního DNS serveru (sekundární).',
+  'dns.zone.records.show_ids': 'Zobrazovat interní ID',
 } as const;

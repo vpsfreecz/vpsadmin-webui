@@ -352,4 +352,5 @@ export const enDns = {
   'dns.zones.authority.primary': 'Primary',
   'dns.zones.authority.secondary': 'Secondary',
   'dns.zones.authority.help': 'Zone type distinguishes forward and reverse zones. The role determines whether you manage records in vpsAdmin (primary) or load the zone from a primary DNS server (secondary).',
+  'dns.zone.records.show_ids': 'Show internal IDs',
 } as const;

@@ -59,6 +59,7 @@ function YesNoBadge(props: { value: unknown }) {
 export function DnsRecordsList(props: {
   rows: readonly DnsRecord[];
   zoneDefaultTtl: unknown;
+  showIds?: boolean;
   validationById: ReadonlyMap<number, DnsRecordValidationResult>;
   rowErrors: ReadonlyMap<number, string>;
   updateGate: GateDecision;
@@ -100,7 +101,7 @@ export function DnsRecordsList(props: {
                         ) : null}
                       </div>
                       {record.comment ? <div className="mt-1 break-words text-sm text-muted">{String(record.comment)}</div> : null}
-                      <div className="mt-1 text-xs text-faint">#{record.id}</div>
+                      {props.showIds ? <div className="mt-1 text-xs text-faint">#{record.id}</div> : null}
                     </div>
 
                     <div className="flex shrink-0 flex-col items-end gap-2">
@@ -235,7 +236,7 @@ export function DnsRecordsList(props: {
                           </div>
                         ) : null}
                         {record.comment ? <div className="mt-1 break-words text-xs text-muted">{String(record.comment)}</div> : null}
-                        <div className="mt-1 text-xs text-faint">#{record.id}</div>
+                        {props.showIds ? <div className="mt-1 text-xs text-faint">#{record.id}</div> : null}
                         {record.dynamic_update_url ? (
                           <div className="mt-2 flex items-center gap-2">
                             <span className="text-xs text-faint">{t('dns.zone.records.field.ddns')}:</span>

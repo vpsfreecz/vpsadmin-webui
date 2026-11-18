@@ -21,6 +21,17 @@ describe('uiSettingsModel', () => {
       resetUiSettingsPreferences({ ...DEFAULT_SETTINGS, vpsRecentTasksVisible: false }).vpsRecentTasksVisible
     ).toBe(true);
   });
+  it('hides technical DNS record IDs for old settings and persists an explicit opt-in', () => {
+    expect(normalizeUiSettings({ theme: 'dark' }).dnsRecordIdsVisible).toBe(false);
+    expect(normalizeUiSettings({ dnsRecordIdsVisible: 'true' }).dnsRecordIdsVisible).toBe(false);
+    expect(parseUiSettingsJson(toUiSettingsJson({ ...DEFAULT_SETTINGS, dnsRecordIdsVisible: true }))).toEqual({
+      ...DEFAULT_SETTINGS,
+      dnsRecordIdsVisible: true,
+    });
+    expect(resetUiSettingsPreferences({ ...DEFAULT_SETTINGS, dnsRecordIdsVisible: true }).dnsRecordIdsVisible).toBe(
+      false
+    );
+  });
   it('normalizes unknown values to defaults', () => {
     expect(normalizeUiSettings(undefined)).toEqual(DEFAULT_SETTINGS);
     expect(normalizeUiSettings(null)).toEqual(DEFAULT_SETTINGS);
