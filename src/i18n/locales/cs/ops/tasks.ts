@@ -54,4 +54,7 @@ export const csOps_tasks = {
   "tasks.filter_help.title": "Nápověda k filtru úloh",
   "tasks.filter_help.intro": "Filtrovat akce a transakce v tomto panelu podle části popisku, ID nebo cíle. Nezáleží na velikosti písmen.",
   "tasks.filter_help.scope": "Jde o místní filtr načtených položek včetně sledovaných akcí. Neprohledává celou historii. Starší transakce lze vyhledat po otevření všech transakcí.",
+  'tasks.recent_widget.title': 'Poslední úlohy',
+  'tasks.recent_widget.show': 'Zobrazit poslední úlohy',
+  'tasks.recent_widget.hide': 'Skrýt poslední úlohy',
 } as const;
