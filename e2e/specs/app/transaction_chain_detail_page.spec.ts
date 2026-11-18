@@ -236,6 +236,9 @@ test.describe('@pr-smoke TransactionChainDetailPage', () => {
         .evaluate((table) => table.scrollWidth <= table.clientWidth + 1)
     ).toBe(true);
 
+    await expect(page.getByTestId('transactions.chain.detail.tx.expanded.702')).toBeVisible();
+    await page.getByTestId('transactions.chain.detail.tx.toggle.702').click();
+    await expect(page.getByTestId('transactions.chain.detail.tx.expanded.702')).toBeHidden();
     await page.getByTestId('transactions.chain.detail.tx.toggle.702').click();
     await expect(page.getByTestId('transactions.chain.detail.tx.expanded.702')).toBeVisible();
     const expanded = page.getByTestId('transactions.chain.detail.tx.expanded.702');
