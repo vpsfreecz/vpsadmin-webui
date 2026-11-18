@@ -1,3 +1,7 @@
+## 2026-11-18 — Consistent DNS zone type and role
+
+[DNS-01 delegated terminology choice](docs/work-log/2026-11-18-dns-zone-type-role.md).
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path
