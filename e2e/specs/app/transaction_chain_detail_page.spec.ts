@@ -223,6 +223,9 @@ test.describe('@pr-smoke TransactionChainDetailPage', () => {
     await expect(page.getByTestId('transactions.chain.detail.transactions.table')).toBeVisible();
     expect(await page.getByTestId('transactions.chain.detail.transactions.table').evaluate((table) => table.scrollWidth <= table.clientWidth + 1)).toBe(true);
 
+    await expect(page.getByTestId('transactions.chain.detail.tx.expanded.702')).toBeVisible();
+    await page.getByTestId('transactions.chain.detail.tx.toggle.702').click();
+    await expect(page.getByTestId('transactions.chain.detail.tx.expanded.702')).toBeHidden();
     await page.getByTestId('transactions.chain.detail.tx.toggle.702').click();
     await expect(page.getByTestId('transactions.chain.detail.tx.expanded.702')).toBeVisible();
     await expect(page.getByTestId('transactions.chain.detail.tx.expanded.702')).toContainText('step failed on node2');
