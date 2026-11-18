@@ -52,4 +52,7 @@ export const enOps_tasks = {
   "tasks.section.recent": "Recent",
   "tasks.title": "Tasks",
   "tasks.tracking_action": "Tracking: {action}",
+  'tasks.recent_widget.title': 'Recent tasks',
+  'tasks.recent_widget.show': 'Show recent tasks',
+  'tasks.recent_widget.hide': 'Hide recent tasks',
 } as const;

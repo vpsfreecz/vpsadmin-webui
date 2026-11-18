@@ -10,6 +10,17 @@ import {
 } from './uiSettingsModel';
 
 describe('uiSettingsModel', () => {
+  it('keeps recent tasks visible for old settings and preserves an explicit hidden preference', () => {
+    expect(normalizeUiSettings({ theme: 'dark' }).vpsRecentTasksVisible).toBe(true);
+    expect(normalizeUiSettings({ vpsRecentTasksVisible: 'false' }).vpsRecentTasksVisible).toBe(true);
+    expect(parseUiSettingsJson(toUiSettingsJson({ ...DEFAULT_SETTINGS, vpsRecentTasksVisible: false }))).toEqual({
+      ...DEFAULT_SETTINGS,
+      vpsRecentTasksVisible: false,
+    });
+    expect(
+      resetUiSettingsPreferences({ ...DEFAULT_SETTINGS, vpsRecentTasksVisible: false }).vpsRecentTasksVisible
+    ).toBe(true);
+  });
   it('normalizes unknown values to defaults', () => {
     expect(normalizeUiSettings(undefined)).toEqual(DEFAULT_SETTINGS);
     expect(normalizeUiSettings(null)).toEqual(DEFAULT_SETTINGS);
@@ -94,8 +105,6 @@ describe('uiSettingsModel', () => {
     });
   });
 
-
-
   it('normalizes dashboard preferences alongside global UI preferences', () => {
     expect(
       normalizeUiSettings({
@@ -105,7 +114,7 @@ describe('uiSettingsModel', () => {
           hiddenWidgets: ['outages', 'security'],
           collapsedWidgets: ['cluster'],
         },
-      }).dashboard,
+      }).dashboard
     ).toEqual({
       density: 'compact',
       widgetOrder: ['news', 'security', 'outages', 'cluster'],
