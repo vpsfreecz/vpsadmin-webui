@@ -1,3 +1,7 @@
+## 2026-11-18 — Compact network summary tables
+
+[NET-13 delegated summary choice](docs/work-log/2026-11-18-network-summary-tables.md).
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path
