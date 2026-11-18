@@ -1,3 +1,7 @@
+## 2026-11-18 — Recognizable VPS diagnostic actions
+
+[DIA-02 selected narrow variant](docs/work-log/2026-11-18-vps-diagnostic-actions.md).
+
 ## 2026-11-18 — Recent tasks below the VPS list
 
 [DASH-09 selected variant A](docs/work-log/2026-11-18-vps-recent-tasks.md).

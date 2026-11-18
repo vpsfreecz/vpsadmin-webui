@@ -1,3 +1,4 @@
+import { VpsDiagnosticLinks } from './VpsDiagnosticLinks';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -366,17 +367,7 @@ export function OverviewDiagnosticsCard(props: { vps: Vps; basePath: string }) {
             </ul>
           )}
         </section>
-        <div className="flex flex-wrap items-center gap-2">
-          <ChipLink to={`${props.basePath}/oom-reports?vps=${props.vps.id}`} title={t('vps.overview.diagnostics.oom_reports_title')}>
-            {t('vps.overview.diagnostics.oom_reports')}
-          </ChipLink>
-          <ChipLink to={`${props.basePath}/oom-reports/rules/${props.vps.id}`} title={t('vps.overview.diagnostics.oom_rules_title')}>
-            {t('vps.overview.diagnostics.oom_rules')}
-          </ChipLink>
-          <ChipLink to={`${props.basePath}/incidents?vps=${props.vps.id}`} title={t('vps.overview.diagnostics.incidents_title')}>
-            {t('vps.overview.diagnostics.incidents')}
-          </ChipLink>
-        </div>
+        <VpsDiagnosticLinks basePath={props.basePath} vpsId={props.vps.id} />
       </CardBody>
     </Card>
   );

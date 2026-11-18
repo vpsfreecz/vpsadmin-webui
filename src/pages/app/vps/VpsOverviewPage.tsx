@@ -98,7 +98,7 @@ export function VpsOverviewPage() {
 
       {isAdminView ? <VpsOverviewMetricsCard vps={vps} collapsedByDefault /> : null}
 
-      {!isAdminView ? <OverviewDiagnosticsCard vps={vps} basePath={basePath} /> : null}
+      {!isAdminView || auth.role === 'admin' ? <OverviewDiagnosticsCard vps={vps} basePath={basePath} /> : null}
 
       {showLifecycleSummary ? (
         <div className="lg:col-span-12">
