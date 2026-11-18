@@ -102,7 +102,7 @@ export const csVps_network = {
   'vps.network.ip_addresses.assign.validation.interface': 'Vyber síťové rozhraní.',
   'vps.network.ip_addresses.assign.help': 'Vybraná routa bude přidělena tomuto rozhraní VPS. Konkrétní IP adresu potom přidáš ve druhém kroku.',
   'vps.network.ip_addresses.free_route.title': 'Odebrat IP routu z VPS?',
-  'vps.network.ip_addresses.free_route.description': 'Odebrat routu IP adresy {address} z této VPS? Akce může ovlivnit dostupnost služeb na této adrese.',
+  "vps.network.ip_addresses.free_route.description": "Odebrat routu IP adresy {address} z této VPS? Vlastnictví adresy se tím nemění. Akce může ovlivnit dostupnost služeb na této adrese.",
   'vps.network.ip_addresses.owner.title': 'Upravit vlastníka routy',
   'vps.network.ip_addresses.owner.title_for_ip': 'Upravit vlastníka pro {address}',
   'vps.network.ip_addresses.owner.current_user': 'Současný vlastník',
@@ -301,4 +301,8 @@ export const csVps_network = {
   'vps.network.host_addresses.create.partial_error': 'Vytvořeno: {count}. Adresu {address} se vytvořit nepodařilo: {error}. V poli zůstaly jen adresy, které je potřeba zkusit znovu.',
   'vps.network.host_addresses.create.submit': 'Přidat adresy',
   'vps.network.host_addresses.create.toast': 'Přidáno host adres: {count}',
+  "network.user.ownership_help.title": "Odpojení a vrácení IP adresy",
+  "network.user.ownership_help.detach": "Přiřazenou adresu odpojíš v detailu VPS → Síť akcí Odebrat routu.",
+  "network.user.ownership_help.ownership": "Adresa přestane být dostupná přes tuto VPS. Pokud ji vlastníš, zůstane přiřazená tvému účtu.",
+  "network.user.ownership_help.return": "Chceš-li vlastněnou IP adresu vrátit do poolu, obrať se na administrátorský tým.",
 } as const;
