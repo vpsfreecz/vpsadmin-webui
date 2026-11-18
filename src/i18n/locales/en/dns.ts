@@ -325,4 +325,5 @@ export const enDns = {
   'dns.zone.servers.create.failed': 'Failed to add zone to server',
   'dns.zone.servers.delete.title': 'Remove zone from server',
   'dns.zone.servers.delete.description': 'Remove zone from server {server}?',
+  'dns.zone.records.show_ids': 'Show internal IDs',
 } as const;

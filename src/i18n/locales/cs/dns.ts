@@ -325,4 +325,5 @@ export const csDns = {
   'dns.zone.servers.create.failed': 'Nepodařilo se přidat zónu na server',
   'dns.zone.servers.delete.title': 'Odebrat zónu ze serveru',
   'dns.zone.servers.delete.description': 'Odebrat zónu ze serveru {server}?',
+  'dns.zone.records.show_ids': 'Zobrazovat interní ID',
 } as const;
