@@ -122,6 +122,7 @@ export default defineConfig({
         '**/filter_help_consistency.spec.ts',
         '**/vps_recent_tasks.spec.ts',
         '**/vps_diagnostic_actions.spec.ts',
+        '**/dns_zone_type_role.spec.ts',
         '**/transactions_table_followup.spec.ts',
         '**/ip_addresses_filters_pagination.spec.ts',
         '**/ip_addresses_primary_location.spec.ts',

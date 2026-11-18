@@ -1,4 +1,5 @@
 import { DnsZoneDnssecBadge } from './DnsZoneDnssecBadge';
+import { DnsZoneAuthority } from './DnsZoneAuthority';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -787,6 +788,7 @@ export function DnsZonesPage() {
                       <span>
                         {t('dns.zones.field.role')}: {z.role ? roleLabel(t, z.role) : '—'}
                       </span>
+                      <DnsZoneAuthority zone={z} testId={`dns.zones.authority.${z.id}`} />
                       <span>
                         {t('dns.zones.field.configured_serial')}: {dnsConfiguredSerialText(z, t)}
                       </span>
@@ -874,7 +876,7 @@ export function DnsZonesPage() {
                     </Link>
                     <div className="mt-0.5 text-xs text-faint">#{z.id}</div>
                   </td>
-                  <td className="px-3 py-2">{z.role ? roleLabel(t, z.role) : '—'}</td>
+                  <td className="px-3 py-2"><div>{t('dns.zones.field.role')}: {z.role ? roleLabel(t, z.role) : '—'}</div><div className="text-xs text-muted"><DnsZoneAuthority zone={z} testId={`dns.zones.authority.${z.id}`} /></div></td>
                   <td className="px-3 py-2">{enabledBadge(z.enabled)}</td>
                   <td className="px-3 py-2"><DnsZoneDnssecBadge zone={z} testId={`dns.zones.dnssec.${z.id}`} /></td>
                   <td className="px-3 py-2">{dnsConfiguredSerialText(z, t)}</td>

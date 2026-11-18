@@ -1,4 +1,5 @@
 import { DnsZoneDnssecBadge } from './DnsZoneDnssecBadge';
+import { DnsZoneAuthority } from './DnsZoneAuthority';
 import React from 'react';
 import { Link, Outlet, useLocation, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -175,8 +176,8 @@ export function DnsZoneLayout() {
                 <Badge variant="warn">{t('common.disabled')}</Badge>
               )}
               <DnsZoneDnssecBadge zone={zone} testId="dns.zone.header.dnssec" />
-              {secondaryZone ? <Badge variant="info">{t('dns.zones.source.external')}</Badge> : null}
-              {zone.role ? <Badge variant="neutral">{zoneRoleLabel(t, zone.role)}</Badge> : null}
+              <Badge variant="info"><DnsZoneAuthority zone={zone} testId="dns.zone.authority" /></Badge>
+              {zone.role ? <Badge variant="neutral">{t('dns.zones.field.role')}: {zoneRoleLabel(t, zone.role)}</Badge> : null}
             </>
           }
           right={
