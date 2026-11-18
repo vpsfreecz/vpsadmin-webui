@@ -98,6 +98,7 @@ export default defineConfig({
         '**/member_payment_links.spec.ts',
         '**/vps_admin_modifications.spec.ts',
         '**/vps_maintenance_sunday.spec.ts',
+        '**/resource_live_explanation.spec.ts',
         '**/network_address_details.spec.ts',
         '**/vps_network_editor_feedback.spec.ts',
         '**/user_packages_bulk_remove.spec.ts',
