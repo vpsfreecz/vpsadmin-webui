@@ -300,4 +300,8 @@ export const enVps_network = {
   "network.user.ownership_help.detach": "To disconnect an assigned address, open the VPS detail → Network and choose Free route.",
   "network.user.ownership_help.ownership": "The address will no longer be reachable through this VPS. If you own it, it remains allocated to your account.",
   "network.user.ownership_help.return": "To return an IP address you own to the pool, contact the administrator team.",
+  'network.user.summary.period': 'Period',
+  'network.user.summary.metric': 'Metric',
+  'network.user.summary.packets': 'Packets per second',
+  'network.user.summary.updated': 'Updated: {time}',
 } as const;

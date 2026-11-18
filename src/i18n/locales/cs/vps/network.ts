@@ -300,4 +300,8 @@ export const csVps_network = {
   "network.user.ownership_help.detach": "Přiřazenou adresu odpojíš v detailu VPS → Síť akcí Odebrat routu.",
   "network.user.ownership_help.ownership": "Adresa přestane být dostupná přes tuto VPS. Pokud ji vlastníš, zůstane přiřazená tvému účtu.",
   "network.user.ownership_help.return": "Chceš-li vlastněnou IP adresu vrátit do poolu, obrať se na administrátorský tým.",
+  'network.user.summary.period': 'Období',
+  'network.user.summary.metric': 'Ukazatel',
+  'network.user.summary.packets': 'Pakety za sekundu',
+  'network.user.summary.updated': 'Aktualizováno: {time}',
 } as const;

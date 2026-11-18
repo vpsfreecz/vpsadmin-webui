@@ -9,7 +9,7 @@ import { EmptyState } from '../../../components/ui/EmptyState';
 import { ErrorState } from '../../../components/ui/ErrorState';
 import { LoadingState } from '../../../components/ui/LoadingState';
 import { Select } from '../../../components/ui/Select';
-import { StatCard } from '../../../components/ui/StatCard';
+import { NetworkSummaryTable } from './NetworkSummaryTable';
 import { StatusDot } from '../../../components/ui/StatusDot';
 import { TableCard } from '../../../components/ui/TableCard';
 import { TimeSeriesChart } from '../../../components/ui/TimeSeriesChart';
@@ -153,6 +153,9 @@ export function UserNetworkLiveCard(props: { userId: number | null; isAdmin: boo
     return latest;
   }, undefined);
   const chartMax = Math.max(1, ...history.flatMap((sample) => [sample.bytesIn, sample.bytesOut]));
+  const measured = (field: 'bytes_in' | 'bytes_out' | 'packets_in' | 'packets_out') => visibleRows.length > 0
+    && visibleRows.every((row) => typeof row[field] === 'number' && Number.isFinite(row[field])
+      && typeof row.delta === 'number' && Number.isFinite(row.delta) && row.delta > 0);
 
   return (
     <Card testId="network.user.live">
@@ -202,33 +205,23 @@ export function UserNetworkLiveCard(props: { userId: number | null; isAdmin: boo
               />
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              <StatCard
-                title={t('network.user.live.in')}
-                value={byteRate(totals.bytesIn)}
-                subtitle={t('network.user.live.current')}
-                variant="compact"
-                testId="network.user.live.stat.in"
+            <div className="space-y-1">
+              <NetworkSummaryTable
+                testId="network.user.live.summary"
+                caption={t('network.user.live.title')}
+                rowHeading={t('network.user.summary.metric')}
+                columns={[t('network.user.live.in'), t('network.user.live.out')]}
+                rows={[
+                  { label: t('network.user.live.current'), values: [
+                    { text: measured('bytes_in') ? byteRate(totals.bytesIn) : t('common.na'), testId: 'network.user.live.stat.in' },
+                    { text: measured('bytes_out') ? byteRate(totals.bytesOut) : t('common.na'), testId: 'network.user.live.stat.out' },
+                  ] },
+                  { label: t('network.user.summary.packets'), values: [
+                    { text: measured('packets_in') ? packetRate(totals.packetsIn) : t('common.na') }, { text: measured('packets_out') ? packetRate(totals.packetsOut) : t('common.na') },
+                  ] },
+                ]}
               />
-              <StatCard
-                title={t('network.user.live.out')}
-                value={byteRate(totals.bytesOut)}
-                subtitle={t('network.user.live.current')}
-                variant="compact"
-                testId="network.user.live.stat.out"
-              />
-              <StatCard
-                title={t('network.user.live.packets_in')}
-                value={packetRate(totals.packetsIn)}
-                subtitle={t('network.user.live.current')}
-                variant="compact"
-              />
-              <StatCard
-                title={t('network.user.live.packets_out')}
-                value={packetRate(totals.packetsOut)}
-                subtitle={latestUpdate ? formatDateTime(latestUpdate) : t('network.user.live.current')}
-                variant="compact"
-              />
+              {latestUpdate ? <p className="text-xs text-muted">{t('network.user.summary.updated', { time: formatDateTime(latestUpdate) })}</p> : null}
             </div>
 
             <div className="grid gap-4 xl:grid-cols-2">

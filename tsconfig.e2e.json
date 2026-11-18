@@ -168,6 +168,7 @@
     "e2e/specs/app/network_address_details.spec.ts",
     "e2e/specs/app/network_chart_orientation.spec.ts",
     "e2e/specs/app/networking_filter_rhythm.spec.ts",
+    "e2e/specs/app/network_summary_tables.spec.ts",
     "e2e/specs/app/node_history.spec.ts",
     "e2e/specs/app/oom_filter_rhythm.spec.ts",
     "e2e/specs/app/oom_reading_recovery.spec.ts",
