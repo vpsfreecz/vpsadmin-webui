@@ -1,3 +1,7 @@
+## 2026-11-18 — Optional technical DNS record IDs
+
+[DNS-11 delegated display choice](docs/work-log/2026-11-18-dns-record-id-preference.md).
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path
