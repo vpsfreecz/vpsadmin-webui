@@ -477,3 +477,125 @@ array, filters exact published states, sorts by publication date/ID and caps at
 five. This is a preview with an archive link, not a complete paginated result;
 public archive behavior is unchanged. Failed previews have their own explicit
 error state. No new backend endpoint or permission is required.
+
+<a id="selected-incident-escalation-summaries"></a>
+
+## Generic incident policies
+
+Authenticated `IncidentPolicy` Index/Show discovers active policies directly
+from the loaded registry. Keys are arbitrary runtime strings; localized labels,
+optional plain-text descriptions and period metadata come from the API. A policy
+with no matched incidents or stored override is still discoverable. Neither the
+UI nor the generated client enumerates policy keys or identifies a source adapter.
+
+`VPS::IncidentPolicy` Index/Show returns every configured policy for the authorized
+VPS and owner epoch. Counts use saved creation-time memberships, never codename
+matching in the client. Current limits use the VPS override first, then the global
+override, then the declared limit. A valid configuration supplies current limits
+and status even when applicability uses a hook or no incident matched. Invalid saved
+override combinations set `configuration_valid=false` with null effective values;
+this is a configuration error. Reads never invoke applicability, classify old
+reports or create settings or evaluation rows. Saved evaluations describe past
+decisions and do not replace current limits.
+
+The VPS itself supplies batched `incident_warning_count` and
+`incident_stop_threshold_count` values for compact list/overview warnings. They
+count policies at a proven threshold, with stop precedence per policy; invalid
+configurations are excluded. The UI makes no request per VPS row and derives no
+counts from incident-history pages. Shared automatic-shutdown permission,
+accounting boundary, confirmed-stop time, next-incident eligibility and outstanding
+physical action or chain remain VPS-wide and appear once. Reaching a threshold does
+not promise a future shutdown. Existing feedback about failed or uncertain
+operations remains visible outside the policy details.
+
+The VPS Incident policies tab uses `/vps/:id/incidents` in the current app/admin
+mode and preserves the originating owner context. The separate Incident reports
+tab opens the existing `/incidents?vps=ID` list with the same context. It requires
+no new page or API. Each policy shows Period / Incidents / Limit / Action columns
+for its warning and VPS-stop periods, using the supplied periods, current counts
+and limits. Status and policy-filtered history remain visible. Policy details and
+shared settings appear directly on the page.
+The overview shows alerts linking to that tab only when warning or shutdown
+thresholds are reached; near-limit and clear policies do not add overview panels. Policy labels and
+historical labels are API data, not translations selected by key.
+
+Each administrator limit input shows its current effective value and a separate
+Inherited/Custom choice. An untouched inherited field sends null, including when
+the other field changes. An explicit custom value remains custom even if it
+equals the default. Clearing or resetting a field selects inheritance. When a
+custom override exists, this API does not expose the value it would inherit.
+Selecting inheritance therefore shows a pending value until a confirmed save
+and authoritative readback supply it.
+
+Admin `VPS::IncidentPolicy` Update targets the key in the path and accepts only
+the two nullable limit overrides. Omitting a field preserves its override; explicit
+null inherits the limit. Validation is atomic and audited. The nearby inheritance control clears only
+that policy's local draft; Save is the explicit write. Shared shutdown permission
+uses a separate isolated VPS Update without a policy key or limit fields. Both
+forms retain target confirmation, preflight, durable uncertain-write protection
+and exact authoritative readback before clearing drafts. Any failure after an
+accepted write is verification uncertainty, including a denied or mismatched
+readback. Unrelated asynchronous mutations retain their strict receipt checks.
+
+Incident history uses an explicit `policy_key` distinct from source codename.
+Matching source reports and owning notices qualify via saved membership/action
+identity; multiple memberships do not duplicate rows or inflate pagination totals.
+Retired policy keys remain queryable within authorized history.
+The report list populates its policy select from one cached active-policy registry
+query. A deep link to a retired policy retains the exact key as an option. A failed
+registry query shows an unavailable state and preserves the filter. Selecting a
+policy preserves the owner, VPS and other filters while resetting pagination.
+
+`IncidentReport::PolicyEvaluation` Index under the already-authorized report
+returns saved policy labels, time, counts, limits, effective mode and permission,
+decision, state, nullable `matched` and warning/stop period values. Member policy
+sections show only evaluations with explicit `matched=true` and state `recorded`
+or `audit_only`. Administrators can also see false or null membership and error
+states in separate diagnostics. An error can coexist with saved `matched=true`
+membership; excluding it from member sections does not remove it from backend
+counts. Missing membership data or capability establishes neither a match nor a
+nonmatch. An empty member collection can hide private errors for matched policies,
+so it shows neutral unavailable feedback. Only exhaustive saved evidence visible
+to administrators can establish that no policies matched. Missing counts, limits and periods
+are never filled from a current policy or another saved evaluation.
+
+Report detail links active matched keys to the corresponding VPS policy anchor
+and saved keys, including retired keys, to scoped policy-filtered history. These
+links require an authorized included VPS association; a raw historical VPS ID is
+insufficient. Detail sections share one active-policy discovery request. Report
+lists make no request per row. A notice's nullable `notice_policy_key` and
+`notice_policy_label` identify its originating saved action policy; ordinary
+reports have null values. The UI never derives notice identity from the trigger's
+first policy or its codename. Administrator diagnostics expose only safe error
+stage and class, without raw context, hook source, exception messages or private
+mail errors. Existing safe notice-trigger links and
+mail and outcome distinctions remain separate.
+
+These calls use generated resources and the existing shared request policy,
+with capability detection against the backend. An older API makes the feature
+unavailable; there is no single-policy compatibility transport or hardcoded
+fallback. The registry SDK release prerequisite in
+[the client contract](HAVEAPI_CLIENT.md#generated-vpsadmin-typescript-sdk) still
+applies before WebUI merge. This replaces the unreleased selected-policy flat
+summary contract; no production old-feature upgrade is claimed. The backend owns
+membership, privacy, counting and action dispatch; React adds no enforcement timer,
+rule editor, action endpoint or BFF route. See
+[the revision record](../work-log/2026-11-17-generic-incident-policies.md) and
+vpsAdmin's authoritative `docs/incident-escalation.md`.
+
+## Incident notice history
+
+IncidentReport Index/Show add read-only nullable `notice_kind` (`warning`,
+`stop_completed`), raw integer `trigger_incident_report_id` and `notice_mail_state`
+(`pending`, `queued`, `sent`, `failed`, `uncertain`, `suppressed`). Ordinary reports
+return null; older APIs omit the fields. Both leave the existing ordinary report
+view intact. Warning decisions and confirmed-stop outcomes are displayed separately
+from mail progress. `pending` is not yet queued; `queued` is not successful SMTP;
+`sent` means SMTP success without proof of inbox delivery.
+
+The server supplies a trigger ID only when it is safe for the original owner,
+VPS and epoch. Missing/unsafe references remain absent; React never reconstructs
+them from other fields or queries another owner's history. List and detail reuse
+the same scoped presentation and authenticated incident route. Immutable subject/
+text remains the explanation; no new action, second sender, administrator MailLog,
+private delivery-error endpoint or private error detail is exposed.

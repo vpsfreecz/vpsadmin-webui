@@ -1,0 +1,20 @@
+{
+  "repository": "git@github.com:vpsfreecz/vpsadmin-typescript-client.git",
+  "head": "44c651b2a57e8de553dd51236c2dccbc09946fac",
+  "api_source": "de4df3d63f4d4afb0c27e8b9be2785c15d24811c",
+  "schema_sha256": "7cb28ebd8e0957d9a8ba2c359c8658040ed1cd195f0dd14327c03b595012fc85",
+  "provenance_sha256": "a9e536e9984183866604a7b8d14c6f1ba02f26e7986b52f10131ee82f2cd6fd8",
+  "exporter_lock_sha256": "2e9a124eff7b80d6fd57cd0f03cb2809847c67cc7f1af6364911c3622d7242a0",
+  "generator_revision": "1ef9b204ba45bb261d3334be5c555cc1856b713b",
+  "runtime": "haveapi-client@0.32.0",
+  "archive_sha256": "983061ec981e24e45c25abeef81d8049d4253bad4d473ea37d5ce27ff0a1b718",
+  "archive_size": 345048,
+  "name": "vpsadmin-typescript-client",
+  "package_version": "0.4.0",
+  "status": "temporary development candidate, not registry publication",
+  "source_boundary": "exact owner3 npm pack; compiled dist and final schema/provenance included",
+  "merge_prerequisite": "replace with published registry artifact containing this support before WebUI merge",
+  "artifact_commit": "2d251bb0e10f5379a19df3a07eb7a0b0f19e3c88",
+  "resolved": "https://raw.githubusercontent.com/vpsfreecz/vpsadmin-typescript-client/2d251bb0e10f5379a19df3a07eb7a0b0f19e3c88/development-artifacts/incident-escalation-sdk.tgz",
+  "integrity": "sha512-Efx3yzdcq1Z1IvLFhn5AB4Go609guqaJuiLWgWTMhzw9z4Zs0MIXI+0kTeemCkjk6NuL8RxfgeeCJAjwXms6Pg=="
+}

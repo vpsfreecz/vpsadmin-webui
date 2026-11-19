@@ -82,7 +82,7 @@
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-router-dom": "7.18.2",
-    "vpsadmin-typescript-client": "0.4.0"
+    "vpsadmin-typescript-client": "https://raw.githubusercontent.com/vpsfreecz/vpsadmin-typescript-client/2d251bb0e10f5379a19df3a07eb7a0b0f19e3c88/development-artifacts/incident-escalation-sdk.tgz"
   },
   "devDependencies": {
     "@playwright/test": "^1.61.0",

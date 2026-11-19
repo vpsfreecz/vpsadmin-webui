@@ -6,7 +6,7 @@ This is a source inventory, not proof of API permissions, feature parity, or tes
 Paths are relative to the configured router basename. Parent layers include scope/auth
 wrappers; page-level action guards and API authorization still apply.
 
-## Routes (266 entries, including layouts and index routes)
+## Routes (268 entries, including layouts and index routes)
 
 | Route | Kind | Element | Parent layers | Source |
 | --- | --- | --- | --- | --- |
@@ -43,6 +43,7 @@ wrappers; page-level action guards and API authorization still apply.
 | `/app/vps/:vpsId/features` | page/redirect | `<CoreRoutes.VpsFeaturesPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
 | `/app/vps/:vpsId/maintenance` | page/redirect | `<CoreRoutes.VpsMaintenancePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
 | `/app/vps/:vpsId/history` | page/redirect | `<CoreRoutes.VpsHistoryPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
+| `/app/vps/:vpsId/incidents` | page/redirect | `<CoreRoutes.VpsIncidentPoliciesPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
 | `/app/vps/:vpsId/lifecycle` | page/redirect | `<CoreRoutes.VpsLifecyclePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
 | `/app/vps/:vpsId/lifecycle/:lifecycleAction` | page/redirect | `<CoreRoutes.VpsLifecyclePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
 | `/app/vps/:vpsId/console` | page/redirect | `<CoreRoutes.VpsConsolePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
@@ -188,6 +189,7 @@ wrappers; page-level action guards and API authorization still apply.
 | `/admin/vps/:vpsId/features` | page/redirect | `<CoreRoutes.VpsFeaturesPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
 | `/admin/vps/:vpsId/maintenance` | page/redirect | `<CoreRoutes.VpsMaintenancePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
 | `/admin/vps/:vpsId/history` | page/redirect | `<CoreRoutes.VpsHistoryPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
+| `/admin/vps/:vpsId/incidents` | page/redirect | `<CoreRoutes.VpsIncidentPoliciesPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
 | `/admin/vps/:vpsId/lifecycle` | page/redirect | `<CoreRoutes.VpsLifecyclePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
 | `/admin/vps/:vpsId/lifecycle/:lifecycleAction` | page/redirect | `<CoreRoutes.VpsLifecyclePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
 | `/admin/vps/:vpsId/console` | page/redirect | `<CoreRoutes.VpsConsolePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
@@ -277,7 +279,7 @@ wrappers; page-level action guards and API authorization still apply.
 | `/admin/_design` | page/redirect | `<DesignSandboxPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/router.tsx) |
 | `/admin/*` | page/redirect | `<NotFoundPage appBasePath="/admin" />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/router.tsx) |
 
-## API adapter modules (74)
+## API adapter modules (75)
 
 Read these for request/response details. File presence does not prove that the deployed
 API implements every parameter; see [API contracts](API_CONTRACTS.md).
@@ -304,6 +306,7 @@ API implements every parameter; see [API contracts](API_CONTRACTS.md).
 - [finance.ts](../../src/lib/api/finance.ts)
 - [haveapiRequestClient.ts](../../src/lib/api/haveapiRequestClient.ts)
 - [helpBoxes.ts](../../src/lib/api/helpBoxes.ts)
+- [incidentPolicies.ts](../../src/lib/api/incidentPolicies.ts)
 - [incidents.ts](../../src/lib/api/incidents.ts)
 - [infra.ts](../../src/lib/api/infra.ts)
 - [ipAddresses.ts](../../src/lib/api/ipAddresses.ts)

@@ -63,7 +63,8 @@ function isIncident(value: unknown): value is IncidentReport {
   return (
     record(value) &&
     id(value['id']) &&
-    strings(value, ['subject', 'text', 'codename', 'vps_action', 'detected_at', 'created_at', 'reported_at']) &&
+    strings(value, ['subject', 'text', 'codename', 'vps_action', 'detected_at', 'created_at', 'reported_at', 'notice_kind', 'notice_mail_state', 'notice_policy_key', 'notice_policy_label'])
+    && (value['trigger_incident_report_id'] == null || id(value['trigger_incident_report_id'])) &&
     ['raw_user_id', 'raw_vps_id', 'cpu_limit'].every(
       (key) => value[key] == null || (typeof value[key] === 'number' && Number.isFinite(value[key]))
     ) &&
@@ -89,6 +90,7 @@ export async function fetchIncidentReports(opts?: {
   mailboxId?: number;
   filedById?: number;
   codename?: string;
+  policyKey?: string;
   includes?: string;
 }) {
   const params: IncidentReport__IndexInput = {
@@ -101,6 +103,7 @@ export async function fetchIncidentReports(opts?: {
     mailbox: opts?.mailboxId,
     filed_by: opts?.filedById,
     codename: opts?.codename?.trim() || undefined,
+    policy_key: opts?.policyKey || undefined,
   };
   const res = await (
     await getApi()

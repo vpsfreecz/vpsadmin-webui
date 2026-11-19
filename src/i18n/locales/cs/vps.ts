@@ -1,4 +1,5 @@
 // VPS locale barrel
+import { csVps_incidentEscalation } from './vps/incidentEscalation';
 import { csVps_core } from './vps/core';
 import { csVps_create } from './vps/create';
 import { csVps_overview } from './vps/overview';
@@ -12,6 +13,7 @@ import { csVps_features } from './vps/features';
 import { csVps_maintenance } from './vps/maintenance';
 
 export const csVps = {
+  ...csVps_incidentEscalation,
   ...csVps_core,
   ...csVps_create,
   ...csVps_overview,

@@ -1,3 +1,4 @@
+import { fetchIncidentPolicyCapabilities } from '../../../lib/api/incidentPolicies';
 import { PageHeading } from '../../../components/ui/PageHeading';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Camera, RotateCw, Square } from 'lucide-react';
@@ -6,7 +7,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { fetchActionState } from '../../../lib/api/actionStates';
 import { fetchIpAddressesForVps } from '../../../lib/api/ipAddresses';
 import { fetchTransactionChains } from '../../../lib/api/transactions';
-import { fetchVps, vpsPasswd, vpsRestart, vpsStart, vpsStop } from '../../../lib/api/vps';
+import { type Vps, fetchVps, vpsPasswd, vpsRestart, vpsStart, vpsStop } from '../../../lib/api/vps';
 import { getMetaActionStateId, isMissingActionStateError } from '../../../lib/api/apiErrors';
 import { useAppMode } from '../../../app/appMode';
 import { useAuth } from '../../../app/auth';
@@ -95,7 +96,11 @@ export function VpsLayout() {
 
   const vpsQ = useQuery({
     queryKey: ['vps', 'show', { id: vpsId }],
-    queryFn: async () => (await fetchVps(vpsId, { includes: 'node__location__environment,user,dns_resolver,user_namespace_map,os_template,dataset' })).data,
+    queryFn: async () => {
+      return (await fetchVps(vpsId, {
+        includes: 'node__location__environment,user,dns_resolver,user_namespace_map,os_template,dataset',
+      })).data;
+    },
     enabled: Number.isFinite(vpsId) && vpsId > 0,
     refetchInterval: (query) => {
       const data = query.state.data as { is_running?: boolean } | undefined;
@@ -106,6 +111,8 @@ export function VpsLayout() {
           : tierBRefetchMs;
     },
   });
+
+  const incidentCapability = useQuery({ queryKey: ['incident_policy', 'capabilities', basePath], queryFn: fetchIncidentPolicyCapabilities });
 
   const ipsQ = useQuery({
     queryKey: ['ip_address', 'list', { vpsId, limit: 250 }],
@@ -678,7 +685,7 @@ export function VpsLayout() {
           tabs={
             <div className="space-y-3">
               <VpsHeaderRuntime vps={vps} />
-              <VpsTabsNav basePath={basePath} vpsId={vps.id} contextSearch={listContextSearch} />
+              <VpsTabsNav basePath={basePath} vpsId={vps.id} contextSearch={listContextSearch} incidentsAvailable={incidentCapability.data?.data.policies === true} />
             </div>
           }
         />
