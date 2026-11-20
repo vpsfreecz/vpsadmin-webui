@@ -54,6 +54,22 @@ describe('BFF login links', () => {
     expect(url.searchParams.get('reauth')).toBe('1');
     expect(url.searchParams.get('next')).toBe('/admin/users');
   });
+  it('retains fresh authentication after the rejected query is cleared', () => {
+    state.error = new HaveApiError({ status: false, message: 'Unauthorized' }, 'Rejected', 401);
+    const view = render(
+      <AuthProvider nextPath="/admin/users" redirectExpiredSessions={false}>
+        <Probe />
+      </AuthProvider>
+    );
+    state.error = undefined;
+    view.rerender(
+      <AuthProvider nextPath="/admin/users" redirectExpiredSessions={false}>
+        <Probe />
+      </AuthProvider>
+    );
+    expect(new URL(screen.getByTestId('login').getAttribute('href')!).searchParams.get('reauth')).toBe('1');
+  });
+
   it('does not turn an ordinary server failure into forced authentication', () => {
     state.error = new HaveApiError({ status: false, message: 'Unavailable' }, 'Unavailable', 503);
     expect(loginUrl().searchParams.has('reauth')).toBe(false);
