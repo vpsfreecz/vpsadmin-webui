@@ -154,6 +154,10 @@ The dashboard header shows its title. News and advisory cards omit the generic
 subtitles, and compact cluster cards omit the hidden-node footer. The shell account control
 shows the login and the shell indicates the active view (REQ-004).
 OAuth login/callback/logout preserve a safe return destination and display errors.
+A healthy BFF login is reused when its login URL opens in another window sharing
+the host cookie. An API authentication rejection requests `reauth=1`, including
+through the public header, so a rejected credential cannot loop back into the
+application. Separate profiles and private windows retain independent logins.
 The public desktop header and mobile menu offer sign-in without a separate
 password-reset shortcut (maintainer decision, 2026-09-30). Password recovery
 remains available through sign-in and the login-required/expired-session screen

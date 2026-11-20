@@ -1215,6 +1215,9 @@ See the [measured scope](docs/work-log/2026-11-09-namespace-entry-form-readabili
 ## 2026-11-09 — Readable OAuth error bodies
 
 Approved UX-04 / REQ-010; see the [measured scope and checks](docs/work-log/2026-11-09-oauth-error-readability.md).
+## 2026-11-20 — Reuse authenticated sessions across windows
+
+[REQ-007 behavior, regression and verification limits](docs/work-log/2026-11-20-shared-window-session.md).
 
 ## 2026-10-28 — OAuth redirect boundary review
 

@@ -310,8 +310,18 @@ const loginRateLimit = createFixedWindowRateLimiter({
   max: LOGIN_RATE_LIMIT_MAX,
 });
 
-app.get('/oauth/login', loginRateLimit, (req, res) => {
+app.get('/oauth/login', loginRateLimit, async (req, res) => {
   const nextPath = sanitizeNext(req.query.next);
+  res.setHeader('cache-control', 'no-store');
+  // Windows in one browser profile share the host's cookie. Do not replace a
+  // healthy login (or shorten its lifetime) just to open another destination.
+  // A rejected API credential must still be able to request a fresh login.
+  if (req.query.reauth !== '1') {
+    const oauth = await ensureFreshToken(req);
+    if (oauth?.access_token && Number.isFinite(oauth.expires_at) && Date.now() < oauth.expires_at) {
+      return res.redirect(303, nextPath);
+    }
+  }
   req.session.next = nextPath;
   req.session.cookie.maxAge = PREAUTH_SESSION_MAX_AGE_MS;
 
