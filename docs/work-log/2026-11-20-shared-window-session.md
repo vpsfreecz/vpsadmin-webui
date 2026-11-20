@@ -38,3 +38,9 @@ AuthProvider state until a fresh document login, and add a unit regression for
 clearing the rejected query. Original browser reports remain preserved. The
 previous interception bridge is not acceptance evidence: mocked redirects and
 Set-Cookie handling were unreliable, and were replaced by actual local HTTPS.
+
+A final compatibility review scoped public-header auth URLs to explicitly
+configured login endpoints. Without one, retain the standalone `/oauth/login`
+default rather than inheriting AuthProvider's older PHP fallback. Added a
+regression for this distinction before preview activation; the earlier staged
+candidate remains unactivated and is superseded by the final candidate.
