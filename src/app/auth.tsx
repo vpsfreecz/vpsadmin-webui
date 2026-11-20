@@ -46,7 +46,8 @@ function buildLogoutUrl(base: string | undefined, nextPath: string): string {
 function buildEndpointUrl(
   explicitUrl: string | undefined,
   fallbackUrl: string,
-  nextPath: string
+  nextPath: string,
+  reauthenticate = false
 ): string {
   if (!explicitUrl) return fallbackUrl;
 
@@ -57,8 +58,9 @@ function buildEndpointUrl(
     const baseOrigin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost';
     const u = new URL(explicitUrl, baseOrigin);
 
-    if (u.origin === baseOrigin && !u.searchParams.has('next')) {
-      u.searchParams.set('next', nextPath);
+    if (u.origin === baseOrigin) {
+      if (!u.searchParams.has('next')) u.searchParams.set('next', nextPath);
+      if (reauthenticate) u.searchParams.set('reauth', '1');
     }
 
     return u.toString();
@@ -139,16 +141,13 @@ export function AuthProvider(props: {
   const loginUrl = buildEndpointUrl(
     cfg.loginUrl,
     buildLoginUrl(baseUrl, props.nextPath),
-    props.nextPath
+    props.nextPath,
+    selectedRuntimeMode() === 'bff' && (sessionExpired || isExpiredSessionError(q.error))
   );
   // Logout must always land on the public overview. Returning to the current
   // protected route would immediately render a "login required" screen.
   const logoutNextPath = withRouterBasename('/', cfg.routerBasename);
-  const logoutUrl = buildEndpointUrl(
-    cfg.logoutUrl,
-    buildLogoutUrl(baseUrl, logoutNextPath),
-    logoutNextPath
-  );
+  const logoutUrl = buildEndpointUrl(cfg.logoutUrl, buildLogoutUrl(baseUrl, logoutNextPath), logoutNextPath);
 
   const idleDeadline = useIdleSession(
     readSessionIdleLimitSeconds(q.data?.preferred_session_length),
@@ -164,7 +163,7 @@ export function AuthProvider(props: {
       markSessionExpiredNotice();
       // Use the real logout endpoint to destroy the BFF session/revoke tokens.
       hardReplace(logoutUrl);
-    },
+    }
   );
   const sessionExpiresAt = idleDeadline;
 
@@ -274,7 +273,18 @@ export function AuthProvider(props: {
       logoutUrl,
       sessionExpiresAt,
     };
-  }, [sessionExpiresAt, enabled, q.isLoading, q.isError, q.data, q.error, sessionExpired, loginUrl, logoutUrl, redirectExpiredSessions]);
+  }, [
+    sessionExpiresAt,
+    enabled,
+    q.isLoading,
+    q.isError,
+    q.data,
+    q.error,
+    sessionExpired,
+    loginUrl,
+    logoutUrl,
+    redirectExpiredSessions,
+  ]);
 
   return <AuthContext.Provider value={value}>{props.children}</AuthContext.Provider>;
 }

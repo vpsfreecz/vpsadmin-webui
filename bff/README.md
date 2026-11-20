@@ -37,6 +37,22 @@ forwarded to a redirect destination. Configure the final provider endpoints.
 The existing response-size and timeout limits still apply. Authorization-page
 navigation in the browser remains the normal OAuth flow.
 
+## Opening another browser window
+
+Windows in the same browser profile share the host-only session cookie. Opening
+`/oauth/login?next=...` with a healthy authenticated session returns directly to
+the sanitized local destination, without replacing the session ID, starting
+another provider authorization, or shortening the authenticated cookie lifetime.
+An expiring credential can refresh through the existing serialized session path.
+Anonymous sessions and failed refreshes use the normal authorization flow.
+
+A sign-in link following an API authentication rejection includes `reauth=1`.
+This explicitly requests a new authorization rather than reusing the rejected
+credential. The public header preserves this parameter. Callback state checks,
+session fixation protection, logout and changed-identity recovery remain in
+force. Different browser profiles and private windows have separate cookie jars
+and must authenticate independently; this does not share credentials across them.
+
 ## HaveAPI auth header (important)
 
 The deployed environment needs the SPA to use a specific auth header when calling HaveAPI:
