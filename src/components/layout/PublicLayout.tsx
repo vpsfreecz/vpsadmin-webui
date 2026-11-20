@@ -136,7 +136,9 @@ function PublicLayoutInner() {
   const appHref = withRouterBasename('/app', cfg.routerBasename);
 
   const loginHref = useMemo(() => {
-    const base = auth.loginUrl ?? cfg.loginUrl ?? withRouterBasename('/oauth/login', cfg.routerBasename);
+    const base = cfg.loginUrl
+      ? auth.loginUrl ?? cfg.loginUrl
+      : withRouterBasename('/oauth/login', cfg.routerBasename);
     return withSameOriginNextParam(base, appHref);
   }, [auth.loginUrl, cfg.loginUrl, cfg.routerBasename, appHref]);
 
