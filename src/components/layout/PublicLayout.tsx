@@ -147,9 +147,9 @@ function PublicLayoutInner() {
   const appHref = withRouterBasename('/app', cfg.routerBasename);
 
   const loginHref = useMemo(() => {
-    const base = cfg.loginUrl ?? withRouterBasename('/oauth/login', cfg.routerBasename);
+    const base = auth.loginUrl ?? cfg.loginUrl ?? withRouterBasename('/oauth/login', cfg.routerBasename);
     return withSameOriginNextParam(base, appHref);
-  }, [cfg.loginUrl, cfg.routerBasename, appHref]);
+  }, [auth.loginUrl, cfg.loginUrl, cfg.routerBasename, appHref]);
 
   const isLoggedIn = auth.status === 'authenticated';
   const primaryHref = isLoggedIn ? appHref : loginHref;

@@ -43,7 +43,12 @@ function buildLogoutUrl(base: string | undefined, nextPath: string): string {
   return `${normalized}/?page=logout&next=${encodeURIComponent(nextPath)}`;
 }
 
-function buildEndpointUrl(explicitUrl: string | undefined, fallbackUrl: string, nextPath: string): string {
+function buildEndpointUrl(
+  explicitUrl: string | undefined,
+  fallbackUrl: string,
+  nextPath: string,
+  reauthenticate = false
+): string {
   if (!explicitUrl) return fallbackUrl;
 
   // If the explicit URL is same-origin, we can safely append `next=` so the backend can
@@ -53,8 +58,9 @@ function buildEndpointUrl(explicitUrl: string | undefined, fallbackUrl: string, 
     const baseOrigin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost';
     const u = new URL(explicitUrl, baseOrigin);
 
-    if (u.origin === baseOrigin && !u.searchParams.has('next')) {
-      u.searchParams.set('next', nextPath);
+    if (u.origin === baseOrigin) {
+      if (!u.searchParams.has('next')) u.searchParams.set('next', nextPath);
+      if (reauthenticate) u.searchParams.set('reauth', '1');
     }
 
     return u.toString();
@@ -132,7 +138,12 @@ export function AuthProvider(props: {
 
   const baseUrl = cfg.webuiUrl ?? (typeof window !== 'undefined' ? window.location.origin : undefined);
 
-  const loginUrl = buildEndpointUrl(cfg.loginUrl, buildLoginUrl(baseUrl, props.nextPath), props.nextPath);
+  const loginUrl = buildEndpointUrl(
+    cfg.loginUrl,
+    buildLoginUrl(baseUrl, props.nextPath),
+    props.nextPath,
+    selectedRuntimeMode() === 'bff' && (sessionExpired || isExpiredSessionError(q.error))
+  );
   // Logout must always land on the public overview. Returning to the current
   // protected route would immediately render a "login required" screen.
   const logoutNextPath = withRouterBasename('/', cfg.routerBasename);

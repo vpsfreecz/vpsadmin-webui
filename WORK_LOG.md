@@ -1,3 +1,7 @@
+## 2026-11-20 — Reuse authenticated sessions across windows
+
+[REQ-007 behavior, regression and verification limits](docs/work-log/2026-11-20-shared-window-session.md).
+
 ## 2026-11-18 — Integrate delegated model choices
 
 [Eleven selected scopes, integration and verification limits](docs/work-log/2026-11-18-delegated-model-integration.md).

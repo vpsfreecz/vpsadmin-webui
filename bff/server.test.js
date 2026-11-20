@@ -484,3 +484,77 @@ test('passkey form uses only trusted destinations, localized copy and restrictiv
     assert.equal(response.headers.get('content-security-policy'), "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action https://identity.test; frame-ancestors 'none'");
   }
 });
+
+test('a second window reuses an authenticated browser session without another authorization', async () => {
+  const initial = await startLogin('/app');
+  const callback = await request(`/oauth/callback?code=successful-code&state=${initial.state}`, { cookie: initial.cookie });
+  const cookie = responseCookie(callback);
+  await callback.text();
+  const read = async (value) => (await fetch(`${bffOrigin}/session.json`, {
+    headers: { ...secureHeaders(value), 'sec-fetch-site': 'same-origin' },
+  })).json();
+  const before = await read(cookie);
+  const providerCalls = tokenRequests.length;
+  const secondWindow = await request('/oauth/login?next=%2Fadmin%2Fusers', { cookie });
+  assert.equal(secondWindow.status, 303);
+  assert.equal(secondWindow.headers.get('location'), '/admin/users');
+  assert.equal(secondWindow.headers.get('cache-control'), 'no-store');
+  const sharedCookie = responseCookie(secondWindow);
+  assert.equal(sharedCookie, cookie, 'do not rotate an already authenticated browser session');
+  await secondWindow.text();
+  const second = await read(sharedCookie);
+  assert.equal(second.accessToken, before.accessToken);
+  assert.equal(second.sessionKey, before.sessionKey);
+  assert.ok(second.sessionExpiresAt > Date.now() + 24 * 60 * 60 * 1000, 'keep the authenticated lifetime, not the pre-login ten minutes');
+  assert.equal((await read(cookie)).sessionKey, before.sessionKey);
+  assert.equal(tokenRequests.length, providerCalls);
+});
+
+test('explicit reauthentication can replace a rejected session without a redirect loop', async () => {
+  const initial = await startLogin('/app');
+  const callback = await request(`/oauth/callback?code=successful-code&state=${initial.state}`, { cookie: initial.cookie });
+  const cookie = responseCookie(callback);
+  await callback.text();
+  const response = await request('/oauth/login?reauth=1&next=%2Fapp', { cookie });
+  assert.equal(response.status, 302);
+  assert.equal(new URL(response.headers.get('location')).origin, 'https://identity.test');
+  assert.ok(new URL(response.headers.get('location')).searchParams.get('state'));
+  await response.text();
+});
+
+test('the second window renews an expiring token while retaining its browser session', async () => {
+  const initial = await startLogin('/app');
+  const callback = await request(`/oauth/callback?code=successful-code&state=${initial.state}`, { cookie: initial.cookie });
+  const cookie = responseCookie(callback);
+  await callback.text();
+  const sessionId = decodeURIComponent(cookie.split('=', 2)[1]).slice(2).split('.', 1)[0];
+  const storedPath = join(sessionDirectory, `${sessionId}.json`);
+  const stored = JSON.parse(readFileSync(storedPath, 'utf8'));
+  stored.oauth.expires_at = Date.now() - 1000;
+  writeFileSync(storedPath, JSON.stringify(stored));
+  const calls = tokenRequests.length;
+  const response = await request('/oauth/login?next=%2Fapp', { cookie });
+  assert.equal(response.status, 303);
+  assert.equal(response.headers.get('location'), '/app');
+  assert.equal(responseCookie(response), cookie);
+  await response.text();
+  assert.equal(tokenRequests.length, calls + 1);
+  assert.equal(tokenRequests.at(-1).grant_type, 'refresh_token');
+});
+
+test('an expired token without refresh credentials starts a fresh authorization', async () => {
+  const initial = await startLogin('/app');
+  const callback = await request(`/oauth/callback?code=successful-code&state=${initial.state}`, { cookie: initial.cookie });
+  const cookie = responseCookie(callback);
+  await callback.text();
+  const sessionId = decodeURIComponent(cookie.split('=', 2)[1]).slice(2).split('.', 1)[0];
+  const storedPath = join(sessionDirectory, `${sessionId}.json`);
+  const stored = JSON.parse(readFileSync(storedPath, 'utf8'));
+  stored.oauth.expires_at = Date.now() - 1000;
+  delete stored.oauth.refresh_token;
+  writeFileSync(storedPath, JSON.stringify(stored));
+  const response = await request('/oauth/login?next=%2Fapp', { cookie });
+  assert.equal(response.status, 302);
+  assert.equal(new URL(response.headers.get('location')).origin, 'https://identity.test');
+  await response.text();
+});
