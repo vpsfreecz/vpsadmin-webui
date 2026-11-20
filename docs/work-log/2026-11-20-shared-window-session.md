@@ -27,3 +27,14 @@ provider and file session store are real local processes; they do not certify a
 real provider or the user's reported deployment. The full quick checks, relevant
 suites, exact build, browser evidence, CI and preview receipts will be recorded
 when completed. No newadmin or API deployment is authorized.
+
+## Pre-publication browser correction
+
+Native HTTPS against the clean c063baa frontend, the actual BFF file store and
+a fake OAuth provider passed shared-window reuse/logout in Chromium and mobile
+WebKit. Its rejected-token cases failed: clearing query state also removed the
+reauthentication reason before the public header rendered. Keep that reason in
+AuthProvider state until a fresh document login, and add a unit regression for
+clearing the rejected query. Original browser reports remain preserved. The
+previous interception bridge is not acceptance evidence: mocked redirects and
+Set-Cookie handling were unreliable, and were replaced by actual local HTTPS.

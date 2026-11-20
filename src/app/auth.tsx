@@ -81,12 +81,14 @@ export function AuthProvider(props: {
   const cfg = getRuntimeConfig();
   const queryClient = useQueryClient();
   const [sessionExpired, setSessionExpired] = useState(false);
+  const [reauthenticationRequired, setReauthenticationRequired] = useState(false);
   const redirectExpiredSessions = props.redirectExpiredSessions ?? true;
 
   const enabled = cfg.auth.kind !== 'none';
 
   const expireSession = useCallback(() => {
     if (typeof window === 'undefined') return;
+    setReauthenticationRequired(true);
     const currentCfg = getRuntimeConfig();
     clearStoredOAuthToken(currentCfg.oauth2.storage);
 
@@ -142,7 +144,7 @@ export function AuthProvider(props: {
     cfg.loginUrl,
     buildLoginUrl(baseUrl, props.nextPath),
     props.nextPath,
-    selectedRuntimeMode() === 'bff' && (sessionExpired || isExpiredSessionError(q.error))
+    selectedRuntimeMode() === 'bff' && (reauthenticationRequired || isExpiredSessionError(q.error))
   );
   // Logout must always land on the public overview. Returning to the current
   // protected route would immediately render a "login required" screen.
