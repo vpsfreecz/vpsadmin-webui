@@ -6,6 +6,7 @@
   "eligibleRoots": ["src/app", "src/components/ui", "src/lib/auth", "src/lib/hooks"],
   "adopted": [
     "src/app/ApiLanguageSync.tsx",
+    "src/app/auth.tsx",
     "src/app/bootstrapFailure.ts",
     "src/app/i18n.tsx",
     "src/app/runtimeMode.ts",
@@ -38,7 +39,6 @@
   "deferred": {
     "src/app/accountTimeZone.ts": "5d7b27444f525e0f67f39dc520910bcf32101a39dba526943488667fa79d2a92",
     "src/app/appMode.tsx": "d68be8f74a4ffbcbbbaaf0eae9deef010688e69e8dead53cbc64b7b63f91b5c1",
-    "src/app/auth.tsx": "7ceae57022e1135c6db67081737d995ebd43ad5787dba02d3c3e9e80dda27939",
     "src/app/config.ts": "c0eac87f7716294e28c938a80b193ab802a6e5291c28858e22b1049e4beda7cd",
     "src/app/dashboardSettingsModel.ts": "55710b33bf86a0e7e6b68357430631a8b2f0541ce5397f2504c3ef63313c08da",
     "src/app/designSandbox.ts": "24ea33ff61c719f4667fa55c0d822be82d6a45b40e20cd97cc8dc363e3892c66",

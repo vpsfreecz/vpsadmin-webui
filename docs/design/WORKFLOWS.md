@@ -77,6 +77,10 @@ and dialog; external frames load only after an explicit click/tap. Missing or
 failed configuration hides the optional action/column without blocking status
 information. Compact dashboard density still limits the visible node list.
 OAuth login/callback/logout preserve a safe return destination and display errors.
+A healthy BFF login is reused when its login URL opens in another window sharing
+the host cookie. An API authentication rejection requests `reauth=1`, including
+through the public header, so a rejected credential cannot loop back into the
+application. Separate profiles and private windows retain independent logins.
 The public desktop header and mobile menu offer sign-in without a separate
 password-reset shortcut (maintainer decision, 2026-09-30). Password recovery
 remains available through sign-in and the login-required/expired-session screen

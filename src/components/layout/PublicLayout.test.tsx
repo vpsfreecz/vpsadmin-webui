@@ -5,6 +5,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const authState = vi.hoisted(() => ({
   status: 'anonymous',
+  loginUrl: undefined as string | undefined,
+  configuredLoginUrl: undefined as string | undefined,
 }));
 
 const uiSettingsState = vi.hoisted(() => ({
@@ -17,7 +19,7 @@ const uiSettingsState = vi.hoisted(() => ({
 vi.mock('../../app/config', () => ({
   getRuntimeConfig: () => ({
     routerBasename: '',
-    loginUrl: undefined,
+    loginUrl: authState.configuredLoginUrl,
     passwordRecoveryUrl: '/oauth2/password-reset?client_id=webui.test',
   }),
 }));
@@ -25,6 +27,7 @@ vi.mock('../../app/config', () => ({
 vi.mock('../../app/auth', () => ({
   useAuth: () => ({
     status: authState.status,
+    loginUrl: authState.loginUrl,
   }),
 }));
 
@@ -76,10 +79,31 @@ function renderAt(path: string) {
 describe('PublicLayout', () => {
   beforeEach(() => {
     authState.status = 'anonymous';
+    authState.loginUrl = undefined;
+    authState.configuredLoginUrl = undefined;
     uiSettingsState.language = 'system';
     uiSettingsState.setLanguage.mockClear();
     uiSettingsState.theme = 'system';
     uiSettingsState.setTheme.mockClear();
+  });
+
+  it('preserves the fresh-authentication request in the public sign-in link', () => {
+    authState.configuredLoginUrl = '/oauth/login';
+    authState.loginUrl = '/oauth/login?reauth=1&next=%2Fadmin%2Fusers';
+    renderAt('/');
+    const links = screen.getAllByRole('link').filter(link => link.getAttribute('href')?.includes('/oauth/login'));
+    expect(links.length).toBeGreaterThan(0);
+    for (const link of links) {
+      expect(new URL(link.getAttribute('href')!, 'http://localhost').searchParams.get('reauth')).toBe('1');
+    }
+  });
+
+  it('keeps the standalone OAuth route when no login endpoint is configured', () => {
+    authState.loginUrl = '/?page=login&next=%2Fapp';
+    renderAt('/');
+    const links = screen.getAllByRole('link').filter(link => link.getAttribute('href')?.includes('/oauth/login'));
+    expect(links.length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('link').some(link => link.getAttribute('href')?.includes('page=login'))).toBe(false);
   });
 
   it('keeps the public index visible for anonymous visitors', () => {

@@ -1,3 +1,7 @@
+## 2026-11-20 — Reuse authenticated sessions across windows
+
+[REQ-007 behavior, regression and verification limits](docs/work-log/2026-11-20-shared-window-session.md).
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path
