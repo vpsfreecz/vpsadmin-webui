@@ -20,6 +20,7 @@ import { RequestApproveOptions } from './RequestApproveOptions';
 import { RequestResolveReview } from './RequestResolveReview';
 import { RequestResolveOverridesForm } from './RequestResolveOverridesForm';
 import { RequestMutationUncertainty } from './RequestMutationUncertainty';
+import { requestResolveFailure } from './RequestResolveFailure';
 import {
   fetchReviewTarget,
   invalidNumericResolveOverrideKeys,
@@ -207,7 +208,8 @@ export function RequestReviewActions(props: {
       await props.onResolved?.();
     } catch (e: unknown) {
       settleError = e;
-      const message = e instanceof Error ? e.message : String(e);
+      const serverFailure = requestResolveFailure(e, t('requests.resolve.error.no_ipv4_available'));
+      const message = serverFailure ?? (e instanceof Error ? e.message : String(e));
       if (e instanceof RequestReviewPreconditionError) {
         setResolveOpen(false);
         void qc.invalidateQueries({ queryKey: ['user_request'] });
@@ -218,11 +220,12 @@ export function RequestReviewActions(props: {
           autoDismissMs: false,
         });
       } else if (mutationStarted && isAmbiguousMutationError(e)) {
+        setResolveError(serverFailure);
         setResolveOpen(false);
         void qc.invalidateQueries({ queryKey: ['user_request'] });
         toasts.pushToast({
           variant: 'warn',
-          title: t('requests.resolve.toast.uncertain.title'),
+          title: serverFailure ?? t('requests.resolve.toast.uncertain.title'),
           body: t('requests.resolve.toast.uncertain.body'),
           autoDismissMs: false,
         });
@@ -272,6 +275,7 @@ export function RequestReviewActions(props: {
         reqId={props.reqId}
         onResolved={props.onResolved}
         testIdPrefix={props.testIdPrefix}
+        failureMessage={resolveError}
       />
     );
   }

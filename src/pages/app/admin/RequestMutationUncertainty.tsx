@@ -20,6 +20,7 @@ export function RequestMutationUncertainty(props: {
   reqId: number;
   onResolved?: () => void | Promise<void>;
   testIdPrefix: string;
+  failureMessage?: string | null;
 }) {
   const { t } = useI18n();
   const toasts = useToasts();
@@ -75,7 +76,7 @@ export function RequestMutationUncertainty(props: {
     <>
       <Alert
         variant="warn"
-        title={t('requests.resolve.uncertain.title')}
+        title={props.failureMessage ?? t('requests.resolve.uncertain.title')}
         testId={`${props.testIdPrefix}.uncertain`}
       >
         <div>{t('requests.resolve.uncertain.body')}</div>

@@ -1,3 +1,7 @@
+## 2026-11-22 — Show the registration API failure reason
+
+[Scope, failure guarantees, terminology revision and verification limits](docs/work-log/2026-11-22-registration-failure-reason.md).
+
 ## 2026-11-09 — Consolidate the account controls under the nickname
 
 [Scope and verification](docs/work-log/2026-11-09-nickname-menu.md).
