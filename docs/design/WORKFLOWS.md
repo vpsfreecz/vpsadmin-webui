@@ -975,6 +975,12 @@ behavior. [Presets](../../src/pages/app/admin/RegistrationReasonPresets.ts),
 errors, and uncertain-operation guard. Already-created accounts/terminal states
 must not be duplicated. Test persisted backend state and notification/action-state
 outcome with synthetic accounts before claiming full lifecycle certification.
+Server-reported resolution failures remain visible in the uncertainty warning
+and toast. The explicit `no ipv4 address available` reason is localized as an
+absence of free IPv4 addresses. An HTTP 5xx response still retains the durable
+retry guard and state-verification controls; a readable reason does not prove
+that the server rolled back the operation. After reload the guard remains,
+while the transient reason belongs to the current attempt.
 [Request model](../../src/pages/app/admin/RequestDetailModel.ts),
 [resolution mutation](../../src/pages/app/admin/RequestResolveMutation.ts),
 [requests API](../../src/lib/api/requests.ts).

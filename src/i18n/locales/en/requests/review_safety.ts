@@ -1,5 +1,6 @@
 // Admin request review safety and bulk actions
 export const enRequestReviewSafety = {
+  'requests.resolve.error.no_ipv4_available': 'No free IPv4 addresses are available.',
   'requests.resolve.preset.label': 'Preset reason',
   'requests.resolve.preset.custom': 'Custom text / choose a preset',
   'requests.resolve.preset.address_nonexistent': 'Non-existent address',

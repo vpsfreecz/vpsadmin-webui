@@ -57,6 +57,7 @@ export default defineConfig({
     {
       name: 'mobile-webkit',
       testMatch: [
+        '**/registration_failure_reason.spec.ts',
         '**/outage_affected_errors.spec.ts',
         '**/user_environment_configs_smoke.spec.ts',
         '**/admin_newslog.spec.ts',
