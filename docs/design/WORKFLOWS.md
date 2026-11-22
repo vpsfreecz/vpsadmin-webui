@@ -1654,6 +1654,9 @@ filter snapshot as the list request, even before a router transition publishes
 new search params. URL hydration and automatic cursor normalization continue to
 follow the router for Back/Forward. Owner-scope and API contracts remain unchanged.
 See [the reproduced race](../work-log/2026-11-09-oom-pending-filter-navigation.md).
+Changing an applied OOM filter also removes the old cursor and writes page 1
+in the same URL update. Data, address and browser history must agree.
+See [the integrated-preview regression](../work-log/2026-11-22-oom-filter-page-reset.md).
 
 
 ### Resources: additional configuration (RES-04)

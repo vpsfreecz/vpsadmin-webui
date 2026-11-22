@@ -196,7 +196,11 @@ export function OomReportsPage() {
       hydratingFiltersFromUrlRef.current = false;
       return;
     }
-    if (filterSearchParams.toString() !== searchParamsKey) setSp(filterSearchParams, { replace: true });
+    if (filterSearchParams.toString() === searchParamsKey) return;
+    const next = new URLSearchParams(filterSearchParams);
+    next.delete('from_id');
+    next.set('page', '1');
+    setSp(next, { replace: true });
   }, [filterSearchParams, searchParamsKey, setSp]);
 
   const filtersActive = Boolean(

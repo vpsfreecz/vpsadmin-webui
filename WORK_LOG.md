@@ -1,3 +1,7 @@
+## 2026-11-22 — Reset OOM page when applying a filter
+
+[REQ-046 reproduced preview defect and verification](docs/work-log/2026-11-22-oom-filter-page-reset.md).
+
 ## 2026-11-20 — Reuse authenticated sessions across windows
 
 [REQ-007 behavior, regression and verification limits](docs/work-log/2026-11-20-shared-window-session.md).
