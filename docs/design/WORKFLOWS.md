@@ -1433,3 +1433,13 @@ failures inside the affected section. Each failure uses the existing danger
 alert with the localized Error/Chyba title and readable body text. The message
 and requests retain their original source; other cards remain independently
 available. This presentation change adds no retry, role, query or write behavior.
+
+## Reads when leaving a document
+
+REQ-046: pending GET/OPTIONS requests retire from beforeunload, including a read
+queued before pagehide while the old document is being discarded. Pageshow
+allows new reads after restoration; trusted foreground activation resumes a
+cancelled departure only while the document is not hidden. Submitted writes retain their original signals and uncertainty
+locks; document retirement never aborts a shared caller signal or replays a
+mutation. In-page navigation and ordinary foreground reads retain existing
+filter, ownership and request behavior. See [scope and native evidence](../work-log/2026-11-22-document-read-lifetime.md).
