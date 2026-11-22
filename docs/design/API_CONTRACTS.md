@@ -130,6 +130,21 @@ serialized replies through controlled XHR. Mocked policy/binding tests establish
 source behavior only; they do not certify a packaged runtime, backend permissions,
 OAuth exchange, task completion or deployment.
 
+### Document read lifetime
+
+GET and OPTIONS requests bind the caller signal to the current document lifetime.
+Beforeunload aborts pending reads and blocks later reads before WebKit retires
+the origin. Pagehide keeps that barrier for discarded/cached documents;
+pageshow starts a fresh lifetime. If departure is cancelled, trusted foreground
+activation permits new reads while the document remains visible. Synthetic
+activation cannot reopen the scope. Each binding releases
+its listeners after settlement. The caller signal is never aborted by this
+policy, so a submitted mutation sharing it remains in flight. Other request
+methods retain their existing cancellation and uncertain-outcome rules. The
+installed HaveAPI client still owns serialization, XHR, cancellation and decoding;
+this policy does not replace its transport or project the generated request.
+See [native failure and verification](../work-log/2026-11-22-document-read-lifetime.md).
+
 ## Generated-backed domain boundaries
 
 Generated declarations describe the saved API schema; they do not validate a live

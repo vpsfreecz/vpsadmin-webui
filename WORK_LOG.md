@@ -1,3 +1,7 @@
+## 2026-11-22 — Retire reads when leaving the document
+
+[REQ-046 native failure, bounded change and pending verification](docs/work-log/2026-11-22-document-read-lifetime.md).
+
 ## 2026-11-22 — Reset OOM page when applying a filter
 
 [REQ-046 reproduced preview defect and verification](docs/work-log/2026-11-22-oom-filter-page-reset.md).
