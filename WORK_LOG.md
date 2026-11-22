@@ -1,3 +1,7 @@
+## 2026-11-22 — Show the registration API failure reason
+
+[Scope, failure guarantees, terminology revision and verification limits](docs/work-log/2026-11-22-registration-failure-reason.md).
+
 ## 2026-11-22 — Retire reads when leaving the document
 
 [REQ-046 native failure, bounded change and pending verification](docs/work-log/2026-11-22-document-read-lifetime.md).

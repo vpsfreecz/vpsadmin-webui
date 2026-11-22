@@ -57,6 +57,7 @@ export default defineConfig({
     {
       name: 'mobile-webkit',
       testMatch: [
+        '**/registration_failure_reason.spec.ts',
         '**/network_chart_orientation.spec.ts',
         '**/oom_reading_recovery.spec.ts',
         '**/incident_reading_acceptance.spec.ts',
