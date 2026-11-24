@@ -1114,3 +1114,11 @@ using readable text foregrounds in normal, focus and hover states. Empty enabled
 fields use the tertiary hint role; actual values, disabled controls and pending
 cancellation retain their behavior. Explicit light/dark and system preference
 require actual rendered checks. See the [source and evidence boundaries](../work-log/2026-11-10-readable-link-and-placeholder-foregrounds.md).
+
+### Export list: complete values in responsive results
+
+Export rows and cards retain the same dataset/snapshot label, complete address
+and path, owner visibility and detail destination. A narrow desktop table
+scrolls within its card; mobile cards wrap full values rather than expanding
+the page. Disabled export state remains explicit in its badge and row variant.
+[Containment correction and evidence](../work-log/2026-11-10-export-list-value-containment.md).
