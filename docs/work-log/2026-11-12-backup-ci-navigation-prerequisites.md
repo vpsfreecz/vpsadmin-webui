@@ -1,6 +1,6 @@
 # Backup navigation prerequisites for original CI — 2026-11-12
 
-BAK-08, existing draft PR277; preserve the original reviewed backup behavior.
+BAK-08 (existing draft PR277) and BAK-04 (existing draft PR278); preserve each original reviewed backup behavior.
 Original attempt-one Chromium CI had one flaky navigation/history contract.
 Keep that result rejected rather than using a retry as release qualification.
 
@@ -14,7 +14,7 @@ branch, preserving all original backup source, locale and feature-test bytes.
 The already reviewed immutable browser-image prerequisite retains all six CI
 checks, browser projects and assertions. No API/SDK/dependency changes.
 
-Working merge verification: 8 native tests, pinned ci:quick and production
+Working merge verification: PR277 recorded8 native tests; PR278 recorded32 native tests. Both recorded pinned ci:quick and production
 build pass with a matching lockfile/dependency tree. Its hook/OOM/incident
 runtime bytes equal clean PR30778e0e973. That exact dependency has native40
 and clean20 CSdark/ENlight Chromium/LinuxWebKit scene/role cases passing, with

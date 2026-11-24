@@ -1,3 +1,15 @@
+## 2026-11-10 — Simplify the snapshot dataset selection prompt
+
+[BAK-04 snapshot dataset selection](docs/work-log/2026-11-10-backup-snapshot-picker.md).
+
+## 2026-11-12 — BAK-04 original-CI navigation prerequisites (prepared)
+
+Preserve the approved backup feature and include reviewed PR243 plus the
+incident caller correction in PR307. Original flaky CI remains rejected;
+new-head original six-check qualification is required.
+[Source, tests and limits](docs/work-log/2026-11-12-backup-ci-navigation-prerequisites.md).
+No merge, activation or task-done claim.
+
 ## 2026-11-10 — Hide inactive snapshot pagination
 
 [BAK-08 snapshot pagination](docs/work-log/2026-11-10-snapshot-pagination.md).

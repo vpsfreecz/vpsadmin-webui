@@ -124,9 +124,11 @@ export function BackupCenterDatasetWorkspaceView(props: BackupCenterDatasetWorks
             title={t(props.restoreMode
               ? 'backups.restore.workspace.empty.title'
               : `backups.${props.section}.workspace.empty.title`)}
-            body={t(props.restoreMode
-              ? 'backups.restore.workspace.empty.body'
-              : `backups.${props.section}.workspace.empty.body`)}
+            body={props.restoreMode
+              ? t('backups.restore.workspace.empty.body')
+              : props.section === 'plans'
+                ? t('backups.plans.workspace.empty.body')
+                : undefined}
           />
         )}
       </div>
