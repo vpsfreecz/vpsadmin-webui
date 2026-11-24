@@ -1,3 +1,7 @@
+## 2026-11-24 — Keep DNS server addresses on one line
+
+[DNS-13 follow-up and verification scope](docs/work-log/2026-11-15-dns-zone-server-reports.md).
+
 ## 2026-11-15 — Distinguish DNS configuration and server reports
 
 Prepare approved DNS-06/07/08/13 / REQ-049: separate counters, node observations

@@ -53,3 +53,34 @@ check failures are retained with their corrections; no checks were weakened.
 This commit is prepared for exact committed verification. Clean local Nix,
 original hosted CI, paired activation and protected TODO delivery remain
 separate gates. No real DNS objects were created or changed.
+
+## Maintainer DNS-13 revision — 2026-11-24
+
+Keep each complete DNS server IPv4/IPv6 address on one line instead of breaking
+IPv6 into two lines. The address has its own horizontal scroll area when needed,
+with keyboard focus and unchanged full clipboard value. Server rows/cards and
+transfer reports share the renderer, keeping their Copy and action controls
+reachable. The surrounding page must not overflow on narrow screens. No data,
+API, permission, mutation or localization change. Existing long-address browser
+coverage now checks one-line rendering and keyboard access. Exact focused checks,
+CI, screenshots and paired preview delivery are pending; no completion claim.
+
+The first native artifact run caught real mobile overflow after preventing
+address wrapping: the card's start-aligned identity container still sized itself
+to unbroken contents. Constrain it to the card width and retain a maximum-width
+address row, so only the address scrolls. Original failed traces are retained;
+rerun the same full focused assertions and build without weakening width limits.
+
+Corrected revision: full focused quick checks,script/BFF suites,60 relevant DNS
+unit cases in8 files and native production build pass. All36 native artifact
+browser cases pass across desktop Chromium,mobile Chrome and mobile WebKit,
+CS/EN and member/support/admin My/admin All,including one-line complete text,
+keyboard focus, bounded card/document widths, serial edge cases and independent
+read errors.0failure/skip/retry/flaky; no writes or uncaught errors. Product hashes
+bind this checkout to the successful native overlay. This is fixture evidence,
+not deployed DNS or live API authorization. Initial14 genuine mobile overflow
+failures/18passes/4interrupted cases and setup corrections remain retained.
+Clean Nix,exact-head CI and paired activation remain separate pending gates.
+
+Synthetic implemented candidate: [desktop](screenshots/2026-11-24-dns-address-review/desktop.png),
+[mobile](screenshots/2026-11-24-dns-address-review/mobile.png).

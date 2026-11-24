@@ -168,6 +168,17 @@ for (const language of ['cs', 'en'] as const) {
       await expect(page.getByTestId('dns.zone.configured_serial')).toHaveText('101');
       const serverPrefix = `dns.servers.${hasTouch ? 'card' : 'row'}.`;
       await expect(page.getByTestId(serverPrefix + '302')).toContainText(serverName);
+      const address = page.getByTestId(serverPrefix + '302.ipv6').locator('code');
+      await expect(address).toHaveText(ipv6);
+      const addressMetrics = await address.evaluate((element) => {
+        const text = document.createRange();
+        text.selectNodeContents(element);
+        return { height: text.getBoundingClientRect().height, lineHeight: parseFloat(getComputedStyle(element).lineHeight) };
+      });
+      expect(addressMetrics.height).toBeLessThanOrEqual(addressMetrics.lineHeight + 2);
+      await address.focus();
+      await expect(address).toBeFocused();
+
       const serialCell = (id: number) =>
         hasTouch
           ? page
