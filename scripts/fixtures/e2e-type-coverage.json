@@ -108,6 +108,7 @@
     "e2e/specs/app/nas_smoke.spec.ts",
     "e2e/specs/app/network_address_details.spec.ts",
     "e2e/specs/app/network_chart_orientation.spec.ts",
+    "e2e/specs/app/network_summary_tables.spec.ts",
     "e2e/specs/app/node_history.spec.ts",
     "e2e/specs/app/oom_reading_recovery.spec.ts",
     "e2e/specs/app/oom_refresh_context.spec.ts",
