@@ -225,3 +225,12 @@ shared FilterChip wraps the full label within its existing maximum width and
 keeps the removal button separate and nonshrinking. Preserve compact desktop
 controls and coarse-pointer targets, existing labels, tones and callbacks.
 This presentation correction does not change address/prefix URL update semantics.
+
+
+### Host-IP filter wrapping
+
+Host-IP text/lookup fields, assignment select and conditional clear action share
+the flat FilterBar layout. At desktop wrap boundaries, each44px control aligns
+with its row instead of centering a separate actions group between input rows.
+At narrow widths every field and clear action uses the available row width.
+Keep lookup scope, role restrictions, query keys and clear callback unchanged.

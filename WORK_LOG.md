@@ -1,3 +1,10 @@
+## 2026-11-10 — Host-IP filter alignment
+
+Flatten only Host-IP's legacy two-column filters so wrapped controls align
+with their row and narrow fields share the available width. Preserve44px and
+all lookup/query callbacks. [Scope and evidence](docs/work-log/2026-11-10-host-ip-filter-alignment.md).
+Verification and delivery remain pending; broad UX03/04 remain partial.
+
 ## 2026-11-10 — IP occupancy targets (prepared)
 
 Allow complete occupancy labels and shared pointer targets within the inset group.
