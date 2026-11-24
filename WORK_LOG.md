@@ -1,3 +1,14 @@
+## 2026-11-09 — Wrap requested paths on error pages (prepared)
+
+Keep long requested URLs within forbidden/not-found cards and preserve their full
+text and recovery links. [Cause and evidence](docs/work-log/2026-11-09-error-path-wrapping.md).
+
+## 2026-11-09 — Preserve the OOM navigation dependency
+
+Retain PR243 already present in the running preview while reviewing error-path
+wrapping. The older focused baseline can race pagination and browser history.
+[Cause and strict regressions](docs/work-log/2026-11-09-oom-pending-filter-navigation.md).
+
 ## 2026-11-09 — Public navigation targets (prepared)
 
 Align public locale/theme controls and coarse-pointer navigation targets.
