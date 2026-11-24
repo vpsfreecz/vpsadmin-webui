@@ -1,3 +1,19 @@
+## 2026-11-11 — Keep complete lifecycle values inside comparison columns
+
+The approved dimensions/dark-readability audit found a template card overflowing
+at768px and overlapping swap values at320px despite document containment. Add
+inherited value wrapping to the existing lifecycle impact body and swap grid;
+content, row associations and operations stay intact. [Evidence, scope and
+verification gates](docs/work-log/2026-11-11-lifecycle-value-wrapping.md). Prepared only; no PR, merge
+or new preview activation is claimed yet.
+
+## 2026-11-11 — Select lifecycle wrapping regression in Chromium smoke CI
+
+The new cases were selected by the WebKit file list but lacked the two tags
+required by Chromium smoke selectors. Add both tags without changing assertions
+or application code. Preserve the original exact-source evidence and refresh
+the focused-head CI and clean release verification before promotion.
+
 ## 2026-11-11 — Keep selected-user templates in their actual owner context
 
 The finite approved UX audit found support's personal templates under another

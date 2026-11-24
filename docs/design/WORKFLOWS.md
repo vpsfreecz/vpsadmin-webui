@@ -161,6 +161,16 @@ spinner. Creation locks still block conflicting mutations, including after reloa
 The administrator's originating member filter stays in the detail URL. Missing
 receipts or transport loss remain uncertain and must not trigger a blind retry.
 
+Lifecycle impact cards and the existing after-swap comparison grid wrap long
+values within their own columns, including template request identifiers, node
+names, dataset paths and complete address/prefix text. Keep the original content,
+row/source/target associations, selection, payload construction and confirmation
+behavior. A page can fit the viewport while a clipped comparison cell is still
+unreadable, so check both document and cell containment at intermediate widths
+and on narrow/coarse layouts. This is a REQ-010 presentation correction;
+[scope and evidence](../work-log/2026-11-11-lifecycle-value-wrapping.md) distinguish fixture diagnostics
+from live permissions and final release verification.
+
 **Actions:** start, graceful shutdown, immediate poweroff, restart and supported
 power/lifecycle operations must name the target and honor live state/transaction
 locks. Shutdown and poweroff use the same stop request with distinct force values.
