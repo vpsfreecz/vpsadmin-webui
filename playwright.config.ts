@@ -112,6 +112,7 @@ export default defineConfig({
         '**/user_namespace_controls.spec.ts',
         '**/user_namespace_filter_contract.spec.ts',
         '**/profile_user_namespaces.spec.ts',
+        '**/known_device_filter_help.spec.ts',
         '**/centered_dialogs.spec.ts',
         '**/dataset_parent_dialog.spec.ts',
         '**/storage_form_error_readability.spec.ts',

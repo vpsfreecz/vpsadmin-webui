@@ -1,3 +1,7 @@
+## 2026-11-15 — ACC-07 account follow-up
+
+[Name the known-device search with its visible label and associate its always-visible help](docs/work-log/2026-11-15-account-known-device-help.md). Prepared; qualification and delivery pending.
+
 ## 2026-11-15 — Explain DNSSEC record purpose concisely
 
 Use a shorter introduction identifying the zone DNSKEY and DS for the parent zone. Keep full record text, clipboard values, requests and primary/secondary/error/empty handling unchanged. RFC4034 section5 supports the parent-zone distinction; this is not DNS publication or signing-status verification.
