@@ -108,6 +108,7 @@ export default defineConfig({
         '**/dns_record_feedback_readability.spec.ts',
         '**/dns_zone_owner_lookup.spec.ts',
         '**/dns_log_column_width.spec.ts',
+        '**/ssh_key_validation_readability.spec.ts',
       ],
       use: { ...devices['iPhone 13'] },
     },
