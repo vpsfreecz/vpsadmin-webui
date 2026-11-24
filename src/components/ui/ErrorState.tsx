@@ -190,7 +190,7 @@ export function ErrorState(props: {
               text={details.text}
               label={t('common.copy_details')}
               variant={trailingActions ? 'secondary' : 'ghost'}
-              size={trailingActions ? 'md' : undefined}
+              size="md"
             />
           ) : null}
         </div>

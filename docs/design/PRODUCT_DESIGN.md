@@ -298,3 +298,7 @@ strings. Within the VPS resource group, use the existing muted role for
 tertiary child labels and amounts so warning-row backgrounds do not reduce
 small-text contrast. Scope the descendant override to that group; retain
 shared UsageBar defaults, data/severity decisions and action dimensions.
+
+### Shared error recovery action alignment
+
+Use the standard medium button size for Copy details inside a shared ErrorState recovery row, matching Retry, Back and Status. Retain the compact copy default everywhere else and the existing 44 px coarse-pointer minimum.

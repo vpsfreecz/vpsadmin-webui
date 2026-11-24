@@ -1130,3 +1130,7 @@ values; warning rows keep legible numeric usage labels. Mobile metadata's
 existing intentional truncation and all navigation, role, scope, filter,
 pagination, action and resource-pressure contracts remain unchanged.
 [Presentation evidence and source variants](../work-log/2026-11-10-vps-list-context-readability.md).
+
+### Shared error recovery action alignment
+
+Error recovery preserves the original retry, back, status, details and copy behavior. Matching action heights apply to the shared recovery row without changing error classification, navigation or retry policy.
