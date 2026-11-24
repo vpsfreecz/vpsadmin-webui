@@ -200,7 +200,7 @@ function isValidRecordName(value: string): boolean {
   if (trimmed.length > 253) return false;
   if (/\s/.test(trimmed)) return false;
   if (trimmed.includes('..')) return false;
-  if (trimmed === '@') return true;
+  if (trimmed === '@' || trimmed === '*') return true;
 
   const withoutWildcard = trimmed.startsWith('*.') ? trimmed.slice(2) : trimmed;
   const labels = withoutWildcard.replace(/\.$/, '').split('.');
