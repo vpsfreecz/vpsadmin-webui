@@ -18,6 +18,7 @@ import { useTierAIntervalMs } from '../../lib/refreshTiers';
 import { formatErrorMessage } from '../../lib/errors';
 
 import { Badge } from '../../components/ui/Badge';
+import { Alert } from '../../components/ui/Alert';
 import { Button } from '../../components/ui/Button';
 import { Card, CardHeader } from '../../components/ui/Card';
 import { ErrorState } from '../../components/ui/ErrorState';
@@ -247,7 +248,14 @@ export function TransactionChainDetailPage() {
               {txQ.isLoading ? (
                 <LoadingState testId="transactions.chain.detail.transactions.loading" />
               ) : txQ.isError ? (
-                <div className="p-4 text-sm text-danger">{formatErrorMessage(txQ.error)}</div>
+                <Alert
+                  className="m-4"
+                  variant="danger"
+                  title={t('common.error')}
+                  testId="transactions.chain.detail.transactions.error"
+                >
+                  {formatErrorMessage(txQ.error)}
+                </Alert>
               ) : (txQ.data ?? []).length === 0 ? (
                 <div className="p-4">
                   <div className="text-sm font-medium">{t('transactions.chain.detail.empty.title')}</div>

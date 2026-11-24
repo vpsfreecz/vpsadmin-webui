@@ -132,7 +132,7 @@ export function TransactionDebugSections(props: {
       {props.errorText ? (
         <div>
           <div className="flex items-center justify-between gap-2">
-            <div className="text-xs font-medium text-danger">{props.t('transactions.tx.error_label')}</div>
+            <div className="text-xs font-medium text-fg">{props.t('transactions.tx.error_label')}</div>
             <CopyButton text={props.errorText} />
           </div>
           <pre

@@ -1,3 +1,7 @@
+## 2026-11-08 — Readable operation cards and read failures
+
+[Scope and verification](docs/work-log/2026-11-08-todo-operation-body-presentation.md).
+
 ## 2026-11-08 — Readable migration-plan read errors
 
 Prepared existing semantic error panels for independent migration-row and

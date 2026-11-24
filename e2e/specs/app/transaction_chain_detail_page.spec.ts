@@ -1,9 +1,13 @@
 import { expect, test } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
 import {
-  expectNoDocumentHorizontalOverflow,
-} from '../../helpers/horizontalOverflow';
+  bootstrapVpsAdminWindow,
+  installHaveApiMock,
+  setUiSettingsLocalStorage,
+  jsonFulfill,
+  failEnvelope,
+} from '../../fixtures';
+import { expectNoDocumentHorizontalOverflow } from '../../helpers/horizontalOverflow';
 
 const handlers = {
   'GET transaction_chains/123': () => ({
@@ -204,15 +208,23 @@ test.describe('@pr-smoke TransactionChainDetailPage', () => {
     await expect(concerns).not.toContainText('#998');
     await expect(concerns).not.toContainText('#997');
     await expect(page.getByTestId('transactions.chain.detail.concern.0.open')).toHaveAttribute('href', '/app/vps/100');
-    await expect(page.getByTestId('transactions.chain.detail.concern.1.open')).toHaveAttribute('href', '/app/datasets/200');
-    await expect(page.getByTestId('transactions.chain.detail.concern.2.open')).toHaveAttribute('href', '/app/dns/zones/300');
+    await expect(page.getByTestId('transactions.chain.detail.concern.1.open')).toHaveAttribute(
+      'href',
+      '/app/datasets/200'
+    );
+    await expect(page.getByTestId('transactions.chain.detail.concern.2.open')).toHaveAttribute(
+      'href',
+      '/app/dns/zones/300'
+    );
     await expect(page.getByTestId('transactions.chain.detail.concern.3.open')).toHaveCount(0);
     await expect(page.getByTestId('transactions.chain.detail.concern.4.open')).toHaveCount(0);
     await expect(concerns.locator('a[href^="/admin"]')).toHaveCount(0);
 
     await expect(page.getByTestId('transactions.chain.detail.tx.701')).toBeVisible();
     await expect(page.getByTestId('transactions.chain.detail.tx.702')).toBeVisible();
-    await expect(page.getByTestId('transactions.chain.detail.tx.702').getByRole('link', { name: 'Step 2', exact: true })).toHaveAttribute('href', '/app/transactions/items/702');
+    await expect(
+      page.getByTestId('transactions.chain.detail.tx.702').getByRole('link', { name: 'Step 2', exact: true })
+    ).toHaveAttribute('href', '/app/transactions/items/702');
 
     // RowTone Full: every transaction row has an explicit variant.
     await expect(page.getByTestId('transactions.chain.detail.tx.701')).toHaveAttribute('data-row-variant', 'warn');
@@ -221,12 +233,18 @@ test.describe('@pr-smoke TransactionChainDetailPage', () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await expectNoDocumentHorizontalOverflow(page);
     await expect(page.getByTestId('transactions.chain.detail.transactions.table')).toBeVisible();
-    expect(await page.getByTestId('transactions.chain.detail.transactions.table').evaluate((table) => table.scrollWidth <= table.clientWidth + 1)).toBe(true);
+    expect(
+      await page
+        .getByTestId('transactions.chain.detail.transactions.table')
+        .evaluate((table) => table.scrollWidth <= table.clientWidth + 1)
+    ).toBe(true);
 
     await page.getByTestId('transactions.chain.detail.tx.toggle.702').click();
     await expect(page.getByTestId('transactions.chain.detail.tx.expanded.702')).toBeVisible();
     await expect(page.getByTestId('transactions.chain.detail.tx.expanded.702')).toContainText('step failed on node2');
-    await expect(page.getByTestId('transactions.chain.detail.tx.expanded.702')).toContainText('mount: permission denied');
+    await expect(page.getByTestId('transactions.chain.detail.tx.expanded.702')).toContainText(
+      'mount: permission denied'
+    );
     await expect(page.getByTestId('transactions.chain.detail.tx.expanded.702')).toContainText('"a": 1');
     await expect(page.getByTestId('transactions.chain.detail.tx.expanded.702')).toContainText('"ok": false');
     await expect(page.getByTestId('transactions.chain.detail.tx.expanded.702')).toContainText('rollback_needed');
@@ -280,7 +298,11 @@ test.describe('@pr-smoke TransactionChainDetailPage', () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await expectNoDocumentHorizontalOverflow(page);
     await expect(page.getByTestId('transactions.chain.detail.transactions.table')).toBeVisible();
-    expect(await page.getByTestId('transactions.chain.detail.transactions.table').evaluate((table) => table.scrollWidth <= table.clientWidth + 1)).toBe(true);
+    expect(
+      await page
+        .getByTestId('transactions.chain.detail.transactions.table')
+        .evaluate((table) => table.scrollWidth <= table.clientWidth + 1)
+    ).toBe(true);
 
     await page.getByTestId('transactions.chain.detail.tx.toggle.902').click();
     await expect(page.getByTestId('transactions.chain.detail.tx.expanded.902')).toContainText('creating veth');
@@ -345,15 +367,31 @@ test.describe('@pr-smoke TransactionChainDetailPage', () => {
       'href',
       '/admin/transactions/items/702'
     );
-    await expect(page.getByTestId('transactions.chain.detail.concern.0.open')).toHaveAttribute('href', '/admin/vps/100');
-    await expect(page.getByTestId('transactions.chain.detail.concern.1.open')).toHaveAttribute('href', '/admin/datasets/200');
-    await expect(page.getByTestId('transactions.chain.detail.concern.2.open')).toHaveAttribute('href', '/admin/dns/zones/300');
-    await expect(page.getByTestId('transactions.chain.detail.concern.3.open')).toHaveAttribute('href', '/admin/nodes/2');
+    await expect(page.getByTestId('transactions.chain.detail.concern.0.open')).toHaveAttribute(
+      'href',
+      '/admin/vps/100'
+    );
+    await expect(page.getByTestId('transactions.chain.detail.concern.1.open')).toHaveAttribute(
+      'href',
+      '/admin/datasets/200'
+    );
+    await expect(page.getByTestId('transactions.chain.detail.concern.2.open')).toHaveAttribute(
+      'href',
+      '/admin/dns/zones/300'
+    );
+    await expect(page.getByTestId('transactions.chain.detail.concern.3.open')).toHaveAttribute(
+      'href',
+      '/admin/nodes/2'
+    );
     await expect(page.getByTestId('transactions.chain.detail.concern.4.open')).toHaveCount(0);
     await page.setViewportSize({ width: 390, height: 844 });
     await expectNoDocumentHorizontalOverflow(page);
     await expect(page.getByTestId('transactions.chain.detail.transactions.table')).toBeVisible();
-    expect(await page.getByTestId('transactions.chain.detail.transactions.table').evaluate((table) => table.scrollWidth <= table.clientWidth + 1)).toBe(true);
+    expect(
+      await page
+        .getByTestId('transactions.chain.detail.transactions.table')
+        .evaluate((table) => table.scrollWidth <= table.clientWidth + 1)
+    ).toBe(true);
   });
 
   test('deep reload keeps chain detail route and transaction table visible', async ({ page }) => {
@@ -370,3 +408,53 @@ test.describe('@pr-smoke TransactionChainDetailPage', () => {
     await expect(page.getByTestId('transactions.chain.detail.tx.702')).toBeVisible();
   });
 });
+
+for (const mode of ['app', 'admin'] as const) {
+  for (const [language, theme] of [
+    ['cs', 'dark'],
+    ['en', 'light'],
+  ] as const) {
+    test(`@pr-smoke @pr-smoke-mobile chain item read error remains labelled and readable (${mode}/${language}/${theme})`, async ({
+      page,
+    }) => {
+      const writes: string[] = [];
+      page.on('request', (request) => {
+        if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method())) writes.push(request.url());
+      });
+      await setUiSettingsLocalStorage(page, { language, theme });
+      await bootstrapVpsAdminWindow(page, { webuiNext: { uiSettings: { persistence: 'local' } } });
+      const message = 'Synthetic transaction items read failure';
+      await installHaveApiMock(page, {
+        user: { id: 1, login: 'synthetic-audit-user', level: mode === 'admin' ? 99 : 1 },
+        handlers: {
+          'GET transaction_chains/123': () => ({
+            transaction_chain: { id: 123, state: 'queued', label: 'Synthetic chain' },
+          }),
+          'GET transactions': () => jsonFulfill(failEnvelope(message), 503),
+        },
+      });
+      await page.goto(`/${mode}/transactions/123`);
+      const error = page.getByTestId('transactions.chain.detail.transactions.error');
+      await expect(error).toContainText(language === 'cs' ? 'Chyba' : 'Error');
+      await expect(error).toContainText(message);
+      const contrast = await error.getByText(message, { exact: true }).evaluate((el) => {
+        const rgb = (text: string) => (text.match(/[\d.]+/g) ?? []).slice(0, 3).map(Number);
+        const luminance = (c: number[]) =>
+          c
+            .map((v) => v / 255)
+            .map((v) => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4))
+            .reduce((sum, v, i) => sum + v * [0.2126, 0.7152, 0.0722][i]!, 0);
+        let surface: Element | null = el;
+        while (surface && ['rgba(0, 0, 0, 0)', 'transparent'].includes(getComputedStyle(surface).backgroundColor))
+          surface = surface.parentElement;
+        const foreground = luminance(rgb(getComputedStyle(el).color));
+        const background = luminance(rgb(getComputedStyle(surface!).backgroundColor));
+        return (Math.max(foreground, background) + 0.05) / (Math.min(foreground, background) + 0.05);
+      });
+      expect(contrast).toBeGreaterThanOrEqual(4.5);
+      await page.setViewportSize({ width: 320, height: 844 });
+      await expectNoDocumentHorizontalOverflow(page);
+      expect(writes).toEqual([]);
+    });
+  }
+}
