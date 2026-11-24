@@ -1,3 +1,9 @@
+## 2026-11-11 — Expose the selected user-history view
+
+The finite UX-04 audit found that History's current view was represented only by
+CSS classes. Add explicit pressed state to the two existing buttons and exercise
+pointer plus Space/Enter changes. [Scope, evidence and verification gates](docs/work-log/2026-11-11-history-view-selection.md). Prepared only; no merge or deployment claimed.
+
 ## 2026-11-11 — Keep storage actions and resize feedback readable (prepared)
 
 The finite UX-03/UX-04 audit found selected-admin storage overflow at768px. Allow

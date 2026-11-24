@@ -71,6 +71,7 @@ export default defineConfig({
         '**/error_recovery_action_alignment.spec.ts',
         '**/app/incidents_smart_filter.spec.ts',
         '**/storage_root_header.spec.ts',
+        '**/user_history_smoke.spec.ts',
         '**/about.spec.ts',
         '**/theme_switcher.spec.ts',
         '**/news_language_switch.spec.ts',
