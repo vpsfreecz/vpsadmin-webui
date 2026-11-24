@@ -105,3 +105,13 @@ export function resolveMailboxId(
   if (partial.length > 1) return { err: 'ambiguous' };
   return { err: 'none' };
 }
+
+/** Clear the explicit list filters together so URL-backed policy state cannot survive. */
+export function clearIncidentFilters(params: URLSearchParams): URLSearchParams {
+  const next = new URLSearchParams(params);
+  for (const key of ['vps', 'user', 'filed_by', 'ip_addr', 'ip_address_assignment', 'codename', 'mailbox', 'policy_key', 'q', 'from_id']) {
+    next.delete(key);
+  }
+  next.set('page', '1');
+  return next;
+}

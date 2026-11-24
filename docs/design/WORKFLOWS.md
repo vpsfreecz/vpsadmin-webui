@@ -1015,6 +1015,46 @@ objects; session filters and pagination must retain context. Large cgroup/SSH/ta
 identifiers must wrap or scroll appropriately on mobile. Monitoring decisions and
 incident creation keep failed submissions retryable where safe.
 
+The VPS Incident policies tab discovers all configured policies, including those
+with zero matches. Each compact section shows the API-provided label and
+description, current status and filtered history. Two rows show Period / Incidents
+/ Limit / Action for the warning and VPS-stop periods supplied by the API. The separate Incident reports tab opens the
+existing VPS-filtered report list; both destinations preserve app/admin and owner
+context. Current declared limits and overrides remain distinct from saved
+historical decisions. Configuration errors use normal error feedback, not guessed
+zero thresholds. Overview alerts and desktop and mobile indicators appear only
+when warning or shutdown thresholds are reached and link to the tab; ordinary resource and
+physical-action warnings remain visible.
+
+Administrator policy-limit drafts and the single shared shutdown-permission form
+are independent. Each limit field shows its effective numeric value and an
+Inherited/Custom choice. An untouched inherited field sends null even when the
+other field changes; a custom value remains custom even if it equals the default.
+Changing a custom field to inheritance shows a pending value until authoritative
+readback supplies the inherited limit. Inheritance changes only the draft until
+an explicit, confirmed Save. Policy details and shared settings stay visible.
+Threshold values include the report count and supplied period. The card header
+retains its border; the editor adds none. Sent notices omit the delivery caveat.
+The forms preserve preflight, durable locks for uncertain writes, exact resource
+readback and drafts after failure. Shared permission, cooldown, confirmed stop
+and outstanding physical action appear once, outside policy sections. Cooldown permits a new qualifying incident;
+it never schedules a shutdown. App/admin scope and originating-owner list context
+survive navigation. API resource capability gates the feature; no old
+selected-policy fallback exists.
+
+Incident detail shows authorized saved evaluations with `matched=true` and state
+`recorded` or `audit_only` in stable key order. Each section uses its saved periods,
+counts and limits. With an authorized VPS association, active keys link to the VPS
+policy anchor and retired keys retain filtered-history links. False or null
+membership and error states appear only in administrator diagnostics; they do not
+produce member policy sections. Missing capability or data produces neutral
+feedback. An empty member response can hide private errors for matched policies,
+so it also shows unavailable feedback. Only exhaustive saved evidence establishes
+that no policies matched. Lists make no request per row.
+Notices show their saved originating policy key and label separately from trigger
+navigation and mail progress. See [generic policy contracts](API_CONTRACTS.md#generic-incident-policies)
+and [the revision record](../work-log/2026-11-17-generic-incident-policies.md).
+
 Incident lists fit the available desktop content width without horizontal table
 scrolling. Subjects, codenames, hostnames and IPv6 addresses wrap without losing
 text; narrower screens use the existing cards. The administrator-only owner and
@@ -1033,6 +1073,47 @@ See the [context regression record](../work-log/2026-10-08-incident-create-conte
 [Transactions](../../src/lib/api/transactions.ts),
 [monitoring](../../src/lib/api/monitoring.ts), [incidents](../../src/lib/api/incidents.ts),
 [OOM](../../src/lib/api/oom.ts).
+
+### Administrator incident overview and history
+
+The administrator Incidents menu opens Overview, with Reports and History as
+adjacent tabs. Overview lists all current matches across active policies,
+including stopped VPSes and counts below the thresholds. The backend filters and
+sorts all VPS/policy pairs before returning a page. Rows show incident counts and
+how many reports remain before a threshold, alongside modes, permissions, owner
+and transfer restrictions, cooldowns and shared actions. These values do not
+predict the next action.
+
+Reports keeps its existing URL, filters and creation/detail links. Member,
+support and per-VPS views retain their behavior. History shows saved evaluations
+alongside the latest action and email outcomes, including retired policies and
+original owners. Its unresolved-actions view includes outstanding work of any
+age. A request to shut down a VPS and a confirmed shutdown are separate facts;
+several policy rows can refer to one shared shutdown. Email state `sent` means
+acceptance by the mail server, without proof of inbox delivery.
+
+Each new view requires the administrator role and its authorized generated action,
+fields and metadata. Its pagination preserves the echoed cutoff in the URL;
+Refresh obtains a new cutoff. Settings and outcomes still reflect the latest
+read. See [the API contract](API_CONTRACTS.md#administrator-overview-and-recorded-history).
+
+Overview has four desktop columns: VPS and policy, incident counts, status and the
+latest recorded outcome. Mobile cards show the same summary. Each count line shows
+the count, limit and period, with the supplied remaining count alongside it.
+Details holds modes, permissions, node, accounting dates, cooldowns, timestamps,
+identifiers and evidence links. It starts closed and needs no additional request.
+
+History leads with the evaluation time, report, VPS and policy. The decision and
+counts recorded at evaluation are separate from the current action and email
+outcome. If no reason for decision `none` was recorded, the page does not infer one.
+Owner, policy key, detection time and other saved settings are available in Details.
+
+Overview keeps policy, status and sort controls visible; History keeps policy,
+scope and period visible. More filters contains IDs, modes, permissions, action
+and email states, and direction where supported. Its controls retain their values
+and remain enabled while collapsed; active refinements open it. Both pages show a
+compact cutoff, with the last-read timestamp in a disclosure. History also shows
+its selected period. The long explanatory banners are omitted.
 
 ## Nodes, cluster and migrations
 

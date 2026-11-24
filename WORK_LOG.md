@@ -1,3 +1,23 @@
+## 2026-11-24 — Reconcile the accepted dashboard fix with current main
+
+[Merge scope, preserved history and verification](docs/work-log/2026-11-24-approved-dashboard-merge.md).
+
+## 2026-11-24: Add administrator incident Overview and History
+
+[Scope and verification](docs/work-log/2026-11-24-admin-incident-policies.md).
+
+## 2026-11-19: Clarify incident policy settings and filters
+
+[Scope and verification](docs/work-log/2026-11-19-incident-policy-usability.md).
+
+## 2026-11-18: Explain incident policy periods and report links
+
+[Scope and verification](docs/work-log/2026-11-18-incident-policy-explanations.md).
+
+## 2026-11-17: Organize generic incident policies in a VPS tab
+
+[Scope and verification](docs/work-log/2026-11-17-generic-incident-policies.md).
+
 ## 2026-11-10 — Align the own-server retry control
 
 [Rendered defect, scope and verification](docs/work-log/2026-11-10-dashboard-own-scope-retry-alignment.md).

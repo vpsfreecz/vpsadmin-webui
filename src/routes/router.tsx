@@ -7,6 +7,7 @@ import { ParamKeyedRoute } from './ParamKeyedRoute';
 import { lazyRoute } from './lazyRoute';
 import * as CoreRoutes from './coreRouteComponents';
 import { adminFinanceRoutes } from './adminFinanceRoutes';
+import { adminIncidentRoutes } from './adminIncidentRoutes';
 import { securityAdvisoryAdminRoutes } from './securityAdvisoryAdminRoutes';
 import { publicRoutes, statusReadingRoutes } from './statusReadingRoutes';
 
@@ -14,7 +15,6 @@ import { ForbiddenPage } from '../pages/ForbiddenPage';
 import { ErrorPage } from '../pages/ErrorPage';
 import { NotFoundPage } from '../pages/NotFoundPage';
 import { RootErrorPage } from '../pages/RootErrorPage';
-
 
 const DatasetsListPage = lazyRoute(() => import('../pages/app/datasets/DatasetsListPage'), 'DatasetsListPage');
 const DatasetLayout = lazyRoute(() => import('../pages/app/datasets/DatasetLayout'), 'DatasetLayout');
@@ -171,6 +171,7 @@ export const router = createBrowserRouter([
                 { path: 'features', element: <CoreRoutes.VpsFeaturesPage /> },
                 { path: 'maintenance', element: <CoreRoutes.VpsMaintenancePage /> },
                 { path: 'history', element: <CoreRoutes.VpsHistoryPage /> },
+                { path: 'incidents', element: <CoreRoutes.VpsIncidentPoliciesPage /> },
                 { path: 'lifecycle', element: <CoreRoutes.VpsLifecyclePage /> },
                 { path: 'lifecycle/:lifecycleAction', element: <CoreRoutes.VpsLifecyclePage /> },
                 { path: 'console', element: <CoreRoutes.VpsConsolePage /> },
@@ -372,6 +373,7 @@ export const router = createBrowserRouter([
                 { path: 'features', element: <CoreRoutes.VpsFeaturesPage /> },
                 { path: 'maintenance', element: <CoreRoutes.VpsMaintenancePage /> },
                 { path: 'history', element: <CoreRoutes.VpsHistoryPage /> },
+                { path: 'incidents', element: <CoreRoutes.VpsIncidentPoliciesPage /> },
                 { path: 'lifecycle', element: <CoreRoutes.VpsLifecyclePage /> },
                 { path: 'lifecycle/:lifecycleAction', element: <CoreRoutes.VpsLifecyclePage /> },
                 { path: 'console', element: <CoreRoutes.VpsConsolePage /> },
@@ -430,9 +432,7 @@ export const router = createBrowserRouter([
             { path: 'action_states/:actionStateId', element: <ParamKeyedRoute param="actionStateId"><CoreRoutes.ActionStateDetailPage /></ParamKeyedRoute> },
             { path: 'monitoring', element: <CoreRoutes.MonitoringEventsPage /> },
             { path: 'monitoring/:eventId', element: <ParamKeyedRoute param="eventId"><CoreRoutes.MonitoringEventDetailPage /></ParamKeyedRoute> },
-            { path: 'incidents', element: <CoreRoutes.IncidentsPage /> },
-            { path: 'incidents/new', element: <CoreRoutes.IncidentReportNewPage /> },
-            { path: 'incidents/:incidentId', element: <CoreRoutes.IncidentReportDetailPage /> },
+            ...adminIncidentRoutes,
             { path: 'oom-reports', element: <CoreRoutes.OomReportsPage /> },
             { path: 'oom-reports/rules/:vpsId', element: <ParamKeyedRoute param="vpsId"><CoreRoutes.OomReportRulesPage /></ParamKeyedRoute> },
             {

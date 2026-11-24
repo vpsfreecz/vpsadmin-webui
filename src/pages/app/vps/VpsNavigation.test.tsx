@@ -13,7 +13,7 @@ describe('VPS detail navigation context', () => {
   it('puts the member context into every VPS tab href', () => {
     render(
       <MemoryRouter>
-        <VpsTabsNav basePath="/admin" vpsId={14} contextSearch="?user=1" />
+        <VpsTabsNav basePath="/admin" vpsId={14} contextSearch="?user=1" incidentsAvailable />
       </MemoryRouter>
     );
 
@@ -25,6 +25,14 @@ describe('VPS detail navigation context', () => {
     expect(screen.getByRole('link', { name: 'vps.tabs.console' })).toHaveAttribute(
       'href',
       '/admin/vps/14/console?user=1'
+    );
+    expect(screen.getByRole('link', { name: 'vps.tabs.incidentReports' })).toHaveAttribute(
+      'href',
+      '/admin/incidents?user=1&vps=14'
+    );
+    expect(screen.getByRole('link', { name: 'vps.tabs.incidents' })).toHaveAttribute(
+      'href',
+      '/admin/vps/14/incidents?user=1'
     );
   });
 
@@ -62,4 +70,17 @@ describe('VPS detail navigation context', () => {
     expect(menu.querySelector('option[value="/admin/vps/14/lifecycle/delete?user=1"]')).not.toBeNull();
     expect(menu.querySelector('option[value="/admin/vps/14/lifecycle/migrate?user=1"]')).not.toBeNull();
   });
+});
+
+it('keeps reports available on an older API without exposing the unsupported policy tab', () => {
+  render(
+    <MemoryRouter>
+      <VpsTabsNav basePath="/app" vpsId={14} />
+    </MemoryRouter>
+  );
+  expect(screen.getByRole('link', { name: 'vps.tabs.incidentReports' })).toHaveAttribute(
+    'href',
+    '/app/incidents?vps=14'
+  );
+  expect(screen.queryByRole('link', { name: 'vps.tabs.incidents' })).not.toBeInTheDocument();
 });

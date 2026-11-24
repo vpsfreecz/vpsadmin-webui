@@ -13,6 +13,11 @@ function fakeT(key: string) {
 }
 
 describe('buildSidebarNavItems', () => {
+  it('opens the administrator overview while preserving support and member Reports navigation', () => {
+    expect(buildSidebarNavItems({ basePath: '/admin', appMode: 'admin', role: 'admin', t: fakeT }).find(item => item.id === 'incidents')).toMatchObject({ to: '/admin/incidents/overview', activePathPrefix: '/admin/incidents' });
+    expect(buildSidebarNavItems({ basePath: '/admin', appMode: 'admin', role: 'support', t: fakeT }).find(item => item.id === 'incidents')?.to).toBe('/admin/incidents');
+    expect(buildSidebarNavItems({ basePath: '/app', appMode: 'user', role: 'user', t: fakeT }).find(item => item.id === 'incidents')?.to).toBe('/app/incidents');
+  });
   it.each(['user', 'support', 'admin'] as const)('hides nodes in personal view for %s', (role) => {
     const items = buildSidebarNavItems({ basePath: '/app', appMode: 'user', role, t: fakeT });
     expect(items.map((item) => item.id)).not.toContain('nodes');

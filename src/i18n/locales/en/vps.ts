@@ -1,4 +1,5 @@
 // VPS locale barrel
+import { enVps_incidentEscalation } from './vps/incidentEscalation';
 import { enVps_core } from './vps/core';
 import { enVps_create } from './vps/create';
 import { enVps_overview } from './vps/overview';
@@ -12,6 +13,7 @@ import { enVps_features } from './vps/features';
 import { enVps_maintenance } from './vps/maintenance';
 
 export const enVps = {
+  ...enVps_incidentEscalation,
   ...enVps_core,
   ...enVps_create,
   ...enVps_overview,

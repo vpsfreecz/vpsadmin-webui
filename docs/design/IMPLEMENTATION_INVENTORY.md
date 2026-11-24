@@ -6,7 +6,7 @@ This is a source inventory, not proof of API permissions, feature parity, or tes
 Paths are relative to the configured router basename. Parent layers include scope/auth
 wrappers; page-level action guards and API authorization still apply.
 
-## Routes (266 entries, including layouts and index routes)
+## Routes (270 entries, including layouts and index routes)
 
 | Route | Kind | Element | Parent layers | Source |
 | --- | --- | --- | --- | --- |
@@ -43,6 +43,7 @@ wrappers; page-level action guards and API authorization still apply.
 | `/app/vps/:vpsId/features` | page/redirect | `<CoreRoutes.VpsFeaturesPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
 | `/app/vps/:vpsId/maintenance` | page/redirect | `<CoreRoutes.VpsMaintenancePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
 | `/app/vps/:vpsId/history` | page/redirect | `<CoreRoutes.VpsHistoryPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
+| `/app/vps/:vpsId/incidents` | page/redirect | `<CoreRoutes.VpsIncidentPoliciesPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
 | `/app/vps/:vpsId/lifecycle` | page/redirect | `<CoreRoutes.VpsLifecyclePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
 | `/app/vps/:vpsId/lifecycle/:lifecycleAction` | page/redirect | `<CoreRoutes.VpsLifecyclePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
 | `/app/vps/:vpsId/console` | page/redirect | `<CoreRoutes.VpsConsolePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
@@ -188,6 +189,7 @@ wrappers; page-level action guards and API authorization still apply.
 | `/admin/vps/:vpsId/features` | page/redirect | `<CoreRoutes.VpsFeaturesPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
 | `/admin/vps/:vpsId/maintenance` | page/redirect | `<CoreRoutes.VpsMaintenancePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
 | `/admin/vps/:vpsId/history` | page/redirect | `<CoreRoutes.VpsHistoryPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
+| `/admin/vps/:vpsId/incidents` | page/redirect | `<CoreRoutes.VpsIncidentPoliciesPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
 | `/admin/vps/:vpsId/lifecycle` | page/redirect | `<CoreRoutes.VpsLifecyclePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
 | `/admin/vps/:vpsId/lifecycle/:lifecycleAction` | page/redirect | `<CoreRoutes.VpsLifecyclePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
 | `/admin/vps/:vpsId/console` | page/redirect | `<CoreRoutes.VpsConsolePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
@@ -229,9 +231,11 @@ wrappers; page-level action guards and API authorization still apply.
 | `/admin/action_states/:actionStateId` | page/redirect | `<ParamKeyedRoute param="actionStateId"><CoreRoutes.ActionStateDetailPage /></ParamKeyedRoute>` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/router.tsx) |
 | `/admin/monitoring` | page/redirect | `<CoreRoutes.MonitoringEventsPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/router.tsx) |
 | `/admin/monitoring/:eventId` | page/redirect | `<ParamKeyedRoute param="eventId"><CoreRoutes.MonitoringEventDetailPage /></ParamKeyedRoute>` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/router.tsx) |
-| `/admin/incidents` | page/redirect | `<CoreRoutes.IncidentsPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/router.tsx) |
-| `/admin/incidents/new` | page/redirect | `<CoreRoutes.IncidentReportNewPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/router.tsx) |
-| `/admin/incidents/:incidentId` | page/redirect | `<CoreRoutes.IncidentReportDetailPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/router.tsx) |
+| `/admin/incidents` | page/redirect | `<CoreRoutes.IncidentsPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/adminIncidentRoutes.tsx) |
+| `/admin/incidents/overview` | page/redirect | `<CoreRoutes.AdminIncidentOverviewPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/adminIncidentRoutes.tsx) |
+| `/admin/incidents/history` | page/redirect | `<CoreRoutes.AdminIncidentHistoryPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/adminIncidentRoutes.tsx) |
+| `/admin/incidents/new` | page/redirect | `<CoreRoutes.IncidentReportNewPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/adminIncidentRoutes.tsx) |
+| `/admin/incidents/:incidentId` | page/redirect | `<CoreRoutes.IncidentReportDetailPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/adminIncidentRoutes.tsx) |
 | `/admin/oom-reports` | page/redirect | `<CoreRoutes.OomReportsPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/router.tsx) |
 | `/admin/oom-reports/rules/:vpsId` | page/redirect | `<ParamKeyedRoute param="vpsId"><CoreRoutes.OomReportRulesPage /></ParamKeyedRoute>` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/router.tsx) |
 | `/admin/oom-reports/:oomReportId` | layout | `<CoreRoutes.OomReportLayout />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/router.tsx) |
@@ -277,12 +281,16 @@ wrappers; page-level action guards and API authorization still apply.
 | `/admin/_design` | page/redirect | `<DesignSandboxPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/router.tsx) |
 | `/admin/*` | page/redirect | `<NotFoundPage appBasePath="/admin" />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/router.tsx) |
 
-## API adapter modules (74)
+## API adapter modules (79)
 
 Read these for request/response details. File presence does not prove that the deployed
 API implements every parameter; see [API contracts](API_CONTRACTS.md).
 
 - [actionStates.ts](../../src/lib/api/actionStates.ts)
+- [adminIncidentCapabilities.ts](../../src/lib/api/adminIncidentCapabilities.ts)
+- [adminIncidentModels.ts](../../src/lib/api/adminIncidentModels.ts)
+- [adminIncidentOutput.ts](../../src/lib/api/adminIncidentOutput.ts)
+- [adminIncidents.ts](../../src/lib/api/adminIncidents.ts)
 - [apiErrors.ts](../../src/lib/api/apiErrors.ts)
 - [apiOutput.ts](../../src/lib/api/apiOutput.ts)
 - [apiRequestPolicy.ts](../../src/lib/api/apiRequestPolicy.ts)
@@ -304,6 +312,7 @@ API implements every parameter; see [API contracts](API_CONTRACTS.md).
 - [finance.ts](../../src/lib/api/finance.ts)
 - [haveapiRequestClient.ts](../../src/lib/api/haveapiRequestClient.ts)
 - [helpBoxes.ts](../../src/lib/api/helpBoxes.ts)
+- [incidentPolicies.ts](../../src/lib/api/incidentPolicies.ts)
 - [incidents.ts](../../src/lib/api/incidents.ts)
 - [infra.ts](../../src/lib/api/infra.ts)
 - [ipAddresses.ts](../../src/lib/api/ipAddresses.ts)

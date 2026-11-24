@@ -4,6 +4,7 @@ import { useAppMode } from '../../../app/appMode';
 import { useAuth } from '../../../app/auth';
 import { LifecyclePanel } from '../../../components/lifetimes/LifecyclePanel';
 import { useVps } from './VpsContext';
+import { VpsIncidentThresholdAlert } from './VpsIncidentThresholdAlert';
 import { VpsOverviewMetricsCard } from './VpsOverviewMetricsCard';
 import {
   VpsActivityCard,
@@ -57,6 +58,9 @@ export function VpsOverviewPage() {
         ipAddressesLoading={ipAddressesLoading}
         ipAddressesError={ipAddressesError}
       />
+
+      <VpsIncidentThresholdAlert warningCount={vps.incident_warning_count ?? 0} shutdownCount={vps.incident_stop_threshold_count ?? 0}
+        href={`${basePath}/vps/${vps.id}/incidents${detailContextSearch ?? ''}`} />
 
       <VpsResourcesCard
         vps={vps}

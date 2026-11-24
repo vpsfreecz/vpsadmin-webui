@@ -45,6 +45,12 @@ export const MonitoringEventsPage = lazyRoute(
   'MonitoringEventsPage',
 );
 export const IncidentsPage = lazyRoute(() => import('../pages/app/incidents/IncidentsPage'), 'IncidentsPage');
+export const AdminIncidentOverviewPage = lazyRoute(
+  () => import('../pages/app/incidents/AdminIncidentPolicyPages'), 'AdminIncidentOverviewPage',
+);
+export const AdminIncidentHistoryPage = lazyRoute(
+  () => import('../pages/app/incidents/AdminIncidentPolicyPages'), 'AdminIncidentHistoryPage',
+);
 export const IncidentReportDetailPage = lazyRoute(
   () => import('../pages/app/incidents/IncidentReportDetailPage'),
   'IncidentReportDetailPage',
@@ -78,6 +84,7 @@ export const MonitoringEventDetailPage = lazyRoute(
 export const VpsLayout = lazyRoute(() => import('../pages/app/vps/VpsLayoutRoute'), 'VpsLayoutRoute');
 export const VpsCreatePage = lazyRoute(() => import('../pages/app/vps/VpsCreatePage'), 'VpsCreatePage');
 export const VpsOverviewPage = lazyRoute(() => import('../pages/app/vps/VpsOverviewPage'), 'VpsOverviewPage');
+export const VpsIncidentPoliciesPage = lazyRoute(() => import('../pages/app/vps/VpsIncidentPoliciesPage'), 'VpsIncidentPoliciesPage');
 export const VpsConfigurationPage = lazyRoute(
   () => import('../pages/app/vps/VpsConfigurationPage'),
   'VpsConfigurationPage',

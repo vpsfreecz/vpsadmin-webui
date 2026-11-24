@@ -6,14 +6,14 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 
-import { auditE2eTypeCoverage } from './e2e-type-coverage.mjs';
+import { auditE2eTypeCoverage, INITIAL_ROOTS } from './e2e-type-coverage.mjs';
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const inventoryPath = 'scripts/fixtures/e2e-type-coverage.json';
 const baselinePath = 'scripts/fixtures/e2e-type-baseline.json';
 const inventory = JSON.parse(fs.readFileSync(path.join(repo, inventoryPath), 'utf8'));
 const initialDeferred = inventory.deferred[0].path;
-const initialAdopted = inventory.adopted[0];
+const initialAdopted = INITIAL_ROOTS[0];
 // Adoption grows as specs are edited. The gate validates the exact paths,
 // compiler roots and immutable deferred baseline, not a frozen file count.
 const expectedCoverage = {
