@@ -1,3 +1,7 @@
+## 2026-11-09 — Align IP-detail header Copy
+
+[Scope and verification](docs/work-log/2026-11-09-ip-header-copy.md).
+
 ## 2026-11-09 — Separate traffic-table columns
 
 [Scope and verification](docs/work-log/2026-11-09-network-traffic-columns.md).

@@ -317,7 +317,7 @@ export function IpAddressDetailPage() {
                   meta={networkStr ? networkStr : ' '}
                   actions={
                     <>
-                      <CopyButton text={title} />
+                      <CopyButton text={title} size="md" />
                       {vpsId ? (
                         <LinkButton
                           to={`${basePath}/vps/${vpsId}`}

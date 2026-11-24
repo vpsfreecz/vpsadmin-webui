@@ -42,6 +42,14 @@ test('@pr-smoke @pr-smoke-mobile admin ip address detail: shows header and links
   await expect(page.getByTestId('admin.ip.action.user')).toHaveAttribute('href', '/admin/users/42');
 
   await expect(page.getByTestId('admin.ip_address.refresh')).toBeVisible();
+  const headerCopy = page.getByTestId('admin.ip_address.header').getByRole('button', { name: 'Copy', exact: true });
+  const headerRefresh = page.getByTestId('admin.ip_address.refresh');
+  const copyBox = await headerCopy.boundingBox();
+  const refreshBox = await headerRefresh.boundingBox();
+  expect(copyBox).not.toBeNull();
+  expect(refreshBox).not.toBeNull();
+  expect(copyBox!.height).toBe(refreshBox!.height);
+
   await expect(page.getByTestId('admin.ip.hosts.row.601.ptr')).toHaveAttribute('aria-label', 'PTR');
   await expect(page.getByTestId('admin.ip.hosts.row.601.free')).toHaveAttribute('aria-label', 'Remove');
   await expect(page.getByTestId('admin.ip.hosts.row.602.assign')).toHaveAttribute('aria-label', 'Assign');
@@ -52,7 +60,7 @@ test('@pr-smoke @pr-smoke-mobile admin ip address detail: shows header and links
   await expectNoDocumentHorizontalOverflow(page);
   await expectTableHorizontalScrollUsable(page, 'admin.ip.hosts.table');
 
-  const proofScreenshot = process.env.E2E_IP_DETAIL_ACTIONS_PROOF_SCREENSHOT?.trim();
+  const proofScreenshot = process.env['E2E_IP_DETAIL_ACTIONS_PROOF_SCREENSHOT']?.trim();
   if (proofScreenshot) await page.screenshot({ path: proofScreenshot, fullPage: true });
 });
 
