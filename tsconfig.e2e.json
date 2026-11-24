@@ -1,8 +1,15 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "types": ["node", "@playwright/test"]
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "types": [
+      "node",
+      "@playwright/test"
+    ]
   },
   "files": [
     "e2e/fixtures/bootstrap.ts",
@@ -44,6 +51,7 @@
     "e2e/specs/app/centered_dialogs.spec.ts",
     "e2e/specs/app/command_palette.spec.ts",
     "e2e/specs/app/dataset_snapshot_confirm_workflows.spec.ts",
+    "e2e/specs/app/dns_ttl_readability.spec.ts",
     "e2e/specs/app/dnssec_record_width.spec.ts",
     "e2e/specs/app/export_hosts_responsive_actions.spec.ts",
     "e2e/specs/app/exports_filter_contract.spec.ts",
@@ -63,6 +71,7 @@
     "e2e/specs/app/mobile_touch_interactions.spec.ts",
     "e2e/specs/app/mobile_workflows.spec.ts",
     "e2e/specs/app/monitoring_event_action_feedback.spec.ts",
+    "e2e/specs/app/monitoring_state_meaning.spec.ts",
     "e2e/specs/app/network_address_details.spec.ts",
     "e2e/specs/app/node_history.spec.ts",
     "e2e/specs/app/oom_report_rules_mobile_actions.spec.ts",
@@ -122,8 +131,7 @@
     "e2e/specs/public/overview_readability.spec.ts",
     "e2e/specs/public/theme_language_bootstrap.spec.ts",
     "e2e/specs/public/theme_switcher.spec.ts",
-    "src/types/vpsadmin.d.ts",
-    "e2e/specs/app/monitoring_state_meaning.spec.ts"
+    "src/types/vpsadmin.d.ts"
   ],
   "include": []
 }

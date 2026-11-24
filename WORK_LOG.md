@@ -1,3 +1,7 @@
+## 2026-11-09 — Readable DNS TTL validation
+
+[Scope and verification](docs/work-log/2026-11-09-dns-ttl-validation-readability.md).
+
 ## 2026-11-09 — Keep DNSSEC records inside narrow cards
 
 [Scope and verification](docs/work-log/2026-11-09-dnssec-record-width.md).
