@@ -1,3 +1,8 @@
+## 2026-11-09 — Align the Tasks drawer filter action (prepared)
+
+Match the clear-search button to its adjacent input after rendered measurements.
+[Scope and verification](docs/work-log/2026-11-09-task-drawer-field-alignment.md).
+
 ## 2026-11-09 — AppShell error body readability (prepared)
 
 Correct measured dark error text while preserving auth gates and recovery.

@@ -697,7 +697,7 @@ export function AppLayout(props: { children: React.ReactNode }) {
                 className="flex-1"
               />
               {tasksFilter ? (
-                <Button size="sm" variant="secondary" onClick={() => setTasksFilter('')}>
+                <Button size="md" variant="secondary" onClick={() => setTasksFilter('')}>
                   {i18n.t('common.clear_search')}
                 </Button>
               ) : null}
