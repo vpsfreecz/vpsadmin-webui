@@ -1,3 +1,11 @@
+## 2026-11-11 — Keep selected-user templates in their actual owner context
+
+The finite approved UX audit found support's personal templates under another
+member's heading. Follow the existing API owner restriction in the dossier UI,
+retaining administrator and own-account panels. [Source, negative evidence and
+verification gates](docs/work-log/2026-11-11-selected-userdata-owner-guard.md). Prepared only; no new PR, merge
+or paired activation is claimed here.
+
 ## 2026-11-11 — Expose the selected user-history view
 
 The finite UX-04 audit found that History's current view was represented only by

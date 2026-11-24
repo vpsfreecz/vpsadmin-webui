@@ -72,6 +72,7 @@ export default defineConfig({
         '**/app/incidents_smart_filter.spec.ts',
         '**/storage_root_header.spec.ts',
         '**/user_history_smoke.spec.ts',
+        '**/user_data_owner_scope.spec.ts',
         '**/about.spec.ts',
         '**/theme_switcher.spec.ts',
         '**/news_language_switch.spec.ts',
