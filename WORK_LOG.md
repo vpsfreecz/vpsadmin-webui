@@ -1777,6 +1777,11 @@ Prepare approved UX-04 / REQ-010. See the
 
 Prepare approved UX-04 / REQ-010. See the
 [scope and measured baseline](docs/work-log/2026-11-09-namespace-map-delete-readability.md).
+## 2026-11-09 — Namespace-map existing-row error readability (prepared)
+
+Improve the four existing field/base error class lists while preserving row
+and API behavior. [Scope and evidence](docs/work-log/2026-11-09-namespace-entry-row-error-readability.md).
+
 ## 2026-11-09 — Preserve OOM filters during pending navigation
 
 Correct the reproduced Next/page-size URL race without changing owner scope.

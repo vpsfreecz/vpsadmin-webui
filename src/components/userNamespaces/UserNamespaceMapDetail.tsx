@@ -651,7 +651,7 @@ export function UserNamespaceMapDetail(props: {
                               });
                             }}
                           />
-                          {fieldErr('vps_id') ? <div className="mt-1 text-xs text-danger">{fieldErr('vps_id')}</div> : null}
+                          {fieldErr('vps_id') ? <div className="mt-1 border-l-2 border-danger pl-2 text-xs font-medium text-fg">{fieldErr('vps_id')}</div> : null}
                         </td>
 
                         <td className="px-4 py-2">
@@ -675,7 +675,7 @@ export function UserNamespaceMapDetail(props: {
                               });
                             }}
                           />
-                          {fieldErr('ns_id') ? <div className="mt-1 text-xs text-danger">{fieldErr('ns_id')}</div> : null}
+                          {fieldErr('ns_id') ? <div className="mt-1 border-l-2 border-danger pl-2 text-xs font-medium text-fg">{fieldErr('ns_id')}</div> : null}
                         </td>
 
                         <td className="px-4 py-2">
@@ -699,7 +699,7 @@ export function UserNamespaceMapDetail(props: {
                               });
                             }}
                           />
-                          {fieldErr('count') ? <div className="mt-1 text-xs text-danger">{fieldErr('count')}</div> : null}
+                          {fieldErr('count') ? <div className="mt-1 border-l-2 border-danger pl-2 text-xs font-medium text-fg">{fieldErr('count')}</div> : null}
                         </td>
 
                         <td className="px-4 py-2">
@@ -718,7 +718,7 @@ export function UserNamespaceMapDetail(props: {
                             </Button>
                             {r.saving ? <span className="text-xs text-muted">{t('common.saving')}</span> : null}
                             {rowErr && rowErr['_base'] ? (
-                              <span className="text-xs text-danger">{rowErr['_base'].join(', ')}</span>
+                              <span className="border-l-2 border-danger pl-2 text-xs font-medium text-fg">{rowErr['_base'].join(', ')}</span>
                             ) : null}
                           </div>
                         </td>
