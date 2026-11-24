@@ -739,6 +739,14 @@ blind retry. [Finance](../../src/lib/api/finance.ts),
 
 ## Tasks, transactions, monitoring, incidents and OOM
 
+The Tasks View all link closes the panel after ordinary pointer or keyboard
+activation and focuses the destination main content, including the current
+transactions route. Modified link clicks preserve browser behavior. The static
+Your actions label is omitted in both locales; filtering feedback, progress,
+transaction context and background-activity disclosure remain available.
+Opening the panel again retains tracked work.
+
+
 Transaction history uses compact aligned ID/time/owner/object/action/state
 columns on desktop and folds metadata under the action on small screens. The
 owner column appears only in administrator mode; a normal member and an admin's
@@ -1076,3 +1084,7 @@ Administrator fields retain their existing role gate and order.
 Query-only navigation from Resources to general Configuration reuses the same
 component. Restore the open default for the new location without resetting the
 draft. Ordinary field edits and native toggles do not reset the disclosure.
+
+Tasks background-activity disclosure places the action below its explanation
+so both Show and Hide labels fit the fixed control height in the narrow drawer.
+This layout preserves the existing role-dependent scope and collapsed state.

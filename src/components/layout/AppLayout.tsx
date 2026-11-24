@@ -713,6 +713,7 @@ export function AppLayout(props: { children: React.ReactNode }) {
               <DeferredChromeSection testId="tasks.drawer.loading.transaction_chains">
                 <LazyTransactionChainsPanel
                   limit={10}
+                  onViewAll={closeTasks}
                   filterText={tasksFilter}
                 />
               </DeferredChromeSection>
