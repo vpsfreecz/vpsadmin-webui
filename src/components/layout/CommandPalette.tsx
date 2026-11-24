@@ -665,7 +665,7 @@ export function CommandPalette(props: { open: boolean; onClose: () => void; onSw
             </div>
           </div>
 
-          <Button variant="secondary" onClick={props.onClose}>
+          <Button variant="secondary" size="lg" onClick={props.onClose}>
             {t('common.close')}
           </Button>
         </div>

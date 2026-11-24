@@ -1,3 +1,8 @@
+## 2026-11-09 — Align shell controls and icon widths (prepared)
+
+Match palette/progress Close dimensions and keep shared SVG icons from compressing.
+[Scope and evidence](docs/work-log/2026-11-09-shell-control-dimensions.md).
+
 ## 2026-11-09 — Readable search error messages (prepared)
 
 Correct measured low-contrast error text in inline and command-palette search.
