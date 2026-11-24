@@ -90,7 +90,7 @@ export function IpAddressesListMobile({ pageData, ipDetailBasePath, basePath, na
                         {ipLabel(ip)}
                       </Link>
                     </div>
-                    <div className="mt-0.5 text-xs text-faint">#{id}</div>
+                    <div className="mt-0.5 text-xs text-muted">#{id}</div>
                   </div>
                   <div className="flex flex-wrap justify-end gap-2">
                     <Badge variant={assigned ? 'ok' : 'warn'}>
@@ -108,23 +108,23 @@ export function IpAddressesListMobile({ pageData, ipDetailBasePath, basePath, na
 
                 <div className="mt-3 space-y-1 text-xs text-muted">
                   <div>
-                    <span className="text-faint">{t('admin.ip.field.network')}:</span> {networkLabel(ip, na)}
+                    <span className="text-muted">{t('admin.ip.field.network')}:</span> {networkLabel(ip, na)}
                   </div>
                   <div>
-                    <span className="text-faint">{t('admin.ip_addresses.field.environment')}:</span> {mark ? mark.label : environmentLabel(ip, na)}
+                    <span className="text-muted">{t('admin.ip_addresses.field.environment')}:</span> {mark ? mark.label : environmentLabel(ip, na)}
                   </div>
                   <div>
-                    <span className="text-faint">{t('admin.ip.field.vps_id')}:</span> {vpsLabel(ip, na)}
+                    <span className="text-muted">{t('admin.ip.field.vps_id')}:</span> {vpsLabel(ip, na)}
                   </div>
                   <div>
-                    <span className="text-faint">{t('admin.ip.field.user_id')}:</span> {userLabel(ip, na)}
+                    <span className="text-muted">{t('admin.ip.field.user_id')}:</span> {userLabel(ip, na)}
                   </div>
                   <div>
-                    <span className="text-faint">{t('admin.ip_addresses.field.interface')}:</span> {ifaceLabel(ip, na)}
+                    <span className="text-muted">{t('admin.ip_addresses.field.interface')}:</span> {ifaceLabel(ip, na)}
                   </div>
                   {createdAt ? (
                     <div>
-                      <span className="text-faint">{t('admin.ip.field.created')}:</span> {formatDateTime(createdAt)}
+                      <span className="text-muted">{t('admin.ip.field.created')}:</span> {formatDateTime(createdAt)}
                     </div>
                   ) : null}
                 </div>
