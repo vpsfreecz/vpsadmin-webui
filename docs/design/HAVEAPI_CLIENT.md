@@ -58,9 +58,58 @@ does not itself verify registry signatures or perform network requests.
 
 ## Selected generated TypeScript SDK
 
-The root package uses the published `vpsadmin-typescript-client@0.5.0` registry
-archive for generic incident-policy discovery, per-VPS policy settings and saved
-report evaluations. The [SDK provenance record](../../packages/vpsadmin-typescript-client-development.json)
+The administrator Overview and History use the published
+`vpsadmin-typescript-client@0.6.0` release. Its generated operations are required
+by these pages, so the manifest pins the exact version. The npm lock and
+[SDK provenance record](../../packages/vpsadmin-typescript-client-development.json)
+bind the [registry archive](https://registry.npmjs.org/vpsadmin-typescript-client/-/vpsadmin-typescript-client-0.6.0.tgz)
+to source `aed11d01c0d1436293f45a1a4e83d88421375bc1`, tag `v0.6.0` and
+[release run 45455308941, attempt 1](https://github.com/vpsfreecz/vpsadmin-typescript-client/actions/runs/45455308941/attempts/1).
+The 348076-byte archive has SHA-256
+`f4ea2206e80798f001cd16942c99fab1c3c4bcaccac707ea3ca841b65efd1f3d`.
+Its SHA-512 matches the locked integrity. Parsed npm provenance binds the archive
+digest, source, tag and release workflow; cryptographic signature verification
+was not performed. Ordinary installation uses the compiled exports and
+declarations without a sibling checkout or local override.
+
+The generated `incident_policy_exposure.index` and
+`incident_policy_evaluation.index` operations return typed global page metadata:
+`total_count`, `offset`, `limit`, nullable `next_offset`, `as_of` and `read_at`;
+History also returns nullable `from` and `to`. Exposure accepts numeric Resource
+IDs for `vps`, `user` and `node`. The application checks the primitive types of
+IDs and labels in their partial-reference outputs. History retains original
+IDs and nullable match results. The server orders it by evaluation time and ID;
+callers select only the direction. The consumers preserve HTTP and envelope
+receipts and reject missing required page facts. Calls require an administrator
+and authorized actions with the required inputs, outputs and metadata.
+
+The release uses the export from backend
+`74c0af3aef3ec9124ca89ce7669ccd9b99633495`, schema SHA-256
+`7e2a529787c06944f1ad0cdf3369edd8b4650d79826f3bbda9101af2dfb67628`
+and provenance SHA-256
+`429fd99e3dee126e2306fad1fb4c5bc6f8442a7fcb7abdab8f8fae34b121418e`.
+HaveAPI generator `1ef9b204ba45bb261d3334be5c555cc1856b713b` (`0.32.2`), the
+exporter lock and consumer runtime `haveapi-client@0.32.0` remain unchanged.
+The WebUI consumes that export through the SDK without exporting or regenerating
+it. Backend deployment and authenticated capability checks remain separate
+requirements.
+
+### Earlier 0.6.0 development input
+
+The earlier development archive at artifact commit
+`b619eb8324bfe80c7b225f698fb83efe97639c83` was packed from the same source. It has
+348079 bytes and SHA-256
+`9cba02754bec157616c66207312f44312e9af36fe5deb05e8e68585615e17ca9`.
+All 1390 member names and file contents match the published archive. Only
+`package/src/generated/.haveapi-generated.json` changed mode from `0600` to
+`0644` in the release build. Earlier checks and deployment evidence retain that
+development archive's identity; they are not new registry-adoption results.
+
+### Earlier registry 0.5.0 input
+
+The preceding dependency was the published `vpsadmin-typescript-client@0.5.0`
+archive, used for generic incident-policy discovery, per-VPS policy settings and
+saved report evaluations. The [retained 0.5.0 provenance record](https://github.com/vpsfreecz/vpsadmin-webui/blob/4499f90fe11df0e4df6f23e5fa54829e2254ec1b/packages/vpsadmin-typescript-client-development.json)
 binds its registry URL and SHA-512 integrity to source
 `d8cb484748db8687554822772a98a1f873414d65`, tag `v0.5.0` and
 [release run 45236858019](https://github.com/vpsfreecz/vpsadmin-typescript-client/actions/runs/45236858019).
@@ -69,10 +118,10 @@ The 345047-byte archive has SHA-256
 Parsed npm provenance binds the source, tag, workflow and archive digest;
 independent cryptographic signature verification was not performed.
 The registry archive is byte-for-byte equal to the reviewed release candidate.
-Ordinary `npm ci` installs compiled exports and declarations without a sibling
-checkout, local override or custom build pipeline.
+That dependency used ordinary `npm ci` to install compiled exports and
+declarations without a sibling checkout, local override or custom build pipeline.
 
-The generation input remains API `de4df3d63f4d4afb0c27e8b9be2785c15d24811c`,
+Its generation input was API `de4df3d63f4d4afb0c27e8b9be2785c15d24811c`,
 schema SHA-256 `7cb28ebd8e0957d9a8ba2c359c8658040ed1cd195f0dd14327c03b595012fc85`.
 HaveAPI generator `1ef9b204ba45bb261d3334be5c555cc1856b713b` (version `0.32.2`)
 and consumer runtime `haveapi-client@0.32.0` remain unchanged. The embedded raw
@@ -89,7 +138,7 @@ updates return their scoped authoritative row; the separate VPS permission
 acknowledgement requires exact VPS Show verification. A failure after an accepted
 write remains uncertain. Current counters, declared limits, configuration validity
 and scoped saved history follow [the generic API contract](API_CONTRACTS.md#generic-incident-policies).
-The selected release includes nullable saved `matched`, `warning_period_days`,
+That release includes nullable saved `matched`, `warning_period_days`,
 `stop_period_days`, `notice_policy_key` and `notice_policy_label` fields.
 Compatible backend capabilities, configuration and schema remain separate requirements.
 
@@ -102,10 +151,11 @@ The earlier immutable development archive is identified by artifact commit
 `44c651b2a57e8de553dd51236c2dccbc09946fac`. Its 345048-byte archive has SHA-256
 `983061ec981e24e45c25abeef81d8049d4253bad4d473ea37d5ce27ff0a1b718` and was
 labelled `0.4.0`; it was not the published registry `0.4.0` release. Earlier
-verification and deployment evidence retains that exact input. The manifest,
-lock, provenance and frontend dependency hash now select registry `0.5.0` together,
-fulfilling the generated SDK release prerequisite for WebUI merge. Application
-deployment is a separate operation. See [packaging](PACKAGING.md#temporary-unpublished-sdk-input).
+verification and deployment evidence retains that exact input. The subsequent
+manifest, lock, provenance and frontend dependency hash selected registry `0.5.0`
+together, satisfying the SDK release prerequisite for that WebUI change.
+Application deployment remains separate. See
+[packaging](PACKAGING.md#temporary-unpublished-sdk-input).
 
 ## Published generated client baseline
 

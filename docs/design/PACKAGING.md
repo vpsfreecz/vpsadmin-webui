@@ -33,23 +33,23 @@ to work around a fetch failure.
 
 ### Generated client input
 
-The root package uses the published `vpsadmin-typescript-client@0.5.0` registry
-archive described in [the client contract](HAVEAPI_CLIENT.md#generated-vpsadmin-typescript-sdk).
-The manifest, npm-generated lock and [SDK provenance record](../../packages/vpsadmin-typescript-client-development.json)
-select source `d8cb484748db8687554822772a98a1f873414d65`, tag `v0.5.0` and the same
-verified archive integrity. The archive includes compiled exports and declarations.
-The standard fetch and build pipeline needs no sibling checkout, private path
-or local override.
-Standard `prefetch-npm-deps` supplies the frontend hash. The shared
-HaveAPI runtime peer and separate BFF dependency graph remain unchanged.
+The root package selects the published registry release
+`vpsadmin-typescript-client@0.6.0`, which supplies the administrator Exposure and
+History operations described in [the client contract](HAVEAPI_CLIENT.md#generated-vpsadmin-typescript-sdk).
+The exact manifest version, npm-generated lock and
+[SDK provenance record](../../packages/vpsadmin-typescript-client-development.json)
+bind the registry archive to source
+`aed11d01c0d1436293f45a1a4e83d88421375bc1` and its release workflow.
+The archive includes compiled exports, declarations and saved generation inputs.
+Ordinary installation needs no sibling checkout or local override.
 
-This registry release contains the required incident-policy members. It replaces
-the immutable development archive, whose original source and verification remain
-recorded in [the historical input](HAVEAPI_CLIENT.md#unpublished-generated-sdk).
-The generated SDK release prerequisite for WebUI merge is satisfied by the final
-manifest, lock and provenance; application checks, review and compatible backend
-capabilities remain separate requirements. The installed public root contains
-only the reviewed compiled frontend output.
+Standard `prefetch-npm-deps` supplies the frontend cache hash for the selected
+lock. Other root lock records, the HaveAPI runtime peer and the separate BFF
+dependency graph remain unchanged. This selection satisfies the published-SDK
+prerequisite. Backend capability checks, application verification, independent
+review and deployment remain separate requirements. Earlier dependency and
+verification records retain their original inputs in
+[the client contract](HAVEAPI_CLIENT.md).
 
 For an intentional dependency update:
 
