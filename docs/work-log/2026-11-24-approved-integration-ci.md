@@ -33,3 +33,18 @@ at the first candidate; source equivalence must be recorded explicitly, not
 misrepresented as a browser run of another artifact. Actual final-head and
 postmerge GitHub checks must pass before completion. No preview/API/production
 activation or prohibited builder access is used.
+
+
+### Capacity regression follows accepted mobile identity
+
+The second integration CI retained six successful project shards, but each
+second shard timed out while retrying the same outdated NAS capacity link
+assertion. The accepted NAS identity change already labels mobile links
+`Dataset name: 318` / `Název datasetu: 318`, while desktop links remain `318`.
+The capacity regression now checks those exact existing accessible names by
+viewport and language, retaining the exact role, destination, every capacity
+percentage/limit/color, all actor/language/theme combinations, overflow and
+no-write/runtime-error assertions. No product label or runtime changes here.
+Original failed jobs and traces remain evidence; no retry/time budget changed.
+This is separate from the genuine host-filter navigation race fixed and
+regression-tested in the accompanying work-log entry.

@@ -2619,3 +2619,12 @@ Implement approved NSP-01/02/03/04 on the existing namespace-map PR while
 preserving owner scope, supported filters, navigation and mutation safeguards.
 [Source, baseline evidence and verification](docs/work-log/2026-11-15-namespace-controls.md).
 Prepared; new-head qualification and paired preview delivery remain pending.
+
+
+### 2026-11-24 — Integrate accepted NAS mobile identity into capacity regression
+
+The capacity E2E keeps its exact role/name/destination assertion and follows
+the accepted localized mobile name while retaining bare names on desktop.
+This removes a stale expectation found in all three original second-shard
+CI logs; capacity and no-write assertions and job budgets are preserved.
+See [integration CI qualification](docs/work-log/2026-11-24-approved-integration-ci.md).
