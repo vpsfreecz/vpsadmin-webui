@@ -1,3 +1,7 @@
+## 2026-11-09 — Keep DNSSEC records inside narrow cards
+
+[Scope and verification](docs/work-log/2026-11-09-dnssec-record-width.md).
+
 ## 2026-11-09 — Wrap the OOM rule in deletion confirmation
 
 [Scope and verification](docs/work-log/2026-11-09-oom-rule-confirmation-wrap.md).
