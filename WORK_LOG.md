@@ -1,3 +1,7 @@
+## 2026-11-09 — Readable user creation validation
+
+[Scope and evidence](docs/work-log/2026-11-09-user-create-validation.md).
+
 ## 2026-11-09 — Align history and payment-form controls
 
 [Measured scope and verification](docs/work-log/2026-11-09-card-form-control-dimensions.md).

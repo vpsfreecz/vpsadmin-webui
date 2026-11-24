@@ -56,7 +56,7 @@ export function UsersCreateModal({
     >
       <div className="space-y-4">
         {error ? (
-          <div className="rounded-md border border-danger-border bg-danger-surface px-3 py-2 text-sm text-danger">
+          <div className="rounded-md border border-danger-border border-l-2 bg-danger-surface px-3 py-2 text-sm font-medium text-fg">
             {error}
           </div>
         ) : null}
