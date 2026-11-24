@@ -73,6 +73,7 @@ export default defineConfig({
         '**/storage_root_header.spec.ts',
         '**/user_history_smoke.spec.ts',
         '**/user_data_owner_scope.spec.ts',
+        '**/oom_refresh_context.spec.ts',
         '**/about.spec.ts',
         '**/theme_switcher.spec.ts',
         '**/news_language_switch.spec.ts',

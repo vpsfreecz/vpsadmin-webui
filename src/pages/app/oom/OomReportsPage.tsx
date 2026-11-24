@@ -706,7 +706,7 @@ export function OomReportsPage() {
       title={t('oom.list.title')}
       meta={filtersActive ? <span className="text-xs text-faint">{t('list.meta.filters_active')}</span> : null}
       actions={
-        <Button variant="secondary" size="sm" to={`${basePath}/oom-reports`} testId="oom.list.refresh">
+        <Button variant="secondary" size="sm" onClick={() => void listQ.refetch()} testId="oom.list.refresh">
           {t('common.refresh')}
         </Button>
       }
