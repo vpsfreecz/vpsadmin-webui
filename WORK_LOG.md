@@ -1,3 +1,15 @@
+## 2026-11-15 — Readable incident filters and complete reports
+
+Approved INC-01/02: short growing smart field, visible44px Help/Advanced
+controls, one detail summary and complete page-flow report text. Preserve
+role/query/navigation/payload contracts; no API or deployment activation yet.
+[Scope, actual baseline and verification limits](docs/work-log/2026-11-15-incident-filter-message.md).
+
+
+Prepared a focused BFF credential-forwarding defense and consistent local-path
+validation after dummy loopback reproductions. See the [finding and checks](docs/work-log/2026-10-28-oauth-redirect-boundaries.md).
+Not merged or deployed; no API or provider changes.
+
 ## 2026-11-12 — Distinguish exit actions by their effect (UX-07)
 
 Document Cancel/Back/Close and destination-named navigation, preserving existing

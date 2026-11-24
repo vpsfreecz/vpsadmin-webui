@@ -69,6 +69,7 @@ export default defineConfig({
         '**/export_list_containment.spec.ts',
         '**/vps_list_context_readability.spec.ts',
         '**/error_recovery_action_alignment.spec.ts',
+        '**/incident_reading_acceptance.spec.ts',
         '**/app/incidents_smart_filter.spec.ts',
         '**/storage_root_header.spec.ts',
         '**/user_history_smoke.spec.ts',

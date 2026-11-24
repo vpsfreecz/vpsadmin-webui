@@ -865,6 +865,16 @@ transaction context and background-activity disclosure remain available.
 Opening the panel again retains tracked work.
 
 
+Incident filters use a short ID-or-filter hint with readable Help and Advanced
+labels. The smart field grows with available width and fills a narrow row;
+all filter actions share44px controls. Existing exact-key filtering, ID opening,
+question-mark help, role restrictions and pending-router snapshots remain.
+Incident detail keeps distinct detection/reporting times and the reporter in
+Summary, without a duplicate header metadata row. Preserve original context
+links and role-specific fields. Complete report text wraps and grows with the
+page, without a nested vertical scroller or content truncation.
+See the [bounded reading change](../work-log/2026-11-15-incident-filter-message.md).
+
 Incident explicit page navigation and page-size changes use the same applied
 exact filter snapshot as the URL writer, including all administrator filters.
 They retain those filters while the router is still publishing a prior URL.
