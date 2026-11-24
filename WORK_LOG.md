@@ -1,3 +1,14 @@
+## 2026-11-15 — Select an export dataset by name
+
+Prepare approved EXP-01 / REQ-048: offer authorized dataset names with explicit
+internal-ID identity and `#ID` fallback. Clear stale snapshot selection, preserve
+ownership preflight and backend Create contracts, and disclose bounded lists.
+Distinguish snapshot loading/error/empty results, offer retry and an existing
+scoped snapshot-selection route for choices outside the first100.
+[Scope, implementation and verification](docs/work-log/2026-11-15-export-dataset-selection.md).
+Prepared only; exact committed qualification, focused PR/CI and paired delivery
+remain separate.
+
 ## 2026-11-14 — Expose the dataset action beside the export source (prepared)
 
 EXP-06 / REQ-048: The summary owns the source identity once and offers a standard Open dataset action beside it. Dataset ID, view scope and ownership gates stay unchanged.

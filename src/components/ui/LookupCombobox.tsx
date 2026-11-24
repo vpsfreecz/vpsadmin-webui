@@ -30,6 +30,7 @@ export function LookupCombobox<T>(props: {
   className?: string;
   loadingLabel?: string;
   noResultsLabel?: string;
+  wrapOptions?: boolean;
 }) {
   const { t } = useI18n();
   const listId = useId();
@@ -163,7 +164,9 @@ export function LookupCombobox<T>(props: {
                   data-testid={props.testId ? `${props.testId}.opt.${option.id}` : undefined}
                 >
                   <div className="min-w-0">
-                    <div className="truncate text-sm font-medium text-fg">{option.title}</div>
+                    <div className={clsx('text-sm font-medium text-fg', props.wrapOptions ? 'break-all' : 'truncate')}>
+                      {option.title}
+                    </div>
                     {option.detail ? <div className="mt-0.5 truncate text-xs text-muted">{option.detail}</div> : null}
                   </div>
                   <div className="shrink-0 text-xs tabular-nums text-faint">#{option.id}</div>
