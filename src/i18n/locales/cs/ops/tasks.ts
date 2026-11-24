@@ -52,4 +52,7 @@ export const csOps_tasks = {
   "tasks.section.recent": "Nedávné",
   "tasks.title": "Úlohy",
   "tasks.tracking_action": "Sledování: {action}",
+  'tasks.recent_widget.title': 'Poslední úlohy VPS',
+  'tasks.recent_widget.show': 'Zobrazit poslední úlohy',
+  'tasks.recent_widget.hide': 'Skrýt poslední úlohy',
 } as const;
