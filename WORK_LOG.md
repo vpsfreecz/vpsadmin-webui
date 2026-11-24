@@ -1,3 +1,7 @@
+## 2026-11-18 — Explain live resource changes
+
+[Scope and contract](docs/work-log/2026-11-18-resource-live-explanation.md).
+
 ## 2026-11-15 — Network chart orientation
 
 [Approved NET-14 scope and verification limits](docs/work-log/2026-11-15-network-chart-orientation.md).
