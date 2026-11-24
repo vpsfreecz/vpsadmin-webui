@@ -1,3 +1,9 @@
+## 2026-11-10 — Readable console connection messages (prepared)
+
+Keep application loading/recovery messages outside the scaled terminal so their
+text and reconnect action retain normal dimensions on narrow screens.
+[Scope and verification](docs/work-log/2026-11-10-console-overlay-readability.md).
+
 ## 2026-11-10 — Host-IP filter alignment
 
 Flatten only Host-IP's legacy two-column filters so wrapped controls align

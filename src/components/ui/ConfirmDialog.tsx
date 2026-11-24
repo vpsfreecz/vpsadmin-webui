@@ -15,6 +15,8 @@ export function ConfirmDialog(props: {
   /** Backward-compatible explicit confirm button variant. */
   confirmVariant?: ButtonVariant;
   confirmLabel?: string;
+  /** Optional presentation override for the confirmation action. */
+  confirmClassName?: string;
   cancelLabel?: string;
   confirmLoading?: boolean;
   /** Backward-compatible alias. */
@@ -92,6 +94,7 @@ export function ConfirmDialog(props: {
           <Button
             testId={props.testId ? `${props.testId}.confirm` : undefined}
             variant={confirmVariant}
+            className={props.confirmClassName}
             onClick={props.onConfirm}
             loading={confirmLoading}
             disabled={confirmDisabled}

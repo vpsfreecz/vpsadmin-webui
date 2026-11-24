@@ -7,7 +7,11 @@ import React, { useLayoutEffect, useRef, useState } from 'react';
 const ROUTER_HEIGHT = 920;
 const ROUTER_WIDTH = 1280;
 
-export function ConsoleViewport({ children, nativeSize }: { children: React.ReactNode; nativeSize: boolean }) {
+export function ConsoleViewport({ children, nativeSize, overlay }: {
+  children: React.ReactNode;
+  nativeSize: boolean;
+  overlay?: React.ReactNode;
+}) {
   const host = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: ROUTER_WIDTH, available: ROUTER_HEIGHT });
 
@@ -42,7 +46,7 @@ export function ConsoleViewport({ children, nativeSize }: { children: React.Reac
     <div
       ref={host}
       className={nativeSize ? 'relative overflow-auto bg-black' : 'relative overflow-hidden bg-black'}
-      style={{ height: ROUTER_HEIGHT * scale }}
+      style={overlay ? { minHeight: ROUTER_HEIGHT * scale } : { height: ROUTER_HEIGHT * scale }}
       data-testid="vps.console.viewport"
     >
       <div
@@ -56,6 +60,7 @@ export function ConsoleViewport({ children, nativeSize }: { children: React.Reac
       >
         {children}
       </div>
+      {overlay}
     </div>
   );
 }
