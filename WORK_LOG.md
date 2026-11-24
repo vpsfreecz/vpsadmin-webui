@@ -1,3 +1,15 @@
+## 2026-11-15 — Explain monitoring state deadlines and decisions
+
+Approved MON-01/02 / REQ-051: explain state expiry, distinguish system
+confirmation and user acknowledgement, and describe actual ignore behavior.
+Keep API timing, scopes, callbacks and mutation safeguards unchanged.
+[Scope and baseline](docs/work-log/2026-11-15-monitoring-state-meaning.md).
+Working preparation; exact checks/CI and delivery remain separate.
+
+## 2026-11-08 — Readable monitoring and incident inline validation
+
+[Scope and verification](docs/work-log/2026-11-08-todo-monitoring-incident-validation-readability.md).
+
 ## 2026-11-08 — Readable operation cards and read failures
 
 [Scope and verification](docs/work-log/2026-11-08-todo-operation-body-presentation.md).

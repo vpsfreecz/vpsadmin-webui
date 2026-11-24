@@ -1003,3 +1003,15 @@ Reposition on viewport/ancestor resize and scroll. Keep focus trapping, keyboard
 selection, outside blur, native completed-click activation and query scoping;
 never select on touch-down or replay an uncertain tap. See the
 [mobile follow-up](../work-log/2026-10-28-mobile-safari-first-tap.md).
+
+## Monitoring state deadlines and decisions (approved MON-01/02)
+
+State deadline identifies the maximum duration of acknowledgement/ignore state,
+re-evaluated by the next report after expiry. It is not a record-retention date.
+Explicit null means no time limit for these states; missing data stays unknown.
+Acknowledgement suppresses repeated problem alerts while retaining result logs
+and closure on success. Ignore suppresses alerts and skips logging/state updates
+from further results while ignored. Finite and unlimited choices retain the
+existing API request, native validation, pending and retry gates. Invalid custom
+dates do not display an unlimited-duration preview. See REQ-051 and
+[scope/source evidence](../work-log/2026-11-15-monitoring-state-meaning.md).

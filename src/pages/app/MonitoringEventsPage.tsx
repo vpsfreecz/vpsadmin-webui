@@ -16,6 +16,7 @@ import { useI18n } from '../../app/i18n';
 import { useObjectScope } from '../../app/objectScope';
 import { useToasts } from '../../app/toasts';
 import { FilterBar } from '../../components/layout/FilterBar';
+import { MonitoringStateExpiry } from '../../components/monitoring/MonitoringStateExpiry';
 import { ListShell } from '../../components/layout/ListShell';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { formatDateTime, formatDurationSeconds } from '../../lib/format';
@@ -973,127 +974,125 @@ export function MonitoringEventsPage() {
           </Card>
         </>
       ) : (
-        <TableCard
-          testId="monitoring.events.table"
-          minWidth="lg"
-          footer={
-            <KeysetPagination
-              page={pagination.page}
-              pageCount={pagination.stack.length}
-              canPrev={pagination.canPrev}
-              canNext={canNext}
-              onPrev={pagination.goPrev}
-              onNext={() => pagination.goNext(pageCursor)}
-              onGoToPage={pagination.goToPage}
-              limit={pagination.limit}
-              allowedLimits={pagination.allowedLimits}
-              onLimitChange={pagination.setLimit}
-              testId="monitoring.events.pagination"
-            />
-          }
-        >
-          <thead>
-            <tr className="border-b border-border text-left text-xs text-muted">
-              <th className="px-3 py-2">
-                <span className="sr-only">{t('common.state')}</span>
-              </th>
-              <th className="px-4 py-2">{t('common.id')}</th>
-              <th className="px-4 py-2">{t('common.state')}</th>
-              <th className="px-4 py-2">{t('monitoring.column.monitor')}</th>
-              <th className="px-4 py-2">{t('monitoring.column.object')}</th>
-              {mode === 'admin' ? <th className="px-4 py-2">{t('common.user')}</th> : null}
-              <th className="px-4 py-2">{t('common.created')}</th>
-              <th className="px-4 py-2">{t('monitoring.column.duration')}</th>
-              <th className="px-4 py-2">{t('monitoring.column.saved_until')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((e: MonitoredEvent) => {
-              const id = Number((e as any).id);
-              const stateVal = String((e as any).state ?? '');
-              const badgeV = monitoredEventBadgeVariant(stateVal);
-              const rowV = monitoredEventRowVariant(stateVal);
-              const dotV = dotVariantFromRowVariant(rowV);
-              const labelKey = monitoredEventStateLabelKey(stateVal);
-              const stateLabel = labelKey ? t(labelKey) : stateVal || t('common.unknown');
+        <>
+          <p className="mb-3 text-sm text-muted" data-testid="monitoring.events.expiry_help">{t('monitoring.saved_until.help')}</p>
+          <TableCard
+            testId="monitoring.events.table"
+            minWidth="lg"
+            footer={
+              <KeysetPagination
+                page={pagination.page}
+                pageCount={pagination.stack.length}
+                canPrev={pagination.canPrev}
+                canNext={canNext}
+                onPrev={pagination.goPrev}
+                onNext={() => pagination.goNext(pageCursor)}
+                onGoToPage={pagination.goToPage}
+                limit={pagination.limit}
+                allowedLimits={pagination.allowedLimits}
+                onLimitChange={pagination.setLimit}
+                testId="monitoring.events.pagination"
+              />
+            }
+          >
+            <thead>
+              <tr className="border-b border-border text-left text-xs text-muted">
+                <th className="px-3 py-2">
+                  <span className="sr-only">{t('common.state')}</span>
+                </th>
+                <th className="px-4 py-2">{t('common.id')}</th>
+                <th className="px-4 py-2">{t('common.state')}</th>
+                <th className="px-4 py-2">{t('monitoring.column.monitor')}</th>
+                <th className="px-4 py-2">{t('monitoring.column.object')}</th>
+                {mode === 'admin' ? <th className="px-4 py-2">{t('common.user')}</th> : null}
+                <th className="px-4 py-2">{t('common.created')}</th>
+                <th className="px-4 py-2">{t('monitoring.column.duration')}</th>
+                <th className="px-4 py-2">{t('monitoring.column.saved_until')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((e: MonitoredEvent) => {
+                const id = Number((e as any).id);
+                const stateVal = String((e as any).state ?? '');
+                const badgeV = monitoredEventBadgeVariant(stateVal);
+                const rowV = monitoredEventRowVariant(stateVal);
+                const dotV = dotVariantFromRowVariant(rowV);
+                const labelKey = monitoredEventStateLabelKey(stateVal);
+                const stateLabel = labelKey ? t(labelKey) : stateVal || t('common.unknown');
 
-              const objName = (e as any).object_name as string | undefined;
-              const objId = Number((e as any).object_id);
-              const objLink = objectLink(basePath, objName, Number.isFinite(objId) ? objId : undefined);
+                const objName = (e as any).object_name as string | undefined;
+                const objId = Number((e as any).object_id);
+                const objLink = objectLink(basePath, objName, Number.isFinite(objId) ? objId : undefined);
 
-              const createdAt = (e as any).created_at ? formatDateTime((e as any).created_at) : '';
-              const duration = (e as any).duration;
-              const durationLabel =
-                typeof duration === 'number' && Number.isFinite(duration)
-                  ? formatDurationSeconds(duration)
-                  : t('common.na');
+                const createdAt = (e as any).created_at ? formatDateTime((e as any).created_at) : '';
+                const duration = (e as any).duration;
+                const durationLabel =
+                  typeof duration === 'number' && Number.isFinite(duration)
+                    ? formatDurationSeconds(duration)
+                    : t('common.na');
 
-              const savedUntilIso = (e as any).saved_until as string | null | undefined;
-              const savedUntilLabel = savedUntilIso
-                ? formatDateTime(savedUntilIso)
-                : stateVal === 'acknowledged' || stateVal === 'ignored'
-                  ? t('monitoring.saved_until.forever')
-                  : t('common.na');
+                const savedUntilIso = (e as any).saved_until as string | null | undefined;
 
-              return (
-                <TableRowLink
-                  key={id}
-                  to={`${basePath}/monitoring/${id}`}
-                  variant={rowV}
-                  testId={`monitoring.events.row.${id}`}
-                >
-                  <td className="px-3 py-2">
-                    <StatusDot
-                      variant={dotV}
-                      ariaLabel={stateLabel}
-                      testId={`monitoring.events.row.${id}.dot`}
-                    />
-                  </td>
-                  <td className="px-4 py-2 font-mono text-xs">{id}</td>
-                  <td className="px-4 py-2">
-                    <Badge variant={badgeV} testId={`monitoring.events.row.${id}.state`}>
-                      {stateLabel}
-                    </Badge>
-                  </td>
-                  <td className="px-4 py-2">
-                    <div className="min-w-0">
-                      <div className="truncate text-sm font-medium">{(e as any).label ?? (e as any).monitor ?? t('common.unknown')}</div>
-                      <div className="mt-0.5 truncate text-xs text-muted">{(e as any).issue ?? ''}</div>
-                      {(e as any).monitor ? (
-                        <div className="mt-1 text-xs text-faint">{t('monitoring.monitor_name', { name: String((e as any).monitor) })}</div>
-                      ) : null}
-                    </div>
-                  </td>
-                  <td className="px-4 py-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm">
-                        {objName ? `${objName} #${Number.isFinite(objId) ? objId : '?'}` : t('common.na')}
-                      </span>
-                      {objLink ? (
-                        <MiniLink
-                          to={objLink}
-                          data-row-no-nav
-                          title={t('common.open')}
-                          data-testid={`monitoring.events.row.${id}.object.open`}
-                        >
-                          {t('common.open')}
-                        </MiniLink>
-                      ) : null}
-                    </div>
-                  </td>
-                  {mode === 'admin' ? (
-                    <td className="px-4 py-2">
-                      <span className="text-sm">{(e as any).user?.login ?? (e as any).user?.label ?? t('common.na')}</span>
+                return (
+                  <TableRowLink
+                    key={id}
+                    to={`${basePath}/monitoring/${id}`}
+                    variant={rowV}
+                    testId={`monitoring.events.row.${id}`}
+                  >
+                    <td className="px-3 py-2">
+                      <StatusDot
+                        variant={dotV}
+                        ariaLabel={stateLabel}
+                        testId={`monitoring.events.row.${id}.dot`}
+                      />
                     </td>
-                  ) : null}
-                  <td className="px-4 py-2 text-sm text-muted">{createdAt}</td>
-                  <td className="px-4 py-2 text-sm">{durationLabel}</td>
-                  <td className="px-4 py-2 text-sm text-muted">{savedUntilLabel}</td>
-                </TableRowLink>
-              );
-            })}
-          </tbody>
-        </TableCard>
+                    <td className="px-4 py-2 font-mono text-xs">{id}</td>
+                    <td className="px-4 py-2">
+                      <Badge variant={badgeV} testId={`monitoring.events.row.${id}.state`}>
+                        {stateLabel}
+                      </Badge>
+                    </td>
+                    <td className="px-4 py-2">
+                      <div className="min-w-0">
+                        <div className="truncate text-sm font-medium">{(e as any).label ?? (e as any).monitor ?? t('common.unknown')}</div>
+                        <div className="mt-0.5 truncate text-xs text-muted">{(e as any).issue ?? ''}</div>
+                        {(e as any).monitor ? (
+                          <div className="mt-1 text-xs text-faint">{t('monitoring.monitor_name', { name: String((e as any).monitor) })}</div>
+                        ) : null}
+                      </div>
+                    </td>
+                    <td className="px-4 py-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm">
+                          {objName ? `${objName} #${Number.isFinite(objId) ? objId : '?'}` : t('common.na')}
+                        </span>
+                        {objLink ? (
+                          <MiniLink
+                            to={objLink}
+                            data-row-no-nav
+                            title={t('common.open')}
+                            data-testid={`monitoring.events.row.${id}.object.open`}
+                          >
+                            {t('common.open')}
+                          </MiniLink>
+                        ) : null}
+                      </div>
+                    </td>
+                    {mode === 'admin' ? (
+                      <td className="px-4 py-2">
+                        <span className="text-sm">{(e as any).user?.login ?? (e as any).user?.label ?? t('common.na')}</span>
+                      </td>
+                    ) : null}
+                    <td className="px-4 py-2 text-sm text-muted">{createdAt}</td>
+                    <td className="px-4 py-2 text-sm">{durationLabel}</td>
+                    <td className="px-4 py-2 text-sm text-muted"><MonitoringStateExpiry state={stateVal} until={savedUntilIso} /></td>
+                  </TableRowLink>
+                );
+              })}
+            </tbody>
+          </TableCard>
+        </>
       )}
 
       {q.isError ? (
