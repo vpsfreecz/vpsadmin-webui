@@ -1,3 +1,8 @@
+## 2026-11-09 — AppShell error body readability (prepared)
+
+Correct measured dark error text while preserving auth gates and recovery.
+[Scope and evidence](docs/work-log/2026-11-09-appshell-error-readability.md).
+
 ## 2026-11-09 — Wrap requested paths on error pages (prepared)
 
 Keep long requested URLs within forbidden/not-found cards and preserve their full
