@@ -246,6 +246,7 @@ function ZoneKindSelector(props: {
     <div>
       <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted">
         {t('dns.zones.create.kind.label')}
+        <span className="mt-1 block text-xs font-normal normal-case text-muted">{t('dns.zones.authority.help')}</span>
       </div>
       <div className="grid gap-2 sm:grid-cols-2">
         {(['primary', 'secondary'] as const).map((kind) => {

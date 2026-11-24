@@ -74,6 +74,7 @@
     "e2e/specs/app/dns_ttl_readability.spec.ts",
     "e2e/specs/app/dns_zone_dialog_position.spec.ts",
     "e2e/specs/app/dns_zone_owner_lookup.spec.ts",
+    "e2e/specs/app/dns_zone_type_role.spec.ts",
     "e2e/specs/app/dnssec_introduction.spec.ts",
     "e2e/specs/app/dnssec_record_width.spec.ts",
     "e2e/specs/app/dnssec_secondary_management.spec.ts",
