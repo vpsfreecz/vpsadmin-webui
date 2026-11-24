@@ -1,3 +1,8 @@
+## 2026-11-11 — Keep reconciliation feedback readable on warning panels (prepared)
+
+Mutation-reconciliation failures retain readable foreground text, medium weight and a separate danger marker on their actual warning panel while preserving the verification and safety-lock rules. [Cause, scope and verification](docs/work-log/2026-11-11-mutation-reconcile-feedback.md).
+No merge or delivery claim.
+
 ## 2026-11-11 — Keep complete host-address text inside the dialog (prepared)
 
 Host-address creation wraps complete route and failed IPv6 text inside its dialog at narrow widths, preserving address bytes and the retry draft. [Cause, scope and verification](docs/work-log/2026-11-11-host-address-text-wrap.md).
