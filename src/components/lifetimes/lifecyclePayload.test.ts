@@ -44,3 +44,27 @@ describe('lifecycle payload contract', () => {
     });
   });
 });
+
+
+describe('equivalent lifecycle timestamps', () => {
+  it.each(['2026-11-21T08:25:00Z', '2026-11-21T09:25:00+01:00'])(
+    'does not submit an unchanged instant formatted as %s',
+    (raw) => {
+      expect(buildLifecyclePayload(
+        { ...active, expiration: raw, reminder: raw },
+        { ...active, reminder: expiration },
+        'reason alone'
+      )).toEqual({});
+    }
+  );
+  it('still includes a genuinely changed second', () => {
+    expect(buildLifecyclePayload(active, { ...active, expiration: '2026-11-21T08:25:01.000Z' }, '')).toEqual({
+      expiration_date: '2026-11-21T08:25:01.000Z',
+    });
+  });
+  it('retains an actual reminder clear with equivalent expiration formatting', () => {
+    expect(buildLifecyclePayload(
+      { ...active, expiration: '2026-11-21T08:25:00Z', reminder }, active, 'clear'
+    )).toEqual({ expiration_date: expiration, change_reason: 'clear' });
+  });
+});

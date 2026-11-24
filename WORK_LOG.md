@@ -1,3 +1,9 @@
+## 2026-11-10 — Preserve unchanged lifecycle timestamps (prepared)
+
+Compare lifecycle dates by instant and retain seconds in administrator inputs,
+after the selected-owner audit reproduced false dirty state. Keep actual edits,
+nullable payload rules, confirmations and locks. [Cause and verification](docs/work-log/2026-11-10-lifecycle-timestamp-equality.md).
+
 ## 2026-11-10 — Align created snapshot download actions
 
 Keep the Download action aligned with the adjacent dialog footer actions in
