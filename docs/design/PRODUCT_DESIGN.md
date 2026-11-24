@@ -289,3 +289,12 @@ wrap anywhere in table cells and mobile card links. Use the ordinary muted
 owner role on semantic warning cards; small tertiary owner text was below
 the unchanged4.5 threshold in dark mode. Preserve navigation, row variants,
 filters, pagination and the full source strings.
+
+### VPS list context and usage text
+
+Let owner, location and node metadata wrap anywhere within the existing
+context column. Keep its original column allocation and complete source
+strings. Within the VPS resource group, use the existing muted role for
+tertiary child labels and amounts so warning-row backgrounds do not reduce
+small-text contrast. Scope the descendant override to that group; retain
+shared UsageBar defaults, data/severity decisions and action dimensions.

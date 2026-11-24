@@ -67,6 +67,7 @@ export default defineConfig({
         '**/nas_capacity_semantics.spec.ts',
         '**/nas_smoke.spec.ts',
         '**/export_list_containment.spec.ts',
+        '**/vps_list_context_readability.spec.ts',
         '**/about.spec.ts',
         '**/theme_switcher.spec.ts',
         '**/news_language_switch.spec.ts',

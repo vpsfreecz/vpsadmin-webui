@@ -1,3 +1,12 @@
+## 2026-11-10 — VPS list context and usage readability (prepared)
+
+Wrap long owner/node metadata within the context column and strengthen small
+usage annotations on warning rows after actual rendered overflow/contrast
+failures. Keep existing resource composition in each SDK source variant;
+values, severity, roles, actions and shared defaults remain unchanged.
+[Evidence, scope and pending verification](docs/work-log/2026-11-10-vps-list-context-readability.md).
+No commit, PR or activation claim; verification is ongoing.
+
 ## 2026-11-10 — Export list value containment (prepared)
 
 Wrap complete dataset/snapshot and address/path values inside export cells and
