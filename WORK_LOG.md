@@ -1,3 +1,8 @@
+## 2026-11-15 — Bound DNS record columns and preserve complete names
+
+Use one fixed shared column grid with the standard minimum table width and local horizontal scrolling. Wrap complete record names and content within cells and mobile cards; keep row actions reachable and preserve managed/busy/role contracts.
+[Prepared DNS-09 verification](docs/work-log/2026-11-15-dns-grid-review.md).
+
 ## 2026-11-15 — Anchor the changing DNS-zone creation form
 
 Prepare approved DNS-05 / REQ-049: retain a stable top viewport inset while

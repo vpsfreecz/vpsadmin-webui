@@ -1447,3 +1447,8 @@ rootfs from the host and that the snippet adds an NFS mount inside the VPS.
 The note stays beside that example, not in temporary snapshot command-only
 guidance. All example bytes, existing controls, source fields and write gates
 remain unchanged. See [approved EXP-03 evidence](../work-log/2026-11-15-export-nfs-help.md).
+
+### Bound DNS record columns and preserve complete names (REQ-049)
+
+Use one fixed shared column grid with the standard minimum table width and local horizontal scrolling. Wrap complete record names and content within cells and mobile cards; keep row actions reachable and preserve managed/busy/role contracts.
+[Scope and evidence](../work-log/2026-11-15-dns-grid-review.md).
