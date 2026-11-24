@@ -79,6 +79,7 @@
     "e2e/specs/app/mobile_workflows.spec.ts",
     "e2e/specs/app/monitoring_event_action_feedback.spec.ts",
     "e2e/specs/app/monitoring_state_meaning.spec.ts",
+    "e2e/specs/app/nas_form_consistency.spec.ts",
     "e2e/specs/app/nas_smoke.spec.ts",
     "e2e/specs/app/network_address_details.spec.ts",
     "e2e/specs/app/node_history.spec.ts",

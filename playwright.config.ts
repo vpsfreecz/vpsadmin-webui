@@ -63,6 +63,7 @@ export default defineConfig({
         '**/oom_report_tasks_pagination.spec.ts',
         '**/oom_report_tasks_mobile_layout.spec.ts',
         '**/danger_button_contrast.spec.ts',
+        '**/nas_form_consistency.spec.ts',
         '**/about.spec.ts',
         '**/theme_switcher.spec.ts',
         '**/news_language_switch.spec.ts',
