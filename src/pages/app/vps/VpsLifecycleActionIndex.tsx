@@ -30,7 +30,7 @@ export function VpsLifecycleActionIndex<Kind extends string>(props: {
       ].join(' ')}
       data-testid={`vps.lifecycle.action_link.${choice.kind}`}
     >
-      <span className={choice.danger ? 'block text-sm font-semibold text-danger' : 'block text-sm font-semibold text-fg'}>
+      <span className="block text-sm font-semibold text-fg">
         {choice.title}
       </span>
       <span className="mt-1 block text-xs text-muted">{choice.description}</span>

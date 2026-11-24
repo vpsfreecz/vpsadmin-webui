@@ -1,3 +1,18 @@
+## 2026-11-11 — Make lifecycle action and date-error text readable (prepared)
+
+The current finite dark-theme audit measures3.12:1 for small red destructive
+choice titles and date-validation errors. Use the existing readable foreground,
+retaining danger borders and explicit localized labels. Keep all date parsing,
+roles, field values, disabled-submit and mutation behavior. [Scope and verification
+boundaries](docs/work-log/2026-11-11-lifecycle-text-readability.md). No merge or preview activation claimed.
+
+## 2026-11-11 — Select lifecycle contrast regression in Chromium smoke CI
+
+The new cases were selected by the WebKit file list but lacked the two tags
+required by Chromium smoke selectors. Add both tags without changing assertions
+or application code. Preserve the original exact-source evidence and refresh
+the focused-head CI and clean release verification before promotion.
+
 ## 2026-11-11 — Keep complete lifecycle values inside comparison columns
 
 The approved dimensions/dark-readability audit found a template card overflowing

@@ -171,6 +171,14 @@ and on narrow/coarse layouts. This is a REQ-010 presentation correction;
 [scope and evidence](../work-log/2026-11-11-lifecycle-value-wrapping.md) distinguish fixture diagnostics
 from live permissions and final release verification.
 
+Lifecycle action titles use the regular readable foreground while destructive
+choices retain their danger border and explicit action name. Invalid expiration,
+reminder and member snooze dates retain their existing localized messages and
+submission guards, with readable medium-weight text and a separate danger border
+marker. This follows the existing Alert foreground convention; the danger-fill
+foreground token is intended for solid buttons and is unsuitable on page surfaces.
+See [REQ-010 source and fixture evidence](../work-log/2026-11-11-lifecycle-text-readability.md).
+
 **Actions:** start, graceful shutdown, immediate poweroff, restart and supported
 power/lifecycle operations must name the target and honor live state/transaction
 locks. Shutdown and poweroff use the same stop request with distinct force values.
