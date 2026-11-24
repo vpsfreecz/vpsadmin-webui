@@ -102,7 +102,7 @@ export function ConfirmDialog(props: {
       }
     >
       <div ref={contentRef}>
-        {description ? <p className="text-sm text-muted">{description}</p> : null}
+        {description ? <p className="text-sm text-muted [overflow-wrap:anywhere]">{description}</p> : null}
         {props.children ? <div className={description ? 'mt-3' : ''}>{props.children}</div> : null}
       </div>
     </Modal>

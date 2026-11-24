@@ -14,6 +14,7 @@
     "e2e/helpers/shellNavigation.ts",
     "e2e/specs/admin/admin_dashboard.spec.ts",
     "e2e/specs/admin/cluster_resource_maintenance.spec.ts",
+    "e2e/specs/admin/host_ip_addresses_responsive_actions.spec.ts",
     "e2e/specs/admin/ip_address_detail_page.spec.ts",
     "e2e/specs/admin/ip_addresses_empty_clear_filters.spec.ts",
     "e2e/specs/admin/ip_addresses_filters_pagination.spec.ts",
@@ -273,13 +274,6 @@
     {
       "path": "e2e/specs/admin/help_boxes_responsive_actions.spec.ts",
       "sha256": "7b9f8deff91f2e55f68ffaf0520e78f491d556fda89cd4f6f146b6020e79c2de",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/admin/host_ip_addresses_responsive_actions.spec.ts",
-      "sha256": "9ee39a473033d3722a26d6e30fbd134d6a872bb461ca533f4879de8623084dc9",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."

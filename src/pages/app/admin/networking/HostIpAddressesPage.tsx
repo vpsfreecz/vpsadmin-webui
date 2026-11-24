@@ -337,7 +337,7 @@ export function HostIpAddressesPage() {
         }
       >
         <label className="block">
-          <div className="mb-1 text-sm font-medium">{ptrEditor ? hostAddr(ptrEditor) : ''}</div>
+          <div className="mb-1 text-sm font-medium [overflow-wrap:anywhere]">{ptrEditor ? hostAddr(ptrEditor) : ''}</div>
           <Input value={ptrValue} onChange={(e) => setPtrValue(e.target.value)} placeholder="host.example.org." />
         </label>
         <div className="mt-1 text-xs text-muted">{t('admin.host_ip_addresses.ptr.help')}</div>
@@ -359,6 +359,7 @@ export function HostIpAddressesPage() {
         }
       >
         <div className="space-y-4">
+                    <div className="[overflow-wrap:anywhere]">{assignHost ? hostAddr(assignHost) : '—'}</div>
           <label className="block">
             <div className="mb-1 text-sm font-medium">{t('admin.host_ip_addresses.assign.vps')}</div>
             <VpsLookupInput value={assignVps} onChange={setAssignVps} placeholder={t('admin.host_ip_addresses.assign.vps.placeholder')} />

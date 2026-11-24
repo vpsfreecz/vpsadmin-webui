@@ -164,7 +164,7 @@ export function IpAddressRouteDialog(props: {
       }
     >
       <div className="space-y-4">
-        <div className="font-mono text-sm">
+        <div className="font-mono text-sm [overflow-wrap:anywhere]">
           {props.ip.addr}/{props.ip.prefix}
         </div>
         <div className="text-sm text-muted">{t('admin.ip.route.intro')}</div>
