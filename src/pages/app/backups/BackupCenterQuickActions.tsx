@@ -2,7 +2,7 @@ import React from 'react';
 
 import { useI18n } from '../../../app/i18n';
 import { Button } from '../../../components/ui/Button';
-import { Card, CardBody, CardHeader } from '../../../components/ui/Card';
+import { Card, CardBody } from '../../../components/ui/Card';
 
 export function BackupCenterQuickActions(props: {
   onRestore: () => void;
@@ -13,7 +13,6 @@ export function BackupCenterQuickActions(props: {
 
   return (
     <Card testId="backups.quick">
-      <CardHeader title={t('backups.quick.title')} subtitle={t('backups.quick.subtitle')} />
       <CardBody className="grid gap-3 md:grid-cols-3">
         <Button onClick={props.onRestore} variant="secondary" testId="backups.quick.restore">
           {t('backups.quick.restore')}
