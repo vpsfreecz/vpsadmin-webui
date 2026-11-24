@@ -1064,3 +1064,15 @@ existing authenticated redirect to `/app`; copying retains full diagnostics
 and Details remains a native keyboard disclosure. These are recovery/navigation actions, not process
 mutations. Other error surfaces retain default presentation. See the
 [approved OOM follow-up](../work-log/2026-11-15-oom-reading-recovery.md).
+
+
+### Resources: additional configuration (RES-04)
+
+Resources opens the additional configuration fields immediately, as the general
+Configuration route already does. Native details toggling remains available by
+pointer and keyboard; it does not save, reset a draft or remember a preference.
+Administrator fields retain their existing role gate and order.
+
+Query-only navigation from Resources to general Configuration reuses the same
+component. Restore the open default for the new location without resetting the
+draft. Ordinary field edits and native toggles do not reset the disclosure.

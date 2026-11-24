@@ -1,3 +1,7 @@
+## 2026-11-09 — Open additional configuration from Resources
+
+[Scope and verification](docs/work-log/2026-11-09-resources-additional-open.md).
+
 ## 2026-11-09 — Wrap long dataset identity messages
 
 [Scope and verification](docs/work-log/2026-11-09-scope-mismatch-wrap.md).
