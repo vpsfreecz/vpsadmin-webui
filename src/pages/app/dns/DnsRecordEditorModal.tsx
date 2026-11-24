@@ -1,3 +1,4 @@
+import { knownDnsTtlSeconds } from './dnsRecordTtlPresentation';
 import React, { useMemo } from 'react';
 
 import { useI18n } from '../../../app/i18n';
@@ -66,6 +67,7 @@ function FieldFeedback(props: {
 
 export function DnsRecordEditorModal(props: {
   mode: 'create' | 'edit';
+  zoneDefaultTtl: unknown;
   open: boolean;
   draft: DnsRecordDraft;
   validation: DnsRecordValidationResult;
@@ -81,6 +83,7 @@ export function DnsRecordEditorModal(props: {
   onSubmit: () => void;
 }) {
   const { t } = useI18n();
+  const zoneDefaultTtl = knownDnsTtlSeconds(props.zoneDefaultTtl);
   const testPrefix = props.mode === 'create' ? 'dns.records.create' : 'dns.records.edit';
   const apiMessages = useMemo(() => messagesByField(props.apiFieldErrors), [props.apiFieldErrors]);
   const summaryIssues = props.validation.issues.filter((issue) => issue.field === 'conflict' || issue.field === 'record');
@@ -198,7 +201,8 @@ export function DnsRecordEditorModal(props: {
             <Input
               value={props.draft.ttl}
               onChange={(e) => props.onDraftChange({ ttl: e.target.value })}
-              placeholder={props.mode === 'create' ? t('common.default') : '3600'}
+              placeholder={zoneDefaultTtl === null ? t('common.default') : String(zoneDefaultTtl)}
+              ariaDescribedBy={`${testPrefix}.ttl.help`}
               type="number"
               inputMode="numeric"
               min={DNS_TTL_MIN}
@@ -207,6 +211,11 @@ export function DnsRecordEditorModal(props: {
               ariaInvalid={props.validation.errors.some((issue) => issue.field === 'ttl')}
               testId={`${testPrefix}.ttl`}
             />
+            <div className="mt-1 text-xs text-muted" id={`${testPrefix}.ttl.help`} data-testid={`${testPrefix}.ttl.help`}>
+              {zoneDefaultTtl === null
+                ? t('dns.zone.records.ttl.inherit_unknown')
+                : t('dns.zone.records.ttl.inherit_help', { seconds: zoneDefaultTtl })}
+            </div>
             <FieldFeedback
               field="ttl"
               issues={props.validation.issues}

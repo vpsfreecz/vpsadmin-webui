@@ -1,3 +1,4 @@
+import { DnsRecordTtl } from './DnsRecordTtl';
 import React from 'react';
 
 import { useI18n } from '../../../app/i18n';
@@ -57,6 +58,7 @@ function YesNoBadge(props: { value: unknown }) {
 
 export function DnsRecordsList(props: {
   rows: readonly DnsRecord[];
+  zoneDefaultTtl: unknown;
   validationById: ReadonlyMap<number, DnsRecordValidationResult>;
   rowErrors: ReadonlyMap<number, string>;
   updateGate: GateDecision;
@@ -116,7 +118,7 @@ export function DnsRecordsList(props: {
                     <div className="flex flex-wrap gap-x-6 gap-y-2">
                       <div>
                         <div className="text-faint">{t('dns.zone.records.table.ttl')}</div>
-                        <div className="font-medium text-fg">{record.ttl != null ? String(record.ttl) : t('common.na')}</div>
+                        <DnsRecordTtl ttl={record.ttl} zoneDefaultTtl={props.zoneDefaultTtl} testId={`dns.record.card.${record.id}.ttl`} />
                       </div>
                       <div>
                         <div className="text-faint">{t('dns.zone.records.table.priority')}</div>
@@ -255,7 +257,9 @@ export function DnsRecordsList(props: {
                       <td className="py-2 pr-3">
                         <div className="break-all">{String(record.content ?? '')}</div>
                       </td>
-                      <td className="py-2 pr-3">{record.ttl != null ? String(record.ttl) : t('common.na')}</td>
+                      <td className="py-2 pr-3">
+                        <DnsRecordTtl ttl={record.ttl} zoneDefaultTtl={props.zoneDefaultTtl} testId={`dns.record.row.${record.id}.ttl`} />
+                      </td>
                       <td className="py-2 pr-3">{record.priority != null ? String(record.priority) : t('common.na')}</td>
                       <td className="py-2 pr-3"><EnabledBadge value={record.enabled} /></td>
                       <td className="py-2 pr-3"><YesNoBadge value={recordDynamicEnabled(record)} /></td>

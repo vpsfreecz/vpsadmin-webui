@@ -1452,3 +1452,8 @@ remain unchanged. See [approved EXP-03 evidence](../work-log/2026-11-15-export-n
 
 Use one fixed shared column grid with the standard minimum table width and local horizontal scrolling. Wrap complete record names and content within cells and mobile cards; keep row actions reachable and preserve managed/busy/role contracts.
 [Scope and evidence](../work-log/2026-11-15-dns-grid-review.md).
+
+### Show known inherited DNS record TTL (REQ-049)
+
+Distinguish explicit record TTL, null inheritance from the current validated zone default, and missing/invalid unknown values. Show the known default in blank-field help without filling the draft. Preserve omitted TTL on Create and null on Update when clearing an override; no query, mutation, validation or lock changes.
+[Scope and evidence](../work-log/2026-11-15-dns-ttl-review.md).
