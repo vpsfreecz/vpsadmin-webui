@@ -466,6 +466,12 @@ the API configuration predicate and the help calls it a setting. This does not
 select the separate DNS-01 zone-naming models.
 [Scope and verification](../work-log/2026-11-12-secondary-dnssec-management.md).
 
+DNS-zone creation keeps a stable top inset as primary/secondary fields change.
+The form remains horizontally centered, bounds its height to the visual viewport
+and scrolls its body while retaining the footer, focus/close behavior, draft
+values and existing Create/role contracts. Other Modal callers retain their
+default vertical centering (approved DNS-05 / REQ-049).
+
 **Intent:** create/edit zones and records, configure transfers, servers, TSIG and
 DNSSEC, inspect logs, and manage relevant IP/interface/resolver resources.
 Administrators also have network/address inventories and allocation operations.

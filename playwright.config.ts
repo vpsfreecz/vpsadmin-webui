@@ -125,6 +125,7 @@ export default defineConfig({
         '**/exports_filter_contract.spec.ts',
         '**/export_nfs_help.spec.ts',
         '**/export_create_conflict.spec.ts',
+        '**/dns_zone_dialog_position.spec.ts',
         '**/vps_initialization_templates.spec.ts',
         '**/vps_console_controls.spec.ts',
         '**/vps_console_viewport.spec.ts',
