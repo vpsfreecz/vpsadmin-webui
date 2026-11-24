@@ -109,6 +109,7 @@ export default defineConfig({
         '**/lifecycle_value_wrapping.spec.ts',
         '**/lifecycle_text_contrast.spec.ts',
         '**/vps_expiration_reactivation.spec.ts',
+        '**/backup_download_feedback.spec.ts',
         '**/snapshot_export_shortcut.spec.ts',
         '**/snapshot_delete_availability.spec.ts',
         '**/export_hosts_responsive_actions.spec.ts',
