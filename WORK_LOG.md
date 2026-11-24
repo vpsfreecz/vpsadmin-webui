@@ -1,3 +1,10 @@
+## 2026-11-24 UTC — Preserve rapid host-IP filter changes
+
+[Reproduced URL race, ownership guard and unchanged assertions](docs/work-log/2026-11-24-host-filter-navigation-race.md).
+Retried CI exposed a real lost address filter. Two deterministic browser-router
+cases fail before the fix and pass after it; the merge is held for fresh complete
+qualification. The unchanged filter view is extracted to retain the page budget.
+
 ## 2026-11-24 — Qualify complete accepted integration with bounded CI shards
 
 [Original timeout/test evidence, preserved coverage and qualification](docs/work-log/2026-11-24-approved-integration-ci.md).
