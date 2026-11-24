@@ -1097,3 +1097,11 @@ draft. Ordinary field edits and native toggles do not reset the disclosure.
 Tasks background-activity disclosure places the action below its explanation
 so both Show and Hide labels fit the fixed control height in the narrow drawer.
 This layout preserves the existing role-dependent scope and collapsed state.
+
+## Shared foreground readability
+
+Operational links retain their navigation, ownership and query contracts while
+using readable text foregrounds in normal, focus and hover states. Empty enabled
+fields use the tertiary hint role; actual values, disabled controls and pending
+cancellation retain their behavior. Explicit light/dark and system preference
+require actual rendered checks. See the [source and evidence boundaries](../work-log/2026-11-10-readable-link-and-placeholder-foregrounds.md).

@@ -62,6 +62,7 @@ export default defineConfig({
         '**/oom_reading_recovery.spec.ts',
         '**/oom_report_tasks_pagination.spec.ts',
         '**/oom_report_tasks_mobile_layout.spec.ts',
+        '**/danger_button_contrast.spec.ts',
         '**/about.spec.ts',
         '**/theme_switcher.spec.ts',
         '**/news_language_switch.spec.ts',
