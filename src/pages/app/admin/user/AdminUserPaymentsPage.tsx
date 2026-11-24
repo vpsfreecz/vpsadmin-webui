@@ -365,34 +365,35 @@ export function AdminUserPaymentsPage() {
               </div>
 
               <div className="grid gap-4 md:grid-cols-2">
-                <form className="space-y-2" onSubmit={submitPaidUntil} data-testid="admin.user.payments.paid_until.form">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div className="text-xs font-semibold text-muted">{t('admin.user.payments.settings.field.paid_until')}</div>
-                    <Badge variant={paidUntilBadgeVariant(status.status)}>{t(paidUntilStatusLabelKey(status.status))}</Badge>
-                  </div>
+                <form className="flex flex-col gap-2" onSubmit={submitPaidUntil} data-testid="admin.user.payments.paid_until.form">
                   <Input
+                    label={(
+                      <span className="flex min-h-6 flex-wrap items-center justify-between gap-2">
+                        <span>{t('admin.user.payments.settings.field.paid_until')}</span>
+                        <Badge variant={paidUntilBadgeVariant(status.status)}>{t(paidUntilStatusLabelKey(status.status))}</Badge>
+                      </span>
+                    )}
                     testId="admin.user.payments.settings.paid_until"
                     type="date"
                     value={quickPaidUntil}
                     onChange={(e) => setQuickPaidUntil(e.target.value)}
                     disabled={accountReviewBlocked || settingsMutationPending}
                   />
-                  <div className="text-xs text-muted">{paidUntilSubtitle}</div>
+                  <div className="flex-1 text-xs text-muted">{paidUntilSubtitle}</div>
                   <Button
                     type="submit"
                     variant="secondary"
-                    size="sm"
                     loading={paidUntilM.isPending}
                     disabled={accountReviewBlocked || settingsMutationPending || !paidUntilChanged}
+                    className="self-start"
                     testId="admin.user.payments.settings.paid_until.save"
                   >
                     {t('admin.user.payments.settings.save_paid_until')}
                   </Button>
                 </form>
-
-                <form className="space-y-2" onSubmit={submitMonthlyPayment} data-testid="admin.user.payments.monthly.form">
+                <form className="flex flex-col gap-2" onSubmit={submitMonthlyPayment} data-testid="admin.user.payments.monthly.form">
                   <Input
-                    label={t('admin.user.payments.settings.field.monthly_payment')}
+                    label={<span className="flex min-h-6 items-center">{t('admin.user.payments.settings.field.monthly_payment')}</span>}
                     testId="admin.user.payments.settings.monthly_payment"
                     type="number"
                     inputMode="numeric"
@@ -403,18 +404,18 @@ export function AdminUserPaymentsPage() {
                     disabled={accountReviewBlocked || settingsMutationPending}
                   />
                   {monthlyPaymentInvalid ? (
-                    <div className="text-xs text-danger" role="alert" data-testid="admin.user.payments.settings.monthly.validation">
+                    <div className="flex-1 border-l-2 border-danger pl-2 text-xs font-medium text-fg" role="alert" data-testid="admin.user.payments.settings.monthly.validation">
                       {t('admin.user.payments.settings.validation.monthly_payment')}
                     </div>
                   ) : (
-                    <div className="text-xs text-muted">{t('admin.user.payments.settings.hint.monthly_payment')}</div>
+                    <div className="flex-1 text-xs text-muted">{t('admin.user.payments.settings.hint.monthly_payment')}</div>
                   )}
                   <Button
                     type="submit"
                     variant="secondary"
-                    size="sm"
                     loading={monthlyPaymentM.isPending}
                     disabled={accountReviewBlocked || settingsMutationPending || !monthlyPaymentChanged}
+                    className="self-start"
                     testId="admin.user.payments.settings.monthly.save"
                   >
                     {t('common.save')}
@@ -440,15 +441,15 @@ export function AdminUserPaymentsPage() {
                 disabled={addM.isPending || monthlyPaymentM.isPending || accountReviewBlocked}
               />
               {activeMonthlyPayment === null ? (
-                <div className="text-xs text-danger" data-testid="admin.user.payments.add.validation">
+                <div className="border-l-2 border-danger pl-2 text-xs font-medium text-fg" data-testid="admin.user.payments.add.validation">
                   {t('admin.user.payments.add_payment.validation.no_monthly_payment')}
                 </div>
               ) : quickAmount.trim() && amountParsed === null ? (
-                <div className="text-xs text-danger" data-testid="admin.user.payments.add.validation">
+                <div className="border-l-2 border-danger pl-2 text-xs font-medium text-fg" data-testid="admin.user.payments.add.validation">
                   {t('admin.user.payments.add_payment.validation.amount')}
                 </div>
               ) : amountParsed !== null && manualPaymentMonths === null ? (
-                <div className="text-xs text-danger" data-testid="admin.user.payments.add.validation">
+                <div className="border-l-2 border-danger pl-2 text-xs font-medium text-fg" data-testid="admin.user.payments.add.validation">
                   {t('admin.user.payments.add_payment.validation.multiple', { monthly: formatMoneyLike(activeMonthlyPayment) })}
                 </div>
               ) : activeMonthlyPayment !== null ? (
@@ -459,7 +460,6 @@ export function AdminUserPaymentsPage() {
               <Button
                 type="submit"
                 variant="primary"
-                size="sm"
                 disabled={manualPaymentMonths === null || addM.isPending || monthlyPaymentM.isPending || accountReviewBlocked}
                 testId="admin.user.payments.add.save"
               >

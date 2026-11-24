@@ -65,7 +65,7 @@ test('@pr-smoke @pr-smoke-mobile VPS history uses an exact object scope, respons
   await expect(page.getByText('secret-before')).toHaveCount(0);
   await expect(page.getByText('secret-after')).toHaveCount(0);
 
-  const proofScreenshot = process.env.E2E_VPS_HISTORY_SCREENSHOT?.trim();
+  const proofScreenshot = process.env['E2E_VPS_HISTORY_SCREENSHOT']?.trim();
   if (proofScreenshot) {
     const suffix = testInfo.project.name === 'mobile-chrome' ? '-mobile' : '-desktop';
     await page.screenshot({ path: proofScreenshot.replace(/\.png$/i, `${suffix}.png`), fullPage: true });
@@ -139,4 +139,35 @@ test('an exactly full terminal VPS history page does not offer an empty next pag
   const itemPrefix = testInfo.project.name === 'mobile-chrome' ? 'vps.history.card' : 'vps.history.row';
   await expect(page.getByTestId(`${itemPrefix}.25`)).toBeVisible();
   await expect(page.getByTestId('vps.history.pagination.next')).toBeDisabled();
+});
+
+
+test('@pr-smoke @pr-smoke-mobile long VPS history labels stay inside narrow cards', async ({ page }) => {
+  const eventType = 'synteticky_dlouhy_typ_udalosti_pro_porovnani';
+  await page.setViewportSize({ width: 320, height: 900 });
+  await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST_HISTORY_NARROW_LABEL' });
+  await installHaveApiMock(page, {
+    user: { id: 42, login: 'owner', level: 1 },
+    handlers: {
+      'GET vpses/123': () => ({ vps }),
+      'GET ip_addresses': () => ({ ip_addresses: [] }),
+      'GET transaction_chains': () => ({ transaction_chains: [] }),
+      'GET object_histories': () => ({ object_histories: [event(1, eventType)] }),
+    },
+  });
+
+  await page.goto('/app/vps/123/history');
+  const card = page.getByTestId('vps.history.card.1');
+  const label = card.getByText(eventType, { exact: true });
+  await expect(card).toBeVisible();
+  await expect(label).toBeVisible();
+  await expect(label).toHaveText(eventType);
+  const cardBox = await card.boundingBox();
+  const labelBox = await label.boundingBox();
+  expect(cardBox).not.toBeNull();
+  expect(labelBox).not.toBeNull();
+  expect(labelBox!.x).toBeGreaterThanOrEqual(cardBox!.x);
+  expect(labelBox!.x + labelBox!.width).toBeLessThanOrEqual(cardBox!.x + cardBox!.width + 1);
+  expect(await label.evaluate((element) => element.scrollWidth <= element.clientWidth + 1)).toBe(true);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= 321)).toBe(true);
 });
