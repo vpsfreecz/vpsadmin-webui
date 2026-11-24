@@ -12,6 +12,7 @@ import { FilterBar } from '../../../components/layout/FilterBar';
 import { ListShell } from '../../../components/layout/ListShell';
 import { PageHeader } from '../../../components/layout/PageHeader';
 import { searchUsers } from '../../../lib/api/users';
+import { AdminIncidentsTabs } from './AdminIncidentsTabs';
 import { IncidentNoticeSummary } from './IncidentNoticeSummary';
 import { IncidentPolicyFilter } from './IncidentPolicyFilter';
 import { incidentCreateHref } from './incidentCreateContext';
@@ -675,19 +676,22 @@ export function IncidentsPage() {
   }, [activeSearchParams, assignmentId, codename, filedById, ip, isAdmin, mailboxId, policyKey, setSp, smartErrors, t, userId, vpsId]);
 
   const header = (
-    <PageHeader
-      title={t('incidents.list.title')}
-      description={t('incidents.list.description')}
-      meta={filtersActive ? <span className="text-xs text-faint">{t('list.meta.filters_active')}</span> : null}
-      actions={
-        isAdmin ? (
-          <Button variant="secondary" size="sm" to={incidentCreateHref(basePath, activeSearchParams, vpsId)} testId="incidents.list.new">
-            {t('incidents.list.new')}
-          </Button>
-        ) : null
-      }
-      testId="incidents.list.header"
-    />
+    <div className="space-y-3">
+      <PageHeader
+        title={t('incidents.list.title')}
+        description={t('incidents.list.description')}
+        meta={filtersActive ? <span className="text-xs text-faint">{t('list.meta.filters_active')}</span> : null}
+        actions={
+          isAdmin ? (
+            <Button variant="secondary" size="sm" to={incidentCreateHref(basePath, activeSearchParams, vpsId)} testId="incidents.list.new">
+              {t('incidents.list.new')}
+            </Button>
+          ) : null
+        }
+        testId="incidents.list.header"
+      />
+      <AdminIncidentsTabs />
+    </div>
   );
 
   return (

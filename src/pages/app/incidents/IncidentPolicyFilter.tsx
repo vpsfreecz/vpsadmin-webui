@@ -34,6 +34,7 @@ export function IncidentPolicyFilter() {
   return (
     <div className="min-w-0 space-y-2" data-testid="incidents.policyFilter">
       <Select
+        className="min-h-11 min-w-40"
         ariaLabel={t('incidentEscalation.type')}
         value={selected}
         disabled={failed || !registry.isSuccess || capabilities.data?.data.policies !== true}

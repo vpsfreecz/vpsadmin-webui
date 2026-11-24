@@ -1,3 +1,7 @@
+## 2026-11-24: Add administrator incident Overview and History
+
+[Scope and verification](docs/work-log/2026-11-24-admin-incident-policies.md).
+
 ## 2026-11-19: Clarify incident policy settings and filters
 
 [Scope and verification](docs/work-log/2026-11-19-incident-policy-usability.md).

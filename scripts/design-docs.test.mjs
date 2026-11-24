@@ -15,6 +15,7 @@ function fixture(t, { checkout = false } = {}) {
   for (const name of ['design-inventory.mjs', 'audit-design-docs.mjs']) fs.copyFileSync(path.join(root, 'scripts', name), path.join(cwd, 'scripts', name));
   fs.writeFileSync(path.join(cwd, 'src/routes/router.tsx'), `createBrowserRouter([{ element: <Shell />, children: [{ path: '/app', element: <Member />, children: [{ index: true, element: <Home /> }, { path: 'vps/:id', element: <Detail /> }, ...adminFinanceRoutes] }] }]);`);
   fs.writeFileSync(path.join(cwd, 'src/routes/adminFinanceRoutes.tsx'), `export const adminFinanceRoutes = [{ element: <Gate />, children: [{path:'payments',element:<Payments />}]}];`);
+  fs.writeFileSync(path.join(cwd, 'src/routes/adminIncidentRoutes.tsx'), 'export const adminIncidentRoutes = [];');
   fs.writeFileSync(path.join(cwd, 'src/routes/securityAdvisoryAdminRoutes.tsx'), 'export const securityAdvisoryAdminRoutes = [];');
   fs.writeFileSync(path.join(cwd, 'src/routes/statusReadingRoutes.tsx'), 'export const publicRoutes = []; export const statusReadingRoutes = [];');
   fs.writeFileSync(path.join(cwd, 'src/lib/api/vps.ts'), 'export {};');
@@ -26,7 +27,8 @@ function fixture(t, { checkout = false } = {}) {
   fs.writeFileSync(path.join(cwd,'docs/design/REQUIREMENTS.md'),'| REQ-001 | Requirement |\n');
   fs.writeFileSync(path.join(cwd,'docs/design/EVIDENCE_MATRIX.md'),'## Requirement coverage\n\n| REQ-001 | Manual review | Not executed |\n');
   const run = (...args) => spawnSync(process.execPath, args, { cwd, encoding: 'utf8' });
-  assert.equal(run('scripts/design-inventory.mjs','--write').status,0);
+  const inventory = run('scripts/design-inventory.mjs','--write');
+  assert.equal(inventory.status,0,inventory.stderr);
   if (checkout) {
     for (const args of [['init', '--quiet'], ['add', '.']]) {
       const result = spawnSync('git', args, { cwd, encoding: 'utf8' });

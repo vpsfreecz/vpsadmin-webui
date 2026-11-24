@@ -1074,6 +1074,47 @@ See the [context regression record](../work-log/2026-10-08-incident-create-conte
 [monitoring](../../src/lib/api/monitoring.ts), [incidents](../../src/lib/api/incidents.ts),
 [OOM](../../src/lib/api/oom.ts).
 
+### Administrator incident overview and history
+
+The administrator Incidents menu opens Overview, with Reports and History as
+adjacent tabs. Overview lists all current matches across active policies,
+including stopped VPSes and counts below the thresholds. The backend filters and
+sorts all VPS/policy pairs before returning a page. Rows show incident counts and
+how many reports remain before a threshold, alongside modes, permissions, owner
+and transfer restrictions, cooldowns and shared actions. These values do not
+predict the next action.
+
+Reports keeps its existing URL, filters and creation/detail links. Member,
+support and per-VPS views retain their behavior. History shows saved evaluations
+alongside the latest action and email outcomes, including retired policies and
+original owners. Its unresolved-actions view includes outstanding work of any
+age. A request to shut down a VPS and a confirmed shutdown are separate facts;
+several policy rows can refer to one shared shutdown. Email state `sent` means
+acceptance by the mail server, without proof of inbox delivery.
+
+Each new view requires the administrator role and its authorized generated action,
+fields and metadata. Its pagination preserves the echoed cutoff in the URL;
+Refresh obtains a new cutoff. Settings and outcomes still reflect the latest
+read. See [the API contract](API_CONTRACTS.md#administrator-overview-and-recorded-history).
+
+Overview has four desktop columns: VPS and policy, incident counts, status and the
+latest recorded outcome. Mobile cards show the same summary. Each count line shows
+the count, limit and period, with the supplied remaining count alongside it.
+Details holds modes, permissions, node, accounting dates, cooldowns, timestamps,
+identifiers and evidence links. It starts closed and needs no additional request.
+
+History leads with the evaluation time, report, VPS and policy. The decision and
+counts recorded at evaluation are separate from the current action and email
+outcome. If no reason for decision `none` was recorded, the page does not infer one.
+Owner, policy key, detection time and other saved settings are available in Details.
+
+Overview keeps policy, status and sort controls visible; History keeps policy,
+scope and period visible. More filters contains IDs, modes, permissions, action
+and email states, and direction where supported. Its controls retain their values
+and remain enabled while collapsed; active refinements open it. Both pages show a
+compact cutoff, with the last-read timestamp in a disclosure. History also shows
+its selected period. The long explanatory banners are omitted.
+
 ## Nodes, cluster and migrations
 
 **Intent:** inspect node status, kernel/system history and configured versions;

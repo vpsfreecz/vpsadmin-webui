@@ -45,6 +45,12 @@ export const MonitoringEventsPage = lazyRoute(
   'MonitoringEventsPage',
 );
 export const IncidentsPage = lazyRoute(() => import('../pages/app/incidents/IncidentsPage'), 'IncidentsPage');
+export const AdminIncidentOverviewPage = lazyRoute(
+  () => import('../pages/app/incidents/AdminIncidentPolicyPages'), 'AdminIncidentOverviewPage',
+);
+export const AdminIncidentHistoryPage = lazyRoute(
+  () => import('../pages/app/incidents/AdminIncidentPolicyPages'), 'AdminIncidentHistoryPage',
+);
 export const IncidentReportDetailPage = lazyRoute(
   () => import('../pages/app/incidents/IncidentReportDetailPage'),
   'IncidentReportDetailPage',

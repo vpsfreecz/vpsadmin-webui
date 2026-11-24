@@ -583,6 +583,64 @@ rule editor, action endpoint or BFF route. See
 [the revision record](../work-log/2026-11-17-generic-incident-policies.md) and
 vpsAdmin's authoritative `docs/incident-escalation.md`.
 
+### Administrator overview and recorded history
+
+The administrator Incidents menu opens `/admin/incidents/overview`. Reports keeps
+`/admin/incidents` and its existing filter links. History is at
+`/admin/incidents/history`. Existing report creation, detail, member and per-VPS
+routes retain their behavior. Each new view requires an authenticated
+administrator and its authorized Index action, required fields and global metadata
+in the API description. If those capabilities are absent, the view reports that
+it is unavailable and keeps Reports reachable.
+
+Overview uses generated `incident_policy_exposure.index`. Each row represents a
+VPS and an active policy with saved matches counted in the current 30-day window.
+All active policies are included by default, including VPSes that are stopped or
+below the warning threshold. The server supplies ordinary VPS/User/Node Resource
+references, counts, limits, remaining counts, modes, permissions, cooldown dates
+and recorded outcomes. It filters and sorts the full result before pagination.
+The frontend does not match reports, calculate counters, fetch each VPS separately
+or sort a page in isolation. Owner inactivity, transfers and outstanding shared
+actions are separate restrictions. Neither the remaining count nor the end of a
+cooldown guarantees that a later report will trigger an action.
+
+Overview keeps the supplied counts, limits, periods and remaining counts visible.
+Secondary fields are available in Details without another request. Missing
+restrictions remain unknown. A completed request alone does not confirm that the
+VPS stopped; confirmation requires the explicit shutdown completion field.
+
+History uses generated `incident_policy_evaluation.index`. Its default
+`violations` scope includes reached thresholds or recorded actions; `matched`,
+`all` and `outstanding` are also available. Retired policy keys and original report,
+VPS and owner IDs remain searchable after their current associations disappear.
+Missing values remain unknown. Saved matches, counts, limits and decisions retain
+their recorded values. Action and email outcomes reflect the latest read and may
+be newer than the selected evaluation period. A completed warning is not evidence
+of a VPS shutdown. Email state `sent` means acceptance by the mail server, without
+proof of inbox delivery; queued, suppressed, failed and uncertain states remain
+separate. Rows with the same physical shutdown action ID refer to one shutdown.
+History does not record every state change or retry.
+
+History presents the saved decision and counts separately from the current action
+and email outcome. A reached threshold with decision `none` does not establish why
+no action was chosen. Error, skipped, audit-only and unmatched or unknown membership
+states remain visible when they affect interpretation. Expanding entry details or
+filters does not change the query, page membership or cutoff.
+
+These endpoints use offset/limit pagination: 25 rows by default, at most 100.
+They return deterministic server ordering and global `total_count`, `next_offset`,
+`as_of` and `read_at` metadata. Filters and sort order stay in the URL; changing
+them resets the offset and preserves the echoed cutoff. Refresh resets the offset
+and obtains a new cutoff. The cutoff fixes the counting windows while settings,
+ownership and action outcomes reflect the latest read. Concurrent changes can
+therefore affect later pages. History defaults to the preceding 30 days, including
+the period start and excluding its end. Explicit UTC ranges may span up to 366
+days. The `outstanding` scope includes unresolved work of any age and disables
+period controls. Pagination is local to these endpoints; the shared keyset
+paginator is unchanged. Both views use the same backend read projection as PHP
+and the daily summary. UI fixtures do not establish live API authorization or
+policy-engine effects.
+
 ## Incident notice history
 
 IncidentReport Index/Show add read-only nullable `notice_kind` (`warning`,

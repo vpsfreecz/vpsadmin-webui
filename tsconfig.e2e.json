@@ -5,6 +5,7 @@
     "types": ["node", "@playwright/test"]
   },
   "files": [
+    "e2e/fixtures/adminIncidentPolicies.ts",
     "e2e/fixtures/bootstrap.ts",
     "e2e/fixtures/haveapi.ts",
     "e2e/fixtures/incidentPolicies.ts",
@@ -61,6 +62,7 @@
     "e2e/specs/app/action_state_detail_page.spec.ts",
     "e2e/specs/app/action_state_transactions_responsive.spec.ts",
     "e2e/specs/app/admin_default_review_queue.spec.ts",
+    "e2e/specs/app/admin_incident_policies.spec.ts",
     "e2e/specs/app/admin_income_forecast.spec.ts",
     "e2e/specs/app/admin_incoming_payment_timezone.spec.ts",
     "e2e/specs/app/admin_network_live_noc.spec.ts",
