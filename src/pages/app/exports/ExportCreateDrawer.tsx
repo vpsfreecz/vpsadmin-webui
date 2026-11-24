@@ -144,6 +144,7 @@ export function ExportCreateDrawer(props: {
   requiresOwnDataset: boolean;
   requiredDatasetOwnerId: number | undefined;
   pending: boolean;
+  submissionFailure?: React.ReactNode;
   onSubmit: () => void;
 }) {
   const { t } = useI18n();
@@ -161,10 +162,12 @@ export function ExportCreateDrawer(props: {
       size="lg"
       testId={props.embedded ? 'dataset.exports.create' : 'exports.create'}
       footer={
-        <div className="flex justify-end gap-2">
-          <Button variant="secondary" onClick={props.onClose}>
-            {t('common.cancel')}
-          </Button>
+        <div className="space-y-3">
+          {props.submissionFailure}
+          <div className="flex justify-end gap-2">
+            <Button variant="secondary" onClick={props.onClose}>
+              {t('common.cancel')}
+            </Button>
           <Button
             variant="primary"
             disabled={
@@ -176,6 +179,7 @@ export function ExportCreateDrawer(props: {
           >
             {props.pending ? t('common.working') : t('exports.create.submit')}
           </Button>
+          </div>
         </div>
       }
     >

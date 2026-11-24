@@ -73,6 +73,7 @@
     "e2e/specs/app/dnssec_record_width.spec.ts",
     "e2e/specs/app/dnssec_secondary_management.spec.ts",
     "e2e/specs/app/error_recovery_action_alignment.spec.ts",
+    "e2e/specs/app/export_create_conflict.spec.ts",
     "e2e/specs/app/export_dataset_selection.spec.ts",
     "e2e/specs/app/export_hosts_responsive_actions.spec.ts",
     "e2e/specs/app/export_list_containment.spec.ts",

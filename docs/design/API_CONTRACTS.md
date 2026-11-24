@@ -359,3 +359,17 @@ inspected API22adc source: osctld passes the host runtime rootfs into LXC config
 the existing NixOS snippet mounts additional guest NFS storage. This is source
 contract evidence, not a new boot/mount or node-version certification. Snapshot
 exports retain temporary command-only instructions. [Scope and primary sources](../work-log/2026-11-15-export-nfs-help.md).
+
+## Verified export collision receipt
+
+Approved EXP-05 eee13eb8f00dd658 / REQ-048. Actual isolated dev API22adc8b5
+created disabled export3 for new member66/dataset89 on local NAS node104, with
+physical chain480 done1/1, then rejected the repeated captured payload with
+HTTP200, statusfalse, responsenull, errors{} and `dataset <full_name> is already
+exported`. The API chain source uses the analogous snapshot reason. Match only
+a non-ambiguous Create error for POST /exports and the captured source type;
+403/404, other actions, transport/protocol failures and other reasons stay distinct.
+This is a presentation change, with no API adapter/payload/permission/lock change.
+Actual deployed cff desktopChromium/mobileWebKit both showed the raw English
+reason inside the dialog; no visibility regression was invented. Real fixture
+cleanup and final candidate/release qualification remain separately required.
