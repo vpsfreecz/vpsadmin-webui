@@ -1,3 +1,37 @@
+## 2026-11-10 — Explain dataset capacity against explicit limits (prepared)
+
+Use referenced/reference quota and dataset usage/quota consistently; avoid
+percentage bars for unlimited datasets and retain unknown measurements.
+[Scope, API evidence and verification](docs/work-log/2026-11-10-nas-capacity-semantics.md).
+
+Final focused source passes84/84 raw Vite scenarios across Chromium,
+mobile Chrome and mobile WebKit,2workers/0retries, including the numeric
+unlimited-summary deduplication assertion. Both pinned quick/build checks
+and six model examples pass. Earlier compiled56 working cases predate
+the small duplication correction and are retained separately. Exact clean
+Nix/browser acceptance, focused CI and paired/result delivery remain pending.
+
+## 2026-11-10 — Keep both quota names visible (prepared)
+
+Retain named reference and regular quota for unlimited and missing limits,
+without inferring infinity from absent data.
+[Criterion correction and evidence](docs/work-log/2026-11-10-nas-capacity-limit-labels.md).
+
+The named-limit correction passes24/24 targeted raw cases in Chromium
+and mobile WebKit,2workers/0retries; both pinned quick/build checks pass.
+Model and six-example unit source remain byte-identical to the prior
+verified source; no new unit execution is claimed here. New clean Nix,
+full56 browser acceptance, images and fresh exact-head CI remain pending.
+
+## 2026-11-15 — Align the NAS smoke test with explicit quota semantics
+
+The final deployed-dev audit found an obsolete smoke assertion deriving a quota
+bar from used plus available space. REQ-048 deliberately removed that inference.
+Keep missing limits unknown, retain numeric usage and strengthen the smoke test;
+promote the complete file to strict TypeScript and mobile WebKit coverage.
+See the [scope, preserved checks and limits](docs/work-log/2026-11-15-nas-smoke-quota-contract.md).
+Test maintenance in existing draft PR270; no product or API behavior changes.
+
 ## 2026-11-10 — Consistent dataset form controls (prepared)
 
 Align NAS labels, use one native advanced disclosure with a visible state
