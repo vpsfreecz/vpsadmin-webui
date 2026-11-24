@@ -1,3 +1,9 @@
+## 2026-11-14 — Expose the dataset action beside the export source (prepared)
+
+EXP-06 / REQ-048: The summary owns the source identity once and offers a standard Open dataset action beside it. Dataset ID, view scope and ownership gates stay unchanged.
+[Scope and verification](docs/work-log/2026-11-14-export-source.md).
+No hosted qualification, merge or paired preview delivery is claimed.
+
 ## 2026-11-14 — Reflect NFS choices in the export review (prepared)
 
 EXP-02 / REQ-048: The create review describes current Sync and Subtree check values. Defaults, payloads and rejection handling remain unchanged.
