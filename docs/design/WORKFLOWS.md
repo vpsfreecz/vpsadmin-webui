@@ -1144,3 +1144,12 @@ pagination, action and resource-pressure contracts remain unchanged.
 ### Shared error recovery action alignment
 
 Error recovery preserves the original retry, back, status, details and copy behavior. Matching action heights apply to the shared recovery row without changing error classification, navigation or retry policy.
+
+
+### Selected-owner reminder layout
+
+The account lifecycle reminder retains its native date/time control and complete
+value at narrow widths. Clear wraps below when both controls cannot fit; control
+heights, keyboard order, nullable clearing, presets and confirmation remain. This
+is presentation acceptance for REQ-010; fixture evidence does not certify API
+permissions, native picker behavior on a physical device or the whole account audit.
