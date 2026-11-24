@@ -1,3 +1,4 @@
+import { VpsDiagnosticLinks } from './VpsDiagnosticLinks';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -326,17 +327,7 @@ export function OverviewDiagnosticsCard(props: { vps: Vps; basePath: string }) {
     <Card className="lg:col-span-12" testId="vps.overview.diagnostics.card">
       <CardHeader title={t('vps.overview.diagnostics.title')} subtitle={t('vps.overview.diagnostics.subtitle')} />
       <CardBody>
-        <div className="flex flex-wrap items-center gap-2">
-          <ChipLink to={`${props.basePath}/oom-reports?vps=${props.vps.id}`} title={t('vps.overview.diagnostics.oom_reports_title')}>
-            {t('vps.overview.diagnostics.oom_reports')}
-          </ChipLink>
-          <ChipLink to={`${props.basePath}/oom-reports/rules/${props.vps.id}`} title={t('vps.overview.diagnostics.oom_rules_title')}>
-            {t('vps.overview.diagnostics.oom_rules')}
-          </ChipLink>
-          <ChipLink to={`${props.basePath}/incidents?vps=${props.vps.id}`} title={t('vps.overview.diagnostics.incidents_title')}>
-            {t('vps.overview.diagnostics.incidents')}
-          </ChipLink>
-        </div>
+        <VpsDiagnosticLinks basePath={props.basePath} vpsId={props.vps.id} />
         <div className="mt-2 text-xs text-faint">{t('vps.overview.diagnostics.hint')}</div>
       </CardBody>
     </Card>
