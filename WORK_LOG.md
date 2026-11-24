@@ -1,3 +1,7 @@
+## 2026-11-09 — Separate traffic-table columns
+
+[Scope and verification](docs/work-log/2026-11-09-network-traffic-columns.md).
+
 ## 2026-11-09 — Select the sole NAS parent
 
 [Scope and verification](docs/work-log/2026-11-09-nas-parent-default.md).
