@@ -1,3 +1,18 @@
+## 2026-11-12 — Shared download presentation (prepared)
+
+Use one download presenter in the Backup Center and dataset detail, retaining
+complete filename/snapshot identity and consistent mobile labelled groups.
+Detail-owned mutation gates and callbacks remain local. REQ-048;
+[scope and verification](docs/work-log/2026-11-12-backup-download-presentation.md).
+No merge, approval, API deployment or preview activation.
+
+## 2026-11-12 — Reuse the qualified browser runner image
+
+The focused BAK-13 branch reuses the same reviewed CI files as BAK-05 and
+PR296. The pinned official Playwright image avoids the recorded runner package
+mirror DNS setup failure. All jobs, assertions, selection, locks, worker limits
+and timeouts remain. [Runner evidence](docs/work-log/2026-11-11-pr-browser-runner-image.md).
+
 ## 2026-11-11 — Reuse the verified PR browser runner for backup navigation
 
 Use the exact reviewed PR296 CI files and pinned official Playwright image for
