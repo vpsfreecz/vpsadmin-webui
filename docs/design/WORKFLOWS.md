@@ -350,6 +350,24 @@ backend blocker. [Datasets](../../src/lib/api/datasets.ts),
 
 ## DNS and networking
 
+Approved DNS-06/07/08/13 distinguish the managed configuration serial from
+individual server reports. A secondary zone's stored counter is not a response
+from its external primary; show where it is managed instead of echoing that
+counter as an observed serial. Keep numeric zero, absent data and independently
+reported server values distinct; do not infer publication or availability.
+
+Secondary Transfers places server reports before configured peers and history.
+Each query keeps its own loading, failure/retry and verified-empty state. A peer
+list failure does not hide an available server report; Create remains disabled
+until that list is available, preserving its previous availability gate. The
+last transfer result and time are labelled as an event, with no direct-primary
+readiness claim. Mobile report cards retain supplementary addresses/load/refresh/
+expiration behind a native keyboard/touch disclosure; primary-server cards and
+pagination retain their existing actions and data. Keep complete names, roles
+and assignment IDs readable. Czech controls call zone transfers Přenosy; primary
+server configuration and optional TSIG authentication have distinct meanings.
+
+
 **Intent:** create/edit zones and records, configure transfers, servers, TSIG and
 DNSSEC, inspect logs, and manage relevant IP/interface/resolver resources.
 Administrators also have network/address inventories and allocation operations.

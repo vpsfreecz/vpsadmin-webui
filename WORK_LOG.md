@@ -1,3 +1,15 @@
+## 2026-11-24 — Keep DNS server addresses on one line
+
+[DNS-13 follow-up and verification scope](docs/work-log/2026-11-15-dns-zone-server-reports.md).
+
+## 2026-11-15 — Distinguish DNS configuration and server reports
+
+Prepare approved DNS-06/07/08/13 / REQ-049: separate counters, node observations
+and transfer events; put secondary reports first and preserve full server
+identity, unknown states and existing action contracts. Improve CS/EN transfer
+wording. [Scope and source evidence](docs/work-log/2026-11-15-dns-zone-server-reports.md).
+Prepared working change; exact checks, CI and delivery remain separate.
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path
