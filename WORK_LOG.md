@@ -1,3 +1,7 @@
+## 2026-11-09 — Wrap the OOM rule in deletion confirmation
+
+[Scope and verification](docs/work-log/2026-11-09-oom-rule-confirmation-wrap.md).
+
 ## 2026-11-15 — Explain monitoring state deadlines and decisions
 
 Approved MON-01/02 / REQ-051: explain state expiry, distinguish system
