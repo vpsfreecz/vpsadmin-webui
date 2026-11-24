@@ -472,6 +472,8 @@ and scrolls its body while retaining the footer, focus/close behavior, draft
 values and existing Create/role contracts. Other Modal callers retain their
 default vertical centering (approved DNS-05 / REQ-049).
 
+Monthly traffic and live network graphs expose visible time/value axes. Keep IEC byte totals distinct from IEC bytes per second, and preserve the existing formats, owner/filter queries, rate calculation, polling and bounded session history. Keyboard/touch point inspection retains the exact sample, including a single first measurement. Keep its selection while focused; Escape or blur dismisses it and unfocused hover clears on leaving; distinguish a measured zero from empty history. The same display applies in member/My and administrator live views. [Approved NET-14 scope](../work-log/2026-11-15-network-chart-orientation.md).
+
 **Intent:** create/edit zones and records, configure transfers, servers, TSIG and
 DNSSEC, inspect logs, and manage relevant IP/interface/resolver resources.
 Administrators also have network/address inventories and allocation operations.

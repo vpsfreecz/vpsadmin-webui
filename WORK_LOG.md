@@ -1,3 +1,7 @@
+## 2026-11-15 — Network chart orientation
+
+[Approved NET-14 scope and verification limits](docs/work-log/2026-11-15-network-chart-orientation.md).
+
 ## 2026-11-15 — ACC-07 account follow-up
 
 [Name the known-device search with its visible label and associate its always-visible help](docs/work-log/2026-11-15-account-known-device-help.md). Prepared; qualification and delivery pending.

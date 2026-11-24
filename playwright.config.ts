@@ -83,6 +83,7 @@ export default defineConfig({
         '**/dns_record_grid_alignment.spec.ts',
         '**/dns_inherited_ttl.spec.ts',
         '**/dnssec_introduction.spec.ts',
+        '**/network_chart_orientation.spec.ts',
         '**/about.spec.ts',
         '**/dataset_header_breadcrumb.spec.ts',
         '**/theme_switcher.spec.ts',

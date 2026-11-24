@@ -237,6 +237,8 @@ export function UserNetworkLiveCard(props: { userId: number | null; isAdmin: boo
               <div className="rounded-lg border border-border bg-surface-2/60 p-4">
                 <div className="mb-3 font-medium">{t('network.user.live.chart.in')}</div>
                 <TimeSeriesChart
+                  showAxes
+                  emptyLabel={t('common.no_data')}
                   points={history.map((sample) => ({ x: sample.timestamp, y: sample.bytesIn }))}
                   ariaLabel={t('network.user.live.chart.in')}
                   formatValue={byteRate}
@@ -250,6 +252,8 @@ export function UserNetworkLiveCard(props: { userId: number | null; isAdmin: boo
               <div className="rounded-lg border border-border bg-surface-2/60 p-4">
                 <div className="mb-3 font-medium">{t('network.user.live.chart.out')}</div>
                 <TimeSeriesChart
+                  showAxes
+                  emptyLabel={t('common.no_data')}
                   points={history.map((sample) => ({ x: sample.timestamp, y: sample.bytesOut }))}
                   ariaLabel={t('network.user.live.chart.out')}
                   formatValue={byteRate}
