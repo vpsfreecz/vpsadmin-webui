@@ -346,3 +346,16 @@ and link to the existing scoped snapshot route, whose row shortcut preserves the
 exact selected snapshot outside the first100. Query keys include the selected
 dataset, so a late prior-dataset response cannot replace current choices. This
 does not introduce a cursor, change Create or bypass server source permissions.
+
+
+### NFS documentation and container rootfs
+
+Contextual exports(5) help explains existing rw/ro, sync/async, subtree_check and
+root_squash server semantics. It does not change API values/defaults or make
+all_vps/enabled/threads Linux options. No new API calls, permissions or payloads.
+
+The rootfs note uses reviewed vpsAdminOS8e44a512 architecture, pinned by the
+inspected API22adc source: osctld passes the host runtime rootfs into LXC config;
+the existing NixOS snippet mounts additional guest NFS storage. This is source
+contract evidence, not a new boot/mount or node-version certification. Snapshot
+exports retain temporary command-only instructions. [Scope and primary sources](../work-log/2026-11-15-export-nfs-help.md).

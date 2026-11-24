@@ -1,3 +1,11 @@
+## 2026-11-15 — Explain NFS server options and rootfs context
+
+Prepare approved EXP-03 / REQ-048: link contextual NFS choices to the verified
+exports(5) manual and explain host-provided container rootfs beside the persistent
+NixOS example. Preserve snippets, flags and all mutation/permission contracts.
+[Sources, scope, verification and limits](docs/work-log/2026-11-15-export-nfs-help.md).
+Prepared only; exact tests/CI and paired/protected delivery remain separate.
+
 ## 2026-11-15 — Select an export dataset by name
 
 Prepare approved EXP-01 / REQ-048: offer authorized dataset names with explicit
