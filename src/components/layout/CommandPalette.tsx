@@ -729,7 +729,7 @@ export function CommandPalette(props: { open: boolean; onClose: () => void; onSw
               role="status"
               aria-live="polite"
               aria-atomic="true"
-              className="text-sm text-danger"
+              className="border-l-2 border-danger pl-2 text-sm font-medium text-fg"
               data-testid="palette.error"
             >
               {t('palette.error_prefix')}: {error}
