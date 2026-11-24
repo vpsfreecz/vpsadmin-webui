@@ -1,3 +1,7 @@
+## 2026-11-18 — Optional technical DNS record IDs
+
+[DNS-11 delegated display choice](docs/work-log/2026-11-18-dns-record-id-preference.md).
+
 ## 2026-11-18 — Consistent DNS zone type and role
 
 [DNS-01 delegated terminology choice](docs/work-log/2026-11-18-dns-zone-type-role.md).

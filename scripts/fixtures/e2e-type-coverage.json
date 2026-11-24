@@ -59,6 +59,7 @@
     "e2e/specs/app/dns_log_column_width.spec.ts",
     "e2e/specs/app/dns_record_feedback_readability.spec.ts",
     "e2e/specs/app/dns_record_grid_alignment.spec.ts",
+    "e2e/specs/app/dns_record_id_preference.spec.ts",
     "e2e/specs/app/dns_record_wildcard.spec.ts",
     "e2e/specs/app/dns_records_crud.spec.ts",
     "e2e/specs/app/dns_ttl_readability.spec.ts",

@@ -3,6 +3,7 @@ import { Navigate, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
 import { useI18n } from '../../../app/i18n';
+import { useUiSettings } from '../../../app/uiSettings';
 import { useChrome } from '../../../components/layout/ChromeContext';
 
 import {
@@ -20,6 +21,7 @@ import { ActionButton } from '../../../components/ui/ActionButton';
 import { Alert } from '../../../components/ui/Alert';
 import { Button } from '../../../components/ui/Button';
 import { Card } from '../../../components/ui/Card';
+import { Checkbox } from '../../../components/ui/Checkbox';
 import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
 import { ErrorState } from '../../../components/ui/ErrorState';
 import { Input } from '../../../components/ui/Input';
@@ -89,6 +91,7 @@ function SecondaryDnsZoneRecordsPage() {
 }
 
 function PrimaryDnsZoneRecordsPage() {
+  const { settings, setSettings } = useUiSettings();
   const { t } = useI18n();
   const chrome = useChrome();
   const { zone, refetch: refetchZone, refetchChains, zoneRef, busyLocalLock, busyTransaction, concernClasses } =
@@ -307,6 +310,13 @@ function PrimaryDnsZoneRecordsPage() {
           </div>
 
           <div className="flex flex-wrap justify-end gap-2">
+            <Checkbox
+              checked={settings.dnsRecordIdsVisible === true}
+              onChange={(visible) => setSettings({ ...settings, dnsRecordIdsVisible: visible })}
+              label={t('dns.zone.records.show_ids')}
+              testId="dns.records.show_ids"
+              className="min-h-11 items-center"
+            />
             <Button
               variant="secondary"
               onClick={() => recordsQ.refetch()}
@@ -344,6 +354,7 @@ function PrimaryDnsZoneRecordsPage() {
         <DnsRecordsList
           rows={rows}
           zoneDefaultTtl={zone.default_ttl}
+          showIds={settings.dnsRecordIdsVisible === true}
           validationById={validationById}
           rowErrors={rowErrors}
           updateGate={updateGate}
