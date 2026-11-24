@@ -80,6 +80,7 @@ export default defineConfig({
         '**/profile_user_data.spec.ts',
         '**/mail_recipient_copy_controls.spec.ts',
         '**/preference_description.spec.ts',
+        '**/user_data_primary_action.spec.ts',
         '**/centered_dialogs.spec.ts',
 
         '**/vps_expiration_reactivation.spec.ts',

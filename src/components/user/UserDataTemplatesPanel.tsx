@@ -351,7 +351,6 @@ export function UserDataTemplatesPanel(props: {
           onPrev={() => pagination.goPrev()}
           onNext={() => pagination.goNext(cursor)}
           onLimitChange={(n) => pagination.setLimit(n)}
-          onCreate={openCreate}
           onDeploy={openDeploy}
           onEdit={openEdit}
           onDelete={(item) => {

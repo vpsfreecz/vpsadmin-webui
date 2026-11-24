@@ -1755,3 +1755,12 @@ Prepare approved UX-04 / REQ-010. See the
 ## 2026-11-15 — ACC-05 account follow-up
 
 [Place each preference description below its associated control, in the same named and described group](docs/work-log/2026-11-15-account-preference-description.md). Prepared; qualification and delivery pending.
+
+## 2026-11-09 — Make user-data length errors readable
+
+Prepare approved UX-04 / REQ-010. See the
+[scope and baseline](docs/work-log/2026-11-09-user-data-limit-readability.md).
+
+## 2026-11-15 — ACC-09 account follow-up
+
+[Keep one primary Create template entry in the filter bar for both empty and populated lists](docs/work-log/2026-11-15-account-user-data-primary-action.md). Prepared; qualification and delivery pending.

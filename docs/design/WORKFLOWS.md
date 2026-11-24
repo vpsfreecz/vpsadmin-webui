@@ -1023,3 +1023,7 @@ Use the common secondary button for both effective-recipient Copy actions, prese
 ## Approved account follow-up: ACC-05
 
 Place each preference description below its associated control, in the same named and described group. Preserve selector callbacks, persistence, scope choices and the existing readable synchronization errors.
+
+## Approved account follow-up: ACC-09
+
+Keep one primary Create template entry in the filter bar for both empty and populated lists. Remove the redundant empty-state entry and its unused list callback. Preserve editor validation, existing filter/query/owner policy, creation payloads, deploy/delete guards and the existing readable length error.
