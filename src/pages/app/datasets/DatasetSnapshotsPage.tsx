@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useLocation } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useAuth } from '../../../app/auth';
 import { getRuntimeConfig } from '../../../app/config';
@@ -88,11 +88,13 @@ export function DatasetSnapshotsPage({ queryParamPrefix = '' }: DatasetSnapshots
   const { role, user } = useAuth();
   const queryKeys = useMemo(() => datasetSnapshotQueryParamKeys(queryParamPrefix), [queryParamPrefix]);
   const datasetLabelForToast = String((dataset as any).label ?? (dataset as any).name ?? `Dataset #${dataset.id}`);
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const pagination = useKeysetPagination({
     id: `dataset.snapshots.list${queryParamPrefix ? `.${queryParamPrefix}` : ''}`,
     filterKey: String(dataset.id),
     searchParams,
+    navigationPathname: location.pathname,
     setSearchParams,
     paramPrefix: queryParamPrefix,
     defaultLimit: 50,
