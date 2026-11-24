@@ -53,6 +53,7 @@ export interface HaveApiMockUser {
 
 export interface HaveApiRequestCtx {
   url: URL;
+  headers: Record<string, string>;
   /** Compatibility alias used by older specs. */
   request: URL & {
     postData: () => string | null;
@@ -246,6 +247,7 @@ export async function installHaveApiMock(pageOrOpts: Page | (HaveApiMockOptions 
 
     const ctx: HaveApiRequestCtx = {
       url,
+      headers: req.headers(),
       request: requestUrl,
       params,
       reqJson,

@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../../app/auth';
+import { useAppMode } from '../../app/appMode';
 import { useI18n } from '../../app/i18n';
 import type { DashboardSettings } from '../../app/dashboardSettingsModel';
 import { Select } from '../../components/ui/Select';
@@ -19,14 +20,15 @@ export function DashboardClusterCard(props: {
   onReload?: () => void;
 }) {
   const auth = useAuth();
+  const { mode } = useAppMode();
   const { t } = useI18n();
-  const onlyMine = props.settings.nodeScope === 'mine';
+  const onlyMine = mode === 'user' && props.settings.nodeScope === 'mine';
   const userId = auth.user?.id;
   const validUserId = Number.isSafeInteger(userId) && Number(userId) > 0;
   const refetchInterval = useTierBIntervalMs();
   const ownNodes = useQuery({
-    queryKey: ['dashboard', 'own_vps_nodes', { userId: userId ?? null }],
-    queryFn: ({ signal }) => fetchDashboardOwnNodeIds(userId!, signal),
+    queryKey: ['dashboard', 'own_vps_nodes', { userId: userId ?? null, role: auth.role }],
+    queryFn: ({ signal }) => fetchDashboardOwnNodeIds(userId!, signal, auth.role === 'admin'),
     enabled: onlyMine && validUserId,
     retry: false,
     refetchInterval: onlyMine ? refetchInterval : false,
@@ -55,7 +57,7 @@ export function DashboardClusterCard(props: {
       isError={props.isError || membershipError}
       errorMessage={membershipError ? t('dashboard.section.cluster.mine.error') : undefined}
       emptyMessage={onlyMine ? t('dashboard.section.cluster.mine.empty') : undefined}
-      headerControl={
+      headerControl={mode === 'user' ? (
         <>
         <div className="w-full sm:w-48">
         <Select
@@ -71,14 +73,14 @@ export function DashboardClusterCard(props: {
         />
         </div>
         {membershipError ? (
-          <Button variant="secondary" size="sm" testId="app.dashboard.cluster.scope.retry"
+          <Button variant="secondary" size="sm" className="h-9" testId="app.dashboard.cluster.scope.retry"
             disabled={!validUserId || ownNodes.isFetching}
             onClick={() => { void ownNodes.refetch(); props.onReload?.(); }}>
             {t('common.retry')}
           </Button>
         ) : null}
         </>
-      }
+      ) : undefined}
     />
   );
 }

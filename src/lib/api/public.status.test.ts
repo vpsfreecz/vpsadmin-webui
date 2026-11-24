@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { apiWire, installHaveApiXhr } from '../../test/haveapiXhr';
 import { ApiOutputError } from './apiOutput';
-import { fetchPublicNodeStatus, fetchPublicStats } from './public';
+import { fetchAuthenticatedNodeStatus, fetchPublicNodeStatus, fetchPublicStats } from './public';
 
 beforeEach(() => {
   window.vpsAdmin = { api: { url: 'https://public-status.example.test/mount', version: '7.0' }, accessToken: 'private' };
@@ -24,6 +24,32 @@ describe('generated public status views', () => {
     expect((await fetchPublicNodeStatus()).data).toEqual([node]);
     expect(apiWire.requests).toHaveLength(1);
     expect(apiWire.requests[0]!.headers).toEqual({ Accept: 'application/json' });
+  });
+
+  it('uses authenticated status for stable node identities while public calls remain anonymous', async () => {
+    window.vpsAdmin = {
+      api: { url: 'https://node-identities.example.test', version: '7.0' },
+      sessionToken: 'synthetic-member-session',
+      webuiNext: { haveApi: { authHeader: 'X-HaveAPI-Auth-Token', metaNamespace: '_meta' } },
+    };
+    const publicRow = { name: 'same-name', status: false, location: { id: 1 } };
+    installHaveApiXhr((_url, init) => reply({ nodes: [
+      new Headers(init?.headers).has('X-HaveAPI-Auth-Token') ? { ...publicRow, id: 7 } : publicRow,
+    ] }));
+    expect((await fetchPublicNodeStatus()).data).toEqual([publicRow]);
+    expect((await fetchAuthenticatedNodeStatus()).data).toEqual([{ ...publicRow, id: 7 }]);
+    expect(apiWire.requests[0]!.headers).toEqual({ Accept: 'application/json' });
+    expect(apiWire.requests[1]!.headers['X-HaveAPI-Auth-Token']).toBe('synthetic-member-session');
+  });
+
+  it.each([undefined, null, '7', 0, -1])('rejects unavailable authenticated node identity: %j', async id => {
+    window.vpsAdmin = {
+      api: { url: 'https://node-identities.example.test', version: '7.0' },
+      sessionToken: 'synthetic-member-session',
+      webuiNext: { haveApi: { authHeader: 'X-HaveAPI-Auth-Token', metaNamespace: '_meta' } },
+    };
+    installHaveApiXhr(() => reply({ nodes: [{ id, name: 'node', status: true }] }));
+    await expect(fetchAuthenticatedNodeStatus()).rejects.toBeInstanceOf(ApiOutputError);
   });
 
   it.each([{ user_count: null, vps_count: 0, ipv4_left: 0 }, { user_count: 1, ipv4_left: 0 }])(

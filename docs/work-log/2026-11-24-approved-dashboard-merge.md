@@ -1,0 +1,5 @@
+# Accepted dashboard fix merge preparation —2026-11-24
+
+The maintainer explicitly instructed merging PRs whose TODO results are accepted. PR227 maps to accepted UX-03/UX-04 results and retains its existing main target. Merge current main b09d8dfd into the focused branch without rewriting its four original commits or changing their authorship. The only conflict is WORK_LOG.md: retain both the dashboard entries and all current incident entries. Main generated SDK0.6 and incident UI remain intact; the PR adds only its previously reviewed owned-server lookup/admin-scope/retry fix and supporting fixtures/documentation.
+
+This is merge preparation, not a production deployment or blanket approval of other PRs. Existing approved-only experimental PRs retain kerrycek-021126 as their target; held/mixed/unmapped PRs are excluded. The prohibited builder is never accessed. Exact updated focused quick/tests/build and hosted CI must pass before merging. Actual check and merge outcomes will be recorded in the PR and canonical operations continuity; preparation is not claimed as qualification.

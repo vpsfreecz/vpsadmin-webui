@@ -11,11 +11,17 @@ describe('dashboard own-node membership', () => {
     mocks.fetch.mockResolvedValueOnce({ data: Array.from({ length: 200 }, (_, i) => row(i + 1, 1)), meta: { total_count: 201 } });
     mocks.fetch.mockResolvedValueOnce({ data: [row(201, 2)], meta: { total_count: 201 } });
     const signal = new AbortController().signal;
-    await expect(fetchDashboardOwnNodeIds(53, signal)).resolves.toEqual([1, 2]);
+    await expect(fetchDashboardOwnNodeIds(53, signal, true)).resolves.toEqual([1, 2]);
     expect(mocks.fetch.mock.calls).toEqual([
       [{ user: 53, includes: 'node,user', limit: 200, fromId: undefined, signal }],
       [{ user: 53, includes: 'node,user', limit: 200, fromId: 200, signal }],
     ]);
+  });
+
+  it('uses server-enforced membership for members and support without the administrator-only owner filter', async () => {
+    mocks.fetch.mockResolvedValueOnce({ data: [row(1, 2)] });
+    await expect(fetchDashboardOwnNodeIds(53)).resolves.toEqual([2]);
+    expect(mocks.fetch.mock.calls[0]![0]).not.toHaveProperty('user');
   });
 
   it('keeps an empty successful collection separate from unknown ownership or node', async () => {

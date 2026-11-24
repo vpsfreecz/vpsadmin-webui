@@ -15,7 +15,7 @@ import { Button } from "../../components/ui/Button";
 import { fetchClusterFullStats } from "../../lib/api/cluster";
 import { fetchDatasets } from "../../lib/api/datasets";
 import { fetchDnsZones } from "../../lib/api/dns";
-import { fetchNews, fetchOutages, fetchPublicNodeStatus, type Outage } from "../../lib/api/public";
+import { fetchNews, fetchOutages, fetchAuthenticatedNodeStatus, type Outage } from "../../lib/api/public";
 import { fetchSecurityAdvisoriesWithCves } from "../../lib/api/securityAdvisories";
 import { fetchVpsList } from "../../lib/api/vps";
 import { categorizeOutage, sortOutagesNewestFirst } from "../../lib/outage";
@@ -99,8 +99,8 @@ export function DashboardPage() {
   });
 
   const nodesQ = useQuery({
-    queryKey: ["dashboard", "nodes", "public_status"],
-    queryFn: async () => (await fetchPublicNodeStatus()).data,
+    queryKey: ["dashboard", "nodes", "authenticated_status", { user: auth.user?.id ?? null }],
+    queryFn: async () => (await fetchAuthenticatedNodeStatus()).data,
     refetchInterval: tierBRefetchMs,
   });
 

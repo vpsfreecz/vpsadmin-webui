@@ -1,3 +1,7 @@
+## 2026-11-24 — Reconcile the accepted dashboard fix with current main
+
+[Merge scope, preserved history and verification](docs/work-log/2026-11-24-approved-dashboard-merge.md).
+
 ## 2026-11-24: Add administrator incident Overview and History
 
 [Scope and verification](docs/work-log/2026-11-24-admin-incident-policies.md).
@@ -13,6 +17,14 @@
 ## 2026-11-17: Organize generic incident policies in a VPS tab
 
 [Scope and verification](docs/work-log/2026-11-17-generic-incident-policies.md).
+
+## 2026-11-10 — Align the own-server retry control
+
+[Rendered defect, scope and verification](docs/work-log/2026-11-10-dashboard-own-scope-retry-alignment.md).
+
+## 2026-11-08 — Fix owned-server status identity and admin scope
+
+[Root cause, API boundary, role scope and verification](docs/work-log/2026-11-08-dashboard-owned-server-identity.md).
 
 ## 2026-11-09 — Consolidate the account controls under the nickname
 
