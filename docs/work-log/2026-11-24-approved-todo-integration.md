@@ -57,7 +57,8 @@ guide were read before composing locale changes. Guide revision:
 `a65a4dfeb92a59df4a80a737a20bcbf8558793ff`.
 
 Existing accepted Czech/English keys are preserved; independent key additions are
-combined. No API compatibility or SDK prerequisite is inferred from UI fixtures.
+combined. Two identical dataset identity key/value definitions from independent
+accepted changes are deduplicated without changing either translation. No API compatibility or SDK prerequisite is inferred from UI fixtures.
 
 ## Verification and delivery boundary
 
