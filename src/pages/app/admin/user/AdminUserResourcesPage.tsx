@@ -317,17 +317,17 @@ export function AdminUserResourcesPage() {
         <div className="space-y-3">
           <label className="block text-sm font-medium">
             <span className="mb-1 block">{t('admin.user.resources.add.environment')}</span>
-            <Select ariaLabel={t('admin.user.resources.add.environment')} value={environmentId} onChange={(e) => setEnvironmentId(e.target.value)} options={[{ value: '', label: t('common.select') }, ...(environmentsQ.data ?? []).map((env) => ({ value: String(env.id), label: environmentLabel(env) }))]} />
+            <Select ariaLabel={t('admin.user.resources.add.environment')} value={environmentId} onChange={(e) => { setEnvironmentId(e.target.value); setValidationError(false); }} options={[{ value: '', label: t('common.select') }, ...(environmentsQ.data ?? []).map((env) => ({ value: String(env.id), label: environmentLabel(env) }))]} />
           </label>
           <label className="block text-sm font-medium">
             <span className="mb-1 block">{t('admin.user.resources.add.package')}</span>
-            <Select ariaLabel={t('admin.user.resources.add.package')} value={packageId} onChange={(e) => setPackageId(e.target.value)} options={[{ value: '', label: t('common.select') }, ...(packagesQ.data ?? []).map((pkg: any) => ({ value: String(pkg.id), label: packageLabel(pkg) }))]} />
+            <Select ariaLabel={t('admin.user.resources.add.package')} value={packageId} onChange={(e) => { setPackageId(e.target.value); setValidationError(false); }} options={[{ value: '', label: t('common.select') }, ...(packagesQ.data ?? []).map((pkg: any) => ({ value: String(pkg.id), label: packageLabel(pkg) }))]} />
           </label>
           <label className="block text-sm font-medium">
             <span className="mb-1 block">{t('admin.user.resources.add.comment')}</span>
             <Input ariaLabel={t('admin.user.resources.add.comment')} value={comment} onChange={(e) => setComment(e.target.value)} />
           </label>
-          {validationError ? <div className="text-sm text-danger">{t('admin.user.resources.add.validation')}</div> : null}
+          {validationError ? <div className="border-l-2 border-danger pl-2 text-sm font-medium text-fg" role="alert" data-testid="admin.user.resources.add.validation">{t('admin.user.resources.add.validation')}</div> : null}
           {addM.isError && String((addM.error as Error).message) !== 'validation' ? (
             <div role="alert" aria-live="assertive" aria-atomic="true">
               <Alert variant="danger" title={t('common.error')} testId="admin.user.resources.add.error">
