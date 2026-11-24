@@ -1,3 +1,4 @@
+import { DnsZoneDnssecBadge } from './DnsZoneDnssecBadge';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -83,11 +84,6 @@ export function DnsZonesPage() {
     return <Badge variant="neutral">—</Badge>;
   };
 
-  const dnssecBadge = (enabled: boolean | undefined) => {
-    if (enabled === true) return <Badge variant="ok">{t('dns.zones.badge.dnssec')}</Badge>;
-    if (enabled === false) return <Badge variant="neutral">{t('dns.zones.badge.no_dnssec')}</Badge>;
-    return <Badge variant="neutral">—</Badge>;
-  };
 
   function zoneRowVariant(zone: DnsZone) {
     if (zone.enabled === false) return 'warn' as const;
@@ -783,7 +779,7 @@ export function DnsZonesPage() {
                       </div>
                       <div className="flex flex-col items-end gap-1">
                         {enabledBadge(z.enabled)}
-                        {dnssecBadge(z.dnssec_enabled)}
+                        <DnsZoneDnssecBadge zone={z} testId={`dns.zones.dnssec.${z.id}`} />
                       </div>
                     </div>
 
@@ -880,7 +876,7 @@ export function DnsZonesPage() {
                   </td>
                   <td className="px-3 py-2">{z.role ? roleLabel(t, z.role) : '—'}</td>
                   <td className="px-3 py-2">{enabledBadge(z.enabled)}</td>
-                  <td className="px-3 py-2">{dnssecBadge(z.dnssec_enabled)}</td>
+                  <td className="px-3 py-2"><DnsZoneDnssecBadge zone={z} testId={`dns.zones.dnssec.${z.id}`} /></td>
                   <td className="px-3 py-2">{typeof z.serial === 'number' ? z.serial : '—'}</td>
                   <td className="px-3 py-2">{typeof z.default_ttl === 'number' ? z.default_ttl : '—'}</td>
                   </TableRowLink>

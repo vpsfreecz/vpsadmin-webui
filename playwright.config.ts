@@ -76,6 +76,7 @@ export default defineConfig({
         '**/oom_refresh_context.spec.ts',
         '**/vps_all_actions.spec.ts',
         '**/app/dns_record_wildcard.spec.ts',
+        '**/app/dnssec_secondary_management.spec.ts',
         '**/about.spec.ts',
         '**/dataset_header_breadcrumb.spec.ts',
         '**/theme_switcher.spec.ts',
