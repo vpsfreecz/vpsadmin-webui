@@ -62,3 +62,20 @@ separate pending gates.
 
 Synthetic implemented UI: [desktop](screenshots/2026-11-24-vps-task-review/desktop.png),
 [mobile](screenshots/2026-11-24-vps-task-review/mobile.png).
+
+## Hosted CI correction — 2026-11-24
+
+PR324 head77d44547 exposed an existing home smoke locator matching any heading
+containing VPS. The new Recent VPS tasks heading makes that selector ambiguous.
+Preserve the original failed mobile-Chrome log,three attempts and597 passing
+cases. Target the intended exact level-one VPS page heading instead. No product
+behavior or assertion is removed, and no retry/timeout/budget is weakened.
+Review all equivalent locators and exercise the home smoke alongside the widget
+regression in all three engines before the same PR follow-up push. The first
+5198 integrated candidate remains inactive and must not be promoted.
+
+The first follow-up local cohort passed26 cases:24 widget cases plus home smoke
+in the two Chromium profiles. The curated WebKit project did not select that
+existing home spec. Explicitly adopt the home spec for WebKit and run its
+previously missing home case separately, then rerun complete quick/script checks
+on the final focused source. This adds coverage without changing assertions.
