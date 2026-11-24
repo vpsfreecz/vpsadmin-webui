@@ -54,7 +54,7 @@ export const enOps_tasks = {
   "tasks.filter_help.title": "Task filter help",
   "tasks.filter_help.intro": "Filter actions and transactions in this panel by part of their label, ID or target. Matching ignores letter case.",
   "tasks.filter_help.scope": "This is a local filter of loaded items, including tracked actions. It does not search the full history. Open all transactions to search older transactions.",
-  'tasks.recent_widget.title': 'Recent tasks',
+  'tasks.recent_widget.title': "Recent VPS tasks",
   'tasks.recent_widget.show': 'Show recent tasks',
   'tasks.recent_widget.hide': 'Hide recent tasks',
 } as const;

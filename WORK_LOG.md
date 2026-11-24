@@ -1,3 +1,7 @@
+## 2026-11-24 — Scope recent tasks to VPS operations
+
+[DASH-09 review follow-up and verification scope](docs/work-log/2026-11-18-vps-recent-tasks.md).
+
 ## 2026-11-22 — Show the registration API failure reason
 
 [Scope, failure guarantees, terminology revision and verification limits](docs/work-log/2026-11-22-registration-failure-reason.md).
