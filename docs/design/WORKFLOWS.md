@@ -345,6 +345,13 @@ it does not search the full history. Existing loading limits and role scopes
 remain authoritative. Opening help performs no reads or writes.
 
 
+**Dataset header:** a dataset-only breadcrumb groups the existing return context
+and complete labelled name. The internal ID, existing VPS association and
+Busy/Working state remain distinct and wrap without clipping. Preserve plain
+heading text for the object document title, contextual Help priority0, existing
+return targets and capability-dependent tabs. This chooses no navigation model.
+
+
 Export detail presents its summary, allowed hosts and mount instructions as
 full-width sections in that order. Hosts remain a compact table on desktop;
 narrow screens use labeled rows with reachable edit/delete actions. The mount

@@ -75,6 +75,7 @@ export default defineConfig({
         '**/user_data_owner_scope.spec.ts',
         '**/oom_refresh_context.spec.ts',
         '**/about.spec.ts',
+        '**/dataset_header_breadcrumb.spec.ts',
         '**/theme_switcher.spec.ts',
         '**/news_language_switch.spec.ts',
         '**/overview_readability.spec.ts',
