@@ -15,6 +15,7 @@ for (const language of ['cs', 'en'] as const) {
           user: { id: 1, login: 'demo', level: role === 'member' ? 1 : 99 },
           handlers: {
             'GET exports': () => ({ exports: [] }),
+            'GET datasets': () => ({ datasets: [dataset], _meta: { total_count: 1 } }),
             'GET datasets/20': () => ({ dataset }),
             'GET datasets/20/snapshots': () => ({ snapshots: [] }),
             'POST exports': ({ params }) => { writes.push(params); return { status: 409, contentType: 'application/json', body: JSON.stringify({ status: false, message: 'Synthetic NFS rejection: draft retained' }) }; },
@@ -23,7 +24,8 @@ for (const language of ['cs', 'en'] as const) {
         await page.goto(`/${role === 'admin' ? 'admin' : 'app'}/exports`);
         await page.getByTestId('exports.create.open').click();
         const dialog = page.getByTestId('exports.create');
-        await dialog.getByTestId('exports.create.dataset').fill('20');
+        await dialog.getByTestId('exports.create.dataset').fill('archive');
+        await dialog.getByTestId('exports.create.dataset.opt.20').click();
         await expect(dialog.getByTestId('exports.create.submit')).toBeEnabled();
         const sync = dialog.getByRole('checkbox', { name: language === 'cs' ? 'Synchronně' : 'Sync', exact: true });
         const subtree = dialog.getByRole('checkbox', { name: language === 'cs' ? 'Kontrola podstromu' : 'Subtree check', exact: true });

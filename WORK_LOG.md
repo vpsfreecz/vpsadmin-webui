@@ -1,3 +1,11 @@
+## 2026-11-24 — Qualify complete accepted integration with bounded CI shards
+
+[Original timeout/test evidence, preserved coverage and qualification](docs/work-log/2026-11-24-approved-integration-ci.md).
+The first integrated browser run timed out and exposed stale dataset-selection
+setup in the NFS regression. Preserve its assertions, drive the accepted picker,
+and partition all project selections across three shards with unchanged limits.
+Prepared; exact clean-head checks and complete final CI remain required.
+
 ## 2026-11-24 — Merge accepted TODO PRs into their existing targets
 
 [Scope, conflict reconciliation and verification boundary](docs/work-log/2026-11-24-approved-todo-integration.md).
