@@ -32,7 +32,7 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke @smoke-mobile authentic
   await page.getByTestId('app.dashboard.kpi.vps').getByRole('link', { name: 'Open' }).click();
 
   await expect(page).toHaveURL(/\/app\/vps$/);
-  await expect(page.getByRole('heading', { name: 'VPS' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'VPS', level: 1, exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: /alpha/i })).toBeVisible();
 });
 
