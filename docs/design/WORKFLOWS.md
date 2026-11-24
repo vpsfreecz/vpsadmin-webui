@@ -329,6 +329,12 @@ remain. API rejection retains the title and draft. Cancel/Escape and reopening
 retain existing reset behavior. The exact parent-ID payload and existing
 ownership/lifecycle gates remain unchanged.
 
+**Mount lookup feedback:** dataset lookup failures retain the mount draft and
+show readable foreground text, medium weight and a separate danger border. The
+local form styles its error descendants for both the earlier inline finder and
+the current embedded picker. Retry keeps each implementation's existing query
+contract; displaying or retrying a lookup sends no mount mutation.
+
 Export detail presents its summary, allowed hosts and mount instructions as
 full-width sections in that order. Hosts remain a compact table on desktop;
 narrow screens use labeled rows with reachable edit/delete actions. The mount

@@ -100,6 +100,7 @@ export default defineConfig({
         '**/profile_user_namespaces.spec.ts',
         '**/centered_dialogs.spec.ts',
         '**/dataset_parent_dialog.spec.ts',
+        '**/storage_form_error_readability.spec.ts',
 
         '**/lifecycle_value_wrapping.spec.ts',
         '**/lifecycle_text_contrast.spec.ts',
