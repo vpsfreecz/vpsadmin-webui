@@ -22,7 +22,7 @@ for (const language of ['cs', 'en'] as const) {
         },
         { language, theme: language === 'cs' ? 'dark' : 'light' }
       );
-      const widgetReads: Array<string | null> = [];
+      const widgetReads: Array<{ owner: string | null; className: string | null }> = [];
       const chains = Array.from({ length: 6 }, (_, index) => ({
         id: index + 1,
         label: `${language === 'cs' ? 'Záloha' : 'Backup'} ${index + 1} · ${'long-hostname-'.repeat(8)}`,
@@ -38,9 +38,17 @@ for (const language of ['cs', 'en'] as const) {
           'GET vpses': () => ({ vpses: [] }),
           'GET transaction_chains': ({ searchParams }) => {
             if (searchParams.get('transaction_chain[limit]') === '5') {
-              widgetReads.push(searchParams.get('transaction_chain[user]'));
+              widgetReads.push({
+                owner: searchParams.get('transaction_chain[user]'),
+                className: searchParams.get('transaction_chain[class_name]'),
+              });
             }
-            return { transaction_chains: chains };
+            const unrelatedPayment = {
+              ...chains[5], id: 99, label: 'Incoming payment credited',
+              concerns: { type: 'affect', objects: [['UserPayment', 123]], labels: {} },
+            };
+            return { transaction_chains: searchParams.get('transaction_chain[class_name]') === 'Vps'
+              ? chains : [unrelatedPayment, ...chains] };
           },
           'GET transaction_chains/6': () => ({ transaction_chain: chains[5] }),
           'GET transactions': () => ({ transactions: [] }),
@@ -51,7 +59,7 @@ for (const language of ['cs', 'en'] as const) {
       const widget = page.getByTestId('vps.recent_tasks');
       await expect(widget).toBeVisible();
       await expect(
-        widget.getByRole('heading', { name: language === 'cs' ? 'Poslední úlohy' : 'Recent tasks' })
+        widget.getByRole('heading', { name: language === 'cs' ? 'Poslední úlohy VPS' : 'Recent VPS tasks' })
       ).toBeVisible();
       await expect(page.getByTestId('vps.recent_tasks.rows').getByRole('listitem')).toHaveCount(5);
       await expect(page.getByTestId('vps.recent_tasks.row.1')).toHaveCount(0);
@@ -70,7 +78,9 @@ for (const language of ['cs', 'en'] as const) {
           .evaluateAll((nodes) => nodes.map((n) => n.getAttribute('data-testid')))
       ).toEqual([6, 5, 4, 3, 2].map((id) => `vps.recent_tasks.row.${id}`));
       await expect.poll(() => widgetReads.length).toBeGreaterThan(0);
-      expect(widgetReads.every((owner) => owner === (role === 'admin-my' ? '7' : null))).toBe(true);
+      expect(widgetReads.every(({ owner }) => owner === (role === 'admin-my' ? '7' : null))).toBe(true);
+      expect(widgetReads.every(({ className }) => className === 'Vps')).toBe(true);
+      await expect(widget).not.toContainText('Incoming payment credited');
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       await page.screenshot({ path: info.outputPath(`recent-tasks-${language}-${role}.png`), fullPage: true });
       await page.getByTestId('vps.recent_tasks.hide').click();

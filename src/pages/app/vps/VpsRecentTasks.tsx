@@ -25,8 +25,8 @@ function RecentTasksContent() {
   const refetchInterval = useTierAIntervalMs();
   const waitingForScope = scope.canSwitchScope && scope.scope === 'mine' && scope.mineUserId === undefined;
   const query = useQuery({
-    queryKey: ['transaction_chains', 'list', { limit: 5, userId: scope.mineUserId ?? null, scope: scope.scope }],
-    queryFn: async () => (await fetchTransactionChains({ limit: 5, userId: scope.mineUserId })).data,
+    queryKey: ['transaction_chains', 'list', { limit: 5, className: 'Vps', userId: scope.mineUserId ?? null, scope: scope.scope }],
+    queryFn: async () => (await fetchTransactionChains({ limit: 5, className: 'Vps', userId: scope.mineUserId })).data,
     enabled: !waitingForScope,
     refetchInterval,
     retry: false,

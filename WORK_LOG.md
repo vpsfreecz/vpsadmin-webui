@@ -1,3 +1,7 @@
+## 2026-11-24 — Scope recent tasks to VPS operations
+
+[DASH-09 review follow-up and verification scope](docs/work-log/2026-11-18-vps-recent-tasks.md).
+
 ## 2026-11-18 — Recent tasks below the VPS list
 
 [DASH-09 selected variant A](docs/work-log/2026-11-18-vps-recent-tasks.md).
