@@ -522,7 +522,7 @@ export function UserNamespaceMapDetail(props: {
           {/* Add row */}
           <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-6" data-testid={`${props.testIdPrefix}.add.grid`}>
             <div className="sm:col-span-1">
-              <label className="text-xs text-muted">{t('userns.entry.grid.kind')}</label>
+              <label className="block text-xs text-muted sm:min-h-12 lg:min-h-8">{t('userns.entry.grid.kind')}</label>
               <select
                 data-testid={`${props.testIdPrefix}.add.kind`}
                 className="mt-1 h-9 w-full rounded-md border border-border bg-surface px-2 text-sm text-fg"
@@ -537,7 +537,7 @@ export function UserNamespaceMapDetail(props: {
             </div>
 
             <div className="sm:col-span-1">
-              <label className="text-xs text-muted">{t('userns.entry.grid.vps_id')}</label>
+              <label className="block text-xs text-muted sm:min-h-12 lg:min-h-8">{t('userns.entry.grid.vps_id')}</label>
               <Input
                 testId={`${props.testIdPrefix}.add.vps_id`}
                 className="mt-1"
@@ -545,11 +545,11 @@ export function UserNamespaceMapDetail(props: {
                 onChange={(e) => setAddVpsId(e.target.value)}
                 placeholder="0"
               />
-              {addErrors?.['vps_id'] ? <div className="mt-1 text-xs text-danger">{addErrors['vps_id'].join(', ')}</div> : null}
+              {addErrors?.['vps_id'] ? <div className="mt-1 border-l-2 border-danger pl-2 text-xs font-medium text-fg">{addErrors['vps_id'].join(', ')}</div> : null}
             </div>
 
             <div className="sm:col-span-1">
-              <label className="text-xs text-muted">{t('userns.entry.grid.ns_id')}</label>
+              <label className="block text-xs text-muted sm:min-h-12 lg:min-h-8">{t('userns.entry.grid.ns_id')}</label>
               <Input
                 testId={`${props.testIdPrefix}.add.ns_id`}
                 className="mt-1"
@@ -557,11 +557,11 @@ export function UserNamespaceMapDetail(props: {
                 onChange={(e) => setAddNsId(e.target.value)}
                 placeholder="0"
               />
-              {addErrors?.['ns_id'] ? <div className="mt-1 text-xs text-danger">{addErrors['ns_id'].join(', ')}</div> : null}
+              {addErrors?.['ns_id'] ? <div className="mt-1 border-l-2 border-danger pl-2 text-xs font-medium text-fg">{addErrors['ns_id'].join(', ')}</div> : null}
             </div>
 
             <div className="sm:col-span-1">
-              <label className="text-xs text-muted">{t('userns.entry.grid.count')}</label>
+              <label className="block text-xs text-muted sm:min-h-12 lg:min-h-8">{t('userns.entry.grid.count')}</label>
               <Input
                 testId={`${props.testIdPrefix}.add.count`}
                 className="mt-1"
@@ -569,10 +569,10 @@ export function UserNamespaceMapDetail(props: {
                 onChange={(e) => setAddCount(e.target.value)}
                 placeholder="1"
               />
-              {addErrors?.['count'] ? <div className="mt-1 text-xs text-danger">{addErrors['count'].join(', ')}</div> : null}
+              {addErrors?.['count'] ? <div className="mt-1 border-l-2 border-danger pl-2 text-xs font-medium text-fg">{addErrors['count'].join(', ')}</div> : null}
             </div>
 
-            <div className="sm:col-span-2 flex items-end">
+            <div className="sm:col-span-2 flex items-end sm:items-start sm:pt-12 lg:pt-8">
               <Button
                 testId={`${props.testIdPrefix}.add.submit`}
                 variant="secondary"
