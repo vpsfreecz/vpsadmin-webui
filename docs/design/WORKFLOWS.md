@@ -335,6 +335,16 @@ local form styles its error descendants for both the earlier inline finder and
 the current embedded picker. Retry keeps each implementation's existing query
 contract; displaying or retrying a lookup sends no mount mutation.
 
+**Filter help (UX-06):** NAS, Backup Center and Tasks expose the same question-mark
+button and SmartInputHelp modal, operable by click, touch, Enter and Space.
+Closing returns focus without changing the filter or URL. Backup Center explains
+local dataset matching on Snapshots/Plans (not snapshot/plan names) and its
+distinct download fields on Downloads. Tasks explains case-insensitive matching
+on loaded action/transaction labels, IDs and targets, including tracked actions;
+it does not search the full history. Existing loading limits and role scopes
+remain authoritative. Opening help performs no reads or writes.
+
+
 Export detail presents its summary, allowed hosts and mount instructions as
 full-width sections in that order. Hosts remain a compact table on desktop;
 narrow screens use labeled rows with reachable edit/delete actions. The mount
