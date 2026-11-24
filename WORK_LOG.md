@@ -1,3 +1,11 @@
+## 2026-11-11 — Keep storage actions and resize feedback readable (prepared)
+
+The finite UX-03/UX-04 audit found selected-admin storage overflow at768px. Allow
+this local header to wrap and bound its children, and make the measured dark
+resize validation readable without changing its guard, preserving actions and API
+contracts. [Cause, exact-source evidence and pending checks](docs/work-log/2026-11-11-storage-root-actions-wrap.md).
+No merge or deployment is claimed.
+
 ## 2026-11-11 — Keep reconciliation feedback readable on warning panels (prepared)
 
 Mutation-reconciliation failures retain readable foreground text, medium weight and a separate danger marker on their actual warning panel while preserving the verification and safety-lock rules. [Cause, scope and verification](docs/work-log/2026-11-11-mutation-reconcile-feedback.md).

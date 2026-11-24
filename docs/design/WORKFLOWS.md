@@ -1179,3 +1179,14 @@ remain contained at narrow widths; rejection preserves the chosen environment,
 package and comment. Pending dismissal/duplicates and exact owner/payload rules
 remain unchanged. This is a local package-form layout correction, not a shared
 button, API or role change. [Evidence and gates](../work-log/2026-11-11-resource-form-footer-alignment.md).
+
+
+### Root dataset header containment (REQ-010)
+
+The root dataset card keeps its identity and capability-gated actions within the
+card at intermediate viewport widths. Header actions may move to a new row; role
+gates, destinations and dataset IDs do not change.
+
+Invalid root-SSD size feedback remains readable while native invalid state and
+submission guards stay active. A valid size clears the local message without
+submitting the draft.
