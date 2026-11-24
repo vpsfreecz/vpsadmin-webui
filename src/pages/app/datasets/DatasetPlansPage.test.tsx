@@ -44,7 +44,7 @@ vi.mock('../../../app/i18n', () => ({
         'common.na': 'N/A',
         'dataset.plans.column.source': 'Source plan',
         'dataset.plans.description.fallback': 'No description is available for this plan.',
-        'dataset.plans.remove.not_allowed': 'Removal restricted',
+        'dataset.plans.remove.not_allowed': 'Only an administrator can remove this plan.',
       };
       let value = messages[key] ?? key;
       for (const [name, replacement] of Object.entries(vars ?? {})) {
@@ -250,7 +250,7 @@ describe('DatasetPlansPage', () => {
 
     const lockedRow = await screen.findByTestId('dataset.plans.row.21');
     expect(within(lockedRow).queryByTestId('dataset.plans.row.21.remove')).not.toBeInTheDocument();
-    expect(within(lockedRow).getByText('Removal restricted')).toBeVisible();
+    expect(within(lockedRow).getByText('Only an administrator can remove this plan.')).toBeVisible();
     expect(screen.getByTestId('dataset.plans.row.22.remove')).toBeEnabled();
     expect(screen.queryByTestId('dataset.plans.row.25.remove')).not.toBeInTheDocument();
 
