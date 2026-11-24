@@ -146,9 +146,7 @@ export const csStorage = {
   "dataset.manage.user_limited.body":
     "Velikost můžeš upravit v rámci dostupných prostředků. Admin má navíc destruktivní akce a možnost přepsat kontrolu kvóty.",
   "dataset.manage.create.open": "Vytvořit vnořený dataset",
-  "dataset.manage.create.title": "Vytvořit vnořený dataset",
-  "dataset.manage.create.scope":
-    "Nadřazený dataset: {dataset}. Nový vnořený dataset se otevře po spuštění akce, pokud API vrátí jeho ID.",
+  "dataset.manage.create.title": "Vytvořit vnořený dataset v {dataset}",
   "dataset.manage.create.error": "Vytvoření datasetu selhalo",
   "dataset.manage.edit.title": "Upravit vlastnosti datasetu",
   "dataset.manage.edit.error": "Úprava datasetu selhala",

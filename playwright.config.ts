@@ -99,6 +99,7 @@ export default defineConfig({
         '**/user_namespace_filter_contract.spec.ts',
         '**/profile_user_namespaces.spec.ts',
         '**/centered_dialogs.spec.ts',
+        '**/dataset_parent_dialog.spec.ts',
 
         '**/lifecycle_value_wrapping.spec.ts',
         '**/lifecycle_text_contrast.spec.ts',

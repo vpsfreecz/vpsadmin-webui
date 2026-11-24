@@ -1,3 +1,11 @@
+## 2026-11-11 — Parent context in subdataset creation (prepared)
+
+Show the complete parent in the CS/EN creation title and wrap long labels; remove
+the redundant technical scope box. Keep parent-ID payload, role/lifecycle gates,
+draft retention and cancellation unchanged. Private baseline4 fails on the old
+title; cumulative working40 fixture cases pass, no live writes. Focused CI and
+clean release verification remain pending. [Scope and evidence](docs/work-log/2026-11-11-dataset-parent-dialog.md).
+
 ## 2026-11-11 — Make lifecycle action and date-error text readable (prepared)
 
 The current finite dark-theme audit measures3.12:1 for small red destructive

@@ -9,7 +9,7 @@ import { useFocusTrap } from '../../lib/hooks/useFocusTrap';
 
 export function Modal(props: {
   open: boolean;
-  title?: string;
+  title?: string | React.ReactElement;
   ariaLabel?: string;
   onClose: () => void;
   children: React.ReactNode;
