@@ -1,3 +1,7 @@
+## 2026-11-18 — Initially open the failed chain step
+
+[ACT-08 delegated expansion choice](docs/work-log/2026-11-18-failed-chain-step.md).
+
 ## 2026-11-18 — Compact network summary tables
 
 [NET-13 delegated summary choice](docs/work-log/2026-11-18-network-summary-tables.md).

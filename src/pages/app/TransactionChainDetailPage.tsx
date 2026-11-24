@@ -91,7 +91,7 @@ export function TransactionChainDetailPage() {
 
   const isPinned = chainIdValid && chrome.pinnedTransactionChains.includes(chainIdNum);
 
-  const [expandedTx, setExpandedTx] = useState<Set<number>>(() => new Set());
+  const [expansion, setExpansion] = useState<{ chainId: number; ids: Set<number> } | null>(null);
 
   const togglePinned = () => {
     if (!chainIdValid) return;
@@ -124,18 +124,22 @@ export function TransactionChainDetailPage() {
     [transactions, chainFinished]
   );
   const failedTxId = useMemo(() => firstFailedTransactionId(transactions), [transactions]);
+  const expandedTx = useMemo(
+    () => expansion?.chainId === chainIdNum ? expansion.ids : new Set(failedTxId === null ? [] : [failedTxId]),
+    [expansion, chainIdNum, failedTxId]
+  );
 
   const toggleExpanded = (txId: number) => {
-    setExpandedTx((prev) => {
-      const next = new Set(prev);
+    setExpansion((prev) => {
+      const next = new Set(prev?.chainId === chainIdNum ? prev.ids : expandedTx);
       if (next.has(txId)) next.delete(txId);
       else next.add(txId);
-      return next;
+      return { chainId: chainIdNum, ids: next };
     });
   };
 
-  const expandAllTransactions = () => setExpandedTx(new Set(transactionIds));
-  const collapseAllTransactions = () => setExpandedTx(new Set());
+  const expandAllTransactions = () => setExpansion({ chainId: chainIdNum, ids: new Set(transactionIds) });
+  const collapseAllTransactions = () => setExpansion({ chainId: chainIdNum, ids: new Set() });
 
   return (
     <DetailShell testId="transactions.chain.detail" variant="wide">
