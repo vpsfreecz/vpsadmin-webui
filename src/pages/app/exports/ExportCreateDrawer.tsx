@@ -168,17 +168,17 @@ export function ExportCreateDrawer(props: {
             <Button variant="secondary" onClick={props.onClose}>
               {t('common.cancel')}
             </Button>
-          <Button
-            variant="primary"
-            disabled={
-              !validation.ok || !props.datasetSelectionAllowed || props.datasetSelectionPending || props.pending
-            }
-            loading={props.pending}
-            onClick={props.onSubmit}
-            testId="exports.create.submit"
-          >
-            {props.pending ? t('common.working') : t('exports.create.submit')}
-          </Button>
+            <Button
+              variant="primary"
+              disabled={
+                !validation.ok || !props.datasetSelectionAllowed || props.datasetSelectionPending || props.pending
+              }
+              loading={props.pending}
+              onClick={props.onSubmit}
+              testId="exports.create.submit"
+            >
+              {props.pending ? t('common.working') : t('exports.create.submit')}
+            </Button>
           </div>
         </div>
       }

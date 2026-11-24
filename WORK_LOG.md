@@ -1,3 +1,11 @@
+## 2026-11-24 — Merge accepted TODO PRs into their existing targets
+
+[Scope, conflict reconciliation and verification boundary](docs/work-log/2026-11-24-approved-todo-integration.md).
+The maintainer explicitly authorized Merge for current accepted outcomes. The92
+experimental original heads are composed with their history; main-target227 is
+qualified separately. Held and unmapped PRs remain excluded. Prepared locally;
+final exact-head qualification, GitHub CI and merge readback are still required.
+
 ## 2026-11-18 — Initially open the failed chain step
 
 [ACT-08 delegated expansion choice](docs/work-log/2026-11-18-failed-chain-step.md).

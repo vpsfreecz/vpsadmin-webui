@@ -3,12 +3,7 @@
   "reviewedSourceRevision": "6a7904b6b1dbf6301b20e436a3b52685a3dace4c",
   "deferredOwner": "WebUI maintainers",
   "deferredRemovalCondition": "Adopt a deferred file when its source changes or the reviewed scope expands; pass ESLint and Prettier before removing its hash.",
-  "eligibleRoots": [
-    "src/app",
-    "src/components/ui",
-    "src/lib/auth",
-    "src/lib/hooks"
-  ],
+  "eligibleRoots": ["src/app", "src/components/ui", "src/lib/auth", "src/lib/hooks"],
   "adopted": [
     "src/app/ApiLanguageSync.tsx",
     "src/app/bootstrapFailure.ts",
