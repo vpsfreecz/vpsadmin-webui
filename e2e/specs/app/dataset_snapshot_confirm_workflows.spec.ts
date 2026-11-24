@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
+import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 
 function visibleSnapshot(page: Page, id: number) {
   return page.locator([
@@ -17,35 +17,47 @@ function visibleSnapshotAction(page: Page, id: number, action: string) {
 }
 
 test.describe('@smoke @smoke-mobile Dataset snapshots', () => {
-  test('create snapshot deep link opens the create workflow', async ({ page }) => {
-    await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+  for (const [language, description] of [
+    ['en', 'This snapshot captures the current state of the dataset “ds10”.'],
+    ['cs', 'Snapshot zachytí aktuální stav datasetu „ds10“.'],
+  ] as const) {
+    test(`create snapshot deep link identifies the target dataset in ${language}`, async ({ page }) => {
+      await bootstrapVpsAdminWindow(page, {
+        sessionToken: 'TEST',
+        webuiNext: { uiSettings: { persistence: 'local' } },
+      });
+      await setUiSettingsLocalStorage(page, { language });
 
-    await installHaveApiMock(page, {
-      user: { id: 1, login: 'admin', level: 99 },
-      handlers: {
-        'GET datasets/10': () => ({
-          id: 10,
-          full_name: 'tank/vps/ds10',
-          name: 'ds10',
-          used: 2048,
-          refquota: 10240,
-          snapshots_count: 0,
-          mount_count: 0,
-          export_count: 0,
-          object_state: 'active',
-          vps: { id: 300, hostname: 'alpha.example' },
-        }),
+      await installHaveApiMock(page, {
+        user: { id: 1, login: 'admin', level: 99 },
+        handlers: {
+          'GET datasets/10': () => ({
+            id: 10,
+            full_name: 'tank/vps/ds10',
+            name: 'ds10',
+            used: 2048,
+            refquota: 10240,
+            snapshots_count: 0,
+            mount_count: 0,
+            export_count: 0,
+            object_state: 'active',
+            vps: { id: 300, hostname: 'alpha.example' },
+          }),
 
-        'GET datasets/10/snapshots': () => ({ snapshots: [] }),
-      },
+          'GET datasets/10/snapshots': () => ({ snapshots: [] }),
+        },
+      });
+
+      await page.goto('/app/datasets/10/snapshots?action=create');
+
+      await expect(page.getByTestId('dataset.snapshots.list')).toBeVisible();
+      const dialog = page.getByTestId('dataset.snapshots.create.modal');
+      await expect(dialog).toBeVisible();
+      await expect(dialog.getByText(description, { exact: true })).toHaveCount(1);
+      await expect(page.getByTestId('modal.action_progress')).toHaveCount(0);
+      await expect(page).toHaveURL(/\/app\/datasets\/10\/snapshots$/);
     });
-
-    await page.goto('/app/datasets/10/snapshots?action=create');
-
-    await expect(page.getByTestId('dataset.snapshots.list')).toBeVisible();
-    await expect(page.getByTestId('dataset.snapshots.create.modal')).toBeVisible();
-    await expect(page).toHaveURL(/\/app\/datasets\/10\/snapshots$/);
-  });
+  }
 
   test('creates snapshot and opens the returned action state progress', async ({ page }) => {
     let created = false;

@@ -1,3 +1,7 @@
+## 2026-11-10 — Describe the snapshot target before confirmation
+
+[BAK-06 snapshot confirmation copy](docs/work-log/2026-11-10-snapshot-create-copy.md).
+
 ## 2026-11-10 — Align shared error recovery actions (prepared)
 
 Use the standard medium Copy details action beside Retry/Back/Status after

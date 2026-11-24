@@ -209,10 +209,8 @@ export const enStorage = {
   "dataset.snapshots.created_at": "Created {dt}",
   "dataset.snapshots.create.open": "Create snapshot",
   "dataset.snapshots.create.modal_title": "Create snapshot",
-  "dataset.snapshots.create.help":
-    "Creates a point-in-time snapshot of this dataset and starts a trackable backend action when the API returns one.",
   "dataset.snapshots.create.scope":
-    "Target dataset: {dataset}. The new snapshot appears in this list after the action starts.",
+    "This snapshot captures the current state of the dataset “{dataset}”.",
   "dataset.snapshots.create.label.placeholder": "e.g. before-upgrade",
   "dataset.snapshots.create.error.title": "Snapshot creation failed",
   "dataset.snapshots.confirm.rollback.title": "Rollback snapshot?",

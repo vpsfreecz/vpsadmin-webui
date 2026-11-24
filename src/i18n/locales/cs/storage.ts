@@ -215,10 +215,8 @@ export const csStorage = {
   "dataset.snapshots.created_at": "Vytvořeno {dt}",
   "dataset.snapshots.create.open": "Vytvořit snapshot",
   "dataset.snapshots.create.modal_title": "Vytvořit snapshot",
-  "dataset.snapshots.create.help":
-    "Vytvoří bodový snapshot tohoto datasetu a při podpoře API spustí sledovatelnou backendovou akci.",
   "dataset.snapshots.create.scope":
-    "Cílový dataset: {dataset}. Nový snapshot se po spuštění akce objeví v tomto seznamu.",
+    "Snapshot zachytí aktuální stav datasetu „{dataset}“.",
   "dataset.snapshots.create.label.placeholder": "např. před-upgradem",
   "dataset.snapshots.create.error.title": "Vytvoření snapshotu selhalo",
   "dataset.snapshots.confirm.rollback.title": "Obnovit snapshot?",
