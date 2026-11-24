@@ -56,6 +56,7 @@
     "e2e/specs/app/centered_dialogs.spec.ts",
     "e2e/specs/app/command_palette.spec.ts",
     "e2e/specs/app/danger_button_contrast.spec.ts",
+    "e2e/specs/app/dataset_identity.spec.ts",
     "e2e/specs/app/dataset_parent_dialog.spec.ts",
     "e2e/specs/app/dataset_plans_responsive_actions.spec.ts",
     "e2e/specs/app/dataset_snapshot_confirm_workflows.spec.ts",
