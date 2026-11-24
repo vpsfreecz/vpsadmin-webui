@@ -1,3 +1,7 @@
+## 2026-11-24 — Keep DNS server addresses on one line
+
+[DNS-13 follow-up and verification scope](docs/work-log/2026-11-15-dns-zone-server-reports.md).
+
 ## 2026-11-24 — Scope recent tasks to VPS operations
 
 [DASH-09 review follow-up and verification scope](docs/work-log/2026-11-18-vps-recent-tasks.md).

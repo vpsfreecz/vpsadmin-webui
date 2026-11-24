@@ -47,11 +47,11 @@ export function DnsZoneServerAddresses(props: { row: DnsServerZone; testIdPrefix
         return (
           <div
             key={field}
-            className="mt-1 flex min-w-0 items-center gap-2 text-xs"
+            className="mt-1 flex min-w-0 max-w-full items-center gap-2 text-xs"
             data-testid={`${props.testIdPrefix}.${version}`}
           >
             <span className="shrink-0 text-muted">{t(`common.${version}`)}</span>
-            <code className="min-w-0 break-all text-fg">{address}</code>
+            <code tabIndex={0} className="min-w-0 overflow-x-auto whitespace-nowrap rounded-sm text-fg focus:outline-none focus:ring-2 focus:ring-focus/35">{address}</code>
             <CopyButton
               className="shrink-0"
               text={address}
@@ -97,7 +97,7 @@ export function DnsZoneServersList(props: {
             <Card key={row.id} testId={`dns.servers.card.${row.id}`}>
               <div className="min-w-0 p-4">
                 <div className="flex min-w-0 flex-col items-start gap-3">
-                  <div className="min-w-0">
+                  <div className="min-w-0 w-full">
                     <div className="break-all text-base font-semibold text-fg">{name}</div>
                     <div className="mt-1 text-xs text-faint">{t('dns.zone.servers.assignment_id', { id: row.id })}</div>
                     <DnsZoneServerAddresses row={row} testIdPrefix={`dns.servers.card.${row.id}`} />
