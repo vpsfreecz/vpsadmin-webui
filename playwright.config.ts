@@ -57,6 +57,7 @@ export default defineConfig({
       testMatch: [
         '**/monitoring_state_meaning.spec.ts',
         '**/monitoring_event_action_feedback.spec.ts',
+        '**/profile_mail_language_error.spec.ts',
         '**/about.spec.ts',
         '**/theme_switcher.spec.ts',
         '**/news_language_switch.spec.ts',
@@ -76,6 +77,7 @@ export default defineConfig({
         '**/admin_dashboard.spec.ts',
         '**/sidebar_status.spec.ts',
         '**/profile_user_data.spec.ts',
+        '**/mail_recipient_copy_controls.spec.ts',
         '**/centered_dialogs.spec.ts',
 
         '**/vps_expiration_reactivation.spec.ts',

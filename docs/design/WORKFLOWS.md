@@ -1015,3 +1015,7 @@ from further results while ignored. Finite and unlimited choices retain the
 existing API request, native validation, pending and retry gates. Invalid custom
 dates do not display an unlimited-duration preview. See REQ-051 and
 [scope/source evidence](../work-log/2026-11-15-monitoring-state-meaning.md).
+
+## Approved account follow-up: ACC-08
+
+Use the common secondary button for both effective-recipient Copy actions, preserving exact comma-separated clipboard contents, contextual accessible names, success/failure feedback and mouse, touch and keyboard behavior. No recipient selection, precedence, mutation or mail-setting contract changes.
