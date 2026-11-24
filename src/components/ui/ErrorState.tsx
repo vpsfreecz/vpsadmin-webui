@@ -63,6 +63,10 @@ export function ErrorState(props: {
   /** Optional "Open status" action. */
   showStatusLink?: boolean;
   statusTo?: string;
+  /** Optional visible destination name; default status label is preserved. */
+  statusLabel?: React.ReactNode;
+  /** Trailing recovery buttons keep native actions and disclosure semantics. */
+  actionsLayout?: 'default' | 'trailing';
 
   /** Optional details payload fields included in Copy details. */
   detailsExtra?: Record<string, unknown>;
@@ -93,9 +97,9 @@ export function ErrorState(props: {
 
   const showBack = props.showBack !== false;
   const showStatus =
-    props.showStatusLink ??
-    (info.kind === 'network' || info.kind === 'server' || info.kind === 'unexpected');
+    props.showStatusLink ?? (info.kind === 'network' || info.kind === 'server' || info.kind === 'unexpected');
 
+  const trailingActions = props.actionsLayout === 'trailing';
   const testId = props.testId;
   const retryTestId = testId ? `${testId}.retry` : undefined;
   const backTestId = testId ? `${testId}.back` : undefined;
@@ -147,7 +151,7 @@ export function ErrorState(props: {
         <div className="text-sm font-semibold text-fg">{title}</div>
         <div className="mt-1 text-sm text-muted">{body}</div>
 
-        <div className="mt-4 flex flex-wrap items-center gap-2">
+        <div className={`mt-4 flex flex-wrap items-center gap-2${trailingActions ? ' justify-end' : ''}`}>
           {compatActions ? (
             compatActions
           ) : (
@@ -169,8 +173,12 @@ export function ErrorState(props: {
               ) : null}
 
               {showStatus ? (
-                <LinkButton testId={statusTestId} to={props.statusTo ?? '/'} variant="ghost">
-                  {t('nav.status')}
+                <LinkButton
+                  testId={statusTestId}
+                  to={props.statusTo ?? '/'}
+                  variant={trailingActions ? 'secondary' : 'ghost'}
+                >
+                  {props.statusLabel ?? t('nav.status')}
                 </LinkButton>
               ) : null}
             </>
@@ -181,16 +189,15 @@ export function ErrorState(props: {
               testId={copyTestId}
               text={details.text}
               label={t('common.copy_details')}
-              variant="ghost"
+              variant={trailingActions ? 'secondary' : 'ghost'}
+              size={trailingActions ? 'md' : undefined}
             />
           ) : null}
         </div>
 
         {showDetails ? (
           <details className="mt-4" data-testid={detailsTestId}>
-            <summary className="cursor-pointer text-sm font-medium text-fg">
-              {t('common.details')}
-            </summary>
+            <summary className="cursor-pointer text-sm font-medium text-fg">{t('common.details')}</summary>
 
             <pre className="mt-2 max-h-64 overflow-auto rounded-md border border-border bg-surface-2 p-3 text-xs text-fg">
               {details.text}

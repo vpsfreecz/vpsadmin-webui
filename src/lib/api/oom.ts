@@ -152,15 +152,20 @@ export async function fetchOomReportStats(oomReportId: number, opts?: { limit?: 
   return { ...res, data: expectArray<OomReportStat>(res.data, `oom_reports/${oomReportId}/stats#index`) };
 }
 
-export async function fetchOomReportTasks(oomReportId: number, opts?: { limit?: number }) {
+export async function fetchOomReportTasks(
+  oomReportId: number,
+  opts?: { limit?: number; fromId?: number; signal?: AbortSignal }
+) {
   const params: Record<string, unknown> = {};
   if (opts?.limit !== undefined) params['limit'] = opts.limit;
+  if (opts?.fromId !== undefined) params['from_id'] = opts.fromId;
 
   const res = await haveApiCall<OomReportTask[]>({
     method: 'GET',
     path: `/oom_reports/${oomReportId}/tasks`,
     namespace: 'task',
     params,
+    signal: opts?.signal,
   });
 
   return { ...res, data: expectArray<OomReportTask>(res.data, `oom_reports/${oomReportId}/tasks#index`) };
@@ -197,7 +202,10 @@ export async function createOomReportRule(payload: {
   });
 }
 
-export async function updateOomReportRule(ruleId: number, payload: { action: 'notify' | 'ignore' | string; cgroupPattern: string }) {
+export async function updateOomReportRule(
+  ruleId: number,
+  payload: { action: 'notify' | 'ignore' | string; cgroupPattern: string }
+) {
   return haveApiCall<OomReportRule>({
     method: 'PUT',
     path: `/oom_report_rules/${ruleId}`,

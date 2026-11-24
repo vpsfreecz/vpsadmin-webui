@@ -1052,3 +1052,15 @@ quick-links subtitle and retains the actual View maps link and scope gate.
 Map Open remains a real link; Delete remains an explicit confirmation with its
 existing pending/error/retry behavior. New-map Cancel precedes Create in visual
 and tab order at the right edge. Creation payload and pending guard are unchanged.
+
+## Kernel OOM reading and read-error recovery
+
+The kernel OOM list names its source explicitly. Detail uses one report heading;
+Summary retains distinct creation/reporting times, VPS/node, full cgroup,
+killed/invoking process, count and rule. Tabs retain usages, statistics and
+bounded process pages. Process-read errors align Retry, Back, Service overview
+and Copy details at the trailing edge. The overview link retains `/` and its
+existing authenticated redirect to `/app`; copying retains full diagnostics
+and Details remains a native keyboard disclosure. These are recovery/navigation actions, not process
+mutations. Other error surfaces retain default presentation. See the
+[approved OOM follow-up](../work-log/2026-11-15-oom-reading-recovery.md).
