@@ -45,6 +45,7 @@
     "e2e/specs/app/danger_button_contrast.spec.ts",
     "e2e/specs/app/dataset_plans_responsive_actions.spec.ts",
     "e2e/specs/app/dataset_snapshot_confirm_workflows.spec.ts",
+    "e2e/specs/app/dataset_snapshots_keyset_pagination.spec.ts",
     "e2e/specs/app/dns_log_column_width.spec.ts",
     "e2e/specs/app/dns_record_feedback_readability.spec.ts",
     "e2e/specs/app/dns_ttl_readability.spec.ts",
@@ -64,6 +65,7 @@
     "e2e/specs/app/incident_create_context.spec.ts",
     "e2e/specs/app/incident_create_permissions.spec.ts",
     "e2e/specs/app/incidents_responsive_layout.spec.ts",
+    "e2e/specs/app/incidents_smart_filter.spec.ts",
     "e2e/specs/app/ip_addresses_environment_filter.spec.ts",
     "e2e/specs/app/mail_recipient_copy_controls.spec.ts",
     "e2e/specs/app/member_payment_links.spec.ts",
@@ -755,13 +757,6 @@
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
     },
     {
-      "path": "e2e/specs/app/dataset_snapshots_keyset_pagination.spec.ts",
-      "sha256": "239d7afb1d3a8103c4da63b368840342ad3e7fbde7680d7a2596d7ae91beb377",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
       "path": "e2e/specs/app/datasets_list_keyset_pagination.spec.ts",
       "sha256": "cd1c32f2685e94e599520f4303d184b21baa89cc6f33505e852deebe128c8202",
       "owner": "WebUI maintainers",
@@ -904,13 +899,6 @@
     {
       "path": "e2e/specs/app/exports_smoke.spec.ts",
       "sha256": "542668e3032ee21fa77f8f2c97928a2a0ab1afc18adce55d1a33bbe174cc60e2",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/app/incidents_smart_filter.spec.ts",
-      "sha256": "8ffea3c8330e6452631cca970f506f8bb68476f177952c8a89ad835a647f4de9",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."

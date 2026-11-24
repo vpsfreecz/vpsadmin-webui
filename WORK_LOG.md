@@ -1,3 +1,23 @@
+## 2026-11-10 — Hide inactive snapshot pagination
+
+[BAK-08 snapshot pagination](docs/work-log/2026-11-10-snapshot-pagination.md).
+
+## 2026-11-12 — Keep applied incident filters during pagination (prepared)
+
+Close the demonstrated incident caller race blocking original BAK-08 browser
+qualification. Explicit page/size navigation uses the existing applied-filter
+snapshot support from PR243, preserving role/API/history contracts.
+[Reproduction and verification](docs/work-log/2026-11-12-incident-pending-filter-navigation.md).
+No merge, preview activation or API deployment is claimed.
+
+## 2026-11-12 — BAK-08 original-CI navigation prerequisites (prepared)
+
+Preserve the approved backup feature and include reviewed PR243 plus the
+incident caller correction in PR307. Original flaky CI remains rejected;
+new-head original six-check qualification is required.
+[Source, tests and limits](docs/work-log/2026-11-12-backup-ci-navigation-prerequisites.md).
+No merge, activation or task-done claim.
+
 ## 2026-11-10 — Clarify backup plan ownership and removal
 
 [BAK-11/12 backup plan wording](docs/work-log/2026-11-10-backup-plan-copy.md).
