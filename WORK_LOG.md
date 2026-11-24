@@ -1,3 +1,9 @@
+## 2026-11-14 — Reflect NFS choices in the export review (prepared)
+
+EXP-02 / REQ-048: The create review describes current Sync and Subtree check values. Defaults, payloads and rejection handling remain unchanged.
+[Scope and verification](docs/work-log/2026-11-14-export-review.md).
+No hosted qualification, merge or paired preview delivery is claimed.
+
 ## 2026-11-15 — Readable incident filters and complete reports
 
 Approved INC-01/02: short growing smart field, visible44px Help/Advanced

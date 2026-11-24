@@ -75,6 +75,7 @@
     "e2e/specs/app/error_recovery_action_alignment.spec.ts",
     "e2e/specs/app/export_hosts_responsive_actions.spec.ts",
     "e2e/specs/app/export_list_containment.spec.ts",
+    "e2e/specs/app/export_review_options.spec.ts",
     "e2e/specs/app/exports_filter_contract.spec.ts",
     "e2e/specs/app/filter_bar_chip_alignment.spec.ts",
     "e2e/specs/app/filter_help_consistency.spec.ts",
@@ -86,6 +87,7 @@
     "e2e/specs/app/header_session_limit.spec.ts",
     "e2e/specs/app/incident_create_context.spec.ts",
     "e2e/specs/app/incident_create_permissions.spec.ts",
+    "e2e/specs/app/incident_reading_acceptance.spec.ts",
     "e2e/specs/app/incidents_responsive_layout.spec.ts",
     "e2e/specs/app/incidents_smart_filter.spec.ts",
     "e2e/specs/app/ip_addresses_environment_filter.spec.ts",
@@ -183,8 +185,7 @@
     "e2e/specs/public/overview_readability.spec.ts",
     "e2e/specs/public/theme_language_bootstrap.spec.ts",
     "e2e/specs/public/theme_switcher.spec.ts",
-    "src/types/vpsadmin.d.ts",
-    "e2e/specs/app/incident_reading_acceptance.spec.ts"
+    "src/types/vpsadmin.d.ts"
   ],
   "include": []
 }
