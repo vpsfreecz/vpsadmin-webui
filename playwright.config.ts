@@ -106,6 +106,7 @@ export default defineConfig({
         '**/user_packages_assigned_date.spec.ts',
         '**/vps_dns_shortcut.spec.ts',
         '**/dns_record_feedback_readability.spec.ts',
+        '**/dns_zone_owner_lookup.spec.ts',
       ],
       use: { ...devices['iPhone 13'] },
     },
