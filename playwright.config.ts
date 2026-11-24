@@ -74,6 +74,7 @@ export default defineConfig({
         '**/user_history_smoke.spec.ts',
         '**/user_data_owner_scope.spec.ts',
         '**/oom_refresh_context.spec.ts',
+        '**/vps_all_actions.spec.ts',
         '**/about.spec.ts',
         '**/dataset_header_breadcrumb.spec.ts',
         '**/theme_switcher.spec.ts',
