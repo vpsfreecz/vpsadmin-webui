@@ -1,23 +1,20 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { CircleHelp, SlidersHorizontal } from 'lucide-react';
 
 import { useAuth } from '../../app/auth';
 import { useI18n } from '../../app/i18n';
 
-import { FilterBar } from '../layout/FilterBar';
 
 import { Alert } from '../ui/Alert';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
-import { CopyButton } from '../ui/CopyButton';
 import { Modal } from '../ui/Modal';
 import { EmptyState } from '../ui/EmptyState';
 import { FilterChip } from '../ui/FilterChip';
 import { Input } from '../ui/Input';
 import { KeysetPagination } from '../ui/KeysetPagination';
-import { SmartFilterInput, type SmartFilterSuggestion } from '../ui/SmartFilterInput';
+import { type SmartFilterSuggestion } from '../ui/SmartFilterInput';
 import { SmartInputHelp } from '../ui/SmartInputHelp';
 import { TableCard } from '../ui/TableCard';
 import { TableRowLink } from '../ui/TableRowLink';
@@ -28,6 +25,7 @@ import { parseNumericToken, splitKeyValueToken, tokenizeSmartInput, unquoteSmart
 import { explicitUserNamespaceOwnerId, fetchUserNamespaces, type UserNamespace } from '../../lib/api/userNamespaces';
 import type { UserRole } from '../../lib/roles';
 import { UserNamespaceContractGuard } from './UserNamespaceContractGuard';
+import { UserNamespaceFilters } from './UserNamespaceFilters';
 import { canFilterUserNamespaceOwners } from './userNamespaceFilterSemantics';
 import type { UserNamespaceListProps } from './userNamespaceListProps';
 import { buildUserNamespacePageWindow } from './userNamespacePagination';
@@ -300,51 +298,21 @@ function UserNamespaceListContent(props: UserNamespaceListProps & { viewerRole: 
 
   return (
     <div className="space-y-3" data-testid={`${props.testIdPrefix}.page`}>
-      <FilterBar testId={`${props.testIdPrefix}.filters`}>
-        <div className="min-w-0 flex-1">
-          <SmartFilterInput
-            ref={smartInputRef}
-            testId={`${props.testIdPrefix}.search.input`}
-            ariaLabel={t('userns.namespace.search_placeholder')}
-            value={smart}
-            onChange={setSmart}
-            onSubmit={() => applySmart()}
-            suggestions={smartSuggestions}
-            placeholder={t('userns.namespace.smart.placeholder')}
-            suffix={
-              <button
-                type="button"
-                className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted hover:bg-surface-2 hover:text-fg"
-                onClick={() => setHelpOpen(true)}
-                aria-label={t('filters.help.open')}
-                title={t('filters.help.open')}
-                data-testid={`${props.testIdPrefix}.smart.help_button`}
-              >
-                <CircleHelp className="h-4 w-4" />
-              </button>
-            }
-          />
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            onClick={() => setAdvancedOpen(true)}
-            testId={`${props.testIdPrefix}.filters.advanced`}
-          >
-            <SlidersHorizontal className="mr-1 h-4 w-4" />
-            {t('filters.advanced.label')}
-          </Button>
-          <CopyButton text={shareUrl} label={t('common.copy_link')} testId={`${props.testIdPrefix}.filters.copy_link`} />
-          {filtersActive ? (
-            <Button type="button" size="sm" variant="ghost" onClick={clearFilters} testId={`${props.testIdPrefix}.filters.clear`}>
-              {t('common.clear_filters')}
-            </Button>
-          ) : null}
-        </div>
-      </FilterBar>
+      <UserNamespaceFilters
+        testIdPrefix={props.testIdPrefix}
+        inputRef={smartInputRef}
+        ariaLabel={t('userns.namespace.search_placeholder')}
+        placeholder={t('userns.namespace.smart.placeholder')}
+        value={smart}
+        onChange={setSmart}
+        onSubmit={() => applySmart()}
+        suggestions={smartSuggestions}
+        onHelp={() => setHelpOpen(true)}
+        onAdvanced={() => setAdvancedOpen(true)}
+        shareUrl={shareUrl}
+        filtersActive={filtersActive}
+        onClear={clearFilters}
+      />
 
       {(size !== undefined || (adminFiltersEnabled && (userId !== undefined || blockCount !== undefined)) || smartErrors.length > 0) ? (
         <div className="flex flex-wrap gap-2" data-testid={`${props.testIdPrefix}.filters.chips`}>

@@ -81,6 +81,9 @@ export default defineConfig({
         '**/mail_recipient_copy_controls.spec.ts',
         '**/preference_description.spec.ts',
         '**/user_data_primary_action.spec.ts',
+        '**/user_namespace_controls.spec.ts',
+        '**/user_namespace_filter_contract.spec.ts',
+        '**/profile_user_namespaces.spec.ts',
         '**/centered_dialogs.spec.ts',
 
         '**/vps_expiration_reactivation.spec.ts',

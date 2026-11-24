@@ -137,12 +137,7 @@ export function OomReportsPage() {
     return r.valid ? r.iso ?? undefined : undefined;
   }, [until]);
 
-  useEffect(() => {
-    if (hydratingFiltersFromUrlRef.current) {
-      hydratingFiltersFromUrlRef.current = false;
-      return;
-    }
-
+  const filterSearchParams = useMemo(() => {
     const next = new URLSearchParams(activeSearchParams);
     next.delete('q');
 
@@ -180,7 +175,7 @@ export function OomReportsPage() {
     if (uTrim) next.set('until', uTrim);
     else next.delete('until');
 
-    if (next.toString() !== searchParamsKey) setSp(next, { replace: true });
+    return next;
   }, [
     activeSearchParams,
     cgroup,
@@ -193,15 +188,21 @@ export function OomReportsPage() {
     nodeId,
     rule,
     ruleId,
-    setSp,
     since,
-    searchParamsKey,
     until,
     user,
     userId,
     vps,
     vpsId,
   ]);
+
+  useEffect(() => {
+    if (hydratingFiltersFromUrlRef.current) {
+      hydratingFiltersFromUrlRef.current = false;
+      return;
+    }
+    if (filterSearchParams.toString() !== searchParamsKey) setSp(filterSearchParams, { replace: true });
+  }, [filterSearchParams, searchParamsKey, setSp]);
 
   const filtersActive = Boolean(
     vpsId ||
@@ -231,6 +232,7 @@ export function OomReportsPage() {
       until: until.trim(),
     }),
     searchParams: activeSearchParams,
+    navigationSearchParams: filterSearchParams,
     setSearchParams: setSp,
     defaultLimit: 50,
     allowedLimits: [25, 50, 100],

@@ -54,6 +54,10 @@ Not merged or deployed; browser, exact CI and release checks remain pending.
 
 [Scope and verification](docs/work-log/2026-11-09-profile-preference-sync-readability.md).
 
+## 2026-11-15 — Preserve narrow namespace filter fields
+
+[REQ-073 regression and verification](docs/work-log/2026-11-15-namespace-minimum-field.md).
+
 ## 2026-10-28 — OAuth redirect boundary review
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path
@@ -1764,3 +1768,19 @@ Prepare approved UX-04 / REQ-010. See the
 ## 2026-11-15 — ACC-09 account follow-up
 
 [Keep one primary Create template entry in the filter bar for both empty and populated lists](docs/work-log/2026-11-15-account-user-data-primary-action.md). Prepared; qualification and delivery pending.
+
+## 2026-11-09 — Readable namespace-map deletion action
+
+Prepare approved UX-04 / REQ-010. See the
+[scope and measured baseline](docs/work-log/2026-11-09-namespace-map-delete-readability.md).
+## 2026-11-09 — Preserve OOM filters during pending navigation
+
+Correct the reproduced Next/page-size URL race without changing owner scope.
+[Scope, root cause and evidence](docs/work-log/2026-11-09-oom-pending-filter-navigation.md).
+
+## 2026-11-15 — Consistent namespace filters and map controls
+
+Implement approved NSP-01/02/03/04 on the existing namespace-map PR while
+preserving owner scope, supported filters, navigation and mutation safeguards.
+[Source, baseline evidence and verification](docs/work-log/2026-11-15-namespace-controls.md).
+Prepared; new-head qualification and paired preview delivery remain pending.

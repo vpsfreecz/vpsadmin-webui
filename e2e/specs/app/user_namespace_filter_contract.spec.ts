@@ -107,7 +107,7 @@ function observeMutations(page: Page): string[] {
 
 test.describe('User namespace index contracts', () => {
   test.beforeEach(async ({ page }, testInfo) => {
-    const viewport = testInfo.project.name === 'mobile-chrome'
+    const viewport = testInfo.project.name.startsWith('mobile-')
       ? { width: 390, height: 844 }
       : { width: 1_440, height: 1_000 };
     await page.setViewportSize(viewport);
@@ -250,7 +250,7 @@ test.describe('User namespace index contracts', () => {
     await page.goto(withAppUrl('/app/vps/123/config'));
     await expect(page.getByText('Boot preferences')).toBeVisible();
 
-    expect(requestsOfKind(requests, 'map')).toEqual([
+    await expect.poll(() => requestsOfKind(requests, 'map')).toEqual([
       { kind: 'map', fields: { limit: '250' }, includes: null },
     ]);
   });
@@ -263,7 +263,7 @@ test.describe('User namespace index contracts', () => {
     await page.goto(withAppUrl('/admin/vps/123/config'));
     await expect(page.getByText('Start menu timeout', { exact: true })).toBeVisible();
 
-    expect(requestsOfKind(requests, 'map')).toEqual([
+    await expect.poll(() => requestsOfKind(requests, 'map')).toEqual([
       { kind: 'map', fields: { limit: '250', user: '42' }, includes: null },
     ]);
   });

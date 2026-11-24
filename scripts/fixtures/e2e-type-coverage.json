@@ -69,6 +69,7 @@
     "e2e/specs/app/network_address_details.spec.ts",
     "e2e/specs/app/node_history.spec.ts",
     "e2e/specs/app/oom_report_rules_mobile_actions.spec.ts",
+    "e2e/specs/app/oom_reports_smart_filter.spec.ts",
     "e2e/specs/app/payment_qr_images.spec.ts",
     "e2e/specs/app/payments_page.spec.ts",
     "e2e/specs/app/preference_description.spec.ts",
@@ -100,6 +101,8 @@
     "e2e/specs/app/ui_preferences_persistence.spec.ts",
     "e2e/specs/app/user_data_editor_accessibility.spec.ts",
     "e2e/specs/app/user_data_primary_action.spec.ts",
+    "e2e/specs/app/user_namespace_controls.spec.ts",
+    "e2e/specs/app/user_namespace_filter_contract.spec.ts",
     "e2e/specs/app/user_network_page.spec.ts",
     "e2e/specs/app/vps_access_page.spec.ts",
     "e2e/specs/app/vps_admin_modifications.spec.ts",
@@ -967,13 +970,6 @@
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
     },
     {
-      "path": "e2e/specs/app/oom_reports_smart_filter.spec.ts",
-      "sha256": "e21248cf60d437af12f73da1252b67741c2502fe035c21f257d4003902e36775",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
       "path": "e2e/specs/app/opaque_overlays_all.spec.ts",
       "sha256": "39c289956b61f71229f50a5e6bd80eedb5af352efa87baae4c832cb64b68dd6a",
       "owner": "WebUI maintainers",
@@ -1158,13 +1154,6 @@
     {
       "path": "e2e/specs/app/user_global_search.spec.ts",
       "sha256": "e97e89d39eea7fe8c740294a48a172906f618271f89a5e21aaf6fe1ddbfcbe33",
-      "owner": "WebUI maintainers",
-      "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
-      "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
-    },
-    {
-      "path": "e2e/specs/app/user_namespace_filter_contract.spec.ts",
-      "sha256": "eb23a233a0b8dede6e1b5286d31ff1fbe1fc680cef9c8331d28bbe1dad80eac6",
       "owner": "WebUI maintainers",
       "reason": "Existing browser spec awaits reviewed strict TypeScript adoption; this is not a compiler-error allowance.",
       "removalCondition": "Adopt this complete spec with zero TypeScript diagnostics and focused fixture review."
