@@ -304,7 +304,7 @@ export const csDns = {
     'Stav zóny na jmenných serverech: sériové číslo, poslední načtení, refresh, expirace a poslední kontrola.',
   'dns.zone.transfers.status.empty': 'Zatím není dostupný žádný stav přenosů pro tuto zónu.',
   'dns.zone.dnssec.title': 'DNSSEC',
-  'dns.zone.dnssec.description': 'Zkopírovatelné DNSKEY a DS záznamy pro tuto zónu.',
+  'dns.zone.dnssec.description': 'DNSKEY zóny a DS pro nadřazenou zónu.',
   'dns.zone.dnssec.loading': 'Načítám DNSSEC záznamy…',
   'dns.zone.dnssec.load_failed': 'Nepodařilo se načíst DNSSEC záznamy',
   'dns.zone.dnssec.empty': 'Žádné DNSSEC záznamy',

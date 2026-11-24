@@ -1457,3 +1457,8 @@ Use one fixed shared column grid with the standard minimum table width and local
 
 Distinguish explicit record TTL, null inheritance from the current validated zone default, and missing/invalid unknown values. Show the known default in blank-field help without filling the draft. Preserve omitted TTL on Create and null on Update when clearing an override; no query, mutation, validation or lock changes.
 [Scope and evidence](../work-log/2026-11-15-dns-ttl-review.md).
+
+### Explain DNSSEC record purpose concisely (REQ-049)
+
+Use a shorter introduction identifying the zone DNSKEY and DS for the parent zone. Keep full record text, clipboard values, requests and primary/secondary/error/empty handling unchanged. RFC4034 section5 supports the parent-zone distinction; this is not DNS publication or signing-status verification.
+[Scope and evidence](../work-log/2026-11-15-dns-dnssec-review.md).

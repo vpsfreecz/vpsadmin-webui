@@ -1,3 +1,8 @@
+## 2026-11-15 — Explain DNSSEC record purpose concisely
+
+Use a shorter introduction identifying the zone DNSKEY and DS for the parent zone. Keep full record text, clipboard values, requests and primary/secondary/error/empty handling unchanged. RFC4034 section5 supports the parent-zone distinction; this is not DNS publication or signing-status verification.
+[Prepared DNS-12 verification](docs/work-log/2026-11-15-dns-dnssec-review.md).
+
 ## 2026-11-15 — Show known inherited DNS record TTL
 
 Distinguish explicit record TTL, null inheritance from the current validated zone default, and missing/invalid unknown values. Show the known default in blank-field help without filling the draft. Preserve omitted TTL on Create and null on Update when clearing an override; no query, mutation, validation or lock changes.
