@@ -358,7 +358,6 @@ export function ActionStatesPanel(props: {
   if (merged.length === 0) {
     return (
       <div>
-        <div className="text-xs text-muted">{i18n.t('tasks.basic.actions_title')}</div>
         <div className="mt-2 text-sm text-muted">{i18n.t('tasks.empty.no_action_states')}</div>
       </div>
     );
@@ -367,7 +366,6 @@ export function ActionStatesPanel(props: {
   if (filtered.length === 0) {
     return (
       <div>
-        <div className="text-xs text-muted">{i18n.t('tasks.basic.actions_title')}</div>
         <div className="mt-2 text-sm text-muted">{i18n.t('tasks.empty.no_action_states_filtered')}</div>
       </div>
     );
@@ -375,12 +373,7 @@ export function ActionStatesPanel(props: {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
-        <div className="text-xs text-muted">
-          {i18n.t('tasks.basic.actions_title')}
-          {needle ? <span className="text-faint"> · {i18n.t('tasks.meta.filtered')}</span> : null}
-        </div>
-      </div>
+      {needle ? <div className="text-xs text-faint">{i18n.t('tasks.meta.filtered')}</div> : null}
 
       <div className="mt-3 space-y-4">
         {pinned.length > 0 ? (

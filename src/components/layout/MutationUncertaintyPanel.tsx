@@ -65,7 +65,7 @@ export function MutationUncertaintyPanel(props: MutationUncertaintyPanelProps) {
     <Alert testId={testIdPrefix} variant="warn" title={t('vps.mutation.uncertain.title')}>
       <div>{t('vps.mutation.uncertain.body')}</div>
       {errorKey ? (
-        <div data-testid={`${testIdPrefix}.error`} className="mt-2 text-danger">
+        <div data-testid={`${testIdPrefix}.error`} className="mt-2 border-l-2 border-danger-border pl-2 font-medium text-fg">
           {t(`vps.mutation.uncertain.${errorKey}`)}
         </div>
       ) : null}

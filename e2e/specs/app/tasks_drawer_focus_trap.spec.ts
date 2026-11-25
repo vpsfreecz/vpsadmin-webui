@@ -1,7 +1,7 @@
 import { clickShellControl, openShellNavigation } from '../../helpers/shellNavigation';
 import { expect, test } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
+import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 
 test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke @smoke-mobile Tasks drawer opens as a non-modal side panel', async ({ page }) => {
   await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
@@ -411,3 +411,57 @@ test('@pr-smoke Tasks drawer lets admins expand transaction chains and continue 
   await expect(page).toHaveURL(/\/admin\/transactions\/880$/);
   await expect(page.getByTestId('transactions.chain.detail.tx.882')).toBeVisible();
 });
+
+for (const language of ['cs', 'en'] as const) {
+  test(`@pr-smoke @pr-smoke-mobile Tasks background control contains its ${language} label`, async ({ page }) => {
+    await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
+    await setUiSettingsLocalStorage(page, { language, theme: language === 'cs' ? 'dark' : 'light' });
+    await installHaveApiMock(page, {
+      user: { id: 1, login: 'test', level: 1 },
+      handlers: {
+        'GET vpses': () => ({ vpses: [] }),
+        'GET action_states': () => ({ action_states: [] }),
+        'GET transaction_chains': () => ({
+          transaction_chains: [{
+            id: 901, label: 'Automatic backup snapshot retention cleanup',
+            state: 'done', size: 3, progress: 3,
+            created_at: '2026-11-09T11:00:00Z', user: { id: 1, login: 'test' },
+          }],
+        }),
+      },
+    });
+    await page.goto('/app/vps');
+    await expect(page.getByTestId('vps.list')).toBeVisible();
+    for (const width of [page.viewportSize()!.width, 320]) {
+      await page.setViewportSize({ width, height: 900 });
+      await clickShellControl(page, 'tasks.open-button');
+      const drawer = page.getByTestId('tasks.drawer');
+      const toggle = drawer.getByTestId('tasks.system_activity.toggle');
+      for (const expanded of [false, true]) {
+        await expect(toggle).toBeVisible();
+        await expect(toggle).toHaveText(language === 'cs'
+          ? (expanded ? 'Skrýt systémovou aktivitu' : 'Zobrazit systémovou aktivitu')
+          : (expanded ? 'Hide system activity' : 'Show system activity'));
+        await toggle.focus();
+        await expect(toggle).toBeFocused();
+        const bounds = await toggle.evaluate((element) => {
+          const range = document.createRange();
+          range.selectNodeContents(element);
+          const text = range.getBoundingClientRect();
+          const button = element.getBoundingClientRect();
+          return {
+            top: text.top - button.top, bottom: button.bottom - text.bottom,
+            left: text.left - button.left, right: button.right - text.right,
+          };
+        });
+        for (const distance of Object.values(bounds)) expect(distance).toBeGreaterThanOrEqual(-1);
+        expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
+        await toggle.click();
+        if (expanded) await expect(drawer.getByTestId('tasks.chain.row.901')).toHaveCount(0);
+        else await expect(drawer.getByTestId('tasks.chain.row.901')).toBeVisible();
+      }
+      await page.keyboard.press('Escape');
+      await expect(drawer).toBeHidden();
+    }
+  });
+}

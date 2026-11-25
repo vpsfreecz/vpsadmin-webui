@@ -9,7 +9,6 @@ export const enOps_tasks = {
   "tasks.action.track": "Track",
   "tasks.action.unpin": "Unpin",
   "tasks.action.view_all": "View all",
-  "tasks.basic.actions_title": "Your actions",
   "tasks.basic.operations_title": "Background operations",
   "tasks.cancel_dialog.confirm": "Cancel action",
   "tasks.cancel_dialog.description_default": "This will request the server to cancel the action.",
@@ -52,4 +51,7 @@ export const enOps_tasks = {
   "tasks.section.recent": "Recent",
   "tasks.title": "Tasks",
   "tasks.tracking_action": "Tracking: {action}",
+  "tasks.filter_help.title": "Task filter help",
+  "tasks.filter_help.intro": "Filter actions and transactions in this panel by part of their label, ID or target. Matching ignores letter case.",
+  "tasks.filter_help.scope": "This is a local filter of loaded items, including tracked actions. It does not search the full history. Open all transactions to search older transactions.",
 } as const;

@@ -79,7 +79,7 @@ test.describe('User storage section contract', () => {
       },
     });
 
-    const mobile = testInfo.project.name === 'mobile-chrome';
+    const mobile = testInfo.project.name.startsWith('mobile-');
 
     await page.goto('/app/datasets');
     await expect(page).toHaveURL(/\/app\/vps(?:\?|$)/);
@@ -135,10 +135,9 @@ test.describe('User storage section contract', () => {
     await expect.poll(() => requestedRoles).toEqual([null]);
 
     await page.getByTestId('backups.tab.snapshots').click();
-    await expect(page.getByText(
-      'Choose a dataset and manage its snapshots here. Only the selected dataset is loaded.',
-      { exact: true },
-    )).toBeVisible();
+    await expect(page.getByTestId('backups.workspace.empty')).toHaveText(
+      'Choose a dataset in Storage',
+    );
     await expect(page.getByText(/on the left/i)).toHaveCount(0);
     await expect(page.getByTestId('backups.snapshots.row.101')).toContainText('VPS disk');
     await expect(page.getByTestId('backups.snapshots.row.202')).toContainText('NAS');
@@ -146,13 +145,13 @@ test.describe('User storage section contract', () => {
     await page.getByTestId('backups.snapshots.row.101').click();
     await expect(page.getByRole('link', { name: 'Open full detail' })).toHaveAttribute(
       'href',
-      '/app/datasets/101/snapshots',
+      '/app/datasets/101/snapshots?from=backups&backups.tab=snapshots&backups.dataset=101&backups.backup_snapshot_limit=50&backups.backup_snapshot_page=1',
     );
 
     await page.getByTestId('backups.snapshots.row.202').click();
     await expect(page.getByRole('link', { name: 'Open full detail' })).toHaveAttribute(
       'href',
-      '/app/nas/202/snapshots',
+      '/app/nas/202/snapshots?from=backups&backups.tab=snapshots&backups.dataset=202&backups.backup_snapshot_limit=50&backups.backup_snapshot_page=1',
     );
   });
 });

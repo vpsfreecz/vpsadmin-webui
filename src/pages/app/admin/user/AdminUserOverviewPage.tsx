@@ -1,3 +1,4 @@
+import { sameLifecycleTimestamp } from '../../../../components/lifetimes/lifecyclePayload';
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -6,7 +7,6 @@ import { useAuth } from '../../../../app/auth';
 import { useI18n } from '../../../../app/i18n';
 import { resolveAccountTimeZone, useAccountTimeZone, useServerTimeZone } from '../../../../app/accountTimeZone';
 import { useToasts } from '../../../../app/toasts';
-
 import { Alert } from '../../../../components/ui/Alert';
 import { Badge } from '../../../../components/ui/Badge';
 import { Button } from '../../../../components/ui/Button';
@@ -150,10 +150,10 @@ export function AdminUserOverviewPage() {
     const nextState = stateDraft.objectState.trim() || 'active';
 
     if (nextState !== currentState) payload['object_state'] = nextState;
-    if (expirationParsed.valid && expirationParsed.iso !== (u.expiration_date ?? null)) {
+    if (expirationParsed.valid && !sameLifecycleTimestamp(expirationParsed.iso, u.expiration_date ?? null)) {
       payload['expiration_date'] = expirationParsed.iso;
     }
-    if (remindParsed.valid && remindParsed.iso !== (u.remind_after_date ?? null)) {
+    if (remindParsed.valid && !sameLifecycleTimestamp(remindParsed.iso, u.remind_after_date ?? null)) {
       payload['remind_after_date'] = remindParsed.iso;
     }
     if (Object.keys(payload).length > 0 && stateDraft.reason.trim()) {
@@ -490,7 +490,7 @@ export function AdminUserOverviewPage() {
                 <span className="text-sm text-muted">{t('admin.user.lifecycle.current_state')}</span>
               </div>
 
-              <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,16rem),1fr))] gap-3">
                 <div>
                   <Select
                     label={t('admin.user.lifecycle.state.field')}
@@ -525,7 +525,7 @@ export function AdminUserOverviewPage() {
 
                 <div className="min-w-0">
                   <div className="mb-1 text-xs font-semibold text-muted">{t('lifetimes.field.remind_after')}</div>
-                  <div className="flex min-w-0 items-center gap-2">
+                  <div className="flex min-w-0 flex-wrap items-center gap-2">
                     <Input
                       type="datetime-local"
                       value={stateDraft.remindAfterDate}
@@ -534,11 +534,11 @@ export function AdminUserOverviewPage() {
                       ariaLabel={t('lifetimes.field.remind_after')}
                       ariaDescribedBy="admin-user-reminder-help"
                       testId="admin.user.lifecycle.remind_after"
-                      className="min-w-0"
+                      className="min-w-0 flex-[1_1_max-content]"
                     />
                     <Button
                       type="button"
-                      size="sm"
+                      size="md"
                       variant="secondary"
                       onClick={() => setStateField('remindAfterDate', '')}
                       disabled={!stateDraft.remindAfterDate.trim()}

@@ -343,13 +343,13 @@ export function VpsAccessPage() {
         </Alert>
       ) : null}
       {pendingKeyDeployment ? (
-        <Alert variant="info" title={t('vps.access.ssh.pending_title')}>
+        <Alert className="[overflow-wrap:anywhere]" variant="info" title={t('vps.access.ssh.pending_title')}>
           {t('vps.access.ssh.pending_description', { id: pendingKeyDeployment.asId, key: pendingKeyDeployment.keyLabel })}
         </Alert>
       ) : null}
       {keyDeploymentStateQ.error ? <Alert variant="danger">{errorMessage(keyDeploymentStateQ.error)}</Alert> : null}
       {keyDeploymentError ? (
-        <Alert variant="danger" title={t('vps.access.ssh.failed_title')}>
+        <Alert className="[overflow-wrap:anywhere]" variant="danger" title={t('vps.access.ssh.failed_title')}>
           <div className="space-y-3">
             <p>{t('vps.access.ssh.failed_description', { id: keyDeploymentError.asId, key: keyDeploymentError.keyLabel })}</p>
             <Button variant="secondary" size="sm" onClick={() => chrome.openTasks()} testId="vps.access.ssh.failure.open_tasks">
@@ -358,7 +358,7 @@ export function VpsAccessPage() {
           </div>
         </Alert>
       ) : null}
-      {keyDeployMessage ? <Alert variant="info">{t('vps.access.ssh.deployed', { key: keyDeployMessage })}</Alert> : null}
+      {keyDeployMessage ? <Alert className="[overflow-wrap:anywhere]" variant="info">{t('vps.access.ssh.deployed', { key: keyDeployMessage })}</Alert> : null}
 
       {canMutateVps ? <Card id="vps-access-ssh-key" testId="vps.access.ssh.card" className="scroll-mt-24">
         <CardHeader title={t('vps.access.ssh.title')} subtitle={t('vps.access.ssh.subtitle')} />
@@ -372,13 +372,13 @@ export function VpsAccessPage() {
               <span className="text-sm font-medium text-fg">{t('vps.access.ssh.key.label')}</span>
             </label>
             <div className="grid gap-2 lg:grid-cols-[minmax(0,1fr)_auto_auto] lg:items-center">
-              <select
+              <div className="min-w-0 overflow-hidden rounded-md focus-within:ring-2 focus-within:ring-focus"><select
                 id="vps-access-ssh-key-select"
                 value={selectedPublicKeyId ?? ''}
                 onChange={(event: React.ChangeEvent<HTMLSelectElement>) => setSelectedPublicKeyId(event.target.value ? Number(event.target.value) : null)}
                 disabled={publicKeysQ.isPending || publicKeys.length === 0 || deployKeyM.isPending}
                 aria-describedby="vps-access-ssh-key-description"
-                className="w-full rounded-md border border-border bg-bg px-3 py-2 text-sm text-fg"
+                className="h-9 [@media(any-pointer:coarse)]:min-h-11 w-full rounded-md border border-border bg-bg px-3 py-2 text-sm text-fg"
                 data-testid="vps.access.ssh.key"
               >
                 {publicKeys.length === 0 ? <option value="">{t('vps.access.ssh.no_keys_option')}</option> : null}
@@ -387,7 +387,7 @@ export function VpsAccessPage() {
                     {publicKeyLabel(key)}
                   </option>
                 ))}
-              </select>
+              </select></div>
 
               <Button variant="secondary" onClick={() => void publicKeysQ.refetch()} disabled={publicKeyUserId === null || publicKeysQ.isPending} testId="vps.access.ssh.refresh">
                 {publicKeysQ.isPending ? t('vps.access.ssh.loading') : t('vps.access.ssh.refresh')}
@@ -470,7 +470,7 @@ export function VpsAccessPage() {
                 onChange={(event: React.ChangeEvent<HTMLSelectElement>) => setPasswordType(event.target.value as VpsPasswordType)}
                 disabled={currentPasswdMutationPending}
                 aria-describedby="vps-access-password-type-description"
-                className="w-full rounded-md border border-border bg-bg px-3 py-2 text-sm text-fg"
+                className="h-9 [@media(any-pointer:coarse)]:min-h-11 w-full rounded-md border border-border bg-bg px-3 py-2 text-sm text-fg"
                 data-testid="vps.access.password_type"
               >
                 <option value="secure">{t('vps.access.password_type.secure')}</option>

@@ -1,10 +1,894 @@
+## 2026-11-24 UTC — Preserve rapid host-IP filter changes
+
+[Reproduced URL race, ownership guard and unchanged assertions](docs/work-log/2026-11-24-host-filter-navigation-race.md).
+Retried CI exposed a real lost address filter. Two deterministic browser-router
+cases fail before the fix and pass after it; the merge is held for fresh complete
+qualification. The unchanged filter view is extracted to retain the page budget.
+
+## 2026-11-24 — Qualify complete accepted integration with bounded CI shards
+
+[Original timeout/test evidence, preserved coverage and qualification](docs/work-log/2026-11-24-approved-integration-ci.md).
+The first integrated browser run timed out and exposed stale dataset-selection
+setup in the NFS regression. Preserve its assertions, drive the accepted picker,
+and partition all project selections across three shards with unchanged limits.
+Prepared; exact clean-head checks and complete final CI remain required.
+
+## 2026-11-24 — Merge accepted TODO PRs into their existing targets
+
+[Scope, conflict reconciliation and verification boundary](docs/work-log/2026-11-24-approved-todo-integration.md).
+The maintainer explicitly authorized Merge for current accepted outcomes. The92
+experimental original heads are composed with their history; main-target227 is
+qualified separately. Held and unmapped PRs remain excluded. Prepared locally;
+final exact-head qualification, GitHub CI and merge readback are still required.
+
+## 2026-11-18 — Initially open the failed chain step
+
+[ACT-08 delegated expansion choice](docs/work-log/2026-11-18-failed-chain-step.md).
+
+## 2026-11-18 — Compact network summary tables
+
+[NET-13 delegated summary choice](docs/work-log/2026-11-18-network-summary-tables.md).
+
+## 2026-11-18 — Optional technical DNS record IDs
+
+[DNS-11 delegated display choice](docs/work-log/2026-11-18-dns-record-id-preference.md).
+
+## 2026-11-18 — Consistent DNS zone type and role
+
+[DNS-01 delegated terminology choice](docs/work-log/2026-11-18-dns-zone-type-role.md).
+
+## 2026-11-18 — Recognizable VPS diagnostic actions
+
+[DIA-02 selected narrow variant](docs/work-log/2026-11-18-vps-diagnostic-actions.md).
+
+## 2026-11-18 — Explain live resource changes
+
+[Scope and contract](docs/work-log/2026-11-18-resource-live-explanation.md).
+
+## 2026-11-15 — Network chart orientation
+
+[Approved NET-14 scope and verification limits](docs/work-log/2026-11-15-network-chart-orientation.md).
+
+## 2026-11-15 — ACC-07 account follow-up
+
+[Name the known-device search with its visible label and associate its always-visible help](docs/work-log/2026-11-15-account-known-device-help.md). Prepared; qualification and delivery pending.
+
+## 2026-11-15 — Explain DNSSEC record purpose concisely
+
+Use a shorter introduction identifying the zone DNSKEY and DS for the parent zone. Keep full record text, clipboard values, requests and primary/secondary/error/empty handling unchanged. RFC4034 section5 supports the parent-zone distinction; this is not DNS publication or signing-status verification.
+[Prepared DNS-12 verification](docs/work-log/2026-11-15-dns-dnssec-review.md).
+
+## 2026-11-15 — Show known inherited DNS record TTL
+
+Distinguish explicit record TTL, null inheritance from the current validated zone default, and missing/invalid unknown values. Show the known default in blank-field help without filling the draft. Preserve omitted TTL on Create and null on Update when clearing an override; no query, mutation, validation or lock changes.
+[Prepared DNS-10 verification](docs/work-log/2026-11-15-dns-ttl-review.md).
+
+## 2026-11-15 — Bound DNS record columns and preserve complete names
+
+Use one fixed shared column grid with the standard minimum table width and local horizontal scrolling. Wrap complete record names and content within cells and mobile cards; keep row actions reachable and preserve managed/busy/role contracts.
+[Prepared DNS-09 verification](docs/work-log/2026-11-15-dns-grid-review.md).
+
+## 2026-11-15 — Anchor the changing DNS-zone creation form
+
+Prepare approved DNS-05 / REQ-049: retain a stable top viewport inset while
+switching primary/secondary fields, preserving default centered dialogs and
+all form contracts. [Scope and baseline](docs/work-log/2026-11-15-dns-zone-dialog-position.md).
+Prepared only; exact checks/CI/preview delivery remain separate.
+
+## 2026-11-15 — Explain verified export conflicts
+
+Reproduce a duplicate export with new isolated dev objects and add persistent,
+localized feedback bound to the submitted source. Retain distinct error meanings
+and existing mutation gates. See [scope and evidence](docs/work-log/2026-11-15-export-conflict-feedback.md).
+Prepared for review; exact committed checks, cleanup, CI and previews are pending.
+
+## 2026-11-15 — Explain NFS server options and rootfs context
+
+Prepare approved EXP-03 / REQ-048: link contextual NFS choices to the verified
+exports(5) manual and explain host-provided container rootfs beside the persistent
+NixOS example. Preserve snippets, flags and all mutation/permission contracts.
+[Sources, scope, verification and limits](docs/work-log/2026-11-15-export-nfs-help.md).
+Prepared only; exact tests/CI and paired/protected delivery remain separate.
+
+## 2026-11-15 — Select an export dataset by name
+
+Prepare approved EXP-01 / REQ-048: offer authorized dataset names with explicit
+internal-ID identity and `#ID` fallback. Clear stale snapshot selection, preserve
+ownership preflight and backend Create contracts, and disclose bounded lists.
+Distinguish snapshot loading/error/empty results, offer retry and an existing
+scoped snapshot-selection route for choices outside the first100.
+[Scope, implementation and verification](docs/work-log/2026-11-15-export-dataset-selection.md).
+Prepared only; exact committed qualification, focused PR/CI and paired delivery
+remain separate.
+
+## 2026-11-14 — Expose the dataset action beside the export source (prepared)
+
+EXP-06 / REQ-048: The summary owns the source identity once and offers a standard Open dataset action beside it. Dataset ID, view scope and ownership gates stay unchanged.
+[Scope and verification](docs/work-log/2026-11-14-export-source.md).
+No hosted qualification, merge or paired preview delivery is claimed.
+
+## 2026-11-14 — Reflect NFS choices in the export review (prepared)
+
+EXP-02 / REQ-048: The create review describes current Sync and Subtree check values. Defaults, payloads and rejection handling remain unchanged.
+[Scope and verification](docs/work-log/2026-11-14-export-review.md).
+No hosted qualification, merge or paired preview delivery is claimed.
+
+## 2026-11-15 — Readable incident filters and complete reports
+
+Approved INC-01/02: short growing smart field, visible44px Help/Advanced
+controls, one detail summary and complete page-flow report text. Preserve
+role/query/navigation/payload contracts; no API or deployment activation yet.
+[Scope, actual baseline and verification limits](docs/work-log/2026-11-15-incident-filter-message.md).
+
+
+Prepared a focused BFF credential-forwarding defense and consistent local-path
+validation after dummy loopback reproductions. See the [finding and checks](docs/work-log/2026-10-28-oauth-redirect-boundaries.md).
+Not merged or deployed; no API or provider changes.
+
+## 2026-11-12 — Distinguish exit actions by their effect (UX-07)
+
+Document Cancel/Back/Close and destination-named navigation, preserving existing
+pending, draft and focus contracts. The current dataset/console controls already
+meet the finite audit; no runtime change. See [source,36 fixture configurations
+and limits](docs/work-log/2026-11-12-exit-action-rule.md). Protected TODO result
+publication remains pending; no approval, merge or runtime deployment.
+
+## 2026-11-12 — Explain secondary-zone DNSSEC management
+
+Prepare approved DNS-02 / REQ-049: distinguish primary-server management from
+secondary signing status in list, header, settings and direct DNSSEC view.
+[Scope, API semantics, terminology and verification](docs/work-log/2026-11-12-secondary-dnssec-management.md).
+Not merged/deployed; no DNS-01 naming-model selection or live API/DNS changes.
+
+## 2026-11-12 — Reuse the qualified browser runner for DNS checks
+
+Reuse the exact qualified PR302/PR301 runner workflow and documentation bytes
+from5fc90733 to avoid the known package-mirror DNS setup failure. Keep all jobs,
+selectors, assertions, two-worker limits and timeouts; the DNSSEC scope cases remain
+in every relevant profile. [Runner evidence](docs/work-log/2026-11-11-pr-browser-runner-image.md).
+
+## 2026-11-12 — Keep primary DNSSEC records contained in the focused fix
+
+PR304's original mobile WebKit run exposed the missing primary-card containment
+on the isolated experiment base. Retain the exact two-line previously approved
+min-width fix and keep all primary320px regression assertions. The cumulative
+preview already has these bytes; no runtime activation occurred.
+[Failure and correction](docs/work-log/2026-11-12-secondary-dnssec-management.md#isolated-pr-mobile-qualification-correction).
+
+## 2026-11-12 — Accept bare DNS wildcard record owners
+
+Prepare approved DNS-03 / REQ-049: allow API-supported `*` without changing
+other owner-name checks, content/TTL/conflict checks, payloads or error handling.
+[Reproduction, scope and verification](docs/work-log/2026-11-12-dns-bare-wildcard.md).
+Not merged or deployed; no live DNS/API mutation or naming-model selection.
+
+## 2026-11-12 — Reuse the qualified browser runner for DNS checks
+
+Reuse the exact qualified PR302/PR301 runner workflow and documentation bytes
+from5fc90733 to avoid the known package-mirror DNS setup failure. Keep all jobs,
+selectors, assertions, two-worker limits and timeouts; the wildcard cases remain
+in every relevant profile. [Runner evidence](docs/work-log/2026-11-11-pr-browser-runner-image.md).
+
+## 2026-11-12 — Include the reviewed OOM navigation dependency in DNS review
+
+Preserve DNS-03 and include existing draft PR243 as the explicit dependency
+for its independently reproduced OOM CI blocker. The focused foundation lacks
+that correction while the cumulative preview already contains it. Both original
+Next/page-size regressions fail on the focused source before inclusion.
+[DNS scope and dependency evidence](docs/work-log/2026-11-12-dns-bare-wildcard.md).
+
+## 2026-11-12 — Shared download presentation (prepared)
+
+Use one download presenter in the Backup Center and dataset detail, retaining
+complete filename/snapshot identity and consistent mobile labelled groups.
+Detail-owned mutation gates and callbacks remain local. REQ-048;
+[scope and verification](docs/work-log/2026-11-12-backup-download-presentation.md).
+No merge, approval, API deployment or preview activation.
+
+## 2026-11-12 — Reuse the qualified browser runner image
+
+The focused BAK-13 branch reuses the same reviewed CI files as BAK-05 and
+PR296. The pinned official Playwright image avoids the recorded runner package
+mirror DNS setup failure. All jobs, assertions, selection, locks, worker limits
+and timeouts remain. [Runner evidence](docs/work-log/2026-11-11-pr-browser-runner-image.md).
+
+## 2026-11-11 — Reuse the verified PR browser runner for backup navigation
+
+Use the exact reviewed PR296 CI files and pinned official Playwright image for
+BAK-05 checks. This avoids the recorded Ubuntu mirror DNS setup failure without
+changing tests, selectors, locks, permissions or timeouts. The cumulative
+preview already has these CI files. [Runner evidence](docs/work-log/2026-11-11-pr-browser-runner-image.md).
+
+## 2026-11-11 — Preserve Backup Center detail context (prepared)
+
+Retain the existing menu context and fixed return through reload and detail tabs,
+with safe URL-only tab/filter/selection state. Direct VPS-dataset links mark VPS;
+NAS/admin routes retain normal navigation. REQ-048/BAK-05;
+[scope and verification](docs/work-log/2026-11-11-backup-detail-navigation.md).
+No navigation consolidation or NAS-14 variant selection; not deployed.
+
+## 2026-11-11 — Backup detail keyboard-return correction (prepared)
+
+Original BAK-05 hosted results contain real keyboard-return failures and remain
+unqualified. Controlled deferred-frame checks reproduce focus being stolen from
+the return link in all three browser profiles; preserve the destination's focus
+claim before that frame. Keep exact return/filter assertions, add a deterministic
+regression and adopt the changed storage-section contract into strict typing.
+[Evidence and release gates](docs/work-log/2026-11-11-backup-detail-navigation.md).
+No merge, approval, API deployment or preview activation is claimed.
+
+## 2026-11-11 — Backup focus ownership boundaries (prepared)
+
+Preserve a main-content focus claim made after browser history changes but before
+React commits the route. Exclude shell drawer restoration from destination focus
+claims so existing POP navigation still focuses main content. Exact old hosted
+failures and controlled red cases are retained; new unit/browser regressions keep
+the complete URL, focus and scroll contracts.
+[Evidence and pending release gates](docs/work-log/2026-11-11-backup-detail-navigation.md).
+No merge, API deployment or preview activation.
+
+## 2026-11-11 — Reuse the verified PR browser runner for download feedback
+
+Use the exact reviewed PR296 CI files and pinned official Playwright image for
+BAK-09/10 checks. This avoids the recorded Ubuntu mirror DNS setup failure without
+changing tests, selectors, locks, permissions or timeouts. The cumulative
+preview already has these CI files. [Runner evidence](docs/work-log/2026-11-11-pr-browser-runner-image.md).
+
+## 2026-11-11 — Clear created-download feedback (prepared)
+
+State each delivery instruction once, distinguish failed/other responses from
+pending preparation and name Tasks only with actual receipt metadata. Preserve
+payloads, actions, tracking and selected-owner context. REQ-048;
+[scope, verification and release limits](docs/work-log/2026-11-11-backup-download-feedback.md).
+
+## 2026-11-11 — Reuse the verified PR browser runner for VPS operation
+
+Use the exact reviewed PR296 CI files and pinned official Playwright image for
+DET-02 checks. This avoids the recorded Ubuntu mirror DNS setup failure without
+changing tests, selectors, locks, permissions or timeouts. The cumulative
+preview already has these CI files. [Runner evidence](docs/work-log/2026-11-11-pr-browser-runner-image.md).
+
+## 2026-11-11 — Clarify what the VPS operation shortcut opens
+
+Address requested DET-02 result changes without changing its approved criteria
+or action semantics. [Scope and closure provenance](docs/work-log/2026-11-11-vps-operation-list-context.md). Prepared only.
+
+## 2026-11-07 — Expose the existing VPS action index
+
+Implement approved DET-02 / REQ-023. See the [scope record](docs/work-log/2026-11-07-todo-vps-all-actions.md).
+
+## 2026-11-11 — Reuse the verified PR browser runner for dataset headers
+
+Use the exact reviewed PR296 CI files and pinned official Playwright image for
+NAS-09 checks. This avoids the recorded Ubuntu mirror DNS setup failure without
+changing tests, selectors, locks, permissions or timeouts. The cumulative
+preview already has these CI files. [Runner evidence](docs/work-log/2026-11-11-pr-browser-runner-image.md).
+
+## 2026-11-11 — Group dataset header context as a path
+
+Prepared NAS-09 dataset-only header grouping; preserve full names, internal
+IDs, VPS/return links and operation state. [Scope and verification](docs/work-log/2026-11-11-dataset-header-breadcrumb.md).
+Unverified local candidate; no merge or deployment.
+
+## 2026-11-11 — Reuse the verified PR browser runner for filter help
+
+Use the exact reviewed PR296 CI files and pinned official Playwright image for
+UX-06 checks. This avoids the recorded Ubuntu mirror DNS setup failure without
+changing tests, selectors, locks, permissions or timeouts. The cumulative
+preview already has these CI files. [Runner evidence](docs/work-log/2026-11-11-pr-browser-runner-image.md).
+
+## 2026-11-11 — Explain NAS, backup and task filters consistently
+
+Add shared-style accessible Help to Backup Center and Tasks, retaining NAS
+help and each existing filter contract. [Scope and verification](docs/work-log/2026-11-11-filter-help-consistency.md).
+Prepared UX-06 work; no merge or deployment.
+
+## 2026-11-11 — Reuse the verified PR browser runner
+
+The focused OOM refresh branch uses the exact workflow image already verified
+for NAS06/PR295 and PR294. Keep their official pinned Playwright1.61.0 image,
+test commands, matrix, assertions, permissions and artifact collection. This
+CI-only dependency avoids the documented Ubuntu mirror DNS setup failure.
+See the [shared runner record](docs/work-log/2026-11-11-pr-browser-runner-image.md).
+No application or test selection changes in this dependency commit.
+
+## 2026-11-11 — OOM refresh preserves the current list
+
+Prepared a focused NAS-02 correction: Refresh refetches the current OOM query
+instead of navigating to the unfiltered list. Keep the existing error retry,
+owner scope, filter URL and cursor. See the [scope and evidence](docs/work-log/2026-11-11-oom-refresh-context.md).
+Prepared for verification; no merge or deployment. The broader NAS/request
+refresh audit remains open.
+
+## 2026-11-11 — Distinguish dataset names and internal IDs (prepared)
+
+Label the internal ID on list/detail and name the dataset in mobile cards and
+detail headings. Keep complete and numeric names separate from request IDs.
+[Contract and verification](docs/work-log/2026-11-11-nas-name-identity.md).
+No merge or preview activation claimed.
+
+## 2026-11-11 — Run NAS identity CI in the verified browser image
+
+PR295 hit the same security.ubuntu.com DNS failure during browser dependency
+installation before tests ran. Reuse the exact workflow image/dependency fix
+from PR294 d2bb2567, already present in the cumulative preview source. Keep
+all test commands, projects, assertions, locks, permissions and timeouts.
+[Runner failure and pinned-image contract](docs/work-log/2026-11-11-pr-browser-runner-image.md).
+
+## 2026-11-11 — Readable mount lookup feedback (prepared)
+
+Style the existing local form's error descendants with readable text and a
+separate danger marker. Support the old finder and current picker without a
+feature import or changed API contract. Verification/release remains pending.
+[Compatibility boundary and verification](docs/work-log/2026-11-11-storage-form-error-readability.md).
+
+## 2026-11-11 — Use a pinned Playwright image for PR browser checks
+
+[Runner DNS failure and verification](docs/work-log/2026-11-11-pr-browser-runner-image.md).
+
+## 2026-11-11 — Parent context in subdataset creation (prepared)
+
+Show the complete parent in the CS/EN creation title and wrap long labels; remove
+the redundant technical scope box. Keep parent-ID payload, role/lifecycle gates,
+draft retention and cancellation unchanged. Private baseline4 fails on the old
+title; cumulative working40 fixture cases pass, no live writes. Focused CI and
+clean release verification remain pending. [Scope and evidence](docs/work-log/2026-11-11-dataset-parent-dialog.md).
+
+## 2026-11-11 — Make lifecycle action and date-error text readable (prepared)
+
+The current finite dark-theme audit measures3.12:1 for small red destructive
+choice titles and date-validation errors. Use the existing readable foreground,
+retaining danger borders and explicit localized labels. Keep all date parsing,
+roles, field values, disabled-submit and mutation behavior. [Scope and verification
+boundaries](docs/work-log/2026-11-11-lifecycle-text-readability.md). No merge or preview activation claimed.
+
+## 2026-11-11 — Select lifecycle contrast regression in Chromium smoke CI
+
+The new cases were selected by the WebKit file list but lacked the two tags
+required by Chromium smoke selectors. Add both tags without changing assertions
+or application code. Preserve the original exact-source evidence and refresh
+the focused-head CI and clean release verification before promotion.
+
+## 2026-11-11 — Keep complete lifecycle values inside comparison columns
+
+The approved dimensions/dark-readability audit found a template card overflowing
+at768px and overlapping swap values at320px despite document containment. Add
+inherited value wrapping to the existing lifecycle impact body and swap grid;
+content, row associations and operations stay intact. [Evidence, scope and
+verification gates](docs/work-log/2026-11-11-lifecycle-value-wrapping.md). Prepared only; no PR, merge
+or new preview activation is claimed yet.
+
+## 2026-11-11 — Select lifecycle wrapping regression in Chromium smoke CI
+
+The new cases were selected by the WebKit file list but lacked the two tags
+required by Chromium smoke selectors. Add both tags without changing assertions
+or application code. Preserve the original exact-source evidence and refresh
+the focused-head CI and clean release verification before promotion.
+
+## 2026-11-11 — Keep selected-user templates in their actual owner context
+
+The finite approved UX audit found support's personal templates under another
+member's heading. Follow the existing API owner restriction in the dossier UI,
+retaining administrator and own-account panels. [Source, negative evidence and
+verification gates](docs/work-log/2026-11-11-selected-userdata-owner-guard.md). Prepared only; no new PR, merge
+or paired activation is claimed here.
+
+## 2026-11-11 — Expose the selected user-history view
+
+The finite UX-04 audit found that History's current view was represented only by
+CSS classes. Add explicit pressed state to the two existing buttons and exercise
+pointer plus Space/Enter changes. [Scope, evidence and verification gates](docs/work-log/2026-11-11-history-view-selection.md). Prepared only; no merge or deployment claimed.
+
+## 2026-11-11 — Keep storage actions and resize feedback readable (prepared)
+
+The finite UX-03/UX-04 audit found selected-admin storage overflow at768px. Allow
+this local header to wrap and bound its children, and make the measured dark
+resize validation readable without changing its guard, preserving actions and API
+contracts. [Cause, exact-source evidence and pending checks](docs/work-log/2026-11-11-storage-root-actions-wrap.md).
+No merge or deployment is claimed.
+
+## 2026-11-11 — Keep reconciliation feedback readable on warning panels (prepared)
+
+Mutation-reconciliation failures retain readable foreground text, medium weight and a separate danger marker on their actual warning panel while preserving the verification and safety-lock rules. [Cause, scope and verification](docs/work-log/2026-11-11-mutation-reconcile-feedback.md).
+No merge or delivery claim.
+
+## 2026-11-11 — Keep complete host-address text inside the dialog (prepared)
+
+Host-address creation wraps complete route and failed IPv6 text inside its dialog at narrow widths, preserving address bytes and the retry draft. [Cause, scope and verification](docs/work-log/2026-11-11-host-address-text-wrap.md).
+No merge or delivery claim.
+
+## 2026-11-11 — Bound route cards before host-address creation
+
+Exact-head mobile Chromium exposed two overflowing IPv6 spans on the focused
+base before the host-address dialog opens. Keep the full original fixture and
+locally wrap the interface/route values; strengthen complete-text and page
+bounds without changing API behavior. [Cause and verification boundaries](docs/work-log/2026-11-11-host-address-text-wrap.md).
+
+## 2026-11-11 — Select the network regression in mobile WebKit CI
+
+The explicit WebKit allowlist omitted this new source regression even while both
+Chromium smoke jobs selected it. Enroll its filename without changing a fixture,
+assertion or application byte. [Actual selector proof and verification gates](docs/work-log/2026-11-11-network-webkit-selection.md).
+
+## 2026-11-11 — Distinguish package read errors from empty data
+
+Expose query loading/error/retry for selected-owner package choices and items,
+without changing owner scope, cached values or mutation payloads. [Scope and
+verification](docs/work-log/2026-11-11-resource-package-read-feedback.md).
+
+## 2026-11-11 — Align package actions while submission is pending
+
+The finite presentation audit found a 3–4 px action offset when the spinner
+appears in the selected-owner package dialog. Group its footer actions with flex wrapping and
+a consistent gap. [Reproduction and verification gates](docs/work-log/2026-11-11-resource-form-footer-alignment.md).
+
+## 2026-11-11 — Keep the selected-owner reminder value readable (prepared)
+
+Wrap Clear below the native reminder input when their combined width would
+shorten the displayed date/time. Preserve lifecycle values, keyboard order and
+confirmation. [Scope and verification](docs/work-log/2026-11-11-owner-reminder-layout.md).
+
+## 2026-11-11 — Reserve native width with coarse pointers (prepared)
+
+The initial reminder draft's mobile Chromium run found two real1440px width
+failures. Derive the flexible input basis from native max-content and retain the test
+threshold. [Exact negative and next gates](docs/work-log/2026-11-11-owner-reminder-layout.md).
+
+## 2026-11-11 — Readable selected-owner validation feedback (prepared)
+
+Correct two measured low-contrast local validation messages and clear the
+package selector's stale local error when its choice changes. Preserve API,
+server errors and locks. [Cause, scope and pending verification](docs/work-log/2026-11-11-selected-owner-validation-feedback.md).
+
+## 2026-11-10 — Preserve unchanged lifecycle timestamps (prepared)
+
+Compare lifecycle dates by instant and retain seconds in administrator inputs,
+after the selected-owner audit reproduced false dirty state. Keep actual edits,
+nullable payload rules, confirmations and locks. [Cause and verification](docs/work-log/2026-11-10-lifecycle-timestamp-equality.md).
+
+## 2026-11-10 — Align created snapshot download actions
+
+Keep the Download action aligned with the adjacent dialog footer actions in
+pending and ready states. Compact list actions retain their size. See the
+[scope, reproduction and verification limits](docs/work-log/2026-11-10-snapshot-download-action-rhythm.md).
+
+## 2026-11-10 — Simplify the snapshot dataset selection prompt
+
+[BAK-04 snapshot dataset selection](docs/work-log/2026-11-10-backup-snapshot-picker.md).
+
+## 2026-11-12 — BAK-04 original-CI navigation prerequisites (prepared)
+
+Preserve the approved backup feature and include reviewed PR243 plus the
+incident caller correction in PR307. Original flaky CI remains rejected;
+new-head original six-check qualification is required.
+[Source, tests and limits](docs/work-log/2026-11-12-backup-ci-navigation-prerequisites.md).
+No merge, activation or task-done claim.
+
+## 2026-11-10 — Hide inactive snapshot pagination
+
+[BAK-08 snapshot pagination](docs/work-log/2026-11-10-snapshot-pagination.md).
+
+## 2026-11-12 — Keep applied incident filters during pagination (prepared)
+
+Close the demonstrated incident caller race blocking original BAK-08 browser
+qualification. Explicit page/size navigation uses the existing applied-filter
+snapshot support from PR243, preserving role/API/history contracts.
+[Reproduction and verification](docs/work-log/2026-11-12-incident-pending-filter-navigation.md).
+No merge, preview activation or API deployment is claimed.
+
+## 2026-11-12 — BAK-08 original-CI navigation prerequisites (prepared)
+
+Preserve the approved backup feature and include reviewed PR243 plus the
+incident caller correction in PR307. Original flaky CI remains rejected;
+new-head original six-check qualification is required.
+[Source, tests and limits](docs/work-log/2026-11-12-backup-ci-navigation-prerequisites.md).
+No merge, activation or task-done claim.
+
+## 2026-11-10 — Clarify backup plan ownership and removal
+
+[BAK-11/12 backup plan wording](docs/work-log/2026-11-10-backup-plan-copy.md).
+
+## 2026-11-10 — Keep backup actions above compact statistics
+
+[BAK-01/02 overview layout](docs/work-log/2026-11-10-backup-overview-layout.md).
+
+## 2026-11-10 — Describe the snapshot target before confirmation
+
+[BAK-06 snapshot confirmation copy](docs/work-log/2026-11-10-snapshot-create-copy.md).
+
+## 2026-11-10 — Align shared error recovery actions (prepared)
+
+Use the standard medium Copy details action beside Retry/Back/Status after
+a current desktop NAS error render proved a 32/36 px mismatch. Keep the
+compact copy default elsewhere and all recovery/clipboard behavior.
+[Scope and verification](docs/work-log/2026-11-10-error-recovery-action-rhythm.md).
+No paired delivery or full TODO completion is claimed.
+
+## 2026-11-10 — VPS list context and usage readability (prepared)
+
+Wrap long owner/node metadata within the context column and strengthen small
+usage annotations on warning rows after actual rendered overflow/contrast
+failures. Keep existing resource composition in each SDK source variant;
+values, severity, roles, actions and shared defaults remain unchanged.
+[Evidence, scope and pending verification](docs/work-log/2026-11-10-vps-list-context-readability.md).
+No commit, PR or activation claim; verification is ongoing.
+
+## 2026-11-10 — Export list value containment (prepared)
+
+Wrap complete dataset/snapshot and address/path values inside export cells and
+cards, reserve the standard table minimum in its local scroller, and strengthen
+small owner text on warning cards after actual narrow/contrast failures.
+Keep API, role, query, navigation and pagination contracts unchanged.
+[Negative evidence, scope and verification](docs/work-log/2026-11-10-export-list-value-containment.md).
+No merge or deployment claim; verification is ongoing.
+
+Both exact-lock source trees pass pinned ci:quick and production builds,
+and12/12 targeted raw cases per source across three engines,0retries.
+A separately labelled dirty working artifact passes8public regressions,
+8previously negative narrow/readability cases and2table probes; these18
+executions overlap underlying configurations and are not96finite cases.
+The corrected320px document and286px card contain all content;24width/focus
+phases/996text samples have minimum5.090863. Warning-owner minimum6.621692.
+Original negative and cancelled launcher-preflight cohorts remain separate.
+Clean Nix packages, complete96-case finite acceptance, new-head CI and
+paired preview delivery remain pending. The shared results component also
+backs DatasetExportsPage; include its8bounded parent-route regression cases
+without relabelling old116/CE8detail/create/backup evidence as current.
+
+## 2026-11-10 — Export data-column readable width (prepared)
+
+Visual review of draft PR271's initial840px table minimum found excessive
+wrapping despite passing containment checks. Keep that candidate held and
+use the existing1280px token, with a real regression requiring160px for each
+dataset, address and path cell. Both exact-lock source trees pass ci:quick,
+build and12targeted raw cases across three engines without retries.
+Clean packages, new-head CI, fresh96-case acceptance and paired delivery
+remain pending; the earlier candidate was not activated.
+[Scope and retained evidence](docs/work-log/2026-11-10-export-list-value-containment.md).
+
+## 2026-11-10 — Explain dataset capacity against explicit limits (prepared)
+
+Use referenced/reference quota and dataset usage/quota consistently; avoid
+percentage bars for unlimited datasets and retain unknown measurements.
+[Scope, API evidence and verification](docs/work-log/2026-11-10-nas-capacity-semantics.md).
+
+Final focused source passes84/84 raw Vite scenarios across Chromium,
+mobile Chrome and mobile WebKit,2workers/0retries, including the numeric
+unlimited-summary deduplication assertion. Both pinned quick/build checks
+and six model examples pass. Earlier compiled56 working cases predate
+the small duplication correction and are retained separately. Exact clean
+Nix/browser acceptance, focused CI and paired/result delivery remain pending.
+
+## 2026-11-10 — Keep both quota names visible (prepared)
+
+Retain named reference and regular quota for unlimited and missing limits,
+without inferring infinity from absent data.
+[Criterion correction and evidence](docs/work-log/2026-11-10-nas-capacity-limit-labels.md).
+
+The named-limit correction passes24/24 targeted raw cases in Chromium
+and mobile WebKit,2workers/0retries; both pinned quick/build checks pass.
+Model and six-example unit source remain byte-identical to the prior
+verified source; no new unit execution is claimed here. New clean Nix,
+full56 browser acceptance, images and fresh exact-head CI remain pending.
+
+## 2026-11-15 — Align the NAS smoke test with explicit quota semantics
+
+The final deployed-dev audit found an obsolete smoke assertion deriving a quota
+bar from used plus available space. REQ-048 deliberately removed that inference.
+Keep missing limits unknown, retain numeric usage and strengthen the smoke test;
+promote the complete file to strict TypeScript and mobile WebKit coverage.
+See the [scope, preserved checks and limits](docs/work-log/2026-11-15-nas-smoke-quota-contract.md).
+Test maintenance in existing draft PR270; no product or API behavior changes.
+
+## 2026-11-10 — Consistent dataset form controls (prepared)
+
+Align NAS labels, use one native advanced disclosure with a visible state
+indicator and put the primary confirmation last and right. Apply the same
+rule to the related inline expansion form while retaining its explanation.
+Focused raw Vite checks pass 150 cases across three browsers with no retries;
+source quick/build and strict E2E adoption checks pass in both source trees.
+Clean integration, CI and paired preview delivery remain separate gates.
+[Scope, contracts and verification](docs/work-log/2026-11-10-nas-form-consistency.md).
+
+## Admin creation contract correction
+
+Clean integration verification found that opening advanced creation options
+sent admin_override and admin_lock_type, which the current API declares only
+for Update. Published TypeScript client 0.4.0 correctly rejects those Create
+parameters before sending a request. Remove those unsupported creation
+controls and state, and constrain creation properties to their declared
+fields. Keep both controls and payload flags for Update. The API and SDK
+remain unchanged. This is necessary to complete the verified NAS workflow.
+Regression checks assert valid admin creation requests and explicit Update
+flags/draft retention. The original 98-pass/2-failure package remains recorded.
+
+The corrected consumer passes 48 affected raw Vite cases across three
+browsers and 24 compiled rejection-contract cases against the current
+published SDK, with no retries, failures or page errors. Both quick/build
+checks pass. These are working-source results; new clean Nix, full compiled
+acceptance and exact focused CI remain separate delivery requirements.
+All original 98/2 results and earlier diagnostics remain source-qualified.
+
+## 2026-11-10 — Readable shared foregrounds (prepared)
+
+Use a dedicated destructive-button foreground after a rendered dark sample
+measured3.997:1; improve the same gallery’s light tertiary text and usage values. [Scope and verification](docs/work-log/2026-11-10-danger-button-foreground.md).
+
+The first PR268 CI attempt failed all eight new browser cases in each
+engine at the zero-write assertion. A raw Vite diagnostic reproduced
+PUT /api/v7.0/webui_user_settings/ui/settings: implicit preferences
+synchronization, absent from the compiled BFF fixture configuration.
+Set local preferences persistence explicitly in this read-only regression,
+preserving every contrast, geometry, focus and zero-write assertion.
+Product source and persistence behavior are unchanged. Original failures
+remain recorded; raw Vite parity and new exact-head CI must pass.
+
+Corrected raw Vite parity passes 24/24 initial cases per source tree,
+48/48 total across Chromium, mobile Chrome and mobile WebKit, with
+zero retries, writes and page errors. Both pinned quick/build checks pass.
+The original expected failure and a project-name preflight error (zero
+tests) remain retained. Clean Nix/new exact-head CI/preview remain pending.
+
+## 2026-11-10 — Readable textual accents and empty-field hints
+
+Extend the shared foreground review with derived readable link colors and the
+tertiary placeholder role after rendered IP-row and empty-field failures.
+Keep brand/semantic backgrounds, disabled controls, API/roles/queries and layout
+contracts. See [scope, negative evidence and checks](docs/work-log/2026-11-10-readable-link-and-placeholder-foregrounds.md).
+Prepared and verification ongoing; no merge or deployment claim.
+
+Both exact-lock source trees pass pinned ci:quick and production builds.
+This source’s complete shared-foreground regression passes72/72 in
+Chromium, mobile Chromium and mobile WebKit,2workers/0retries.
+Clean Nix packages, new-head CI and paired preview delivery remain pending.
+
+## 2026-11-10 — Readable warning action foreground (prepared)
+
+Use the page-background foreground on semantic warning actions after actual
+selected-owner light renders measured2.12:1. Preserve semantic fills, sizes
+and all action guards. Extend the existing shared rendered regression in
+light/dark/system, normal/focus/hover and narrow viewports.
+[Scope, negative evidence and pending gates](docs/work-log/2026-11-10-warning-action-foreground.md).
+No merge or delivery claim.
+
+Both exact-lock branches pass ci:quick, build and final strict E2E coverage.
+The actual OAuth warning action passes12/12 raw cases per source in three
+engines, light/dark/system, normal/focus/hover and narrow viewports. Retain
+initial setup/category diagnostics; no threshold or product guard relaxed.
+Exact clean package, six new-head CI and paired delivery are still pending.
+
+## 2026-11-10 — Align Access selectors with adjacent actions (prepared)
+
+Give only the two native Access selectors the shared36px fine-pointer height,
+retaining44px coarse minima and all selection/mutation guards.
+[Scope and verification](docs/work-log/2026-11-10-access-field-rhythm.md).
+
+## 2026-11-10 — Keep host fingerprint Copy inside Access cards
+
+Allow each host fingerprint grid item to shrink so its code scrolls locally
+and Copy remains reachable. [Scope and verification](docs/work-log/2026-11-10-access-host-key-containment.md).
+
+## 2026-11-10 — Align generated-password fields and wrap key results
+
+[Measured Access follow-up](docs/work-log/2026-11-10-access-result-presentation.md).
+
+## 2026-11-10 — Bound Access input height in column layouts
+
+[CI and fixture parity follow-up](docs/work-log/2026-11-10-access-ci-parity.md).
+
+## 2026-11-10 — Readable console connection messages (prepared)
+
+Keep application loading/recovery messages outside the scaled terminal so their
+text and reconnect action retain normal dimensions on narrow screens.
+[Scope and verification](docs/work-log/2026-11-10-console-overlay-readability.md).
+
+## 2026-11-10 — Host-IP filter alignment
+
+Flatten only Host-IP's legacy two-column filters so wrapped controls align
+with their row and narrow fields share the available width. Preserve44px and
+all lookup/query callbacks. [Scope and evidence](docs/work-log/2026-11-10-host-ip-filter-alignment.md).
+Verification and delivery remain pending; broad UX03/04 remain partial.
+
+## 2026-11-10 — IP occupancy targets (prepared)
+
+Allow complete occupancy labels and shared pointer targets within the inset group.
+[Measured scope and verification](docs/work-log/2026-11-10-ip-occupancy-targets.md).
+
+## 2026-11-10 — Readable IP shortcut heading (prepared follow-up)
+
+Correct the measured light-theme heading contrast locally.
+[Cause, source evidence and release ordering](docs/work-log/2026-11-10-ip-shortcut-label-contrast.md).
+
+## 2026-11-10 — Error chips and small IP text (prepared)
+
+Correct measured dark error-chip and light secondary-text contrast, retaining
+filter meaning, query behavior and keyboard removal.
+[Source, verification and limits](docs/work-log/2026-11-10-ip-secondary-contrast.md).
+
+## 2026-11-10 — Coarse-pointer filter-chip removal (prepared)
+
+Keep ordinary/error removal targets usable at narrow and landscape widths.
+[Measured gap, preservation and verification](docs/work-log/2026-11-10-ip-chip-removal-targets.md).
+
+## 2026-11-10 — complete narrow filter-chip labels
+
+Continue existing PR264 with bounded label wrapping and a separate nonshrinking
+removal target. Extend the source browser regression for full IPv6/prefix range
+bounds, unchanged URL/query state and actual odd/even/warning row contrast.
+[Scope, functional finding and evidence limits](docs/work-log/2026-11-10-ip-chip-label-wrap.md).
+Broad UX03/04 remain partial; exact CI/package and preview delivery are separate.
+
+## 2026-11-09 — Wrap complete IP dialog identifiers (prepared)
+
+Keep long IPv6 identities within route/host-assignment and PTR dialog content.
+[Measured cause, scope and checks](docs/work-log/2026-11-09-ip-dialog-identities.md).
+
+## 2026-11-10 — Complete IP-list identifiers (prepared)
+
+Extend existing PR263 with complete mobile-card and confirmation text.
+[New finite-audit findings and verification](docs/work-log/2026-11-10-ip-list-identities.md).
+
+## 2026-11-09 — Align IP-detail header Copy
+
+[Scope and verification](docs/work-log/2026-11-09-ip-header-copy.md).
+
+## 2026-11-09 — Separate traffic-table columns
+
+[Scope and verification](docs/work-log/2026-11-09-network-traffic-columns.md).
+
+## 2026-11-09 — Select the sole NAS parent
+
+[Scope and verification](docs/work-log/2026-11-09-nas-parent-default.md).
+
+## 2026-11-09 — Close Tasks when opening all transactions
+
+[Scope and verification](docs/work-log/2026-11-09-task-drawer-navigation.md).
+
+## 2026-11-09 — Open additional configuration from Resources
+
+[Scope and verification](docs/work-log/2026-11-09-resources-additional-open.md).
+
+## 2026-11-09 — Wrap long dataset identity messages
+
+[Scope and verification](docs/work-log/2026-11-09-scope-mismatch-wrap.md).
+
+## 2026-11-09 — Align selected-user header Copy
+
+[Scope and verification](docs/work-log/2026-11-09-user-header-copy.md).
+
+## 2026-11-09 — Readable user creation validation
+
+[Scope and evidence](docs/work-log/2026-11-09-user-create-validation.md).
+
+## 2026-11-09 — Align history and payment-form controls
+
+[Measured scope and verification](docs/work-log/2026-11-09-card-form-control-dimensions.md).
+
+## 2026-11-09 — Align shell controls and icon widths (prepared)
+
+Match palette/progress Close dimensions and keep shared SVG icons from compressing.
+[Scope and evidence](docs/work-log/2026-11-09-shell-control-dimensions.md).
+
+## 2026-11-09 — Readable search error messages (prepared)
+
+Correct measured low-contrast error text in inline and command-palette search.
+[Scope, evidence and limits](docs/work-log/2026-11-09-search-error-readability.md).
+
+## 2026-11-09 — Align the Tasks drawer filter action (prepared)
+
+Match the clear-search button to its adjacent input after rendered measurements.
+[Scope and verification](docs/work-log/2026-11-09-task-drawer-field-alignment.md).
+
+## 2026-11-09 — AppShell error body readability (prepared)
+
+Correct measured dark error text while preserving auth gates and recovery.
+[Scope and evidence](docs/work-log/2026-11-09-appshell-error-readability.md).
+
+## 2026-11-09 — Wrap requested paths on error pages (prepared)
+
+Keep long requested URLs within forbidden/not-found cards and preserve their full
+text and recovery links. [Cause and evidence](docs/work-log/2026-11-09-error-path-wrapping.md).
+
+## 2026-11-09 — Preserve the OOM navigation dependency
+
+Retain PR243 already present in the running preview while reviewing error-path
+wrapping. The older focused baseline can race pagination and browser history.
+[Cause and strict regressions](docs/work-log/2026-11-09-oom-pending-filter-navigation.md).
+
+## 2026-11-09 — Public navigation targets (prepared)
+
+Align public locale/theme controls and coarse-pointer navigation targets.
+Preserve labels, destinations and authentication.
+[Cause, scope and verification](docs/work-log/2026-11-09-public-navigation-targets.md).
+
+## 2026-11-09 — OOM pagination dependency for navigation review
+
+Retain the already prepared PR243 fix to prevent stale filter/router navigation
+in the focused review baseline. This dependency is already in the actual preview.
+[Cause and deterministic checks](docs/work-log/2026-11-09-oom-pending-filter-navigation.md).
+
+## 2026-11-09 — Include shared detail navigation targets (prepared)
+
+The finite cluster/networking/content wrapper audit confirms36px coarse-pointer
+TabsNav targets. Apply the same44px minimum as public navigation and adopt the
+changed component into scoped lint coverage. Preserve labels, wrapping, active
+state, roles and API behavior. [Evidence and limits](docs/work-log/2026-11-09-public-navigation-targets.md).
+
+## 2026-11-09 — Bounded DNS log columns
+
+Keep long record names from squeezing desktop change details into a thin strip.
+See the [scope and verification](docs/work-log/2026-11-09-dns-log-column-width.md).
+Prepared only; no merge or deployment.
+
+## 2026-11-09 — Preserve DNS zone owner search drafts
+
+[Failure, payload contracts and verification](docs/work-log/2026-11-09-dns-zone-owner-lookup.md).
+
+## 2026-11-09 — Readable DNS record field errors
+
+[Measured defect, scope and verification](docs/work-log/2026-11-09-dns-record-feedback.md).
+
+## 2026-11-09 — Readable DNS TTL validation
+
+[Scope and verification](docs/work-log/2026-11-09-dns-ttl-validation-readability.md).
+
+## 2026-11-09 — Keep DNSSEC records inside narrow cards
+
+[Scope and verification](docs/work-log/2026-11-09-dnssec-record-width.md).
+
+## 2026-11-09 — Wrap the OOM rule in deletion confirmation
+
+[Scope and verification](docs/work-log/2026-11-09-oom-rule-confirmation-wrap.md).
+
+## 2026-11-15 — Explain monitoring state deadlines and decisions
+
+Approved MON-01/02 / REQ-051: explain state expiry, distinguish system
+confirmation and user acknowledgement, and describe actual ignore behavior.
+Keep API timing, scopes, callbacks and mutation safeguards unchanged.
+[Scope and baseline](docs/work-log/2026-11-15-monitoring-state-meaning.md).
+Working preparation; exact checks/CI and delivery remain separate.
+
+## 2026-11-08 — Readable monitoring and incident inline validation
+
+[Scope and verification](docs/work-log/2026-11-08-todo-monitoring-incident-validation-readability.md).
+
+## 2026-11-08 — Readable operation cards and read failures
+
+[Scope and verification](docs/work-log/2026-11-08-todo-operation-body-presentation.md).
+
 ## 2026-11-08 — Readable migration-plan read errors
 
 Prepared existing semantic error panels for independent migration-row and
 destination-node read failures. See the [scope and verification](docs/work-log/2026-11-08-todo-migration-error-readability.md).
 Not merged or deployed; browser, exact CI and release checks remain pending.
 
+## 2026-11-09 — Readable account mail-language lookup errors
+
+[Scope and verification](docs/work-log/2026-11-09-profile-mail-language-readability.md).
+
+## 2026-11-09 — Readable preference synchronization errors
+
+[Scope and verification](docs/work-log/2026-11-09-profile-preference-sync-readability.md).
+
+## 2026-11-15 — Preserve narrow namespace filter fields
+
+[REQ-073 regression and verification](docs/work-log/2026-11-15-namespace-minimum-field.md).
+
+## 2026-11-09 — Align namespace-map entry validation
+
+See the [measured scope](docs/work-log/2026-11-09-namespace-entry-form-readability.md).
+
+## 2026-11-09 — Readable OAuth error bodies
+
+Approved UX-04 / REQ-010; see the [measured scope and checks](docs/work-log/2026-11-09-oauth-error-readability.md).
+
 ## 2026-10-28 — OAuth redirect boundary review
+
+## 2026-11-15 — Kernel OOM reading and recovery
+
+Approved OOM-01/02: clarify kernel reports, retain unique Summary diagnostics,
+and align native process-read recovery controls. Working only; see
+[scope, compatibility and evidence limits](docs/work-log/2026-11-15-oom-reading-recovery.md).
 
 Prepared a focused BFF credential-forwarding defense and consistent local-path
 validation after dummy loopback reproductions. See the [finding and checks](docs/work-log/2026-10-28-oauth-redirect-boundaries.md).
@@ -1691,3 +2575,56 @@ preserve all branch histories and colleague PRs. Add standard push CI for the
 integration branch, without deployment automation. Dev has isolated test data;
 clankerdev still uses the production API. No host update in this setup.
 [Branch scope, workflow and evidence](docs/work-log/2026-11-02-kerrycek-preview-branch.md).
+
+
+## 2026-11-09 — Make SSH key field errors readable
+
+Prepare approved UX-04 / REQ-010. See the
+[scope and evidence](docs/work-log/2026-11-09-ssh-key-validation-readability.md).
+
+## 2026-11-15 — ACC-08 recipient Copy controls
+
+[Give both recipient Copy actions the common secondary button](docs/work-log/2026-11-15-account-mail-copy-controls.md), preserving clipboard contents and feedback. Prepared; qualification and paired preview pending.
+
+## 2026-11-15 — ACC-05 account follow-up
+
+[Place each preference description below its associated control, in the same named and described group](docs/work-log/2026-11-15-account-preference-description.md). Prepared; qualification and delivery pending.
+
+## 2026-11-09 — Make user-data length errors readable
+
+Prepare approved UX-04 / REQ-010. See the
+[scope and baseline](docs/work-log/2026-11-09-user-data-limit-readability.md).
+
+## 2026-11-15 — ACC-09 account follow-up
+
+[Keep one primary Create template entry in the filter bar for both empty and populated lists](docs/work-log/2026-11-15-account-user-data-primary-action.md). Prepared; qualification and delivery pending.
+
+## 2026-11-09 — Readable namespace-map deletion action
+
+Prepare approved UX-04 / REQ-010. See the
+[scope and measured baseline](docs/work-log/2026-11-09-namespace-map-delete-readability.md).
+## 2026-11-09 — Namespace-map existing-row error readability (prepared)
+
+Improve the four existing field/base error class lists while preserving row
+and API behavior. [Scope and evidence](docs/work-log/2026-11-09-namespace-entry-row-error-readability.md).
+
+## 2026-11-09 — Preserve OOM filters during pending navigation
+
+Correct the reproduced Next/page-size URL race without changing owner scope.
+[Scope, root cause and evidence](docs/work-log/2026-11-09-oom-pending-filter-navigation.md).
+
+## 2026-11-15 — Consistent namespace filters and map controls
+
+Implement approved NSP-01/02/03/04 on the existing namespace-map PR while
+preserving owner scope, supported filters, navigation and mutation safeguards.
+[Source, baseline evidence and verification](docs/work-log/2026-11-15-namespace-controls.md).
+Prepared; new-head qualification and paired preview delivery remain pending.
+
+
+### 2026-11-24 — Integrate accepted NAS mobile identity into capacity regression
+
+The capacity E2E keeps its exact role/name/destination assertion and follows
+the accepted localized mobile name while retaining bare names on desktop.
+This removes a stale expectation found in all three original second-shard
+CI logs; capacity and no-write assertions and job budgets are preserved.
+See [integration CI qualification](docs/work-log/2026-11-24-approved-integration-ci.md).

@@ -1,3 +1,5 @@
+import { Alert } from '../../../components/ui/Alert';
+import { isSecondaryDnsZone } from './DnsZoneModel';
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 
@@ -24,11 +26,15 @@ function dsLine(zoneName: string, rec: DnssecRecord): string {
 export function DnsZoneDnssecPage() {
   const { t } = useI18n();
   const { zone } = useDnsZoneContext();
+  const secondaryZone = isSecondaryDnsZone(zone);
 
   const listQ = useQuery({
     queryKey: ['dnssec_records', zone.id],
     queryFn: async () => (await fetchDnssecRecords({ dns_zone: zone.id, limit: 200 })).data,
+    enabled: !secondaryZone,
   });
+
+  if (secondaryZone) return <Alert variant="info" title={t('dns.zones.badge.dnssec_primary_server')} testId="dns.dnssec.external">{t('dns.zone.dnssec.external_help')}</Alert>;
 
   if (listQ.isLoading) return <LoadingState testId="dns.dnssec.loading" label={t('dns.zone.dnssec.loading')} />;
   if (listQ.isError) return <ErrorState testId="dns.dnssec.error" title={t('dns.zone.dnssec.load_failed')} error={listQ.error} onRetry={() => void listQ.refetch()} showBack={false} />;
@@ -59,12 +65,12 @@ export function DnsZoneDnssecPage() {
                     <div className="text-xs text-faint">{rec.created_at ? formatDateTime(String(rec.created_at)) : t('common.na')}</div>
                   </div>
                   <div className="grid gap-4 lg:grid-cols-2">
-                    <div className="space-y-2">
+                    <div className="min-w-0 space-y-2">
                       <div className="text-sm font-medium text-fg">{t('dns.zone.dnssec.dnskey')}</div>
                       <pre className="max-w-content-lg overflow-x-auto whitespace-pre-wrap rounded-md border border-border bg-surface-2 p-3 text-xs text-muted">{keyLine}</pre>
                       <CopyButton text={keyLine} />
                     </div>
-                    <div className="space-y-2">
+                    <div className="min-w-0 space-y-2">
                       <div className="text-sm font-medium text-fg">{t('dns.zone.dnssec.ds')}</div>
                       <pre className="max-w-content-lg overflow-x-auto whitespace-pre-wrap rounded-md border border-border bg-surface-2 p-3 text-xs text-muted">{digestLine}</pre>
                       <CopyButton text={digestLine} />

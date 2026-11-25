@@ -78,13 +78,14 @@ test('@pr-smoke @pr-smoke-mobile @smoke-mobile dataset plan removal stays reacha
   const remove = page.getByTestId(mobile ? 'dataset.plans.card.2.remove' : 'dataset.plans.row.2.remove');
   const restrictedEntry = mobile ? page.getByTestId('dataset.plans.card.4') : page.getByTestId('dataset.plans.row.4');
 
+  await expect(page.getByTestId('dataset.plans.summary')).toContainText('Administrators configure backup plans.');
   await expect(entry).toBeVisible();
   await expect(entry).toContainText('Daily backup with a deliberately long operator-facing name');
   await expect(entry).toContainText('daily_backup_with_a_deliberately_long_technical_name');
   await expect(entry).toContainText('A deliberately long description that still needs to remain readable on a narrow phone.');
   await expect(entry).toContainText('User can add');
-  await expect(entry).toContainText('User can remove');
-  await expect(restrictedEntry).toContainText('Removal restricted');
+  await expect(entry).toContainText('Owners can remove this plan from their datasets');
+  await expect(restrictedEntry).toContainText('Only an administrator can remove this plan.');
   await expect(restrictedEntry.getByRole('button', { name: /Remove/ })).toHaveCount(0);
 
   if (mobile) {

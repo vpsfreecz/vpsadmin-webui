@@ -44,6 +44,8 @@ import { UserLookupInput } from '../../../components/ui/UserLookupInput';
 import { VpsLookupInput } from '../../../components/ui/VpsLookupInput';
 import { toneSurfaceClass } from '../../../components/ui/tone';
 import { DatasetUsage } from './DatasetUsage';
+import { datasetUsageBreakdown } from './DatasetUsageModel';
+import { usageSeverityFromRatio } from '../../../lib/usage';
 import { DatasetPageSearchEmpty, DatasetPageSearchNotice } from './DatasetPageSearchState';
 import { filterDatasetPage } from './DatasetsListModel';
 
@@ -218,14 +220,9 @@ export function DatasetsListPage(props: DatasetsListPageProps = {}) {
     if (stateVariant === 'danger') return 'danger' as const;
     if (stateVariant === 'warn') return 'warn' as const;
 
-    const used = typeof ds.used === 'number' && Number.isFinite(ds.used) ? (ds.used as number) : undefined;
-    const quota =
-      typeof ds.refquota === 'number' && Number.isFinite(ds.refquota) && (ds.refquota as number) > 0
-        ? (ds.refquota as number)
-        : undefined;
-
-    if (used !== undefined && quota !== undefined && used > quota) return 'danger' as const;
-    if (used !== undefined && quota !== undefined && quota > 0 && used / quota >= 0.9) return 'warn' as const;
+    const usage = datasetUsageBreakdown(ds);
+    if (usage.some((value) => value.ratio !== null && usageSeverityFromRatio(value.ratio) === 'danger')) return 'danger' as const;
+    if (usage.some((value) => value.ratio !== null && usageSeverityFromRatio(value.ratio) === 'warn')) return 'warn' as const;
 
     return undefined;
   }
@@ -574,8 +571,7 @@ export function DatasetsListPage(props: DatasetsListPageProps = {}) {
               suffix={
                 <Button
                   variant="ghost"
-                  size="sm"
-                  className="h-8 w-8 px-0"
+                  className="h-11 w-11 px-0"
                   onClick={() => setHelpOpen(true)}
                   aria-label={t('filters.help.open')}
                   title={t('filters.help.open')}
@@ -670,16 +666,16 @@ export function DatasetsListPage(props: DatasetsListPageProps = {}) {
                             className="block truncate text-base font-semibold text-accent hover:underline"
                             to={`${basePath}/${detailSection}/${ds.id}`}
                           >
-                            {label}
+                            {t('dataset.identity.name', { name: label })}
                           </Link>
                         </div>
-                        <div className="mt-0.5 text-xs text-faint">#{ds.id}</div>
+                        <div className="mt-0.5 text-xs text-muted">{t('dataset.identity.internal_id', { id: ds.id })}</div>
                       </div>
                       {state ? <Badge variant={state.variant}>{state.label}</Badge> : null}
                     </div>
 
                     <div className="mt-3">
-                      <DatasetUsage used={ds.used} refquota={ds.refquota} avail={ds.avail} />
+                      <DatasetUsage used={ds.used} referenced={ds.referenced} quota={ds.quota} refquota={ds.refquota} />
                     </div>
 
                     <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted">
@@ -807,7 +803,7 @@ export function DatasetsListPage(props: DatasetsListPageProps = {}) {
                       <Link className="font-medium text-accent hover:underline" to={`${basePath}/${detailSection}/${ds.id}`}>
                         {label}
                       </Link>
-                      <div className="mt-0.5 text-xs text-faint">#{ds.id}</div>
+                      <div className="mt-0.5 text-xs text-muted">{t('dataset.identity.internal_id', { id: ds.id })}</div>
                     </td>
                     {showOwnerColumn ? (
                       <td className="px-3 py-2">
@@ -831,7 +827,7 @@ export function DatasetsListPage(props: DatasetsListPageProps = {}) {
                       </td>
                     ) : null}
                     <td className="px-3 py-2">
-                      <DatasetUsage used={ds.used} refquota={ds.refquota} avail={ds.avail} />
+                      <DatasetUsage used={ds.used} referenced={ds.referenced} quota={ds.quota} refquota={ds.refquota} />
                     </td>
                     {showSnapshotColumn ? <td className="px-3 py-2">{ds.snapshots_count ?? 0}</td> : null}
                     {showMountColumn ? <td className="px-3 py-2">{ds.mount_count ?? 0}</td> : null}

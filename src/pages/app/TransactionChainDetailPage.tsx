@@ -18,6 +18,7 @@ import { useTierAIntervalMs } from '../../lib/refreshTiers';
 import { formatErrorMessage } from '../../lib/errors';
 
 import { Badge } from '../../components/ui/Badge';
+import { Alert } from '../../components/ui/Alert';
 import { Button } from '../../components/ui/Button';
 import { Card, CardHeader } from '../../components/ui/Card';
 import { ErrorState } from '../../components/ui/ErrorState';
@@ -90,7 +91,7 @@ export function TransactionChainDetailPage() {
 
   const isPinned = chainIdValid && chrome.pinnedTransactionChains.includes(chainIdNum);
 
-  const [expandedTx, setExpandedTx] = useState<Set<number>>(() => new Set());
+  const [expansion, setExpansion] = useState<{ chainId: number; ids: Set<number> } | null>(null);
 
   const togglePinned = () => {
     if (!chainIdValid) return;
@@ -123,18 +124,22 @@ export function TransactionChainDetailPage() {
     [transactions, chainFinished]
   );
   const failedTxId = useMemo(() => firstFailedTransactionId(transactions), [transactions]);
+  const expandedTx = useMemo(
+    () => expansion?.chainId === chainIdNum ? expansion.ids : new Set(failedTxId === null ? [] : [failedTxId]),
+    [expansion, chainIdNum, failedTxId]
+  );
 
   const toggleExpanded = (txId: number) => {
-    setExpandedTx((prev) => {
-      const next = new Set(prev);
+    setExpansion((prev) => {
+      const next = new Set(prev?.chainId === chainIdNum ? prev.ids : expandedTx);
       if (next.has(txId)) next.delete(txId);
       else next.add(txId);
-      return next;
+      return { chainId: chainIdNum, ids: next };
     });
   };
 
-  const expandAllTransactions = () => setExpandedTx(new Set(transactionIds));
-  const collapseAllTransactions = () => setExpandedTx(new Set());
+  const expandAllTransactions = () => setExpansion({ chainId: chainIdNum, ids: new Set(transactionIds) });
+  const collapseAllTransactions = () => setExpansion({ chainId: chainIdNum, ids: new Set() });
 
   return (
     <DetailShell testId="transactions.chain.detail" variant="wide">
@@ -247,7 +252,14 @@ export function TransactionChainDetailPage() {
               {txQ.isLoading ? (
                 <LoadingState testId="transactions.chain.detail.transactions.loading" />
               ) : txQ.isError ? (
-                <div className="p-4 text-sm text-danger">{formatErrorMessage(txQ.error)}</div>
+                <Alert
+                  className="m-4"
+                  variant="danger"
+                  title={t('common.error')}
+                  testId="transactions.chain.detail.transactions.error"
+                >
+                  {formatErrorMessage(txQ.error)}
+                </Alert>
               ) : (txQ.data ?? []).length === 0 ? (
                 <div className="p-4">
                   <div className="text-sm font-medium">{t('transactions.chain.detail.empty.title')}</div>

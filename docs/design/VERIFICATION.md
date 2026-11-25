@@ -194,9 +194,14 @@ dependency audits retain their critical/high thresholds as separate online CI
 steps. The dev-host TLS audit requires DNS/network access and remains a separate
 operator check. The browser script regression has its own required Chromium job.
 
-The PR browser workflow runs desktop `e2e:pr:desktop` and mobile
-`e2e:pr:mobile` in independent matrix jobs with separate artifacts and no matrix
-fail-fast. Main/manual broad smoke and nightly desktop/mobile jobs are separate
+The PR browser workflow runs desktop `e2e:pr:desktop`, mobile Chrome
+`e2e:pr:mobile` and mobile WebKit `e2e:touch:webkit`. Each complete project
+selection is partitioned across three independent file shards, with separate
+project/shard artifacts and no matrix fail-fast. The existing project check names
+remain required gates: they succeed only after every browser shard succeeds.
+Two workers per shard, retry settings and the 40-minute job limit remain unchanged.
+Dry-run test ID comparison must prove that each project's shard union equals its
+unsharded selection without duplicates or omissions. Main/manual broad smoke and nightly desktop/mobile jobs are separate
 signals. The config and both PR commands explicitly default to two workers;
 `npm run e2e:pr:desktop -- --workers=1 --retries=0` (or the mobile equivalent)
 selects a deliberate serial diagnostic without changing the normal retry count.

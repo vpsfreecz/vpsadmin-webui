@@ -352,7 +352,11 @@ export function UserPublicKeysPanel(props: {
               testId={`${prefix}.modal.label`}
             />
             {labelError ? (
-              <div id={labelErrorId} role="alert" className="mt-1 text-xs text-danger">
+              <div
+                id={labelErrorId}
+                role="alert"
+                className="mt-1 border-l-2 border-danger pl-2 text-xs font-medium text-fg"
+              >
                 {labelError}
               </div>
             ) : null}
@@ -379,7 +383,11 @@ export function UserPublicKeysPanel(props: {
               className="font-mono text-xs"
             />
             {keyError ? (
-              <div id={keyErrorId} role="alert" className="mt-1 text-xs text-danger">
+              <div
+                id={keyErrorId}
+                role="alert"
+                className="mt-1 border-l-2 border-danger pl-2 text-xs font-medium text-fg"
+              >
                 {keyError}
               </div>
             ) : null}

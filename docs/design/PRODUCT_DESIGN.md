@@ -48,6 +48,12 @@ so fixed sidebar controls/footer cannot squeeze the destination list to zero.
 The implementation uses reusable React primitives and semantic Tailwind tokens.
 Read [styles](../../src/styles/index.css), [Button](../../src/components/ui/Button.tsx),
 [Modal](../../src/components/ui/Modal.tsx), and [Drawer](../../src/components/ui/Drawer.tsx).
+Textual accents and empty-field hints have separate readable foreground roles.
+Use the derived link palette on textual accent elements and the tertiary role
+for enabled placeholders, at full opacity against the field background. Keep
+brand/glyph/checkbox fills independently tokenized. See the [measured foreground
+follow-up](../work-log/2026-11-10-readable-link-and-placeholder-foregrounds.md).
+
 Keep surface/border/text/status colors semantic across light/dark themes rather
 than introducing page-local hardcoded palettes. Orange marks primary actions;
 state meaning also needs text/icons, not color alone. All icons use the established
@@ -156,6 +162,11 @@ they must not cover a dialog footer. Pending submission still follows its explic
 
 ### Centered forms and filters
 
+The approved DNS-zone creation exception keeps a stable top viewport inset
+when switching between primary and secondary fields. It remains horizontally
+centered with bounded body scrolling and reachable footer actions. Other forms
+keep the default vertical centering; see approved DNS-05 / REQ-049.
+
 Creation/editing forms and advanced filters use the shared centered `Modal`,
 including user-data templates/deployment, exports/hosts, user editing and
 namespace maps. Use content-sized dialog height bounded by the visual viewport,
@@ -170,10 +181,28 @@ this distinction against new accidental left-hand forms. This maintainer
 clarification (2026-10-17) supersedes the earlier drawer presentation for forms
 and filters; see the [verification record](../work-log/2026-10-17-centered-form-dialogs.md).
 
+### Exit action names
+
+Use **Cancel / Zrušit** to abandon an unfinished action, **Back / Zpět** for
+navigation from a viewing context, and **Close / Zavřít** to dismiss a viewing
+overlay. A link naming its destination, such as Overview / Přehled, is also
+explicit navigation. Name the actual effect; do not rename console fit/original
+size controls as navigation or imply that leaving a view revokes its session.
+Cancelling a confirmation must not perform the confirmed action.
+
+Preserve the existing draft, pending-submission and focus-restoration contracts.
+This rule does not add an unsaved-changes prompt where none exists. In the
+audited dataset creation paths, explicit cancellation discards the unfinished
+draft; the standalone form has no existing dirty-navigation blocker. The child
+form resets on Cancel, Escape or backdrop dismissal. The console Overview link
+returns to the VPS overview while its view-size controls preserve the session.
+See the [UX-07 audit](../work-log/2026-11-12-exit-action-rule.md) for exact source,
+finite fixture coverage and limits.
+
 ## Accessibility, localization and persistence
 
 Shared buttons keep compact desktop sizing but use a minimum 44 × 44 CSS px
-hit area when any pointer is coarse, including landscape phones and tablets.
+hit area when any pointer is coarse, including landscape phones and tablets. Filter-chip removal follows this rule for both ordinary and error chips; allow the chip group to grow and wrap rather than overlapping neighboring targets.
 Screen-reader-only labels inside these controls must stay positioned relative to
 their button so a horizontally scrolling table cannot expand the document.
 Cold modal code must show an immediate, cancellable modal loading state without
@@ -216,3 +245,83 @@ name the selected request and retain the same backend action identifiers.
 Changing force in the lifecycle form requires a fresh acknowledgment. Pending
 copy describes request submission, not completed shutdown. Generic historical
 task records without a force value retain a neutral Stop label.
+
+
+### Complete filter-chip labels
+
+A selected address/prefix can be longer than the available mobile row. The
+shared FilterChip wraps the full label within its existing maximum width and
+keeps the removal button separate and nonshrinking. Preserve compact desktop
+controls and coarse-pointer targets, existing labels, tones and callbacks.
+This presentation correction does not change address/prefix URL update semantics.
+
+
+### Host-IP filter wrapping
+
+Host-IP text/lookup fields, assignment select and conditional clear action share
+the flat FilterBar layout. At desktop wrap boundaries, each44px control aligns
+with its row instead of centering a separate actions group between input rows.
+At narrow widths every field and clear action uses the available row width.
+Keep lookup scope, role restrictions, query keys and clear callback unchanged.
+
+
+### Console connection messages
+
+The terminal retains its pinned virtual viewport and scale. Application loading
+and disconnected recovery messages are separate, unscaled viewport overlays.
+Their normal text and controls remain readable at320px; the panel grows when
+wrapping needs more room. Original size, session creation/revocation and role
+guards retain their existing behavior (REQ-020, approved UX03/04).
+
+Console revocation retains its danger surface, label and confirmation workflow.
+Only its dark confirmation foreground uses black to retain readable contrast
+against the existing red surface, including hover. Other confirmation styles
+and all session handlers remain unchanged.
+
+
+### VPS Access field dimensions
+
+Use36px height for the SSH-key and password-type native selectors beside their
+existing desktop actions. Preserve44px coarse-pointer minima, labels, selection
+callbacks and confirmation guards. This is a bounded UX03/REQ-010 correction;
+remaining Access states and broad presentation acceptance remain separate.
+
+
+### Host fingerprint containment
+
+VPS Access fingerprint grid items may shrink below their intrinsic code width.
+Retain the full fingerprint in a local horizontal scroller and keep Copy beside
+it within the card. Preserve the table scroller, SDK fields, clipboard value,
+roles and every mutation guard.
+
+
+### Access result presentation
+
+The generated-password field shares36px fine-pointer and44px coarse-pointer
+height with its reveal, copy and local-clear actions. Preserve masking,
+read-only semantics and callbacks. Key-deployment pending, failure and success
+messages wrap long identifiers without truncating their contents or changing
+the action-state, role, lock or retry contracts.
+
+### Export list value containment
+
+The export table reserves the existing1280px minimum width inside TableCard's
+local horizontal scroller so fixed ID, owner, state, mode and date columns do
+not reduce dataset, address and path columns to zero width. Let complete text
+wrap anywhere in table cells and mobile card links. Use the ordinary muted
+owner role on semantic warning cards; small tertiary owner text was below
+the unchanged4.5 threshold in dark mode. Preserve navigation, row variants,
+filters, pagination and the full source strings.
+
+### VPS list context and usage text
+
+Let owner, location and node metadata wrap anywhere within the existing
+context column. Keep its original column allocation and complete source
+strings. Within the VPS resource group, use the existing muted role for
+tertiary child labels and amounts so warning-row backgrounds do not reduce
+small-text contrast. Scope the descendant override to that group; retain
+shared UsageBar defaults, data/severity decisions and action dimensions.
+
+### Shared error recovery action alignment
+
+Use the standard medium button size for Copy details inside a shared ErrorState recovery row, matching Retry, Back and Status. Retain the compact copy default everywhere else and the existing 44 px coarse-pointer minimum.

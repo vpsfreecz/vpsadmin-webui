@@ -29,6 +29,7 @@ import { cursorFromDescendingPage } from '../../../../lib/lockIndex';
 import { useKeysetPagination } from '../../../../lib/hooks/useKeysetPagination';
 import { parseNumericToken, splitKeyValueToken, tokenizeSmartInput, unquoteSmartValue } from '../../../../lib/smartFilter';
 import { useAdminUserContext } from './AdminUserLayout';
+import { AdminUserHistoryViewToggle } from './AdminUserHistoryViewToggle';
 
 function safeNumber(value: string): number | undefined {
   const trimmed = value.trim();
@@ -584,37 +585,15 @@ export function AdminUserHistoryPage() {
     <div className="space-y-3">
       <FilterBar testId="admin.user.history.filters">
         <div className="flex flex-wrap items-end gap-2">
-          <div>
-            <div className="text-xs font-medium text-muted">{t('admin.user.history.view')}</div>
-            <div className="mt-1 flex items-center gap-2">
-              <Button
-                variant="secondary"
-                size="sm"
-                className={view === 'changes' ? 'border-accent/60 bg-surface-2' : undefined}
-                onClick={() => {
-                  const next = new URLSearchParams(searchParams);
-                  next.delete('view');
-                  setSearchParams(next, { replace: true });
-                }}
-                testId="admin.user.history.view.changes"
-              >
-                {t('admin.user.history.view.changes')}
-              </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                className={view === 'actions' ? 'border-accent/60 bg-surface-2' : undefined}
-                onClick={() => {
-                  const next = new URLSearchParams(searchParams);
-                  next.set('view', 'actions');
-                  setSearchParams(next, { replace: true });
-                }}
-                testId="admin.user.history.view.actions"
-              >
-                {t('admin.user.history.view.actions')}
-              </Button>
-            </div>
-          </div>
+          <AdminUserHistoryViewToggle
+            view={view}
+            onChange={(nextView) => {
+              const next = new URLSearchParams(searchParams);
+              if (nextView === 'actions') next.set('view', 'actions');
+              else next.delete('view');
+              setSearchParams(next, { replace: true });
+            }}
+          />
 
           <div className="min-w-0 flex-1">
             <SmartFilterInput

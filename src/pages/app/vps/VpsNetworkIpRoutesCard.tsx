@@ -130,7 +130,7 @@ export function VpsNetworkIpRoutesCard(props: {
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-mono text-sm font-semibold">{routeAddressLabel(ip)}</span>
+                        <span className="min-w-0 break-all font-mono text-sm font-semibold">{routeAddressLabel(ip)}</span>
                         <Badge variant="info">{t(routeTypeKey(ip))}</Badge>
                         <Badge variant={routeStateBadgeVariant(state)}>{t(routeStateLabelKey(state))}</Badge>
                       </div>

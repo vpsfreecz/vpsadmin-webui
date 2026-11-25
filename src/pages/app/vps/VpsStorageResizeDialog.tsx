@@ -48,7 +48,12 @@ export function VpsStorageResizeDialog(props: {
       testId="vps.storage.resize.modal"
       footer={
         <div className="flex flex-wrap justify-end gap-2">
-          <Button variant="secondary" onClick={props.onClose} disabled={props.pending} testId="vps.storage.resize.cancel">
+          <Button
+            variant="secondary"
+            onClick={props.onClose}
+            disabled={props.pending}
+            testId="vps.storage.resize.cancel"
+          >
             {t('common.cancel')}
           </Button>
           <ActionButton
@@ -96,7 +101,11 @@ export function VpsStorageResizeDialog(props: {
             testId="vps.storage.resize.size"
           />
           <span className="mt-1 block text-xs text-muted">{t('vps.storage.resize.field.size_help')}</span>
-          {validationMessage ? <span className="mt-1 block text-xs text-danger">{validationMessage}</span> : null}
+          {validationMessage ? (
+            <span className="mt-1 block border-l-2 border-danger pl-2 text-xs font-medium text-fg">
+              {validationMessage}
+            </span>
+          ) : null}
         </label>
 
         <Checkbox

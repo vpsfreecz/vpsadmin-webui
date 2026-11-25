@@ -608,3 +608,222 @@ for (const language of ['cs', 'en'] as const) {
     }
   });
 }
+
+// Keep the complete occupancy labels reachable beside the quick-filter fields.
+for (const [language, theme] of [['cs', 'dark'], ['en', 'light']] as const) {
+  test(`@pr-smoke @pr-smoke-mobile ${language} IP occupancy targets retain keyboard filtering at narrow widths`, async ({ page }) => {
+    const writes: string[] = [];
+    await bootstrapVpsAdminWindow(page, { webuiNext: { uiSettings: { persistence: 'local' } } });
+    await setUiSettingsLocalStorage(page, { language, theme });
+    await installHaveApiMock(page, {
+      user: { id: 1, login: 'synthetic-admin', level: 99 },
+      handlers: {
+        'GET locations': () => ({ locations: [] }),
+        'GET ip_addresses': () => ({ ip_addresses: [] }),
+      },
+    });
+    await page.route('**/api/**', (route) => {
+      if (!['GET', 'HEAD', 'OPTIONS'].includes(route.request().method())) {
+        writes.push(route.request().method());
+        return route.abort();
+      }
+      return route.fallback();
+    });
+    await page.goto('/admin/networking/ip-addresses?version=6');
+    const heading = page.getByTestId('admin.ip_addresses.quick_filters').getByText(language === 'cs' ? 'Rychlé filtry' : 'Quick filters', { exact: true });
+    const contrast = await heading.evaluate((element) => {
+      const canvas = document.createElement('canvas');
+      canvas.width = canvas.height = 1;
+      const context = canvas.getContext('2d')!;
+      const rgba = (value: string) => {
+        context.clearRect(0, 0, 1, 1);
+        context.fillStyle = value;
+        context.fillRect(0, 0, 1, 1);
+        const pixel = context.getImageData(0, 0, 1, 1).data;
+        return [pixel[0]!, pixel[1]!, pixel[2]!, pixel[3]! / 255];
+      };
+      const over = (foreground: number[], background: number[]) => foreground.slice(0, 3).map((value, index) => value * foreground[3]! + background[index]! * (1 - foreground[3]!));
+      const luminance = (color: number[]) => color.slice(0, 3).map((value) => {
+        const channel = value / 255;
+        return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+      }).reduce((sum, value, index) => sum + value * [0.2126, 0.7152, 0.0722][index]!, 0);
+      const ancestors: Element[] = [];
+      for (let current: Element | null = element; current; current = current.parentElement) ancestors.unshift(current);
+      let background = [255, 255, 255];
+      for (const ancestor of ancestors) background = over(rgba(getComputedStyle(ancestor).backgroundColor), background);
+      const foreground = over(rgba(getComputedStyle(element).color), background);
+      const a = luminance(background);
+      const b = luminance(foreground);
+      return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+    });
+    expect(contrast).toBeGreaterThanOrEqual(4.5);
+    const coarse = await page.evaluate(() => matchMedia('(any-pointer:coarse)').matches);
+    for (const width of [page.viewportSize()!.width, 320, 768]) {
+      await page.setViewportSize({ width, height: 900 });
+      for (const [key, value] of [['any', 'any'], ['assigned', '1'], ['unassigned', '0']] as const) {
+        const button = page.getByTestId(`admin.ip_addresses.quick.occupancy.${key}`);
+        await button.scrollIntoViewIfNeeded();
+        await button.focus();
+        await expect(button).toBeFocused();
+        const bounds = await button.evaluate((element) => {
+          const box = element.getBoundingClientRect();
+          const range = document.createRange();
+          range.selectNodeContents(element);
+          return {
+            x: box.x, width: box.width, height: box.height,
+            scrollWidth: element.scrollWidth, clientWidth: element.clientWidth,
+            parentOverflow: getComputedStyle(element.parentElement!).overflow,
+            fragments: [...range.getClientRects()].map((rect) => ({ left: rect.left, right: rect.right })),
+          };
+        });
+        expect(bounds.height).toBeGreaterThanOrEqual(coarse ? 44 : 36);
+        expect(bounds.parentOverflow).toBe('visible');
+        expect(bounds.scrollWidth).toBeLessThanOrEqual(bounds.clientWidth + 1);
+        for (const fragment of bounds.fragments) {
+          expect(fragment.left).toBeGreaterThanOrEqual(bounds.x - 1);
+          expect(fragment.right).toBeLessThanOrEqual(bounds.x + bounds.width + 1);
+        }
+        await button.press('Enter');
+        await expect.poll(() => new URL(page.url()).searchParams.get(key === 'any' ? 'occupancy' : 'assigned_to_interface')).toBe(value);
+        expect(new URL(page.url()).searchParams.get('version')).toBe('6');
+        await expect(button).toHaveClass(/bg-surface/);
+      }
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1)).toBe(true);
+    }
+    expect(writes).toEqual([]);
+  });
+}
+
+// Exercise the measured error-chip and secondary table/card text surfaces.
+for (const actor of [{ name: 'admin', level: 99 }, { name: 'support', level: 21 }]) {
+  for (const [language, theme] of [['cs', 'dark'], ['en', 'light']] as const) {
+    test(`@pr-smoke @pr-smoke-mobile ${language} ${actor.name} IP error chips and metadata remain readable`, async ({ page }, testInfo) => {
+      const address = '2001:0db8:1234:5678:9abc:def0:1234:5678';
+      const writes: string[] = [];
+      const requests: string[] = [];
+      const chipGeometry: unknown[] = [];
+      const observations: Array<{ width: number; text: Array<{ label: string; ratio: number }> }> = [];
+      await bootstrapVpsAdminWindow(page, { webuiNext: { uiSettings: { persistence: 'local' } } });
+      await setUiSettingsLocalStorage(page, { language, theme });
+      await installHaveApiMock(page, {
+        user: { id: 1, login: `synthetic-${actor.name}`, level: actor.level },
+        handlers: {
+          'GET locations': () => ({ locations: [] }),
+          'GET ip_addresses': (ctx) => {
+            requests.push(ctx.url.search);
+            return { ip_addresses: [0, 1, 2].map((offset) => ({ id: 100 + offset, addr: address, prefix: 128, routed: true, user: null, vps: null, network: { id: 3, address: '2001:db8::', prefix: 32 }, network_interface: offset < 2 ? { id: 6, name: 'eth0' } : null })) };
+          },
+        },
+      });
+      await page.route('**/api/**', (route) => {
+        if (!['GET', 'HEAD', 'OPTIONS'].includes(route.request().method())) {
+          writes.push(route.request().method());
+          return route.abort();
+        }
+        return route.fallback();
+      });
+      await page.goto(`/admin/networking/ip-addresses?version=6&addr=${encodeURIComponent(address)}&prefix=128&marker=retained`);
+      const area = page.getByTestId('admin.ip_addresses.page');
+      await expect(area).toContainText('#100');
+      const input = page.getByTestId('admin.ip_addresses.smart_filter.input');
+      await input.fill('prefix:999');
+      await input.press('Enter');
+      const error = page.getByTestId('admin.ip_addresses.chip.error.0');
+      await expect(error).toContainText(language === 'cs' ? 'Neplatný prefix: 999' : 'Invalid prefix: 999');
+      const addressChip = page.getByTestId('admin.ip_addresses.chip.addr');
+      await expect(addressChip).toContainText(`addr:${address}/128`);
+      expect(new URL(page.url()).searchParams.get('addr')).toBe(address);
+      expect(new URL(page.url()).searchParams.get('prefix')).toBe('128');
+      const coarse = await page.evaluate(() => matchMedia('(any-pointer:coarse)').matches);
+      for (const width of [page.viewportSize()!.width, 320, 768]) {
+        await page.setViewportSize({ width, height: 900 });
+        for (const chip of [error, page.getByTestId('admin.ip_addresses.chip.version')]) {
+          const remove = chip.getByRole('button', { name: language === 'cs' ? 'Odebrat' : 'Remove', exact: true });
+          const bounds = await remove.boundingBox();
+          expect(bounds).not.toBeNull();
+          expect.soft(bounds!.width).toBeGreaterThanOrEqual(coarse ? 44 : 16);
+          expect.soft(bounds!.height).toBeGreaterThanOrEqual(coarse ? 44 : 16);
+        }
+        const geometry = await addressChip.evaluate((chip) => {
+          const label = chip.querySelector('span')!;
+          const button = chip.querySelector('button')!;
+          const range = document.createRange();
+          range.selectNodeContents(label);
+          const fragments = [...range.getClientRects()].map((r) => ({ left: r.left, right: r.right, top: r.top, bottom: r.bottom }));
+          const bounds = chip.getBoundingClientRect();
+          const target = button.getBoundingClientRect();
+          const labelBounds = label.getBoundingClientRect();
+          return { fragments, left: bounds.left, right: bounds.right, top: bounds.top, bottom: bounds.bottom, targetLeft: target.left, targetRight: target.right, labelRight: labelBounds.right, scrollWidth: label.scrollWidth, clientWidth: label.clientWidth, documentWidth: document.documentElement.scrollWidth, viewport: innerWidth };
+        });
+        chipGeometry.push({ width, coarse, geometry });
+        expect.soft(geometry.scrollWidth).toBeLessThanOrEqual(geometry.clientWidth + 1);
+        expect.soft(geometry.documentWidth).toBeLessThanOrEqual(width + 1);
+        expect.soft(geometry.labelRight).toBeLessThanOrEqual(geometry.targetLeft + 1);
+        for (const fragment of geometry.fragments) {
+          expect.soft(fragment.left).toBeGreaterThanOrEqual(geometry.left - 1);
+          expect.soft(fragment.right).toBeLessThanOrEqual(geometry.targetLeft + 1);
+          expect.soft(fragment.top).toBeGreaterThanOrEqual(geometry.top - 1);
+          expect.soft(fragment.bottom).toBeLessThanOrEqual(geometry.bottom + 1);
+        }
+        expect.soft(geometry.targetRight).toBeLessThanOrEqual(geometry.right + 1);
+        if (width === 320) {
+          await addressChip.scrollIntoViewIfNeeded();
+          await page.screenshot({ path: testInfo.outputPath('long-chip-320.png'), animations: 'disabled', scale: 'css' });
+        }
+        const text = await area.evaluate((root) => {
+          const canvas = document.createElement('canvas');
+          canvas.width = canvas.height = 1;
+          const context = canvas.getContext('2d')!;
+          const rgba = (value: string) => {
+            context.clearRect(0, 0, 1, 1);
+            context.fillStyle = value;
+            context.fillRect(0, 0, 1, 1);
+            const pixel = context.getImageData(0, 0, 1, 1).data;
+            return [pixel[0]!, pixel[1]!, pixel[2]!, pixel[3]! / 255];
+          };
+          const over = (foreground: number[], background: number[]) => foreground.slice(0, 3).map((value, index) => value * foreground[3]! + background[index]! * (1 - foreground[3]!));
+          const luminance = (color: number[]) => color.slice(0, 3).map((value) => {
+            const channel = value / 255;
+            return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+          }).reduce((sum, value, index) => sum + value * [0.2126, 0.7152, 0.0722][index]!, 0);
+          return [...root.querySelectorAll('h1,h2,h3,p,th,td,span,div,label')].filter((element) => element.getBoundingClientRect().width > 0 && element.children.length === 0 && element.textContent?.trim() && !element.closest('.sr-only')).flatMap((element) => {
+            const ancestors: Element[] = [];
+            for (let current: Element | null = element; current; current = current.parentElement) ancestors.unshift(current);
+            if (ancestors.some((ancestor) => Number(getComputedStyle(ancestor).opacity) < 1)) return [];
+            let background = [255, 255, 255];
+            for (const ancestor of ancestors) background = over(rgba(getComputedStyle(ancestor).backgroundColor), background);
+            const foreground = over(rgba(getComputedStyle(element).color), background);
+            const a = luminance(background);
+            const b = luminance(foreground);
+            return [{ label: element.textContent!.trim(), ratio: (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05) }];
+          });
+        });
+        for (const id of ['#100', '#101', '#102']) expect(text.some((sample) => sample.label === id)).toBe(true);
+        expect(text.some((sample) => sample.label.includes('999'))).toBe(true);
+        for (const sample of text.filter((sample) => sample.label !== '·')) expect.soft(sample.ratio, sample.label).toBeGreaterThanOrEqual(4.5);
+        observations.push({ width, text });
+      }
+      const remove = error.getByRole('button', { name: language === 'cs' ? 'Odebrat' : 'Remove', exact: true });
+      await remove.focus();
+      await expect(remove).toBeFocused();
+      await page.keyboard.press('Enter');
+      await expect(error).toHaveCount(0);
+      await expect(page.getByTestId('admin.ip_addresses.chip.version')).toBeVisible();
+      expect(new URL(page.url()).searchParams.get('version')).toBe('6');
+      await page.setViewportSize({ width: 320, height: 900 });
+      const versionChip = page.getByTestId('admin.ip_addresses.chip.version');
+      const versionRemove = versionChip.getByRole('button', { name: language === 'cs' ? 'Odebrat' : 'Remove', exact: true });
+      if (coarse) await versionRemove.tap();
+      else await versionRemove.press('Enter');
+      await expect(versionChip).toHaveCount(0);
+      expect(new URL(page.url()).searchParams.get('version')).toBeNull();
+      expect(new URL(page.url()).searchParams.get('addr')).toBe(address);
+      expect(new URL(page.url()).searchParams.get('prefix')).toBe('128');
+      expect(new URL(page.url()).searchParams.get('marker')).toBe('retained');
+      await expect.poll(() => requests.some((query) => new URLSearchParams(query).get('ip_address[addr]') === address && new URLSearchParams(query).get('ip_address[prefix]') === '128')).toBe(true);
+      await testInfo.attach('long-chip-geometry-and-requests', { body: JSON.stringify({ chipGeometry, requests, writes }, null, 2), contentType: 'application/json' });
+      expect(writes).toEqual([]);
+      await testInfo.attach('rendered-contrast-and-widths', { body: JSON.stringify(observations, null, 2), contentType: 'application/json' });
+    });
+  }
+}

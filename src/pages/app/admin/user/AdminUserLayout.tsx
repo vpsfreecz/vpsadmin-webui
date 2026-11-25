@@ -135,7 +135,7 @@ export function AdminUserLayout() {
               meta={u.full_name ? String(u.full_name) : u.email ? String(u.email) : ' '}
               actions={
                 <div className="flex w-full flex-wrap items-center gap-2 xl:max-w-xl xl:justify-end">
-                  <CopyButton text={title} />
+                  <CopyButton text={title} size="md" />
                   <LinkButton
                     to={`${basePath}/vps?user=${u.id}`}
                     variant="secondary"

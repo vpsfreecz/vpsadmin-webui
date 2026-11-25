@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Outlet, useLocation, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 
@@ -10,7 +10,6 @@ import { formatDateTime } from '../../../lib/format';
 
 import { Badge } from '../../../components/ui/Badge';
 import { Button } from '../../../components/ui/Button';
-import { ChipLink } from '../../../components/ui/ChipLink';
 import { ErrorState } from '../../../components/ui/ErrorState';
 import { LoadingState } from '../../../components/ui/LoadingState';
 import { ObjectHeader } from '../../../components/ui/ObjectHeader';
@@ -18,6 +17,7 @@ import { TabsNav } from '../../../components/ui/TabsNav';
 
 export type OomReportOutletContext = {
   report: OomReport;
+  overviewContext: { createdAt: string; vpsId?: number; vpsHost?: string; nodeName?: string };
 };
 
 function ruleVariant(action?: string): 'neutral' | 'warn' {
@@ -49,58 +49,6 @@ export function OomReportLayout() {
 
   const r = q.data;
 
-  const meta = useMemo(() => {
-    if (!r) return null;
-
-    const createdAt = r.created_at ? formatDateTime(r.created_at) : t('common.na');
-
-    const vpsIdRow = (r.vps as any)?.id ? Number((r.vps as any).id) : undefined;
-    const vpsHost = (r.vps as any)?.hostname ? String((r.vps as any).hostname) : undefined;
-
-    const nodeName = (r.vps as any)?.node?.domain_name ? String((r.vps as any).node.domain_name) : undefined;
-
-    const killed = r.killed_name ? `${r.killed_name}${r.killed_pid ? ` (${r.killed_pid})` : ''}` : '—';
-    const invoked = r.invoked_by_name ? `${r.invoked_by_name}${r.invoked_by_pid ? ` (${r.invoked_by_pid})` : ''}` : '—';
-
-    const count = typeof r.count === 'number' ? r.count : undefined;
-
-    return (
-      <div className="flex min-w-0 flex-wrap items-center gap-3 text-sm">
-        <span className="text-muted">{t('oom.field.created_at')}:</span>
-        <span>{createdAt}</span>
-
-        {vpsIdRow ? (
-          <ChipLink to={`${basePath}/vps/${vpsIdRow}`}>{vpsHost || `#${vpsIdRow}`}</ChipLink>
-        ) : null}
-
-        {nodeName ? <span className="text-faint">· {nodeName}</span> : null}
-
-        {r.cgroup ? (
-          <span
-            className="min-w-0 max-w-full break-all font-mono text-xs"
-            data-testid="oom.detail.header.cgroup"
-          >
-            {String(r.cgroup)}
-          </span>
-        ) : null}
-
-        <span className="text-faint">
-          {t('oom.field.killed')}: <span className="font-medium text-text">{killed}</span>
-        </span>
-
-        <span className="text-faint">
-          {t('oom.field.invoked_by')}: <span className="font-medium text-text">{invoked}</span>
-        </span>
-
-        {count !== undefined ? (
-          <span className="text-faint">
-            {t('oom.field.count')}: <span className="font-mono text-xs">{count}</span>
-          </span>
-        ) : null}
-      </div>
-    );
-  }, [basePath, r, t]);
-
   if (!Number.isFinite(id) || id <= 0) {
     return (
       <PageContainer testId="oom.detail.invalid">
@@ -128,6 +76,9 @@ export function OomReportLayout() {
   const action = (r.oom_report_rule as any)?.action ? String((r.oom_report_rule as any).action) : undefined;
 
   const vpsIdRow = (r.vps as any)?.id ? Number((r.vps as any).id) : undefined;
+  const vpsHost = (r.vps as any)?.hostname ? String((r.vps as any).hostname) : undefined;
+  const nodeName = (r.vps as any)?.node?.domain_name ? String((r.vps as any).node.domain_name) : undefined;
+  const createdAt = r.created_at ? formatDateTime(r.created_at) : t('common.na');
 
   const tabs = [
     { label: t('oom.detail.tab.overview'), to: `${basePath}/oom-reports/${id}` },
@@ -140,10 +91,8 @@ export function OomReportLayout() {
   return (
     <PageContainer testId="oom.detail">
       <ObjectHeader
-        kicker={{ label: t('oom.list.title'), href: `${basePath}/oom-reports` }}
         title={t('oom.detail.title', { id })}
         titleAfter={titleAfter}
-        meta={meta}
         actions={
           vpsIdRow ? (
             <div className="flex items-center gap-2">
@@ -176,7 +125,14 @@ export function OomReportLayout() {
       </div>
 
       <div className="mt-4">
-        <Outlet context={{ report: r } as OomReportOutletContext} />
+        <Outlet
+          context={
+            {
+              report: r,
+              overviewContext: { createdAt, vpsId: vpsIdRow, vpsHost, nodeName },
+            } satisfies OomReportOutletContext
+          }
+        />
       </div>
     </PageContainer>
   );

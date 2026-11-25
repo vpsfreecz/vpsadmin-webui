@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useLocation } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useAuth } from '../../../app/auth';
 import { getRuntimeConfig } from '../../../app/config';
@@ -88,11 +88,13 @@ export function DatasetSnapshotsPage({ queryParamPrefix = '' }: DatasetSnapshots
   const { role, user } = useAuth();
   const queryKeys = useMemo(() => datasetSnapshotQueryParamKeys(queryParamPrefix), [queryParamPrefix]);
   const datasetLabelForToast = String((dataset as any).label ?? (dataset as any).name ?? `Dataset #${dataset.id}`);
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const pagination = useKeysetPagination({
     id: `dataset.snapshots.list${queryParamPrefix ? `.${queryParamPrefix}` : ''}`,
     filterKey: String(dataset.id),
     searchParams,
+    navigationPathname: location.pathname,
     setSearchParams,
     paramPrefix: queryParamPrefix,
     defaultLimit: 50,
@@ -304,6 +306,7 @@ export function DatasetSnapshotsPage({ queryParamPrefix = '' }: DatasetSnapshots
 
   const pageCursor = useMemo(() => cursorFromAscendingPage(rows as any), [rows]);
   const hasMore = pagination.hasForward || pageData.length > pagination.limit;
+  const showPagination = pagination.canPrev || hasMore;
 
   function requestSnapshotDownload(s: Snapshot) {
     createDl.mutate(s);
@@ -343,11 +346,12 @@ export function DatasetSnapshotsPage({ queryParamPrefix = '' }: DatasetSnapshots
   const createdDownloadTitle =
     createdDownloadStatus === 'ready'
       ? t('dataset.download.created.title.ready')
-      : t('dataset.download.created.title.pending');
-  const createdDownloadBody =
-    createdDownloadStatus === 'ready'
-      ? t('dataset.download.created.body.ready')
-      : t('dataset.download.created.body.pending');
+      : createdDownloadStatus === 'pending'
+        ? t('dataset.download.created.title.pending')
+        : createdDownloadStatus === 'failed'
+          ? t('dataset.download.created.title.failed')
+          : t('dataset.download.created.title.other');
+  const createdDownloadHasProgress = getMetaActionStateId(createDl.data?.meta) !== undefined;
   const pendingDownloadSnapshotId = createDl.isPending ? Number((createDl.variables as Snapshot | undefined)?.id) : null;
   const downloadsPath = `${detailPath}/downloads`;
 
@@ -509,24 +513,7 @@ export function DatasetSnapshotsPage({ queryParamPrefix = '' }: DatasetSnapshots
               </table>
             </div>
 
-            <KeysetPagination
-              page={pagination.page}
-              pageCount={pagination.stack.length}
-              canPrev={pagination.canPrev}
-              canNext={hasMore}
-              onPrev={pagination.goPrev}
-              onNext={() => pagination.goNext(pageCursor)}
-              onGoToPage={pagination.goToPage}
-              limit={pagination.limit}
-              allowedLimits={pagination.allowedLimits}
-              onLimitChange={pagination.setLimit}
-              testId="dataset.snapshots.pagination.desktop"
-            />
-          </Card>
-
-          {/* Mobile pagination */}
-          <div className="md:hidden">
-            <Card>
+            {showPagination ? (
               <KeysetPagination
                 page={pagination.page}
                 pageCount={pagination.stack.length}
@@ -538,11 +525,31 @@ export function DatasetSnapshotsPage({ queryParamPrefix = '' }: DatasetSnapshots
                 limit={pagination.limit}
                 allowedLimits={pagination.allowedLimits}
                 onLimitChange={pagination.setLimit}
-                testId="dataset.snapshots.pagination.mobile"
-                className="border-t-0"
+                testId="dataset.snapshots.pagination.desktop"
               />
-            </Card>
-          </div>
+            ) : null}
+          </Card>
+
+          {showPagination ? (
+            <div className="md:hidden">
+              <Card>
+                <KeysetPagination
+                  page={pagination.page}
+                  pageCount={pagination.stack.length}
+                  canPrev={pagination.canPrev}
+                  canNext={hasMore}
+                  onPrev={pagination.goPrev}
+                  onNext={() => pagination.goNext(pageCursor)}
+                  onGoToPage={pagination.goToPage}
+                  limit={pagination.limit}
+                  allowedLimits={pagination.allowedLimits}
+                  onLimitChange={pagination.setLimit}
+                  testId="dataset.snapshots.pagination.mobile"
+                  className="border-t-0"
+                />
+              </Card>
+            </div>
+          ) : null}
         </>
       )}
 
@@ -556,7 +563,6 @@ export function DatasetSnapshotsPage({ queryParamPrefix = '' }: DatasetSnapshots
         title={t('dataset.snapshots.create.modal_title')}
       >
         <div className="space-y-4" data-testid="dataset.snapshots.create.modal">
-          <div className="text-sm text-muted">{t('dataset.snapshots.create.help')}</div>
           <div className="rounded-md border border-border bg-surface-2 p-3 text-xs text-muted">
             {t('dataset.snapshots.create.scope', { dataset: datasetLabelForToast })}
           </div>
@@ -610,6 +616,7 @@ export function DatasetSnapshotsPage({ queryParamPrefix = '' }: DatasetSnapshots
           <div className="flex flex-wrap items-center justify-end gap-2">
             {createdDownload && createdDownloadStatus ? (
               <DatasetDownloadOpenButton
+                size="md"
                 href={createdDownloadHref}
                 canOpen={createdDownloadCanOpen}
                 disabledTitle={datasetDownloadStatusHelp(createdDownloadStatus, createdDownload, t)}
@@ -627,7 +634,9 @@ export function DatasetSnapshotsPage({ queryParamPrefix = '' }: DatasetSnapshots
       >
         {createdDownload && createdDownloadStatus ? (
           <div className="space-y-4" data-testid="dataset.snapshots.download.created">
-            <div className="text-sm text-muted">{createdDownloadBody}</div>
+            {createdDownloadStatus === 'pending' && createdDownloadHasProgress ? (
+              <div className="text-sm text-muted">{t('dataset.download.created.tracked')}</div>
+            ) : null}
             <div className="rounded-md border border-border bg-surface-2 p-3 text-sm">
               <div className="flex flex-wrap items-center gap-2">
                 <DatasetDownloadStateBadge status={createdDownloadStatus} t={t} />

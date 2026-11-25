@@ -21,59 +21,17 @@
       }
     },
     {
-      "path": "src/components/user/UserMailRecipientsTables.tsx",
-      "rule": "crossed-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "f4007760fcaa52ffcd39347f27feaf755df6b93754158014d73ac6ded04be49d",
-      "old": 0,
-      "allowance": 531,
-      "rationale": "At the recorded source revision, this file already contained mail recipient tables and edit controls; extract the coherent section with focused behavior coverage before removing this exception.",
-      "owner": "WebUI implementation lead",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 500
-      }
-    },
-    {
-      "path": "src/components/userNamespaces/UserNamespaceList.tsx",
-      "rule": "grown-over-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "d7da111263939df0886a77dd85beec82527d8d397f720a084d9ac238ed8c4c88",
-      "old": 526,
-      "allowance": 541,
-      "rationale": "At the recorded source revision, this file already contained namespace list filters and actions; extract the coherent section with focused behavior coverage before removing this exception. Centered-dialog follow-up (2026-10-17) changes only overlay presentation; existing extraction debt remains and the allowance does not increase.",
-      "owner": "WebUI implementation lead",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 526
-      }
-    },
-    {
       "path": "src/components/userNamespaces/UserNamespaceMapDetail.tsx",
       "rule": "grown-over-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "eb6d3e873f2b5ce5cae74b021a3a629d07ba676daa2e003f5934df1f3eb33101",
+      "contentHash": "45bf92734bc7447a0d1ba741d4ce9830137b745758882f1b28262e603f3c54d8",
       "old": 770,
       "allowance": 798,
-      "rationale": "At the recorded source revision, this file already contained namespace map detail states; extract the coherent section with focused behavior coverage before removing this exception.",
+      "rationale": "At the recorded source revision, this file already contained namespace map detail states; extract the coherent section with focused behavior coverage before removing this exception. Reviewed 2026-11-09: only the add-entry form presentation changes: readable existing field-error text with independent markers and a shared desktop label allowance (three lines at narrow grids, two at wide grids); anchor Add beside the inputs rather than below error text. No line, cast, validation, API or allowance growth; inherited extraction debt remains.  Reviewed 2026-11-09: only four existing-row error class lists gain readable foreground, medium weight and a separate danger marker. No row-state, API, validation, line or allowance growth; inherited extraction debt remains. Reviewed composition2026-11-24: Combined accepted PR241 add-entry form presentation with PR242 four existing-row error class lists. Staged source diff contains exactly four className substitutions; callbacks, API, validation and row state are unchanged. The actual file remains798 lines, no allowance/cast/baseline growth. Preserve both original review rationales; inherited extraction debt remains.",
       "owner": "WebUI implementation lead",
       "removeWhen": {
         "metric": "lines",
         "atMost": 770
-      }
-    },
-    {
-      "path": "src/components/userNamespaces/UserNamespaceMapList.tsx",
-      "rule": "grown-over-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "343d2fb1b7be682e5a4e271c53d55effde5243ca2cc31097bfff4a491085dda0",
-      "old": 675,
-      "allowance": 715,
-      "rationale": "At the recorded source revision, this file already contained namespace map list filters and actions; extract the coherent section with focused behavior coverage before removing this exception. Centered-dialog follow-up (2026-10-17) changes only overlay presentation; existing extraction debt remains and the allowance does not increase.",
-      "owner": "WebUI implementation lead",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 675
       }
     },
     {
@@ -88,20 +46,6 @@
       "removeWhen": {
         "metric": "lines",
         "atMost": 500
-      }
-    },
-    {
-      "path": "src/pages/app/MonitoringEventDetailPage.tsx",
-      "rule": "grown-over-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "1908b09d8b61560553bc23a45674a1d392726f2e6200ef3d313c9c38323ac0b2",
-      "old": 647,
-      "allowance": 652,
-      "rationale": "At the recorded source revision, this file already contained monitoring event detail states; extract the coherent section with focused behavior coverage before removing this exception.",
-      "owner": "WebUI implementation lead",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 647
       }
     },
     {
@@ -262,10 +206,10 @@
       "path": "src/pages/app/admin/user/AdminUserOverviewPage.tsx",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "fda36f8e64a1fff75de4e30bb2d422b8c27bcc3981587f5bbb1c23fcc9e9811e",
+      "contentHash": "0cb1e0e81e937f912933518e80f6ebade64e333bf287341f1786ce8c6d4e5aa4",
       "old": 0,
       "allowance": 776,
-      "rationale": "At the recorded source revision, this file already contained admin user overview sections and actions; extract the coherent section with focused behavior coverage before removing this exception. Reviewed 2026-10-08: replace the existing source-payment number with a native detail link and mobile touch target; no new data fetching, mutations or finance permissions. Focused browser checks cover the source ID, manual credits, keyboard and touch navigation. Centered-dialog follow-up (2026-10-17) changes only overlay presentation; existing extraction debt remains and the allowance does not increase. Reviewed 2026-10-20: the existing soft-delete selection handler refreshes expiry on transition even when a prior expiry exists; one condition changes, with no line-budget increase. Desktop/mobile fixture tests cover the suggestion, manual override and confirmation before mutation. Combined release review 2026-10-23: retain the soft-delete expiry handler and extract the numeric privilege field to UserLevelSelect; exact role levels and unknown existing levels remain intact. The recorded allowance is the actual combined line count. Preserve the extracted AdminUserDetailsActions password shortcut and the existing lifecycle mutation guard; the page shrinks further. Preserve the extracted address and mail-role contact summary, including administrator-only fetching and the selected owner boundary; the combined page remains smaller than the inherited allowance.",
+      "rationale": "At the recorded source revision, this file already contained admin user overview sections and actions; extract the coherent section with focused behavior coverage before removing this exception. Reviewed 2026-10-08: replace the existing source-payment number with a native detail link and mobile touch target; no new data fetching, mutations or finance permissions. Focused browser checks cover the source ID, manual credits, keyboard and touch navigation. Centered-dialog follow-up (2026-10-17) changes only overlay presentation; existing extraction debt remains and the allowance does not increase. Reviewed 2026-10-20: the existing soft-delete selection handler refreshes expiry on transition even when a prior expiry exists; one condition changes, with no line-budget increase. Desktop/mobile fixture tests cover the suggestion, manual override and confirmation before mutation. Combined release review 2026-10-23: retain the soft-delete expiry handler and extract the numeric privilege field to UserLevelSelect; exact role levels and unknown existing levels remain intact. The recorded allowance is the actual combined line count. Preserve the extracted AdminUserDetailsActions password shortcut and the existing lifecycle mutation guard; the page shrinks further. Preserve the extracted address and mail-role contact summary, including administrator-only fetching and the selected owner boundary; the combined page remains smaller than the inherited allowance. Reviewed 2026-11-10: reuse the shared valid-instant predicate for the two existing date comparisons; preserve the same 776-line limit, payload construction, guards and fields. Equivalent ISO spellings and real second changes have focused browser coverage; no new section or structural debt.  Reviewed 2026-11-11: wrap the reminder field and Clear action within an intrinsic-width lifecycle grid; only three presentation class strings change. Keep the existing exact line allowance, extraction debt, values, mutation guards and API roles. The older focused base also needs the existing medium Clear size to retain equal field/action height; no line allowance increase. Coarse-pointer follow-up:18rem flexible input basis preserves native preferred width at wide mobile Chromium viewports; keep16rem grid minima and unchanged exact line allowance. Before publication, use the native max-content flex basis rather than a fixed input rem basis, preserving full platform/font/value-dependent width. Grid minima and exact line allowance stay unchanged. Reviewed composition2026-11-24: Retain accepted PR280 valid-instant date comparisons and PR284 intrinsic-width reminder field/clear layout. Staged source difference is four presentation/size props; payload, state guard, date values, role and callbacks unchanged. The composed file is exactly776 lines, inherited allowance776 preserved with no cast/baseline growth. Both original lifecycle and width test suites retained separately.",
       "owner": "WebUI implementation lead",
       "removeWhen": {
         "metric": "lines",
@@ -276,10 +220,10 @@
       "path": "src/pages/app/admin/user/AdminUserPaymentsPage.tsx",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "b1e00301fa600fba6164d5725e8721a46be6816826ed42c481922d74332e0b52",
+      "contentHash": "160acbcb0a6c0169d001a815fb78c239ea90db035bdf77339bd781e8917405fc",
       "old": 0,
       "allowance": 797,
-      "rationale": "At the recorded source revision, this file already contained admin user payments and incoming-payment views; extract the coherent section with focused behavior coverage before removing this exception.",
+      "rationale": "At the recorded source revision, this file already contained admin user payments and incoming-payment views; extract the coherent section with focused behavior coverage before removing this exception. Reviewed 2026-11-09: only field/action dimensions and label/footer alignment change; callbacks, review/mutation logic and section responsibilities remain intact. Keep the exact 797-line allowance unchanged; the current preview already has a separately preserved extraction. Reviewed follow-up: four existing validation class lists use readable text, medium weight and a separate danger border after exact dark nested-panel contrast measured 2.650463:1. Messages, validation gates and all mutation callbacks are unchanged; the existing allowance and extraction requirement remain unchanged.",
       "owner": "WebUI implementation lead",
       "removeWhen": {
         "metric": "lines",
@@ -290,10 +234,10 @@
       "path": "src/pages/app/datasets/DatasetExpansionPage.tsx",
       "rule": "grown-over-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "d2072281b40ccbc1e8600d44afc58efc4a112a9f3f4fbc446fa802ce8cb6b5b7",
+      "contentHash": "a4bfac9a9be1db412acb88e55a32748640afdbb0483013defb9cc9fff826b826",
       "old": 635,
       "allowance": 697,
-      "rationale": "At the recorded source revision, this file already contained dataset expansion state and actions; extract the coherent section with focused behavior coverage before removing this exception.",
+      "rationale": "At the recorded source revision, this file already contained dataset expansion state and actions; extract the coherent section with focused behavior coverage before removing this exception. Reviewed UX08 footer-only alignment and information-before-primary ordering; the action callback, all other source bytes, and the existing exact 697-line allowance are preserved by an inverse proof.",
       "owner": "WebUI implementation lead",
       "removeWhen": {
         "metric": "lines",
@@ -304,10 +248,10 @@
       "path": "src/pages/app/dns/DnsRecordModel.ts",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "e6c88d98b54973d049b3673f5f323947f3f7909794e3ff8e5fcbd9b28108c971",
+      "contentHash": "c11f1dc23368efd32d3d698f2d14b65a7e1a256ad7366feaf9f13e8faa0b8c72",
       "old": 0,
       "allowance": 537,
-      "rationale": "At the recorded source revision, this file already contained DNS record form validation and mapping; extract the coherent section with focused behavior coverage before removing this exception.",
+      "rationale": "At the recorded source revision, this file already contained DNS record form validation and mapping; extract the coherent section with focused behavior coverage before removing this exception. Reviewed DNS-03: only allow the API-supported bare wildcard beside @; line count and allowance remain537, all other validation rules are unchanged and covered by regression tests.",
       "owner": "WebUI implementation lead",
       "removeWhen": {
         "metric": "lines",
@@ -318,10 +262,10 @@
       "path": "src/pages/app/vps/VpsAccessPage.tsx",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "a8b88527ec26c24029d7951b632857e961a155d91ba0f8c9050bc3d59872aff9",
+      "contentHash": "5964f8ef6ccbf179de5380ffb0c5bc14d26db41fb494ff4647f8a1dc6d48597e",
       "old": 0,
       "allowance": 564,
-      "rationale": "At the recorded source revision, this file already contained VPS access and credential controls; extract the coherent section with focused behavior coverage before removing this exception.",
+      "rationale": "At the recorded source revision, this file already contained VPS access and credential controls; extract the coherent section with focused behavior coverage before removing this exception. Reviewed UX03: only h-9 plus the existing44px coarse minimum on the two native selectors; exact inverse preserves all other source bytes and the existing line allowance. Reviewed bounded Access result presentation: three local alert wrapping attributes only; exact inverse preserves all controller, API and safety bytes and the existing exact line cap. Reviewed Access CI/WebKit containment: only the saved-key select receives the already integrated min-width clipping/focus wrapper, preserving every attribute/callback and the existing exact line cap.",
       "owner": "WebUI collection and page refactor implementer",
       "removeWhen": {
         "metric": "lines",

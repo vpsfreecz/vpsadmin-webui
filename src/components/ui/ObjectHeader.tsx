@@ -53,6 +53,9 @@ export function ObjectHeader(props: {
 
   kicker?: HeaderKicker;
   title: React.ReactNode;
+  /** Optional path context before the title; other object headers keep their layout. */
+  titleBefore?: React.ReactNode;
+  titlePathLabel?: string;
   titleAfter?: React.ReactNode;
 
   badges?: React.ReactNode;
@@ -92,9 +95,35 @@ export function ObjectHeader(props: {
         <div className={clsx('min-w-0', horizontalAt === 'xl' ? 'xl:flex-1' : 'sm:flex-1')}>
           {kicker ? <div className="text-xs text-muted">{kicker}</div> : null}
 
-          <div className={clsx(kicker ? 'mt-1' : undefined, 'flex flex-wrap items-center gap-2')}>
-            <h1 className="min-w-0 break-words text-xl font-semibold [overflow-wrap:anywhere]" data-document-title-heading>{props.title}</h1>
-            {props.titleAfter ? <div className="min-w-0 max-w-full">{props.titleAfter}</div> : null}
+          <div
+            className={clsx(
+              kicker ? 'mt-1' : undefined,
+              'flex flex-wrap',
+              props.titleBefore ? 'items-baseline gap-x-2 gap-y-1 sm:gap-2' : 'items-center gap-2'
+            )}
+            role={props.titleBefore ? 'navigation' : undefined}
+            aria-label={props.titleBefore ? props.titlePathLabel : undefined}
+          >
+            {props.titleBefore}
+            <h1
+              className={clsx(
+                'min-w-0 break-words text-xl font-semibold [overflow-wrap:anywhere]',
+                props.titleBefore ? 'order-2 flex-1 basis-full sm:order-none sm:basis-56' : undefined
+              )}
+              data-document-title-heading
+            >
+              {props.title}
+            </h1>
+            {props.titleAfter ? (
+              <div
+                className={clsx(
+                  'min-w-0 max-w-full',
+                  props.titleBefore ? 'order-1 ml-auto text-xs sm:order-none sm:ml-0' : undefined
+                )}
+              >
+                {props.titleAfter}
+              </div>
+            ) : null}
           </div>
 
           {props.badges ? <div className="mt-2 flex flex-wrap items-center gap-2">{props.badges}</div> : null}
@@ -106,9 +135,7 @@ export function ObjectHeader(props: {
           <div
             className={clsx(
               'flex min-w-0 w-full flex-col gap-2',
-              horizontalAt === 'xl'
-                ? 'xl:w-auto xl:shrink-0 xl:items-end'
-                : 'sm:w-auto sm:shrink-0 sm:items-end'
+              horizontalAt === 'xl' ? 'xl:w-auto xl:shrink-0 xl:items-end' : 'sm:w-auto sm:shrink-0 sm:items-end'
             )}
           >
             {props.right ? <div>{props.right}</div> : null}

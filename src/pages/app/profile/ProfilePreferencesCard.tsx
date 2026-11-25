@@ -193,7 +193,7 @@ export function ProfilePreferencesCard() {
               {t('profile.prefs.last_saved')}:{' '}
               <span className="font-medium text-fg">{lastSavedAtLabel}</span>
             </span>
-            {ui.sync.error ? <span className="text-danger">{ui.sync.error}</span> : null}
+            {ui.sync.error ? <span className="border-l-2 border-danger pl-2 font-medium text-fg">{ui.sync.error}</span> : null}
           </div>
         </div>
 
