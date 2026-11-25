@@ -416,6 +416,26 @@ schedules/plans and downloads, export datasets and restore from available backup
 VPS root disks remain in VPS detail; member NAS and Backup Center retain separate
 navigation. Backup filters remain stable across tab changes.
 
+Removing a dataset plan leaves its existing primary and backup snapshots in place;
+the plans page explains this beside removal and in its confirmation. The root
+storage card links to that dataset's existing plans route in the current view.
+Administrator cleanup is a separate capability-gated form immediately after the
+plan list or empty state. It has one concise explanation, a local recursive
+checkbox and a default-on backup-first option. Fresh forms and dataset/URL-context
+changes reset recursion off, preservation on and Confirm unchecked, regardless of
+URL hints. Local recursive choices leave page filters and navigation unchanged. A separate Confirm checkbox starts unchecked; submission
+stays disabled and its handler refuses mutation until it is checked.
+Acknowledgement resets for a dataset/recursive-scope change or accepted submission
+and does not change either option. The client submits one mutation and
+tracks its ordinary action-state receipt.
+Accepted work continues after the browser exits. The existing task controller
+reports failure or completion and refreshes affected state; request acceptance
+alone does not mean cleanup completed. Unknown receipts block blind resubmission. No new live-filesystem snapshot is made.
+Backup-pool history retains its normal retention policy. The
+[implementation record](../work-log/2026-11-25-disable-backups.md) records the local
+SDK candidate, published-release dependency and current verification boundary.
+
+
 Export detail presents its summary, allowed hosts and mount instructions as
 full-width sections in that order. Hosts remain a compact table on desktop;
 narrow screens use labeled rows with reachable edit/delete actions. The mount

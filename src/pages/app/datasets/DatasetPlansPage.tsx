@@ -19,6 +19,7 @@ import { Select } from '../../../components/ui/Select';
 import {
   assignDatasetPlan,
   deleteDatasetPlan,
+  disableDatasetBackups,
   fetchDatasetPlans,
   fetchEnvironmentDatasetPlans,
   type DatasetInPoolPlan,
@@ -31,6 +32,7 @@ import { formatErrorMessage } from '../../../lib/errors';
 import { hasActiveChains } from '../../../lib/taskStatus';
 
 import { useDatasetContext } from './DatasetContext';
+import { DatasetBackupCleanup } from './DatasetBackupCleanup';
 import { DatasetPlansList } from './DatasetPlansList';
 
 function refLabel(ref: unknown, fallback: string): string {
@@ -306,6 +308,10 @@ export function DatasetPlansPage() {
         </CardBody>
       </Card>
 
+      <p className="text-sm text-muted" data-testid="dataset.plans.remove.explanation">
+        {t('dataset.plans.remove.explanation')}
+      </p>
+
       {assignedRows.length === 0 ? (
         <EmptyState
           testId="dataset.plans.empty"
@@ -336,6 +342,8 @@ export function DatasetPlansPage() {
           }}
         />
       )}
+
+      <DatasetBackupCleanup busy={busy || assignM.isPending || removeM.isPending} submit={disableDatasetBackups} />
 
       <Modal
         open={assignOpen}
@@ -449,6 +457,7 @@ export function DatasetPlansPage() {
         description={removePlan ? t('dataset.plans.remove.body', { label: envPlanLabel(removePlan, t) }) : ''}
         testId="dataset.plans.remove.confirm"
       >
+        <p className="text-sm text-muted">{t('dataset.plans.remove.explanation')}</p>
         {removeM.isError ? (
           <Alert
             variant="danger"

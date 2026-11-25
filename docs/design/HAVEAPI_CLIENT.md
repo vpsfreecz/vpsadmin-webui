@@ -243,13 +243,16 @@ nix develop
 npm ci
 client_archive=/absolute/path/to/the-exact-archive.tgz
 sha256sum "$client_archive"
-npm install --no-save --package-lock=false --ignore-scripts "$client_archive"
+npm install --no-save --package-lock=true --ignore-scripts "$client_archive"
 ```
 
-`--package-lock=false` ignores the lock during this install, so other temporary
-dependencies may also resolve differently. Do not force incompatible peers or
-claim that the installed tree still matches the canonical lock. Check the public
-entrypoint and the HaveAPI version resolved from the client:
+`--no-save` preserves the manifest and lock, while `--package-lock=true` keeps
+other dependencies at their locked resolutions. Verify that both files are
+unchanged and compare the installed dependency graph against the lock, allowing
+only the selected SDK archive to differ. Disabling lock resolution can also
+upgrade unrelated dependencies. Do not force incompatible peers or claim that
+the SDK override matches the canonical registry input. Check the public entrypoint
+and the HaveAPI version resolved from the client:
 
 ```sh
 node --input-type=module <<'JS'
@@ -310,3 +313,22 @@ Follow vpsAdmin's [generated-client synchronization procedure](https://github.co
 for the API/client update sequence. Ordinary source synchronization does not
 require a release. When a TypeScript-client release is needed, default to the
 next minor version unless the user explicitly specifies a version or bump.
+
+
+### Administrator dataset backup cleanup dependency
+
+Backup cleanup uses generated `dataset.disable_backups`,
+`Dataset__DisableBackupsInput` and `Dataset__DisableBackupsOutput` with only
+optional `recursive`/`backup_first` booleans. The inherited empty dataset result
+is `Record<string, never>`; the adapter requires the ordinary
+`result.meta.action_state_id`. It submits once and uses existing task handling.
+
+**Integration requires a published SDK release containing these members.** The
+registry 0.6.0 input recorded above lacks this action. Development may use the
+[packed-client override](#optional-local-generated-client-development); its
+results do not certify the canonical lock or a reproducible Nix release build.
+Before integration, select the authorized registry artifact in the manifest,
+lock and provenance record, verify integrity and repeat affected checks.
+Compatible API/scheduler deployment remains separate. The
+[implementation record](../work-log/2026-11-25-disable-backups.md) identifies
+current candidate verification and publication limits.

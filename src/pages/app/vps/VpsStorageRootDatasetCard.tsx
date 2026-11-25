@@ -87,6 +87,9 @@ export function VpsStorageRootDatasetCard(props: {
             <Button size="sm" variant="secondary" to={`${props.basePath}/datasets/${root.id}/snapshots`} testId="vps.storage.root_dataset.snapshots">
               {t('vps.storage.root_dataset.snapshots')}
             </Button>
+            <Button size="sm" variant="secondary" to={`${props.basePath}/datasets/${root.id}/plans?recursive=true`} testId="vps.storage.root_dataset.plans">
+              {t('dataset.plans.title')}
+            </Button>
             <Button size="sm" variant="secondary" to={`${props.basePath}/datasets/${root.id}/downloads`} testId="vps.storage.root_dataset.downloads">
               {t('vps.storage.root_dataset.downloads')}
             </Button>

@@ -15,9 +15,11 @@ import { DatasetPlansPage } from './DatasetPlansPage';
 
 const testState = vi.hoisted(() => ({
   mode: 'user' as 'user' | 'admin',
+  role: 'user',
 }));
 
 const api = vi.hoisted(() => ({
+  fetchDatasetBackupCleanupAvailable: vi.fn(),
   fetchDatasetPlans: vi.fn(),
   fetchEnvironmentDatasetPlans: vi.fn(),
   assignDatasetPlan: vi.fn(),
@@ -26,10 +28,12 @@ const api = vi.hoisted(() => ({
 }));
 
 const chrome = vi.hoisted(() => ({
+  localLocks: [],
   acquireLocalLock: vi.fn(),
   releaseLocalLock: vi.fn(),
 }));
 
+vi.mock('../../../app/auth', () => ({ useAuth: () => ({ role: testState.role }) }));
 vi.mock('../../../app/appMode', () => ({
   useAppMode: () => ({
     mode: testState.mode,
@@ -67,6 +71,7 @@ vi.mock('../../../lib/api/datasets', async (importOriginal) => {
   const original = await importOriginal<typeof import('../../../lib/api/datasets')>();
   return {
     ...original,
+    fetchDatasetBackupCleanupAvailable: api.fetchDatasetBackupCleanupAvailable,
     fetchDatasetPlans: api.fetchDatasetPlans,
     fetchEnvironmentDatasetPlans: api.fetchEnvironmentDatasetPlans,
     assignDatasetPlan: api.assignDatasetPlan,
@@ -204,6 +209,8 @@ function renderPage() {
 beforeEach(() => {
   vi.clearAllMocks();
   testState.mode = 'user';
+  testState.role = 'user';
+  api.fetchDatasetBackupCleanupAvailable.mockResolvedValue({ data: false });
   api.fetchDatasetPlans.mockResolvedValue({ data: assignedPlans, meta: { total_count: 5 } });
   api.fetchEnvironmentDatasetPlans.mockResolvedValue({
     data: availablePlans,
@@ -275,6 +282,14 @@ describe('DatasetPlansPage', () => {
     );
   });
 
+  it('explains nondestructive plan removal both beside the list and in confirmation', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    expect(await screen.findByTestId('dataset.plans.remove.explanation')).toBeVisible();
+    await user.click(screen.getByTestId('dataset.plans.row.22.remove'));
+    expect(within(screen.getByTestId('dataset.plans.remove.confirm')).getByText('dataset.plans.remove.explanation')).toBeVisible();
+  });
+
   it('removes the assigned row id rather than an environment or base-plan id', async () => {
     const user = userEvent.setup();
     renderPage();
@@ -335,5 +350,42 @@ describe('DatasetPlansPage', () => {
     expect(screen.getByTestId('dataset.plans.assign.preview.description')).toHaveTextContent(
       'Archives the dataset according to the operator policy.'
     );
+  });
+});
+
+describe('shared plans cleanup entry', () => {
+  it('offers admin cleanup even when no plan remains', async () => {
+    testState.role = 'admin'; testState.mode = 'admin';
+    api.fetchDatasetBackupCleanupAvailable.mockResolvedValue({ data: true });
+    api.fetchDatasetPlans.mockResolvedValue({ data: [] });
+    renderPage();
+    expect(await screen.findByTestId('dataset.plans.empty')).toBeVisible();
+    const form = await screen.findByTestId('dataset.backup_cleanup.form');
+    expect(form).toBeVisible();
+    expect(screen.getByTestId('dataset.plans.empty').compareDocumentPosition(form) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.getByTestId('dataset.backup_cleanup.submit')).toBeDisabled();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+  it('renders the actual cleanup form after assigned plans without an opener', async () => {
+    testState.role = 'admin'; testState.mode = 'admin';
+    api.fetchDatasetBackupCleanupAvailable.mockResolvedValue({ data: true });
+    renderPage();
+    const list = await screen.findByTestId('dataset.plans.list');
+    const form = await screen.findByTestId('dataset.backup_cleanup.form');
+    expect(list.compareDocumentPosition(form) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.queryByTestId('dataset.backup_cleanup.open')).not.toBeInTheDocument();
+    expect(screen.getByTestId('dataset.backup_cleanup.acknowledgement')).not.toBeChecked();
+  });
+  it('keeps the removal explanation with an unsupported backend and omits cleanup', async () => {
+    testState.role = 'admin'; testState.mode = 'admin'; renderPage();
+    expect(await screen.findByTestId('dataset.plans.remove.explanation')).toBeVisible();
+    await waitFor(() => expect(api.fetchDatasetBackupCleanupAvailable).toHaveBeenCalled());
+    expect(screen.queryByTestId('dataset.backup_cleanup.form')).not.toBeInTheDocument();
+  });
+  it('requires actual administrator identity even if the surrounding view is admin', async () => {
+    testState.mode = 'admin'; api.fetchDatasetBackupCleanupAvailable.mockResolvedValue({ data: true });
+    renderPage(); expect(await screen.findByTestId('dataset.plans.remove.explanation')).toBeVisible();
+    expect(api.fetchDatasetBackupCleanupAvailable).not.toHaveBeenCalled();
+    expect(screen.queryByTestId('dataset.backup_cleanup.form')).not.toBeInTheDocument();
   });
 });

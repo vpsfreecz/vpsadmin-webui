@@ -85,6 +85,7 @@ test.describe('@smoke VPS storage tab mounts', () => {
       });
 
       await page.goto('/admin/vps/123/storage?resize=ssd');
+      await expect(page.getByTestId('vps.storage.root_dataset.plans')).toHaveAttribute('href', '/admin/datasets/10/plans?recursive=true');
       await expect(page).toHaveURL(/\/admin\/vps\/123\/storage$/);
       const modal = page.getByTestId('vps.storage.resize.modal');
       await expect(modal).toBeVisible();
@@ -281,6 +282,7 @@ test.describe('@smoke VPS storage tab mounts', () => {
     );
     await expect(page.getByTestId('vps.storage.root_dataset.snapshots')).toHaveAttribute('href', '/app/datasets/10/snapshots');
     await expect(page.getByTestId('vps.storage.root_dataset.downloads')).toHaveAttribute('href', '/app/datasets/10/downloads');
+    await expect(page.getByTestId('vps.storage.root_dataset.plans')).toHaveAttribute('href', '/app/datasets/10/plans?recursive=true');
     await expect(page.getByTestId('vps.storage.root_dataset.create_snapshot')).toHaveCount(0);
     await expect(page.getByTestId('vps.storage.root_dataset.restore')).toHaveCount(0);
     await expect(page.getByTestId('vps.storage.root_dataset.backup')).toHaveCount(0);
