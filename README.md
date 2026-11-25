@@ -22,12 +22,12 @@ status and acceptance. The [work log](WORK_LOG.md) records what changed and why.
 ## Development
 
 Use the locked flake for Node 24.21.0 with bundled npm 11.19.0. The flake also
-pins the vpsAdmin source used for API and Czech terminology review. Its
-separate frontend/BFF package outputs and package checks are described in the
-[package guide](docs/design/PACKAGING.md). It also exports a separate,
+pins the vpsAdmin source used for API and Czech terminology review. Separate
+frontend and BFF packages use pinned dependency locks and shared provenance.
+The frontend imports each dependency using its locked integrity; the BFF retains
+its aggregate dependency hash. See the [package guide](docs/design/PACKAGING.md)
+for build and verification commands. The flake also exports a separate,
 disabled-by-default [NixOS service module](docs/design/NIXOS_SERVICE.md).
-`nix develop` also provides `prefetch-npm-deps` for reproducing
-the independent npm dependency hashes.
 
 ```bash
 nix develop

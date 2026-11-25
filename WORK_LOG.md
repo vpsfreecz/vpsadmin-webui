@@ -1,3 +1,7 @@
+## 2026-11-26: Adopt the published cleanup SDK
+
+[Registry dependency, integrity and verification boundaries](docs/work-log/2026-11-25-disable-backups.md#published-sdk-adoption).
+
 ## 2026-11-24 — Reconcile the accepted dashboard fix with current main
 
 [Merge scope, preserved history and verification](docs/work-log/2026-11-24-approved-dashboard-merge.md).
