@@ -4133,3 +4133,11 @@ integration. A failing modal regression proves stale close cleanup overriding
 an already-focused result; preserve that choice and normal trigger restoration.
 Original browser/CI failures are retained externally; successor qualification
 and paired preview promotion remain pending.
+
+### 2026-11-26 — Hosted sizing findings and keyboard readiness
+
+Preserve approved44px public language and user-history controls during main
+integration. Retain every final generated-password keyboard assertion and check
+confirmation removal, initial focus and intermediate Copy focus before sending
+Shift+Tab; attach native focus state on failure. Original hosted failures/flaky
+attempts remain retained; final successor qualification pending.
