@@ -4117,3 +4117,11 @@ Keep missing limits unknown, retain numeric usage and strengthen the smoke test;
 promote the complete file to strict TypeScript and mobile WebKit coverage.
 See the [scope, preserved checks and limits](docs/work-log/2026-11-15-nas-smoke-quota-contract.md).
 Test maintenance in existing draft PR270; no product or API behavior changes.
+
+### 2026-11-26 — Preserve interface identity, contrast and deliberate result focus
+
+Retain the assigned-route interface badge and readable usage values during SDK
+integration. A failing modal regression proves stale close cleanup overriding
+an already-focused result; preserve that choice and normal trigger restoration.
+Original browser/CI failures are retained externally; successor qualification
+and paired preview promotion remain pending.

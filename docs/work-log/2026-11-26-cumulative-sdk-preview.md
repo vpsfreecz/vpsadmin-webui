@@ -45,3 +45,18 @@ evidence remain under `/data` with remote builders/hooks disabled. The agent
 never accesses build.vpsfree.cz. Clanker uses the production API, so its browser
 checks remain anonymous read-only or intercepted fixtures. No backend, production
 configuration pin or newadmin activation is included.
+
+Hosted browser qualification retained the original assigned-route interface
+regression and password-focus flaky attempts. The route's existing localized
+interface badge is restored without changing routing or assignment safeguards.
+Approved-only integration also restores the existing stronger foreground for
+resource values; the original 4.5 contrast assertion remains unchanged.
+
+A deterministic modal regression additionally reproduces stale passive cleanup
+returning focus to the old trigger after a result control already claimed it in
+the layout phase (original implementation:7 passes/1 failure). Focus restoration
+now preserves that deliberate choice while retaining normal return-to-trigger
+behavior. This is consistent with the original browser timing symptom; observed
+native focus events are external diagnostic evidence, not a substitute for
+source-bound browser and exact-head hosted verification. No test retries,
+thresholds, timeouts or skips are increased.
