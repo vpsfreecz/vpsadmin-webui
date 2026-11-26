@@ -202,7 +202,11 @@ export function OomReportsPage() {
       window.location.pathname !== `${basePath}/oom-reports` ||
       new URLSearchParams(window.location.search).toString() !== searchParamsKey
     )) return;
-    if (filterSearchParams.toString() !== searchParamsKey) setSp(filterSearchParams, { replace: true });
+    if (filterSearchParams.toString() === searchParamsKey) return;
+    const next = new URLSearchParams(filterSearchParams);
+    next.delete('from_id');
+    next.set('page', '1');
+    setSp(next, { replace: true });
   }, [basePath, filterSearchParams, searchParamsKey, setSp]);
 
   const filtersActive = Boolean(

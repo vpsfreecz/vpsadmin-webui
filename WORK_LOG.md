@@ -3262,3 +3262,11 @@ moved ahead of the committed router search. Preserve explicit applied-filter
 navigation. A failing regression proves the stale replacement and retains Next;
 see [original evidence and qualification](docs/work-log/2026-11-26-oom-history-ownership.md).
 Final exact-source qualification and paired promotion remain pending.
+
+### 2026-11-26 — Apply OOM filters and cursor reset atomically
+
+Repeated original cumulative coverage exposed a second race: automatic cursor
+normalization could publish old filters ahead of the applied draft. Defer that
+opt-in write to the caller while resetting local cursor state immediately.
+A second old-fail/new-pass regression preserves Next and all original browser
+assertions; qualification and paired promotion remain pending.

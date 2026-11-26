@@ -238,6 +238,15 @@ export function useKeysetPagination(opts: {
 
   const syncUrl = (nextStack: KeysetCursorStack, nextIndex: number, mode: 'push' | 'replace') => {
     if (!ownsBrowserUrl()) return;
+    // A caller applying filters owns the atomic filter+cursor replacement.
+    // Reset local pagination now, but never publish the old committed filters.
+    if (
+      mode === 'replace' &&
+      opts.navigationSearchKey !== undefined &&
+      opts.navigationSearchParams !== undefined &&
+      opts.navigationSearchParams.toString() !== opts.searchParams.toString()
+    )
+      return;
     if (
       mode === 'replace' &&
       opts.navigationSearchKey !== undefined &&
