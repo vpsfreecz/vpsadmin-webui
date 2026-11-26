@@ -34,7 +34,7 @@ test.describe('Dataset management actions', () => {
     await installHaveApiMock(page, {
       user: { id: 1, login: 'admin', level: 99 },
       handlers: {
-        'GET datasets/10': () => ownedDataset(),
+        'GET datasets/10': () => ({ dataset: ownedDataset() }),
         'GET transaction_chains': ({ searchParams }) => {
           const className = searchParams.get('transaction_chain[class_name]');
           const rowId = searchParams.get('transaction_chain[row_id]');
@@ -65,7 +65,7 @@ test.describe('Dataset management actions', () => {
     await installHaveApiMock(page, {
       user: { id: 1, login: 'admin', level: 99 },
       handlers: {
-        'GET datasets/10': () => ownedDataset(),
+        'GET datasets/10': () => ({ dataset: ownedDataset() }),
         'GET transaction_chains': () => ({ transaction_chains: [] }),
         'PUT datasets/10': () => ++updateCalls === 1
           ? failEnvelope('Resource allocation error: no diskspace left')
@@ -125,8 +125,8 @@ test.describe('Dataset management actions', () => {
       user: { id: 1, login: 'admin', level: 99 },
       handlers: {
         'GET datasets': () => ({ datasets: Object.values(datasets), _meta: { total_count: Object.keys(datasets).length } }),
-        'GET datasets/10': () => datasets[10],
-        'GET datasets/11': () => datasets[11],
+        'GET datasets/10': () => ({ dataset: datasets[10] }),
+        'GET datasets/11': () => ({ dataset: datasets[11] }),
         'GET transaction_chains': () => ({ transaction_chains: [], _meta: { total_count: 0 } }),
         'POST datasets': () => {
           datasets[11] = {
@@ -146,7 +146,7 @@ test.describe('Dataset management actions', () => {
         },
         'DELETE datasets/11': () => {
           delete datasets[11];
-          return { status: true, response: null };
+          return { dataset: null };
         },
       },
     });
@@ -233,8 +233,8 @@ test.describe('Dataset management actions', () => {
           datasets: Object.values(datasets),
           _meta: { total_count: Object.keys(datasets).length },
         }),
-        'GET datasets/10': () => datasets[10],
-        'GET datasets/11': () => datasets[11],
+        'GET datasets/10': () => ({ dataset: datasets[10] }),
+        'GET datasets/11': () => ({ dataset: datasets[11] }),
         'GET transaction_chains': () => ({ transaction_chains: [], _meta: { total_count: 0 } }),
         'POST datasets': () => {
           datasets[11] = {
@@ -249,7 +249,7 @@ test.describe('Dataset management actions', () => {
         'DELETE datasets/11': () => {
           deleteCalls += 1;
           delete datasets[11];
-          return { status: true, response: null };
+          return { dataset: null };
         },
       },
     });
@@ -324,7 +324,7 @@ test.describe('Dataset management actions', () => {
     await installHaveApiMock(page, {
       user: { id: 2, login: 'member', level: 1 },
       handlers: {
-        'GET datasets/10': () => ownedDataset({ sync: 'always' }),
+        'GET datasets/10': () => ({ dataset: ownedDataset({ sync: 'always' }) }),
         'GET transaction_chains': () => ({ transaction_chains: [], _meta: { total_count: 0 } }),
         'PUT datasets/10': () => {
           updateCalls += 1;
@@ -364,7 +364,7 @@ test.describe('Dataset management actions', () => {
     await installHaveApiMock(page, {
       user: { id: 1, login: 'admin', level: 99 },
       handlers: {
-        'GET datasets/10': () => ownedDataset({ sync: 'always' }),
+        'GET datasets/10': () => ({ dataset: ownedDataset({ sync: 'always' }) }),
         'GET transaction_chains': () => ({ transaction_chains: [], _meta: { total_count: 0 } }),
         'PUT datasets/10': () => ({ status: true, response: null }),
       },
@@ -405,8 +405,8 @@ test.describe('Dataset management actions', () => {
     await installHaveApiMock(page, {
       user: { id: 2, login: 'member', level: 1 },
       handlers: {
-        'GET datasets/10': () => ownedDataset(),
-        'GET datasets/12': () => child,
+        'GET datasets/10': () => ({ dataset: ownedDataset() }),
+        'GET datasets/12': () => ({ dataset: child }),
         'GET transaction_chains': () => ({ transaction_chains: [], _meta: { total_count: 0 } }),
         'POST datasets': () => {
           createCalls += 1;
@@ -471,8 +471,8 @@ test.describe('Dataset management actions', () => {
     await installHaveApiMock(page, {
       user: { id: 2, login: 'member', level: 1 },
       handlers: {
-        'GET datasets/10': () => ownedDataset(),
-        'GET datasets/11': () => child,
+        'GET datasets/10': () => ({ dataset: ownedDataset() }),
+        'GET datasets/11': () => ({ dataset: child }),
         'GET transaction_chains': () => ({ transaction_chains: [], _meta: { total_count: 0 } }),
         'POST datasets': () => {
           createCalls += 1;
@@ -519,8 +519,8 @@ test.describe('Dataset management actions', () => {
     await installHaveApiMock(page, {
       user: { id: 2, login: 'member', level: 1 },
       handlers: {
-        'GET datasets/10': () => ownedDataset(),
-        'GET datasets/11': () => child,
+        'GET datasets/10': () => ({ dataset: ownedDataset() }),
+        'GET datasets/11': () => ({ dataset: child }),
         'GET transaction_chains': () => ({ transaction_chains: [], _meta: { total_count: 0 } }),
         'POST datasets': async () => {
           createCalls += 1;
@@ -554,12 +554,12 @@ test.describe('Dataset management actions', () => {
     await installHaveApiMock(page, {
       user: { id: 2, login: 'member', level: 1 },
       handlers: {
-        'GET datasets/11': () => ownedDataset({
+        'GET datasets/11': () => ({ dataset: ownedDataset({
           id: 11,
           full_name: 'tank/vps/ds10/appdata',
           name: 'appdata',
           parent: { id: 10 },
-        }),
+        }) }),
         'GET transaction_chains': ({ searchParams }) => {
           const className = searchParams.get('transaction_chain[class_name]');
           const rowId = searchParams.get('transaction_chain[row_id]');
@@ -583,7 +583,7 @@ test.describe('Dataset management actions', () => {
         },
         'DELETE datasets/11': () => {
           deleteCalls += 1;
-          return { status: true, response: null };
+          return { dataset: null };
         },
       },
     });
@@ -619,7 +619,7 @@ test.describe('Dataset management actions', () => {
     await installHaveApiMock(page, {
       user: { id: 2, login: 'member', level: 1 },
       handlers: {
-        'GET datasets/21': () => foreignDataset,
+        'GET datasets/21': () => ({ dataset: foreignDataset }),
         'GET transaction_chains': () => ({ transaction_chains: [], _meta: { total_count: 0 } }),
         'POST datasets': () => {
           createCalls += 1;
@@ -647,7 +647,7 @@ test.describe('Dataset management actions', () => {
     await installHaveApiMock(page, {
       user: { id: 1, login: 'admin', level: 99 },
       handlers: {
-        'GET datasets/10': () => ({
+        'GET datasets/10': () => ({ dataset: {
           id: 10,
           full_name: 'tank/vps/ds10',
           name: 'ds10',
@@ -666,7 +666,7 @@ test.describe('Dataset management actions', () => {
           export_count: 0,
           object_state: 'active',
           vps: { id: 300, hostname: 'alpha.example' },
-        }),
+        } }),
         'GET transaction_chains': () => ({ transaction_chains: [], _meta: { total_count: 0 } }),
       },
     });

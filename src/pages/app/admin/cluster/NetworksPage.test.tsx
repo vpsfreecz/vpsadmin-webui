@@ -27,12 +27,13 @@ const network = {
   available_to_users: 0, owned_unassigned: 2,
 };
 
-function renderPage() {
+function renderPage(initialEntry = '/admin/cluster/networks', onRouter?: (router: ReturnType<typeof createMemoryRouter>) => void) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
   const router = createMemoryRouter([{ path: '/admin/cluster/networks', element: <NetworksPage /> }], {
-    initialEntries: ['/admin/cluster/networks'],
+    initialEntries: [initialEntry],
   });
   render(<QueryClientProvider client={client}><I18nProvider><RouterProvider router={router} /></I18nProvider></QueryClientProvider>);
+  onRouter?.(router);
   return client;
 }
 
@@ -232,5 +233,34 @@ describe('network availability editor', () => {
     await waitFor(() => expect(updateNetwork).toHaveBeenCalled());
     expect(vi.mocked(updateNetwork).mock.calls[0]?.[0]).toMatchObject({ label: 'Draft label' });
     expect(vi.mocked(updateNetwork).mock.calls[0]?.[0]).not.toHaveProperty('enabled');
+  });
+});
+
+
+describe('network filter navigation', () => {
+  it('retains an advanced purpose filter while pagination resets its cursor', async () => {
+    let router!: ReturnType<typeof createMemoryRouter>;
+    renderPage('/admin/cluster/networks?from_id=101&page=2&limit=50&keep=yes', (value) => { router = value; });
+    await screen.findByTestId('admin.cluster.networks.row.101');
+    fireEvent.click(screen.getByTestId('admin.cluster.networks.advanced.open'));
+    fireEvent.change(screen.getByTestId('admin.cluster.networks.filter.purpose'), { target: { value: 'vps' } });
+    await waitFor(() => expect(fetchNetworks).toHaveBeenLastCalledWith(expect.objectContaining({ purpose: 'vps', fromId: undefined })));
+    await waitFor(() => expect(new URLSearchParams(router.state.location.search).get('purpose')).toBe('vps'));
+    expect(new URLSearchParams(router.state.location.search).get('page')).toBe('1');
+    expect(new URLSearchParams(router.state.location.search).get('keep')).toBe('yes');
+    expect(new URLSearchParams(router.state.location.search).has('from_id')).toBe(false);
+  });
+
+  it('restores location and purpose through browser history', async () => {
+    vi.mocked(fetchLocations).mockResolvedValue({ data: [{ id: 1, label: 'Prague' }] } as never);
+    let router!: ReturnType<typeof createMemoryRouter>;
+    renderPage('/admin/cluster/networks?location=1&purpose=vps&limit=50&page=1', (value) => { router = value; });
+    await screen.findByTestId('admin.cluster.networks.row.101');
+    await act(() => router.navigate('/admin/cluster/networks?purpose=export&limit=50&page=1'));
+    await waitFor(() => expect(fetchNetworks).toHaveBeenLastCalledWith(expect.objectContaining({ purpose: 'export', locationId: undefined })));
+    await act(() => router.navigate(-1));
+    await waitFor(() => expect(new URLSearchParams(router.state.location.search).get('purpose')).toBe('vps'));
+    expect(new URLSearchParams(router.state.location.search).get('location')).toBe('1');
+    expect(fetchNetworks).toHaveBeenCalledWith(expect.objectContaining({ purpose: 'vps', locationId: 1 }));
   });
 });

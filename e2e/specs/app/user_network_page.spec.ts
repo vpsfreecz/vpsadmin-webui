@@ -792,7 +792,7 @@ test('admin user view fetches assignments through own user scope instead of the 
   expect(assignmentRequests[0]?.searchParams.get('ip_address_assignment[user]')).toBe('7');
   expect(assignmentRequests[0]?.searchParams.get('ip_address_assignment[active]')).toBe('true');
   const currentVpsReads = requests.filter((url) => url.searchParams.has('ip_address[vps]'));
-  expect(currentVpsReads.length).toBeLessThanOrEqual(1);
+  expect(currentVpsReads).toHaveLength(1);
   expect(currentVpsReads.every((url) => (
     url.searchParams.get('ip_address[vps]') === '123' &&
     url.searchParams.get('ip_address[limit]') === '250'

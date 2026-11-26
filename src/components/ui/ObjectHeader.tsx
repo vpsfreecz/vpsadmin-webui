@@ -106,7 +106,8 @@ export function ObjectHeader(props: {
             aria-label={props.titleBefore ? props.titlePathLabel : undefined}
           >
             {props.titleBefore}
-            <PageHeading priority={0}
+            <PageHeading
+              priority={0}
               className={clsx(
                 'min-w-0 break-words text-xl font-semibold [overflow-wrap:anywhere]',
                 props.titleBefore ? 'order-2 flex-1 basis-full sm:order-none sm:basis-56' : undefined

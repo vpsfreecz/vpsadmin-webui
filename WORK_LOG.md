@@ -2,6 +2,10 @@
 
 [Release scope, conflict decisions and verification boundaries](docs/work-log/2026-11-26-approved-sdk-integration.md).
 
+## 2026-11-26 — Repair full browser contract coverage before release integration
+
+[Original failures, wire contracts, filter defect and verification](docs/work-log/2026-11-26-nightly-browser-contracts.md).
+
 ## 2026-11-24 — Reconcile the accepted dashboard fix with current main
 
 [Merge scope, preserved history and verification](docs/work-log/2026-11-24-approved-dashboard-merge.md).

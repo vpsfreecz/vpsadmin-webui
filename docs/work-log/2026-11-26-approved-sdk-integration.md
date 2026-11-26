@@ -69,8 +69,9 @@ Initial main Nightly failures and their repair are recorded in the focused
 [full browser repair](2026-11-26-nightly-browser-contracts.md) when integrated.
 The first combined-source diagnostics exposed eight TypeScript errors and stale
 structural source hashes; their original logs were retained before correction.
-Corrected product and E2E TypeScript diagnostics are clear; complete qualification,
-source-bound browser evidence and hosted CI must be appended before release.
+Corrected product TypeScript diagnostics are clear. Full E2E type coverage,
+complete qualification, source-bound browser evidence and hosted CI remain
+required gates before release.
 
 Builds and evidence stay under local `/data`, with remote builders and hooks
 disabled. The agent must not access build.vpsfree.cz through any path. Preview

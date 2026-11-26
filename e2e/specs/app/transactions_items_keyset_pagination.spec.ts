@@ -146,8 +146,16 @@ test.describe('Transactions items list keyset pagination', () => {
     const row = page.getByTestId('transactions.items.row.300');
     await expect(row.getByRole('link', { name: '#300', exact: true }).filter({ visible: true })).toBeVisible();
     await expect(row.getByRole('link', { name: 'Tx 300', exact: true })).toHaveAttribute('href', '/admin/transactions/items/300');
-    await page.getByTestId('transactions.items.row.300.toggle').click();
+    const toggle = page.getByTestId('transactions.items.row.300.toggle');
     const details = page.getByTestId('transactions.items.row.300.expanded');
+    // The selected chain opens its first contextual step automatically.
+    await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    await expect(details).toBeVisible();
+    await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    await expect(details).toHaveCount(0);
+    await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-expanded', 'true');
     await expect(page.locator('a[href="/admin/transactions/123"]')).toBeVisible();
     await expect(details.locator('a[href="/admin/transactions?user=7"]')).toBeVisible();
     await expect(details.locator('a[href="/admin/transactions?class_name=Vps&row_id=100"]')).toBeVisible();
