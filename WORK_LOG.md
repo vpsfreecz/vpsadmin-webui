@@ -1,3 +1,7 @@
+## 2026-11-26 — Detached dialog keyboard ownership
+
+Ignore detached portal containers in the focus-trap stack, preserving connected parent traps during passive cleanup. Two deterministic regression cases fail the prior behavior. Require a loaded empty-download region before document navigation in its existing browser scenario. Keep every original error/geometry/write assertion and CI budget. Approved b25/preview8b were held after original successful-job logs exposed flakes; no preview was promoted. See [the focused record](docs/work-log/2026-11-26-detached-dialog-focus.md); final verification remains a release gate.
+
 ## 2026-11-26 — Preserve the cumulative preview while updating SDK contracts
 
 [Preview-only scope, preserved baseline and verification](docs/work-log/2026-11-26-cumulative-sdk-preview.md).

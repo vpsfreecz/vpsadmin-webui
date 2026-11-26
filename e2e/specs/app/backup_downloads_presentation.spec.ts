@@ -193,6 +193,8 @@ for (const scenario of scenarios)
       };
     };
     if (scenario.state === 'empty') {
+      // An absent row alone also matches the initial authentication/loading screen.
+      await expect(page.getByTestId('backups.downloads')).toBeVisible();
       await expect(page.getByTestId('backups.downloads.row.41')).toHaveCount(0);
       await page.goto(ctx.path + '/downloads');
       await expect(page.getByTestId('dataset.downloads.list')).toContainText(
