@@ -37,6 +37,7 @@ import {
 import { BackupCenterDatasetWorkspaceView } from './BackupCenterDatasetWorkspaceView';
 import { BackupCenterQuickActions } from './BackupCenterQuickActions';
 import { BackupCenterRestoreGuide } from './BackupCenterRestoreGuide';
+import { BackupStatisticLink } from './BackupStatisticLink';
 
 const DATASET_LIMIT = 100;
 const DOWNLOAD_LIMIT = 100;
@@ -199,6 +200,18 @@ export function BackupCenterPage() {
     }
   }
 
+  // A statistic describes the whole loaded scope, independently of the local
+  // matching query or previously selected snapshot workspace.
+  function statisticHref(nextTab: 'snapshots' | 'downloads') {
+    const next = new URLSearchParams(searchParams);
+    next.set('tab', nextTab);
+    next.delete('q');
+    next.delete('dataset');
+    next.delete('intent');
+    clearEmbeddedSnapshotParams(next);
+    return `?${next.toString()}`;
+  }
+
   function selectDataset(dataset: Dataset) {
     const next = new URLSearchParams(searchParams);
     next.set('dataset', String(dataset.id));
@@ -343,25 +356,41 @@ export function BackupCenterPage() {
               {[
                 {
                   key: 'datasets',
+                  to: datasetsComplete && !datasetsQ.isError ? statisticHref('snapshots') : undefined,
                   value: datasetsQ.isPending
                     ? '…'
                     : backupCenterCount(datasetTotal ?? summary.datasets, datasetsComplete),
                 },
-                { key: 'downloads', value: backupCenterCount(downloadTotal ?? summary.downloads, downloadsComplete) },
+                {
+                  key: 'downloads',
+                  to: downloadsComplete ? statisticHref('downloads') : undefined,
+                  value: backupCenterCount(downloadTotal ?? summary.downloads, downloadsComplete),
+                },
                 { key: 'ready', value: backupCenterCount(summary.readyDownloads, downloadsComplete) },
                 { key: 'pending', value: backupCenterCount(summary.pendingDownloads, downloadsComplete) },
                 { key: 'unavailable', value: backupCenterCount(summary.unavailableDownloads, downloadsComplete) },
-              ].map(({ key, value }) => (
-                <Card key={key} testId={`backups.stats.${key}`}>
-                  <div className="p-3">
-                    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-2">
-                      <div className="min-w-0 break-words text-sm font-medium">{t(`backups.stats.${key}`)}</div>
-                      <div className="text-lg font-semibold leading-none tabular-nums">{value}</div>
+              ].map(({ key, value, to }) => {
+                const card = (
+                  <Card key={key} testId={`backups.stats.${key}`} className="h-full">
+                    <div className="p-3">
+                      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-2">
+                        <div
+                          className={`min-w-0 break-words text-sm font-medium ${to ? 'underline underline-offset-4' : ''}`}
+                        >
+                          {t(`backups.stats.${key}`)}
+                        </div>
+                        <div className="text-lg font-semibold leading-none tabular-nums">{value}</div>
+                      </div>
+                      <p className="mt-1 break-words text-xs text-muted">{t(`backups.stats.${key}.help`)}</p>
                     </div>
-                    <p className="mt-1 break-words text-xs text-muted">{t(`backups.stats.${key}.help`)}</p>
-                  </div>
-                </Card>
-              ))}
+                  </Card>
+                );
+                return (
+                  <BackupStatisticLink key={key} to={to} testId={`backups.stats.${key}.link`}>
+                    {card}
+                  </BackupStatisticLink>
+                );
+              })}
             </div>
             <div>
               <h2 className="mb-3 text-base font-semibold">{t('backups.recent_downloads')}</h2>

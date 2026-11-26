@@ -53,12 +53,17 @@ pass. Product code is unchanged; full final exact checks remain pending.
 The original coverage-gate failure remains private evidence, not a disabled
 check or updated deferred hash.
 
+### Accepted integration evidence
+
 Before clean browsers, source-contract inspection found that this focused
 legacy adapter consumes a flat single-zone Show response. Match the new
 fixture to that contract; the cumulative generated SDK retains its named
 resource envelope. Product adapters, payloads and all assertions are unchanged.
 Repeat exact focused checks and Nix/browser qualification on the new head;
 previous package/native receipts stay historical. No push or deployment.
+
+### Existing preview evidence
+
 
 Clean cumulative testing retained196PASS/1FAIL: WebKit recorded two helper
 XHR access-control errors around repeated hard navigations. Separate event

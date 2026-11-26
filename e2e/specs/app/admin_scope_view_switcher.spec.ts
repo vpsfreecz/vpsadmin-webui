@@ -36,10 +36,10 @@ test.describe('@smoke @smoke-mobile Admin scope switcher', () => {
             { id: 2, domain_name: 'node2', fqdn: 'node2.example' },
           ],
         }),
-        'GET nodes/public_status': () => [
-          { id: 1, domain_name: 'node1', fqdn: 'node1.example', status: 'online', last_report: '2026-01-01T00:00:00Z' },
-          { id: 2, domain_name: 'node2', fqdn: 'node2.example', status: 'online', last_report: '2026-01-01T00:00:00Z' },
-        ],
+        'GET nodes/public_status': () => ({ nodes: [
+          { id: 1, name: 'node1', domain_name: 'node1', fqdn: 'node1.example', status: true, last_report: '2026-01-01T00:00:00Z' },
+          { id: 2, name: 'node2', domain_name: 'node2', fqdn: 'node2.example', status: true, last_report: '2026-01-01T00:00:00Z' },
+        ] }),
       },
     });
 

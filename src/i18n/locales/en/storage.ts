@@ -6,6 +6,7 @@ export const enStorage = {
   'dataset.identity.name': 'Dataset name: {name}',
   'dataset.identity.internal_id': 'Internal ID: #{id}',
   ...enBackups,
+  "datasets.copy_filter_link": "Copy filter link",
   "datasets.list.title": "Datasets",
   "datasets.list.description":
     "Browse storage datasets, snapshots and downloads.",

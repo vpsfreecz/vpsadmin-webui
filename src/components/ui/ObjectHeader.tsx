@@ -108,10 +108,8 @@ export function ObjectHeader(props: {
             {props.titleBefore}
             <PageHeading
               priority={0}
-              className={clsx(
-                'min-w-0 break-words text-xl font-semibold [overflow-wrap:anywhere]',
-                props.titleBefore ? 'order-2 flex-1 basis-full sm:order-none sm:basis-56' : undefined
-              )}
+              containerClassName={props.titleBefore ? 'order-2 flex-1 basis-full sm:order-none sm:basis-56' : undefined}
+              className="min-w-0 break-words text-xl font-semibold [overflow-wrap:anywhere]"
             >
               {props.title}
             </PageHeading>

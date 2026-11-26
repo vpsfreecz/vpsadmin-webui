@@ -24,7 +24,13 @@ vi.mock('@tanstack/react-query', () => ({
     data:
       queryKey[0] === 'incident_reports'
         ? Array.from({ length: 25 }, (_, index) => ({ id: 125 - index, codename: 'abuse' }))
-        : [],
+        : queryKey[0] === 'incident_policy'
+          ? { data: queryKey[1] === 'capabilities'
+              ? { policies: true, update: false, evaluations: false, permission: false }
+              : [] }
+          : [],
+    isSuccess: true,
+    isPending: false,
     isLoading: false,
     isError: false,
   }),

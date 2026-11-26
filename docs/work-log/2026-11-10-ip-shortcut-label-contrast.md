@@ -25,3 +25,15 @@ Pinned ci:quick/strict112/build and four extended source browser executions
 pass, covering existing target/query/text checks plus normalized4.5 contrast
 in CSdark/ENlight on Chromium/mobileWebKit. The prototype's four original
 light failures stay preserved. No live writes or physical-display claim.
+### Accepted integration evidence
+
+
+
+### Existing preview evidence
+
+Combined current preparation includes only our two follow-up deltas: existing
+PR2639c229f card/confirmation wrapping and PR2646df70c local heading contrast.
+Parent096 preserves actualA87 and current SDK/API/BFF plus strict219 roots.
+Three local class changes versus actualA87; keep source-qualified096 proofs
+separate and perform fresh combined packaging/browser checks. Both exact PR
+heads need all six CI checks before any paired activation. Prepared only.

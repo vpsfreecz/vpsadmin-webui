@@ -47,7 +47,7 @@ assertion changed to the existing wire contract; application requests, APIs,
 assertion intent, timeouts and retries did not change. Exact own CLI stopped
 with SIGINT130 and cleanup0; final full48 completed with cleanup0.
 Clean Nix/clean browser, hosted CI and paired/protected release remain pending.
-
+### Accepted integration evidence
 
 ### Isolated PR mobile qualification correction
 
@@ -71,3 +71,5 @@ cases. All48 PUTs were intercepted; no live API write occurred. Pinned ci:quick,
 production build and4 existing zone-model tests pass. Mobile/desktop primary
 raw captures were individually viewed. Exact clean package/provenance and new
 hosted six-check qualification still remain; this is local working evidence.
+
+### Existing preview evidence

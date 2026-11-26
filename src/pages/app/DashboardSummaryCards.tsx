@@ -10,56 +10,77 @@ export function formatDashboardNumber(value: unknown, language?: 'cs' | 'en'): s
   return new Intl.NumberFormat(language === 'cs' ? 'cs-CZ' : language).format(value);
 }
 
+type SummaryCount = {
+  isLoading: boolean;
+  isError: boolean;
+  totalCount?: number;
+};
+
+function summaryCountText(count: SummaryCount, language: 'cs' | 'en') {
+  if (count.isLoading) return '…';
+  if (count.isError) return '—';
+  return formatDashboardNumber(count.totalCount, language);
+}
+
 export function DashboardSummaryCards(props: {
   appMode: 'user' | 'admin';
   basePath: string;
   density: DashboardDensity;
   scope: ObjectScope;
   membership: DashboardMembership;
-  vps: {
-    isLoading: boolean;
-    isError: boolean;
-    totalCount?: number;
-  };
-  datasets: {
-    isLoading: boolean;
-    isError: boolean;
-    totalCount?: number;
-  };
-  dns: {
-    isLoading: boolean;
-    isError: boolean;
-    totalCount?: number;
+  vps: SummaryCount;
+  datasets: SummaryCount;
+  dns: SummaryCount;
+  adminCounts?: {
+    members: SummaryCount;
+    unmatchedPayments: SummaryCount;
+    awaitingRequests: SummaryCount;
   };
 }) {
   const { lang, t, tc } = useI18n();
   const compact = props.density === 'compact';
-  const items = [
+  const adminCounts = props.scope === 'all' ? props.adminCounts : undefined;
+  const columns = props.scope === 'mine' ? 'md:grid-cols-2 xl:grid-cols-4'
+    : adminCounts ? 'sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6' : 'md:grid-cols-3';
+  const items: { testId: string; label: string; value: string; openTestId?: string; to?: string }[] = [
     {
       testId: 'app.dashboard.kpi.vps',
-      openTestId: null,
       label: t('nav.vps'),
-      value: props.vps.isLoading ? '…' : props.vps.isError ? '—' : formatDashboardNumber(props.vps.totalCount, lang),
-      to: null,
+      value: summaryCountText(props.vps, lang),
     },
     ...(props.appMode === 'admin'
       ? [{
           testId: 'app.dashboard.kpi.datasets',
           openTestId: 'app.dashboard.kpi.datasets.open',
           label: t('nav.datasets'),
-          value: props.datasets.isLoading ? '…' : props.datasets.isError ? '—' : formatDashboardNumber(props.datasets.totalCount, lang),
+          value: summaryCountText(props.datasets, lang),
           to: `${props.basePath}/datasets`,
         }]
       : []),
     {
       testId: 'app.dashboard.kpi.dns',
-      openTestId: null,
       label: props.dns.isLoading || props.dns.isError || props.dns.totalCount == null
         ? t('dashboard.summary.dns.other')
         : tc('dashboard.summary.dns', props.dns.totalCount),
-      value: props.dns.isLoading ? '…' : props.dns.isError ? '—' : formatDashboardNumber(props.dns.totalCount, lang),
-      to: null,
+      value: summaryCountText(props.dns, lang),
     },
+    ...(adminCounts ? [
+      {
+        testId: 'app.dashboard.kpi.members',
+        label: t('public.overview.stats.members.title'),
+        value: summaryCountText(adminCounts.members, lang),
+      },
+      {
+        testId: 'app.dashboard.kpi.unmatched-payments',
+        label: t('dashboard.summary.unmatched_payments'),
+        value: summaryCountText(adminCounts.unmatchedPayments, lang),
+      },
+      {
+        testId: 'app.dashboard.kpi.awaiting-requests',
+        label: t('dashboard.summary.awaiting_requests'),
+        value: summaryCountText(adminCounts.awaitingRequests, lang),
+      },
+    ] : []),
   ];
 
   return (
@@ -73,7 +94,7 @@ export function DashboardSummaryCards(props: {
             {t('dashboard.summary.scope.all')}
           </p>
         ) : null}
-        <div className={`grid gap-2 ${props.scope === 'mine' ? 'md:grid-cols-2 xl:grid-cols-4' : 'md:grid-cols-3'}`}>
+        <div className={`grid gap-2 ${columns}`}>
           {items.map((item) => (
             <div
               key={item.testId}

@@ -313,27 +313,22 @@ test.describe('OOM report list filter contract', () => {
     }))
       expect(paginatedUrl.searchParams.get(key), key).toBe(value);
 
-    const pushCgroupHistory = async (cgroup: string) => {
-      await page.evaluate((nextCgroup) => {
-        const next = new URL(window.location.href);
-        next.searchParams.set('cgroup', nextCgroup);
-        next.searchParams.delete('from_id');
-        next.searchParams.set('page', '1');
-        window.history.pushState({}, '', `${next.pathname}?${next.searchParams.toString()}`);
-        window.dispatchEvent(new PopStateEvent('popstate'));
-      }, cgroup);
-      await expect.poll(() => lastRequest(requests).fields['cgroup']).toBe(cgroup);
-      await expect(reportSurface(page, testInfo, 125)).toContainText(cgroup);
-    };
+    await expect.poll(() => new URL(page.url()).searchParams.get('page')).toBe('2');
 
-    await pushCgroupHistory('/history-one.slice');
-    await pushCgroupHistory('/history-two.slice');
+    await input.fill('cgroup:/history-two.slice');
+    await input.press('Enter');
+    await expect.poll(() => lastRequest(requests).fields['cgroup']).toBe('/history-two.slice');
+    await expect(reportSurface(page, testInfo, 125)).toContainText('/history-two.slice');
+    await expect.poll(() => new URL(page.url()).searchParams.get('page')).toBe('1');
+    expect(new URL(page.url()).searchParams.has('from_id')).toBe(false);
+    expect(lastRequest(requests).fields).not.toHaveProperty('from_id');
 
     const beforeBack = requests.length;
     await page.goBack();
-    await expect.poll(() => new URL(page.url()).searchParams.get('cgroup')).toBe('/history-one.slice');
-    await expect(page.getByTestId('oom.chip.cgroup')).toContainText('cgroup:/history-one.slice');
-    await expect(reportSurface(page, testInfo, 125)).toContainText('/history-one.slice');
+    await expect.poll(() => new URL(page.url()).searchParams.get('cgroup')).toBe('/system.slice');
+    await expect(page.getByTestId('oom.chip.cgroup')).toContainText('cgroup:/system.slice');
+    await expect(reportSurface(page, testInfo, 125)).toContainText('/system.slice');
+    await expect.poll(() => new URL(page.url()).searchParams.get('page')).toBe('1');
     await page.waitForTimeout(250);
     expect(requests).toHaveLength(beforeBack);
 

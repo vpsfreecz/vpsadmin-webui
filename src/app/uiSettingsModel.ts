@@ -38,6 +38,7 @@ export interface UiTipSettings {
 export interface UiSettings {
   /** Retained for persisted-settings compatibility; icon-only navigation is retired. */
   sidebarCollapsed: boolean;
+  vpsRecentTasksVisible?: boolean;
   dnsRecordIdsVisible?: boolean;
   theme: UiThemePreference;
   language: UiLanguagePreference;
@@ -47,6 +48,7 @@ export interface UiSettings {
 
 export const DEFAULT_SETTINGS: UiSettings = {
   sidebarCollapsed: false,
+  vpsRecentTasksVisible: true,
   dnsRecordIdsVisible: false,
   theme: 'system',
   language: 'system',
@@ -92,6 +94,7 @@ export function normalizeUiSettings(input: unknown): UiSettings {
   return {
     // Ignore old local/server collapse preferences without resetting other settings.
     sidebarCollapsed: false,
+    vpsRecentTasksVisible: input['vpsRecentTasksVisible'] !== false,
     dnsRecordIdsVisible: input['dnsRecordIdsVisible'] === true,
     theme,
     language,

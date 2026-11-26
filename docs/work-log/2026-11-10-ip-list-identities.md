@@ -37,3 +37,16 @@ physical Safari or weak-display certification. Original artifacts remain.
 The earlier five-wrapper delivery is historically source-qualified; this new
 head requires fresh six CI checks, current integration, clean packaging and
 paired preview/TODO evidence before delivery. Broad UX03/04 remain partial.
+### Accepted integration evidence
+
+
+
+### Existing preview evidence
+
+Current integration starts at cleana87cabd, preserving the separate264
+occupancy dimensions and all current generated SDK/API/BFF contracts.
+Only two current runtime class lists change. Strict219 roots/registry/frozen
+baseline stay byte-equal; append only the new source regression definitions.
+This preparation is not current runtime activation, and does not imply that
+the preceding264 candidate has been activated. Both exact-head release
+checks remain separate; no stale source evidence is retagged.

@@ -44,7 +44,7 @@ test('@workflow-matrix @pr-smoke @pr-smoke-mobile @smoke @smoke-mobile authentic
   await navigation.getByRole('link', { name: 'VPS', exact: true }).click();
 
   await expect(page).toHaveURL(/\/app\/vps$/);
-  await expect(page.getByRole('heading', { name: 'VPS' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'VPS', level: 1, exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: /alpha/i })).toBeVisible();
   expect(vpsRequests.length).toBeGreaterThan(0);
   for (const request of vpsRequests) {

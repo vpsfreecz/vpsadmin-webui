@@ -35,6 +35,8 @@ IP/Host-IP consumers remain partial; the additional named recovery/action
 criteria and wider approved queue remain open. All test-owned TLS removed
 following each finished controller. No live accounts/objects or mutations.
 
+### Accepted integration evidence
+
 Pinned focused ci:quick, strict112/175, changed shared-file lint/format adoption
 and build pass. All8 new exact source executions fail on clean8c for intended
 contrast (dark2.495, light4.478/4.482 on this specific unassigned fixture) and
@@ -43,3 +45,12 @@ retention and0writes. These fixture-specific ratios differ from the original
 light4.393 audit data; retain the original distinct sources and samples.
 New exact CI and current clean packaging/paired preview/TODO evidence remain
 required before delivery; earlier6df/A87/8c certificates cannot certify this head.
+
+### Existing preview evidence
+
+Independent integration onto actual8c preserves current SDK/API/BFF/package
+and all strict219 registry roots/frozen baseline bytes. Only three current
+runtime files change by the intended11 class occurrences; lint adoption removes
+only FilterChip deferred hash. Pinned integratedquick/build pass; focused head
+0da3d08862950bc6050c2d3ee68593769bc18713 requires fresh exact CI. Clean Nix and
+new packaged browser/pair/paired/TODO gates remain outstanding.

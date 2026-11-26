@@ -1,6 +1,6 @@
 import React, { useEffect, useId, useRef, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { AlertTriangle, ChevronDown, Clock3, WifiOff } from 'lucide-react';
+import { AlertTriangle, ChevronDown, Clock3, ShieldCheck, WifiOff } from 'lucide-react';
 
 import { updateUser } from '../../lib/api/users';
 import { formatErrorMessage } from '../../lib/errors';
@@ -268,6 +268,11 @@ export function AppUserMenu(props: Pick<AppHeaderProps,
         data-testid="shell.user-menu-button"
       >
         <span className="min-w-0 truncate font-medium">{authLogin ?? '—'}</span>
+        {authRole === 'admin' ? (
+          <span className="shrink-0" title={roleLabel} data-testid="shell.user-role">
+            <ShieldCheck size={14} aria-hidden="true" />
+          </span>
+        ) : null}
         {showScope ? (
           <span
             id={scopeId}

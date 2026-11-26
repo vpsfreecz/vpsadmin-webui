@@ -368,7 +368,6 @@ export function OverviewDiagnosticsCard(props: { vps: Vps; basePath: string }) {
           )}
         </section>
         <VpsDiagnosticLinks basePath={props.basePath} vpsId={props.vps.id} />
-        <div className="mt-2 text-xs text-faint">{t('vps.overview.diagnostics.hint')}</div>
       </CardBody>
     </Card>
   );

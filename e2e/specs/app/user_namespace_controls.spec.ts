@@ -83,8 +83,8 @@ for (const role of ['member', 'support', 'admin'] as const) {
             const size = searchParams.get('user_namespace[size]');
             return { user_namespaces: namespaces.filter((n) => !size || String(n.size) === size) };
           },
-          'GET user_namespaces/21': () => namespaces[0],
-          'GET user_namespace_maps/71': () => maps[0],
+          'GET user_namespaces/21': () => ({ user_namespace: namespaces[0] }),
+          'GET user_namespace_maps/71': () => ({ user_namespace_map: maps[0] }),
           'GET user_namespace_maps/71/entries': () => ({ entries: [] }),
           'GET vpses': () => ({ vpses: [] }),
           'GET user_namespace_maps': ({ searchParams }) => {
@@ -234,9 +234,9 @@ test('@pr-smoke @pr-smoke-mobile namespace create retains its exact payload and 
       'POST user_namespace_maps': async ({ request }) => {
         payloads.push(await request.postDataJSON());
         await pending;
-        return map;
+        return { user_namespace_map: map };
       },
-      'GET user_namespace_maps/71': () => map,
+      'GET user_namespace_maps/71': () => ({ user_namespace_map: map }),
       'GET user_namespace_maps/71/entries': () => ({ entries: [] }),
       'GET vpses': () => ({ vpses: [] }),
     },

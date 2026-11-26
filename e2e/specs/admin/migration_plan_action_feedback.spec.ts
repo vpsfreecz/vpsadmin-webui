@@ -28,8 +28,8 @@ test('@pr-smoke @pr-smoke-mobile rejected migration plan actions stay in their d
           reason: null,
         },
       }),
-      'GET migration_plans/2/vps_migrations': () => [],
-      'GET nodes': () => [{ id: 1, domain_name: 'node1.example' }],
+      'GET migration_plans/2/vps_migrations': () => ({ vps_migrations: [] }),
+      'GET nodes': () => ({ nodes: [{ id: 1, domain_name: 'node1.example' }] }),
       'GET transaction_chains': () => ({ transaction_chains: [] }),
       'POST migration_plans/2/start': () => {
         attempts += 1;

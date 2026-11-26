@@ -664,9 +664,7 @@ function DatasetManagementCard() {
       <Modal
         open={createOpen}
         onClose={closeCreate}
-        title={
-          <span className="[overflow-wrap:anywhere]">{t('dataset.manage.create.title', { dataset: objectLabel })}</span>
-        }
+        title={<span className="[overflow-wrap:anywhere]">{t('dataset.manage.create.title', { dataset: objectLabel })}</span>}
       >
         <div className="space-y-4" data-testid="dataset.manage.create.modal">
           <label className="block">

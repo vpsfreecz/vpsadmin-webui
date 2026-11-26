@@ -25,7 +25,7 @@ claims. Local adapter tests verify serialization, not deployed backend capabilit
 | Resource overrides | Explicit admin override only where backend action supports it. | PR503; do not infer that every create/edit endpoint accepts one universal flag. |
 | Custom soft deletion | Admin lifecycle PUT for the supported future lifetime transition; member uses normal DELETE. | PR518; do not send invented expiry parameters to DELETE or use a delete-then-edit race. |
 | Hard deletion | Explicit privileged mode; disregard a leftover soft-expiry draft. | PR518; validate actual backend permission and receipt. |
-| Console entry | Acquire/reuse console token through existing API; bounded request on entry. | PR517; do not create unbounded replacement sessions during polling. |
+| Console entry | Acquire/reuse console token through existing API; bounded request on entry. Read-only ConsoleToken Show checks current validity every 15 seconds; router traffic alone extends the sliding expiration. Never infer current expiry from the original Create timestamp. | PR517; do not create unbounded replacement sessions during polling. |
 | Registration reconsideration | Derive supported actions from actual request state/created-user constraints. | PR510; a generic state dropdown must not advertise unsupported transitions. |
 | Effective timezone | Resolve actual account/server timezone when account field is absent. | PR502; Europe/Prague is a real zone ID, not a hardcoded label for all accounts. |
 | Node heatmap | Use configured legacy base URL, validated node FQDN/type/maintenance eligibility. | [URL model](../../src/lib/nodeHeatmap.ts); missing config omits unavailable actions. |
@@ -129,6 +129,21 @@ each workflow validates the identity and fields it actually needs. Existing
 serialized replies through controlled XHR. Mocked policy/binding tests establish
 source behavior only; they do not certify a packaged runtime, backend permissions,
 OAuth exchange, task completion or deployment.
+
+### Document read lifetime
+
+GET and OPTIONS requests bind the caller signal to the current document lifetime.
+Beforeunload aborts pending reads and blocks later reads before WebKit retires
+the origin. Pagehide keeps that barrier for discarded/cached documents;
+pageshow starts a fresh lifetime. If departure is cancelled, trusted foreground
+activation permits new reads while the document remains visible. Synthetic
+activation cannot reopen the scope. Each binding releases
+its listeners after settlement. The caller signal is never aborted by this
+policy, so a submitted mutation sharing it remains in flight. Other request
+methods retain their existing cancellation and uncertain-outcome rules. The
+installed HaveAPI client still owns serialization, XHR, cancellation and decoding;
+this policy does not replace its transport or project the generated request.
+See [native failure and verification](../work-log/2026-11-22-document-read-lifetime.md).
 
 ## Generated-backed domain boundaries
 
@@ -657,6 +672,14 @@ the same scoped presentation and authenticated incident route. Immutable subject
 text remains the explanation; no new action, second sender, administrator MailLog,
 private delivery-error endpoint or private error detail is exposed.
 
+
+VPS migration acceptance returns a tracked action state before completion. The
+receipt uses the frozen submitted maintenance_window/finish_weekday/finish_minutes
+values (maintenance defaults true; custom Sunday0/midnight0 are valid). Initial
+preparation and data transfer can precede the backend window wait. Leaving the
+page does not cancel the operation or release duplicate/uncertainty locks.
+
+
 ### Export dataset picker reads
 
 The picker uses existing Dataset#index `limit=1000`, `_meta[count]` and
@@ -705,3 +728,30 @@ This is a presentation change, with no API adapter/payload/permission/lock chang
 Actual deployed cff desktopChromium/mobileWebKit both showed the raw English
 reason inside the dialog; no visibility regression was invented. Real fixture
 cleanup and final candidate/release qualification remain separately required.
+
+
+
+## DNS configuration counters and server reports
+
+Approved DNS-06/07/08/13 / REQ-049, inspected API22adc8b54d464e0f899550746b69181930da80fd.
+`DnsZone.serial` is a stored unsigned configuration counter (schema default1),
+incremented by record operations. Zone creation does not query an external
+primary to populate it. `Supervisor::Node::DnsStatus` independently updates
+`DnsServerZone.serial`, load/refresh/expiration and `last_check_at` from node
+reports. Those timestamps and serials are observations, not proof of current
+availability or complete DNS publication. Zero is a valid serial; no numeric
+ordering or equality is used to infer readiness.
+
+`Supervisor::Node::DnsTransferLog` maintains the latest transfer event by its
+event time. A previous failure can coexist with a later loaded-zone report;
+show the event result/time separately. Keep known reason-code translations and
+unrecognized diagnostics without manufacturing a failure from absent evidence.
+Nonadministrator reads of internally sourced zones mask transfer-event fields;
+no new privileged read or readiness endpoint is introduced. Existing owner and
+hidden-server restrictions remain authoritative.
+
+The secondary report keeps its existing first100 server-zone read. The Servers
+tab retains its own50-row keyset pagination and administrator-only mutation
+callbacks. Query keys, filters, limits, Create/Delete payloads, task tracking,
+preflight and local locks remain unchanged. Presentation does not incorporate
+the separate PR219 API/SDK readiness proposal or require API activation.

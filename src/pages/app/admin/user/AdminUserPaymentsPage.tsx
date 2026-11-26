@@ -323,6 +323,7 @@ export function AdminUserPaymentsPage() {
                     {t('admin.user.payments.settings.save_paid_until')}
                   </Button>
                 </form>
+
                 <form className="flex flex-col gap-2" onSubmit={submitMonthlyPayment} data-testid="admin.user.payments.monthly.form">
                   <Input
                     label={<span className="flex min-h-6 items-center">{t('admin.user.payments.settings.field.monthly_payment')}</span>}

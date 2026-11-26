@@ -11,7 +11,13 @@ Locked terminology source a65a4dfeb92a59df4a80a737a20bcbf8558793ff reviewed; no 
 The unchanged-line presentation edit triggered the inherited structural source-hash guard at 527 lines in the cumulative source. Extract the existing mobile label, source badge and recipient identity plus the common Copy presentation into UserMailRecipientPresentation. Preserve source-specific legacy/generated-client fallback semantics, all row/query/mutation ASTs, IDs and copy inputs. Both table files are495 lines; remove the existing exception without raising a budget or baseline. Original failed quick log is retained.
 
 Working qualification before commit: full repository ci:quick, relevant existing
+### Accepted integration evidence
+
 unit tests and native build passed. 32 source-bound targeted browser cases
+
+### Existing preview evidence
+
+unit tests and native build passed. 122 source-bound targeted browser cases
 passed across Chromium, mobile Chrome and Linux mobile WebKit with max2workers,
 zero retry/failure/flaky/skip. The cumulative count is a union of the task
 cohorts and is not an additional unique-behavior claim. Exact committed checks,

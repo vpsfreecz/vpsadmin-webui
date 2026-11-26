@@ -35,7 +35,13 @@ as32 unique configurations. The slowed public scenario has no pageerror counter.
 
 Initial focused native/quick/build used borrowed cumulative dependencies with
 a different lockfile; they are retained as observations and do not qualify the
+### Accepted integration evidence
+
 focused source. Independent correct-lock npm ci, native40, pinned ci:quick and build now pass.
+
+### Existing preview evidence
+
+focused source. Independent npm ci and focused requalification are required.
 Clean committed packages, hosted CI, preview/protected delivery remain pending.
 No physical Safari/live permission claim or live objects. Durable local evidence:
 /data/webui-browser-runner/verification-20261103/todo-incident-navigation-20261112/.

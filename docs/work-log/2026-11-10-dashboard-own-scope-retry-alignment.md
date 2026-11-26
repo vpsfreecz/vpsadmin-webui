@@ -31,7 +31,13 @@ separately after execution. Broad UX-03/UX-04 remain partial until the finite
 main audit and historical scoped evidence reconciliation are complete.
 
 Exact-lock source checks completed: pinned ci:quick, existing unit suite
+### Accepted integration evidence
+
 (2364 tests/359 files) and production build pass on this source.
+
+### Existing preview evidence
+
+(2373 tests/360 files) and production build pass on this source.
 All15 targeted raw cases pass across Chromium, mobile Chromium and mobile
 WebKit on their first execution, zero failed/flaky/skipped/retries. The four
 failed-membership fixture kinds yield36 measured field/retry pairs at three

@@ -10,6 +10,17 @@ import {
 } from './uiSettingsModel';
 
 describe('uiSettingsModel', () => {
+  it('keeps recent tasks visible for old settings and preserves an explicit hidden preference', () => {
+    expect(normalizeUiSettings({ theme: 'dark' }).vpsRecentTasksVisible).toBe(true);
+    expect(normalizeUiSettings({ vpsRecentTasksVisible: 'false' }).vpsRecentTasksVisible).toBe(true);
+    expect(parseUiSettingsJson(toUiSettingsJson({ ...DEFAULT_SETTINGS, vpsRecentTasksVisible: false }))).toEqual({
+      ...DEFAULT_SETTINGS,
+      vpsRecentTasksVisible: false,
+    });
+    expect(
+      resetUiSettingsPreferences({ ...DEFAULT_SETTINGS, vpsRecentTasksVisible: false }).vpsRecentTasksVisible
+    ).toBe(true);
+  });
   it('hides technical DNS record IDs for old settings and persists an explicit opt-in', () => {
     expect(normalizeUiSettings({ theme: 'dark' }).dnsRecordIdsVisible).toBe(false);
     expect(normalizeUiSettings({ dnsRecordIdsVisible: 'true' }).dnsRecordIdsVisible).toBe(false);

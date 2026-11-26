@@ -692,7 +692,6 @@ for (const language of ['cs', 'en'] as const) {
   }
 }
 
-
 for (const language of ['cs', 'en'] as const)
   for (const theme of ['dark', 'light'] as const)
     test(`@pr-smoke @pr-smoke-mobile admin user detail: complete reminder value ${language} ${theme}`, async ({

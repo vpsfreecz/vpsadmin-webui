@@ -12,13 +12,15 @@ export function AdminUserHistoryViewToggle({
 }) {
   const { t } = useI18n();
   return (
-    <div>
+    <div className="w-full sm:w-auto">
       <div className="text-xs font-medium text-muted">{t('admin.user.history.view')}</div>
       <div className="mt-1 flex items-center gap-2">
         <Button
           variant="secondary"
-          size="sm"
-          className={view === 'changes' ? 'border-accent/60 bg-surface-2' : undefined}
+          size="md"
+          className={['h-11 min-w-11', view === 'changes' ? 'border-accent/60 bg-surface-2' : undefined]
+            .filter(Boolean)
+            .join(' ')}
           onClick={() => onChange('changes')}
           aria-pressed={view === 'changes'}
           testId="admin.user.history.view.changes"
@@ -27,8 +29,10 @@ export function AdminUserHistoryViewToggle({
         </Button>
         <Button
           variant="secondary"
-          size="sm"
-          className={view === 'actions' ? 'border-accent/60 bg-surface-2' : undefined}
+          size="md"
+          className={['h-11 min-w-11', view === 'actions' ? 'border-accent/60 bg-surface-2' : undefined]
+            .filter(Boolean)
+            .join(' ')}
           onClick={() => onChange('actions')}
           aria-pressed={view === 'actions'}
           testId="admin.user.history.view.actions"

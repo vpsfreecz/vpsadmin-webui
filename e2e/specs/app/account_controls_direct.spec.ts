@@ -44,13 +44,20 @@ for (const actor of [
         const controls = page.getByTestId('shell.controls');
         const account = controls.getByTestId('shell.user-menu-button');
         const badge = account.getByTestId('scope.indicator');
+        const roleIcon = account.getByTestId('shell.user-role');
         await expect(account).toHaveAccessibleName(`${language === 'cs' ? 'Účet' : 'Account'}: ${user.login}`);
         await expect(account).toHaveAttribute('aria-expanded', 'false');
         await expect(controls.getByTestId('shell.logout')).toHaveCount(0);
         await expect(page.locator('[data-testid="nav.drawer.account"], [data-testid="nav.sidebar.account"]')).toHaveCount(0);
         await expect(badge).toHaveCount(actor.level === 100 ? 1 : 0);
+        await expect(roleIcon).toHaveCount(actor.level === 100 ? 1 : 0);
         if (actor.level === 100) {
-          await expect(badge).toHaveText(language === 'cs' ? 'Všechny' : 'All');
+          const roleName = language === 'cs' ? 'Administrátor' : 'Admin';
+          const scopeName = language === 'cs' ? 'Všechny' : 'All';
+          await expect(roleIcon).toHaveAttribute('title', roleName);
+          await expect(roleIcon).toBeInViewport({ ratio: 1 });
+          await expect(account).toHaveAccessibleDescription(`${roleName} ${scopeName}`);
+          await expect(badge).toHaveText(scopeName);
           await expect(badge).toBeInViewport({ ratio: 1 });
         }
         const label = account.getByText(user.login, { exact: true });

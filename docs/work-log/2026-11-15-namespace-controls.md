@@ -57,6 +57,17 @@ New namespace-control scenarios separately cover320px on both mobile projects.
 All viewport and exact API assertions remain; the frozen actualdev review capture
 program is unchanged.
 
+### Accepted integration evidence
+
+
+
+### Existing preview evidence
+
+Initial cumulative browser40PASS/2FAIL/1INT/19notRun exposed a new fixture
+arrow-body mistake: map Show used a JavaScript labeled block and returned
+undefined. Correct it to an object expression matching the cumulative SDK's
+response namespace. POST payload/pending assertions already passed; keep the
+detail value assertion, budgets and product code unchanged. Original log retained.
 Working verification: full repository quick checks, relevant namespace/API/
 pagination units and native build passed on both sources. Each source then
 passed62 source-bound browser cases on Chromium, mobile Chrome and Linux mobile

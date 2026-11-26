@@ -1,5 +1,21 @@
 // DNS surfaces
 export const enDns = {
+  'dns.zones.field.configured_serial': 'Configuration serial',
+  'dns.zone.serial.primary_managed': 'Managed on primary server',
+  'dns.zone.serial.unknown': 'Unknown',
+  'dns.zone.servers.table.reported_serial': 'Reported serial',
+  'dns.zone.servers.assignment_id': 'Assignment #{id}',
+  'dns.zone.servers.serial_help':
+    'The configuration serial belongs to the primary zone managed in vpsAdmin. Each reported serial and check time come from the last report of that DNS server.',
+  'dns.zone.transfers.log.table.serial': 'Transfer serial',
+  'dns.zone.transfers.report.details': 'Report details',
+  'dns.zone.transfers.report.latest': 'Last reported transfer',
+  'dns.zone.transfers.report.unknown': 'The last transfer result is unknown.',
+  'dns.zone.transfers.report.event_help':
+    'This is the transfer result at the stated time, not a test of the primary server’s current availability.',
+  'dns.zone.transfers.report.at': 'Transfer time',
+  'dns.zone.transfers.report.limit':
+    'At most 100 assignments are shown. Find additional servers on the Servers tab.',
   'dns.zones.badge.dnssec': 'DNSSEC',
   'dns.zones.badge.dnssec_primary_server': 'DNSSEC: primary server',
   'dns.zone.dnssec.external_help': 'Manage DNSSEC on the primary server. The signing status of this secondary zone is not verified here.',
@@ -256,7 +272,7 @@ export const enDns = {
   'dns.zone.transfers.description': 'Configure zone transfer peers and TSIG key bindings.',
   'dns.zone.transfers.secondary.title': 'Secondary zone transfers',
   'dns.zone.transfers.secondary.description':
-    'Primary servers and TSIG bindings used to load this secondary zone.',
+    'Configure primary servers for zone transfers. An optional TSIG key authenticates the transfer.',
   'dns.zone.transfers.loading': 'Loading transfers…',
   'dns.zone.transfers.load_failed': 'Failed to load transfers',
   'dns.zone.transfers.empty': 'No transfers',
@@ -269,7 +285,7 @@ export const enDns = {
   'dns.zone.transfers.field.host_ip': 'Host IP',
   'dns.zone.transfers.field.host_ip_placeholder': 'Type IP or #id',
   'dns.zone.transfers.field.host_ip_ineligible': 'Choose an eligible routed host address from this list.',
-  'dns.zone.transfers.field.peer_type': 'Peer type',
+  'dns.zone.transfers.field.peer_type': 'Peer role',
   'dns.zone.transfers.field.tsig_key': 'TSIG key',
   'dns.zone.transfers.peer_type.primary': 'Primary',
   'dns.zone.transfers.peer_type.secondary': 'Secondary',
@@ -298,10 +314,10 @@ export const enDns = {
   'dns.zone.transfers.log.reason.connection_failed': 'The primary DNS server could not be reached.',
   'dns.zone.transfers.log.reason.tsig_error': 'The transfer failed TSIG authentication.',
   'dns.zone.transfers.log.reason.unknown': 'The zone transfer failed.',
-  'dns.zone.transfers.status.title': 'Current server state',
+  'dns.zone.transfers.status.title': 'Zone state on DNS servers',
   'dns.zone.transfers.status.description':
-    'Zone state on DNS servers: serial, last load, refresh, expiration and last check.',
-  'dns.zone.transfers.status.empty': 'No transfer status is available for this zone yet.',
+    'The last reported values and check time for each server. A transfer result is a separate event, not confirmation of current availability.',
+  'dns.zone.transfers.status.empty': 'No server reports are available for this zone yet.',
   'dns.zone.dnssec.title': 'DNSSEC',
   'dns.zone.dnssec.description': 'Zone DNSKEY and DS for the parent zone.',
   'dns.zone.dnssec.loading': 'Loading DNSSEC records…',
@@ -317,7 +333,7 @@ export const enDns = {
   'dns.zone.servers.empty': 'No servers',
   'dns.zone.servers.empty_body': 'This zone is not assigned to any authoritative DNS server yet.',
   'dns.zone.servers.table.server': 'Server',
-  'dns.zone.servers.table.type': 'Type',
+  'dns.zone.servers.table.type': 'Role',
   'dns.zone.servers.table.serial': 'Serial',
   'dns.zone.servers.table.loaded': 'Loaded',
   'dns.zone.servers.table.refresh': 'Refresh',

@@ -22,7 +22,13 @@ Fixture coverage is not live API permission, physical Safari or display proof.
 Whole IP/host consumers and broad UX-03/04 remain partial until the finite audit
 and required clean packaging/CI/paired-preview/TODO evidence are complete.
 
+### Accepted integration evidence
+
 Pinned topic ci:quick, strict browser types and production build pass.
+
+### Existing preview evidence
+
+Pinned preview ci:quick, strict browser types and production build pass.
 The new regression fails all four baseline browser/locale executions at
 the original target height; the focused build passes all four, checking
 three widths and actual keyboard/query/local-fragment bounds. Existing strict

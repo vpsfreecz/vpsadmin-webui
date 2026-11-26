@@ -19,7 +19,13 @@ Forget and TOTP changes invalidate the relevant queries automatically.
 The UI regression verifies these invalidations without changing any interval.
 
 Working qualification before commit: full repository ci:quick, relevant existing
+### Accepted integration evidence
+
 unit tests and native build passed. 24 source-bound targeted browser cases
+
+### Existing preview evidence
+
+unit tests and native build passed. 122 source-bound targeted browser cases
 passed across Chromium, mobile Chrome and Linux mobile WebKit with max2workers,
 zero retry/failure/flaky/skip. The cumulative count is a union of the task
 cohorts and is not an additional unique-behavior claim. Exact committed checks,

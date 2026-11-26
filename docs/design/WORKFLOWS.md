@@ -139,10 +139,15 @@ Wide/medium/narrow layouts use four/two/one columns. Use catalog plural forms
 for DNS zones (Czech0/5+/11–14 use DNS zón); no component grammar rules.
 Shared date/payment formatters receive the interface locale; dates use the
 account time zone. Zero is retained, missing values remain unavailable, and the
-monthly amount has no invented currency. No new finance or privileged settings
-request is needed. Administrator All view keeps its aggregate resource counts
-and dataset item with an explicit scope caption; personal finance is omitted.
-Dates remain neutral; this change adds no payment-status calculation.
+monthly amount has no invented currency. My view uses the cached account
+fields. Administrator All view combines resource counts, current members,
+unmatched incoming payments and registrations or account changes awaiting
+review in one desktop row. The grid wraps on narrower screens. Current
+membership uses the active and suspended totals already returned by full
+cluster stats. The two queues use filtered API count metadata. Missing or
+failed totals are unavailable and zero remains visible. Only administrators
+in All view request the two queues. The scope caption and dataset action stay
+in the panel.
 
 Label the resource count group once with the actual object scope. Put each resource label and count on a compact wrapping line. (REQ-009).
 Align each widget title and its status badges on their text baseline. The same layout applies to essential, hidden and collapsed labels. (REQ-009).
@@ -154,6 +159,10 @@ The dashboard header shows its title. News and advisory cards omit the generic
 subtitles, and compact cluster cards omit the hidden-node footer. The shell account control
 shows the login and the shell indicates the active view (REQ-004).
 OAuth login/callback/logout preserve a safe return destination and display errors.
+A healthy BFF login is reused when its login URL opens in another window sharing
+the host cookie. An API authentication rejection requests `reauth=1`, including
+through the public header, so a rejected credential cannot loop back into the
+application. Separate profiles and private windows retain independent logins.
 The public desktop header and mobile menu offer sign-in without a separate
 password-reset shortcut (maintainer decision, 2026-09-30). Password recovery
 remains available through sign-in and the login-required/expired-session screen
@@ -302,6 +311,8 @@ See the [parity audit](../work-log/2026-10-03-migration-feedback.md).
 
 ## Compute, disk, access, network and maintenance
 
+A failed reconciliation keeps its existing safety-lock message and verification gate. The feedback remains readable on the warning panel and uses weight and a separate border marker as well as semantic color. It must not release the lock or resubmit the operation merely to dismiss the warning.
+
 The VPS resources card uses its heading and edit link. The focused form
 opens with its heading and fields. Live-change and separate-save guidance
 is inside the performance section, with quota and review near the actions.
@@ -393,7 +404,12 @@ successful activation, copying and removing the password from view.
 ## Console and VPS deletion
 
 **Intent:** entering Console opens a session directly; intentional replacement and
-revocation remain explicit. Opening a page must not spawn an uncontrolled retry
+revocation remain explicit. The original token expiration is a snapshot:
+router traffic renews it. The parent checks the existing read-only Show action
+every 15 seconds without creating or extending a token. Authoritative denial,
+a changed token or a freshly returned expired token removes the terminal;
+uncertain validation warns while the router continues enforcing access.
+Reconnect reloads the same token. Opening a page must not spawn an uncontrolled retry
 loop after a failed token request. Secure console URLs are required.
 
 Console pages use a compact VPS identity and session toolbar, without the full
@@ -427,6 +443,15 @@ Expanded charts show value and account-time axes and keep missing samples
 as gaps. A fresh window can be reopened without a duplicate fetch.
 
 ## Storage, NAS, snapshots, backup and export
+
+**Dataset capacity:** list and detail distinguish referenced space / reference quota
+from dataset and descendant usage / quota. Each configured positive limit has
+its own named value, percentage and bar with shared VPS severity thresholds.
+Zero quotas mean no limit; show numeric usage without estimating a capacity
+from pool availability. Missing measurements stay unknown, including when a
+configured limit is known. Keep both quota names visible once, using infinity
+only for an explicit zero limit and an unknown marker for missing data. Do not repeat the reference-quota value in a second
+summary row. This changes presentation only, not allocation or API writes.
 
 The VPS storage view shows used space against its effective quota. The
 manual mount summary links to the mount list and separates configured
@@ -479,6 +504,16 @@ heading text for the object document title, contextual Help priority0, existing
 return targets and capability-dependent tabs. This chooses no navigation model.
 
 
+
+**Counted-record links (BAK-03):** complete Backup Center dataset and download
+statistics open the existing dataset picker and Downloads list. The destination
+clears local text matching, prior dataset selection, restore intent and embedded
+snapshot pagination so it contains the same IDs as the count. Keep the current
+route, account scope and unrelated query values. Normal tabs continue preserving
+filters. Links use native keyboard/new-tab/history semantics. Incomplete or failed
+collections and lifecycle groups without an exact existing filter remain inert;
+no API filter, role permission or lifecycle meaning is invented.
+
 **Backup detail navigation (BAK-05):** opening a dataset from a download or the
 snapshot/plan workspace retains the existing Backup Center entry as active.
 The URL carries only presentation context, so reload and detail-tab navigation
@@ -492,6 +527,39 @@ snapshot/download pagination also checks the browser pathname owning its URL
 before writing, so an old page cannot replace the destination query during a
 rapid return. Other keyset consumers retain their existing behavior.
 
+
+
+
+**Dataset header:** a dataset-only breadcrumb groups the existing return context
+and complete labelled name. The internal ID, existing VPS association and
+Busy/Working state remain distinct and wrap without clipping. Preserve plain
+heading text for the object document title, contextual Help priority0, existing
+return targets and capability-dependent tabs. This chooses no navigation model.
+
+
+**Filter help (UX-06):** NAS, Backup Center and Tasks expose the same question-mark
+button and SmartInputHelp modal, operable by click, touch, Enter and Space.
+Closing returns focus without changing the filter or URL. Backup Center explains
+local dataset matching on Snapshots/Plans (not snapshot/plan names) and its
+distinct download fields on Downloads. Tasks explains case-insensitive matching
+on loaded action/transaction labels, IDs and targets, including tracked actions;
+it does not search the full history. Existing loading limits and role scopes
+remain authoritative. Opening help performs no reads or writes.
+
+
+**Mount lookup feedback:** dataset lookup failures retain the mount draft and
+show readable foreground text, medium weight and a separate danger border. The
+local form styles its error descendants for both the earlier inline finder and
+the current embedded picker. Retry keeps each implementation's existing query
+contract; displaying or retrying a lookup sends no mount mutation.
+
+**Subdataset context:** the creation dialog title includes the complete parent
+label (full name, name or existing fallback), including numeric names that differ
+from the resource ID. Long unbroken labels wrap inside the title. The redundant
+parent/API-ID information box is removed; child name and existing creation fields
+remain. API rejection retains the title and draft. Cancel/Escape and reopening
+retain existing reset behavior. The exact parent-ID payload and existing
+ownership/lifecycle gates remain unchanged.
 
 Export detail presents its summary, allowed hosts and mount instructions as
 full-width sections in that order. Hosts remain a compact table on desktop;
@@ -582,6 +650,33 @@ API request/error handling remain authoritative. An API rejection retains the
 draft and field error; an intercepted save does not prove live DNS publication.
 [Prepared wildcard verification](../work-log/2026-11-12-dns-bare-wildcard.md).
 
+
+Monthly traffic and live network graphs expose visible time/value axes. Keep IEC byte totals distinct from IEC bytes per second, and preserve the existing formats, owner/filter queries, rate calculation, polling and bounded session history. Keyboard/touch point inspection retains the exact sample, including a single first measurement. Keep its selection while focused; Escape or blur dismisses it and unfocused hover clears on leaving; distinguish a measured zero from empty history. The same display applies in member/My and administrator live views. [Approved NET-14 scope](../work-log/2026-11-15-network-chart-orientation.md).
+
+Approved DNS-06/07/08/13 distinguish the managed configuration serial from
+individual server reports. A secondary zone's stored counter is not a response
+from its external primary; show where it is managed instead of echoing that
+counter as an observed serial. Keep numeric zero, absent data and independently
+reported server values distinct; do not infer publication or availability.
+
+Secondary Transfers places server reports before configured peers and history.
+Each query keeps its own loading, failure/retry and verified-empty state. A peer
+list failure does not hide an available server report; Create remains disabled
+until that list is available, preserving its previous availability gate. The
+last transfer result and time are labelled as an event, with no direct-primary
+readiness claim. Mobile report cards retain supplementary addresses/load/refresh/
+expiration behind a native keyboard/touch disclosure; primary-server cards and
+pagination retain their existing actions and data. Keep complete names, roles
+and assignment IDs readable. Czech controls call zone transfers Přenosy; primary
+server configuration and optional TSIG authentication have distinct meanings.
+
+
+DNS-zone creation keeps a stable top inset as primary/secondary fields change.
+The form remains horizontally centered, bounds its height to the visual viewport
+and scrolls its body while retaining the footer, focus/close behavior, draft
+values and existing Create/role contracts. Other Modal callers retain their
+default vertical centering (approved DNS-05 / REQ-049).
+
 For secondary zones, the list and detail show DNSSEC management on the primary
 server; the local enable flag cannot establish the transferred zone's signing
 status. Settings explains that boundary and omits the signing checkbox and
@@ -600,6 +695,17 @@ values and existing Create/role contracts. Other Modal callers retain their
 default vertical centering (approved DNS-05 / REQ-049).
 
 Monthly traffic and live network graphs expose visible time/value axes. Keep IEC byte totals distinct from IEC bytes per second, and preserve the existing formats, owner/filter queries, rate calculation, polling and bounded session history. Keyboard/touch point inspection retains the exact sample, including a single first measurement. Keep its selection while focused; Escape or blur dismisses it and unfocused hover clears on leaving; distinguish a measured zero from empty history. The same display applies in member/My and administrator live views. [Approved NET-14 scope](../work-log/2026-11-15-network-chart-orientation.md).
+
+
+The DNS record editor accepts the API-supported bare `*` owner, including A,
+AAAA and TXT records. It preserves the existing `*.subdomain` owner syntax and
+rejects embedded, repeated or non-leading wildcard labels. This is an owner-name
+check only: content, TTL, record-set conflicts, permissions and the unchanged
+API request/error handling remain authoritative. An API rejection retains the
+draft and field error; an intercepted save does not prove live DNS publication.
+[Prepared wildcard verification](../work-log/2026-11-12-dns-bare-wildcard.md).
+
+Host-address creation wraps long route values, failed addresses and validation text inside the existing dialog and surrounding network failure panel. A rejected request keeps the complete remaining address input and existing partial-batch explanation; layout does not change the submitted address bytes or retry sequence.
 
 **Intent:** create/edit zones and records, configure transfers, servers, TSIG and
 DNSSEC, inspect logs, and manage relevant IP/interface/resolver resources.
@@ -774,8 +880,8 @@ profile security page remains a separate entry to the same preference.
 The nickname button opens the account popover. Account follows the existing
 personal route callback, including administrator aliases. Logout retains its
 configured native URL. Administrators with scope access can switch views here.
-The passive badge beside the nickname follows the current route mode. Support
-access and existing routing capabilities are unchanged.
+The shield beside an administrator's nickname identifies their role. The passive
+badge follows the current route mode for administrators with scope access.
 The popover fits the viewport and scrolls internally on short screens. Escape
 returns focus to the nickname. Session length remains separately accessible
 (REQ-004/009/010/012).
@@ -966,6 +1072,12 @@ behavior. [Presets](../../src/pages/app/admin/RegistrationReasonPresets.ts),
 errors, and uncertain-operation guard. Already-created accounts/terminal states
 must not be duplicated. Test persisted backend state and notification/action-state
 outcome with synthetic accounts before claiming full lifecycle certification.
+Server-reported resolution failures remain visible in the uncertainty warning
+and toast. The explicit `no ipv4 address available` reason is localized as an
+absence of free IPv4 addresses. An HTTP 5xx response still retains the durable
+retry guard and state-verification controls; a readable reason does not prove
+that the server rolled back the operation. After reload the guard remains,
+while the transient reason belongs to the current attempt.
 [Request model](../../src/pages/app/admin/RequestDetailModel.ts),
 [resolution mutation](../../src/pages/app/admin/RequestResolveMutation.ts),
 [requests API](../../src/lib/api/requests.ts).
@@ -1050,6 +1162,33 @@ blind retry. [Finance](../../src/lib/api/finance.ts),
 
 ## Tasks, transactions, monitoring, incidents and OOM
 
+
+
+Incident filters use a short ID-or-filter hint with readable Help and Advanced
+labels. The smart field grows with available width and fills a narrow row;
+all filter actions share44px controls. Existing exact-key filtering, ID opening,
+question-mark help, role restrictions and pending-router snapshots remain.
+Incident detail keeps distinct detection/reporting times and the reporter in
+Summary, without a duplicate header metadata row. Preserve original context
+links and role-specific fields. Complete report text wraps and grows with the
+page, without a nested vertical scroller or content truncation.
+See the [bounded reading change](../work-log/2026-11-15-incident-filter-message.md).
+
+Incident explicit page navigation and page-size changes use the same applied
+exact filter snapshot as the URL writer, including all administrator filters.
+They retain those filters while the router is still publishing a prior URL.
+URL normalization and browser history continue to use actual router params;
+role filtering, API fields and cursor/visited-page behavior remain unchanged.
+See the [caller correction](../work-log/2026-11-12-incident-pending-filter-navigation.md).
+
+The Tasks View all link closes the panel after ordinary pointer or keyboard
+activation and focuses the destination main content, including the current
+transactions route. Modified link clicks preserve browser behavior. The static
+Your actions label is omitted in both locales; filtering feedback, progress,
+transaction context and background-activity disclosure remain available.
+Opening the panel again retains tracked work.
+
+
 The OOM report Processes tab uses shared keyset pagination (25/50/100 visible
 rows, default100). Requests add one look-ahead row, staying below the API's1000
 maximum. The ascending cursor is the largest displayed task ID; the extra row
@@ -1097,6 +1236,8 @@ They retain those filters while the router is still publishing a prior URL.
 URL normalization and browser history continue to use actual router params;
 role filtering, API fields and cursor/visited-page behavior remain unchanged.
 See the [caller correction](../work-log/2026-11-12-incident-pending-filter-navigation.md).
+
+
 
 Transaction history uses compact aligned ID/time/owner/object/action/state
 columns on desktop and folds metadata under the action on small screens. The
@@ -1848,9 +1989,138 @@ and requests retain their original source; other cards remain independently
 available. This presentation change adds no retry, role, query or write behavior.
 
 
+
+
+## OOM filters during pending navigation
+
+Explicit Next/Previous/numbered-page and page-size actions use the same applied
+filter snapshot as the list request, even before a router transition publishes
+new search params. URL hydration and automatic cursor normalization continue to
+follow the router for Back/Forward. Owner-scope and API contracts remain unchanged.
+See [the reproduced race](../work-log/2026-11-09-oom-pending-filter-navigation.md).
+Changing an applied OOM filter also removes the old cursor and writes page 1
+in the same URL update. Data, address and browser history must agree.
+See [the integrated-preview regression](../work-log/2026-11-22-oom-filter-page-reset.md).
+
+
 ## Personal server membership retry
 
 The existing All servers / With my VPS selector retains its current authenticated membership and retry flow. A read failure exposes an adjacent retry matching the field height. This presentation correction does not change request ownership, pagination, state persistence or admin selector absence. [Scope and verification](../work-log/2026-11-10-dashboard-own-scope-retry-alignment.md).
+
+## VPS operation list wording (DET-02 result revision)
+
+
+
+Query-only navigation from Resources to general Configuration reuses the same
+component. Restore the open default for the new location without resetting the
+draft. Ordinary field edits and native toggles do not reset the disclosure.
+
+## NAS list presentation follow-up (REQ-048)
+
+NAS-01 and NAS-03 retain the existing right-side create action and action order.
+Refresh matches the shared default action height; narrow controls wrap.
+Copy filter link explicitly names the copied filter in Czech and English.
+The shared dataset list keeps its current URL serialization, owner/role presets,
+query application, refresh callback and clipboard behavior. These changes do
+not certify live API permissions.
+
+Tasks background-activity disclosure places the action below its explanation
+so both Show and Hide labels fit the fixed control height in the narrow drawer.
+This layout preserves the existing role-dependent scope and collapsed state.
+
+## Shared foreground readability
+
+Operational links retain their navigation, ownership and query contracts while
+using readable text foregrounds in normal, focus and hover states. Empty enabled
+fields use the tertiary hint role; actual values, disabled controls and pending
+cancellation retain their behavior. Explicit light/dark and system preference
+require actual rendered checks. See the [source and evidence boundaries](../work-log/2026-11-10-readable-link-and-placeholder-foregrounds.md).
+
+### Export list: complete values in responsive results
+
+Export rows and cards retain the same dataset/snapshot label, complete address
+and path, owner visibility and detail destination. A narrow desktop table
+scrolls within its card; mobile cards wrap full values rather than expanding
+the page. Disabled export state remains explicit in its badge and row variant.
+[Containment correction and evidence](../work-log/2026-11-10-export-list-value-containment.md).
+
+### VPS list: readable context and resource annotations
+
+Long owner/node identities stay within the context cell beside resource
+values; warning rows keep legible numeric usage labels. Mobile metadata's
+existing intentional truncation and all navigation, role, scope, filter,
+pagination, action and resource-pressure contracts remain unchanged.
+[Presentation evidence and source variants](../work-log/2026-11-10-vps-list-context-readability.md).
+
+
+## Personal server membership retry
+
+The existing All servers / With my VPS selector retains its current authenticated membership and retry flow. A read failure exposes an adjacent retry matching the field height. This presentation correction does not change request ownership, pagination, state persistence or admin selector absence. [Scope and verification](../work-log/2026-11-10-dashboard-own-scope-retry-alignment.md).
+
+### Shared error recovery action alignment
+
+Error recovery preserves the original retry, back, status, details and copy behavior. Matching action heights apply to the shared recovery row without changing error classification, navigation or retry policy.
+
+
+### Selected-owner reminder layout
+
+The account lifecycle reminder retains its native date/time control and complete
+value at narrow widths. Clear wraps below when both controls cannot fit; control
+heights, keyboard order, nullable clearing, presets and confirmation remain. This
+is presentation acceptance for REQ-010; fixture evidence does not certify API
+permissions, native picker behavior on a physical device or the whole account audit.
+
+
+### Selected-owner package read recovery
+
+Package assignment choices retain independent environment and shared-package
+queries. Show their loading/error state below the relevant labelled field and
+retry only that query without clearing the comment or the other choices. Item
+queries remain keyed by package ID; show read errors separately from a successful
+empty item list and preserve cached badges when a background refresh fails.
+Keep selected-owner filtering, the null shared-package owner and existing
+assignment/removal payloads. This is REQ-011 read feedback, not a permission
+change or a claim that fixture requests establish live access.
+
+## Selected-owner package footer alignment (REQ-010)
+
+Keep Cancel and Add package in one explicit wrapping action group. While a
+fixture-held assignment shows its spinner, both actions retain equal heights
+and top alignment with visible separation. Normal, pending and rejected states
+remain contained at narrow widths; rejection preserves the chosen environment,
+package and comment. Pending dismissal/duplicates and exact owner/payload rules
+remain unchanged. This is a local package-form layout correction, not a shared
+button, API or role change. [Evidence and gates](../work-log/2026-11-11-resource-form-footer-alignment.md).
+
+
+### Root dataset header containment (REQ-010)
+
+The root dataset card keeps its identity and capability-gated actions within the
+card at intermediate viewport widths. Header actions may move to a new row; role
+gates, destinations and dataset IDs do not change.
+
+Invalid root-SSD size feedback remains readable while native invalid state and
+submission guards stay active. A valid size clears the local message without
+submitting the draft.
+
+
+## Selected-user history view selection (REQ-010)
+
+Changes to user and Actions by user are toggle buttons with explicit pressed
+state. Pointer selection and Space/Enter activation update that state together
+with the existing view parameter. Filters, selected-user scope and pagination
+retain their existing contracts. This makes the current mode available through
+semantic state as well as the highlighted appearance; native assistive speech
+output still requires device review.
+
+
+### Dataset identity (NAS-06)
+
+NAS and general dataset list/detail routes distinguish the dataset name from
+its internal ID, including numeric names. Desktop lists retain the Name column;
+mobile cards and detail headings explicitly name the dataset, and both surfaces
+label the internal ID. Links and API requests use that ID, never the displayed
+name. Role and owner gates, filters and mutations remain unchanged.
 
 ## VPS operation list wording (DET-02 result revision)
 
@@ -1915,6 +2185,26 @@ replacement sends neither another token create nor a delete. These are fixture
 observations on clean C9, not live lifecycle or permission certification. See
 [the finite audit record](../work-log/2026-11-12-exit-action-rule.md).
 
+
+### Approved snapshot selection and pagination follow-up
+
+The Snapshots tab omits its generic introductory card. Its empty workspace
+names Storage as the first selection step in both languages. Plans and guided
+restore retain their existing context. Selection still exposes the original
+snapshot actions and correct VPS or NAS dataset detail link. Dataset snapshot
+views omit inactive pagination when the first page contains all records; a
+previous or next page keeps controls, including page-size selection. The
+extra-row probe and prefixed embedded queries are unchanged. Page size and
+counts do not claim a creation limit or automatic retention.
+[Prepared integration and verification](../work-log/2026-11-12-backup-picker-pagination-integration.md).
+
+
+Migration acceptance receipts distinguish immediate work from maintenance-window or
+custom scheduled completion using the captured submitted payload. Acceptance is
+not completion; preparation can begin before the window. The user may leave and
+track Tasks, while duplicate-operation and uncertain-request locks remain intact.
+
+
 ### Export dataset selection
 
 The global create dialog offers the currently authorized datasets by complete
@@ -1975,3 +2265,66 @@ Use a shorter introduction identifying the zone DNSKEY and DS for the parent zon
 ## Approved account follow-up: ACC-07
 
 Name the known-device search with its visible label and associate its always-visible help. Explain that filtering covers the current page, local changes refresh automatically and Refresh loads changes made elsewhere. Preserve owner scope, cursor recovery, polling intervals, device mutation confirmation and query invalidation.
+
+
+### Namespace controls: approved review NSP-01 through NSP-04
+
+Namespace and map lists share presentation, keeping their own API parameters,
+owner/role guards, numeric navigation, URL filters and pagination. Labeled Help
+and secondary Clear filters match the common list pattern. The placeholder says
+ID or filter; it does not promise unsupported free-text label search. Existing
+help retains supported keys and role-specific examples. Detail drops the generic
+quick-links subtitle and retains the actual View maps link and scope gate.
+Map Open remains a real link; Delete remains an explicit confirmation with its
+existing pending/error/retry behavior. New-map Cancel precedes Create in visual
+and tab order at the right edge. Creation payload and pending guard are unchanged.
+
+## Approved account follow-up: ACC-05
+
+Place each preference description below its associated control, in the same named and described group. Preserve selector callbacks, persistence, scope choices and the existing readable synchronization errors.
+
+## Approved account follow-up: ACC-09
+
+Keep one primary Create template entry in the filter bar for both empty and populated lists. Remove the redundant empty-state entry and its unused list callback. Preserve editor validation, existing filter/query/owner policy, creation payloads, deploy/delete guards and the existing readable length error.
+
+## Approved account follow-up: ACC-07
+
+Name the known-device search with its visible label and associate its always-visible help. Explain that filtering covers the current page, local changes refresh automatically and Refresh loads changes made elsewhere. Preserve owner scope, cursor recovery, polling intervals, device mutation confirmation and query invalidation.
+
+## Approved account follow-up: ACC-08
+
+Use the common secondary button for both effective-recipient Copy actions, preserving exact comma-separated clipboard contents, contextual accessible names, success/failure feedback and mouse, touch and keyboard behavior. No recipient selection, precedence, mutation or mail-setting contract changes.
+
+## Monitoring state deadlines and decisions (approved MON-01/02)
+
+State deadline identifies the maximum duration of acknowledgement/ignore state,
+re-evaluated by the next report after expiry. It is not a record-retention date.
+Explicit null means no time limit for these states; missing data stays unknown.
+Acknowledgement suppresses repeated problem alerts while retaining result logs
+and closure on success. Ignore suppresses alerts and skips logging/state updates
+from further results while ignored. Finite and unlimited choices retain the
+existing API request, native validation, pending and retry gates. Invalid custom
+dates do not display an unlimited-duration preview. See REQ-051 and
+[scope/source evidence](../work-log/2026-11-15-monitoring-state-meaning.md).
+
+## Kernel OOM reading and read-error recovery
+
+The kernel OOM list names its source explicitly. Detail uses one report heading;
+Summary retains distinct creation/reporting times, VPS/node, full cgroup,
+killed/invoking process, count and rule. Tabs retain usages, statistics and
+bounded process pages. Process-read errors align Retry, Back, Service overview
+and Copy details at the trailing edge. The overview link retains `/` and its
+existing authenticated redirect to `/app`; copying retains full diagnostics
+and Details remains a native keyboard disclosure. These are recovery/navigation actions, not process
+mutations. Other error surfaces retain default presentation. See the
+[approved OOM follow-up](../work-log/2026-11-15-oom-reading-recovery.md).
+
+## Reads when leaving a document
+
+REQ-046: pending GET/OPTIONS requests retire from beforeunload, including a read
+queued before pagehide while the old document is being discarded. Pageshow
+allows new reads after restoration; trusted foreground activation resumes a
+cancelled departure only while the document is not hidden. Submitted writes retain their original signals and uncertainty
+locks; document retirement never aborts a shared caller signal or replays a
+mutation. In-page navigation and ordinary foreground reads retain existing
+filter, ownership and request behavior. See [scope and native evidence](../work-log/2026-11-22-document-read-lifetime.md).

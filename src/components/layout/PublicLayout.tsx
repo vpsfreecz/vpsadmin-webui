@@ -74,7 +74,8 @@ function NavItem(props: { to: string; children: React.ReactNode }) {
 
 function languageButtonClass(active: boolean, mobile = false): string {
   return clsx(
-    'min-h-8 min-w-8 rounded-md px-2 py-1 text-xs font-semibold transition-colors [@media(any-pointer:coarse)]:min-h-11 [@media(any-pointer:coarse)]:min-w-11',
+    'rounded-md py-1 text-xs font-semibold transition-colors',
+    mobile ? 'min-h-11 min-w-11 px-1' : 'min-h-8 min-w-8 px-2 [@media(any-pointer:coarse)]:min-h-11 [@media(any-pointer:coarse)]:min-w-11',
     active ? 'bg-accent text-accent-fg hover:bg-accent-hover' : 'text-muted hover:bg-surface-2 hover:text-fg'
   );
 }
@@ -146,9 +147,11 @@ function PublicLayoutInner() {
   const appHref = withRouterBasename('/app', cfg.routerBasename);
 
   const loginHref = useMemo(() => {
-    const base = cfg.loginUrl ?? withRouterBasename('/oauth/login', cfg.routerBasename);
+    const base = cfg.loginUrl
+      ? auth.loginUrl ?? cfg.loginUrl
+      : withRouterBasename('/oauth/login', cfg.routerBasename);
     return withSameOriginNextParam(base, appHref);
-  }, [cfg.loginUrl, cfg.routerBasename, appHref]);
+  }, [auth.loginUrl, cfg.loginUrl, cfg.routerBasename, appHref]);
 
   const isLoggedIn = auth.status === 'authenticated';
   const primaryHref = isLoggedIn ? appHref : loginHref;

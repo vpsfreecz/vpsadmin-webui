@@ -32,24 +32,24 @@ test.describe('@smoke @smoke-mobile Dataset snapshots', () => {
       });
       await setUiSettingsLocalStorage(page, { language });
 
-    await installHaveApiMock(page, {
-      user: { id: 1, login: 'admin', level: 99 },
-      handlers: {
-        'GET transaction_chains': () => ({ transaction_chains: [] }),
-        'GET datasets/10': () => ({
-          dataset: {
-            id: 10,
-            full_name: 'tank/vps/ds10',
-            name: 'ds10',
-            used: 2048,
-            refquota: 10240,
-            snapshots_count: 0,
-            mount_count: 0,
-            export_count: 0,
-            object_state: 'active',
-            vps: { id: 300, hostname: 'alpha.example' },
-          },
-        }),
+      await installHaveApiMock(page, {
+        user: { id: 1, login: 'admin', level: 99 },
+        handlers: {
+          'GET transaction_chains': () => ({ transaction_chains: [] }),
+          'GET datasets/10': () => ({
+            dataset: {
+              id: 10,
+              full_name: 'tank/vps/ds10',
+              name: 'ds10',
+              used: 2048,
+              refquota: 10240,
+              snapshots_count: 0,
+              mount_count: 0,
+              export_count: 0,
+              object_state: 'active',
+              vps: { id: 300, hostname: 'alpha.example' },
+            },
+          }),
 
           'GET datasets/10/snapshots': () => ({ snapshots: [] }),
         },

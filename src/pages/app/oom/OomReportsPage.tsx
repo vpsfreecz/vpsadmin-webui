@@ -196,7 +196,11 @@ export function OomReportsPage() {
       hydratingFiltersFromUrlRef.current = false;
       return;
     }
-    if (filterSearchParams.toString() !== searchParamsKey) setSp(filterSearchParams, { replace: true });
+    if (filterSearchParams.toString() === searchParamsKey) return;
+    const next = new URLSearchParams(filterSearchParams);
+    next.delete('from_id');
+    next.set('page', '1');
+    setSp(next, { replace: true });
   }, [filterSearchParams, searchParamsKey, setSp]);
 
   const filtersActive = Boolean(
@@ -736,7 +740,8 @@ export function OomReportsPage() {
                   size="sm"
                   onClick={() => setHelpOpen(true)}
                   ariaLabel={t('filters.help.open')}
-                  className="h-11 w-11 px-0" testId="oom.smart_filter.help_btn"
+                  className="h-11 w-11 px-0"
+                  testId="oom.smart_filter.help_btn"
                 >
                   <CircleHelp className="h-4 w-4" aria-hidden />
                 </Button>
@@ -749,7 +754,8 @@ export function OomReportsPage() {
               size="sm"
               onClick={() => setAdvancedOpen(true)}
               ariaLabel={t('filters.advanced.open')}
-              className="h-11 w-11 px-0" testId="oom.filters.advanced"
+              className="h-11 w-11 px-0"
+              testId="oom.filters.advanced"
             >
               <SlidersHorizontal className="h-4 w-4" aria-hidden />
             </Button>
@@ -759,11 +765,18 @@ export function OomReportsPage() {
               label={t('common.copy_link')}
               size="sm"
               variant="secondary"
-              className="h-11 px-3 text-sm" testId="oom.filters.copy_link"
+              className="h-11 px-3 text-sm"
+              testId="oom.filters.copy_link"
             />
 
             {hasFilterState ? (
-              <Button variant="secondary" size="sm" onClick={clearFilters} className="h-11 px-3 text-sm" testId="oom.filters.clear">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={clearFilters}
+                className="h-11 px-3 text-sm"
+                testId="oom.filters.clear"
+              >
                 {t('common.clear_filters')}
               </Button>
             ) : null}

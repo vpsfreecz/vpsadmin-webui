@@ -14,7 +14,7 @@ for (const language of ['cs', 'en'] as const) for (const role of ['member', 'adm
     const zoneName = 'example.test', pubkey = 'ABCDefgh1234'.repeat(22), digest = '0123456789ABCDEF'.repeat(4);
     const values = [`${zoneName}. IN DNSKEY 257 3 13 ${pubkey}`, `${zoneName}. IN DS 12345 13 2 ${digest}`];
     await installHaveApiMock(page, { user: { id: 7, login: 'dnssec-purpose', level: role === 'admin' ? 99 : 1 }, handlers: {
-      'GET dns_zones/21': () => ({ id: 21, name: zoneName, source: 'internal_source', enabled: true, dnssec_enabled: true, user: { id: 7 } }),
+      'GET dns_zones/21': () => ({ dns_zone: { id: 21, name: zoneName, source: 'internal_source', enabled: true, dnssec_enabled: true, user: { id: 7 } } }),
       'GET transaction_chains': () => ({ transaction_chains: [] }), 'GET dns_record_logs': () => ({ dns_record_logs: [] }),
       'GET dnssec_records': () => ({ dnssec_records: [{ id: 91, keyid: 12345, dnskey_algorithm: 13, dnskey_pubkey: pubkey, ds_algorithm: 13, ds_digest_type: 2, ds_digest: digest }] }),
     } });

@@ -37,7 +37,7 @@ The first structural hash refusal and absent-SDK fixture import diagnostic are
 preserved privately; the fixture uses a narrow checked local DTO without adding
 dependencies. Cumulative source retains delivered SDK aliases/nullability.
 Clean Nix/browser, hosted CI and paired/protected delivery remain pending.
-
+### Accepted integration evidence
 
 ### Focused foundation dependency — 2026-11-12
 
@@ -68,3 +68,5 @@ Chromium and mobile WebKit:12 exact-filter/history/owner-scope OOM contracts and
 or live writes. OOM cases retain all public URL/API/history assertions; wildcard
 journals record zero page errors. Clean new-head/Nix qualification and original
 hosted six-check/zero-flaky evidence remain pending. No preview activation.
+
+### Existing preview evidence

@@ -8,6 +8,8 @@ export const enCommon_dashboard = {
   'dashboard.summary.dns.few': 'DNS zones',
   'dashboard.summary.dns.other': 'DNS zones',
   'dashboard.summary.scope.mine': 'My objects',
+  'dashboard.summary.unmatched_payments': 'Unmatched payments',
+  'dashboard.summary.awaiting_requests': 'Requests to review',
   'dashboard.summary.scope.all': 'All accessible objects',
   'dashboard.kpi.active_operations': 'Active operations',
   'dashboard.kpi.vps.running_ratio': 'Running VPS ratio',

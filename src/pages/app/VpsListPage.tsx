@@ -45,6 +45,7 @@ import {
 import { useVpsListSmartFilters } from './vps/useVpsListSmartFilters';
 import { useRecentVpsFailures } from './vps/useRecentVpsFailures';
 import { useRecentVpsOomReports } from './vps/useRecentVpsOomReports';
+import { VpsRecentTasks } from './vps/VpsRecentTasks';
 
 type VpsPowerKind = 'start' | 'stop' | 'restart';
 type VpsListMutationKind = VpsPowerKind | 'delete';
@@ -462,6 +463,8 @@ export function VpsListPage() {
           />
         </div>
       )}
+
+      <VpsRecentTasks />
 
       {confirm ? (
         <VpsListActionConfirmDialog

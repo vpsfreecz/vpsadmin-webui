@@ -47,6 +47,7 @@ These results qualify the working cumulative artifact only; each committed
 focused source still needs its own full quick/build, relevant tests, clean
 Nix/browser and original six hosted checks before publication or deployment.
 No live DNS permission, propagation or physical Safari claim.
+### Accepted integration evidence
 
 Before clean browsers, source-contract inspection found that this focused
 legacy adapter consumes a flat single-zone Show response. Match the new
@@ -54,3 +55,5 @@ fixture to that contract; the cumulative generated SDK retains its named
 resource envelope. Product adapters, payloads and all assertions are unchanged.
 Repeat exact focused checks and Nix/browser qualification on the new head;
 previous package/native receipts stay historical. No push or deployment.
+
+### Existing preview evidence

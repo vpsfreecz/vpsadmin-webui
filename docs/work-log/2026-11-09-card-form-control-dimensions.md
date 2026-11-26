@@ -108,6 +108,14 @@ e665 negative20.90625px frame/trace retained, e665superseded marker enforced.
 All ownTLSfiles removed after controllers; futurecleanwrappedrun needs fresh
 trackedTLS. No old764CI or e665 artifacts accept this new head.
 
+Current wrapped integration is based on actual preview224d168a and focused
+91d7e2dd; retain current finance extraction, all current SDK/auth/BFF/role/search
+and SVG changes. Adopt only History in the CURRENT strict inventory, yielding
+218checked/103deferred; focused114/173counts above belong to the old-base PR.
+Pinned current quick/type/design/structural/build pass; new clean Nix and browser
+checks, fresh exact252CI and actual paired/TODO gates remain pending. The old
+e665 package stays superseded and cannot supply after evidence for this build.
+
 Finite finance follow-up: exact current224 fixture measurements find four
 existing monthly/manual validation messages at2.650463:1 in dark nested panels;
 light is5.547002:1. Use readable foreground text, medium weight and a separate
