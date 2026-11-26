@@ -1,3 +1,4 @@
+import { bindDocumentReadSignal } from '../documentReadLifecycle';
 import { AsyncClient, AsyncError, type RequestSpec, type RequestResult } from 'haveapi-client';
 import { HaveApiError, MALFORMED_HAVEAPI_ENVELOPE_ERROR_CODE, type HaveApiEnvelope, type HaveApiRequestInfo } from './apiErrors';
 export { MALFORMED_HAVEAPI_ENVELOPE_ERROR_CODE } from './apiErrors';
@@ -29,8 +30,11 @@ export async function executeHaveApiRequest(
   const request: HaveApiRequestInfo = {
     method: spec.method, path: spec.path, url: `${baseUrl.replace(/\/$/, '')}${spec.path}`,
   };
+  const read = spec.method === 'GET' || spec.method === 'OPTIONS'
+    ? bindDocumentReadSignal(spec.signal) : undefined;
   try {
-    return await clientFor(baseUrl, scope).request(spec);
+    read?.signal?.throwIfAborted();
+    return await clientFor(baseUrl, scope).request(read ? { ...spec, signal: read.signal } : spec);
   } catch (cause) {
     if (!(cause instanceof AsyncError)) throw cause;
     if (cause.kind === 'aborted') throw new DOMException(cause.message, 'AbortError');
@@ -51,5 +55,7 @@ export async function executeHaveApiRequest(
     error.result = cause.response;
     error.failure = cause.kind;
     throw error;
+  } finally {
+    read?.release();
   }
 }

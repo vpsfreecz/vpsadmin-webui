@@ -33,6 +33,50 @@ afterEach(() => {
 });
 
 describe('production HaveAPI AsyncClient requests', () => {
+  it.each(['beforeunload', 'pagehide'])('retires %s reads without cancelling a submitted mutation sharing the caller signal', async (event) => {
+    const caller = new AbortController();
+    let finishWrite!: (response: Response) => void;
+    installHaveApiXhr((_url, init) => init?.method === 'POST'
+      ? new Promise<Response>(resolve => { finishWrite = resolve; })
+      : new Promise<Response>(() => {}));
+    const read = policyRequest({ path: '/things', signal: caller.signal }).catch(error => error);
+    const write = policyRequest({ method: 'POST', path: '/things', signal: caller.signal });
+    try {
+      await vi.waitFor(() => expect(apiWire.requests).toHaveLength(2));
+      window.dispatchEvent(new Event(event));
+      expect(apiWire.requests[0]?.aborted).toBe(true);
+      expect(apiWire.requests[1]?.aborted).not.toBe(true);
+      expect(caller.signal.aborted).toBe(false);
+      expect(await read).toMatchObject({ name: 'AbortError' });
+      finishWrite(ok({ things: [42] }));
+      expect((await write).data).toEqual({ things: [42] });
+    } finally {
+      caller.abort();
+      window.dispatchEvent(new Event('pageshow'));
+      await read;
+      await write.catch(() => {});
+    }
+  });
+
+  it.each(['beforeunload', 'pagehide'])('blocks reads after %s and permits fresh reads after pageshow', async (event) => {
+    installHaveApiXhr(async () => ok({ things: [7] }));
+    try {
+      window.dispatchEvent(new Event(event));
+      window.dispatchEvent(new Event('focus'));
+      window.dispatchEvent(new MouseEvent('click'));
+      for (const method of ['GET', 'OPTIONS'] as const) {
+        await expect(executeHaveApiRequest('https://api.example.test/v7.0', 'public', { method, path: '/things' }))
+          .rejects.toMatchObject({ name: 'AbortError' });
+      }
+      expect(apiWire.requests).toHaveLength(0);
+      window.dispatchEvent(new Event('pageshow'));
+      expect((await policyRequest({ path: '/things' })).data).toEqual({ things: [7] });
+      expect(apiWire.requests).toHaveLength(1);
+    } finally {
+      window.dispatchEvent(new Event('pageshow'));
+    }
+  });
+
   it('uses actual XHR without a parallel fetch transport or description setup', async () => {
     const fetch = vi.fn(() => {
       throw new Error('HaveAPI must use the installed client');
