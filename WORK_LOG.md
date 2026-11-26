@@ -4166,3 +4166,11 @@ A failing regression retains keyboard reveal and accessible identity checks;
 original browser hit-testing and single-tap assertions stay intact.
 See [finding, source and qualification](docs/work-log/2026-11-26-lookup-pointer-scroll.md).
 Final exact-source qualification and paired promotion remain pending.
+
+### 2026-11-26 — Preserve pending browser history destinations in OOM
+
+Guard automatic filter/pagination replacements while browser Back/Forward has
+moved ahead of the committed router search. Preserve explicit applied-filter
+navigation. A failing regression proves the stale replacement and retains Next;
+see [original evidence and qualification](docs/work-log/2026-11-26-oom-history-ownership.md).
+Final exact-source qualification and paired promotion remain pending.

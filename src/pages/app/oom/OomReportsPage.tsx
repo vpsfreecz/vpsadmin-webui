@@ -196,12 +196,18 @@ export function OomReportsPage() {
       hydratingFiltersFromUrlRef.current = false;
       return;
     }
+    // Browser Back/Forward may move the address bar before the router renders.
+    // Do not let an outgoing filter effect overwrite that newer destination.
+    if (typeof window !== 'undefined' && (
+      window.location.pathname !== `${basePath}/oom-reports` ||
+      new URLSearchParams(window.location.search).toString() !== searchParamsKey
+    )) return;
     if (filterSearchParams.toString() === searchParamsKey) return;
     const next = new URLSearchParams(filterSearchParams);
     next.delete('from_id');
     next.set('page', '1');
     setSp(next, { replace: true });
-  }, [filterSearchParams, searchParamsKey, setSp]);
+  }, [basePath, filterSearchParams, searchParamsKey, setSp]);
 
   const filtersActive = Boolean(
     vpsId ||
@@ -232,6 +238,8 @@ export function OomReportsPage() {
     }),
     searchParams: activeSearchParams,
     navigationSearchParams: filterSearchParams,
+    navigationPathname: `${basePath}/oom-reports`,
+    navigationSearchKey: searchParamsKey,
     setSearchParams: setSp,
     defaultLimit: 50,
     allowedLimits: [25, 50, 100],

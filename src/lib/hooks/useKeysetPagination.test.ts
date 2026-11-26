@@ -68,7 +68,6 @@ test('browser back and forward still restore the visited cursor', () => {
   expect(result.current.fromId).toBe(50);
 });
 
-
 test.each(['next', 'limit'] as const)('keeps newly applied filters during pending router publication: %s', (action) => {
   const setSearchParams = vi.fn();
   const navigationSearchParams = new URLSearchParams('cgroup=%2Fsystem.slice&vps=7&limit=25&page=1');
@@ -92,7 +91,6 @@ test.each(['next', 'limit'] as const)('keeps newly applied filters during pendin
   expect(destination.get('from_id')).toBe(action === 'next' ? '101' : null);
   expect(destination.get('limit')).toBe(action === 'next' ? '25' : '50');
 });
-
 
 test('a departed dataset page cannot normalize or paginate the new route URL', () => {
   const originalUrl = window.location.href;
@@ -123,6 +121,46 @@ test('a departed dataset page cannot normalize or paginate the new route URL', (
     expect(next.get('page')).toBe('1');
     expect(next.get('backups.q')).toBe('synthetic');
     expect(next.get('backups.tab')).toBe('downloads');
+  } finally {
+    window.history.replaceState(null, '', originalUrl);
+  }
+});
+
+test('automatic normalization cannot replace a browser history destination before the router publishes it', () => {
+  const originalUrl = window.location.href;
+  const previous = 'cgroup=%2Fhistory-two.slice&limit=25&page=2&from_id=101';
+  const destination = 'cgroup=%2Fsystem.slice&limit=25&page=1';
+  const path = '/admin/oom-reports';
+  window.history.replaceState(null, '', `${path}?${previous}`);
+  const setSearchParams = vi.fn();
+  try {
+    const { result, rerender } = renderHook(
+      ({ search, filterKey }) => {
+        const browserSnapshot = { navigationPathname: path, navigationSearchKey: search };
+        return useKeysetPagination({
+          id: 'browser-history-ahead',
+          filterKey,
+          searchParams: new URLSearchParams(search),
+          ...browserSnapshot,
+          setSearchParams,
+          defaultLimit: 25,
+        });
+      },
+      { initialProps: { search: previous, filterKey: '/history-two.slice' } }
+    );
+    setSearchParams.mockClear();
+    // Browser Back has moved the actual URL while React still has older params.
+    window.history.replaceState(null, '', `${path}?${destination}`);
+    rerender({ search: previous, filterKey: '/system.slice' });
+    expect(setSearchParams).not.toHaveBeenCalled();
+    rerender({ search: destination, filterKey: '/system.slice' });
+    expect(result.current.page).toBe(1);
+    expect(setSearchParams).not.toHaveBeenCalled();
+    act(() => result.current.goNext(75));
+    const next = setSearchParams.mock.calls.at(-1)?.[0] as URLSearchParams;
+    expect(next.get('cgroup')).toBe('/system.slice');
+    expect(next.get('from_id')).toBe('75');
+    expect(next.get('page')).toBe('2');
   } finally {
     window.history.replaceState(null, '', originalUrl);
   }
