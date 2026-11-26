@@ -15,39 +15,46 @@
     -->
     <script>
       (() => {
+        const html = document.documentElement;
+        let settings;
         try {
-          const storageKey = 'vpsadmin.uiSettings.v1';
-          const raw = window.localStorage ? window.localStorage.getItem(storageKey) : null;
-          const html = document.documentElement;
-
-          const detectLang = () => {
-            const langs = navigator.languages || [navigator.language];
-            const hasCs = (langs || []).some((l) => String(l).toLowerCase().startsWith('cs'));
-            return hasCs ? 'cs' : 'en';
-          };
-
-          if (raw) {
-            const s = JSON.parse(raw);
-
-            const theme = s && typeof s.theme === 'string' ? s.theme : 'system';
-            if (theme === 'light' || theme === 'dark') {
-              html.setAttribute('data-theme', theme);
-              html.style.colorScheme = '';
-            } else {
-              html.removeAttribute('data-theme');
-              html.style.colorScheme = 'light dark';
-            }
-
-            const prefLang = s && typeof s.language === 'string' ? s.language : 'system';
-            const lang = prefLang === 'cs' || prefLang === 'en' ? prefLang : detectLang();
-            html.lang = lang;
-          } else {
-            html.lang = detectLang();
-            html.style.colorScheme = 'light dark';
+          settings = JSON.parse(window.localStorage.getItem('vpsadmin.uiSettings.v1') || '{}');
+        } catch {
+          // Optional browser preferences must not prevent the cookie handoff.
+        }
+        let initiatingTheme;
+        try {
+          if (location.pathname.endsWith('/oauth/callback')) {
+            const pending = JSON.parse(window.sessionStorage.getItem('vpsadmin_ui_next.oauth2.login_state') || '{}');
+            if (pending.theme === 'system' || pending.theme === 'light' || pending.theme === 'dark') initiatingTheme = pending.theme;
+          } else if (location.pathname.endsWith('/oauth/login')) {
+            const themes = new URLSearchParams(location.search).getAll('theme');
+            if (themes.length === 1 && ['light', 'dark', 'auto'].includes(themes[0])) initiatingTheme = themes[0];
           }
         } catch {
-          // ignore
+          // Authentication still requires the ordinary validated login state.
         }
+        let returnedTheme;
+        try {
+          const values = document.cookie.split(';').map((part) => part.trim())
+            .filter((part) => part.startsWith('vpsadmin_oauth_theme='));
+          const parts = values.length === 1 ? values[0].slice('vpsadmin_oauth_theme='.length).split('.') : [];
+          const valid = (value) => value === 'light' || value === 'dark' || value === 'auto';
+          if (parts.length === 2 && parts.every(valid)) returnedTheme = parts[0];
+        } catch {
+          // The settings provider consumes the handoff after bootstrap.
+        }
+        const theme = returnedTheme || initiatingTheme || settings?.theme;
+        if (theme === 'light' || theme === 'dark') {
+          html.setAttribute('data-theme', theme);
+          html.style.colorScheme = theme;
+        } else {
+          html.removeAttribute('data-theme');
+          html.style.colorScheme = 'light dark';
+        }
+        const languages = navigator.languages || [navigator.language];
+        const detected = languages.some((language) => String(language).toLowerCase().startsWith('cs')) ? 'cs' : 'en';
+        html.lang = settings?.language === 'cs' || settings?.language === 'en' ? settings.language : detected;
       })();
     </script>
     <title>vpsAdmin</title>

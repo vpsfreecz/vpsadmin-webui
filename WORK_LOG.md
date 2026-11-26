@@ -1,3 +1,7 @@
+## 2026-11-26 — Preserve theme through OAuth login
+
+[Scope, persistence and verification](docs/work-log/2026-11-26-oauth-theme.md).
+
 ## 2026-11-24 — Reconcile the accepted dashboard fix with current main
 
 [Merge scope, preserved history and verification](docs/work-log/2026-11-24-approved-dashboard-merge.md).

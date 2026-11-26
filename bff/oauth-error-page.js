@@ -1,5 +1,7 @@
 'use strict';
 
+const { parseTheme } = require('./oauth-theme');
+
 const COPY = {
   cs: {
     lang: 'cs',
@@ -59,19 +61,20 @@ function setOAuthRecoverySecurityHeaders(res) {
   );
 }
 
-function renderOAuthErrorPage(language) {
+function renderOAuthErrorPage(language, preference) {
+  const theme = parseTheme(preference) || 'auto';
   const copy = COPY[language] || COPY.en;
 
   return `<!doctype html>
-<html lang="${copy.lang}">
+<html lang="${copy.lang}" data-theme="${theme}">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="color-scheme" content="light dark">
+    <meta name="color-scheme" content="${theme === 'auto' ? 'light dark' : theme}">
     <title>vpsAdmin · ${copy.title}</title>
     <style>
       :root {
-        color-scheme: light dark;
+        color-scheme: ${theme === 'auto' ? 'light dark' : theme};
         font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         background: #f3f6fb;
         color: #17233b;
@@ -168,7 +171,7 @@ function renderOAuthErrorPage(language) {
         .actions { flex-direction: column; }
         a { width: 100%; }
       }
-      @media (prefers-color-scheme: dark) {
+      @media ${theme === 'dark' ? 'all' : theme === 'light' ? 'not all' : '(prefers-color-scheme: dark)'} {
         :root { background: #101624; color: #f2f5fa; }
         body { background: radial-gradient(circle at top, #1e293b 0, #101624 58%, #0b101b 100%); }
         main { border-color: #354158; background: #182133; box-shadow: 0 1.25rem 3.5rem rgb(0 0 0 / 35%); }
@@ -189,7 +192,7 @@ function renderOAuthErrorPage(language) {
       <h1 id="oauth-error-title">${copy.title}</h1>
       <p>${copy.message}</p>
       <nav class="actions" aria-label="${copy.title}">
-        <a class="primary" href="/oauth/login?next=%2Fapp">${copy.retry}</a>
+        <a class="primary" href="/oauth/login?next=%2Fapp&amp;theme=${theme}&amp;theme_return=1">${copy.retry}</a>
         <a href="/">${copy.status}</a>
       </nav>
     </main>

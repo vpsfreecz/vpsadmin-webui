@@ -1,12 +1,14 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
+import { useUiSettings } from '../../app/uiSettings';
+import { buildOAuthLoginUrl } from '../../lib/auth/oauthTheme';
 import { useI18n } from '../../app/i18n';
 
 import { getRuntimeConfig } from '../../app/config';
 import { sanitizeLocalPath, withRouterBasename } from '../../lib/routerPaths';
 import { hardReplace } from '../../lib/browserNavigation';
-import { completeOAuth2Login } from '../../lib/auth/oauth2Client';
+import { completeOAuth2Login, pendingOAuthTheme } from '../../lib/auth/oauth2Client';
 import { Button } from '../../components/ui/Button';
 import { CardBody, CardHeader } from '../../components/ui/Card';
 import { CopyButton } from '../../components/ui/CopyButton';
@@ -17,6 +19,8 @@ import { OAuthShell } from './OAuthShell';
 
 export function OAuthCallbackPage() {
   const { t } = useI18n();
+  const { settings, setTheme } = useUiSettings();
+  const [initiatingTheme] = useState(() => pendingOAuthTheme() ?? settings.theme);
 
   const cfg = useMemo(() => getRuntimeConfig(), []);
   const [, setSearchParams] = useSearchParams();
@@ -24,10 +28,13 @@ export function OAuthCallbackPage() {
 
   const [error, setError] = useState<string | null>(null);
 
+  const completionRef = useRef<Promise<{ nextPath: string }> | null>(null);
+
   useEffect(() => {
     let cancelled = false;
 
-    completeOAuth2Login(cfg, window.location.href)
+    const completion = completionRef.current ??= completeOAuth2Login(cfg, window.location.href);
+    completion
       .then(({ nextPath }) => {
         if (cancelled) return;
 
@@ -39,15 +46,16 @@ export function OAuthCallbackPage() {
       })
       .catch((e) => {
         if (cancelled) return;
+        setTheme(initiatingTheme);
         setError(e instanceof Error ? e.message : String(e));
       });
 
     return () => {
       cancelled = true;
     };
-  }, [appPath, cfg, setSearchParams]);
+  }, [appPath, cfg, initiatingTheme, setSearchParams, setTheme]);
 
-  const loginHref = `${withRouterBasename('/oauth/login', cfg.routerBasename)}?next=${encodeURIComponent(appPath)}`;
+  const loginHref = buildOAuthLoginUrl(withRouterBasename('/oauth/login', cfg.routerBasename), appPath, initiatingTheme);
   const copyText = error ? `OAuth callback failed\n\n${error}` : '';
 
   return (

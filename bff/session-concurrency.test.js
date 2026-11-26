@@ -19,7 +19,7 @@ function holdRefresh(fail = false) {
   gate = { entered, release, fail };
   return gate;
 }
-const cookieOf = (response) => response.headers.get('set-cookie').split(';', 1)[0];
+const cookieOf = (response) => response.headers.getSetCookie().find((value) => value.startsWith('webui_next_sess=')).split(';', 1)[0];
 const request = (path, cookie, signal) => fetch(origin + path, {
   redirect: 'manual', signal,
   headers: { 'x-forwarded-proto': 'https', 'sec-fetch-site': 'same-origin', ...(cookie ? { cookie } : {}) },

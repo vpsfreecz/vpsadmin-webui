@@ -4,6 +4,7 @@ import { getRuntimeConfig } from './config';
 import { useAuth } from './auth';
 import {
   DEFAULT_SETTINGS,
+  browserLocalStorage,
   HELP_PLACEMENT_STORAGE_KEY,
   loadHelpPlacement,
   type UiHelpPlacement,
@@ -16,6 +17,10 @@ import {
   type UiTipLifecycleState,
   type UiThemePreference,
 } from './uiSettingsModel';
+
+import { clearOAuthTheme, fromOAuthTheme, parseOAuthTheme, readOAuthTheme } from '../lib/auth/oauthTheme';
+import { pendingOAuthTheme } from '../lib/auth/oauth2Client';
+import { withRouterBasename } from '../lib/routerPaths';
 
 import { HaveApiError, SESSION_EXPIRED_EVENT } from '../lib/api/apiErrors';
 import { fetchWebuiUserSetting, saveWebuiUserSetting } from '../lib/api/webuiUserSettings';
@@ -86,7 +91,7 @@ export function UiSettingsProvider(props: { children: React.ReactNode; serverSyn
   const auth = useAuth();
   const cfg = getRuntimeConfig();
 
-  const localStorage = typeof window !== 'undefined' ? window.localStorage : undefined;
+  const localStorage = browserLocalStorage();
 
   const [helpPlacement, setHelpPlacementState] = useState(() => loadHelpPlacement(localStorage));
   const setHelpPlacement = useCallback(
@@ -102,7 +107,29 @@ export function UiSettingsProvider(props: { children: React.ReactNode; serverSyn
     [localStorage]
   );
 
-  const [settings, setSettings] = useState<UiSettings>(() => loadUiSettingsFromLocalStorage(localStorage));
+  const [initial] = useState(() => {
+    const local = loadUiSettingsFromLocalStorage(localStorage);
+    // Keep the initiating appearance while legacy authentication is pending.
+    // A callback's response theme is only accepted after its successful exchange.
+    if (typeof window !== 'undefined') {
+      if (window.location.pathname === withRouterBasename('/oauth/callback', cfg.routerBasename)) {
+        local.theme = pendingOAuthTheme() ?? local.theme;
+      } else if (window.location.pathname === withRouterBasename('/oauth/login', cfg.routerBasename)) {
+        const themes = new URLSearchParams(window.location.search).getAll('theme');
+        const requested = themes.length === 1 ? parseOAuthTheme(themes[0]) : undefined;
+        if (requested) local.theme = fromOAuthTheme(requested);
+      }
+    }
+    const handoff = readOAuthTheme();
+    return { local, handoff };
+  });
+  const pendingThemeRef = useRef(initial.handoff);
+  const [settings, setSettings] = useState<UiSettings>(() =>
+    initial.handoff ? { ...initial.local, theme: initial.handoff.selected } : initial.local
+  );
+  useEffect(() => {
+    clearOAuthTheme();
+  }, []);
 
   const serverEnabled =
     props.serverSyncEnabled !== false && cfg.uiSettings.persistence === 'server' && cfg.auth.kind !== 'none';
@@ -174,7 +201,12 @@ export function UiSettingsProvider(props: { children: React.ReactNode; serverSyn
         if (value === undefined) {
           // Loading an absent record is not a user edit. Preserve local choices
           // without migrating them implicitly; edits made during the read still save.
-          lastSavedJsonRef.current = localJsonAtLoad;
+          const pending = pendingThemeRef.current;
+          lastSavedJsonRef.current =
+            pending && pending.selected !== pending.initiating
+              ? JSON.stringify(normalizeUiSettings({ ...settingsRef.current, theme: pending.initiating }))
+              : localJsonAtLoad;
+          pendingThemeRef.current = undefined;
           setLoadedServerKey(loadKey);
           setSync((s) => ({ ...s, status: 'idle', lastLoadedAt: nowIso(), lastLoadError: undefined }));
           return;
@@ -184,11 +216,14 @@ export function UiSettingsProvider(props: { children: React.ReactNode; serverSyn
         const json = JSON.stringify(normalizeUiSettings(fromServer));
 
         // Avoid an immediate write-back caused by the state update.
-        skipNextServerSaveRef.current = true;
+        const pending = pendingThemeRef.current;
+        const merged = pending ? { ...fromServer, theme: pending.selected } : fromServer;
+        skipNextServerSaveRef.current = !pending || pending.selected === fromServer.theme;
         lastSavedJsonRef.current = json;
+        pendingThemeRef.current = undefined;
 
-        setSettings(fromServer);
-        saveUiSettingsToLocalStorage(localStorage, fromServer);
+        setSettings(merged);
+        saveUiSettingsToLocalStorage(localStorage, merged);
         setLoadedServerKey(loadKey);
         setSync((s) => ({ ...s, status: 'idle', lastLoadedAt: nowIso(), lastLoadError: undefined }));
       } catch (e) {
@@ -322,6 +357,8 @@ export function UiSettingsProvider(props: { children: React.ReactNode; serverSyn
     [auth.status, localStorage, serverEnabled, serverField, serverNamespace, settings, setHelpPlacement]
   );
 
+  const setTheme = useCallback((theme: UiThemePreference) => setSettings((s) => ({ ...s, theme })), []);
+
   const ctx: UiSettingsCtx = useMemo(
     () => ({
       helpPlacement,
@@ -332,7 +369,7 @@ export function UiSettingsProvider(props: { children: React.ReactNode; serverSyn
         setSettings(normalizeUiSettings(s));
       },
       setSidebarCollapsed: (collapsed) => setSettings((s) => ({ ...s, sidebarCollapsed: collapsed })),
-      setTheme: (theme) => setSettings((s) => ({ ...s, theme })),
+      setTheme,
       setLanguage: (language) => setSettings((s) => ({ ...s, language })),
       setSidebarTimeZoneTipState: (state) =>
         setSettings((s) => ({
@@ -346,7 +383,7 @@ export function UiSettingsProvider(props: { children: React.ReactNode; serverSyn
       resetPreferences,
       sync,
     }),
-    [helpPlacement, setHelpPlacement, resetPreferences, retryLoad, settings, sync]
+    [helpPlacement, setHelpPlacement, resetPreferences, retryLoad, settings, setTheme, sync]
   );
 
   return <UiSettingsContext.Provider value={ctx}>{props.children}</UiSettingsContext.Provider>;

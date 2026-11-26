@@ -7,12 +7,15 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { getRuntimeConfig, type RuntimeConfig } from '../../app/config';
 import { clearImpersonationState } from '../../lib/auth/impersonation';
-import { completeOAuth2Login, startOAuth2Login } from '../../lib/auth/oauth2Client';
+import { completeOAuth2Login, startOAuth2Login, pendingOAuthTheme } from '../../lib/auth/oauth2Client';
 import { hardReplace } from '../../lib/browserNavigation';
 import { clearStoredOAuthToken } from '../../lib/auth/tokenStore';
 import { OAuthCallbackPage } from './OAuthCallbackPage';
 import { OAuthLoginPage } from './OAuthLoginPage';
 import { OAuthLogoutPage } from './OAuthLogoutPage';
+
+const themeState = vi.hoisted(() => ({ setTheme: vi.fn() }));
+vi.mock('../../app/uiSettings', () => ({ useUiSettings: () => ({ settings: { theme: 'dark' }, setTheme: themeState.setTheme }) }));
 
 vi.mock('../../app/i18n', () => ({
   useI18n: () => ({
@@ -29,6 +32,7 @@ vi.mock('../../app/config', () => ({
 vi.mock('../../lib/auth/oauth2Client', () => ({
   startOAuth2Login: vi.fn(),
   completeOAuth2Login: vi.fn(),
+  pendingOAuthTheme: vi.fn(),
 }));
 
 vi.mock('../../lib/browserNavigation', () => ({
@@ -122,7 +126,7 @@ describe('OAuth auth flow pages', () => {
     renderRoute('/oauth/login?next=https://evil.test/session-steal');
 
     await waitFor(() => {
-      expect(startOAuth2Login).toHaveBeenCalledWith(createRuntimeConfig(), '/ui-next/app');
+      expect(startOAuth2Login).toHaveBeenCalledWith(createRuntimeConfig(), '/ui-next/app', 'dark');
     });
 
     expect(screen.getByTestId('oauth.login.page')).toBeVisible();
@@ -134,7 +138,7 @@ describe('OAuth auth flow pages', () => {
     renderRoute('/oauth/login?next=/ui-next/admin/users');
 
     expect(await findVisibleText('oauth.login.error.title')).toBeVisible();
-    expect(startOAuth2Login).toHaveBeenCalledWith(createRuntimeConfig(), '/ui-next/admin/users');
+    expect(startOAuth2Login).toHaveBeenCalledWith(createRuntimeConfig(), '/ui-next/admin/users', 'dark');
     expect(screen.getByRole('link', { name: /nav.status/i })).toHaveAttribute('href', '/ui-next');
     expect(screen.getByTestId('oauth.login.page')).toHaveClass('bg-bg', 'text-fg');
   });
@@ -163,7 +167,7 @@ describe('OAuth auth flow pages', () => {
     expect(await findVisibleText('oauth.callback.error.title')).toBeVisible();
     expect(screen.getByRole('link', { name: /oauth.callback.action.sign_in_again/i })).toHaveAttribute(
       'href',
-      '/ui-next/oauth/login?next=%2Fui-next%2Fapp',
+      `${window.location.origin}/ui-next/oauth/login?next=%2Fui-next%2Fapp&theme=dark&theme_return=1`,
     );
   });
 
@@ -190,4 +194,29 @@ describe('OAuth auth flow pages', () => {
     expect(hardReplace).not.toHaveBeenCalled();
     expect(screen.getByRole('link', { name: /nav.status/i })).toHaveAttribute('href', '/ui-next');
   });
+});
+
+
+beforeEach(() => { vi.mocked(getRuntimeConfig).mockReturnValue(createRuntimeConfig()); vi.clearAllMocks(); });
+
+it('uses direct/new-tab login preference from the bounded query', async () => {
+  vi.mocked(startOAuth2Login).mockResolvedValue(undefined);
+  renderRoute('/oauth/login?theme=auto&theme_return=1');
+  await waitFor(() => expect(startOAuth2Login).toHaveBeenCalledWith(createRuntimeConfig(), '/ui-next/app', 'system'));
+});
+
+it('retains the initiating preference on a legacy callback error and its retry link', async () => {
+  vi.mocked(pendingOAuthTheme).mockReturnValueOnce('light');
+  vi.mocked(completeOAuth2Login).mockRejectedValue(new Error('denied'));
+  renderRoute('/oauth/callback?error=denied&theme=dark');
+  await findVisibleText('oauth.callback.error.title');
+  expect(themeState.setTheme).toHaveBeenCalledWith('light');
+  expect(screen.getByRole('link', { name: /sign_in_again/i })).toHaveAttribute('href', expect.stringContaining('theme=light&theme_return=1'));
+});
+
+it('shares one callback exchange across StrictMode effect replay', async () => {
+  vi.mocked(completeOAuth2Login).mockResolvedValue({ nextPath: '/ui-next/app' });
+  render(<React.StrictMode><MemoryRouter><OAuthCallbackPage /></MemoryRouter></React.StrictMode>);
+  await waitFor(() => expect(hardReplace).toHaveBeenCalledWith('/ui-next/app'));
+  expect(completeOAuth2Login).toHaveBeenCalledOnce();
 });

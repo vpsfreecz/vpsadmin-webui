@@ -10,7 +10,8 @@ import { useAuth } from '../../app/auth';
 import { useI18n } from '../../app/i18n';
 import { useUiSettings, type UiLanguagePreference } from '../../app/uiSettings';
 import { clsx } from '../ui/clsx';
-import { withRouterBasename, withSameOriginNextParam } from '../../lib/routerPaths';
+import { withRouterBasename } from '../../lib/routerPaths';
+import { buildOAuthLoginUrl } from '../../lib/auth/oauthTheme';
 import { MainContent, SkipToMainContentLink } from './MainContentAccessibility';
 
 type IdleCapableWindow = Window & {
@@ -148,8 +149,8 @@ function PublicLayoutInner() {
 
   const loginHref = useMemo(() => {
     const base = cfg.loginUrl ?? withRouterBasename('/oauth/login', cfg.routerBasename);
-    return withSameOriginNextParam(base, appHref);
-  }, [cfg.loginUrl, cfg.routerBasename, appHref]);
+    return buildOAuthLoginUrl(base, appHref, ui.settings.theme);
+  }, [cfg.loginUrl, cfg.routerBasename, appHref, ui.settings.theme]);
 
   const isLoggedIn = auth.status === 'authenticated';
   const primaryHref = isLoggedIn ? appHref : loginHref;

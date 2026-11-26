@@ -1,6 +1,8 @@
 import React from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 
+import { useUiSettings } from '../../app/uiSettings';
+import { buildOAuthLoginUrl } from '../../lib/auth/oauthTheme';
 import { useAuth } from '../../app/auth';
 import { AppModeProvider, type AppMode } from '../../app/appMode';
 import { useI18n } from '../../app/i18n';
@@ -23,7 +25,7 @@ function LoginRequired() {
   const cfg = getRuntimeConfig();
   const { lang, t } = useI18n();
 
-  const loginHref = auth.loginUrl || `${cfg.routerBasename}/oauth/login`;
+  const loginHref = buildOAuthLoginUrl(auth.loginUrl || `${cfg.routerBasename}/oauth/login`, undefined, useUiSettings().settings.theme);
   const passwordRecoveryHref = buildPasswordRecoveryUrl(cfg.passwordRecoveryUrl, lang);
   const title = auth.status === 'expired' ? t('auth.session_expired.title') : t('auth.login_required.title');
   const body = auth.status === 'expired' ? t('auth.session_expired.body') : t('auth.login_required.body');
@@ -63,7 +65,7 @@ function AuthCheckFailed() {
   const cfg = getRuntimeConfig();
   const { t } = useI18n();
 
-  const loginHref = auth.loginUrl || `${cfg.routerBasename}/oauth/login`;
+  const loginHref = buildOAuthLoginUrl(auth.loginUrl || `${cfg.routerBasename}/oauth/login`, undefined, useUiSettings().settings.theme);
 
   return (
     <div className="mx-auto max-w-content-lg p-6" data-testid="auth.session-error">

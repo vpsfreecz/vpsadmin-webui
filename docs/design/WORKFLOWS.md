@@ -162,6 +162,20 @@ correction exposes only the request allowed by that token.
 
 **Anonymous theme (REQ-005/009):** the public header offers compact system/light/dark controls, with named selected states and keyboard focus. The mobile navigation menu places the same named theme icons next to the language group. The same local preference survives reload and follows system changes in system mode; no private settings request is made. Tablet navigation uses the menu until the full navigation and preference controls fit.
 
+**OAuth theme continuity (REQ-005):** public sign-in, expired-session entry and
+retry links carry the current preference. React maps system to the provider's
+auto value and independently requests the optional theme response. After state
+validation and a successful exchange, the selected preference returns through a
+short-lived appearance cookie. The head script applies it before paint; the settings
+provider consumes it into memory and merges only theme into loaded account
+settings. Unrelated account preferences remain intact. A missing record is
+created only for an actual OAuth preference change or an ordinary settings edit.
+An unchanged login does not migrate device settings. Settings-load failure keeps
+the pending choice for retry. Cancellation, bad state and failed exchange ignore
+response themes and retain the initiating appearance. See the
+[theme exchange contract](https://github.com/vpsfreecz/haveapi/blob/master/doc/en/oauth-theme.md)
+and [storage boundaries](CONFIGURATION.md#oauth-theme-handoff).
+
 **Failure contract:** public API failure is not “all healthy”; unavailable heatmaps
 must not break node lists. Auth callback errors offer a way back. Expiry redirects
 preserve safe navigation context and do not loop. Check session JSON separately

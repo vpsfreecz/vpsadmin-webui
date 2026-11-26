@@ -198,6 +198,39 @@ export function readLocks(
   return pruneLocalLocks([...byKey.values()], nowMs);
 }
 
+// Display refresh only: callers must still acquire a verified durable guard
+// before dispatching a mutation. Unreadable storage is not an empty lock set.
+export function readStorageEventDisplayLock(
+  event: StorageEvent,
+  ordinaryEntryPrefix: string,
+  uncertaintyEntryPrefix: string,
+  nowMs: number
+): { objectKey: string; lock: LocalLock | null } | undefined {
+  try {
+    if (event.storageArea !== window.localStorage || !event.key) return;
+    const uncertaintyEvent = event.key.startsWith(uncertaintyEntryPrefix);
+    const ordinaryEvent = event.key.startsWith(ordinaryEntryPrefix);
+    if (!uncertaintyEvent && !ordinaryEvent) return;
+
+    const inspected = inspectStoredLock(event.newValue ?? event.oldValue, nowMs);
+    const eventLock = uncertaintyEvent
+      ? corruptStoredLock(event.key, uncertaintyEntryPrefix, nowMs, true)
+      : inspected.lock ?? corruptStoredLock(event.key, ordinaryEntryPrefix, nowMs, false);
+    const objectKey = eventLock?.key ?? (ordinaryEvent
+      ? decodeURIComponent(event.key.slice(ordinaryEntryPrefix.length))
+      : undefined);
+    if (!objectKey) return;
+
+    return {
+      objectKey,
+      lock: readLatestGuard(uncertaintyEntryPrefix, objectKey, nowMs)
+        ?? readOrdinary(ordinaryEntryPrefix, objectKey, nowMs),
+    };
+  } catch {
+    return undefined;
+  }
+}
+
 export function verifiedSetItem(key: string, value: string): boolean {
   if (typeof window === 'undefined') return false;
   try {

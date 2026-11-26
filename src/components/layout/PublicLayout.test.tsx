@@ -154,7 +154,7 @@ describe('PublicLayout', () => {
 
     expect(screen.queryByRole('link', { name: 'auth.action.reset_password' })).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'public.primary.log_in' })).toHaveAttribute(
-      'href', `${window.location.origin}/oauth/login?next=%2Fapp`,
+      'href', `${window.location.origin}/oauth/login?next=%2Fapp&theme=auto&theme_return=1`,
     );
     fireEvent.click(screen.getByRole('button', { name: 'public.menu.open' }));
     expect(screen.queryByRole('link', { name: 'auth.action.reset_password' })).not.toBeInTheDocument();

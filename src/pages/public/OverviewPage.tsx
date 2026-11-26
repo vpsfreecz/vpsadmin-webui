@@ -1,3 +1,5 @@
+import { buildOAuthLoginUrl } from '../../lib/auth/oauthTheme';
+import { useUiSettings } from '../../app/uiSettings';
 import { PageHeading } from '../../components/ui/PageHeading';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -10,7 +12,7 @@ import { Alert } from '../../components/ui/Alert';
 import { Button } from '../../components/ui/Button';
 import { fetchNews, fetchOutages, fetchPublicNodeStatus, fetchPublicStats, fetchPublicSecurityAdvisories } from '../../lib/api/public';
 import { consumeSessionExpiredNotice, sessionReturnPath } from '../../lib/auth/sessionExpiredNotice';
-import { withRouterBasename, withSameOriginNextParam } from '../../lib/routerPaths';
+import { withRouterBasename } from '../../lib/routerPaths';
 import {
   categorizePublicOutages,
   groupPublicNodesByLocation,
@@ -54,7 +56,7 @@ export function OverviewPage() {
 
   const cfg = getRuntimeConfig();
   const loginBase = cfg.loginUrl ?? withRouterBasename('/oauth/login', cfg.routerBasename);
-  const signInHref = withSameOriginNextParam(loginBase, sessionReturnPath(expiredNotice?.pathname, cfg.routerBasename));
+  const signInHref = buildOAuthLoginUrl(loginBase, sessionReturnPath(expiredNotice?.pathname, cfg.routerBasename), useUiSettings().settings.theme);
 
   const statsQ = useQuery({
     queryKey: ['cluster', 'public_stats'],

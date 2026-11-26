@@ -20,9 +20,9 @@ import {
 import { isAmbiguousMutationError } from '../../lib/api/apiErrors';
 import { objectRefKey, type ObjectRef } from '../../lib/objectRef';
 import {
-  corruptStoredLock, generationLeaseName, generatedKey, inspectStoredLock, LEASE_GENERATION_PREFIX,
+  generationLeaseName, generatedKey, inspectStoredLock, LEASE_GENERATION_PREFIX,
   newGenerationId, ordinaryKey, ordinaryPrefix, promotePendingLockIfOrphan, readLatestGuard,
-  readLocks, readOrdinary, replaceLock, uncertainPrefix, verifiedRemoveItem, verifiedSetItem,
+  readLocks, readOrdinary, readStorageEventDisplayLock, replaceLock, uncertainPrefix, verifiedRemoveItem, verifiedSetItem,
 } from './localMutationLockStorage';
 
 export function useLocalMutationLocks(args: {
@@ -51,8 +51,13 @@ export function useLocalMutationLocks(args: {
     if (typeof window === 'undefined') return [];
     // The old session array cannot be attributed after an A -> B switch, so
     // never hydrate or migrate it into the current user's namespace.
-    const legacy = window.localStorage.getItem(scopeKey);
-    return readLocks(ordinaryEntryPrefix, uncertaintyEntryPrefix, legacy, Date.now());
+    try {
+      const legacy = window.localStorage.getItem(scopeKey);
+      return readLocks(ordinaryEntryPrefix, uncertaintyEntryPrefix, legacy, Date.now());
+    } catch {
+      // Display hydration is optional; durable acquisition still verifies storage.
+      return [];
+    }
   });
 
   useEffect(() => {
@@ -106,12 +111,16 @@ export function useLocalMutationLocks(args: {
     if (typeof window === 'undefined' || typeof navigator.locks?.request !== 'function') return;
     let cancelled = false;
     const recover = async () => {
-      const persisted = readLocks(ordinaryEntryPrefix, uncertaintyEntryPrefix, null, Date.now());
-      await Promise.all(persisted.map(
-        (lock) => promotePendingLockIfOrphan(lock, scopeKey, uncertaintyEntryPrefix)
-      ));
-      const current = readLocks(ordinaryEntryPrefix, uncertaintyEntryPrefix, null, Date.now());
-      if (!cancelled && scopeKey === activeScopeKeyRef.current) setLocalLocks(current);
+      try {
+        const persisted = readLocks(ordinaryEntryPrefix, uncertaintyEntryPrefix, null, Date.now());
+        await Promise.all(persisted.map(
+          (lock) => promotePendingLockIfOrphan(lock, scopeKey, uncertaintyEntryPrefix)
+        ));
+        const current = readLocks(ordinaryEntryPrefix, uncertaintyEntryPrefix, null, Date.now());
+        if (!cancelled && scopeKey === activeScopeKeyRef.current) setLocalLocks(current);
+      } catch {
+        // Retain the last displayed guards when storage becomes unavailable.
+      }
     };
     void recover();
     const interval = window.setInterval(() => void recover(), 1_000);
@@ -124,32 +133,11 @@ export function useLocalMutationLocks(args: {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const onStorage = (event: StorageEvent) => {
-      if (event.storageArea !== window.localStorage || !event.key) return;
-      const uncertaintyEvent = event.key.startsWith(uncertaintyEntryPrefix);
-      const ordinaryEvent = event.key.startsWith(ordinaryEntryPrefix);
-      if (!uncertaintyEvent && !ordinaryEvent) return;
-
       const now = Date.now();
-      const eventValue = event.newValue ?? event.oldValue;
-      const inspected = inspectStoredLock(eventValue, now);
-      const eventLock = uncertaintyEvent
-        ? corruptStoredLock(event.key, uncertaintyEntryPrefix, now, true)
-        : inspected.lock ?? corruptStoredLock(event.key, ordinaryEntryPrefix, now, false);
-      let objectKey = eventLock?.key;
-      if (!objectKey && ordinaryEvent) {
-        try {
-          objectKey = decodeURIComponent(event.key.slice(ordinaryEntryPrefix.length));
-        } catch {
-          return;
-        }
-      }
-      if (!objectKey) return;
-
       setLocalLocks((prev) => {
-        const uncertainty = readLatestGuard(uncertaintyEntryPrefix, objectKey, now);
-        if (uncertainty) return replaceLock(prev, uncertainty);
-        const ordinary = readOrdinary(ordinaryEntryPrefix, objectKey, now);
-        return ordinary ? replaceLock(prev, ordinary) : prev.filter((lock) => lock.key !== objectKey);
+        const update = readStorageEventDisplayLock(event, ordinaryEntryPrefix, uncertaintyEntryPrefix, now);
+        if (!update) return prev;
+        return update.lock ? replaceLock(prev, update.lock) : prev.filter((lock) => lock.key !== update.objectKey);
       });
     };
     window.addEventListener('storage', onStorage);

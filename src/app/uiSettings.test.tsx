@@ -1,6 +1,6 @@
 // i18n-ignore-file
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -16,6 +16,9 @@ vi.mock('../lib/api/webuiUserSettings', () => ({
   saveWebuiUserSetting: settingsApi.save,
 }));
 
+import { getRuntimeConfig } from './config';
+import { ThemeProvider, useTheme } from './theme';
+import { completeOAuth2Login } from '../lib/auth/oauth2Client';
 import { UiSettingsProvider, useUiSettings } from './uiSettings';
 import { HELP_PLACEMENT_STORAGE_KEY, DEFAULT_SETTINGS, STORAGE_KEY, toUiSettingsJson } from './uiSettingsModel';
 
@@ -95,10 +98,16 @@ beforeEach(() => {
   settingsApi.fetch.mockReset();
   settingsApi.save.mockReset();
   window.localStorage.clear();
+  document.cookie = 'vpsadmin_oauth_theme=; Path=/; Max-Age=0';
   serverWindowConfig();
 });
 
 afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.restoreAllMocks();
+  window.history.replaceState({}, '', '/');
+  window.sessionStorage.clear();
+  document.documentElement.removeAttribute('data-theme');
   window.localStorage.clear();
   window.vpsAdmin = undefined;
 });
@@ -247,4 +256,151 @@ it('cancels queued saves and blocks later effects after session expiry with stal
   fireEvent.click(screen.getByText('dismiss tip'));
   await waitForDebounce();
   expect(settingsApi.save).not.toHaveBeenCalled();
+});
+
+it('merges a login theme once without overwriting other account preferences', async () => {
+  document.cookie = 'vpsadmin_oauth_theme=dark.light; Path=/';
+  const saved = { ...DEFAULT_SETTINGS, theme: 'light' as const, language: 'cs' as const, tips: { sidebarTimeZone: 'dismissed' as const } };
+  settingsApi.fetch.mockResolvedValue(toUiSettingsJson(saved));
+  settingsApi.save.mockResolvedValue(undefined);
+  renderProvider();
+  expect(screen.getByTestId('theme')).toHaveTextContent('dark');
+  await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('idle'));
+  await waitForDebounce();
+  expect(settingsApi.save).toHaveBeenCalledExactlyOnceWith('ui_setting', 'settings', { ...saved, theme: 'dark' });
+  expect(screen.getByTestId('tip')).toHaveTextContent('dismissed');
+  expect(document.cookie).not.toContain('vpsadmin_oauth_theme=');
+  await waitForDebounce();
+  expect(settingsApi.save).toHaveBeenCalledOnce();
+});
+
+it.each(['light.light', 'dark.dark', 'auto.auto', 'malformed'])('does not create a missing record for unchanged login %s', async (payload) => {
+  document.cookie = `vpsadmin_oauth_theme=${payload}; Path=/`;
+  settingsApi.fetch.mockResolvedValue(undefined);
+  const denied = vi.spyOn(window, 'localStorage', 'get').mockImplementation(() => { throw new Error('denied'); });
+  try {
+    renderProvider();
+    await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('idle'));
+    await waitForDebounce();
+    expect(settingsApi.save).not.toHaveBeenCalled();
+  } finally { denied.mockRestore(); }
+});
+
+it('creates a missing record for an actual OAuth change even with denied localStorage', async () => {
+  document.cookie = 'vpsadmin_oauth_theme=dark.light; Path=/';
+  settingsApi.fetch.mockResolvedValue(undefined);
+  settingsApi.save.mockResolvedValue(undefined);
+  const denied = vi.spyOn(window, 'localStorage', 'get').mockImplementation(() => { throw new Error('denied'); });
+  try {
+    renderProvider();
+    await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('idle'));
+    await waitForDebounce();
+    expect(screen.getByTestId('theme')).toHaveTextContent('dark');
+    expect(settingsApi.save).toHaveBeenCalledExactlyOnceWith('ui_setting', 'settings', { ...DEFAULT_SETTINGS, theme: 'dark' });
+  } finally { denied.mockRestore(); }
+});
+
+it('retains a pending automatic preference through a failed settings load and retry', async () => {
+  document.cookie = 'vpsadmin_oauth_theme=auto.dark; Path=/';
+  settingsApi.fetch.mockRejectedValueOnce(new Error('offline')).mockResolvedValueOnce(toUiSettingsJson({ ...DEFAULT_SETTINGS, theme: 'dark', language: 'cs' }));
+  settingsApi.save.mockResolvedValue(undefined);
+  renderProvider();
+  await waitFor(() => expect(screen.getByTestId('load-error')).toHaveTextContent('offline'));
+  expect(screen.getByTestId('theme')).toHaveTextContent('system');
+  fireEvent.click(screen.getByText('retry'));
+  await waitFor(() => expect(screen.getByTestId('status')).toHaveTextContent('idle'));
+  await waitForDebounce();
+  expect(settingsApi.save).toHaveBeenCalledExactlyOnceWith('ui_setting', 'settings', { ...DEFAULT_SETTINGS, theme: 'system', language: 'cs' });
+});
+
+it('keeps a handoff in memory under StrictMode with local persistence only', () => {
+  document.cookie = 'vpsadmin_oauth_theme=dark.auto; Path=/';
+  render(<React.StrictMode><UiSettingsProvider serverSyncEnabled={false}><Probe /></UiSettingsProvider></React.StrictMode>);
+  expect(screen.getByTestId('theme')).toHaveTextContent('dark');
+  expect(settingsApi.fetch).not.toHaveBeenCalled();
+  expect(document.cookie).not.toContain('vpsadmin_oauth_theme=');
+});
+
+
+const LEGACY_STATE_KEY = 'vpsadmin_ui_next.oauth2.login_state';
+
+function ThemeProbe() {
+  const theme = useTheme();
+  return <><Probe /><span data-testid="effective-theme">{theme.effective}</span></>;
+}
+
+function LegacyExchangeProbe() {
+  const [phase, setPhase] = useState('pending');
+  useEffect(() => {
+    completeOAuth2Login(getRuntimeConfig(), window.location.href)
+      .then(() => setPhase('complete'), () => setPhase('failed'));
+  }, []);
+  return <span data-testid="legacy-exchange">{phase}</span>;
+}
+
+function denyStorageAndSetSystemTheme(system: 'light' | 'dark') {
+  vi.spyOn(window, 'localStorage', 'get').mockImplementation(() => { throw new Error('denied'); });
+  let matches = system === 'dark';
+  const listeners = new Set<() => void>();
+  vi.stubGlobal('matchMedia', vi.fn(() => ({
+    get matches() { return matches; },
+    addEventListener: (_type: string, listener: () => void) => listeners.add(listener),
+    removeEventListener: (_type: string, listener: () => void) => listeners.delete(listener),
+  })));
+  return (next: 'light' | 'dark') => { matches = next === 'dark'; listeners.forEach((listener) => listener()); };
+}
+
+function saveLegacyState(theme: string) {
+  window.sessionStorage.setItem(LEGACY_STATE_KEY, JSON.stringify({
+    createdAt: Date.now(), state: 'pending-state', codeVerifier: 'verifier',
+    nextPath: '/app', flow: 'pkce', theme, themeReturn: true,
+  }));
+}
+
+it.each(['light', 'dark'] as const)('keeps initiating %s through React mount and deferred legacy exchange with denied storage', async (theme) => {
+  const opposite = theme === 'dark' ? 'light' : 'dark';
+  denyStorageAndSetSystemTheme(opposite);
+  window.history.replaceState({}, '', `/oauth/callback?code=code&state=pending-state&theme=${opposite}`);
+  saveLegacyState(theme);
+  document.documentElement.setAttribute('data-theme', theme); // Head bootstrap's initial paint.
+  let failExchange!: (error: Error) => void;
+  vi.stubGlobal('fetch', vi.fn(() => new Promise<Response>((_resolve, reject) => { failExchange = reject; })));
+  render(<UiSettingsProvider serverSyncEnabled={false}><ThemeProvider><ThemeProbe /><LegacyExchangeProbe /></ThemeProvider></UiSettingsProvider>);
+  expect(screen.getByTestId('legacy-exchange')).toHaveTextContent('pending');
+  expect(screen.getByTestId('theme')).toHaveTextContent(theme);
+  expect(screen.getByTestId('effective-theme')).toHaveTextContent(theme);
+  expect(document.documentElement).toHaveAttribute('data-theme', theme);
+  await act(async () => { failExchange(new Error('token exchange failed')); });
+  expect(screen.getByTestId('legacy-exchange')).toHaveTextContent('failed');
+  expect(document.documentElement).toHaveAttribute('data-theme', theme);
+  expect(document.cookie).not.toContain('vpsadmin_oauth_theme=');
+});
+
+it.each(['light', 'dark', 'auto'] as const)('keeps direct basename login %s through the real theme provider', (theme) => {
+  const opposite = theme === 'dark' ? 'light' : 'dark';
+  const changeSystem = denyStorageAndSetSystemTheme(opposite);
+  window.vpsAdmin!.webuiNext!.basePath = '/ui-next';
+  window.history.replaceState({}, '', `/ui-next/oauth/login?theme=${theme}`);
+  render(<UiSettingsProvider serverSyncEnabled={false}><ThemeProvider><ThemeProbe /></ThemeProvider></UiSettingsProvider>);
+  expect(screen.getByTestId('theme')).toHaveTextContent(theme === 'auto' ? 'system' : theme);
+  expect(screen.getByTestId('effective-theme')).toHaveTextContent(theme === 'auto' ? opposite : theme);
+  if (theme === 'auto') {
+    expect(document.documentElement).not.toHaveAttribute('data-theme');
+    act(() => changeSystem('light'));
+    expect(screen.getByTestId('effective-theme')).toHaveTextContent('light');
+  } else expect(document.documentElement).toHaveAttribute('data-theme', theme);
+});
+
+it.each([
+  ['/oauth/callback?theme=dark', undefined],
+  ['/oauth/callback?theme=dark', 'invalid'],
+  ['/other?theme=dark', 'dark'],
+  ['/oauth/login?theme=dark&theme=light', undefined],
+])('ignores unvalidated or unrelated preference at %s with pending %s', (path, pending) => {
+  denyStorageAndSetSystemTheme('light');
+  window.history.replaceState({}, '', path!);
+  if (pending) saveLegacyState(pending);
+  render(<UiSettingsProvider serverSyncEnabled={false}><ThemeProvider><ThemeProbe /></ThemeProvider></UiSettingsProvider>);
+  expect(screen.getByTestId('theme')).toHaveTextContent('system');
+  expect(document.documentElement).not.toHaveAttribute('data-theme');
 });
