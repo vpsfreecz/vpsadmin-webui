@@ -69,7 +69,9 @@ hashes were retained and verified unchanged throughout that complete test run.
 
 The complete browser run and hosted CI are separate pending gates on the frozen
 commit. Full fixture verification uses the pinned rootless runner with an isolated
-network namespace: loopback works and external routing returns `ENETUNREACH`.
+network namespace: the local fixture server works and external routing returns
+`ENETUNREACH`. Both ends of a private synthetic link remain inside that namespace
+so Chromium correctly reports online; explicit offline emulation remains testable.
 The original specifications and imports run unchanged in that full verification;
 no live backend is reachable. This is separate from later deployed dev acceptance.
 
@@ -82,3 +84,18 @@ The current repair retains every original scenario and strengthens exact create,
 filter, ownership, OOM and expansion assertions against the present source.
 The original PR's fixture intent is superseded by these current SDK-compatible
 responses. No duplicate repair PR or rewritten published history is required.
+
+The URL refactor retains the previous canonicalization of location IDs and
+purpose values before the list query mounts. Invalid/empty values are removed,
+valid trimmed values normalize, and a changed filter resets its cursor while
+preserving unrelated parameters. All 19 filter/navigation and canonicalization
+unit checks pass, including three newly explicit URL cases. The earlier complete
+unit/browser source and this bounded follow-up remain separately identified.
+
+The first full local attempt was interrupted after 271 passes and two scenarios
+paused on Loading; the remaining cases were unexecuted, not newly skipped tests.
+The outage trace explicitly showed offline. A loopback-only namespace reproduced
+`navigator.onLine=false` in six samples. A private internal link changes all six
+samples to true while preserving the absence of an external route. The original
+failures and interrupted report remain retained; that attempt is not a full-suite
+certificate. No application workaround or browser online-property override is used.
