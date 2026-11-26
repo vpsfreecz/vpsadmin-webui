@@ -165,3 +165,43 @@ test('automatic normalization cannot replace a browser history destination befor
     window.history.replaceState(null, '', originalUrl);
   }
 });
+
+test('a pending applied filter resets the cursor without writing the previous filter back to the URL', () => {
+  const originalUrl = window.location.href;
+  const path = '/admin/oom-reports';
+  const previous = 'cgroup=%2Fsystem.slice&limit=25&page=2&from_id=101';
+  const applied = 'cgroup=%2Fhistory-two.slice&limit=25&page=2&from_id=101';
+  const destination = 'cgroup=%2Fhistory-two.slice&limit=25&page=1';
+  window.history.replaceState(null, '', `${path}?${previous}`);
+  const setSearchParams = vi.fn();
+  try {
+    const { result, rerender } = renderHook(
+      ({ search, filterKey, navigation }) =>
+        useKeysetPagination({
+          id: 'pending-oom-filter-cursor-reset',
+          filterKey,
+          searchParams: new URLSearchParams(search),
+          navigationSearchParams: new URLSearchParams(navigation),
+          navigationPathname: path,
+          navigationSearchKey: search,
+          setSearchParams,
+          defaultLimit: 25,
+        }),
+      { initialProps: { search: previous, filterKey: '/system.slice', navigation: previous } }
+    );
+    setSearchParams.mockClear();
+    rerender({ search: previous, filterKey: '/history-two.slice', navigation: applied });
+    expect(result.current.page).toBe(1);
+    expect(result.current.fromId).toBeUndefined();
+    expect(setSearchParams).not.toHaveBeenCalled();
+    window.history.replaceState(null, '', `${path}?${destination}`);
+    rerender({ search: destination, filterKey: '/history-two.slice', navigation: destination });
+    expect(result.current.page).toBe(1);
+    act(() => result.current.goNext(75));
+    const next = setSearchParams.mock.calls.at(-1)?.[0] as URLSearchParams;
+    expect(next.get('cgroup')).toBe('/history-two.slice');
+    expect(next.get('from_id')).toBe('75');
+  } finally {
+    window.history.replaceState(null, '', originalUrl);
+  }
+});
