@@ -153,6 +153,10 @@ export function useKeysetPagination(opts: {
   navigationSearchParams?: URLSearchParams;
   /** Path owning these params. Ignore writes after browser navigation leaves it. */
   navigationPathname?: string;
+  /** Committed router search. Automatic normalization must not replace a
+   * newer browser history destination before the router publishes it.
+   * Explicit Next/Previous/page-size actions still use applied filters. */
+  navigationSearchKey?: string;
   /** Setter from react-router. */
   setSearchParams: (nextInit: URLSearchParams | string, navigateOpts?: { replace?: boolean }) => void;
   /** Optional prefix for query params (for pages that embed multiple paginated lists). Example: 'tx_' => tx_from_id, tx_page, tx_limit. */
@@ -234,6 +238,13 @@ export function useKeysetPagination(opts: {
 
   const syncUrl = (nextStack: KeysetCursorStack, nextIndex: number, mode: 'push' | 'replace') => {
     if (!ownsBrowserUrl()) return;
+    if (
+      mode === 'replace' &&
+      opts.navigationSearchKey !== undefined &&
+      typeof window !== 'undefined' &&
+      new URLSearchParams(window.location.search).toString() !== opts.navigationSearchKey
+    )
+      return;
     // Explicit navigation may follow an applied filter before the router publishes it.
     // Automatic normalization must still follow the router, including Back/Forward.
     const cur = new URLSearchParams(
