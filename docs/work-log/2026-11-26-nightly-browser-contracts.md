@@ -72,3 +72,13 @@ commit. Full fixture verification uses the pinned rootless runner with an isolat
 network namespace: loopback works and external routing returns `ENETUNREACH`.
 The original specifications and imports run unchanged in that full verification;
 no live backend is reachable. This is separate from later deployed dev acceptance.
+
+## Existing PR281 and preserved history
+
+The earlier [PR281](https://github.com/vpsfreecz/vpsadmin-webui/pull/281) already
+covered the same 47 failures on an older main. Its original head and dated evidence
+are retained through an ordinary merge; this work updates that existing PR.
+The current repair retains every original scenario and strengthens exact create,
+filter, ownership, OOM and expansion assertions against the present source.
+The original PR's fixture intent is superseded by these current SDK-compatible
+responses. No duplicate repair PR or rewritten published history is required.

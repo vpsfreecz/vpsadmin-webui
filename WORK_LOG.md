@@ -30,6 +30,10 @@
 
 [Root cause, API boundary, role scope and verification](docs/work-log/2026-11-08-dashboard-owned-server-identity.md).
 
+## 2026-11-11 — Restore nightly Playwright coverage
+
+[Fixture contract corrections and verification](docs/work-log/2026-11-11-nightly-playwright-fixtures.md).
+
 ## 2026-11-09 — Consolidate the account controls under the nickname
 
 [Scope and verification](docs/work-log/2026-11-09-nickname-menu.md).
