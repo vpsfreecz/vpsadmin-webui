@@ -386,6 +386,21 @@ for (const [language, theme] of [['cs', 'dark'], ['en', 'light']] as const) {
 
 for (const [language, theme] of [['cs', 'dark'], ['en', 'light'], ['cs', 'light'], ['en', 'dark']] as const) {
   test(`@pr-smoke @pr-smoke-mobile generated Access password shares action dimensions (${language}, ${theme})`, async ({ page }, info) => {
+    await page.addInitScript(() => {
+      const events: unknown[] = [];
+      Reflect.set(window, '__generatedPasswordFocusJournal', events);
+      const identify = (value: EventTarget | null) => value instanceof Element
+        ? { tag: value.tagName, testId: value.getAttribute('data-testid'), connected: value.isConnected }
+        : null;
+      const record = (event: Event) => {
+        events.push({ at: performance.now(), type: event.type, target: identify(event.target),
+          active: identify(document.activeElement), width: innerWidth, height: innerHeight,
+          scrollTop: document.scrollingElement?.scrollTop, documentFocused: document.hasFocus() });
+        if (events.length > 100) events.shift();
+      };
+      for (const name of ['focusin', 'focusout', 'resize']) window.addEventListener(name, record, true);
+      visualViewport?.addEventListener('resize', record);
+    });
     await bootstrapVpsAdminWindow(page); await setUiSettingsLocalStorage(page, { language, theme });
     const writes: unknown[] = [], phases: unknown[] = [];
     await installHaveApiMock(page, { user: { id: 42, login: 'synthetic-owner', level: 1 }, handlers: {
@@ -407,6 +422,10 @@ for (const [language, theme] of [['cs', 'dark'], ['en', 'light'], ['cs', 'light'
       for (const c of geometry.controls) { expect.soft(c.height, c.id ?? '').toBe(geometry.coarse ? 44 : 36); expect.soft(c.left).toBeGreaterThanOrEqual(0); expect.soft(c.right).toBeLessThanOrEqual(width); }
       expect.soft(geometry.document).toBeLessThanOrEqual(width + 1);
       try {
+        // Keyboard setup starts from a visible, stable control after resizing.
+        // Focusing an off-screen mobile control also initiates native scrolling.
+        await toggle.scrollIntoViewIfNeeded();
+        await expect(toggle).toBeInViewport();
         await toggle.focus();
         await expect(toggle).toBeFocused();
         await page.keyboard.press('Tab');
@@ -418,6 +437,10 @@ for (const [language, theme] of [['cs', 'dark'], ['en', 'light'], ['cs', 'light'
         await info.attach('generated-password-keyboard-state', {
           body: JSON.stringify(await page.evaluate(() => ({
             active: document.activeElement?.getAttribute('data-testid'),
+            activeTag: document.activeElement?.tagName,
+            scrollTop: document.scrollingElement?.scrollTop,
+            viewport: { width: innerWidth, height: innerHeight },
+            events: Reflect.get(window, '__generatedPasswordFocusJournal'),
             documentFocused: document.hasFocus(),
             dialogs: [...document.querySelectorAll('[role="dialog"]')].map(element => element.getAttribute('data-testid')),
           }))),
