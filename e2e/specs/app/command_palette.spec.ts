@@ -233,7 +233,7 @@ test.describe('Command palette', () => {
       handlers: {
         'GET vpses': () => ({ vpses: [] }),
         'POST cluster/search': () => ({
-          cluster_search: [{ resource: 'User', id: 5, value: 'alice', attribute: 'login' }],
+          clusters: [{ resource: 'User', id: 5, value: 'alice', attribute: 'login' }],
         }),
         'GET users/5': () => ({
           user: { id: 5, login: 'alice', full_name: 'Alice A.', email: 'alice@example', level: 1 },
@@ -387,7 +387,7 @@ test.describe('Command palette', () => {
       handlers: {
         'GET vpses': () => ({ vpses: [] }),
         'POST cluster/search': () => ({
-          cluster_search: [
+          clusters: [
             { resource: 'User', id: 5, value: '5', attribute: 'id' },
             { resource: 'User', id: 5, value: 'alice', attribute: 'login' },
           ],
@@ -435,7 +435,7 @@ test.describe('Command palette', () => {
       handlers: {
         'GET vpses': () => ({ vpses: [] }),
         'POST cluster/search': () => ({
-          cluster_search: [
+          clusters: [
             { resource: 'User', id: 5, value: 'alice', attribute: 'login' },
             { resource: 'Vps', id: 6, value: 'vps6.example', attribute: 'hostname' },
           ],
@@ -480,7 +480,7 @@ test.describe('Command palette', () => {
       handlers: {
         'GET vpses': () => ({ vpses: [] }),
         'POST cluster/search': () => ({
-          cluster_search: [
+          clusters: [
             { resource: 'User', id: 5, value: 'alice', attribute: 'id' },
             { resource: 'TransactionChain', id: 5, value: 'chain-five', attribute: 'id' },
           ],
@@ -535,14 +535,14 @@ test.describe('Command palette', () => {
               releaseReplacement = resolve;
             });
             return {
-              cluster_search: [
+              clusters: [
                 { resource: 'Vps', id: 6, value: 'vps6.example', attribute: 'id' },
                 { resource: 'User', id: 6, value: 'user-six', attribute: 'id' },
               ],
             };
           }
           return {
-            cluster_search: query === '5'
+            clusters: query === '5'
               ? [
                   { resource: 'Vps', id: 5, value: 'vps5.example', attribute: 'id' },
                   { resource: 'User', id: 5, value: 'user-five', attribute: 'id' },
@@ -629,10 +629,10 @@ test.describe('Command palette', () => {
             });
             slowResponseCompleted = true;
             return {
-              cluster_search: [{ resource: 'Vps', id: 7, value: 'late.example', attribute: 'hostname' }],
+              clusters: [{ resource: 'Vps', id: 7, value: 'late.example', attribute: 'hostname' }],
             };
           }
-          return { cluster_search: [] };
+          return { clusters: [] };
         },
       },
     });
@@ -677,7 +677,7 @@ test.describe('Command palette', () => {
           const query = String((ctx.reqJson as any)?.cluster?.value ?? '');
           if (query === 'slow') {
             await new Promise((resolve) => setTimeout(resolve, 450));
-            return { cluster_search: [] };
+            return { clusters: [] };
           }
           if (query === 'failure') {
             return {
@@ -686,7 +686,7 @@ test.describe('Command palette', () => {
               body: JSON.stringify({ status: false, message: 'offline', response: null }),
             };
           }
-          return { cluster_search: [] };
+          return { clusters: [] };
         },
       },
     });
@@ -771,7 +771,7 @@ test.describe('Command palette', () => {
       handlers: {
         'GET vpses': () => ({ vpses: [] }),
         'POST cluster/search': () => ({
-          cluster_search: Array.from({ length: 30 }, (_, index) => ({
+          clusters: Array.from({ length: 30 }, (_, index) => ({
             resource: 'Node',
             id: index + 1,
             value: `node-${String(index + 1).padStart(2, '0')}`,
@@ -822,7 +822,7 @@ test.describe('Command palette', () => {
         'POST cluster/search': (ctx) => {
           expect((ctx.reqJson as any)?.cluster?.value).toBe('53');
           return {
-            cluster_search: [{ resource: 'User', id: 53, value: '53', attribute: 'id' }],
+            clusters: [{ resource: 'User', id: 53, value: '53', attribute: 'id' }],
           };
         },
         'GET users/53': () => ({ user: { id: 53, login: 'KerryCZE', full_name: 'Kerry', email: 'kerry@example', level: 99 } }),
@@ -849,7 +849,7 @@ test.describe('Command palette', () => {
       handlers: {
         'GET vpses': () => ({ vpses: [] }),
         'POST cluster/search': () => ({
-          cluster_search: [{ resource: 'IpAddress', id: 7, value: '203.0.113.10', attribute: 'addr' }],
+          clusters: [{ resource: 'IpAddress', id: 7, value: '203.0.113.10', attribute: 'addr' }],
         }),
         'GET ip_addresses/7': () => ({
           ip_address: {
@@ -888,7 +888,7 @@ test.describe('Command palette', () => {
         'GET vpses': () => ({ vpses: [] }),
         'POST cluster/search': (ctx) => {
           searchQueries.push(String((ctx.reqJson as any)?.cluster?.value ?? ''));
-          return { cluster_search: [] };
+          return { clusters: [] };
         },
       },
     });
@@ -925,7 +925,7 @@ test.describe('Command palette', () => {
         'GET vpses': () => ({ vpses: [] }),
         'POST cluster/search': (ctx) => {
           searchQueries.push(String((ctx.reqJson as any)?.cluster?.value ?? ''));
-          return { cluster_search: [] };
+          return { clusters: [] };
         },
       },
     });

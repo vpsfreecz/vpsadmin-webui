@@ -39,6 +39,23 @@ describe('immutable generated client through actual HaveAPI XHR', () => {
     expect(request.headers).toMatchObject({ 'X-Token': 'old', 'Accept-Language': 'cs' });
   });
 
+  it('decodes a successful delete with an explicit nullable generated namespace', async () => {
+    const envelope = { status: true, response: { news_log: null } };
+    installHaveApiXhr(() => response(envelope));
+    const result = await (await getApi()).news_log.delete({ path: { news_log_id: 7 } });
+    expect(result.data).toBeNull();
+    expect(result.envelope).toEqual(envelope);
+    expect(apiWire.requests).toHaveLength(1);
+    expect(new URL(apiWire.requests[0]!.url).pathname).toBe('/mount/v7.0/news_logs/7');
+    expect(apiWire.requests[0]!.method).toBe('DELETE');
+  });
+
+  it.each([null, {}])('rejects a delete response that omits its generated namespace: %j', async (body) => {
+    installHaveApiXhr(() => response({ status: true, response: body }));
+    await expect((await getApi()).news_log.delete({ path: { news_log_id: 7 } })).rejects.toThrow('Missing response namespace');
+    expect(apiWire.requests).toHaveLength(1);
+  });
+
   it('binds custom global/object-list metadata without changing nested values or raw envelope', async () => {
     window.vpsAdmin!.webuiNext!.haveApi!.metaNamespace = 'wire_meta';
     const row = { id: 7, hostname: 'test', wire_meta: { resolved: true }, user: { id: 2, wire_meta: { untouched: true } } };

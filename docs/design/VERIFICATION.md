@@ -19,6 +19,15 @@ command/scenario, role, locale, viewport, data origin, result, artifacts and lim
 For mutations include object ownership, acceptance/action-state IDs, final state
 and cleanup receipt. Do not rerun completed destructive scenarios blindly.
 
+## Full browser suite and generated wire fixtures
+
+Keep full-suite failures separate from PR-selection results. Reproduce the original
+failed cases before repair, preserve logs, and validate the complete affected suites
+and final release source. Fixtures must match published generated namespaces and
+field types, including explicit nullable delete members. Correct stale expectations
+against the actual workflow without dropping error, ownership, payload or retry
+assertions. See the [2026-11-26 repair](../work-log/2026-11-26-nightly-browser-contracts.md).
+
 ## Touch interaction regression
 
 `npm run e2e:touch:webkit` runs the focused `mobile-webkit` project using iPhone

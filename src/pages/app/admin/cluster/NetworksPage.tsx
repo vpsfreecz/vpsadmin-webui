@@ -144,21 +144,26 @@ function NetworksContent() {
   const [searchParams, setSearchParams] = useSearchParams();
   const smartInputRef = useRef<HTMLInputElement | null>(null);
 
-  const [location, setLocation] = useState(() => searchParams.get('location') ?? '');
-  const [purpose, setPurpose] = useState(() => searchParams.get('purpose') ?? '');
+  const location = searchParams.get('location') ?? '';
+  const purpose = searchParams.get('purpose') ?? '';
+  function setFilters(values: { location?: string; purpose?: string }) {
+    setSearchParams((current) => {
+      const next = new URLSearchParams(current);
+      for (const [key, value] of Object.entries(values)) {
+        if (value) next.set(key, value);
+        else next.delete(key);
+      }
+      next.delete('from_id');
+      next.set('page', '1');
+      return next;
+    });
+  }
+  const setLocation = (value: string) => setFilters({ location: value });
+  const setPurpose = (value: string) => setFilters({ purpose: value });
   const [smart, setSmart] = useState('');
   const [smartErrors, setSmartErrors] = useState<string[]>([]);
   const [helpOpen, setHelpOpen] = useState(false);
   const [advancedOpen, setAdvancedOpen] = useState(false);
-
-  // Sync local state on navigation.
-  useEffect(() => {
-    const urlLoc = searchParams.get('location') ?? '';
-    const urlPurpose = searchParams.get('purpose') ?? '';
-    if (urlLoc !== location) setLocation(urlLoc);
-    if (urlPurpose !== purpose) setPurpose(urlPurpose);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
 
   const locationId = useMemo(() => parsePositiveInt(location), [location]);
 
@@ -185,22 +190,8 @@ function NetworksContent() {
   function clearAllFilters() {
     setSmart('');
     setSmartErrors([]);
-    setLocation('');
-    setPurpose('');
+    setFilters({ location: '', purpose: '' });
   }
-
-  // Persist filters in URL.
-  useEffect(() => {
-    const next = new URLSearchParams(searchParams);
-
-    if (locationId) next.set('location', String(locationId));
-    else next.delete('location');
-
-    if (purposeKey) next.set('purpose', purposeKey);
-    else next.delete('purpose');
-
-    if (next.toString() !== searchParams.toString()) setSearchParams(next, { replace: true });
-  }, [locationId, purposeKey, searchParams, setSearchParams]);
 
   const pagination = useKeysetPagination({
     id: 'admin.cluster.networks',
@@ -323,8 +314,7 @@ function NetworksContent() {
 
     setSmartErrors(errors);
     if (errors.length > 0) return;
-    setLocation(nextLocation);
-    setPurpose(nextPurpose);
+    setFilters({ location: nextLocation, purpose: nextPurpose });
     setSmart('');
   }
 

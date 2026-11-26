@@ -30,7 +30,7 @@ test.describe('Admin / Cluster / Networks (smoke)', () => {
         owned: 12,
         taken: 30,
         locations_count: 2,
-        primary_location: locations[0],
+        primary_location: locations[0] as typeof locations[number] | null,
       },
       {
         id: 102,
@@ -187,7 +187,7 @@ test.describe('Admin / Cluster / Networks (smoke)', () => {
     // Filter by purpose
     await page.getByTestId('admin.cluster.networks.advanced.open').click();
     await Promise.all([
-      page.waitForRequest((r) => isApiRequest(r.url(), 'networks') && r.url().includes('network%5Bpurpose%5D=vps')),
+      page.waitForRequest((r) => isApiRequest(r.url(), 'networks') && new URL(r.url()).searchParams.get('network[purpose]') === 'vps'),
       page.getByTestId('admin.cluster.networks.filter.purpose').selectOption('vps'),
     ]);
     await expect.poll(() => seenPurpose).toBe('vps');
@@ -237,7 +237,7 @@ test.describe('Admin / Cluster / Networks (smoke)', () => {
       owned: 12,
       taken: 30,
       locations_count: 1,
-      primary_location: locations[0],
+      primary_location: locations[0] as typeof locations[number] | null,
     }];
     let createAttempts = 0;
     let updateAttempts = 0;
@@ -332,7 +332,7 @@ test.describe('Admin / Cluster / Networks (smoke)', () => {
       assigned: 24,
       owned: 12,
       taken: 30,
-      primary_location: locations[0],
+      primary_location: locations[0] as typeof locations[number] | null,
     };
     let locationNetworks = [{
       id: 1001,
@@ -382,7 +382,7 @@ test.describe('Admin / Cluster / Networks (smoke)', () => {
           deleteAttempts += 1;
           if (deleteAttempts === 1) return failEnvelope('Location is still in use');
           locationNetworks = locationNetworks.filter((row) => row.id !== 1001);
-          return {};
+          return { location_network: null };
         },
         'POST networks/101/add_addresses': () => {
           addAddressAttempts += 1;

@@ -465,7 +465,12 @@ test('VPS list keeps power slots stable and separates allocation from live usage
   await page.keyboard.press('Enter');
   await expect(page.getByTestId(`${off.actionPrefix}.action.restart.reason`)).toContainText('VPS is stopped');
   await page.getByTestId(`${off.actionPrefix}.action.restart.reason.close`).click();
-  await expect(page).toHaveURL(/\/app\/vps$/);
+  await expect(page).toHaveURL((url) => (
+    url.pathname === '/app/vps'
+    && url.searchParams.size === 2
+    && url.searchParams.get('limit') === '50'
+    && url.searchParams.get('page') === '1'
+  ));
 
   await stoppedDetails.locator('..').screenshot({ path: testInfo.outputPath('action-slots.png') });
   const resourceArea = (row: typeof on) => row.actionPrefix.startsWith('vps.row.')

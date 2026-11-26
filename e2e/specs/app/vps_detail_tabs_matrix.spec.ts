@@ -53,6 +53,7 @@ async function captureOptInScreenshot(page: Page, envName: string): Promise<void
 for (const result of ['reports', 'empty', 'error'] as const) {
   test(`VPS overview recent OOM reports distinguish ${result}`, async ({ page }, testInfo) => {
     const createdAt = '2025-01-02T12:00:00Z';
+    const requestedLimits: string[] = [];
     await bootstrapVpsAdminWindow(page);
     await installHaveApiMock(page, {
       user: { id: 10, login: 'oom-fixture', level: 1 },
@@ -61,7 +62,10 @@ for (const result of ['reports', 'empty', 'error'] as const) {
         'GET transaction_chains': () => ({ transaction_chains: [] }),
         'GET oom_reports': ({ searchParams }) => {
           expect(searchParams.get('oom_report[vps]')).toBe('123');
-          expect(searchParams.get('oom_report[limit]')).toBe('3');
+          const recentWarning = searchParams.has('oom_report[since]');
+          const limit = searchParams.get('oom_report[limit]');
+          expect(limit).toBe(recentWarning ? '1' : '3');
+          requestedLimits.push(limit!);
           if (result === 'error') return { status: 503 };
           return {
             oom_reports: result === 'empty' ? [] : [
@@ -84,6 +88,7 @@ for (const result of ['reports', 'empty', 'error'] as const) {
     } else {
       await expect(section).toContainText(result === 'error' ? 'Unable to load OOM reports.' : 'No OOM reports for this VPS.');
     }
+    await expect.poll(() => [...new Set(requestedLimits)].sort()).toEqual(['1', '3']);
     await expectNoDocumentHorizontalOverflow(page);
   });
 }
