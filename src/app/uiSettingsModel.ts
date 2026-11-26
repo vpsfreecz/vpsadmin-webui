@@ -56,6 +56,14 @@ export const DEFAULT_SETTINGS: UiSettings = {
 
 export const STORAGE_KEY = 'vpsadmin.uiSettings.v1';
 
+export function browserLocalStorage(): Storage | undefined {
+  try {
+    return typeof window === 'undefined' ? undefined : window.localStorage;
+  } catch {
+    return undefined;
+  }
+}
+
 function isRecord(v: unknown): v is Record<string, unknown> {
   return !!v && typeof v === 'object' && !Array.isArray(v);
 }
@@ -126,13 +134,18 @@ export function toUiSettingsJson(settings: UiSettings): string {
 }
 
 export function loadUiSettingsFromLocalStorage(storage?: Storage): UiSettings {
-  if (!storage) return { ...DEFAULT_SETTINGS };
-  const raw = storage.getItem(STORAGE_KEY);
-  if (!raw) return { ...DEFAULT_SETTINGS };
-  return parseUiSettingsJson(raw);
+  try {
+    const raw = storage?.getItem(STORAGE_KEY);
+    return raw ? parseUiSettingsJson(raw) : { ...DEFAULT_SETTINGS };
+  } catch {
+    return { ...DEFAULT_SETTINGS };
+  }
 }
 
 export function saveUiSettingsToLocalStorage(storage: Storage | undefined, settings: UiSettings): void {
-  if (!storage) return;
-  storage.setItem(STORAGE_KEY, toUiSettingsJson(settings));
+  try {
+    storage?.setItem(STORAGE_KEY, toUiSettingsJson(settings));
+  } catch {
+    // Preferences remain usable in memory when browser storage is unavailable.
+  }
 }

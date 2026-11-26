@@ -109,7 +109,7 @@ let
   };
   staticCsp = lib.concatStringsSep "; " [
     "default-src 'self'"
-    "script-src 'self' 'sha256-wyf6w6jZL1nQnvQ3z5xyWt1FnxVZMXcEAzprShSzkQY='"
+    "script-src 'self' 'sha256-GsLiqeMVCzP8bNzzGixyR67nIkrZ+XnSTAT8QzB3MAo='"
     "style-src 'self' 'unsafe-inline'"
     "img-src 'self' data: https://www.openstreetmap.org ${lib.concatStringsSep " " cfg.security.imageSources}"
     "font-src 'self' data:"

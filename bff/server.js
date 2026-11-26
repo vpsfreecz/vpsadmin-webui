@@ -10,6 +10,7 @@
 
 const { createHmac } = require('node:crypto');
 const express = require('express');
+const { parseTheme, clearThemeCookie, writeThemeCookie } = require('./oauth-theme');
 const { passkeyDestinations, renderPasskeyPage, setPasskeyHeaders } = require('./passkey-page');
 const session = require('express-session');
 const { createSessionQueue } = require('./session-queue');
@@ -279,6 +280,8 @@ function clearPendingOAuthAttempt(req) {
   req.session.next = undefined;
   req.session.oauth_state = undefined;
   req.session.oauth_state_issued_at = undefined;
+  req.session.oauth_theme = undefined;
+  req.session.oauth_theme_return = undefined;
 }
 
 function tokenFailureClass(error) {
@@ -291,7 +294,9 @@ function tokenFailureClass(error) {
 }
 
 function redirectOAuthFailure(req, res) {
+  if (req.session) req.session.oauth_error_theme = parseTheme(req.session.oauth_theme) || req.session.oauth_error_theme;
   clearPendingOAuthAttempt(req);
+  clearThemeCookie(req, res);
   setOAuthRecoverySecurityHeaders(res);
   return res.redirect(303, '/oauth/error');
 }
@@ -301,7 +306,7 @@ app.get('/oauth/error', (req, res) => {
   setOAuthRecoverySecurityHeaders(res);
   res.setHeader('content-language', language);
   res.vary('Accept-Language');
-  return res.status(400).type('html').send(renderOAuthErrorPage(language));
+  return res.status(400).type('html').send(renderOAuthErrorPage(language, req.session.oauth_error_theme));
 });
 
 // start login
@@ -311,6 +316,7 @@ const loginRateLimit = createFixedWindowRateLimiter({
 });
 
 app.get('/oauth/login', loginRateLimit, (req, res) => {
+  clearThemeCookie(req, res);
   const nextPath = sanitizeNext(req.query.next);
   req.session.next = nextPath;
   req.session.cookie.maxAge = PREAUTH_SESSION_MAX_AGE_MS;
@@ -318,6 +324,9 @@ app.get('/oauth/login', loginRateLimit, (req, res) => {
   const state = createOAuthState();
   req.session.oauth_state = state.value;
   req.session.oauth_state_issued_at = state.issuedAt;
+  req.session.oauth_theme = parseTheme(req.query.theme) || 'auto';
+  req.session.oauth_theme_return = req.query.theme_return === '1';
+  req.session.oauth_error_theme = undefined;
 
   const u = new URL(OAUTH_AUTHORIZE_URL);
   u.searchParams.set('client_id', OAUTH_CLIENT_ID);
@@ -325,6 +334,8 @@ app.get('/oauth/login', loginRateLimit, (req, res) => {
   u.searchParams.set('response_type', 'code');
   u.searchParams.set('scope', OAUTH_SCOPE);
   u.searchParams.set('state', state.value);
+  u.searchParams.set('theme', req.session.oauth_theme);
+  if (req.session.oauth_theme_return) u.searchParams.set('theme_return', '1');
   if (OAUTH_TYPE) u.searchParams.set('type', OAUTH_TYPE);
 
   res.redirect(u.toString());
@@ -346,6 +357,8 @@ app.get('/oauth/callback', async (req, res) => {
   }
 
   const nextPath = sanitizeNext(req.session.next);
+  const initiatingTheme = parseTheme(req.session.oauth_theme);
+  const returnTheme = req.session.oauth_theme_return === true;
   req.session.next = undefined;
 
   if (!consumeOAuthState(req.session, state, { maxAgeMs: OAUTH_STATE_MAX_AGE_MS })) {
@@ -378,6 +391,9 @@ app.get('/oauth/callback', async (req, res) => {
       expires_at: computeExpiresAt(data.expires_in),
     };
 
+    if (returnTheme && initiatingTheme) {
+      writeThemeCookie(req, res, parseTheme(q.theme) || initiatingTheme, initiatingTheme);
+    }
     res.redirect(nextPath);
   } catch (e) {
     const status = e && Number.isInteger(e.status) ? e.status : undefined;

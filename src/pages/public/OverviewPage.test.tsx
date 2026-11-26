@@ -21,6 +21,8 @@ vi.mock('../../app/config', () => ({
   }),
 }));
 
+vi.mock('../../app/uiSettings', () => ({ useUiSettings: () => ({ settings: { theme: 'dark' } }) }));
+
 vi.mock('../../app/i18n', () => ({
   useI18n: () => ({
     t: (key: string, vars?: Record<string, unknown>) => (vars?.['count'] == null ? key : `${key}:${vars['count']}`),

@@ -249,8 +249,12 @@ export function AppLayout(props: { children: React.ReactNode }) {
     // Old unscoped values cannot be attributed safely after an account
     // change. Do not migrate them into whichever user happens to sign in.
     window.sessionStorage.removeItem(LEGACY_TRACKED_ACTION_STORAGE_KEY);
-    window.localStorage.removeItem(LEGACY_PINNED_ACTION_STORAGE_KEY);
-    window.localStorage.removeItem(LEGACY_PINNED_CHAIN_STORAGE_KEY);
+    try {
+      window.localStorage.removeItem(LEGACY_PINNED_ACTION_STORAGE_KEY);
+      window.localStorage.removeItem(LEGACY_PINNED_CHAIN_STORAGE_KEY);
+    } catch {
+      // Optional pin cleanup must not prevent the authenticated shell from rendering.
+    }
   }, []);
 
   const {

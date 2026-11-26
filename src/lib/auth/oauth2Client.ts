@@ -1,4 +1,6 @@
 import type { RuntimeConfig } from '../../app/config';
+import { fromOAuthTheme, parseOAuthTheme, toOAuthTheme, writeOAuthTheme, clearOAuthTheme } from './oauthTheme';
+import type { UiThemePreference } from '../../app/uiSettingsModel';
 import { clearStoredOAuthToken, writeStoredOAuthToken } from './tokenStore';
 
 interface LoginState {
@@ -7,6 +9,8 @@ interface LoginState {
   codeVerifier?: string;
   nextPath: string;
   flow: 'pkce' | 'implicit';
+  theme?: UiThemePreference;
+  themeReturn?: boolean;
 }
 
 const LOGIN_STATE_KEY = 'vpsadmin_ui_next.oauth2.login_state';
@@ -90,10 +94,9 @@ function loadLoginState(): LoginState | null {
   const st = getSessionStorage();
   if (!st) return null;
 
-  const raw = st.getItem(LOGIN_STATE_KEY);
-  if (!raw) return null;
-
   try {
+    const raw = st.getItem(LOGIN_STATE_KEY);
+    if (!raw) return null;
     const parsed = JSON.parse(raw) as LoginState;
     if (!parsed || typeof parsed !== 'object') return null;
     if (typeof parsed.createdAt !== 'number' || !isLoginStateFresh(parsed.createdAt)) return null;
@@ -109,11 +112,10 @@ function loadLoginState(): LoginState | null {
 
 function saveLoginState(state: LoginState): void {
   const st = getSessionStorage();
-  if (!st) return;
-  try {
-    st.setItem(LOGIN_STATE_KEY, JSON.stringify(state));
-  } catch {
-    // ignore
+  if (!st) throw new Error('OAuth2 session storage is unavailable');
+  st.setItem(LOGIN_STATE_KEY, JSON.stringify(state));
+  if (st.getItem(LOGIN_STATE_KEY) !== JSON.stringify(state)) {
+    throw new Error('OAuth2 login state could not be saved');
   }
 }
 
@@ -134,6 +136,8 @@ function buildAuthorizeUrl(cfg: RuntimeConfig, state: LoginState, codeChallenge?
   u.searchParams.set('redirect_uri', getRedirectUri(cfg));
   u.searchParams.set('scope', cfg.oauth2.scope);
   u.searchParams.set('state', state.state);
+  if (state.theme) u.searchParams.set('theme', toOAuthTheme(state.theme));
+  if (state.themeReturn) u.searchParams.set('theme_return', '1');
 
   if (state.flow === 'implicit') {
     u.searchParams.set('response_type', 'token');
@@ -152,10 +156,16 @@ function buildAuthorizeUrl(cfg: RuntimeConfig, state: LoginState, codeChallenge?
   return u.toString();
 }
 
-export async function startOAuth2Login(cfg: RuntimeConfig, nextPath: string): Promise<void> {
+export async function startOAuth2Login(
+  cfg: RuntimeConfig,
+  nextPath: string,
+  theme: UiThemePreference = 'system'
+): Promise<void> {
   if (typeof window === 'undefined') {
     throw new Error('startOAuth2Login must run in the browser');
   }
+
+  clearOAuthTheme();
 
   // Defensive: avoid getting stuck with a broken token.
   clearStoredOAuthToken(cfg.oauth2.storage);
@@ -165,6 +175,8 @@ export async function startOAuth2Login(cfg: RuntimeConfig, nextPath: string): Pr
     state: randomBase64Url(24),
     nextPath: sanitizeOAuthNextPath(nextPath),
     flow: cfg.oauth2.flow,
+    theme,
+    themeReturn: true,
   };
 
   let codeChallenge: string | undefined;
@@ -185,7 +197,11 @@ function parseHashParams(hash: string): URLSearchParams {
   return new URLSearchParams(h);
 }
 
-async function exchangeCodeForToken(cfg: RuntimeConfig, code: string, verifier: string): Promise<{ accessToken: string; tokenType?: string; scope?: string; expiresAt?: number }> {
+async function exchangeCodeForToken(
+  cfg: RuntimeConfig,
+  code: string,
+  verifier: string
+): Promise<{ accessToken: string; tokenType?: string; scope?: string; expiresAt?: number }> {
   const body = new URLSearchParams();
   body.set('grant_type', 'authorization_code');
   body.set('client_id', cfg.oauth2.clientId);
@@ -252,6 +268,15 @@ export async function completeOAuth2Login(cfg: RuntimeConfig, currentUrl: string
   }
 
   const nextPath = sanitizeOAuthNextPath(storedState.nextPath);
+  const themes = [...u.searchParams.getAll('theme'), ...hashParams.getAll('theme')];
+  const returned = themes.length === 1 ? parseOAuthTheme(themes[0]) : undefined;
+  const initial =
+    storedState.theme === 'light' || storedState.theme === 'dark' || storedState.theme === 'system'
+      ? storedState.theme
+      : undefined;
+  const theme = storedState.themeReturn === true && returned ? fromOAuthTheme(returned) : initial;
+  // Consume before exchange; optional cosmetic data never relaxes state validation.
+  clearLoginState();
 
   // Implicit flow: access_token in the URL hash.
   if (storedState.flow === 'implicit') {
@@ -260,7 +285,8 @@ export async function completeOAuth2Login(cfg: RuntimeConfig, currentUrl: string
     const scope = hashParams.get('scope') ?? undefined;
     const expiresInRaw = hashParams.get('expires_in');
     const expiresIn = expiresInRaw ? Number(expiresInRaw) : undefined;
-    const expiresAt = expiresIn && Number.isFinite(expiresIn) ? Date.now() + Math.max(0, expiresIn - 30) * 1000 : undefined;
+    const expiresAt =
+      expiresIn && Number.isFinite(expiresIn) ? Date.now() + Math.max(0, expiresIn - 30) * 1000 : undefined;
 
     if (!accessToken) {
       clearLoginState();
@@ -268,7 +294,7 @@ export async function completeOAuth2Login(cfg: RuntimeConfig, currentUrl: string
     }
 
     writeStoredOAuthToken(cfg.oauth2.storage, { accessToken, tokenType, scope, expiresAt });
-    clearLoginState();
+    if (theme && initial) writeOAuthTheme(theme, initial);
     return { nextPath };
   }
 
@@ -287,7 +313,12 @@ export async function completeOAuth2Login(cfg: RuntimeConfig, currentUrl: string
 
   const token = await exchangeCodeForToken(cfg, code, verifier);
   writeStoredOAuthToken(cfg.oauth2.storage, token);
-  clearLoginState();
+  if (theme && initial) writeOAuthTheme(theme, initial);
 
   return { nextPath };
+}
+
+export function pendingOAuthTheme(): UiThemePreference | undefined {
+  const theme = loadLoginState()?.theme;
+  return theme === 'system' || theme === 'light' || theme === 'dark' ? theme : undefined;
 }

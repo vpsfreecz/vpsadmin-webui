@@ -41,6 +41,8 @@
     "src/components/ui/UserLookupInput.tsx",
     "src/components/ui/VpsLookupInput.tsx",
     "src/components/ui/buttonStyles.ts",
+    "src/lib/auth/oauth2Client.ts",
+    "src/lib/auth/oauthTheme.ts",
     "src/lib/auth/sessionExpiredNotice.ts",
     "src/lib/auth/useIdleSession.ts",
     "src/lib/hooks/useBodyScrollLock.ts",
@@ -94,7 +96,6 @@
     "src/lib/auth/bffSession.ts": "ffd8072604a0e36a69801c723215310a202eb086505a3b22be66a57f38fdc731",
     "src/lib/auth/idleSession.ts": "62b163b85f032512851357abecc362c0a521cd1d6762dd0743b165f48ae67547",
     "src/lib/auth/impersonation.ts": "63313a928bf74712f1de0d68a187b5e63e4d89f21cdf67c89c039e48cd0e15ff",
-    "src/lib/auth/oauth2Client.ts": "571582871b9fbb5262117d5f8bae1b4d14ed96c3c428fa4916378995ab5f93b0",
     "src/lib/auth/passwordRecovery.ts": "f3cb97d3e9eeb7e3009e198933a11a8d49013aa4c4de1be9c20509204227a80c",
     "src/lib/auth/tokenStore.ts": "c5067866255b31d1af3cb0af8839910156d94e024a86ce6c707312f6cb39d54b",
     "src/lib/hooks/useCountedKeysetPagination.ts": "81ce5950612fb2ee432eb7e732351e7bf54740c6fa1f8b64cbadb06908dd5ffb"

@@ -1,6 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
+import { fromOAuthTheme, parseOAuthTheme } from '../../lib/auth/oauthTheme';
+import { useUiSettings } from '../../app/uiSettings';
 import { useI18n } from '../../app/i18n';
 
 import { getRuntimeConfig } from '../../app/config';
@@ -16,17 +18,26 @@ import { OAuthShell } from './OAuthShell';
 
 export function OAuthLoginPage() {
   const { t } = useI18n();
+  const { settings } = useUiSettings();
 
   const cfg = useMemo(() => getRuntimeConfig(), []);
   const [params] = useSearchParams();
+  const [theme] = useState(() => {
+    const values = params.getAll('theme');
+    const requested = values.length === 1 ? parseOAuthTheme(values[0]) : undefined;
+    return requested ? fromOAuthTheme(requested) : settings.theme;
+  });
   const fallbackNext = withRouterBasename('/app', cfg.routerBasename);
   const next = sanitizeLocalPath(params.get('next'), fallbackNext);
   const [error, setError] = useState<string | null>(null);
 
+  const loginRef = useRef<Promise<void> | null>(null);
+
   useEffect(() => {
     let cancelled = false;
 
-    startOAuth2Login(cfg, next).catch((e) => {
+    const login = loginRef.current ??= startOAuth2Login(cfg, next, theme);
+    login.catch((e) => {
       if (cancelled) return;
       setError(e instanceof Error ? e.message : String(e));
     });
@@ -34,7 +45,7 @@ export function OAuthLoginPage() {
     return () => {
       cancelled = true;
     };
-  }, [cfg, next]);
+  }, [cfg, next, theme]);
 
   const copyText = error ? `OAuth login failed\n\nNext: ${next}\n\n${error}` : '';
 

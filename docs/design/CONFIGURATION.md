@@ -112,3 +112,43 @@ locks have their own migration/uncertainty handling. Changing either requires ol
 stored-state cases, not an instruction to erase all browser data. Retention periods
 and backup owners for private stores/evidence are handover decisions, not invented
 service guarantees.
+
+## OAuth theme handoff
+
+The [provider contract](https://github.com/vpsfreecz/haveapi/blob/master/doc/en/oauth-theme.md)
+uses `theme=light|dark|auto` and independent `theme_return=1`. React's `system`
+preference maps to `auto`; the effective OS color is never substituted. All
+entry and retry links use the current preference. The legacy browser flow stores
+it with the existing random state and PKCE verifier in sessionStorage.
+Session storage remains required for validating that flow; optional localStorage
+failures do not make state validation optional.
+
+The matched BFF/frontend pair uses `vpsadmin_oauth_theme`, a host-only,
+JavaScript-readable cookie with `Path=/`, `SameSite=Lax`, `Secure` on HTTPS and a
+120-second lifetime. Its exact value is `selected.initiating`, with both fields
+restricted to `light`, `dark` or `auto`. The initiating value comes from the
+current pending attempt; the selected value comes from a valid successful
+callback, falling back to the initiating value when the provider omits it.
+It contains no authentication data and grants no access. The legacy success
+callback uses the same handoff before its existing hard navigation.
+
+The head script only reads this cookie. React validates both enums, applies the
+selected preference in memory and clears the cookie, including malformed
+payloads. New login attempts and failures clear stale handoffs. The settings
+provider retains a pending choice through account-load retry, preserves unrelated
+fields and the original server snapshot, and uses the existing debounced save
+only when needed. With no account record, only a known selected/initiating
+difference proves an OAuth edit. An unchanged or unknown baseline does not
+create a record. With account persistence disabled, the preference remains local;
+blocked localStorage still permits the immediate in-memory handoff.
+
+The authenticated shell tolerates failures when reading lock status for display
+or cleaning up legacy pins. Display refresh keeps previously loaded guards when
+storage cannot be read. Acquiring a durable mutation lock still requires verified
+persistence before dispatch.
+
+`/session.json` keeps its existing three fields. Older providers can omit the
+response theme, and an older BFF/frontend pair can omit or ignore the cosmetic
+handoff. Full continuity requires the matched frontend/BFF and provider support.
+Rollback restores the matched application pair; the cosmetic cookie expires and
+requires no session-store or preference-data conversion.

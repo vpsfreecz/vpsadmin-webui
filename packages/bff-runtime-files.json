@@ -5,5 +5,6 @@
   "session-queue.js",
   "security.js",
   "passkey-page.js",
-  "oauth-error-page.js"
+  "oauth-error-page.js",
+  "oauth-theme.js"
 ]

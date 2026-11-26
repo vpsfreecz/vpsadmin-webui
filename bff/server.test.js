@@ -31,7 +31,7 @@ function secureHeaders(cookie) {
 }
 
 function responseCookie(response) {
-  const header = response.headers.get('set-cookie');
+  const header = response.headers.getSetCookie().find((value) => value.startsWith('webui_next_sess='));
   assert.ok(header, 'expected a session cookie');
   assert.match(header, /; Path=\//);
   assert.match(header, /; HttpOnly/i);
@@ -51,9 +51,9 @@ async function request(path, { cookie, acceptLanguage, headers = {} } = {}) {
   });
 }
 
-async function startLogin(next = '/app', existingCookie) {
+async function startLogin(next = '/app', existingCookie, themeQuery = '') {
   const response = await request(
-    `/oauth/login?next=${encodeURIComponent(next)}`,
+    `/oauth/login?next=${encodeURIComponent(next)}${themeQuery}`,
     { cookie: existingCookie },
   );
   assert.equal(response.status, 302);
@@ -71,7 +71,7 @@ async function startLogin(next = '/app', existingCookie) {
   assert.equal(storedSession.oauth_state, state);
   assert.equal(storedSession.next, next);
 
-  return { cookie, state };
+  return { cookie, state, authorizationUrl, response };
 }
 
 function assertCleanRecoveryRedirect(response, body, secrets = []) {
@@ -423,9 +423,9 @@ test('OAuth error page is bilingual, actionable, defensive and never reflects it
   assert.equal(czechResponse.headers.get('x-frame-options'), 'DENY');
   assert.match(czechResponse.headers.get('content-security-policy') || '', /frame-ancestors 'none'/);
   assert.match(czechResponse.headers.get('vary') || '', /Accept-Language/i);
-  assert.match(czechBody, /<html lang="cs">/);
+  assert.match(czechBody, /<html lang="cs" data-theme="auto">/);
   assert.match(czechBody, /<title>vpsAdmin · Přihlášení se nezdařilo<\/title>/);
-  assert.match(czechBody, /href="\/oauth\/login\?next=%2Fapp"/);
+  assert.match(czechBody, /href="\/oauth\/login\?next=%2Fapp&amp;theme=auto&amp;theme_return=1"/);
   assert.match(czechBody, /href="\/"/);
   for (const secret of [querySecret, 'state-secret', 'description-secret']) {
     assert.equal(czechBody.includes(secret), false);
@@ -482,5 +482,65 @@ test('passkey form uses only trusted destinations, localized copy and restrictiv
     assert.equal(response.headers.get('cross-origin-resource-policy'), 'same-origin');
     assert.match(response.headers.get('cache-control'), /no-store/);
     assert.equal(response.headers.get('content-security-policy'), "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action https://identity.test; frame-ancestors 'none'");
+  }
+});
+
+test('login carries bounded preference and independent response opt-in', async () => {
+  for (const theme of ['light', 'dark', 'auto']) {
+    const { authorizationUrl, response } = await startLogin('/app', undefined, `&theme=${theme}&theme_return=1`);
+    assert.equal(authorizationUrl.searchParams.get('theme'), theme);
+    assert.equal(authorizationUrl.searchParams.get('theme_return'), '1');
+    assert.ok(response.headers.getSetCookie().some((value) => value.startsWith('vpsadmin_oauth_theme=;') && /Expires=Thu, 01 Jan 1970/.test(value)));
+  }
+  const malformed = await startLogin('/app', undefined, '&theme=dark&theme=light&theme_return=1&theme_return=1');
+  assert.equal(malformed.authorizationUrl.searchParams.get('theme'), 'auto');
+  assert.equal(malformed.authorizationUrl.searchParams.has('theme_return'), false);
+});
+
+test('only validated successful callbacks write the selected and initiating theme handoff', async () => {
+  for (const [themeQuery, expected] of [
+    ['&theme=dark', 'dark.light'],
+    ['&theme=auto', 'auto.light'],
+    ['', 'light.light'],
+    ['&theme=unknown', 'light.light'],
+    ['&theme=dark&theme=auto', 'light.light'],
+    ['&theme[x]=dark', 'light.light'],
+  ]) {
+    const { cookie, state } = await startLogin('/app', undefined, '&theme=light&theme_return=1');
+    const response = await request(`/oauth/callback?code=successful-theme&state=${state}${themeQuery}`, { cookie });
+    assert.equal(response.status, 302);
+    const handoff = response.headers.getSetCookie().find((value) => value.startsWith('vpsadmin_oauth_theme='));
+    assert.ok(handoff.startsWith(`vpsadmin_oauth_theme=${expected};`));
+    assert.match(handoff, /Max-Age=120/);
+    assert.match(handoff, /Path=\//);
+    assert.match(handoff, /Secure/);
+    assert.match(handoff, /SameSite=Lax/);
+    assert.doesNotMatch(handoff, /HttpOnly|Domain=/);
+    await response.arrayBuffer();
+    const sessionResponse = await request('/session.json', { cookie: responseCookie(response), headers: { 'sec-fetch-site': 'same-origin' } });
+    assert.deepEqual(Object.keys(await sessionResponse.json()).sort(), ['accessToken', 'sessionExpiresAt', 'sessionKey']);
+  }
+});
+
+test('old clients receive no theme handoff without return opt-in', async () => {
+  const { cookie, state } = await startLogin('/app', undefined, '&theme=dark');
+  const response = await request(`/oauth/callback?code=old-client&state=${state}&theme=light`, { cookie });
+  assert.equal(response.status, 302);
+  assert.equal(response.headers.getSetCookie().some((value) => value.startsWith('vpsadmin_oauth_theme=')), false);
+  await response.arrayBuffer();
+});
+
+test('failure ignores response theme and uses initiating appearance for error and retry', async () => {
+  for (const failure of ['error=access_denied', 'code=provider-rejected-code', 'code=unused&state=wrong']) {
+    const { cookie, state } = await startLogin('/app', undefined, '&theme=light&theme_return=1');
+    const response = await request(`/oauth/callback?state=${state}&${failure}&theme=dark`, { cookie });
+    assert.equal(response.status, 303);
+    assert.ok(response.headers.getSetCookie().some((value) => value.startsWith('vpsadmin_oauth_theme=;')));
+    await response.arrayBuffer();
+    const error = await request('/oauth/error', { cookie });
+    const page = await error.text();
+    assert.match(page, /data-theme="light"/);
+    assert.match(page, /theme=light&amp;theme_return=1/);
+    assert.doesNotMatch(page, /data-theme="dark"/);
   }
 });
