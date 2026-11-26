@@ -103,7 +103,7 @@ for (const [language, theme] of [
     await setUiSettingsLocalStorage(page, { language, theme });
     await installHaveApiMock(page, {
       authorize: { user: { id: 1, login: 'e2e-limit', level: 1 } },
-      handlers: { 'GET vps_user_data': () => [] },
+      handlers: { 'GET vps_user_data': () => ({ vps_user_data: [] }) },
     });
     await page.goto('/app/profile/user-data');
     await page.getByTestId('profile.user_data.create').click();

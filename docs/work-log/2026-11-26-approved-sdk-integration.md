@@ -79,3 +79,16 @@ permission covers dev.crucio.cz and clankerdev.vpsfree.cz only; Clanker uses the
 production API, so its acceptance stays anonymous read-only or intercepted fixtures.
 Production/configuration activation and builder-dependent commands remain operator
 actions. No API activation or TODO approval-field write is part of this integration.
+
+The first complete integrated unit run passed 2,645 tests and failed two
+pending-router incident scenarios in one file. Their old query mock returned a
+report array for the new policy capability/registry queries; explicit current
+wrapped capability and registry shapes restore both original tests (2/2 focused
+passes), without changing the incident component or its API validation.
+
+A descriptor-based review of positive fixture outputs additionally found raw
+resource objects and arrays in accepted scenario additions. These now use their
+explicit generated namespaces; DNS and namespace helper responses are corrected
+likewise. No generic mock/transport auto-wrapping, assertion removal, query-scope
+change or retry increase is used. Public node fixtures retain numeric IDs, names
+and boolean status. Final complete verification remains required after these fixes.

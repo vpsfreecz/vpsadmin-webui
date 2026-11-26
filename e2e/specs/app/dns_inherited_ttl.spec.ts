@@ -18,7 +18,7 @@ for (const language of ['cs', 'en'] as const) for (const role of ['member', 'adm
     const zone = (id: number) => ({ id, name: `zone${id}.example.test`, source: 'internal_source', user, enabled: true, ...(id === 21 ? { default_ttl: 7200 } : id === 23 ? { default_ttl: 0 } : {}) });
     await installHaveApiMock(page, { user, handlers: {
       'GET dns_zones': () => ({ dns_zones: [zone(21), zone(22), zone(23)] }),
-      'GET dns_zones/21': () => zone(21), 'GET dns_zones/22': () => zone(22), 'GET dns_zones/23': () => zone(23),
+      'GET dns_zones/21': () => ({ dns_zone: zone(21) }), 'GET dns_zones/22': () => ({ dns_zone: zone(22) }), 'GET dns_zones/23': () => ({ dns_zone: zone(23) }),
       'GET dns_records': () => ({ dns_records: rows }), 'GET dns_record_logs': () => ({ dns_record_logs: [] }), 'GET transaction_chains': () => ({ transaction_chains: [] }),
       'PUT dns_records/101': async ({ request }) => {
         const body: unknown = await request.postDataJSON();

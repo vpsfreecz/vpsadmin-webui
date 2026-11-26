@@ -99,11 +99,11 @@ test.describe('Command palette', () => {
             user: { id: 1, login: 'user' },
           },
         }),
-        'GET vpses/3/statuses': () => [],
+        'GET vpses/3/statuses': () => ({ statuses: [] }),
         'GET ip_addresses': (ctx) => {
           const vpsId = ctx.searchParams.get('ip_address[vps]');
           if (vpsId !== '3') return [];
-          return [
+          return ({ ip_addresses: [
             {
               id: 10,
               addr: '203.0.113.10',
@@ -111,7 +111,7 @@ test.describe('Command palette', () => {
               routed: true,
               network: { id: 1, address: '203.0.113.0', prefix: 24, role: 'public', purpose: 'public' },
             },
-          ];
+          ] });
         },
       },
     });
@@ -362,7 +362,7 @@ test.describe('Command palette', () => {
             user: { id: 1, login: 'user' },
           },
         }),
-        'GET vpses/3/statuses': () => [],
+        'GET vpses/3/statuses': () => ({ statuses: [] }),
       },
     });
 
