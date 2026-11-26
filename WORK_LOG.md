@@ -3213,3 +3213,11 @@ dialogs. Align the transaction regression with approved automatic failed-step
 expansion and verify collapse/reopen without dropping payload assertions.
 See [approved SDK integration](docs/work-log/2026-11-26-approved-sdk-integration.md).
 Prepared; final exact-source qualification and publication pending.
+
+### 2026-11-26 — Preserve interface identity, contrast and deliberate result focus
+
+Retain the assigned-route interface badge and readable usage values during SDK
+integration. A failing modal regression proves stale close cleanup overriding
+an already-focused result; preserve that choice and normal trigger restoration.
+Original browser/CI failures are retained externally; successor qualification
+and paired preview promotion remain pending.

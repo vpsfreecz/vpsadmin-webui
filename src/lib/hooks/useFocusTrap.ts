@@ -32,7 +32,11 @@ export function useFocusTrap(open: boolean, container: HTMLElement | null) {
       unregister();
 
       const el = prevFocusedRef.current;
-      if (el && document.contains(el)) {
+      // The dialog DOM can disappear before passive cleanup. Preserve focus
+      // already claimed by a result control or a newer dialog in that interval.
+      const current = document.activeElement;
+      const restore = current === null || current === document.body || container.contains(current);
+      if (restore && el && document.contains(el)) {
         try {
           (el as any).focus?.({ preventScroll: true });
         } catch {

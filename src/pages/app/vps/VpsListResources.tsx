@@ -11,7 +11,7 @@ export function VpsListResources({ row, t }: { row: VpsListRecord; t: VpsListTra
   ];
 
   return (
-    <dl className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-3 gap-y-1 text-xs tabular-nums">
+    <dl className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-3 gap-y-1 text-xs tabular-nums [&_.text-faint]:text-muted">
       <dt className="text-muted">{t('vps.overview.config.cpu')}</dt>
       <dd className="text-right">{row.vps.cpu ?? t('common.na')}</dd>
       {row.loadLabel !== undefined ? (

@@ -1,5 +1,5 @@
 // i18n-ignore-file
-import React from 'react';
+import React, { useLayoutEffect, useRef } from 'react';
 import { render, screen } from '@testing-library/react';
 
 import { Modal } from './Modal';
@@ -31,3 +31,30 @@ describe('Modal', () => {
     );
   });
 });
+
+// Dialog removal precedes passive focus-trap cleanup. A result control can
+// receive keyboard focus during the intervening layout phase.
+for (const claimResultFocus of [false, true]) {
+  it(`restores dialog focus without overriding a result choice: ${claimResultFocus}`, () => {
+    function Scene({ open }: { open: boolean }) {
+      const result = useRef<HTMLButtonElement>(null);
+      useLayoutEffect(() => {
+        if (!open && claimResultFocus) result.current?.focus();
+      }, [open]);
+      return <>
+        <button>Open editor</button>
+        <button ref={result}>Result action</button>
+        <Modal open={open} title="Editor" onClose={() => undefined}>
+          <button>Confirm edit</button>
+        </Modal>
+      </>;
+    }
+    const view = render(<Scene open={false} />);
+    const trigger = screen.getByRole('button', { name: 'Open editor' });
+    trigger.focus();
+    view.rerender(<Scene open />);
+    screen.getByRole('button', { name: 'Confirm edit' }).focus();
+    view.rerender(<Scene open={false} />);
+    expect(claimResultFocus ? screen.getByRole('button', { name: 'Result action' }) : trigger).toHaveFocus();
+  });
+}
