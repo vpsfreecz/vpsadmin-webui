@@ -3245,3 +3245,12 @@ retained a late help-box GET error during navigation. Four failing regressions
 prove cancellation, mutation preservation and recovery behavior; existing
 browser assertions remain intact. See [scope and evidence](docs/work-log/2026-11-26-document-read-integration.md).
 Final exact-source qualification and paired preview promotion remain pending.
+
+### 2026-11-26 — Preserve manual lookup scrolling under the pointer
+
+Separate pointer highlight from keyboard reveal so scrolling/resizing an owner
+lookup does not invoke another scrollIntoView under a stationary cursor.
+A failing regression retains keyboard reveal and accessible identity checks;
+original browser hit-testing and single-tap assertions stay intact.
+See [finding, source and qualification](docs/work-log/2026-11-26-lookup-pointer-scroll.md).
+Final exact-source qualification and paired promotion remain pending.

@@ -4,6 +4,7 @@ import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, expect, test, vi } from 'vitest';
 import { UserLookupInput } from './UserLookupInput';
 import { NodeLookupInput } from './NodeLookupInput';
+import { LookupCombobox } from './LookupCombobox';
 import { searchUsers } from '../../lib/api/users';
 import { fetchNodes } from '../../lib/api/nodes';
 
@@ -79,4 +80,52 @@ test('user lookup cannot pick an obsolete result while another query is debounci
   expect(screen.queryByRole('option')).toBeNull();
   fireEvent.keyDown(input, { key: 'Enter' });
   expect(picked).not.toHaveBeenCalled();
+});
+
+test('pointer hover preserves a manually scrolled list while arrow keys reveal their active option', () => {
+  const calls: HTMLElement[] = [];
+  const original = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'scrollIntoView');
+  Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+    configurable: true,
+    value: function (this: HTMLElement) {
+      calls.push(this);
+    },
+  });
+  try {
+    const options = Array.from({ length: 8 }, (_, index) => ({
+      id: index + 1,
+      value: index + 1,
+      title: `Member ${index + 1}`,
+    }));
+    render(
+      <LookupCombobox
+        value="member"
+        onChange={() => {}}
+        onPick={() => {}}
+        open
+        onOpenChange={() => {}}
+        showSuggestions
+        options={options}
+        busy={false}
+        failed={false}
+        ariaLabel="Member"
+        testId="lookup"
+      />
+    );
+    const popup = screen.getByTestId('lookup.dropdown');
+    popup.scrollTop = 300;
+    calls.length = 0;
+    fireEvent.mouseEnter(screen.getByRole('option', { name: 'Member 5 #5' }));
+    expect(screen.getByRole('combobox')).toHaveAttribute(
+      'aria-activedescendant',
+      screen.getByRole('option', { name: 'Member 5 #5' }).id
+    );
+    expect(calls).toEqual([]);
+    expect(popup.scrollTop).toBe(300);
+    fireEvent.keyDown(screen.getByRole('combobox'), { key: 'ArrowDown' });
+    expect(calls).toEqual([screen.getByRole('option', { name: 'Member 6 #6' })]);
+  } finally {
+    if (original) Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', original);
+    else Reflect.deleteProperty(HTMLElement.prototype, 'scrollIntoView');
+  }
 });

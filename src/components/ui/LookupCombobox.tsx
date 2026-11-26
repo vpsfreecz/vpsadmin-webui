@@ -40,16 +40,18 @@ export function LookupCombobox<T>(props: {
   const popup = useRef<HTMLDivElement>(null);
   const blurTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const [active, setActive] = useState(-1);
+  const scrollActiveIntoView = useRef(true);
   const expanded = props.open && props.showSuggestions && !props.disabled;
   const options = props.options;
   const popupStyle = useClippedPopover(expanded, wrapper, popup);
 
   useEffect(() => {
+    scrollActiveIntoView.current = true;
     setActive(options.length ? 0 : -1);
   }, [options]);
   useEffect(() => () => clearTimeout(blurTimer.current), []);
   useEffect(() => {
-    if (expanded)
+    if (expanded && scrollActiveIntoView.current)
       list.current
         ?.querySelector<HTMLElement>(`[data-option-index="${active}"]`)
         ?.scrollIntoView?.({ block: 'nearest' });
@@ -76,6 +78,7 @@ export function LookupCombobox<T>(props: {
     if (event.altKey || event.metaKey || event.ctrlKey || event.shiftKey) return;
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
       event.preventDefault();
+      scrollActiveIntoView.current = true;
       props.onOpenChange(true);
       setActive((previous) =>
         options.length
@@ -159,7 +162,12 @@ export function LookupCombobox<T>(props: {
                   )}
                   onMouseDown={(event) => event.preventDefault()}
                   onClick={() => pick(option)}
-                  onMouseEnter={() => setActive(index)}
+                  onMouseEnter={() => {
+                    // Scrolling or resizing can move a row under a stationary
+                    // pointer. Highlight it without undoing the user scroll.
+                    scrollActiveIntoView.current = false;
+                    setActive(index);
+                  }}
                   data-option-index={index}
                   data-testid={props.testId ? `${props.testId}.opt.${option.id}` : undefined}
                 >
