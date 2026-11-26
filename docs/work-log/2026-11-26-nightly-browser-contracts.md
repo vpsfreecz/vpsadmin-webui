@@ -82,3 +82,10 @@ The current repair retains every original scenario and strengthens exact create,
 filter, ownership, OOM and expansion assertions against the present source.
 The original PR's fixture intent is superseded by these current SDK-compatible
 responses. No duplicate repair PR or rewritten published history is required.
+
+The URL refactor retains the previous canonicalization of location IDs and
+purpose values before the list query mounts. Invalid/empty values are removed,
+valid trimmed values normalize, and a changed filter resets its cursor while
+preserving unrelated parameters. All 19 filter/navigation and canonicalization
+unit checks pass, including three newly explicit URL cases. The earlier complete
+unit/browser source and this bounded follow-up remain separately identified.
