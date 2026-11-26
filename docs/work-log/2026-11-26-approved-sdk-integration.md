@@ -92,3 +92,27 @@ explicit generated namespaces; DNS and namespace helper responses are corrected
 likewise. No generic mock/transport auto-wrapping, assertion removal, query-scope
 change or retry increase is used. Public node fixtures retain numeric IDs, names
 and boolean status. Final complete verification remains required after these fixes.
+
+Focused browser qualification found a genuine long-IPv6 confirmation overflow in
+two dialogs. Restoring `overflow-wrap:anywhere` keeps the complete identifier
+inside a 320px viewport without changing assignment capability, owner or parent
+interface checks. A separate stale transaction test clicked an already-open
+failed step, then expected it to remain open. It now explicitly checks accepted
+automatic expansion, accessible expanded state, collapse and reopen, preserving
+all original payload and responsive assertions. Original failure traces are kept
+in the external release evidence. Final browser and hosted CI results remain gates.
+
+Hosted browser qualification retained the original assigned-route interface
+regression and password-focus flaky attempts. The route's existing localized
+interface badge is restored without changing routing or assignment safeguards.
+Approved-only integration also restores the existing stronger foreground for
+resource values; the original 4.5 contrast assertion remains unchanged.
+
+A deterministic modal regression additionally reproduces stale passive cleanup
+returning focus to the old trigger after a result control already claimed it in
+the layout phase (original implementation:7 passes/1 failure). Focus restoration
+now preserves that deliberate choice while retaining normal return-to-trigger
+behavior. This is consistent with the original browser timing symptom; observed
+native focus events are external diagnostic evidence, not a substitute for
+source-bound browser and exact-head hosted verification. No test retries,
+thresholds, timeouts or skips are increased.

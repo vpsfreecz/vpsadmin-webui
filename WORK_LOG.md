@@ -4118,6 +4118,14 @@ promote the complete file to strict TypeScript and mobile WebKit coverage.
 See the [scope, preserved checks and limits](docs/work-log/2026-11-15-nas-smoke-quota-contract.md).
 Test maintenance in existing draft PR270; no product or API behavior changes.
 
+### 2026-11-26 — Current SDK release integration browser findings
+
+Retain current API/SDK safeguards while restoring full IPv6 wrapping in assignment
+dialogs. Align the transaction regression with approved automatic failed-step
+expansion and verify collapse/reopen without dropping payload assertions.
+See [approved SDK integration](docs/work-log/2026-11-26-approved-sdk-integration.md).
+Prepared; final exact-source qualification and publication pending.
+
 ### 2026-11-26 — Preserve interface identity, contrast and deliberate result focus
 
 Retain the assigned-route interface badge and readable usage values during SDK
