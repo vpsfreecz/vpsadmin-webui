@@ -116,3 +116,16 @@ behavior. This is consistent with the original browser timing symptom; observed
 native focus events are external diagnostic evidence, not a substitute for
 source-bound browser and exact-head hosted verification. No test retries,
 thresholds, timeouts or skips are increased.
+
+The first successor hosted Chromium shard retained one generated-password focus
+flaky attempt despite the deterministic modal cleanup correction. The browser
+regression now waits for confirmation removal and asserts initial and intermediate
+Copy focus before Shift+Tab, retaining the original final focus-visible, geometry,
+secret masking and mutation assertions. On failure it records native active-element
+and document focus state; no forced browser activation, sleeps, retries, skip,
+timeout or threshold changes are introduced. This synchronizes observable keyboard
+steps and improves diagnosis without declaring the earlier symptom fully fixed.
+Approved-only hosted tests additionally found32px language/history controls where
+the existing approved scenarios require44px. Restore only the already-deployed
+preview sizing; retain the approved-only login-link behavior and all callbacks.
+Original failed jobs and traces remain external evidence; new qualification pending.

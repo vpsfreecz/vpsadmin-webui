@@ -399,12 +399,32 @@ for (const [language, theme] of [['cs', 'dark'], ['en', 'light'], ['cs', 'light'
     const toggle = page.getByTestId('vps.access.generated_password.toggle');
     await expect(page.getByTestId('vps.access.password.generate')).toBeEnabled();
     await expect(page.getByTestId('modal.action_progress')).toHaveCount(0);
+    await expect(page.getByTestId('vps.access.password.confirm')).toHaveCount(0);
+    const copy = page.getByTestId('vps.access.generated_password.copy');
     for (const width of [...new Set([page.viewportSize()!.width, 320, 768])]) {
       await page.setViewportSize({ width, height: 900 });
       const geometry = await page.getByTestId('vps.access.generated_password').evaluate(root => ({ coarse: matchMedia('(any-pointer:coarse)').matches, width: innerWidth, document: document.documentElement.scrollWidth, controls: [...root.querySelectorAll('input,button')].map(e => { const r = e.getBoundingClientRect(); return { id: e.getAttribute('data-testid'), height: r.height, top: r.top, left: r.left, right: r.right }; }) }));
       for (const c of geometry.controls) { expect.soft(c.height, c.id ?? '').toBe(geometry.coarse ? 44 : 36); expect.soft(c.left).toBeGreaterThanOrEqual(0); expect.soft(c.right).toBeLessThanOrEqual(width); }
       expect.soft(geometry.document).toBeLessThanOrEqual(width + 1);
-      await toggle.focus(); await page.keyboard.press('Tab'); await page.keyboard.press('Shift+Tab'); await expect(toggle).toBeFocused(); expect(await toggle.evaluate(e => e.matches(':focus-visible'))).toBe(true);
+      try {
+        await toggle.focus();
+        await expect(toggle).toBeFocused();
+        await page.keyboard.press('Tab');
+        await expect(copy).toBeFocused();
+        await page.keyboard.press('Shift+Tab');
+        await expect(toggle).toBeFocused();
+        expect(await toggle.evaluate(e => e.matches(':focus-visible'))).toBe(true);
+      } catch (error) {
+        await info.attach('generated-password-keyboard-state', {
+          body: JSON.stringify(await page.evaluate(() => ({
+            active: document.activeElement?.getAttribute('data-testid'),
+            documentFocused: document.hasFocus(),
+            dialogs: [...document.querySelectorAll('[role="dialog"]')].map(element => element.getAttribute('data-testid')),
+          }))),
+          contentType: 'application/json',
+        });
+        throw error;
+      }
       phases.push(geometry);
       if (language === 'cs' && width === 768) await page.screenshot({ path: info.outputPath('generated-password-768.png'), fullPage: true, scale: 'css', animations: 'disabled' });
     }
