@@ -3205,3 +3205,11 @@ the accepted localized mobile name while retaining bare names on desktop.
 This removes a stale expectation found in all three original second-shard
 CI logs; capacity and no-write assertions and job budgets are preserved.
 See [integration CI qualification](docs/work-log/2026-11-24-approved-integration-ci.md).
+
+### 2026-11-26 — Current SDK release integration browser findings
+
+Retain current API/SDK safeguards while restoring full IPv6 wrapping in assignment
+dialogs. Align the transaction regression with approved automatic failed-step
+expansion and verify collapse/reopen without dropping payload assertions.
+See [approved SDK integration](docs/work-log/2026-11-26-approved-sdk-integration.md).
+Prepared; final exact-source qualification and publication pending.

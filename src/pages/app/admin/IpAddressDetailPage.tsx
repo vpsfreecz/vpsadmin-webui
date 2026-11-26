@@ -561,7 +561,7 @@ export function IpAddressDetailPage() {
                   }
                 >
                   <div className="space-y-4">
-                    <div>{assignHost ? hostAddr(assignHost) : '—'}</div>
+                    <div className="[overflow-wrap:anywhere]">{assignHost ? hostAddr(assignHost) : '—'}</div>
                     <div>
                       <div className="mb-1 text-sm font-medium">{t('admin.ip.route.interface')}</div>
                       <div data-testid="admin.ip.hosts.assign.parent_interface">{assignTarget?.interfaceName || (assignTarget ? `#${assignTarget.interfaceId}` : '—')}</div>

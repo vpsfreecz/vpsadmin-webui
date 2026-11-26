@@ -344,7 +344,7 @@ export function HostIpAddressesPage() {
         }
       >
         <div className="space-y-4">
-          <div>{assignHost ? hostAddr(assignHost) : '—'}</div>
+          <div className="[overflow-wrap:anywhere]">{assignHost ? hostAddr(assignHost) : '—'}</div>
           <div>
             <div className="mb-1 text-sm font-medium">{t('admin.host_ip_addresses.assign.interface')}</div>
             <div data-testid="admin.host_ip_addresses.assign.parent_interface">{assignTarget?.interfaceName || (assignTarget ? `#${assignTarget.interfaceId}` : '—')}</div>
