@@ -58,3 +58,27 @@ describe('deferred dialog focus', () => {
     expect(document.activeElement).toBe(first);
   });
 });
+
+// React removes portal DOM before passive effect cleanup unregisters the trap.
+it('does not consume result keyboard input after dialog DOM removal', () => {
+  const { container } = dialog('removed-before-cleanup');
+  container.remove();
+  const result = document.createElement('button');
+  document.body.append(result);
+  result.focus();
+  const tab = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
+  result.dispatchEvent(tab);
+  expect(tab.defaultPrevented).toBe(false);
+  expect(document.activeElement).toBe(result);
+  focusActiveTrap();
+  expect(document.activeElement).toBe(result);
+});
+
+it('returns trapping to the connected parent before child cleanup', () => {
+  const { first, next } = dialog('connected-parent');
+  const child = dialog('removed-child');
+  child.container.remove();
+  next.focus();
+  document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }));
+  expect(document.activeElement).toBe(first);
+});
