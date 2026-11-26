@@ -128,7 +128,7 @@ for (const language of ['cs', 'en'] as const) {
     await expect(summary).toContainText('1/3 · 33%');
     const steps = page.getByTestId('transactions.chain.detail.transactions.table');
     expect(
-      await steps.locator('tbody > tr').evaluateAll((rows) => rows.map((row) => row.getAttribute('data-testid')))
+      await steps.locator('tbody > tr:not([data-testid*=".expanded."])').evaluateAll((rows) => rows.map((row) => row.getAttribute('data-testid')))
     ).toEqual([
       'transactions.chain.detail.tx.701',
       'transactions.chain.detail.tx.702',
@@ -143,17 +143,20 @@ for (const language of ['cs', 'en'] as const) {
       await page.screenshot({ path: `${screenshotDir}/${testInfo.project.name}-chain.png`, fullPage: true });
     const stateFilter = page.getByTestId('transactions.chain.detail.filter.state');
     await stateFilter.selectOption('failed');
-    await expect(steps.locator('tbody > tr')).toHaveCount(1);
+    await expect(steps.locator('tbody > tr:not([data-testid*=".expanded."])')).toHaveCount(1);
     await expect(steps).toContainText(email);
     await stateFilter.selectOption('active');
-    await expect(steps.locator('tbody > tr')).toHaveCount(1);
+    await expect(steps.locator('tbody > tr:not([data-testid*=".expanded."])')).toHaveCount(1);
     await expect(page.getByTestId('transactions.chain.detail.tx.703')).toBeVisible();
     await stateFilter.selectOption('all');
     const search = page.getByTestId('transactions.chain.detail.filter.search');
     await search.fill('702');
-    await expect(steps.locator('tbody > tr')).toHaveCount(1);
+    await expect(steps.locator('tbody > tr:not([data-testid*=".expanded."])')).toHaveCount(1);
     const toggle = page.getByTestId('transactions.chain.detail.tx.toggle.702');
+    await expect(toggle).toHaveAttribute('aria-expanded', 'true');
     await toggle.focus();
+    await page.keyboard.press('Enter');
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false');
     await page.keyboard.press('Enter');
     await expect(toggle).toHaveAttribute('aria-expanded', 'true');
     const stepName = page

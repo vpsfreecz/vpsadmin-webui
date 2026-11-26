@@ -16,6 +16,7 @@ import {
   type ExportHostDiffField,
   type ExportHostDiffItem,
 } from './ExportModel';
+import { ExportNfsHelp } from './ExportNfsHelp';
 
 export type ExportHostFormState = {
   ip_address: number | null;
@@ -173,6 +174,7 @@ export function ExportEditDrawer(props: {
           <Checkbox checked={props.form.subtree_check} onChange={(checked) => props.setForm((prev) => ({ ...prev, subtree_check: checked }))} testId="exports.edit.subtree_check">{t('exports.field.subtree_check')}</Checkbox>
           <Checkbox checked={props.form.root_squash} onChange={(checked) => props.setForm((prev) => ({ ...prev, root_squash: checked }))} testId="exports.edit.root_squash">{t('exports.field.root_squash')}</Checkbox>
         </div>
+        <ExportNfsHelp testId="exports.edit.nfs_help" />
         {props.isAdmin ? (
           <div>
             <div className="mb-1 text-sm font-medium text-fg">{t('exports.field.threads')}</div>
@@ -239,6 +241,7 @@ export function ExportHostEditorDrawer(props: {
           <Checkbox checked={props.form.subtree_check} onChange={(checked) => props.setForm((prev) => ({ ...prev, subtree_check: checked }))} testId="exports.host.subtree_check">{t('exports.field.subtree_check')}</Checkbox>
           <Checkbox checked={props.form.root_squash} onChange={(checked) => props.setForm((prev) => ({ ...prev, root_squash: checked }))} testId="exports.host.root_squash">{t('exports.field.root_squash')}</Checkbox>
         </div>
+        <ExportNfsHelp testId="exports.host.nfs_help" />
         <HostEditReview editingHost={props.editingHost} form={props.form} diff={props.diff} />
       </div>
     </Modal>

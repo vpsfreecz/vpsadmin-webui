@@ -221,7 +221,7 @@ export function IncidentReportNewPage() {
                   </div>
                 ) : null}
                 {vpsId && vpsQ.isError ? (
-                  <div className="mt-2 text-xs text-danger">{t('incidents.new.error.vps_not_found')}</div>
+                  <div className="mt-2 border-l-2 border-danger pl-2 text-xs font-medium text-fg">{t('incidents.new.error.vps_not_found')}</div>
                 ) : null}
               </div>
 

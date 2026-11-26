@@ -202,7 +202,7 @@ export function VpsSwapCard(props: {
         </Alert>
       ) : null}
 
-      <div className="mt-3 overflow-hidden rounded-md border border-border bg-surface" data-testid="vps.lifecycle.swap.preview.after_table">
+      <div className="mt-3 overflow-hidden rounded-md border border-border bg-surface [overflow-wrap:anywhere]" data-testid="vps.lifecycle.swap.preview.after_table">
         <div className="grid grid-cols-[minmax(7rem,0.8fr)_minmax(0,1fr)_minmax(0,1fr)] border-b border-border bg-surface-2 px-3 py-2 text-xs font-medium text-muted">
           <div>{t('vps.lifecycle.swap.preview.after_field')}</div>
           <div>{t('vps.lifecycle.swap.preview.after_source')}</div>

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 
@@ -45,7 +45,8 @@ export function IncidentReportDetailPage() {
   const { basePath, mode } = useAppMode();
   const { t } = useI18n();
 
-  const includes = mode === 'admin' ? 'user,vps,ip_address_assignment,filed_by,mailbox' : 'vps,ip_address_assignment,filed_by';
+  const includes =
+    mode === 'admin' ? 'user,vps,ip_address_assignment,filed_by,mailbox' : 'vps,ip_address_assignment,filed_by';
 
   const q = useQuery({
     queryKey: ['incident_reports', 'show', id, { scope: basePath }],
@@ -54,65 +55,6 @@ export function IncidentReportDetailPage() {
   });
 
   const r = q.data;
-
-  const meta = useMemo(() => {
-    if (!r) return null;
-
-    const det = r.detected_at ? formatDateTime(r.detected_at) : t('common.na');
-    const rep = r.reported_at ? formatDateTime(r.reported_at) : t('common.na');
-
-    const vpsIdRow = (r.vps as any)?.id ? Number((r.vps as any).id) : undefined;
-    const vpsHost = (r.vps as any)?.hostname ? String((r.vps as any).hostname) : undefined;
-
-    const userIdRow = (r.user as any)?.id ? Number((r.user as any).id) : undefined;
-    const userLogin = (r.user as any)?.login ? String((r.user as any).login) : undefined;
-
-    const filedId = (r.filed_by as any)?.id ? Number((r.filed_by as any).id) : undefined;
-    const filedLogin = (r.filed_by as any)?.login ? String((r.filed_by as any).login) : undefined;
-    const filedPath = filedId ? incidentFiledByPath(mode, basePath, filedId) : undefined;
-
-    const ip = (r.ip_address_assignment as any)?.ip_addr ? String((r.ip_address_assignment as any).ip_addr) : undefined;
-
-    const action = String(r.vps_action ?? 'none');
-    const cpu = typeof r.cpu_limit === 'number' && Number.isFinite(r.cpu_limit) ? Math.floor(r.cpu_limit) : null;
-
-    return (
-      <div className="flex flex-wrap items-center gap-3 text-sm">
-        <span className="text-muted">{t('incidents.field.detected_at')}:</span>
-        <span>{det}</span>
-
-        <span className="text-muted">{t('incidents.field.reported_at')}:</span>
-        <span>{rep}</span>
-
-        {vpsIdRow ? (
-          <ChipLink to={`${basePath}/vps/${vpsIdRow}`}>{vpsHost || `#${vpsIdRow}`}</ChipLink>
-        ) : r.raw_vps_id ? (
-          <span className="font-mono text-xs">#{r.raw_vps_id}</span>
-        ) : null}
-
-        {mode === 'admin' && userIdRow ? (
-          <ChipLink to={`${basePath}/users/${userIdRow}`}>{userLogin || `#${userIdRow}`}</ChipLink>
-        ) : null}
-
-        {ip ? <span className="font-mono text-xs">{ip}</span> : null}
-
-        {action !== 'none' ? <Badge variant={vpsActionVariant(action)}>{t(vpsActionLabelKey(action))}</Badge> : null}
-
-        {cpu !== null ? <Badge variant="warn">{t('incidents.badge.cpu_limit', { pct: cpu })}</Badge> : null}
-
-        {filedId ? (
-          <span className="text-xs text-faint">
-            {t('incidents.field.filed_by')}:{' '}
-            {filedPath ? (
-              <ChipLink to={filedPath}>{filedLogin || `#${filedId}`}</ChipLink>
-            ) : (
-              <span>{filedLogin || `#${filedId}`}</span>
-            )}
-          </span>
-        ) : null}
-      </div>
-    );
-  }, [basePath, mode, r, t]);
 
   if (!Number.isFinite(id) || id <= 0) {
     return (
@@ -148,7 +90,12 @@ export function IncidentReportDetailPage() {
   const vpsIdRow = (r.vps as any)?.id ? Number((r.vps as any).id) : undefined;
   const vpsHost = (r.vps as any)?.hostname ? String((r.vps as any).hostname) : undefined;
 
-  const titleAfter = action !== 'none' ? <Badge variant={vpsActionVariant(action)}>{t(vpsActionLabelKey(action))}</Badge> : undefined;
+  const filedId = (r.filed_by as any)?.id ? Number((r.filed_by as any).id) : undefined;
+  const filedLogin = (r.filed_by as any)?.login ? String((r.filed_by as any).login) : undefined;
+  const filedPath = filedId ? incidentFiledByPath(mode, basePath, filedId) : undefined;
+
+  const titleAfter =
+    action !== 'none' ? <Badge variant={vpsActionVariant(action)}>{t(vpsActionLabelKey(action))}</Badge> : undefined;
 
   return (
     <PageContainer testId="incidents.detail">
@@ -156,7 +103,6 @@ export function IncidentReportDetailPage() {
         kicker={{ label: t('incidents.list.title'), href: `${basePath}/incidents` }}
         title={t('incidents.detail.title', { id })}
         titleAfter={titleAfter}
-        meta={meta}
         actions={
           vpsIdRow ? (
             <Button variant="secondary" size="sm" to={`${basePath}/vps/${vpsIdRow}`} testId="incidents.detail.open_vps">
@@ -169,7 +115,10 @@ export function IncidentReportDetailPage() {
 
       <div className="mt-4 grid grid-cols-1 gap-4">
         <Card testId="incidents.detail.summary" className="break-words">
-          <CardHeader title={t('incidents.detail.summary_title')} subtitle={r.subject ? String(r.subject) : undefined} />
+          <CardHeader
+            title={t('incidents.detail.summary_title')}
+            subtitle={r.subject ? String(r.subject) : undefined}
+          />
           <CardBody>
             <IncidentNoticeSummary report={r} />
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -237,6 +186,19 @@ export function IncidentReportDetailPage() {
                 </>
               ) : null}
 
+              {filedId ? (
+                <div>
+                  <div className="text-xs text-muted">{t('incidents.field.filed_by')}</div>
+                  <div className="mt-0.5 text-sm">
+                    {filedPath ? (
+                      <ChipLink to={filedPath}>{filedLogin || `#${filedId}`}</ChipLink>
+                    ) : (
+                      <span>{filedLogin || `#${filedId}`}</span>
+                    )}
+                  </div>
+                </div>
+              ) : null}
+
               <div>
                 <div className="text-xs text-muted">{t('common.vps')}</div>
                 <div className="mt-0.5 text-sm">
@@ -265,7 +227,7 @@ export function IncidentReportDetailPage() {
         <Card testId="incidents.detail.text">
           <CardHeader title={t('incidents.detail.report_text')} />
           <CardBody>
-            <pre className="max-h-scroll-lg overflow-auto whitespace-pre-wrap break-words rounded-md bg-surface-2 p-3 text-xs font-mono">
+            <pre className="whitespace-pre-wrap break-words [overflow-wrap:anywhere] rounded-md bg-surface-2 p-3 text-xs font-mono">
               {r.text ? String(r.text) : ''}
             </pre>
           </CardBody>

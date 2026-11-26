@@ -34,6 +34,7 @@ import {
 } from '../../lib/operationTaxonomy';
 import { TransactionInlineDetails } from '../ui/TransactionInlineDetails';
 import { useObjectScope } from '../../app/objectScope';
+import { navigateFromTasks } from './taskDrawerNavigation';
 
 function formatConcerns(chain: TransactionChain): string | null {
   const c = chain.concerns as any;
@@ -75,6 +76,7 @@ export function TransactionChainsPanel(props: {
   filterText?: string;
   pinnedIds?: number[];
   onTogglePin?: (chainId: number) => void;
+  onViewAll?: () => void;
 }) {
   const { basePath, mode } = useAppMode();
   const scope = useObjectScope();
@@ -198,7 +200,7 @@ export function TransactionChainsPanel(props: {
       </div>
 
       {showViewAll ? (
-        <Link className="text-xs font-medium underline" to={`${basePath}/transactions`}>
+        <Link className="text-xs font-medium underline" to={`${basePath}/transactions`} onClick={(event) => navigateFromTasks(event, props.onViewAll)}>
           {i18n.t('tasks.action.view_all')}
         </Link>
       ) : null}
@@ -465,12 +467,12 @@ export function TransactionChainsPanel(props: {
 
         {systemRows.length > 0 ? (
           <div className="space-y-2 rounded-md border border-border bg-surface-2 p-3" data-testid="tasks.system_activity">
-            <div className="flex items-start justify-between gap-3">
+            <div className="flex flex-col items-stretch gap-3">
               <div>
                 <div className="text-xs font-semibold text-faint">{i18n.t('operation.system_activity.title', { count: systemRows.length })}</div>
                 <div className="mt-1 text-xs text-muted">{i18n.t('operation.system_activity.body')}</div>
               </div>
-              <Button size="sm" variant="secondary" onClick={() => setSystemOpen((open) => !open)} testId="tasks.system_activity.toggle">
+              <Button size="sm" className="self-start" variant="secondary" onClick={() => setSystemOpen((open) => !open)} testId="tasks.system_activity.toggle">
                 {systemOpen ? i18n.t('operation.system_activity.hide') : i18n.t('operation.system_activity.show')}
               </Button>
             </div>

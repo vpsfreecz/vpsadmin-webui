@@ -1,25 +1,23 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { CircleHelp, SlidersHorizontal } from 'lucide-react';
 
 import { useAuth } from '../../app/auth';
 import { useI18n } from '../../app/i18n';
 
-import { FilterBar } from '../layout/FilterBar';
 
 import { Alert } from '../ui/Alert';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
-import { CopyButton } from '../ui/CopyButton';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { Modal } from '../ui/Modal';
 import { EmptyState } from '../ui/EmptyState';
 import { FilterChip } from '../ui/FilterChip';
 import { Input } from '../ui/Input';
 import { KeysetPagination } from '../ui/KeysetPagination';
+import { UserNamespaceMapActions } from './UserNamespaceMapActions';
 import { Select } from '../ui/Select';
-import { SmartFilterInput, type SmartFilterSuggestion } from '../ui/SmartFilterInput';
+import { type SmartFilterSuggestion } from '../ui/SmartFilterInput';
 import { SmartInputHelp } from '../ui/SmartInputHelp';
 import { TableCard } from '../ui/TableCard';
 import { TableRowLink } from '../ui/TableRowLink';
@@ -38,6 +36,7 @@ import {
 } from '../../lib/api/userNamespaces';
 import type { UserRole } from '../../lib/roles';
 import { UserNamespaceContractGuard } from './UserNamespaceContractGuard';
+import { UserNamespaceFilters } from './UserNamespaceFilters';
 import { canFilterUserNamespaceOwners } from './userNamespaceFilterSemantics';
 import type { UserNamespaceMapListProps } from './userNamespaceListProps';
 import { buildUserNamespacePageWindow } from './userNamespacePagination';
@@ -365,51 +364,21 @@ function UserNamespaceMapListContent(props: UserNamespaceMapListProps & { viewer
         </Button>
       </div>
 
-      <FilterBar testId={`${props.testIdPrefix}.filters`}>
-        <div className="w-full min-w-0 sm:w-auto sm:flex-1">
-          <SmartFilterInput
-            ref={smartInputRef}
-            testId={`${props.testIdPrefix}.search.input`}
-            ariaLabel={t('userns.map.search_placeholder')}
-            value={smart}
-            onChange={setSmart}
-            onSubmit={() => applySmart()}
-            suggestions={smartSuggestions}
-            placeholder={t('userns.map.smart.placeholder')}
-            suffix={
-              <button
-                type="button"
-                className="inline-flex h-11 w-11 items-center justify-center rounded-md text-muted hover:bg-surface-2 hover:text-fg"
-                onClick={() => setHelpOpen(true)}
-                aria-label={t('filters.help.open')}
-                title={t('filters.help.open')}
-                data-testid={`${props.testIdPrefix}.smart.help_button`}
-              >
-                <CircleHelp className="h-4 w-4" />
-              </button>
-            }
-          />
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm" className="h-11 min-w-11"
-            onClick={() => setAdvancedOpen(true)}
-            testId={`${props.testIdPrefix}.filters.advanced`}
-          >
-            <SlidersHorizontal className="mr-1 h-4 w-4" />
-            {t('filters.advanced.label')}
-          </Button>
-          <CopyButton className="h-11 min-w-11" text={shareUrl} label={t('common.copy_link')} testId={`${props.testIdPrefix}.filters.copy_link`} />
-          {filtersActive ? (
-            <Button type="button" size="sm" className="h-11 min-w-11" variant="ghost" onClick={clearFilters} testId={`${props.testIdPrefix}.filters.clear`}>
-              {t('common.clear_filters')}
-            </Button>
-          ) : null}
-        </div>
-      </FilterBar>
+      <UserNamespaceFilters
+        testIdPrefix={props.testIdPrefix}
+        inputRef={smartInputRef}
+        ariaLabel={t('userns.map.search_placeholder')}
+        placeholder={t('userns.map.smart.placeholder')}
+        value={smart}
+        onChange={setSmart}
+        onSubmit={() => applySmart()}
+        suggestions={smartSuggestions}
+        onHelp={() => setHelpOpen(true)}
+        onAdvanced={() => setAdvancedOpen(true)}
+        shareUrl={shareUrl}
+        filtersActive={filtersActive}
+        onClear={clearFilters}
+      />
 
       {filtersActive ? (
         <div className="flex flex-wrap gap-2" data-testid={`${props.testIdPrefix}.filters.chips`}>
@@ -577,22 +546,12 @@ function UserNamespaceMapListContent(props: UserNamespaceMapListProps & { viewer
                   <td className="px-4 py-2 text-sm">{namespaceRefLabel(ns, t('userns.namespace.size'))}</td>
                   {adminFiltersEnabled ? <td className="px-4 py-2 text-sm">{userLabel(owner)}</td> : null}
                   <td className="px-4 py-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <Link to={to} data-row-no-nav className="text-link underline">
-                        {t('common.open')}
-                      </Link>
-                      <button
-                        data-row-no-nav
-                        data-testid={`${props.testIdPrefix}.row.${r.id}.delete`}
-                        className="text-xs text-danger underline"
-                        onClick={() => {
-                          setDeleteError(null);
-                          setDeleteId(r.id);
-                        }}
-                      >
-                        {t('common.delete')}
-                      </button>
-                    </div>
+                    <UserNamespaceMapActions to={to} deleteTestId={`${props.testIdPrefix}.row.${r.id}.delete`}
+                      onDelete={() => {
+                        setDeleteError(null);
+                        setDeleteId(r.id);
+                      }}
+                    />
                   </td>
                 </TableRowLink>
               );
@@ -672,7 +631,10 @@ function UserNamespaceMapListContent(props: UserNamespaceMapListProps & { viewer
             </Alert>
           ) : null}
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <Button variant="secondary" onClick={() => setCreateOpen(false)}>
+              {t('common.cancel')}
+            </Button>
             <Button
               testId={`${props.testIdPrefix}.create.submit`}
               onClick={() => createM.mutate()}
@@ -680,9 +642,6 @@ function UserNamespaceMapListContent(props: UserNamespaceMapListProps & { viewer
               disabled={createM.isPending}
             >
               {t('common.create')}
-            </Button>
-            <Button variant="secondary" onClick={() => setCreateOpen(false)}>
-              {t('common.cancel')}
             </Button>
           </div>
         </div>

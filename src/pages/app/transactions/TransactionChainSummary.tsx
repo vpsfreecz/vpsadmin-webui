@@ -74,7 +74,7 @@ export function TransactionChainSummary(props: {
               </dt>
               <dd className="mt-1">
                 <Link
-                  className={props.failedId ? 'text-danger hover:underline' : 'text-link hover:underline'}
+                  className={props.failedId ? 'text-fg underline' : 'text-link hover:underline'}
                   to={`${basePath}/transactions/items/${stepId}`}
                 >
                   #{stepId}

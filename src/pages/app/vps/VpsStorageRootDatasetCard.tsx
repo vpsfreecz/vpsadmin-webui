@@ -40,7 +40,10 @@ export function VpsStorageRootDatasetCard(props: {
   if (!root.id) {
     return (
       <Card testId="vps.storage.root_dataset.empty">
-        <CardHeader title={t('vps.storage.root_dataset.title')} subtitle={t('vps.storage.root_dataset.empty.subtitle')} />
+        <CardHeader
+          title={t('vps.storage.root_dataset.title')}
+          subtitle={t('vps.storage.root_dataset.empty.subtitle')}
+        />
         <CardBody>
           <div className="text-sm text-muted">{t('vps.storage.root_dataset.empty.body')}</div>
         </CardBody>
@@ -51,6 +54,7 @@ export function VpsStorageRootDatasetCard(props: {
   return (
     <Card testId="vps.storage.root_dataset">
       <CardHeader
+        className="sm:flex-wrap [&>div]:max-w-full sm:[&>div:first-child]:basis-60"
         title={
           <span className="flex flex-wrap items-baseline gap-x-2">
             {t('vps.storage.root_dataset.title')}
@@ -95,7 +99,10 @@ export function VpsStorageRootDatasetCard(props: {
       />
       <CardBody>
         {props.loading ? (
-          <div className="mb-3 flex items-center gap-2 text-sm text-muted" data-testid="vps.storage.root_dataset.loading">
+          <div
+            className="mb-3 flex items-center gap-2 text-sm text-muted"
+            data-testid="vps.storage.root_dataset.loading"
+          >
             <Spinner /> {t('common.loading')}
           </div>
         ) : null}
@@ -107,7 +114,10 @@ export function VpsStorageRootDatasetCard(props: {
           </div>
         ) : null}
 
-        <div className="mb-4 grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4" data-testid="vps.storage.root_dataset.metadata">
+        <div
+          className="mb-4 grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4"
+          data-testid="vps.storage.root_dataset.metadata"
+        >
           <MetadataItem label={t('dataset.field.used')} value={formatMiB(root.used)} />
           <MetadataItem label={t('dataset.field.available')} value={formatMiB(root.available)} />
           <MetadataItem
@@ -116,7 +126,11 @@ export function VpsStorageRootDatasetCard(props: {
           />
           <MetadataItem
             label={t('vps.storage.root_dataset.capacity')}
-            value={root.capacityPercent !== null ? t('vps.storage.root_dataset.capacity_percent', { percent: root.capacityPercent }) : t('common.na')}
+            value={
+              root.capacityPercent !== null
+                ? t('vps.storage.root_dataset.capacity_percent', { percent: root.capacityPercent })
+                : t('common.na')
+            }
           />
         </div>
 

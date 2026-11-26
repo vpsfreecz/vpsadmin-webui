@@ -40,9 +40,8 @@ export function localInputToIso(local: unknown): { valid: boolean; iso: string |
 }
 
 export function isoToAdminDateTimeInput(iso: unknown): string {
-  const local = isoToLocalInput(iso);
-  if (!local) return '';
-  return `${local.replace('T', ' ')}:00`;
+  if (typeof iso !== 'string' || !iso) return '';
+  return dateToAdminDateTimeInput(new Date(iso));
 }
 
 export function dateToAdminDateTimeInput(date: Date): string {

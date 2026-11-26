@@ -3,6 +3,8 @@ import { enStorageExports } from "./storage/exports";
 import { enDatasetExpansion } from './storage/dataset_expansion';
 import { enBackups } from './storage/backups';
 export const enStorage = {
+  'dataset.identity.name': 'Dataset name: {name}',
+  'dataset.identity.internal_id': 'Internal ID: #{id}',
   ...enBackups,
   "datasets.list.title": "Datasets",
   "datasets.list.description":
@@ -134,9 +136,7 @@ export const enStorage = {
   "dataset.manage.user_limited.body":
     "You can resize within available resources. Admins also get destructive actions and quota override.",
   "dataset.manage.create.open": "Create subdataset",
-  "dataset.manage.create.title": "Create subdataset",
-  "dataset.manage.create.scope":
-    "Parent dataset: {dataset}. The new subdataset opens after the create action starts if the API returns its ID.",
+  "dataset.manage.create.title": "Create subdataset under {dataset}",
   "dataset.manage.create.error": "Dataset creation failed",
   "dataset.manage.edit.title": "Edit dataset properties",
   "dataset.manage.edit.error": "Dataset update failed",
@@ -203,10 +203,8 @@ export const enStorage = {
   "dataset.snapshots.created_at": "Created {dt}",
   "dataset.snapshots.create.open": "Create snapshot",
   "dataset.snapshots.create.modal_title": "Create snapshot",
-  "dataset.snapshots.create.help":
-    "Creates a point-in-time snapshot of this dataset and starts a trackable backend action when the API returns one.",
   "dataset.snapshots.create.scope":
-    "Target dataset: {dataset}. The new snapshot appears in this list after the action starts.",
+    "This snapshot captures the current state of the dataset “{dataset}”.",
   "dataset.snapshots.create.label.placeholder": "e.g. before-upgrade",
   "dataset.snapshots.create.error.title": "Snapshot creation failed",
   "dataset.snapshots.confirm.rollback.title": "Rollback snapshot?",
@@ -251,10 +249,9 @@ export const enStorage = {
   "dataset.download.create_link": "Create link",
   "dataset.download.created.title.pending": "Backup is being prepared",
   "dataset.download.created.title.ready": "Backup is ready",
-  "dataset.download.created.body.pending":
-    "Preparation is running in the background. When the link is ready, we will send it by email and show it in Downloads.",
-  "dataset.download.created.body.ready":
-    "The temporary snapshot download link is ready. We sent it by email and it is also available in Downloads.",
+  "dataset.download.created.title.failed": "Backup preparation failed",
+  "dataset.download.created.title.other": "Snapshot download",
+  "dataset.download.created.tracked": "Follow preparation progress in Tasks.",
   "dataset.download.created.open_downloads": "Open downloads",
   "dataset.downloads.title": "Downloads",
   "dataset.downloads.subtitle": "Create and manage snapshot download links.",
@@ -319,7 +316,7 @@ export const enStorage = {
   "dataset.tabs.expansion": "Temporary increase",
   "dataset.plans.title": "Dataset plans",
   "dataset.plans.subtitle":
-    "Administrator-defined plans apply automatic rules to this dataset, typically recurring snapshots or backup copies. Review the description before making a change.",
+    "Administrators configure backup plans.",
   "dataset.plans.assigned_count": "Assigned plans",
   "dataset.plans.available_count": "Available to assign",
   "dataset.plans.environment": "Environment",
@@ -345,7 +342,7 @@ export const enStorage = {
   "dataset.plans.column.permissions": "User permissions",
   "dataset.plans.permission.user_add": "User can add",
   "dataset.plans.permission.user_add_off": "User cannot add",
-  "dataset.plans.permission.user_remove": "User can remove",
+  "dataset.plans.permission.user_remove": "Owners can remove this plan from their datasets",
   "dataset.plans.permission.user_remove_off": "User cannot remove",
   "dataset.plans.assign.open": "Assign plan",
   "dataset.plans.assign.title": "Assign dataset plan",
@@ -358,6 +355,7 @@ export const enStorage = {
   "dataset.plans.remove.body": "This removes {label} from the dataset.",
   "dataset.plans.remove.success": "Dataset plan removed",
   "dataset.plans.remove.error": "Failed to remove dataset plan",
-  "dataset.plans.remove.not_allowed": "Removal restricted",
+  "dataset.plans.remove.not_allowed": "Only an administrator can remove this plan.",
   ...enDatasetExpansion,
+  'dataset.header.path': 'Dataset path',
 } as const;

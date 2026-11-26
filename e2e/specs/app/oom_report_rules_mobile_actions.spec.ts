@@ -1,6 +1,9 @@
-import { expect, test } from '../../fixtures/bootstrap';
+import { bootstrapVpsAdminWindow, expect, test } from '../../fixtures/bootstrap';
+import { setUiSettingsLocalStorage } from '../../fixtures/uiSettings';
 import { setupHaveApiMock } from '../../fixtures/haveapi';
 import { withAppUrl } from '../../fixtures/url';
+
+const longPattern = '/system.slice/docker-' + '0123456789abcdef'.repeat(4) + '.scope';
 
 const compactWidths = {
   chromium: [1024, 1152],
@@ -9,7 +12,7 @@ const compactWidths = {
 
 test.beforeEach(async ({ page }) => {
   await setupHaveApiMock(page, {
-    user: { level: 100 },
+    user: { id: 1, login: 'admin', level: 100 },
     handlers: {
       'GET vpses/123': () => ({
         vps: {
@@ -24,7 +27,7 @@ test.beforeEach(async ({ page }) => {
           {
             id: 77,
             action: 'notify',
-            cgroup_pattern: '^/lxc/123/user.slice/a-very-long-cgroup-segment-without-a-natural-breakpoint$',
+            cgroup_pattern: longPattern,
             hit_count: 42,
           },
         ],
@@ -66,11 +69,7 @@ test('@pr-smoke @pr-smoke-mobile keeps OOM rule actions reachable in narrow cont
         editHeight: editRect?.height ?? 0,
         removeHeight: removeRect?.height ?? 0,
         controlsInsideCard: Boolean(
-          editRect &&
-            removeRect &&
-            cardRect &&
-            editRect.left >= cardRect.left &&
-            removeRect.right <= cardRect.right
+          editRect && removeRect && cardRect && editRect.left >= cardRect.left && removeRect.right <= cardRect.right
         ),
         cardInsideViewport: Boolean(
           cardRect && cardRect.left >= 0 && cardRect.right <= document.documentElement.clientWidth
@@ -155,3 +154,59 @@ test('@pr-smoke @pr-smoke-mobile keeps OOM rule actions reachable in narrow cont
   expect(mutations).toEqual([]);
   await expect(page.getByRole('table')).toHaveCount(1);
 });
+
+for (const language of ['cs', 'en'] as const) {
+  for (const theme of ['light', 'dark'] as const) {
+    test(`@pr-smoke @pr-smoke-mobile preserves the full OOM rule in confirmation ${language} ${theme}`, async ({
+      page,
+    }, testInfo) => {
+      const mutations: string[] = [];
+      page.on('request', (request) => {
+        const url = new URL(request.url());
+        if (
+          url.pathname.startsWith('/api/v7.0/oom_report_rules') &&
+          !['GET', 'HEAD', 'OPTIONS'].includes(request.method())
+        ) {
+          mutations.push(`${request.method()} ${url.pathname}`);
+        }
+      });
+      await setUiSettingsLocalStorage(page, { language, theme });
+      await bootstrapVpsAdminWindow(page, { webuiNext: { uiSettings: { persistence: 'local' } } });
+      await page.goto(withAppUrl('/admin/oom-reports/rules/123'));
+      await page.getByTestId('oom.rules.row.77.delete').click();
+      const modal = page.getByTestId('oom.rules.delete.modal');
+      const pattern = modal.getByText(longPattern, { exact: true });
+      await expect(pattern).toBeVisible();
+      for (const width of [testInfo.project.name === 'chromium' ? 1280 : 390, 320]) {
+        await page.setViewportSize({ width, height: 900 });
+        await expect
+          .poll(() =>
+            pattern.evaluate((el) => {
+              const bounds = el.getBoundingClientRect();
+              const range = document.createRange();
+              range.selectNodeContents(el);
+              return {
+                overflow: el.scrollWidth - el.clientWidth,
+                contained: Array.from(range.getClientRects()).every(
+                  (rect) => rect.left >= bounds.left - 1 && rect.right <= bounds.right + 1
+                ),
+              };
+            })
+          )
+          .toEqual({ overflow: 0, contained: true });
+        await expect(
+          modal.getByRole('button', { name: language === 'cs' ? 'Zrušit' : 'Cancel', exact: true })
+        ).toBeInViewport();
+        await expect(
+          modal.getByRole('button', { name: language === 'cs' ? 'Smazat' : 'Delete', exact: true })
+        ).toBeInViewport();
+        await expect
+          .poll(() => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth))
+          .toBeLessThanOrEqual(1);
+      }
+      await page.keyboard.press('Escape');
+      await expect(modal).toBeHidden();
+      expect(mutations).toEqual([]);
+    });
+  }
+}

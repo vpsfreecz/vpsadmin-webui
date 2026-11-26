@@ -74,7 +74,7 @@ function AuthCheckFailed() {
             <p className="mt-2 text-sm text-muted">{t('auth.session_error.body')}</p>
           </div>
 
-          {auth.error ? <p className="text-sm text-danger">{formatErrorMessage(auth.error)}</p> : null}
+          {auth.error ? <p className="border-l-2 border-danger pl-2 text-sm font-medium text-fg">{formatErrorMessage(auth.error)}</p> : null}
 
           <div className="flex flex-wrap gap-2">
             <Button variant="primary" onClick={() => window.location.reload()}>
@@ -111,7 +111,7 @@ function AccountForbidden() {
             <p className="mt-2 text-sm text-muted">{t('auth.forbidden.body')}</p>
           </div>
 
-          {auth.error ? <p className="text-sm text-danger">{formatErrorMessage(auth.error)}</p> : null}
+          {auth.error ? <p className="border-l-2 border-danger pl-2 text-sm font-medium text-fg">{formatErrorMessage(auth.error)}</p> : null}
 
           <div className="flex flex-wrap gap-2">
             <Button as="a" href={localLogoutHref} variant="secondary">

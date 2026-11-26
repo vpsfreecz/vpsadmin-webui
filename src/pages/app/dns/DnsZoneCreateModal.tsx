@@ -5,6 +5,7 @@ import type { AppMode } from '../../../app/appMode';
 import { useI18n } from '../../../app/i18n';
 import { createDnsZone } from '../../../lib/api/dns';
 import { formatErrorMessage } from '../../../lib/errors';
+import { parseLookupIdLike } from '../../../lib/lookupInput';
 
 import { Alert } from '../../../components/ui/Alert';
 import { Button } from '../../../components/ui/Button';
@@ -37,7 +38,9 @@ export function DnsZoneCreateModal(props: {
 }) {
   const { t } = useI18n();
   const [kind, setKind] = useState<DnsZoneCreateKind>('primary');
-  const [userId, setUserId] = useState<number | null>(null);
+  const [userInput, setUserInput] = useState('');
+  const userId = parseLookupIdLike(userInput);
+  const invalidUser = Boolean(userInput.trim()) && (userId === null || !Number.isSafeInteger(userId));
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [enabled, setEnabled] = useState(true);
@@ -48,6 +51,7 @@ export function DnsZoneCreateModal(props: {
   const defaultTtlValue = Number(defaultTtl);
   const validationError = (() => {
     if (!name.trim()) return t('dns.zones.create.validation.name_required');
+    if (props.mode === 'admin' && invalidUser) return t('dns.zones.create.validation.user_invalid');
     if (kind === 'primary' && !emailValue) return t('dns.zones.create.validation.email_required');
     if (kind === 'primary' && !isValidDnsZoneEmail(emailValue)) {
       return t('dns.zones.create.validation.email_invalid');
@@ -89,7 +93,7 @@ export function DnsZoneCreateModal(props: {
       const createdId = Number.isFinite(rawId) && rawId > 0 ? rawId : null;
 
       setKind('primary');
-      setUserId(null);
+      setUserInput('');
       setName('');
       setEmail('');
       setEnabled(true);
@@ -106,6 +110,7 @@ export function DnsZoneCreateModal(props: {
       onClose={props.onClose}
       title={t('dns.zones.create.title')}
       testId="dns.zones.create.modal"
+      verticalAlign="start"
       footer={
         <div className="flex items-center justify-end gap-2">
           <Button
@@ -134,8 +139,8 @@ export function DnsZoneCreateModal(props: {
         {props.mode === 'admin' ? (
           <div>
             <UserLookupInput
-              value={userId}
-              onChange={(value) => setUserId(value ? Number(value) : null)}
+              value={userInput}
+              onChange={setUserInput}
               label={t('dns.zones.create.user.label')}
               ariaLabel={t('dns.zones.create.user.label')}
               placeholder={t('dns.zones.create.user.placeholder')}
@@ -241,6 +246,7 @@ function ZoneKindSelector(props: {
     <div>
       <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted">
         {t('dns.zones.create.kind.label')}
+        <span className="mt-1 block text-xs font-normal normal-case text-muted">{t('dns.zones.authority.help')}</span>
       </div>
       <div className="grid gap-2 sm:grid-cols-2">
         {(['primary', 'secondary'] as const).map((kind) => {

@@ -9,7 +9,6 @@ export const csOps_tasks = {
   "tasks.action.track": "Sledovat",
   "tasks.action.unpin": "Odepnout",
   "tasks.action.view_all": "Zobrazit vše",
-  "tasks.basic.actions_title": "Tvoje akce",
   "tasks.basic.operations_title": "Operace na pozadí",
   "tasks.cancel_dialog.confirm": "Zrušit akci",
   "tasks.cancel_dialog.description_default": "Server obdrží požadavek na zrušení akce.",
@@ -52,4 +51,7 @@ export const csOps_tasks = {
   "tasks.section.recent": "Nedávné",
   "tasks.title": "Úlohy",
   "tasks.tracking_action": "Sledování: {action}",
+  "tasks.filter_help.title": "Nápověda k filtru úloh",
+  "tasks.filter_help.intro": "Filtrovat akce a transakce v tomto panelu podle části popisku, ID nebo cíle. Nezáleží na velikosti písmen.",
+  "tasks.filter_help.scope": "Jde o místní filtr načtených položek včetně sledovaných akcí. Neprohledává celou historii. Starší transakce lze vyhledat po otevření všech transakcí.",
 } as const;

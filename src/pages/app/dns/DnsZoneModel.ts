@@ -27,3 +27,10 @@ export function isSecondaryDnsZone(zone: DnsZone): boolean {
 export function dnsZoneTransferPeerType(zone: DnsZone): 'primary_type' | 'secondary_type' {
   return isSecondaryDnsZone(zone) ? 'primary_type' : 'secondary_type';
 }
+
+/** Keep authoritative role separate from the API's forward/reverse role field. */
+export function dnsZoneAuthoritativeRole(zone: DnsZone): 'primary' | 'secondary' | null {
+  if (isSecondaryDnsZone(zone)) return 'secondary';
+  const source = normalizedToken(zone.source);
+  return source === 'internal_source' || source === 'internal' ? 'primary' : null;
+}

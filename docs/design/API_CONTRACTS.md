@@ -40,14 +40,14 @@ not automatically a supported list filter. Pagination and includes metadata are
 separate from filtering; filtering only the loaded page must not be presented as
 a search of the whole collection.
 
-| Collection | Supported filter boundary | Source / regression entry point |
-| --- | --- | --- |
-| Exports | Owner (`user`); no global text, dataset, snapshot, host or state filter in this adapter. Detail-by-ID is a separate request. | [adapter](../../src/lib/api/exports.ts), [fixture contract](../../e2e/specs/app/exports_filter_contract.spec.ts) |
-| Networks | `location`, `purpose` and optional exact `enabled` when supported by the API. The current list search exposes location/purpose only. Do not forward text, IP-version, role or managed-state filters merely because those attributes exist on a network. | [adapter](../../src/lib/api/networks.ts), [adapter tests](../../src/lib/api/networks.test.ts), [URL/filter fixture](../../e2e/specs/admin/cluster_networks_filter_contract.spec.ts) |
-| Migration plans | `state` and `user`; no free-text query. This does not limit the separate destination-node picker for a VPS migration. | [adapter](../../src/lib/api/migrations.ts), [fixture contract](../../e2e/specs/admin/migration_plans_filter_contract.spec.ts) |
-| Transaction items | `transaction_chain`, `node`, `type`, `success`, `done`; no item-name/text search. Transaction **chains** have a different contract which does accept `name`, as well as state, object and user/session filters. | [both adapters](../../src/lib/api/transactions.ts), [item-filter fixture](../../e2e/specs/app/transaction_items_filter_accessibility.spec.ts) |
-| User namespaces / maps | No text or label search. Namespaces support `size`; maps support `user_namespace`. Owner filtering, and namespace `block_count`, are exposed only in admin scope with admin fields enabled and no fixed owner. Removing an invalid/disallowed URL filter resets cursor/page. | [scope/URL rules](../../src/components/userNamespaces/userNamespaceFilterSemantics.ts), [fixture contract](../../e2e/specs/app/user_namespace_filter_contract.spec.ts) |
-| Resource packages | Adapter filters are `environment` and `user`, not package-label text. Assignment history uses the existing `UserClusterResourcePackage.created_at` output, not the definition timestamp or `updated_at`; no new request or API mutation is needed. Global/personal/all scope normalization is handled by the list model. | [adapter](../../src/lib/api/clusterResourcePackages.ts), [model](../../src/pages/app/admin/cluster/ResourcePackagesListModel.ts), [model tests](../../src/pages/app/admin/cluster/ResourcePackagesListModel.test.ts) |
+| Collection             | Supported filter boundary                                                                                                                                                                                                                                                                                                | Source / regression entry point                                                                                                                                                                                      |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Exports                | Owner (`user`); no global text, dataset, snapshot, host or state filter in this adapter. Detail-by-ID is a separate request.                                                                                                                                                                                             | [adapter](../../src/lib/api/exports.ts), [fixture contract](../../e2e/specs/app/exports_filter_contract.spec.ts)                                                                                                     |
+| Networks               | `location`, `purpose` and optional exact `enabled` when supported by the API. The current list search exposes location/purpose only. Do not forward text, IP-version, role or managed-state filters merely because those attributes exist on a network.                                                                  | [adapter](../../src/lib/api/networks.ts), [adapter tests](../../src/lib/api/networks.test.ts), [URL/filter fixture](../../e2e/specs/admin/cluster_networks_filter_contract.spec.ts)                                  |
+| Migration plans        | `state` and `user`; no free-text query. This does not limit the separate destination-node picker for a VPS migration.                                                                                                                                                                                                    | [adapter](../../src/lib/api/migrations.ts), [fixture contract](../../e2e/specs/admin/migration_plans_filter_contract.spec.ts)                                                                                        |
+| Transaction items      | `transaction_chain`, `node`, `type`, `success`, `done`; no item-name/text search. Transaction **chains** have a different contract which does accept `name`, as well as state, object and user/session filters.                                                                                                          | [both adapters](../../src/lib/api/transactions.ts), [item-filter fixture](../../e2e/specs/app/transaction_items_filter_accessibility.spec.ts)                                                                        |
+| User namespaces / maps | No text or label search. Namespaces support `size`; maps support `user_namespace`. Owner filtering, and namespace `block_count`, are exposed only in admin scope with admin fields enabled and no fixed owner. Removing an invalid/disallowed URL filter resets cursor/page.                                             | [scope/URL rules](../../src/components/userNamespaces/userNamespaceFilterSemantics.ts), [fixture contract](../../e2e/specs/app/user_namespace_filter_contract.spec.ts)                                               |
+| Resource packages      | Adapter filters are `environment` and `user`, not package-label text. Assignment history uses the existing `UserClusterResourcePackage.created_at` output, not the definition timestamp or `updated_at`; no new request or API mutation is needed. Global/personal/all scope normalization is handled by the list model. | [adapter](../../src/lib/api/clusterResourcePackages.ts), [model](../../src/pages/app/admin/cluster/ResourcePackagesListModel.ts), [model tests](../../src/pages/app/admin/cluster/ResourcePackagesListModel.test.ts) |
 
 These test links are verification entry points, not a claim of a fresh live run.
 Any extension needs a verified endpoint contract and scope/pagination regression
@@ -184,11 +184,11 @@ A minimum ID is unsafe when time-ordered data has nonmonotonic IDs; equal timest
 need deterministic tie handling. An empty page, a short page, an explicit next
 cursor and an API error are different outcomes.
 
-| Area | Requirement | Current tracked work | Release constraint |
-| --- | --- | --- | --- |
-| VPS user-data | Supported owner/format filters and honest search; stable multipage traversal. | Issue241, [PR496](https://github.com/Kerrycek/clankerdev/pull/496) | Pending; depends on backend work excluded by maintainer. |
-| IP assignment history | Ordered cursor, tied times, owner scope, end/recovery. | Issue208, [PR507](https://github.com/Kerrycek/clankerdev/pull/507) | Pending; no lossless guarantee on current deployed contract. |
-| Dataset/snapshot lists | Match actual dataset/snapshot order and cursor. | Issue189, [PR509](https://github.com/Kerrycek/clankerdev/pull/509) | Pending; frontend-only assumptions cannot fix unsupported server order. |
+| Area                   | Requirement                                                                   | Current tracked work                                               | Release constraint                                                      |
+| ---------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------ | ----------------------------------------------------------------------- |
+| VPS user-data          | Supported owner/format filters and honest search; stable multipage traversal. | Issue241, [PR496](https://github.com/Kerrycek/clankerdev/pull/496) | Pending; depends on backend work excluded by maintainer.                |
+| IP assignment history  | Ordered cursor, tied times, owner scope, end/recovery.                        | Issue208, [PR507](https://github.com/Kerrycek/clankerdev/pull/507) | Pending; no lossless guarantee on current deployed contract.            |
+| Dataset/snapshot lists | Match actual dataset/snapshot order and cursor.                               | Issue189, [PR509](https://github.com/Kerrycek/clankerdev/pull/509) | Pending; frontend-only assumptions cannot fix unsupported server order. |
 
 A prior isolated user-data run recorded three pages (25/25/1), owner/format/search,
 error/end and cleanup checks against UI `3ac1be67` / API `320af0e1`. It does not
@@ -379,7 +379,6 @@ read-back before another write. `master_lock` belongs to a parent resource and
 cannot be removed on the node. The frontend comparison detects stale state and
 reason, but cannot provide an atomic compare-and-swap guarantee absent from API.
 [Implementation, test scope and limitations](../work-log/2026-10-19-nodes-overview-maintenance.md).
-
 
 ## Synchronous admin-team VPS preference (REQ-023)
 
@@ -657,3 +656,52 @@ them from other fields or queries another owner's history. List and detail reuse
 the same scoped presentation and authenticated incident route. Immutable subject/
 text remains the explanation; no new action, second sender, administrator MailLog,
 private delivery-error endpoint or private error detail is exposed.
+
+### Export dataset picker reads
+
+The picker uses existing Dataset#index `limit=1000`, `_meta[count]` and
+`_meta[includes]=user`. Only administrator My view sends its own `user` filter;
+non-administrator ownership remains enforced by the API. The UI rejects foreign
+or missing-owner rows when ownership is required. Unknown/mismatched counts do
+not imply a complete collection. Do not use a numeric-ID cursor to claim complete
+traversal of Dataset#index's name order (REQ-044 remains a backend dependency).
+Explicit `#ID` keeps the existing authorized Dataset#show path; ordinary numeric
+names require an offered choice. No new API parameter, transport or mutation is
+introduced. Snapshot reads and both Create source payloads retain their existing
+contract. Authoritative ownership and the fresh administrator My-view check
+remain immediately before Create.
+
+Snapshot picker reads keep `limit=100` and request existing `_meta[count]`.
+Loading, failed and verified-empty responses remain distinct; read-only retry
+repeats the same authorized request. Unknown/partial counts disclose the bound
+and link to the existing scoped snapshot route, whose row shortcut preserves the
+exact selected snapshot outside the first100. Query keys include the selected
+dataset, so a late prior-dataset response cannot replace current choices. This
+does not introduce a cursor, change Create or bypass server source permissions.
+
+
+### NFS documentation and container rootfs
+
+Contextual exports(5) help explains existing rw/ro, sync/async, subtree_check and
+root_squash server semantics. It does not change API values/defaults or make
+all_vps/enabled/threads Linux options. No new API calls, permissions or payloads.
+
+The rootfs note uses reviewed vpsAdminOS8e44a512 architecture, pinned by the
+inspected API22adc source: osctld passes the host runtime rootfs into LXC config;
+the existing NixOS snippet mounts additional guest NFS storage. This is source
+contract evidence, not a new boot/mount or node-version certification. Snapshot
+exports retain temporary command-only instructions. [Scope and primary sources](../work-log/2026-11-15-export-nfs-help.md).
+
+## Verified export collision receipt
+
+Approved EXP-05 eee13eb8f00dd658 / REQ-048. Actual isolated dev API22adc8b5
+created disabled export3 for new member66/dataset89 on local NAS node104, with
+physical chain480 done1/1, then rejected the repeated captured payload with
+HTTP200, statusfalse, responsenull, errors{} and `dataset <full_name> is already
+exported`. The API chain source uses the analogous snapshot reason. Match only
+a non-ambiguous Create error for POST /exports and the captured source type;
+403/404, other actions, transport/protocol failures and other reasons stay distinct.
+This is a presentation change, with no API adapter/payload/permission/lock change.
+Actual deployed cff desktopChromium/mobileWebKit both showed the raw English
+reason inside the dialog; no visibility regression was invented. Real fixture
+cleanup and final candidate/release qualification remain separately required.

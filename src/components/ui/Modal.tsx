@@ -9,12 +9,15 @@ import { useFocusTrap } from '../../lib/hooks/useFocusTrap';
 
 export function Modal(props: {
   open: boolean;
-  title?: string;
+  title?: string | React.ReactElement;
   ariaLabel?: string;
   onClose: () => void;
   children: React.ReactNode;
   footer?: React.ReactNode;
   size?: 'sm' | 'md' | 'lg' | 'xl';
+
+  /** Keep a changing form anchored inside the visual viewport. */
+  verticalAlign?: 'center' | 'start';
 
   /**
    * When enabled, the modal becomes full-screen on small viewports.
@@ -79,7 +82,11 @@ export function Modal(props: {
   return createPortal(
     <div
       style={viewportStyle}
-      className={clsx('fixed inset-0 z-50 flex items-center justify-center', mobileFullScreen ? 'p-0 sm:p-4' : 'p-4')}
+      className={clsx(
+        'fixed inset-0 z-50 flex justify-center',
+        props.verticalAlign === 'start' ? 'items-start' : 'items-center',
+        mobileFullScreen ? 'p-0 sm:p-4' : 'p-4'
+      )}
     >
       <div
         className="absolute inset-0 bg-backdrop/45"

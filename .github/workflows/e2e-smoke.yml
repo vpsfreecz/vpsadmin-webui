@@ -15,25 +15,28 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  smoke:
-    name: PR smoke E2E (${{ matrix.project }})
+  smoke_shards:
+    name: PR smoke shard (${{ matrix.project }}, ${{ matrix.shard }}/3)
     runs-on: ubuntu-latest
-    # A full PR desktop run now takes about 30 minutes before setup/reporting.
-    # Keep the complete two-worker suite and allow bounded completion headroom.
+    container:
+      # Match the Playwright version in package-lock.json.
+      image: mcr.microsoft.com/playwright:v1.61.0-noble@sha256:57b65fdc9ceabe0ef613124c7bbe2babcf9362c4d85e382fe3b03604e84b428a
+      options: --ipc=host
+    # Partition the complete browser coverage across three independent file shards.
+    # Retain two workers per job, the same retries, artifacts and 40-minute bound.
     timeout-minutes: 40
     strategy:
       fail-fast: false
       matrix:
+        project: [chromium, mobile-chrome, mobile-webkit]
+        shard: [1, 2, 3]
         include:
           - project: chromium
             script: e2e:pr:desktop
-            browser: chromium
           - project: mobile-chrome
             script: e2e:pr:mobile
-            browser: chromium
           - project: mobile-webkit
             script: e2e:touch:webkit
-            browser: webkit
 
     steps:
       - name: Checkout
@@ -51,11 +54,8 @@ jobs:
       - name: Verify locked toolchain
         run: npm run env:locked
 
-      - name: Install Playwright browsers
-        run: npm run e2e:install -- --with-deps ${{ matrix.browser }}
-
       - name: Run PR smoke E2E
-        run: npm run ${{ matrix.script }}
+        run: npm run ${{ matrix.script }} -- --shard=${{ matrix.shard }}/3
 
       - name: Write PR smoke summary
         if: always()
@@ -63,9 +63,10 @@ jobs:
           {
             echo "## Playwright PR smoke"
             echo ""
-            echo "- Command: \`npm run ${{ matrix.script }}\`"
+            echo "- Command: \`npm run ${{ matrix.script }} -- --shard=${{ matrix.shard }}/3\`"
             echo "- Project: \`${{ matrix.project }}\`"
-            echo "- Layer: fast mocked critical path"
+            echo "- Shard: ${{ matrix.shard }}/3"
+            echo "- Layer: complete mocked critical-path coverage"
             echo "- Artifacts: HTML report and retained failed-attempt traces/results are uploaded on completion"
           } >> "$GITHUB_STEP_SUMMARY"
 
@@ -73,7 +74,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7.0.1
         with:
-          name: playwright-report-${{ matrix.project }}
+          name: playwright-report-${{ matrix.project }}-shard${{ matrix.shard }}
           path: playwright-report
           if-no-files-found: ignore
           retention-days: 7
@@ -82,7 +83,23 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7.0.1
         with:
-          name: playwright-test-results-${{ matrix.project }}
+          name: playwright-test-results-${{ matrix.project }}-shard${{ matrix.shard }}
           path: e2e/test-results
           if-no-files-found: ignore
           retention-days: 7
+
+  smoke:
+    name: PR smoke E2E (${{ matrix.project }})
+    needs: smoke_shards
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [chromium, mobile-chrome, mobile-webkit]
+    steps:
+      - name: Require every browser shard to pass
+        env:
+          SHARDS_RESULT: ${{ needs.smoke_shards.result }}
+        run: test "$SHARDS_RESULT" = success

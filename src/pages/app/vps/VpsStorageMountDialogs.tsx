@@ -125,7 +125,7 @@ function MountFormFields(props: {
   const draft = props.draft;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 [&_.text-danger]:border-l-2 [&_.text-danger]:border-danger-border [&_.text-danger]:pl-2 [&_.text-danger]:font-medium [&_.text-danger]:text-fg">
       {props.mode === 'create' ? (
         props.datasetPicker
       ) : (

@@ -7,73 +7,17 @@
   "note": "Inherited exceptions retain their original debt source revisions. Source bytes match those revisions. An exact source edit or measured improvement requires review/removal; the historical baseline remains unchanged.",
   "exceptions": [
     {
-      "path": "src/components/user/UserMailRecipientsTables.tsx",
-      "rule": "crossed-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "71920013bf1bd9d2b23eabb300a2a5c85cbb5b99f001c483675ce8a620e1fe84",
-      "old": 0,
-      "allowance": 527,
-      "rationale": "At the recorded source revision, this file already contained mail recipient tables and edit controls; extract the coherent section with focused behavior coverage before removing this exception. Reviewed generated-client migration: explicit recipients and disabled state remain; absent template role data now displays the existing unavailable state without inventing a primary/role destination or a copy target. Focused owner checks cover the model and its direct consumers. This source remains smaller than the prior allowance; tighten the allowance to the exact measured line count.",
-      "owner": "WebUI implementation lead",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 500
-      }
-    },
-    {
-      "path": "src/components/userNamespaces/UserNamespaceList.tsx",
-      "rule": "grown-over-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "6f6b3c6e315f3698322eea0b928c1bb5c38ebe8f5e4be7515ff4f809ef94df89",
-      "old": 526,
-      "allowance": 541,
-      "rationale": "At the recorded source revision, this file already contained namespace list filters and actions; extract the coherent section with focused behavior coverage before removing this exception. Centered-dialog follow-up (2026-10-17) changes only overlay presentation; existing extraction debt remains and the allowance does not increase. Reviewed 2026-11-07: local filter heights and action wrapping only, with no line growth or allowance change; extraction debt remains.",
-      "owner": "WebUI implementation lead",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 526
-      }
-    },
-    {
       "path": "src/components/userNamespaces/UserNamespaceMapDetail.tsx",
       "rule": "grown-over-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "de07453e9bb41d464f2d065f81972c458066d55695857e0d629678da599faca3",
+      "contentHash": "5de2cd01a8302287313dc53be94f4a7216d0732ef26c0485660c2bb9fa819953",
       "old": 770,
       "allowance": 798,
-      "rationale": "At the recorded source revision, this file already contained namespace map detail states; extract the coherent section with focused behavior coverage before removing this exception. Reviewed generated-client migration: only the count/error helper import moves to apiErrors; behavior, casts and line allowance are unchanged. Reviewed 2026-11-08: native coarse field minimum/font only, with unchanged line count and allowance; extraction debt remains.",
+      "rationale": "At the recorded source revision, this file already contained namespace map detail states; extract the coherent section with focused behavior coverage before removing this exception. Reviewed generated-client migration: only the count/error helper import moves to apiErrors; behavior, casts and line allowance are unchanged. Reviewed 2026-11-08: native coarse field minimum/font only, with unchanged line count and allowance; extraction debt remains. 2026-11-26 integration review: preserve current generated SDK/guard contracts while retaining approved presentation refinements. The existing allowance is not increased and is tightened to the exact current count.",
       "owner": "WebUI implementation lead",
       "removeWhen": {
         "metric": "lines",
         "atMost": 770
-      }
-    },
-    {
-      "path": "src/components/userNamespaces/UserNamespaceMapList.tsx",
-      "rule": "grown-over-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "93beb9cd38328c1469d950f743e224c91306d1d7e57d592f21e89ffbc9e5741a",
-      "old": 675,
-      "allowance": 715,
-      "rationale": "At the recorded source revision, this file already contained namespace map list filters and actions; extract the coherent section with focused behavior coverage before removing this exception. Centered-dialog follow-up (2026-10-17) changes only overlay presentation; existing extraction debt remains and the allowance does not increase. Reviewed 2026-11-07: local filter heights and action wrapping only, with no line growth or allowance change; extraction debt remains.",
-      "owner": "WebUI implementation lead",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 675
-      }
-    },
-    {
-      "path": "src/pages/app/MonitoringEventDetailPage.tsx",
-      "rule": "grown-over-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "1908b09d8b61560553bc23a45674a1d392726f2e6200ef3d313c9c38323ac0b2",
-      "old": 647,
-      "allowance": 652,
-      "rationale": "At the recorded source revision, this file already contained monitoring event detail states; extract the coherent section with focused behavior coverage before removing this exception.",
-      "owner": "WebUI implementation lead",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 647
       }
     },
     {
@@ -102,20 +46,6 @@
       "removeWhen": {
         "metric": "lines",
         "atMost": 500
-      }
-    },
-    {
-      "path": "src/pages/app/admin/MigrationPlanDetailPage.tsx",
-      "rule": "grown-over-500",
-      "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "4d0108e52f4643e677b0225a916fb9826a367da511594b67ab75783a3afa273f",
-      "old": 1201,
-      "allowance": 1212,
-      "rationale": "At the recorded source revision, this file already contained migration plan detail and actions; extract the coherent section with focused behavior coverage before removing this exception. Reviewed generated-client migration: only action-state/uncertainty helper imports move to apiErrors; behavior, casts and line allowance are unchanged.",
-      "owner": "WebUI implementation lead",
-      "removeWhen": {
-        "metric": "lines",
-        "atMost": 1201
       }
     },
     {
@@ -206,10 +136,10 @@
       "path": "src/pages/app/admin/user/AdminUserOverviewPage.tsx",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "376b20d318ccfc676aa6408f90f65c32b439d3e331ee768feb70aceeac649935",
+      "contentHash": "1e1963eea80b044a1fb60a4835892690e1ebd5d46c786b447a0c40704a10e5be",
       "old": 0,
-      "allowance": 769,
-      "rationale": "At the recorded source revision, this file already contained admin user overview sections and actions; extract the coherent section with focused behavior coverage before removing this exception. Reviewed 2026-10-08: replace the existing source-payment number with a native detail link and mobile touch target; no new data fetching, mutations or finance permissions. Focused browser checks cover the source ID, manual credits, keyboard and touch navigation. Centered-dialog follow-up (2026-10-17) changes only overlay presentation; existing extraction debt remains and the allowance does not increase. Reviewed 2026-10-20: the existing soft-delete selection handler refreshes expiry on transition even when a prior expiry exists; one condition changes, with no line-budget increase. Desktop/mobile fixture tests cover the suggestion, manual override and confirmation before mutation. Combined release review 2026-10-23: retain the soft-delete expiry handler and extract the numeric privilege field to UserLevelSelect; exact role levels and unknown existing levels remain intact. The recorded allowance is the actual combined line count. Preserve the extracted AdminUserDetailsActions password shortcut and the existing lifecycle mutation guard; the page shrinks further. Preserve the extracted address and mail-role contact summary, including administrator-only fetching and the selected owner boundary; the combined page remains smaller than the inherited allowance. Reviewed generated-client migration: generated user identity and nullable fields retain owner-scoped actions. Reminder clearing uses the observed expiration through the existing lifecycle payload helper; unknown lifecycle data disables changes. No new sections or mutations are introduced. Preserve the inherited extraction debt and tighten the allowance to the smaller measured source. Reviewed 2026-11-08: match the reminder Clear action to its adjacent date field with one size attribute; preserve the main-compatible typed contracts, exact line allowance and extraction debt.",
+      "allowance": 768,
+      "rationale": "At the recorded source revision, this file already contained admin user overview sections and actions; extract the coherent section with focused behavior coverage before removing this exception. Reviewed 2026-10-08: replace the existing source-payment number with a native detail link and mobile touch target; no new data fetching, mutations or finance permissions. Focused browser checks cover the source ID, manual credits, keyboard and touch navigation. Centered-dialog follow-up (2026-10-17) changes only overlay presentation; existing extraction debt remains and the allowance does not increase. Reviewed 2026-10-20: the existing soft-delete selection handler refreshes expiry on transition even when a prior expiry exists; one condition changes, with no line-budget increase. Desktop/mobile fixture tests cover the suggestion, manual override and confirmation before mutation. Combined release review 2026-10-23: retain the soft-delete expiry handler and extract the numeric privilege field to UserLevelSelect; exact role levels and unknown existing levels remain intact. The recorded allowance is the actual combined line count. Preserve the extracted AdminUserDetailsActions password shortcut and the existing lifecycle mutation guard; the page shrinks further. Preserve the extracted address and mail-role contact summary, including administrator-only fetching and the selected owner boundary; the combined page remains smaller than the inherited allowance. Reviewed generated-client migration: generated user identity and nullable fields retain owner-scoped actions. Reminder clearing uses the observed expiration through the existing lifecycle payload helper; unknown lifecycle data disables changes. No new sections or mutations are introduced. Preserve the inherited extraction debt and tighten the allowance to the smaller measured source. Reviewed 2026-11-08: match the reminder Clear action to its adjacent date field with one size attribute; preserve the main-compatible typed contracts, exact line allowance and extraction debt. 2026-11-26 integration review: preserve current generated SDK/guard contracts while retaining approved presentation refinements. The existing allowance is not increased and is tightened to the exact current count.",
       "owner": "WebUI implementation lead",
       "removeWhen": {
         "metric": "lines",
@@ -220,10 +150,10 @@
       "path": "src/pages/app/datasets/DatasetExpansionPage.tsx",
       "rule": "grown-over-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "5f7cb96750ff0156361584bf2a0e11322060dd9d607dd7914cb8620ac443df19",
+      "contentHash": "b48c73192815b71a550913d5e0f43d776c9c7bd55be86767cbbd9b3397cf3fe8",
       "old": 635,
       "allowance": 697,
-      "rationale": "At the recorded source revision, this file already contained dataset expansion state and actions; extract the coherent section with focused behavior coverage before removing this exception. Reviewed generated-client migration: the receipt helper import moves to apiErrors and the existing max-over-days guard also rejects absent values before constructing the generated input. The line allowance is unchanged.",
+      "rationale": "At the recorded source revision, this file already contained dataset expansion state and actions; extract the coherent section with focused behavior coverage before removing this exception. Reviewed generated-client migration: the receipt helper import moves to apiErrors and the existing max-over-days guard also rejects absent values before constructing the generated input. The line allowance is unchanged. 2026-11-26 integration review: preserve current generated SDK/guard contracts while retaining approved presentation refinements. The existing allowance is not increased and is tightened to the exact current count.",
       "owner": "WebUI implementation lead",
       "removeWhen": {
         "metric": "lines",
@@ -234,10 +164,10 @@
       "path": "src/pages/app/dns/DnsRecordModel.ts",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "6a53ee8b7ff93f6604f3344ee3b489c420b685d0aeef438d9b72b1acd3ad5cd8",
+      "contentHash": "757beb4d590f7cae951ff97fa7e1c5c7c9dbb54194c1b5f306bc2e73e06bbebf",
       "old": 0,
       "allowance": 518,
-      "rationale": "At the recorded source revision, this file already contained DNS record form validation and mapping; extract the coherent section with focused behavior coverage before removing this exception. Reviewed generated-client migration: generated Create/Update inputs replace duplicate payload declarations, and consumed label/name helpers preserve nullable fields. Tighten the reduced file to its exact measured count; no additional budget is granted.",
+      "rationale": "At the recorded source revision, this file already contained DNS record form validation and mapping; extract the coherent section with focused behavior coverage before removing this exception. Reviewed generated-client migration: generated Create/Update inputs replace duplicate payload declarations, and consumed label/name helpers preserve nullable fields. Tighten the reduced file to its exact measured count; no additional budget is granted. 2026-11-26 integration review: preserve current generated SDK/guard contracts while retaining approved presentation refinements and canonical wildcard-name validation. The existing allowance is not increased and is tightened to the exact current count.",
       "owner": "WebUI implementation lead",
       "removeWhen": {
         "metric": "lines",
@@ -248,10 +178,10 @@
       "path": "src/pages/app/vps/VpsAccessPage.tsx",
       "rule": "crossed-500",
       "sourceRevision": "e7ce3d73e799fc60e5933fe23bdb3a979eb4d6b9",
-      "contentHash": "468fcd2bb5cc86bc7b19ebcabb2d4fdd092ee786731e764ad3a2e267bcca8e5d",
+      "contentHash": "f8210526c016f7be8af9fd8b8b17ebd8ad914f1e4fcac774b1334db558a47441",
       "old": 0,
       "allowance": 505,
-      "rationale": "At the recorded source revision, this file already contained VPS access and credential controls; extract the coherent section with focused behavior coverage before removing this exception. Reviewed UX-04 local heading and border changes only; no controller expansion. Integrated main: action-state receipt helper remains imported from apiErrors; the reviewed preview removes duplicate summary/checklist sections and uses authenticated ownership. The exact 505-line cap is retained.",
+      "rationale": "At the recorded source revision, this file already contained VPS access and credential controls; extract the coherent section with focused behavior coverage before removing this exception. Reviewed UX-04 local heading and border changes only; no controller expansion. Integrated main: action-state receipt helper remains imported from apiErrors; the reviewed preview removes duplicate summary/checklist sections and uses authenticated ownership. The exact 505-line cap is retained. 2026-11-26 integration review: preserve current generated SDK/guard contracts while retaining approved presentation refinements. The existing allowance is not increased and is tightened to the exact current count.",
       "owner": "WebUI collection and page refactor implementer",
       "removeWhen": {
         "metric": "lines",

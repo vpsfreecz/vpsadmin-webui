@@ -1,11 +1,18 @@
 import { expect, test } from '@playwright/test';
 
-import { bootstrapVpsAdminWindow, installHaveApiMock } from '../../fixtures';
+import { bootstrapVpsAdminWindow, installHaveApiMock, setUiSettingsLocalStorage } from '../../fixtures';
 
 test.describe('@smoke Admin user history', () => {
-  test('admin user history: shows events and supports view toggle', async ({ page }) => {
-    await bootstrapVpsAdminWindow(page);
-  
+  test('@pr-smoke @pr-smoke-mobile admin user history: shows events and supports keyboard view selection', async ({
+    page,
+  }) => {
+    const writes: string[] = [];
+    page.on('request', (request) => {
+      if (!['GET', 'HEAD', 'OPTIONS'].includes(request.method())) writes.push(request.method());
+    });
+    await setUiSettingsLocalStorage(page, { language: 'en' });
+    await bootstrapVpsAdminWindow(page, { webuiNext: { uiSettings: { persistence: 'local' } } });
+
     await installHaveApiMock(page, {
       user: { id: 1, login: 'admin', level: 100 },
       handlers: {
@@ -37,19 +44,32 @@ test.describe('@smoke Admin user history', () => {
         }),
       },
     });
-  
+
     await page.goto('/admin/users/42/history');
-  
+
     await expect(page.getByTestId('admin.user.history.filters')).toBeVisible();
     await expect(page.getByTestId('admin.user.history.smart_filter.input')).toBeVisible();
     await expect(page.getByTestId('admin.user.history.table')).toBeVisible();
     await expect(page.getByTestId('admin.user.history.row.5001')).toBeVisible();
     await expect(page.getByTestId('admin.user.history.row.5001.dot')).toBeVisible();
-  
-    // Toggle view (sanity check).
+
+    await expect(page.getByRole('button', { name: 'Changes to user', pressed: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Actions by user', pressed: false })).toBeVisible();
+
+    // Selection remains explicit when toggled by pointer and keyboard.
     await page.getByTestId('admin.user.history.view.actions').click();
     await expect(page.getByTestId('admin.user.history.row.5001')).toBeVisible();
-  
+
+    await expect(page.getByRole('button', { name: 'Actions by user', pressed: true })).toBeVisible();
+    await page.getByTestId('admin.user.history.view.changes').focus();
+    await page.keyboard.press('Space');
+    await expect(page.getByRole('button', { name: 'Changes to user', pressed: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Actions by user', pressed: false })).toBeVisible();
+    await page.getByTestId('admin.user.history.view.actions').focus();
+    await page.keyboard.press('Enter');
+    await expect(page.getByRole('button', { name: 'Actions by user', pressed: true })).toBeVisible();
+    expect(writes).toEqual([]);
+
     await expect(page.getByTestId('admin.user.history.open_audit')).toBeVisible();
   });
 });

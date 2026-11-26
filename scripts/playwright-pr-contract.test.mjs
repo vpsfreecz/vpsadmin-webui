@@ -77,7 +77,7 @@ test('CI uploads the HTML report and failed-attempt results after passing retrie
   ]) {
     const source = fs.readFileSync(path.join(root, '.github/workflows', filename), 'utf8');
     assert.match(source, /fail-fast: false/);
-    assert.match(source, /matrix:\s*include:/);
+    assert.match(source, /matrix:[\s\S]*?include:/);
     assert.match(source, new RegExp(`project: chromium\\s+script: ${desktopScript}`));
     assert.match(source, new RegExp(`project: mobile-chrome\\s+script: ${mobileScript}`));
     assert.doesNotMatch(source, /E2E_RECORD_ARTIFACTS=0|--no-artifacts|--container/);
@@ -102,5 +102,28 @@ test('CI uploads the HTML report and failed-attempt results after passing retrie
       ),
       /uploaded on completion/
     );
+  }
+});
+
+test('PR browser shards retain every project, bounded workers, artifacts and success gates', () => {
+  const source = fs.readFileSync(path.join(root, '.github/workflows/e2e-smoke.yml'), 'utf8');
+  assert.match(source, /project: \[chromium, mobile-chrome, mobile-webkit\]\s+shard: \[1, 2, 3\]\s+include:/);
+  assert.match(source, /timeout-minutes: 40/);
+  assert.match(source, /needs: smoke_shards\s+if: always\(\)/);
+  assert(source.includes('SHARDS_RESULT: ${{ needs.smoke_shards.result }}'));
+  assert(source.includes('run: test "$SHARDS_RESULT" = success'));
+  assert(source.includes('name: PR smoke E2E (${{ matrix.project }})'));
+  assert(source.includes('run: npm run ${{ matrix.script }} -- --shard=${{ matrix.shard }}/3'));
+  assert(source.includes('name: playwright-report-${{ matrix.project }}-shard${{ matrix.shard }}'));
+  assert(source.includes('name: playwright-test-results-${{ matrix.project }}-shard${{ matrix.shard }}'));
+  assert.doesNotMatch(source, /continue-on-error: true/);
+  const command = program.commands.find((item) => item.name() === 'test');
+  assert(command);
+  for (const script of ['e2e:pr:desktop', 'e2e:pr:mobile', 'e2e:touch:webkit']) {
+    for (const index of [1, 2, 3]) {
+      const args = normalizePlaywrightArgs([...scriptArgs(script), `--shard=${index}/3`]).playwrightArgs;
+      command.parseOptions(args);
+      assert.equal(command.opts().shard, `${index}/3`);
+    }
   }
 });

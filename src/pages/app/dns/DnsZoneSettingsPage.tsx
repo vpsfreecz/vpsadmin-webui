@@ -1,3 +1,4 @@
+import { isSecondaryDnsZone } from './DnsZoneModel';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
@@ -31,6 +32,8 @@ export function DnsZoneSettingsPage() {
 
   const { zone, refetch: refetchZone, refetchChains, zoneRef, busyLocalLock, busyTransaction, concernClasses } =
     useDnsZoneContext();
+
+  const secondaryZone = isSecondaryDnsZone(zone);
 
   const zoneLabelForToast = String((zone as any).name ?? (zone as any).label ?? `Zone #${zone.id}`);
 
@@ -76,7 +79,7 @@ export function DnsZoneSettingsPage() {
         email: email.trim() || undefined,
         default_ttl: Number(defaultTtl.trim()),
         enabled,
-        dnssec_enabled: dnssec,
+        ...(!secondaryZone ? { dnssec_enabled: dnssec } : {}),
       });
     },
     onMutate: () => {
@@ -199,7 +202,7 @@ export function DnsZoneSettingsPage() {
               />
               <div
                 id="dns-settings-default-ttl-feedback"
-                className={`mt-1 text-xs ${defaultTtlValidation ? 'text-danger' : 'text-faint'}`}
+                className={`mt-1 text-xs ${defaultTtlValidation ? 'border-l-2 border-danger pl-2 font-medium text-fg' : 'text-faint'}`}
                 data-testid="dns.settings.default_ttl.validation"
               >
                 {defaultTtlValidationMessage ||
@@ -215,13 +218,17 @@ export function DnsZoneSettingsPage() {
                 disabled={formDisabled}
                 testId="dns.settings.enabled"
               />
-              <Checkbox
-                checked={dnssec}
-                onChange={setDnssec}
-                label={t('dns.zone.settings.dnssec.label')}
-                disabled={formDisabled}
-                testId="dns.settings.dnssec"
-              />
+              {secondaryZone ? (
+                <p className="text-sm text-muted" data-testid="dns.settings.dnssec.external">{t('dns.zone.dnssec.external_help')}</p>
+              ) : (
+                <Checkbox
+                  checked={dnssec}
+                  onChange={setDnssec}
+                  label={t('dns.zone.settings.dnssec.label')}
+                  disabled={formDisabled}
+                  testId="dns.settings.dnssec"
+                />
+              )}
             </div>
           </div>
 

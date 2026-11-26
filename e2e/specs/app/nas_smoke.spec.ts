@@ -3,7 +3,9 @@ import { expect, test } from '@playwright/test';
 import { bootstrapVpsAdminWindow, installHaveApiMock, jsonFulfill } from '../../fixtures';
 
 test.describe('NAS datasets alias', () => {
-  test('renders NAS alias with primary-role datasets, owner rows, and unlimited capacity usage', async ({ page }, testInfo) => {
+  test('@pr-smoke @pr-smoke-mobile renders NAS alias with primary-role datasets, owner rows, and unknown quota limits', async ({
+    page,
+  }, testInfo) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
 
     let requestedRole: string | null = null;
@@ -40,26 +42,28 @@ test.describe('NAS datasets alias', () => {
     await page.goto('/admin/nas');
 
     await expect(page.getByTestId('datasets.list.header')).toContainText('NAS');
-    const mobile = testInfo.project.name === 'mobile-chrome';
+    const mobile = testInfo.project.name.includes('mobile');
     const entry = page.getByTestId(`datasets.${mobile ? 'card' : 'row'}.53`);
     await expect(entry).toBeVisible();
     await expect(entry).toContainText('kerryhobordel');
     await expect(entry).toContainText('1.9 TiB');
 
-    const segments = entry.getByRole('img', { name: 'Dataset space usage' }).locator('[style*="width"]');
-    await expect(segments).toHaveCount(2);
-    await expect(segments.nth(0)).toHaveCSS('width', /.+/);
-
-    const widths = await segments.evaluateAll((elements) =>
-      elements.map((element) => Number.parseFloat((element as HTMLElement).style.width))
-    );
-    expect(widths[0]).toBeCloseTo((1_900 / 3_300) * 100, 3);
-    expect(widths[1]).toBeCloseTo((1_400 / 3_300) * 100, 3);
+    // Available space is not a configured quota. Missing limits stay unknown;
+    // neither used/(used + avail) nor infinity describes this fixture.
+    await expect(entry.getByRole('img', { name: 'Dataset space usage' })).toHaveCount(0);
+    for (const kind of ['reference', 'quota']) {
+      const usage = entry.getByTestId(`dataset.usage.${kind}`);
+      await expect(usage).toBeVisible();
+      await expect(usage).toContainText('—');
+      await expect(usage.getByRole('img')).toHaveCount(0);
+    }
+    await expect(entry).not.toContainText('%');
+    await expect(entry).not.toContainText('∞');
 
     expect(requestedRole).toBe('primary');
     expect(requestedIncludes).toBe('user');
 
-    const proofScreenshot = process.env.E2E_NAS_USAGE_PROOF_SCREENSHOT?.trim();
+    const proofScreenshot = process.env['E2E_NAS_USAGE_PROOF_SCREENSHOT']?.trim();
     if (proofScreenshot) {
       await page.screenshot({ path: proofScreenshot, fullPage: true });
     }
@@ -96,7 +100,7 @@ test.describe('NAS datasets alias', () => {
 
     await page.goto('/admin/nas');
 
-    const mobile = testInfo.project.name === 'mobile-chrome';
+    const mobile = testInfo.project.name.includes('mobile');
     const entry = page.getByTestId(`datasets.${mobile ? 'card' : 'row'}.911`);
     await expect(entry).toBeVisible();
     if (mobile) {
@@ -110,7 +114,7 @@ test.describe('NAS datasets alias', () => {
     }
   });
 
-  test('creates a NAS subdataset from the NAS list', async ({ page }) => {
+  test('@pr-smoke @pr-smoke-mobile creates a NAS subdataset from the NAS list', async ({ page }) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
     let payload: Record<string, unknown> | undefined;
     const parentQueries: Array<string | null> = [];
@@ -163,7 +167,7 @@ test.describe('NAS datasets alias', () => {
     await page.goto('/app/nas');
     await page.getByTestId('nas.create.open').click();
     await expect(page).toHaveURL('/app/nas/new');
-    await expect(page.getByTestId('nas.create.parent')).toHaveValue('');
+    await expect(page.getByTestId('nas.create.parent')).toHaveValue('901');
     await expect(page.getByTestId('nas.create.parent').locator('option[value="901"]')).toHaveCount(1);
     await expect(page.getByTestId('nas.create.parent').locator('option[value="999"]')).toHaveCount(0);
     expect(parentQueries).toContain(null);
@@ -173,24 +177,25 @@ test.describe('NAS datasets alias', () => {
     await expect(page.getByTestId('nas.create.atime')).not.toBeVisible();
     await expect(page.getByTestId('nas.create.relatime')).not.toBeVisible();
 
-    await page.getByTestId('nas.create.parent').selectOption('901');
     await page.getByTestId('nas.create.name').fill('projects');
     await page.getByTestId('nas.create.refquota').fill('8');
     await page.getByTestId('nas.create.submit').click();
 
-    await expect.poll(() => payload?.dataset as Record<string, unknown> | undefined).toEqual({
-      dataset: 901,
-      name: 'projects',
-      automount: true,
-      refquota: 8192,
-    });
+    await expect
+      .poll(() => payload?.['dataset'] as Record<string, unknown> | undefined)
+      .toEqual({
+        dataset: 901,
+        name: 'projects',
+        automount: true,
+        refquota: 8192,
+      });
     await expect(page).toHaveURL('/app/nas/902');
   });
 
   test('keeps NAS dataset details and management navigation under NAS', async ({ page }) => {
     await bootstrapVpsAdminWindow(page, { sessionToken: 'TEST' });
 
-    const datasets: Record<number, any> = {
+    const datasets: Record<number, Record<string, unknown>> = {
       901: {
         id: 901,
         full_name: 'tank/nas/alice',
@@ -239,8 +244,8 @@ test.describe('NAS datasets alias', () => {
           if (role !== 'primary') return { datasets: [], _meta: { total_count: 0 } };
           return { datasets: [datasets[901]], _meta: { total_count: 1 } };
         },
-        'GET datasets/901': () => datasets[901],
-        'GET datasets/902': () => datasets[902],
+        'GET datasets/901': () => ({ dataset: datasets[901] }),
+        'GET datasets/902': () => ({ dataset: datasets[902] }),
         'GET transaction_chains': () => ({ transaction_chains: [], _meta: { total_count: 0 } }),
         'POST datasets': () => {
           return { dataset: datasets[902] };

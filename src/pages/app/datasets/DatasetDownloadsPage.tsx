@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useLocation } from "react-router-dom";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { useAuth } from "../../../app/auth";
@@ -58,11 +58,13 @@ export function DatasetDownloadsPage() {
   const { role } = useAuth();
   const datasetLabelForToast = dataset.name || `Dataset #${dataset.id}`;
 
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const pagination = useKeysetPagination({
     id: "dataset.downloads.list",
     filterKey: String(dataset.id),
     searchParams,
+    navigationPathname: location.pathname,
     setSearchParams,
     defaultLimit: 50,
     allowedLimits: [25, 50, 100],

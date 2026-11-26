@@ -280,13 +280,13 @@ export function VpsAccessPage() {
         </Alert>
       ) : null}
       {pendingKeyDeployment ? (
-        <Alert variant="info" title={t('vps.access.ssh.pending_title')}>
+        <Alert className="[overflow-wrap:anywhere]" variant="info" title={t('vps.access.ssh.pending_title')}>
           {t('vps.access.ssh.pending_description', { id: pendingKeyDeployment.asId, key: pendingKeyDeployment.keyLabel })}
         </Alert>
       ) : null}
       {keyDeploymentStateQ.error ? <Alert variant="danger">{errorMessage(keyDeploymentStateQ.error)}</Alert> : null}
       {keyDeploymentError ? (
-        <Alert variant="danger" title={t('vps.access.ssh.failed_title')}>
+        <Alert className="[overflow-wrap:anywhere]" variant="danger" title={t('vps.access.ssh.failed_title')}>
           <div className="space-y-3">
             <p>{t('vps.access.ssh.failed_description', { id: keyDeploymentError.asId, key: keyDeploymentError.keyLabel })}</p>
             <Button variant="secondary" size="sm" onClick={() => chrome.openTasks()} testId="vps.access.ssh.failure.open_tasks">
@@ -295,7 +295,7 @@ export function VpsAccessPage() {
           </div>
         </Alert>
       ) : null}
-      {keyDeployMessage ? <Alert variant="info">{t('vps.access.ssh.deployed', { key: keyDeployMessage })}</Alert> : null}
+      {keyDeployMessage ? <Alert className="[overflow-wrap:anywhere]" variant="info">{t('vps.access.ssh.deployed', { key: keyDeployMessage })}</Alert> : null}
 
       {canMutateVps ? <Card id="vps-access-ssh-key" testId="vps.access.ssh.card" className="scroll-mt-24 border-border-strong">
         <CardHeader className="border-border-strong" title={<h2 className="text-lg font-semibold">{t('vps.access.ssh.title')}</h2>} subtitle={t('vps.access.ssh.subtitle')} />
@@ -314,7 +314,7 @@ export function VpsAccessPage() {
                   onChange={(event: React.ChangeEvent<HTMLSelectElement>) => setSelectedPublicKeyId(event.target.value ? Number(event.target.value) : null)}
                   disabled={publicKeysQ.isPending || publicKeys.length === 0 || deployKeyM.isPending}
                   aria-describedby="vps-access-ssh-key-description"
-                  className="w-full rounded-md border border-border-strong bg-bg px-3 py-2 text-sm text-fg"
+                  className="h-9 [@media(any-pointer:coarse)]:min-h-11 w-full rounded-md border border-border-strong bg-bg px-3 py-2 text-sm text-fg"
                   data-testid="vps.access.ssh.key"
                 >
                   {publicKeys.length === 0 ? (
@@ -411,7 +411,7 @@ export function VpsAccessPage() {
                 onChange={(event: React.ChangeEvent<HTMLSelectElement>) => setPasswordType(event.target.value as VpsPasswordType)}
                 disabled={currentPasswdMutationPending}
                 aria-describedby="vps-access-password-type-description"
-                className="w-full rounded-md border border-border-strong bg-bg px-3 py-2 text-sm text-fg"
+                className="h-9 [@media(any-pointer:coarse)]:min-h-11 w-full rounded-md border border-border-strong bg-bg px-3 py-2 text-sm text-fg"
                 data-testid="vps.access.password_type"
               >
                 <option value="secure">{t('vps.access.password_type.secure')}</option>

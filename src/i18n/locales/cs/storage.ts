@@ -3,6 +3,8 @@ import { csStorageExports } from "./storage/exports";
 import { csDatasetExpansion } from './storage/dataset_expansion';
 import { csBackups } from './storage/backups';
 export const csStorage = {
+  'dataset.identity.name': 'Název datasetu: {name}',
+  'dataset.identity.internal_id': 'Interní ID: #{id}',
   ...csBackups,
   "datasets.list.title": "Datasety",
   "datasets.list.description":
@@ -140,9 +142,7 @@ export const csStorage = {
   "dataset.manage.user_limited.body":
     "Velikost můžeš upravit v rámci dostupných prostředků. Admin má navíc destruktivní akce a možnost přepsat kontrolu kvóty.",
   "dataset.manage.create.open": "Vytvořit vnořený dataset",
-  "dataset.manage.create.title": "Vytvořit vnořený dataset",
-  "dataset.manage.create.scope":
-    "Nadřazený dataset: {dataset}. Nový vnořený dataset se otevře po spuštění akce, pokud API vrátí jeho ID.",
+  "dataset.manage.create.title": "Vytvořit vnořený dataset v {dataset}",
   "dataset.manage.create.error": "Vytvoření datasetu selhalo",
   "dataset.manage.edit.title": "Upravit vlastnosti datasetu",
   "dataset.manage.edit.error": "Úprava datasetu selhala",
@@ -209,10 +209,8 @@ export const csStorage = {
   "dataset.snapshots.created_at": "Vytvořeno {dt}",
   "dataset.snapshots.create.open": "Vytvořit snapshot",
   "dataset.snapshots.create.modal_title": "Vytvořit snapshot",
-  "dataset.snapshots.create.help":
-    "Vytvoří bodový snapshot tohoto datasetu a při podpoře API spustí sledovatelnou backendovou akci.",
   "dataset.snapshots.create.scope":
-    "Cílový dataset: {dataset}. Nový snapshot se po spuštění akce objeví v tomto seznamu.",
+    "Snapshot zachytí aktuální stav datasetu „{dataset}“.",
   "dataset.snapshots.create.label.placeholder": "např. před-upgradem",
   "dataset.snapshots.create.error.title": "Vytvoření snapshotu selhalo",
   "dataset.snapshots.confirm.rollback.title": "Obnovit snapshot?",
@@ -257,10 +255,9 @@ export const csStorage = {
   "dataset.download.create_link": "Vytvořit odkaz",
   "dataset.download.created.title.pending": "Záloha se připravuje ke stažení",
   "dataset.download.created.title.ready": "Záloha je připravená",
-  "dataset.download.created.body.pending":
-    "Příprava běží na pozadí. Jakmile bude odkaz hotový, pošleme ho e-mailem a uvidíš ho i v sekci Downloady.",
-  "dataset.download.created.body.ready":
-    "Dočasný odkaz pro stažení snapshotu je připravený. Poslali jsme ho e-mailem a najdeš ho i v sekci Downloady.",
+  "dataset.download.created.title.failed": "Příprava zálohy selhala",
+  "dataset.download.created.title.other": "Stažení snapshotu",
+  "dataset.download.created.tracked": "Průběh přípravy můžeš sledovat v Úlohách.",
   "dataset.download.created.open_downloads": "Otevřít downloady",
   "dataset.downloads.title": "Downloady",
   "dataset.downloads.subtitle":
@@ -326,7 +323,7 @@ export const csStorage = {
   "dataset.tabs.expansion": "Dočasné navýšení",
   "dataset.plans.title": "Plány datasetu",
   "dataset.plans.subtitle":
-    "Plány definované administrátory aplikují na tento dataset automatická pravidla, typicky pravidelné snapshoty nebo záložní kopie. Před změnou si zkontroluj popis.",
+    "Plány záloh nastavují administrátoři.",
   "dataset.plans.assigned_count": "Přiřazené plány",
   "dataset.plans.available_count": "Dostupné k přiřazení",
   "dataset.plans.environment": "Prostředí",
@@ -353,7 +350,7 @@ export const csStorage = {
   "dataset.plans.column.permissions": "Oprávnění uživatele",
   "dataset.plans.permission.user_add": "Uživatel může přidat",
   "dataset.plans.permission.user_add_off": "Uživatel nemůže přidat",
-  "dataset.plans.permission.user_remove": "Uživatel může odebrat",
+  "dataset.plans.permission.user_remove": "Vlastníci mohou plán odebrat ze svých datasetů",
   "dataset.plans.permission.user_remove_off": "Uživatel nemůže odebrat",
   "dataset.plans.assign.open": "Přiřadit plán",
   "dataset.plans.assign.title": "Přiřadit plán datasetu",
@@ -366,6 +363,7 @@ export const csStorage = {
   "dataset.plans.remove.body": "Tímto odstraníš {label} z datasetu.",
   "dataset.plans.remove.success": "Plán datasetu byl odebrán",
   "dataset.plans.remove.error": "Plán datasetu se nepodařilo odebrat",
-  "dataset.plans.remove.not_allowed": "Odebrání omezeno",
+  "dataset.plans.remove.not_allowed": "Tento plán může odebrat jen administrátor.",
   ...csDatasetExpansion,
+  'dataset.header.path': 'Cesta datasetu',
 } as const;

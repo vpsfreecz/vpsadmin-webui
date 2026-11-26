@@ -67,3 +67,63 @@ test('browser back and forward still restore the visited cursor', () => {
   expect(result.current.page).toBe(2);
   expect(result.current.fromId).toBe(50);
 });
+
+
+test.each(['next', 'limit'] as const)('keeps newly applied filters during pending router publication: %s', (action) => {
+  const setSearchParams = vi.fn();
+  const navigationSearchParams = new URLSearchParams('cgroup=%2Fsystem.slice&vps=7&limit=25&page=1');
+  const { result } = renderHook(() =>
+    useKeysetPagination({
+      id: 'pending-filter-navigation',
+      filterKey: 'cgroup=/system.slice;vps=7',
+      searchParams: new URLSearchParams('cgroup=%2Fpreserved.slice&limit=25&page=1'),
+      navigationSearchParams,
+      setSearchParams,
+    })
+  );
+  act(() => {
+    if (action === 'next') result.current.goNext(101);
+    else result.current.setLimit(50);
+  });
+  const destination = setSearchParams.mock.calls.at(-1)?.[0] as URLSearchParams;
+  expect(destination.get('cgroup')).toBe('/system.slice');
+  expect(destination.get('vps')).toBe('7');
+  expect(destination.get('page')).toBe(action === 'next' ? '2' : '1');
+  expect(destination.get('from_id')).toBe(action === 'next' ? '101' : null);
+  expect(destination.get('limit')).toBe(action === 'next' ? '25' : '50');
+});
+
+
+test('a departed dataset page cannot normalize or paginate the new route URL', () => {
+  const originalUrl = window.location.href;
+  window.history.replaceState(null, '', '/app/backups?tab=downloads&q=synthetic');
+  const setSearchParams = vi.fn();
+  try {
+    const { result, rerender } = renderHook(
+      ({ filterKey }) =>
+        useKeysetPagination({
+          id: 'departing-dataset-route',
+          filterKey,
+          navigationPathname: '/app/nas/10/snapshots',
+          searchParams: new URLSearchParams('from=backups&backups.tab=downloads&backups.q=synthetic'),
+          setSearchParams,
+        }),
+      { initialProps: { filterKey: 'dataset=10' } }
+    );
+    expect(setSearchParams).not.toHaveBeenCalled();
+    act(() => {
+      result.current.goNext(31);
+      result.current.setLimit(100);
+    });
+    expect(setSearchParams).not.toHaveBeenCalled();
+    window.history.replaceState(null, '', '/app/nas/10/snapshots');
+    rerender({ filterKey: 'dataset=11' });
+    const next = setSearchParams.mock.calls.at(-1)?.[0] as URLSearchParams;
+    expect(next.get('limit')).toBe('50');
+    expect(next.get('page')).toBe('1');
+    expect(next.get('backups.q')).toBe('synthetic');
+    expect(next.get('backups.tab')).toBe('downloads');
+  } finally {
+    window.history.replaceState(null, '', originalUrl);
+  }
+});

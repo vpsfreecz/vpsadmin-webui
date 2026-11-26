@@ -1,3 +1,4 @@
+import { VpsDiagnosticLinks } from './VpsDiagnosticLinks';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -338,7 +339,7 @@ export function OverviewDiagnosticsCard(props: { vps: Vps; basePath: string }) {
 
   return (
     <Card className="lg:col-span-12" testId="vps.overview.diagnostics.card">
-      <CardHeader title={t('vps.overview.diagnostics.title')} />
+      <CardHeader title={t('vps.overview.diagnostics.title')} subtitle={t('vps.overview.diagnostics.subtitle')} />
       <CardBody className="space-y-3">
         <section aria-label={t('vps.overview.diagnostics.recent_oom')} data-testid="vps.overview.oom_recent">
           <h3 className="text-sm font-medium">{t('vps.overview.diagnostics.recent_oom')}</h3>
@@ -366,17 +367,8 @@ export function OverviewDiagnosticsCard(props: { vps: Vps; basePath: string }) {
             </ul>
           )}
         </section>
-        <div className="flex flex-wrap items-center gap-2">
-          <ChipLink to={`${props.basePath}/oom-reports?vps=${props.vps.id}`} title={t('vps.overview.diagnostics.oom_reports_title')}>
-            {t('vps.overview.diagnostics.oom_reports')}
-          </ChipLink>
-          <ChipLink to={`${props.basePath}/oom-reports/rules/${props.vps.id}`} title={t('vps.overview.diagnostics.oom_rules_title')}>
-            {t('vps.overview.diagnostics.oom_rules')}
-          </ChipLink>
-          <ChipLink to={`${props.basePath}/incidents?vps=${props.vps.id}`} title={t('vps.overview.diagnostics.incidents_title')}>
-            {t('vps.overview.diagnostics.incidents')}
-          </ChipLink>
-        </div>
+        <VpsDiagnosticLinks basePath={props.basePath} vpsId={props.vps.id} />
+        <div className="mt-2 text-xs text-faint">{t('vps.overview.diagnostics.hint')}</div>
       </CardBody>
     </Card>
   );

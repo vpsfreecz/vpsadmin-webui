@@ -1,3 +1,4 @@
+import { DnsRecordTtl } from './DnsRecordTtl';
 import React from 'react';
 
 import { useI18n } from '../../../app/i18n';
@@ -57,6 +58,8 @@ function YesNoBadge(props: { value: unknown }) {
 
 export function DnsRecordsList(props: {
   rows: readonly DnsRecord[];
+  zoneDefaultTtl: unknown;
+  showIds?: boolean;
   validationById: ReadonlyMap<number, DnsRecordValidationResult>;
   rowErrors: ReadonlyMap<number, string>;
   updateGate: GateDecision;
@@ -89,7 +92,7 @@ export function DnsRecordsList(props: {
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
                         <StatusDot variant={rowVariant} testId={`dns.record.card.${record.id}.dot`} />
-                        <div className="truncate text-base font-semibold text-fg">{recordName(record)}</div>
+                        <div className="break-all text-base font-semibold text-fg" data-testid={`dns.record.card.${record.id}.name`}>{recordName(record)}</div>
                         <Badge variant="neutral">{String(record.type ?? t('common.na'))}</Badge>
                         {record.managed ? (
                           <Badge variant="neutral" testId={`dns.record.card.${record.id}.managed`}>
@@ -97,11 +100,11 @@ export function DnsRecordsList(props: {
                           </Badge>
                         ) : null}
                       </div>
-                      {record.comment ? <div className="mt-1 text-sm text-muted">{String(record.comment)}</div> : null}
-                      <div className="mt-1 text-xs text-faint">#{record.id}</div>
+                      {record.comment ? <div className="mt-1 break-words text-sm text-muted">{String(record.comment)}</div> : null}
+                      {props.showIds ? <div className="mt-1 text-xs text-faint">#{record.id}</div> : null}
                     </div>
 
-                    <div className="flex flex-col items-end gap-2">
+                    <div className="flex shrink-0 flex-col items-end gap-2">
                       <EnabledBadge value={record.enabled} />
                       <YesNoBadge value={recordDynamicEnabled(record)} />
                     </div>
@@ -116,7 +119,7 @@ export function DnsRecordsList(props: {
                     <div className="flex flex-wrap gap-x-6 gap-y-2">
                       <div>
                         <div className="text-faint">{t('dns.zone.records.table.ttl')}</div>
-                        <div className="font-medium text-fg">{record.ttl != null ? String(record.ttl) : t('common.na')}</div>
+                        <DnsRecordTtl ttl={record.ttl} zoneDefaultTtl={props.zoneDefaultTtl} testId={`dns.record.card.${record.id}.ttl`} />
                       </div>
                       <div>
                         <div className="text-faint">{t('dns.zone.records.table.priority')}</div>
@@ -182,7 +185,12 @@ export function DnsRecordsList(props: {
 
       <Card className="hidden md:block">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm table-list">
+          <table className="w-full min-w-table-lg table-fixed text-sm table-list" data-testid="dns.records.table">
+            <colgroup>
+              {[4, 20, 6, 23, 9, 8, 10, 7, 13].map((width, index) => (
+                <col key={index} style={{ width: `${width}%` }} />
+              ))}
+            </colgroup>
             <thead>
               <tr className="text-left text-xs uppercase tracking-wide text-faint">
                 <th className="py-2 pl-4 pr-2"><span className="sr-only">{t('nav.status')}</span></th>
@@ -219,7 +227,7 @@ export function DnsRecordsList(props: {
                         <StatusDot variant={rowVariant} testId={`dns.record.row.${record.id}.dot`} />
                       </td>
                       <td className="py-2 pr-3">
-                        <div className="font-medium text-fg">{recordName(record)}</div>
+                        <div className="break-all font-medium text-fg" data-testid={`dns.record.row.${record.id}.name`}>{recordName(record)}</div>
                         {record.managed ? (
                           <div className="mt-1">
                             <Badge variant="neutral" testId={`dns.record.row.${record.id}.managed`}>
@@ -227,8 +235,8 @@ export function DnsRecordsList(props: {
                             </Badge>
                           </div>
                         ) : null}
-                        {record.comment ? <div className="mt-1 text-xs text-muted">{String(record.comment)}</div> : null}
-                        <div className="mt-1 text-xs text-faint">#{record.id}</div>
+                        {record.comment ? <div className="mt-1 break-words text-xs text-muted">{String(record.comment)}</div> : null}
+                        {props.showIds ? <div className="mt-1 text-xs text-faint">#{record.id}</div> : null}
                         {record.dynamic_update_url ? (
                           <div className="mt-2 flex items-center gap-2">
                             <span className="text-xs text-faint">{t('dns.zone.records.field.ddns')}:</span>
@@ -248,9 +256,11 @@ export function DnsRecordsList(props: {
                       </td>
                       <td className="py-2 pr-3">{String(record.type ?? t('common.na'))}</td>
                       <td className="py-2 pr-3">
-                        <div className="max-w-content-sm truncate">{String(record.content ?? '')}</div>
+                        <div className="break-all">{String(record.content ?? '')}</div>
                       </td>
-                      <td className="py-2 pr-3">{record.ttl != null ? String(record.ttl) : t('common.na')}</td>
+                      <td className="py-2 pr-3">
+                        <DnsRecordTtl ttl={record.ttl} zoneDefaultTtl={props.zoneDefaultTtl} testId={`dns.record.row.${record.id}.ttl`} />
+                      </td>
                       <td className="py-2 pr-3">{record.priority != null ? String(record.priority) : t('common.na')}</td>
                       <td className="py-2 pr-3"><EnabledBadge value={record.enabled} /></td>
                       <td className="py-2 pr-3"><YesNoBadge value={recordDynamicEnabled(record)} /></td>

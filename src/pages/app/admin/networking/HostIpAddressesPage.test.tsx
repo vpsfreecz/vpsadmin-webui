@@ -1,8 +1,8 @@
 // i18n-ignore-file
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { createMemoryRouter, RouterProvider } from 'react-router-dom';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { createBrowserRouter, createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { I18nProvider } from '../../../../app/i18n';
@@ -45,6 +45,45 @@ afterEach(() => { state.language = 'en'; state.role = 'admin'; });
 beforeEach(() => vi.clearAllMocks());
 
 describe('host IP inventory', () => {
+
+  it.each(['', '/webui'])('preserves rapid filter updates before a browser-router render under %s', async (basename) => {
+    const previousUrl = window.location.href;
+    const pathname = `${basename}/admin/networking/host-ip-addresses`;
+    window.history.replaceState(null, '', `${pathname}?assigned=false`);
+    vi.mocked(fetchHostIpAddresses).mockResolvedValue({ data: [], meta: { total_count: 0 } } as never);
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const router = createBrowserRouter([
+      { path: '/admin/networking/host-ip-addresses', element: <HostIpAddressesPage /> },
+    ], { basename: basename || '/' });
+    const view = render(
+      <QueryClientProvider client={queryClient}>
+        <I18nProvider><RouterProvider router={router} /></I18nProvider>
+      </QueryClientProvider>,
+    );
+    try {
+      const input = await screen.findByTestId('admin.host_ip_addresses.filter.addr');
+      const assigned = screen.getByTestId('admin.host_ip_addresses.filter.assigned');
+      const address = '2001:0db8:1234:5678:9abc:def0:1234:5678';
+      act(() => {
+        fireEvent.change(input, { target: { value: address } });
+        fireEvent.change(assigned, { target: { value: 'true' } });
+      });
+      await waitFor(() => {
+        expect(new URLSearchParams(router.state.location.search).get('addr')).toBe(address);
+        expect(new URLSearchParams(router.state.location.search).get('assigned')).toBe('true');
+      });
+      expect(window.location.pathname).toBe(pathname);
+      expect(new URLSearchParams(window.location.search).get('addr')).toBe(address);
+      await waitFor(() => expect(fetchHostIpAddresses).toHaveBeenLastCalledWith(
+        expect.objectContaining({ addr: address, assigned: true }),
+      ));
+    } finally {
+      view.unmount();
+      router.dispose();
+      window.history.replaceState(null, '', previousUrl);
+    }
+  });
+
   it.each([
     ['en', 'Loading stopped. Loaded addresses: 250. More may exist. Retry or narrow the filters.'],
     ['cs', 'Načítání se zastavilo. Načtených adres: 250. Mohou existovat další. Zkus to znovu nebo upřesni filtry.'],

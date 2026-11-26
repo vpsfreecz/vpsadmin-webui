@@ -296,4 +296,8 @@ export const enVps_network = {
   'vps.network.host_addresses.create.partial_error': 'Created: {count}. Address {address} could not be created: {error}. Only addresses that still need to be retried remain in the field.',
   'vps.network.host_addresses.create.submit': 'Add addresses',
   'vps.network.host_addresses.create.toast': '{count} host address(es) added',
+  'network.user.summary.period': 'Period',
+  'network.user.summary.metric': 'Metric',
+  'network.user.summary.packets': 'Packets per second',
+  'network.user.summary.updated': 'Updated: {time}',
 } as const;

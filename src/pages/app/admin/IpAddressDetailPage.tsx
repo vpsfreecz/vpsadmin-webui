@@ -310,7 +310,7 @@ export function IpAddressDetailPage() {
                   meta={networkStr ? networkStr : ' '}
                   actions={
                     <>
-                      <CopyButton text={title} />
+                      <CopyButton text={title} size="md" />
                       {vpsId ? (
                         <LinkButton
                           to={`${basePath}/vps/${vpsId}`}
@@ -541,7 +541,7 @@ export function IpAddressDetailPage() {
                   }
                 >
                   <label className="block">
-                    <div className="mb-1 text-sm font-medium">{ptrEditor ? hostAddr(ptrEditor) : ''}</div>
+                    <div className="mb-1 text-sm font-medium [overflow-wrap:anywhere]">{ptrEditor ? hostAddr(ptrEditor) : ''}</div>
                     <Input value={ptrValue} onChange={(e) => setPtrValue(e.target.value)} placeholder="host.example.org." />
                   </label>
                   <div className="mt-1 text-xs text-muted">{t('admin.ip.hosts.ptr_help')}</div>
