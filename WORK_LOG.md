@@ -4149,3 +4149,11 @@ integration. Retain every final generated-password keyboard assertion and check
 confirmation removal, initial focus and intermediate Copy focus before sending
 Shift+Tab; attach native focus state on failure. Original hosted failures/flaky
 attempts remain retained; final successor qualification pending.
+
+### 2026-11-26 — Retire departing-document reads during SDK integration
+
+Port the bounded existing preview read lifecycle after original WebKit CI
+retained a late help-box GET error during navigation. Four failing regressions
+prove cancellation, mutation preservation and recovery behavior; existing
+browser assertions remain intact. See [scope and evidence](docs/work-log/2026-11-26-document-read-integration.md).
+Final exact-source qualification and paired preview promotion remain pending.
