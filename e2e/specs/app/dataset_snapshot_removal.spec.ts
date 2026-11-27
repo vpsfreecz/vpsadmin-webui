@@ -61,6 +61,7 @@ for (const language of ['en', 'cs'] as const) {
     await expect(final).toContainText('synthetic/root (#42)');
     await expect(final).toContainText(copy['dataset.snapshot_removal.scope_root']);
     await expect(final).toContainText(copy['dataset.snapshot_removal.plans_disabled']);
+    expect(await final.locator('dt').evaluateAll(labels => labels.every(label => label.scrollWidth <= label.clientWidth))).toBe(true);
     await expectNoDocumentHorizontalOverflow(page);
     await testInfo.attach(`snapshot-removal-final-${language}-${testInfo.project.name}`, { body: await page.screenshot(), contentType: 'image/png' });
     await page.keyboard.press('Escape');

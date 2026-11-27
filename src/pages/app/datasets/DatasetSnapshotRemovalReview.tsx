@@ -3,12 +3,12 @@ import { useI18n } from '../../../app/i18n';
 import { TableCard } from '../../../components/ui/TableCard';
 import type { SnapshotRemovalManifest } from '../../../lib/api/datasetSnapshotRemovalManifest';
 
-export function SnapshotRemovalTotals({ manifest }: { manifest: SnapshotRemovalManifest }) {
+export function SnapshotRemovalTotals({ manifest, compact = false }: { manifest: SnapshotRemovalManifest; compact?: boolean }) {
   const { t } = useI18n();
   return (
-    <dl className="grid grid-cols-2 gap-2 text-sm sm:grid-cols-4" data-testid="dataset.snapshot_removal.totals">
+    <dl className={`grid grid-cols-2 gap-2 text-sm ${compact ? '' : 'sm:grid-cols-4'}`} data-testid="dataset.snapshot_removal.totals">
       {(['datasets', 'copies', 'snapshots', 'snapshot_locations', 'trees', 'branches', 'plans', 'plans_to_disable'] as const).map(key => (
-        <div key={key}>
+        <div key={key} className="min-w-0 break-words">
           <dt className="text-muted">{t(`dataset.snapshot_removal.count.${key}`)}</dt>
           <dd className="font-semibold tabular-nums">{manifest.counts[key]}</dd>
         </div>

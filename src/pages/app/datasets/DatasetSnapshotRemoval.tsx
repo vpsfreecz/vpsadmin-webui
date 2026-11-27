@@ -188,7 +188,7 @@ function SnapshotRemovalForm(props: Props) {
             <p className="mb-3 break-all font-semibold">{reviewedLabel}</p>
             <p className="mb-3 text-sm">{t(review.manifest.options.recursive ? 'dataset.snapshot_removal.scope_recursive' : 'dataset.snapshot_removal.scope_root')}</p>
             <p className="mb-3 text-sm">{t(review.manifest.options.disable_plans ? 'dataset.snapshot_removal.plans_disabled' : 'dataset.snapshot_removal.plans_retained')}</p>
-            <SnapshotRemovalTotals manifest={review.manifest} />
+            <SnapshotRemovalTotals manifest={review.manifest} compact />
           </ConfirmDialog>
         </> : null}
       </CardBody>
