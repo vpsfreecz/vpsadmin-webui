@@ -20,6 +20,8 @@ import {
   assignDatasetPlan,
   deleteDatasetPlan,
   disableDatasetBackups,
+  previewDatasetSnapshotRemoval,
+  removeDatasetSnapshots,
   fetchDatasetPlans,
   fetchEnvironmentDatasetPlans,
   type DatasetInPoolPlan,
@@ -33,6 +35,7 @@ import { hasActiveChains } from '../../../lib/taskStatus';
 
 import { useDatasetContext } from './DatasetContext';
 import { DatasetBackupCleanup } from './DatasetBackupCleanup';
+import { DatasetSnapshotRemoval } from './DatasetSnapshotRemoval';
 import { DatasetPlansList } from './DatasetPlansList';
 
 function refLabel(ref: unknown, fallback: string): string {
@@ -344,6 +347,8 @@ export function DatasetPlansPage() {
       )}
 
       <DatasetBackupCleanup busy={busy || assignM.isPending || removeM.isPending} submit={disableDatasetBackups} />
+      <DatasetSnapshotRemoval busy={busy || assignM.isPending || removeM.isPending}
+        preview={previewDatasetSnapshotRemoval} submit={removeDatasetSnapshots} />
 
       <Modal
         open={assignOpen}

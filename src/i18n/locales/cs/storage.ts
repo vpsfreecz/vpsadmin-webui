@@ -1,4 +1,5 @@
 // Storage / datasets / exports / NAS
+import { csStorageSnapshotRemoval } from './storage/snapshotRemoval';
 import { csStorageExports } from "./storage/exports";
 import { csDatasetExpansion } from './storage/dataset_expansion';
 import { csBackups } from './storage/backups';
@@ -376,4 +377,5 @@ export const csStorage = {
   "dataset.plans.remove.error": "Plán datasetu se nepodařilo odebrat",
   "dataset.plans.remove.not_allowed": "Odebrání omezeno",
   ...csDatasetExpansion,
+  ...csStorageSnapshotRemoval,
 } as const;

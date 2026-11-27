@@ -2,6 +2,10 @@ import { installHaveApiXhr } from '../../test/haveapiXhr';
 import { afterEach, describe, expect, test, vi } from 'vitest';
 
 import {
+  datasetSnapshotRemovalAvailable,
+  isStaleSnapshotRemovalPreview,
+  previewDatasetSnapshotRemoval,
+  removeDatasetSnapshots,
   datasetBackupCleanupAvailable,
   disableDatasetBackups,
   createDataset,
@@ -17,6 +21,9 @@ import {
   rollbackDatasetSnapshot,
   updateDataset,
 } from './datasets';
+import { HaveApiError } from './apiErrors';
+import { snapshotRemovalDescription, snapshotRemovalFixture } from '../../test/snapshotRemoval';
+import serializedStale from '../../test/fixtures/snapshot-removal-stale.json';
 
 function setMockRuntime() {
   window.vpsAdmin = {
@@ -41,6 +48,95 @@ function firstFetchCall(fetchMock: ReturnType<typeof mockFetchOk>): Parameters<t
 afterEach(() => {
   vi.unstubAllGlobals();
   window.vpsAdmin = undefined;
+});
+
+describe('snapshot removal capability and stale-review boundary', () => {
+  test('requires both methods, blocking semantics, all inputs and all preview outputs', () => {
+    expect(datasetSnapshotRemovalAvailable(snapshotRemovalDescription())).toBe(true);
+    expect(datasetSnapshotRemovalAvailable({})).toBe(false);
+    for (const name of ['preview_snapshot_removal', 'remove_snapshots'] as const) {
+      const missing = snapshotRemovalDescription();
+      delete (missing.resources.dataset.actions as Partial<typeof missing.resources.dataset.actions>)[name];
+      expect(datasetSnapshotRemovalAvailable(missing)).toBe(false);
+      const wrongMethod = snapshotRemovalDescription();
+      wrongMethod.resources.dataset.actions[name].method = 'GET';
+      expect(datasetSnapshotRemovalAvailable(wrongMethod)).toBe(false);
+      const wrongBlocking = snapshotRemovalDescription();
+      wrongBlocking.resources.dataset.actions[name].blocking = !wrongBlocking.resources.dataset.actions[name].blocking;
+      expect(datasetSnapshotRemovalAvailable(wrongBlocking)).toBe(false);
+      for (const key of Object.keys(snapshotRemovalDescription().resources.dataset.actions[name].input.parameters)) {
+        const partial = snapshotRemovalDescription();
+        delete (partial.resources.dataset.actions[name].input.parameters as Record<string, unknown>)[key];
+        expect(datasetSnapshotRemovalAvailable(partial)).toBe(false);
+      }
+    }
+    for (const key of ['manifest_version', 'manifest_digest', 'manifest']) {
+      const partial = snapshotRemovalDescription();
+      delete (partial.resources.dataset.actions.preview_snapshot_removal.output.parameters as Record<string, unknown>)[key];
+      expect(datasetSnapshotRemovalAvailable(partial)).toBe(false);
+    }
+    const wrongType = snapshotRemovalDescription();
+    wrongType.resources.dataset.actions.remove_snapshots.input.parameters.recursive.type = 'String';
+    expect(datasetSnapshotRemovalAvailable(wrongType)).toBe(false);
+    const optionalDigest = snapshotRemovalDescription();
+    optionalDigest.resources.dataset.actions.remove_snapshots.input.parameters.manifest_digest.required = false;
+    expect(datasetSnapshotRemovalAvailable(optionalDigest)).toBe(false);
+  });
+  test('reads the stable marker only from a known rejection, never translated text or uncertainty', () => {
+    const rejection = new HaveApiError({ status: false, message: 'Localized', errors: { manifest_digest: ['stale_preview'] } });
+    expect(isStaleSnapshotRemovalPreview(rejection)).toBe(true);
+    expect(isStaleSnapshotRemovalPreview(new Error('stale_preview'))).toBe(false);
+    expect(isStaleSnapshotRemovalPreview(new HaveApiError({ status: false, message: 'stale_preview' }))).toBe(false);
+    expect(isStaleSnapshotRemovalPreview(new HaveApiError(rejection.envelope, undefined, 503))).toBe(false);
+    expect(isStaleSnapshotRemovalPreview(new HaveApiError({ ...rejection.envelope, status: true }))).toBe(false);
+  });
+});
+
+describe('generated snapshot removal wire contract', () => {
+  test.each([false, true])('uses generated preview without an async receipt and binds explicit options (%s)', async disable_plans => {
+    setMockRuntime();
+    const options = { recursive: true, disable_plans };
+    const output = snapshotRemovalFixture(options);
+    const wire = mockFetchOk({ dataset: output, _meta: {} });
+    installHaveApiXhr(wire);
+    const result = await previewDatasetSnapshotRemoval(42, options);
+    const [url, init] = firstFetchCall(wire);
+    expect(new URL(String(url)).pathname).toBe('/v7.0/datasets/42/preview_snapshot_removal');
+    expect(init?.method).toBe('POST');
+    expect(JSON.parse(String(init?.body))).toEqual({ dataset: options });
+    expect(result.data).toEqual(output);
+    expect(result.meta).toEqual({}); expect(result.httpStatus).toBe(200);
+  });
+  test.each(['root', 'options', 'missing-location', 'version'])('rejects an unusable preview (%s) while retaining the original receipt', async corrupt => {
+    setMockRuntime(); const output = snapshotRemovalFixture();
+    if (corrupt === 'root') output.manifest.root_dataset_id = 1000;
+    if (corrupt === 'options') output.manifest.options.recursive = true;
+    if (corrupt === 'missing-location') output.manifest.snapshot_locations.pop();
+    if (corrupt === 'version') output.manifest_version = 2 as never;
+    installHaveApiXhr(mockFetchOk({ dataset: output, _meta: {} }));
+    await expect(previewDatasetSnapshotRemoval(42, { recursive: false, disable_plans: true })).rejects.toMatchObject({ code: 'INVALID_API_OUTPUT', result: { httpStatus: 200, data: output } });
+  });
+  test.each([false, true])('submits one generated mutation with the exact digest and explicit options (%s)', async disable_plans => {
+    setMockRuntime(); const params = { recursive: false, disable_plans, manifest_digest: `v1:${'a'.repeat(64)}` };
+    const wire = mockFetchOk({ dataset: {}, _meta: { action_state_id: 71 } }); installHaveApiXhr(wire);
+    const result = await removeDatasetSnapshots(42, params);
+    const [url, init] = firstFetchCall(wire);
+    expect(new URL(String(url)).pathname).toBe('/v7.0/datasets/42/remove_snapshots');
+    expect(init?.method).toBe('POST'); expect(JSON.parse(String(init?.body))).toEqual({ dataset: params });
+    expect(wire).toHaveBeenCalledTimes(1); expect(result.meta.action_state_id).toBe(71);
+  });
+  test('retains missing removal receipt as uncertain acceptance', async () => {
+    setMockRuntime(); installHaveApiXhr(mockFetchOk({ dataset: {} }));
+    await expect(removeDatasetSnapshots(42, { manifest_digest: `v1:${'a'.repeat(64)}` })).rejects.toMatchObject({ code: 'MISSING_ACTION_STATE', result: { data: {} } });
+  });
+  test('classifies the actual stale endpoint envelope through the ordinary HaveAPI client', async () => {
+    setMockRuntime();
+    const wire = vi.fn(async () => new Response(JSON.stringify(serializedStale), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+    installHaveApiXhr(wire);
+    const error = await removeDatasetSnapshots(42, { manifest_digest: `v1:${'a'.repeat(64)}` }).catch(cause => cause);
+    expect(error).toBeInstanceOf(HaveApiError); expect(isStaleSnapshotRemovalPreview(error)).toBe(true);
+    expect(wire).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('datasets API wrappers', () => {

@@ -657,3 +657,36 @@ them from other fields or queries another owner's history. List and detail reuse
 the same scoped presentation and authenticated incident route. Immutable subject/
 text remains the explanation; no new action, second sender, administrator MailLog,
 private delivery-error endpoint or private error detail is exposed.
+
+## Dataset snapshot removal
+
+REQ-048 uses generated Dataset `preview_snapshot_removal` and `remove_snapshots`
+operations through the existing SDK policy. The authoritative
+[backend contract](https://github.com/vpsfreecz/vpsadmin/blob/2026-11-26-snapshot-removal-plan/docs/storage/remove-snapshots.md)
+defines the complete version 1 manifest and deletion/failure guarantees. Both take explicit `recursive` and
+`disable_plans` booleans; removal also requires the unchanged `manifest_digest`.
+The preview is a nonblocking POST returning `manifest_version:1`, a `v1:` SHA-256
+digest and Custom `manifest`. Removal is an ordinary blocking Dataset mutation
+whose empty result requires `meta.action_state_id`.
+
+The [Custom boundary](../../src/lib/api/datasetSnapshotRemovalManifest.ts) checks
+required primitive types, supported version/digest format, unique primary row
+identities, counts and joins without dropping rows. The root and options must match
+the request. Each backup membership remains a distinct location even when it shares
+a logical snapshot or physical copy; source locations identify their snapshot copy.
+Empty trees/branches and remove/retain plan effects remain visible. Dataset parents
+may refer outside the chosen scope. The client does not calculate a digest, derive
+storage safety or supply its own deletion IDs. The backend owns authoritative
+inventory, freshness, lock coverage and physical teardown.
+
+Authenticated capability discovery requires both POST actions, their blocking
+semantics, Boolean options, required digest member and Integer/String/Custom preview
+outputs. Old, incomplete or failed discovery hides the administrator card. Actual
+backend authorization is still required. An ordinary known HaveAPI rejection with
+`errors.manifest_digest` containing `stale_preview` invalidates the complete review
+and both confirmations. Translated error text is not a classifier. Transport loss,
+contradictory receipts and missing action state preserve ordinary mutation uncertainty.
+
+Generated SDK support for both actions is required for development checks;
+a published registry release is required before merge. SDK publication and compatible backend
+activation remain separate; see the [SDK contract](HAVEAPI_CLIENT.md#generated-vpsadmin-typescript-sdk).

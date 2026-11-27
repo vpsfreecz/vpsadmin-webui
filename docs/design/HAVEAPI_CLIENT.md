@@ -59,7 +59,34 @@ does not itself verify registry signatures or perform network requests.
 
 ## Selected generated TypeScript SDK
 
-The exact root dependency is published `vpsadmin-typescript-client@0.7.0`,
+The current removal-feature dependency is an unpublished development archive,
+`packages/development-sdk/vpsadmin-typescript-client-snapshot-removal.tgz`, selected
+by the manifest, npm-generated lock and frontend `packageSourceOverrides`. It
+retains version `0.7.0` but is different from the registry release of that version.
+Its SHA-256 is `f19547ab137b37f7ed765763644686616e3c1e2618be100493b1aa2426b83002`.
+The [development provenance](../../packages/vpsadmin-typescript-client-development.json)
+records the archive integrity, API `10df8f0230507d63551ec727605c61dca3c7985c`, raw
+schema/provenance/exporter-lock digests and HaveAPI generator
+`1ef9b204ba45bb261d3334be5c555cc1856b713b`. The archive was packed before the
+client commit on base `c4e0b85b9f12656500b3acf9b9786cecc3c3c5c1`. Its metadata
+and generated-source digest manifest match client commit
+`18d58b97e48a87c7b9248e1efaddbf30dc1a6dbd`, including all 693 generated
+source digests. Built archive checks retain the exact archive identity; source
+identity is not inferred from its version.
+The runtime peer remains exact `haveapi-client@0.32.0`.
+
+It supplies generated `dataset.preview_snapshot_removal`, `dataset.remove_snapshots`
+and their `Dataset__PreviewSnapshotRemovalInput/Output` and
+`Dataset__RemoveSnapshotsInput/Output` declarations. The Custom manifest remains
+unknown until the application boundary validates it. Preview has no task receipt;
+removal requires the ordinary action-state receipt. Source/transport fixtures
+verify this exact installed archive. A published SDK containing these operations
+must replace the temporary manifest/lock/archive override before merge. This
+candidate is reviewable development input, not a release or deployment.
+
+### Published 0.7.0 baseline
+
+The preceding root dependency was published `vpsadmin-typescript-client@0.7.0`,
 selected from SDK source
 [`0f1cde21a6e3b64a06389d21a5a5124093520724`](https://github.com/vpsfreecz/vpsadmin-typescript-client/tree/v0.7.0).
 It supplies `dataset.disable_backups` and its input/output declarations, as well
@@ -67,16 +94,18 @@ as the existing administrator Exposure and History operations. The
 [registry archive](https://registry.npmjs.org/vpsadmin-typescript-client/-/vpsadmin-typescript-client-0.7.0.tgz)
 has SHA-256
 `19fedf46dc72f902fedb055595d1b4de18af58d121bc9dd2ff6bc0234abdafdd`.
-The npm-generated [lock](../../package-lock.json) pins that URL and integrity:
+The published baseline used that URL and this integrity in its npm-generated
+lock:
 
 ```text
 sha512-dZ1ZfGkrnd0V7jZgLnkaMOIlTYTjz8p16IJjKieHIIUzWLQ3FYsq50i+U2q3PPxCunJNRnmjbhDj+kCPE6mVCw==
 ```
 
-The selected registry artifact satisfies this feature's published-SDK prerequisite.
-It uses the unchanged exact `haveapi-client@0.32.0` peer. The frontend consumes
-it through the standard Nix lock importer and matching config hook, without a
-local archive or package source override. See the
+That registry artifact satisfies backup cleanup's published-SDK prerequisite; it
+does not contain snapshot-history removal.
+It uses the unchanged exact `haveapi-client@0.32.0` peer. The published baseline
+used the standard Nix lock importer and matching config hook, without a local
+archive or package source override. See the
 [packaging procedure](PACKAGING.md#temporary-unpublished-sdk-input).
 Earlier development-archive checks retain their original input identities;
 registry installation and package-consumption evidence are separate.
@@ -347,9 +376,10 @@ optional `recursive`/`backup_first` booleans. The inherited empty dataset result
 is `Record<string, never>`; the adapter requires the ordinary
 `result.meta.action_state_id`. It submits once and uses existing task handling.
 
-The selected published `0.7.0` release contains these members; the earlier
-registry `0.6.0` input lacks them. The manifest and npm-generated lock select the
-registry artifact above without temporary overrides. The optional no-save
+The published `0.7.0` release contains these cleanup members; the earlier
+registry `0.6.0` input lacks them. The current removal-feature manifest and lock
+select the development archive documented above, which also retains these cleanup
+members. The optional no-save
 [packed-client workflow](#optional-local-generated-client-development) remains
 available for local development, with its own input identity. SDK publication
 and package checks do not prove that a cluster has activated the UI.

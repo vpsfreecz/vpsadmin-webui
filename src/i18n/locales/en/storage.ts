@@ -1,4 +1,5 @@
 // Storage / datasets / exports / NAS
+import { enStorageSnapshotRemoval } from './storage/snapshotRemoval';
 import { enStorageExports } from "./storage/exports";
 import { enDatasetExpansion } from './storage/dataset_expansion';
 import { enBackups } from './storage/backups';
@@ -368,4 +369,5 @@ export const enStorage = {
   "dataset.plans.remove.error": "Failed to remove dataset plan",
   "dataset.plans.remove.not_allowed": "Removal restricted",
   ...enDatasetExpansion,
+  ...enStorageSnapshotRemoval,
 } as const;

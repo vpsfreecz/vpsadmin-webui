@@ -14,6 +14,10 @@ pkgs.buildNpmPackage {
   nodejs = pkgs.nodejs_24;
   npmDeps = pkgs.importNpmLock {
     npmRoot = source;
+    packageSourceOverrides = {
+      "node_modules/vpsadmin-typescript-client" =
+        source + "/packages/development-sdk/vpsadmin-typescript-client-snapshot-removal.tgz";
+    };
   };
   npmConfigHook = pkgs.importNpmLock.npmConfigHook;
 
