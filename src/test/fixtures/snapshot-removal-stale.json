@@ -1,0 +1,10 @@
+{
+  "status": false,
+  "response": null,
+  "message": "The snapshot inventory has changed. Request a new preview and confirm it again.",
+  "errors": {
+    "manifest_digest": [
+      "stale_preview"
+    ]
+  }
+}

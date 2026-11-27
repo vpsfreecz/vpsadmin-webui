@@ -1,3 +1,7 @@
+## 2026-11-27: Review complete history before administrator snapshot removal
+
+[Interaction, dependency and verification boundaries](docs/work-log/2026-11-27-snapshot-removal.md).
+
 ## 2026-11-26: Adopt the published cleanup SDK
 
 [Registry dependency, integrity and verification boundaries](docs/work-log/2026-11-25-disable-backups.md#published-sdk-adoption).

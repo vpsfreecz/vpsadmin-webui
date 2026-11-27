@@ -62,6 +62,9 @@ function isSnapshotDownload(value: unknown): value is SnapshotDownload {
 
 import { getApi, type ApiDescription } from './sdk';
 import { requireActionStateResult } from './apiErrors';
+import { HaveApiError, isAmbiguousMutationError } from './apiErrors';
+import type { Dataset__PreviewSnapshotRemovalInput, Dataset__RemoveSnapshotsInput } from 'vpsadmin-typescript-client';
+import { parseSnapshotRemovalPreview } from './datasetSnapshotRemovalManifest';
 
 /**
  * Datasets, snapshots and snapshot download links.
@@ -337,4 +340,55 @@ export async function disableDatasetBackups(datasetId: number, params: DisableBa
     params,
   });
   return requireActionStateResult(result, 'dataset backup cleanup');
+}
+
+/** Both permission-filtered actions and the complete reviewed-inventory contract are required. */
+export function datasetSnapshotRemovalAvailable(description: ApiDescription): boolean {
+  const actions = description.resources?.['dataset']?.actions;
+  const preview = actions?.['preview_snapshot_removal'];
+  const removal = actions?.['remove_snapshots'];
+  const parameter = (value: unknown, type: string) => value !== null && typeof value === 'object' && !Array.isArray(value)
+    && (value as Record<string, unknown>)['type'] === type;
+  return preview?.method === 'POST' && removal?.method === 'POST'
+    && preview.blocking === false && removal.blocking === true
+    && ['recursive', 'disable_plans'].every(key => parameter(preview.input?.parameters?.[key], 'Boolean') && parameter(removal.input?.parameters?.[key], 'Boolean'))
+    && parameter(removal.input?.parameters?.['manifest_digest'], 'String')
+    && removal.input?.parameters?.['manifest_digest']?.required === true
+    && parameter(preview.output?.parameters?.['manifest_version'], 'Integer')
+    && parameter(preview.output?.parameters?.['manifest_digest'], 'String')
+    && parameter(preview.output?.parameters?.['manifest'], 'Custom');
+}
+
+export async function fetchDatasetSnapshotRemovalAvailable() {
+  return narrowApiResult(await (await getApi()).describe(), datasetSnapshotRemovalAvailable, 'dataset snapshot removal capability');
+}
+
+export function isStaleSnapshotRemovalPreview(error: unknown): boolean {
+  if (!(error instanceof HaveApiError) || isAmbiguousMutationError(error)) return false;
+  const errors = error.envelope.errors;
+  if (!errors || typeof errors !== 'object' || Array.isArray(errors)) return false;
+  const digest = (errors as Record<string, unknown>)['manifest_digest'];
+  return Array.isArray(digest) && digest.includes('stale_preview');
+}
+
+export type SnapshotRemovalOptions = Required<Dataset__PreviewSnapshotRemovalInput>;
+
+export async function previewDatasetSnapshotRemoval(datasetId: number, params: SnapshotRemovalOptions) {
+  const result = await (await getApi()).dataset.preview_snapshot_removal({
+    path: { dataset_id: datasetId }, params,
+  });
+  return narrowApiResult(result, data => {
+    const preview = parseSnapshotRemovalPreview(data);
+    if (preview.manifest.root_dataset_id !== datasetId
+      || preview.manifest.options.recursive !== params.recursive
+      || preview.manifest.options.disable_plans !== params.disable_plans) {
+      throw new Error('Snapshot removal preview does not match the requested scope');
+    }
+    return preview;
+  }, 'dataset snapshot removal preview');
+}
+
+export async function removeDatasetSnapshots(datasetId: number, params: Dataset__RemoveSnapshotsInput) {
+  const result = await (await getApi()).dataset.remove_snapshots({ path: { dataset_id: datasetId }, params });
+  return requireActionStateResult(result, 'dataset snapshot removal');
 }

@@ -436,6 +436,34 @@ Backup-pool history retains its normal retention policy. The
 SDK candidate, published-release dependency and current verification boundary.
 
 
+**Administrator snapshot and backup removal:** a separate inline card follows
+backup cleanup on the plans page, including when no plans are assigned. The
+actual administrator role and both complete authenticated API capabilities are
+required. Recursion starts off and removing selected plan memberships starts on;
+URL recursion hints do not select the destructive scope. Preview is a read-only
+request and acquires no local mutation lock.
+
+The complete server inventory lists every selected dataset/copy and snapshot
+location, with tree/branch membership, historical and empty structures, and plan
+effects. Desktop tables and mobile cards show the same inventory. Reviewing the
+list and checking its acknowledgement enables Continue; that button opens a
+separate final ConfirmDialog and never submits removal. Cancel and Escape return
+to the unchanged list. Only final confirmation sends one request with the reviewed
+options and digest. A new preview, changed options, dataset, principal or capability
+clears both stages. A stale-review rejection clears the inventory, preserves the
+chosen options and requires a fresh explicit preview. It never retries removal.
+
+Final submission reuses ordinary Dataset preflight, durable local locks,
+trackActionState and MutationUncertaintyPanel. Acceptance means queued work;
+a failed task can leave history already deleted. Unknown acceptance or a missing
+receipt blocks both preview and replay until ordinary reconciliation. Live datasets
+and existing downloadable files are preserved. Retained plans can create new
+snapshots/backups after removal; the default removes the selected memberships.
+The [API boundary](API_CONTRACTS.md#dataset-snapshot-removal) and
+[implementation record](../work-log/2026-11-27-snapshot-removal.md) describe validation
+and verification limits.
+
+
 Export detail presents its summary, allowed hosts and mount instructions as
 full-width sections in that order. Hosts remain a compact table on desktop;
 narrow screens use labeled rows with reachable edit/delete actions. The mount

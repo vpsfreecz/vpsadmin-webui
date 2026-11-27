@@ -19,6 +19,7 @@ const testState = vi.hoisted(() => ({
 }));
 
 const api = vi.hoisted(() => ({
+  fetchDatasetSnapshotRemovalAvailable: vi.fn(),
   fetchDatasetBackupCleanupAvailable: vi.fn(),
   fetchDatasetPlans: vi.fn(),
   fetchEnvironmentDatasetPlans: vi.fn(),
@@ -33,7 +34,7 @@ const chrome = vi.hoisted(() => ({
   releaseLocalLock: vi.fn(),
 }));
 
-vi.mock('../../../app/auth', () => ({ useAuth: () => ({ role: testState.role }) }));
+vi.mock('../../../app/auth', () => ({ useAuth: () => ({ role: testState.role, status: 'authenticated', user: { id: 1 } }) }));
 vi.mock('../../../app/appMode', () => ({
   useAppMode: () => ({
     mode: testState.mode,
@@ -71,6 +72,7 @@ vi.mock('../../../lib/api/datasets', async (importOriginal) => {
   const original = await importOriginal<typeof import('../../../lib/api/datasets')>();
   return {
     ...original,
+    fetchDatasetSnapshotRemovalAvailable: api.fetchDatasetSnapshotRemovalAvailable,
     fetchDatasetBackupCleanupAvailable: api.fetchDatasetBackupCleanupAvailable,
     fetchDatasetPlans: api.fetchDatasetPlans,
     fetchEnvironmentDatasetPlans: api.fetchEnvironmentDatasetPlans,
@@ -211,6 +213,7 @@ beforeEach(() => {
   testState.mode = 'user';
   testState.role = 'user';
   api.fetchDatasetBackupCleanupAvailable.mockResolvedValue({ data: false });
+  api.fetchDatasetSnapshotRemovalAvailable.mockResolvedValue({ data: false });
   api.fetchDatasetPlans.mockResolvedValue({ data: assignedPlans, meta: { total_count: 5 } });
   api.fetchEnvironmentDatasetPlans.mockResolvedValue({
     data: availablePlans,
@@ -354,6 +357,18 @@ describe('DatasetPlansPage', () => {
 });
 
 describe('shared plans cleanup entry', () => {
+  it.each([true, false])('places the separate history-removal card after plans (empty=%s)', async empty => {
+    testState.role = 'admin'; testState.mode = 'admin';
+    api.fetchDatasetSnapshotRemovalAvailable.mockResolvedValue({ data: true });
+    if (empty) api.fetchDatasetPlans.mockResolvedValue({ data: [] });
+    renderPage();
+    const anchor = await screen.findByTestId(empty ? 'dataset.plans.empty' : 'dataset.plans.list');
+    const card = await screen.findByTestId('dataset.snapshot_removal');
+    expect(anchor.compareDocumentPosition(card) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.getByTestId('dataset.snapshot_removal.recursive')).not.toBeChecked();
+    expect(screen.getByTestId('dataset.snapshot_removal.disable_plans')).toBeChecked();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
   it('offers admin cleanup even when no plan remains', async () => {
     testState.role = 'admin'; testState.mode = 'admin';
     api.fetchDatasetBackupCleanupAvailable.mockResolvedValue({ data: true });

@@ -281,7 +281,7 @@ wrappers; page-level action guards and API authorization still apply.
 | `/admin/_design` | page/redirect | `<DesignSandboxPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/router.tsx) |
 | `/admin/*` | page/redirect | `<NotFoundPage appBasePath="/admin" />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/router.tsx) |
 
-## API adapter modules (79)
+## API adapter modules (80)
 
 Read these for request/response details. File presence does not prove that the deployed
 API implements every parameter; see [API contracts](API_CONTRACTS.md).
@@ -302,6 +302,7 @@ API implements every parameter; see [API contracts](API_CONTRACTS.md).
 - [clusterResourcePackages.ts](../../src/lib/api/clusterResourcePackages.ts)
 - [clusterResources.ts](../../src/lib/api/clusterResources.ts)
 - [clusterSearch.ts](../../src/lib/api/clusterSearch.ts)
+- [datasetSnapshotRemovalManifest.ts](../../src/lib/api/datasetSnapshotRemovalManifest.ts)
 - [datasets.ts](../../src/lib/api/datasets.ts)
 - [dns.ts](../../src/lib/api/dns.ts)
 - [dnsResolvers.ts](../../src/lib/api/dnsResolvers.ts)
