@@ -34,15 +34,18 @@ hash to work around a fetch failure.
 
 ### Generated client input
 
-The root manifest and npm-generated lock select published
-`vpsadmin-typescript-client@0.7.0`. The registry archive contains the generated
-`dataset.disable_backups` operation and declarations. Its exact registry URL,
-SHA-512 integrity and source are recorded in the
-[client contract](HAVEAPI_CLIENT.md#generated-vpsadmin-typescript-sdk).
-Installation needs no sibling checkout, local archive or source override.
+The root manifest and npm-generated lock select the retained development archive
+`packages/development-sdk/vpsadmin-typescript-client-snapshot-removal.tgz` for the
+generated preview/removal operations. It retains version 0.7.0 and differs from
+the published 0.7.0 registry artifact. Its exact source, digest and integrity are
+recorded in the [client contract](HAVEAPI_CLIENT.md#generated-vpsadmin-typescript-sdk)
+and [development provenance](../../packages/vpsadmin-typescript-client-development.json).
+No sibling checkout is needed. Before merge, replace this temporary selection with
+a published SDK containing both operations and remove the local archive override.
 
-The frontend uses `importNpmLock { npmRoot = source; }` and its matching config
-hook. Registry dependencies retain their individual locked integrity; no aggregate
+The frontend uses `importNpmLock` with `npmRoot = source`, the retained SDK archive
+as its `packageSourceOverrides` input, and the matching config hook. Registry
+dependencies retain their individual locked integrity; no aggregate
 frontend `npmDepsHash` is required. The HaveAPI peer and BFF dependency graph and
 cache hash remain unchanged. Frontend and BFF derive from one source revision
 and shared provenance. Actual builds and content checks establish package

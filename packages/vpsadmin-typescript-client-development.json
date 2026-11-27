@@ -1,0 +1,31 @@
+{
+  "name": "vpsadmin-typescript-client",
+  "version": "0.7.0",
+  "status": "unpublished-development-candidate",
+  "archive": "packages/development-sdk/vpsadmin-typescript-client-snapshot-removal.tgz",
+  "sha256": "f19547ab137b37f7ed765763644686616e3c1e2618be100493b1aa2426b83002",
+  "integrity": "sha512-IvtI/b+4dzl8NXnuOWCMho92LKxyykjC94ocaIo5sbv3lg43/VJxod1dpZWXq/mGVbuYQyoiRX4si+33QTQwzg==",
+  "apiRevision": "10df8f0230507d63551ec727605c61dca3c7985c",
+  "schemaSha256": "41a951f1a5509fd9105eb2cf27dbd14f0e0d3b15842615ec66d4774f089ba11c",
+  "provenanceSha256": "592e3f1ffe9a16bc1db6a885a8f06b9ca70e447bf60553840745c72ea77777c5",
+  "exporterLockSha256": "dd5db5ca44bb69ca2ae0244515103146f17b7621f12ca34c3dec6950f4455aaf",
+  "generatorRevision": "1ef9b204ba45bb261d3334be5c555cc1856b713b",
+  "clientBaseRevision": "c4e0b85b9f12656500b3acf9b9786cecc3c3c5c1",
+  "runtimePeer": "haveapi-client@0.32.0",
+  "requiredMembers": [
+    "dataset.preview_snapshot_removal",
+    "dataset.remove_snapshots",
+    "Dataset__PreviewSnapshotRemovalInput",
+    "Dataset__PreviewSnapshotRemovalOutput",
+    "Dataset__RemoveSnapshotsInput",
+    "Dataset__RemoveSnapshotsOutput"
+  ],
+  "clientRevision": "18d58b97e48a87c7b9248e1efaddbf30dc1a6dbd",
+  "packedBeforeClientCommit": true,
+  "sourceComparison": {
+    "revision": "18d58b97e48a87c7b9248e1efaddbf30dc1a6dbd",
+    "archiveMetadataMembersCompared": 6,
+    "generatedSourceDigestsMatched": 693,
+    "result": "archive metadata and generated-source digest manifest match final committed source"
+  }
+}
