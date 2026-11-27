@@ -409,8 +409,8 @@ test.describe('Admin mail template CRUD', () => {
         await new Promise((resolve) => setTimeout(resolve, 100));
         const created = {
           id: 101,
-          language: languages.find((language) => language.id === Number((reqJson as any)?.translation?.language)),
           ...((reqJson as any)?.translation ?? {}),
+          language: languages.find((language) => language.id === Number((reqJson as any)?.translation?.language)),
           created_at: '2026-09-03T09:00:00Z',
           updated_at: '2026-09-03T09:00:00Z',
         };

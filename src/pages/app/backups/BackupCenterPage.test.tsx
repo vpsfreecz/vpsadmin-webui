@@ -98,7 +98,12 @@ describe('BackupCenterPage', () => {
     renderPage();
 
     expect(await screen.findByTestId('backups.overview')).toBeVisible();
-    expect(screen.getByTestId('backups.stats.datasets')).toHaveTextContent('2');
+    const quickActions = screen.getByTestId('backups.quick');
+    const datasetCount = screen.getByTestId('backups.stats.datasets');
+    expect(quickActions.compareDocumentPosition(datasetCount)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(screen.queryByText('backups.subtitle')).not.toBeInTheDocument();
+    expect(screen.queryByText('backups.quick.title')).not.toBeInTheDocument();
+    expect(datasetCount).toHaveTextContent('2');
     expect(screen.getByTestId('backups.stats.downloads')).toHaveTextContent('1');
     expect(screen.getByTestId('backups.stats.unavailable')).toHaveTextContent('0');
     expect(screen.getByTestId('backups.downloads.row.1')).toBeVisible();
@@ -124,7 +129,7 @@ describe('BackupCenterPage', () => {
     expect(screen.getByTestId('backups.downloads.table')).toHaveClass('hidden', 'xl:block');
     expect(screen.getByTestId('backups.downloads.card.1.detail')).toHaveAttribute(
       'href',
-      '/app/datasets/10/downloads',
+      '/app/datasets/10/downloads?from=backups&backups.tab=downloads',
     );
     expect(screen.getByTestId('backups.downloads.card.1.detail')).toHaveAttribute(
       'aria-label',
@@ -150,7 +155,10 @@ describe('BackupCenterPage', () => {
     expect(await screen.findByTestId('backups.snapshots')).toBeVisible();
     expect(screen.getByTestId('backups.snapshots.row.10')).toBeVisible();
     expect(screen.getByTestId('backups.snapshots.row.11')).toBeVisible();
-    expect(screen.getByTestId('backups.workspace.empty')).toBeVisible();
+    expect(screen.getByTestId('backups.workspace.empty')).toHaveTextContent(
+      'backups.snapshots.workspace.empty.title',
+    );
+    expect(screen.queryByText('backups.snapshots.scope.title')).not.toBeInTheDocument();
     expect(screen.queryByTestId('backups.workspace.snapshots')).not.toBeInTheDocument();
 
     await user.click(screen.getByTestId('backups.snapshots.row.10'));
@@ -306,7 +314,7 @@ describe('BackupCenterPage', () => {
     expect(screen.getByTestId('backups.downloads.row.51')).toBeVisible();
     expect(screen.getByTestId('backups.downloads.row.51.detail')).toHaveAttribute(
       'href',
-      '/app/datasets/10/downloads',
+      '/app/datasets/10/downloads?from=backups',
     );
   });
 

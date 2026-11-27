@@ -9,7 +9,7 @@ import { clsx } from '../../../components/ui/clsx';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { ErrorState } from '../../../components/ui/ErrorState';
 import { LoadingState } from '../../../components/ui/LoadingState';
-import { StatCard } from '../../../components/ui/StatCard';
+import { NetworkSummaryTable } from './NetworkSummaryTable';
 import { TableCard } from '../../../components/ui/TableCard';
 import { TimeSeriesChart } from '../../../components/ui/TimeSeriesChart';
 import { formatBytesIec } from '../../../lib/bytes';
@@ -244,6 +244,9 @@ export function UserNetworkTrafficCard(props: { userId: number | null; isAdmin: 
   const rows = trafficQ.data ?? [];
   const monthly = useMemo(() => aggregateByMonth(rows, months), [rows, months]);
   const currentTraffic = monthly[monthly.length - 1] ?? null;
+  const currentRows = rows.filter((row) => Number(row.year) === current.year && Number(row.month) === current.month);
+  const measured = (field: 'bytes_in' | 'bytes_out' | 'bytes') => currentRows.length > 0
+    && currentRows.every((row) => typeof row[field] === 'number' && Number.isFinite(row[field]));
   const interfaceRows = useMemo(() => aggregateCurrentInterfaces(rows, current), [rows, current]);
   const chartMax = maxTotal(monthly);
 
@@ -302,29 +305,17 @@ export function UserNetworkTrafficCard(props: { userId: number | null; isAdmin: 
           />
         ) : (
           <div className="space-y-4">
-            <div className="grid gap-3 md:grid-cols-3">
-              <StatCard
-                testId="network.user.traffic.stat.total"
-                title={t('network.user.traffic.total')}
-                value={formatBytesIec(currentTraffic?.total)}
-                subtitle={t('network.user.traffic.current_month')}
-                variant="compact"
-              />
-              <StatCard
-                testId="network.user.traffic.stat.in"
-                title={t('network.user.traffic.in')}
-                value={formatBytesIec(currentTraffic?.bytesIn)}
-                subtitle={t('network.user.traffic.current_month')}
-                variant="compact"
-              />
-              <StatCard
-                testId="network.user.traffic.stat.out"
-                title={t('network.user.traffic.out')}
-                value={formatBytesIec(currentTraffic?.bytesOut)}
-                subtitle={t('network.user.traffic.current_month')}
-                variant="compact"
-              />
-            </div>
+            <NetworkSummaryTable
+              testId="network.user.traffic.summary"
+              caption={t('network.user.traffic.title')}
+              rowHeading={t('network.user.summary.period')}
+              columns={[t('network.user.traffic.in'), t('network.user.traffic.out'), t('network.user.traffic.total')]}
+              rows={[{ label: `${current.year}/${String(current.month).padStart(2, '0')}`, values: [
+                { text: measured('bytes_in') ? formatBytesIec(currentTraffic?.bytesIn) : t('common.na'), testId: 'network.user.traffic.stat.in' },
+                { text: measured('bytes_out') ? formatBytesIec(currentTraffic?.bytesOut) : t('common.na'), testId: 'network.user.traffic.stat.out' },
+                { text: measured('bytes') || (measured('bytes_in') && measured('bytes_out')) ? formatBytesIec(currentTraffic?.total) : t('common.na'), testId: 'network.user.traffic.stat.total' },
+              ] }]}
+            />
 
             <div
               id="network-user-traffic-tabs"
@@ -369,6 +360,8 @@ export function UserNetworkTrafficCard(props: { userId: number | null; isAdmin: 
                   </div>
                 </div>
                 <TimeSeriesChart
+                  showAxes
+                  emptyLabel={t('common.no_data')}
                   testId="network.user.traffic.chart"
                   ariaLabel={t('network.user.traffic.chart.aria')}
                   points={monthly.map((row) => ({ x: row.timestamp, y: row.total }))}

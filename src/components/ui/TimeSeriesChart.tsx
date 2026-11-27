@@ -220,7 +220,7 @@ export function TimeSeriesChart(props: {
   );
 
   const onMouseLeave = useCallback(() => {
-    setSelectedIdx(null);
+    if (document.activeElement !== containerRef.current) setSelectedIdx(null);
   }, []);
 
   const onBlur = useCallback(() => {

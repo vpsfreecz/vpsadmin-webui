@@ -74,7 +74,7 @@ export function VpsActionsMenu(props: {
     <div className="flex w-full min-w-0 gap-2 sm:w-auto">
       {props.canMutateVps ? (
         <LinkButton
-          to={contextualVpsPath('/lifecycle')}
+          to={`${contextualVpsPath('/lifecycle')}#vps-operations`}
           variant="secondary"
           className="shrink-0"
           testId="vps.actions.all"

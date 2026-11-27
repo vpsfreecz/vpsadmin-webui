@@ -1,5 +1,6 @@
 // Bezpečnost revize administrátorských žádostí a hromadné akce
 export const csRequestReviewSafety = {
+  'requests.resolve.error.no_ipv4_available': 'Nejsou dostupné žádné volné IPv4 adresy.',
   'requests.resolve.preset.label': 'Předvolený důvod',
   'requests.resolve.preset.custom': 'Vlastní text / vyber předvolbu',
   'requests.resolve.preset.address_nonexistent': 'Neexistující adresa',

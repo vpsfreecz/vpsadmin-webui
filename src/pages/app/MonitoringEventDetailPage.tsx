@@ -11,6 +11,7 @@ import {
   type MonitoredEventLog,
   type MonitoredEventLogOrder,
 } from '../../lib/api/monitoring';
+import { untilIso, type UntilPreset } from './monitoringEventUntil';
 import { useAppMode } from '../../app/appMode';
 import { useI18n } from '../../app/i18n';
 import { useToasts } from '../../app/toasts';
@@ -22,6 +23,7 @@ import { cursorFromAscendingPage, cursorFromDescendingPage } from '../../lib/loc
 import { useTierAIntervalMs } from '../../lib/refreshTiers';
 import { dotVariantFromRowVariant } from '../../lib/variantMap';
 
+import { MonitoringStateExpiry } from '../../components/monitoring/MonitoringStateExpiry';
 import { PageContainer } from '../../components/layout/PageContainer';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { Alert } from '../../components/ui/Alert';
@@ -55,34 +57,6 @@ function objectLink(basePath: string, objName?: string, objId?: number): string 
   if (objName === 'Vps') return `${basePath}/vps/${objId}`;
   if (objName === 'Node' && basePath === '/admin') return `${basePath}/nodes/${objId}`;
   return null;
-}
-
-type UntilPreset = 'forever' | '1h' | '6h' | '1d' | '1w' | 'custom';
-
-function untilIso(preset: UntilPreset, customLocal: string): { iso?: string; valid: boolean } {
-  if (preset === 'forever') return { iso: undefined, valid: true };
-
-  const now = Date.now();
-  const ms =
-    preset === '1h'
-      ? 60 * 60 * 1000
-      : preset === '6h'
-        ? 6 * 60 * 60 * 1000
-        : preset === '1d'
-          ? 24 * 60 * 60 * 1000
-          : preset === '1w'
-            ? 7 * 24 * 60 * 60 * 1000
-            : 0;
-
-  if (preset !== 'custom') {
-    return { iso: new Date(now + ms).toISOString(), valid: true };
-  }
-
-  const t = customLocal.trim();
-  if (!t) return { iso: undefined, valid: false };
-  const d = new Date(t);
-  if (Number.isNaN(d.getTime())) return { iso: undefined, valid: false };
-  return { iso: d.toISOString(), valid: true };
 }
 
 function logOrderFromSearch(sp: URLSearchParams): MonitoredEventLogOrder {
@@ -165,11 +139,6 @@ export function MonitoringEventDetailPage() {
   const objLink = objectLink(basePath, objName, Number.isFinite(objId) ? objId : undefined);
 
   const savedUntilIso = (event as any)?.saved_until as string | null | undefined;
-  const savedUntilLabel = savedUntilIso
-    ? formatDateTime(savedUntilIso)
-    : stateVal === 'acknowledged' || stateVal === 'ignored'
-      ? t('monitoring.saved_until.forever')
-      : t('common.na');
 
   const durationLabel =
     typeof (event as any)?.duration === 'number' && Number.isFinite((event as any).duration)
@@ -365,7 +334,8 @@ export function MonitoringEventDetailPage() {
 
                 <div>
                   <div className="text-xs font-medium text-muted">{t('monitoring.field.saved_until')}</div>
-                  <div className="mt-1 text-sm">{savedUntilLabel}</div>
+                  <div className="mt-1 text-sm"><MonitoringStateExpiry state={stateVal} until={savedUntilIso} /></div>
+                  <p className="mt-1 text-xs text-muted" data-testid="monitoring.event.expiry_help">{t('monitoring.saved_until.help')}</p>
                 </div>
               </div>
             </CardBody>
@@ -549,9 +519,8 @@ export function MonitoringEventDetailPage() {
         testId="monitoring.event.ack"
       >
         <div className="space-y-3">
-          <div className="text-sm text-muted">{t('monitoring.until.label')}</div>
-
           <Select
+            label={t('monitoring.until.label')}
             value={untilPreset}
             onChange={(e) => setUntilPreset(e.target.value as UntilPreset)}
             testId="monitoring.event.ack.until_preset"
@@ -570,17 +539,18 @@ export function MonitoringEventDetailPage() {
                 type="datetime-local"
                 value={untilCustom}
                 onChange={(e) => setUntilCustom(e.target.value)}
+                ariaLabel={t('monitoring.until.custom_date_label')}
                 testId="monitoring.event.ack.until_custom"
               />
-              {!until.valid ? <div className="mt-1 text-xs text-danger">{t('monitoring.until.invalid')}</div> : null}
+              {!until.valid ? <div className="mt-1 border-l-2 border-danger pl-2 text-xs font-medium text-fg">{t('monitoring.until.invalid')}</div> : null}
             </div>
           ) : null}
 
-          {until.iso ? (
+          {until.valid ? (until.iso ? (
             <div className="text-xs text-muted">{t('monitoring.until.preview', { until: formatDateTime(until.iso) })}</div>
           ) : (
             <div className="text-xs text-muted">{t('monitoring.until.preview_forever')}</div>
-          )}
+          )) : null}
 
           {ackMut.isError ? (
             <Alert title={t('monitoring.ack.error.title')} variant="danger" testId="monitoring.event.ack.error">
@@ -606,9 +576,8 @@ export function MonitoringEventDetailPage() {
         testId="monitoring.event.ignore"
       >
         <div className="space-y-3">
-          <div className="text-sm text-muted">{t('monitoring.until.label')}</div>
-
           <Select
+            label={t('monitoring.until.label')}
             value={untilPreset}
             onChange={(e) => setUntilPreset(e.target.value as UntilPreset)}
             testId="monitoring.event.ignore.until_preset"
@@ -627,17 +596,18 @@ export function MonitoringEventDetailPage() {
                 type="datetime-local"
                 value={untilCustom}
                 onChange={(e) => setUntilCustom(e.target.value)}
+                ariaLabel={t('monitoring.until.custom_date_label')}
                 testId="monitoring.event.ignore.until_custom"
               />
-              {!until.valid ? <div className="mt-1 text-xs text-danger">{t('monitoring.until.invalid')}</div> : null}
+              {!until.valid ? <div className="mt-1 border-l-2 border-danger pl-2 text-xs font-medium text-fg">{t('monitoring.until.invalid')}</div> : null}
             </div>
           ) : null}
 
-          {until.iso ? (
+          {until.valid ? (until.iso ? (
             <div className="text-xs text-muted">{t('monitoring.until.preview', { until: formatDateTime(until.iso) })}</div>
           ) : (
             <div className="text-xs text-muted">{t('monitoring.until.preview_forever')}</div>
-          )}
+          )) : null}
 
           {ignoreMut.isError ? (
             <Alert title={t('monitoring.ignore.error.title')} variant="danger" testId="monitoring.event.ignore.error">

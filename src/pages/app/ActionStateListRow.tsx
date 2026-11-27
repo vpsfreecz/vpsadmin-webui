@@ -74,14 +74,21 @@ export function ActionStateListRow(props: {
 
   return (
     <div
-      className={clsx('rounded-md border p-3', toneSurfaceClass(toneVariant), props.highlighted ? 'ring-1 ring-warn-border' : null)}
+      className={clsx(
+        'rounded-md border p-3',
+        toneSurfaceClass(toneVariant),
+        props.highlighted ? 'ring-1 ring-warn-border' : null
+      )}
       data-testid={`action_states.row.${id}`}
     >
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <div className="flex items-center gap-2 text-sm font-medium">
-            <StatusDot variant={dotVariant} title={badge.label} />
-            <Link className="text-fg underline" to={`${props.basePath}/action-states/${id}`}>
+          <div className="flex min-w-0 items-start gap-2 text-sm font-medium">
+            <StatusDot variant={dotVariant} title={badge.label} className="mt-1 shrink-0" />
+            <Link
+              className="min-w-0 text-fg underline [overflow-wrap:anywhere]"
+              to={`${props.basePath}/action-states/${id}`}
+            >
               {label}
             </Link>
           </div>
@@ -104,19 +111,23 @@ export function ActionStateListRow(props: {
             ) : null}
           </div>
 
-          {pLabel ? <div className="mt-1 text-xs text-faint">{t('tasks.meta.progress', { progress: pLabel })}</div> : null}
-          {rawDiffers ? <div className="mt-1 text-xs text-faint">{t('operation.raw_name', { name: op.rawLabel })}</div> : null}
+          {pLabel ? (
+            <div className="mt-1 text-xs text-faint">{t('tasks.meta.progress', { progress: pLabel })}</div>
+          ) : null}
+          {rawDiffers ? (
+            <div className="mt-1 text-xs text-faint">{t('operation.raw_name', { name: op.rawLabel })}</div>
+          ) : null}
         </div>
 
-        <div className="flex flex-col items-end gap-2">
-          <div className="flex flex-wrap justify-end gap-2">
+        <div className="flex min-w-0 flex-col gap-2 sm:items-end">
+          <div className="flex flex-wrap gap-2 sm:justify-end">
             <Badge variant={badge.variant}>{badge.label}</Badge>
             <Badge variant="neutral">{operationCategoryLabel(op, t)}</Badge>
             <Badge variant={opBadgeVariant}>{operationSeverityLabel(op, t)}</Badge>
             <Badge variant="neutral">{operationVisibilityLabel(op, t)}</Badge>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 sm:justify-end">
             <Button
               size="sm"
               variant="ghost"
@@ -129,12 +140,7 @@ export function ActionStateListRow(props: {
             </Button>
 
             {Boolean(s.can_cancel) && !isFinishedActionState(s) ? (
-              <Button
-                size="sm"
-                variant="danger"
-                onClick={() => props.onCancel(s)}
-                disabled={props.cancelPending}
-              >
+              <Button size="sm" variant="danger" onClick={() => props.onCancel(s)} disabled={props.cancelPending}>
                 {t('tasks.action.cancel')}
               </Button>
             ) : null}

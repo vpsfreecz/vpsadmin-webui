@@ -11,7 +11,7 @@ export const enProfile_security = {
   "profile.security.known_devices.forget.body": "This device will no longer be trusted. If two-step verification is enabled, you may be asked for an extra verification step again.",
   "profile.security.known_devices.forget.title": "Forget this device?",
   "profile.security.known_devices.load_failed": "Failed to load known devices.",
-  "profile.security.known_devices.search.hint": "Local filtering (does not query the API).",
+  "profile.security.known_devices.search.hint": "Filters devices on this page only. Changes here update automatically; Refresh loads changes made elsewhere.",
   "profile.security.known_devices.search.placeholder": "Filter by IP / hostname / user agent…",
   "profile.security.known_devices.subtitle": "Devices you have used to sign in. Trusted devices can temporarily skip two-step verification.",
   "profile.security.known_devices.title": "Known devices",

@@ -98,7 +98,7 @@ export function AdminObjectMutationRecovery(props: {
     >
       <div>{t(pending ? 'vps.mutation.pending.body' : 'vps.mutation.uncertain.body')}</div>
       {errorKey ? (
-        <div data-testid={`${props.testIdPrefix}.error`} className="mt-2 text-danger">
+        <div data-testid={`${props.testIdPrefix}.error`} className="mt-2 font-medium text-fg">
           {t(`vps.mutation.uncertain.${errorKey}`)}
         </div>
       ) : null}

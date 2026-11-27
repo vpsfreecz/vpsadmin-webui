@@ -22,3 +22,14 @@ describe('cluster network filter semantics', () => {
     expect(result.searchParams.toString()).toBe(source.toString());
   });
 });
+
+
+test.each([
+  ['location=-1&purpose=invalid&limit=25&from_id=99&page=2&keep=yes', 'limit=25&page=1&keep=yes'],
+  ['location=0002&purpose=%20vps%20&from_id=99&page=2', 'location=2&purpose=vps&page=1'],
+  ['location=&purpose=&from_id=99&page=2', 'page=1'],
+])('canonicalizes supported filter values without leaving a stale cursor: %s', (input, expected) => {
+  const result = normalizeLegacyNetworkSearch(new URLSearchParams(input));
+  expect(result.changed).toBe(true);
+  expect(result.searchParams.toString()).toBe(expected);
+});

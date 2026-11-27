@@ -67,7 +67,13 @@ function safeFocus(el: HTMLElement) {
 }
 
 function activeTrap(): FocusTrap | null {
-  return trapStack.length > 0 ? trapStack[trapStack.length - 1] ?? null : null;
+  // Portal DOM can be removed before passive effect cleanup unregisters it.
+  // A detached dialog must not intercept the next result control's keyboard.
+  for (let index = trapStack.length - 1; index >= 0; index -= 1) {
+    const trap = trapStack[index];
+    if (trap?.container.isConnected) return trap;
+  }
+  return null;
 }
 
 function focusFirst(container: HTMLElement) {

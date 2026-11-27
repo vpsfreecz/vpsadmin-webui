@@ -60,7 +60,14 @@ export function OomReportTasksPage() {
         {tasksQ.isLoading ? (
           <LoadingState />
         ) : tasksQ.isError ? (
-          <ErrorState title={t('oom.detail.tasks.error')} error={tasksQ.error} onRetry={() => void tasksQ.refetch()} />
+          <ErrorState
+            title={t('oom.detail.tasks.error')}
+            error={tasksQ.error}
+            onRetry={() => void tasksQ.refetch()}
+            actionsLayout="trailing"
+            statusLabel={t('oom.detail.tasks.status_link')}
+            testId="oom.detail.tasks.error"
+          />
         ) : tasks.length === 0 ? (
           <div className="text-sm text-muted">{t('oom.detail.tasks.empty')}</div>
         ) : (

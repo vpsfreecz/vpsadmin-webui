@@ -19,6 +19,15 @@ command/scenario, role, locale, viewport, data origin, result, artifacts and lim
 For mutations include object ownership, acceptance/action-state IDs, final state
 and cleanup receipt. Do not rerun completed destructive scenarios blindly.
 
+## Full browser suite and generated wire fixtures
+
+Keep full-suite failures separate from PR-selection results. Reproduce the original
+failed cases before repair, preserve logs, and validate the complete affected suites
+and final release source. Fixtures must match published generated namespaces and
+field types, including explicit nullable delete members. Correct stale expectations
+against the actual workflow without dropping error, ownership, payload or retry
+assertions. See the [2026-11-26 repair](../work-log/2026-11-26-nightly-browser-contracts.md).
+
 ## Touch interaction regression
 
 `npm run e2e:touch:webkit` runs the focused `mobile-webkit` project using iPhone
@@ -194,10 +203,15 @@ dependency audits retain their critical/high thresholds as separate online CI
 steps. The dev-host TLS audit requires DNS/network access and remains a separate
 operator check. The browser script regression has its own required Chromium job.
 
-The PR browser workflow runs desktop `e2e:pr:desktop` and mobile
-`e2e:pr:mobile` in independent matrix jobs with separate artifacts and no matrix
-fail-fast. Broad smoke runs on pull requests and pushes to every branch, and
-supports manual dispatch. Nightly desktop/mobile jobs remain separate. The config and both PR commands explicitly default to two workers;
+The PR browser workflow runs desktop `e2e:pr:desktop`, mobile Chrome
+`e2e:pr:mobile` and mobile WebKit `e2e:touch:webkit`. Each complete project
+selection is partitioned across three independent file shards, with separate
+project/shard artifacts and no matrix fail-fast. The existing project check names
+remain required gates: they succeed only after every browser shard succeeds.
+Two workers per shard, retry settings and the 40-minute job limit remain unchanged.
+Dry-run test ID comparison must prove that each project's shard union equals its
+unsharded selection without duplicates or omissions. Main/manual broad smoke and nightly desktop/mobile jobs are separate
+signals. The config and both PR commands explicitly default to two workers;
 `npm run e2e:pr:desktop -- --workers=1 --retries=0` (or the mobile equivalent)
 selects a deliberate serial diagnostic without changing the normal retry count.
 Each job uploads its HTML report and any retained failed-attempt traces/results

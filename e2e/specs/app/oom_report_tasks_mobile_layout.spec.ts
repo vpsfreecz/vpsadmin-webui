@@ -124,13 +124,13 @@ test('@pr-smoke @pr-smoke-mobile keeps every OOM process field visible in narrow
         ),
         allCellsInsideCard: Boolean(
           cardRect &&
-            cellRects.length === 10 &&
-            cellRects.every((rect) => rect.left >= cardRect.left - 1 && rect.right <= cardRect.right + 1)
+          cellRects.length === 10 &&
+          cellRects.every((rect) => rect.left >= cardRect.left - 1 && rect.right <= cardRect.right + 1)
         ),
         allValuesInsideCard: Boolean(
           cardRect &&
-            valueRects.length === 10 &&
-            valueRects.every((rect) => rect.left >= cardRect.left - 1 && rect.right <= cardRect.right + 1)
+          valueRects.length === 10 &&
+          valueRects.every((rect) => rect.left >= cardRect.left - 1 && rect.right <= cardRect.right + 1)
         ),
       };
     });

@@ -17,12 +17,7 @@ import { fetchEnvironments, fetchLocations, fetchOomReports, type OomReport } fr
 import { localInputToIso } from '../../../lib/datetimeLocal';
 import { compactText, formatDateTime } from '../../../lib/format';
 import { useKeysetPagination } from '../../../lib/hooks/useKeysetPagination';
-import {
-  parseNumericToken,
-  splitKeyValueToken,
-  tokenizeSmartInput,
-  unquoteSmartValue,
-} from '../../../lib/smartFilter';
+import { parseNumericToken, splitKeyValueToken, tokenizeSmartInput, unquoteSmartValue } from '../../../lib/smartFilter';
 
 import { Badge } from '../../../components/ui/Badge';
 import { Button } from '../../../components/ui/Button';
@@ -37,7 +32,7 @@ import { KeysetPagination } from '../../../components/ui/KeysetPagination';
 import { LoadingState } from '../../../components/ui/LoadingState';
 import { Select } from '../../../components/ui/Select';
 import { type SmartFilterSuggestion, SmartFilterInput } from '../../../components/ui/SmartFilterInput';
-import { SmartInputHelp } from '../../../components/ui/SmartInputHelp';
+import { OomReportFilterHelp } from './OomReportFilterHelp';
 import { StatusDot } from '../../../components/ui/StatusDot';
 import { TableRowLink } from '../../../components/ui/TableRowLink';
 import { UserLookupInput } from '../../../components/ui/UserLookupInput';
@@ -129,20 +124,15 @@ export function OomReportsPage() {
 
   const sinceIso = useMemo(() => {
     const r = localInputToIso(since);
-    return r.valid ? r.iso ?? undefined : undefined;
+    return r.valid ? (r.iso ?? undefined) : undefined;
   }, [since]);
 
   const untilIso = useMemo(() => {
     const r = localInputToIso(until);
-    return r.valid ? r.iso ?? undefined : undefined;
+    return r.valid ? (r.iso ?? undefined) : undefined;
   }, [until]);
 
-  useEffect(() => {
-    if (hydratingFiltersFromUrlRef.current) {
-      hydratingFiltersFromUrlRef.current = false;
-      return;
-    }
-
+  const filterSearchParams = useMemo(() => {
     const next = new URLSearchParams(activeSearchParams);
     next.delete('q');
 
@@ -180,7 +170,7 @@ export function OomReportsPage() {
     if (uTrim) next.set('until', uTrim);
     else next.delete('until');
 
-    if (next.toString() !== searchParamsKey) setSp(next, { replace: true });
+    return next;
   }, [
     activeSearchParams,
     cgroup,
@@ -193,9 +183,7 @@ export function OomReportsPage() {
     nodeId,
     rule,
     ruleId,
-    setSp,
     since,
-    searchParamsKey,
     until,
     user,
     userId,
@@ -203,16 +191,34 @@ export function OomReportsPage() {
     vpsId,
   ]);
 
+  useEffect(() => {
+    if (hydratingFiltersFromUrlRef.current) {
+      hydratingFiltersFromUrlRef.current = false;
+      return;
+    }
+    // Browser Back/Forward may move the address bar before the router renders.
+    // Do not let an outgoing filter effect overwrite that newer destination.
+    if (typeof window !== 'undefined' && (
+      window.location.pathname !== `${basePath}/oom-reports` ||
+      new URLSearchParams(window.location.search).toString() !== searchParamsKey
+    )) return;
+    if (filterSearchParams.toString() === searchParamsKey) return;
+    const next = new URLSearchParams(filterSearchParams);
+    next.delete('from_id');
+    next.set('page', '1');
+    setSp(next, { replace: true });
+  }, [basePath, filterSearchParams, searchParamsKey, setSp]);
+
   const filtersActive = Boolean(
     vpsId ||
-      (isGlobalAdminView && userId) ||
-      nodeId ||
-      locationId ||
-      envId ||
-      ruleId ||
-      cgroup.trim() ||
-      since.trim() ||
-      until.trim()
+    (isGlobalAdminView && userId) ||
+    nodeId ||
+    locationId ||
+    envId ||
+    ruleId ||
+    cgroup.trim() ||
+    since.trim() ||
+    until.trim()
   );
   const hasFilterState = filtersActive || smartErrors.length > 0;
 
@@ -231,6 +237,9 @@ export function OomReportsPage() {
       until: until.trim(),
     }),
     searchParams: activeSearchParams,
+    navigationSearchParams: filterSearchParams,
+    navigationPathname: `${basePath}/oom-reports`,
+    navigationSearchKey: searchParamsKey,
     setSearchParams: setSp,
     defaultLimit: 50,
     allowedLimits: [25, 50, 100],
@@ -631,12 +640,18 @@ export function OomReportsPage() {
   const activeChips = useMemo(() => {
     const chips: React.ReactNode[] = [];
 
-    if (vpsId) chips.push(<FilterChip key="vps" label={`vps:${vpsId}`} onRemove={() => setVps('')} testId="oom.chip.vps" />);
+    if (vpsId)
+      chips.push(<FilterChip key="vps" label={`vps:${vpsId}`} onRemove={() => setVps('')} testId="oom.chip.vps" />);
 
     if (isGlobalAdminView && userId)
-      chips.push(<FilterChip key="user" label={`user:${userId}`} onRemove={() => setUser('')} testId="oom.chip.user" />);
+      chips.push(
+        <FilterChip key="user" label={`user:${userId}`} onRemove={() => setUser('')} testId="oom.chip.user" />
+      );
 
-    if (nodeId) chips.push(<FilterChip key="node" label={`node:${nodeId}`} onRemove={() => setNode('')} testId="oom.chip.node" />);
+    if (nodeId)
+      chips.push(
+        <FilterChip key="node" label={`node:${nodeId}`} onRemove={() => setNode('')} testId="oom.chip.node" />
+      );
 
     if (locationId)
       chips.push(
@@ -658,11 +673,19 @@ export function OomReportsPage() {
         />
       );
 
-    if (ruleId) chips.push(<FilterChip key="rule" label={`rule:${ruleId}`} onRemove={() => setRule('')} testId="oom.chip.rule" />);
+    if (ruleId)
+      chips.push(
+        <FilterChip key="rule" label={`rule:${ruleId}`} onRemove={() => setRule('')} testId="oom.chip.rule" />
+      );
 
     if (cgroup.trim())
       chips.push(
-        <FilterChip key="cgroup" label={`cgroup:${cgroup.trim()}`} onRemove={() => setCgroup('')} testId="oom.chip.cgroup" />
+        <FilterChip
+          key="cgroup"
+          label={`cgroup:${cgroup.trim()}`}
+          onRemove={() => setCgroup('')}
+          testId="oom.chip.cgroup"
+        />
       );
 
     if (since.trim())
@@ -693,10 +716,9 @@ export function OomReportsPage() {
   const header = (
     <PageHeader
       title={t('oom.list.title')}
-      description={t('oom.list.description')}
       meta={filtersActive ? <span className="text-xs text-faint">{t('list.meta.filters_active')}</span> : null}
       actions={
-        <Button variant="secondary" size="sm" to={`${basePath}/oom-reports`} testId="oom.list.refresh">
+        <Button variant="secondary" size="sm" onClick={() => void listQ.refetch()} testId="oom.list.refresh">
           {t('common.refresh')}
         </Button>
       }
@@ -761,63 +783,26 @@ export function OomReportsPage() {
 
           {activeChips.length ? <div className="flex flex-wrap gap-2">{activeChips}</div> : null}
 
-          <SmartInputHelp
+          <OomReportFilterHelp
             open={helpOpen}
             onClose={() => setHelpOpen(false)}
-            title={t('oom.smart_help.title')}
-            intro={t('oom.smart_help.description')}
-            examples={[
-              {
-                label: t('oom.smart_help.examples.help.label'),
-                value: '?',
-                description: t('oom.smart_help.examples.help.description'),
-              },
-              {
-                label: t('oom.smart_help.examples.open.label'),
-                value: '123',
-                description: t('oom.smart_help.examples.open.description'),
-              },
-              {
-                label: t('oom.smart_help.examples.vps.label'),
-                value: 'vps:123',
-                description: t('oom.smart_help.examples.vps.description'),
-              },
-              {
-                label: t('oom.smart_help.examples.cgroup.label'),
-                value: 'cgroup:/user.slice',
-                description: t('oom.smart_help.examples.cgroup.description'),
-              },
-              {
-                label: t('oom.smart_help.examples.since.label'),
-                value: 'since:2025-01-01',
-                description: t('oom.smart_help.examples.since.description'),
-              },
-            ]}
-            keys={[
-              { key: 'vps', description: t('oom.smart_help.keys.vps') },
-              ...(isGlobalAdminView ? [{ key: 'user', description: t('oom.smart_help.keys.user') }] : []),
-              { key: 'node', description: t('oom.smart_help.keys.node') },
-              { key: 'location', description: t('oom.smart_help.keys.location') },
-              { key: 'environment', description: t('oom.smart_help.keys.environment') },
-              { key: 'rule', description: t('oom.smart_help.keys.rule') },
-              { key: 'cgroup', description: t('oom.smart_help.keys.cgroup') },
-              { key: 'since', description: t('oom.smart_help.keys.since') },
-              { key: 'until', description: t('oom.smart_help.keys.until') },
-            ]}
-            inferences={[
-              t('oom.smart_help.inferences.numeric_open'),
-              t('oom.smart_help.inferences.key_value'),
-            ]}
+            isGlobalAdminView={isGlobalAdminView}
             onInsertKey={(key) => {
               const cur = smartInputRef.current;
               const next = smart.trim() ? `${smart.trim()} ${key}:` : `${key}:`;
               setSmart(next);
               requestAnimationFrame(() => cur?.focus());
             }}
-            testId="oom.smart_help"
           />
 
-          <Modal showCloseButton closeTestId="drawer.close" open={advancedOpen} onClose={() => setAdvancedOpen(false)} title={t('filters.advanced.title')} testId="oom.filters.drawer">
+          <Modal
+            showCloseButton
+            closeTestId="drawer.close"
+            open={advancedOpen}
+            onClose={() => setAdvancedOpen(false)}
+            title={t('filters.advanced.title')}
+            testId="oom.filters.drawer"
+          >
             <div className="space-y-4">
               <div>
                 <div className="text-sm font-medium">{t('common.vps')}</div>
@@ -850,7 +835,12 @@ export function OomReportsPage() {
               <div>
                 <div className="text-sm font-medium">{t('common.node')}</div>
                 <div className="mt-1">
-                  <Select value={node} onChange={(e) => setNode(e.target.value)} options={nodeOptions} testId="oom.advanced.node" />
+                  <Select
+                    value={node}
+                    onChange={(e) => setNode(e.target.value)}
+                    options={nodeOptions}
+                    testId="oom.advanced.node"
+                  />
                 </div>
               </div>
 
@@ -881,7 +871,12 @@ export function OomReportsPage() {
               <div>
                 <div className="text-sm font-medium">{t('oom.filter.rule')}</div>
                 <div className="mt-1">
-                  <Input value={rule} onChange={(e) => setRule(e.target.value)} placeholder={t('oom.filter.rule')} testId="oom.advanced.rule" />
+                  <Input
+                    value={rule}
+                    onChange={(e) => setRule(e.target.value)}
+                    placeholder={t('oom.filter.rule')}
+                    testId="oom.advanced.rule"
+                  />
                 </div>
               </div>
 
@@ -900,14 +895,24 @@ export function OomReportsPage() {
               <div>
                 <div className="text-sm font-medium">{t('oom.filter.since')}</div>
                 <div className="mt-1">
-                  <Input type="datetime-local" value={since} onChange={(e) => setSince(e.target.value)} testId="oom.advanced.since" />
+                  <Input
+                    type="datetime-local"
+                    value={since}
+                    onChange={(e) => setSince(e.target.value)}
+                    testId="oom.advanced.since"
+                  />
                 </div>
               </div>
 
               <div>
                 <div className="text-sm font-medium">{t('oom.filter.until')}</div>
                 <div className="mt-1">
-                  <Input type="datetime-local" value={until} onChange={(e) => setUntil(e.target.value)} testId="oom.advanced.until" />
+                  <Input
+                    type="datetime-local"
+                    value={until}
+                    onChange={(e) => setUntil(e.target.value)}
+                    testId="oom.advanced.until"
+                  />
                 </div>
               </div>
             </div>
@@ -988,13 +993,17 @@ export function OomReportsPage() {
                     const userIdRow = (r.vps as any)?.user?.id ? Number((r.vps as any).user.id) : undefined;
                     const userLogin = (r.vps as any)?.user?.login ? String((r.vps as any).user.login) : undefined;
 
-                    const nodeName = (r.vps as any)?.node?.domain_name ? String((r.vps as any).node.domain_name) : undefined;
+                    const nodeName = (r.vps as any)?.node?.domain_name
+                      ? String((r.vps as any).node.domain_name)
+                      : undefined;
 
                     const killed = r.killed_name ? `${r.killed_name}${r.killed_pid ? ` (${r.killed_pid})` : ''}` : '—';
                     const cgroupText = r.cgroup ? String(r.cgroup) : '';
                     const cgroupShort = compactText(cgroupText, 64);
 
-                    const action = (r.oom_report_rule as any)?.action ? String((r.oom_report_rule as any).action) : undefined;
+                    const action = (r.oom_report_rule as any)?.action
+                      ? String((r.oom_report_rule as any).action)
+                      : undefined;
                     const rowVariant = ruleVariant(action);
                     const dotVariant = dotVariantFromRowVariant(rowVariant);
 
@@ -1090,9 +1099,13 @@ export function OomReportsPage() {
                 const userIdRow = (r.vps as any)?.user?.id ? Number((r.vps as any).user.id) : undefined;
                 const userLogin = (r.vps as any)?.user?.login ? String((r.vps as any).user.login) : undefined;
 
-                const nodeName = (r.vps as any)?.node?.domain_name ? String((r.vps as any).node.domain_name) : undefined;
+                const nodeName = (r.vps as any)?.node?.domain_name
+                  ? String((r.vps as any).node.domain_name)
+                  : undefined;
 
-                const action = (r.oom_report_rule as any)?.action ? String((r.oom_report_rule as any).action) : undefined;
+                const action = (r.oom_report_rule as any)?.action
+                  ? String((r.oom_report_rule as any).action)
+                  : undefined;
                 const rowVariant = ruleVariant(action);
                 const dotVariant = dotVariantFromRowVariant(rowVariant);
                 const killed = r.killed_name ? `${r.killed_name}${r.killed_pid ? ` (${r.killed_pid})` : ''}` : '';
@@ -1134,7 +1147,10 @@ export function OomReportsPage() {
                         </div>
 
                         {r.cgroup ? (
-                          <div className="mt-1 min-w-0 truncate font-mono text-xs leading-5 text-muted" title={cgroupText}>
+                          <div
+                            className="mt-1 min-w-0 truncate font-mono text-xs leading-5 text-muted"
+                            title={cgroupText}
+                          >
                             {compactText(cgroupText, 72)}
                           </div>
                         ) : null}

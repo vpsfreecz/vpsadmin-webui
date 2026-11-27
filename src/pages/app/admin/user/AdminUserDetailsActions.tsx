@@ -203,7 +203,7 @@ function AdminUserPasswordAction(props: DetailsActionsProps) {
             />
           </div>
           {repeat && password !== repeat ? (
-            <p className="text-sm text-danger" role="status">
+            <p className="border-l-2 border-danger pl-2 text-sm font-medium text-fg" role="status">
               {t('security.password.validation.mismatch')}
             </p>
           ) : null}

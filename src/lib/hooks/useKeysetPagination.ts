@@ -147,6 +147,16 @@ export function useKeysetPagination(opts: {
   filterKey: string;
   /** Current URLSearchParams from react-router. */
   searchParams: URLSearchParams;
+  /** Applied filter params while their router transition is still pending.
+   * Used only for explicit navigation; URL hydration keeps using searchParams.
+   */
+  navigationSearchParams?: URLSearchParams;
+  /** Path owning these params. Ignore writes after browser navigation leaves it. */
+  navigationPathname?: string;
+  /** Committed router search. Automatic normalization must not replace a
+   * newer browser history destination before the router publishes it.
+   * Explicit Next/Previous/page-size actions still use applied filters. */
+  navigationSearchKey?: string;
   /** Setter from react-router. */
   setSearchParams: (nextInit: URLSearchParams | string, navigateOpts?: { replace?: boolean }) => void;
   /** Optional prefix for query params (for pages that embed multiple paginated lists). Example: 'tx_' => tx_from_id, tx_page, tx_limit. */
@@ -221,9 +231,34 @@ export function useKeysetPagination(opts: {
   const page = viewIndex + 1;
   const cursor = viewStack[viewIndex] === null ? undefined : (viewStack[viewIndex] ?? undefined);
 
+  const ownsBrowserUrl = () =>
+    opts.navigationPathname === undefined ||
+    typeof window === 'undefined' ||
+    window.location.pathname === opts.navigationPathname;
+
   const syncUrl = (nextStack: KeysetCursorStack, nextIndex: number, mode: 'push' | 'replace') => {
-    // Use the router-provided params as the baseline (more deterministic than window.location).
-    const cur = new URLSearchParams(opts.searchParams);
+    if (!ownsBrowserUrl()) return;
+    // A caller applying filters owns the atomic filter+cursor replacement.
+    // Reset local pagination now, but never publish the old committed filters.
+    if (
+      mode === 'replace' &&
+      opts.navigationSearchKey !== undefined &&
+      opts.navigationSearchParams !== undefined &&
+      opts.navigationSearchParams.toString() !== opts.searchParams.toString()
+    )
+      return;
+    if (
+      mode === 'replace' &&
+      opts.navigationSearchKey !== undefined &&
+      typeof window !== 'undefined' &&
+      new URLSearchParams(window.location.search).toString() !== opts.navigationSearchKey
+    )
+      return;
+    // Explicit navigation may follow an applied filter before the router publishes it.
+    // Automatic normalization must still follow the router, including Back/Forward.
+    const cur = new URLSearchParams(
+      mode === 'push' ? (opts.navigationSearchParams ?? opts.searchParams) : opts.searchParams
+    );
     const next = new URLSearchParams(cur);
 
     // Limit is always explicit once the hook is active.
@@ -303,6 +338,54 @@ export function useKeysetPagination(opts: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sig, urlCursor]);
 
+  // Native Back can return to the already committed cursor before React has
+  // published a pending Next transition. In that case urlCursor never changes,
+  // so the URL hydration effect alone cannot undo the optimistic local cursor.
+  // Listen only within this route/filter/limit scope; the router owns changes
+  // to that scope. A POP restores state without adding or replacing history.
+  useLayoutEffect(() => {
+    const pathname = opts.navigationPathname ?? window.location.pathname;
+    const filterParams = (params: URLSearchParams) => {
+      const filters = new URLSearchParams(params);
+      for (const key of [cursorKey, pageKey, limitKey, ...(opts.wipeQueryKeys ?? [])]) filters.delete(key);
+      filters.sort();
+      return filters.toString();
+    };
+    const expectedFilters = filterParams(opts.searchParams);
+    const restore = () => {
+      const params = new URLSearchParams(window.location.search);
+      if (window.location.pathname !== pathname || filterParams(params) !== expectedFilters) return;
+      const destinationLimit = clampLimit(
+        parseNumber(params.get(limitKey), { min: 1 }) ?? defaultLimit,
+        allowedLimits,
+        defaultLimit
+      );
+      if (destinationLimit !== limit) return;
+      const destination = parseNumber(params.get(cursorKey), { integer: cursorInteger, min: cursorMin }) ?? null;
+      setState((previous) => {
+        if (previous.sig !== sig) return previous;
+        const index = previous.stack.indexOf(destination);
+        if (index >= 0) return index === previous.index ? previous : { ...previous, index };
+        return { ...previous, stack: [null, destination], index: 1 };
+      });
+    };
+    window.addEventListener('popstate', restore);
+    return () => window.removeEventListener('popstate', restore);
+  }, [
+    allowedLimits,
+    cursorInteger,
+    cursorKey,
+    cursorMin,
+    defaultLimit,
+    limit,
+    limitKey,
+    opts.navigationPathname,
+    opts.searchParams,
+    opts.wipeQueryKeys,
+    pageKey,
+    sig,
+  ]);
+
   // Persist the stack for refresh/navigation within the same filter set.
   useLayoutEffect(() => {
     if (state.sig !== sig) return;
@@ -358,8 +441,9 @@ export function useKeysetPagination(opts: {
   };
 
   const setLimit = (nextLimit: number) => {
+    if (!ownsBrowserUrl()) return;
     const l = clampLimit(nextLimit, allowedLimits, defaultLimit);
-    const cur = new URLSearchParams(opts.searchParams);
+    const cur = new URLSearchParams(opts.navigationSearchParams ?? opts.searchParams);
     const next = new URLSearchParams(cur);
     next.set(limitKey, String(l));
     next.delete(cursorKey);

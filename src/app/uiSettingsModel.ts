@@ -38,6 +38,7 @@ export interface UiTipSettings {
 export interface UiSettings {
   /** Retained for persisted-settings compatibility; icon-only navigation is retired. */
   sidebarCollapsed: boolean;
+  dnsRecordIdsVisible?: boolean;
   theme: UiThemePreference;
   language: UiLanguagePreference;
   tips: UiTipSettings;
@@ -46,6 +47,7 @@ export interface UiSettings {
 
 export const DEFAULT_SETTINGS: UiSettings = {
   sidebarCollapsed: false,
+  dnsRecordIdsVisible: false,
   theme: 'system',
   language: 'system',
   tips: {
@@ -90,6 +92,7 @@ export function normalizeUiSettings(input: unknown): UiSettings {
   return {
     // Ignore old local/server collapse preferences without resetting other settings.
     sidebarCollapsed: false,
+    dnsRecordIdsVisible: input['dnsRecordIdsVisible'] === true,
     theme,
     language,
     tips: {

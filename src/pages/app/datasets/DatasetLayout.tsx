@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, Navigate, Outlet, useLocation, useParams } from 'react-router-dom';
+import { Navigate, Outlet, useLocation, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 
 import { useAppMode } from '../../../app/appMode';
@@ -15,13 +15,14 @@ import { objectRef } from '../../../lib/objectRef';
 import { useTierAIntervalMs } from '../../../lib/refreshTiers';
 import { deriveChainLockState } from '../../../lib/lockState';
 import { useNetworkStatus } from '../../../lib/useNetworkStatus';
+import { backupDetailContext } from '../../../lib/backupNavigation';
 import { resourceId } from '../../../lib/resources';
 
 import { ErrorState } from '../../../components/ui/ErrorState';
 import { LoadingState } from '../../../components/ui/LoadingState';
 import { LockBadge } from '../../../components/ui/LockBadge';
 import { LockStateStaleAlert } from '../../../components/ui/LockStateStaleAlert';
-import { ObjectHeader } from '../../../components/ui/ObjectHeader';
+import { DatasetHeader } from './DatasetHeader';
 import { TabsNav } from '../../../components/ui/TabsNav';
 
 import { DatasetContextProvider } from './DatasetContext';
@@ -44,6 +45,7 @@ export function DatasetLayout() {
   const online = useNetworkStatus();
   const section = location.pathname.includes('/nas/') ? 'nas' : 'datasets';
   const routeListPath = `${basePath}/${section}`;
+  const backupContext = backupDetailContext(location.pathname, location.search);
 
   const datasetRef = React.useMemo(() => {
     if (!Number.isFinite(id) || id <= 0) return null;
@@ -76,7 +78,7 @@ export function DatasetLayout() {
         kindOverride="not_found"
         title={t('dataset.layout.invalid_id')}
         body={t('error.not_found.body')}
-        backTo={routeListPath}
+        backTo={backupContext?.returnTo ?? routeListPath}
         showStatusLink={false}
         showDetails={false}
         detailsExtra={{ page: 'dataset.detail', datasetId }}
@@ -93,7 +95,7 @@ export function DatasetLayout() {
         title={t('dataset.layout.load_error.title')}
         error={q.error}
         onRetry={() => void q.refetch()}
-        backTo={routeListPath}
+        backTo={backupContext?.returnTo ?? routeListPath}
         detailsExtra={{ page: 'dataset.detail', datasetId: id, scope: scope.scope }}
       />
     );
@@ -103,9 +105,9 @@ export function DatasetLayout() {
   const name = datasetTitle(ds, id);
   const vpsId = resourceId(ds.vps);
   const vpsHostname = ds.vps && typeof ds.vps === 'object' ? String((ds.vps as any).hostname ?? '') : '';
-  const returnPath = mode === 'user' && section === 'datasets' && vpsId !== undefined
+  const returnPath = backupContext?.returnTo ?? (mode === 'user' && section === 'datasets' && vpsId !== undefined
     ? `${basePath}/vps/${vpsId}/storage`
-    : routeListPath;
+    : routeListPath);
 
   const chains = chainsQ.data ?? [];
   const chainLock = deriveChainLockState({
@@ -160,10 +162,10 @@ export function DatasetLayout() {
     ...(expansionCapabilities.showEntry
       ? [{ label: t('dataset.tabs.expansion'), to: `${detailPath}/expansion` }]
       : []),
-  ];
+  ].map((tab) => ({ ...tab, to: tab.to + (backupContext?.search ?? '') }));
 
   if (!expansionCapabilities.showEntry && location.pathname === `${detailPath}/expansion`) {
-    return <Navigate replace to={detailPath} />;
+    return <Navigate replace to={detailPath + (backupContext?.search ?? '')} />;
   }
 
   return (
@@ -187,42 +189,24 @@ export function DatasetLayout() {
       }}
     >
       <DetailShell>
-        <ObjectHeader
-          testId="dataset.header"
-          kicker={
-            <>
-              <Link className="text-accent hover:underline" to={returnPath}>
-                {section === 'nas'
-                  ? t('nav.nas')
-                  : mode === 'user' && vpsId !== undefined
-                    ? t('vps.tabs.storage')
-                    : t('nav.datasets')}
-              </Link>
-              <span className="text-faint"> · </span>
-              <span>#{ds.id}</span>
-            </>
-          }
-          title={name}
-          badges={
-            <>
-              {busyTransaction ? (
-                <LockBadge
-                  kind="transaction"
-                  t={t}
-                  chainIds={activeChainIds}
-                  showDetails
-                />
-              ) : busyLocalLock ? (
-                <LockBadge kind="local" t={t} />
-              ) : null}
-
-              {vpsId ? (
-                <Link className="text-accent hover:underline" to={`${basePath}/vps/${vpsId}`}>
-                  {t('common.vps')}: {vpsHostname ? vpsHostname : `#${vpsId}`}
-                </Link>
-              ) : null}
-            </>
-          }
+        <DatasetHeader
+          name={name}
+          id={ds.id}
+          returnPath={returnPath}
+          returnLabel={backupContext ? t('nav.backups') : section === 'nas'
+            ? t('nav.nas')
+            : mode === 'user' && vpsId !== undefined
+              ? t('vps.tabs.storage')
+              : t('nav.datasets')}
+          status={busyTransaction ? (
+            <LockBadge kind="transaction" t={t} chainIds={activeChainIds} showDetails />
+          ) : busyLocalLock ? (
+            <LockBadge kind="local" t={t} />
+          ) : null}
+          vpsLink={vpsId ? {
+            to: `${basePath}/vps/${vpsId}`,
+            label: `${t('common.vps')}: ${vpsHostname || `#${vpsId}`}`,
+          } : undefined}
           tabs={<TabsNav items={tabs} />}
         />
 

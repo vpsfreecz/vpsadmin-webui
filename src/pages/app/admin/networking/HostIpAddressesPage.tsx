@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useSearchParams } from 'react-router-dom';
+import { useHref, useLocation, useSearchParams } from 'react-router-dom';
 
 import { useI18n } from '../../../../app/i18n';
 import { useAuth } from '../../../../app/auth';
@@ -20,7 +20,6 @@ import { parseBoolParam, parsePositiveInt } from '../../../../lib/parse';
 import { formatErrorMessage } from '../../../../lib/errors';
 import { ListShell } from '../../../../components/layout/ListShell';
 import { PageHeader } from '../../../../components/layout/PageHeader';
-import { FilterBar } from '../../../../components/layout/FilterBar';
 import { Alert } from '../../../../components/ui/Alert';
 import { Button } from '../../../../components/ui/Button';
 import { ActionButton } from '../../../../components/ui/ActionButton';
@@ -31,8 +30,8 @@ import { Input } from '../../../../components/ui/Input';
 import { LoadingState } from '../../../../components/ui/LoadingState';
 import { Modal } from '../../../../components/ui/Modal';
 import { Select } from '../../../../components/ui/Select';
-import { UserLookupInput } from '../../../../components/ui/UserLookupInput';
 import { VpsLookupInput } from '../../../../components/ui/VpsLookupInput';
+import { HostIpAddressFilters } from './HostIpAddressFilters';
 import { captureNetworkListScope } from './networkListScope';
 import { HostIpAddressesTable, hostAddr, isDefaultHiddenLegacyHostIp } from './HostIpAddressesTable';
 
@@ -42,6 +41,13 @@ export function HostIpAddressesPage() {
   const { pushToast } = useToasts();
   const qc = useQueryClient();
   const [sp, setSp] = useSearchParams();
+  const location = useLocation();
+  const browserPathname = useHref({ pathname: location.pathname });
+  const usesBrowserUrl = useRef(window.location.pathname === browserPathname);
+  const readCurrentParams = useCallback(() => {
+    if (usesBrowserUrl.current && window.location.pathname !== browserPathname) return null;
+    return new URLSearchParams(usesBrowserUrl.current ? window.location.search : sp);
+  }, [browserPathname, sp]);
   const [ptrEditor, setPtrEditor] = useState<HostIpAddress | null>(null);
   const [ptrValue, setPtrValue] = useState('');
   const [deleteHost, setDeleteHost] = useState<HostIpAddress | null>(null);
@@ -72,11 +78,12 @@ export function HostIpAddressesPage() {
   useEffect(() => setPage(1), [filterKey, limit]);
   useEffect(() => {
     if (!legacyParams) return;
-    const next = new URLSearchParams(sp);
+    const next = readCurrentParams();
+    if (!next) return;
     ['q', 'from_id', 'page'].forEach((key) => next.delete(key));
     setLegacyReset(true);
     setSp(next, { replace: true });
-  }, [legacyParams, sp, setSp]);
+  }, [legacyParams, readCurrentParams, setSp]);
   const unsupportedUserFilter = userId !== undefined && auth.role !== 'admin';
   const scope = captureNetworkListScope(auth, 'host_ip_addresses', filterKey);
   const scopeSignature = JSON.stringify(scope.key);
@@ -193,8 +200,9 @@ export function HostIpAddressesPage() {
   const partial = listQ.data?.completeness === 'partial';
 
   const setParam = (key: string, value?: string) => {
+    const next = readCurrentParams();
+    if (!next) return;
     filterGenerationRef.current += 1;
-    const next = new URLSearchParams(sp);
     if (value && value.trim()) next.set(key, value.trim());
     else next.delete(key);
     ['from_id', 'page'].forEach((k) => next.delete(k));
@@ -204,9 +212,12 @@ export function HostIpAddressesPage() {
   };
 
   const clearFilters = () => {
+    const current = readCurrentParams();
+    if (!current) return;
     filterGenerationRef.current += 1;
     const next = new URLSearchParams();
-    next.set('limit', String(limit));
+    const latestLimit = parsePositiveInt(current.get('limit'));
+    next.set('limit', String(latestLimit === 25 || latestLimit === 100 ? latestLimit : 50));
     setPage(1);
     setLegacyReset(false);
     setSp(next);
@@ -236,37 +247,14 @@ export function HostIpAddressesPage() {
       testId="admin.host_ip_addresses.page"
       header={<PageHeader title={t('admin.host_ip_addresses.title')} description={t('admin.host_ip_addresses.subtitle')} />}
       filters={
-        <FilterBar className="[&_input]:h-11 [&_select]:h-11"
-          left={
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="w-full max-w-sm">
-                <Input testId="admin.host_ip_addresses.filter.addr" value={addr} onChange={(e) => setParam('addr', e.target.value)} placeholder={t('admin.network_list.exact_addr')} />
-              </div>
-              <div className="w-64">
-                <UserLookupInput testId="admin.host_ip_addresses.filter.user" value={userId ? String(userId) : ''} onChange={(v) => setParam('user', v)} placeholder={t('admin.host_ip_addresses.filter.user.placeholder')} />
-              </div>
-              <div className="w-64">
-                <VpsLookupInput testId="admin.host_ip_addresses.filter.vps" value={vpsId ?? null} onChange={(v) => setParam('vps', v == null ? '' : String(v))} placeholder={t('admin.host_ip_addresses.filter.vps.placeholder')} />
-              </div>
-            </div>
-          }
-          right={
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="w-40">
-                <Select
-                  testId="admin.host_ip_addresses.filter.assigned"
-                  value={assigned === undefined ? 'all' : assigned ? 'true' : 'false'}
-                  onChange={(e) => setParam('assigned', e.target.value === 'all' ? '' : e.target.value)}
-                  options={[
-                    { value: 'all', label: t('admin.host_ip_addresses.filter.assigned.all') },
-                    { value: 'true', label: t('admin.host_ip_addresses.filter.assigned.true') },
-                    { value: 'false', label: t('admin.host_ip_addresses.filter.assigned.false') },
-                  ]}
-                />
-              </div>
-              {filtersActive ? <Button variant="secondary" className="h-11" testId="admin.host_ip_addresses.filter.clear" onClick={clearFilters}>{t('common.clear_filters')}</Button> : null}
-            </div>
-          }
+        <HostIpAddressFilters
+          addr={addr}
+          userId={userId}
+          vpsId={vpsId}
+          assigned={assigned}
+          active={filtersActive}
+          onParamChange={setParam}
+          onClear={clearFilters}
         />
       }
     >
@@ -334,7 +322,7 @@ export function HostIpAddressesPage() {
         }
       >
         <label className="block">
-          <div className="mb-1 text-sm font-medium">{ptrEditor ? hostAddr(ptrEditor) : ''}</div>
+          <div className="mb-1 text-sm font-medium [overflow-wrap:anywhere]">{ptrEditor ? hostAddr(ptrEditor) : ''}</div>
           <Input value={ptrValue} onChange={(e) => setPtrValue(e.target.value)} placeholder="host.example.org." />
         </label>
         <div className="mt-1 text-xs text-muted">{t('admin.host_ip_addresses.ptr.help')}</div>
@@ -356,7 +344,7 @@ export function HostIpAddressesPage() {
         }
       >
         <div className="space-y-4">
-          <div>{assignHost ? hostAddr(assignHost) : '—'}</div>
+          <div className="[overflow-wrap:anywhere]">{assignHost ? hostAddr(assignHost) : '—'}</div>
           <div>
             <div className="mb-1 text-sm font-medium">{t('admin.host_ip_addresses.assign.interface')}</div>
             <div data-testid="admin.host_ip_addresses.assign.parent_interface">{assignTarget?.interfaceName || (assignTarget ? `#${assignTarget.interfaceId}` : '—')}</div>

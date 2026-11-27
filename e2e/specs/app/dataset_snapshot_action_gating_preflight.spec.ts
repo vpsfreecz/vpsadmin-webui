@@ -39,7 +39,7 @@ test.describe('Dataset snapshot action gating (preflight)', () => {
           return { transaction_chains: [] };
         },
 
-        'GET datasets/10': () => ({
+        'GET datasets/10': () => ({ dataset: {
           id: 10,
           full_name: 'tank/vps/ds10',
           name: 'ds10',
@@ -50,7 +50,7 @@ test.describe('Dataset snapshot action gating (preflight)', () => {
           export_count: 0,
           object_state: 'active',
           vps: { id: 300, hostname: 'alpha.example' },
-        }),
+        } }),
 
         'GET datasets/10/snapshots': () => ({
           snapshots: [

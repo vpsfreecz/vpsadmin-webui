@@ -109,7 +109,7 @@ test('admin users: creates member with legacy payload fields and opens detail', 
 
   await expect(page).toHaveURL(/\/admin\/users\/77$/);
   expect(posts.at(-1)).toEqual({
-    user: expect.objectContaining({
+    user: {
       login: 'new-member',
       password: 'secret123',
       full_name: 'New Member',
@@ -117,9 +117,8 @@ test('admin users: creates member with legacy payload fields and opens detail', 
       address: 'Main street',
       level: 2,
       info: 'Admin note',
-      monthly_payment: 300,
       mailer_enabled: true,
-    }),
+    },
   });
 });
 

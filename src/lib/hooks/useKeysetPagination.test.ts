@@ -67,3 +67,205 @@ test('browser back and forward still restore the visited cursor', () => {
   expect(result.current.page).toBe(2);
   expect(result.current.fromId).toBe(50);
 });
+
+test.each(['next', 'limit'] as const)('keeps newly applied filters during pending router publication: %s', (action) => {
+  const setSearchParams = vi.fn();
+  const navigationSearchParams = new URLSearchParams('cgroup=%2Fsystem.slice&vps=7&limit=25&page=1');
+  const { result } = renderHook(() =>
+    useKeysetPagination({
+      id: 'pending-filter-navigation',
+      filterKey: 'cgroup=/system.slice;vps=7',
+      searchParams: new URLSearchParams('cgroup=%2Fpreserved.slice&limit=25&page=1'),
+      navigationSearchParams,
+      setSearchParams,
+    })
+  );
+  act(() => {
+    if (action === 'next') result.current.goNext(101);
+    else result.current.setLimit(50);
+  });
+  const destination = setSearchParams.mock.calls.at(-1)?.[0] as URLSearchParams;
+  expect(destination.get('cgroup')).toBe('/system.slice');
+  expect(destination.get('vps')).toBe('7');
+  expect(destination.get('page')).toBe(action === 'next' ? '2' : '1');
+  expect(destination.get('from_id')).toBe(action === 'next' ? '101' : null);
+  expect(destination.get('limit')).toBe(action === 'next' ? '25' : '50');
+});
+
+test('a departed dataset page cannot normalize or paginate the new route URL', () => {
+  const originalUrl = window.location.href;
+  window.history.replaceState(null, '', '/app/backups?tab=downloads&q=synthetic');
+  const setSearchParams = vi.fn();
+  try {
+    const { result, rerender } = renderHook(
+      ({ filterKey }) =>
+        useKeysetPagination({
+          id: 'departing-dataset-route',
+          filterKey,
+          navigationPathname: '/app/nas/10/snapshots',
+          searchParams: new URLSearchParams('from=backups&backups.tab=downloads&backups.q=synthetic'),
+          setSearchParams,
+        }),
+      { initialProps: { filterKey: 'dataset=10' } }
+    );
+    expect(setSearchParams).not.toHaveBeenCalled();
+    act(() => {
+      result.current.goNext(31);
+      result.current.setLimit(100);
+    });
+    expect(setSearchParams).not.toHaveBeenCalled();
+    window.history.replaceState(null, '', '/app/nas/10/snapshots');
+    rerender({ filterKey: 'dataset=11' });
+    const next = setSearchParams.mock.calls.at(-1)?.[0] as URLSearchParams;
+    expect(next.get('limit')).toBe('50');
+    expect(next.get('page')).toBe('1');
+    expect(next.get('backups.q')).toBe('synthetic');
+    expect(next.get('backups.tab')).toBe('downloads');
+  } finally {
+    window.history.replaceState(null, '', originalUrl);
+  }
+});
+
+test('automatic normalization cannot replace a browser history destination before the router publishes it', () => {
+  const originalUrl = window.location.href;
+  const previous = 'cgroup=%2Fhistory-two.slice&limit=25&page=2&from_id=101';
+  const destination = 'cgroup=%2Fsystem.slice&limit=25&page=1';
+  const path = '/admin/oom-reports';
+  window.history.replaceState(null, '', `${path}?${previous}`);
+  const setSearchParams = vi.fn();
+  try {
+    const { result, rerender } = renderHook(
+      ({ search, filterKey }) => {
+        const browserSnapshot = { navigationPathname: path, navigationSearchKey: search };
+        return useKeysetPagination({
+          id: 'browser-history-ahead',
+          filterKey,
+          searchParams: new URLSearchParams(search),
+          ...browserSnapshot,
+          setSearchParams,
+          defaultLimit: 25,
+        });
+      },
+      { initialProps: { search: previous, filterKey: '/history-two.slice' } }
+    );
+    setSearchParams.mockClear();
+    // Browser Back has moved the actual URL while React still has older params.
+    window.history.replaceState(null, '', `${path}?${destination}`);
+    rerender({ search: previous, filterKey: '/system.slice' });
+    expect(setSearchParams).not.toHaveBeenCalled();
+    rerender({ search: destination, filterKey: '/system.slice' });
+    expect(result.current.page).toBe(1);
+    expect(setSearchParams).not.toHaveBeenCalled();
+    act(() => result.current.goNext(75));
+    const next = setSearchParams.mock.calls.at(-1)?.[0] as URLSearchParams;
+    expect(next.get('cgroup')).toBe('/system.slice');
+    expect(next.get('from_id')).toBe('75');
+    expect(next.get('page')).toBe('2');
+  } finally {
+    window.history.replaceState(null, '', originalUrl);
+  }
+});
+
+test('a pending applied filter resets the cursor without writing the previous filter back to the URL', () => {
+  const originalUrl = window.location.href;
+  const path = '/admin/oom-reports';
+  const previous = 'cgroup=%2Fsystem.slice&limit=25&page=2&from_id=101';
+  const applied = 'cgroup=%2Fhistory-two.slice&limit=25&page=2&from_id=101';
+  const destination = 'cgroup=%2Fhistory-two.slice&limit=25&page=1';
+  window.history.replaceState(null, '', `${path}?${previous}`);
+  const setSearchParams = vi.fn();
+  try {
+    const { result, rerender } = renderHook(
+      ({ search, filterKey, navigation }) =>
+        useKeysetPagination({
+          id: 'pending-oom-filter-cursor-reset',
+          filterKey,
+          searchParams: new URLSearchParams(search),
+          navigationSearchParams: new URLSearchParams(navigation),
+          navigationPathname: path,
+          navigationSearchKey: search,
+          setSearchParams,
+          defaultLimit: 25,
+        }),
+      { initialProps: { search: previous, filterKey: '/system.slice', navigation: previous } }
+    );
+    setSearchParams.mockClear();
+    rerender({ search: previous, filterKey: '/history-two.slice', navigation: applied });
+    expect(result.current.page).toBe(1);
+    expect(result.current.fromId).toBeUndefined();
+    expect(setSearchParams).not.toHaveBeenCalled();
+    window.history.replaceState(null, '', `${path}?${destination}`);
+    rerender({ search: destination, filterKey: '/history-two.slice', navigation: destination });
+    expect(result.current.page).toBe(1);
+    act(() => result.current.goNext(75));
+    const next = setSearchParams.mock.calls.at(-1)?.[0] as URLSearchParams;
+    expect(next.get('cgroup')).toBe('/history-two.slice');
+    expect(next.get('from_id')).toBe('75');
+  } finally {
+    window.history.replaceState(null, '', originalUrl);
+  }
+});
+
+test('browser POP supersedes a pending cursor transition before router publication', () => {
+  const originalUrl = window.location.href;
+  const path = '/app/profile/user-namespaces/namespaces';
+  const first = 'node=7&limit=50&page=1';
+  window.history.replaceState(null, '', `${path}?${first}`);
+  const setSearchParams = vi.fn((next: URLSearchParams | string) => {
+    window.history.pushState(null, '', `${path}?${next.toString()}`);
+  });
+  try {
+    // Keep the router's committed params on page 1 while native history moves.
+    const { result } = renderHook(() =>
+      useKeysetPagination({
+        id: 'pending-browser-pop',
+        filterKey: 'node=7',
+        searchParams: new URLSearchParams(first),
+        setSearchParams,
+      })
+    );
+    act(() => result.current.goNext(50));
+    expect(result.current.fromId).toBe(50);
+    expect(result.current.page).toBe(2);
+    setSearchParams.mockClear();
+    act(() => {
+      window.history.replaceState(null, '', `${path}?${first}`);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+    expect(result.current.page).toBe(1);
+    expect(result.current.fromId).toBeUndefined();
+    expect(result.current.hasForward).toBe(true);
+    act(() => {
+      window.history.replaceState(null, '', `${path}?node=7&limit=50&page=2&from_id=50`);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+    expect(result.current.fromId).toBe(50);
+    expect(result.current.page).toBe(2);
+    expect(setSearchParams).not.toHaveBeenCalled();
+  } finally {
+    window.history.replaceState(null, '', originalUrl);
+  }
+});
+
+test.each([
+  '/app/other?node=7&limit=50&page=1',
+  '/app/profile/user-namespaces/namespaces?node=8&limit=50&page=1',
+  '/app/profile/user-namespaces/namespaces?node=7&limit=25&page=1',
+])('browser POP leaves a different route, filter or limit for router hydration: %s', (destination) => {
+  const originalUrl = window.location.href;
+  const path = '/app/profile/user-namespaces/namespaces';
+  window.history.replaceState(null, '', `${path}?node=7&limit=50&page=1`);
+  try {
+    const { result, setSearchParams } = setup();
+    act(() => result.current.goNext(50));
+    setSearchParams.mockClear();
+    act(() => {
+      window.history.replaceState(null, '', destination);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+    expect(result.current.fromId).toBe(50);
+    expect(setSearchParams).not.toHaveBeenCalled();
+  } finally {
+    window.history.replaceState(null, '', originalUrl);
+  }
+});

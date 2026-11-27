@@ -296,4 +296,8 @@ export const csVps_network = {
   'vps.network.host_addresses.create.partial_error': 'Vytvořeno: {count}. Adresu {address} se vytvořit nepodařilo: {error}. V poli zůstaly jen adresy, které je potřeba zkusit znovu.',
   'vps.network.host_addresses.create.submit': 'Přidat adresy',
   'vps.network.host_addresses.create.toast': 'Přidáno host adres: {count}',
+  'network.user.summary.period': 'Období',
+  'network.user.summary.metric': 'Ukazatel',
+  'network.user.summary.packets': 'Pakety za sekundu',
+  'network.user.summary.updated': 'Aktualizováno: {time}',
 } as const;
