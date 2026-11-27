@@ -338,6 +338,54 @@ export function useKeysetPagination(opts: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sig, urlCursor]);
 
+  // Native Back can return to the already committed cursor before React has
+  // published a pending Next transition. In that case urlCursor never changes,
+  // so the URL hydration effect alone cannot undo the optimistic local cursor.
+  // Listen only within this route/filter/limit scope; the router owns changes
+  // to that scope. A POP restores state without adding or replacing history.
+  useLayoutEffect(() => {
+    const pathname = opts.navigationPathname ?? window.location.pathname;
+    const filterParams = (params: URLSearchParams) => {
+      const filters = new URLSearchParams(params);
+      for (const key of [cursorKey, pageKey, limitKey, ...(opts.wipeQueryKeys ?? [])]) filters.delete(key);
+      filters.sort();
+      return filters.toString();
+    };
+    const expectedFilters = filterParams(opts.searchParams);
+    const restore = () => {
+      const params = new URLSearchParams(window.location.search);
+      if (window.location.pathname !== pathname || filterParams(params) !== expectedFilters) return;
+      const destinationLimit = clampLimit(
+        parseNumber(params.get(limitKey), { min: 1 }) ?? defaultLimit,
+        allowedLimits,
+        defaultLimit
+      );
+      if (destinationLimit !== limit) return;
+      const destination = parseNumber(params.get(cursorKey), { integer: cursorInteger, min: cursorMin }) ?? null;
+      setState((previous) => {
+        if (previous.sig !== sig) return previous;
+        const index = previous.stack.indexOf(destination);
+        if (index >= 0) return index === previous.index ? previous : { ...previous, index };
+        return { ...previous, stack: [null, destination], index: 1 };
+      });
+    };
+    window.addEventListener('popstate', restore);
+    return () => window.removeEventListener('popstate', restore);
+  }, [
+    allowedLimits,
+    cursorInteger,
+    cursorKey,
+    cursorMin,
+    defaultLimit,
+    limit,
+    limitKey,
+    opts.navigationPathname,
+    opts.searchParams,
+    opts.wipeQueryKeys,
+    pageKey,
+    sig,
+  ]);
+
   // Persist the stack for refresh/navigation within the same filter set.
   useLayoutEffect(() => {
     if (state.sig !== sig) return;

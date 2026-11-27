@@ -1,3 +1,7 @@
+## 2026-11-27 — Repair original first-attempt release failures
+
+[Native cursor restoration and blocking-dialog keyboard preconditions](docs/work-log/2026-11-27-main-first-attempt-repairs.md). Preserve the original failures and all assertions; requalify the changed exact head before the authorized main merge.
+
 ## 2026-11-27 — Reconcile the approved release with main
 
 [Main integration, published SDK and builder-free release procedure](docs/work-log/2026-11-27-main-release-integration.md).

@@ -205,3 +205,67 @@ test('a pending applied filter resets the cursor without writing the previous fi
     window.history.replaceState(null, '', originalUrl);
   }
 });
+
+test('browser POP supersedes a pending cursor transition before router publication', () => {
+  const originalUrl = window.location.href;
+  const path = '/app/profile/user-namespaces/namespaces';
+  const first = 'node=7&limit=50&page=1';
+  window.history.replaceState(null, '', `${path}?${first}`);
+  const setSearchParams = vi.fn((next: URLSearchParams | string) => {
+    window.history.pushState(null, '', `${path}?${next.toString()}`);
+  });
+  try {
+    // Keep the router's committed params on page 1 while native history moves.
+    const { result } = renderHook(() =>
+      useKeysetPagination({
+        id: 'pending-browser-pop',
+        filterKey: 'node=7',
+        searchParams: new URLSearchParams(first),
+        setSearchParams,
+      })
+    );
+    act(() => result.current.goNext(50));
+    expect(result.current.fromId).toBe(50);
+    expect(result.current.page).toBe(2);
+    setSearchParams.mockClear();
+    act(() => {
+      window.history.replaceState(null, '', `${path}?${first}`);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+    expect(result.current.page).toBe(1);
+    expect(result.current.fromId).toBeUndefined();
+    expect(result.current.hasForward).toBe(true);
+    act(() => {
+      window.history.replaceState(null, '', `${path}?node=7&limit=50&page=2&from_id=50`);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+    expect(result.current.fromId).toBe(50);
+    expect(result.current.page).toBe(2);
+    expect(setSearchParams).not.toHaveBeenCalled();
+  } finally {
+    window.history.replaceState(null, '', originalUrl);
+  }
+});
+
+test.each([
+  '/app/other?node=7&limit=50&page=1',
+  '/app/profile/user-namespaces/namespaces?node=8&limit=50&page=1',
+  '/app/profile/user-namespaces/namespaces?node=7&limit=25&page=1',
+])('browser POP leaves a different route, filter or limit for router hydration: %s', (destination) => {
+  const originalUrl = window.location.href;
+  const path = '/app/profile/user-namespaces/namespaces';
+  window.history.replaceState(null, '', `${path}?node=7&limit=50&page=1`);
+  try {
+    const { result, setSearchParams } = setup();
+    act(() => result.current.goNext(50));
+    setSearchParams.mockClear();
+    act(() => {
+      window.history.replaceState(null, '', destination);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+    expect(result.current.fromId).toBe(50);
+    expect(setSearchParams).not.toHaveBeenCalled();
+  } finally {
+    window.history.replaceState(null, '', originalUrl);
+  }
+});

@@ -426,6 +426,9 @@ for (const [language, theme] of [['cs', 'dark'], ['en', 'light'], ['cs', 'light'
         // Focusing an off-screen mobile control also initiates native scrolling.
         await toggle.scrollIntoViewIfNeeded();
         await expect(toggle).toBeInViewport();
+        // The global request loader can outlive the action-specific dialog.
+        // It legitimately owns focus until the blocking request has settled.
+        await expect(page.getByRole('dialog')).toHaveCount(0);
         await toggle.focus();
         await expect(toggle).toBeFocused();
         await page.keyboard.press('Tab');
