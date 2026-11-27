@@ -1,3 +1,7 @@
+## 2026-11-27 — Include four selected preview fixes in the production candidate
+
+[Scope, SDK reconciliation and verification boundaries](docs/work-log/2026-11-27-four-production-fixes.md).
+
 ## 2026-11-26 — Establish visible password keyboard setup
 
 Keep every password geometry/keyboard/masking/mutation assertion and add native stable-scroll plus viewport preconditions before focusing an off-screen control after resize. Retain bounded native focus/resize evidence on failure. Approvedf2fb retained one hosted initial-focus flaky case after local100/100; prior native diagnostics did not reproduce it, and stages remain held. No retry/skip/time/budget weakening or product change. See [evidence and limits](docs/work-log/2026-11-26-visible-password-keyboard.md).

@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { HaveApiError } from '../lib/api/haveapi';
+import { HaveApiError } from '../lib/api/apiErrors';
 import { AuthProvider, useAuth } from './auth';
 
 const state = vi.hoisted(() => ({ error: undefined as unknown }));

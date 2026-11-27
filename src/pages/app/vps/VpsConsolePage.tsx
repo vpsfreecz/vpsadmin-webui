@@ -206,9 +206,7 @@ function MutableVpsConsolePage() {
   const techError = tokenQ.error instanceof HaveApiError ? tokenQ.error : null;
 
   const validityDenied = validityQ.error instanceof HaveApiError
-    && !('failure' in validityQ.error && validityQ.error.failure === 'protocol')
-    && validityQ.error.envelope.errors !== 'MALFORMED_HAVEAPI_ENVELOPE'
-    && validityQ.error.envelope.errors !== 'INVALID_JSON_RESPONSE'
+    && validityQ.error.failure !== 'protocol'
     && validityQ.error.envelope.status === false
     && [403, 404].includes(validityQ.error.httpStatus ?? 0);
   const tokenExpired = validityDenied || Boolean(validityQ.data && (

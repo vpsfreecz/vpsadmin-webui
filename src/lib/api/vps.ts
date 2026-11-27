@@ -378,13 +378,13 @@ export async function createConsoleToken(vpsId: number) {
 
 /** Read the current token without creating or extending a console session. */
 export async function fetchConsoleToken(vpsId: number) {
-  const res = await haveApiCall<ConsoleToken>({
-    method: 'GET',
-    path: `/vpses/${vpsId}/console_token`,
+  const res = await (await getApi()).vps.console_token.show({
+    path: { vps_id: vpsId },
   });
-  if (!res.data || typeof res.data.token !== 'string' || !res.data.token
-    || typeof res.data.expiration !== 'string' || !res.data.expiration) throw new Error('Invalid console token');
-  return res;
+  return narrowApiResult(res, data => {
+    if (typeof data.token !== 'string' || !data.token || typeof data.expiration !== 'string' || !data.expiration) throw new Error('Invalid console token');
+    return { token: data.token, expiration: data.expiration };
+  }, 'VPS console token');
 }
 
 export async function deleteConsoleToken(vpsId: number) {
