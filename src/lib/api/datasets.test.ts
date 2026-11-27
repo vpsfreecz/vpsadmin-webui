@@ -2,6 +2,8 @@ import { installHaveApiXhr } from '../../test/haveapiXhr';
 import { afterEach, describe, expect, test, vi } from 'vitest';
 
 import {
+  datasetBackupCleanupAvailable,
+  disableDatasetBackups,
   createDataset,
   createDatasetSnapshot,
   createSnapshotDownload,
@@ -298,5 +300,45 @@ describe('datasets API wrappers', () => {
     expect(u.searchParams.has('snapshot_download[q]')).toBe(false);
     expect(u.searchParams.get('_meta[includes]')).toBe('snapshot__dataset');
     expect(u.searchParams.get('_meta[count]')).toBe('true');
+  });
+});
+
+describe('dataset backup cleanup discovery', () => {
+  const description = () => ({ resources: { dataset: { actions: { disable_backups: {
+    method: 'POST', input: { parameters: { recursive: {}, backup_first: {} } },
+  } } } } });
+  test('requires the whole additive contract', () => {
+    expect(datasetBackupCleanupAvailable(description())).toBe(true);
+    expect(datasetBackupCleanupAvailable({})).toBe(false);
+    const partial = description();
+    partial.resources.dataset.actions.disable_backups.input.parameters.backup_first = null as never;
+    expect(datasetBackupCleanupAvailable(partial)).toBe(false);
+    const wrongMethod = description();
+    wrongMethod.resources.dataset.actions.disable_backups.method = 'GET';
+    expect(datasetBackupCleanupAvailable(wrongMethod)).toBe(false);
+  });
+});
+
+describe('generated dataset backup cleanup action', () => {
+  test.each([
+    [{}, {}],
+    [{ backup_first: false, recursive: false }, { backup_first: false, recursive: false }],
+    [{ backup_first: true, recursive: true }, { backup_first: true, recursive: true }],
+  ])('serializes only declared options through one SDK request: %o', async (options, expected) => {
+    setMockRuntime();
+    const fetchMock = mockFetchOk({ dataset: {}, _meta: { action_state_id: 71 } });
+    installHaveApiXhr(fetchMock);
+    const result = await disableDatasetBackups(123, options);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, init] = firstFetchCall(fetchMock);
+    expect(new URL(String(url)).pathname).toBe('/v7.0/datasets/123/disable_backups');
+    expect(init?.method).toBe('POST');
+    expect(JSON.parse(String(init?.body))).toEqual({ dataset: expected });
+    expect(result.data).toEqual({});
+    expect(result.meta.action_state_id).toBe(71);
+  });
+  test('retains acceptance without its ordinary receipt as unknown', async () => {
+    setMockRuntime(); installHaveApiXhr(mockFetchOk({ dataset: {} }));
+    await expect(disableDatasetBackups(123, {})).rejects.toMatchObject({ code: 'MISSING_ACTION_STATE', result: { data: {} } });
   });
 });

@@ -1,4 +1,4 @@
-import type { DatasetExpansion__CreateInput, DatasetExpansion__History__CreateInput, DatasetExpansion__History__IndexInput, DatasetExpansion__RegisterExpandedInput, DatasetExpansion__UpdateInput, Dataset__CreateInput, Dataset__IndexInput, Dataset__Plan__CreateInput, Dataset__Plan__IndexInput, Dataset__Snapshot__CreateInput, Dataset__Snapshot__IndexInput, Dataset__UpdateInput, Environment__DatasetPlan__IndexInput, SnapshotDownload__CreateInput, SnapshotDownload__IndexInput } from 'vpsadmin-typescript-client';
+import type { Dataset__DisableBackupsInput, DatasetExpansion__CreateInput, DatasetExpansion__History__CreateInput, DatasetExpansion__History__IndexInput, DatasetExpansion__RegisterExpandedInput, DatasetExpansion__UpdateInput, Dataset__CreateInput, Dataset__IndexInput, Dataset__Plan__CreateInput, Dataset__Plan__IndexInput, Dataset__Snapshot__CreateInput, Dataset__Snapshot__IndexInput, Dataset__UpdateInput, Environment__DatasetPlan__IndexInput, SnapshotDownload__CreateInput, SnapshotDownload__IndexInput } from 'vpsadmin-typescript-client';
 import type { Dataset__ShowOutput, DatasetPlan__ShowOutput, Environment__DatasetPlan__ShowOutput, Dataset__Plan__ShowOutput, DatasetExpansion__ShowOutput, DatasetExpansion__History__ShowOutput, Dataset__Snapshot__ShowOutput, SnapshotDownload__ShowOutput } from 'vpsadmin-typescript-client';
 import { narrowApiResult } from './apiOutput';
 import { fields, positiveId, reference, rows, object, type StorageReference } from './vpsStorageOutput';
@@ -60,7 +60,7 @@ function isSnapshotDownload(value: unknown): value is SnapshotDownload {
     && reference(value['from_snapshot']);
 }
 
-import { getApi } from './sdk';
+import { getApi, type ApiDescription } from './sdk';
 import { requireActionStateResult } from './apiErrors';
 
 /**
@@ -315,4 +315,26 @@ export async function addDatasetExpansionSpace(expansionId: number, payload: Dat
     params: payload,
   });
   return narrowApiResult(res, data => object(data, isDatasetExpansionHistory), 'addDatasetExpansionSpace');
+}
+
+/** Permission-filtered discovery is required in addition to the actual administrator role. */
+export function datasetBackupCleanupAvailable(description: ApiDescription): boolean {
+  const action = description.resources?.['dataset']?.actions?.['disable_backups'];
+  const declared = (value: unknown) => value !== null && typeof value === 'object' && !Array.isArray(value);
+  return action?.method === 'POST'
+    && ['recursive', 'backup_first'].every(key => declared(action.input?.parameters?.[key]));
+}
+
+export async function fetchDatasetBackupCleanupAvailable() {
+  return narrowApiResult(await (await getApi()).describe(), datasetBackupCleanupAvailable, 'dataset backup cleanup capability');
+}
+
+export type DisableBackupsOptions = Dataset__DisableBackupsInput;
+
+export async function disableDatasetBackups(datasetId: number, params: DisableBackupsOptions) {
+  const result = await (await getApi()).dataset.disable_backups({
+    path: { dataset_id: datasetId },
+    params,
+  });
+  return requireActionStateResult(result, 'dataset backup cleanup');
 }

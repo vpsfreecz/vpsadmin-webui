@@ -10,65 +10,73 @@ is disabled by default and site configuration remains separate.
 ## Reproduce the dependencies
 
 Enter `nix develop` for the locked Node and npm. The root and BFF are independent
-npm projects. Both use ordinary `buildNpmPackage` locked dependency fetching.
-Compute each project's cache hash from its own lock:
+npm projects. Both use ordinary `buildNpmPackage` locked dependency inputs.
+The frontend uses `pkgs.importNpmLock` with its matching `npmConfigHook`, resolving
+registry modules by their individual lock integrity. It needs no aggregate
+`npmDepsHash`. The BFF retains its separate fixed dependency-cache hash:
 
 ```sh
-prefetch-npm-deps package-lock.json
 prefetch-npm-deps bff/package-lock.json
 ```
 
-The frontend cache hash belongs to [frontend.nix](../../packages/frontend.nix);
+The frontend importer belongs to [frontend.nix](../../packages/frontend.nix);
 the separate BFF hash belongs to [bff.nix](../../packages/bff.nix). The frontend
 includes exact inputs for the generated client and HaveAPI runtime,
 with the locked XMLHttpRequest transport. See their
-[source and artifact contract](HAVEAPI_CLIENT.md). The root prefetch reports six
+[source and artifact contract](HAVEAPI_CLIENT.md). The root lock contains six
 bundled optional dependencies nested under `@tailwindcss/oxide-wasm32-wasi`
 without separate resolved URLs. Their WASI-only placement and bundled metadata
-explain the warning; an actual x86_64 package build establishes whether the cached
-dependency set is sufficient. Do not edit a lock or reuse the other project's hash
-to work around a fetch failure.
+remain unchanged; an actual x86_64 package build establishes whether the selected
+dependency inputs are sufficient. Do not edit a lock or reuse the other project's
+hash to work around a fetch failure.
 
 <a id="temporary-unpublished-sdk-input"></a>
 
 ### Generated client input
 
-The root package selects the published registry release
-`vpsadmin-typescript-client@0.6.0`, which supplies the administrator Exposure and
-History operations described in [the client contract](HAVEAPI_CLIENT.md#generated-vpsadmin-typescript-sdk).
-The exact manifest version, npm-generated lock and
-[SDK provenance record](../../packages/vpsadmin-typescript-client-development.json)
-bind the registry archive to source
-`aed11d01c0d1436293f45a1a4e83d88421375bc1` and its release workflow.
-The archive includes compiled exports, declarations and saved generation inputs.
-Ordinary installation needs no sibling checkout or local override.
+The root manifest and npm-generated lock select published
+`vpsadmin-typescript-client@0.7.0`. The registry archive contains the generated
+`dataset.disable_backups` operation and declarations. Its exact registry URL,
+SHA-512 integrity and source are recorded in the
+[client contract](HAVEAPI_CLIENT.md#generated-vpsadmin-typescript-sdk).
+Installation needs no sibling checkout, local archive or source override.
 
-Standard `prefetch-npm-deps` supplies the frontend cache hash for the selected
-lock. Other root lock records, the HaveAPI runtime peer and the separate BFF
-dependency graph remain unchanged. This selection satisfies the published-SDK
-prerequisite. Backend capability checks, application verification, independent
-review and deployment remain separate requirements. Earlier dependency and
-verification records retain their original inputs in
-[the client contract](HAVEAPI_CLIENT.md).
+The frontend uses `importNpmLock { npmRoot = source; }` and its matching config
+hook. Registry dependencies retain their individual locked integrity; no aggregate
+frontend `npmDepsHash` is required. The HaveAPI peer and BFF dependency graph and
+cache hash remain unchanged. Frontend and BFF derive from one source revision
+and shared provenance. Actual builds and content checks establish package
+consumption; evaluation alone does not.
 
 For an intentional dependency update:
 
-1. Verify the selected archive, source/provenance, public exports and exact HaveAPI
-   peer. Keep runtime and generator versions distinct.
+1. Verify the selected registry archive, source/provenance, public exports and
+   exact HaveAPI peer. Keep runtime and generator versions distinct.
 2. Generate the manifest and lock with pinned npm:
    `npm install --package-lock-only --ignore-scripts --save-exact vpsadmin-typescript-client@<verified-version>`.
    Inspect the bounded lock delta and preserve unrelated dependency records.
 3. Coordinate with local runners before `npm ci`, then verify the installed
    input and affected policy/wire and declaration checks.
-4. Run `prefetch-npm-deps package-lock.json` and update only the frontend
-   `npmDepsHash` for a root dependency change. The BFF lock and hash are separate.
-   Commit source, lock, hash and documentation changes and complete independent
-   review before final frontend/BFF/provenance/source/package checks.
+4. Keep the frontend importer consistent with the lock and its matching hook.
+   The BFF lock and cache hash are separate. Commit source, lock and documentation
+   changes and complete independent review before final frontend/BFF/provenance/
+   source/package checks.
 
-Rollback restores the matching source, manifest, lock and cache-hash set.
+Rollback restores the matching source, manifest, lock and dependency-build inputs.
 The [optional local-client workflow](HAVEAPI_CLIENT.md#optional-local-generated-client-development)
 uses standard `npm pack` and a no-save npm archive override. It leaves committed
-packaging inputs unchanged; Nix continues to use the committed locked input.
+packaging inputs unchanged; Nix continues to use the committed registry input.
+For a development build that requires an unpublished SDK, retain its verified
+archive as a regular source file. Select it with pinned npm using
+`npm install --package-lock-only --ignore-scripts --save-exact ./packages/development-sdk/<archive>.tgz`.
+Point `packageSourceOverrides` for `node_modules/vpsadmin-typescript-client` to
+that archive and keep the importer's matching config hook. Verify archive
+integrity and preserve unrelated lock records and the BFF hash. Replace this
+temporary selection with a compatible published SDK before merge.
+A feature requiring new generated operations must still satisfy the
+[published-SDK prerequisite](HAVEAPI_CLIENT.md#generated-vpsadmin-typescript-sdk).
+API compatibility, authenticated capability checks, review and activation remain
+separate requirements.
 
 ## Source, contents and provenance
 

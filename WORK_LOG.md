@@ -1,3 +1,11 @@
+## 2026-11-27 — Reconcile the approved release with main
+
+[Main integration, published SDK and builder-free release procedure](docs/work-log/2026-11-27-main-release-integration.md).
+
+## 2026-11-26: Adopt the published cleanup SDK
+
+[Registry dependency, integrity and verification boundaries](docs/work-log/2026-11-25-disable-backups.md#published-sdk-adoption).
+
 ## 2026-11-27 — Include four selected preview fixes in the production candidate
 
 [Scope, SDK reconciliation and verification boundaries](docs/work-log/2026-11-27-four-production-fixes.md).

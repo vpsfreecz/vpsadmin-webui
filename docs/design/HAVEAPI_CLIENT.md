@@ -39,15 +39,16 @@ across the complete RequestSpec/RequestResult boundary.
 `package-lock.json` pins the release integrity and `xmlhttprequest@1.8.0` with
 its exact registry URL/integrity. The library's upstream `latest` requirement
 does not float during `npm ci`. Browsers use native XHR; the transitive package
-provides the library's Node transport. The frontend uses the ordinary registry
-`buildNpmPackage` dependency cache, described in [packaging](PACKAGING.md).
+provides the library's Node transport. The frontend uses the standard Nix lock
+importer and per-module integrity. The BFF retains its separate aggregate
+dependency hash. Follow the [package guide](PACKAGING.md) when updating these inputs.
 
 ## Dependency updates and verification
 
 Use the locked Node/npm toolchain in `nix develop`. For an intentional update,
 inspect the npm metadata and attestation, verify its artifact digest and source
-revision, update the exact dependency and lock together, and refresh the root
-npm dependency hash. Preserve unrelated lock entries and the separate BFF graph.
+revision, and update the exact dependency, lock and Nix importer inputs together.
+Preserve unrelated lock entries and the separate BFF graph and dependency hash.
 Update the provenance record and this contract when the supported package changes.
 `check-package-source.mjs` rejects disagreement between manifest, lock and
 provenance, substituted archives and missing transitive transport integrity.
@@ -58,11 +59,34 @@ does not itself verify registry signatures or perform network requests.
 
 ## Selected generated TypeScript SDK
 
-The administrator Overview and History use the published
-`vpsadmin-typescript-client@0.6.0` release. Its generated operations are required
-by these pages, so the manifest pins the exact version. The npm lock and
-[SDK provenance record](../../packages/vpsadmin-typescript-client-development.json)
-bind the [registry archive](https://registry.npmjs.org/vpsadmin-typescript-client/-/vpsadmin-typescript-client-0.6.0.tgz)
+The exact root dependency is published `vpsadmin-typescript-client@0.7.0`,
+selected from SDK source
+[`0f1cde21a6e3b64a06389d21a5a5124093520724`](https://github.com/vpsfreecz/vpsadmin-typescript-client/tree/v0.7.0).
+It supplies `dataset.disable_backups` and its input/output declarations, as well
+as the existing administrator Exposure and History operations. The
+[registry archive](https://registry.npmjs.org/vpsadmin-typescript-client/-/vpsadmin-typescript-client-0.7.0.tgz)
+has SHA-256
+`19fedf46dc72f902fedb055595d1b4de18af58d121bc9dd2ff6bc0234abdafdd`.
+The npm-generated [lock](../../package-lock.json) pins that URL and integrity:
+
+```text
+sha512-dZ1ZfGkrnd0V7jZgLnkaMOIlTYTjz8p16IJjKieHIIUzWLQ3FYsq50i+U2q3PPxCunJNRnmjbhDj+kCPE6mVCw==
+```
+
+The selected registry artifact satisfies this feature's published-SDK prerequisite.
+It uses the unchanged exact `haveapi-client@0.32.0` peer. The frontend consumes
+it through the standard Nix lock importer and matching config hook, without a
+local archive or package source override. See the
+[packaging procedure](PACKAGING.md#temporary-unpublished-sdk-input).
+Earlier development-archive checks retain their original input identities;
+registry installation and package-consumption evidence are separate.
+
+### Earlier registry 0.6.0 input
+
+The earlier published `vpsadmin-typescript-client@0.6.0` dependency supplied
+the administrator Overview and History operations. Its npm lock and
+[retained SDK provenance record](https://github.com/vpsfreecz/vpsadmin-webui/blob/e311b1c0af0f50fa4c6f6ce83c514c1a866eb042/packages/vpsadmin-typescript-client-development.json)
+retain the [registry archive](https://registry.npmjs.org/vpsadmin-typescript-client/-/vpsadmin-typescript-client-0.6.0.tgz)
 to source `aed11d01c0d1436293f45a1a4e83d88421375bc1`, tag `v0.6.0` and
 [release run 45455308941, attempt 1](https://github.com/vpsfreecz/vpsadmin-typescript-client/actions/runs/45455308941/attempts/1).
 The 348076-byte archive has SHA-256
@@ -243,13 +267,16 @@ nix develop
 npm ci
 client_archive=/absolute/path/to/the-exact-archive.tgz
 sha256sum "$client_archive"
-npm install --no-save --package-lock=false --ignore-scripts "$client_archive"
+npm install --no-save --package-lock=true --ignore-scripts "$client_archive"
 ```
 
-`--package-lock=false` ignores the lock during this install, so other temporary
-dependencies may also resolve differently. Do not force incompatible peers or
-claim that the installed tree still matches the canonical lock. Check the public
-entrypoint and the HaveAPI version resolved from the client:
+`--no-save` preserves the manifest and lock, while `--package-lock=true` keeps
+other dependencies at their locked resolutions. Verify that both files are
+unchanged and compare the installed dependency graph against the lock, allowing
+only the selected SDK archive to differ. Disabling lock resolution can also
+upgrade unrelated dependencies. Do not force incompatible peers or claim that
+the SDK override matches the canonical registry input. Check the public entrypoint
+and the HaveAPI version resolved from the client:
 
 ```sh
 node --input-type=module <<'JS'
@@ -310,3 +337,22 @@ Follow vpsAdmin's [generated-client synchronization procedure](https://github.co
 for the API/client update sequence. Ordinary source synchronization does not
 require a release. When a TypeScript-client release is needed, default to the
 next minor version unless the user explicitly specifies a version or bump.
+
+
+### Administrator dataset backup cleanup dependency
+
+Backup cleanup uses generated `dataset.disable_backups`,
+`Dataset__DisableBackupsInput` and `Dataset__DisableBackupsOutput` with only
+optional `recursive`/`backup_first` booleans. The inherited empty dataset result
+is `Record<string, never>`; the adapter requires the ordinary
+`result.meta.action_state_id`. It submits once and uses existing task handling.
+
+The selected published `0.7.0` release contains these members; the earlier
+registry `0.6.0` input lacks them. The manifest and npm-generated lock select the
+registry artifact above without temporary overrides. The optional no-save
+[packed-client workflow](#optional-local-generated-client-development) remains
+available for local development, with its own input identity. SDK publication
+and package checks do not prove that a cluster has activated the UI.
+Compatible API/scheduler deployment remains separate. The
+[implementation record](../work-log/2026-11-25-disable-backups.md) distinguishes
+initial development proof from registry adoption.
