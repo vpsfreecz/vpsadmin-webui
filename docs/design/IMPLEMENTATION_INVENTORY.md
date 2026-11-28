@@ -6,7 +6,7 @@ This is a source inventory, not proof of API permissions, feature parity, or tes
 Paths are relative to the configured router basename. Parent layers include scope/auth
 wrappers; page-level action guards and API authorization still apply.
 
-## Routes (270 entries, including layouts and index routes)
+## Routes (274 entries, including layouts and index routes)
 
 | Route | Kind | Element | Parent layers | Source |
 | --- | --- | --- | --- | --- |
@@ -35,18 +35,19 @@ wrappers; page-level action guards and API authorization still apply.
 | `/app/vps` | page/redirect | `<CoreRoutes.VpsListPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" />` | [source](../../src/routes/router.tsx) |
 | `/app/vps/new` | page/redirect | `<CoreRoutes.VpsCreatePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" />` | [source](../../src/routes/router.tsx) |
 | `/app/vps/:vpsId` | layout | `<CoreRoutes.VpsLayout />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" />` | [source](../../src/routes/router.tsx) |
-| `/app/vps/:vpsId` | index | `<CoreRoutes.VpsOverviewPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
-| `/app/vps/:vpsId/config` | page/redirect | `<CoreRoutes.VpsConfigurationPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
-| `/app/vps/:vpsId/access` | page/redirect | `<CoreRoutes.VpsAccessPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
-| `/app/vps/:vpsId/network` | page/redirect | `<CoreRoutes.VpsNetworkPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
-| `/app/vps/:vpsId/storage` | page/redirect | `<CoreRoutes.VpsStoragePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
-| `/app/vps/:vpsId/features` | page/redirect | `<CoreRoutes.VpsFeaturesPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
-| `/app/vps/:vpsId/maintenance` | page/redirect | `<CoreRoutes.VpsMaintenancePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
-| `/app/vps/:vpsId/history` | page/redirect | `<CoreRoutes.VpsHistoryPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
-| `/app/vps/:vpsId/incidents` | page/redirect | `<CoreRoutes.VpsIncidentPoliciesPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
-| `/app/vps/:vpsId/lifecycle` | page/redirect | `<CoreRoutes.VpsLifecyclePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
-| `/app/vps/:vpsId/lifecycle/:lifecycleAction` | page/redirect | `<CoreRoutes.VpsLifecyclePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
-| `/app/vps/:vpsId/console` | page/redirect | `<CoreRoutes.VpsConsolePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
+| `/app/vps/:vpsId` | index | `<CoreRoutes.VpsOverviewPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/vpsDetailRoutes.tsx) |
+| `/app/vps/:vpsId/config` | page/redirect | `<CoreRoutes.VpsConfigurationPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/vpsDetailRoutes.tsx) |
+| `/app/vps/:vpsId/access` | page/redirect | `<CoreRoutes.VpsAccessPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/vpsDetailRoutes.tsx) |
+| `/app/vps/:vpsId/network` | page/redirect | `<CoreRoutes.VpsNetworkPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/vpsDetailRoutes.tsx) |
+| `/app/vps/:vpsId/storage` | page/redirect | `<CoreRoutes.VpsStoragePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/vpsDetailRoutes.tsx) |
+| `/app/vps/:vpsId/features` | page/redirect | `<CoreRoutes.VpsFeaturesPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/vpsDetailRoutes.tsx) |
+| `/app/vps/:vpsId/maintenance` | page/redirect | `<CoreRoutes.VpsMaintenancePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/vpsDetailRoutes.tsx) |
+| `/app/vps/:vpsId/history` | page/redirect | `<CoreRoutes.VpsHistoryPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/vpsDetailRoutes.tsx) |
+| `/app/vps/:vpsId/incidents` | page/redirect | `<CoreRoutes.VpsIncidentPoliciesPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/vpsDetailRoutes.tsx) |
+| `/app/vps/:vpsId/pressure` | page/redirect | `<CoreRoutes.VpsPressurePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/vpsDetailRoutes.tsx) |
+| `/app/vps/:vpsId/lifecycle` | page/redirect | `<CoreRoutes.VpsLifecyclePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/vpsDetailRoutes.tsx) |
+| `/app/vps/:vpsId/lifecycle/:lifecycleAction` | page/redirect | `<CoreRoutes.VpsLifecyclePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/vpsDetailRoutes.tsx) |
+| `/app/vps/:vpsId/console` | page/redirect | `<CoreRoutes.VpsConsolePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/vpsDetailRoutes.tsx) |
 | `/app/datasets` | page/redirect | `<Navigate to="/app/vps" replace />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" />` | [source](../../src/routes/router.tsx) |
 | `/app/nas` | page/redirect | `<NasDatasetsPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" />` | [source](../../src/routes/router.tsx) |
 | `/app/nas/new` | page/redirect | `<NasDatasetCreatePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" />` | [source](../../src/routes/router.tsx) |
@@ -86,6 +87,7 @@ wrappers; page-level action guards and API authorization still apply.
 | `/app/action_states` | page/redirect | `<Navigate to="../action-states" replace />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" />` | [source](../../src/routes/router.tsx) |
 | `/app/action_states/:actionStateId` | page/redirect | `<ParamKeyedRoute param="actionStateId"><CoreRoutes.ActionStateDetailPage /></ParamKeyedRoute>` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" />` | [source](../../src/routes/router.tsx) |
 | `/app/monitoring` | page/redirect | `<CoreRoutes.MonitoringEventsPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" />` | [source](../../src/routes/router.tsx) |
+| `/app/pressure` | page/redirect | `<CoreRoutes.PressureOverviewPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" />` | [source](../../src/routes/router.tsx) |
 | `/app/monitoring/:eventId` | page/redirect | `<ParamKeyedRoute param="eventId"><CoreRoutes.MonitoringEventDetailPage /></ParamKeyedRoute>` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" />` | [source](../../src/routes/router.tsx) |
 | `/app/incidents` | page/redirect | `<CoreRoutes.IncidentsPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" />` | [source](../../src/routes/router.tsx) |
 | `/app/incidents/new` | page/redirect | `<CoreRoutes.IncidentReportNewPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="user" />` | [source](../../src/routes/router.tsx) |
@@ -181,18 +183,19 @@ wrappers; page-level action guards and API authorization still apply.
 | `/admin/vps` | page/redirect | `<CoreRoutes.VpsListPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/router.tsx) |
 | `/admin/vps/new` | page/redirect | `<CoreRoutes.VpsCreatePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/router.tsx) |
 | `/admin/vps/:vpsId` | layout | `<CoreRoutes.VpsLayout />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/router.tsx) |
-| `/admin/vps/:vpsId` | index | `<CoreRoutes.VpsOverviewPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
-| `/admin/vps/:vpsId/config` | page/redirect | `<CoreRoutes.VpsConfigurationPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
-| `/admin/vps/:vpsId/access` | page/redirect | `<CoreRoutes.VpsAccessPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
-| `/admin/vps/:vpsId/network` | page/redirect | `<CoreRoutes.VpsNetworkPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
-| `/admin/vps/:vpsId/storage` | page/redirect | `<CoreRoutes.VpsStoragePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
-| `/admin/vps/:vpsId/features` | page/redirect | `<CoreRoutes.VpsFeaturesPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
-| `/admin/vps/:vpsId/maintenance` | page/redirect | `<CoreRoutes.VpsMaintenancePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
-| `/admin/vps/:vpsId/history` | page/redirect | `<CoreRoutes.VpsHistoryPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
-| `/admin/vps/:vpsId/incidents` | page/redirect | `<CoreRoutes.VpsIncidentPoliciesPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
-| `/admin/vps/:vpsId/lifecycle` | page/redirect | `<CoreRoutes.VpsLifecyclePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
-| `/admin/vps/:vpsId/lifecycle/:lifecycleAction` | page/redirect | `<CoreRoutes.VpsLifecyclePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
-| `/admin/vps/:vpsId/console` | page/redirect | `<CoreRoutes.VpsConsolePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/router.tsx) |
+| `/admin/vps/:vpsId` | index | `<CoreRoutes.VpsOverviewPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/vpsDetailRoutes.tsx) |
+| `/admin/vps/:vpsId/config` | page/redirect | `<CoreRoutes.VpsConfigurationPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/vpsDetailRoutes.tsx) |
+| `/admin/vps/:vpsId/access` | page/redirect | `<CoreRoutes.VpsAccessPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/vpsDetailRoutes.tsx) |
+| `/admin/vps/:vpsId/network` | page/redirect | `<CoreRoutes.VpsNetworkPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/vpsDetailRoutes.tsx) |
+| `/admin/vps/:vpsId/storage` | page/redirect | `<CoreRoutes.VpsStoragePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/vpsDetailRoutes.tsx) |
+| `/admin/vps/:vpsId/features` | page/redirect | `<CoreRoutes.VpsFeaturesPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/vpsDetailRoutes.tsx) |
+| `/admin/vps/:vpsId/maintenance` | page/redirect | `<CoreRoutes.VpsMaintenancePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/vpsDetailRoutes.tsx) |
+| `/admin/vps/:vpsId/history` | page/redirect | `<CoreRoutes.VpsHistoryPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/vpsDetailRoutes.tsx) |
+| `/admin/vps/:vpsId/incidents` | page/redirect | `<CoreRoutes.VpsIncidentPoliciesPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/vpsDetailRoutes.tsx) |
+| `/admin/vps/:vpsId/pressure` | page/redirect | `<CoreRoutes.VpsPressurePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/vpsDetailRoutes.tsx) |
+| `/admin/vps/:vpsId/lifecycle` | page/redirect | `<CoreRoutes.VpsLifecyclePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/vpsDetailRoutes.tsx) |
+| `/admin/vps/:vpsId/lifecycle/:lifecycleAction` | page/redirect | `<CoreRoutes.VpsLifecyclePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/vpsDetailRoutes.tsx) |
+| `/admin/vps/:vpsId/console` | page/redirect | `<CoreRoutes.VpsConsolePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" /> → <CoreRoutes.VpsLayout />` | [source](../../src/routes/vpsDetailRoutes.tsx) |
 | `/admin/datasets` | page/redirect | `<DatasetsListPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/router.tsx) |
 | `/admin/nas` | page/redirect | `<NasDatasetsPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/router.tsx) |
 | `/admin/nas/new` | page/redirect | `<NasDatasetCreatePage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/router.tsx) |
@@ -230,6 +233,7 @@ wrappers; page-level action guards and API authorization still apply.
 | `/admin/action_states` | page/redirect | `<Navigate to="../action-states" replace />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/router.tsx) |
 | `/admin/action_states/:actionStateId` | page/redirect | `<ParamKeyedRoute param="actionStateId"><CoreRoutes.ActionStateDetailPage /></ParamKeyedRoute>` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/router.tsx) |
 | `/admin/monitoring` | page/redirect | `<CoreRoutes.MonitoringEventsPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/router.tsx) |
+| `/admin/pressure` | page/redirect | `<CoreRoutes.PressureOverviewPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/router.tsx) |
 | `/admin/monitoring/:eventId` | page/redirect | `<ParamKeyedRoute param="eventId"><CoreRoutes.MonitoringEventDetailPage /></ParamKeyedRoute>` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/router.tsx) |
 | `/admin/incidents` | page/redirect | `<CoreRoutes.IncidentsPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/adminIncidentRoutes.tsx) |
 | `/admin/incidents/overview` | page/redirect | `<CoreRoutes.AdminIncidentOverviewPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/adminIncidentRoutes.tsx) |
@@ -281,7 +285,7 @@ wrappers; page-level action guards and API authorization still apply.
 | `/admin/_design` | page/redirect | `<DesignSandboxPage />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/router.tsx) |
 | `/admin/*` | page/redirect | `<NotFoundPage appBasePath="/admin" />` | `<RouteProvidersLayout /> → <CoreRoutes.AppShell mode="admin" />` | [source](../../src/routes/router.tsx) |
 
-## API adapter modules (79)
+## API adapter modules (83)
 
 Read these for request/response details. File presence does not prove that the deployed
 API implements every parameter; see [API contracts](API_CONTRACTS.md).
@@ -362,6 +366,10 @@ API implements every parameter; see [API contracts](API_CONTRACTS.md).
 - [vpsFeatures.ts](../../src/lib/api/vpsFeatures.ts)
 - [vpsMaintenance.ts](../../src/lib/api/vpsMaintenance.ts)
 - [vpsMounts.ts](../../src/lib/api/vpsMounts.ts)
+- [vpsPressure.ts](../../src/lib/api/vpsPressure.ts)
+- [vpsPressureCapabilities.ts](../../src/lib/api/vpsPressureCapabilities.ts)
+- [vpsPressureModels.ts](../../src/lib/api/vpsPressureModels.ts)
+- [vpsPressureOutput.ts](../../src/lib/api/vpsPressureOutput.ts)
 - [vpsStorageOutput.ts](../../src/lib/api/vpsStorageOutput.ts)
 - [vpsUserData.ts](../../src/lib/api/vpsUserData.ts)
 - [webuiUserSettings.ts](../../src/lib/api/webuiUserSettings.ts)

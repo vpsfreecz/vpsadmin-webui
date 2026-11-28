@@ -1,5 +1,8 @@
 import { lazyRoute } from './lazyRoute';
 
+export const PressureOverviewPage = lazyRoute(() => import('../pages/app/vps/PressureOverviewPage'), 'PressureOverviewPage');
+export const VpsPressurePage = lazyRoute(() => import('../pages/app/vps/VpsPressurePage'), 'VpsPressurePage');
+
 export const AppShell = lazyRoute(() => import('../components/layout/AppShell'), 'AppShell');
 export const OverviewPage = lazyRoute(() => import('../pages/public/OverviewPage'), 'OverviewPage');
 export const OutagesPage = lazyRoute(() => import('../pages/public/OutagesPage'), 'OutagesPage');

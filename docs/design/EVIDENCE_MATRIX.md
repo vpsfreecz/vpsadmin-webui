@@ -20,6 +20,7 @@ Not every test file in this matrix necessarily ran in that PR-selected browser r
 
 | Requirement | Verification entry | Acceptance focus | Evidence / implementation limitation |
 | --- | --- | --- | --- |
+| REQ-077 | [Generated wire requests](../../src/lib/api/vpsPressure.test.ts), [controller and URL scopes](../../src/pages/app/vps/PressurePages.test.tsx), [pressure rendering/filter/scope tests](../../src/pages/app/vps/PressureRows.test.tsx), [output/capability tests](../../src/lib/api/vpsPressureOutput.test.ts) | Exact duration, privileged My scope, supported filters, UTC gaps and receipt-preserving reads | Source, generated-wire and component coverage; committed review and browser proof pending. |
 | REQ-001 | [Roles and direct routes](../../e2e/specs/app/vps_support_permissions.spec.ts) | Role gates; owner/admin My scope | Source/test coverage identified; live permission matrix pending |
 | REQ-002 | [Tab identity](../../e2e/specs/app/document_title.spec.ts) | Public/app/admin titles in cs/en | Delivered per linked PR |
 | REQ-003 | [Legacy favicon asset](../../public/favicon.png) | Manual byte/build-asset comparison | Delivered per release receipt; no standalone favicon test |

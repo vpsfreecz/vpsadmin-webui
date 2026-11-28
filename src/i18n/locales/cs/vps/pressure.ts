@@ -1,0 +1,23 @@
+// Memory pressure and UTC daily history
+export const csVps_pressure = {
+  'pressure.title': 'Problémy VPS',
+  'pressure.memory': 'Paměťová zátěž',
+  'pressure.issue': 'Problém',
+  'pressure.duration': 'Zaznamenaná doba paměťové zátěže',
+  'pressure.recorded': 'Zaznamenaný čas',
+  'pressure.period': 'Období',
+  'pressure.threshold': 'Práh hlášení',
+  'pressure.noObservations': 'bez pozorování',
+  'pressure.unavailableValue': 'nedostupné',
+  'pressure.history': 'Historie',
+  'pressure.last7': 'Posledních 7 dní',
+  'pressure.last30': 'Posledních 30 dní',
+  'pressure.noRecordedData': 'bez záznamů',
+  'pressure.inProgress': 'Probíhá',
+  'pressure.empty': 'Těmto filtrům neodpovídají žádné záznamy.',
+  'pressure.unavailable': 'Údaje o paměťové zátěži nejsou dostupné.',
+  'pressure.loadError': 'Údaje o paměťové zátěži se nepodařilo načíst.',
+  'pressure.historyUnavailable': 'Historie není dostupná.',
+  'pressure.currentOwner': 'Historie současného vlastníka',
+  'pressure.progressValue': '{duration} / {threshold} · {period}',
+} as const;

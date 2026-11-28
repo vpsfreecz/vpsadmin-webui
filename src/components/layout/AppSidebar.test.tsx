@@ -91,6 +91,7 @@ describe('buildSidebarNavItems', () => {
       'networking',
       'transactions',
       'monitoring',
+      'memory-pressure',
       'incidents',
       'oom-reports',
       'audit',

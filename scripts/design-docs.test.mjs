@@ -18,6 +18,7 @@ function fixture(t, { checkout = false } = {}) {
   fs.writeFileSync(path.join(cwd, 'src/routes/adminIncidentRoutes.tsx'), 'export const adminIncidentRoutes = [];');
   fs.writeFileSync(path.join(cwd, 'src/routes/securityAdvisoryAdminRoutes.tsx'), 'export const securityAdvisoryAdminRoutes = [];');
   fs.writeFileSync(path.join(cwd, 'src/routes/statusReadingRoutes.tsx'), 'export const publicRoutes = []; export const statusReadingRoutes = [];');
+  fs.writeFileSync(path.join(cwd, 'src/routes/vpsDetailRoutes.tsx'), 'export const vpsDetailRoutes = [];');
   fs.writeFileSync(path.join(cwd, 'src/lib/api/vps.ts'), 'export {};');
   fs.writeFileSync(path.join(cwd, 'src/lib/api/vps.test.ts'), 'test fixture');
   for (const name of ['README.md','UI_REDESIGN.md','SPEC.md','docs/README.md','docs/CANONICAL_DOCS.md','WORK_LOG.md','bff/README.md']) fs.writeFileSync(path.join(cwd,name),'# Fixture\n');

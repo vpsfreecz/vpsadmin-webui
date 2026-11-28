@@ -1,3 +1,11 @@
+## 2026-11-28 — Refine VPS issues labels and account-timezone intervals
+
+[Issue types, concise rows, threshold colors and localized history endpoints](docs/work-log/2026-11-28-memory-pressure.md#vps-issues-presentation).
+
+## 2026-11-28 — Add memory pressure duration and daily history
+
+[Product semantics, compatibility and verification boundaries](docs/work-log/2026-11-28-memory-pressure.md).
+
 ## 2026-11-27 — Repair original first-attempt release failures
 
 [Native cursor restoration and blocking-dialog keyboard preconditions](docs/work-log/2026-11-27-main-first-attempt-repairs.md). Preserve the original failures and all assertions; requalify the changed exact head before the authorized main merge.

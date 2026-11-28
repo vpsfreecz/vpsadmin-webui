@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import ts from 'typescript';
 
-const routeFiles = ['src/routes/router.tsx', 'src/routes/adminFinanceRoutes.tsx', 'src/routes/adminIncidentRoutes.tsx', 'src/routes/securityAdvisoryAdminRoutes.tsx', 'src/routes/statusReadingRoutes.tsx'];
+const routeFiles = ['src/routes/router.tsx', 'src/routes/adminFinanceRoutes.tsx', 'src/routes/adminIncidentRoutes.tsx', 'src/routes/securityAdvisoryAdminRoutes.tsx', 'src/routes/statusReadingRoutes.tsx', 'src/routes/vpsDetailRoutes.tsx'];
 const arrays = new Map();
 let root;
 for (const file of routeFiles) {

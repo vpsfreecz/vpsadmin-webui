@@ -1,4 +1,5 @@
 import { fetchIncidentPolicyCapabilities } from '../../../lib/api/incidentPolicies';
+import { fetchVpsPressureCapabilities } from '../../../lib/api/vpsPressureCapabilities';
 import { PageHeading } from '../../../components/ui/PageHeading';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Camera, RotateCw, Square } from 'lucide-react';
@@ -113,6 +114,7 @@ export function VpsLayout() {
   });
 
   const incidentCapability = useQuery({ queryKey: ['incident_policy', 'capabilities', basePath], queryFn: fetchIncidentPolicyCapabilities });
+  const pressureCapability = useQuery({ queryKey: ['pressure', 'capabilities', auth.user?.id, auth.role, mode], queryFn: fetchVpsPressureCapabilities, staleTime: 60_000 });
 
   const ipsQ = useQuery({
     queryKey: ['ip_address', 'list', { vpsId, limit: 250 }],
@@ -685,7 +687,7 @@ export function VpsLayout() {
           tabs={
             <div className="space-y-3">
               <VpsHeaderRuntime vps={vps} />
-              <VpsTabsNav basePath={basePath} vpsId={vps.id} contextSearch={listContextSearch} incidentsAvailable={incidentCapability.data?.data.policies === true} />
+              <VpsTabsNav basePath={basePath} vpsId={vps.id} contextSearch={listContextSearch} incidentsAvailable={incidentCapability.data?.data.policies === true} pressureAvailable={pressureCapability.data?.data.detail === true || pressureCapability.data?.data.history === true} />
             </div>
           }
         />
