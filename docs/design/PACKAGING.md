@@ -34,17 +34,19 @@ hash to work around a fetch failure.
 
 ### Generated client input
 
-The root manifest and npm-generated lock select published
-`vpsadmin-typescript-client@0.7.0`. The registry archive contains the generated
-`dataset.disable_backups` operation and declarations. Its exact registry URL,
-SHA-512 integrity and source are recorded in the
-[client contract](HAVEAPI_CLIENT.md#generated-vpsadmin-typescript-sdk).
-Installation needs no sibling checkout, local archive or source override.
+The pressure consumer currently selects the regular development archive
+`packages/development-sdk/vpsadmin-typescript-client-0.7.0-development.tgz`.
+The npm-generated lock binds its integrity; the archive has SHA-256
+`553fa0071a2915aa5b141014cdd10022b366892d008af39d3e26751844fca228`.
+It retains package version `0.7.0` and the exact HaveAPI peer, and adds the
+generated pressure-history operation and evidence filters. It is a development
+input, not a published release. No sibling checkout is needed.
 
 The frontend uses `importNpmLock { npmRoot = source; }` and its matching config
 hook. Registry dependencies retain their individual locked integrity; no aggregate
 frontend `npmDepsHash` is required. The HaveAPI peer and BFF dependency graph and
-cache hash remain unchanged. Frontend and BFF derive from one source revision
+cache hash remain unchanged. The temporary SDK `packageSourceOverrides` entry
+points to the same archive. Frontend and BFF derive from one source revision
 and shared provenance. Actual builds and content checks establish package
 consumption; evaluation alone does not.
 
@@ -65,7 +67,7 @@ For an intentional dependency update:
 Rollback restores the matching source, manifest, lock and dependency-build inputs.
 The [optional local-client workflow](HAVEAPI_CLIENT.md#optional-local-generated-client-development)
 uses standard `npm pack` and a no-save npm archive override. It leaves committed
-packaging inputs unchanged; Nix continues to use the committed registry input.
+packaging inputs unchanged; Nix continues to use the committed input.
 For a development build that requires an unpublished SDK, retain its verified
 archive as a regular source file. Select it with pinned npm using
 `npm install --package-lock-only --ignore-scripts --save-exact ./packages/development-sdk/<archive>.tgz`.
@@ -77,6 +79,12 @@ A feature requiring new generated operations must still satisfy the
 [published-SDK prerequisite](HAVEAPI_CLIENT.md#generated-vpsadmin-typescript-sdk).
 API compatibility, authenticated capability checks, review and activation remain
 separate requirements.
+
+Before merge, select a published SDK containing the pressure declarations and
+remove the development archive selection and its source override. The earlier
+registry `0.7.0` input remains documented in the
+[client contract](HAVEAPI_CLIENT.md#generated-vpsadmin-typescript-sdk); it does not
+contain this pressure feature.
 
 ## Source, contents and provenance
 

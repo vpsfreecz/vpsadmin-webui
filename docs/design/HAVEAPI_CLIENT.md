@@ -59,7 +59,18 @@ does not itself verify registry signatures or perform network requests.
 
 ## Selected generated TypeScript SDK
 
-The exact root dependency is published `vpsadmin-typescript-client@0.7.0`,
+The pressure consumer uses the regular development archive documented in
+[packaging](PACKAGING.md#temporary-unpublished-sdk-input). Its manifest/lock and
+Nix source override select one immutable input for generated evidence filters,
+per-VPS current reads and `vps_pressure_history.index`. Generated optional and
+nullable fields are narrowed at the pressure domain boundary, including actual
+Custom arrays. The package version and HaveAPI peer are unchanged. This local
+input does not satisfy the published-SDK prerequisite for merging the pressure
+feature; replace it with a compatible registry artifact first.
+
+### Earlier registry 0.7.0 input
+
+The earlier root dependency was published `vpsadmin-typescript-client@0.7.0`,
 selected from SDK source
 [`0f1cde21a6e3b64a06389d21a5a5124093520724`](https://github.com/vpsfreecz/vpsadmin-typescript-client/tree/v0.7.0).
 It supplies `dataset.disable_backups` and its input/output declarations, as well
@@ -67,16 +78,16 @@ as the existing administrator Exposure and History operations. The
 [registry archive](https://registry.npmjs.org/vpsadmin-typescript-client/-/vpsadmin-typescript-client-0.7.0.tgz)
 has SHA-256
 `19fedf46dc72f902fedb055595d1b4de18af58d121bc9dd2ff6bc0234abdafdd`.
-The npm-generated [lock](../../package-lock.json) pins that URL and integrity:
+Its npm-generated lock pinned that URL and integrity:
 
 ```text
 sha512-dZ1ZfGkrnd0V7jZgLnkaMOIlTYTjz8p16IJjKieHIIUzWLQ3FYsq50i+U2q3PPxCunJNRnmjbhDj+kCPE6mVCw==
 ```
 
-The selected registry artifact satisfies this feature's published-SDK prerequisite.
-It uses the unchanged exact `haveapi-client@0.32.0` peer. The frontend consumes
-it through the standard Nix lock importer and matching config hook, without a
-local archive or package source override. See the
+That registry artifact satisfies the backup-removal feature's published-SDK prerequisite.
+It uses the unchanged exact `haveapi-client@0.32.0` peer. That input used the
+standard Nix lock importer and matching config hook, without a local archive
+or package source override. See the
 [packaging procedure](PACKAGING.md#temporary-unpublished-sdk-input).
 Earlier development-archive checks retain their original input identities;
 registry installation and package-consumption evidence are separate.
