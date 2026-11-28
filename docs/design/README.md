@@ -77,6 +77,7 @@ intent; decisions explain transitions; test results prove only their stated scop
 - [Failure diagnosis](TROUBLESHOOTING.md): symptoms, evidence boundaries and security-review map.
 
 - [HaveAPI package provenance](HAVEAPI_CLIENT.md): the normal client dependency, registry provenance and reproducibility.
+- [VPS issues](VPS_PRESSURE.md): memory-pressure duration, scoped filters and localized UTC-bucket history.
 
 ## Detailed review and handover
 

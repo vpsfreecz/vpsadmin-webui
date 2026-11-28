@@ -1,0 +1,29 @@
+/* Override every native meter range so browser defaults cannot imply healthy green. */
+.pressure-progress {
+  --pressure-meter-color: rgb(var(--c-accent));
+  appearance: none;
+  background: rgb(var(--c-surface-2));
+  border: 0;
+  border-radius: 9999px;
+}
+
+.pressure-progress[data-tone='danger'] {
+  --pressure-meter-color: rgb(var(--c-danger));
+}
+
+.pressure-progress::-webkit-meter-bar {
+  background: rgb(var(--c-surface-2));
+  border: 0;
+  border-radius: 9999px;
+}
+
+.pressure-progress::-webkit-meter-optimum-value,
+.pressure-progress::-webkit-meter-suboptimum-value,
+.pressure-progress::-webkit-meter-even-less-good-value {
+  background: var(--pressure-meter-color);
+}
+
+.pressure-progress::-moz-meter-bar {
+  background: var(--pressure-meter-color);
+  border-radius: 9999px;
+}

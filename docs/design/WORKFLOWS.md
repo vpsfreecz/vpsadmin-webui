@@ -2014,3 +2014,14 @@ Migration acceptance receipts distinguish immediate work from maintenance-window
 custom scheduled completion using the captured submitted payload. Acceptance is
 not completion; preparation can begin before the window. The user may leave and
 track Tasks, while duplicate-operation and uncertain-request locks remain intact.
+
+
+## Memory pressure
+
+The member and administrator VPS issues overview uses the normal filters and
+responsive table. Memory pressure is an issue type. A VPS tab separates its
+current rolling period from daily UTC history, whose interval endpoints use the
+account timezone. [REQ-077](REQUIREMENTS.md#memory-pressure) and the [pressure
+contract](VPS_PRESSURE.md) define owner scope, capability absence, null values,
+supported periods and server pagination. These are read-only views;
+incident-policy counts and actions keep their separate meaning.

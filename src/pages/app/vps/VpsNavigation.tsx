@@ -10,6 +10,7 @@ export function VpsTabsNav(props: {
   vpsId: number;
   contextSearch?: string;
   incidentsAvailable?: boolean;
+  pressureAvailable?: boolean;
 }) {
   const { t } = useI18n();
   const contextSearch = props.contextSearch ?? '';
@@ -28,6 +29,7 @@ export function VpsTabsNav(props: {
         end: true,
       },
       { label: t('vps.tabs.history'), to: `${props.basePath}/vps/${props.vpsId}/history${contextSearch}`, end: true },
+      ...(props.pressureAvailable ? [{ label: t('pressure.title'), to: `${props.basePath}/vps/${props.vpsId}/pressure${contextSearch}`, end: true }] : []),
       {
         label: t('vps.tabs.incidentReports'),
         to: reportPath,
@@ -44,7 +46,7 @@ export function VpsTabsNav(props: {
         : []),
       { label: t('vps.tabs.console'), to: `${props.basePath}/vps/${props.vpsId}/console${contextSearch}`, end: true },
     ],
-    [contextSearch, props.basePath, props.incidentsAvailable, props.vpsId, reportPath, t]
+    [contextSearch, props.basePath, props.incidentsAvailable, props.pressureAvailable, props.vpsId, reportPath, t]
   );
 
   return <TabsNav items={items} />;

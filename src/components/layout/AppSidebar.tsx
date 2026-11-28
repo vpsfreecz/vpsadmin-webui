@@ -121,6 +121,7 @@ export function buildSidebarNavItems(opts: {
       : []),
     { id: 'transactions', to: `${basePath}/transactions`, label: t('nav.transactions'), icon: <ListOrdered size={18} />, ...adminGroup('operations') },
     { id: 'monitoring', to: `${basePath}/monitoring`, label: t('nav.monitoring'), icon: <Activity size={18} />, ...adminGroup('operations') },
+    { id: 'memory-pressure', to: `${basePath}/pressure`, label: t('pressure.title'), icon: <MemoryStick size={18} />, ...adminGroup('operations') },
     { id: 'incidents', to: appMode === 'admin' && role === 'admin' ? `${basePath}/incidents/overview` : `${basePath}/incidents`, activePathPrefix: `${basePath}/incidents`, label: t('nav.incidents'), icon: <TriangleAlert size={18} />, ...adminGroup('operations') },
     { id: 'oom-reports', to: `${basePath}/oom-reports`, label: t('nav.oom_reports'), icon: <MemoryStick size={18} />, ...adminGroup('operations') },
   ];

@@ -1,0 +1,23 @@
+// Memory pressure and UTC daily history
+export const enVps_pressure = {
+  'pressure.title': 'VPS issues',
+  'pressure.memory': 'Memory pressure',
+  'pressure.issue': 'Issue',
+  'pressure.duration': 'Recorded time under pressure',
+  'pressure.recorded': 'Recorded time',
+  'pressure.period': 'Period',
+  'pressure.threshold': 'Reporting threshold',
+  'pressure.noObservations': 'No observations',
+  'pressure.unavailableValue': 'Unavailable',
+  'pressure.history': 'History',
+  'pressure.last7': 'Last 7 days',
+  'pressure.last30': 'Last 30 days',
+  'pressure.noRecordedData': 'No recorded data',
+  'pressure.inProgress': 'In progress',
+  'pressure.empty': 'No recorded time matches these filters.',
+  'pressure.unavailable': 'Memory pressure data is unavailable.',
+  'pressure.loadError': 'Unable to load memory pressure data.',
+  'pressure.historyUnavailable': 'History is unavailable.',
+  'pressure.currentOwner': 'History for the current owner',
+  'pressure.progressValue': '{duration} / {threshold} · {period}',
+} as const;
